@@ -1,0 +1,145 @@
+import { useUser } from "../../../contexts/UserContext";
+import { Book } from "../../../db/schema";
+import { getBooksByCreatorId } from "../../../services/books";
+import { getInputIcon } from "../../../utils";
+import Button from "../../app/Button";
+import Card from "../../app/Card";
+import Link from "../../app/Link";
+import SectionTitle from "../../app/SectionTitle";
+import BookTableRow from "./BookTableRow";
+import Search from "./Search";
+
+type BookTableProps = {
+  searchQuery?: string;
+  creatorId: string;
+};
+
+export const BookTable = async ({ searchQuery, creatorId }: BookTableProps) => {
+  const books = await getBooksByCreatorId(creatorId, searchQuery);
+
+  const validBooks = books?.filter((book) => book != null);
+
+  return (
+    <div class="flex flex-col gap-4">
+      <SectionTitle>My Books</SectionTitle>
+      <div class="flex items-center justify-between gap-4">
+        <Search />
+        <Link href="/dashboard/books/new">
+          <Button variant="solid" color="primary">
+            New Book
+          </Button>
+        </Link>
+      </div>
+      <div x-sync id="server_events"></div>
+      <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
+        <table class="w-full text-left text-sm text-on-surface">
+          <thead class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong">
+            <tr>
+              <th class="p-4">Cover</th>
+              <th class="p-4">Title</th>
+              <th class="p-4">Artist</th>
+              <th class="p-4">Release Date</th>
+              <th class="p-4">Publish</th>
+              <th class="p-4"></th>
+              <th class="p-4"></th>
+              <th class="p-4"></th>
+            </tr>
+          </thead>
+          <tbody
+            id="books-table"
+            {...{ "@book:approved.window": "$ajax('/dashboard/books')" }}
+            class="divide-y divide-outline"
+            x-init
+          >
+            {validBooks && validBooks.length > 0 ? (
+              validBooks?.map((book) => (
+                <BookTableRow book={book} creatorType="artist" />
+              ))
+            ) : (
+              <tr>
+                <td colspan={100} class="text-center p-4">
+                  <p class="text-sm text-on-surface-alt">
+                    No books found. Please add one.{" "}
+                  </p>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+const Search = () => (
+  <form x-target="books-table" action="/dashboard/books" autocomplete="off">
+    <label
+      class="bg-surface-alt w-64 rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary
+"
+    >
+      {getInputIcon("search")}
+      <input
+        type="search"
+        class="w-full bg-surface-alt px-2 py-2 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 "
+        name="search"
+        placeholder="Type to filter books..."
+        {...{
+          "x-on:input.debounce": "$el.form.requestSubmit()",
+          "x-on:search": "$el.form.requestSubmit()",
+        }}
+        x-on:search="$el.form.requestSubmit()"
+      />
+    </label>
+    <button x-show="false">Search</button>
+  </form>
+);
+
+const BookCardRow = ({ book }: { book: Book }) => {
+  if (!book || !book.id || !book.slug || !book.title) {
+    return <></>;
+  }
+
+  return (
+    <Card>
+      <Card.Body>
+        <div class="flex items-center gap-4">
+          <Link href={`/books/${book.slug}`} target="_blank">
+            <img
+              src={book.coverUrl ?? ""}
+              alt={book.title}
+              class="w-16 h-16 object-cover rounded"
+            />
+          </Link>
+          <div class="flex-1">
+            <Link href={`/books/${book.slug}`} target="_blank">
+              <Card.Title>{book.title}</Card.Title>
+            </Link>
+            {book.releaseDate && (
+              <p class="text-sm text-base-content/70">
+                {new Date(book.releaseDate).toLocaleDateString()}
+              </p>
+            )}
+            <div class="badge badge-outline mt-1">{book.publicationStatus}</div>
+          </div>
+        </div>
+        <div class="card-actions justify-end mt-4">
+          <Link href={`/dashboard/books/edit/${book.id}`}>
+            <Button variant="outline" color="primary">
+              <span>Edit</span>
+            </Button>
+          </Link>
+          <form
+            method="post"
+            action={`/dashboard/books/delete/${book.id}`}
+            x-target="books_table"
+            class="inline"
+          >
+            <Button variant="outline" color="danger">
+              <span>Delete</span>
+            </Button>
+          </form>
+        </div>
+      </Card.Body>
+    </Card>
+  );
+};

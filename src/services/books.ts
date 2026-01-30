@@ -1,0 +1,490 @@
+import { db } from "../db/client";
+import {
+  Book,
+  books,
+  Creator,
+  creators,
+  follows,
+  NewBook,
+  UpdateBook,
+  wishlists,
+} from "../db/schema";
+import { and, eq, exists, ilike, inArray, ne, not, or } from "drizzle-orm";
+import { generateUniqueBookSlug, slugify } from "../utils";
+import { bookFormSchema } from "../schemas";
+import z from "zod";
+import { AuthUser } from "../../types";
+
+export const getBooks = async () => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    return await db.query.books.findMany({
+      with: {
+        artist: true,
+      },
+      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      where: eq(books.publicationStatus, "published"),
+    });
+  } catch (error) {
+    console.error("Failed to get books", error);
+    return null;
+  }
+};
+
+export const getBooksByTag = async (tag: string) => {
+  try {
+    const query = await db.query.books.findMany({
+      where: (books, { sql }) => sql`${books.tags} @> ARRAY[${tag}]::text[]`,
+      with: {
+        artist: true,
+        publisher: true,
+      },
+      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+    });
+    return query;
+  } catch (error) {
+    console.error("Failed to get books by tag", error);
+    return null;
+  }
+};
+
+export const getBooksByCreatorId = async (
+  creatorId: string,
+  searchQuery?: string
+) => {
+  try {
+    const baseCondition = and(
+      or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)),
+      eq(books.approvalStatus, "approved")
+    );
+
+    const whereClause = searchQuery
+      ? and(baseCondition, ilike(books.title, `%${searchQuery}%`))
+      : baseCondition;
+
+    const booksByCreator = await db.query.books.findMany({
+      where: whereClause,
+      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      with: {
+        artist: true,
+        publisher: true,
+      },
+    });
+
+    return booksByCreator;
+  } catch (error) {
+    console.error("Failed to get creator by slug", error);
+  }
+};
+
+export const getBooksByCreatorIdForOtherPublishers = async (
+  user: AuthUser | null
+) => {
+  if (!user) {
+    return [];
+  }
+
+  try {
+    // Subquery to check if publisher status is stub (to exclude)
+    const stubPublisherSubquery = db
+      .select()
+      .from(creators)
+      .where(
+        and(eq(creators.id, books.publisherId), eq(creators.status, "stub"))
+      );
+
+    const booksByCreator = await db.query.books.findMany({
+      where: and(
+        eq(books.createdByUserId, user.id),
+        ne(books.publisherId, user.creator?.id ?? ""),
+        not(exists(stubPublisherSubquery))
+      ),
+      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      with: {
+        artist: true,
+        publisher: true,
+      },
+    });
+
+    return booksByCreator;
+  } catch (error) {
+    console.error("Failed to get creator by slug", error);
+  }
+};
+
+export const getBooksByCreatorIdForUnclaimedPublishers = async (
+  user: AuthUser | null
+) => {
+  if (!user) {
+    return [];
+  }
+
+  try {
+    // Subquery to check if publisher status is stub
+    const stubPublisherSubquery = db
+      .select()
+      .from(creators)
+      .where(
+        and(eq(creators.id, books.publisherId), eq(creators.status, "stub"))
+      );
+
+    const booksByCreator = await db.query.books.findMany({
+      where: and(
+        eq(books.createdByUserId, user.id),
+        exists(stubPublisherSubquery)
+      ),
+      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      with: {
+        artist: true,
+        publisher: true,
+      },
+    });
+
+    return booksByCreator;
+  } catch (error) {
+    console.error("Failed to get creator by slug", error);
+  }
+};
+
+export const getBooksForApproval = async (publisherId: string) => {
+  try {
+    const booksForApproval = await db.query.books.findMany({
+      where: and(
+        eq(books.publisherId, publisherId),
+        eq(books.approvalStatus, "pending")
+      ),
+      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      with: {
+        artist: true,
+        publisher: true,
+      },
+    });
+
+    return booksForApproval;
+  } catch (error) {
+    console.error("Failed to get creator by slug", error);
+  }
+};
+
+export const getBookBySlug = async (bookSlug: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      where: and(
+        eq(books.slug, bookSlug),
+        eq(books.publicationStatus, "published")
+      ),
+      with: {
+        publisher: true,
+        images: {
+          orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+        },
+        artist: true,
+      },
+    });
+
+    if (!book) return null;
+
+    // Handle images - could be relation (bookImages[]) or field (string[])
+    const galleryImages =
+      book.images && Array.isArray(book.images) && book.images.length > 0
+        ? typeof book.images[0] === "string"
+          ? [] // If it's the string array field, we'll use bookImages relation instead
+          : book.images.map((img: any) => ({ imageUrl: img.imageUrl }))
+        : [];
+
+    return {
+      book: { ...book, images: galleryImages },
+    };
+  } catch (error) {
+    console.error("Failed to get book by slug", error);
+    return null;
+  }
+};
+
+export const getBookById = async (bookId: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      with: {
+        publisher: true,
+        images: {
+          orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+        },
+      },
+    });
+    return book ?? null;
+  } catch (error) {
+    console.error("Failed to get book by id", error);
+    return null;
+  }
+};
+
+export const createBook = async (input: NewBook) => {
+  try {
+    const [newBook] = await db.insert(books).values(input).returning();
+    return newBook;
+  } catch (error) {
+    console.error("Failed to create book", error);
+    return null;
+  }
+};
+
+export const updateBook = async (
+  input: UpdateBook,
+  bookId: string,
+  userId: string
+) => {
+  try {
+    const [updatedBook] = await db
+      .update(books)
+      .set(input)
+      .where(and(eq(books.id, bookId), eq(books.createdByUserId, userId)))
+      .returning();
+
+    return updatedBook;
+  } catch (error) {
+    console.error("Failed to update book", error);
+    return null;
+  }
+};
+
+export const deleteBookById = async (bookId: string) => {
+  try {
+    const [deletedBook] = await db
+      .delete(books)
+      .where(eq(books.id, bookId))
+      .returning();
+    return deletedBook;
+  } catch (error) {
+    console.error("Failed to delete book", error);
+    return null;
+  }
+};
+export const processTags = (tagsString?: string): string[] => {
+  if (!tagsString) return [];
+  return tagsString
+    .split(",")
+    .map((t: string) => t.trim().toLowerCase())
+    .filter((t: string) => t.length > 0);
+};
+
+export const prepareBookData = async (
+  formData: z.infer<typeof bookFormSchema>,
+  bookCreator: Creator,
+  userId: string,
+  bookPublisher?: Creator | null
+): Promise<NewBook> => {
+  const existingPublisherSelected = formData.publisher_id ? true : false;
+
+  return {
+    title: formData.title,
+    intro: formData.intro,
+    description: formData.description || null,
+    releaseDate: formData.release_date ? new Date(formData.release_date) : null,
+    slug: await generateUniqueBookSlug(
+      formData.title,
+      bookCreator?.displayName
+    ),
+    artistId: bookCreator?.id ?? null,
+    publisherId: bookPublisher?.id ?? null,
+    createdByUserId: userId,
+    tags: processTags(formData.tags),
+    approvalStatus: existingPublisherSelected ? "pending" : "approved",
+    publicationStatus: "draft",
+    availabilityStatus: formData.availability_status,
+  };
+};
+
+export const prepareBookUpdateData = (
+  formData: z.infer<typeof bookFormSchema>,
+  tags: string[]
+): UpdateBook => {
+  return {
+    title: formData.title,
+    intro: formData.intro,
+    description: formData.description || null,
+    releaseDate: formData.release_date ? new Date(formData.release_date) : null,
+    slug: slugify(formData.title),
+    tags: tags,
+    availabilityStatus: formData.availability_status,
+    specs: formData.specs,
+  };
+};
+
+export const searchBooks = async (searchQuery: string) => {
+  try {
+    const searchPattern = `%${searchQuery}%`;
+
+    // Find creator IDs matching the search
+    const matchingCreatorIds = db
+      .select({ id: creators.id })
+      .from(creators)
+      .where(ilike(creators.displayName, searchPattern));
+
+    return await db.query.books.findMany({
+      with: {
+        artist: true,
+        publisher: true,
+      },
+      where: or(
+        ilike(books.title, searchPattern),
+        inArray(books.artistId, matchingCreatorIds)
+      ),
+      orderBy: (books, { asc }) => [asc(books.title)],
+      limit: 10,
+    });
+  } catch (error) {
+    console.error("Failed to search books", error);
+    return [];
+  }
+};
+
+export const getFeedBooks = async (userId: string) => {
+  try {
+    const userFollows = await db.query.follows.findMany({
+      where: and(
+        eq(follows.followerUserId, userId),
+        eq(follows.targetType, "creator")
+      ),
+    });
+
+    const followedCreatorIds = userFollows
+      .map((follow) => follow.targetCreatorId)
+      .filter((id): id is string => id !== null);
+
+    // Find books where artistCreatorId or publisherId is in the followed creators list
+    const feedBooks = await db.query.books.findMany({
+      where: or(
+        inArray(books.artistId, followedCreatorIds),
+        inArray(books.publisherId, followedCreatorIds)
+      ),
+      with: {
+        artist: true,
+        publisher: true,
+      },
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
+    });
+    return feedBooks;
+  } catch (error) {
+    console.error("Failed to get feed books", error);
+    return null;
+  }
+};
+
+export const getBooksInWishlist = async (userId: string) => {
+  try {
+    const wishlistItems = await db.query.wishlists.findMany({
+      where: eq(wishlists.userId, userId),
+    });
+
+    return await db.query.books.findMany({
+      where: inArray(
+        books.id,
+        wishlistItems.map((wishlist) => wishlist.bookId)
+      ),
+      with: {
+        artist: true,
+        publisher: true,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to get books in wishlist", error);
+    return null;
+  }
+};
+
+export const getBooksInCollection = async (userId: string) => {
+  try {
+    const collectionItems = await db.query.collectionItems.findMany({
+      where: eq(wishlists.userId, userId),
+    });
+
+    return await db.query.books.findMany({
+      where: inArray(
+        books.id,
+        collectionItems.map((collection) => collection.bookId)
+      ),
+      with: {
+        artist: true,
+        publisher: true,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to get books in wishlist", error);
+    return null;
+  }
+};
+
+export const updateBookPublicationStatus = async (
+  bookId: string,
+  publicationStatus: "published" | "draft"
+): Promise<
+  { success: true; book: Book } | { success: false; error: string }
+> => {
+  try {
+    const [updatedBook] = await db
+      .update(books)
+      .set({ publicationStatus })
+      .where(eq(books.id, bookId))
+      .returning();
+    return { success: true, book: updatedBook };
+  } catch (error: unknown) {
+    console.error("Failed to update book publication status", error);
+
+    // Check for cover constraint violation
+    if (
+      (error as any).cause?.constraint_name === "cover_required_for_publish"
+    ) {
+      return { success: false, error: "Add a cover image before publishing" };
+    }
+
+    return { success: false, error: "Failed to update book mode" };
+  }
+};
+
+export const updateBookCoverImage = async (
+  bookId: string,
+  coverUrl: string
+) => {
+  try {
+    const [updatedBook] = await db
+      .update(books)
+      .set({ coverUrl })
+      .where(eq(books.id, bookId))
+      .returning();
+    return updatedBook;
+  } catch (error) {
+    console.error("Failed to update book cover image", error);
+    return null;
+  }
+};
+
+export const approveBookById = async (bookId: string) => {
+  try {
+    const [updatedBook] = await db
+      .update(books)
+      .set({ approvalStatus: "approved" })
+      .where(eq(books.id, bookId))
+      .returning();
+    return updatedBook;
+  } catch (error) {
+    console.error("Failed to approve book", error);
+    return null;
+  }
+};
+
+export const rejectBookById = async (bookId: string) => {
+  try {
+    const [updatedBook] = await db
+      .update(books)
+      .set({ approvalStatus: "rejected" })
+      .where(eq(books.id, bookId))
+      .returning();
+    return updatedBook;
+  } catch (error) {
+    console.error("Failed to reject book", error);
+    return null;
+  }
+};
