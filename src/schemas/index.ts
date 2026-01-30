@@ -100,10 +100,6 @@ export const claimFormSchema = z.object({
 // This validates form input, NOT database values
 export const bookFormSchema = z.object({
   title: z.string().min(3, "Title is required"),
-  intro: z
-    .string()
-    .min(10, "Introduction is required")
-    .max(200, "Introduction must be less than 200 characters"),
   artist_id: optionalText,
   new_artist_name: optionalText,
   publisher_id: optionalText,

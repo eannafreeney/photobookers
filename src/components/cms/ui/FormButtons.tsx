@@ -1,17 +1,17 @@
 import { fadeTransition } from "../../../lib/transitions";
 import Button from "../../app/Button";
 
-type FormButtonProps = {
+type Props = {
   buttonText?: string;
   loadingText?: string;
   showCancelButton?: boolean;
 };
 
-const FormButton = ({
+const FormButtons = ({
   buttonText = "Save",
   loadingText = "Saving...",
   showCancelButton = false,
-}: FormButtonProps) => {
+}: Props) => {
   return (
     <div class="flex items-center gap-4 mt-8">
       {showCancelButton && (
@@ -26,17 +26,13 @@ const FormButton = ({
       <Button
         variant="solid"
         color="primary"
-        type="submit"
         x-bind:disabled="isSubmitting || !isFormValid"
       >
         <div class="flex items-center justify-center gap-2">
-          <span x-show="!isSubmitting" {...fadeTransition}>
-            {buttonText}
-          </span>
+          <span x-show="!isSubmitting">{buttonText}</span>
           <span
             x-show="isSubmitting"
             class="flex items-center justify-center gap-2"
-            {...fadeTransition}
           >
             {loadingText} {loadingIcon()}
           </span>
@@ -62,4 +58,4 @@ const loadingIcon = () => {
     </svg>
   );
 };
-export default FormButton;
+export default FormButtons;

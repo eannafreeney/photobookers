@@ -1,6 +1,5 @@
-import Form from "../../app/Form";
 import Checkbox from "../ui/Checkbox";
-import FormButton from "../ui/FormButton";
+import FormButton from "../ui/FormButtons";
 import Input from "../ui/Input";
 
 type RegisterFormProps = {
@@ -8,9 +7,16 @@ type RegisterFormProps = {
 };
 
 const RegisterForm = ({ type }: RegisterFormProps) => {
+  const alpineAttrs = {
+    "x-data": "registerForm()",
+    "x-on:submit": "submitForm($event)",
+    "x-target.away": "_top",
+    "x-target": "toast",
+  };
+
   return (
     <>
-      <Form x-data="registerForm()" action="/auth/register">
+      <form action="/auth/register" method="POST" {...alpineAttrs}>
         <Input
           label="First Name"
           name="form.firstName"
@@ -64,7 +70,7 @@ const RegisterForm = ({ type }: RegisterFormProps) => {
           x-init={`form.type = '${type}'`}
         />
         <FormButton buttonText="Create Account" loadingText="Submitting..." />
-      </Form>
+      </form>
       <div class="divider">OR</div>
       <p class="text-center text-sm">
         Already have an account?{" "}

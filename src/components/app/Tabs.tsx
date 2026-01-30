@@ -7,6 +7,7 @@ const Tabs = ({
   const selectedTabClass = "font-bold text-primary border-b-2 border-primary";
   const unselectedTabClass =
     "text-on-surface font-medium  hover:border-b-2 hover:border-b-outline-strong hover:text-on-surface-strong";
+
   return (
     <div class="flex flex-col gap-4">
       <div
@@ -46,7 +47,6 @@ const Tabs = ({
           Profile
         </a>
       </div>
-
       <div
         id="tab-content"
         x-init={`$ajax('/${initialTab ?? "new-books"}')`}

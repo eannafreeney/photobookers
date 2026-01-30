@@ -2,14 +2,14 @@ import z from "zod";
 import FormError from "../components/app/FormError";
 import { validator } from "hono/validator";
 import Alert from "../components/app/Alert";
+import { showErrorAlert } from "../routes/booksDashboardRoutes";
 
 export const formValidator = <T extends z.ZodSchema>(schema: T) => {
   return validator("form", (formData, c) => {
-    console.log("FORM DATA IN VALIDATOR", formData);
     const result = schema.safeParse(formData);
     if (!result.success) {
       console.log("result.error", result.error);
-      return c.html(<Alert type="danger" message="Schema validation failed" />);
+      return showErrorAlert(c, "Schema validation failed");
     }
     return result.data as z.infer<T>;
   });
@@ -19,7 +19,7 @@ export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
   return validator("param", (params, c) => {
     const result = schema.safeParse(params);
     if (!result.success) {
-      return c.html(<FormError>Invalid parameters</FormError>, 400);
+      return showErrorAlert(c, "Invalid parameters");
     }
     return result.data as z.infer<T>;
   });

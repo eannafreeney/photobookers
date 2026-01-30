@@ -28,18 +28,23 @@ const EditCreatorPage = ({ user, creator }: Props) => {
         <Breadcrumbs
           items={[
             {
+              label: `Dashboard`,
+              href: "/dashboard/books",
+            },
+            {
               label: `Edit ${creator.displayName}`,
             },
           ]}
         />
-        <div class="flex items-start justify-between gap-4">
-          <div class="w-1/3">
+        <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <div class="md:w-1/3">
             <CreatorImageForm
               initialUrl={creator?.coverUrl ?? null}
               creatorId={creator?.id}
             />
           </div>
-          <div class="w-2/3">
+          <hr class="my-4 md:hidden" />
+          <div class="md:w-2/3">
             <CreatorForm
               formValues={formValues}
               creatorId={creator?.id}

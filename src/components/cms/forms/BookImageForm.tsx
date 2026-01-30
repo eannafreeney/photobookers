@@ -10,7 +10,7 @@ type Props = {
 
 const BookImageForm = ({ initialUrl, bookId }: Props) => {
   const attrs = {
-    "x-target": "notification-message",
+    "x-target": "toast",
     "x-on:ajax:before": "onBefore()",
     "x-on:ajax:success": "onSuccess($event)",
     "x-on:ajax:error": "onError($event)",

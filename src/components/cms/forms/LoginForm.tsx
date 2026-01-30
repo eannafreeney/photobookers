@@ -1,14 +1,22 @@
-import Form from "../../app/Form";
 import Link from "../../app/Link";
-import FormButton from "../ui/FormButton";
+import FormButton from "../ui/FormButtons";
 import Input from "../ui/Input";
 
 const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
+  const alpineAttrs = {
+    "x-data": "loginForm()",
+    "x-on:submit": "submitForm($event)",
+    "x-target.away": "_top",
+    "x-target": "toast",
+    "x-on:ajax:error": "isSubmitting = false",
+  };
+
   return (
     <>
-      <Form
-        x-data="loginForm()"
+      <form
         action={`/auth/login?redirectUrl=${redirectUrl}`}
+        method="POST"
+        {...alpineAttrs}
       >
         <Input
           label="Email"
@@ -26,8 +34,8 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
           placeholder="••••••••"
           required
         />
-        <FormButton buttonText="Log In" loadingText="Submitting..." />
-      </Form>
+        <FormButton buttonText="Log In" loadingText="Logging in..." />
+      </form>
 
       <div class="divider">OR</div>
 

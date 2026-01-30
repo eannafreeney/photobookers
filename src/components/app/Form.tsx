@@ -13,9 +13,9 @@ const Form = ({
   enctype = "multipart/form-data",
   children,
 }: FormProps) => {
-  const xTargetAttrs = {
+  const alpineAttrs = {
     "x-target.away": "_top",
-    "x-target": "notification-message",
+    "x-target": "toast",
   };
 
   return (
@@ -25,7 +25,7 @@ const Form = ({
       method={method}
       enctype={enctype}
       x-on:submit="submitForm($event)"
-      {...xTargetAttrs}
+      {...alpineAttrs}
     >
       {children}
     </form>

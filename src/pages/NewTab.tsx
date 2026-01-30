@@ -2,14 +2,11 @@ import { AuthUser } from "../../types";
 import Avatar from "../components/app/Avatar";
 import Badge from "../components/app/Badge";
 import Button from "../components/app/Button";
-import ButtonCircle, { shareIcon } from "../components/app/ButtonCircle";
 import Card from "../components/app/Card";
 import CollectionButton from "../components/app/CollectionButton";
-import FollowButton from "../components/app/FollowButton";
 import GridPanel from "../components/app/GridPanel";
 import Link from "../components/app/Link";
 import SectionTitle from "../components/app/SectionTitle";
-import ShareButton from "../components/app/ShareButton";
 import WishlistButton from "../components/app/WishlistButton";
 import { Book, Creator } from "../db/schema";
 import { getBooks } from "../services/books";
@@ -42,6 +39,10 @@ type NewBookCardProps = {
 };
 
 const NewBookCard = ({ book, artist, user }: NewBookCardProps) => {
+  const userIsCreatorOwner =
+    user?.creator?.id === book.artistId ||
+    user?.creator?.id === book.publisherId;
+
   return (
     <Card>
       <div class="p-2">
@@ -72,19 +73,25 @@ const NewBookCard = ({ book, artist, user }: NewBookCardProps) => {
                 : ""}
             </Card.Text>
           </div>
-          <div class="shrink-0 flex items-center gap-2">
-            <WishlistButton isCircleButton bookId={book.id} user={user} />
-            <CollectionButton isCircleButton bookId={book.id} user={user} />
-          </div>
         </div>
-        <div class="mt-auto">
+        <div class="mt-auto flex items-center gap-2">
           <Link href={`/books/${book.slug}`}>
             <Button variant="solid" color="primary">
               <span>More</span>
             </Button>
           </Link>
-          {/* <WishlistButton isCircleButton bookId={book.id} user={user} />
-          <CollectionButton isCircleButton bookId={book.id} user={user} /> */}
+          <WishlistButton
+            isCircleButton
+            bookId={book.id}
+            user={user}
+            isDisabled={userIsCreatorOwner}
+          />
+          <CollectionButton
+            isCircleButton
+            bookId={book.id}
+            user={user}
+            isDisabled={userIsCreatorOwner}
+          />
         </div>
       </Card.Body>
     </Card>

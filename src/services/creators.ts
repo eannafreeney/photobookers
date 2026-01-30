@@ -162,27 +162,31 @@ export const getOrCreateArtist = async (
   return null;
 };
 
-export const getOrCreatePublisher = async (
-  formData: z.infer<typeof bookFormSchema>,
-  user: AuthUser
-): Promise<Creator | null> => {
-  // If an existing publisher was selected, use it
-  if (formData.publisher_id) {
-    const publisher = await getCreatorById(formData.publisher_id);
-    if (!publisher || publisher.type !== "publisher") {
-      return null;
-    }
-    return publisher;
+export const resolvePublisher = async (
+  formData: { publisher_id?: string; new_publisher_name?: string },
+  userId: string
+): Promise<Creator | null | "error"> => {
+  const { publisher_id, new_publisher_name } = formData;
+
+  // No publisher specified
+  if (!publisher_id && !new_publisher_name) {
+    return null;
   }
 
-  // If a new publisher name was provided, create a stub profile
-  if (formData.new_publisher_name) {
-    const newPublisher = await createStubCreatorProfile(
-      formData.new_publisher_name,
-      user.id,
+  // Using existing publisher
+  if (publisher_id) {
+    const publisher = await getCreatorById(publisher_id);
+    return publisher?.type === "publisher" ? publisher : "error";
+  }
+
+  // Create new stub publisher
+  if (new_publisher_name) {
+    const publisher = await createStubCreatorProfile(
+      new_publisher_name,
+      userId,
       "publisher"
     );
-    return newPublisher;
+    return publisher?.type === "publisher" ? publisher : "error";
   }
 
   return null;

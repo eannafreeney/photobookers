@@ -39,17 +39,15 @@ export function registerLoginForm() {
       },
 
       submitForm(event: Event) {
+        this.isSubmitting = true;
         const result = loginFormSchema.safeParse(this.form);
 
         if (!result.success) {
           event.preventDefault();
-          this.isSubmitting = false;
 
           this.errors.form = result.error.flatten().fieldErrors;
           return;
         }
-
-        this.isSubmitting = false;
       },
     };
   });

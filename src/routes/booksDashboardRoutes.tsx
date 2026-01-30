@@ -15,7 +15,7 @@ import { getFlash, getUser, setFlash } from "../utils";
 import BooksOverview from "../pages/dashboard/BooksOverview";
 import AddBookPage from "../pages/dashboard/AddBookPage";
 import BookEditPage from "../pages/dashboard/BookEditPage";
-import { Hono } from "hono";
+import { Context, Hono } from "hono";
 import PublishToggleForm from "../components/cms/forms/PublishToggleForm";
 import PreviewButton from "../components/api/PreviewButton";
 import { bookFormSchema, bookIdSchema } from "../schemas";
@@ -29,7 +29,7 @@ import {
   paramValidator,
   validateImageFile,
 } from "../lib/validator";
-import { getOrCreateArtist, getOrCreatePublisher } from "../services/creators";
+import { getOrCreateArtist, resolvePublisher } from "../services/creators";
 import Alert from "../components/app/Alert";
 import { bookImages, Creator } from "../db/schema";
 import { and, eq, inArray } from "drizzle-orm";
@@ -38,6 +38,11 @@ import { BookTable } from "../components/cms/ui/BookTable";
 import BooksForApprovalTable from "../components/cms/ui/BooksForApprovalTable";
 
 export const booksDashboardRoutes = new Hono();
+
+export const showErrorAlert = (
+  c: Context,
+  errorMessage: string = "Action Failed! Please try again."
+) => c.html(<Alert type="danger" message={errorMessage} />, 422);
 
 // OVERVIEW PAGE
 booksDashboardRoutes.get("/", async (c) => {
@@ -115,21 +120,13 @@ booksDashboardRoutes.post(
     const formData = c.req.valid("form");
 
     if (!user.creator) {
-      return c.html(
-        <Alert type="danger" message="No Creator Profile Found" />,
-        422
-      );
+      return showErrorAlert(c, "No Creator Profile Found");
     }
 
-    let publisher: Creator | null = null;
-    if (formData.publisher_id || formData.new_publisher_name) {
-      publisher = await getOrCreatePublisher(formData, user);
-      if (!publisher) {
-        return c.html(
-          <Alert type="danger" message="No Publisher Profile Found" />,
-          422
-        );
-      }
+    const publisher = await resolvePublisher(formData, user.id);
+
+    if (publisher === "error") {
+      return showErrorAlert(c, "Invalid publisher");
     }
 
     const bookData = await prepareBookData(
@@ -138,16 +135,14 @@ booksDashboardRoutes.post(
       user.id,
       publisher
     );
+
     const newBook = await createBook(bookData);
 
     if (!newBook) {
-      return c.html(
-        <Alert type="danger" message="Failed to create book" />,
-        422
-      );
+      return showErrorAlert(c, "Failed to create book");
     }
 
-    await setFlash(c, "success", `${newBook.title} created!`);
+    await setFlash(c, "success", `Successfully created "${newBook.title}"!`);
     return c.redirect("/dashboard/books");
   }
 );
@@ -165,7 +160,7 @@ booksDashboardRoutes.get(
   }
 );
 
-// EDIT BOOK
+// EDIT BOOK AS PUBLISHER
 booksDashboardRoutes.post(
   "/edit/:bookId/publisher",
   paramValidator(bookIdSchema),
@@ -175,9 +170,7 @@ booksDashboardRoutes.post(
     const bookId = c.req.valid("param").bookId;
     const formData = c.req.valid("form");
 
-    const tags = processTags(formData.tags);
-
-    const bookData = prepareBookUpdateData(formData, tags);
+    const bookData = prepareBookUpdateData(formData);
     const updatedBook = await updateBook(bookData, bookId, user.id);
 
     if (!updatedBook) {
@@ -185,6 +178,29 @@ booksDashboardRoutes.post(
         <Alert type="danger" message="Failed to update book" />,
         422
       );
+    }
+
+    return c.html(
+      <Alert type="success" message={`${updatedBook.title} updated!`} />
+    );
+  }
+);
+
+// EDIT BOOK AS ARTIST
+booksDashboardRoutes.post(
+  "/edit/:bookId/artist",
+  paramValidator(bookIdSchema),
+  formValidator(bookFormSchema),
+  async (c) => {
+    const user = await getUser(c);
+    const bookId = c.req.valid("param").bookId;
+    const formData = c.req.valid("form");
+
+    const bookData = prepareBookUpdateData(formData);
+    const updatedBook = await updateBook(bookData, bookId, user.id);
+
+    if (!updatedBook) {
+      return showErrorAlert(c, "Failed to update book");
     }
 
     return c.html(
@@ -220,7 +236,11 @@ booksDashboardRoutes.post(
     return c.html(
       <>
         <Alert type="success" message={`${deletedBook.title} deleted!`} />
-        <BookTable searchQuery={undefined} creatorId={user.creator.id} />
+        <BookTable
+          searchQuery={undefined}
+          creatorType={user.creator.type}
+          creatorId={user.creator.id}
+        />
       </>
     );
   }
@@ -237,24 +257,15 @@ booksDashboardRoutes.post("/:bookId/publish", async (c) => {
 
   if (!book?.coverUrl) {
     return c.html(
-      <>
-        <Alert type="danger" message="Add a cover image before publishing" />
-        <PublishToggleForm book={book} />
-      </>,
-      400
+      <Alert type="danger" message="Add a cover image before publishing" />,
+      401
     );
   }
 
   const result = await updateBookPublicationStatus(bookId, "published");
 
   if (!result.success) {
-    return c.html(
-      <>
-        <Alert type="danger" message={result.error} />
-        <PublishToggleForm book={book} />
-      </>,
-      400
-    );
+    return c.html(<Alert type="danger" message={result.error} />, 400);
   }
 
   const updatedBook = result.book;

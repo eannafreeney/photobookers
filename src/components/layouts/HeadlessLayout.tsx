@@ -10,7 +10,7 @@ const HeadlessLayout = ({ title, children }: LayoutProps) => (
   <html lang="en">
     <Head title={title} />
     <body class="bg-surface">
-      <div id="notification-message"></div>
+      <div id="toast"></div>
       <Navbar />
       <main class="container mx-auto min-h-screen px-4">{children}</main>
     </body>

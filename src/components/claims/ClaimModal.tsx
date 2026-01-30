@@ -10,7 +10,7 @@ type Props = {
 const ClaimModal = ({ creatorId, user }: Props) => {
   const attrs = {
     "x-data": "claimForm()",
-    "x-target": "notification-message",
+    "x-target": "toast",
     "x-on:ajax:after": "$dispatch('dialog:close')",
   };
 

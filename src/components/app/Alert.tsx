@@ -13,7 +13,7 @@ const Alert = ({ type, message }: AlertProps) => {
   return (
     <div
       x-sync
-      id="notification-message"
+      id="toast"
       x-data="{ show: false }"
       x-init="$nextTick(() => show = true); setTimeout(() => show = false, 4000)"
       x-show="show"

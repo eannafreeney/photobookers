@@ -1,7 +1,7 @@
 import Alpine from "alpinejs";
 
 export function registerComboBox() {
-  Alpine.data("comboBox", (options = []) => {
+  Alpine.data("comboBox", (options = [], type: "artist" | "publisher") => {
     return {
       allOptions: options,
       options: [],
@@ -71,6 +71,12 @@ export function registerComboBox() {
         // Set values - x-model will handle reactivity
         this.$refs.hiddenTextField.value = selectedId;
         this.$refs.newOptionNameField.value = newName;
+
+        if (type === "artist") {
+          this.is_new_artist = true;
+        } else if (type === "publisher") {
+          this.is_new_publisher = true;
+        }
 
         // Trigger input event so x-model picks up the change
         this.$nextTick(() => {

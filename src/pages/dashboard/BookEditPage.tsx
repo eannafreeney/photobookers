@@ -25,10 +25,10 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
     title: book.title,
     artist_id: book.artistId,
     publisher_id: book.publisherId,
-    intro: book.intro,
     description: book.description,
     specs: book.specs,
     tags: book.tags?.join(", "),
+    availability_status: book.availabilityStatus,
     release_date: book?.releaseDate
       ? new Date(book.releaseDate).toISOString().split("T")[0]
       : "",
@@ -37,6 +37,8 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
   const dateIsInPast = book?.releaseDate
     ? new Date(book.releaseDate) < new Date()
     : false;
+
+  console.log("dateIsInPast", dateIsInPast);
 
   const isPublisher = user.creator?.type === "publisher";
 
@@ -51,11 +53,22 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
           items={[
             { label: "Books Overview", href: "/dashboard/books" },
             {
-              label: `Edit ${book.title}`,
+              label: `Edit "${book.title}"`,
             },
           ]}
         />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0">
+        <BookForm
+          action={action}
+          bookId={book.id}
+          dateIsInPast={dateIsInPast}
+          formValues={formValues}
+          isPublisher={isPublisher}
+        />
+        <hr class="my-4" />
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"
+          id="book-images"
+        >
           <BookImageForm initialUrl={book.coverUrl ?? null} bookId={book.id} />
           <hr class="my-4 md:hidden" />
           <BookGalleryForm
@@ -68,14 +81,6 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
             bookId={book.id}
           />
         </div>
-        <hr class="my-4" />
-        <BookForm
-          action={action}
-          bookId={book.id}
-          dateIsInPast={dateIsInPast}
-          formValues={formValues}
-          isPublisher={isPublisher}
-        />
       </Page>
     </AppLayout>
   );

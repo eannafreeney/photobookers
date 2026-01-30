@@ -135,6 +135,8 @@ creatorDashboardRoutes.post(
       return c.html(<Alert type="danger" message={validatedFile.error} />, 422);
     }
 
+    console.log(validatedFile, "validatedFile.file in upload cover image");
+
     let coverUrl: string | null = null;
     try {
       const result = await uploadImage(
@@ -143,6 +145,7 @@ creatorDashboardRoutes.post(
       );
       coverUrl = result.url;
     } catch (error) {
+      console.log(error, "error in upload cover image");
       return c.html(<Alert type="danger" message="Failed to upload image" />);
     }
 

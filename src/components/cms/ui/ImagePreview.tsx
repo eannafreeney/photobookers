@@ -1,7 +1,7 @@
 const ImagePreview = () => (
   <>
     <template x-if="previewUrl">
-      <div class="relative w-40">
+      <div class="relative w-full md:w-80">
         <img
           x-bind:src="previewUrl"
           class="w-full rounded border"

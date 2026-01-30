@@ -55,31 +55,8 @@
   }
 }
 
-/* a {
-  transition: opacity 0.15s ease;
-}
-
-a:active {
-  opacity: 0.6;
-} */
-
-/* body {
-  opacity: 0;
-  animation: appear 0.15s ease-out;
-}
-
-@keyframes appear {
-  from {
-    opacity: 0;
-  }
-} */
-
-.book-description p {
-  margin-bottom: 1.25rem;
-}
-
-.book-description p:last-child {
-  margin-bottom: 0;
+input[type="search"]::-webkit-search-cancel-button {
+  cursor: pointer;
 }
 
 .drawer .drawer-side {
@@ -89,30 +66,3 @@ a:active {
 .drawer .drawer-toggle:checked ~ .drawer-content ~ .drawer-side {
   transform: translateX(0);
 }
-
-/* [aria-busy] {
-  --loading-size: 64px;
-  --loading-stroke: 6px;
-  --loading-duration: 1s;
-  position: relative;
-  opacity: 0.75;
-}
-[aria-busy]:before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: var(--loading-size);
-  height: var(--loading-size);
-  margin-top: calc(var(--loading-size) / 2 * -1);
-  margin-left: calc(var(--loading-size) / 2 * -1);
-  border: var(--loading-stroke) solid rgba(0, 0, 0, 0.15);
-  border-radius: 50%;
-  border-top-color: rgba(0, 0, 0, 0.5);
-  animation: rotate calc(var(--loading-duration)) linear infinite;
-}
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
-} */

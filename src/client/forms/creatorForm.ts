@@ -92,13 +92,27 @@ export function registerCreatorForm() {
         },
 
         submitForm(event: Event) {
+          this.isSubmitting = true;
           const result = creatorFormSchema.safeParse(this.form);
 
           if (!result.success || !this.isFormValid) {
             event.preventDefault();
             this.errors.form = result.error.flatten().fieldErrors;
+            this.isSubmitting = false;
+            return;
           }
+        },
 
+        onSuccess() {
+          this.isSubmitting = false;
+          this.artistSearchResults = "";
+          // Reset baseline to current values so form is "clean" after save
+          this.initialValues.form = Object.fromEntries(
+            CREATOR_FORM_FIELDS.map((key) => [key, this.form[key]])
+          );
+        },
+
+        onError() {
           this.isSubmitting = false;
         },
 

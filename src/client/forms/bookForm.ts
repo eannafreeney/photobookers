@@ -75,6 +75,8 @@ export function registerBookForm() {
         },
 
         get isFormValid() {
+          console.log(this);
+
           // Check artist requirement (for publishers)
           const hasArtist = this.is_new_artist
             ? !!this.form.new_artist_name
@@ -94,7 +96,6 @@ export function registerBookForm() {
             this.form.specs &&
             this.form.description &&
             this.form.availability_status &&
-            this.form.intro &&
             this.form.release_date;
 
           // Artists need publisher (unless self-published), publishers need artist
@@ -111,11 +112,9 @@ export function registerBookForm() {
 
           if (!result.success) {
             event.preventDefault();
-            this.isSubmitting = false;
             this.errors.form = result.error.flatten().fieldErrors;
             return;
           }
-          this.isSubmitting = false;
         },
       };
     }

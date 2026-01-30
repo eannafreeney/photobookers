@@ -101,18 +101,3 @@ appRoutes.get("/profile", async (c) => {
   const flash = await getFlash(c);
   return c.html(<HomePage user={user} flash={flash} initialTab="profile" />);
 });
-
-appRoutes.post("/admin/reset-password", async (c) => {
-  const { email } = await c.req.json();
-
-  const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-    type: "recovery",
-    email: email,
-  });
-
-  if (error) {
-    return c.html(<Alert type="danger" message={error.message} />, 422);
-  }
-
-  return c.html(<Alert type="success" message="Password reset email sent" />);
-});

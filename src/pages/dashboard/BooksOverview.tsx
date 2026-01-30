@@ -1,16 +1,11 @@
 import { AuthUser } from "../../../types";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
-import Button from "../../components/app/Button";
-import Link from "../../components/app/Link";
-import SectionTitle from "../../components/app/SectionTitle";
 import BooksCreatedByMeForOtherPublishersTable from "../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
-import BooksCreatedByMeForStubPublisherTable from "../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
 import BooksCreatedByMeForStubPublishersTable from "../../components/cms/ui/BooksCreatedForStubPublishersTable";
 import BooksForApprovalTable from "../../components/cms/ui/BooksForApprovalTable";
 import { BookTable } from "../../components/cms/ui/BookTable";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
-import { getInputIcon } from "../../utils";
 
 type BooksDashboardProps = {
   user: AuthUser;
@@ -29,6 +24,8 @@ const BooksOverview = async ({
     return <div class="alert alert-error">No creator found</div>;
   }
 
+  const creatorType = user.creator.type;
+
   return (
     <AppLayout
       title="Books Overview"
@@ -39,14 +36,15 @@ const BooksOverview = async ({
       <Page>
         <Breadcrumbs items={[{ label: "Books Overview" }]} />
         <div class="flex flex-col gap-16">
-          <BookTable searchQuery={searchQuery} creatorId={user.creator.id} />
+          <BookTable
+            searchQuery={searchQuery}
+            creatorId={user.creator.id}
+            creatorType={creatorType}
+          />
           {user.creator.type === "artist" ? (
-            <>
-              <BooksCreatedByMeForOtherPublishersTable />
-              <BooksCreatedByMeForStubPublishersTable />
-            </>
+            <ArtistTables />
           ) : (
-            <BooksForApprovalTable creatorId={user.creator.id} />
+            <PublisherTables creatorId={user.creator.id} />
           )}
         </div>
       </Page>
@@ -55,3 +53,14 @@ const BooksOverview = async ({
 };
 
 export default BooksOverview;
+
+const ArtistTables = () => (
+  <>
+    <BooksCreatedByMeForOtherPublishersTable />
+    <BooksCreatedByMeForStubPublishersTable />
+  </>
+);
+
+const PublisherTables = ({ creatorId }: { creatorId: string }) => (
+  <BooksForApprovalTable creatorId={creatorId} />
+);

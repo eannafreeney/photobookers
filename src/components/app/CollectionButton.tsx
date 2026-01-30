@@ -7,11 +7,13 @@ type Props = {
   bookId: string;
   user: AuthUser | null;
   isCircleButton?: boolean;
+  isDisabled?: boolean;
 };
 const CollectionButton = async ({
   bookId,
   user,
   isCircleButton = false,
+  isDisabled = false,
 }: Props) => {
   let isInCollection = false;
   if (user?.id) {
@@ -40,10 +42,12 @@ const CollectionButton = async ({
   };
 
   if (isCircleButton) {
-    return <APIButtonCircle {...props} buttonType="circle" />;
+    return (
+      <APIButtonCircle {...props} buttonType="circle" isDisabled={isDisabled} />
+    );
   }
 
-  return <APIButton {...props} />;
+  return <APIButton {...props} isDisabled={isDisabled} />;
 };
 
 export default CollectionButton;

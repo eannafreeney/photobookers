@@ -127,7 +127,7 @@ export function registerBookGalleryForm() {
 
             const html = await response.text();
 
-            const container = document.getElementById("notification-message");
+            const container = document.getElementById("toast");
             if (container) {
               container.outerHTML = html;
             }

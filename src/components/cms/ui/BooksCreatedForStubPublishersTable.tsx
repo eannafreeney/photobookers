@@ -64,7 +64,7 @@ const BookTableRow = ({ book }: BookTableRowProps) => {
         {book.coverUrl ? (
           <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />
         ) : (
-          <a href={`/dashboard/books/edit/${book.id}`}>
+          <a href={`/dashboard/books/edit/${book.id}#book-images`}>
             <Button variant="outline" color="warning">
               <span>Upload Cover</span>
             </Button>
@@ -79,7 +79,12 @@ const BookTableRow = ({ book }: BookTableRowProps) => {
       </td>
       <td class="p-4">
         {book.releaseDate
-          ? new Date(book.releaseDate).toLocaleDateString()
+          ? book.releaseDate
+              .toISOString()
+              .slice(0, 10)
+              .split("-")
+              .reverse()
+              .join("/")
           : ""}
       </td>
       <td class="p-4">

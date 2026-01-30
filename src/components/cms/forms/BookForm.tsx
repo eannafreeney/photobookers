@@ -2,7 +2,7 @@ import { getAllOptions } from "../../../services/creators";
 import Form from "../../app/Form";
 import SectionTitle from "../../app/SectionTitle";
 import ComboBox from "../ui/ComboBox";
-import FormButton from "../ui/FormButton";
+import FormButtons from "../ui/FormButtons";
 import Input from "../ui/Input";
 import RadioFields from "../ui/RadioFields";
 import TextArea from "../ui/TextArea";
@@ -28,18 +28,23 @@ export const BookForm = async ({
   const isEditPage = !!bookId;
   const isArtist = !isPublisher;
 
+  const alpineAttrs = {
+    "x-data": `bookForm(
+      ${JSON.stringify(formValues)}, 
+      ${JSON.stringify(artistOptions)}, 
+      ${JSON.stringify(publisherOptions)},
+      ${isArtist},
+      ${isEditPage})`,
+    "x-on:submit": "submitForm($event)",
+    "x-target.away": "_top",
+    "x-target": "toast",
+    "x-on:ajax:error": "isSubmitting = false",
+  };
+
   return (
     <div class="space-y-4 ">
       <SectionTitle>Book Details</SectionTitle>
-      <Form
-        x-data={`bookForm(
-          ${JSON.stringify(formValues)}, 
-          ${JSON.stringify(artistOptions)}, 
-          ${JSON.stringify(publisherOptions)},
-          ${isArtist},
-          ${isEditPage})`}
-        action={action}
-      >
+      <form action={action} method="POST" {...alpineAttrs}>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Input
             label="Title"
@@ -57,39 +62,33 @@ export const BookForm = async ({
               required
             />
           )}
-          {isArtist ? (
+          {isArtist && !isEditPage ? (
             <>
-              <ToggleInput
-                label="Is Self Published"
-                name="is_self_published"
-                isChecked={isArtist}
-              />
+              <div x-show="is_self_published">
+                <ToggleInput
+                  label="Self Published"
+                  name="is_self_published"
+                  isChecked={isArtist}
+                />
+              </div>
               <div x-show="!is_self_published">
                 <ComboBox
                   label="Publisher"
                   name="form.publisher_id"
                   newOptionName="form.new_publisher_name"
+                  type="publisher"
                   options={publisherOptions}
                   required
                 />
               </div>
             </>
           ) : null}
-
           <Input
-            label="Release Date"
+            label={dateIsInPast ? "Release Date (Locked)" : "Release Date"}
             name="form.release_date"
             type="date"
-            isDisabled={dateIsInPast ?? false}
+            readOnly={dateIsInPast ?? false}
             validateInput="validateField('release_date')"
-            required
-          />
-          <TextArea
-            label="Introduction"
-            name="form.intro"
-            validateInput="validateField('intro')"
-            maxLength={200}
-            minRows={4}
             required
           />
           <TextArea
@@ -122,12 +121,9 @@ export const BookForm = async ({
             name="form.tags"
             placeholder="photography, landscape, Japan (comma-separated)"
           />
-          <FormButton
-            buttonText={isEditPage ? "Update" : "Create"}
-            loadingText={isEditPage ? "Updating..." : "Creating..."}
-          />
+          <FormButtons />
         </div>
-      </Form>
+      </form>
     </div>
   );
 };

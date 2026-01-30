@@ -1,4 +1,4 @@
-import FormButton from "../ui/FormButton";
+import FormButtons from "../ui/FormButtons";
 import Input from "../ui/Input";
 import CountrySelect from "../ui/CountrySelect";
 import TextArea from "../ui/TextArea";
@@ -19,15 +19,21 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
 
   const isEditPage = !!creatorId;
 
+  const alpineAttrs = {
+    "x-data": `creatorForm(${formValues}, ${isEditPage})`,
+    "x-target": "toast",
+    "x-target.away": "_top",
+    "x-on:ajax:success": "onSuccess()",
+    "x-on:ajax:error": "onError()",
+    "x-on:submit": "submitForm($event)",
+  };
+
   return (
     <div class="space-y-4 ">
       <SectionTitle>{`${isEditPage ? "Edit" : "Create"} ${capitalize(
         type
       )} Profile`}</SectionTitle>
-      <Form
-        x-data={`creatorForm(${formValues}, ${isEditPage})`}
-        action={action}
-      >
+      <form action={action} method="POST" {...alpineAttrs}>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
           <div>
             <Input
@@ -79,11 +85,8 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
             x-init={`form.type = '${type}'`}
           />
         </div>
-        <FormButton
-          buttonText={isEditPage ? "Update" : "Create"}
-          loadingText={isEditPage ? "Updating..." : "Creating..."}
-        />
-      </Form>
+        <FormButtons />
+      </form>
     </div>
   );
 };

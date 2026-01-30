@@ -96,6 +96,7 @@ export function registerRegisterForm() {
       },
 
       submitForm(event: Event) {
+        this.isSubmitting = true;
         const result = registerFormSchema.safeParse(this.form);
 
         if (!result.success) {

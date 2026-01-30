@@ -1,4 +1,5 @@
 import { Book, Creator } from "../../../db/schema";
+import { formatDate } from "../../../utils";
 import PreviewButton from "../../api/PreviewButton";
 import Button from "../../app/Button";
 import PublishToggleForm from "../forms/PublishToggleForm";
@@ -19,7 +20,7 @@ const BookTableRow = ({ book, creatorType }: Props) => {
         {book.coverUrl ? (
           <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />
         ) : (
-          <a href={`/dashboard/books/edit/${book.id}`}>
+          <a href={`/dashboard/books/edit/${book.id}#book-images`}>
             <Button variant="outline" color="warning">
               <span>Upload Cover</span>
             </Button>
@@ -34,7 +35,12 @@ const BookTableRow = ({ book, creatorType }: Props) => {
       </td>
       <td class="p-4">
         {book.releaseDate
-          ? new Date(book.releaseDate).toLocaleDateString()
+          ? book.releaseDate
+              .toISOString()
+              .slice(0, 10)
+              .split("-")
+              .reverse()
+              .join("/")
           : ""}
       </td>
       <td class="p-4">
@@ -48,7 +54,7 @@ const BookTableRow = ({ book, creatorType }: Props) => {
           <Button
             variant="outline"
             color="inverse"
-            isDisabled={book.publisher.status === "stub"}
+            isDisabled={book.publisher?.status === "stub"}
           >
             <span>Edit</span>
           </Button>

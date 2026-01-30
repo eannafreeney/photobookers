@@ -1,6 +1,6 @@
 import { db } from "../db/client";
 import { bookImages } from "../db/schema";
-import { supabaseStorage } from "../lib/supabase";
+import { supabaseAdmin, supabaseStorage } from "../lib/supabase";
 
 const BUCKET_NAME = "images";
 
@@ -30,7 +30,7 @@ export async function uploadImage(
   const arrayBuffer = await file.arrayBuffer();
 
   // Upload to Supabase Storage
-  const { data, error } = await supabaseStorage.storage
+  const { data, error } = await supabaseAdmin.storage
     .from(BUCKET_NAME)
     .upload(filePath, arrayBuffer, {
       contentType: file.type,

@@ -13,7 +13,7 @@ const TestForm = ({ errors = {} }: FormComponentProps) => {
     <form
       id="test-form"
       x-data="{}"
-      x-target="notification-message"
+      x-target="toast"
       {...{ "x-target.error": "test-form" }}
       action="/test"
       method="POST"

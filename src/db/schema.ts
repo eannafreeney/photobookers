@@ -120,7 +120,6 @@ export const books = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     slug: varchar("slug", { length: 255 }).notNull().unique(),
     title: text("title").notNull(),
-    intro: text("intro"),
     description: text("description"),
     specs: text("specs"),
     artistId: uuid("artist_id").references(() => creators.id),

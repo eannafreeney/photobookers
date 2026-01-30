@@ -13,8 +13,8 @@ const CreatorImageForm = ({ initialUrl, creatorId }: Props) => {
 
   const alpineAttrs = {
     "x-data": `creatorImageForm({initialUrl: ${initialUrlString}})`,
-    "x-target.error": "notification-message",
-    "x-target": "notification-message",
+    "x-target.error": "toast",
+    "x-target": "toast",
     "x-on:ajax:before": "onBefore()",
     "x-on:ajax:success": "onSuccess($event)",
     "x-on:ajax:error": "onError($event)",
@@ -22,7 +22,7 @@ const CreatorImageForm = ({ initialUrl, creatorId }: Props) => {
 
   return (
     <div class="space-y-4">
-      <SectionTitle>Creator Cover</SectionTitle>
+      <SectionTitle>Cover Image</SectionTitle>
       <form
         method="post"
         action={`/dashboard/creators/edit/${creatorId}/image`}

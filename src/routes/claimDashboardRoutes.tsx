@@ -21,7 +21,7 @@ import Modal from "../components/app/Modal";
 export const claimDashboardRoutes = new Hono();
 
 claimDashboardRoutes.get("/", async (c) => {
-  const user = getUser(c);
+  const user = await getUser(c);
   if (!user) {
     return c.redirect("/auth/login");
   }
@@ -43,7 +43,6 @@ claimDashboardRoutes.get("/", async (c) => {
       claims: true,
     },
   });
-  console.log("creatorsWithClaims", creatorsWithClaims);
 
   return c.html(
     <ClaimsOverview

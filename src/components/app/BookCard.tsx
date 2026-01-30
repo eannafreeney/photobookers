@@ -29,7 +29,6 @@ const BookCard = ({ book, artist }: BookCardProps) => {
             {artist?.displayName ?? ""}
           </Card.Link>
         </div>
-        <Card.Text>{book.intro}</Card.Text>
         <Card.Text>{formatDate(book.releaseDate ?? "")}</Card.Text>
       </Card.Body>
     </Card>

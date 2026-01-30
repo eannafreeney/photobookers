@@ -1,11 +1,12 @@
 import { fadeTransition } from "../../../lib/transitions";
 import InputLabel from "./InputLabel";
 
-type ComboBoxProps = {
+type Props = {
   label: string;
   name: string;
   newOptionName: string;
   options: any[];
+  type?: "artist" | "publisher";
   required?: boolean;
 };
 
@@ -14,27 +15,22 @@ const ComboBox = ({
   name,
   newOptionName,
   options,
+  type,
   required = false,
-}: ComboBoxProps) => {
+}: Props) => {
+  const alpineAttrs = {
+    "x-data": `comboBox(${JSON.stringify(options)}, ${JSON.stringify(type)})`,
+    "x-on:keydown": "handleKeydownOnOptions($event)",
+    "x-on:keydown.esc.window": "isOpen = false, openedWithKeyboard = false",
+    "x-init": "options = allOptions",
+  };
   return (
     <>
-      <div
-        x-data={`comboBox(${JSON.stringify(options)})`}
-        class="flex w-full max-w-xs flex-col gap-1"
-        {...{
-          "x-on:keydown": "handleKeydownOnOptions($event)",
-          "x-on:keydown.esc.window":
-            "isOpen = false, openedWithKeyboard = false",
-        }}
-        x-init="options = allOptions"
-      >
+      <div class="flex w-full max-w-xs flex-col gap-1" {...alpineAttrs}>
         <fieldset class="fieldset py-0">
           <InputLabel label={label} name={name} required={required} />
           <div class="relative">
-            {/* <!-- trigger button  --> */}
             <TriggerButton />
-
-            {/* <!-- Hidden Input To Grab The Selected Value  --> */}
             <input
               id={name}
               name={name.replace("form.", "")}
@@ -60,23 +56,23 @@ const ComboBox = ({
 export default ComboBox;
 
 const DropdownList = ({ name }: { name: string }) => {
+  const alpineAttrs = {
+    "x-show": "isOpen || openedWithKeyboard",
+    "x-on:click.outside": "isOpen = false, openedWithKeyboard = false",
+    "x-on:keydown.down.prevent": "$focus.wrap().next()",
+    "x-on:keydown.up.prevent": "$focus.wrap().previous()",
+    "x-trap": "openedWithKeyboard",
+    ...fadeTransition,
+  };
+
   return (
     <div
       x-cloak
-      x-show="isOpen || openedWithKeyboard"
       id={`${name}List`}
       class="absolute left-0 top-11 z-10 w-full overflow-hidden rounded-radius border border-outline bg-surface-alt "
-      {...{
-        "x-on:click.outside": "isOpen = false, openedWithKeyboard = false",
-        "x-on:keydown.down.prevent": "$focus.wrap().next()",
-        "x-on:keydown.up.prevent": "$focus.wrap().previous()",
-      }}
-      x-trap="openedWithKeyboard"
-      {...fadeTransition}
+      {...alpineAttrs}
     >
-      {/* <!-- Search  --> */}
       <label class="input w-full rounded-none ">
-        {/* <div class="relative"> */}
         {searchIcon}
         <input
           type="text"
@@ -84,7 +80,7 @@ const DropdownList = ({ name }: { name: string }) => {
           name="searchField"
           x-on:input="getFilteredOptions($el.value)"
           x-ref="searchField"
-          placeholder="Search"
+          placeholder="Search or Add New..."
         />
         <span
           x-cloak
@@ -96,38 +92,35 @@ const DropdownList = ({ name }: { name: string }) => {
         </span>
       </label>
 
-      {/* <!-- Options  --> */}
+      {/* <!-- List of Options  --> */}
       <ul class="flex max-h-44 flex-col overflow-y-auto">
         <li
-          x-show="options.length === 0 && searchQuery"
-          x-ref="addNewOption"
           class="px-4 py-2 text-sm cursor-pointer text-primary hover:bg-base-200 focus-visible:bg-base-200 focus-visible:outline-none"
           tabindex={0}
-          x-on:click="addNewOption()"
-          {...{ "x-on:keydown.enter.prevent": "addNewOption()" }}
+          {...{
+            "x-on:click": "addNewOption()",
+            "x-on:keydown.enter.prevent": "addNewOption()",
+            "x-ref": "addNewOption",
+            "x-show": "options.length === 0 && searchQuery",
+          }}
         >
-          Add "<span x-text="searchQuery"></span>"
+          + "<span x-text="searchQuery"></span>"
         </li>
 
         <template x-for="(item, index) in options" x-bind:key="item.label">
           <li
             class="combobox-option inline-flex justify-between gap-6 bg-surface-alt px-4 py-2 text-sm focus-visible:bg-surface-alt focus-visible:outline-none cursor-pointer hover:bg-surface"
-            x-on:click="setSelectedOption(item)"
-            {...{
-              "x-on:keydown.enter": "setSelectedOption(item)",
-            }}
-            x-bind:id="'option-' + index"
             tabindex={0}
+            {...{
+              "x-on:click": `setSelectedOption(item)`,
+              "x-on:keydown.enter": `setSelectedOption(item)`,
+              "x-bind:id": "'option-' + index",
+            }}
           >
             {/* <!-- Label  --> */}
             <span
               x-bind:class="selectedOption == item ? 'font-bold' : null"
               x-text="item.label"
-            ></span>
-            {/* <!-- Screen reader 'selected' indicator  --> */}
-            <span
-              class="sr-only"
-              x-text="selectedOption == item ? 'selected' : null"
             ></span>
             {checkmarkIcon}
           </li>
@@ -138,6 +131,14 @@ const DropdownList = ({ name }: { name: string }) => {
 };
 
 const TriggerButton = () => {
+  const alpineAttrs = {
+    "x-on:click":
+      "isOpen = ! isOpen; isOpen && $nextTick(() => $refs.searchField.focus())",
+    "x-bind:disabled": "isDisabled",
+    "x-on:keydown.down.prevent": "openedWithKeyboard = true",
+    "x-on:keydown.enter.prevent": "openedWithKeyboard = true",
+  };
+
   return (
     <label
       class="w-full cursor-pointer"
@@ -146,12 +147,7 @@ const TriggerButton = () => {
       <button
         type="button"
         class="flex w-full items-center justify-between text-sm font-normal border-outline border bg-surface-alt px-2 py-2"
-        x-on:click="isOpen = ! isOpen"
-        x-bind:disabled="isDisabled"
-        {...{
-          "x-on:keydown.down.prevent": "openedWithKeyboard = true",
-          "x-on:keydown.enter.prevent": "openedWithKeyboard = true",
-        }}
+        {...alpineAttrs}
       >
         <span
           class="text-sm font-normal"

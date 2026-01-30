@@ -25,7 +25,7 @@ const BookGalleryForm = ({ initialImages, bookId }: Props) => {
         initialImages: ${JSON.stringify(initialImages)}
         })`}
         action={`/dashboard/books/edit/${bookId}/images`}
-        {...{ "x-target.error": "notification-message" }}
+        {...{ "x-target.error": "toast" }}
         x-on:submit="submitForm($event)"
         {...attrs}
       >

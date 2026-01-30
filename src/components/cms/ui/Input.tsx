@@ -14,6 +14,7 @@ type InputProps = {
   validateInput?: string;
   showFieldValidator?: boolean;
   isDisabled?: boolean;
+  readOnly?: boolean;
 };
 
 const Input = ({
@@ -27,6 +28,7 @@ const Input = ({
   validateInput,
   showFieldValidator = false,
   isDisabled = false,
+  readOnly = false,
   ...restProps
 }: InputProps) => {
   const inputHandler = {
@@ -34,10 +36,7 @@ const Input = ({
   };
 
   return (
-    <fieldset
-      class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max
-"
-    >
+    <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
       <InputLabel
         label={label}
         maxLength={maxLength}
@@ -45,10 +44,7 @@ const Input = ({
         required={required}
         showFieldValidator={showFieldValidator}
       />
-      <label
-        class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary
-"
-      >
+      <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
         {getInputIcon(type)}
         <input
           id={name}
@@ -60,6 +56,7 @@ const Input = ({
           disabled={isDisabled}
           x-model={name}
           maxLength={maxLength}
+          {...(readOnly && { readOnly: true })}
           {...(validateInput && inputHandler)}
           {...restProps}
         />

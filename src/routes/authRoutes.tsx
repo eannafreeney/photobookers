@@ -205,28 +205,4 @@ authRoutes.get("/logout", async (c) => {
   return c.redirect("/");
 });
 
-// Get current user
-authRoutes.get("/my-account", async (c) => {
-  const authHeader = c.req.header("Authorization");
-  const token = authHeader?.replace("Bearer ", "");
-
-  if (!token) {
-    return c.json({ error: "No token provided" }, 401);
-  }
-
-  const {
-    data: { user },
-    error,
-  } = await supabaseAdmin.auth.getUser(token);
-
-  if (error || !user) {
-    return c.json({ error: "Invalid token" }, 401);
-  }
-
-  // Get full user data from your table
-  const [dbUser] = await db.select().from(users).where(eq(users.id, user.id));
-
-  return c.json({ user: dbUser });
-});
-
 export { authRoutes };

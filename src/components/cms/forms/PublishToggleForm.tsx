@@ -10,18 +10,24 @@ const PublishToggleForm = ({ book }: Props) => {
   const publicationStatus = book.publicationStatus ?? "draft";
   const isPublished = publicationStatus === "published";
 
+  const alpineAttrs = {
+    "x-data": `{ isPublished: ${isPublished} }`,
+    "x-target": `mode-form-${bookId} preview-button-${bookId} toast`,
+    "x-target.error": "toast",
+    "x-on:ajax:error": `isPublished = ${isPublished}`,
+    "x-target.back": `toast mode-form-${bookId}`,
+  };
+
   return (
     <form
       id={`mode-form-${bookId}`}
-      x-target={`mode-form-${bookId} preview-button-${bookId} notification-message`}
-      {...{ "x-target.back": `notification-message mode-form-${bookId}` }}
-      x-data={`{ isPublished: ${isPublished} }`}
       method="POST"
       action={
         isPublished
           ? `/dashboard/books/${bookId}/unpublish`
           : `/dashboard/books/${bookId}/publish`
       }
+      {...alpineAttrs}
     >
       <div
         class="tooltip"

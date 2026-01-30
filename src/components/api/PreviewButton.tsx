@@ -14,7 +14,11 @@ const PreviewButton = ({ book }: Props) => {
   return (
     <div id={`preview-button-${bookId}`}>
       <Link href={`/books/preview/${bookId}`}>
-        <Button variant="outline" color="primary" disabled={isPublished}>
+        <Button
+          variant="outline"
+          color="primary"
+          disabled={isPublished || !book.coverUrl}
+        >
           <span>Preview</span>
         </Button>
       </Link>

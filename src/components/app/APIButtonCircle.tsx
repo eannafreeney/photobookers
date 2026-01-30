@@ -8,6 +8,7 @@ type APIButtonCircleProps = {
   hiddenInput: { name: string; value: boolean };
   errorTarget?: string;
   buttonType?: "circle" | "default";
+  isDisabled?: boolean;
 };
 
 const APIButtonCircle = ({
@@ -18,8 +19,11 @@ const APIButtonCircle = ({
   buttonText,
   errorTarget = "modal-root",
   buttonType,
+  isDisabled = false,
 }: APIButtonCircleProps) => {
   const attrs = {
+    "x-data": "{ isSubmitting: false }",
+    "x-on:ajax:before": "isSubmitting = true",
     "x-on:ajax:after": "$dispatch('dialog:open')",
     "x-target": xTarget,
     "x-target.error": errorTarget,
@@ -43,7 +47,12 @@ const APIButtonCircle = ({
       {buttonType && (
         <input type="hidden" name="buttonType" value={buttonType} />
       )}
-      <button class="cursor-pointer">{buttonText}</button>
+      <button
+        class="cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+        disabled={isDisabled}
+      >
+        {buttonText}
+      </button>
     </form>
   );
 };

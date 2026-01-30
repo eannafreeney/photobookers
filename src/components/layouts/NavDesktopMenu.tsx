@@ -71,16 +71,16 @@ const NavAvatar = () => {
     `https://avatar.iran.liara.run/username?username=${user?.firstName}+${user?.lastName}`;
   const avatarAlt = `${user?.firstName} ${user?.lastName}`;
 
-  const attrs = {
+  const alpineAttrs = {
     "x-on:keydown.space.prevent": "openWithKeyboard = true",
     "x-on:keydown.enter.preven": "openWithKeyboard = true",
     "x-on:keydown.down.prevent": "openWithKeyboard = true",
+    "@click": "userDropDownIsOpen = ! userDropDownIsOpen",
   };
   return (
     <button
-      x-on:click="userDropDownIsOpen = ! userDropDownIsOpen"
-      {...attrs}
       class="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer"
+      {...alpineAttrs}
     >
       <img
         src={avatarUrl}
@@ -110,9 +110,9 @@ const DropDownMenu = ({
   };
   return (
     <ul
-      {...alpineAttrs}
       id="userMenu"
       class="absolute right-0 top-12 flex w-fit min-w-48 flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt py-1.5 dark:border-outline-dark dark:bg-surface-dark-alt"
+      {...alpineAttrs}
     >
       <li class="border-b border-outline dark:border-outline-dark">
         <div class="flex flex-col px-4 py-2">
@@ -133,14 +133,16 @@ const DropDownMenu = ({
             href={`/dashboard/creators/edit/${user?.creator?.id}`}
             currentPath={currentPath}
           >
-            {`Edit ${user.creator.displayName}`}
+            {`Edit ${
+              user.creator.type === "artist" ? "Artist" : "Publisher"
+            } Profile`}
           </NavLink>
         </>
       )}
       {user && (
         <>
-          <NavLink href="/my-account" currentPath={currentPath}>
-            Account
+          <NavLink href="/user/my-account" currentPath={currentPath}>
+            Edit Account
           </NavLink>
           <NavLink href="/auth/logout" currentPath={currentPath}>
             Logout

@@ -9,7 +9,17 @@ import {
   UpdateBook,
   wishlists,
 } from "../db/schema";
-import { and, eq, exists, ilike, inArray, ne, not, or } from "drizzle-orm";
+import {
+  and,
+  eq,
+  exists,
+  ilike,
+  inArray,
+  isNull,
+  ne,
+  not,
+  or,
+} from "drizzle-orm";
 import { generateUniqueBookSlug, slugify } from "../utils";
 import { bookFormSchema } from "../schemas";
 import z from "zod";
@@ -50,14 +60,43 @@ export const getBooksByTag = async (tag: string) => {
   }
 };
 
-export const getBooksByCreatorId = async (
+export const getBooksByPublisherId = async (
   creatorId: string,
   searchQuery?: string
 ) => {
   try {
     const baseCondition = and(
-      or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)),
+      eq(books.publisherId, creatorId),
       eq(books.approvalStatus, "approved")
+    );
+
+    const whereClause = searchQuery
+      ? and(baseCondition, ilike(books.title, `%${searchQuery}%`))
+      : baseCondition;
+
+    const booksByCreator = await db.query.books.findMany({
+      where: whereClause,
+      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      with: {
+        artist: true,
+        publisher: true,
+      },
+    });
+
+    return booksByCreator;
+  } catch (error) {
+    console.error("Failed to get creator by slug", error);
+  }
+};
+
+export const getBooksByArtistId = async (
+  creatorId: string,
+  searchQuery?: string
+) => {
+  try {
+    const baseCondition = and(
+      eq(books.artistId, creatorId),
+      isNull(books.publisherId)
     );
 
     const whereClause = searchQuery
@@ -280,8 +319,8 @@ export const prepareBookData = async (
 
   return {
     title: formData.title,
-    intro: formData.intro,
     description: formData.description || null,
+    specs: formData.specs || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
     slug: await generateUniqueBookSlug(
       formData.title,
@@ -298,18 +337,16 @@ export const prepareBookData = async (
 };
 
 export const prepareBookUpdateData = (
-  formData: z.infer<typeof bookFormSchema>,
-  tags: string[]
+  formData: z.infer<typeof bookFormSchema>
 ): UpdateBook => {
   return {
     title: formData.title,
-    intro: formData.intro,
     description: formData.description || null,
+    specs: formData.specs || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
     slug: slugify(formData.title),
-    tags: tags,
+    tags: processTags(formData.tags),
     availabilityStatus: formData.availability_status,
-    specs: formData.specs,
   };
 };
 

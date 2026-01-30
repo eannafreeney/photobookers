@@ -67,6 +67,10 @@ apiRoutes.post("/wishlist/:bookId", async (c) => {
     return c.html(<AuthModal action="to wishlist this book." />, 401);
   }
 
+  // const userIsCreatorOwner =
+  //   user?.creator?.id === book.artistId ||
+  //   user?.creator?.id === book.publisherId;
+
   const body = await c.req.parseBody();
   const isCurrentlyWishlisted = body.isWishlisted === "true";
   const buttonType = body.buttonType; // "circle" or "default"
@@ -94,7 +98,7 @@ apiRoutes.post("/wishlist/:bookId", async (c) => {
 const showErrorAlert = (
   c: Context,
   errorMessage: string = "Action Failed! Please try again."
-) => c.html(<Alert type="danger" message={errorMessage} />, 500);
+) => c.html(<Alert type="danger" message={errorMessage} />, 422);
 
 apiRoutes.post("/collection/:bookId", async (c) => {
   const bookId = c.req.param("bookId");
