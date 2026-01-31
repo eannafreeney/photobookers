@@ -162,6 +162,31 @@ export const getOrCreateArtist = async (
   return null;
 };
 
+export const resolveArtist = async (
+  formData: { artist_id?: string; new_artist_name?: string },
+  userId: string
+): Promise<Creator | null | "error"> => {
+  const { artist_id, new_artist_name } = formData;
+
+  // Using existing artist
+  if (artist_id) {
+    const creator = await getCreatorById(artist_id);
+    return creator?.type === "artist" ? creator : "error";
+  }
+
+  // Create new stub artist
+  if (new_artist_name) {
+    const creator = await createStubCreatorProfile(
+      new_artist_name,
+      userId,
+      "artist"
+    );
+    return creator?.type === "artist" ? creator : "error";
+  }
+
+  return null;
+};
+
 export const resolvePublisher = async (
   formData: { publisher_id?: string; new_publisher_name?: string },
   userId: string
@@ -175,8 +200,8 @@ export const resolvePublisher = async (
 
   // Using existing publisher
   if (publisher_id) {
-    const publisher = await getCreatorById(publisher_id);
-    return publisher?.type === "publisher" ? publisher : "error";
+    const creator = await getCreatorById(publisher_id);
+    return creator?.type === "publisher" ? creator : "error";
   }
 
   // Create new stub publisher

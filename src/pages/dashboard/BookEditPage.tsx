@@ -25,6 +25,7 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
     title: book.title,
     artist_id: book.artistId,
     publisher_id: book.publisherId,
+    tagline: book.tagline,
     description: book.description,
     specs: book.specs,
     tags: book.tags?.join(", "),
@@ -37,8 +38,6 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
   const dateIsInPast = book?.releaseDate
     ? new Date(book.releaseDate) < new Date()
     : false;
-
-  console.log("dateIsInPast", dateIsInPast);
 
   const isPublisher = user.creator?.type === "publisher";
 

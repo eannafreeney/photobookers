@@ -70,8 +70,10 @@ appRoutes.get("/new-books", async (c) => {
   const user = await getUser(c);
 
   if (isAjax) {
+    console.log("isAjax", isAjax);
     return c.html(<NewTab user={user} />);
   }
+  console.log("not ajax");
 
   // Full page load - return HomePage with pre-loaded content
   const flash = await getFlash(c);

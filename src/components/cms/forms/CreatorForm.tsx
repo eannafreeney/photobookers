@@ -45,11 +45,12 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
             />
             <div x-html="artistSearchResults"></div>
           </div>
+          <Input label="Tagline" name="form.tagline" maxLength={200} />
           <TextArea
             label="Biography"
             name="form.bio"
             validateInput="validateField('bio')"
-            maxLength={200}
+            maxLength={1000}
             required
           />
           <Input label="City" name="form.city" maxLength={50} required />

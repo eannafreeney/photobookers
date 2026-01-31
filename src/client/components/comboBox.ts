@@ -72,9 +72,9 @@ export function registerComboBox() {
         this.$refs.hiddenTextField.value = selectedId;
         this.$refs.newOptionNameField.value = newName;
 
-        if (type === "artist") {
+        if (type === "artist" && option.isNew) {
           this.is_new_artist = true;
-        } else if (type === "publisher") {
+        } else if (type === "publisher" && option.isNew) {
           this.is_new_publisher = true;
         }
 

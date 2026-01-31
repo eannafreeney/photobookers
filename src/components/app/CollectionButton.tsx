@@ -21,21 +21,34 @@ const CollectionButton = async ({
   }
 
   const id = `collection-${bookId}`;
-  const buttonIcon = isInCollection
-    ? addToCollectionIcon
-    : removeFromCollectionIcon;
+  const buttonIcon = (
+    <>
+      {/* Show empty icon when: not in collection OR (in collection AND submitting) */}
+      <span x-show={isInCollection ? "isSubmitting" : "!isSubmitting"} x-cloak>
+        {inCollectionIcon}
+      </span>
+      {/* Show full icon when: in collection OR (NOT in collection AND submitting) */}
+      <span x-show={isInCollection ? "!isSubmitting" : "isSubmitting"} x-cloak>
+        {addToCollectionIcon}
+      </span>
+    </>
+  );
 
   const props = {
     id,
     xTarget: id,
     action: `/api/collection/${bookId}`,
-    errorTarget: `modal-root`,
     hiddenInput: { name: "isInCollection", value: isInCollection },
     buttonText: isCircleButton ? (
       buttonIcon
     ) : (
       <>
-        <span>{isInCollection ? "In My Collection" : "Add to Collection"}</span>
+        <span x-show="!isSubmitting">
+          {isInCollection ? "In My Collection" : "Add to Collection"}
+        </span>
+        <span x-show="isSubmitting" x-cloak>
+          {isInCollection ? "Add to Collection" : "In My Collection"}
+        </span>
         {buttonIcon}
       </>
     ),
@@ -52,14 +65,14 @@ const CollectionButton = async ({
 
 export default CollectionButton;
 
-const removeFromCollectionIcon = (
+const inCollectionIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-6 hover:text-primary hover:fill-primary"
+    class="size-6 "
   >
     <path
       stroke-linecap="round"
@@ -76,7 +89,7 @@ const addToCollectionIcon = (
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-6 text-primary fill-primary"
+    class="size-6 fill-primary"
   >
     <path
       stroke-linecap="round"

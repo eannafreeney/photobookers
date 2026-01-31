@@ -36,11 +36,12 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
         />
         <FormButton buttonText="Log In" loadingText="Logging in..." />
       </form>
-
-      <div class="divider">OR</div>
-
-      <p class="text-center text-sm">
-        Don't have an account? <Link href="/auth/accounts">Register</Link>
+      <p class="text-center text-sm mt-4">
+        Don't have an account?{" "}
+        <Link href="/auth/accounts">
+          {" "}
+          <span class="font-bold">Register</span>
+        </Link>
       </p>
     </>
   );

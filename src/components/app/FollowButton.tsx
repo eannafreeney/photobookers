@@ -7,12 +7,16 @@ type FollowButtonProps = {
   creatorId: string;
   user: AuthUser | null;
   isCircleButton?: boolean;
+  isDisabled?: boolean;
+  variant?: "desktop" | "mobile";
 };
 
 const FollowButton = async ({
   creatorId,
   user,
   isCircleButton = false,
+  isDisabled = false,
+  variant = "desktop",
 }: FollowButtonProps) => {
   const userIsCreator = user?.creator?.id === creatorId;
 
@@ -22,31 +26,48 @@ const FollowButton = async ({
     isFollowing = !!(await findFollow(creatorId, user.id));
   }
 
-  const id = `follow-${creatorId}`;
-  const buttonIcon = isFollowing ? followingIcon : followIcon;
+  const id = `follow-${creatorId}-${variant}`;
+  const buttonIcon = (
+    <>
+      {/* Show empty icon when: not following OR (following AND submitting) */}
+      <span x-show={isFollowing ? "isSubmitting" : "!isSubmitting"} x-cloak>
+        {followIcon}
+      </span>
+      {/* Show full icon when: following OR (!following AND submitting) */}
+      <span x-show={isFollowing ? "!isSubmitting" : "isSubmitting"} x-cloak>
+        {followingIcon}
+      </span>
+    </>
+  );
 
   const props = {
     id,
     xTarget: id,
     action: `/api/follow/creator/${creatorId}`,
     disabled: userIsCreator,
-    errorTarget: `modal-root`,
     hiddenInput: { name: "isFollowing", value: isFollowing },
     buttonText: isCircleButton ? (
       buttonIcon
     ) : (
       <>
-        <span>{isFollowing ? "Following" : "Follow"}</span>
+        <span x-show="!isSubmitting">
+          {isFollowing ? "Following" : "Follow"}
+        </span>
+        <span x-show="isSubmitting" x-cloak>
+          {isFollowing ? "Follow" : "Following"}
+        </span>
         {buttonIcon}
       </>
     ),
   };
 
   if (isCircleButton) {
-    return <APIButtonCircle {...props} buttonType="circle" />;
+    return (
+      <APIButtonCircle {...props} buttonType="circle" isDisabled={isDisabled} />
+    );
   }
 
-  return <APIButton {...props} />;
+  return <APIButton {...props} isDisabled={isDisabled} />;
 };
 
 export default FollowButton;
@@ -58,7 +79,7 @@ const followIcon = (
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-4 hover:text-primary"
+    class="size-4"
   >
     <path
       stroke-linecap="round"
@@ -75,7 +96,7 @@ const followingIcon = (
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-4 text-primary"
+    class="size-4 text-green-500"
   >
     <path
       stroke-linecap="round"

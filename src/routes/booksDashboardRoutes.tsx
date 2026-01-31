@@ -29,13 +29,19 @@ import {
   paramValidator,
   validateImageFile,
 } from "../lib/validator";
-import { getOrCreateArtist, resolvePublisher } from "../services/creators";
+import {
+  getOrCreateArtist,
+  resolveArtist,
+  resolvePublisher,
+} from "../services/creators";
 import Alert from "../components/app/Alert";
 import { bookImages, Creator } from "../db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db/client";
 import { BookTable } from "../components/cms/ui/BookTable";
 import BooksForApprovalTable from "../components/cms/ui/BooksForApprovalTable";
+import { canEditBook } from "../lib/permissions";
+import { requireBookEditAccess } from "../middleware/bookGuard";
 
 export const booksDashboardRoutes = new Hono();
 
@@ -77,18 +83,13 @@ booksDashboardRoutes.post(
     const formData = c.req.valid("form");
 
     if (!user.creator) {
-      return c.html(
-        <Alert type="danger" message="No Creator Profile Found" />,
-        422
-      );
+      return showErrorAlert(c, "No Creator Profile Found");
     }
 
-    const artist = await getOrCreateArtist(formData, user);
-    if (!artist) {
-      return c.html(
-        <Alert type="danger" message="No Artist Profile Found" />,
-        422
-      );
+    const artist = await resolveArtist(formData, user.id);
+
+    if (artist === "error" || !artist) {
+      return showErrorAlert(c, "Invalid artist");
     }
 
     const bookData = await prepareBookData(
@@ -165,20 +166,15 @@ booksDashboardRoutes.post(
   "/edit/:bookId/publisher",
   paramValidator(bookIdSchema),
   formValidator(bookFormSchema),
+  requireBookEditAccess,
   async (c) => {
-    const user = await getUser(c);
-    const bookId = c.req.valid("param").bookId;
     const formData = c.req.valid("form");
+    const book = c.get("book");
 
     const bookData = prepareBookUpdateData(formData);
-    const updatedBook = await updateBook(bookData, bookId, user.id);
+    const updatedBook = await updateBook(bookData, book.id);
 
-    if (!updatedBook) {
-      return c.html(
-        <Alert type="danger" message="Failed to update book" />,
-        422
-      );
-    }
+    if (!updatedBook) return showErrorAlert(c, "Failed to update book");
 
     return c.html(
       <Alert type="success" message={`${updatedBook.title} updated!`} />
@@ -189,15 +185,15 @@ booksDashboardRoutes.post(
 // EDIT BOOK AS ARTIST
 booksDashboardRoutes.post(
   "/edit/:bookId/artist",
-  paramValidator(bookIdSchema),
+  requireBookEditAccess,
   formValidator(bookFormSchema),
+  requireBookEditAccess,
   async (c) => {
-    const user = await getUser(c);
-    const bookId = c.req.valid("param").bookId;
     const formData = c.req.valid("form");
+    const book = c.get("book");
 
     const bookData = prepareBookUpdateData(formData);
-    const updatedBook = await updateBook(bookData, bookId, user.id);
+    const updatedBook = await updateBook(bookData, book.id);
 
     if (!updatedBook) {
       return showErrorAlert(c, "Failed to update book");
@@ -217,20 +213,12 @@ booksDashboardRoutes.post(
     const bookId = c.req.valid("param").bookId;
     const user = await getUser(c);
 
-    if (!user.creator) {
-      return c.html(
-        <Alert type="danger" message="No Creator Profile Found" />,
-        422
-      );
-    }
+    if (!user.creator) showErrorAlert(c, "No Creator Profile Found");
 
     const deletedBook = await deleteBookById(bookId);
 
     if (!deletedBook) {
-      return c.html(
-        <Alert type="danger" message="Failed to delete book" />,
-        422
-      );
+      return showErrorAlert(c, "Failed to delete book");
     }
 
     return c.html(
@@ -238,8 +226,8 @@ booksDashboardRoutes.post(
         <Alert type="success" message={`${deletedBook.title} deleted!`} />
         <BookTable
           searchQuery={undefined}
-          creatorType={user.creator.type}
-          creatorId={user.creator.id}
+          creatorType={user.creator?.type ?? "artist"}
+          creatorId={user.creator?.id ?? ""}
         />
       </>
     );

@@ -1,6 +1,14 @@
 import Alpine from "alpinejs";
 import { bookFormSchema } from "../../schemas";
 import z from "zod";
+import {
+  createFormState,
+  getIsDirty,
+  handleSubmit,
+  initFormValues,
+  resetFormBaseline,
+  validateField,
+} from "./formUtils";
 
 type BookFormData = z.infer<typeof bookFormSchema>;
 
@@ -25,58 +33,21 @@ export function registerBookForm() {
         is_self_published: isArtist,
         isArtist,
 
-        // Initialize fields dynamically
-        form: {
-          ...Object.fromEntries(
-            BOOK_FORM_FIELDS.map((key) => [key, formValues[key] ?? ""])
-          ),
-        },
-
-        initialValues: {
-          form: {},
-        },
-
-        errors: {
-          form: {},
-        },
+        ...createFormState(BOOK_FORM_FIELDS, formValues),
 
         init() {
-          if (isEditMode) {
-            // Capture initial state dynamically for edit mode
-            this.initialValues.form = Object.fromEntries(
-              BOOK_FORM_FIELDS.map((key) => [key, this.form[key]])
-            );
-          } else {
-            // Initialize with empty strings for create mode so isDirty works correctly
-            this.initialValues.form = Object.fromEntries(
-              BOOK_FORM_FIELDS.map((key) => [key, ""])
-            );
-          }
+          initFormValues(this, BOOK_FORM_FIELDS, isEditMode);
         },
 
         get isDirty() {
-          return BOOK_FORM_FIELDS.some(
-            (key) => this.form[key] !== this.initialValues.form[key]
-          );
+          return getIsDirty(this, BOOK_FORM_FIELDS);
         },
 
         validateField(field: string) {
-          const result = bookFormSchema.safeParse(this.form);
-          const fieldError =
-            result.error?.flatten().fieldErrors[
-              field as keyof typeof this.errors.form
-            ];
-          if (fieldError && fieldError[0]) {
-            this.errors.form[field as keyof typeof this.errors.form] =
-              fieldError[0];
-          } else {
-            delete this.errors.form[field as keyof typeof this.errors.form];
-          }
+          return validateField(this, field, bookFormSchema);
         },
 
         get isFormValid() {
-          console.log(this);
-
           // Check artist requirement (for publishers)
           const hasArtist = this.is_new_artist
             ? !!this.form.new_artist_name
@@ -107,14 +78,11 @@ export function registerBookForm() {
         },
 
         submitForm(event: Event) {
-          this.isSubmitting = true;
-          const result = bookFormSchema.safeParse(this.form);
+          return handleSubmit(this, event, bookFormSchema);
+        },
 
-          if (!result.success) {
-            event.preventDefault();
-            this.errors.form = result.error.flatten().fieldErrors;
-            return;
-          }
+        onSuccess() {
+          resetFormBaseline(this, BOOK_FORM_FIELDS);
         },
       };
     }

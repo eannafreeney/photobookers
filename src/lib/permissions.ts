@@ -1,27 +1,84 @@
+// src/lib/permissions.ts
+
 import { AuthUser } from "../../types";
-import { Creator } from "../db/schema";
+import { Book, Creator } from "../db/schema";
 
-export function isAdmin(user: AuthUser) {
-  return user?.role === "admin";
-}
-
-export function isCreatorOwner(user: AuthUser, creator: Creator) {
-  return creator.ownerUserId === user.id;
-}
-
-export function canUploadBook(
-  user: AuthUser,
-  artist: Creator,
-  publisher: Creator
-) {
+export function canEditBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
-  if (isAdmin(user)) return true;
 
-  // User owns artist → can upload
-  if (artist && isCreatorOwner(user, artist)) return true;
+  // User created the book for a stub publisher not yet approved
+  if (user.id === book.createdByUserId && book.approvalStatus !== "approved")
+    return true;
 
-  // User owns publisher → can upload
-  if (publisher && isCreatorOwner(user, publisher)) return true;
+  // Creator owns the book (artist or publisher)
+  if (user.creator?.id === book.artistId) return true;
+  if (user.creator?.id === book.publisherId) return true;
 
   return false;
+}
+
+export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
+  if (!user) return false;
+
+  // User created the book for a stub publisher not yet approved
+  if (user.id === book.createdByUserId && book.approvalStatus !== "approved")
+    return true;
+
+  // Creator owns the book (artist or publisher)
+  if (user.creator?.id === book.artistId) return true;
+  if (user.creator?.id === book.publisherId) return true;
+
+  return false;
+}
+
+export function canEditCreator(
+  user: AuthUser | null,
+  creator: Creator
+): boolean {
+  if (!user) return false;
+
+  // Owner of the creator profile
+  return user.id === creator.ownerUserId;
+}
+
+export function canPublishBook(user: AuthUser | null, book: Book): boolean {
+  if (!user) return false;
+
+  const creatorIsOwner =
+    user.creator?.id === book.artistId || user.creator?.id === book.publisherId;
+  const coverUrlIsSet = book.coverUrl !== null;
+
+  if (creatorIsOwner && coverUrlIsSet) {
+    return true;
+  }
+
+  return false;
+}
+
+export function canFollowCreator(
+  user: AuthUser | null,
+  creatorId: string
+): boolean {
+  if (!user) return false;
+
+  // User is not creator
+  return user.creator?.id !== creatorId;
+}
+
+export function canWishlistBook(user: AuthUser | null, book: Book): boolean {
+  if (!user) return false;
+
+  // User is not creator
+  return (
+    user.creator?.id !== book.artistId && user.creator?.id !== book.publisherId
+  );
+}
+
+export function canAddToCollection(user: AuthUser | null, book: Book): boolean {
+  if (!user) return false;
+
+  // User is not creator
+  return (
+    user.creator?.id !== book.artistId && user.creator?.id !== book.publisherId
+  );
 }

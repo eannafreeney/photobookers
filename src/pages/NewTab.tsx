@@ -9,11 +9,12 @@ import Link from "../components/app/Link";
 import SectionTitle from "../components/app/SectionTitle";
 import WishlistButton from "../components/app/WishlistButton";
 import { Book, Creator } from "../db/schema";
-import { getBooks } from "../services/books";
+import { canAddToCollection, canWishlistBook } from "../lib/permissions";
+import { getNewBooks } from "../services/books";
 import { capitalize, formatDate } from "../utils";
 
 const NewTab = async ({ user }: { user: AuthUser }) => {
-  const featuredBooks = await getBooks();
+  const featuredBooks = await getNewBooks();
   if (!featuredBooks) {
     return <div>No featured books found</div>;
   }
@@ -39,10 +40,6 @@ type NewBookCardProps = {
 };
 
 const NewBookCard = ({ book, artist, user }: NewBookCardProps) => {
-  const userIsCreatorOwner =
-    user?.creator?.id === book.artistId ||
-    user?.creator?.id === book.publisherId;
-
   return (
     <Card>
       <div class="p-2">
@@ -67,15 +64,11 @@ const NewBookCard = ({ book, artist, user }: NewBookCardProps) => {
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0 flex-1">
             <Card.Title>{book.title}</Card.Title>
-            <Card.Text>
-              {book.releaseDate
-                ? formatDate(new Date(book.releaseDate ?? "").toISOString())
-                : ""}
-            </Card.Text>
+            <Card.SubTitle>{book.tagline ?? ""}</Card.SubTitle>
           </div>
         </div>
         <div class="mt-auto flex items-center gap-2">
-          <Link href={`/books/${book.slug}`}>
+          <Link href={`/books/${book.slug}`} className="flex-1">
             <Button variant="solid" color="primary">
               <span>More</span>
             </Button>
@@ -84,13 +77,13 @@ const NewBookCard = ({ book, artist, user }: NewBookCardProps) => {
             isCircleButton
             bookId={book.id}
             user={user}
-            isDisabled={userIsCreatorOwner}
+            isDisabled={!canWishlistBook(user, book)}
           />
           <CollectionButton
             isCircleButton
             bookId={book.id}
             user={user}
-            isDisabled={userIsCreatorOwner}
+            isDisabled={!canAddToCollection(user, book)}
           />
         </div>
       </Card.Body>

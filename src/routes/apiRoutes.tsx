@@ -55,7 +55,12 @@ apiRoutes.post("/follow/creator/:creatorId", async (c) => {
     );
   }
 
-  return c.html(<FollowButton creatorId={creatorId} user={user} />);
+  return c.html(
+    <>
+      <FollowButton creatorId={creatorId} user={user} variant="desktop" />
+      <FollowButton creatorId={creatorId} user={user} variant="mobile" />
+    </>
+  );
 });
 
 apiRoutes.post("/wishlist/:bookId", async (c) => {
@@ -66,10 +71,6 @@ apiRoutes.post("/wishlist/:bookId", async (c) => {
   if (!userId) {
     return c.html(<AuthModal action="to wishlist this book." />, 401);
   }
-
-  // const userIsCreatorOwner =
-  //   user?.creator?.id === book.artistId ||
-  //   user?.creator?.id === book.publisherId;
 
   const body = await c.req.parseBody();
   const isCurrentlyWishlisted = body.isWishlisted === "true";

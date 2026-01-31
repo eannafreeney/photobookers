@@ -14,9 +14,9 @@ const BooksForApprovalTable = async ({ creatorId }: { creatorId: string }) => {
   }
 
   return (
-    <div>
+    <div class="flex flex-col gap-2">
       <SectionTitle>Books For Approval</SectionTitle>
-      <p>
+      <p class="mb-2">
         Books created by others that are waiting for your approval to be added
         to your catalogue. You can approve or reject them by clicking the
         buttons below.

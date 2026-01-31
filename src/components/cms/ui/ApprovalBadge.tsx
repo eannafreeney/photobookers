@@ -1,3 +1,4 @@
+import { capitalize } from "../../../utils";
 import Badge from "../../app/Badge";
 
 type Props = {
@@ -16,7 +17,7 @@ const ApprovalBadge = ({ approvalStatus }: Props) => {
     <Badge
       variant={badgeVariants[approvalStatus as keyof typeof badgeVariants]}
     >
-      {approvalStatus}
+      {capitalize(approvalStatus)}
     </Badge>
   );
 };

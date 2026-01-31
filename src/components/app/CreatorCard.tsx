@@ -1,5 +1,6 @@
 import { useUser } from "../../contexts/UserContext";
 import { Creator } from "../../db/schema";
+import { canFollowCreator } from "../../lib/permissions";
 import Card from "./Card";
 import ClaimCreatorBtn from "./ClaimCreatorBtn";
 import FollowButton from "./FollowButton";
@@ -34,13 +35,22 @@ const CreatorCard = ({ creator, currentPath }: CreatorCardProps) => {
               </div>
             </Card.SubTitle>
           </div>
-          <Card.Description>{creator.bio ?? ""}</Card.Description>
-          <FollowButton creatorId={creator.id} user={user ?? null} />
-          <ClaimCreatorBtn
-            creator={creator}
-            currentPath={currentPath}
-            user={user ?? undefined}
+          <Card.Intro>{creator.bio ?? ""}</Card.Intro>
+          <FollowButton
+            creatorId={creator.id}
+            user={user}
+            isDisabled={!canFollowCreator(user, creator.id)}
+            variant="desktop"
           />
+          {creator.status === "stub" ? (
+            <ClaimCreatorBtn
+              creator={creator}
+              currentPath={currentPath}
+              user={user ?? undefined}
+            />
+          ) : (
+            <></>
+          )}
           <SocialLinks creator={creator} />
         </Card.Body>
       </Card>
@@ -54,7 +64,7 @@ const SocialLinks = ({ creator }: { creator: Creator }): JSX.Element => {
   if (creator.status === "stub") return <></>;
 
   return (
-    <div class="flex md:flex-col flex-row gap-2 color-green-500">
+    <div class="flex flex-col md:flex-row gap-2">
       {creator.facebook && <Link href={creator.facebook}>Facebook</Link>}
       {creator.twitter && <Link href={creator.twitter}>Twitter</Link>}
       {creator.instagram && <Link href={creator.instagram}>Instagram</Link>}

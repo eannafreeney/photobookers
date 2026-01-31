@@ -24,5 +24,5 @@ export const useUser = () => {
   if (!context) {
     throw new Error("useUser must be used within UserProvider");
   }
-  return context.user;
+  return context.user ?? null;
 };

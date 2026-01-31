@@ -1,6 +1,14 @@
 import Alpine from "alpinejs";
 import { creatorFormSchema } from "../../schemas";
 import z from "zod";
+import {
+  createFormState,
+  getIsDirty,
+  handleSubmit,
+  initFormValues,
+  resetFormBaseline,
+  validateField,
+} from "./formUtils";
 
 type CreatorFormData = z.infer<typeof creatorFormSchema>;
 
@@ -20,53 +28,18 @@ export function registerCreatorForm() {
         displayNameIsTaken: false,
         artistSearchResults: "",
 
-        // Initialize fields dynamically
-        form: {
-          ...Object.fromEntries(
-            CREATOR_FORM_FIELDS.map((key) => [key, formValues[key] ?? ""])
-          ),
-        },
-
-        initialValues: {
-          form: {},
-        },
-
-        errors: {
-          form: {},
-        },
+        ...createFormState(CREATOR_FORM_FIELDS, formValues),
 
         init() {
-          if (isEditMode) {
-            // Capture initial state dynamically for edit mode
-            this.initialValues.form = Object.fromEntries(
-              CREATOR_FORM_FIELDS.map((key) => [key, this.form[key]])
-            );
-          } else {
-            // Initialize with empty strings for create mode so isDirty works correctly
-            this.initialValues.form = Object.fromEntries(
-              CREATOR_FORM_FIELDS.map((key) => [key, ""])
-            );
-          }
+          initFormValues(this, CREATOR_FORM_FIELDS, isEditMode);
         },
 
         get isDirty() {
-          return CREATOR_FORM_FIELDS.some(
-            (key) => this.form[key] !== this.initialValues.form[key]
-          );
+          return getIsDirty(this, CREATOR_FORM_FIELDS);
         },
 
         validateField(field: string) {
-          const result = creatorFormSchema.safeParse(this.form);
-          const fieldError =
-            result.error?.flatten().fieldErrors[
-              field as keyof typeof this.errors.form
-            ];
-          if (fieldError && fieldError[0]) {
-            this.errors.form[field as keyof typeof this.errors.form] =
-              fieldError[0];
-          } else {
-            delete this.errors.form[field as keyof typeof this.errors.form];
-          }
+          return validateField(this, field, creatorFormSchema);
         },
 
         validateDisplayName() {
@@ -92,24 +65,12 @@ export function registerCreatorForm() {
         },
 
         submitForm(event: Event) {
-          this.isSubmitting = true;
-          const result = creatorFormSchema.safeParse(this.form);
-
-          if (!result.success || !this.isFormValid) {
-            event.preventDefault();
-            this.errors.form = result.error.flatten().fieldErrors;
-            this.isSubmitting = false;
-            return;
-          }
+          return handleSubmit(this, event, creatorFormSchema);
         },
 
         onSuccess() {
-          this.isSubmitting = false;
+          resetFormBaseline(this, CREATOR_FORM_FIELDS);
           this.artistSearchResults = "";
-          // Reset baseline to current values so form is "clean" after save
-          this.initialValues.form = Object.fromEntries(
-            CREATOR_FORM_FIELDS.map((key) => [key, this.form[key]])
-          );
         },
 
         onError() {

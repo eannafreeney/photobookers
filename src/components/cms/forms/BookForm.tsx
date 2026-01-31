@@ -39,6 +39,7 @@ export const BookForm = async ({
     "x-target.away": "_top",
     "x-target": "toast",
     "x-on:ajax:error": "isSubmitting = false",
+    "x-on:ajax:success": "onSuccess()",
   };
 
   return (
@@ -53,11 +54,12 @@ export const BookForm = async ({
             validateInput="validateField('title')"
             required
           />
-          {isPublisher && (
+          {isPublisher && !isEditPage && (
             <ComboBox
               label="Artist"
               name="form.artist_id"
               newOptionName="form.new_artist_name"
+              type="artist"
               options={artistOptions}
               required
             />
@@ -84,25 +86,25 @@ export const BookForm = async ({
             </>
           ) : null}
           <Input
-            label={dateIsInPast ? "Release Date (Locked)" : "Release Date"}
+            label="Release Date"
             name="form.release_date"
             type="date"
-            readOnly={dateIsInPast ?? false}
             validateInput="validateField('release_date')"
             required
           />
+          <Input label="Tagline" name="form.tagline" maxLength={200} />
           <TextArea
             label="Specs"
             name="form.specs"
             validateInput="validateField('specs')"
-            maxLength={300}
+            maxLength={1000}
             required
           />
           <TextArea
             label="Description"
             name="form.description"
             validateInput="validateField('description')"
-            maxLength={2000}
+            maxLength={5000}
             required
           />
           <RadioFields
@@ -113,7 +115,6 @@ export const BookForm = async ({
               { value: "available", label: "Available" },
               { value: "sold_out", label: "Sold Out" },
               { value: "unavailable", label: "Unavailable" },
-              { value: "upcoming", label: "Upcoming" },
             ]}
           />
           <Input

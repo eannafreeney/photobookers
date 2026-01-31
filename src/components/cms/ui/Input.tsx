@@ -56,6 +56,7 @@ const Input = ({
           disabled={isDisabled}
           x-model={name}
           maxLength={maxLength}
+          {...{ "x-on:blur": `${name} = ${name}.trim()` }}
           {...(readOnly && { readOnly: true })}
           {...(validateInput && inputHandler)}
           {...restProps}

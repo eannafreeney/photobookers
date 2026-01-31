@@ -1,14 +1,12 @@
 import { Book, Creator } from "../../../db/schema";
-import PreviewButton from "../../api/PreviewButton";
 import Button from "../../app/Button";
-import PublishToggleForm from "../forms/PublishToggleForm";
 
 type Props = {
   book: Book & { artist: Creator; publisher: Creator };
   creatorType: "artist" | "publisher";
 };
 
-const ApproveBookTableRow = ({ book, creatorType }: Props) => {
+const ApproveBookTableRow = ({ book }: Props) => {
   return (
     <tr>
       <td class="p-4">{book.title}</td>
@@ -22,31 +20,53 @@ const ApproveBookTableRow = ({ book, creatorType }: Props) => {
           ? new Date(book.releaseDate).toLocaleDateString()
           : ""}
       </td>
-
       <td class="p-4">
-        <form
-          x-target="books-approval-table"
-          method="POST"
-          action={`/dashboard/books/${book.id}/approve`}
-        >
-          <Button variant="outline" color="success">
-            <span>Approve</span>
+        <a href={`/dashboard/books/edit/${book.id}`}>
+          <Button variant="outline" color="inverse">
+            <span>Edit</span>
           </Button>
-        </form>
+        </a>
       </td>
       <td class="p-4">
-        <form
-          x-target="books-approval-table"
-          method="POST"
-          action={`/dashboard/books/${book.id}/reject`}
-        >
-          <Button variant="outline" color="danger">
-            <span>Reject</span>
-          </Button>
-        </form>
+        <ApproveBookForm bookId={book.id} />
+      </td>
+      <td class="p-4">
+        <RejectBookForm bookId={book.id} />
       </td>
     </tr>
   );
 };
 
 export default ApproveBookTableRow;
+
+const ApproveBookForm = ({ bookId }: { bookId: string }) => {
+  const attrs = {
+    "x-target": "books-approval-table toast",
+    "x-target.error": "toast",
+  };
+  return (
+    <form
+      {...attrs}
+      method="POST"
+      action={`/dashboard/books/${bookId}/approve`}
+    >
+      <Button variant="outline" color="success">
+        <span>Approve</span>
+      </Button>
+    </form>
+  );
+};
+
+const RejectBookForm = ({ bookId }: { bookId: string }) => {
+  const attrs = {
+    "x-target": "books-approval-table toast",
+    "x-target.error": "toast",
+  };
+  return (
+    <form {...attrs} method="POST" action={`/dashboard/books/${bookId}/reject`}>
+      <Button variant="outline" color="danger">
+        <span>Reject</span>
+      </Button>
+    </form>
+  );
+};

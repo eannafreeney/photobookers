@@ -1,5 +1,7 @@
+import { AuthUser } from "../../../../types";
 import { useUser } from "../../../contexts/UserContext";
 import { Book, Creator } from "../../../db/schema";
+import { canDeleteBook, canEditBook } from "../../../lib/permissions";
 import { getBooksByCreatorIdForOtherPublishers } from "../../../services/books";
 import Button from "../../app/Button";
 import SectionTitle from "../../app/SectionTitle";
@@ -57,6 +59,8 @@ type BookTableRowProps = {
 };
 
 const BookTableRow = ({ book }: BookTableRowProps) => {
+  const user = useUser();
+
   return (
     <tr>
       <td class="p-4">
@@ -94,32 +98,44 @@ const BookTableRow = ({ book }: BookTableRowProps) => {
           <Button
             variant="outline"
             color="inverse"
-            isDisabled={book.approvalStatus !== "pending"}
+            isDisabled={canEditBook(user, book)}
           >
             <span>Edit</span>
           </Button>
         </a>
       </td>
       <td class="p-4">
-        <form
-          x-target="books-other-publishers-table"
-          method="POST"
-          action={`/dashboard/books/delete/${book.id}`}
-          x-init
-          {...{
-            "@ajax:before":
-              "confirm('Are you sure?') || $event.preventDefault()",
-          }}
-        >
-          <Button
-            variant="outline"
-            color="danger"
-            isDisabled={book.approvalStatus !== "pending"}
-          >
-            <span>Delete</span>
-          </Button>
-        </form>
+        <DeleteBookForm book={book} user={user} />
       </td>
     </tr>
+  );
+};
+
+const DeleteBookForm = ({
+  book,
+  user,
+}: {
+  book: Book & { artist: Creator; publisher: Creator };
+  user: AuthUser | null;
+}) => {
+  const attrs = {
+    "x-target": "books-other-publishers-table toast",
+    "x-target.error": "toast",
+    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+  };
+  return (
+    <form
+      {...attrs}
+      method="POST"
+      action={`/dashboard/books/delete/${book.id}`}
+    >
+      <Button
+        variant="outline"
+        color="danger"
+        isDisabled={canDeleteBook(user, book)}
+      >
+        <span>Delete</span>
+      </Button>
+    </form>
   );
 };

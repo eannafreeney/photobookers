@@ -40,6 +40,7 @@ const BooksOverview = async ({
             searchQuery={searchQuery}
             creatorId={user.creator.id}
             creatorType={creatorType}
+            user={user}
           />
           {user.creator.type === "artist" ? (
             <ArtistTables />

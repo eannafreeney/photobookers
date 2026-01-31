@@ -10,13 +10,18 @@ interface AlertProps {
 const Alert = ({ type, message }: AlertProps) => {
   const variant = alertVariants[type];
 
+  const alpineAttrs = {
+    "x-data": "{ show: false }",
+    "x-init":
+      "$nextTick(() => show = true); setTimeout(() => { show = false; setTimeout(() => $el.remove(), 300) }, 4000)",
+    "x-show": "show",
+  };
+
   return (
     <div
-      x-sync
       id="toast"
-      x-data="{ show: false }"
-      x-init="$nextTick(() => show = true); setTimeout(() => show = false, 4000)"
-      x-show="show"
+      x-sync
+      {...alpineAttrs}
       {...fadeTransition}
       class={`fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-md z-50 overflow-hidden rounded-sm border
         bg-surface text-on-surface

@@ -1,5 +1,6 @@
 import { useUser } from "../../contexts/UserContext";
 import { Creator } from "../../db/schema";
+import { canFollowCreator } from "../../lib/permissions";
 import FollowButton from "./FollowButton";
 import VerifiedCreator from "./VerifiedCreator";
 
@@ -30,7 +31,12 @@ const CreatorCardMobile = ({ creator }: CreatorCardProps) => {
           </div>
         </div>
         <div class="w-1/3">
-          <FollowButton creatorId={creator.id} user={user} />
+          <FollowButton
+            creatorId={creator.id}
+            user={user}
+            isDisabled={!canFollowCreator(user, creator.id)}
+            variant="mobile"
+          />
         </div>
       </div>
     </div>

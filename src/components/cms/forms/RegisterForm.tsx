@@ -1,3 +1,4 @@
+import Link from "../../app/Link";
 import Checkbox from "../ui/Checkbox";
 import FormButton from "../ui/FormButtons";
 import Input from "../ui/Input";
@@ -12,6 +13,7 @@ const RegisterForm = ({ type }: RegisterFormProps) => {
     "x-on:submit": "submitForm($event)",
     "x-target.away": "_top",
     "x-target": "toast",
+    "x-on:ajax:error": "isSubmitting = false",
   };
 
   return (
@@ -71,12 +73,11 @@ const RegisterForm = ({ type }: RegisterFormProps) => {
         />
         <FormButton buttonText="Create Account" loadingText="Submitting..." />
       </form>
-      <div class="divider">OR</div>
-      <p class="text-center text-sm">
+      <p class="text-center text-sm mt-4">
         Already have an account?{" "}
-        <a href="/auth/login" class="link link-primary">
-          Sign in
-        </a>
+        <Link href="/auth/login">
+          <span class="font-bold">Sign In</span>
+        </Link>
       </p>
     </>
   );

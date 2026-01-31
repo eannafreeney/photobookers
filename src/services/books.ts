@@ -16,6 +16,7 @@ import {
   ilike,
   inArray,
   isNull,
+  lte,
   ne,
   not,
   or,
@@ -25,17 +26,17 @@ import { bookFormSchema } from "../schemas";
 import z from "zod";
 import { AuthUser } from "../../types";
 
-export const getBooks = async () => {
+export const getNewBooks = async () => {
   try {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
     return await db.query.books.findMany({
       with: {
         artist: true,
       },
       orderBy: (books, { desc }) => [desc(books.releaseDate)],
-      where: eq(books.publicationStatus, "published"),
+      where: and(
+        eq(books.publicationStatus, "published"),
+        lte(books.releaseDate, new Date())
+      ),
     });
   } catch (error) {
     console.error("Failed to get books", error);
@@ -76,7 +77,7 @@ export const getBooksByPublisherId = async (
 
     const booksByCreator = await db.query.books.findMany({
       where: whereClause,
-      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
       with: {
         artist: true,
         publisher: true,
@@ -105,7 +106,7 @@ export const getBooksByArtistId = async (
 
     const booksByCreator = await db.query.books.findMany({
       where: whereClause,
-      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
       with: {
         artist: true,
         publisher: true,
@@ -270,16 +271,12 @@ export const createBook = async (input: NewBook) => {
   }
 };
 
-export const updateBook = async (
-  input: UpdateBook,
-  bookId: string,
-  userId: string
-) => {
+export const updateBook = async (input: UpdateBook, bookId: string) => {
   try {
     const [updatedBook] = await db
       .update(books)
       .set(input)
-      .where(and(eq(books.id, bookId), eq(books.createdByUserId, userId)))
+      .where(eq(books.id, bookId))
       .returning();
 
     return updatedBook;
@@ -289,12 +286,49 @@ export const updateBook = async (
   }
 };
 
+async function cleanupOrphanedStubCreator(creatorId: string) {
+  const [creator] = await db
+    .select()
+    .from(creators)
+    .where(eq(creators.id, creatorId));
+
+  // Only delete if it's a stub
+  if (creator?.status !== "stub") return;
+
+  // Check if creator has any other books
+  const otherBooks = await db
+    .select({ id: books.id })
+    .from(books)
+    .where(or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)))
+    .limit(1);
+
+  // If no other books, delete the stub
+  if (otherBooks.length === 0) {
+    await db.delete(creators).where(eq(creators.id, creatorId));
+  }
+}
+
 export const deleteBookById = async (bookId: string) => {
   try {
+    const [book] = await db.select().from(books).where(eq(books.id, bookId));
+
+    if (!book) return null;
+
     const [deletedBook] = await db
       .delete(books)
       .where(eq(books.id, bookId))
       .returning();
+
+    // Clean up orphaned stub publisher
+    if (book.publisherId) {
+      await cleanupOrphanedStubCreator(book.publisherId);
+    }
+
+    // Clean up orphaned stub artist
+    if (book.artistId) {
+      await cleanupOrphanedStubCreator(book.artistId);
+    }
+
     return deletedBook;
   } catch (error) {
     console.error("Failed to delete book", error);
@@ -319,6 +353,7 @@ export const prepareBookData = async (
 
   return {
     title: formData.title,
+    tagline: formData.tagline || null,
     description: formData.description || null,
     specs: formData.specs || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
@@ -342,6 +377,7 @@ export const prepareBookUpdateData = (
   return {
     title: formData.title,
     description: formData.description || null,
+    tagline: formData.tagline || null,
     specs: formData.specs || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
     slug: slugify(formData.title),
@@ -393,9 +429,13 @@ export const getFeedBooks = async (userId: string) => {
 
     // Find books where artistCreatorId or publisherId is in the followed creators list
     const feedBooks = await db.query.books.findMany({
-      where: or(
-        inArray(books.artistId, followedCreatorIds),
-        inArray(books.publisherId, followedCreatorIds)
+      where: and(
+        or(
+          inArray(books.artistId, followedCreatorIds),
+          inArray(books.publisherId, followedCreatorIds)
+        ),
+        eq(books.publicationStatus, "published"),
+        lte(books.releaseDate, new Date())
       ),
       with: {
         artist: true,

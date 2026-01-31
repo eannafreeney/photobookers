@@ -40,6 +40,12 @@ const CardSubTitle = ({ children }: { children: ChildType }) => (
   <span class="text-sm font-medium">{children}</span>
 );
 
+const CardIntro = ({ children }: { children: ChildType }) => (
+  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap line-clamp-3">
+    {children}
+  </p>
+);
+
 const CardDescription = ({ children }: { children: ChildType }) => (
   <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap">
     {children}
@@ -70,6 +76,7 @@ Card.Image = CardImage;
 Card.Title = CardTitle;
 Card.SubTitle = CardSubTitle;
 Card.Description = CardDescription;
+Card.Intro = CardIntro;
 Card.Text = CardText;
 Card.Tags = CardTags;
 Card.Banner = CardBanner;

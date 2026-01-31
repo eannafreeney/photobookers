@@ -17,12 +17,14 @@ type BookTableProps = {
   searchQuery?: string;
   creatorId: string;
   creatorType: "artist" | "publisher";
+  user: AuthUser | null;
 };
 
 export const BookTable = async ({
   searchQuery,
   creatorId,
   creatorType,
+  user,
 }: BookTableProps) => {
   const getBooksFn = {
     artist: getBooksByArtistId,
@@ -67,7 +69,7 @@ export const BookTable = async ({
           >
             {validBooks && validBooks.length > 0 ? (
               validBooks?.map((book) => (
-                <BookTableRow book={book} creatorType="artist" />
+                <BookTableRow book={book} user={user} />
               ))
             ) : (
               <tr>

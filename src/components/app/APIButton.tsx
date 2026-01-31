@@ -22,17 +22,23 @@ const APIButton = ({
   const alpineAttrs = {
     "x-data": "{ isSubmitting: false }",
     "x-on:ajax:before": "isSubmitting = true",
-    "x-on:ajax:after": "$dispatch('dialog:open')",
+    "x-on:ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
+    "x-on:ajax:error": "isSubmitting = false",
     "x-target": xTarget,
-    "x-target.error": "modal-root",
+    "x-target.error": "toast",
+    "x-target.401": "modal-root",
   };
 
   return (
     <form
       id={id}
+      x-sync
       method="post"
       action={action}
-      class="whitespace-nowrap w-full rounded-radius border px-4 py-2 text-sm font-medium tracking-wide transition hover:opacity-75 text-center bg-transparentw-full text-secondary border-secondary"
+      class={clsx(
+        "whitespace-nowrap w-full rounded-radius border px-4 py-2 text-sm font-medium tracking-wide transition hover:opacity-75 text-center bg-transparent text-secondary",
+        isDisabled ? "border-secondary/50" : "border-secondary"
+      )}
       {...alpineAttrs}
     >
       {hiddenInput?.value !== undefined && (

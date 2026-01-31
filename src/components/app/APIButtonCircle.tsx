@@ -17,16 +17,17 @@ const APIButtonCircle = ({
   action,
   hiddenInput,
   buttonText,
-  errorTarget = "modal-root",
   buttonType,
   isDisabled = false,
 }: APIButtonCircleProps) => {
   const attrs = {
     "x-data": "{ isSubmitting: false }",
     "x-on:ajax:before": "isSubmitting = true",
-    "x-on:ajax:after": "$dispatch('dialog:open')",
+    "x-on:ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
+    "x-on:ajax:error": "isSubmitting = false",
     "x-target": xTarget,
-    "x-target.error": errorTarget,
+    "x-target.error": "toast",
+    "x-target.401": "modal-root",
   };
 
   return (

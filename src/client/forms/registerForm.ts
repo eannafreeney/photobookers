@@ -106,8 +106,6 @@ export function registerRegisterForm() {
           this.errors.form = result.error.flatten().fieldErrors;
           return;
         }
-
-        this.isSubmitting = false;
       },
 
       async checkEmailAvailability() {

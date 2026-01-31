@@ -46,10 +46,11 @@ export const loginFormSchema = z.object({
 // ============ CREATOR FORM SCHEMA ============
 export const creatorFormSchema = z.object({
   displayName: z.string().min(3, "Display Name must be at least 3 characters"),
+  tagline: z.string().max(200, "Tagline must be less than 200 characters"),
   bio: z
     .string()
     .min(10, "Description must be at least 10 characters")
-    .max(200, "Description must be less than 200 characters"),
+    .max(1000, "Description must be less than 1000 characters"),
   city: z.string().min(3, "City must be at least 3 characters"),
   country: z.string().min(2, "Country must be at least 2 characters"),
   type: z.preprocess(
@@ -100,6 +101,7 @@ export const claimFormSchema = z.object({
 // This validates form input, NOT database values
 export const bookFormSchema = z.object({
   title: z.string().min(3, "Title is required"),
+  tagline: z.string().max(200, "Tagline must be less than 200 characters"),
   artist_id: optionalText,
   new_artist_name: optionalText,
   publisher_id: optionalText,
@@ -107,17 +109,17 @@ export const bookFormSchema = z.object({
   description: z
     .string()
     .min(10, "Description must be at least 10 characters")
-    .max(4000, "Description must be less than 4000 characters"),
+    .max(5000, "Description must be less than 5000 characters"),
   specs: z
     .string()
     .min(10, "Specs must be at least 10 characters")
-    .max(300, "Specs must be less than 300 characters"),
+    .max(1000, "Specs must be less than 1000 characters"),
   release_date: optionalText,
   tags: optionalText,
   availability_status: z
     .preprocess(
       (val) => (val === "" ? undefined : val),
-      z.enum(["available", "sold_out", "unavailable", "upcoming"])
+      z.enum(["available", "sold_out", "unavailable"])
     )
     .default("available"),
 });

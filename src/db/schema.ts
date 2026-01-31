@@ -20,7 +20,6 @@ import {
 export const bookAvailabilityStatusEnum = pgEnum("book_availability_status", [
   "sold_out",
   "unavailable",
-  "upcoming",
   "available",
 ]);
 
@@ -78,6 +77,7 @@ export const creators = pgTable(
     ownerUserId: uuid("owner_user_id").references(() => users.id),
     type: creatorTypeEnum("type").notNull(),
     displayName: text("display_name").notNull(),
+    tagline: text("tagline"),
     bio: text("bio"),
     status: creatorStatusEnum("status").default("stub"),
     coverUrl: text("cover_url"),
@@ -125,6 +125,7 @@ export const books = pgTable(
     artistId: uuid("artist_id").references(() => creators.id),
     publisherId: uuid("publisher_id").references(() => creators.id),
     releaseDate: timestamp("release_date"),
+    tagline: text("tagline"),
     availabilityStatus: bookAvailabilityStatusEnum(
       "availability_status"
     ).default("available"),
