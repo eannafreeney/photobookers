@@ -40,7 +40,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db/client";
 import { BookTable } from "../components/cms/ui/BookTable";
 import BooksForApprovalTable from "../components/cms/ui/BooksForApprovalTable";
-import { canEditBook } from "../lib/permissions";
+import { canEditBook, canPublishBook } from "../lib/permissions";
 import { requireBookEditAccess } from "../middleware/bookGuard";
 
 export const booksDashboardRoutes = new Hono();
@@ -238,16 +238,13 @@ booksDashboardRoutes.post(
 booksDashboardRoutes.post("/:bookId/publish", async (c) => {
   const bookId = c.req.param("bookId");
   const book = await getBookById(bookId);
+  const user = await getUser(c);
 
   if (!book) {
     return c.html(<Alert type="danger" message="Book not found" />, 422);
   }
-
-  if (!book?.coverUrl) {
-    return c.html(
-      <Alert type="danger" message="Add a cover image before publishing" />,
-      401
-    );
+  if (!canPublishBook(user, book)) {
+    showErrorAlert(c, "Please add a cover image before publishing");
   }
 
   const result = await updateBookPublicationStatus(bookId, "published");

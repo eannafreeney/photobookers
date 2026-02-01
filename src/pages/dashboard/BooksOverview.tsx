@@ -5,6 +5,7 @@ import BooksCreatedByMeForStubPublishersTable from "../../components/cms/ui/Book
 import BooksForApprovalTable from "../../components/cms/ui/BooksForApprovalTable";
 import { BookTable } from "../../components/cms/ui/BookTable";
 import AppLayout from "../../components/layouts/AppLayout";
+import FeatureGuard from "../../components/layouts/FeatureGuard";
 import Page from "../../components/layouts/Page";
 
 type BooksDashboardProps = {
@@ -42,11 +43,13 @@ const BooksOverview = async ({
             creatorType={creatorType}
             user={user}
           />
-          {user.creator.type === "artist" ? (
-            <ArtistTables />
-          ) : (
-            <PublisherTables creatorId={user.creator.id} />
-          )}
+          <FeatureGuard flagName="artists-can-create-stub-publishers">
+            {user.creator.type === "artist" ? (
+              <ArtistTables />
+            ) : (
+              <PublisherTables creatorId={user.creator.id} />
+            )}
+          </FeatureGuard>
         </div>
       </Page>
     </AppLayout>

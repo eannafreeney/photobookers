@@ -1,6 +1,7 @@
 import { getAllOptions } from "../../../services/creators";
 import Form from "../../app/Form";
 import SectionTitle from "../../app/SectionTitle";
+import FeatureGuard from "../../layouts/FeatureGuard";
 import ComboBox from "../ui/ComboBox";
 import FormButtons from "../ui/FormButtons";
 import Input from "../ui/Input";
@@ -64,27 +65,31 @@ export const BookForm = async ({
               required
             />
           )}
-          {isArtist && !isEditPage ? (
-            <>
-              <div x-show="is_self_published">
-                <ToggleInput
-                  label="Self Published"
-                  name="is_self_published"
-                  isChecked={isArtist}
-                />
-              </div>
-              <div x-show="!is_self_published">
-                <ComboBox
-                  label="Publisher"
-                  name="form.publisher_id"
-                  newOptionName="form.new_publisher_name"
-                  type="publisher"
-                  options={publisherOptions}
-                  required
-                />
-              </div>
-            </>
-          ) : null}
+          <FeatureGuard flagName="artists-can-create-stub-publishers">
+            {isArtist && !isEditPage ? (
+              <>
+                <div x-show="is_self_published">
+                  <ToggleInput
+                    label="Self Published"
+                    name="is_self_published"
+                    isChecked={isArtist}
+                  />
+                </div>
+                <div x-show="!is_self_published">
+                  <ComboBox
+                    label="Publisher"
+                    name="form.publisher_id"
+                    newOptionName="form.new_publisher_name"
+                    type="publisher"
+                    options={publisherOptions}
+                    required
+                  />
+                </div>
+              </>
+            ) : (
+              <></>
+            )}
+          </FeatureGuard>
           <Input
             label="Release Date"
             name="form.release_date"

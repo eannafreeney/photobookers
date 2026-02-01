@@ -44,11 +44,11 @@ export function canEditCreator(
 export function canPublishBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
 
-  const creatorIsOwner =
-    user.creator?.id === book.artistId || user.creator?.id === book.publisherId;
+  // const creatorIsOwner =
+  //   user.creator?.id === book.artistId || user.creator?.id === book.publisherId;
   const coverUrlIsSet = book.coverUrl !== null;
 
-  if (creatorIsOwner && coverUrlIsSet) {
+  if (coverUrlIsSet) {
     return true;
   }
 
@@ -57,28 +57,22 @@ export function canPublishBook(user: AuthUser | null, book: Book): boolean {
 
 export function canFollowCreator(
   user: AuthUser | null,
-  creatorId: string
+  creatorToFollowId: string
 ): boolean {
-  if (!user) return false;
-
   // User is not creator
-  return user.creator?.id !== creatorId;
+  return user?.creator?.id !== creatorToFollowId && user?.creator?.id !== null;
 }
 
 export function canWishlistBook(user: AuthUser | null, book: Book): boolean {
-  if (!user) return false;
-
-  // User is not creator
   return (
-    user.creator?.id !== book.artistId && user.creator?.id !== book.publisherId
+    user?.creator?.id !== book.artistId &&
+    user?.creator?.id !== book.publisherId
   );
 }
 
 export function canAddToCollection(user: AuthUser | null, book: Book): boolean {
-  if (!user) return false;
-
-  // User is not creator
   return (
-    user.creator?.id !== book.artistId && user.creator?.id !== book.publisherId
+    user?.creator?.id !== book.artistId &&
+    user?.creator?.id !== book.publisherId
   );
 }

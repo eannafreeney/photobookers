@@ -32,6 +32,51 @@ const BookDetailPage = async ({ user, bookSlug }: BookDetailPageProps) => {
   return (
     <AppLayout title={book.title} user={user}>
       <Page>
+        {/* Mobile: Artist header */}
+        <CreatorCardMobile creator={artist} />
+
+        {/* Main content area */}
+        <div class="flex flex-col lg:flex-row gap-8">
+          {/* Left column: Book visuals + actions */}
+          <div class="lg:w-2/3 space-y-6">
+            {/* Book cover/carousel */}
+            <BookCard book={book} />
+
+            {/* Mobile: Publisher card (if exists) */}
+            {book.publisher && (
+              <div class="lg:hidden">
+                <CreatorCardMobile creator={book.publisher} />
+              </div>
+            )}
+
+            {/* Book details */}
+            <div class="space-y-6">
+              <div>
+                <h2 class="text-lg font-semibold mb-2">About this book</h2>
+                <Card.Description>{book.description ?? ""}</Card.Description>
+              </div>
+
+              <div>
+                <h2 class="text-lg font-semibold mb-2">Specifications</h2>
+                <Card.Description class="whitespace-pre-line">
+                  {book.specs ?? ""}
+                </Card.Description>
+              </div>
+
+              {book.tags && book.tags.length > 0 && (
+                <TagList tags={book.tags} />
+              )}
+            </div>
+          </div>
+
+          {/* Right column: Sidebar with creator cards (desktop only) */}
+          <aside class="hidden lg:block lg:w-1/3 space-y-6">
+            <CreatorCard creator={artist} />
+            {book.publisher && <CreatorCard creator={book.publisher} />}
+          </aside>
+        </div>
+      </Page>
+      {/* <Page>
         <CreatorCardMobile creator={artist} />
         <BookCard book={book} />
         <div class="flex flex-col md:flex-row gap-4">
@@ -47,7 +92,7 @@ const BookDetailPage = async ({ user, bookSlug }: BookDetailPageProps) => {
           )}
         </div>
         <CreatorCard creator={book.artist} />
-      </Page>
+      </Page> */}
     </AppLayout>
   );
 };
