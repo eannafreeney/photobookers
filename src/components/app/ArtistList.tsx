@@ -12,7 +12,7 @@ type ArtistListProps = {
 };
 
 const ArtistList = ({ artists, creator }: ArtistListProps) => {
-  if (artists?.length === 0 || creator.type === "artist") {
+  if (!artists || artists?.length === 0 || creator.type === "artist") {
     return <></>;
   }
 

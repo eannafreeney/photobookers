@@ -37,10 +37,10 @@ export const BookForm = async ({
       ${isArtist},
       ${isEditPage})`,
     "x-on:submit": "submitForm($event)",
-    "x-target.away": "_top",
     "x-target": "toast",
     "x-on:ajax:error": "isSubmitting = false",
     "x-on:ajax:success": "onSuccess()",
+    "x-bind:aria-busy": "isSubmitting",
   };
 
   return (
@@ -97,7 +97,7 @@ export const BookForm = async ({
             validateInput="validateField('release_date')"
             required
           />
-          <Input label="Tagline" name="form.tagline" maxLength={200} />
+          <Input label="Tagline" name="form.tagline" maxLength={75} />
           <TextArea
             label="Specs"
             name="form.specs"

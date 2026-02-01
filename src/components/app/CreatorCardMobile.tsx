@@ -5,10 +5,12 @@ import FollowButton from "./FollowButton";
 import VerifiedCreator from "./VerifiedCreator";
 
 type CreatorCardProps = {
-  creator: Creator;
+  creator: Creator | null;
 };
 
 const CreatorCardMobile = ({ creator }: CreatorCardProps) => {
+  if (!creator) return <></>;
+
   const user = useUser();
 
   return (

@@ -1,20 +1,21 @@
 import { capitalize } from "../../utils";
 import Badge from "./Badge";
+import Link from "./Link";
 
 type TagListProps = {
   tags: string[];
 };
 
 const TagList = ({ tags }: TagListProps) => {
+  if (tags.length === 0) return <></>;
   return (
-    <>
-      <h3 className="text-md font-bold">Tags</h3>
-      <div className="flex items-center flex-wrap gap-2">
-        {tags.map((tag) => (
+    <div className="flex items-center flex-wrap gap-2">
+      {tags.map((tag) => (
+        <Link href={`/books/tags/${tag.toLowerCase()}`}>
           <Badge variant="default">{capitalize(tag)}</Badge>
-        ))}
-      </div>
-    </>
+        </Link>
+      ))}
+    </div>
   );
 };
 export default TagList;

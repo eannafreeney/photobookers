@@ -21,7 +21,6 @@ const NewTab = async ({ user }: { user: AuthUser }) => {
 
   return (
     <div id="tab-content">
-      <SectionTitle>New</SectionTitle>
       <GridPanel isFullWidth>
         {featuredBooks.map((book: Book & { artist: Creator | null }) => (
           <NewBookCard book={book} artist={book.artist} user={user} />

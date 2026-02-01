@@ -25,11 +25,11 @@ const CollectionButton = async ({
     <>
       {/* Show empty icon when: not in collection OR (in collection AND submitting) */}
       <span x-show={isInCollection ? "isSubmitting" : "!isSubmitting"} x-cloak>
-        {inCollectionIcon}
+        {addToCollectionIcon}
       </span>
       {/* Show full icon when: in collection OR (NOT in collection AND submitting) */}
       <span x-show={isInCollection ? "!isSubmitting" : "isSubmitting"} x-cloak>
-        {addToCollectionIcon}
+        {inCollectionIcon}
       </span>
     </>
   );
@@ -65,14 +65,14 @@ const CollectionButton = async ({
 
 export default CollectionButton;
 
-const inCollectionIcon = (
+const addToCollectionIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-6 "
+    class="size-6"
   >
     <path
       stroke-linecap="round"
@@ -82,14 +82,14 @@ const inCollectionIcon = (
   </svg>
 );
 
-const addToCollectionIcon = (
+const inCollectionIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-6 fill-primary"
+    class="size-6 fill-primary stroke-primary"
   >
     <path
       stroke-linecap="round"

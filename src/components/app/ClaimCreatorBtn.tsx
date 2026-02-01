@@ -7,24 +7,21 @@ type ClaimCreatorBtnProps = {
   creator: Creator;
   currentPath?: string;
   user?: AuthUser;
+  isDisabled?: boolean;
 };
 
 const ClaimCreatorBtn = ({
   creator,
   currentPath,
   user,
+  isDisabled,
 }: ClaimCreatorBtnProps) => {
-  const userIsCreatorOwner = creator?.ownerUserId === user?.id;
-  const creatorIsStub = creator?.status === "stub";
-  const userIsAlreadyACreator = user?.creator?.id;
-
-  // if (userIsCreatorOwner || creatorIsStub || userIsAlreadyACreator) {
-  //   return <></>;
-  // }
+  const isStubAcc = creator.status === "stub";
+  if (!isStubAcc) return <></>;
 
   const id = `claim-${creator.id}`;
 
-  const attrs = {
+  const alpineAttrs = {
     "x-target": `${id} modal-root`,
     "x-target.error": "modal-root",
     "x-on:ajax:after": "$dispatch('dialog:open')",
@@ -40,14 +37,14 @@ const ClaimCreatorBtn = ({
         "tracking-wide transition hover:opacity-75 text-center bg-transparent",
         "w-full text-secondary border border-secondary"
       )}
-      {...attrs}
+      {...alpineAttrs}
     >
       <input type="hidden" name="currentPath" value={currentPath} />
       <button
-        type="submit"
-        class="flex items-center justify-center gap-2 hover:cursor-pointer w-full"
+        class="flex cursor-pointer items-center justify-center gap-2 hover:cursor-pointer w-full disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isDisabled}
       >
-        Claim Creator
+        Claim Profile
       </button>
     </form>
   );

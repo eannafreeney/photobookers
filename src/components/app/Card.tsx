@@ -7,7 +7,7 @@ type CardProps = {
 };
 
 const Card = ({ children }: CardProps) => (
-  <div class="group flex rounded-radius max-w-sm flex-col overflow-hidden border border-outline bg-surface text-on-surface h-full">
+  <div class="group flex rounded-radius  flex-col overflow-hidden border border-outline bg-surface text-on-surface">
     {children}
   </div>
 );
@@ -21,11 +21,11 @@ const CardBody = ({ children }: { children: ChildType }) => (
 );
 
 const CardImage = ({ src, alt }: { src: string; alt: string }) => (
-  <figure class="overflow-hidden">
+  <figure class="aspect-3/3 w-full overflow-hidden">
     <img
       src={src}
       alt={alt}
-      class="min-h-[175px] object-cover transition duration-700 ease-out group-hover:scale-105"
+      class="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
     />
   </figure>
 );

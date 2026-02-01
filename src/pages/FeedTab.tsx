@@ -79,7 +79,6 @@ const FeedTab = async ({ user }: Props) => {
   }
   return (
     <div id="tab-content">
-      <SectionTitle>Feed</SectionTitle>
       <GridPanel isFullWidth>
         {feedBooks.map((book) => (
           <FeedBookCard book={book} artist={book.artist} />

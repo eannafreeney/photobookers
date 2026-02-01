@@ -175,6 +175,7 @@ booksDashboardRoutes.post(
     const updatedBook = await updateBook(bookData, book.id);
 
     if (!updatedBook) return showErrorAlert(c, "Failed to update book");
+    console.log("updatedBook", updatedBook);
 
     return c.html(
       <Alert type="success" message={`${updatedBook.title} updated!`} />
@@ -228,6 +229,7 @@ booksDashboardRoutes.post(
           searchQuery={undefined}
           creatorType={user.creator?.type ?? "artist"}
           creatorId={user.creator?.id ?? ""}
+          user={user}
         />
       </>
     );

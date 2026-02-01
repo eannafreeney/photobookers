@@ -9,7 +9,7 @@ type CardButtonsProps = {
 const CardButtons = ({ bookId }: CardButtonsProps) => {
   const user = useUser();
   return (
-    <div class="flex flex-col items-center gap-2">
+    <div class="flex flex-col md:flex-row items-center gap-2">
       <WishlistButton bookId={bookId} user={user} />
       <CollectionButton bookId={bookId} user={user} />
     </div>

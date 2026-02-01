@@ -66,3 +66,33 @@ input[type="search"]::-webkit-search-cancel-button {
 .drawer .drawer-toggle:checked ~ .drawer-content ~ .drawer-side {
   transform: translateX(0);
 }
+
+[aria-busy] {
+  --loading-size: 20px;
+  --loading-stroke: 2px;
+  --loading-duration: 0.8s;
+  position: relative;
+}
+
+[aria-busy]:before {
+  content: "";
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: var(--loading-size);
+  height: var(--loading-size);
+  margin-top: calc(var(--loading-size) / 2 * -1);
+  margin-left: calc(var(--loading-size) / 2 * -1);
+  border: var(--loading-stroke) solid
+    var(--color-primary-200, rgba(0, 0, 0, 0.15));
+  border-radius: 50%;
+  border-top-color: var(--color-primary); /* Uses your sky-700 */
+  animation: rotate calc(var(--loading-duration)) linear infinite;
+  z-index: 50;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}

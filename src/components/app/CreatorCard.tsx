@@ -6,14 +6,16 @@ import ClaimCreatorBtn from "./ClaimCreatorBtn";
 import FollowButton from "./FollowButton";
 import Link from "./Link";
 import SectionTitle from "./SectionTitle";
+import SocialLinks from "./SocialLinks";
 import VerifiedCreator from "./VerifiedCreator";
 
 type CreatorCardProps = {
-  creator: Creator;
+  creator: Creator | null;
   currentPath: string;
 };
 
 const CreatorCard = ({ creator, currentPath }: CreatorCardProps) => {
+  if (!creator) return <></>;
   const user = useUser();
 
   return (
@@ -59,16 +61,3 @@ const CreatorCard = ({ creator, currentPath }: CreatorCardProps) => {
 };
 
 export default CreatorCard;
-
-const SocialLinks = ({ creator }: { creator: Creator }): JSX.Element => {
-  if (creator.status === "stub") return <></>;
-
-  return (
-    <div class="flex flex-col md:flex-row gap-2">
-      {creator.facebook && <Link href={creator.facebook}>Facebook</Link>}
-      {creator.twitter && <Link href={creator.twitter}>Twitter</Link>}
-      {creator.instagram && <Link href={creator.instagram}>Instagram</Link>}
-      {creator.website && <Link href={creator.website}>Website</Link>}
-    </div>
-  );
-};

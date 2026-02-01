@@ -12,37 +12,26 @@ const PublishToggleForm = ({ book }: Props) => {
 
   const alpineAttrs = {
     "x-data": `{ isPublished: ${isPublished} }`,
-    "x-target": `mode-form-${bookId} preview-button-${bookId} toast`,
+    "x-target": `publish-toggle-${bookId} preview-button-${bookId} toast`,
     "x-target.error": "toast",
     "x-on:ajax:error": `isPublished = ${isPublished}`,
-    "x-target.back": `toast mode-form-${bookId}`,
+    "x-target.back": `toast publish-toggle-${bookId}`,
   };
 
   return (
     <form
-      id={`mode-form-${bookId}`}
+      id={`publish-toggle-${bookId}`}
       method="POST"
-      action={
-        isPublished
-          ? `/dashboard/books/${bookId}/unpublish`
-          : `/dashboard/books/${bookId}/publish`
-      }
+      action={`/dashboard/books/${bookId}/${
+        isPublished ? "unpublish" : "publish"
+      }`}
       {...alpineAttrs}
     >
-      <div
-        class="tooltip"
-        data-tip={
-          !book.coverUrl && publicationStatus === "draft"
-            ? "Can't publish without a cover image"
-            : ""
-        }
-      >
-        <ToggleButton
-          isChecked={isPublished}
-          name="isPublished"
-          onChange="$root.requestSubmit()"
-        />
-      </div>
+      <ToggleButton
+        isChecked={isPublished}
+        name="isPublished"
+        onChange="$root.requestSubmit()"
+      />
     </form>
   );
 };
