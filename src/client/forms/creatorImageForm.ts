@@ -1,4 +1,5 @@
 import Alpine from "alpinejs";
+import { compressImage } from "../utils/imageCompression";
 
 export function registerCreatorImageForm() {
   Alpine.data(
@@ -7,21 +8,31 @@ export function registerCreatorImageForm() {
       return {
         previewUrl: initialUrl || null,
         initialUrl: initialUrl || null,
+        selectedFile: null,
         isSubmitting: false,
+        isCompressing: false,
         error: null,
 
-        onFileChange(e: Event) {
-          const file = e.target.files[0];
+        async onFileChange(e: Event) {
+          const file = (e.target as HTMLInputElement).files?.[0];
           if (!file) return;
-
-          if (file.size > 2_000_000) {
-            this.error = "Max file size is 2MB";
-            e.target.value = "";
-            return;
-          }
 
           this.previewUrl = URL.createObjectURL(file);
           this.error = null;
+          this.isCompressing = true;
+
+          try {
+            const compressed = await compressImage(file, "profile");
+            this.selectedFile = compressed;
+
+            URL.revokeObjectURL(this.previewUrl);
+            this.previewUrl = URL.createObjectURL(compressed);
+          } catch (err) {
+            this.error = "Failed to process image";
+            this.selectedFile = file;
+          } finally {
+            this.isCompressing = false;
+          }
         },
 
         onBefore() {
@@ -48,6 +59,26 @@ export function registerCreatorImageForm() {
           // Revert to the original saved image
           this.previewUrl = this.initialUrl;
           this.error = null;
+        },
+
+        async submitForm(event: Event) {
+          event.preventDefault();
+          this.isSubmitting = true;
+          this.error = null;
+
+          const formData = new FormData();
+          formData.append("cover", this.selectedFile);
+
+          try {
+            await fetch((event.target as HTMLFormElement).action, {
+              method: "POST",
+              body: formData,
+            });
+            this.isSubmitting = false;
+          } catch (err) {
+            this.error = "Failed to save image";
+            this.isSubmitting = false;
+          }
         },
       };
     }

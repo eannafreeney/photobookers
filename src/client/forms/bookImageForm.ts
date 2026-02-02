@@ -1,4 +1,5 @@
 import Alpine from "alpinejs";
+import { compressImage } from "../utils/imageCompression";
 
 export function registerBookImageForm() {
   Alpine.data(
@@ -9,25 +10,32 @@ export function registerBookImageForm() {
         initialUrl: initialUrl || null,
         selectedFile: null,
         isLoading: false,
+        isCompressing: false,
         error: null,
 
-        init() {
-          // console.log("previewUrl", this.previewUrl);
-        },
-
-        onFileChange(e: Event) {
+        async onFileChange(e: Event) {
           const file = (e.target as HTMLInputElement).files?.[0];
           if (!file) return;
 
-          if (file.size > 2_000_000) {
-            this.error = "Max file size is 2MB";
-            e.target.value = "";
-            return;
-          }
-
-          this.selectedFile = file;
+          // Show preview immediately with original
           this.previewUrl = URL.createObjectURL(file);
           this.error = null;
+          this.isCompressing = true;
+
+          try {
+            // Compress the image
+            const compressed = await compressImage(file, "cover");
+            this.selectedFile = compressed;
+
+            // Update preview with compressed version
+            URL.revokeObjectURL(this.previewUrl);
+            this.previewUrl = URL.createObjectURL(compressed);
+          } catch (err) {
+            this.error = "Failed to process image";
+            this.selectedFile = file; // Fallback to original
+          } finally {
+            this.isCompressing = false;
+          }
         },
 
         onBefore() {

@@ -19,12 +19,11 @@ app.use("*", logger());
 // For now, let Vite handle /assets/* in dev mode via its dev server
 // Only serve static in production
 if (process.env.NODE_ENV === "production") {
+  // Serve built CSS and JS at root level
+  app.get("/styles.css", serveStatic({ path: "./dist/client/styles.css" }));
+  app.get("/main.js", serveStatic({ path: "./dist/client/main.js" }));
+  // Serve other assets
   app.use("/assets/*", serveStatic({ root: "./dist/client" }));
-  app.use("/main.js", serveStatic({ root: "./dist/client", path: "main.js" }));
-  app.use(
-    "/styles.css",
-    serveStatic({ root: "./dist/client", path: "styles.css" })
-  );
 }
 
 // Mount your routes

@@ -1,4 +1,5 @@
 import Alpine from "alpinejs";
+import { compressImage } from "../utils/imageCompression";
 
 type ImageItem = {
   id: string;
@@ -16,6 +17,7 @@ export function registerBookGalleryForm() {
         removedIds: [] as string[],
         isLoading: false,
         previewImage: null,
+        isCompressing: false,
         error: null as string | null,
 
         init() {
@@ -36,28 +38,29 @@ export function registerBookGalleryForm() {
           return false;
         },
 
-        onFilesChange(e: Event) {
+        async onFilesChange(e: Event) {
           const input = e.target as HTMLInputElement;
           const files = Array.from(input.files || []);
 
+          this.isCompressing = true;
+          this.error = null;
+
           for (const file of files) {
-            if (file.size > 2_000_000) {
-              this.error = `"${file.name}" exceeds 2MB limit`;
-              continue;
+            try {
+              const compressed = await compressImage(file, "gallery");
+
+              this.images.push({
+                id: `new-${Date.now()}-${Math.random()}`,
+                previewUrl: URL.createObjectURL(compressed),
+                file: compressed,
+              });
+            } catch (err) {
+              this.error = `Failed to process "${file.name}"`;
             }
-
-            this.images.push({
-              id: `new-${Date.now()}-${Math.random()}`,
-              previewUrl: URL.createObjectURL(file),
-              file,
-            });
           }
 
-          // Clear input so same files can be selected again
+          this.isCompressing = false;
           input.value = "";
-          if (files.length > 0 && !this.error) {
-            this.error = null;
-          }
         },
 
         removeImage(index: number) {

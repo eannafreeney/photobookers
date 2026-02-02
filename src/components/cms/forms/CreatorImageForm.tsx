@@ -18,6 +18,7 @@ const CreatorImageForm = ({ initialUrl, creatorId }: Props) => {
     "x-on:ajax:before": "onBefore()",
     "x-on:ajax:success": "onSuccess($event)",
     "x-on:ajax:error": "onError($event)",
+    "x-on:submit": "submitForm($event)",
   };
 
   return (
