@@ -39,12 +39,15 @@ const CreatorImageForm = ({ initialUrl, creatorId }: Props) => {
             x-on:change="onFileChange"
             x-ref="fileInput"
           />
+          <p x-show="isCompressing" class="text-sm text-gray-500">
+            Compressing image…
+          </p>
           <p x-show="error" class="text-sm text-red-600" x-text="error"></p>
           <Button
             variant="solid"
             color="primary"
             width="lg"
-            x-bind:disabled="isSubmitting || previewUrl === initialUrl"
+            x-bind:disabled="isSubmitting || previewUrl === initialUrl || isCompressing"
           >
             <span x-show="!isSubmitting">Save</span>
             <span x-show="isSubmitting">Saving…</span>

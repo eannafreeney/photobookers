@@ -37,11 +37,14 @@ const BookImageForm = ({ initialUrl, bookId }: Props) => {
             x-on:change="onFileChange"
             x-ref="fileInput"
           />
+          <p x-show="isCompressing" class="text-sm text-gray-500">
+            Compressing image…
+          </p>
           <p x-show="error" class="text-sm text-red-600" x-text="error"></p>
           <Button
             variant="solid"
             color="primary"
-            x-bind:disabled="isLoading || previewUrl === initialUrl"
+            x-bind:disabled="isSubmitting || previewUrl === initialUrl || isCompressing"
           >
             <span x-show="!isLoading">Save</span>
             <span x-show="isLoading">Saving…</span>

@@ -37,6 +37,9 @@ const BookGalleryForm = ({ initialImages, bookId }: Props) => {
             x-on:change="onFilesChange"
             x-ref="fileInput"
           />
+          <p x-show="isCompressing" class="text-sm text-gray-500">
+            Compressing image…
+          </p>
           <p x-show="error" class="text-sm text-danger" x-text="error"></p>
           <input
             type="hidden"
@@ -47,7 +50,7 @@ const BookGalleryForm = ({ initialImages, bookId }: Props) => {
             <Button
               variant="solid"
               color="primary"
-              x-bind:disabled="isLoading || !hasChanges"
+              x-bind:disabled="isLoading || !hasChanges || isCompressing"
             >
               <span x-show="!isLoading">Save</span>
               <span x-show="isLoading">Saving…</span>

@@ -25,6 +25,8 @@ const CardImage = ({ src, alt }: { src: string; alt: string }) => (
     <img
       src={src}
       alt={alt}
+      loading="lazy"
+      decoding="async"
       class="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
     />
   </figure>
