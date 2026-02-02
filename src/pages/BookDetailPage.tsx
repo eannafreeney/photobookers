@@ -142,7 +142,7 @@ const CreatorCardDesktop = ({
           <div>
             <Card.Title>
               <div class="flex items-start gap-2">
-                {creator.displayName} {VerifiedCreator({ creator })}
+                <a href={`/creators/${creator.slug}`}>{creator.displayName}</a> {VerifiedCreator({ creator })}
               </div>
             </Card.Title>
             <Card.SubTitle>

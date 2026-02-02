@@ -212,11 +212,9 @@ apiRoutes.get("/search-artists", async (c) => {
 apiRoutes.get("/search", async (c) => {
   const searchQuery = c.req.query("search");
   const user = await getUser(c);
-  if (!searchQuery) {
-    return c.html(<></>);
-  }
+ 
 
-  const searchTerm = searchQuery.trim().toLowerCase();
+  const searchTerm = searchQuery?.trim().toLowerCase();
   const [bookResults, creatorResults] = await Promise.all([
     searchBooks(searchTerm),
     searchCreators(searchTerm),

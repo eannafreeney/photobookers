@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, serializeCookieHeader } from "@supabase/ssr";
 import { Context } from "hono";
 import { createClient } from "@supabase/supabase-js";
 import { getCookie } from "hono/cookie";
@@ -34,11 +34,16 @@ export function createSupabaseClient(c: Context) {
         set(name, value, options) {
           c.header(
             "Set-Cookie",
-            `${name}=${value}; Path=/; HttpOnly; SameSite=Lax`
+            serializeCookieHeader(name, value, options),
+            { append: true }
           );
         },
         remove(name, options) {
-          c.header("Set-Cookie", `${name}=; Path=/; Max-Age=0`);
+          c.header(
+            "Set-Cookie",
+            serializeCookieHeader(name, "", { ...options, maxAge: 0 }),
+            { append: true }
+          );
         },
       },
     }

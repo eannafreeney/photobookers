@@ -96,6 +96,13 @@ authRoutes.post("/register", async (c) => {
     },
   });
 
+  console.log("SignUp response:", {
+    user: data.user,
+    session: data.session,  // If session exists immediately, confirmation is OFF
+    identities: data.user?.identities,  // Empty array = user already exists
+    error,
+  });
+
   if (error) {
     return c.html(<Alert type="danger" message={error.message} />, 401);
   }
@@ -133,7 +140,6 @@ authRoutes.get("/callback", async (c) => {
     );
   }
 
-  console.log("data", data);
 
   setCookie(c, "token", data.session?.access_token, {
     httpOnly: true,

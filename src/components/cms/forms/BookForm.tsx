@@ -38,6 +38,7 @@ export const BookForm = async ({
       ${isEditPage})`,
     "x-on:submit": "submitForm($event)",
     "x-target": "toast",
+    "x-target.away": "_top",
     "x-on:ajax:error": "isSubmitting = false",
     "x-on:ajax:success": "onSuccess()",
     "x-bind:aria-busy": "isSubmitting",
@@ -46,7 +47,7 @@ export const BookForm = async ({
   return (
     <div class="space-y-4 ">
       <SectionTitle>Book Details</SectionTitle>
-      <form action={action} method="POST" {...alpineAttrs}>
+      <form action={action} method="post" {...alpineAttrs}>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Input
             label="Title"

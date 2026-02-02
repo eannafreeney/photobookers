@@ -1,38 +1,39 @@
 const NavSearch = () => {
-  const attrs = {
+  const alpineAttrs = {
+    "x-data": "{ hasResults: false, searchValue: '' }",
+    "x-on:click.outside": "hasResults = false",
+  };
+  const formAttrs = {
+    "x-on:ajax:success": "hasResults = true",
+  };
+  const inputttrs = {
+    "x-model": "searchValue",
     "x-on:input.debounce.500ms": "$el.form.requestSubmit()",
   };
 
   return (
     <div
-      x-data="{ hasResults: false }"
       class="relative flex mr-auto w-full max-w-64 flex-col gap-1 text-on-surface"
-      {...{
-        "x-on:click.outside":
-          "console.log('clicked outside');hasResults = false",
-      }}
+      {...alpineAttrs}
     >
       <form
         action="/api/search"
         method="get"
         x-target="search-results"
-        {...{
-          "x-on:ajax:success":
-            "console.log('ajax success fired'); hasResults = true",
-        }}
+        {...formAttrs}
       >
         {searchIcon}
         <input
-          type="search"
+          type="text"
           name="search"
           placeholder="Search"
           class="w-full rounded-radius border border-outline bg-surface py-2.5 pl-10 pr-2 text-sm focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-75"
-          {...attrs}
+          {...inputttrs}
         />
       </form>
-      <div class="absolute top-0 left-0 w-full z-1 " x-show="hasResults">
+      <div class="absolute top-0 left-0 w-full z-1 " x-show="hasResults && searchValue.length > 0">
         <div id="search-results"></div>
-      </div>
+      </div> 
     </div>
   );
 };
