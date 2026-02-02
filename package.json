@@ -2,6 +2,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build": "vite build && tsc --noEmit",
+    "start": "NODE_ENV=production node --import tsx src/server.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -29,6 +31,7 @@
     "tailwind-merge": "^3.4.0",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.1.18",
+    "tsx": "^4.8.1",
     "zod": "^4.1.13"
   },
   "devDependencies": {
@@ -37,7 +40,6 @@
     "@types/node": "^20.11.17",
     "@types/sanitize-html": "^2.16.0",
     "drizzle-kit": "^0.31.7",
-    "tsx": "^3.12.2",
     "vite": "^6.4.1"
   }
 }

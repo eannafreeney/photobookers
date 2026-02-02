@@ -6,11 +6,7 @@ const SocialLinks = ({ creator }: { creator: Creator }): JSX.Element => {
 
   return (
     <div class="flex flex-row gap-2 items-center justify-center">
-      {creator.website && (
-        <Link href={creator.website} target="_blank">
-          {websiteIcon}
-        </Link>
-      )}
+      {creator.website && <Link href={creator.website}>{websiteIcon}</Link>}
       {creator.facebook && (
         <Link href={creator.facebook} target="_blank">
           {facebookIcon}

@@ -1,4 +1,4 @@
-import flags from "../../features.json";
+import flags from "../../featureFlags.json";
 
 export type FeatureFlagName = keyof typeof flags;
 

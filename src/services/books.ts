@@ -208,13 +208,13 @@ export const getBooksForApproval = async (publisherId: string) => {
   }
 };
 
-export const getBookBySlug = async (bookSlug: string) => {
+export const getBookBySlug = async (
+  bookSlug: string,
+  status: "published" | "draft" = "published"
+) => {
   try {
     const book = await db.query.books.findFirst({
-      where: and(
-        eq(books.slug, bookSlug),
-        eq(books.publicationStatus, "published")
-      ),
+      where: and(eq(books.slug, bookSlug), eq(books.publicationStatus, status)),
       with: {
         publisher: true,
         images: {

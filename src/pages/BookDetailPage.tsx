@@ -23,14 +23,16 @@ type BookDetailPageProps = {
   user: AuthUser | null;
   bookSlug: string;
   currentPath: string;
+  status: "published" | "draft";
 };
 
 const BookDetailPage = async ({
   user,
   bookSlug,
   currentPath,
+  status,
 }: BookDetailPageProps) => {
-  const result = await getBookBySlug(bookSlug);
+  const result = await getBookBySlug(bookSlug, status);
   if (!result?.book || !result.book.artist) {
     return (
       <AppLayout title="Book not found" user={user}>
@@ -78,7 +80,7 @@ const BookDetailPage = async ({
               </div>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-1">
+          <div class="grid grid-cols-2 gap-2">
             <CreatorCardDesktop
               creator={book.artist}
               currentPath={currentPath}
