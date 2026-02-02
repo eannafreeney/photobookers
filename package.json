@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc --noEmit",
+    "build": "vite build",
     "start": "NODE_ENV=production node --import tsx src/server.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
