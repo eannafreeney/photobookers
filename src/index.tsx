@@ -20,6 +20,11 @@ app.use("*", logger());
 // Only serve static in production
 if (process.env.NODE_ENV === "production") {
   app.use("/assets/*", serveStatic({ root: "./dist/client" }));
+  app.use("/main.js", serveStatic({ root: "./dist/client", path: "main.js" }));
+  app.use(
+    "/styles.css",
+    serveStatic({ root: "./dist/client", path: "styles.css" })
+  );
 }
 
 // Mount your routes

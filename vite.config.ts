@@ -10,9 +10,8 @@ export default defineConfig({
       entry: "src/index.tsx", // your Hono entry file
     }),
   ],
-  // root: "src/client",
   build: {
-    outDir: "../../dist/client",
+    outDir: "dist/client",
     emptyOutDir: true,
     rollupOptions: {
       input: "src/client/main.js",
