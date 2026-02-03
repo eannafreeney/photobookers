@@ -3,7 +3,6 @@ import Button from "../../app/Button";
 import Form from "../../app/Form";
 import SectionTitle from "../../app/SectionTitle";
 import FileUploadInput from "../ui/FileUpload";
-import InputLabel from "../ui/InputLabel";
 
 type Props = {
   initialImages: { id: string; url: string }[]; // actual DB records
@@ -11,23 +10,23 @@ type Props = {
 };
 
 const BookGalleryForm = ({ initialImages, bookId }: Props) => {
-  const attrs = {
+  const alpineAttrs = {
+    "x-data":`bookGalleryForm({initialImages: ${JSON.stringify(initialImages)}})`,
+    "x-target": "toast",
     "x-on:ajax:before": "onBefore()",
-    "x-on:ajax:success": "onSuccess($event)",
+    "x-on:ajax:success": "onSuccess()",
     "x-on:ajax:error": "onError($event)",
+    "x-on:submit": "submitForm($event)",
   };
 
   return (
     <div class="space-y-4">
       <SectionTitle>Book Gallery</SectionTitle>
-      <Form
-        x-data={`bookGalleryForm({
-        initialImages: ${JSON.stringify(initialImages)}
-        })`}
-        action={`/dashboard/books/edit/${bookId}/images`}
-        {...{ "x-target.error": "toast" }}
-        x-on:submit="submitForm($event)"
-        {...attrs}
+      <form
+        enctype="multipart/form-data"
+        method="post"
+        action={`/dashboard/images/${bookId}/gallery`}
+        {...alpineAttrs}
       >
         <div class="space-y-4">
           <ImagePreviewGrid />
@@ -67,7 +66,7 @@ const BookGalleryForm = ({ initialImages, bookId }: Props) => {
           </div>
           <ImagePreviewLightbox />
         </div>
-      </Form>
+      </form>
     </div>
   );
 };

@@ -264,7 +264,7 @@ booksDashboardRoutes.post("/:bookId/publish", async (c) => {
         message={`${updatedBook?.title ?? "Book"} Published!`}
       />
       <PublishToggleForm book={updatedBook} />
-      <PreviewButton book={updatedBook} />
+      <PreviewButton book={updatedBook} user={user}/>
     </>
   );
 });
@@ -272,6 +272,7 @@ booksDashboardRoutes.post("/:bookId/publish", async (c) => {
 // MAKE BOOK DRAFT
 booksDashboardRoutes.post("/:bookId/unpublish", async (c) => {
   const bookId = c.req.param("bookId");
+  const user = await getUser(c);
   const book = await getBookById(bookId);
 
   if (!book) {
@@ -284,7 +285,7 @@ booksDashboardRoutes.post("/:bookId/unpublish", async (c) => {
     return c.html(
       <>
         <Alert type="danger" message={result.error} />
-        <PublishToggleForm book={book} />
+        <PublishToggleForm book={book} user={user}/>
       </>,
       400
     );
@@ -299,7 +300,7 @@ booksDashboardRoutes.post("/:bookId/unpublish", async (c) => {
         message={`${updatedBook?.title ?? "Book"} Unpublished!`}
       />
       <PublishToggleForm book={updatedBook} />
-      <PreviewButton book={updatedBook} />
+      <PreviewButton book={updatedBook} user={user}/>
     </>
   );
 });
@@ -343,50 +344,54 @@ booksDashboardRoutes.post(
   }
 );
 
-// Add book image to book profile
-booksDashboardRoutes.post(
-  "/edit/:bookId/images",
-  paramValidator(bookIdSchema),
-  async (c) => {
-    const bookId = c.req.valid("param").bookId;
-    const body = await c.req.parseBody({ all: true });
+// // Add book image to book profile
+// booksDashboardRoutes.post(
+//   "/edit/:bookId/images",
+//   paramValidator(bookIdSchema),
+//   async (c) => {
+//     const bookId = c.req.valid("param").bookId;
+//     const body = await c.req.parseBody({ all: true });
 
-    // 1. Get the uploaded files (body.gallery will be File | File[] or undefined)
-    const galleryFiles = body.images
-      ? Array.isArray(body.images)
-        ? body.images
-        : [body.images]
-      : [];
+//     // 1. Get the uploaded files (body.gallery will be File | File[] or undefined)
+//     const galleryFiles = body.images
+//       ? Array.isArray(body.images)
+//         ? body.images
+//         : [body.images]
+//       : [];
 
-    // Filter to valid image files only
-    const validFiles = galleryFiles.filter(removeInvalidImages);
+//     // Filter to valid image files only
+//     const validFiles = galleryFiles.filter(removeInvalidImages);
 
-    // 2. Parse removed image IDs
-    const removedIds: string[] = body.removedIds
-      ? JSON.parse(body.removedIds as string)
-      : [];
+//     // 2. Parse removed image IDs
+//     const removedIds: string[] = body.removedIds
+//       ? JSON.parse(body.removedIds as string)
+//       : [];
 
-    // 3. Delete removed images from DB
-    if (removedIds.length > 0) {
-      // The IDs from your form are like "existing-0", "existing-1" etc.
-      // You'll need to map these to actual DB records
-      // Option A: If you change frontend to send actual DB UUIDs:
-      await db
-        .delete(bookImages)
-        .where(
-          and(eq(bookImages.bookId, bookId), inArray(bookImages.id, removedIds))
-        );
-    }
+//     // 3. Delete removed images from DB
+//     if (removedIds.length > 0) {
+//       await db
+//         .delete(bookImages)
+//         .where(
+//           and(eq(bookImages.bookId, bookId), inArray(bookImages.id, removedIds))
+//         );
+//     }
 
-    // 4. Upload new images and save to DB
-    if (validFiles.length > 0) {
-      await uploadImages(validFiles, bookId);
-    }
+//     // 4. Upload new images and save to DB
+//     try {
+//       if (validFiles.length > 0) {
+//         await uploadImages(validFiles, bookId);
+//       }
+//     } catch (error) {
+//       return c.html(
+//         <Alert type="danger" message="Failed to upload images" />,
+//         422
+//       );
+//     }
 
-    await setFlash(c, "success", `Images updated!`);
-    return c.redirect(`/dashboard/books/edit/${bookId}`);
-  }
-);
+//     await setFlash(c, "success", `Images updated!`);
+//     return c.redirect(`/dashboard/books/edit/${bookId}`);
+//   }
+// );
 
 // APPROVE BOOK CREATED BY OTHER CREATOR
 booksDashboardRoutes.post(

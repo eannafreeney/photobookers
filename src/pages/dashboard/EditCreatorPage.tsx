@@ -3,7 +3,7 @@ import { Creator } from "../../db/schema";
 import CreatorForm from "../../components/cms/forms/CreatorForm";
 import SectionTitle from "../../components/app/SectionTitle";
 import Page from "../../components/layouts/Page";
-import CreatorImageForm from "../../components/cms/forms/CreatorImageForm";
+import CreatorImageForm from "../../components/cms/forms/CreatorCoverForm";
 import AppLayout from "../../components/layouts/AppLayout";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
 

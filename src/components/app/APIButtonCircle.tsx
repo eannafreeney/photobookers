@@ -49,7 +49,7 @@ const APIButtonCircle = ({
         <input type="hidden" name="buttonType" value={buttonType} />
       )}
       <button
-        class="cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+        class="cursor-pointer disabled:opacity-50"
         disabled={isDisabled}
       >
         {buttonText}

@@ -41,7 +41,6 @@ export const BookForm = async ({
     "x-target.away": "_top",
     "x-on:ajax:error": "isSubmitting = false",
     "x-on:ajax:success": "onSuccess()",
-    "x-bind:aria-busy": "isSubmitting",
   };
 
   return (

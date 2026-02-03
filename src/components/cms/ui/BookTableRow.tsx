@@ -50,7 +50,7 @@ const BookTableRow = ({ book, user }: Props) => {
         <PublishToggleForm book={book} />
       </td>
       <td class="p-4">
-        <PreviewButton book={book} />
+        <PreviewButton book={book} user={user} />
       </td>
       <td class="p-4">
         <a href={`/dashboard/books/edit/${book.id}`}>

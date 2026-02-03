@@ -1,9 +1,9 @@
 import Alpine from "alpinejs";
 import { compressImage } from "../utils/imageCompression";
 
-export function registerCreatorImageForm() {
+export function registerBookCoverForm() {
   Alpine.data(
-    "creatorImageForm",
+    "bookCoverForm",
     ({ initialUrl }: { initialUrl: string | null }) => {
       return {
         previewUrl: initialUrl || null,
@@ -17,19 +17,22 @@ export function registerCreatorImageForm() {
           const file = (e.target as HTMLInputElement).files?.[0];
           if (!file) return;
 
+          // Show preview immediately with original
           this.previewUrl = URL.createObjectURL(file);
           this.error = null;
           this.isCompressing = true;
 
           try {
-            const compressed = await compressImage(file, "profile");
+            // Compress the image
+            const compressed = await compressImage(file, "cover");
             this.selectedFile = compressed;
 
+            // Update preview with compressed version
             URL.revokeObjectURL(this.previewUrl);
             this.previewUrl = URL.createObjectURL(compressed);
           } catch (err) {
             this.error = "Failed to process image";
-            this.selectedFile = file;
+            this.selectedFile = file; // Fallback to original
           } finally {
             this.isCompressing = false;
           }
@@ -40,46 +43,22 @@ export function registerCreatorImageForm() {
           this.error = null;
         },
 
-        onSuccess(event) {
+        onSuccess() {
           this.isSubmitting = false;
+          this.initialUrl = this.previewUrl;  // Mark current state as "saved"
 
-          // backend should return the new cover_url
-          const data = event.detail.response;
         },
 
-        onError(event) {
+        onError() {
           this.isSubmitting = false;
-          this.error = "Failed to save cover";
-
-          // rollback optimistic UI
-          this.previewUrl = this.previousUrl;
+          this.previewUrl = null;
         },
 
         cancelSelection() {
-          // Revert to the original saved image
           this.previewUrl = this.initialUrl;
           this.error = null;
         },
-
-        async submitForm(event: Event) {
-          event.preventDefault();
-          this.isSubmitting = true;
-          this.error = null;
-
-          const formData = new FormData();
-          formData.append("cover", this.selectedFile);
-
-          try {
-            await fetch((event.target as HTMLFormElement).action, {
-              method: "POST",
-              body: formData,
-            });
-            this.isSubmitting = false;
-          } catch (err) {
-            this.error = "Failed to save image";
-            this.isSubmitting = false;
-          }
-        },
+       
       };
     }
   );

@@ -1,39 +1,41 @@
 import Button from "../../app/Button";
-import FileUploadInput from "../ui/FileUpload";
 import SectionTitle from "../../app/SectionTitle";
+import FileUploadInput from "../ui/FileUpload";
 import ImagePreview from "../ui/ImagePreview";
 
 type Props = {
   initialUrl: string | null;
-  bookId: string;
+  creatorId: string;
 };
 
-const BookImageForm = ({ initialUrl, bookId }: Props) => {
-  const attrs = {
+const CreatorCoverForm = ({ initialUrl, creatorId }: Props) => {
+  const initialUrlString = initialUrl ? JSON.stringify(initialUrl) : null;
+
+  const alpineAttrs = {
+    "x-data": `creatorCoverForm({initialUrl: ${initialUrlString}})`,
+    "x-target.error": "toast",
     "x-target": "toast",
     "x-on:ajax:before": "onBefore()",
-    "x-on:ajax:success": "onSuccess($event)",
-    "x-on:ajax:error": "onError($event)",
+    "x-on:ajax:success": "onSuccess()",
+    "x-on:ajax:error": "onError()",
+    // "x-on:submit": "submitForm($event)",
   };
 
   return (
     <div class="space-y-4">
-      <SectionTitle>Book Cover</SectionTitle>
+      <SectionTitle>Cover Image</SectionTitle>
       <form
-        x-data={`bookImageForm({
-        initialUrl: ${JSON.stringify(initialUrl)}
-        })`}
-        action={`/dashboard/books/edit/${bookId}/cover`}
-        method="POST"
+        method="post"
+        action={`/dashboard/images/creators/${creatorId}/cover`}
         enctype="multipart/form-data"
-        {...attrs}
+        class="space-y-4"
+        {...alpineAttrs}
       >
         <div class="space-y-4">
           <ImagePreview />
           <FileUploadInput
-            label="Add Book Cover"
+            label="Replace Image"
             name="cover"
-            required
             x-on:change="onFileChange"
             x-ref="fileInput"
           />
@@ -44,10 +46,11 @@ const BookImageForm = ({ initialUrl, bookId }: Props) => {
           <Button
             variant="solid"
             color="primary"
+            width="lg"
             x-bind:disabled="isSubmitting || previewUrl === initialUrl || isCompressing"
           >
-            <span x-show="!isLoading">Save</span>
-            <span x-show="isLoading">Saving…</span>
+            <span x-show="!isSubmitting">Save</span>
+            <span x-show="isSubmitting">Saving…</span>
           </Button>
         </div>
       </form>
@@ -55,4 +58,4 @@ const BookImageForm = ({ initialUrl, bookId }: Props) => {
   );
 };
 
-export default BookImageForm;
+export default CreatorCoverForm;

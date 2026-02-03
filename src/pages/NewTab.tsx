@@ -61,7 +61,7 @@ const NewBookCard = ({ book, artist, user }: NewBookCardProps) => {
       <Card.Image src={book.coverUrl ?? ""} alt={book.title} />
       <Card.Body>
         <div class="flex items-start justify-between gap-2">
-          <div class="min-w-0 flex-1">
+          <div class="flex flex-col gap-2">
             <Card.Title>{book.title}</Card.Title>
             <Card.SubTitle>{book.tagline ?? ""}</Card.SubTitle>
           </div>
@@ -74,18 +74,23 @@ const NewBookCard = ({ book, artist, user }: NewBookCardProps) => {
           </Link>
           <WishlistButton
             isCircleButton
-            bookId={book.id}
-            user={user}
-            isDisabled={!canWishlistBook(user, book)}
+            book={book}
+            user={user}     
           />
           <CollectionButton
             isCircleButton
-            bookId={book.id}
+            book={book}
             user={user}
-            isDisabled={!canAddToCollection(user, book)}
           />
         </div>
       </Card.Body>
     </Card>
   );
 };
+
+const rightIcon = (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+</svg>
+
+)

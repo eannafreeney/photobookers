@@ -28,7 +28,8 @@ export function registerCountryForm() {
       setSelectedOption(option) {
         this.selectedOption = option;
         this.isOpen = false;
-        this.$refs.hiddenCountryInput.value = option.iso.toUpperCase();
+        
+        this.$refs.hiddenCountryInput.value = option.label;
 
         // Trigger input event so x-model picks up the change
         this.$nextTick(() => {

@@ -1,5 +1,6 @@
 import Avatar from "./Avatar";
 import { useUser } from "../../contexts/UserContext";
+import { getInitialsAvatar } from "../../lib/avatar";
 
 const NavAvatar = () => {
   const user = useUser();
@@ -11,7 +12,8 @@ const NavAvatar = () => {
 
   const avatarUrl =
     user?.creator?.coverUrl ??
-    `https://avatar.iran.liara.run/username?username=${user?.firstName}+${user?.lastName}`;
+    getInitialsAvatar(user?.firstName ?? "", user?.lastName ?? "");
+    
   const avatarAlt = `${user?.firstName} ${user?.lastName}`;
 
   return (

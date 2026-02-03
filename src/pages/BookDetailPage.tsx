@@ -24,6 +24,7 @@ type BookDetailPageProps = {
   bookSlug: string;
   currentPath: string;
   status: "published" | "draft";
+  isPreview?: boolean;
 };
 
 const BookDetailPage = async ({
@@ -31,6 +32,7 @@ const BookDetailPage = async ({
   bookSlug,
   currentPath,
   status,
+  isPreview = false,
 }: BookDetailPageProps) => {
   const result = await getBookBySlug(bookSlug, status);
   if (!result?.book || !result.book.artist) {
@@ -53,7 +55,8 @@ const BookDetailPage = async ({
     <AppLayout title={book.title} user={user}>
       <Page>
         {/* Mobile layout */}
-        <div class="block md:hidden">
+        <div class="flex flex-col gap-4 md:hidden ">
+          {isPreview && <PreviewBanner/>}
           <CreatorCardMobile creator={artist} />
           <BookCard book={book} galleryImages={galleryImages} />
           <CreatorCardMobile creator={book.publisher} />
@@ -64,6 +67,7 @@ const BookDetailPage = async ({
         </div>
         {/* Desktop layout */}
         <div class="hidden md:flex md:flex-col gap-8">
+        {isPreview && <PreviewBanner/>}
           <div class="flex gap-16">
             <div class="w-2/3">
               <Carousel images={galleryImages} />
@@ -73,7 +77,7 @@ const BookDetailPage = async ({
                 {book.title} - {book.artist?.displayName}
               </SectionTitle>
               <div class="flex flex-col gap-4">
-                <CardButtons bookId={book.id} />
+                <CardButtons book={book} />
                 <Card.Description>{book.description ?? ""}</Card.Description>
                 <Card.Description>{book.specs ?? ""}</Card.Description>
                 <TagList tags={book.tags ?? []} />
@@ -116,7 +120,7 @@ const BookCard = ({ book, galleryImages }: BookCardProps) => {
               : ""}
           </Card.SubTitle>
         </div>
-        <CardButtons bookId={book.id} />
+        <CardButtons book={book} />
       </Card.Body>
     </Card>
   );
@@ -171,5 +175,11 @@ const CreatorCardDesktop = ({
         </Card.Body>
       </div>
     </Card>
+  );
+};
+
+const PreviewBanner = () => {
+  return (
+    <div class="fixed top-0 left-0 w-full bg-yellow-100 text-yellow-800 p-2 rounded-md mb-4">Preview Mode</div>
   );
 };

@@ -31,6 +31,19 @@ export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
   return false;
 }
 
+export function canPreviewBook(user: AuthUser | null, book: Book): boolean {
+  if (!user) return false;
+  if(!book.coverUrl) return false;
+
+  const isDraftMode = book.publicationStatus === "draft";
+
+  // Creator owns the book (artist or publisher)
+  if (user.creator?.id === book.artistId && isDraftMode) return true;
+  if (user.creator?.id === book.publisherId && isDraftMode) return true;
+
+  return false;
+}
+
 export function canEditCreator(
   user: AuthUser | null,
   creator: Creator

@@ -49,7 +49,7 @@ const APIButton = ({
         />
       )}
       <button
-        class="flex cursor-pointer items-center justify-center gap-2 hover:cursor-pointer w-full disabled:opacity-50 disabled:cursor-not-allowed"
+        class="flex cursor-pointer items-center justify-center gap-2 hover:cursor-pointer w-full disabled:opacity-50"
         disabled={isDisabled}
       >
         {buttonText}

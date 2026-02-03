@@ -35,8 +35,10 @@ creatorDashboardRoutes.get("/new", async (c) => {
     return c.redirect("/dashboard/books");
   }
 
+ 
+
   return c.html(
-    <AddCreatorPage user={user} type={type as "artist" | "publisher"} />
+    <AddCreatorPage user={user} type={type as "artist" | "publisher"}  />
   );
 });
 
@@ -122,40 +124,3 @@ creatorDashboardRoutes.post(
   }
 );
 
-// Add image to creator profile
-creatorDashboardRoutes.post(
-  "/edit/:creatorId/image",
-  paramValidator(creatorIdSchema),
-  async (c) => {
-    const creatorId = c.req.valid("param").creatorId;
-    const body = await c.req.parseBody();
-
-    const validatedFile = validateImageFile(body.cover);
-    if (!validatedFile.success) {
-      return c.html(<Alert type="danger" message={validatedFile.error} />, 422);
-    }
-
-    console.log(validatedFile, "validatedFile.file in upload cover image");
-
-    let coverUrl: string | null = null;
-    try {
-      const result = await uploadImage(
-        validatedFile.file,
-        `creators/covers/${creatorId}`
-      );
-      coverUrl = result.url;
-    } catch (error) {
-      console.log(error, "error in upload cover image");
-      return c.html(<Alert type="danger" message="Failed to upload image" />);
-    }
-
-    const updatedCreator = await updateCreatorCoverImage(coverUrl, creatorId);
-
-    return c.html(
-      <Alert
-        type="success"
-        message={`${updatedCreator?.displayName ?? "Book"} Updated!`}
-      />
-    );
-  }
-);

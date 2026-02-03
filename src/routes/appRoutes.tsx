@@ -18,7 +18,8 @@ export const appRoutes = new Hono();
 appRoutes.get("/", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
-  return c.html(<HomePage user={user} flash={flash} initialTab="new-books" />);
+
+  return c.html(<HomePage user={user} flash={flash} initialTab="new-books"  />);
 });
 
 appRoutes.get("/creators/:slug", async (c) => {
@@ -45,15 +46,15 @@ appRoutes.get("/books/:slug", async (c) => {
   );
 });
 
-appRoutes.get("/books/preview/:bookId", async (c) => {
-  const bookId = c.req.param("bookId");
+appRoutes.get("/books/preview/:slug", async (c) => {
+  const slug = c.req.param("slug");
   const user = await getUser(c);
+  const currentPath = c.req.path;
 
-  if (!user) {
-    return c.redirect("/auth/login");
-  }
 
-  return c.html(<BookPreviewPage bookId={bookId} user={user} />); // Book Preview Page
+  return c.html(
+    <BookDetailPage user={user} bookSlug={slug} currentPath={currentPath} isPreview status="draft" />
+  );
 });
 
 appRoutes.get("/books/tags/:tag", async (c) => {

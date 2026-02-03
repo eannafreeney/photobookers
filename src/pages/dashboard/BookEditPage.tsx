@@ -1,12 +1,12 @@
 import { BookForm } from "../../components/cms/forms/BookForm";
 import { AuthUser } from "../../../types";
 import { getBookById } from "../../services/books";
-import BookImageForm from "../../components/cms/forms/BookImageForm";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
 import BookGalleryForm from "../../components/cms/forms/BookGalleryForm";
 import AppLayout from "../../components/layouts/AppLayout";
 import { Flash } from "../../../types";
 import Page from "../../components/layouts/Page";
+import BookCoverForm from "../../components/cms/forms/BookCoverForm";
 
 type EditBookPageProps = {
   bookId: string;
@@ -68,7 +68,7 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
           class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"
           id="book-images"
         >
-          <BookImageForm initialUrl={book.coverUrl ?? null} bookId={book.id} />
+          <BookCoverForm initialUrl={book.coverUrl ?? null} bookId={book.id} />
           <hr class="my-4 md:hidden" />
           <BookGalleryForm
             initialImages={

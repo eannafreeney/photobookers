@@ -47,6 +47,10 @@ const ProfileTab = async ({ user }: Props) => {
   const wishlistBooks = await getBooksInWishlist(user.id);
   const collectionBooks = await getBooksInCollection(user.id);
 
+  if (wishlistBooks?.length === 0 && collectionBooks?.length === 0) {
+    return <div id="tab-content" class="flex flex-col items-center justify-center mt-4">Start adding books to your wishlist and collection to see them here.</div>;
+  }
+
   return (
     <div id="tab-content" class="flex flex-col gap-4">
       {wishlistBooks && wishlistBooks.length > 0 && (

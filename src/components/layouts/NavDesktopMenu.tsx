@@ -1,5 +1,6 @@
 import { AuthUser } from "../../../types";
 import { useUser } from "../../contexts/UserContext";
+import { getInitialsAvatar } from "../../lib/avatar";
 import Button from "../app/Button";
 
 type Props = {
@@ -33,7 +34,7 @@ const NavDesktopMenu = ({ currentPath }: Props) => {
               "userDropDownIsOpen = false, openWithKeyboard = false",
           }}
           class="relative flex items-center"
-        >
+        > 
           <NavAvatar />
           <DropDownMenu currentPath={currentPath} user={user} />
         </li>
@@ -68,7 +69,8 @@ const NavAvatar = () => {
   const user = useUser();
   const avatarUrl =
     user?.creator?.coverUrl ??
-    `https://avatar.iran.liara.run/username?username=${user?.firstName}+${user?.lastName}`;
+    getInitialsAvatar(user?.firstName ?? "", user?.lastName ?? "");
+    
   const avatarAlt = `${user?.firstName} ${user?.lastName}`;
 
   const alpineAttrs = {
@@ -83,7 +85,7 @@ const NavAvatar = () => {
       {...alpineAttrs}
     >
       <img
-        src={avatarUrl}
+        src={avatarUrl ?? user?.creator?.coverUrl ?? ""}
         alt={avatarAlt}
         class="size-10 rounded-full object-cover"
       />
@@ -111,7 +113,7 @@ const DropDownMenu = ({
   return (
     <ul
       id="userMenu"
-      class="absolute right-0 top-12 flex w-fit min-w-48 flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt py-1.5 dark:border-outline-dark dark:bg-surface-dark-alt"
+      class="absolute right-0 top-12 flex w-fit min-w-48 flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt py-1.5"
       {...alpineAttrs}
     >
       <li class="border-b border-outline dark:border-outline-dark">
@@ -128,6 +130,12 @@ const DropDownMenu = ({
         <>
           <NavLink href="/dashboard/books" currentPath={currentPath}>
             Dashboard
+          </NavLink>
+          <NavLink
+            href={`/creators/${user?.creator?.slug}`}
+            currentPath={currentPath}
+          >
+            {`View ${user?.creator?.displayName}`}
           </NavLink>
           <NavLink
             href={`/dashboard/creators/edit/${user?.creator?.id}`}

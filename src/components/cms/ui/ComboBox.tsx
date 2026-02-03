@@ -45,7 +45,7 @@ const ComboBox = ({
               x-ref="newOptionNameField"
               hidden
             />
-            <DropdownList name={name} />
+            <DropdownList name={name} type={type} />
           </div>
         </fieldset>
       </div>
@@ -55,7 +55,7 @@ const ComboBox = ({
 
 export default ComboBox;
 
-const DropdownList = ({ name }: { name: string }) => {
+const DropdownList = ({ name, type }: { name: string; type: "artist" | "publisher" }) => {
   const alpineAttrs = {
     "x-show": "isOpen || openedWithKeyboard",
     "x-on:click.outside": "isOpen = false, openedWithKeyboard = false",
@@ -104,7 +104,7 @@ const DropdownList = ({ name }: { name: string }) => {
             "x-show": "options.length === 0 && searchQuery",
           }}
         >
-          + "<span x-text="searchQuery"></span>"
+          Add "<span x-text="searchQuery"></span>" as new {type}
         </li>
 
         <template x-for="(item, index) in options" x-bind:key="item.label">

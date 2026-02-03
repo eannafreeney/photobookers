@@ -1,23 +1,25 @@
+import { AuthUser } from "../../../types";
 import { Book } from "../../db/schema";
+import { canPreviewBook } from "../../lib/permissions";
 import Button from "../app/Button";
 import Link from "../app/Link";
 
 type Props = {
   book: Book;
+  user: AuthUser | null;
 };
 
-const PreviewButton = ({ book }: Props) => {
+const PreviewButton = ({ book, user }: Props) => {
   const bookId = book.id;
-  const publicationStatus = book.publicationStatus ?? "draft";
-  const isPublished = publicationStatus === "published";
+
 
   return (
     <div id={`preview-button-${bookId}`}>
-      <Link href={`/books/preview/${bookId}`}>
+      <Link href={`/books/preview/${book.slug}`} target="_blank">
         <Button
           variant="outline"
           color="primary"
-          disabled={isPublished || !book.coverUrl}
+          disabled={!canPreviewBook(user, book)}
         >
           <span>Preview</span>
         </Button>

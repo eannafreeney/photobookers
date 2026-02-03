@@ -9,7 +9,7 @@ type Props = {
   initialTab: "new-books" | "feed" | "profile";
 };
 
-const HomePage = async ({ user, flash, initialTab = "new-books" }: Props) => (
+const HomePage = async ({ user, flash, initialTab = "new-books", }: Props) => (
   <AppLayout title="Books" user={user} flash={flash}>
     <Page>
       <Tabs initialTab={initialTab} />

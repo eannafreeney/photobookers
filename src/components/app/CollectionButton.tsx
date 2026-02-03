@@ -2,25 +2,26 @@ import APIButton from "./APIButton";
 import { AuthUser } from "../../../types";
 import { findCollectionItem } from "../../db/queries";
 import APIButtonCircle from "./APIButtonCircle";
+import { Book } from "../../db/schema";
+import { canAddToCollection } from "../../lib/permissions";
 
 type Props = {
-  bookId: string;
+  book: Book;
   user: AuthUser | null;
   isCircleButton?: boolean;
-  isDisabled?: boolean;
 };
 const CollectionButton = async ({
-  bookId,
+  book,
   user,
   isCircleButton = false,
-  isDisabled = false,
 }: Props) => {
   let isInCollection = false;
   if (user?.id) {
-    isInCollection = !!(await findCollectionItem(user.id, bookId));
+    isInCollection = !!(await findCollectionItem(user.id, book.id));
   }
 
-  const id = `collection-${bookId}`;
+  const id = `collection-${book.id}`;
+  const isDisabled = !canAddToCollection(user, book);
   const buttonIcon = (
     <>
       {/* Show empty icon when: not in collection OR (in collection AND submitting) */}
@@ -37,7 +38,7 @@ const CollectionButton = async ({
   const props = {
     id,
     xTarget: id,
-    action: `/api/collection/${bookId}`,
+    action: `/api/collection/${book.id}`,
     hiddenInput: { name: "isInCollection", value: isInCollection },
     buttonText: isCircleButton ? (
       buttonIcon
@@ -56,7 +57,8 @@ const CollectionButton = async ({
 
   if (isCircleButton) {
     return (
-      <APIButtonCircle {...props} buttonType="circle" isDisabled={isDisabled} />
+      <APIButtonCircle {...props} buttonType="circle" isDisabled={isDisabled}
+      />
     );
   }
 

@@ -7,7 +7,7 @@ type CardProps = {
 };
 
 const Card = ({ children }: CardProps) => (
-  <div class="group flex rounded-radius  flex-col overflow-hidden border border-outline bg-surface text-on-surface">
+  <div class="group flex rounded-radius flex-col overflow-hidden border border-outline bg-surface text-on-surface">
     {children}
   </div>
 );
@@ -21,15 +21,43 @@ const CardBody = ({ children }: { children: ChildType }) => (
 );
 
 const CardImage = ({ src, alt }: { src: string; alt: string }) => (
-  <figure class="aspect-3/3 w-full overflow-hidden">
+  <figure class="aspect-3/4 w-full bg-white">
     <img
       src={src}
       alt={alt}
       loading="lazy"
       decoding="async"
-      class="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
+      class="h-full w-full object-contain transition duration-700 ease-out group-hover:scale-105"
     />
   </figure>
+  // <figure class="aspect-3/4 w-full overflow-hidden relative">
+  //   {/* Blurred background fill */}
+  //   <img
+  //     src={src}
+  //     alt=""
+  //     aria-hidden="true"
+  //     class="absolute inset-0 h-full w-full object-cover scale-110 blur-xl opacity-60"
+  //   />
+  //   {/* Actual image */}
+  //   <img
+  //     src={src}
+  //     alt={alt}
+  //     loading="lazy"
+  //     decoding="async"
+  //     class="relative h-full w-full object-contain transition duration-700 ease-out group-hover:scale-105"
+  //   />
+  // </figure>
+  // <figure class=" w-full overflow-hidden">
+  //   <img
+  //     src={src}
+  //     alt={alt}
+  //     loading="lazy"
+  //     decoding="async"
+  //     // class="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
+  //     class="w-full object-contain transition duration-700 ease-out group-hover:scale-105"
+
+  //   />
+  // </figure>
 );
 
 const CardTitle = ({ children }: { children: ChildType }) => (

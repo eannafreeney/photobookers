@@ -96,18 +96,11 @@ authRoutes.post("/register", async (c) => {
     },
   });
 
-  console.log("SignUp response:", {
-    user: data.user,
-    session: data.session,  // If session exists immediately, confirmation is OFF
-    identities: data.user?.identities,  // Empty array = user already exists
-    error,
-  });
-
+ 
   if (error) {
     return c.html(<Alert type="danger" message={error.message} />, 401);
   }
 
-  console.log("data", data);
 
   await setFlash(
     c,
@@ -194,9 +187,10 @@ authRoutes.get("/callback", async (c) => {
   const redirectMap: Record<string, string> = {
     artist: "/dashboard/creators/new?type=artist",
     publisher: "/dashboard/creators/new?type=publisher",
+    fan: "/",
   };
 
-  return c.redirect(redirectMap[safeType ?? "fan"] ?? "/");
+  return c.redirect(redirectMap[safeType] ?? "/");
 });
 
 // Log out

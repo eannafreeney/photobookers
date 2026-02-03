@@ -5,6 +5,9 @@ import Card from "./Card";
 import { capitalize, formatDate } from "../../utils";
 import Link from "./Link";
 import Button from "./Button";
+import CollectionButton from "./CollectionButton";
+import WishlistButton from "./WishlistButton";
+import { useUser } from "../../contexts/UserContext";
 
 type BookListProps = {
   books: Book[];
@@ -34,6 +37,7 @@ type BookCardProps = {
 };
 
 const BookCard = ({ book }: BookCardProps) => {
+  const user = useUser();
   return (
     <Card>
       <Card.Image
@@ -50,12 +54,23 @@ const BookCard = ({ book }: BookCardProps) => {
               : ""}
           </Card.SubTitle>
         </div>
-        <Card.Tags tags={book.tags ?? []} />
-        <Link href={`/books/${book.slug}`}>
-          <Button variant="solid" color="primary">
-            <span>More Info</span>
-          </Button>
-        </Link>
+        <div class="mt-auto flex items-center gap-2">
+          <Link href={`/books/${book.slug}`} className="flex-1">
+            <Button variant="solid" color="primary">
+              <span>More</span>
+            </Button>
+          </Link>
+          <WishlistButton
+            isCircleButton
+            book={book}
+            user={user}     
+          />
+          <CollectionButton
+            isCircleButton
+            book={book}
+            user={user}
+          />
+        </div>
       </Card.Body>
     </Card>
   );

@@ -2,7 +2,6 @@ import AppLayout from "../components/layouts/AppLayout";
 import ArtistList from "../components/app/ArtistList";
 import BookList from "../components/app/BookList";
 import { AuthUser } from "../../types";
-import Hero from "../components/app/Hero";
 import Page from "../components/layouts/Page";
 import CreatorCard from "../components/app/CreatorCard";
 import { getCreatorBySlug } from "../services/creators";
@@ -39,7 +38,7 @@ const CreatorDetailPage = async ({
     <AppLayout title={creator?.displayName ?? ""} user={user}>
       <Page>
         <CreatorCardMobile creator={creator} />
-        <div class="hidden md:block text-4xl font-medium my-2">
+        <div class="hidden md:block text-4xl font-medium my-8">
           {creator?.displayName ?? ""}
         </div>
         <div class="flex flex-col md:flex-row gap-4">

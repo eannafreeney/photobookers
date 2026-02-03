@@ -10,6 +10,7 @@ import { apiRoutes } from "./apiRoutes";
 import { useSession } from "@hono/session";
 import { claimRoutes } from "./claimRoutes";
 import { userRoutes } from "./userRoutes";
+import { imageRoutes } from "./imageRoutes";
 
 export const routes = new Hono();
 
@@ -41,6 +42,7 @@ routes.route("/auth", authRoutes);
 routes.use("/dashboard/*", requireAuth);
 routes.route("/dashboard/books", booksDashboardRoutes);
 routes.route("/dashboard/creators", creatorDashboardRoutes);
+routes.route("/dashboard/images", imageRoutes);
 routes.route("/claim", claimRoutes);
 routes.route("/user", userRoutes);
 

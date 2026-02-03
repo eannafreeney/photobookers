@@ -2,6 +2,14 @@ import { db } from "../db/client";
 import { bookImages } from "../db/schema";
 import { supabaseAdmin, supabaseStorage } from "../lib/supabase";
 
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const payload = JSON.parse(Buffer.from(key.split('.')[1], 'base64').toString());
+console.log("service Key role:", payload.role); // Should be "service_role"
+
+const anonKey = process.env.SUPABASE_ANON_KEY!;
+const x = JSON.parse(Buffer.from(anonKey.split('.')[1], 'base64').toString());
+console.log("anonKey role:", x.role); // Should be "anon"
+
 const BUCKET_NAME = "images";
 
 type UploadResult = {
@@ -29,6 +37,9 @@ export async function uploadImage(
 
   const arrayBuffer = await file.arrayBuffer();
 
+  console.log("Uploading to:", BUCKET_NAME, filePath);
+console.log("File size:", arrayBuffer.byteLength);
+
   // Upload to Supabase Storage
   const { data, error } = await supabaseAdmin.storage
     .from(BUCKET_NAME)
@@ -36,6 +47,8 @@ export async function uploadImage(
       contentType: file.type,
       upsert: false,
     });
+
+    console.log("Upload result:", { data, error });
 
   if (error) {
     throw new Error(`Upload failed: ${error.message}`);

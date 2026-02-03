@@ -15,16 +15,19 @@ const PublishToggleForm = ({ book }: Props) => {
     "x-target": `publish-toggle-${bookId} preview-button-${bookId} toast`,
     "x-target.error": "toast",
     "x-on:ajax:error": `isPublished = ${isPublished}`,
-    "x-target.back": `toast publish-toggle-${bookId}`,
+    "x-target.back": `toast publish-toggle-${bookId}`
   };
+  
+
+  const action = `/dashboard/books/${bookId}/${
+    isPublished ? "unpublish" : "publish"
+  }`;
 
   return (
     <form
       id={`publish-toggle-${bookId}`}
-      method="POST"
-      action={`/dashboard/books/${bookId}/${
-        isPublished ? "unpublish" : "publish"
-      }`}
+      method="post"
+      action={action}
       {...alpineAttrs}
     >
       <ToggleButton
@@ -35,4 +38,5 @@ const PublishToggleForm = ({ book }: Props) => {
     </form>
   );
 };
+
 export default PublishToggleForm;

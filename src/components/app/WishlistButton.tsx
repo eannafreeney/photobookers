@@ -3,27 +3,28 @@ import { AuthUser } from "../../../types";
 import { findWishlist } from "../../db/queries";
 import APIButton from "./APIButton";
 import APIButtonCircle from "./APIButtonCircle";
+import { Book } from "../../db/schema";
+import { canWishlistBook } from "../../lib/permissions";
 
 type WishlistButtonProps = {
-  bookId: string;
+  book: Book;
   user: AuthUser | null;
   isCircleButton?: boolean;
-  isDisabled?: boolean;
 };
 
 const WishlistButton = async ({
-  bookId,
+  book,
   user,
   isCircleButton = false,
-  isDisabled = false,
 }: WishlistButtonProps) => {
   // Only query if user is logged in, otherwise default to false
   let isWishlisted = false;
+  const isDisabled = !canWishlistBook(user, book);
   if (user?.id) {
-    isWishlisted = !!(await findWishlist(user.id, bookId));
+    isWishlisted = !!(await findWishlist(user.id, book.id));
   }
 
-  const id = `wishlist-${bookId}`;
+  const id = `wishlist-${book.id}`;
   const buttonIcon = (
     <>
       {/* Show empty heart when: not wishlisted OR (wishlisted AND submitting) */}
@@ -40,7 +41,7 @@ const WishlistButton = async ({
   const props = {
     id,
     xTarget: id,
-    action: `/api/wishlist/${bookId}`,
+    action: `/api/wishlist/${book.id}`,
     hiddenInput: { name: "isWishlisted", value: isWishlisted },
     buttonText: isCircleButton ? (
       buttonIcon

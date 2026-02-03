@@ -1,8 +1,7 @@
-import { useUser } from "../../../contexts/UserContext";
-import { Book } from "../../../db/schema";
+
+import { AuthUser } from "../../../../types";
 import {
   getBooksByArtistId,
-  getBooksByCreatorId,
   getBooksByPublisherId,
 } from "../../../services/books";
 import { getInputIcon } from "../../../utils";

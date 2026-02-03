@@ -1,15 +1,15 @@
 import Alpine from "alpinejs";
 import { compressImage } from "../utils/imageCompression";
 
-export function registerBookImageForm() {
+export function registerCreatorCoverForm() {
   Alpine.data(
-    "bookImageForm",
+    "creatorCoverForm",
     ({ initialUrl }: { initialUrl: string | null }) => {
       return {
         previewUrl: initialUrl || null,
         initialUrl: initialUrl || null,
         selectedFile: null,
-        isLoading: false,
+        isSubmitting: false,
         isCompressing: false,
         error: null,
 
@@ -17,43 +17,36 @@ export function registerBookImageForm() {
           const file = (e.target as HTMLInputElement).files?.[0];
           if (!file) return;
 
-          // Show preview immediately with original
           this.previewUrl = URL.createObjectURL(file);
           this.error = null;
           this.isCompressing = true;
 
           try {
-            // Compress the image
-            const compressed = await compressImage(file, "cover");
+            const compressed = await compressImage(file, "profile");
             this.selectedFile = compressed;
 
-            // Update preview with compressed version
             URL.revokeObjectURL(this.previewUrl);
             this.previewUrl = URL.createObjectURL(compressed);
           } catch (err) {
             this.error = "Failed to process image";
-            this.selectedFile = file; // Fallback to original
+            this.selectedFile = file;
           } finally {
             this.isCompressing = false;
           }
         },
 
         onBefore() {
-          this.isLoading = true;
+          this.isSubmitting = true;
           this.error = null;
         },
 
-        onSuccess(event) {
-          this.isLoading = false;
+        onSuccess() {
+          this.isSubmitting = false;
 
-          console.log(event, "event");
-
-          const data = event.detail.response;
-          console.log(data, "data");
         },
 
         onError() {
-          this.isLoading = false;
+          this.isSubmitting = false;
           this.error = "Failed to save cover";
 
           // rollback optimistic UI
@@ -65,24 +58,24 @@ export function registerBookImageForm() {
           this.previewUrl = this.initialUrl;
           this.error = null;
         },
+
         async submitForm(event: Event) {
           event.preventDefault();
-          this.isLoading = true;
+          this.isSubmitting = true;
           this.error = null;
 
           const formData = new FormData();
           formData.append("cover", this.selectedFile);
 
           try {
-            await fetch(event.target.action, {
+            await fetch((event.target as HTMLFormElement).action, {
               method: "POST",
               body: formData,
             });
-
-            this.isLoading = false;
+            this.isSubmitting = false;
           } catch (err) {
             this.error = "Failed to save image";
-            this.isLoading = false;
+            this.isSubmitting = false;
           }
         },
       };

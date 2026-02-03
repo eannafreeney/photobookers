@@ -1,61 +1,65 @@
 import Button from "../../app/Button";
-import SectionTitle from "../../app/SectionTitle";
 import FileUploadInput from "../ui/FileUpload";
+import SectionTitle from "../../app/SectionTitle";
 import ImagePreview from "../ui/ImagePreview";
 
 type Props = {
   initialUrl: string | null;
-  creatorId: string;
+  bookId: string;
 };
 
-const CreatorImageForm = ({ initialUrl, creatorId }: Props) => {
-  const initialUrlString = initialUrl ? JSON.stringify(initialUrl) : null;
-
+const BookCoverForm = ({ initialUrl, bookId }: Props) => {
   const alpineAttrs = {
-    "x-data": `creatorImageForm({initialUrl: ${initialUrlString}})`,
-    "x-target.error": "toast",
+    "x-data":`bookCoverForm({initialUrl: ${JSON.stringify(initialUrl)}})`,
     "x-target": "toast",
+    "x-target.error": "toast",
     "x-on:ajax:before": "onBefore()",
-    "x-on:ajax:success": "onSuccess($event)",
-    "x-on:ajax:error": "onError($event)",
-    "x-on:submit": "submitForm($event)",
+    "x-on:ajax:success": "onSuccess()",
+    "x-on:ajax:error": "onError()",
   };
 
   return (
     <div class="space-y-4">
-      <SectionTitle>Cover Image</SectionTitle>
+      <SectionTitle>Book Cover</SectionTitle>
       <form
+        action={`/dashboard/images/books/${bookId}/cover`}
         method="post"
-        action={`/dashboard/creators/edit/${creatorId}/image`}
         enctype="multipart/form-data"
-        class="space-y-4"
         {...alpineAttrs}
       >
         <div class="space-y-4">
           <ImagePreview />
           <FileUploadInput
-            label="Replace Image"
+            label="Add Book Cover"
             name="cover"
+            required
             x-on:change="onFileChange"
             x-ref="fileInput"
           />
-          <p x-show="isCompressing" class="text-sm text-gray-500">
-            Compressing image…
-          </p>
+         
           <p x-show="error" class="text-sm text-red-600" x-text="error"></p>
+          <div class="flex gap-2">
           <Button
             variant="solid"
             color="primary"
-            width="lg"
             x-bind:disabled="isSubmitting || previewUrl === initialUrl || isCompressing"
           >
             <span x-show="!isSubmitting">Save</span>
             <span x-show="isSubmitting">Saving…</span>
           </Button>
+          <Button
+            variant="solid"
+            color="inverse"
+            x-on:click="cancelSelection"
+            x-bind:disabled="isSubmitting || previewUrl === initialUrl || isCompressing"
+          >
+            Cancel
+          </Button>
+          </div>
         </div>
       </form>
     </div>
   );
 };
 
-export default CreatorImageForm;
+export default BookCoverForm;
