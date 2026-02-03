@@ -31,7 +31,7 @@ const NavSearch = () => {
           {...inputttrs}
         />
       </form>
-      <div class="absolute top-0 left-0 w-full z-1 " x-show="hasResults && searchValue.length > 0">
+      <div class="absolute top-0 left-12 right-0 w-full z-1 " x-show="hasResults && searchValue.length > 0">
         <div id="search-results"></div>
       </div> 
     </div>
