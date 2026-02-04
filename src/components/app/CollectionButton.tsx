@@ -6,7 +6,7 @@ import { Book } from "../../db/schema";
 import { canAddToCollection } from "../../lib/permissions";
 
 type Props = {
-  book: Book;
+  book: Pick<Book, 'id' | 'artistId' | 'publisherId'>;
   user: AuthUser | null;
   isCircleButton?: boolean;
 };

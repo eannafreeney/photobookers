@@ -125,7 +125,6 @@ export const books = pgTable(
     artistId: uuid("artist_id").references(() => creators.id),
     publisherId: uuid("publisher_id").references(() => creators.id),
     releaseDate: timestamp("release_date"),
-    tagline: text("tagline"),
     availabilityStatus: bookAvailabilityStatusEnum(
       "availability_status"
     ).default("available"),

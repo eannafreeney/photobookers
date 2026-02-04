@@ -1,13 +1,9 @@
 import { AuthUser } from "../../types";
-import Avatar from "../components/app/Avatar";
+import BookCard from "../components/app/BookCard";
 import Button from "../components/app/Button";
-import Card from "../components/app/Card";
 import GridPanel from "../components/app/GridPanel";
-import Link from "../components/app/Link";
 import SectionTitle from "../components/app/SectionTitle";
-import { Book, Creator } from "../db/schema";
-import { getBooksInCollection, getBooksInWishlist } from "../services/books";
-import { formatDate } from "../utils";
+import {  getBooksInWishlist } from "../services/books";
 
 type Props = {
   user: AuthUser | null;
@@ -16,11 +12,10 @@ type Props = {
 const ProfileTab = async ({ user }: Props) => {
   if (!user) {
     return (
-     
         <div id="tab-content" class="flex flex-col items-center justify-center mt-4">
           <SectionTitle>Your Profile</SectionTitle>
           <p>
-            Manage your wishlist and collection.
+            Manage your wishlist.
           </p>
             {icon}
           <div class="flex flex-col gap-4 justify-center items-center mt-8">
@@ -45,84 +40,25 @@ const ProfileTab = async ({ user }: Props) => {
   }
 
   const wishlistBooks = await getBooksInWishlist(user.id);
-  const collectionBooks = await getBooksInCollection(user.id);
 
-  if (wishlistBooks?.length === 0 && collectionBooks?.length === 0) {
+  if (wishlistBooks?.length === 0 ) {
     return <div id="tab-content" class="flex flex-col items-center justify-center mt-4">Start adding books to your wishlist and collection to see them here.</div>;
   }
 
   return (
     <div id="tab-content" class="flex flex-col gap-4">
-      {wishlistBooks && wishlistBooks.length > 0 && (
-        <Collection entity={wishlistBooks} label="Wishlist" />
-      )}
-      {collectionBooks && collectionBooks.length > 0 && (
-        <Collection entity={collectionBooks} label="Collection" />
-      )}
+      <SectionTitle>Wishlisted Books</SectionTitle>
+      <GridPanel isFullWidth>
+       {wishlistBooks?.map((book) => (
+         <BookCard book={book} user={user} />
+        ))}
+        </GridPanel>
     </div>
   );
 };
 
 export default ProfileTab;
 
-const Collection = ({
-  entity,
-  label,
-}: {
-  entity: Book[] & { artist: Creator };
-  label: string;
-}) => (
-  <div class="relative">
-    <span class="absolute -top-2 left-16 rounded-full bg-warning px-[5px] leading-4 text-xs font-medium text-on-danger">
-      {entity?.length}
-    </span>
-    <SectionTitle>{label}</SectionTitle>
-    <GridPanel isFullWidth>
-      <div>
-        {entity?.map((book) => (
-          <BookCard book={book} artist={book.artist} />
-        ))}
-      </div>
-    </GridPanel>
-  </div>
-);
-
-type BookCardProps = {
-  book: Book;
-  artist: Creator;
-};
-
-const BookCard = ({ book, artist }: BookCardProps) => {
-  return (
-    <Card>
-      <Card.Image src={book.coverUrl ?? ""} alt={book.title} />
-      <Card.Body>
-        <Link href={`/creators/${artist.slug}`}>
-          <div class="flex items-center gap-2">
-            <Avatar
-              src={artist.coverUrl ?? ""}
-              alt={artist.displayName ?? ""}
-              size="xs"
-            />
-            <Card.SubTitle>{artist?.displayName}</Card.SubTitle>
-          </div>
-        </Link>
-        <div>
-          <Card.Title>{book.title}</Card.Title>
-          <Card.SubTitle>
-            {formatDate(new Date(book.releaseDate ?? "").toISOString())}
-          </Card.SubTitle>
-        </div>
-        <Card.Tags tags={book.tags ?? []} />
-        <Link href={`/books/${book.slug}`}>
-          <Button variant="solid" color="primary">
-            <span>More Info</span>
-          </Button>
-        </Link>
-      </Card.Body>
-    </Card>
-  );
-};
 
 const icon = (
   <svg class="size-64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="924.828" height="641.181" viewBox="0 0 924.828 641.181" role="img" artist="Katerina Limpitsouni" source="https://undraw.co/">

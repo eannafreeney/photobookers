@@ -35,7 +35,7 @@ export const BookTable = async ({
   const validBooks = books?.filter((book) => book != null);
 
   return (
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4" >
       <SectionTitle>My Books</SectionTitle>
       <div class="flex items-center justify-between gap-4">
         <BookTableSearch />

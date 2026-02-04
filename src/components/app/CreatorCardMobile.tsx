@@ -34,9 +34,8 @@ const CreatorCardMobile = ({ creator }: CreatorCardProps) => {
         </div>
         <div class="w-1/3">
           <FollowButton
-            creatorId={creator.id}
+            creator={creator}
             user={user}
-            isDisabled={!canFollowCreator(user, creator.id)}
             variant="mobile"
           />
         </div>

@@ -10,7 +10,7 @@ const Carousel = ({ images = [] }: Props) => {
   return (
     <div
       x-data={`carousel(${JSON.stringify(images)})`}
-      class="relative w-full overflow-hidden"
+      class="relative w-full overflow-hidden bg-white rounded-radius border border-outline p-2"
     >
       {/* Main slide area */}
       <div class="w-full overflow-hidden">
@@ -18,10 +18,10 @@ const Carousel = ({ images = [] }: Props) => {
           class="flex transition-transform duration-300 ease-out"
           x-bind:style="`transform: translateX(-${(currentSlideIndex - 1) * 100}%)`"
         >
-          <template x-for="(slide, index) in slides">
-            <div class="w-full shrink-0">
+          <template x-for="slide in slides">
+            <div class="w-full shrink-0 h-[60vh] min-h-[400px]">
               <img
-                class="w-full h-auto"
+                class="w-full h-full object-contain"
                 x-bind:src="slide.imgSrc"
                 x-bind:alt="slide.imgAlt"
               />

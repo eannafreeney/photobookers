@@ -2,31 +2,32 @@ import { findFollow } from "../../db/queries";
 import APIButton from "./APIButton";
 import { AuthUser } from "../../../types";
 import APIButtonCircle from "./APIButtonCircle";
+import { canFollowCreator } from "../../lib/permissions";
+import { Creator } from "../../db/schema";
 
 type FollowButtonProps = {
-  creatorId: string;
+  creator: Pick<Creator, 'id' | 'displayName'>;
   user: AuthUser | null;
   isCircleButton?: boolean;
-  isDisabled?: boolean;
   variant?: "desktop" | "mobile";
 };
 
 const FollowButton = async ({
-  creatorId,
+  creator,
   user,
   isCircleButton = false,
-  isDisabled = false,
   variant = "desktop",
 }: FollowButtonProps) => {
-  const userIsCreator = user?.creator?.id === creatorId;
+  const userIsCreator = user?.creator?.id === creator.id;
 
   // Only query if user is logged in, otherwise default to false
   let isFollowing = false;
   if (user?.id) {
-    isFollowing = !!(await findFollow(creatorId, user.id));
+    isFollowing = !!(await findFollow(creator.id, user.id));
   }
 
-  const id = `follow-${creatorId}-${variant}`;
+  const id = `follow-${creator.id}-${variant}`;
+  const isDisabled = !canFollowCreator(user, creator);
   const buttonIcon = (
     <>
       {/* Show empty icon when: not following OR (following AND submitting) */}
@@ -42,8 +43,7 @@ const FollowButton = async ({
 
   const props = {
     id,
-    xTarget: id,
-    action: `/api/follow/creator/${creatorId}`,
+    action: `/api/follow/creator/${creator.id}`,
     disabled: userIsCreator,
     hiddenInput: { name: "isFollowing", value: isFollowing },
     buttonText: isCircleButton ? (

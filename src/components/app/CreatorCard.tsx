@@ -27,21 +27,21 @@ const CreatorCard = ({ creator, currentPath }: CreatorCardProps) => {
           <div>
             <Card.Title>
               <div class="flex items-center gap-2">
-                {creator.displayName} {VerifiedCreator({ creator })}
+                {creator.displayName} 
               </div>
             </Card.Title>
             <Card.SubTitle>
-              <div>
+              <div class="flex items-center gap-2">
                 {creator.city ? `${creator.city}, ` : ""}
                 {creator?.country ?? ""}
+                {VerifiedCreator({ creator })}
               </div>
             </Card.SubTitle>
           </div>
-          <Card.Intro>{creator.bio ?? ""}</Card.Intro>
+          {creator.bio && <Card.Intro>{creator.bio ?? ""}</Card.Intro>}
           <FollowButton
-            creatorId={creator.id}
+            creator={creator}
             user={user}
-            isDisabled={!canFollowCreator(user, creator.id)}
             variant="desktop"
           />
           {creator.status === "stub" ? (

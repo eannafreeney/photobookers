@@ -41,6 +41,22 @@ export const getCreatorBySlug = async (slug: string) => {
   };
 };
 
+export const getCreatorPermissionData = async (creatorId: string): Promise<Pick<Creator, 'id' | 'displayName'> | null> => {
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.id, creatorId),
+      columns: {
+        id: true,
+        displayName: true,
+      },
+    });
+    return creator ?? null;
+  } catch (error) {
+    console.error("Failed to get creator permission data", error);
+    return null;
+  }
+};
+
 export const getCreatorById = async (creatorId: string) => {
   const creator = await db.query.creators.findFirst({
     where: eq(creators.id, creatorId),

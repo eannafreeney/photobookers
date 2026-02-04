@@ -1,19 +1,16 @@
 import { Book } from "../../db/schema";
 import SectionTitle from "./SectionTitle";
 import GridPanel from "./GridPanel";
-import Card from "./Card";
-import { capitalize, formatDate } from "../../utils";
-import Link from "./Link";
-import Button from "./Button";
-import CollectionButton from "./CollectionButton";
-import WishlistButton from "./WishlistButton";
-import { useUser } from "../../contexts/UserContext";
+import BookCard from "./BookCard";
+import { AuthUser } from "../../../types";
 
 type BookListProps = {
   books: Book[];
+  creatorType: "publisher" | "artist";
+  user: AuthUser;
 };
 
-const BookList = ({ books }: BookListProps) => {
+const BookList = ({ books, creatorType, user }: BookListProps) => {
   if (books?.length === 0) {
     return <></>;
   }
@@ -23,7 +20,7 @@ const BookList = ({ books }: BookListProps) => {
       <SectionTitle>Books</SectionTitle>
       <GridPanel>
         {books.map((book: Book) => (
-          <BookCard book={book} />
+          <BookCard book={book} creatorType={creatorType} user={user} />
         ))}
       </GridPanel>
     </div>
@@ -32,46 +29,3 @@ const BookList = ({ books }: BookListProps) => {
 
 export default BookList;
 
-type BookCardProps = {
-  book: Book;
-};
-
-const BookCard = ({ book }: BookCardProps) => {
-  const user = useUser();
-  return (
-    <Card>
-      <Card.Image
-        src={book.coverUrl ?? ""}
-        alt={book.title}
-        href={`/books/${book.slug}`}
-      />
-      <Card.Body>
-        <div>
-          <Card.Title>{book.title}</Card.Title>
-          <Card.SubTitle>
-            {book.releaseDate
-              ? formatDate(new Date(book.releaseDate ?? "").toISOString())
-              : ""}
-          </Card.SubTitle>
-        </div>
-        <div class="mt-auto flex items-center gap-2">
-          <Link href={`/books/${book.slug}`} className="flex-1">
-            <Button variant="solid" color="primary">
-              <span>More</span>
-            </Button>
-          </Link>
-          <WishlistButton
-            isCircleButton
-            book={book}
-            user={user}     
-          />
-          <CollectionButton
-            isCircleButton
-            book={book}
-            user={user}
-          />
-        </div>
-      </Card.Body>
-    </Card>
-  );
-};

@@ -13,9 +13,9 @@ const BookCoverForm = ({ initialUrl, bookId }: Props) => {
     "x-data":`bookCoverForm({initialUrl: ${JSON.stringify(initialUrl)}})`,
     "x-target": "toast",
     "x-target.error": "toast",
-    "x-on:ajax:before": "onBefore()",
-    "x-on:ajax:success": "onSuccess()",
-    "x-on:ajax:error": "onError()",
+    "@ajax:before": "onBefore()",
+    "@ajax:success": "onSuccess()",
+    "@ajax:error": "onError()",
   };
 
   return (

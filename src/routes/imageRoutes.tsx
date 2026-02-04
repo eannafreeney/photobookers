@@ -88,7 +88,6 @@ imageRoutes.post(
         return showErrorAlert(c, "Failed to upload cover image");
       }
       const updatedBook = await updateBookCoverImage(bookId, coverUrl);
-      console.log("DB update result:", { bookId, newCoverUrl: coverUrl, updatedBook });
   
       if (!updatedBook) {
         return showErrorAlert(c, "Failed to update book cover");
@@ -142,6 +141,9 @@ imageRoutes.post(
           422
         );
       }
+
+      console.log("Images updated!");
+      
   
       return c.html(<Alert type="success" message="Images updated!" />);
     }

@@ -50,7 +50,7 @@ const ArtistCard = ({ artist }: { artist: Creator }) => {
             </div>
           </div>
           <FollowButton
-            creatorId={artist.id}
+            creator={artist}
             user={user ?? null}
             isCircleButton
           />

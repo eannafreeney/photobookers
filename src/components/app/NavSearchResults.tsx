@@ -1,88 +1,142 @@
-import { AuthUser } from "../../../types";
+// 
 import { Book, Creator } from "../../db/schema";
-import FollowButton from "./FollowButton";
+import { AuthUser } from "../../../types";
 
 type NavSearchResultsProps = {
   creators: Creator[];
-  books: (Book & { artist: Creator })[];
-  user: AuthUser | null;
+  books: (Book & { artist: Creator | null })[];
+  user?: AuthUser | null;
 };
 
 const NavSearchResults = ({ creators, books, user }: NavSearchResultsProps) => {
+  const hasResults = creators.length > 0 || books.length > 0;
+
   return (
-    <ul
+    <div
       id="search-results"
-      class="list flex flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt p-2 shadow-sm
-              fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:-left-24 md:right-0 md:h-auto md:w-fit md:min-w-64 md:rounded-radius"
+      class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto md:top-11 md:-left-24 md:right-0 md:h-auto md:w-fit md:min-w-64 md:rounded-radius overflow-hidden rounded-radius border border-outline bg-surface-alt shadow-sm"
+      x-data="{ isOpen: true }"
+      x-show="isOpen"
     >
-      <button class="md:hidden self-end p-2" x-on:click="hasResults = false">
-        {closeIcon}
-      </button>
-      {creators.length > 0 && (
-        <>
-          <li class="text-xs uppercase font-semibold opacity-60 px-2 pt-2">
-            Creators
-          </li>
-          {creators.map((creator) => (
-            <a href={`/creators/${creator.slug}`}>
-              <li class="list-row items-center gap-4 rounded-radius hover:bg-surface">
-                <div>
-                  <img
-                    src={creator.coverUrl ?? ""}
-                    alt={creator.displayName}
-                    class="w-10 h-10 rounded-full object-cover"
-                  />
-                </div>
-                <div>
-                  <div>{creator.displayName}</div>
-                  <div class="text-xs uppercase font-semibold opacity-60">
-                    {creator.type}
-                  </div>
-                </div>
-                {user && (
-                  <FollowButton
-                    isCircleButton
-                    creatorId={creator.id}
-                    user={user}
-                  />
+      {/* Mobile close button */}
+      <div class="md:hidden flex justify-end p-2 border-b border-outline">
+        <button
+          type="button"
+          class="p-2 hover:bg-surface rounded-radius transition-colors"
+          x-on:click="isOpen = false"
+          aria-label="Close search results"
+        >
+          {closeIcon}
+        </button>
+      </div>
+
+      <div class="max-h-[calc(100vh-4rem)] md:max-h-96 overflow-y-auto p-2">
+        {!hasResults ? (
+          <div class="p-8 text-center">
+            <p class="text-sm text-on-surface-weak">No results found</p>
+          </div>
+        ) : (
+          <ul class="flex flex-col gap-1">
+            {creators.length > 0 && (
+              <>
+                <li class="text-xs uppercase font-semibold text-on-surface-weak px-2 pt-2 pb-1">
+                  Creators
+                </li>
+                {creators.map((creator) => (
+                  <CreatorResultItem key={creator.id} creator={creator} />
+                ))}
+              </>
+            )}
+
+            {books.length > 0 && (
+              <>
+                {creators.length > 0 && (
+                  <li class="text-xs uppercase font-semibold text-on-surface-weak px-2 pt-4 pb-1">
+                    Books
+                  </li>
                 )}
-              </li>
-            </a>
-          ))}
-        </>
-      )}
+                {!creators.length && (
+                  <li class="text-xs uppercase font-semibold text-on-surface-weak px-2 pt-2 pb-1">
+                    Books
+                  </li>
+                )}
+                {books.map((book) => (
+                  <BookResultItem key={book.id} book={book} />
+                ))}
+              </>
+            )}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+};
 
-      {books.length > 0 && (
-        <>
-          <li class="text-xs uppercase font-semibold opacity-60 px-2 pt-2">
-            Books
-          </li>
-          {books.map((book) => (
-            <a href={`/books/${book.slug}`}>
-              <li class="list-row items-center gap-4 rounded-radius hover:bg-surface">
-                <div>
-                  <img
-                    src={book.coverUrl ?? ""}
-                    alt={book.title}
-                    class="w-auto h-12 object-cover"
-                  />
-                </div>
-                <div>
-                  <div>{book.title}</div>
-                  <div class="text-xs uppercase font-semibold opacity-60">
-                    {book.artist?.displayName ?? ""}
-                  </div>
-                </div>
-              </li>
-            </a>
-          ))}
-        </>
-      )}
+type CreatorResultItemProps = {
+  creator: Creator;
+};
 
-      {books.length === 0 && creators.length === 0 && (
-        <li class="p-4 text-center opacity-60">No results found</li>
-      )}
-    </ul>
+const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
+  return (
+    <li>
+      <a
+        href={`/creators/${creator.slug}`}
+        class="flex items-center gap-3 px-2 py-2 rounded-radius hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+        aria-label={`View ${creator.displayName} profile`}
+      >
+        <div class="shrink-0">
+            <img
+              src={creator.coverUrl ?? ""}
+              alt={`${creator.displayName} avatar`}
+              class="w-10 h-10 rounded-full object-cover"
+              loading="lazy"
+            />
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-on-surface truncate">
+            {creator.displayName}
+          </div>
+          <div class="text-xs uppercase font-semibold text-on-surface-weak">
+            {creator.type}
+          </div>
+        </div>
+      </a>
+    </li>
+  );
+};
+
+type BookResultItemProps = {
+  book: Book & { artist: Creator | null };
+};
+
+const BookResultItem = ({ book }: BookResultItemProps) => {
+  return (
+    <li>
+      <a
+        href={`/books/${book.slug}`}
+        class="flex items-center gap-3 px-2 py-2 rounded-radius hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+        aria-label={`View ${book.title} by ${book.artist?.displayName ?? "Unknown artist"}`}
+      >
+        <div class="shrink-0">
+            <img
+              src={book.coverUrl ?? ""}
+              alt={`${book.title} cover`}
+              class="w-12 h-12 object-cover rounded-sm"
+              loading="lazy"
+            />
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-on-surface truncate">
+            {book.title}
+          </div>
+          {book.artist && (
+            <div class="text-xs text-on-surface truncate">
+              {book.artist.displayName}
+            </div>
+          )}
+        </div>
+      </a>
+    </li>
   );
 };
 
@@ -93,13 +147,14 @@ const closeIcon = (
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
-    stroke-width="1.5"
+    strokeWidth="1.5"
     stroke="currentColor"
-    class="size-6 cursor-pointer"
+    class="size-6"
+    aria-hidden="true"
   >
     <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       d="M6 18 18 6M6 6l12 12"
     />
   </svg>

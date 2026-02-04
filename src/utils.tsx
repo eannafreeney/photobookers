@@ -5,13 +5,14 @@ import { books } from "./db/schema";
 import { db } from "./db/client";
 import { eq } from "drizzle-orm";
 
-export const formatDate = (dateString: string): string => {
-  const d = new Date(dateString);
+export const formatDate = (date: Date): string => {
+  const d = new Date(date);
 
-  const month = d.toLocaleString("en-US", { month: "long" }); // "April"
-  const year = d.getFullYear(); // 1925
+  const month = d.toLocaleString("en-US", { month: "short" }); // "Jan"
+  const day = d.getDate(); // 7
+  const year = d.getFullYear(); // 2026
 
-  return `${month}, ${year}`;
+  return `${month} ${day}, ${year}`;
 };
 
 export const slugify = (title: string, artist?: string) =>

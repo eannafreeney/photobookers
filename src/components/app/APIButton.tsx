@@ -3,7 +3,6 @@ import { ChildType } from "../../../types";
 
 type APIButtonProps = {
   id: string;
-  xTarget: string;
   action: string;
   disabled?: boolean;
   buttonText: ChildType;
@@ -13,7 +12,6 @@ type APIButtonProps = {
 
 const APIButton = ({
   id,
-  xTarget,
   action,
   buttonText,
   hiddenInput,
@@ -21,10 +19,10 @@ const APIButton = ({
 }: APIButtonProps) => {
   const alpineAttrs = {
     "x-data": "{ isSubmitting: false }",
-    "x-on:ajax:before": "isSubmitting = true",
-    "x-on:ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
-    "x-on:ajax:error": "isSubmitting = false",
-    "x-target": xTarget,
+    "@ajax:before": "isSubmitting = true",
+    "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
+    "@ajax:error": "isSubmitting = false",
+    "x-target": `${id} toast`,
     "x-target.error": "toast",
     "x-target.401": "modal-root",
   };

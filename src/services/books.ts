@@ -20,6 +20,7 @@ import {
   ne,
   not,
   or,
+  sql,
 } from "drizzle-orm";
 import { generateUniqueBookSlug, slugify } from "../utils";
 import { bookFormSchema } from "../schemas";
@@ -29,6 +30,17 @@ import { AuthUser } from "../../types";
 export const getNewBooks = async () => {
   try {
     return await db.query.books.findMany({
+      columns: {
+        id: true,
+        slug: true,
+        title: true,
+        tagline: true,
+        releaseDate: true,
+        coverUrl: true,
+        tags: true,
+        artistId: true,
+        publisherId: true,
+      },
       with: {
         artist: true,
       },
@@ -377,13 +389,30 @@ export const prepareBookUpdateData = (
   return {
     title: formData.title,
     description: formData.description || null,
-    tagline: formData.tagline || null,
     specs: formData.specs || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
     slug: slugify(formData.title),
     tags: processTags(formData.tags),
     availabilityStatus: formData.availability_status,
   };
+};
+
+export const getBookPermissionData = async (bookId: string): Promise<Pick<Book, 'id' | 'artistId' | 'publisherId' | 'title'> | null> => {
+  try {
+    const book = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      columns: {
+        id: true,
+        artistId: true,
+        publisherId: true,
+        title: true,
+      },
+    });
+    return book ?? null;
+  } catch (error) {
+    console.error("Failed to get book permission data", error);
+    return null;
+  }
 };
 
 export const searchBooks = async (searchQuery: string) => {
@@ -403,7 +432,12 @@ export const searchBooks = async (searchQuery: string) => {
       },
       where: or(
         ilike(books.title, searchPattern),
-        inArray(books.artistId, matchingCreatorIds)
+        inArray(books.artistId, matchingCreatorIds),
+        sql`EXISTS (
+          SELECT 1 
+          FROM unnest(${books.tags}) AS tag 
+          WHERE LOWER(tag) LIKE ${searchPattern.toLowerCase()}
+        )`
       ),
       orderBy: (books, { asc }) => [asc(books.title)],
       limit: 10,

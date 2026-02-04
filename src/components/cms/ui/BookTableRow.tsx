@@ -80,9 +80,10 @@ const DeleteBookForm = ({
     "x-target.error": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
   };
+
   return (
     <form
-      method="POST"
+      method="post"
       action={`/dashboard/books/delete/${book.id}`}
       {...attrs}
     >

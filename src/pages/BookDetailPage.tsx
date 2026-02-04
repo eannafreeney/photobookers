@@ -11,13 +11,14 @@ import Page from "../components/layouts/Page";
 import CreatorCard from "../components/app/CreatorCard";
 import CreatorCardMobile from "../components/app/CreatorCardMobile";
 import Carousel from "../components/app/Carousel";
-import SectionTitle from "../components/app/SectionTitle";
 import VerifiedCreator from "../components/app/VerifiedCreator";
 import ClaimCreatorBtn from "../components/app/ClaimCreatorBtn";
 import { canClaimCreator, canFollowCreator } from "../lib/permissions";
 import FollowButton from "../components/app/FollowButton";
 import { useUser } from "../contexts/UserContext";
 import SocialLinks from "../components/app/SocialLinks";
+import Link from "../components/app/Link";
+import WishlistButton from "../components/app/WishlistButton";
 
 type BookDetailPageProps = {
   user: AuthUser | null;
@@ -73,12 +74,14 @@ const BookDetailPage = async ({
               <Carousel images={galleryImages} />
             </div>
             <div class="w-1/3">
-              <SectionTitle>
-                {book.title} - {book.artist?.displayName}
-              </SectionTitle>
+              <h3 class="text-2xl font-bold">
+                {book.title}
+              </h3>
+              <h4 class="text-lg font-medium mb-4">
+                <Link href={`/creators/${book.artist?.slug}`}>{book.artist?.displayName}</Link>
+              </h4>
               <div class="flex flex-col gap-4">
-                <CardButtons book={book} />
-                <Card.Description>{book.description ?? ""}</Card.Description>
+                <WishlistButton book={book} user={user} />                <Card.Description>{book.description ?? ""}</Card.Description>
                 <Card.Description>{book.specs ?? ""}</Card.Description>
                 <TagList tags={book.tags ?? []} />
               </div>
@@ -146,13 +149,14 @@ const CreatorCardDesktop = ({
           <div>
             <Card.Title>
               <div class="flex items-start gap-2">
-                <a href={`/creators/${creator.slug}`}>{creator.displayName}</a> {VerifiedCreator({ creator })}
+                <a href={`/creators/${creator.slug}`}>{creator.displayName}</a> 
               </div>
             </Card.Title>
             <Card.SubTitle>
-              <div>
+              <div class="flex items-center gap-2">
                 {creator.city ? `${creator.city}, ` : ""}
                 {creator?.country ?? ""}
+                {VerifiedCreator({ creator })}
               </div>
             </Card.SubTitle>
           </div>
@@ -160,18 +164,10 @@ const CreatorCardDesktop = ({
         </Card.Body>
         <Card.Body>
           <FollowButton
-            creatorId={creator.id}
+            creator={creator}
             user={user}
-            isDisabled={!canFollowCreator(user, creator.id)}
             variant="desktop"
           />
-          <ClaimCreatorBtn
-            creator={creator}
-            currentPath={currentPath}
-            user={user ?? undefined}
-            isDisabled={!canClaimCreator(user, creator)}
-          />
-          <SocialLinks creator={creator} />
         </Card.Body>
       </div>
     </Card>

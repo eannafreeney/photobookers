@@ -1,6 +1,5 @@
 import { fadeTransition } from "../../../lib/transitions";
 import Button from "../../app/Button";
-import Form from "../../app/Form";
 import SectionTitle from "../../app/SectionTitle";
 import FileUploadInput from "../ui/FileUpload";
 
@@ -10,12 +9,13 @@ type Props = {
 };
 
 const BookGalleryForm = ({ initialImages, bookId }: Props) => {
+  const initialImagesString = initialImages ? JSON.stringify(initialImages) : null;
   const alpineAttrs = {
-    "x-data":`bookGalleryForm({initialImages: ${JSON.stringify(initialImages)}})`,
+    "x-data":`bookGalleryForm({initialImages: ${initialImagesString}})`,
     "x-target": "toast",
-    "x-on:ajax:before": "onBefore()",
-    "x-on:ajax:success": "onSuccess()",
-    "x-on:ajax:error": "onError($event)",
+    "@ajax:before": "onBefore()",
+    "@ajax:success": "onSuccess()",
+    "@ajax:error": "onError($event)",
     "x-on:submit": "submitForm($event)",
   };
 

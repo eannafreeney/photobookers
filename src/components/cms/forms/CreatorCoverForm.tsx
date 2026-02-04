@@ -15,10 +15,9 @@ const CreatorCoverForm = ({ initialUrl, creatorId }: Props) => {
     "x-data": `creatorCoverForm({initialUrl: ${initialUrlString}})`,
     "x-target.error": "toast",
     "x-target": "toast",
-    "x-on:ajax:before": "onBefore()",
-    "x-on:ajax:success": "onSuccess()",
-    "x-on:ajax:error": "onError()",
-    // "x-on:submit": "submitForm($event)",
+    "@ajax:before": "onBefore()",
+    "@ajax:success": "onSuccess()",
+    "@ajax:error": "onError()",
   };
 
   return (

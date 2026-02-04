@@ -81,20 +81,20 @@ export function canPublishBook(user: AuthUser | null, book: Book): boolean {
 
 export function canFollowCreator(
   user: AuthUser | null,
-  creatorToFollowId: string
+  creator: Creator
 ): boolean {
   // User is not creator
-  return user?.creator?.id !== creatorToFollowId && user?.creator?.id !== null;
+  return user?.creator?.id !== creator.id && user?.creator?.id !== null;
 }
 
-export function canWishlistBook(user: AuthUser | null, book: Book): boolean {
+export function canWishlistBook(user: AuthUser | null, book: Pick<Book, 'artistId' | 'publisherId'>): boolean {
   return (
     user?.creator?.id !== book.artistId &&
     user?.creator?.id !== book.publisherId
   );
 }
 
-export function canAddToCollection(user: AuthUser | null, book: Book): boolean {
+export function canAddToCollection(user: AuthUser | null, book: Pick<Book, 'artistId' | 'publisherId'>): boolean {
   return (
     user?.creator?.id !== book.artistId &&
     user?.creator?.id !== book.publisherId

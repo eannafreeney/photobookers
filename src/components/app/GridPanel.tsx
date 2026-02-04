@@ -1,7 +1,8 @@
 import clsx from "clsx";
+import { ChildType } from "../../../types";
 
 type GridPanelProps = {
-  children: JSX.Element[] | JSX.Element;
+  children: ChildType | ChildType[];
   isFullWidth?: boolean;
 };
 

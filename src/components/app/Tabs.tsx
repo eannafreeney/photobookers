@@ -1,15 +1,15 @@
-const Tabs = ({
-  initialTab,
-}: {
+type TabsProps = {
   initialTab: "new-books" | "feed" | "profile";
-}) => {
-  const baseClass = "flex h-min items-center gap-2 px-4 py-2 text-sm";
+};
+
+const Tabs = ({ initialTab }: TabsProps) => {
+  const baseClass = "flex h-min items-center gap-2 px-4 py-1 text-sm";
   const selectedTabClass = "font-bold text-primary border-b-2 border-primary";
   const unselectedTabClass =
     "text-on-surface font-medium  hover:border-b-2 hover:border-b-outline-strong hover:text-on-surface-strong";
 
   return (
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-6">
       <div
         x-data={`{ selectedTab: '/${initialTab ?? "new-books"}' }`}
         class="w-full flex justify-center items-center gap-4"
@@ -50,7 +50,16 @@ const Tabs = ({
       <div
         id="tab-content"
         x-init={`$ajax('/${initialTab ?? "new-books"}')`}
-      ></div>
+        x-data="{ isLoading: true }"
+        {...{ "@ajax:before": "isLoading = true;" }}
+        {...{ "@ajax:after": "isLoading = false;" }}
+        {...{ "@ajax:error": "isLoading = false;" }}
+        class="min-h-[400px]"
+      >
+        <div x-show="isLoading" class="flex items-center justify-center py-12">
+        <p class="text-sm text-on-surface-weak">Loading...</p>
+      </div>
+      </div>
     </div>
   );
 };

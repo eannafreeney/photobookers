@@ -28,11 +28,12 @@ const CreatorDetailPage = async ({
     );
   }
 
-  const { creator, artists } = result;
+  const { creator } = result;
   const books =
     creator.type === "publisher"
       ? creator?.booksAsPublisher
       : creator?.booksAsArtist || [];
+      
 
   return (
     <AppLayout title={creator?.displayName ?? ""} user={user}>
@@ -43,8 +44,7 @@ const CreatorDetailPage = async ({
         </div>
         <div class="flex flex-col md:flex-row gap-4">
           <div class="md:w-3/4 flex flex-col gap-4">
-            <BookList books={books ?? []} />
-            <ArtistList artists={artists} creator={creator} />
+            <BookList books={books ?? []} creatorType={creator.type} user={user} />
           </div>
           <div class="md:w-1/4">
             <CreatorCard creator={creator} currentPath={currentPath} />
