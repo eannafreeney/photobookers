@@ -6,7 +6,13 @@ import { getCookie } from "hono/cookie";
 // Server-side client (use service role for admin operations)
 export const supabaseAdmin = createClient(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!, 
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
 );
 
 // For verifying user tokens
@@ -47,17 +53,6 @@ export function createSupabaseClient(c: Context) {
         },
       },
     }
-    // {
-    //   cookies: {
-    //     getAll() {
-    //       return parseCookieHeader(c.req.header("Cookie") ?? "");
-    //     },
-    //     setAll(cookiesToSet) {
-    //       cookiesToSet.forEach(({ name, value, options }) => {
-    //         c.header("Set-Cookie", serializeCookieHeader(name, value, options));
-    //       });
-    //     },
-    //   },
-    // }
+   
   );
 }

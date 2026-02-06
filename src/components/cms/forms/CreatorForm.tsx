@@ -2,7 +2,6 @@ import FormButtons from "../ui/FormButtons";
 import Input from "../ui/Input";
 import CountrySelect from "../ui/CountrySelect";
 import TextArea from "../ui/TextArea";
-import Form from "../../app/Form";
 import SectionTitle from "../../app/SectionTitle";
 import { capitalize } from "../../../utils";
 
@@ -33,7 +32,7 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
       <SectionTitle>{`${isEditPage ? "Edit" : "Create"} ${capitalize(
         type
       )} Profile`}</SectionTitle>
-      <form action={action} method="POST" {...alpineAttrs}>
+      <form action={action} method="post" {...alpineAttrs}>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
           <div>
             <Input
@@ -45,7 +44,7 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
             />
             <div x-html="artistSearchResults"></div>
           </div>
-          <Input label="Tagline" name="form.tagline" maxLength={75} />
+          <Input label="Tagline" name="form.tagline" maxLength={150} />
           <TextArea
             label="Biography"
             name="form.bio"

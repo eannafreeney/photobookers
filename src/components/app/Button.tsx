@@ -1,5 +1,6 @@
 import { tv } from "tailwind-variants";
 import { colorMap } from "../../lib/colorMap";
+import { JSXNode } from "hono/jsx";
 
 const button = tv({
   base: `
@@ -42,7 +43,7 @@ type ButtonProps = {
   variant: "solid" | "outline" | "ghost";
   color: keyof typeof colorMap;
   isDisabled?: boolean;
-  children: JSX.Element | JSX.Element[] | string;
+  children: JSXNode | JSXNode[] | string;
   width?: "full" | "auto" | "fit" | "sm" | "md" | "lg" | "xl";
   type?: "button" | "submit" | "reset";
   [key: string]: any;

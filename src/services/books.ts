@@ -365,7 +365,6 @@ export const prepareBookData = async (
 
   return {
     title: formData.title,
-    tagline: formData.tagline || null,
     description: formData.description || null,
     specs: formData.specs || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,

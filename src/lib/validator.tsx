@@ -1,7 +1,5 @@
 import z from "zod";
-import FormError from "../components/app/FormError";
 import { validator } from "hono/validator";
-import Alert from "../components/app/Alert";
 import { showErrorAlert } from "../routes/booksDashboardRoutes";
 
 export const formValidator = <T extends z.ZodSchema>(schema: T) => {

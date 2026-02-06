@@ -54,8 +54,7 @@ export const users = pgTable("users", {
   firstName: varchar("first_name", { length: 255 }),
   lastName: varchar("last_name", { length: 255 }),
   acceptsTerms: timestamp("accepts_terms"),
-  acceptsNewsletter: timestamp("accepts_newsletter"),
-  acceptsEmails: timestamp("accepts_emails"),
+  intendedCreatorType: creatorTypeEnum("intended_creator_type"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });

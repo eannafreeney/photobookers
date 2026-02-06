@@ -1,5 +1,4 @@
 import { getAllOptions } from "../../../services/creators";
-import Form from "../../app/Form";
 import SectionTitle from "../../app/SectionTitle";
 import FeatureGuard from "../../layouts/FeatureGuard";
 import ComboBox from "../ui/ComboBox";
@@ -97,7 +96,6 @@ export const BookForm = async ({
             validateInput="validateField('release_date')"
             required
           />
-          <Input label="Tagline" name="form.tagline" maxLength={75} />
           <TextArea
             label="Specs"
             name="form.specs"

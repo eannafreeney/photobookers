@@ -94,7 +94,7 @@ export async function uploadImages(
  * Delete an image from storage
  */
 export async function deleteImage(path: string): Promise<void> {
-  const { error } = await supabaseStorage.storage
+  const { error } = await supabaseAdmin.storage
     .from(BUCKET_NAME)
     .remove([path]);
 

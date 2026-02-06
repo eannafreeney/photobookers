@@ -8,21 +8,18 @@ import {
 } from "../utils";
 import AddCreatorPage from "../pages/dashboard/AddCreatorPage";
 import { creatorFormSchema, creatorIdSchema } from "../schemas";
-import { uploadImage } from "../services/storage";
 import {
   createCreatorProfile,
   getCreatorById,
-  updateCreatorCoverImage,
   updateCreatorProfile,
 } from "../services/creators";
-import FormError from "../components/app/FormError";
 import EditCreatorPage from "../pages/dashboard/EditCreatorPage";
 import {
   formValidator,
   paramValidator,
-  validateImageFile,
 } from "../lib/validator";
 import Alert from "../components/app/Alert";
+import { createSupabaseClient } from "../lib/supabase";
 
 export const creatorDashboardRoutes = new Hono();
 
@@ -66,6 +63,14 @@ creatorDashboardRoutes.post(
         422
       );
     }
+
+    // Clear the intendedCreatorType from user metadata since they've completed signup
+    const supabase = createSupabaseClient(c);
+    await supabase.auth.updateUser({
+      data: {
+        intendedCreatorType: null,
+      },
+    });
 
     await setFlash(c, "success", "Creator profile created successfully!");
     return c.redirect("/dashboard/books");

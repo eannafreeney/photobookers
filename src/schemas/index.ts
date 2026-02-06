@@ -15,17 +15,9 @@ const numberField = z.preprocess(
   z.number().optional()
 );
 
-// ============ REGISTER FORM SCHEMA ============
-export const registerFormSchema = z.object({
-  firstName: z
-    .string()
-    .min(3, "First name must be at least 3 characters")
-    .max(255, "First name must be less than 255 characters"),
-  lastName: z
-    .string()
-    .min(3, "Last name must be at least 3 characters")
-    .max(255, "Last name must be less than 255 characters"),
-  type: z.enum(["fan", "artist", "publisher"]),
+// ============ REGISTER CREATOR FORM SCHEMA ============
+export const registerCreatorFormSchema = z.object({
+  type: z.enum(["artist", "publisher"]),
   email: z.email().min(1, "Email is required"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
@@ -37,6 +29,21 @@ export const registerFormSchema = z.object({
     ),
 });
 
+// ============ REGISTER FAN FORM SCHEMA ============
+export const registerFanFormSchema = z.object({
+  firstName: z
+    .string()
+    .min(3, "First name must be at least 3 characters")
+    .max(255, "First name must be less than 255 characters"),
+  lastName: z
+    .string()
+    .min(3, "Last name must be at least 3 characters")
+    .max(255, "Last name must be less than 255 characters"),
+  ...registerCreatorFormSchema.shape,
+});
+
+
+
 // ============ LOGIN FORM SCHEMA ============
 export const loginFormSchema = z.object({
   email: z.email().min(1, "Email is required"),
@@ -46,7 +53,7 @@ export const loginFormSchema = z.object({
 // ============ CREATOR FORM SCHEMA ============
 export const creatorFormSchema = z.object({
   displayName: z.string().min(3, "Display Name must be at least 3 characters"),
-  tagline: z.string().max(75, "Tagline must be less than 75 characters"),
+  tagline: z.string().max(150, "Tagline must be less than 150 characters"),
   bio: z
     .string()
     .min(10, "Description must be at least 10 characters")
@@ -101,7 +108,6 @@ export const claimFormSchema = z.object({
 // This validates form input, NOT database values
 export const bookFormSchema = z.object({
   title: z.string().min(3, "Title is required"),
-  tagline: z.string().max(75, "Tagline must be less than 75 characters"),
   artist_id: optionalText,
   new_artist_name: optionalText,
   publisher_id: optionalText,

@@ -9,7 +9,7 @@ import { AuthUser } from "../../../types";
 
 type BookCardProps = {
   book: Book;
-  user: AuthUser;
+  user: AuthUser | null;
   creatorType?: "publisher" | "artist";
 };
 

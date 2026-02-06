@@ -31,6 +31,13 @@ export function registerRegisterForm() {
       },
 
       validateField(field: string) {
+        // For firstName/lastName, only validate if type is "fan"
+        if ((field === "firstName" || field === "lastName") && this.form.type !== "fan") {
+          // Clear errors for these fields when type is not "fan"
+          this.errors.form[field as keyof typeof this.errors.form] = "";
+          return;
+        }
+
         const result = registerFormSchema.safeParse(this.form);
         const fieldError =
           result.error?.flatten().fieldErrors[
@@ -80,30 +87,61 @@ export function registerRegisterForm() {
       },
 
       get isFormValid() {
-        return (
-          Object.values(this.errors.form).every((err) => !err) &&
-          this.form.firstName &&
-          this.form.lastName &&
-          this.form.type &&
-          this.form.email &&
-          this.form.password &&
-          this.form.confirmPassword &&
-          this.form.confirmPassword === this.form.password &&
-          this.form.agreeToTerms &&
-          !this.isEmailChecking &&
-          !this.emailIsTaken
-        );
+        const isFan = this.form.type === "fan";
+        
+        // Base validation - check all errors are cleared
+        const hasNoErrors = Object.values(this.errors.form).every((err) => {
+          // For non-fan types, ignore firstName/lastName errors
+          if (!isFan && (err === this.errors.form.firstName || err === this.errors.form.lastName)) {
+            return true;
+          }
+          return !err;
+        });
+
+         // Required fields based on type
+         const hasRequiredFields = 
+         this.form.type &&
+         this.form.email &&
+         this.form.password &&
+         this.form.confirmPassword &&
+         this.form.confirmPassword === this.form.password &&
+         this.form.agreeToTerms &&
+         // Only require firstName/lastName for fan type
+         (isFan ? (this.form.firstName && this.form.lastName) : true);
+
+       return (
+         hasNoErrors &&
+         hasRequiredFields &&
+         !this.isEmailChecking &&
+         !this.emailIsTaken
+       );
       },
 
       submitForm(event: Event) {
         this.isSubmitting = true;
+         // Create a modified form object for validation
+        // If type is not "fan", make firstName/lastName optional
+        const formToValidate = { ...this.form };
+        if (formToValidate.type !== "fan") {
+          // Set to empty string or undefined to make them optional
+          formToValidate.firstName = formToValidate.firstName || "";
+          formToValidate.lastName = formToValidate.lastName || "";
+        }
+
         const result = registerFormSchema.safeParse(this.form);
 
         if (!result.success) {
           event.preventDefault();
           this.isSubmitting = false;
 
-          this.errors.form = result.error.flatten().fieldErrors;
+          // Filter out firstName/lastName errors for non-fan types
+          const flattenedErrors = result.error.flatten().fieldErrors;
+          if (this.form.type !== "fan") {
+            delete flattenedErrors.firstName;
+            delete flattenedErrors.lastName;
+          }
+          
+          this.errors.form = flattenedErrors;
           return;
         }
       },

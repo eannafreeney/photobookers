@@ -12,5 +12,6 @@ export type AuthUser = {
   email: string;
   firstName: string | null;
   lastName: string | null;
+  intendedCreatorType: "artist" | "publisher" | null;
   creator: Creator | null;
 };

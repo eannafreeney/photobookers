@@ -1,4 +1,3 @@
-import { registerRegisterForm } from "./forms/registerForm";
 import { registerLoginForm } from "./forms/loginForm";
 import { registerCreatorForm } from "./forms/creatorForm";
 import { registerBookForm } from "./forms/bookForm";
@@ -11,10 +10,13 @@ import { registerClaimForm } from "./forms/claimForm";
 import { registerCountryForm } from "./forms/countryForm";
 import { registerShareButton } from "./components/shareButton";
 import { registerImageOrientation } from "./utils/imageOrientation";
+import { registerRegisterFanForm } from "./forms/registerFanForm";
+import { registerRegisterCreatorForm } from "./forms/registerCreatorForm";
 
 // Register all Alpine.js data components
-registerRegisterForm();
 registerLoginForm();
+registerRegisterFanForm();
+registerRegisterCreatorForm();
 registerCreatorForm();
 registerBookForm();
 registerCarouselForm();

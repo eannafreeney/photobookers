@@ -46,7 +46,6 @@ export function registerBookCoverForm() {
         onSuccess() {
           this.isSubmitting = false;
           this.initialUrl = this.previewUrl;  // Mark current state as "saved"
-
         },
 
         onError() {
