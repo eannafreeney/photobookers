@@ -15,7 +15,7 @@ export function registerBookGalleryForm() {
         images: [] as ImageItem[],
         initialImages: [] as ImageItem[],
         removedIds: [] as string[],
-        isLoading: false,
+        isSubmitting: false,
         previewImage: null,
         isCompressing: false,
         error: null as string | null,
@@ -89,25 +89,37 @@ export function registerBookGalleryForm() {
         },
 
         onBefore() {
-          this.isLoading = true;
+          this.isSubmitting = true;
           this.error = null;
         },
 
         onSuccess(event: CustomEvent) {
-          this.isLoading = false;
-          // Update initialImages with response if backend returns new URLs
-          // this.initialImages = [...this.images];
+          this.isSubmitting = false;
+          // Update initialImages to reflect the current state (marking it as saved)
+          this.initialImages = this.images
+          .filter(img => !img.file) // Keep only existing images (not new ones)
+          .map(img => ({ id: img.id, previewUrl: img.previewUrl }));
+
+          // Clear removed IDs and new file references
           this.removedIds = [];
+          // Remove file references from images that were just uploaded
+          this.images = this.images.map(img => {
+            if (img.file) {
+              // Keep the preview URL but remove the file reference
+              return { id: img.id, previewUrl: img.previewUrl };
+            }
+            return img;
+          }); 
         },
 
         onError() {
-          this.isLoading = false;
+          this.isSubmitting = false;
           this.error = "Failed to save images";
         },
 
         async submitForm(event: Event) {
           event.preventDefault();
-          this.isLoading = true;
+          this.isSubmitting = true;
           this.error = null;
 
           const formData = new FormData();
@@ -130,15 +142,38 @@ export function registerBookGalleryForm() {
 
             const html = await response.text();
 
+            // Check if response is successful
+            if (!response.ok) {
+              this.error = "Failed to save images";
+              this.isSubmitting = false;
+            }
+
             const container = document.getElementById("toast");
             if (container) {
               container.outerHTML = html;
             }
 
-            this.isLoading = false;
+             // Only reset state if successful
+            if (response.ok) {
+              // Update initialImages to reflect the current state
+              this.initialImages = this.images
+                .filter(img => !img.file) // Keep only existing images
+                .map(img => ({ id: img.id, previewUrl: img.previewUrl }));
+              
+              // Clear removed IDs and file references
+              this.removedIds = [];
+              this.images = this.images.map(img => {
+                if (img.file) {
+                  return { id: img.id, previewUrl: img.previewUrl };
+                }
+                return img;
+              });
+            }
+
+            this.isSubmitting = false;
           } catch (err) {
             this.error = "Failed to save images";
-            this.isLoading = false;
+            this.isSubmitting = false;
           }
         },
       };

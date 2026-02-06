@@ -49,10 +49,10 @@ const BookGalleryForm = ({ initialImages, bookId }: Props) => {
             <Button
               variant="solid"
               color="primary"
-              x-bind:disabled="isLoading || !hasChanges || isCompressing"
+              x-bind:disabled="isSubmitting || !hasChanges || isCompressing"
             >
-              <span x-show="!isLoading">Save</span>
-              <span x-show="isLoading">Saving…</span>
+              <span x-show="!isSubmitting">Save</span>
+              <span x-show="isSubmitting">Saving…</span>
             </Button>
             <Button
               type="button"
