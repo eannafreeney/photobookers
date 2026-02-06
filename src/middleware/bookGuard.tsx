@@ -17,6 +17,10 @@ export const requireBookEditAccess = createMiddleware<BookEnv>(
     const user = await getUser(c);
     const bookId = c.req.param("bookId");
 
+    if (!bookId) {
+      return c.html(<Alert type="danger" message="Book ID is required" />, 400);
+    }
+
     const book = await getBookById(bookId);
     if (!book) {
       return c.html(<Alert type="danger" message="Book not found" />, 404);

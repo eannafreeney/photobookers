@@ -1,12 +1,12 @@
 import { FeatureFlagName, isFeatureEnabled } from "../../lib/features";
+import { PropsWithChildren } from "hono/jsx";
 
-type Props = {
+type Props = PropsWithChildren<{
   flagName: FeatureFlagName;
-  children: JSX.Element;
-  fallback?: JSX.Element;
-};
+  fallback?: null;
+}>;
 
-const FeatureGuard = ({ flagName, children, fallback = <></> }: Props) => {
+const FeatureGuard = ({ flagName, children, fallback = null }: Props) => {
   const isEnabled = isFeatureEnabled(flagName);
   if (!isEnabled) {
     return fallback;

@@ -1,7 +1,5 @@
-import { useUser } from "../../contexts/UserContext";
-import { CreatorClaim } from "../../db/schema";
 
-type DashboardNavLinksProps = {
+type Props = {
   isMobile?: boolean;
   currentPath?: string | null;
 };
@@ -9,7 +7,7 @@ type DashboardNavLinksProps = {
 const DashboardNavLinks = ({
   isMobile,
   currentPath,
-}: DashboardNavLinksProps) => {
+}: Props) => {
   const renderLinks = () => {
     return (
       <>
@@ -55,7 +53,7 @@ const NavLink = ({
   href,
   children,
   currentPath,
-}: NavLinkProps): JSX.Element => {
+}: NavLinkProps) => {
   const isActive = currentPath === href;
 
   return (

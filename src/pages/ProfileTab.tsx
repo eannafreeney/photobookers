@@ -42,18 +42,22 @@ const ProfileTab = async ({ user }: Props) => {
   const wishlistBooks = await getBooksInWishlist(user.id);
 
   if (wishlistBooks?.length === 0 ) {
-    return <div id="tab-content" class="flex flex-col items-center justify-center mt-4">Start adding books to your wishlist and collection to see them here.</div>;
+    return (
+      <div id="tab-content" class="flex flex-col items-center justify-center mt-4">
+        Start adding books to your wishlist and collection to see them here.
+      </div>
+    )
   }
 
   return (
-    <div id="tab-content" class="flex flex-col gap-4">
-      <SectionTitle>Wishlisted Books</SectionTitle>
-      <GridPanel isFullWidth>
-       {wishlistBooks?.map((book) => (
-         <BookCard book={book} user={user} />
-        ))}
-        </GridPanel>
-    </div>
+      <div id="tab-content" class="flex flex-col gap-4">
+        <SectionTitle>Wishlisted Books</SectionTitle>
+        <GridPanel isFullWidth>
+        {wishlistBooks?.map((book) => (
+          <BookCard book={book} user={user} />
+          ))}
+          </GridPanel>
+      </div>   
   );
 };
 

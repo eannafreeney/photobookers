@@ -1,6 +1,6 @@
 import { tv } from "tailwind-variants";
 import { colorMap } from "../../lib/colorMap";
-import { JSX, JSXNode, PropsWithChildren } from "hono/jsx";
+import { PropsWithChildren } from "hono/jsx";
 
 const button = tv({
   base: `
@@ -13,8 +13,12 @@ const button = tv({
     variant: {
       solid: "",
       outline: "bg-transparent",
+      ghost: "bg-transparent",
     },
-    color: Object.keys(colorMap),
+    // color: Object.keys(colorMap) as (keyof typeof colorMap)[],
+    color: Object.fromEntries(
+      (Object.keys(colorMap) as (keyof typeof colorMap)[]).map(key => [key, ""])
+    ) as Record<keyof typeof colorMap, string>,
     width: {
       full: "w-full",
       auto: "w-auto",
@@ -31,10 +35,10 @@ const button = tv({
     width: "full",
   },
   compoundVariants: [
-    ...Object.entries(colorMap).flatMap(([color, styles]) => [
-      { variant: "solid", color, class: styles.solid },
-      { variant: "outline", color, class: styles.outline },
-      { variant: "ghost", color, class: styles.ghost },
+    ...(Object.entries(colorMap) as [keyof typeof colorMap, typeof colorMap[keyof typeof colorMap]][]).flatMap(([color, styles]) => [
+      { variant: "solid" as const, color, class: styles.solid },
+      { variant: "outline" as const, color, class: styles.outline },
+      { variant: "ghost" as const, color, class: styles.ghost },
     ]),
   ],
 });

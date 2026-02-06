@@ -23,7 +23,7 @@ const APIButtonCircle = ({
   const attrs = {
     "x-data": "{ isSubmitting: false }",
     "@ajax:before": "isSubmitting = true",
-    "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
+    "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false;",
     "@ajax:error": "isSubmitting = false",
     "x-target": `${id} toast`,
     "x-target.error": "toast",

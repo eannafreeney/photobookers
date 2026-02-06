@@ -81,7 +81,7 @@ export function canPublishBook(user: AuthUser | null, book: Book): boolean {
 
 export function canFollowCreator(
   user: AuthUser | null,
-  creator: Creator
+  creator: Pick<Creator, 'id' | 'displayName'>
 ): boolean {
   // User is not creator
   return user?.creator?.id !== creator.id && user?.creator?.id !== null;

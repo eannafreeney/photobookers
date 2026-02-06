@@ -419,9 +419,6 @@ booksDashboardRoutes.post(
     return c.html(
       <>
         <Alert type="success" message="Book Approved!" />
-        <div x-sync id="server_events">
-          <div x-init="$dispatch('book:approved')"></div>
-        </div>
         <BooksForApprovalTable creatorId={user.creator.id} />
       </>
     );

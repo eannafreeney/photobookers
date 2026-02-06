@@ -51,6 +51,7 @@ const Tabs = ({ initialTab }: TabsProps) => {
         id="tab-content"
         x-init={`$ajax('/${initialTab ?? "new-books"}')`}
         x-data="{ isLoading: true }"
+        {...{ "@wishlist:updated.window": "$ajax('/profile')" }}
         {...{ "@ajax:before": "isLoading = true;" }}
         {...{ "@ajax:after": "isLoading = false;" }}
         {...{ "@ajax:error": "isLoading = false;" }}

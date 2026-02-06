@@ -47,7 +47,7 @@ const ApproveBookForm = ({ bookId }: { bookId: string }) => {
   return (
     <form
       {...attrs}
-      method="POST"
+      method="post"
       action={`/dashboard/books/${bookId}/approve`}
     >
       <Button variant="outline" color="success">
@@ -63,7 +63,7 @@ const RejectBookForm = ({ bookId }: { bookId: string }) => {
     "x-target.error": "toast",
   };
   return (
-    <form {...attrs} method="POST" action={`/dashboard/books/${bookId}/reject`}>
+    <form {...attrs} method="post" action={`/dashboard/books/${bookId}/reject`}>
       <Button variant="outline" color="danger">
         <span>Reject</span>
       </Button>

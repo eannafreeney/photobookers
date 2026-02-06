@@ -15,7 +15,7 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
     <>
       <form
         action={`/auth/login?redirectUrl=${redirectUrl}`}
-        method="POST"
+        method="post"
         {...alpineAttrs}
       >
         <Input

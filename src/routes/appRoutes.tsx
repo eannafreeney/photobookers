@@ -42,7 +42,7 @@ appRoutes.get("/books/:slug", async (c) => {
   const currentPath = c.req.path;
 
   return c.html(
-    <BookDetailPage user={user} bookSlug={slug} currentPath={currentPath} />
+    <BookDetailPage user={user} bookSlug={slug} currentPath={currentPath}  />
   );
 });
 

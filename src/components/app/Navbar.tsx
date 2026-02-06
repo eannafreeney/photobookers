@@ -1,6 +1,5 @@
 import DashboardNavLinks from "./DashboardNavLinks";
 import NavLinks from "./NavLinks";
-import { CreatorClaim } from "../../db/schema";
 import NavSearch from "./NavSearch";
 import NavAvatar from "./NavAvatar";
 
@@ -25,7 +24,7 @@ const Navbar = ({
         {isDashboard ? (
           <DashboardNavLinks currentPath={currentPath} />
         ) : (
-          <NavLinks currentPath={currentPath} />
+          <NavLinks />
         )}
         <NavSearch />
         <NavAvatar />

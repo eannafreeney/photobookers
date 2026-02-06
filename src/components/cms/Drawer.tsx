@@ -1,10 +1,13 @@
+import { PropsWithChildren } from "hono/jsx";
+
+type Props = PropsWithChildren<{
+  buttonText: string;
+}>;
+
 export const Drawer = ({
   children,
   buttonText,
-}: {
-  children: JSX.Element;
-  buttonText: string;
-}) => {
+}: Props) => {
   return (
     <div class="drawer">
       <input id="my-drawer-1" type="checkbox" class="drawer-toggle" />

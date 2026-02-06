@@ -12,11 +12,8 @@ import CreatorCard from "../components/app/CreatorCard";
 import CreatorCardMobile from "../components/app/CreatorCardMobile";
 import Carousel from "../components/app/Carousel";
 import VerifiedCreator from "../components/app/VerifiedCreator";
-import ClaimCreatorBtn from "../components/app/ClaimCreatorBtn";
-import { canClaimCreator, canFollowCreator } from "../lib/permissions";
 import FollowButton from "../components/app/FollowButton";
 import { useUser } from "../contexts/UserContext";
-import SocialLinks from "../components/app/SocialLinks";
 import Link from "../components/app/Link";
 import WishlistButton from "../components/app/WishlistButton";
 
@@ -24,7 +21,7 @@ type BookDetailPageProps = {
   user: AuthUser | null;
   bookSlug: string;
   currentPath: string;
-  status: "published" | "draft";
+  status?: "published" | "draft";
   isPreview?: boolean;
 };
 
@@ -32,7 +29,7 @@ const BookDetailPage = async ({
   user,
   bookSlug,
   currentPath,
-  status,
+  status = "published",
   isPreview = false,
 }: BookDetailPageProps) => {
   const result = await getBookBySlug(bookSlug, status);

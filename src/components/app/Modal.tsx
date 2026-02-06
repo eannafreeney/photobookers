@@ -1,4 +1,7 @@
-const Modal = ({ children }: { children: JSX.Element }) => {
+import { PropsWithChildren } from "hono/jsx";
+
+
+const Modal = ({ children }: PropsWithChildren) => {
   return (
     <dialog
       id="modal-root"

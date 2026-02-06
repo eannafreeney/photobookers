@@ -4,7 +4,7 @@ type VerifiedCreatorProps = {
   creator: Creator;
 };
 
-const VerifiedCreator = ({ creator }: VerifiedCreatorProps): JSX.Element => {
+const VerifiedCreator = ({ creator }: VerifiedCreatorProps) => {
   if (!creator.ownerUserId) return <></>;
   return (
     <svg

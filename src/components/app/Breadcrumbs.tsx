@@ -1,6 +1,6 @@
 type BreadcrumbItem = {
-  label: string | JSX.Element;
-  href?: string; // Optional - last item usually has no link
+  label: string;
+  href?: string;
 };
 
 type BreadcrumbsProps = {

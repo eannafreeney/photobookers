@@ -108,46 +108,46 @@ const showErrorAlert = (
   errorMessage: string = "Action Failed! Please try again."
 ) => c.html(<Alert type="danger" message={errorMessage} />, 422);
 
-apiRoutes.post("/collection/:bookId", async (c) => {
-  const bookId = c.req.param("bookId");
-  const user = await getUser(c);
-  const userId = user?.id;
+// apiRoutes.post("/collection/:bookId", async (c) => {
+//   const bookId = c.req.param("bookId");
+//   const user = await getUser(c);
+//   const userId = user?.id;
 
-  if (!userId) {
-    return c.html(
-      <AuthModal action="to add this book to your collection." />,
-      401
-    );
-  }
+//   if (!userId) {
+//     return c.html(
+//       <AuthModal action="to add this book to your collection." />,
+//       401
+//     );
+//   }
 
-  const body = await c.req.parseBody();
-  const isCurrentlyInCollection = body.isInCollection === "true";
-  const buttonType = body.buttonType; // "circle" or "default"
+//   const body = await c.req.parseBody();
+//   const isCurrentlyInCollection = body.isInCollection === "true";
+//   const buttonType = body.buttonType; // "circle" or "default"
 
-  try {
-    if (isCurrentlyInCollection) {
-      await deleteCollectionItem(userId, bookId);
-    } else {
-      await insertCollectionItem(userId, bookId);
-    }
-  } catch (error) {
-    console.error("Failed to add/remove book to collection", error);
-    return showErrorAlert(c);
-  }
+//   try {
+//     if (isCurrentlyInCollection) {
+//       await deleteCollectionItem(userId, bookId);
+//     } else {
+//       await insertCollectionItem(userId, bookId);
+//     }
+//   } catch (error) {
+//     console.error("Failed to add/remove book to collection", error);
+//     return showErrorAlert(c);
+//   }
 
-  const book = await getBookPermissionData(bookId);
-  if (!book) {
-    return showErrorAlert(c, "Book not found");
-  }
+//   const book = await getBookPermissionData(bookId);
+//   if (!book) {
+//     return showErrorAlert(c, "Book not found");
+//   }
 
-  if (buttonType === "circle") {
-    return c.html(
-      <CollectionButton bookId={bookId} user={user} isCircleButton />
-    );
-  }
+//   if (buttonType === "circle") {
+//     return c.html(
+//       <CollectionButton bookId={bookId} user={user} isCircleButton />
+//     );
+//   }
 
-  return c.html(<CollectionButton bookId={bookId} user={user} />);
-});
+//   return c.html(<CollectionButton bookId={bookId} user={user} />);
+// });
 
 apiRoutes.get("/check-email", async (c) => {
   const email = c.req.query("email");

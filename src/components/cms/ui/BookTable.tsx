@@ -45,7 +45,6 @@ export const BookTable = async ({
           </Button>
         </Link>
       </div>
-      <div x-sync id="server_events"></div>
       <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
         <table class="w-full text-left text-sm text-on-surface">
           <thead class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong">
