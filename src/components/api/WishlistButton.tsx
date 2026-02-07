@@ -1,12 +1,12 @@
 import { AuthUser } from "../../../types";
 import { findWishlist } from "../../db/queries";
-import APIButton from "./APIButton";
-import APIButtonCircle from "./APIButtonCircle";
+import APIButton from "../api/APIButton";
+import APIButtonCircle from "../api/APIButtonCircle";
 import { Book } from "../../db/schema";
 import { canWishlistBook } from "../../lib/permissions";
 
 type WishlistButtonProps = {
-  book: Pick<Book, 'id' | 'artistId' | 'publisherId'>;
+  book: Pick<Book, "id" | "artistId" | "publisherId">;
   user: AuthUser | null;
   isCircleButton?: boolean;
 };
@@ -56,12 +56,16 @@ const WishlistButton = async ({
     ),
   };
 
-
   const tooltipText = isWishlisted ? "Remove from Wishlist" : "Add to Wishlist";
 
   if (isCircleButton) {
     return (
-      <APIButtonCircle {...props} buttonType="circle" isDisabled={isDisabled} tooltipText={tooltipText} />
+      <APIButtonCircle
+        {...props}
+        buttonType="circle"
+        isDisabled={isDisabled}
+        tooltipText={tooltipText}
+      />
     );
   }
 

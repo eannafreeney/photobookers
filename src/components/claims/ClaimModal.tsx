@@ -5,12 +5,14 @@ import Input from "../cms/ui/Input";
 type Props = {
   creatorId: string;
   user: AuthUser;
+  buttonType: string;
 };
 
-const ClaimModal = ({ creatorId, user }: Props) => {
-  const attrs = {
+const ClaimModal = ({ creatorId, user, buttonType }: Props) => {
+  const alpineAttrs = {
     "x-data": "claimForm()",
-    "x-target": "toast",
+    "x-target": `toast claim-${creatorId}`,
+    "x-target.error": "toast",
     "x-on:ajax:after": "$dispatch('dialog:close')",
   };
 
@@ -20,11 +22,11 @@ const ClaimModal = ({ creatorId, user }: Props) => {
       <p class="text-sm text-gray-600">
         Verify your identity by adding a verification code to your website.
       </p>
-      <form method="post" action={`/claim/${creatorId}`} {...attrs}>
+      <form method="post" action={`/claim/${creatorId}`} {...alpineAttrs}>
         <div class="flex flex-col gap-2">
           <label class="text-sm font-medium">Verification Method</label>
           <select
-            name="form.verificationMethod"
+            name="verificationMethod"
             class="border rounded px-3 py-2"
             required
           >
@@ -48,12 +50,8 @@ const ClaimModal = ({ creatorId, user }: Props) => {
           the URL is publicly accessible.
         </p>
 
-        <input
-          type="hidden"
-          name="form.name"
-          value={`${user?.firstName} ${user?.lastName}`}
-        />
-        <input type="hidden" name="form.email" value={user?.email} />
+        <input type="hidden" name="email" value={user?.email} />
+        <input type="hidden" name="buttonType" value={buttonType} />
         <Button variant="solid" color="primary">
           Start Verification
         </Button>

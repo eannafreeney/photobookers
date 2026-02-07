@@ -6,19 +6,22 @@ import { creators, users } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { AuthUser } from "../../types";
 
-
 export async function checkIncompleteCreatorSignup(c: Context, user: AuthUser) {
   // Check if user has an intended creator type but no creator profile
   if (!user) return null;
-  
+
   // First check the database field (primary source)
   let intendedType = user.intendedCreatorType;
-  
+
   // If user has an intended creator type but no creator profile, redirect them
-  if (intendedType && (intendedType === "artist" || intendedType === "publisher") && !user.creator) {
+  if (
+    intendedType &&
+    (intendedType === "artist" || intendedType === "publisher") &&
+    !user.creator
+  ) {
     return c.redirect(`/dashboard/creators/new?type=${intendedType}`);
   }
-  
+
   return null;
 }
 
@@ -74,8 +77,7 @@ async function getUserFromToken(token: string) {
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
         creator: creatorProfile || null,
-        intendedCreatorType: dbUser.intendedCreatorType, 
-
+        intendedCreatorType: dbUser.intendedCreatorType,
       };
     } catch (dbError: any) {
       // Handle database connection errors
@@ -89,7 +91,7 @@ async function getUserFromToken(token: string) {
         dbError?.message?.includes("ENOTFOUND")
       ) {
         console.error(
-          "Database hostname cannot be resolved. Please check your DATABASE_URL environment variable."
+          "Database hostname cannot be resolved. Please check your DATABASE_URL environment variable.",
         );
       }
 
@@ -123,7 +125,7 @@ export const requireAuth = async (c: Context, next: Next) => {
         maxAge: 60 * 60 * 24 * 7, // 7 days
         path: "/",
       });
-      token = refreshedToken.access_token; 
+      token = refreshedToken.access_token;
       refreshToken = refreshedToken.refresh_token;
     }
   }
@@ -167,7 +169,7 @@ export const requireAuth = async (c: Context, next: Next) => {
   // Check for incomplete creator signup (but allow dashboard routes to handle their own redirects)
   const path = c.req.path;
   if (
-    !path.startsWith("/dashboard/creators/new") && 
+    !path.startsWith("/dashboard/creators/new") &&
     !path.startsWith("/auth/") &&
     !path.startsWith("/api/")
   ) {
@@ -227,21 +229,18 @@ export const optionalAuthMiddleware = async (c: Context, next: Next) => {
   if (token && !user) {
     deleteCookie(c, "token");
     deleteCookie(c, "refresh_token");
-     
-  }
-
-  if (!user) {
-    return c.redirect("/auth/login");
   }
 
   c.set("user", user);
-  
+
   const path = c.req.path;
-   // Only check for incomplete signup if NOT already on the creator form page or auth pages
-   if (
-    !path.startsWith("/dashboard/creators/new") && 
+
+  // Only check for incomplete signup if NOT already on the creator form page or auth pages
+  if (
+    !path.startsWith("/dashboard/creators/new") &&
     !path.startsWith("/auth/") &&
-    !path.startsWith("/api/")
+    !path.startsWith("/api/") &&
+    user
   ) {
     const redirect = await checkIncompleteCreatorSignup(c, user);
     if (redirect) return redirect;

@@ -33,7 +33,7 @@ export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
 
 export function canPreviewBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
-  if(!book.coverUrl) return false;
+  if (!book.coverUrl) return false;
 
   const isDraftMode = book.publicationStatus === "draft";
 
@@ -46,7 +46,7 @@ export function canPreviewBook(user: AuthUser | null, book: Book): boolean {
 
 export function canEditCreator(
   user: AuthUser | null,
-  creator: Creator
+  creator: Creator,
 ): boolean {
   if (!user) return false;
 
@@ -56,7 +56,7 @@ export function canEditCreator(
 
 export function canClaimCreator(
   user: AuthUser | null,
-  creator: Creator
+  creator: Creator,
 ): boolean {
   if (!user) return false;
   // user already has a creator profile
@@ -81,20 +81,26 @@ export function canPublishBook(user: AuthUser | null, book: Book): boolean {
 
 export function canFollowCreator(
   user: AuthUser | null,
-  creator: Pick<Creator, 'id' | 'displayName'>
+  creator: Pick<Creator, "id" | "displayName">,
 ): boolean {
   // User is not creator
   return user?.creator?.id !== creator.id && user?.creator?.id !== null;
 }
 
-export function canWishlistBook(user: AuthUser | null, book: Pick<Book, 'artistId' | 'publisherId'>): boolean {
+export function canWishlistBook(
+  user: AuthUser | null,
+  book: Pick<Book, "artistId" | "publisherId">,
+): boolean {
   return (
     user?.creator?.id !== book.artistId &&
     user?.creator?.id !== book.publisherId
   );
 }
 
-export function canAddToCollection(user: AuthUser | null, book: Pick<Book, 'artistId' | 'publisherId'>): boolean {
+export function canAddToCollection(
+  user: AuthUser | null,
+  book: Pick<Book, "artistId" | "publisherId">,
+): boolean {
   return (
     user?.creator?.id !== book.artistId &&
     user?.creator?.id !== book.publisherId

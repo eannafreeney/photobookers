@@ -1,6 +1,6 @@
 import { db } from "../db/client";
 import { Creator, CreatorClaim, creatorClaims, creators } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   generateVerificationCode,
   getCodeExpiration,
@@ -19,20 +19,6 @@ export const getClaimByToken = async (token: string) => {
   return claim ?? null;
 };
 
-export const getClaimById = async (id: string) => {
-  try {
-    const [claim] = await db
-      .select()
-      .from(creatorClaims)
-      .where(eq(creatorClaims.id, id))
-      .limit(1);
-    return claim ?? null;
-  } catch (error) {
-    console.error("Failed to get claim by id", error);
-    return null;
-  }
-};
-
 export const updateCreatorOwnerAndStatus = async (claimant: CreatorClaim) => {
   await db
     .update(creators)
@@ -40,46 +26,20 @@ export const updateCreatorOwnerAndStatus = async (claimant: CreatorClaim) => {
     .where(eq(creators.id, claimant.creatorId));
 };
 
-export const getClaimsForReview = async () => {
+export const deleteClaim = async (claimId: string) => {
   try {
-    const claims = await db.query.creatorClaims.findMany({
-      where: eq(creatorClaims.status, "publisher_reviewed"),
-    });
-    return claims ?? null;
-  } catch (error) {
-    console.error("Failed to get claims for review", error);
-    return null;
-  }
-};
-
-export const deleteClaim = async (id: string) => {
-  try {
-    await db.delete(creatorClaims).where(eq(creatorClaims.id, id));
+    await db.delete(creatorClaims).where(eq(creatorClaims.id, claimId));
   } catch (error) {
     console.error("Failed to delete claim", error);
     return null;
   }
 };
 
-export const reviewClaim = async (claim: CreatorClaim) => {
-  await db
-    .update(creatorClaims)
-    .set({ status: "publisher_reviewed", verifiedAt: new Date() })
-    .where(eq(creatorClaims.id, claim.id));
-};
-
-export const rejectClaim = async (claim: CreatorClaim) => {
-  await db
-    .update(creatorClaims)
-    .set({ status: "admin_rejected", verifiedAt: new Date() })
-    .where(eq(creatorClaims.id, claim.id));
-};
-
 export const createClaim = async (
   userId: string,
   creatorId: string,
   verificationUrl: string,
-  verificationMethod: "website" | "instagram" = "website"
+  verificationMethod: "website" | "instagram" = "website",
 ) => {
   const verificationCode = generateVerificationCode();
   const codeExpiresAt = getCodeExpiration(7); // 7 days
@@ -102,12 +62,14 @@ export const createClaim = async (
   return claim;
 };
 
-/**
- * Verify a claim by checking the website
- */
 export const verifyClaim = async (claim: CreatorClaim) => {
   // Check if code is expired
   if (isCodeExpired(claim.codeExpiresAt)) {
+    await db
+      .update(creatorClaims)
+      .set({ status: "failed" })
+      .where(eq(creatorClaims.id, claim.id));
+
     return {
       verified: false,
       error: "Verification code has expired. Please request a new one.",
@@ -118,7 +80,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
   if (claim.verificationMethod === "website" && claim.verificationUrl) {
     const result = await verifyWebsite(
       claim.verificationUrl,
-      claim.verificationCode!
+      claim.verificationCode!,
     );
 
     if (result.verified) {
@@ -126,7 +88,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
       await db
         .update(creatorClaims)
         .set({
-          status: "admin_accepted",
+          status: "success",
           verifiedAt: new Date(),
         })
         .where(eq(creatorClaims.id, claim.id));
@@ -151,7 +113,7 @@ export const generateEmailHtml = async (
   user: AuthUser,
   creator: Creator,
   verificationUrl: string,
-  verificationLink: string
+  verificationLink: string,
 ) => {
   return `
         <h2>Verify Your Creator Profile Claim</h2>
@@ -184,4 +146,23 @@ export const generateEmailHtml = async (
         
         <p><small>This code expires in 7 days. If you need a new code, please submit a new claim.</small></p>
       `;
+};
+
+// Add this (use existing db/schema imports as in the file)
+export const getPendingClaimByUserAndCreator = async (
+  userId: string,
+  creatorId: string,
+) => {
+  const [claim] = await db
+    .select()
+    .from(creatorClaims)
+    .where(
+      and(
+        eq(creatorClaims.userId, userId),
+        eq(creatorClaims.creatorId, creatorId),
+        eq(creatorClaims.status, "pending"),
+      ),
+    )
+    .limit(1);
+  return claim ?? null;
 };

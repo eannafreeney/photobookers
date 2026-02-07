@@ -1,12 +1,12 @@
-import APIButton from "./APIButton";
+import APIButton from "../api/APIButton";
 import { AuthUser } from "../../../types";
 import { findCollectionItem } from "../../db/queries";
-import APIButtonCircle from "./APIButtonCircle";
+import APIButtonCircle from "../api/APIButtonCircle";
 import { Book } from "../../db/schema";
 import { canAddToCollection } from "../../lib/permissions";
 
 type Props = {
-  book: Pick<Book, 'id' | 'artistId' | 'publisherId'>;
+  book: Pick<Book, "id" | "artistId" | "publisherId">;
   user: AuthUser | null;
   isCircleButton?: boolean;
 };
@@ -57,8 +57,7 @@ const CollectionButton = async ({
 
   if (isCircleButton) {
     return (
-      <APIButtonCircle {...props} buttonType="circle" isDisabled={isDisabled}
-      />
+      <APIButtonCircle {...props} buttonType="circle" isDisabled={isDisabled} />
     );
   }
 

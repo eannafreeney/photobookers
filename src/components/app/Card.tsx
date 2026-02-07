@@ -17,12 +17,19 @@ const CardHeader = ({ children }: { children: ChildType }) => (
   <div class="flex items-center justify-between gap-2 p-2">{children}</div>
 );
 
-
 const CardBody = ({ children }: { children: ChildType }) => (
   <div class="flex flex-col gap-4 p-6">{children}</div>
 );
 
-const CardImage = ({ src, alt, href }: { src: string; alt: string; href: string }) => (
+const CardImage = ({
+  src,
+  alt,
+  href,
+}: {
+  src: string;
+  alt: string;
+  href: string;
+}) => (
   <figure class="w-full bg-white" x-data="imageOrientation">
     <Link href={href}>
       <img
@@ -32,7 +39,6 @@ const CardImage = ({ src, alt, href }: { src: string; alt: string; href: string 
         decoding="async"
         class="h-52 w-full transition duration-700 ease-out group-hover:scale-105"
         x-bind:class="isLandscape ? 'object-cover' : 'object-contain'"
-
       />
     </Link>
   </figure>
@@ -49,7 +55,7 @@ const CardSubTitle = ({ children }: { children: ChildType }) => (
 );
 
 const CardIntro = ({ children }: { children: ChildType }) => (
-  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap line-clamp-3">
+  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap">
     {children}
   </p>
 );

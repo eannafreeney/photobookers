@@ -1,15 +1,12 @@
 import { Context, Hono } from "hono";
-import FollowButton from "../components/app/FollowButton";
-import WishlistButton from "../components/app/WishlistButton";
-import CollectionButton from "../components/app/CollectionButton";
+import FollowButton from "../components/api/FollowButton";
+import WishlistButton from "../components/api/WishlistButton";
 import { getUser } from "../utils";
 import { Book, Creator, creators } from "../db/schema";
 import { eq, ilike, or, sql } from "drizzle-orm";
 import {
-  deleteCollectionItem,
   deleteFollow,
   deleteWishlist,
-  insertCollectionItem,
   insertFollow,
   insertWishlist,
 } from "../db/queries";
@@ -17,7 +14,7 @@ import AuthModal from "../components/app/AuthModal";
 import { findUserByEmail } from "../services/users";
 import { db } from "../db/client";
 import { getBookPermissionData, searchBooks } from "../services/books";
-import { getCreatorById, getCreatorPermissionData, searchCreators } from "../services/creators";
+import { getCreatorPermissionData, searchCreators } from "../services/creators";
 import NavSearchResults from "../components/app/NavSearchResults";
 import ArtistSearchResults from "../components/app/ArtistSearchResults";
 import Alert from "../components/app/Alert";
@@ -53,14 +50,19 @@ apiRoutes.post("/follow/creator/:creatorId", async (c) => {
     return showErrorAlert(c, "Book not found");
   }
 
-  const message = isCurrentlyFollowing ? `You are no longer following ${creator.displayName}.` : `You are now following ${creator.displayName}.`;
+  const message = isCurrentlyFollowing
+    ? `You are no longer following ${creator.displayName}.`
+    : `You are now following ${creator.displayName}.`;
 
   return c.html(
     <>
       <Alert type="success" message={message} />
-      <FollowButton creator={creator} user={user} variant="desktop" isCircleButton={buttonType === "circle"} />
-      <FollowButton creator={creator} user={user} variant="mobile" isCircleButton={buttonType === "circle"} />
-    </>
+      <FollowButton
+        creator={creator}
+        user={user}
+        isCircleButton={buttonType === "circle"}
+      />
+    </>,
   );
 });
 
@@ -68,7 +70,7 @@ apiRoutes.post("/wishlist/:bookId", async (c) => {
   const bookId = c.req.param("bookId");
   const user = await getUser(c);
   const userId = user?.id;
- 
+
   if (!userId) {
     return c.html(<AuthModal action="to wishlist this book." />, 401);
   }
@@ -93,19 +95,25 @@ apiRoutes.post("/wishlist/:bookId", async (c) => {
     return showErrorAlert(c, "Book not found");
   }
 
-  const message = isCurrentlyWishlisted ? `${book.title} has been removed from your wishlist` : `${book.title} has been added to your wishlist`;
+  const message = isCurrentlyWishlisted
+    ? `${book.title} has been removed from your wishlist`
+    : `${book.title} has been added to your wishlist`;
 
-  return c.html(  
+  return c.html(
     <>
       <Alert type="success" message={message} />
-      <WishlistButton book={book} user={user} isCircleButton={buttonType === "circle"} />
-    </>
+      <WishlistButton
+        book={book}
+        user={user}
+        isCircleButton={buttonType === "circle"}
+      />
+    </>,
   );
 });
 
 const showErrorAlert = (
   c: Context,
-  errorMessage: string = "Action Failed! Please try again."
+  errorMessage: string = "Action Failed! Please try again.",
 ) => c.html(<Alert type="danger" message={errorMessage} />, 422);
 
 // apiRoutes.post("/collection/:bookId", async (c) => {
@@ -166,7 +174,7 @@ apiRoutes.get("/check-email", async (c) => {
       ) : (
         <p class="label text-error mt-1">✗ This email is already registered</p>
       )}
-    </div>
+    </div>,
   );
 });
 
@@ -190,7 +198,7 @@ apiRoutes.get("/check-displayName", async (c) => {
       ) : (
         <p class="label text-error mt-1">✗ This Name is already registered</p>
       )}
-    </div>
+    </div>,
   );
 });
 
@@ -212,7 +220,7 @@ apiRoutes.get("/search-artists", async (c) => {
       sql`LOWER(${creators.displayName}) LIKE ANY(ARRAY[${searchTerm
         .split(" ")
         .map((word) => `'%${word}%'`)
-        .join(", ")}])`
+        .join(", ")}])`,
     ),
     orderBy: (creators, { asc }) => [asc(creators.displayName)],
     limit: 5,
@@ -223,7 +231,6 @@ apiRoutes.get("/search-artists", async (c) => {
 
 apiRoutes.get("/search", async (c) => {
   const searchQuery = c.req.query("search");
- 
 
   const searchTerm = searchQuery?.trim().toLowerCase();
   const [bookResults, creatorResults] = await Promise.all([
@@ -235,7 +242,5 @@ apiRoutes.get("/search", async (c) => {
     bookResults ?? [];
   const creators = creatorResults ?? [];
 
-  return c.html(
-    <NavSearchResults creators={creators} books={books} />
-  );
+  return c.html(<NavSearchResults creators={creators} books={books} />);
 });

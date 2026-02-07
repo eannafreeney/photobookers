@@ -4,7 +4,8 @@ type APIButtonCircleProps = {
   buttonText: ChildType;
   id: string;
   action: string;
-  hiddenInput: { name: string; value: boolean };
+  method?: "get" | "post";
+  hiddenInput?: { name: string; value: boolean };
   errorTarget?: string;
   buttonType?: "circle" | "default";
   isDisabled?: boolean;
@@ -14,6 +15,7 @@ type APIButtonCircleProps = {
 const APIButtonCircle = ({
   id,
   action,
+  method = "post",
   hiddenInput,
   buttonText,
   buttonType,
@@ -25,15 +27,15 @@ const APIButtonCircle = ({
     "@ajax:before": "isSubmitting = true",
     "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false;",
     "@ajax:error": "isSubmitting = false",
-    "x-target": `${id} toast`,
-    "x-target.error": "toast",
+    "x-target": `${id} toast modal-root`,
+    "x-target.error": "toast modal-root",
     "x-target.401": "modal-root",
   };
 
   return (
     <form
       id={id}
-      method="post"
+      method={method}
       action={action}
       class="inline-flex justify-center items-center aspect-square whitespace-nowrap rounded-full bg-surface-alt p-1 text-sm font-medium tracking-wide text-on-surface-dark transition hover:opacity-75 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface-dark active:opacity-100 active:outline-offset-0 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
       {...attrs}
@@ -49,7 +51,7 @@ const APIButtonCircle = ({
         <input type="hidden" name="buttonType" value={buttonType} />
       )}
       <button
-        class="cursor-pointer disabled:opacity-50"
+        class="cursor-pointer disabled:opacity-30"
         disabled={isDisabled}
         title={tooltipText}
       >

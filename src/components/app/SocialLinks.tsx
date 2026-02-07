@@ -1,12 +1,18 @@
 import Link from "./Link";
 import { Creator } from "../../db/schema";
 
-const SocialLinks = ({ creator }: { creator: Creator }) => {
-  if (creator.status === "stub") return <></>;
+type SocialLinksProps = {
+  creator: Creator;
+};
 
+const SocialLinks = ({ creator }: SocialLinksProps) => {
   return (
-    <div class="flex flex-row gap-2 items-center text-xs">
-      {creator.website && <Link href={creator.website}>Website</Link>}
+    <div class={`flex gap-2 items-center text-xs`}>
+      {creator.website && (
+        <Link href={creator.website} target="_blank">
+          Website
+        </Link>
+      )}
       {creator.facebook && (
         <Link href={creator.facebook} target="_blank">
           Facebook
@@ -17,10 +23,8 @@ const SocialLinks = ({ creator }: { creator: Creator }) => {
           Instagram
         </Link>
       )}
-      {/* {creator.email && <Link href={creator.email} target="_blank">Email</Link>} */}
     </div>
   );
 };
 
 export default SocialLinks;
-

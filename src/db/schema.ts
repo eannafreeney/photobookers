@@ -43,9 +43,8 @@ export const creatorStatusEnum = pgEnum("creator_status", [
 ]);
 export const creatorClaimStatusEnum = pgEnum("creator_claim_status", [
   "pending",
-  "publisher_reviewed",
-  "admin_accepted",
-  "admin_rejected",
+  "success",
+  "failed",
 ]);
 
 export const users = pgTable("users", {
@@ -95,7 +94,7 @@ export const creators = pgTable(
   },
   (table) => ({
     uniqueOwnerType: [table.ownerUserId, table.type], // enforce one profile per type
-  })
+  }),
 );
 
 export const creatorsRelations = relations(creators, ({ one, many }) => ({
@@ -125,7 +124,7 @@ export const books = pgTable(
     publisherId: uuid("publisher_id").references(() => creators.id),
     releaseDate: timestamp("release_date"),
     availabilityStatus: bookAvailabilityStatusEnum(
-      "availability_status"
+      "availability_status",
     ).default("available"),
     approvalStatus:
       bookApprovalStatusEnum("approval_status").default("pending"),
@@ -143,9 +142,9 @@ export const books = pgTable(
   (table) => ({
     coverRequiredForPublish: check(
       "cover_required_for_publish",
-      sql`${table.coverUrl} IS NOT NULL OR ${table.publicationStatus} = 'draft'`
+      sql`${table.coverUrl} IS NOT NULL OR ${table.publicationStatus} = 'draft'`,
     ),
-  })
+  }),
 );
 
 export const booksRelations = relations(books, ({ one, many }) => ({
@@ -186,10 +185,10 @@ export const follows = pgTable(
       userFollowUnique: unique("user_follow_unique").on(
         table.followerUserId,
         table.targetUserId,
-        table.targetCreatorId
+        table.targetCreatorId,
       ),
     };
-  }
+  },
 );
 
 export const followsRelations = relations(follows, ({ one }) => ({
@@ -243,11 +242,11 @@ export const creatorClaims = pgTable("creator_claims", {
   requestedAt: timestamp("requested_at").defaultNow(),
   verifiedAt: timestamp("verified_at"),
   creatorCreatedByUserId: uuid("creator_created_by_user_id").references(
-    () => users.id
+    () => users.id,
   ),
   verificationToken: varchar("token", { length: 255 }).notNull(),
   verificationMethod: verificationMethodEnum("verification_method").default(
-    "website"
+    "website",
   ),
   verificationUrl: text("verification_url"), // The website URL to verify
   verificationCode: varchar("verification_code", { length: 10 }), // The code to find on website
@@ -291,7 +290,7 @@ export const collectionItemsRelations = relations(
       fields: [collectionItems.bookId],
       references: [books.id],
     }),
-  })
+  }),
 );
 
 export const wishlists = pgTable(
@@ -311,7 +310,7 @@ export const wishlists = pgTable(
     return {
       pk: primaryKey(table.userId, table.bookId), // prevents duplicates
     };
-  }
+  },
 );
 
 export const wishlistsRelations = relations(wishlists, ({ one }) => ({

@@ -5,12 +5,10 @@ import HomePage from "../pages/HomePage";
 import { getBooksByTag } from "../services/books";
 import { getFlash, getUser } from "../utils";
 import TagPage from "../pages/TagPage";
-import BookPreviewPage from "../pages/BookPreviewPage";
 import ProfileTab from "../pages/ProfileTab";
 import FeedTab from "../pages/FeedTab";
 import NewTab from "../pages/NewTab";
-import Alert from "../components/app/Alert";
-import { supabaseAdmin } from "../lib/supabase";
+import { isMobile } from "../lib/device";
 
 export const appRoutes = new Hono();
 
@@ -19,7 +17,7 @@ appRoutes.get("/", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
 
-  return c.html(<HomePage user={user} flash={flash} initialTab="new-books"  />);
+  return c.html(<HomePage user={user} flash={flash} initialTab="new-books" />);
 });
 
 appRoutes.get("/creators/:slug", async (c) => {
@@ -32,17 +30,23 @@ appRoutes.get("/creators/:slug", async (c) => {
       creatorSlug={slug}
       user={user}
       currentPath={currentPath}
-    />
+    />,
   );
 });
 
 appRoutes.get("/books/:slug", async (c) => {
   const slug = c.req.param("slug");
   const user = await getUser(c);
+  const device = isMobile(c.req.header("user-agent") ?? "");
   const currentPath = c.req.path;
 
   return c.html(
-    <BookDetailPage user={user} bookSlug={slug} currentPath={currentPath}  />
+    <BookDetailPage
+      user={user}
+      bookSlug={slug}
+      currentPath={currentPath}
+      device={device}
+    />,
   );
 });
 
@@ -50,10 +54,17 @@ appRoutes.get("/books/preview/:slug", async (c) => {
   const slug = c.req.param("slug");
   const user = await getUser(c);
   const currentPath = c.req.path;
-
+  const device = isMobile(c.req.header("user-agent") ?? "");
 
   return c.html(
-    <BookDetailPage user={user} bookSlug={slug} currentPath={currentPath} isPreview status="draft" />
+    <BookDetailPage
+      user={user}
+      bookSlug={slug}
+      currentPath={currentPath}
+      isPreview
+      status="draft"
+      device={device}
+    />,
   );
 });
 

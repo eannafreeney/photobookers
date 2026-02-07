@@ -2,17 +2,17 @@ import { z } from "zod";
 
 const optionalText = z.preprocess(
   (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-  z.string().optional()
+  z.string().optional(),
 );
 
 const requiredText = z.preprocess(
   (v) => (typeof v === "string" ? v.trim() : v),
-  z.string().min(1, "Required")
+  z.string().min(1, "Required"),
 );
 
 const numberField = z.preprocess(
   (v) => (v === "" ? undefined : Number(v)),
-  z.number().optional()
+  z.number().optional(),
 );
 
 // ============ REGISTER CREATOR FORM SCHEMA ============
@@ -25,7 +25,7 @@ export const registerCreatorFormSchema = z.object({
     .boolean()
     .refine(
       (val) => val,
-      "Please agree to the terms and conditions to continue"
+      "Please agree to the terms and conditions to continue",
     ),
 });
 
@@ -41,8 +41,6 @@ export const registerFanFormSchema = z.object({
     .max(255, "Last name must be less than 255 characters"),
   ...registerCreatorFormSchema.shape,
 });
-
-
 
 // ============ LOGIN FORM SCHEMA ============
 export const loginFormSchema = z.object({
@@ -62,7 +60,7 @@ export const creatorFormSchema = z.object({
   country: z.string().min(2, "Country must be at least 2 characters"),
   type: z.preprocess(
     (val) => (val === "" ? undefined : val),
-    z.enum(["artist", "publisher"])
+    z.enum(["artist", "publisher"]),
   ),
   facebook: optionalText,
   twitter: optionalText,
@@ -96,11 +94,11 @@ export const creatorIdSchema = z.object({
 
 // ============ CLAIM FORM SCHEMA ============
 export const claimFormSchema = z.object({
+  buttonType: z.enum(["default", "circle"]).default("default"),
   verificationMethod: z.enum(["website", "instagram"]).default("website"),
   verificationUrl: z
     .url("Please enter a valid URL (e.g., https://example.com)")
     .min(1, "Website URL is required"),
-  name: z.string(),
   email: z.email(),
 });
 
@@ -125,7 +123,7 @@ export const bookFormSchema = z.object({
   availability_status: z
     .preprocess(
       (val) => (val === "" ? undefined : val),
-      z.enum(["available", "sold_out", "unavailable"])
+      z.enum(["available", "sold_out", "unavailable"]),
     )
     .default("available"),
 });

@@ -36,7 +36,7 @@ export type FileValidationResult =
 
 export function validateImageFile(
   file: unknown,
-  options?: { maxSize?: number }
+  options?: { maxSize?: number },
 ): FileValidationResult {
   const maxSize = options?.maxSize ?? 5 * 1024 * 1024; // 5MB default
 

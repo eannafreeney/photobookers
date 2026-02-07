@@ -1,14 +1,20 @@
 import { useUser } from "../../contexts/UserContext";
-import { Creator } from "../../db/schema";
+import { Book, Creator } from "../../db/schema";
 import { canFollowCreator } from "../../lib/permissions";
-import FollowButton from "./FollowButton";
+import CardCreatorCard from "./CardCreatorCard";
+import FollowButton from "../api/FollowButton";
 import VerifiedCreator from "./VerifiedCreator";
 
 type CreatorCardProps = {
   creator: Creator | null;
+  book: Book;
 };
 
-const CreatorCardMobile = ({ creator }: CreatorCardProps) => {
+const CreatorCardMobile = ({
+  creator,
+  book,
+  creatorType,
+}: CreatorCardProps) => {
   if (!creator) return <></>;
 
   const user = useUser();
@@ -24,19 +30,21 @@ const CreatorCardMobile = ({ creator }: CreatorCardProps) => {
           />
           <div>
             <a href={`/creators/${creator.slug}`} class="flex gap-2">
-              {creator.displayName} {VerifiedCreator({ creator })}
+              {creator.displayName}
             </a>
-            <p class="text-gray-500 text-sm">
+            <p class="text-gray-500 text-sm flex items-center gap-2">
               {creator.city ? `${creator.city}, ` : ""}
               {creator.country}
+              {VerifiedCreator({ creator })}
             </p>
           </div>
         </div>
-        <div class="w-1/3">
+        <div class="w-1/3 flex justify-end">
           <FollowButton
             creator={creator}
             user={user}
             variant="mobile"
+            isCircleButton
           />
         </div>
       </div>
