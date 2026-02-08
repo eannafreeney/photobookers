@@ -1,4 +1,3 @@
-import { useUser } from "../../contexts/UserContext";
 import { Creator } from "../../db/schema";
 import Card from "./Card";
 import ClaimCreatorBtn from "../claims/ClaimCreatorBtn";
@@ -8,7 +7,6 @@ import SocialLinks from "./SocialLinks";
 import VerifiedCreator from "./VerifiedCreator";
 import { AuthUser } from "../../../types";
 import { findFollowersCount } from "../../db/queries";
-import { getPendingClaimByUserAndCreator } from "../../services/claims";
 
 type Props = {
   creator: Creator;
@@ -28,30 +26,25 @@ const CreatorCard = async ({
   if (!user || !creator) return <></>;
 
   const followerCount = await findFollowersCount(creator.id);
-  const pendingClaim = await getPendingClaimByUserAndCreator(
-    user.id,
-    creator.id,
-  );
-  const hasPendingClaim = pendingClaim !== null;
 
   if (orientation === "portrait")
     return (
-      <CreatorCardMobile
+      <CreatorCardPortrait
         creator={creator}
         currentPath={currentPath}
         title={title}
         user={user}
-        hasPendingClaim={hasPendingClaim}
+        followerCount={followerCount}
       />
     );
 
   return (
-    <CreatorCardDesktop
+    <CreatorCardLandscape
       creator={creator}
       currentPath={currentPath}
       title={title}
       user={user}
-      hasPendingClaim={hasPendingClaim}
+      followerCount={followerCount}
     />
   );
 };
@@ -63,15 +56,15 @@ type CreatorCardProps = {
   currentPath: string;
   title?: string;
   user: AuthUser | null;
-  hasPendingClaim: boolean;
+  followerCount: number;
 };
 
-const CreatorCardMobile = ({
+const CreatorCardPortrait = ({
   creator,
   currentPath,
   title = "About",
   user,
-  hasPendingClaim,
+  followerCount,
 }: CreatorCardProps) => (
   <div class="flex flex-col gap-2">
     <SectionTitle>{title}</SectionTitle>
@@ -95,12 +88,17 @@ const CreatorCardMobile = ({
             </div>
           </Card.SubTitle>
         </div>
+        {followerCount > 0 && (
+          <Card.Intro>{`${followerCount} followers`}</Card.Intro>
+        )}
         {creator.tagline && <Card.Intro>{creator.tagline}</Card.Intro>}
         <FollowButton creator={creator} user={user} variant="desktop" />
-        {creator.status === "stub" && !hasPendingClaim ? (
-          <ClaimCreatorBtn creator={creator} currentPath={currentPath} />
-        ) : (
-          <></>
+        {user && creator.status === "stub" && (
+          <ClaimCreatorBtn
+            creator={creator}
+            currentPath={currentPath}
+            user={user}
+          />
         )}
         <SocialLinks creator={creator} />
       </Card.Body>
@@ -108,12 +106,12 @@ const CreatorCardMobile = ({
   </div>
 );
 
-const CreatorCardDesktop = ({
+const CreatorCardLandscape = ({
   creator,
   currentPath,
   title = "About",
   user,
-  hasPendingClaim,
+  followerCount,
 }: CreatorCardProps) => {
   return (
     <div class="flex flex-col gap-2">
@@ -145,6 +143,9 @@ const CreatorCardDesktop = ({
                   </div>
                 </Card.SubTitle>
               </div>
+              {followerCount > 0 && (
+                <Card.Intro>{`${followerCount} followers`}</Card.Intro>
+              )}
               {creator.tagline && <Card.Intro>{creator.tagline}</Card.Intro>}
               <SocialLinks creator={creator} />
             </Card.Body>
@@ -152,15 +153,13 @@ const CreatorCardDesktop = ({
           <div class="w-1/6">
             <Card.Body>
               <FollowButton creator={creator} user={user} isCircleButton />
-              {user && creator.status === "stub" ? (
+              {user && creator.status === "stub" && (
                 <ClaimCreatorBtn
                   creator={creator}
                   currentPath={currentPath}
                   user={user}
                   isCircleButton
                 />
-              ) : (
-                <></>
               )}
             </Card.Body>
           </div>

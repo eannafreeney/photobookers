@@ -1,6 +1,8 @@
+import clsx from "clsx";
 import { useUser } from "../../contexts/UserContext";
 import { fadeTransition } from "../../lib/transitions";
 import Button from "../app/Button";
+import NavLinks from "../app/NavLinks";
 
 const NavMobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
   return (
@@ -27,7 +29,30 @@ const MobileMenuBtn = () => {
   );
 };
 
-const MobileMenu = () => {
+type NavLinkProps = {
+  href: string;
+  children: string;
+  currentPath?: string | null;
+};
+
+const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
+  const isActive = currentPath === href;
+  return (
+    <li class="p-2">
+      <a
+        href={href}
+        class={clsx(
+          "w-full text-lg font-medium focus:underline hover:color-primary",
+          isActive ? "text-primary" : "text-on-surface",
+        )}
+      >
+        {children}
+      </a>
+    </li>
+  );
+};
+
+const MobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
   const user = useUser();
   const avatarUrl =
     user?.creator?.coverUrl ??
@@ -39,7 +64,7 @@ const MobileMenu = () => {
       x-cloak
       x-show="mobileMenuIsOpen"
       {...fadeTransition}
-      class="fixed max-h-svh overflow-y-auto inset-x-0 top-0 z-10 flex flex-col rounded-b-radius border-b border-outline bg-surface-alt px-8 pb-6 pt-10 sm:hidden"
+      class="fixed max-h-svh overflow-y-auto inset-x-0 top-0 z-20 flex flex-col rounded-b-radius border-b border-outline bg-surface px-8 pb-6 pt-10 sm:hidden"
     >
       <li class="mb-4 border-none">
         {user && (
@@ -80,15 +105,37 @@ const MobileMenu = () => {
         </>
       )}
 
-      {/* <!-- CTA Button --> */}
-      {/* <li class="mt-4 w-full border-none">
-          <a
-            href="#"
-            class="rounded-radius bg-primary border border-primary px-4 py-2 block text-center font-medium tracking-wide text-on-primary hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:opacity-100 active:outline-offset-0"
+      {user && user?.creator?.id && (
+        <>
+          <NavLink href="/dashboard/books" currentPath={currentPath}>
+            Dashboard
+          </NavLink>
+          <NavLink
+            href={`/creators/${user?.creator?.slug}`}
+            currentPath={currentPath}
           >
-            Sign Out
-          </a>
-        </li> */}
+            {`View ${user?.creator?.displayName}`}
+          </NavLink>
+          <NavLink
+            href={`/dashboard/creators/edit/${user?.creator?.id}`}
+            currentPath={currentPath}
+          >
+            {`Edit ${
+              user.creator.type === "artist" ? "Artist" : "Publisher"
+            } Profile`}
+          </NavLink>
+        </>
+      )}
+      {user && (
+        <>
+          <NavLink href="/user/my-account" currentPath={currentPath}>
+            Edit Account
+          </NavLink>
+          <NavLink href="/auth/logout" currentPath={currentPath}>
+            Logout
+          </NavLink>
+        </>
+      )}
     </ul>
   );
 };

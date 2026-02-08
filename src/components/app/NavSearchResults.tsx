@@ -1,4 +1,4 @@
-// 
+//
 import { Book, Creator } from "../../db/schema";
 import { AuthUser } from "../../../types";
 
@@ -8,18 +8,25 @@ type NavSearchResultsProps = {
   user?: AuthUser | null;
 };
 
-const NavSearchResults = ({ creators, books, user }: NavSearchResultsProps) => {
+const NavSearchResults = ({
+  creators,
+  books,
+  searchTerm,
+}: NavSearchResultsProps) => {
   const hasResults = creators.length > 0 || books.length > 0;
 
   return (
     <div
       id="search-results"
-      class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto md:top-11 md:-left-24 md:right-0 md:h-auto md:w-fit md:min-w-64 md:rounded-radius overflow-hidden rounded-radius border border-outline bg-surface-alt shadow-sm"
+      class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-15 md:top-11 md:-left-24 md:right-0 md:h-auto md:w-fit md:min-w-64 md:rounded-radius overflow-hidden rounded-radius border border-outline bg-surface-alt shadow-sm"
       x-data="{ isOpen: true }"
       x-show="isOpen"
     >
       {/* Mobile close button */}
-      <div class="md:hidden flex justify-end p-2 border-b border-outline">
+      <div class="md:hidden flex justify-between items-center gap-2 px-4 border-b border-outline">
+        <div class="text-xs text-on-surface-weak">
+          Results for: <span class="font-semibold">{searchTerm}</span>
+        </div>
         <button
           type="button"
           class="p-2 hover:bg-surface rounded-radius transition-colors"
@@ -30,39 +37,43 @@ const NavSearchResults = ({ creators, books, user }: NavSearchResultsProps) => {
         </button>
       </div>
 
-      <div class="max-h-[calc(100vh-4rem)] md:max-h-96 overflow-y-auto p-2">
+      <div class="max-h-[calc(100vh-4rem)] md:max-h-96 overflow-y-auto px-4">
         {!hasResults ? (
           <div class="p-8 text-center">
             <p class="text-sm text-on-surface-weak">No results found</p>
           </div>
         ) : (
-          <ul class="flex flex-col gap-1">
+          <ul class="flex flex-col gap-4">
             {creators.length > 0 && (
               <>
-                <li class="text-xs uppercase font-semibold text-on-surface-weak px-2 pt-2 pb-1">
+                <li class="text-xs uppercase font-semibold text-on-surface-weak pt-2 pb-1">
                   Creators
                 </li>
-                {creators.map((creator) => (
-                  <CreatorResultItem key={creator.id} creator={creator} />
-                ))}
+                <ul class="flex flex-col gap-4">
+                  {creators.map((creator) => (
+                    <CreatorResultItem key={creator.id} creator={creator} />
+                  ))}
+                </ul>
               </>
             )}
 
             {books.length > 0 && (
               <>
                 {creators.length > 0 && (
-                  <li class="text-xs uppercase font-semibold text-on-surface-weak px-2 pt-4 pb-1">
+                  <li class="text-xs uppercase font-semibold text-on-surface-weak pt-4 pb-1">
                     Books
                   </li>
                 )}
                 {!creators.length && (
-                  <li class="text-xs uppercase font-semibold text-on-surface-weak px-2 pt-2 pb-1">
+                  <li class="text-xs uppercase font-semibold text-on-surface-weak pt-2 pb-1">
                     Books
                   </li>
                 )}
-                {books.map((book) => (
-                  <BookResultItem key={book.id} book={book} />
-                ))}
+                <ul class="flex flex-col gap-4">
+                  {books.map((book) => (
+                    <BookResultItem key={book.id} book={book} />
+                  ))}
+                </ul>
               </>
             )}
           </ul>
@@ -81,16 +92,16 @@ const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
     <li>
       <a
         href={`/creators/${creator.slug}`}
-        class="flex items-center gap-3 px-2 py-2 rounded-radius hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+        class="flex items-center gap-3 rounded-radius hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
         aria-label={`View ${creator.displayName} profile`}
       >
         <div class="shrink-0">
-            <img
-              src={creator.coverUrl ?? ""}
-              alt={`${creator.displayName} avatar`}
-              class="w-10 h-10 rounded-full object-cover"
-              loading="lazy"
-            />
+          <img
+            src={creator.coverUrl ?? ""}
+            alt={`${creator.displayName} avatar`}
+            class="w-10 h-10 rounded-full object-cover"
+            loading="lazy"
+          />
         </div>
         <div class="flex-1 min-w-0">
           <div class="font-semibold text-on-surface truncate">
@@ -114,21 +125,19 @@ const BookResultItem = ({ book }: BookResultItemProps) => {
     <li>
       <a
         href={`/books/${book.slug}`}
-        class="flex items-center gap-3 px-2 py-2 rounded-radius hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+        class="flex items-center gap-3 rounded-radius hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
         aria-label={`View ${book.title} by ${book.artist?.displayName ?? "Unknown artist"}`}
       >
         <div class="shrink-0">
-            <img
-              src={book.coverUrl ?? ""}
-              alt={`${book.title} cover`}
-              class="w-12 h-12 object-cover rounded-sm"
-              loading="lazy"
-            />
+          <img
+            src={book.coverUrl ?? ""}
+            alt={`${book.title} cover`}
+            class="w-12 h-12 object-cover rounded-sm"
+            loading="lazy"
+          />
         </div>
         <div class="flex-1 min-w-0">
-          <div class="font-semibold text-on-surface truncate">
-            {book.title}
-          </div>
+          <div class="font-semibold text-on-surface truncate">{book.title}</div>
           {book.artist && (
             <div class="text-xs text-on-surface truncate">
               {book.artist.displayName}

@@ -242,5 +242,11 @@ apiRoutes.get("/search", async (c) => {
     bookResults ?? [];
   const creators = creatorResults ?? [];
 
-  return c.html(<NavSearchResults creators={creators} books={books} />);
+  return c.html(
+    <NavSearchResults
+      creators={creators}
+      books={books}
+      searchTerm={searchTerm}
+    />,
+  );
 });

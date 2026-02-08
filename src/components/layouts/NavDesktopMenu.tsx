@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { AuthUser } from "../../../types";
 import { useUser } from "../../contexts/UserContext";
 import { getInitialsAvatar } from "../../lib/avatar";
@@ -34,7 +35,7 @@ const NavDesktopMenu = ({ currentPath }: Props) => {
               "userDropDownIsOpen = false, openWithKeyboard = false",
           }}
           class="relative flex items-center"
-        > 
+        >
           <NavAvatar />
           <DropDownMenu currentPath={currentPath} user={user} />
         </li>
@@ -53,11 +54,16 @@ type NavLinkProps = {
 
 const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
   const isActive = currentPath === href;
+  console.log(currentPath, href, isActive);
+
   return (
     <li>
       <a
         href={href}
-        class="block bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-surface-dark-alt/5 hover:text-on-surface-strong focus-visible:bg-surface-dark-alt/10 focus-visible:text-on-surface-strong focus-visible:outline-hidden"
+        class={clsx(
+          "block bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-surface-dark-alt/5 hover:text-on-surface-strong focus-visible:bg-surface-dark-alt/10 focus-visible:text-on-surface-strong focus-visible:outline-hidden",
+          isActive ? "text-primary" : "text-on-surface",
+        )}
       >
         {children}
       </a>
@@ -70,7 +76,7 @@ const NavAvatar = () => {
   const avatarUrl =
     user?.creator?.coverUrl ??
     getInitialsAvatar(user?.firstName ?? "", user?.lastName ?? "");
-    
+
   const avatarAlt = `${user?.firstName} ${user?.lastName}`;
 
   const alpineAttrs = {

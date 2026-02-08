@@ -4,11 +4,10 @@ import NavSearch from "./NavSearch";
 import BrandLogo from "../app/BrandLogo";
 
 const Navbar = ({ currentPath }: { currentPath?: string | null }) => {
-
-const alpineAttrs = {
-  "x-data": "{ mobileMenuIsOpen: false }",
-  "x-on:click.away": "mobileMenuIsOpen = false",
-}
+  const alpineAttrs = {
+    "x-data": "{ mobileMenuIsOpen: false }",
+    "x-on:click.away": "mobileMenuIsOpen = false",
+  };
 
   return (
     <nav
