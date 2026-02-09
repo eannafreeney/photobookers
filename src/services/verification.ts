@@ -84,7 +84,7 @@ export async function verifyWebsite(
 
     // Check in meta tags
     const metaTagMatch = html.match(
-      /<meta\s+name=["']verification-code["']\s+content=["']([^"']+)["']/i,
+      /<meta\s+name=["']photobookers-verification-code["']\s+content=["']([^"']+)["']/i,
     );
     const codeInMeta = metaTagMatch?.[1]?.toLowerCase() === code.toLowerCase();
 

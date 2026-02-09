@@ -1,5 +1,9 @@
 import { Hono } from "hono";
-import { createSupabaseClient, supabaseAdmin } from "../lib/supabase";
+import {
+  createSupabaseClient,
+  supabaseAdmin,
+  supabaseAnon,
+} from "../lib/supabase";
 import { db } from "../db/client";
 import { users } from "../db/schema";
 import { deleteCookie, setCookie } from "hono/cookie";
@@ -11,6 +15,15 @@ import AccountsPage from "../pages/auth/AccountsPage";
 import Alert from "../components/app/Alert";
 import ResetPasswordConfirmPage from "../pages/auth/ResetPasswordConfirmPage";
 import ErrorPage from "../pages/error/errorPage";
+import { formValidator } from "../lib/validator";
+import { registerCreatorFormSchema } from "../schemas";
+import { normalizeUrl } from "../services/verification";
+import { showErrorAlert } from "../lib/alertHelpers";
+import { createClaim, deleteClaim } from "../services/claims";
+import {
+  createStubCreatorProfile,
+  generateClaimEmail,
+} from "../services/creators";
 
 const authRoutes = new Hono();
 
@@ -60,13 +73,13 @@ authRoutes.post("/login", async (c) => {
   return c.redirect(safeRedirectUrl ?? "/");
 });
 
-authRoutes.post("/register", async (c) => {
+authRoutes.post("/register-fan", async (c) => {
   const body = await c.req.parseBody();
-  const firstName = body.firstName as string | undefined;
-  const lastName = body.lastName as string | undefined;
+  const firstName = body.firstName as string;
+  const lastName = body.lastName as string;
   const email = body.email as string;
   const password = body.password as string;
-  const type = body.type as "fan" | "artist" | "publisher";
+  const type = body.type as "fan";
 
   const supabase = createSupabaseClient(c);
 
@@ -74,12 +87,10 @@ authRoutes.post("/register", async (c) => {
     email,
     password,
     options: {
-      emailRedirectTo: `http://localhost:5173/auth/callback?type=${type}`,
+      emailRedirectTo: `http://localhost:5173/auth/callback?type=fan`,
       data: {
         firstName: firstName ?? null,
         lastName: lastName ?? null,
-        intendedCreatorType:
-          type === "artist" || type === "publisher" ? type : null,
       },
     },
   });
@@ -91,110 +102,238 @@ authRoutes.post("/register", async (c) => {
   await setFlash(
     c,
     "success",
-    `Hi ${type === "fan" ? `${data.user?.user_metadata?.firstName}` : "there"}! Your account has been created successfully. Check your email for verification.`,
+    `Hi ${data.user?.user_metadata?.firstName}! Your account has been created successfully. Check your email for verification.`,
   );
   return c.redirect("/");
 });
 
-authRoutes.get("/callback", async (c) => {
-  const code = c.req.query("code");
+authRoutes.post(
+  "/register-creator",
+  formValidator(registerCreatorFormSchema),
+  async (c) => {
+    // GET FORM DATA
+    const formData = c.req.valid("form");
+    const displayName = formData.displayName as string;
+    const website = formData.website as string;
+    const email = formData.email as string;
+    const password = formData.password as string;
+    const type = formData.type as "artist" | "publisher";
 
-  if (!code) {
-    return c.html(<ErrorPage errorMessage="No authorization code provided" />);
-  }
+    if (!displayName?.trim() || !website?.trim()) {
+      return showErrorAlert(c, "Display name and website are required.");
+    }
 
-  // Create SSR client that uses cookies
-  const supabase = createSupabaseClient(c);
+    // Normalize and validate URL
+    const verificationUrl = normalizeUrl(website);
 
-  const { error: exchangeError, data } =
-    await supabase.auth.exchangeCodeForSession(code);
-
-  if (exchangeError || !data.session) {
-    return c.html(
-      <ErrorPage
-        errorMessage={exchangeError?.message || "Failed to create session"}
-      />,
-    );
-  }
-
-  setCookie(c, "token", data.session?.access_token, {
-    httpOnly: true,
-    maxAge: data.session.expires_in,
-    path: "/",
-  });
-
-  setCookie(c, "refresh_token", data.session.refresh_token, {
-    httpOnly: true,
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: "/",
-  });
-
-  // Now get user from the session (no need for another getUser call)
-  const user = data.session.user;
-
-  const validTypes = ["artist", "fan", "publisher"] as const;
-  const type = c.req.query("type");
-  const safeType = validTypes.includes(type as (typeof validTypes)[number])
-    ? type
-    : "fan";
-
-  // Check if user already exists in database
-  try {
-    const intendedType =
-      safeType === "artist" || safeType === "publisher" ? safeType : null;
-
-    await db
-      .insert(users)
-      .values({
-        id: user.id,
-        email: user.email!,
-        firstName: user.user_metadata?.firstName || null,
-        lastName: user.user_metadata?.lastName || null,
-        intendedCreatorType: intendedType,
-      })
-      .onConflictDoNothing({ target: users.id });
-  } catch (dbError) {
-    console.error("Database error during callback:", dbError);
-    return c.html(
-      <ErrorPage errorMessage="Failed to create account. Please try again." />,
-    );
-  }
-
-  // Store the intended creator type in user metadata if not already set
-  if (safeType === "artist" || safeType === "publisher") {
-    const { error: updateError } = await supabase.auth.updateUser({
-      data: {
-        intendedCreatorType: safeType,
-        // Preserve existing metadata
-        firstName: user.user_metadata?.firstName || null,
-        lastName: user.user_metadata?.lastName || null,
+    // CREATE USER IN SUPABASE
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        displayName: displayName.trim(),
+        website: verificationUrl,
       },
     });
-    if (updateError) {
-      console.error("Failed to update user metadata:", updateError);
+
+    if (error) {
+      return c.html(<Alert type="danger" message={error.message} />, 401);
     }
-  }
 
-  if (!safeType) {
-    return c.redirect("/register/accounts");
-  }
+    const userId = data.user?.id;
+    if (!userId) {
+      return showErrorAlert(c, "Failed to create user. Please try again.");
+    }
 
-  await setFlash(
-    c,
-    "success",
-    `Hi ${
-      data.user?.user_metadata?.firstName ?? "there"
-    }! Your account has been verified successfully. Have fun!`,
-  );
+    // CREATE USER IN DB SO CLAIM AND CREATOR CAN REFERENCE THEM
+    try {
+      await db
+        .insert(users)
+        .values({
+          id: userId,
+          email: data.user?.email ?? email,
+          firstName: null,
+          lastName: null,
+        })
+        .onConflictDoNothing({ target: users.id });
+    } catch (dbErr) {
+      console.error("Database error on register-creator:", dbErr);
+      return showErrorAlert(c, "Failed to create account. Please try again.");
+    }
 
-  const redirectMap: Record<string, string> = {
-    artist: "/dashboard/creators/new?type=artist",
-    publisher: "/dashboard/creators/new?type=publisher",
-    fan: "/",
-  };
+    // CREATE STUB CREATOR PROFILE
+    let newCreator;
+    try {
+      newCreator = await createStubCreatorProfile(displayName, userId, type);
+    } catch (error) {
+      return showErrorAlert(
+        c,
+        "Failed to create stub creator profile. Please try again.",
+      );
+    }
 
-  return c.redirect(redirectMap[safeType] ?? "/");
-});
+    if (!newCreator) {
+      return showErrorAlert(
+        c,
+        "Failed to create stub creator profile. Please try again.",
+      );
+    }
+
+    // CREATE CLAIM
+    let claim;
+    try {
+      claim = await createClaim(
+        userId,
+        newCreator.id,
+        verificationUrl,
+        "website",
+      );
+    } catch (error) {
+      return showErrorAlert(c, "Failed to create claim. Please try again.");
+    }
+
+    // SEND VERIFICATION EMAIL
+    const origin = new URL(c.req.url).origin;
+    const verificationLink = `${origin}/claim/verify/${claim.verificationToken}`;
+
+    const emailHtml = await generateClaimEmail(
+      claim,
+      newCreator,
+      verificationUrl,
+      verificationLink,
+    );
+
+    try {
+      const { error } = await supabaseAdmin.functions.invoke("send-email", {
+        body: {
+          to: data.user?.email ?? email,
+          subject: `Verify Your Website for ${newCreator.displayName}`,
+          html: emailHtml,
+        },
+        headers: {
+          "x-function-secret": process.env.FUNCTION_SECRET ?? "",
+        },
+      });
+
+      if (error) {
+        console.error("Failed to send email:", error);
+        await deleteClaim(claim.id);
+        return showErrorAlert(
+          c,
+          "Failed to send verification email. Please try again.",
+        );
+      }
+    } catch (error) {
+      console.error("Email error:", error);
+      await deleteClaim(claim.id);
+      return showErrorAlert(
+        c,
+        "Failed to send verification email. Please try again.",
+      );
+    }
+
+    // SET FLASH MESSAGE AND REDIRECT TO HOMEPAGE
+    await setFlash(c, "success", "Please check your email for verification.");
+    return c.redirect("/");
+  },
+);
+
+// authRoutes.get("/callback", async (c) => {
+//   const code = c.req.query("code");
+
+//   if (!code) {
+//     return c.html(<ErrorPage errorMessage="No authorization code provided" />);
+//   }
+
+//   // Create SSR client that uses cookies
+//   const supabase = createSupabaseClient(c);
+
+//   const { error: exchangeError, data } =
+//     await supabase.auth.exchangeCodeForSession(code);
+
+//   if (exchangeError || !data.session) {
+//     return c.html(
+//       <ErrorPage
+//         errorMessage={exchangeError?.message || "Failed to create session"}
+//       />,
+//     );
+//   }
+
+//   setCookie(c, "token", data.session?.access_token, {
+//     httpOnly: true,
+//     maxAge: data.session.expires_in,
+//     path: "/",
+//   });
+
+//   setCookie(c, "refresh_token", data.session.refresh_token, {
+//     httpOnly: true,
+//     maxAge: 60 * 60 * 24 * 7, // 7 days
+//     path: "/",
+//   });
+
+//   // Now get user from the session (no need for another getUser call)
+//   const user = data.session.user;
+
+//   const validTypes = ["artist", "fan", "publisher"] as const;
+//   const type = c.req.query("type");
+//   const safeType = validTypes.includes(type as (typeof validTypes)[number])
+//     ? type
+//     : "fan";
+
+//   // Create user in database
+//   try {
+//     await db
+//       .insert(users)
+//       .values({
+//         id: user.id,
+//         email: user.email!,
+//         firstName: user.user_metadata?.firstName || null,
+//         lastName: user.user_metadata?.lastName || null,
+//       })
+//       .onConflictDoNothing({ target: users.id });
+//   } catch (dbError) {
+//     console.error("Database error during callback:", dbError);
+//     return c.html(
+//       <ErrorPage errorMessage="Failed to create account. Please try again." />,
+//     );
+//   }
+
+//   // Store the intended creator type in user metadata if not already set
+//   if (safeType === "artist" || safeType === "publisher") {
+//     const { error: updateError } = await supabase.auth.updateUser({
+//       data: {
+//         displayName: user.user_metadata?.displayName || null,
+//         website: user.user_metadata?.website || null,
+//       },
+//     });
+//     if (updateError) {
+//       console.error("Failed to update user metadata:", updateError);
+//     }
+//   }
+
+//   if (!safeType) {
+//     return c.redirect("/register/accounts");
+//   }
+
+//   await setFlash(
+//     c,
+//     "success",
+//     `Hi ${
+//       safeType === "artist" || safeType === "publisher"
+//         ? (data.user?.user_metadata?.displayName ?? "there")
+//         : (data.user?.user_metadata?.firstName ?? "there")
+//     }! Your account has been verified successfully. Have fun!`,
+//   );
+
+//   const redirectMap: Record<string, string> = {
+//     artist: "/dashboard/creators/new?type=artist",
+//     publisher: "/dashboard/creators/new?type=publisher",
+//     fan: "/",
+//   };
+
+//   return c.redirect(redirectMap[safeType] ?? "/");
+// });
 
 // Log out
 authRoutes.get("/logout", async (c) => {

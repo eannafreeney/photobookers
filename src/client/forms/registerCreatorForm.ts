@@ -7,9 +7,13 @@ export function registerRegisterCreatorForm() {
     return {
       isSubmitting: false,
       isEmailChecking: false,
-      fieldStatus: "",
+      emailAvailabilityStatus: "",
+      displayNameAvailabilityStatus: "",
       emailIsTaken: false,
+      displayNameIsTaken: false,
       form: {
+        displayName: "",
+        website: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -19,6 +23,8 @@ export function registerRegisterCreatorForm() {
 
       errors: {
         form: {
+          displayName: "",
+          website: "",
           email: "",
           password: "",
           confirmPassword: "",
@@ -26,12 +32,16 @@ export function registerRegisterCreatorForm() {
           agreeToTerms: false,
         },
       },
-// Use common utilities
-...createRegisterFormUtils(),
+      // Use common utilities
+      ...createRegisterFormUtils(),
 
       get isFormValid() {
+        console.log(this);
+
         return (
           Object.values(this.errors.form).every((err) => !err) &&
+          this.form.displayName &&
+          this.form.website &&
           this.form.type &&
           this.form.email &&
           this.form.password &&
@@ -39,7 +49,9 @@ export function registerRegisterCreatorForm() {
           this.form.confirmPassword === this.form.password &&
           this.form.agreeToTerms &&
           !this.isEmailChecking &&
-          !this.emailIsTaken
+          !this.emailIsTaken &&
+          !this.displayNameIsTaken &&
+          !this.isDisplayNameChecking
         );
       },
 
@@ -54,7 +66,6 @@ export function registerRegisterCreatorForm() {
           return;
         }
       },
-
     };
   });
 }

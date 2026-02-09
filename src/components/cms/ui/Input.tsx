@@ -12,7 +12,8 @@ type InputProps = {
   minLength?: number;
   maxLength?: number;
   validateInput?: string;
-  showFieldValidator?: boolean;
+  showEmailAvailabilityChecker?: boolean;
+  showDisplayNameAvailabilityChecker?: boolean;
   isDisabled?: boolean;
   readOnly?: boolean;
 };
@@ -26,7 +27,8 @@ const Input = ({
   maxLength,
   minLength,
   validateInput,
-  showFieldValidator = false,
+  showEmailAvailabilityChecker = false,
+  showDisplayNameAvailabilityChecker = false,
   isDisabled = false,
   readOnly = false,
   ...restProps
@@ -42,7 +44,8 @@ const Input = ({
         maxLength={maxLength}
         name={name}
         required={required}
-        showFieldValidator={showFieldValidator}
+        showEmailAvailabilityChecker={showEmailAvailabilityChecker}
+        showDisplayNameAvailabilityChecker={showDisplayNameAvailabilityChecker}
       />
       <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
         {getInputIcon(type)}

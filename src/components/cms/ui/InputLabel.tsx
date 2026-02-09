@@ -3,7 +3,8 @@ type InputLabelProps = {
   maxLength?: number;
   name?: string;
   required?: boolean;
-  showFieldValidator?: boolean;
+  showEmailAvailabilityChecker?: boolean;
+  showDisplayNameAvailabilityChecker?: boolean;
 };
 
 const InputLabel = ({
@@ -11,7 +12,8 @@ const InputLabel = ({
   maxLength,
   name,
   required,
-  showFieldValidator,
+  showEmailAvailabilityChecker,
+  showDisplayNameAvailabilityChecker,
 }: InputLabelProps) => {
   return (
     <div class="flex items-center justify-between">
@@ -32,8 +34,19 @@ const InputLabel = ({
           <span x-text={`${name}.length`}></span> / {maxLength}
         </p>
       )}
-      {showFieldValidator && (
-        <div id="field-status" x-html="fieldStatus" class="h-5"></div>
+      {showEmailAvailabilityChecker && (
+        <div
+          id="email-availability-status"
+          x-html="emailAvailabilityStatus"
+          class="h-5"
+        ></div>
+      )}
+      {showDisplayNameAvailabilityChecker && (
+        <div
+          id="display-name-availability-status"
+          x-html="displayNameAvailabilityStatus"
+          class="h-5"
+        ></div>
       )}
     </div>
   );

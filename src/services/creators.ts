@@ -3,6 +3,7 @@ import { db } from "../db/client";
 import {
   books,
   Creator,
+  CreatorClaim,
   creators,
   NewCreator,
   UpdateCreator,
@@ -32,7 +33,7 @@ export const getCreatorBySlug = async (slug: string) => {
     .map((book) => book.artist)
     .filter(
       (artist, index, self) =>
-        artist && self.findIndex((a) => a?.id === artist.id) === index
+        artist && self.findIndex((a) => a?.id === artist.id) === index,
     );
 
   return {
@@ -41,7 +42,9 @@ export const getCreatorBySlug = async (slug: string) => {
   };
 };
 
-export const getCreatorPermissionData = async (creatorId: string): Promise<Pick<Creator, 'id' | 'displayName'> | null> => {
+export const getCreatorPermissionData = async (
+  creatorId: string,
+): Promise<Pick<Creator, "id" | "displayName"> | null> => {
   try {
     const creator = await db.query.creators.findFirst({
       where: eq(creators.id, creatorId),
@@ -102,7 +105,7 @@ export const createCreatorProfile = async (input: NewCreator) => {
 
 export const updateCreatorProfile = async (
   input: UpdateCreator,
-  creatorId: string
+  creatorId: string,
 ) => {
   try {
     // Exclude fields that shouldn't be updated
@@ -137,7 +140,7 @@ export const updateCreatorProfile = async (
 
 export const updateCreatorCoverImage = async (
   coverUrl: string,
-  creatorId: string
+  creatorId: string,
 ) => {
   try {
     const [updatedCreator] = await db
@@ -154,7 +157,7 @@ export const updateCreatorCoverImage = async (
 
 export const getOrCreateArtist = async (
   formData: z.infer<typeof bookFormSchema>,
-  user: AuthUser
+  user: AuthUser,
 ): Promise<Creator | null> => {
   // If an existing artist was selected, use it
   if (formData.artist_id) {
@@ -170,7 +173,7 @@ export const getOrCreateArtist = async (
     const newArtist = await createStubCreatorProfile(
       formData.new_artist_name,
       user.id,
-      "artist"
+      "artist",
     );
     return newArtist;
   }
@@ -180,7 +183,7 @@ export const getOrCreateArtist = async (
 
 export const resolveArtist = async (
   formData: { artist_id?: string; new_artist_name?: string },
-  userId: string
+  userId: string,
 ): Promise<Creator | null | "error"> => {
   const { artist_id, new_artist_name } = formData;
 
@@ -195,7 +198,7 @@ export const resolveArtist = async (
     const creator = await createStubCreatorProfile(
       new_artist_name,
       userId,
-      "artist"
+      "artist",
     );
     return creator?.type === "artist" ? creator : "error";
   }
@@ -205,7 +208,7 @@ export const resolveArtist = async (
 
 export const resolvePublisher = async (
   formData: { publisher_id?: string; new_publisher_name?: string },
-  userId: string
+  userId: string,
 ): Promise<Creator | null | "error"> => {
   const { publisher_id, new_publisher_name } = formData;
 
@@ -225,7 +228,7 @@ export const resolvePublisher = async (
     const publisher = await createStubCreatorProfile(
       new_publisher_name,
       userId,
-      "publisher"
+      "publisher",
     );
     return publisher?.type === "publisher" ? publisher : "error";
   }
@@ -236,7 +239,7 @@ export const resolvePublisher = async (
 export const createStubCreatorProfile = async (
   displayName: string,
   userId: string,
-  type: "publisher" | "artist"
+  type: "publisher" | "artist",
 ) => {
   return await createCreatorProfile({
     displayName: displayName.trim(),
@@ -251,13 +254,13 @@ export const createStubCreatorProfile = async (
 
 export const getArtistsCreatedByUserId = async (
   ownerId: string,
-  searchQuery?: string | null
+  searchQuery?: string | null,
 ) => {
   try {
     const baseCondition = and(
       eq(creators.createdByUserId, ownerId),
       eq(creators.type, "artist"),
-      isNull(creators.ownerUserId)
+      isNull(creators.ownerUserId),
     );
 
     const whereClause = searchQuery
@@ -282,7 +285,7 @@ export const searchCreators = async (searchQuery: string) => {
     return await db.query.creators.findMany({
       where: and(
         ilike(creators.displayName, `%${searchQuery}%`),
-        exists(db.select().from(books).where(eq(books.artistId, creators.id)))
+        exists(db.select().from(books).where(eq(books.artistId, creators.id))),
       ),
       limit: 10,
       orderBy: (creators, { asc }) => [asc(creators.displayName)],
@@ -291,4 +294,42 @@ export const searchCreators = async (searchQuery: string) => {
     console.error("Failed to search creators", error);
     return [];
   }
+};
+
+export const generateClaimEmail = async (
+  claim: CreatorClaim,
+  creator: Creator,
+  verificationUrl: string,
+  verificationLink: string,
+) => {
+  return `
+        <h2>Verify Your Creator Profile</h2>
+        <p>Hi, ${creator.displayName}! </p>
+        
+        <h3>Your Verification Code:</h3>
+        <p style="font-size: 24px; font-weight: bold; letter-spacing: 2px; padding: 20px; background: #f5f5f5; text-align: center;">
+          ${claim.verificationCode}
+        </p>
+        
+        <h3>Next Steps:</h3>
+        <ol>
+          <li>Add this code to your website (${verificationUrl}) in one of these ways:
+            <ul>
+              <li>Add it as visible text on your homepage</li>
+              <li>Add the line below as a meta tag:</li>
+              <li><code>&lt;meta name="photobookers-verification-code" content="${claim.verificationCode}"&gt;</code></li>
+            </ul>
+          </li>
+          <li>Once added, click the button below to verify:</li>
+          <li>Once verified, you will be able to manage your creator profile from your dashboard.</li>
+        </ol>
+        
+        <p>
+          <a href="${verificationLink}" style="display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+            Verify My Website
+          </a>
+        </p>
+        
+        <p><small>This code expires in 7 days. If you need a new code, please submit a new claim.</small></p>
+      `;
 };

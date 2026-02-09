@@ -14,18 +14,12 @@ import {
   getClaimByToken,
   verifyClaim,
   deleteClaim,
-  approveClaim,
-  rejectClaim,
-  generateClaimApprovalEmail,
-  getClaimById,
-  generateClaimRejectionEmail,
 } from "../services/claims";
 import { supabaseAdmin } from "../lib/supabase";
 import ClaimModal from "../components/claims/ClaimModal";
-import { showErrorAlert } from "./booksDashboardRoutes";
+import { showErrorAlert } from "../lib/alertHelpers";
 import ClaimVerificationFailurePage from "../components/claims/ClaimVerificationFailurePage";
 import ErrorPage from "../pages/error/errorPage";
-import ClaimsTable from "../components/admin/ClaimsTable";
 
 export const claimRoutes = new Hono();
 
@@ -205,7 +199,6 @@ claimRoutes.get("/verify/:token", async (c) => {
 
   // Attempt verification
   const result = await verifyClaim(claim);
-  console.log("result", result);
 
   if ("requiresApproval" in result && result.requiresApproval) {
     const message =

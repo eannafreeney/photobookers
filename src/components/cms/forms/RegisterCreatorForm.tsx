@@ -18,14 +18,29 @@ const RegisterCreatorForm = ({ type }: RegisterCreatorFormProps) => {
 
   return (
     <>
-      <form action="/auth/register" method="post" {...alpineAttrs}>
+      <form action="/auth/register-creator" method="post" {...alpineAttrs}>
+        <Input
+          label="Display Name"
+          name="form.displayName"
+          validateInput="validateDisplayName()"
+          showDisplayNameAvailabilityChecker
+          required
+        />
+
+        <Input
+          label="Website"
+          name="form.website"
+          type="url"
+          placeholder="https://..."
+          required
+        />
         <Input
           type="email"
           label="Email"
           name="form.email"
           validateInput="validateEmail()"
           placeholder="you@example.com"
-          showFieldValidator
+          showEmailAvailabilityChecker
           required
         />
         <Input

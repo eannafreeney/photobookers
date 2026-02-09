@@ -5,7 +5,6 @@ import {
   getBookById,
   prepareBookData,
   prepareBookUpdateData,
-  processTags,
   rejectBookById,
   updateBook,
   updateBookCoverImage,
@@ -15,15 +14,11 @@ import { getFlash, getUser, setFlash } from "../utils";
 import BooksOverview from "../pages/dashboard/BooksOverview";
 import AddBookPage from "../pages/dashboard/AddBookPage";
 import BookEditPage from "../pages/dashboard/BookEditPage";
-import { Context, Hono } from "hono";
+import { Hono } from "hono";
 import PublishToggleForm from "../components/cms/forms/PublishToggleForm";
 import PreviewButton from "../components/api/PreviewButton";
 import { bookFormSchema, bookIdSchema } from "../schemas";
-import {
-  removeInvalidImages,
-  uploadImage,
-  uploadImages,
-} from "../services/storage";
+import { uploadImage } from "../services/storage";
 import {
   formValidator,
   paramValidator,
@@ -35,13 +30,9 @@ import { BookTable } from "../components/cms/ui/BookTable";
 import BooksForApprovalTable from "../components/cms/ui/BooksForApprovalTable";
 import { canPublishBook } from "../lib/permissions";
 import { requireBookEditAccess } from "../middleware/bookGuard";
+import { showErrorAlert } from "../lib/alertHelpers";
 
 export const booksDashboardRoutes = new Hono();
-
-export const showErrorAlert = (
-  c: Context,
-  errorMessage: string = "Action Failed! Please try again.",
-) => c.html(<Alert type="danger" message={errorMessage} />, 422);
 
 // OVERVIEW PAGE
 booksDashboardRoutes.get("/", async (c) => {
@@ -278,7 +269,7 @@ booksDashboardRoutes.post("/:bookId/unpublish", async (c) => {
     return c.html(
       <>
         <Alert type="danger" message={result.error} />
-        <PublishToggleForm book={book} user={user} />
+        <PublishToggleForm book={book} />
       </>,
       400,
     );

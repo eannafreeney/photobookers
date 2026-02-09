@@ -4,12 +4,14 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import {
   generateVerificationCode,
   getCodeExpiration,
+  getHostname,
   isCodeExpired,
   verifyWebsite,
 } from "./verification";
 import { nanoid } from "nanoid";
 import { AuthUser } from "../../types";
 import { getCreatorById } from "./creators";
+import { getUserById } from "./users";
 
 export const approveClaim = async (claimId: string) => {
   const [claim] = await db
@@ -114,8 +116,33 @@ export const verifyClaim = async (claim: CreatorClaim) => {
   }
 
   const creator = await getCreatorById(claim.creatorId);
+  const websiteHost = getHostname(claim.verificationUrl);
 
+  // Existing creator already had this website on file → auto-approve (claim flow)
   if (creator?.website) {
+    await db
+      .update(creatorClaims)
+      .set({
+        status: "approved",
+        verifiedAt: new Date(),
+      })
+      .where(eq(creatorClaims.id, claim.id));
+    await updateCreatorOwnerAndStatus(claim);
+    return { verified: true };
+  }
+
+  // New creator: same domain for email and website → auto-approve; else pending_admin_review
+  const user = await getUserById(claim.userId);
+  if (!user) {
+    return {
+      verified: false,
+      error: "User not found",
+    };
+  }
+  const emailDomain = user?.email?.split("@")[1]?.toLowerCase() ?? "";
+  const domainsMatch = emailDomain.length > 0 && emailDomain === websiteHost;
+
+  if (domainsMatch) {
     await db
       .update(creatorClaims)
       .set({
@@ -160,7 +187,7 @@ export const generateClaimEmail = async (
             <ul>
               <li>Add it as visible text on your homepage</li>
               <li>Add the line below as a meta tag:</li>
-              <li><code>&lt;meta name="verification-code" content="${claim.verificationCode}"&gt;</code></li>
+              <li><code>&lt;meta name="photobookers-verification-code" content="${claim.verificationCode}"&gt;</code></li>
             </ul>
           </li>
           <li>Once added, click the button below to verify:</li>

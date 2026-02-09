@@ -7,7 +7,7 @@ const optionalText = z.preprocess(
 
 const requiredText = z.preprocess(
   (v) => (typeof v === "string" ? v.trim() : v),
-  z.string().min(1, "Required"),
+  z.string().min(2, "Required"),
 );
 
 const numberField = z.preprocess(
@@ -15,18 +15,31 @@ const numberField = z.preprocess(
   z.number().optional(),
 );
 
-// ============ REGISTER CREATOR FORM SCHEMA ============
-export const registerCreatorFormSchema = z.object({
-  type: z.enum(["artist", "publisher"]),
-  email: z.email().min(1, "Email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-  agreeToTerms: z
+const agreeToTerms = z.preprocess(
+  (v) => v === true || v === "on" || v === "true" || v === "1",
+  z
     .boolean()
     .refine(
       (val) => val,
       "Please agree to the terms and conditions to continue",
     ),
+);
+
+// ============ REGISTER CREATOR FORM SCHEMA ============
+export const registerCreatorFormSchema = z.object({
+  displayName: z.string().min(3, "Display Name must be at least 3 characters"),
+  website: z.url("Please enter a valid URL (e.g., https://example.com)"),
+  type: z.enum(["artist", "publisher"]),
+  email: z.email().min(1, "Email is required"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(64, "Password must be less than 64 characters"),
+  confirmPassword: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(64, "Password must be less than 64 characters"),
+  agreeToTerms,
 });
 
 // ============ REGISTER FAN FORM SCHEMA ============
@@ -39,8 +52,11 @@ export const registerFanFormSchema = z.object({
     .string()
     .min(3, "Last name must be at least 3 characters")
     .max(255, "Last name must be less than 255 characters"),
-  ...registerCreatorFormSchema.shape,
   type: z.literal("fan"),
+  email: z.email().min(1, "Email is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
+  agreeToTerms,
 });
 
 // ============ LOGIN FORM SCHEMA ============

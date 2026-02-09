@@ -18,6 +18,7 @@ import { getCreatorPermissionData, searchCreators } from "../services/creators";
 import NavSearchResults from "../components/app/NavSearchResults";
 import ArtistSearchResults from "../components/app/ArtistSearchResults";
 import Alert from "../components/app/Alert";
+import Input from "../components/cms/ui/Input";
 
 export const apiRoutes = new Hono();
 
@@ -161,18 +162,18 @@ apiRoutes.get("/check-email", async (c) => {
   const email = c.req.query("email");
 
   if (!email) {
-    return c.html(<div id="field-status"></div>);
+    return c.html(<div id="email-availability-status"></div>);
   }
 
   const existingUser = await findUserByEmail(email);
   const available = !existingUser;
 
   return c.html(
-    <div id="field-status">
+    <div id="email-availability-status">
       {available ? (
-        <p class="label text-success mt-1">✓ Email is available</p>
+        <p class="label text-success mt-1">✓ Email available</p>
       ) : (
-        <p class="label text-error mt-1">✗ This email is already registered</p>
+        <p class="label text-danger mt-1">✗ Email taken</p>
       )}
     </div>,
   );
@@ -182,7 +183,7 @@ apiRoutes.get("/check-displayName", async (c) => {
   const displayName = c.req.query("displayName");
 
   if (!displayName) {
-    return c.html(<div id="field-status"></div>);
+    return c.html(<div id="display-name-availability-status"></div>);
   }
 
   const existingCreator = await db.query.creators.findFirst({
@@ -192,11 +193,11 @@ apiRoutes.get("/check-displayName", async (c) => {
   const available = !existingCreator;
 
   return c.html(
-    <div id="field-status">
+    <div id="display-name-availability-status">
       {available ? (
-        <p class="label text-success mt-1">✓ Name is available</p>
+        <p class="label text-success mt-1">✓ Name available</p>
       ) : (
-        <p class="label text-error mt-1">✗ This Name is already registered</p>
+        <p class="label text-danger mt-1">✗ Name taken</p>
       )}
     </div>,
   );

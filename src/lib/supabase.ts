@@ -15,6 +15,18 @@ export const supabaseAdmin = createClient(
   },
 );
 
+// Anon client for public routes
+export const supabaseAnon = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  },
+);
+
 // Storage-only client: never used for auth, so it always sends service_role (fixes RLS)
 export const supabaseStorageAdmin = createClient(
   process.env.SUPABASE_URL!,

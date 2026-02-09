@@ -19,7 +19,7 @@ export function registerCreatorForm() {
     "creatorForm",
     (
       formValues: Partial<CreatorFormData> = {},
-      isEditMode: boolean = false
+      isEditMode: boolean = false,
     ) => {
       return {
         isSubmitting: false,
@@ -40,14 +40,6 @@ export function registerCreatorForm() {
 
         validateField(field: string) {
           return validateField(this, field, creatorFormSchema);
-        },
-
-        validateDisplayName() {
-          this.validateField("displayName");
-          if (this.form.displayName && this.form.displayName.length > 2) {
-            this.checkDisplayNameAvailability();
-            this.searchCreators();
-          }
         },
 
         get isFormValid() {
@@ -77,25 +69,6 @@ export function registerCreatorForm() {
           this.isSubmitting = false;
         },
 
-        async searchCreators() {
-          if (!this.form.displayName || this.form.displayName.length < 2) {
-            this.artistSearchResults = "";
-            return;
-          }
-
-          try {
-            const response = await fetch(
-              `/api/search-artists?q=${encodeURIComponent(
-                this.form.displayName
-              )}`
-            );
-            const html = await response.text();
-            this.artistSearchResults = html;
-          } catch (error) {
-            console.error("Failed to search artists", error);
-          }
-        },
-
         async checkDisplayNameAvailability() {
           if (!this.form.displayName) return;
 
@@ -103,8 +76,8 @@ export function registerCreatorForm() {
           try {
             const response = await fetch(
               `/api/check-displayName?displayName=${encodeURIComponent(
-                this.form.displayName
-              )}`
+                this.form.displayName,
+              )}`,
             );
             const html = await response.text();
 
@@ -117,6 +90,6 @@ export function registerCreatorForm() {
           }
         },
       };
-    }
+    },
   );
 }

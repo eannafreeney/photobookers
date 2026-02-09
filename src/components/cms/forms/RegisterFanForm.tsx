@@ -14,7 +14,7 @@ const RegisterFanForm = () => {
 
   return (
     <>
-      <form action="/auth/register" method="post" {...alpineAttrs}>
+      <form action="/auth/register-fan" method="post" {...alpineAttrs}>
         <Input
           label="First Name"
           name="form.firstName"
