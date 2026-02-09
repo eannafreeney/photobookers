@@ -14,6 +14,7 @@ const EditCreatorPage = ({ user, creator }: Props) => {
     displayName: creator?.displayName,
     bio: creator?.bio,
     city: creator?.city,
+    tagline: creator?.tagline,
     country: creator?.country,
     website: creator?.website,
     facebook: creator?.facebook,
@@ -43,6 +44,10 @@ const EditCreatorPage = ({ user, creator }: Props) => {
               creatorId={creator?.id}
             />
           </div>
+          <div
+            class="hidden md:block w-px shrink-0 bg-outline self-stretch"
+            aria-hidden="true"
+          />
           <hr class="my-4 md:hidden" />
           <div class="md:w-2/3">
             <CreatorForm

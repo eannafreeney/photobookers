@@ -25,10 +25,7 @@ const TextArea = ({
     : {};
 
   return (
-    <fieldset
-      class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max
-"
-    >
+    <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
       <InputLabel
         label={label}
         maxLength={maxLength}
@@ -40,7 +37,7 @@ const TextArea = ({
 "
       >
         <textarea
-          class="w-full bg-surface-alt px-2.5 py-2 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
+          class="w-full bg-surface-alt px-2.5 py-2 text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
           name={name.replace("form.", "")}
           placeholder={placeholder}
           rows={minRows}

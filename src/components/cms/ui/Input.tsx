@@ -49,13 +49,14 @@ const Input = ({
         <input
           id={name}
           type={type}
-          class="w-full bg-surface-alt px-2 py-2 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 "
+          class="w-full bg-surface-alt px-2 py-2 text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 "
           name={name.replace("form.", "")}
           placeholder={placeholder ?? label}
           required={required}
           disabled={isDisabled}
           x-model={name}
           maxLength={maxLength}
+          autocomplete="off"
           {...{ "x-on:blur": `${name} = ${name}.trim()` }}
           {...(readOnly && { readOnly: true })}
           {...(validateInput && inputHandler)}

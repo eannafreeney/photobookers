@@ -22,7 +22,7 @@ const CreatorCoverForm = ({ initialUrl, creatorId }: Props) => {
 
   return (
     <div class="space-y-4">
-      <SectionTitle>Cover Image</SectionTitle>
+      <SectionTitle>Profile Image</SectionTitle>
       <form
         method="post"
         action={`/dashboard/images/creators/${creatorId}/cover`}

@@ -3,9 +3,12 @@ const NavSearch = () => {
     "x-data": "{ hasResults: false, searchValue: '' }",
     "x-on:click.outside": "hasResults = false",
   };
+
   const formAttrs = {
+    "x-target": "search-results",
     "x-on:ajax:success": "hasResults = true",
   };
+
   const inputttrs = {
     "x-model": "searchValue",
     "x-on:input.debounce.500ms": "$el.form.requestSubmit()",
@@ -16,12 +19,7 @@ const NavSearch = () => {
       class="relative flex mr-auto w-full max-w-64 flex-col gap-1 text-on-surface"
       {...alpineAttrs}
     >
-      <form
-        action="/api/search"
-        method="get"
-        x-target="search-results"
-        {...formAttrs}
-      >
+      <form action="/api/search" method="get" autocomplete="off" {...formAttrs}>
         {searchIcon}
         <input
           type="text"
@@ -31,9 +29,12 @@ const NavSearch = () => {
           {...inputttrs}
         />
       </form>
-      <div class="absolute top-0 left-12 right-0 w-full z-1 " x-show="hasResults && searchValue.length > 0">
+      <div
+        class="absolute top-0 left-12 right-0 w-full z-1 "
+        x-show="hasResults && searchValue.length > 0"
+      >
         <div id="search-results"></div>
-      </div> 
+      </div>
     </div>
   );
 };
