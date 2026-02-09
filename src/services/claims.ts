@@ -5,7 +5,6 @@ import {
   generateVerificationCode,
   getCodeExpiration,
   isCodeExpired,
-  isSameDomain,
   verifyWebsite,
 } from "./verification";
 import { nanoid } from "nanoid";
@@ -20,9 +19,6 @@ export const approveClaim = async (claimId: string) => {
     .returning();
 
   await updateCreatorOwnerAndStatus(claim);
-
-  // send email to user
-  // await sendEmail(claim.userId, "Claim Approved", "Your claim has been approved. You can now manage your creator profile from your dashboard.");
 };
 
 export const rejectClaim = async (claimId: string) => {
@@ -30,9 +26,6 @@ export const rejectClaim = async (claimId: string) => {
     .update(creatorClaims)
     .set({ status: "rejected" })
     .where(eq(creatorClaims.id, claimId));
-
-  // send email to user
-  // await sendEmail(claim.userId, "Claim Rejected", "Your claim has been rejected. Please try again.");
 };
 
 export const getClaimByToken = async (token: string) => {
@@ -144,7 +137,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
   return { verified: true, requiresApproval: true };
 };
 
-export const generateEmailHtml = async (
+export const generateClaimEmail = async (
   claim: CreatorClaim,
   user: AuthUser,
   creator: Creator,
@@ -184,11 +177,38 @@ export const generateEmailHtml = async (
       `;
 };
 
+export const generateClaimApprovalEmail = async (
+  user: AuthUser,
+  creator: Creator,
+) => {
+  return `
+        <h2>Your Creator Profile Claim has been approved!</h2>
+        <p>Hello ${user?.firstName},</p>
+        <p>Your claim for the creator profile for <strong>${creator.displayName}</strong> has been approved.</p>
+        <p>You can now start uploading books and editing your profile.</p>
+
+      `;
+};
+
+export const generateClaimRejectionEmail = async (
+  user: AuthUser,
+  creator: Creator,
+) => {
+  return `
+        <h2>Your Creator Profile Claim has been rejected</h2>
+        <p>Hello ${user?.firstName},</p>
+        <p>Your claim for the creator profile for <strong>${creator.displayName}</strong> has been rejected.</p>
+        <p>Please try again.</p>
+      `;
+};
+
 // Add this (use existing db/schema imports as in the file)
 export const getPendingClaimByUserAndCreator = async (
   userId: string,
   creatorId: string,
 ) => {
+  if (!userId || !creatorId) return null;
+
   const [claim] = await db
     .select()
     .from(creatorClaims)
@@ -230,3 +250,12 @@ export async function getClaimsPendingAdminReview(): Promise<
         row.creator != null,
     );
 }
+
+export const getClaimById = async (claimId: string) => {
+  const [claim] = await db
+    .select()
+    .from(creatorClaims)
+    .where(eq(creatorClaims.id, claimId))
+    .limit(1);
+  return claim ?? null;
+};

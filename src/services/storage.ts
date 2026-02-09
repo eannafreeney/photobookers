@@ -1,13 +1,17 @@
 import { db } from "../db/client";
 import { bookImages } from "../db/schema";
-import { supabaseAdmin, supabaseStorage } from "../lib/supabase";
+import {
+  supabaseAdmin,
+  supabaseStorage,
+  supabaseStorageAdmin,
+} from "../lib/supabase";
 
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const payload = JSON.parse(Buffer.from(key.split('.')[1], 'base64').toString());
+const payload = JSON.parse(Buffer.from(key.split(".")[1], "base64").toString());
 console.log("service Key role:", payload.role); // Should be "service_role"
 
 const anonKey = process.env.SUPABASE_ANON_KEY!;
-const x = JSON.parse(Buffer.from(anonKey.split('.')[1], 'base64').toString());
+const x = JSON.parse(Buffer.from(anonKey.split(".")[1], "base64").toString());
 console.log("anonKey role:", x.role); // Should be "anon"
 
 const BUCKET_NAME = "images";
@@ -25,7 +29,7 @@ type UploadResult = {
  */
 export async function uploadImage(
   file: File,
-  folder: string
+  folder: string,
 ): Promise<UploadResult> {
   // Generate unique filename
   const timestamp = Date.now();
@@ -38,17 +42,17 @@ export async function uploadImage(
   const arrayBuffer = await file.arrayBuffer();
 
   console.log("Uploading to:", BUCKET_NAME, filePath);
-console.log("File size:", arrayBuffer.byteLength);
+  console.log("File size:", arrayBuffer.byteLength);
 
   // Upload to Supabase Storage
-  const { data, error } = await supabaseAdmin.storage
+  const { data, error } = await supabaseStorageAdmin.storage
     .from(BUCKET_NAME)
     .upload(filePath, arrayBuffer, {
       contentType: file.type,
       upsert: false,
     });
 
-    console.log("Upload result:", { data, error });
+  console.log("Upload result:", { data, error });
 
   if (error) {
     throw new Error(`Upload failed: ${error.message}`);
@@ -70,11 +74,11 @@ console.log("File size:", arrayBuffer.byteLength);
  */
 export async function uploadImages(
   imageFiles: File[],
-  newBookId: string
+  newBookId: string,
 ): Promise<void> {
   if (imageFiles.length > 0) {
     const uploadResults = await Promise.all(
-      imageFiles.map((file) => uploadImage(file, `books/${newBookId}/gallery`))
+      imageFiles.map((file) => uploadImage(file, `books/${newBookId}/gallery`)),
     );
 
     // Save to database
@@ -84,8 +88,8 @@ export async function uploadImages(
           bookId: newBookId,
           imageUrl: result.url,
           sortOrder: index,
-        })
-      )
+        }),
+      ),
     );
   }
 }
@@ -105,7 +109,7 @@ export async function deleteImage(path: string): Promise<void> {
 
 export async function uploadCoverImage(
   file: unknown,
-  folder: string
+  folder: string,
 ): Promise<string | null> {
   console.log(file, "file in UploadCoverImage");
   // Check for file-like object instead of instanceof File

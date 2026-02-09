@@ -124,7 +124,9 @@ const DropDownMenu = ({
       <li class="border-b border-outline dark:border-outline-dark">
         <div class="flex flex-col px-4 py-2">
           <span class="text-sm font-medium text-on-surface-strong dark:text-on-surface-dark-strong">
-            {user?.firstName} {user?.lastName}
+            {user?.firstName && user?.lastName
+              ? `${user?.firstName} ${user?.lastName}`
+              : `${user.creator?.displayName}`}
           </span>
           <p class="text-xs text-on-surface dark:text-on-surface-dark">
             {user?.email}
@@ -153,7 +155,7 @@ const DropDownMenu = ({
         </>
       )}
       {user?.isAdmin && (
-        <NavLink href="/dashboard/admin/claims" currentPath={currentPath}>
+        <NavLink href="/dashboard/admin" currentPath={currentPath}>
           Admin Dashboard
         </NavLink>
       )}

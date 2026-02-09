@@ -1,4 +1,3 @@
-
 import { AuthUser } from "../../../../types";
 import {
   getBooksByArtistId,
@@ -6,11 +5,9 @@ import {
 } from "../../../services/books";
 import { getInputIcon } from "../../../utils";
 import Button from "../../app/Button";
-import Card from "../../app/Card";
 import Link from "../../app/Link";
 import SectionTitle from "../../app/SectionTitle";
 import BookTableRow from "./BookTableRow";
-import Search from "./Search";
 
 type BookTableProps = {
   searchQuery?: string;
@@ -35,7 +32,7 @@ export const BookTable = async ({
   const validBooks = books?.filter((book) => book != null);
 
   return (
-    <div class="flex flex-col gap-4" >
+    <div class="flex flex-col gap-4">
       <SectionTitle>My Books</SectionTitle>
       <div class="flex items-center justify-between gap-4">
         <BookTableSearch />

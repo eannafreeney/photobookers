@@ -9,8 +9,6 @@ import LoginPage from "../pages/auth/LoginPage";
 import { getUser, setFlash } from "../utils";
 import AccountsPage from "../pages/auth/AccountsPage";
 import Alert from "../components/app/Alert";
-import Page from "../components/layouts/Page";
-import AppLayout from "../components/layouts/AppLayout";
 import ResetPasswordConfirmPage from "../pages/auth/ResetPasswordConfirmPage";
 import ErrorPage from "../pages/error/errorPage";
 

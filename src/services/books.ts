@@ -47,7 +47,7 @@ export const getNewBooks = async () => {
       orderBy: (books, { desc }) => [desc(books.releaseDate)],
       where: and(
         eq(books.publicationStatus, "published"),
-        lte(books.releaseDate, new Date())
+        lte(books.releaseDate, new Date()),
       ),
     });
   } catch (error) {
@@ -75,12 +75,12 @@ export const getBooksByTag = async (tag: string) => {
 
 export const getBooksByPublisherId = async (
   creatorId: string,
-  searchQuery?: string
+  searchQuery?: string,
 ) => {
   try {
     const baseCondition = and(
       eq(books.publisherId, creatorId),
-      eq(books.approvalStatus, "approved")
+      eq(books.approvalStatus, "approved"),
     );
 
     const whereClause = searchQuery
@@ -104,12 +104,12 @@ export const getBooksByPublisherId = async (
 
 export const getBooksByArtistId = async (
   creatorId: string,
-  searchQuery?: string
+  searchQuery?: string,
 ) => {
   try {
     const baseCondition = and(
       eq(books.artistId, creatorId),
-      isNull(books.publisherId)
+      isNull(books.publisherId),
     );
 
     const whereClause = searchQuery
@@ -132,7 +132,7 @@ export const getBooksByArtistId = async (
 };
 
 export const getBooksByCreatorIdForOtherPublishers = async (
-  user: AuthUser | null
+  user: AuthUser | null,
 ) => {
   if (!user) {
     return [];
@@ -144,14 +144,14 @@ export const getBooksByCreatorIdForOtherPublishers = async (
       .select()
       .from(creators)
       .where(
-        and(eq(creators.id, books.publisherId), eq(creators.status, "stub"))
+        and(eq(creators.id, books.publisherId), eq(creators.status, "stub")),
       );
 
     const booksByCreator = await db.query.books.findMany({
       where: and(
         eq(books.createdByUserId, user.id),
         ne(books.publisherId, user.creator?.id ?? ""),
-        not(exists(stubPublisherSubquery))
+        not(exists(stubPublisherSubquery)),
       ),
       orderBy: (books, { desc }) => [desc(books.releaseDate)],
       with: {
@@ -167,7 +167,7 @@ export const getBooksByCreatorIdForOtherPublishers = async (
 };
 
 export const getBooksByCreatorIdForUnclaimedPublishers = async (
-  user: AuthUser | null
+  user: AuthUser | null,
 ) => {
   if (!user) {
     return [];
@@ -179,13 +179,13 @@ export const getBooksByCreatorIdForUnclaimedPublishers = async (
       .select()
       .from(creators)
       .where(
-        and(eq(creators.id, books.publisherId), eq(creators.status, "stub"))
+        and(eq(creators.id, books.publisherId), eq(creators.status, "stub")),
       );
 
     const booksByCreator = await db.query.books.findMany({
       where: and(
         eq(books.createdByUserId, user.id),
-        exists(stubPublisherSubquery)
+        exists(stubPublisherSubquery),
       ),
       orderBy: (books, { desc }) => [desc(books.releaseDate)],
       with: {
@@ -205,7 +205,7 @@ export const getBooksForApproval = async (publisherId: string) => {
     const booksForApproval = await db.query.books.findMany({
       where: and(
         eq(books.publisherId, publisherId),
-        eq(books.approvalStatus, "pending")
+        eq(books.approvalStatus, "pending"),
       ),
       orderBy: (books, { desc }) => [desc(books.releaseDate)],
       with: {
@@ -222,7 +222,7 @@ export const getBooksForApproval = async (publisherId: string) => {
 
 export const getBookBySlug = async (
   bookSlug: string,
-  status: "published" | "draft" = "published"
+  status: "published" | "draft" = "published",
 ) => {
   try {
     const book = await db.query.books.findFirst({
@@ -359,7 +359,7 @@ export const prepareBookData = async (
   formData: z.infer<typeof bookFormSchema>,
   bookCreator: Creator,
   userId: string,
-  bookPublisher?: Creator | null
+  bookPublisher?: Creator | null,
 ): Promise<NewBook> => {
   const existingPublisherSelected = formData.publisher_id ? true : false;
 
@@ -370,7 +370,7 @@ export const prepareBookData = async (
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
     slug: await generateUniqueBookSlug(
       formData.title,
-      bookCreator?.displayName
+      bookCreator?.displayName,
     ),
     artistId: bookCreator?.id ?? null,
     publisherId: bookPublisher?.id ?? null,
@@ -383,7 +383,7 @@ export const prepareBookData = async (
 };
 
 export const prepareBookUpdateData = (
-  formData: z.infer<typeof bookFormSchema>
+  formData: z.infer<typeof bookFormSchema>,
 ): UpdateBook => {
   return {
     title: formData.title,
@@ -396,7 +396,9 @@ export const prepareBookUpdateData = (
   };
 };
 
-export const getBookPermissionData = async (bookId: string): Promise<Pick<Book, 'id' | 'artistId' | 'publisherId' | 'title'> | null> => {
+export const getBookPermissionData = async (
+  bookId: string,
+): Promise<Pick<Book, "id" | "artistId" | "publisherId" | "title"> | null> => {
   try {
     const book = await db.query.books.findFirst({
       where: eq(books.id, bookId),
@@ -429,14 +431,17 @@ export const searchBooks = async (searchQuery: string) => {
         artist: true,
         publisher: true,
       },
-      where: or(
-        ilike(books.title, searchPattern),
-        inArray(books.artistId, matchingCreatorIds),
-        sql`EXISTS (
+      where: and(
+        eq(books.publicationStatus, "published"),
+        or(
+          ilike(books.title, searchPattern),
+          inArray(books.artistId, matchingCreatorIds),
+          sql`EXISTS (
           SELECT 1 
           FROM unnest(${books.tags}) AS tag 
           WHERE LOWER(tag) LIKE ${searchPattern.toLowerCase()}
-        )`
+        )`,
+        ),
       ),
       orderBy: (books, { asc }) => [asc(books.title)],
       limit: 10,
@@ -452,7 +457,7 @@ export const getFeedBooks = async (userId: string) => {
     const userFollows = await db.query.follows.findMany({
       where: and(
         eq(follows.followerUserId, userId),
-        eq(follows.targetType, "creator")
+        eq(follows.targetType, "creator"),
       ),
     });
 
@@ -465,10 +470,10 @@ export const getFeedBooks = async (userId: string) => {
       where: and(
         or(
           inArray(books.artistId, followedCreatorIds),
-          inArray(books.publisherId, followedCreatorIds)
+          inArray(books.publisherId, followedCreatorIds),
         ),
         eq(books.publicationStatus, "published"),
-        lte(books.releaseDate, new Date())
+        lte(books.releaseDate, new Date()),
       ),
       with: {
         artist: true,
@@ -492,7 +497,7 @@ export const getBooksInWishlist = async (userId: string) => {
     return await db.query.books.findMany({
       where: inArray(
         books.id,
-        wishlistItems.map((wishlist) => wishlist.bookId)
+        wishlistItems.map((wishlist) => wishlist.bookId),
       ),
       with: {
         artist: true,
@@ -514,7 +519,7 @@ export const getBooksInCollection = async (userId: string) => {
     return await db.query.books.findMany({
       where: inArray(
         books.id,
-        collectionItems.map((collection) => collection.bookId)
+        collectionItems.map((collection) => collection.bookId),
       ),
       with: {
         artist: true,
@@ -529,7 +534,7 @@ export const getBooksInCollection = async (userId: string) => {
 
 export const updateBookPublicationStatus = async (
   bookId: string,
-  publicationStatus: "published" | "draft"
+  publicationStatus: "published" | "draft",
 ): Promise<
   { success: true; book: Book } | { success: false; error: string }
 > => {
@@ -556,7 +561,7 @@ export const updateBookPublicationStatus = async (
 
 export const updateBookCoverImage = async (
   bookId: string,
-  coverUrl: string
+  coverUrl: string,
 ) => {
   try {
     const [updatedBook] = await db

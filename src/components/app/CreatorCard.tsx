@@ -23,7 +23,7 @@ const CreatorCard = async ({
   orientation = "portrait",
   user,
 }: Props) => {
-  if (!user || !creator) return <></>;
+  if (!creator) return <></>;
 
   const followerCount = await findFollowersCount(creator.id);
 
@@ -88,9 +88,7 @@ const CreatorCardPortrait = ({
             </div>
           </Card.SubTitle>
         </div>
-        {followerCount > 0 && (
-          <Card.Intro>{`${followerCount} followers`}</Card.Intro>
-        )}
+        <FollowersCount followerCount={followerCount} />
         {creator.tagline && <Card.Intro>{creator.tagline}</Card.Intro>}
         <FollowButton creator={creator} user={user} variant="desktop" />
         {user && creator.status === "stub" && (
@@ -143,9 +141,7 @@ const CreatorCardLandscape = ({
                   </div>
                 </Card.SubTitle>
               </div>
-              {followerCount > 0 && (
-                <Card.Intro>{`${followerCount} followers`}</Card.Intro>
-              )}
+              <FollowersCount followerCount={followerCount} />
               {creator.tagline && <Card.Intro>{creator.tagline}</Card.Intro>}
               <SocialLinks creator={creator} />
             </Card.Body>
@@ -153,7 +149,7 @@ const CreatorCardLandscape = ({
           <div class="w-1/6">
             <Card.Body>
               <FollowButton creator={creator} user={user} isCircleButton />
-              {user && creator.status === "stub" && (
+              {creator.status === "stub" && (
                 <ClaimCreatorBtn
                   creator={creator}
                   currentPath={currentPath}
@@ -167,6 +163,11 @@ const CreatorCardLandscape = ({
       </Card>
     </div>
   );
+};
+
+const FollowersCount = ({ followerCount }: { followerCount: number }) => {
+  if (followerCount === 0) return <></>;
+  return <Card.Intro>{`${followerCount} following`}</Card.Intro>;
 };
 
 const followersIcon = (

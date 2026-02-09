@@ -47,15 +47,22 @@ export async function verifyWebsite(
 ): Promise<{ verified: boolean; error?: string }> {
   try {
     const normalizedUrl = normalizeUrl(url);
+    const cacheBustUrl =
+      normalizedUrl +
+      (normalizedUrl.includes("?") ? "&" : "?") +
+      "_t=" +
+      Date.now();
 
     // Fetch the website
-    const response = await fetch(normalizedUrl, {
+    const response = await fetch(cacheBustUrl, {
       method: "GET",
       headers: {
         "User-Agent":
           "Mozilla/5.0 (compatible; IndiePhotoBooks/1.0; +https://yourdomain.com/bot)",
         Accept:
           "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
       },
       // Add timeout
       signal: AbortSignal.timeout(10000), // 10 second timeout
@@ -69,6 +76,8 @@ export async function verifyWebsite(
     }
 
     const html = await response.text();
+
+    console.log(html);
 
     // Check in visible text (case-insensitive)
     const codeInText = html.toLowerCase().includes(code.toLowerCase());

@@ -5,9 +5,14 @@ import Modal from "./Modal";
 type Props = {
   action: string;
   redirectUrl?: string;
+  registerButtonUrl?: string;
 };
 
-const AuthModal = ({ action, redirectUrl }: Props) => {
+const AuthModal = ({
+  action,
+  redirectUrl,
+  registerButtonUrl = "/auth/accounts",
+}: Props) => {
   return (
     <Modal>
       <div class="flex flex-col gap-4 p-2">
@@ -22,7 +27,7 @@ const AuthModal = ({ action, redirectUrl }: Props) => {
               <span>Login</span>
             </Button>
           </Link>
-          <Link href="/auth/accounts">
+          <Link href={registerButtonUrl}>
             <Button variant="solid" color="primary">
               <span>Register</span>
             </Button>

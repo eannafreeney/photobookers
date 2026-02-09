@@ -1,5 +1,4 @@
 import { Creator } from "../../db/schema";
-import clsx from "clsx";
 import APIButtonCircle from "../api/APIButtonCircle";
 import APIButton from "../api/APIButton";
 import { canClaimCreator } from "../../lib/permissions";
@@ -10,7 +9,7 @@ type ClaimCreatorBtnProps = {
   creator: Creator;
   currentPath?: string;
   isCircleButton?: boolean;
-  user: AuthUser;
+  user: AuthUser | null;
 };
 
 const ClaimCreatorBtn = async ({
@@ -23,7 +22,7 @@ const ClaimCreatorBtn = async ({
   if (!isStubAcc) return <></>;
 
   const pendingClaim = await getPendingClaimByUserAndCreator(
-    user.id,
+    user?.id ?? "",
     creator.id,
   );
 

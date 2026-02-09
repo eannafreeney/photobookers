@@ -6,6 +6,7 @@ type NavSearchResultsProps = {
   creators: Creator[];
   books: (Book & { artist: Creator | null })[];
   user?: AuthUser | null;
+  searchTerm: string;
 };
 
 const NavSearchResults = ({
@@ -37,7 +38,7 @@ const NavSearchResults = ({
         </button>
       </div>
 
-      <div class="max-h-[calc(100vh-4rem)] md:max-h-96 overflow-y-auto px-4">
+      <div class="max-h-[calc(100vh-4rem)] md:max-h-96 overflow-y-auto p-4">
         {!hasResults ? (
           <div class="p-8 text-center">
             <p class="text-sm text-on-surface-weak">No results found</p>

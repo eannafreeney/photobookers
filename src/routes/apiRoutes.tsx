@@ -246,7 +246,7 @@ apiRoutes.get("/search", async (c) => {
     <NavSearchResults
       creators={creators}
       books={books}
-      searchTerm={searchTerm}
+      searchTerm={searchTerm ?? ""}
     />,
   );
 });

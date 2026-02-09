@@ -1,7 +1,7 @@
 import { AuthUser } from "../../../types";
-import SectionTitle from "../app/SectionTitle";
-import AppLayout from "../layouts/AppLayout";
-import ClaimsTable from "./ClaimsTable";
+import SectionTitle from "../../components/app/SectionTitle";
+import AppLayout from "../../components/layouts/AppLayout";
+import ClaimsTable from "../../components/admin/ClaimsTable";
 
 type Props = {
   user: AuthUser;

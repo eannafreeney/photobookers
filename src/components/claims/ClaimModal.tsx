@@ -24,33 +24,35 @@ const ClaimModal = ({ creatorId, user, buttonType, creatorWebsite }: Props) => {
         Verify your identity by adding a verification code to your website.
       </p>
       <form method="post" action={`/claim/${creatorId}`} {...alpineAttrs}>
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-medium">Verification Method</label>
-          <select
-            name="verificationMethod"
-            class="border rounded px-3 py-2"
+        <div class="flex flex-col gap-2 mb-4">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">Verification Method</label>
+            <select
+              name="verificationMethod"
+              class="border rounded px-3 py-2"
+              required
+            >
+              <option value="website">Website</option>
+              <option value="instagram" disabled>
+                Instagram (Coming Soon)
+              </option>
+            </select>
+          </div>
+
+          <Input
+            label="Website URL"
+            name="form.verificationUrl"
+            type="url"
+            placeholder="https://yourwebsite.com"
             required
-          >
-            <option value="website">Website</option>
-            <option value="instagram" disabled>
-              Instagram (Coming Soon)
-            </option>
-          </select>
+            readOnly={!!creatorWebsite}
+          />
+
+          <div class="text-xs text-gray-500">
+            We'll send you a verification code to add to your website. Make sure
+            the URL is publicly accessible.
+          </div>
         </div>
-
-        <Input
-          label="Website URL"
-          name="form.verificationUrl"
-          type="url"
-          placeholder="https://yourwebsite.com"
-          required
-          readOnly={!!creatorWebsite}
-        />
-
-        <p class="text-xs text-gray-500 mb-8">
-          We'll send you a verification code to add to your website. Make sure
-          the URL is publicly accessible.
-        </p>
 
         <input type="hidden" name="email" value={user?.email} />
         <input type="hidden" name="buttonType" value={buttonType} />

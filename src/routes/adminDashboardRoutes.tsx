@@ -1,7 +1,17 @@
 import { Context, Hono } from "hono";
 import Alert from "../components/app/Alert";
 import { getUser } from "../utils";
-import AdminDashboard from "../components/admin/AdminDashboard";
+import AdminDashboard from "../pages/dashboard/AdminDashboard";
+import {
+  approveClaim,
+  generateClaimApprovalEmail,
+  generateClaimRejectionEmail,
+  getClaimById,
+  rejectClaim,
+} from "../services/claims";
+import { getCreatorById } from "../services/creators";
+import { supabaseAdmin } from "../lib/supabase";
+import ClaimsTable from "../components/admin/ClaimsTable";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -13,4 +23,104 @@ export const showErrorAlert = (
 adminDashboardRoutes.get("/", async (c) => {
   const user = await getUser(c);
   return c.html(<AdminDashboard user={user} />);
+});
+
+adminDashboardRoutes.post("/claims/:claimId/approve", async (c) => {
+  const claimId = c.req.param("claimId");
+  const claim = await getClaimById(claimId);
+  if (!claim) {
+    return showErrorAlert(c, "Claim not found");
+  }
+  const user = await getUser(c);
+  const creator = await getCreatorById(claim.creatorId);
+  if (!user || !creator) {
+    return showErrorAlert(c, "User or creator not found");
+  }
+
+  await approveClaim(claimId);
+  const emailHTML = await generateClaimApprovalEmail(user, creator);
+
+  try {
+    const { error } = await supabaseAdmin.functions.invoke("send-email", {
+      body: {
+        to: user?.email,
+        subject: `Your Claim for ${creator.displayName} has been approved`,
+        html: emailHTML,
+      },
+      headers: {
+        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
+      },
+    });
+
+    if (error) {
+      console.error("Failed to send email:", error);
+      return showErrorAlert(
+        c,
+        "Failed to send approval email. Please try again.",
+      );
+    }
+  } catch (error) {
+    console.error("Email error:", error);
+    return showErrorAlert(
+      c,
+      "Failed to send approval email. Please try again.",
+    );
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message="Claim approved!" />
+      <ClaimsTable />
+    </>,
+  );
+});
+
+adminDashboardRoutes.post("/claims/:claimId/reject", async (c) => {
+  const claimId = c.req.param("claimId");
+  const claim = await getClaimById(claimId);
+  if (!claim) {
+    return showErrorAlert(c, "Claim not found");
+  }
+  const user = await getUser(c);
+  const creator = await getCreatorById(claim.creatorId);
+  if (!user || !creator) {
+    return showErrorAlert(c, "User or creator not found");
+  }
+
+  await rejectClaim(claimId);
+  const emailHTML = await generateClaimRejectionEmail(user, creator);
+
+  try {
+    const { error } = await supabaseAdmin.functions.invoke("send-email", {
+      body: {
+        to: user?.email,
+        subject: `Your Claim for ${creator.displayName} has been rejected`,
+        html: emailHTML,
+      },
+      headers: {
+        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
+      },
+    });
+
+    if (error) {
+      console.error("Failed to send email:", error);
+      return showErrorAlert(
+        c,
+        "Failed to send rejection email. Please try again.",
+      );
+    }
+  } catch (error) {
+    console.error("Email error:", error);
+    return showErrorAlert(
+      c,
+      "Failed to send rejection email. Please try again.",
+    );
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message="Claim rejected!" />
+      <ClaimsTable />
+    </>,
+  );
 });

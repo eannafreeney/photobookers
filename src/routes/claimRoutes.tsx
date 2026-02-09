@@ -10,17 +10,22 @@ import { claimFormSchema, creatorIdSchema } from "../schemas";
 import { isSameDomain, normalizeUrl } from "../services/verification";
 import {
   createClaim,
-  generateEmailHtml,
+  generateClaimEmail,
   getClaimByToken,
   verifyClaim,
   deleteClaim,
+  approveClaim,
+  rejectClaim,
+  generateClaimApprovalEmail,
+  getClaimById,
+  generateClaimRejectionEmail,
 } from "../services/claims";
 import { supabaseAdmin } from "../lib/supabase";
 import ClaimModal from "../components/claims/ClaimModal";
 import { showErrorAlert } from "./booksDashboardRoutes";
-import ClaimVerificationFailure from "../components/claims/ClaimVerificationFailure";
-import ClaimVerificationSuccess from "../components/claims/ClaimVerificationSuccess";
+import ClaimVerificationFailurePage from "../components/claims/ClaimVerificationFailurePage";
 import ErrorPage from "../pages/error/errorPage";
+import ClaimsTable from "../components/admin/ClaimsTable";
 
 export const claimRoutes = new Hono();
 
@@ -35,7 +40,11 @@ claimRoutes.get("/:creatorId", async (c) => {
     return c.html(
       <>
         <div id="toast"></div>
-        <AuthModal action="to claim this creator." redirectUrl={currentPath} />
+        <AuthModal
+          action="to claim this creator."
+          redirectUrl={currentPath}
+          registerButtonUrl="/auth/register?type=fan"
+        />
       </>,
       422,
     );
@@ -116,7 +125,7 @@ claimRoutes.post(
       claim.verificationToken
     }`;
 
-    const emailHtml = await generateEmailHtml(
+    const emailHtml = await generateClaimEmail(
       claim,
       user,
       creator,
@@ -177,7 +186,7 @@ claimRoutes.get("/verify/:token", async (c) => {
   const claim = await getClaimByToken(token);
 
   if (!claim) {
-    return c.html(<Alert type="danger" message="Invalid verification link." />);
+    return c.html(<ErrorPage errorMessage="Invalid verification link." />);
   }
 
   if (claim.status === "pending_admin_review") {
@@ -196,6 +205,7 @@ claimRoutes.get("/verify/:token", async (c) => {
 
   // Attempt verification
   const result = await verifyClaim(claim);
+  console.log("result", result);
 
   if ("requiresApproval" in result && result.requiresApproval) {
     const message =
@@ -205,11 +215,10 @@ claimRoutes.get("/verify/:token", async (c) => {
 
   if ("error" in result && result.error && !result.verified) {
     return c.html(
-      <ClaimVerificationFailure
+      <ClaimVerificationFailurePage
         error={result.error}
         verificationCode={claim.verificationCode}
         verificationUrl={claim.verificationUrl}
-        creatorId={claim.creatorId}
       />,
     );
   }
@@ -219,5 +228,5 @@ claimRoutes.get("/verify/:token", async (c) => {
     "success",
     "Verification successful. You can now start uploading books and editing your profile.",
   );
-  return c.redirect("/dashboard/creators");
+  return c.redirect("/dashboard/books");
 });
