@@ -105,7 +105,7 @@ const MobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
         </>
       )}
 
-      {user && user?.creator?.id && (
+      {user?.creator?.id && (
         <>
           <NavLink href="/dashboard/books" currentPath={currentPath}>
             Dashboard
@@ -125,6 +125,11 @@ const MobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
             } Profile`}
           </NavLink>
         </>
+      )}
+      {user?.isAdmin && (
+        <NavLink href="/dashboard/admin/claims" currentPath={currentPath}>
+          Admin Dashboard
+        </NavLink>
       )}
       {user && (
         <>

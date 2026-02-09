@@ -9,6 +9,7 @@ import {
   primaryKey,
   unique,
   check,
+  boolean,
 } from "drizzle-orm/pg-core";
 import {
   InferSelectModel,
@@ -43,8 +44,9 @@ export const creatorStatusEnum = pgEnum("creator_status", [
 ]);
 export const creatorClaimStatusEnum = pgEnum("creator_claim_status", [
   "pending",
-  "success",
-  "failed",
+  "pending_admin_review",
+  "approved",
+  "rejected",
 ]);
 
 export const users = pgTable("users", {
@@ -54,6 +56,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name", { length: 255 }),
   acceptsTerms: timestamp("accepts_terms"),
   intendedCreatorType: creatorTypeEnum("intended_creator_type"),
+  isAdmin: boolean("is_admin").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });

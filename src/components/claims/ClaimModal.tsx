@@ -6,11 +6,12 @@ type Props = {
   creatorId: string;
   user: AuthUser;
   buttonType: string;
+  creatorWebsite?: string;
 };
 
-const ClaimModal = ({ creatorId, user, buttonType }: Props) => {
+const ClaimModal = ({ creatorId, user, buttonType, creatorWebsite }: Props) => {
   const alpineAttrs = {
-    "x-data": "claimForm()",
+    "x-data": `claimForm(${JSON.stringify({ creatorWebsite: creatorWebsite ?? null })})`,
     "x-target": `toast claim-${creatorId}`,
     "x-target.error": "toast",
     "x-on:ajax:after": "$dispatch('dialog:close')",
@@ -43,6 +44,7 @@ const ClaimModal = ({ creatorId, user, buttonType }: Props) => {
           type="url"
           placeholder="https://yourwebsite.com"
           required
+          readOnly={!!creatorWebsite}
         />
 
         <p class="text-xs text-gray-500 mb-8">

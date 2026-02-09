@@ -1,14 +1,39 @@
 import { db } from "../db/client";
 import { Creator, CreatorClaim, creatorClaims, creators } from "../db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import {
   generateVerificationCode,
   getCodeExpiration,
   isCodeExpired,
+  isSameDomain,
   verifyWebsite,
 } from "./verification";
 import { nanoid } from "nanoid";
 import { AuthUser } from "../../types";
+import { getCreatorById } from "./creators";
+
+export const approveClaim = async (claimId: string) => {
+  const [claim] = await db
+    .update(creatorClaims)
+    .set({ status: "approved", verifiedAt: new Date() })
+    .where(eq(creatorClaims.id, claimId))
+    .returning();
+
+  await updateCreatorOwnerAndStatus(claim);
+
+  // send email to user
+  // await sendEmail(claim.userId, "Claim Approved", "Your claim has been approved. You can now manage your creator profile from your dashboard.");
+};
+
+export const rejectClaim = async (claimId: string) => {
+  await db
+    .update(creatorClaims)
+    .set({ status: "rejected" })
+    .where(eq(creatorClaims.id, claimId));
+
+  // send email to user
+  // await sendEmail(claim.userId, "Claim Rejected", "Your claim has been rejected. Please try again.");
+};
 
 export const getClaimByToken = async (token: string) => {
   const [claim] = await db
@@ -19,11 +44,15 @@ export const getClaimByToken = async (token: string) => {
   return claim ?? null;
 };
 
-export const updateCreatorOwnerAndStatus = async (claimant: CreatorClaim) => {
+export const updateCreatorOwnerAndStatus = async (claim: CreatorClaim) => {
   await db
     .update(creators)
-    .set({ ownerUserId: claimant.userId, status: "verified" })
-    .where(eq(creators.id, claimant.creatorId));
+    .set({
+      ownerUserId: claim.userId,
+      status: "verified",
+      website: claim.verificationUrl,
+    })
+    .where(eq(creators.id, claim.creatorId));
 };
 
 export const deleteClaim = async (claimId: string) => {
@@ -63,11 +92,10 @@ export const createClaim = async (
 };
 
 export const verifyClaim = async (claim: CreatorClaim) => {
-  // Check if code is expired
   if (isCodeExpired(claim.codeExpiresAt)) {
     await db
       .update(creatorClaims)
-      .set({ status: "failed" })
+      .set({ status: "rejected" })
       .where(eq(creatorClaims.id, claim.id));
 
     return {
@@ -76,36 +104,44 @@ export const verifyClaim = async (claim: CreatorClaim) => {
     };
   }
 
-  // Verify website contains code
-  if (claim.verificationMethod === "website" && claim.verificationUrl) {
-    const result = await verifyWebsite(
-      claim.verificationUrl,
-      claim.verificationCode!,
-    );
+  if (claim.verificationMethod !== "website" || !claim.verificationUrl) {
+    return {
+      verified: false,
+      error: "Invalid verification method",
+    };
+  }
 
-    if (result.verified) {
-      // Update claim status and verified timestamp
-      await db
-        .update(creatorClaims)
-        .set({
-          status: "success",
-          verifiedAt: new Date(),
-        })
-        .where(eq(creatorClaims.id, claim.id));
+  const result = await verifyWebsite(
+    claim.verificationUrl,
+    claim.verificationCode!,
+  );
 
-      // Update creator ownership
-      await updateCreatorOwnerAndStatus(claim);
-
-      return { verified: true };
-    }
-
+  if (!result.verified) {
     return result;
   }
 
-  return {
-    verified: false,
-    error: "Invalid verification method",
-  };
+  const creator = await getCreatorById(claim.creatorId);
+
+  if (creator?.website) {
+    await db
+      .update(creatorClaims)
+      .set({
+        status: "approved",
+        verifiedAt: new Date(),
+      })
+      .where(eq(creatorClaims.id, claim.id));
+    await updateCreatorOwnerAndStatus(claim);
+    return { verified: true };
+  }
+
+  await db
+    .update(creatorClaims)
+    .set({
+      status: "pending_admin_review",
+      verifiedAt: new Date(),
+    })
+    .where(eq(creatorClaims.id, claim.id));
+  return { verified: true, requiresApproval: true };
 };
 
 export const generateEmailHtml = async (
@@ -160,9 +196,37 @@ export const getPendingClaimByUserAndCreator = async (
       and(
         eq(creatorClaims.userId, userId),
         eq(creatorClaims.creatorId, creatorId),
-        eq(creatorClaims.status, "pending"),
+        inArray(creatorClaims.status, ["pending", "pending_admin_review"]),
       ),
     )
     .limit(1);
   return claim ?? null;
 };
+
+export async function getClaimsPendingAdminReview(): Promise<
+  Array<{ claim: CreatorClaim; creator: Creator }>
+> {
+  const claims = await db
+    .select()
+    .from(creatorClaims)
+    .where(eq(creatorClaims.status, "pending_admin_review"))
+    .orderBy(desc(creatorClaims.requestedAt));
+
+  const creatorIds = [...new Set(claims.map((c) => c.creatorId))];
+  const creatorsWithClaims =
+    creatorIds.length > 0
+      ? await db.select().from(creators).where(inArray(creators.id, creatorIds))
+      : [];
+
+  const creatorById = new Map(creatorsWithClaims.map((c) => [c.id, c]));
+
+  return claims
+    .map((claim) => ({
+      claim,
+      creator: creatorById.get(claim.creatorId),
+    }))
+    .filter(
+      (row): row is { claim: CreatorClaim; creator: Creator } =>
+        row.creator != null,
+    );
+}

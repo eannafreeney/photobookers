@@ -4,9 +4,12 @@ import { bookFormSchema, claimFormSchema } from "../../schemas";
 const CLAIM_FORM_FIELDS = Object.keys(claimFormSchema.shape);
 
 export function registerClaimForm() {
-  Alpine.data("claimForm", () => {
+  Alpine.data("claimForm", (props: { creatorWebsite?: string }) => {
     return {
-      form: {},
+      isSubmitting: false,
+      form: {
+        verificationUrl: props.creatorWebsite ?? "",
+      },
 
       initialValues: {
         form: {},
@@ -16,12 +19,12 @@ export function registerClaimForm() {
         form: {},
       },
 
-      init() {
-        // Initialize with empty strings for create mode so isDirty works correctly
-        this.initialValues.form = Object.fromEntries(
-          CLAIM_FORM_FIELDS.map((key) => [key, ""])
-        );
-      },
+      // init() {
+      //   // Initialize with empty strings for create mode so isDirty works correctly
+      //   this.initialValues.form = Object.fromEntries(
+      //     CLAIM_FORM_FIELDS.map((key) => [key, ""])
+      //   );
+      // },
 
       validateField(field: string) {
         const result = bookFormSchema.safeParse(this.form);
@@ -42,13 +45,13 @@ export function registerClaimForm() {
 
         return (
           Object.values(validationErrors).every((err) => !err) &&
-          this.form.message &&
-          this.form.name &&
+          this.form.verificationUrl &&
           this.form.email
         );
       },
 
       submitForm(event: Event) {
+        this.isSubmitting = true;
         const result = bookFormSchema.safeParse(this.form);
 
         if (!result.success) {
@@ -58,8 +61,6 @@ export function registerClaimForm() {
           this.errors.form = result.error.flatten().fieldErrors;
           return;
         }
-
-        this.isSubmitting = false;
       },
     };
   });

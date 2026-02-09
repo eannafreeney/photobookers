@@ -7,7 +7,7 @@ import Modal from "../components/app/Modal";
 import ClaimCreatorBtn from "../components/claims/ClaimCreatorBtn";
 import { formValidator, paramValidator } from "../lib/validator";
 import { claimFormSchema, creatorIdSchema } from "../schemas";
-import { normalizeUrl } from "../services/verification";
+import { isSameDomain, normalizeUrl } from "../services/verification";
 import {
   createClaim,
   generateEmailHtml,
@@ -20,6 +20,7 @@ import ClaimModal from "../components/claims/ClaimModal";
 import { showErrorAlert } from "./booksDashboardRoutes";
 import ClaimVerificationFailure from "../components/claims/ClaimVerificationFailure";
 import ClaimVerificationSuccess from "../components/claims/ClaimVerificationSuccess";
+import ErrorPage from "../pages/error/errorPage";
 
 export const claimRoutes = new Hono();
 
@@ -51,7 +52,12 @@ claimRoutes.get("/:creatorId", async (c) => {
   return c.html(
     <>
       <Modal>
-        <ClaimModal creatorId={creatorId} user={user} buttonType={buttonType} />
+        <ClaimModal
+          creatorId={creatorId}
+          user={user}
+          buttonType={buttonType}
+          creatorWebsite={creator.website ?? ""}
+        />
       </Modal>
       <ClaimCreatorBtn
         creator={creator}
@@ -82,6 +88,14 @@ claimRoutes.post(
     // Normalize and validate URL
     const verificationUrl = normalizeUrl(formData.verificationUrl);
     const verificationMethod = formData.verificationMethod || "website";
+
+    // Reject if the creator has a website listed, but is not same as the verification URL
+    if (creator.website && !isSameDomain(verificationUrl, creator.website)) {
+      return showErrorAlert(
+        c,
+        `The website URL is not the same as the creator's website (${creator.website}). Please try again.`,
+      );
+    }
 
     // Create claim
     let claim;
@@ -166,18 +180,30 @@ claimRoutes.get("/verify/:token", async (c) => {
     return c.html(<Alert type="danger" message="Invalid verification link." />);
   }
 
+  if (claim.status === "pending_admin_review") {
+    const message =
+      "Your claim has been verified and is pending admin approval. We’ll notify you when it’s reviewed.";
+    return c.html(<ErrorPage errorMessage={message} />);
+  }
+
   if (claim.status !== "pending") {
     const message =
-      claim.status === "success"
+      claim.status === "approved"
         ? "This claim has already been verified."
         : "This claim is no longer pending.";
-    return showErrorAlert(c, message);
+    return c.html(<ErrorPage errorMessage={message} />);
   }
 
   // Attempt verification
   const result = await verifyClaim(claim);
 
-  if (!result.verified) {
+  if ("requiresApproval" in result && result.requiresApproval) {
+    const message =
+      "Your claim has been submitted for admin review. You will be notified via email when it is approved.";
+    return c.html(<ErrorPage errorMessage={message} />);
+  }
+
+  if ("error" in result && result.error && !result.verified) {
     return c.html(
       <ClaimVerificationFailure
         error={result.error}

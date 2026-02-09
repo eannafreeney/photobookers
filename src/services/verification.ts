@@ -43,7 +43,7 @@ export function normalizeUrl(url: string): string {
  */
 export async function verifyWebsite(
   url: string,
-  code: string
+  code: string,
 ): Promise<{ verified: boolean; error?: string }> {
   try {
     const normalizedUrl = normalizeUrl(url);
@@ -75,7 +75,7 @@ export async function verifyWebsite(
 
     // Check in meta tags
     const metaTagMatch = html.match(
-      /<meta\s+name=["']verification-code["']\s+content=["']([^"']+)["']/i
+      /<meta\s+name=["']verification-code["']\s+content=["']([^"']+)["']/i,
     );
     const codeInMeta = metaTagMatch?.[1]?.toLowerCase() === code.toLowerCase();
 
@@ -116,4 +116,20 @@ export async function verifyWebsite(
 export function isCodeExpired(expiresAt: Date | null): boolean {
   if (!expiresAt) return false;
   return new Date() > expiresAt;
+}
+
+export function getHostname(url: string): string {
+  const normalized = normalizeUrl(url);
+  try {
+    const u = new URL(normalized);
+    let host = u.hostname.toLowerCase();
+    if (host.startsWith("www.")) host = host.slice(4);
+    return host;
+  } catch {
+    return "";
+  }
+}
+
+export function isSameDomain(urlA: string, urlB: string): boolean {
+  return getHostname(urlA) === getHostname(urlB);
 }

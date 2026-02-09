@@ -54,7 +54,6 @@ type NavLinkProps = {
 
 const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
   const isActive = currentPath === href;
-  console.log(currentPath, href, isActive);
 
   return (
     <li>
@@ -152,6 +151,11 @@ const DropDownMenu = ({
             } Profile`}
           </NavLink>
         </>
+      )}
+      {user?.isAdmin && (
+        <NavLink href="/dashboard/admin/claims" currentPath={currentPath}>
+          Admin Dashboard
+        </NavLink>
       )}
       {user && (
         <>

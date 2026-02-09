@@ -12,6 +12,7 @@ import Alert from "../components/app/Alert";
 import Page from "../components/layouts/Page";
 import AppLayout from "../components/layouts/AppLayout";
 import ResetPasswordConfirmPage from "../pages/auth/ResetPasswordConfirmPage";
+import ErrorPage from "../pages/error/errorPage";
 
 const authRoutes = new Hono();
 
@@ -55,21 +56,11 @@ authRoutes.post("/login", async (c) => {
   if (error) {
     return c.html(
       <Alert type="danger" message="Invalid email or password" />,
-      401
+      401,
     );
   }
   return c.redirect(safeRedirectUrl ?? "/");
 });
-
-const ErrorPage = ({ errorMessage }: { errorMessage: string }) => (
-  <AppLayout title="Error">
-    <Page>
-      <div class="flex flex-col items-center justify-center min-h-screen">
-        <div class="text-center text-2xl font-medium">{errorMessage}</div>
-      </div>
-    </Page>
-  </AppLayout>
-);
 
 authRoutes.post("/register", async (c) => {
   const body = await c.req.parseBody();
@@ -89,21 +80,20 @@ authRoutes.post("/register", async (c) => {
       data: {
         firstName: firstName ?? null,
         lastName: lastName ?? null,
-        intendedCreatorType: type === "artist" || type === "publisher" ? type : null,
+        intendedCreatorType:
+          type === "artist" || type === "publisher" ? type : null,
       },
     },
   });
 
- 
   if (error) {
     return c.html(<Alert type="danger" message={error.message} />, 401);
   }
 
-
   await setFlash(
     c,
     "success",
-    `Hi ${type === "fan" ? `${data.user?.user_metadata?.firstName}` : "there"}! Your account has been created successfully. Check your email for verification.`
+    `Hi ${type === "fan" ? `${data.user?.user_metadata?.firstName}` : "there"}! Your account has been created successfully. Check your email for verification.`,
   );
   return c.redirect("/");
 });
@@ -125,10 +115,9 @@ authRoutes.get("/callback", async (c) => {
     return c.html(
       <ErrorPage
         errorMessage={exchangeError?.message || "Failed to create session"}
-      />
+      />,
     );
   }
-
 
   setCookie(c, "token", data.session?.access_token, {
     httpOnly: true,
@@ -153,10 +142,9 @@ authRoutes.get("/callback", async (c) => {
 
   // Check if user already exists in database
   try {
-    const intendedType = safeType === "artist" || safeType === "publisher" 
-    ? safeType 
-    : null;
-    
+    const intendedType =
+      safeType === "artist" || safeType === "publisher" ? safeType : null;
+
     await db
       .insert(users)
       .values({
@@ -170,26 +158,24 @@ authRoutes.get("/callback", async (c) => {
   } catch (dbError) {
     console.error("Database error during callback:", dbError);
     return c.html(
-      <ErrorPage errorMessage="Failed to create account. Please try again." />
+      <ErrorPage errorMessage="Failed to create account. Please try again." />,
     );
   }
 
-  
-
-// Store the intended creator type in user metadata if not already set
-if (safeType === "artist" || safeType === "publisher") {
-  const { error: updateError } = await supabase.auth.updateUser({
-    data: {
-      intendedCreatorType: safeType,
-      // Preserve existing metadata
-      firstName: user.user_metadata?.firstName || null,
-      lastName: user.user_metadata?.lastName || null,
-    },
-  });
-  if (updateError) {
-    console.error("Failed to update user metadata:", updateError);
+  // Store the intended creator type in user metadata if not already set
+  if (safeType === "artist" || safeType === "publisher") {
+    const { error: updateError } = await supabase.auth.updateUser({
+      data: {
+        intendedCreatorType: safeType,
+        // Preserve existing metadata
+        firstName: user.user_metadata?.firstName || null,
+        lastName: user.user_metadata?.lastName || null,
+      },
+    });
+    if (updateError) {
+      console.error("Failed to update user metadata:", updateError);
+    }
   }
-}
 
   if (!safeType) {
     return c.redirect("/register/accounts");
@@ -200,7 +186,7 @@ if (safeType === "artist" || safeType === "publisher") {
     "success",
     `Hi ${
       data.user?.user_metadata?.firstName ?? "there"
-    }! Your account has been verified successfully. Have fun!`
+    }! Your account has been verified successfully. Have fun!`,
   );
 
   const redirectMap: Record<string, string> = {
@@ -235,11 +221,14 @@ authRoutes.get("/logout", async (c) => {
 
 authRoutes.post("/reset-password", async (c) => {
   const user = await getUser(c);
-  
+
   if (!user || !user.email) {
     return c.html(
-      <Alert type="danger" message="You must be logged in to reset your password." />,
-      401
+      <Alert
+        type="danger"
+        message="You must be logged in to reset your password."
+      />,
+      401,
     );
   }
 
@@ -254,12 +243,18 @@ authRoutes.post("/reset-password", async (c) => {
 
   if (error) {
     return c.html(
-      <Alert type="danger" message="Failed to send password reset email. Please try again." />
+      <Alert
+        type="danger"
+        message="Failed to send password reset email. Please try again."
+      />,
     );
   }
 
   return c.html(
-    <Alert type="success" message="Password reset link has been sent to your email." />
+    <Alert
+      type="success"
+      message="Password reset link has been sent to your email."
+    />,
   );
 });
 
@@ -269,9 +264,7 @@ authRoutes.get("/reset-password/confirm", async (c) => {
   const token = c.req.query("token");
 
   if (!code || !token) {
-    return c.html(
-      <ErrorPage errorMessage="Invalid or missing reset token" />
-    );
+    return c.html(<ErrorPage errorMessage="Invalid or missing reset token" />);
   }
 
   return c.html(<ResetPasswordConfirmPage code={code || token} />);
@@ -287,32 +280,35 @@ authRoutes.post("/reset-password/confirm", async (c) => {
   if (!code || !password || !confirmPassword) {
     return c.html(
       <Alert type="danger" message="All fields are required" />,
-      400
+      400,
     );
   }
 
   if (password !== confirmPassword) {
     return c.html(
       <Alert type="danger" message="Passwords do not match" />,
-      400
+      400,
     );
   }
 
   if (password.length < 8) {
     return c.html(
       <Alert type="danger" message="Password must be at least 8 characters" />,
-      400
+      400,
     );
   }
 
   const supabase = createSupabaseClient(c);
 
   // Exchange the code for a session and update password
-  const { error: exchangeError, data } = await supabase.auth.exchangeCodeForSession(code);
+  const { error: exchangeError, data } =
+    await supabase.auth.exchangeCodeForSession(code);
 
   if (exchangeError || !data.session) {
     return c.html(
-      <ErrorPage errorMessage={exchangeError?.message || "Invalid or expired reset link"} />
+      <ErrorPage
+        errorMessage={exchangeError?.message || "Invalid or expired reset link"}
+      />,
     );
   }
 
@@ -322,10 +318,7 @@ authRoutes.post("/reset-password/confirm", async (c) => {
   });
 
   if (updateError) {
-    return c.html(
-      <Alert type="danger" message={updateError.message} />,
-      400
-    );
+    return c.html(<Alert type="danger" message={updateError.message} />, 400);
   }
 
   // Update session cookies

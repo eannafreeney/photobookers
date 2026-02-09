@@ -40,6 +40,7 @@ export const registerFanFormSchema = z.object({
     .min(3, "Last name must be at least 3 characters")
     .max(255, "Last name must be less than 255 characters"),
   ...registerCreatorFormSchema.shape,
+  type: z.literal("fan"),
 });
 
 // ============ LOGIN FORM SCHEMA ============

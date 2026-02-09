@@ -1,7 +1,7 @@
 import Alpine from "alpinejs";
 import { registerFanFormSchema } from "../../schemas";
 import { createRegisterFormUtils } from "./registerFormUtils";
-import { validateField } from "./formUtils";
+import { handleSubmit, validateField } from "./formUtils";
 
 export function registerRegisterFanForm() {
   Alpine.data("registerFanForm", () => {
@@ -29,14 +29,14 @@ export function registerRegisterFanForm() {
           confirmPassword: "",
           agreeToTerms: false,
         },
+        globalError: "",
       },
-
 
       validateField(field: string) {
         return validateField(this, field, registerFanFormSchema);
       },
-        // Use common utilities
-        ...createRegisterFormUtils(),
+      // Use common utilities
+      ...createRegisterFormUtils(),
 
       get isFormValid() {
         return (
@@ -54,17 +54,8 @@ export function registerRegisterFanForm() {
       },
 
       submitForm(event: Event) {
-        this.isSubmitting = true;
-        const result = registerFanFormSchema.safeParse(this.form);
-
-        if (!result.success) {
-          event.preventDefault();
-          this.isSubmitting = false;
-          this.errors.form = result.error.flatten().fieldErrors;
-          return;
-        }
+        return handleSubmit(this, event, registerFanFormSchema);
       },
-
     };
   });
 }

@@ -14,4 +14,5 @@ export type AuthUser = {
   lastName: string | null;
   intendedCreatorType: "artist" | "publisher" | null;
   creator: Creator | null;
+  isAdmin: boolean;
 };

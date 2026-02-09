@@ -29,25 +29,18 @@ import {
   paramValidator,
   validateImageFile,
 } from "../lib/validator";
-import {
-  getOrCreateArtist,
-  resolveArtist,
-  resolvePublisher,
-} from "../services/creators";
+import { resolveArtist, resolvePublisher } from "../services/creators";
 import Alert from "../components/app/Alert";
-import { bookImages, Creator } from "../db/schema";
-import { and, eq, inArray } from "drizzle-orm";
-import { db } from "../db/client";
 import { BookTable } from "../components/cms/ui/BookTable";
 import BooksForApprovalTable from "../components/cms/ui/BooksForApprovalTable";
-import { canEditBook, canPublishBook } from "../lib/permissions";
+import { canPublishBook } from "../lib/permissions";
 import { requireBookEditAccess } from "../middleware/bookGuard";
 
 export const booksDashboardRoutes = new Hono();
 
 export const showErrorAlert = (
   c: Context,
-  errorMessage: string = "Action Failed! Please try again."
+  errorMessage: string = "Action Failed! Please try again.",
 ) => c.html(<Alert type="danger" message={errorMessage} />, 422);
 
 // OVERVIEW PAGE
@@ -64,7 +57,7 @@ booksDashboardRoutes.get("/", async (c) => {
       user={user}
       flash={flash}
       currentPath={currentPath}
-    />
+    />,
   );
 });
 
@@ -96,20 +89,20 @@ booksDashboardRoutes.post(
       formData,
       artist,
       user.id,
-      user.creator
+      user.creator,
     );
     const newBook = await createBook(bookData);
 
     if (!newBook) {
       return c.html(
         <Alert type="danger" message="Failed to create book" />,
-        422
+        422,
       );
     }
 
     await setFlash(c, "success", `${newBook.title} created!`);
     return c.redirect("/dashboard/books");
-  }
+  },
 );
 
 // CREATE NEW BOOK AS ARTIST
@@ -134,7 +127,7 @@ booksDashboardRoutes.post(
       formData,
       user.creator,
       user.id,
-      publisher
+      publisher,
     );
 
     const newBook = await createBook(bookData);
@@ -145,7 +138,7 @@ booksDashboardRoutes.post(
 
     await setFlash(c, "success", `Successfully created "${newBook.title}"!`);
     return c.redirect("/dashboard/books");
-  }
+  },
 );
 
 // GET EDIT BOOK PAGE
@@ -158,7 +151,7 @@ booksDashboardRoutes.get(
     const flash = await getFlash(c);
 
     return c.html(<BookEditPage user={user} bookId={bookId} flash={flash} />);
-  }
+  },
 );
 
 // EDIT BOOK AS PUBLISHER
@@ -178,9 +171,9 @@ booksDashboardRoutes.post(
     console.log("updatedBook", updatedBook);
 
     return c.html(
-      <Alert type="success" message={`${updatedBook.title} updated!`} />
+      <Alert type="success" message={`${updatedBook.title} updated!`} />,
     );
-  }
+  },
 );
 
 // EDIT BOOK AS ARTIST
@@ -201,9 +194,9 @@ booksDashboardRoutes.post(
     }
 
     return c.html(
-      <Alert type="success" message={`${updatedBook.title} updated!`} />
+      <Alert type="success" message={`${updatedBook.title} updated!`} />,
     );
-  }
+  },
 );
 
 // DELETE BOOK
@@ -231,9 +224,9 @@ booksDashboardRoutes.post(
           creatorId={user.creator?.id ?? ""}
           user={user}
         />
-      </>
+      </>,
     );
-  }
+  },
 );
 
 // MAKE BOOK PUBLIC
@@ -264,8 +257,8 @@ booksDashboardRoutes.post("/:bookId/publish", async (c) => {
         message={`${updatedBook?.title ?? "Book"} Published!`}
       />
       <PublishToggleForm book={updatedBook} />
-      <PreviewButton book={updatedBook} user={user}/>
-    </>
+      <PreviewButton book={updatedBook} user={user} />
+    </>,
   );
 });
 
@@ -285,9 +278,9 @@ booksDashboardRoutes.post("/:bookId/unpublish", async (c) => {
     return c.html(
       <>
         <Alert type="danger" message={result.error} />
-        <PublishToggleForm book={book} user={user}/>
+        <PublishToggleForm book={book} user={user} />
       </>,
-      400
+      400,
     );
   }
 
@@ -300,8 +293,8 @@ booksDashboardRoutes.post("/:bookId/unpublish", async (c) => {
         message={`${updatedBook?.title ?? "Book"} Unpublished!`}
       />
       <PublishToggleForm book={updatedBook} />
-      <PreviewButton book={updatedBook} user={user}/>
-    </>
+      <PreviewButton book={updatedBook} user={user} />
+    </>,
   );
 });
 
@@ -322,13 +315,13 @@ booksDashboardRoutes.post(
     try {
       const result = await uploadImage(
         validatedFile.file,
-        `books/covers/${bookId}`
+        `books/covers/${bookId}`,
       );
       coverUrl = result.url;
     } catch (error) {
       return c.html(
         <Alert type="danger" message="Failed to upload image" />,
-        422
+        422,
       );
     }
     const updatedBook = await updateBookCoverImage(bookId, coverUrl);
@@ -336,12 +329,12 @@ booksDashboardRoutes.post(
     if (!updatedBook) {
       return c.html(
         <Alert type="danger" message="Failed to update book cover" />,
-        422
+        422,
       );
     }
 
     return c.html(<Alert type="success" message="Cover updated!" />);
-  }
+  },
 );
 
 // // Add book image to book profile
@@ -404,7 +397,7 @@ booksDashboardRoutes.post(
     if (!user.creator) {
       return c.html(
         <Alert type="danger" message="No Creator Profile Found" />,
-        422
+        422,
       );
     }
     const updatedBook = await approveBookById(bookId);
@@ -412,7 +405,7 @@ booksDashboardRoutes.post(
     if (!updatedBook) {
       return c.html(
         <Alert type="danger" message="Failed to approve book" />,
-        422
+        422,
       );
     }
 
@@ -420,9 +413,9 @@ booksDashboardRoutes.post(
       <>
         <Alert type="success" message="Book Approved!" />
         <BooksForApprovalTable creatorId={user.creator.id} />
-      </>
+      </>,
     );
-  }
+  },
 );
 
 // REJECT BOOK CREATED BY OTHER CREATOR
@@ -436,7 +429,7 @@ booksDashboardRoutes.post(
     if (!user.creator) {
       return c.html(
         <Alert type="danger" message="No Creator Profile Found" />,
-        422
+        422,
       );
     }
     const updatedBook = await rejectBookById(bookId);
@@ -444,7 +437,7 @@ booksDashboardRoutes.post(
     if (!updatedBook) {
       return c.html(
         <Alert type="danger" message="Failed to reject book" />,
-        422
+        422,
       );
     }
 
@@ -452,7 +445,7 @@ booksDashboardRoutes.post(
       <>
         <Alert type="success" message="Book Rejected!" />
         <BooksForApprovalTable creatorId={user.creator.id} />
-      </>
+      </>,
     );
-  }
+  },
 );

@@ -61,8 +61,18 @@ const RegisterFanForm = () => {
           name="form.agreeToTerms"
           required
         />
-        <input type="hidden" name="type" value="fan" x-init="form.type = 'fan'" />
+        <input
+          type="hidden"
+          name="type"
+          value="fan"
+          x-init="form.type = 'fan'"
+        />
         <FormButton buttonText="Create Account" loadingText="Submitting..." />
+        <p
+          x-show="errors.globalError"
+          class="text-red-500"
+          x-text="errors.globalError"
+        ></p>
       </form>
       <p class="text-center text-sm mt-4">
         Already have an account?{" "}

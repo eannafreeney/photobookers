@@ -5,6 +5,7 @@ import { Book, Creator } from "../db/schema";
 
 export function canEditBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
+  if (user.isAdmin) return true;
 
   // User created the book for a stub publisher not yet approved
   if (user.id === book.createdByUserId && book.approvalStatus !== "approved")
@@ -19,7 +20,7 @@ export function canEditBook(user: AuthUser | null, book: Book): boolean {
 
 export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
-
+  if (user.isAdmin) return true;
   // User created the book for a stub publisher not yet approved
   if (user.id === book.createdByUserId && book.approvalStatus !== "approved")
     return true;
@@ -49,7 +50,7 @@ export function canEditCreator(
   creator: Creator,
 ): boolean {
   if (!user) return false;
-
+  if (user.isAdmin) return true;
   // Owner of the creator profile
   return user.id === creator.ownerUserId;
 }
@@ -67,6 +68,7 @@ export function canClaimCreator(
 
 export function canPublishBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
+  if (user.isAdmin) return true;
 
   // const creatorIsOwner =
   //   user.creator?.id === book.artistId || user.creator?.id === book.publisherId;

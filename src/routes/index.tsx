@@ -1,7 +1,8 @@
 import "dotenv/config";
 import { Hono } from "hono";
 import { appRoutes } from "./appRoutes";
-import { requireAuth, optionalAuthMiddleware } from "../middleware/auth";
+import { requireAuth } from "../middleware/requireAuth";
+import { optionalAuthMiddleware } from "../middleware/optionalAuthMiddleware";
 import { authRoutes } from "./authRoutes";
 import { booksDashboardRoutes } from "./booksDashboardRoutes";
 import { creatorDashboardRoutes } from "./creatorDashboardRoutes";
@@ -10,6 +11,8 @@ import { useSession } from "@hono/session";
 import { claimRoutes } from "./claimRoutes";
 import { userRoutes } from "./userRoutes";
 import { imageRoutes } from "./imageRoutes";
+import { adminDashboardRoutes } from "./adminDashboardRoutes";
+import { requireAdmin } from "../middleware/requireAdmin";
 
 export const routes = new Hono();
 
@@ -47,3 +50,7 @@ routes.route("/user", userRoutes);
 
 // API routes
 routes.route("/api", apiRoutes);
+
+// Admin routes
+routes.use("/dashboard/admin/*", requireAdmin);
+routes.route("/dashboard/admin", adminDashboardRoutes);
