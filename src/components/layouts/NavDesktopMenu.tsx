@@ -118,7 +118,7 @@ const DropDownMenu = ({
   return (
     <ul
       id="userMenu"
-      class="absolute right-0 top-12 flex w-fit min-w-48 flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt py-1.5"
+      class="absolute z-20 right-0 top-12 flex w-fit min-w-48 flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt py-1.5"
       {...alpineAttrs}
     >
       <li class="border-b border-outline dark:border-outline-dark">

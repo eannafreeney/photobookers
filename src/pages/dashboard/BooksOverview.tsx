@@ -1,4 +1,5 @@
 import { AuthUser } from "../../../types";
+import Alert from "../../components/app/Alert";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
 import BooksCreatedByMeForOtherPublishersTable from "../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
 import BooksCreatedByMeForStubPublishersTable from "../../components/cms/ui/BooksCreatedForStubPublishersTable";
@@ -7,6 +8,7 @@ import { BookTable } from "../../components/cms/ui/BookTable";
 import AppLayout from "../../components/layouts/AppLayout";
 import FeatureGuard from "../../components/layouts/FeatureGuard";
 import Page from "../../components/layouts/Page";
+import ErrorPage from "../error/errorPage";
 
 type BooksDashboardProps = {
   user: AuthUser;
@@ -22,7 +24,9 @@ const BooksOverview = async ({
   currentPath,
 }: BooksDashboardProps) => {
   if (!user.creator) {
-    return <div class="alert alert-error">No creator found</div>;
+    return (
+      <ErrorPage errorMessage="You are not authorized to access this page. Please contact support." />
+    );
   }
 
   const creatorType = user.creator.type;
@@ -36,6 +40,12 @@ const BooksOverview = async ({
     >
       <Page>
         <Breadcrumbs items={[{ label: "Books Overview" }]} />
+        {user.creator.status !== "verified" && (
+          <div class="alert alert-info text-white rounded-md">
+            Your creator profile is not verified yet. In the meantime, you can
+            start uploading books, or update your profile pic.
+          </div>
+        )}
         <div class="flex flex-col gap-16">
           <BookTable
             searchQuery={searchQuery}

@@ -24,10 +24,30 @@ export const approveClaim = async (claimId: string) => {
 };
 
 export const rejectClaim = async (claimId: string) => {
+  const [claim] = await db
+    .select()
+    .from(creatorClaims)
+    .where(eq(creatorClaims.id, claimId))
+    .limit(1);
+
   await db
     .update(creatorClaims)
     .set({ status: "rejected" })
     .where(eq(creatorClaims.id, claimId));
+
+  if (claim) {
+    const [creator] = await db
+      .select()
+      .from(creators)
+      .where(eq(creators.id, claim.creatorId))
+      .limit(1);
+    if (creator?.ownerUserId === claim.userId) {
+      await db
+        .update(creators)
+        .set({ ownerUserId: null, website: null })
+        .where(eq(creators.id, claim.creatorId));
+    }
+  }
 };
 
 export const getClaimByToken = async (token: string) => {
@@ -45,6 +65,16 @@ export const updateCreatorOwnerAndStatus = async (claim: CreatorClaim) => {
     .set({
       ownerUserId: claim.userId,
       status: "verified",
+      website: claim.verificationUrl,
+    })
+    .where(eq(creators.id, claim.creatorId));
+};
+
+export const assignCreatorToClaimant = async (claim: CreatorClaim) => {
+  await db
+    .update(creators)
+    .set({
+      ownerUserId: claim.userId,
       website: claim.verificationUrl,
     })
     .where(eq(creators.id, claim.creatorId));
@@ -96,6 +126,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
     return {
       verified: false,
       error: "Verification code has expired. Please request a new one.",
+      requiresApproval: false,
     };
   }
 
@@ -103,6 +134,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
     return {
       verified: false,
       error: "Invalid verification method",
+      requiresApproval: false,
     };
   }
 
@@ -128,7 +160,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
       })
       .where(eq(creatorClaims.id, claim.id));
     await updateCreatorOwnerAndStatus(claim);
-    return { verified: true };
+    return { verified: true, error: null, requiresApproval: false };
   }
 
   // New creator: same domain for email and website → auto-approve; else pending_admin_review
@@ -137,6 +169,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
     return {
       verified: false,
       error: "User not found",
+      requiresApproval: false,
     };
   }
   const emailDomain = user?.email?.split("@")[1]?.toLowerCase() ?? "";
@@ -151,7 +184,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
       })
       .where(eq(creatorClaims.id, claim.id));
     await updateCreatorOwnerAndStatus(claim);
-    return { verified: true };
+    return { verified: true, error: null, requiresApproval: false };
   }
 
   await db
@@ -161,7 +194,8 @@ export const verifyClaim = async (claim: CreatorClaim) => {
       verifiedAt: new Date(),
     })
     .where(eq(creatorClaims.id, claim.id));
-  return { verified: true, requiresApproval: true };
+  await assignCreatorToClaimant(claim);
+  return { verified: true, error: null, requiresApproval: true };
 };
 
 export const generateClaimEmail = async (

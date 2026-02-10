@@ -55,7 +55,6 @@ export const users = pgTable("users", {
   firstName: varchar("first_name", { length: 255 }),
   lastName: varchar("last_name", { length: 255 }),
   acceptsTerms: timestamp("accepts_terms"),
-  intendedCreatorType: creatorTypeEnum("intended_creator_type"),
   isAdmin: boolean("is_admin").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),

@@ -37,10 +37,10 @@ const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
         href={href}
         prefetch="intent"
         class={clsx(
-          "flex items-center gap-2 px-4 py-1 text-sm",
+          "flex items-center gap-2 border-b-2 border-transparent px-4 py-1 text-sm",
           isActive
-            ? "font-bold text-primary border-b-2 border-primary"
-            : "text-on-surface font-medium  hover:border-b-2 hover:border-b-outline-strong hover:text-on-surface-strong",
+            ? "font-bold text-primary border-primary border-b-2 border-b-primary"
+            : "text-on-surface font-medium hover:border-b-outline-strong hover:text-on-surface-strong",
         )}
       >
         {children}

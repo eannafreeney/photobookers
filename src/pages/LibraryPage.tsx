@@ -50,8 +50,10 @@ const LibraryPage = async ({ user, flash, currentPath }: Props) => {
       <AppLayout title="Books" user={user} flash={flash}>
         <Page>
           <NavTabs currentPath={currentPath} />
-          <SectionTitle>Wishlisted Books</SectionTitle>
-          Start adding books to your wishlist and collection to see them here.
+          <div class="flex flex-col gap-4 items-center justify-center">
+            <SectionTitle>Wishlisted Books</SectionTitle>
+            Start adding books to your wishlist and collection to see them here.
+          </div>
         </Page>
       </AppLayout>
     );

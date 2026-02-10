@@ -1,9 +1,15 @@
+import { AuthUser } from "../../../types";
 import Button from "../../components/app/Button";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
 
-const ErrorPage = ({ errorMessage }: { errorMessage: string }) => (
-  <AppLayout title="Error">
+type ErrorPageProps = {
+  errorMessage: string;
+  user?: AuthUser | null;
+};
+
+const ErrorPage = ({ errorMessage, user }: ErrorPageProps) => (
+  <AppLayout title="Error" user={user} currentPath="/">
     <Page>
       <div class="flex flex-col gap-4 items-center justify-center min-h-screen">
         <div class="text-center text-2xl font-medium">{errorMessage}</div>

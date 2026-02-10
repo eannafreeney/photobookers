@@ -17,13 +17,15 @@ export const formatDate = (date: Date): string => {
 
 export const slugify = (title: string, artist?: string) =>
   `${title}${artist ? `-${artist}` : ""}`
+    .normalize("NFD")
+    .replace(/\p{Mark}/gu, "")
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^\w-]/g, "");
 
 export async function generateUniqueBookSlug(
   title: string,
-  artistName?: string
+  artistName?: string,
 ): Promise<string> {
   let baseSlug = slugify(title, artistName);
   let slug = baseSlug;

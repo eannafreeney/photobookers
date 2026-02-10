@@ -30,7 +30,7 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
   return (
     <div class="space-y-4 ">
       <SectionTitle>{`${isEditPage ? "Edit" : "Create"} ${capitalize(
-        type
+        type,
       )} Profile`}</SectionTitle>
       <form action={action} method="post" {...alpineAttrs}>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
@@ -39,10 +39,9 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
               label="Display Name"
               name="form.displayName"
               validateInput="validateDisplayName()"
-              showFieldValidator
+              showDisplayNameAvailabilityChecker
               required
             />
-            <div x-html="artistSearchResults"></div>
           </div>
           <Input label="Tagline" name="form.tagline" maxLength={150} />
           <TextArea

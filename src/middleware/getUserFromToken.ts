@@ -27,7 +27,6 @@ export async function getUserFromToken(token: string) {
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
         creator: creatorProfile || null,
-        intendedCreatorType: dbUser.intendedCreatorType,
         isAdmin: dbUser.isAdmin ?? false,
       };
     } catch (dbError: any) {

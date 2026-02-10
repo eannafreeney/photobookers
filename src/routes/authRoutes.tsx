@@ -10,7 +10,7 @@ import { deleteCookie, setCookie } from "hono/cookie";
 import RegisterPage from "../pages/auth/RegisterPage";
 import { login } from "../middleware/auth";
 import LoginPage from "../pages/auth/LoginPage";
-import { getUser, setFlash } from "../utils";
+import { getFlash, getUser, setFlash } from "../utils";
 import AccountsPage from "../pages/auth/AccountsPage";
 import Alert from "../components/app/Alert";
 import ResetPasswordConfirmPage from "../pages/auth/ResetPasswordConfirmPage";
@@ -38,10 +38,12 @@ authRoutes.get("/accounts", async (c) => {
 authRoutes.get("/login", async (c) => {
   const redirectUrl = c.req.query("redirectUrl");
   const user = await getUser(c);
+  const flash = await getFlash(c);
+  console.log("flash", flash);
   if (user) {
     return c.redirect("/");
   }
-  return c.html(<LoginPage redirectUrl={redirectUrl} />);
+  return c.html(<LoginPage redirectUrl={redirectUrl} flash={flash} />);
 });
 
 authRoutes.get("/register", async (c) => {
@@ -299,7 +301,7 @@ authRoutes.get("/callback", async (c) => {
   await setFlash(
     c,
     "success",
-    `Hi ${data.user?.user_metadata?.firstName ?? "there"}! Your account has been verified successfully. Have fun!`,
+    `Hi ${user.user_metadata?.firstName ?? "there"}! Your account has been verified successfully. Have fun!`,
   );
 
   return c.redirect("/");

@@ -239,8 +239,6 @@ apiRoutes.get("/search", async (c) => {
     searchCreators(searchTerm ?? ""),
   ]);
 
-  console.log("creatorResults", creatorResults);
-
   return c.html(
     <NavSearchResults
       creators={creatorResults ?? []}

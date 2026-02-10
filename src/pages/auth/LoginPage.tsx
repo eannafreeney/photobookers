@@ -1,9 +1,15 @@
+import { Flash } from "../../../types";
 import LoginForm from "../../components/cms/forms/LoginForm";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 
-const LoginPage = ({ redirectUrl }: { redirectUrl?: string | null }) => {
+type Props = {
+  redirectUrl?: string | null;
+  flash?: Flash | null;
+};
+
+const LoginPage = ({ redirectUrl, flash }: Props) => {
   return (
-    <HeadlessLayout title="Sign In">
+    <HeadlessLayout title="Sign In" flash={flash}>
       <div class="min-h-screen flex items-center justify-center bg-surface px-4">
         <div class="w-96 bg-white border-none shadow-md rounded-radius ">
           <div class="p-8">

@@ -20,6 +20,7 @@ import ClaimModal from "../components/claims/ClaimModal";
 import { showErrorAlert } from "../lib/alertHelpers";
 import ClaimVerificationFailurePage from "../components/claims/ClaimVerificationFailurePage";
 import ErrorPage from "../pages/error/errorPage";
+import { getUserById } from "../services/users";
 
 export const claimRoutes = new Hono();
 
@@ -200,19 +201,35 @@ claimRoutes.get("/verify/:token", async (c) => {
   // Attempt verification
   const result = await verifyClaim(claim);
 
-  if ("requiresApproval" in result && result.requiresApproval) {
-    const message =
-      "Your claim has been submitted for admin review. You will be notified via email when it is approved.";
-    return c.html(<ErrorPage errorMessage={message} />);
-  }
-
-  if ("error" in result && result.error && !result.verified) {
+  if (result.error && !result.verified) {
     return c.html(
       <ClaimVerificationFailurePage
         error={result.error}
         verificationCode={claim.verificationCode}
         verificationUrl={claim.verificationUrl}
       />,
+    );
+  }
+
+  if (result.requiresApproval) {
+    const currentUser = await getUser(c);
+    // USER IS LOGGED IN
+    if (currentUser?.id === claim.userId) {
+      await setFlash(
+        c,
+        "success",
+        "Your claim has been submitted for admin review. You will be notified via email when it is approved.",
+      );
+      return c.redirect("/dashboard/books");
+    }
+
+    await setFlash(
+      c,
+      "info",
+      "Your claim has been submitted for admin review. In the meantime, you can login and start uploading books.",
+    );
+    return c.redirect(
+      `/auth/login?redirectUrl=${encodeURIComponent("/dashboard/books")}`,
     );
   }
 

@@ -18,6 +18,9 @@ type BookEnv = {
   };
 };
 
+const notYetVerifiedErrorMessage =
+  "Your creator profile is pending verification. You can upload and edit books, but publishing is only available after your profile is approved.";
+
 export const requireBookEditAccess = createMiddleware<BookEnv>(
   async (c, next) => {
     const user = await getUser(c);
@@ -34,10 +37,7 @@ export const requireBookEditAccess = createMiddleware<BookEnv>(
 
     if (!canEditBook(user, book)) {
       if (user?.creator?.status !== "verified") {
-        return showErrorAlert(
-          c,
-          "Your creator profile is pending verification. You can upload and edit books, but publishing is available after your profile is approved.",
-        );
+        return showErrorAlert(c, notYetVerifiedErrorMessage);
       }
       return showErrorAlert(c, "You are not authorized to edit this book");
     }
@@ -64,10 +64,7 @@ export const requireBookDeleteAccess = createMiddleware<BookEnv>(
 
     if (!canDeleteBook(user, book)) {
       if (user?.creator?.status !== "verified") {
-        return showErrorAlert(
-          c,
-          "Your creator profile is pending verification. You can upload and edit books, but publishing is available after your profile is approved.",
-        );
+        return showErrorAlert(c, notYetVerifiedErrorMessage);
       }
       return showErrorAlert(c, "You are not authorized to delete this book");
     }
@@ -94,10 +91,7 @@ export const requireBookPublishAccess = createMiddleware<BookEnv>(
 
     if (!canPublishBook(user, book)) {
       if (user?.creator?.status !== "verified") {
-        return showErrorAlert(
-          c,
-          "Your creator profile is pending verification. You can upload and edit books, but publishing is available after your profile is approved.",
-        );
+        return showErrorAlert(c, notYetVerifiedErrorMessage);
       }
       return showErrorAlert(c, "Please add a cover image before publishing");
     }
@@ -124,10 +118,7 @@ export const requireBookUnpublishAccess = createMiddleware<BookEnv>(
 
     if (!canUnpublishBook(user, book)) {
       if (user?.creator?.status !== "verified") {
-        return showErrorAlert(
-          c,
-          "Your creator profile is pending verification. You can upload and edit books, but publishing is available after your profile is approved.",
-        );
+        return showErrorAlert(c, notYetVerifiedErrorMessage);
       }
       return showErrorAlert(c, "You are not authorized to unpublish this book");
     }

@@ -8,6 +8,7 @@ import GridPanel from "../components/app/GridPanel";
 import BookCard from "../components/app/BookCard";
 import Link from "../components/app/Link";
 import Button from "../components/app/Button";
+import ErrorPage from "./error/errorPage";
 
 type CreatorDetailPageProps = {
   user: AuthUser | null;
@@ -23,11 +24,7 @@ const CreatorDetailPage = async ({
   const result = await getCreatorBySlug(creatorSlug);
 
   if (!result.creator) {
-    return (
-      <AppLayout title="Creator not found" user={user}>
-        <p>Creator not found</p>
-      </AppLayout>
-    );
+    return <ErrorPage errorMessage="Creator not found" user={user} />;
   }
 
   const { creator } = result;
@@ -38,18 +35,7 @@ const CreatorDetailPage = async ({
 
   if (!books.length) {
     return (
-      <AppLayout title="No Books Found" user={user}>
-        <Page>
-          <div class="flex flex-col gap-4 items-center justify-center h-screen">
-            <p>No books found for this creator</p>
-            <Link href="/books">
-              <Button variant="solid" color="primary">
-                View all books
-              </Button>
-            </Link>
-          </div>
-        </Page>
-      </AppLayout>
+      <ErrorPage errorMessage="No books found for this creator" user={user} />
     );
   }
 

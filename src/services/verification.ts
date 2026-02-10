@@ -44,7 +44,7 @@ export function normalizeUrl(url: string): string {
 export async function verifyWebsite(
   url: string,
   code: string,
-): Promise<{ verified: boolean; error?: string }> {
+): Promise<{ verified: boolean; error?: string; requiresApproval?: boolean }> {
   try {
     const normalizedUrl = normalizeUrl(url);
     const cacheBustUrl =
@@ -72,6 +72,7 @@ export async function verifyWebsite(
       return {
         verified: false,
         error: `Website returned status ${response.status}`,
+        requiresApproval: false,
       };
     }
 

@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "hono/jsx";
 import Head from "./Head";
 import { UserProvider } from "../../contexts/UserContext";
-import { AuthUser } from "../../../types";
+import { AuthUser, Flash } from "../../../types";
 import Navbar from "./Navbar";
 import Footer from "../app/Footer";
 import Alert from "../app/Alert";
@@ -10,7 +10,7 @@ type LayoutProps = PropsWithChildren<{
   title: string;
   user?: AuthUser | null;
   currentPath?: string | null;
-  flash?: any | null;
+  flash?: Flash | null;
 }>;
 
 const AppLayout = ({

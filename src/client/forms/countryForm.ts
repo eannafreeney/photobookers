@@ -11,36 +11,37 @@ export function registerCountryForm() {
       init() {
         this.options = this.allOptions;
 
-        // Access parent form's country value
-        const initialValue = this.form?.country;
-        if (initialValue) {
-          const match = this.allOptions.find(
-            (opt) =>
-              opt.iso.toUpperCase() === initialValue.toUpperCase() ||
-              opt.value === initialValue
-          );
-          if (match) {
-            this.selectedOption = match;
-            this.$refs.hiddenCountryInput.value = match.iso.toUpperCase();
+        this.$nextTick(() => {
+          const initialValue = this.$refs.hiddenCountryInput?.value?.trim();
+          if (initialValue) {
+            const match = this.allOptions.find(
+              (opt) =>
+                opt.iso.toUpperCase() === initialValue.toUpperCase() ||
+                opt.label === initialValue,
+            );
+            if (match) {
+              this.selectedOption = match;
+              this.$refs.hiddenCountryInput.value = match.label;
+            }
           }
-        }
+        });
       },
       setSelectedOption(option) {
         this.selectedOption = option;
         this.isOpen = false;
-        
+
         this.$refs.hiddenCountryInput.value = option.label;
 
         // Trigger input event so x-model picks up the change
         this.$nextTick(() => {
           this.$refs.hiddenCountryInput.dispatchEvent(
-            new Event("input", { bubbles: true })
+            new Event("input", { bubbles: true }),
           );
         });
       },
       getFilteredOptions(query) {
         this.options = this.allOptions.filter((option) =>
-          option.label.toLowerCase().includes(query.toLowerCase())
+          option.label.toLowerCase().includes(query.toLowerCase()),
         );
         if (this.options.length === 0) {
           this.$refs.noResultsMessage.classList.remove("hidden");
