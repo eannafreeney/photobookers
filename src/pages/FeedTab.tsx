@@ -1,46 +1,54 @@
-import { AuthUser } from "../../types";
+import { AuthUser, Flash } from "../../types";
 import BookCard from "../components/app/BookCard";
 import Button from "../components/app/Button";
 import GridPanel from "../components/app/GridPanel";
 import SectionTitle from "../components/app/SectionTitle";
 
 import { getFeedBooks } from "../services/books";
+import AppLayout from "../components/layouts/AppLayout";
+import Page from "../components/layouts/Page";
+import NavTabs from "../components/layouts/NavTabs";
 
 type Props = {
   user: AuthUser | null;
+  flash: Flash;
+  currentPath: string;
 };
 
-const FeedTab = async ({ user }: Props) => {
+const FeedPage = async ({ user, flash, currentPath }: Props) => {
   console.log("user", user);
   if (!user) {
     return (
-      <>
-        <div
-          id="tab-content"
-          class="flex flex-col items-center justify-center mt-4"
-        >
-          <SectionTitle>Your Feed</SectionTitle>
-          <p>
-            See the latest releases from your favorite artists and publishers.
-          </p>
-          {icon}
-          <div class="flex flex-col gap-4 justify-center items-center mt-8">
-            <span>Login or register to view your feed.</span>
-            <div class="flex gap-2 justify-center items-center">
-              <a href="/auth/login">
-                <Button variant="solid" color="inverse">
-                  Login
-                </Button>
-              </a>
-              <a href="/auth/register">
-                <Button variant="solid" color="primary">
-                  Register
-                </Button>
-              </a>
+      <AppLayout title="Books" user={user} flash={flash}>
+        <Page>
+          <NavTabs currentPath={currentPath} />
+          <div
+            id="tab-content"
+            class="flex flex-col items-center justify-center mt-4"
+          >
+            <SectionTitle>Your Feed</SectionTitle>
+            <p>
+              See the latest releases from your favorite artists and publishers.
+            </p>
+            {icon}
+            <div class="flex flex-col gap-4 justify-center items-center mt-8">
+              <span>Login or register to view your feed.</span>
+              <div class="flex gap-2 justify-center items-center">
+                <a href="/auth/login">
+                  <Button variant="solid" color="inverse">
+                    Login
+                  </Button>
+                </a>
+                <a href="/auth/register">
+                  <Button variant="solid" color="primary">
+                    Register
+                  </Button>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      </>
+        </Page>
+      </AppLayout>
     );
   }
 
@@ -48,28 +56,31 @@ const FeedTab = async ({ user }: Props) => {
 
   if (feedBooks?.length === 0) {
     return (
-      <div
-        id="tab-content"
-        class="flex flex-col items-center justify-center mt-4"
-      >
-        Start following artists and publishers to see their latest releases
-        here.
-      </div>
+      <AppLayout title="Books" user={user} flash={flash}>
+        <Page>
+          <NavTabs currentPath={currentPath} />
+          Start following artists and publishers to see their latest releases
+          here.
+        </Page>
+      </AppLayout>
     );
   }
 
   return (
-    <div id="tab-content">
-      <GridPanel isFullWidth>
-        {feedBooks?.map((book) => (
-          <BookCard book={book} user={user} />
-        ))}
-      </GridPanel>
-    </div>
+    <AppLayout title="Books" user={user} flash={flash}>
+      <Page>
+        <NavTabs currentPath={currentPath} />
+        <GridPanel isFullWidth>
+          {feedBooks?.map((book) => (
+            <BookCard book={book} user={user} />
+          ))}
+        </GridPanel>
+      </Page>
+    </AppLayout>
   );
 };
 
-export default FeedTab;
+export default FeedPage;
 
 const icon = (
   <svg

@@ -1,5 +1,5 @@
 import { FeatureFlagName, isFeatureEnabled } from "../../lib/features";
-import { PropsWithChildren } from "hono/jsx";
+import { FC, PropsWithChildren } from "hono/jsx";
 
 type Props = PropsWithChildren<{
   flagName: FeatureFlagName;
@@ -9,8 +9,8 @@ type Props = PropsWithChildren<{
 const FeatureGuard = ({ flagName, children, fallback = null }: Props) => {
   const isEnabled = isFeatureEnabled(flagName);
   if (!isEnabled) {
-    return fallback;
+    return fallback ?? null;
   }
-  return children;
+  return (children ?? null) as ReturnType<FC>;
 };
 export default FeatureGuard;

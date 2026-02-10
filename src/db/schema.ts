@@ -126,14 +126,15 @@ export const books = pgTable(
     artistId: uuid("artist_id").references(() => creators.id),
     publisherId: uuid("publisher_id").references(() => creators.id),
     releaseDate: timestamp("release_date"),
-    availabilityStatus: bookAvailabilityStatusEnum(
-      "availability_status",
-    ).default("available"),
+    availabilityStatus: bookAvailabilityStatusEnum("availability_status")
+      .default("available")
+      .notNull(),
     approvalStatus:
       bookApprovalStatusEnum("approval_status").default("pending"),
     publicationStatus:
       bookPublicationStatusEnum("publication_status").default("draft"),
     coverUrl: text("cover_url"),
+    purchaseLink: text("purchase_link"),
     images: text("images").array(),
     tags: text("tags").array(),
     createdByUserId: uuid("created_by_user_id")
@@ -214,7 +215,7 @@ export const followsRelations = relations(follows, ({ one }) => ({
 export const bookImages = pgTable("book_images", {
   id: uuid("id").primaryKey().defaultRandom(),
   bookId: uuid("book_id")
-    .references(() => books.id)
+    .references(() => books.id, { onDelete: "cascade" })
     .notNull(),
   imageUrl: text("image_url").notNull(),
   sortOrder: integer("sort_order").default(0),

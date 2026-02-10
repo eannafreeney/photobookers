@@ -8,6 +8,8 @@ import { AuthUser } from "../../../types";
 import { BookWithGalleryImages } from "../../pages/BookDetailPage";
 import PreviewBanner from "./PreviewBanner";
 import CardCreatorCard from "./CardCreatorCard";
+import AvailabilityBadge from "./AvailabilityBadge";
+import PurchaseLink from "./PurchaseLink";
 
 type DetailProps = {
   isPreview: boolean;
@@ -41,9 +43,11 @@ const DetailMobile = ({
         {book.releaseDate && formatDate(book.releaseDate)}
       </Card.Description>
       <Card.Description>{book.description ?? ""}</Card.Description>
+      <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
       <Card.Description>{book.specs ?? ""}</Card.Description>
       {book.publisher && <CardCreatorCard creatorType="artist" book={book} />}
       <TagList tags={book.tags ?? []} />
+      <PurchaseLink purchaseLink={book.purchaseLink} />
       <CreatorCard
         creator={book.artist}
         currentPath={currentPath}

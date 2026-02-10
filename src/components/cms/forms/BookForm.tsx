@@ -10,7 +10,6 @@ import ToggleInput from "../ui/ToggleInput";
 
 type BookFormProps = {
   formValues?: Record<string, any>;
-  dateIsInPast?: boolean;
   isPublisher: boolean;
   bookId?: string;
   action: string;
@@ -18,7 +17,6 @@ type BookFormProps = {
 
 export const BookForm = async ({
   formValues,
-  dateIsInPast,
   isPublisher,
   bookId,
   action,
@@ -110,6 +108,17 @@ export const BookForm = async ({
             maxLength={5000}
             required
           />
+          <Input
+            label="Purchase Link"
+            name="form.purchase_link"
+            type="url"
+            validateInput="validateField('purchase_link')"
+          />
+          <Input
+            label="Tags"
+            name="form.tags"
+            placeholder="photography, landscape, Japan (comma-separated)"
+          />
           <RadioFields
             label="Status"
             name="form.availability_status"
@@ -119,11 +128,6 @@ export const BookForm = async ({
               { value: "sold_out", label: "Sold Out" },
               { value: "unavailable", label: "Unavailable" },
             ]}
-          />
-          <Input
-            label="Tags"
-            name="form.tags"
-            placeholder="photography, landscape, Japan (comma-separated)"
           />
           <FormButtons />
         </div>

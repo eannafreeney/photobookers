@@ -12,8 +12,8 @@ const InputLabel = ({
   maxLength,
   name,
   required,
-  showEmailAvailabilityChecker,
-  showDisplayNameAvailabilityChecker,
+  showEmailAvailabilityChecker = false,
+  showDisplayNameAvailabilityChecker = false,
 }: InputLabelProps) => {
   return (
     <div class="flex items-center justify-between">

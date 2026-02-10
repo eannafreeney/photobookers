@@ -282,14 +282,21 @@ export const getArtistsCreatedByUserId = async (
 export const searchCreators = async (searchQuery: string) => {
   // find creators with at least one book
   try {
-    return await db.query.creators.findMany({
+    const foundCreators = await db.query.creators.findMany({
       where: and(
         ilike(creators.displayName, `%${searchQuery}%`),
-        exists(db.select().from(books).where(eq(books.artistId, creators.id))),
+        // exists(db.select().from(books).where(eq(books.artistId, creators.id))),
       ),
+      with: {
+        booksAsArtist: {
+          where: eq(books.publicationStatus, "published"),
+        },
+      },
       limit: 10,
       orderBy: (creators, { asc }) => [asc(creators.displayName)],
     });
+
+    return foundCreators.filter((creator) => creator.booksAsArtist.length > 0);
   } catch (error) {
     console.error("Failed to search creators", error);
     return [];

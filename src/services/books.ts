@@ -1,6 +1,7 @@
 import { db } from "../db/client";
 import {
   Book,
+  bookImages,
   books,
   Creator,
   creators,
@@ -325,6 +326,9 @@ export const deleteBookById = async (bookId: string) => {
     const [book] = await db.select().from(books).where(eq(books.id, bookId));
 
     if (!book) return null;
+
+    // Delete related book_images first (FK constraint)
+    await db.delete(bookImages).where(eq(bookImages.bookId, bookId));
 
     const [deletedBook] = await db
       .delete(books)

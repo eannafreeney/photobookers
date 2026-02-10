@@ -2,7 +2,6 @@ import {
   approveBookById,
   createBook,
   deleteBookById,
-  getBookById,
   prepareBookData,
   prepareBookUpdateData,
   rejectBookById,
@@ -28,8 +27,12 @@ import { resolveArtist, resolvePublisher } from "../services/creators";
 import Alert from "../components/app/Alert";
 import { BookTable } from "../components/cms/ui/BookTable";
 import BooksForApprovalTable from "../components/cms/ui/BooksForApprovalTable";
-import { canPublishBook } from "../lib/permissions";
-import { requireBookEditAccess } from "../middleware/bookGuard";
+import {
+  requireBookDeleteAccess,
+  requireBookEditAccess,
+  requireBookPublishAccess,
+  requireBookUnpublishAccess,
+} from "../middleware/bookGuard";
 import { showErrorAlert } from "../lib/alertHelpers";
 
 export const booksDashboardRoutes = new Hono();
@@ -159,7 +162,6 @@ booksDashboardRoutes.post(
     const updatedBook = await updateBook(bookData, book.id);
 
     if (!updatedBook) return showErrorAlert(c, "Failed to update book");
-    console.log("updatedBook", updatedBook);
 
     return c.html(
       <Alert type="success" message={`${updatedBook.title} updated!`} />,
@@ -194,6 +196,7 @@ booksDashboardRoutes.post(
 booksDashboardRoutes.post(
   "/delete/:bookId",
   paramValidator(bookIdSchema),
+  requireBookDeleteAccess,
   async (c) => {
     const bookId = c.req.valid("param").bookId;
     const user = await getUser(c);
@@ -221,73 +224,72 @@ booksDashboardRoutes.post(
 );
 
 // MAKE BOOK PUBLIC
-booksDashboardRoutes.post("/:bookId/publish", async (c) => {
-  const bookId = c.req.param("bookId");
-  const book = await getBookById(bookId);
-  const user = await getUser(c);
+booksDashboardRoutes.post(
+  "/:bookId/publish",
+  requireBookPublishAccess,
+  async (c) => {
+    const book = c.get("book");
+    const user = await getUser(c);
 
-  if (!book) {
-    return c.html(<Alert type="danger" message="Book not found" />, 422);
-  }
-  if (!canPublishBook(user, book)) {
-    showErrorAlert(c, "Please add a cover image before publishing");
-  }
+    if (!book) {
+      return c.html(<Alert type="danger" message="Book not found" />, 422);
+    }
 
-  const result = await updateBookPublicationStatus(bookId, "published");
+    const result = await updateBookPublicationStatus(book.id, "published");
 
-  if (!result.success) {
-    return c.html(<Alert type="danger" message={result.error} />, 400);
-  }
+    if (!result.success) {
+      return c.html(<Alert type="danger" message={result.error} />, 400);
+    }
 
-  const updatedBook = result.book;
+    const updatedBook = result.book;
 
-  return c.html(
-    <>
-      <Alert
-        type="success"
-        message={`${updatedBook?.title ?? "Book"} Published!`}
-      />
-      <PublishToggleForm book={updatedBook} />
-      <PreviewButton book={updatedBook} user={user} />
-    </>,
-  );
-});
-
-// MAKE BOOK DRAFT
-booksDashboardRoutes.post("/:bookId/unpublish", async (c) => {
-  const bookId = c.req.param("bookId");
-  const user = await getUser(c);
-  const book = await getBookById(bookId);
-
-  if (!book) {
-    return c.html(<Alert type="danger" message="Book not found" />, 422);
-  }
-
-  const result = await updateBookPublicationStatus(bookId, "draft");
-
-  if (!result.success) {
     return c.html(
       <>
-        <Alert type="danger" message={result.error} />
-        <PublishToggleForm book={book} />
+        <Alert
+          type="success"
+          message={`${updatedBook?.title ?? "Book"} Published!`}
+        />
+        <PublishToggleForm book={updatedBook} />
+        <PreviewButton book={updatedBook} user={user} />
       </>,
-      400,
     );
-  }
+  },
+);
 
-  const updatedBook = result.book;
+// MAKE BOOK DRAFT
+booksDashboardRoutes.post(
+  "/:bookId/unpublish",
+  requireBookUnpublishAccess,
+  async (c) => {
+    const book = c.get("book");
+    const user = await getUser(c);
 
-  return c.html(
-    <>
-      <Alert
-        type="warning"
-        message={`${updatedBook?.title ?? "Book"} Unpublished!`}
-      />
-      <PublishToggleForm book={updatedBook} />
-      <PreviewButton book={updatedBook} user={user} />
-    </>,
-  );
-});
+    const result = await updateBookPublicationStatus(book.id, "draft");
+
+    if (!result.success) {
+      return c.html(
+        <>
+          <Alert type="danger" message={result.error} />
+          <PublishToggleForm book={book} />
+        </>,
+        400,
+      );
+    }
+
+    const updatedBook = result.book;
+
+    return c.html(
+      <>
+        <Alert
+          type="warning"
+          message={`${updatedBook?.title ?? "Book"} Unpublished!`}
+        />
+        <PublishToggleForm book={updatedBook} />
+        <PreviewButton book={updatedBook} user={user} />
+      </>,
+    );
+  },
+);
 
 // Add book cover image to book profile
 booksDashboardRoutes.post(

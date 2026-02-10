@@ -8,6 +8,9 @@ import PreviewBanner from "./PreviewBanner";
 import Carousel from "./Carousel";
 import Link from "./Link";
 import CardCreatorCard from "./CardCreatorCard";
+import AvailabilityBadge from "./AvailabilityBadge";
+import Button from "./Button";
+import PurchaseLink from "./PurchaseLink";
 
 type DetailProps = {
   isPreview: boolean;
@@ -48,8 +51,10 @@ const DetailDesktop = ({
               <CardCreatorCard creatorType="artist" book={book} />
             )}
             <Card.Description>{book.description ?? ""}</Card.Description>
+            <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
             <Card.Description>{book.specs ?? ""}</Card.Description>
             <TagList tags={book.tags ?? []} />
+            <PurchaseLink purchaseLink={book.purchaseLink} />
           </div>
         </div>
       </div>

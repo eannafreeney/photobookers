@@ -12,6 +12,17 @@ type Props = {
 const PreviewButton = ({ book, user }: Props) => {
   const bookId = book.id;
 
+  if (book.publicationStatus === "published") {
+    return (
+      <div id={`preview-button-${bookId}`}>
+        <Link href={`/books/${book.slug}`}>
+          <Button variant="outline" color="primary">
+            <span>View</span>
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div id={`preview-button-${bookId}`}>
@@ -26,6 +37,20 @@ const PreviewButton = ({ book, user }: Props) => {
       </Link>
     </div>
   );
+
+  // return (
+  //   <div id={`preview-button-${bookId}`}>
+  //     <Link href={`/books/preview/${book.slug}`} target="_blank">
+  //       <Button
+  //         variant="outline"
+  //         color="primary"
+  //         disabled={!canPreviewBook(user, book)}
+  //       >
+  //         <span>Preview</span>
+  //       </Button>
+  //     </Link>
+  //   </div>
+  // );
 };
 
 export default PreviewButton;

@@ -8,7 +8,7 @@ export function registerRegisterFanForm() {
     return {
       isSubmitting: false,
       isEmailChecking: false,
-      fieldStatus: "",
+      emailAvailabilityStatus: "",
       emailIsTaken: false,
       form: {
         firstName: "",

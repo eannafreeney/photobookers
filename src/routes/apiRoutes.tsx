@@ -239,14 +239,12 @@ apiRoutes.get("/search", async (c) => {
     searchCreators(searchTerm ?? ""),
   ]);
 
-  const books: (Book & { artist: Creator; publisher: Creator })[] =
-    bookResults ?? [];
-  const creators = creatorResults ?? [];
+  console.log("creatorResults", creatorResults);
 
   return c.html(
     <NavSearchResults
-      creators={creators}
-      books={books}
+      creators={creatorResults ?? []}
+      books={bookResults ?? []}
       searchTerm={searchTerm ?? ""}
     />,
   );

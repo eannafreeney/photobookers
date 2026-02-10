@@ -6,6 +6,8 @@ import { getCreatorBySlug } from "../services/creators";
 import PageTitle from "../components/app/PageTitle";
 import GridPanel from "../components/app/GridPanel";
 import BookCard from "../components/app/BookCard";
+import Link from "../components/app/Link";
+import Button from "../components/app/Button";
 
 type CreatorDetailPageProps = {
   user: AuthUser | null;
@@ -37,7 +39,16 @@ const CreatorDetailPage = async ({
   if (!books.length) {
     return (
       <AppLayout title="No Books Found" user={user}>
-        <p>No books found for this creator</p>
+        <Page>
+          <div class="flex flex-col gap-4 items-center justify-center h-screen">
+            <p>No books found for this creator</p>
+            <Link href="/books">
+              <Button variant="solid" color="primary">
+                View all books
+              </Button>
+            </Link>
+          </div>
+        </Page>
       </AppLayout>
     );
   }

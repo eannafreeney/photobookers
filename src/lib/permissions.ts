@@ -7,6 +7,8 @@ export function canEditBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
 
+  // creator is not verified yet
+  if (user.creator?.status !== "verified") return false;
   // User created the book for a stub publisher not yet approved
   if (user.id === book.createdByUserId && book.approvalStatus !== "approved")
     return true;
@@ -21,6 +23,8 @@ export function canEditBook(user: AuthUser | null, book: Book): boolean {
 export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
+
+  if (user.creator?.status !== "verified") return false;
   // User created the book for a stub publisher not yet approved
   if (user.id === book.createdByUserId && book.approvalStatus !== "approved")
     return true;
@@ -70,8 +74,8 @@ export function canPublishBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
 
-  // const creatorIsOwner =
-  //   user.creator?.id === book.artistId || user.creator?.id === book.publisherId;
+  if (user.creator?.status !== "verified") return false;
+
   const coverUrlIsSet = book.coverUrl !== null;
 
   if (coverUrlIsSet) {
@@ -79,6 +83,15 @@ export function canPublishBook(user: AuthUser | null, book: Book): boolean {
   }
 
   return false;
+}
+
+export function canUnpublishBook(user: AuthUser | null, book: Book): boolean {
+  if (!user) return false;
+  if (user.isAdmin) return true;
+
+  if (user.creator?.status !== "verified") return false;
+
+  return book.publicationStatus === "published";
 }
 
 export function canFollowCreator(

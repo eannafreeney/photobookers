@@ -137,6 +137,7 @@ export const bookFormSchema = z.object({
     .max(1000, "Specs must be less than 1000 characters"),
   release_date: optionalText,
   tags: optionalText,
+  purchaseLink: optionalText,
   availability_status: z
     .preprocess(
       (val) => (val === "" ? undefined : val),

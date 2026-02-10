@@ -1,5 +1,5 @@
 type TabsProps = {
-  initialTab: "new-books" | "feed" | "profile";
+  initialTab: "new-books" | "feed" | "library";
 };
 
 const Tabs = ({ initialTab }: TabsProps) => {
@@ -37,29 +37,29 @@ const Tabs = ({ initialTab }: TabsProps) => {
         </a>
 
         <a
-          x-on:click="selectedTab = '/profile'"
-          href="/profile"
+          x-on:click="selectedTab = '/library'"
+          href="/library"
           class={baseClass}
-          x-bind:class="selectedTab === '/profile' ? 'font-bold text-primary border-b-2 border-primary' : 'text-on-surface font-medium  hover:border-b-2 hover:border-b-outline-strong hover:text-on-surface-strong'"
+          x-bind:class="selectedTab === '/library' ? 'font-bold text-primary border-b-2 border-primary' : 'text-on-surface font-medium  hover:border-b-2 hover:border-b-outline-strong hover:text-on-surface-strong'"
           {...{ "x-target.push": "tab-content" }}
         >
           {profileIcon}
-          Profile
+          Library
         </a>
       </div>
       <div
         id="tab-content"
         x-init={`$ajax('/${initialTab ?? "new-books"}')`}
         x-data="{ isLoading: true }"
-        {...{ "@wishlist:updated.window": "$ajax('/profile')" }}
+        // {...{ "@wishlist:updated.window": "$ajax('/library')" }}
         {...{ "@ajax:before": "isLoading = true;" }}
         {...{ "@ajax:after": "isLoading = false;" }}
         {...{ "@ajax:error": "isLoading = false;" }}
         class="min-h-[400px]"
       >
         <div x-show="isLoading" class="flex items-center justify-center py-12">
-        <p class="text-sm text-on-surface-weak">Loading...</p>
-      </div>
+          <p class="text-sm text-on-surface-weak">Loading...</p>
+        </div>
       </div>
     </div>
   );
@@ -96,7 +96,7 @@ const feedIcon = (
     <path
       stroke-linecap="round"
       stroke-linejoin="round"
-      d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
+      d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
     />
   </svg>
 );
@@ -113,7 +113,7 @@ const profileIcon = (
     <path
       stroke-linecap="round"
       stroke-linejoin="round"
-      d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+      d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
     />
   </svg>
 );

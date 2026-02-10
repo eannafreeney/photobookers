@@ -91,7 +91,7 @@ const CreatorCardPortrait = ({
         <FollowersCount followerCount={followerCount} />
         {creator.tagline && <Card.Intro>{creator.tagline}</Card.Intro>}
         <FollowButton creator={creator} user={user} variant="desktop" />
-        {user && creator.status === "stub" && (
+        {creator.status === "stub" && (
           <ClaimCreatorBtn
             creator={creator}
             currentPath={currentPath}

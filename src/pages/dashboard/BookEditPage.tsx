@@ -27,6 +27,7 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
     publisher_id: book.publisherId,
     description: book.description,
     specs: book.specs,
+    purchase_link: book.purchaseLink,
     tags: book.tags?.join(", "),
     availability_status: book.availabilityStatus,
     release_date: book?.releaseDate
@@ -58,7 +59,6 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
         <BookForm
           action={action}
           bookId={book.id}
-          dateIsInPast={dateIsInPast}
           formValues={formValues}
           isPublisher={isPublisher}
         />
@@ -71,7 +71,7 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
           <hr class="my-4 md:hidden" />
           <BookGalleryForm
             initialImages={
-              book.images?.map((image:{ id: string; imageUrl: string }) => ({
+              book.images?.map((image: { id: string; imageUrl: string }) => ({
                 id: image.id,
                 url: image.imageUrl,
               })) ?? []
@@ -83,7 +83,5 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
     </AppLayout>
   );
 };
-
-
 
 export default BookEditPage;
