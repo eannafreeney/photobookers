@@ -13,7 +13,6 @@ import Button from "./Button";
 import PurchaseLink from "./PurchaseLink";
 
 type DetailProps = {
-  isPreview: boolean;
   galleryImages: string[];
   book: BookWithGalleryImages;
   currentPath: string;
@@ -22,7 +21,6 @@ type DetailProps = {
 };
 
 const DetailDesktop = ({
-  isPreview,
   galleryImages,
   book,
   currentPath,
@@ -31,7 +29,6 @@ const DetailDesktop = ({
 }: DetailProps) => {
   return (
     <div class="flex flex-col gap-8">
-      {isPreview && <PreviewBanner />}
       <div class="flex gap-16">
         <div class="w-1/2">
           <Carousel images={galleryImages} />

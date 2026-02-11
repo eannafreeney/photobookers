@@ -12,7 +12,6 @@ import AvailabilityBadge from "./AvailabilityBadge";
 import PurchaseLink from "./PurchaseLink";
 
 type DetailProps = {
-  isPreview: boolean;
   galleryImages: string[];
   book: BookWithGalleryImages;
   currentPath: string;
@@ -21,7 +20,6 @@ type DetailProps = {
 };
 
 const DetailMobile = ({
-  isPreview,
   galleryImages,
   book,
   currentPath,
@@ -30,7 +28,6 @@ const DetailMobile = ({
 }: DetailProps) => {
   return (
     <div class="flex flex-col gap-4 ">
-      {isPreview && <PreviewBanner />}
       <CarouselMobile images={galleryImages} />
       <div class="flex flex-col gap-2">
         <Card.Title>{book.title}</Card.Title>

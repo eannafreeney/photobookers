@@ -39,7 +39,6 @@ authRoutes.get("/login", async (c) => {
   const redirectUrl = c.req.query("redirectUrl");
   const user = await getUser(c);
   const flash = await getFlash(c);
-  console.log("flash", flash);
   if (user) {
     return c.redirect("/");
   }

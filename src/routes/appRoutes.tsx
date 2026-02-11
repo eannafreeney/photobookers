@@ -54,10 +54,10 @@ appRoutes.get("/books/preview/:slug", async (c) => {
 
   return c.html(
     <BookDetailPage
+      isPreview
       user={user}
       bookSlug={slug}
       currentPath={currentPath}
-      isPreview
       status="draft"
       device={device}
     />,

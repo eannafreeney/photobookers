@@ -49,11 +49,10 @@ const BookDetailPage = async ({
   const orientation = device === "mobile" ? "portrait" : "landscape";
 
   return (
-    <AppLayout title={book.title} user={user}>
+    <AppLayout title={book.title} user={user} isPreview={isPreview}>
       <Page>
         {device === "mobile" ? (
           <DetailMobile
-            isPreview={isPreview}
             galleryImages={galleryImages}
             book={book}
             currentPath={currentPath}
@@ -62,7 +61,6 @@ const BookDetailPage = async ({
           />
         ) : (
           <DetailDesktop
-            isPreview={isPreview}
             galleryImages={galleryImages}
             book={book}
             currentPath={currentPath}

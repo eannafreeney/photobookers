@@ -8,7 +8,7 @@ type RegisterPageProps = {
 };
 
 const RegisterPage = ({ type = "fan" }: RegisterPageProps) => {
-  const isCreator = type === "artist" || type === "publisher";
+  const intendedCreatorType = type === "artist" || type === "publisher";
 
   return (
     <HeadlessLayout title="Create Account">
@@ -18,7 +18,7 @@ const RegisterPage = ({ type = "fan" }: RegisterPageProps) => {
             <h2 class="text-2xl font-bold text-center mb-4">
               Create {capitalize(type)} Account
             </h2>
-            {isCreator ? (
+            {intendedCreatorType ? (
               <RegisterCreatorForm type={type} />
             ) : (
               <RegisterFanForm />

@@ -1,6 +1,8 @@
 import { AuthUser } from "../../../types";
 import Alert from "../../components/app/Alert";
+import AlertStatic from "../../components/app/AlertStatic";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
+import VerifiedCreator from "../../components/app/VerifiedCreator";
 import BooksCreatedByMeForOtherPublishersTable from "../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
 import BooksCreatedByMeForStubPublishersTable from "../../components/cms/ui/BooksCreatedForStubPublishersTable";
 import BooksForApprovalTable from "../../components/cms/ui/BooksForApprovalTable";
@@ -40,10 +42,14 @@ const BooksOverview = async ({
     >
       <Page>
         <Breadcrumbs items={[{ label: "Books Overview" }]} />
-        {user.creator.status !== "verified" && (
-          <div class="alert alert-info text-white rounded-md">
-            Your creator profile is not verified yet. In the meantime, you can
-            start uploading books, or update your profile pic.
+        {user.creator.status !== "verified" ? (
+          <AlertStatic
+            type="info"
+            message="Your creator profile is not verified yet. In the meantime, you can start uploading books, or update your profile pic."
+          />
+        ) : (
+          <div>
+            Account Verified {VerifiedCreator({ creator: user.creator })}
           </div>
         )}
         <div class="flex flex-col gap-16">

@@ -124,7 +124,7 @@ const neutralIcon = (
   </svg>
 );
 
-const alertVariants = {
+export const alertVariants = {
   info: {
     border: "border-sky-700",
     bg: "bg-info/10",

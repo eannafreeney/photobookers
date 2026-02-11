@@ -20,7 +20,6 @@ import ClaimModal from "../components/claims/ClaimModal";
 import { showErrorAlert } from "../lib/alertHelpers";
 import ClaimVerificationFailurePage from "../components/claims/ClaimVerificationFailurePage";
 import ErrorPage from "../pages/error/errorPage";
-import { getUserById } from "../services/users";
 
 export const claimRoutes = new Hono();
 
@@ -200,7 +199,6 @@ claimRoutes.get("/verify/:token", async (c) => {
 
   // Attempt verification
   const result = await verifyClaim(claim);
-  console.log("result", result);
 
   if (result.error && !result.verified) {
     return c.html(

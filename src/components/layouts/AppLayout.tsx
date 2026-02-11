@@ -5,12 +5,14 @@ import { AuthUser, Flash } from "../../../types";
 import Navbar from "./Navbar";
 import Footer from "../app/Footer";
 import Alert from "../app/Alert";
+import PreviewBanner from "../app/PreviewBanner";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
   user?: AuthUser | null;
   currentPath?: string | null;
   flash?: Flash | null;
+  isPreview?: boolean;
 }>;
 
 const AppLayout = ({
@@ -19,11 +21,13 @@ const AppLayout = ({
   user,
   currentPath,
   flash,
+  isPreview,
 }: LayoutProps) => (
   <html lang="en">
     <Head title={title} />
     <body class="bg-surface-alt">
       <UserProvider user={user}>
+        {isPreview && <PreviewBanner />}
         <Navbar currentPath={currentPath} />
         <main class="container mx-auto min-h-screen px-4">{children}</main>
         <Footer />

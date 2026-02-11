@@ -80,11 +80,10 @@ export function canClaimCreator(
   user: AuthUser | null,
   creator: Creator,
 ): boolean {
-  if (!user) return false;
   // user already has a creator profile
-  if (user.creator?.id) return false;
+  if (user?.creator?.id) return false;
   // user is the owner of the creator profile
-  if (user.id === creator.ownerUserId) return false;
+  if (user?.id === creator.ownerUserId) return false;
 
   return true;
 }
