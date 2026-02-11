@@ -36,7 +36,12 @@ export const requireBookEditAccess = createMiddleware<BookEnv>(
     }
 
     if (!canEditBook(user, book)) {
-      if (user?.creator?.status !== "verified") {
+      const isClaimedProfileNotVerified =
+        user?.creator &&
+        user.creator.status !== "verified" &&
+        user.creator.createdByUserId !== user.id;
+
+      if (isClaimedProfileNotVerified) {
         return showErrorAlert(c, notYetVerifiedErrorMessage);
       }
       return showErrorAlert(c, "You are not authorized to edit this book");

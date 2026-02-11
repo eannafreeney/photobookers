@@ -7,14 +7,12 @@ import { getPendingClaimByUserAndCreator } from "../../services/claims";
 
 type ClaimCreatorBtnProps = {
   creator: Creator;
-  currentPath?: string;
   isCircleButton?: boolean;
   user: AuthUser | null;
 };
 
 const ClaimCreatorBtn = async ({
   creator,
-  currentPath,
   isCircleButton = false,
   user,
 }: ClaimCreatorBtnProps) => {
@@ -29,7 +27,7 @@ const ClaimCreatorBtn = async ({
   const hasPendingClaim = pendingClaim !== null;
 
   const id = `claim-${creator.id}`;
-  const isDisabled = canClaimCreator(user, creator) || hasPendingClaim;
+  const isDisabled = !canClaimCreator(user, creator) || hasPendingClaim;
   const props = {
     id,
     action: `/claim/${creator.id}`,

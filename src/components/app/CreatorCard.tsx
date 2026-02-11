@@ -18,7 +18,6 @@ type Props = {
 
 const CreatorCard = async ({
   creator,
-  currentPath,
   title = "About",
   orientation = "portrait",
   user,
@@ -31,7 +30,6 @@ const CreatorCard = async ({
     return (
       <CreatorCardPortrait
         creator={creator}
-        currentPath={currentPath}
         title={title}
         user={user}
         followerCount={followerCount}
@@ -41,7 +39,6 @@ const CreatorCard = async ({
   return (
     <CreatorCardLandscape
       creator={creator}
-      currentPath={currentPath}
       title={title}
       user={user}
       followerCount={followerCount}
@@ -53,7 +50,6 @@ export default CreatorCard;
 
 type CreatorCardProps = {
   creator: Creator;
-  currentPath: string;
   title?: string;
   user: AuthUser | null;
   followerCount: number;
@@ -61,7 +57,6 @@ type CreatorCardProps = {
 
 const CreatorCardPortrait = ({
   creator,
-  currentPath,
   title = "About",
   user,
   followerCount,
@@ -92,11 +87,7 @@ const CreatorCardPortrait = ({
         {creator.tagline && <Card.Intro>{creator.tagline}</Card.Intro>}
         <FollowButton creator={creator} user={user} variant="desktop" />
         {creator.status === "stub" && (
-          <ClaimCreatorBtn
-            creator={creator}
-            currentPath={currentPath}
-            user={user}
-          />
+          <ClaimCreatorBtn creator={creator} user={user} />
         )}
         <SocialLinks creator={creator} />
       </Card.Body>
@@ -106,7 +97,6 @@ const CreatorCardPortrait = ({
 
 const CreatorCardLandscape = ({
   creator,
-  currentPath,
   title = "About",
   user,
   followerCount,
@@ -150,12 +140,7 @@ const CreatorCardLandscape = ({
             <Card.Body>
               <FollowButton creator={creator} user={user} isCircleButton />
               {creator.status === "stub" && (
-                <ClaimCreatorBtn
-                  creator={creator}
-                  currentPath={currentPath}
-                  user={user}
-                  isCircleButton
-                />
+                <ClaimCreatorBtn creator={creator} user={user} isCircleButton />
               )}
             </Card.Body>
           </div>

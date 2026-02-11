@@ -6,16 +6,24 @@ import { Book, Creator } from "../db/schema";
 export function canEditBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
+  if (!user.creator) return false;
 
-  // creator is not verified yet
-  if (user.creator?.status !== "verified") return false;
+  const isCreatorProfileCreatedByUser =
+    user.creator.createdByUserId === user.id;
+  const isBookOwnedByCreator =
+    user.creator.id === book.artistId || user.creator.id === book.publisherId;
+
+  // User claimed this profile (did not create it) → must be verified to edit any book
+  if (!isCreatorProfileCreatedByUser && user.creator.status !== "verified") {
+    return false;
+  }
+
   // User created the book for a stub publisher not yet approved
   if (user.id === book.createdByUserId && book.approvalStatus !== "approved")
     return true;
 
-  // Creator owns the book (artist or publisher)
-  if (user.creator?.id === book.artistId) return true;
-  if (user.creator?.id === book.publisherId) return true;
+  // Creator owns the book (artist or publisher) – allowed if they created the profile, or if verified
+  if (isBookOwnedByCreator) return true;
 
   return false;
 }
@@ -23,15 +31,24 @@ export function canEditBook(user: AuthUser | null, book: Book): boolean {
 export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
+  if (!user.creator) return false;
 
-  if (user.creator?.status !== "verified") return false;
+  const isCreatorProfileCreatedByUser =
+    user.creator.createdByUserId === user.id;
+  const isBookOwnedByCreator =
+    user.creator.id === book.artistId || user.creator.id === book.publisherId;
+
+  // User claimed this profile (did not create it) → must be verified to edit any book
+  if (!isCreatorProfileCreatedByUser && user.creator.status !== "verified") {
+    return false;
+  }
+
   // User created the book for a stub publisher not yet approved
   if (user.id === book.createdByUserId && book.approvalStatus !== "approved")
     return true;
 
-  // Creator owns the book (artist or publisher)
-  if (user.creator?.id === book.artistId) return true;
-  if (user.creator?.id === book.publisherId) return true;
+  // Creator owns the book (artist or publisher) – allowed if they created the profile, or if verified
+  if (isBookOwnedByCreator) return true;
 
   return false;
 }
@@ -67,7 +84,9 @@ export function canClaimCreator(
   // user already has a creator profile
   if (user.creator?.id) return false;
   // user is the owner of the creator profile
-  return user.id === creator.ownerUserId;
+  if (user.id === creator.ownerUserId) return false;
+
+  return true;
 }
 
 export function canPublishBook(user: AuthUser | null, book: Book): boolean {

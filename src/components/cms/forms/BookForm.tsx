@@ -87,13 +87,7 @@ export const BookForm = async ({
               <></>
             )}
           </FeatureGuard>
-          <Input
-            label="Release Date"
-            name="form.release_date"
-            type="date"
-            validateInput="validateField('release_date')"
-            required
-          />
+
           <TextArea
             label="Specs"
             name="form.specs"
@@ -113,6 +107,13 @@ export const BookForm = async ({
             name="form.purchase_link"
             type="url"
             validateInput="validateField('purchase_link')"
+          />
+          <Input
+            label="Release Date"
+            name="form.release_date"
+            type="date"
+            validateInput="validateField('release_date')"
+            required
           />
           <Input
             label="Tags"

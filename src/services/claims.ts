@@ -187,6 +187,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
     return { verified: true, error: null, requiresApproval: false };
   }
 
+  // New creator: different domain for email and website → pending admin review
   await db
     .update(creatorClaims)
     .set({

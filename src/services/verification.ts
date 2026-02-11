@@ -78,8 +78,6 @@ export async function verifyWebsite(
 
     const html = await response.text();
 
-    console.log(html);
-
     // Check in visible text (case-insensitive)
     const codeInText = html.toLowerCase().includes(code.toLowerCase());
 
@@ -99,6 +97,7 @@ export async function verifyWebsite(
     return { verified: true };
   } catch (error: any) {
     // Handle different error types
+
     if (error.name === "AbortError") {
       return {
         verified: false,

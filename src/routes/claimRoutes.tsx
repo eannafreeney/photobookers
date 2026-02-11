@@ -200,6 +200,7 @@ claimRoutes.get("/verify/:token", async (c) => {
 
   // Attempt verification
   const result = await verifyClaim(claim);
+  console.log("result", result);
 
   if (result.error && !result.verified) {
     return c.html(
