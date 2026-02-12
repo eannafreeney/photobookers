@@ -24,7 +24,7 @@ export function registerCreatorForm() {
       return {
         isSubmitting: false,
         isDisplayNameChecking: false,
-        fieldStatus: "",
+        displayNameAvailabilityStatus: "",
         displayNameIsTaken: false,
         artistSearchResults: "",
 
@@ -81,7 +81,7 @@ export function registerCreatorForm() {
             );
             const html = await response.text();
 
-            this.fieldStatus = html;
+            this.displayNameAvailabilityStatus = html;
             this.displayNameIsTaken = html.includes("text-error");
           } catch (error) {
             console.error("Failed to check email availability", error);

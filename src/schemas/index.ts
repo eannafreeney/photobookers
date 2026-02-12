@@ -73,8 +73,8 @@ export const creatorFormSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(1000, "Description must be less than 1000 characters"),
-  city: z.string().min(3, "City must be at least 3 characters"),
-  country: z.string().min(2, "Country must be at least 2 characters"),
+  city: optionalText,
+  country: optionalText,
   type: z.preprocess(
     (val) => (val === "" ? undefined : val),
     z.enum(["artist", "publisher"]),
@@ -83,6 +83,13 @@ export const creatorFormSchema = z.object({
   twitter: optionalText,
   instagram: optionalText,
   website: optionalText,
+});
+
+// ============ CREATOR FORM ADMIN SCHEMA ============
+export const creatorFormAdminSchema = z.object({
+  displayName: requiredText,
+  website: z.url("Please enter a valid URL (e.g., https://example.com)"),
+  type: z.enum(["artist", "publisher"]).default("artist"),
 });
 
 // ============ Image FORM SCHEMA ============

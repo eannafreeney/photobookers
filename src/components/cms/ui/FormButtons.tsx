@@ -1,4 +1,3 @@
-import { fadeTransition } from "../../../lib/transitions";
 import Button from "../../app/Button";
 
 type Props = {

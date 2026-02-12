@@ -8,10 +8,11 @@ import { registerComboBox } from "./components/comboBox";
 import { registerBookGalleryForm } from "./forms/bookGalleryForm";
 import { registerClaimForm } from "./forms/claimForm";
 import { registerCountryForm } from "./forms/countryForm";
-import { registerShareButton } from "./components/shareButton";
+// import { registerShareButton } from "./components/shareButton";
 import { registerImageOrientation } from "./utils/imageOrientation";
 import { registerRegisterFanForm } from "./forms/registerFanForm";
 import { registerRegisterCreatorForm } from "./forms/registerCreatorForm";
+import { registerCreatorFormAdmin } from "./forms/creatorFormAdmin";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -26,5 +27,6 @@ registerComboBox();
 registerBookGalleryForm();
 registerClaimForm();
 registerCountryForm();
-registerShareButton();
+// registerShareButton();
 registerImageOrientation();
+registerCreatorFormAdmin();

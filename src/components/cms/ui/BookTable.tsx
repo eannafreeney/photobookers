@@ -8,6 +8,7 @@ import Button from "../../app/Button";
 import Link from "../../app/Link";
 import SectionTitle from "../../app/SectionTitle";
 import BookTableRow from "./BookTableRow";
+import Table from "./Table";
 
 type BookTableProps = {
   searchQuery?: string;
@@ -42,42 +43,37 @@ export const BookTable = async ({
           </Button>
         </Link>
       </div>
-      <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
-        <table class="w-full text-left text-sm text-on-surface">
-          <thead class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong">
+      <Table id="books-table">
+        <Table.Head>
+          <tr>
+            <th class="p-4">Cover</th>
+            <th class="p-4">Title</th>
+            <th class="p-4">Artist</th>
+            <th class="p-4">Release Date</th>
+            <th class="p-4">Publish</th>
+            <th class="p-4"></th>
+            <th class="p-4"></th>
+            <th class="p-4"></th>
+          </tr>
+        </Table.Head>
+        <Table.Body
+          id="books-table-body"
+          x-init
+          {...{ "@book:approved.window": "$ajax('/dashboard/books')" }}
+        >
+          {validBooks && validBooks.length > 0 ? (
+            validBooks?.map((book) => <BookTableRow book={book} user={user} />)
+          ) : (
             <tr>
-              <th class="p-4">Cover</th>
-              <th class="p-4">Title</th>
-              <th class="p-4">Artist</th>
-              <th class="p-4">Release Date</th>
-              <th class="p-4">Publish</th>
-              <th class="p-4"></th>
-              <th class="p-4"></th>
-              <th class="p-4"></th>
+              <td colspan={100} class="text-center p-4">
+                <p class="text-sm text-on-surface-alt">
+                  No books found. Please add one.{" "}
+                </p>
+              </td>
             </tr>
-          </thead>
-          <tbody
-            id="books-table"
-            {...{ "@book:approved.window": "$ajax('/dashboard/books')" }}
-            class="divide-y divide-outline"
-            x-init
-          >
-            {validBooks && validBooks.length > 0 ? (
-              validBooks?.map((book) => (
-                <BookTableRow book={book} user={user} />
-              ))
-            ) : (
-              <tr>
-                <td colspan={100} class="text-center p-4">
-                  <p class="text-sm text-on-surface-alt">
-                    No books found. Please add one.{" "}
-                  </p>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          )}
+        </Table.Body>
+      </Table>
     </div>
   );
 };

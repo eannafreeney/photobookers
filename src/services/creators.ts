@@ -240,6 +240,7 @@ export const createStubCreatorProfile = async (
   displayName: string,
   userId: string,
   type: "publisher" | "artist",
+  website?: string,
 ) => {
   return await createCreatorProfile({
     displayName: displayName.trim(),
@@ -249,6 +250,7 @@ export const createStubCreatorProfile = async (
     type,
     status: "stub",
     createdByUserId: userId,
+    website: website || null,
   });
 };
 
