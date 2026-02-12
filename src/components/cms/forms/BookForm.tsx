@@ -2,6 +2,7 @@ import { getAllOptions } from "../../../services/creators";
 import SectionTitle from "../../app/SectionTitle";
 import FeatureGuard from "../../layouts/FeatureGuard";
 import ComboBox from "../ui/ComboBox";
+import DateInput from "../ui/DateInput";
 import FormButtons from "../ui/FormButtons";
 import Input from "../ui/Input";
 import RadioFields from "../ui/RadioFields";
@@ -87,20 +88,17 @@ export const BookForm = async ({
               <></>
             )}
           </FeatureGuard>
-
           <TextArea
             label="Specs"
             name="form.specs"
             validateInput="validateField('specs')"
             maxLength={1000}
-            required
           />
           <TextArea
             label="Description"
             name="form.description"
             validateInput="validateField('description')"
             maxLength={5000}
-            required
           />
           <Input
             label="Purchase Link"
@@ -108,12 +106,10 @@ export const BookForm = async ({
             type="url"
             validateInput="validateField('purchase_link')"
           />
-          <Input
+          <DateInput
             label="Release Date"
             name="form.release_date"
-            type="date"
             validateInput="validateField('release_date')"
-            required
           />
           <Input
             label="Tags"

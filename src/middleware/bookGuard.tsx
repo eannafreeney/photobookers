@@ -4,6 +4,7 @@ import { getBookById } from "../services/books";
 import {
   canDeleteBook,
   canEditBook,
+  canPreviewBook,
   canPublishBook,
   canUnpublishBook,
 } from "../lib/permissions";
@@ -126,6 +127,30 @@ export const requireBookUnpublishAccess = createMiddleware<BookEnv>(
         return showErrorAlert(c, notYetVerifiedErrorMessage);
       }
       return showErrorAlert(c, "You are not authorized to unpublish this book");
+    }
+
+    // Attach book to context so route doesn't need to fetch again
+    c.set("book", book);
+    await next();
+  },
+);
+
+export const requireBookPreviewAccess = createMiddleware<BookEnv>(
+  async (c, next) => {
+    const user = await getUser(c);
+    const bookId = c.req.param("bookId");
+
+    if (!bookId) {
+      return showErrorAlert(c, "Book ID is required");
+    }
+
+    const book = await getBookById(bookId);
+    if (!book) {
+      return showErrorAlert(c, "Book not found");
+    }
+
+    if (!canPreviewBook(user, book)) {
+      return showErrorAlert(c, "You are not authorized to preview this book");
     }
 
     // Attach book to context so route doesn't need to fetch again

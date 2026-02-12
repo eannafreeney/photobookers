@@ -22,7 +22,7 @@ export function registerBookForm() {
       artistOptions = [],
       publisherOptions = [],
       isArtist: boolean = false,
-      isEditMode: boolean = false
+      isEditMode: boolean = false,
     ) => {
       return {
         artistOptions,
@@ -57,17 +57,14 @@ export function registerBookForm() {
           const hasPublisher = this.is_self_published
             ? true
             : this.is_new_publisher
-            ? !!this.form.new_publisher_name
-            : !!this.form.publisher_id;
+              ? !!this.form.new_publisher_name
+              : !!this.form.publisher_id;
 
           const baseFieldsValid =
             this.isDirty &&
             Object.values(this.errors.form).every((err) => !err) &&
             this.form.title &&
-            this.form.specs &&
-            this.form.description &&
-            this.form.availability_status &&
-            this.form.release_date;
+            this.form.availability_status;
 
           // Artists need publisher (unless self-published), publishers need artist
           const conditionalFieldsValid = this.isArtist
@@ -85,6 +82,6 @@ export function registerBookForm() {
           resetFormBaseline(this, BOOK_FORM_FIELDS);
         },
       };
-    }
+    },
   );
 }

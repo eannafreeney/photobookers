@@ -8,8 +8,6 @@ type InputProps = {
   placeholder?: string;
   required?: boolean;
   name: string;
-  errorKey?: string;
-  minLength?: number;
   maxLength?: number;
   validateInput?: string;
   showEmailAvailabilityChecker?: boolean;
@@ -25,7 +23,6 @@ const Input = ({
   required = false,
   name,
   maxLength,
-  minLength,
   validateInput,
   showEmailAvailabilityChecker = false,
   showDisplayNameAvailabilityChecker = false,

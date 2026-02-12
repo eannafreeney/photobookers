@@ -8,6 +8,7 @@ import { isMobile } from "../lib/device";
 import LibraryPage from "../pages/LibraryPage";
 import FeedPage from "../pages/FeedTab";
 import NewBooksPage from "../pages/NewBooksPage";
+import { requireBookPreviewAccess } from "../middleware/bookGuard";
 
 export const appRoutes = new Hono();
 
@@ -46,8 +47,8 @@ appRoutes.get("/books/:slug", async (c) => {
   );
 });
 
-appRoutes.get("/books/preview/:slug", async (c) => {
-  const slug = c.req.param("slug");
+appRoutes.get("/books/preview/:slug", requireBookPreviewAccess, async (c) => {
+  const book = c.get("book");
   const user = await getUser(c);
   const currentPath = c.req.path;
   const device = isMobile(c.req.header("user-agent") ?? "");
@@ -56,7 +57,7 @@ appRoutes.get("/books/preview/:slug", async (c) => {
     <BookDetailPage
       isPreview
       user={user}
-      bookSlug={slug}
+      bookSlug={book.slug}
       currentPath={currentPath}
       status="draft"
       device={device}
