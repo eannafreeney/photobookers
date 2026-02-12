@@ -35,8 +35,6 @@ export const getNewBooks = async () => {
         id: true,
         slug: true,
         title: true,
-        tagline: true,
-        releaseDate: true,
         coverUrl: true,
         tags: true,
         artistId: true,
@@ -45,10 +43,10 @@ export const getNewBooks = async () => {
       with: {
         artist: true,
       },
-      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
       where: and(
         eq(books.publicationStatus, "published"),
-        lte(books.releaseDate, new Date()),
+        // lte(books.releaseDate, new Date()),
       ),
     });
   } catch (error) {
@@ -380,6 +378,7 @@ export const prepareBookData = async (
     publisherId: bookPublisher?.id ?? null,
     createdByUserId: userId,
     tags: processTags(formData.tags),
+    purchaseLink: formData.purchaseLink ?? null,
     approvalStatus: existingPublisherSelected ? "pending" : "approved",
     publicationStatus: "draft",
     availabilityStatus: formData.availability_status,

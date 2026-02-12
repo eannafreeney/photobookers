@@ -1,4 +1,4 @@
-import sanitizeHtml from "sanitize-html";
+import crypto from "crypto";
 import { Context } from "hono";
 import { AuthUser } from "../types";
 import { books } from "./db/schema";
@@ -180,7 +180,6 @@ export const getInputIcon = (type: string = "text") => {
 };
 
 export const getRandomCoverUrl = () => {
-  return `https://static.photos/abstract/1024x576.jpg${
-    Math.floor(Math.random() * 999) + 1
-  }`;
+  const n = crypto.randomInt(1, 10_000_000);
+  return `https://static.photos/abstract/1024x576/${n}`;
 };

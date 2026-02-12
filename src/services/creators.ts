@@ -29,6 +29,8 @@ export const getCreatorBySlug = async (slug: string) => {
     },
   });
 
+  console.log(creator);
+
   const uniqueArtists = creator?.booksAsPublisher
     .map((book) => book.artist)
     .filter(

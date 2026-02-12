@@ -1,6 +1,7 @@
 import { Creator } from "../../db/schema";
 import { getAllCreatorProfilesAdmin } from "../../services/admin";
 import { capitalize, formatDate } from "../../utils";
+import Button from "../app/Button";
 import Link from "../app/Link";
 import Table from "../cms/ui/Table";
 
@@ -17,6 +18,7 @@ export const CreatorsTable = async () => {
             <th>Website</th>
             <th>Status</th>
             <th>Created At</th>
+            <th>Actions</th>
           </tr>
         </Table.Head>
         <Table.Body id="creators-table-body">
@@ -49,6 +51,20 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       </td>
       <td>{capitalize(creator.status ?? "")}</td>
       <td>{formatDate(creator.createdAt ?? new Date())}</td>
+      <td>
+        <div class="flex gap-2">
+          <a href={`/dashboard/creators/edit/${creator.id}`}>
+            <Button variant="outline" color="inverse">
+              <span>Edit</span>
+            </Button>
+          </a>
+          <a href={`/dashboard/creators/delete/${creator.id}`}>
+            <Button variant="outline" color="danger">
+              <span>Delete</span>
+            </Button>
+          </a>
+        </div>
+      </td>
     </tr>
   );
 };
