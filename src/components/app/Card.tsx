@@ -18,7 +18,7 @@ const CardHeader = ({ children }: { children: ChildType }) => (
 );
 
 const CardBody = ({ children }: { children: ChildType }) => (
-  <div class="flex flex-col gap-4 p-6">{children}</div>
+  <div class="flex flex-col gap-4 p-4">{children}</div>
 );
 
 const CardImage = ({
@@ -45,7 +45,7 @@ const CardImage = ({
 );
 
 const CardTitle = ({ children }: { children: ChildType }) => (
-  <h3 class="text-balance text-lg font-bold text-on-surface-strong">
+  <h3 class="text-balance text-md font-bold text-on-surface-strong">
     {children}
   </h3>
 );
