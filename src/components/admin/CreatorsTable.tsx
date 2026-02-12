@@ -52,18 +52,26 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       <td>{capitalize(creator.status ?? "")}</td>
       <td>{formatDate(creator.createdAt ?? new Date())}</td>
       <td>
-        <div class="flex gap-2">
-          <a href={`/dashboard/creators/edit/${creator.id}`}>
-            <Button variant="outline" color="inverse">
-              <span>Edit</span>
-            </Button>
-          </a>
-          <a href={`/dashboard/creators/delete/${creator.id}`}>
-            <Button variant="outline" color="danger">
-              <span>Delete</span>
-            </Button>
-          </a>
-        </div>
+        <a href={`/dashboard/creators/edit/${creator.id}`}>
+          <Button variant="outline" color="inverse">
+            <span>Edit</span>
+          </Button>
+        </a>
+      </td>
+      <td>
+        <form
+          method="post"
+          action={`/dashboard/admin/creators/delete/${creator.id}`}
+          x-init
+          {...{
+            "@ajax:before":
+              "confirm('Are you sure?') || $event.preventDefault()",
+          }}
+        >
+          <Button variant="outline" color="danger">
+            <span>Delete</span>
+          </Button>
+        </form>
       </td>
     </tr>
   );

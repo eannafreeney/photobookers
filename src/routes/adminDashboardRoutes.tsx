@@ -171,3 +171,8 @@ adminDashboardRoutes.post(
     return c.html(<Alert type="success" message="Creator created!" />);
   },
 );
+
+adminDashboardRoutes.post("/creators/delete/:creatorId", async (c) => {
+  console.log("delete creator");
+  return c.html(<Alert type="success" message="Creator deleted!" />);
+});
