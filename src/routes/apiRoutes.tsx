@@ -19,6 +19,7 @@ import NavSearchResults from "../components/app/NavSearchResults";
 import ArtistSearchResults from "../components/app/ArtistSearchResults";
 import Alert from "../components/app/Alert";
 import Input from "../components/cms/ui/Input";
+import NavSearch from "../components/layouts/NavSearch";
 
 export const apiRoutes = new Hono();
 
@@ -231,6 +232,40 @@ apiRoutes.get("/search-artists", async (c) => {
 });
 
 apiRoutes.get("/search", async (c) => {
+  const searchQuery = c.req.query("search");
+
+  const searchTerm = searchQuery?.trim().toLowerCase();
+  const [bookResults, creatorResults] = await Promise.all([
+    searchBooks(searchTerm ?? ""),
+    searchCreators(searchTerm ?? ""),
+  ]);
+
+  return c.html(
+    <NavSearchResults
+      creators={creatorResults ?? []}
+      books={bookResults ?? []}
+      searchTerm={searchTerm ?? ""}
+    />,
+  );
+});
+
+apiRoutes.get("/search/mobile", async (c) => {
+  return c.html(
+    <div
+      id="search-results-mobile"
+      class="fixed top-0 left-0 right-0 bottom-0 w-full z-1 bg-amber-200"
+      x-data="{ isOpen: true }"
+      x-show="isOpen"
+    >
+      <div class="flex items-center justify-between gap-4 p-4">
+        <NavSearch action="/api/search/mobile/results" isMobile />
+        <button x-on:click="isOpen = false">X</button>
+      </div>
+    </div>,
+  );
+});
+
+apiRoutes.get("/search/mobile/results", async (c) => {
   const searchQuery = c.req.query("search");
 
   const searchTerm = searchQuery?.trim().toLowerCase();

@@ -2,6 +2,7 @@ import NavDesktopMenu from "./NavDesktopMenu";
 import NavMobileMenu from "./NavMobileMenu";
 import NavSearch from "./NavSearch";
 import BrandLogo from "../app/BrandLogo";
+import NavSearchMobile from "./NavSearchMobile";
 
 const Navbar = ({ currentPath }: { currentPath?: string | null }) => {
   const alpineAttrs = {
@@ -16,9 +17,10 @@ const Navbar = ({ currentPath }: { currentPath?: string | null }) => {
     >
       <BrandLogo />
       <div class="flex items-center gap-4">
-        <NavSearch />
+        <NavSearch action="/api/search" />
         <NavDesktopMenu currentPath={currentPath} />
       </div>
+      {/* <NavSearchMobile /> */}
       <NavMobileMenu currentPath={currentPath} />
     </nav>
   );

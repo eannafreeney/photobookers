@@ -24,7 +24,7 @@ const NavSearchResults = ({
       x-show="isOpen"
     >
       {/* Mobile close button */}
-      <div class="md:hidden flex justify-between items-center gap-2 px-4 border-b border-outline">
+      {/* <div class="md:hidden flex justify-between items-center gap-2 px-4 border-b border-outline">
         <div class="text-xs text-on-surface-weak">
           Results for: <span class="font-semibold">{searchTerm}</span>
         </div>
@@ -36,7 +36,7 @@ const NavSearchResults = ({
         >
           {closeIcon}
         </button>
-      </div>
+      </div> */}
 
       <div class="max-h-[calc(100vh-4rem)] md:max-h-96 overflow-y-auto p-4">
         {!hasResults ? (

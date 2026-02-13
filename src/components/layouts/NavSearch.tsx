@@ -1,4 +1,11 @@
-const NavSearch = () => {
+import clsx from "clsx";
+
+type NavSearchProps = {
+  action: string;
+  isMobile?: boolean;
+};
+
+const NavSearch = ({ action, isMobile = false }: NavSearchProps) => {
   const alpineAttrs = {
     "x-data": "{ hasResults: false, searchValue: '' }",
     "x-on:click.outside": "hasResults = false",
@@ -16,13 +23,17 @@ const NavSearch = () => {
 
   return (
     <div
-      class="relative flex mr-auto w-full max-w-64 flex-col gap-1 text-on-surface"
+      class={clsx(
+        "relative flex mr-auto flex-col gap-1 text-on-surface",
+        isMobile ? "w-full" : "max-w-64",
+      )}
       {...alpineAttrs}
     >
-      <form action="/api/search" method="get" autocomplete="off" {...formAttrs}>
+      <form action={action} method="get" autocomplete="off" {...formAttrs}>
         {searchIcon}
         <input
           type="text"
+          x-autofocus
           name="search"
           placeholder="Search"
           class="w-full rounded-radius border border-outline bg-surface py-2.5 pl-10 pr-2 text-md md:text-sm focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-75"
