@@ -9,6 +9,7 @@ import Link from "../../app/Link";
 import SectionTitle from "../../app/SectionTitle";
 import BookTableRow from "./BookTableRow";
 import Table from "./Table";
+import TableSearch from "./TableSearch";
 
 type BookTableProps = {
   searchQuery?: string;
@@ -36,7 +37,11 @@ export const BookTable = async ({
     <div class="flex flex-col gap-4">
       <SectionTitle>My Books</SectionTitle>
       <div class="flex items-center justify-between gap-4">
-        <BookTableSearch />
+        <TableSearch
+          target="books-table"
+          action="/dashboard/books"
+          placeholder="Filter books..."
+        />
         <Link href="/dashboard/books/new">
           <Button variant="solid" color="primary">
             New Book
@@ -75,27 +80,5 @@ export const BookTable = async ({
         </Table.Body>
       </Table>
     </div>
-  );
-};
-
-const BookTableSearch = () => {
-  const alpineAttrs = {
-    "x-on:input.debounce": "$el.form.requestSubmit()",
-    "x-on:search": "$el.form.requestSubmit()",
-  };
-
-  return (
-    <form x-target="books-table" action="/dashboard/books" autocomplete="off">
-      <label class="bg-surface-alt w-64 rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
-        {getInputIcon("search")}
-        <input
-          type="search"
-          class="w-full bg-surface-alt px-2 py-2 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 "
-          name="search"
-          placeholder="Filter books..."
-          {...alpineAttrs}
-        />
-      </label>
-    </form>
   );
 };

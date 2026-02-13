@@ -1,9 +1,13 @@
 import { Creator, CreatorClaim } from "../../db/schema";
-import { getClaimsPendingAdminReview } from "../../services/claims";
+import { getClaimsPendingAdminReview } from "../../services/admin";
 import Button from "../app/Button";
 
-export const ClaimsTable = async () => {
-  const claimsWithCreators = await getClaimsPendingAdminReview();
+type Props = {
+  searchQuery?: string;
+};
+
+export const ClaimsTable = async ({ searchQuery }: Props) => {
+  const claimsWithCreators = await getClaimsPendingAdminReview(searchQuery);
 
   return (
     <div class="flex flex-col gap-8">

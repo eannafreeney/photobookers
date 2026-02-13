@@ -6,7 +6,8 @@ import Select from "../cms/ui/Select";
 const CreatorFormAdmin = () => {
   const alpineAttrs = {
     "x-data": `creatorFormAdmin()`,
-    "x-target": "toast",
+    "x-target": "toast creators-table",
+    "x-target.error": "toast",
     "x-target.away": "_top",
     "x-on:ajax:success": "onSuccess()",
     "x-on:ajax:error": "onError()",
@@ -34,6 +35,7 @@ const CreatorFormAdmin = () => {
             name="form.website"
             type="url"
             placeholder="https://..."
+            required
           />
           <Select
             label="Type"

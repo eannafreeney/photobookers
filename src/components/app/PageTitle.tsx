@@ -9,7 +9,6 @@ type PageTitleProps = {
 
 const PageTitle = ({ title, creator }: PageTitleProps) => {
   const isMobile = useMediaQuery("(max-width: 767px)"); // or "(max-width: 768px)"
-  // console.log(isMobile);
 
   return (
     <div class="flex items-center gap-2">
@@ -20,8 +19,14 @@ const PageTitle = ({ title, creator }: PageTitleProps) => {
           size={isMobile ? "sm" : "md"}
         />
       )}
-      <div class="text-xl md:text-4xl font-medium my-4">
-        {creator?.displayName ?? title}
+      <div class="flex flex-col gap-2">
+        <div class="text-xl md:text-4xl font-medium my-4">
+          {creator?.displayName ?? title}
+        </div>
+        <div class="text-sm text-gray-500">
+          {creator?.city ? `${creator.city}, ` : ""}
+          {creator?.country ?? ""}
+        </div>
       </div>
     </div>
   );

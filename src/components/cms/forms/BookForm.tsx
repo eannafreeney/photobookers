@@ -110,6 +110,7 @@ export const BookForm = async ({
             label="Release Date"
             name="form.release_date"
             validateInput="validateField('release_date')"
+            required
           />
           <Input
             label="Tags"

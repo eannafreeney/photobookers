@@ -9,9 +9,13 @@
  * Run: npx tsx scripts/import-falllinepress-csv.ts [path-to-csv]
  */
 
-import "dotenv/config";
+import dotenv from "dotenv";
+import { resolve, join } from "path";
+
+dotenv.config({ path: resolve(process.cwd(), ".env.scripts") });
+dotenv.config();
+
 import { readFileSync } from "fs";
-import { join } from "path";
 import { parse } from "csv/sync";
 import { eq, ilike } from "drizzle-orm";
 import { db } from "../../src/db/client";
@@ -20,13 +24,12 @@ import { createBook } from "../../src/services/books";
 import { createStubCreatorProfile } from "../../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../../src/utils";
 
-const FALL_LINE_PRESS_PUBLISHER_ID = "b4a1bc5a-a7ec-4fe8-a133-5d66f48e6d29";
-
 type CsvRow = {
   title: string;
   artist: string;
   artistExistsInDb: string;
   description: string;
+  specs: string;
   coverUrl: string;
   images: string;
   availability: string;
@@ -86,14 +89,15 @@ function parseImages(imagesCell: string): string[] {
 
 async function main() {
   const csvPath =
-    process.argv[2] ?? join(process.cwd(), "output", "falllinepress-books.csv");
+    process.argv[2] ?? join(process.cwd(), "output", "hartmann-books.csv");
 
   const createdByUserId = await getCreatedByUserId();
   console.log("Created-by user:", createdByUserId);
 
   const raw = readFileSync(csvPath, "utf8");
+  const delimiter = raw.includes(";") ? ";" : ",";
   const rows = parse(raw, {
-    delimiter: ";",
+    delimiter,
     columns: true,
     skip_empty_lines: true,
     trim: true,
@@ -133,8 +137,9 @@ async function main() {
       title,
       description: row.description?.trim() || null,
       artistId: artistCreator.id,
-      publisherId: FALL_LINE_PRESS_PUBLISHER_ID,
+      publisherId: process.env.HARTMANN_BOOKS_ID,
       createdByUserId,
+      specs: row.specs?.trim() || null,
       coverUrl: row.coverUrl?.trim() || null,
       purchaseLink: row.purchaseLink?.trim() || null,
       images: images.length > 0 ? images : null,

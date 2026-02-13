@@ -3,17 +3,32 @@ import { getAllCreatorProfilesAdmin } from "../../services/admin";
 import { capitalize, formatDate } from "../../utils";
 import Button from "../app/Button";
 import Link from "../app/Link";
+import SectionTitle from "../app/SectionTitle";
 import Table from "../cms/ui/Table";
+import TableSearch from "../cms/ui/TableSearch";
 
-export const CreatorsTable = async () => {
-  const creators = await getAllCreatorProfilesAdmin();
+type Props = {
+  searchQuery?: string;
+};
+
+export const CreatorsTable = async ({ searchQuery }: Props) => {
+  const creators = await getAllCreatorProfilesAdmin(searchQuery);
 
   return (
     <div class="flex flex-col gap-8">
+      <SectionTitle>Creators</SectionTitle>
+      <div class="flex items-center justify-between gap-4">
+        <TableSearch
+          target="creators-table"
+          action="/dashboard/admin/creators"
+          placeholder="Filter creators..."
+        />
+      </div>
       <Table id="creators-table">
         <Table.Head>
           <tr>
             <th>Display Name</th>
+            <th>ID</th>
             <th>Type</th>
             <th>Website</th>
             <th>Status</th>
@@ -43,6 +58,7 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
           {creator.displayName}
         </Link>
       </td>
+      <td>{creator.id}</td>
       <td>{capitalize(creator.type)}</td>
       <td>
         <Link href={creator.website ?? ""} target="_blank">

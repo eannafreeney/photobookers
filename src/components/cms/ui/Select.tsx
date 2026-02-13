@@ -3,24 +3,15 @@ import InputLabel from "./InputLabel";
 
 type SelectProps = {
   label: string;
-  placeholder?: string;
   options: any[];
   required?: boolean;
   name: string;
 };
 
-const Select = ({
-  label,
-  placeholder = "",
-  options,
-  required = false,
-  name,
-}: SelectProps) => {
+const Select = ({ label, options, required = false, name }: SelectProps) => {
   return (
     <div class="relative flex w-full max-w-xs flex-col gap-1 text-on-surface dark:text-on-surface-dark">
-      <label for={name} class="w-fit pl-0.5 text-sm">
-        {label}
-      </label>
+      <InputLabel label={label} name={name} required={required} />
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 20 20"
