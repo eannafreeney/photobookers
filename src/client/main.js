@@ -9,11 +9,4 @@ window.Alpine = Alpine;
 Alpine.plugin(ajax);
 Alpine.plugin(focus);
 
-// document.addEventListener('ajax:after', (event) => {
-//     const form = event.target.closest('form');
-//     if (form) {
-//       form.removeAttribute('aria-busy');
-//     }
-//   });
-
 Alpine.start();

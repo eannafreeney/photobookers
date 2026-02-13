@@ -15,7 +15,7 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
       {/* previous button */}
       <button
         type="button"
-        class="absolute left-5 top-1/2 z-10 flex rounded-full -translate-y-1/2 items-center justify-center bg-surface/40 p-2 text-on-surface transition hover:bg-surface/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:outline-offset-0 dark:bg-surface-dark/40 dark:text-on-surface-dark dark:hover:bg-surface-dark/60 dark:focus-visible:outline-primary-dark"
+        class="absolute left-5 top-1/2 z-5 flex rounded-full -translate-y-1/2 items-center justify-center bg-surface/40 p-2 text-on-surface transition hover:bg-surface/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:outline-offset-0 dark:bg-surface-dark/40 dark:text-on-surface-dark dark:hover:bg-surface-dark/60 dark:focus-visible:outline-primary-dark"
         aria-label="previous slide"
         x-on:click="previous()"
         x-show="slides.length > 1"
@@ -26,7 +26,7 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
       {/* next button */}
       <button
         type="button"
-        class="absolute right-5 top-1/2 z-10 flex rounded-full -translate-y-1/2 items-center justify-center bg-surface/40 p-2 text-on-surface transition hover:bg-surface/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:outline-offset-0 dark:bg-surface-dark/40 dark:text-on-surface-dark dark:hover:bg-surface-dark/60 dark:focus-visible:outline-primary-dark"
+        class="absolute right-5 top-1/2 z-5 flex rounded-full -translate-y-1/2 items-center justify-center bg-surface/40 p-2 text-on-surface transition hover:bg-surface/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:outline-offset-0 dark:bg-surface-dark/40 dark:text-on-surface-dark dark:hover:bg-surface-dark/60 dark:focus-visible:outline-primary-dark"
         aria-label="next slide"
         x-on:click="next()"
         x-show="slides.length > 1"

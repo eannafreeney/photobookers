@@ -34,6 +34,7 @@ const DetailMobile = ({
         {book.publisher && (
           <CardCreatorCard creatorType="publisher" book={book} />
         )}
+        {book.publisher && <CardCreatorCard creatorType="artist" book={book} />}
       </div>
       <WishlistButton book={book} user={user} />
       {book.releaseDate && (

@@ -17,7 +17,9 @@ const ClaimCreatorBtn = async ({
   user,
 }: ClaimCreatorBtnProps) => {
   const isStubAcc = creator.status === "stub";
-  if (!isStubAcc) return <></>;
+  const hasCreatorAccount = user?.creator?.id;
+  const isAdmin = user?.isAdmin;
+  if (!isStubAcc || hasCreatorAccount || isAdmin) return <></>;
 
   const pendingClaim = await getPendingClaimByUserAndCreator(
     user?.id ?? "",

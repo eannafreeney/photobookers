@@ -20,6 +20,7 @@ import ArtistSearchResults from "../components/app/ArtistSearchResults";
 import Alert from "../components/app/Alert";
 import Input from "../components/cms/ui/Input";
 import NavSearch from "../components/layouts/NavSearch";
+import { closeIcon } from "../components/layouts/NavSearchMobile";
 
 export const apiRoutes = new Hono();
 
@@ -259,7 +260,7 @@ apiRoutes.get("/search/mobile", async (c) => {
     >
       <div class="flex items-center justify-between gap-4 p-4">
         <NavSearch action="/api/search/mobile/results" isMobile />
-        <button x-on:click="isOpen = false">X</button>
+        <button x-on:click="isOpen = false">{closeIcon}</button>
       </div>
     </div>,
   );
