@@ -3,6 +3,7 @@ import Alpine from "alpinejs";
 export function registerImageOrientation() {
   Alpine.data("imageOrientation", () => ({
     isLandscape: false,
+    isSquare: false,
 
     init() {
       const img = this.$el.querySelector("img");
@@ -14,8 +15,10 @@ export function registerImageOrientation() {
         console.log("w", w, "h", h);
         if (w > 0 && h > 0) {
           this.isLandscape = w > h;
+          this.isSquare = w === h;
         } else {
           this.isLandscape = false;
+          this.isSquare = false;
         }
       };
 
