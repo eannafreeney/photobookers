@@ -19,7 +19,7 @@ const NavSearchResults = ({
   return (
     <div
       id="search-results"
-      class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-15 md:top-11 md:-left-24 md:right-0 md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border border-outline bg-surface-alt shadow-sm"
+      class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:-left-24 md:right-0 md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border border-outline bg-surface-alt shadow-sm"
       x-data="{ isOpen: true }"
       x-show="isOpen"
     >

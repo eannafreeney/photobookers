@@ -76,7 +76,8 @@ const CreatorCardPortrait = ({
               href={`/creators/${creator.slug}`}
               class="flex items-center gap-2"
             >
-              {creator.displayName} {VerifiedCreator({ creator })}
+              {creator.displayName}{" "}
+              <VerifiedCreator creator={creator} size="sm" />
             </a>
           </Card.Title>
           <Card.SubTitle>

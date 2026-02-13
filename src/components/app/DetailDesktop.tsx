@@ -44,9 +44,6 @@ const DetailDesktop = ({
           </div>
           <div class="flex flex-col gap-4">
             <WishlistButton book={book} user={user} />
-            {book.publisher && (
-              <CardCreatorCard creatorType="artist" book={book} />
-            )}
             <Card.Description>{book.description ?? ""}</Card.Description>
             <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
             <Card.Description>{book.specs ?? ""}</Card.Description>

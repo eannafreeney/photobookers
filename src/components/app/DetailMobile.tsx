@@ -42,7 +42,6 @@ const DetailMobile = ({
       <Card.Description>{book.description ?? ""}</Card.Description>
       <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
       <Card.Description>{book.specs ?? ""}</Card.Description>
-      {book.publisher && <CardCreatorCard creatorType="artist" book={book} />}
       <TagList tags={book.tags ?? []} />
       <PurchaseLink purchaseLink={book.purchaseLink} />
       <CreatorCard

@@ -1,48 +1,37 @@
-import Avatar from "./Avatar";
-import { useUser } from "../../contexts/UserContext";
 import { getInitialsAvatar } from "../../lib/avatar";
+import { Creator } from "../../db/schema";
+import { AuthUser } from "../../../types";
 
-const NavAvatar = () => {
-  const user = useUser();
-  const isCreator = user?.creator?.id;
+type NavAvatarProps = {
+  creator?: Creator;
+  user?: AuthUser | null;
+};
 
-  if (!user) {
-    return <></>;
-  }
-
+const NavAvatar = ({ creator, user }: NavAvatarProps) => {
   const avatarUrl =
-    user?.creator?.coverUrl ??
+    creator?.coverUrl ??
     getInitialsAvatar(user?.firstName ?? "", user?.lastName ?? "");
-    
+
   const avatarAlt = `${user?.firstName} ${user?.lastName}`;
 
+  const alpineAttrs = {
+    "x-on:keydown.space.prevent": "openWithKeyboard = true",
+    "x-on:keydown.enter.preven": "openWithKeyboard = true",
+    "x-on:keydown.down.prevent": "openWithKeyboard = true",
+    "@click": "userDropDownIsOpen = ! userDropDownIsOpen",
+  };
   return (
-    <div class="dropdown dropdown-end">
-      <div tabIndex="0" role="button" class="cursor-pointer">
-        <Avatar src={avatarUrl} alt={avatarAlt} size="md" />
-      </div>
-      <ul
-        tabIndex="0"
-        role="listbox"
-        class="menu menu-compact dropdown-content bg-base-100 rounded-box w-52 p-2 shadow text-black"
-      >
-        {isCreator && (
-          <>
-            <li>
-              <a href="/dashboard/books">Dashboard</a>
-            </li>
-            <li>
-              <a href={`/dashboard/creators/edit/${user?.creator?.id}`}>
-                Edit Profile
-              </a>
-            </li>
-          </>
-        )}
-        <li>
-          <a href="/auth/logout">Logout</a>
-        </li>
-      </ul>
-    </div>
+    <button
+      id="nav-avatar"
+      class="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer"
+      {...alpineAttrs}
+    >
+      <img
+        src={avatarUrl ?? user?.creator?.coverUrl ?? ""}
+        alt={avatarAlt}
+        class="size-10 rounded-full object-cover"
+      />
+    </button>
   );
 };
 

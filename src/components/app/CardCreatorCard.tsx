@@ -32,7 +32,7 @@ const CardCreatorCard = async ({ creatorType, book }: CardCreatorCardProps) => {
           size="xs"
         />
         <Card.SubTitle>{creator.displayName}</Card.SubTitle>
-        {VerifiedCreator({ creator })}
+        <VerifiedCreator creator={creator} size="sm" />
       </div>
     </Link>
   ) : (

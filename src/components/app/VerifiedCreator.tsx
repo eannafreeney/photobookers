@@ -2,10 +2,17 @@ import { Creator } from "../../db/schema";
 
 type VerifiedCreatorProps = {
   creator: Creator;
+  size?: "xs" | "sm" | "md" | "lg";
 };
 
-const VerifiedCreator = ({ creator }: VerifiedCreatorProps) => {
+const VerifiedCreator = ({ creator, size = "md" }: VerifiedCreatorProps) => {
   if (!creator.ownerUserId) return <></>;
+  const sizes = {
+    xs: "size-4",
+    sm: "size-6",
+    md: "size-8",
+    lg: "size-10",
+  };
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -13,7 +20,7 @@ const VerifiedCreator = ({ creator }: VerifiedCreatorProps) => {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="size-6 text-green-500 fill-green-500"
+      className={`${sizes[size]} text-green-500 fill-green-500`}
     >
       <path
         strokeLinecap="round"

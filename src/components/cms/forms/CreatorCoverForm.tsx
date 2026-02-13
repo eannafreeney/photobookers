@@ -13,8 +13,8 @@ const CreatorCoverForm = ({ initialUrl, creatorId }: Props) => {
 
   const alpineAttrs = {
     "x-data": `creatorCoverForm({initialUrl: ${initialUrlString}})`,
+    "x-target": "toast nav-avatar",
     "x-target.error": "toast",
-    "x-target": "toast",
     "@ajax:before": "onBefore()",
     "@ajax:success": "onSuccess()",
     "@ajax:error": "onError()",

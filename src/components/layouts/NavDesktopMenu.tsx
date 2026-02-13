@@ -3,6 +3,8 @@ import { AuthUser } from "../../../types";
 import { useUser } from "../../contexts/UserContext";
 import { getInitialsAvatar } from "../../lib/avatar";
 import Button from "../app/Button";
+import { Creator } from "../../db/schema";
+import NavAvatar from "../app/NavAvatar";
 
 type Props = {
   currentPath?: string | null;
@@ -36,7 +38,7 @@ const NavDesktopMenu = ({ currentPath }: Props) => {
           }}
           class="relative flex items-center"
         >
-          <NavAvatar />
+          <NavAvatar creator={user.creator ?? undefined} user={user} />
           <DropDownMenu currentPath={currentPath} user={user} />
         </li>
       )}
@@ -67,34 +69,6 @@ const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
         {children}
       </a>
     </li>
-  );
-};
-
-const NavAvatar = () => {
-  const user = useUser();
-  const avatarUrl =
-    user?.creator?.coverUrl ??
-    getInitialsAvatar(user?.firstName ?? "", user?.lastName ?? "");
-
-  const avatarAlt = `${user?.firstName} ${user?.lastName}`;
-
-  const alpineAttrs = {
-    "x-on:keydown.space.prevent": "openWithKeyboard = true",
-    "x-on:keydown.enter.preven": "openWithKeyboard = true",
-    "x-on:keydown.down.prevent": "openWithKeyboard = true",
-    "@click": "userDropDownIsOpen = ! userDropDownIsOpen",
-  };
-  return (
-    <button
-      class="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer"
-      {...alpineAttrs}
-    >
-      <img
-        src={avatarUrl ?? user?.creator?.coverUrl ?? ""}
-        alt={avatarAlt}
-        class="size-10 rounded-full object-cover"
-      />
-    </button>
   );
 };
 

@@ -8,11 +8,13 @@ import {
 } from "../services/storage";
 import { paramValidator, validateImageFile } from "../lib/validator";
 import Alert from "../components/app/Alert";
-import { bookImages } from "../db/schema";
+import { bookImages, Creator } from "../db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../db/client";
 import { updateCreatorCoverImage } from "../services/creators";
 import { requireImageEditAccess } from "../middleware/imageGuards";
+import NavAvatar from "../components/app/NavAvatar";
+import { getUser } from "../utils";
 
 export const imageRoutes = new Hono();
 
@@ -29,6 +31,7 @@ imageRoutes.post(
   async (c) => {
     const creatorId = c.req.valid("param").creatorId;
     const body = await c.req.parseBody();
+    const user = await getUser(c);
 
     const validatedFile = validateImageFile(body.cover);
     if (!validatedFile.success) {
@@ -46,13 +49,23 @@ imageRoutes.post(
       return c.html(<Alert type="danger" message="Failed to upload image" />);
     }
 
-    const updatedCreator = await updateCreatorCoverImage(coverUrl, creatorId);
+    let updatedCreator: Creator | null = null;
+
+    try {
+      updatedCreator = await updateCreatorCoverImage(coverUrl, creatorId);
+    } catch (error) {
+      console.log(error, "error in update creator cover image");
+      return showErrorAlert(c, "Failed to update creator cover image");
+    }
 
     return c.html(
-      <Alert
-        type="success"
-        message={`${updatedCreator?.displayName ?? "Book"} Updated!`}
-      />,
+      <>
+        <Alert
+          type="success"
+          message={`${updatedCreator?.displayName ?? "Book"} Updated!`}
+        />
+        <NavAvatar creator={updatedCreator ?? undefined} user={user ?? null} />
+      </>,
     );
   },
 );
