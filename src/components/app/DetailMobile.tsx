@@ -36,14 +36,16 @@ const DetailMobile = ({
         )}
       </div>
       <WishlistButton book={book} user={user} />
-      <Card.Description>
-        {book.releaseDate && formatDate(book.releaseDate)}
-      </Card.Description>
-      <Card.Description>{book.description ?? ""}</Card.Description>
+      {book.releaseDate && (
+        <Card.Description>{formatDate(book.releaseDate)}</Card.Description>
+      )}
+      {book.description && (
+        <Card.Description>{book.description}</Card.Description>
+      )}
+      {book.specs && <Card.Description>{book.specs}</Card.Description>}
       <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
-      <Card.Description>{book.specs ?? ""}</Card.Description>
-      <TagList tags={book.tags ?? []} />
       <PurchaseLink purchaseLink={book.purchaseLink} />
+      <TagList tags={book.tags ?? []} />
       <CreatorCard
         creator={book.artist}
         currentPath={currentPath}

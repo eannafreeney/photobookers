@@ -1,6 +1,7 @@
 import { Creator } from "../../db/schema";
 import { useMediaQuery } from "../../lib/device";
 import Avatar from "./Avatar";
+import Card from "./Card";
 import VerifiedCreator from "./VerifiedCreator";
 
 type PageTitleProps = {
@@ -12,7 +13,7 @@ const PageTitle = ({ title, creator }: PageTitleProps) => {
   const isMobile = useMediaQuery("(max-width: 767px)"); // or "(max-width: 768px)"
 
   return (
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-4">
       {creator?.coverUrl && (
         <div class="relative">
           <Avatar
@@ -20,7 +21,6 @@ const PageTitle = ({ title, creator }: PageTitleProps) => {
             alt={creator.displayName ?? ""}
             size={isMobile ? "sm" : "md"}
           />
-
           <div class="absolute -top-2 -right-2">
             {creator?.ownerUserId && (
               <VerifiedCreator creator={creator} size="sm" />
@@ -28,10 +28,15 @@ const PageTitle = ({ title, creator }: PageTitleProps) => {
           </div>
         </div>
       )}
-      <div class="text-xl md:text-4xl font-medium">
-        {creator?.displayName ?? title}
+      <div class="flex flex-col gap-0.5">
+        <div class="text-xl md:text-4xl font-medium">
+          {creator?.displayName ?? title}
+        </div>
+        <div class="text-xs text-on-surface-weak flex items-center gap-2">
+          {creator?.city ? `${creator.city}, ` : ""}
+          {creator?.country ?? ""}
+        </div>
       </div>
-      {/* <div>{creator?.ownerUserId && <VerifiedCreator creator={creator} />}</div> */}
     </div>
   );
 };

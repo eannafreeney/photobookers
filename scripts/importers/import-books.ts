@@ -1,14 +1,3 @@
-/**
- * Import Fall Line Press books from output/falllinepress-books.csv into the DB.
- *
- * Prerequisites:
- *   - CSV at output/falllinepress-books.csv (semicolon-delimited)
- *   - Fall Line Press publisher exists (id: b4a1bc5a-a7ec-4fe8-a133-5d66f48e6d29)
- *   - Set IMPORT_CREATED_BY_USER_ID to your admin user id, or the script will use the first admin user
- *
- * Run: npx tsx scripts/import-falllinepress-csv.ts [path-to-csv]
- */
-
 import dotenv from "dotenv";
 import { resolve, join } from "path";
 

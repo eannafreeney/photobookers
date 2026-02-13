@@ -11,6 +11,7 @@ import CardCreatorCard from "./CardCreatorCard";
 import AvailabilityBadge from "./AvailabilityBadge";
 import Button from "./Button";
 import PurchaseLink from "./PurchaseLink";
+import { formatDate } from "../../utils";
 
 type DetailProps = {
   galleryImages: string[];
@@ -44,9 +45,16 @@ const DetailDesktop = ({
           </div>
           <div class="flex flex-col gap-4">
             <WishlistButton book={book} user={user} />
-            <Card.Description>{book.description ?? ""}</Card.Description>
+            {book.releaseDate && (
+              <Card.Description>
+                {formatDate(book.releaseDate)}
+              </Card.Description>
+            )}
+            {book.description && (
+              <Card.Description>{book.description}</Card.Description>
+            )}
+            {book.specs && <Card.Description>{book.specs}</Card.Description>}
             <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
-            <Card.Description>{book.specs ?? ""}</Card.Description>
             <TagList tags={book.tags ?? []} />
             <PurchaseLink purchaseLink={book.purchaseLink} />
           </div>

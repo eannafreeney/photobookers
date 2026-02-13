@@ -6,39 +6,22 @@ type NavSearchResultsProps = {
   creators: Creator[];
   books: (Book & { artist: Creator | null })[];
   user?: AuthUser | null;
-  searchTerm: string;
 };
 
-const NavSearchResults = ({
-  creators,
-  books,
-  searchTerm,
-}: NavSearchResultsProps) => {
+const NavSearchResults = ({ creators, books }: NavSearchResultsProps) => {
   const hasResults = creators.length > 0 || books.length > 0;
+
+  console.log("creators", creators.length);
+  console.log("books", books.length);
 
   return (
     <div
       id="search-results"
-      class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:-left-24 md:right-0 md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border border-outline bg-surface-alt shadow-sm"
+      class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:-left-24 md:right-0 md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border shadow-sm border-outline bg-surface-alt "
       x-data="{ isOpen: true }"
       x-show="isOpen"
     >
-      {/* Mobile close button */}
-      {/* <div class="md:hidden flex justify-between items-center gap-2 px-4 border-b border-outline">
-        <div class="text-xs text-on-surface-weak">
-          Results for: <span class="font-semibold">{searchTerm}</span>
-        </div>
-        <button
-          type="button"
-          class="p-2 hover:bg-surface rounded-radius transition-colors"
-          x-on:click="isOpen = false"
-          aria-label="Close search results"
-        >
-          {closeIcon}
-        </button>
-      </div> */}
-
-      <div class="max-h-[calc(100vh-4rem)] md:max-h-96 overflow-y-auto p-4">
+      <div class="max-h-[calc(100vh-4rem)] overflow-y-auto p-4">
         {!hasResults ? (
           <div class="p-8 text-center">
             <p class="text-sm text-on-surface-weak">No results found</p>

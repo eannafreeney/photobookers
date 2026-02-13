@@ -46,12 +46,14 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
           <div
             x-show="currentSlideIndex == index + 1"
             class="absolute inset-0"
+            x-data="imageOrientation"
             {...fadeTransition}
           >
             <img
-              class="absolute w-full h-full inset-0 object-cover text-on-surface dark:text-on-surface-dark"
+              class="absolute w-full h-full inset-0 text-on-surface dark:text-on-surface-dark"
               x-bind:src="slide.imgSrc"
               x-bind:alt="slide.imgAlt"
+              x-bind:class="isLandscape ? 'object-cover' :  'object-contain'"
             />
           </div>
         </template>

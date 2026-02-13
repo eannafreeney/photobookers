@@ -31,9 +31,9 @@ const BookCard = ({ book, user, creatorType }: BookCardProps) => {
           <Link href={`/books/${book.slug}`}>
             <Card.Title>{book.title}</Card.Title>
           </Link>
-          {/* <Card.Text>
+          <Card.Text>
             {book.releaseDate && formatDate(book.releaseDate)}
-          </Card.Text> */}
+          </Card.Text>
         </div>
       </Card.Body>
     </Card>
