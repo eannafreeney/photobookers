@@ -78,13 +78,14 @@ function parseImages(imagesCell: string): string[] {
 
 async function main() {
   const csvPath =
-    process.argv[2] ?? join(process.cwd(), "output", "hartmann-books.csv");
+    process.argv[2] ?? join(process.cwd(), "output", "thevelvetcell-books.csv");
 
   const createdByUserId = await getCreatedByUserId();
   console.log("Created-by user:", createdByUserId);
 
   const raw = readFileSync(csvPath, "utf8");
-  const delimiter = raw.includes(";") ? ";" : ",";
+  const firstLine = raw.split("\n")[0] ?? "";
+  const delimiter = firstLine.startsWith("title;") ? ";" : ",";
   const rows = parse(raw, {
     delimiter,
     columns: true,
@@ -126,7 +127,7 @@ async function main() {
       title,
       description: row.description?.trim() || null,
       artistId: artistCreator.id,
-      publisherId: process.env.HARTMANN_BOOKS_ID,
+      publisherId: process.env.TVC_ID,
       createdByUserId,
       specs: row.specs?.trim() || null,
       coverUrl: row.coverUrl?.trim() || null,
