@@ -17,10 +17,10 @@ const Navbar = ({ currentPath }: { currentPath?: string | null }) => {
     >
       <BrandLogo />
       <div class="flex items-center gap-4">
-        <NavSearch action="/api/search" />
+        {/* <NavSearch action="/api/search" /> */}
         <NavDesktopMenu currentPath={currentPath} />
       </div>
-      {/* <NavSearchMobile /> */}
+      <NavSearchMobile />
       <NavMobileMenu currentPath={currentPath} />
     </nav>
   );
