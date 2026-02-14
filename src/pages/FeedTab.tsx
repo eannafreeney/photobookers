@@ -16,7 +16,6 @@ type Props = {
 };
 
 const FeedPage = async ({ user, flash, currentPath }: Props) => {
-  console.log("user", user);
   if (!user) {
     return (
       <AppLayout title="Books" user={user} flash={flash}>

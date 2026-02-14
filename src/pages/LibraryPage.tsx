@@ -19,23 +19,27 @@ const LibraryPage = async ({ user, flash, currentPath }: Props) => {
     return (
       <AppLayout title="Books" user={user} flash={flash}>
         <Page>
-          <NavTabs currentPath={currentPath} />
-          <SectionTitle>Your Profile</SectionTitle>
-          <p>Manage your wishlist.</p>
-          {icon}
-          <div class="flex flex-col gap-4 justify-center items-center mt-8">
-            <span>Login or register to view your feed.</span>
-            <div class="flex gap-2 justify-center items-center">
-              <a href="/auth/login">
-                <Button variant="solid" color="inverse">
-                  Login
-                </Button>
-              </a>
-              <a href="/auth/register">
-                <Button variant="solid" color="primary">
-                  Register
-                </Button>
-              </a>
+          <div
+            id="tab-content"
+            class="flex flex-col items-center justify-center mt-4"
+          >
+            <SectionTitle>Wishlisted Books</SectionTitle>
+            <p>Manage your wishlist.</p>
+            {icon}
+            <div class="flex flex-col gap-4 justify-center items-center mt-8">
+              <span>Login or register to view your feed.</span>
+              <div class="flex gap-2 justify-center items-center">
+                <a href="/auth/login">
+                  <Button variant="solid" color="inverse">
+                    Login
+                  </Button>
+                </a>
+                <a href="/auth/register">
+                  <Button variant="solid" color="primary">
+                    Register
+                  </Button>
+                </a>
+              </div>
             </div>
           </div>
         </Page>

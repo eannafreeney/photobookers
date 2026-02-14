@@ -31,8 +31,6 @@ const BooksOverview = async ({
     );
   }
 
-  const creatorType = user.creator.type;
-
   return (
     <AppLayout
       title="Books Overview"
@@ -48,15 +46,14 @@ const BooksOverview = async ({
             message="Your creator profile is not verified yet. In the meantime, you can start uploading books, or update your profile pic."
           />
         ) : (
-          <div>
-            Account Verified {VerifiedCreator({ creator: user.creator })}
+          <div class="flex items-center gap-2">
+            Account Verified <VerifiedCreator creator={user.creator} />
           </div>
         )}
         <div class="flex flex-col gap-16">
           <BookTable
             searchQuery={searchQuery}
-            creatorId={user.creator.id}
-            creatorType={creatorType}
+            creator={user.creator}
             user={user}
           />
           <FeatureGuard flagName="artists-can-create-stub-publishers">

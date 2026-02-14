@@ -10,6 +10,9 @@ import FeedPage from "../pages/FeedTab";
 import NewBooksPage from "../pages/NewBooksPage";
 import { requireBookPreviewAccess } from "../middleware/bookGuard";
 import TermsAndConditionsPage from "../pages/TermsAndConditions";
+import { db } from "../db/client";
+import { books } from "../db/schema";
+import { count, eq } from "drizzle-orm";
 
 export const appRoutes = new Hono();
 
@@ -77,9 +80,15 @@ appRoutes.get("/books/tags/:tag", async (c) => {
 appRoutes.get("/new-books", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
+  const page = Number(c.req.query("page") ?? 1);
 
   return c.html(
-    <NewBooksPage user={user} flash={flash} currentPath="/new-books" />,
+    <NewBooksPage
+      user={user}
+      flash={flash}
+      currentPage={page}
+      currentPath="/new-books"
+    />,
   );
 });
 

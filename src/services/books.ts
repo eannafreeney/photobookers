@@ -12,6 +12,7 @@ import {
 } from "../db/schema";
 import {
   and,
+  count,
   eq,
   exists,
   ilike,
@@ -27,29 +28,34 @@ import { generateUniqueBookSlug, slugify } from "../utils";
 import { bookFormSchema } from "../schemas";
 import z from "zod";
 import { AuthUser } from "../../types";
+import { getPagination } from "../lib/pagination";
 
-export const getNewBooks = async () => {
+export const getNewBooks = async (currentPage: number, defaultLimit = 10) => {
   try {
-    return await db.query.books.findMany({
-      columns: {
-        id: true,
-        slug: true,
-        title: true,
-        coverUrl: true,
-        tags: true,
-        artistId: true,
-        publisherId: true,
-      },
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(eq(books.publicationStatus, "published"));
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundBooks = await db.query.books.findMany({
       with: {
         artist: true,
       },
       orderBy: (books, { desc }) => [desc(books.createdAt)],
-      limit: 10,
       where: and(
         eq(books.publicationStatus, "published"),
         // lte(books.releaseDate, new Date()),
       ),
+      limit: limit,
+      offset: offset,
     });
+    return { books: foundBooks, totalPages, page, limit };
   } catch (error) {
     console.error("Failed to get books", error);
     return null;
