@@ -55,7 +55,7 @@ export const getNewBooks = async (currentPage: number, defaultLimit = 10) => {
       limit: limit,
       offset: offset,
     });
-    return { books: foundBooks, totalPages, page, limit };
+    return { books: foundBooks, totalPages, page };
   } catch (error) {
     console.error("Failed to get books", error);
     return null;

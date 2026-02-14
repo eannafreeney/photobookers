@@ -10,22 +10,26 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
 
   return (
     <nav
+      id="pagination"
       class="flex items-center justify-center gap-2"
       x-init
-      x-intersect={`$ajax('${baseUrl}?page=${page + 1}', { target: 'pagination ${targetId}' })`}
+      {...(page < totalPages && {
+        "x-intersect": `$ajax('${baseUrl}?page=${page + 1}', { target: 'pagination ${targetId}' })`,
+      })}
     >
-      {page > 1 && <a href={`${baseUrl}?page=${page - 1}`}>← Previous</a>}
+      {/* {page > 1 && <a href={`${baseUrl}?page=${page - 1}`}>← Previous</a>} */}
+      {`${page} of ${totalPages}`}
 
-      {Array.from({ length: totalPages }).map((_, i) => {
+      {/* {Array.from({ length: totalPages }).map((_, i) => {
         const p = i + 1;
         return p === page ? (
           <strong>{p}</strong>
         ) : (
           <a href={`${baseUrl}?page=${p}`}>{p}</a>
         );
-      })}
+      })} */}
 
-      {page < totalPages && <a href={`${baseUrl}?page=${page + 1}`}>Next →</a>}
+      {/* {page < totalPages && <a href={`${baseUrl}?page=${page + 1}`}>Next →</a>} */}
     </nav>
   );
 };

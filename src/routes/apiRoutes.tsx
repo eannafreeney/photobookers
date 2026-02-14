@@ -254,7 +254,7 @@ apiRoutes.get("/search/mobile", async (c) => {
   return c.html(
     <div
       id="search-results-mobile"
-      class="fixed top-0 left-0 right-0 bottom-0 w-full z-1 backdrop-blur-sm"
+      class="fixed top-0 left-0 right-0 bottom-0 w-full z-10 backdrop-blur-sm"
       x-data="{ isOpen: true }"
       x-show="isOpen"
     >

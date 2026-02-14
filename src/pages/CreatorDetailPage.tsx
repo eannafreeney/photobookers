@@ -9,6 +9,7 @@ import BookCard from "../components/app/BookCard";
 import Link from "../components/app/Link";
 import Button from "../components/app/Button";
 import ErrorPage from "./error/errorPage";
+import { Pagination } from "../components/app/Pagination";
 
 type CreatorDetailPageProps = {
   user: AuthUser | null;
@@ -21,17 +22,13 @@ const CreatorDetailPage = async ({
   creatorSlug,
   currentPath,
 }: CreatorDetailPageProps) => {
-  const result = await getCreatorBySlug(creatorSlug);
+  const result = await getCreatorBySlug(creatorSlug, 5);
 
   if (!result.creator) {
-    return <ErrorPage errorMessage="Creator not found" user={user} />;
+    return <ErrorPage errorMessage="Creator not found" />;
   }
 
-  const { creator } = result;
-  const books =
-    creator.type === "publisher"
-      ? creator?.booksAsPublisher
-      : creator?.booksAsArtist || [];
+  const { creator, books, totalPages, page } = result;
 
   if (!books.length) {
     return (
@@ -39,17 +36,25 @@ const CreatorDetailPage = async ({
     );
   }
 
+  const targetId = `books-grid-${creator.id}`;
+
   return (
     <AppLayout title={creator?.displayName ?? ""} user={user}>
       <Page>
         <PageTitle creator={creator} />
         <div class="flex flex-col md:flex-row gap-4">
           <div class="md:w-3/4 flex flex-col gap-4">
-            <GridPanel>
+            <GridPanel id={targetId}>
               {books.map((book) => (
                 <BookCard book={book} user={user} creatorType={creator.type} />
               ))}
             </GridPanel>
+            <Pagination
+              baseUrl={currentPath}
+              page={page}
+              totalPages={totalPages}
+              targetId={targetId}
+            />
           </div>
           <div class="md:w-1/4">
             <CreatorCard

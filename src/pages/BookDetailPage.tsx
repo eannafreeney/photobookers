@@ -5,6 +5,7 @@ import { Book, Creator } from "../db/schema";
 import Page from "../components/layouts/Page";
 import DetailMobile from "../components/app/DetailMobile";
 import DetailDesktop from "../components/app/DetailDesktop";
+import ErrorPage from "./error/errorPage";
 
 export type BookWithGalleryImages = Omit<
   Book & { artist: Creator; publisher: Creator },
@@ -32,11 +33,7 @@ const BookDetailPage = async ({
 }: BookDetailPageProps) => {
   const result = await getBookBySlug(bookSlug, status);
   if (!result?.book || !result.book.artist) {
-    return (
-      <AppLayout title="Book not found" user={user}>
-        <p>Book not found</p>
-      </AppLayout>
-    );
+    return <ErrorPage errorMessage="Book not found" />;
   }
 
   const { book } = result;

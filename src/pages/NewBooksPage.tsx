@@ -21,13 +21,13 @@ const NewBooksPage = async ({
   currentPath,
   currentPage,
 }: Props) => {
-  const result = await getNewBooks(currentPage, 10);
+  const result = await getNewBooks(currentPage);
 
   if (!result?.books) {
     return <ErrorPage errorMessage="No featured books found" />;
   }
 
-  const { books, totalPages, page, limit } = result;
+  const { books, totalPages, page } = result;
 
   const targetId = "new-books-grid";
 

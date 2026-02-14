@@ -1,4 +1,4 @@
-import { and, eq, exists, ilike, isNull } from "drizzle-orm";
+import { and, count, eq, exists, ilike, isNull } from "drizzle-orm";
 import { db } from "../db/client";
 import {
   books,
@@ -12,35 +12,62 @@ import { getRandomCoverUrl, slugify } from "../utils";
 import { bookFormSchema } from "../schemas";
 import z from "zod";
 import { AuthUser } from "../../types";
+import { getPagination } from "../lib/pagination";
 
-export const getCreatorBySlug = async (slug: string) => {
+export const getCreatorBySlug = async (
+  slug: string,
+  currentPage: number = 1,
+  defaultLimit = 10,
+) => {
+  // 1. Fetch creator without books
   const creator = await db.query.creators.findFirst({
     where: eq(creators.slug, slug),
-    with: {
-      booksAsArtist: {
-        where: eq(books.publicationStatus, "published"),
-      },
-      booksAsPublisher: {
-        with: {
-          artist: true,
-        },
-        where: eq(books.publicationStatus, "published"),
-      },
-    },
   });
 
-  console.log(creator);
+  if (!creator) {
+    return {
+      creator: null,
+      books: [],
+      artists: [],
+      totalPages: 0,
+      page: 1,
+      limit: defaultLimit,
+    };
+  }
 
-  const uniqueArtists = creator?.booksAsPublisher
-    .map((book) => book.artist)
-    .filter(
-      (artist, index, self) =>
-        artist && self.findIndex((a) => a?.id === artist.id) === index,
+  // 2. Count books for this creator (by type)
+  const bookColumn =
+    creator.type === "publisher" ? books.publisherId : books.artistId;
+  const [{ value: totalCount = 0 }] = await db
+    .select({ value: count() })
+    .from(books)
+    .where(
+      and(eq(bookColumn, creator.id), eq(books.publicationStatus, "published")),
     );
+
+  const { page, limit, offset, totalPages } = getPagination(
+    currentPage,
+    totalCount,
+    defaultLimit,
+  );
+
+  // 3. Fetch one page of books
+  const foundBooks = await db.query.books.findMany({
+    where: and(
+      eq(bookColumn, creator.id),
+      eq(books.publicationStatus, "published"),
+    ),
+    orderBy: (books, { desc }) => [desc(books.createdAt)],
+    limit,
+    offset,
+    with: creator.type === "publisher" ? { artist: true } : undefined,
+  });
 
   return {
     creator,
-    artists: uniqueArtists ?? [],
+    books: foundBooks,
+    totalPages,
+    page,
   };
 };
 
