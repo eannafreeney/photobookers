@@ -44,7 +44,6 @@ const RegisterFanForm = () => {
           name="form.password"
           validateInput="validatePassword()"
           placeholder="••••••••"
-          minLength={8}
           required
         />
         <Input
@@ -53,7 +52,6 @@ const RegisterFanForm = () => {
           name="form.confirmPassword"
           validateInput="validateConfirmPassword()"
           placeholder="••••••••"
-          minLength={8}
           required
         />
         <Checkbox

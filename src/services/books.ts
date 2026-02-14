@@ -44,6 +44,7 @@ export const getNewBooks = async () => {
         artist: true,
       },
       orderBy: (books, { desc }) => [desc(books.createdAt)],
+      limit: 10,
       where: and(
         eq(books.publicationStatus, "published"),
         // lte(books.releaseDate, new Date()),

@@ -5,6 +5,7 @@ import AppLayout from "../components/layouts/AppLayout";
 import NavTabs from "../components/layouts/NavTabs";
 import Page from "../components/layouts/Page";
 import { getNewBooks } from "../services/books";
+import ErrorPage from "./error/errorPage";
 
 type Props = {
   user: AuthUser | null;
@@ -16,14 +17,7 @@ const NewBooksPage = async ({ user, flash, currentPath }: Props) => {
   const featuredBooks = await getNewBooks();
 
   if (!featuredBooks) {
-    return (
-      <AppLayout title="Books" user={user} flash={flash}>
-        <Page>
-          <NavTabs currentPath={currentPath} />
-          <div>No featured books found</div>
-        </Page>
-      </AppLayout>
-    );
+    return <ErrorPage errorMessage="No featured books found" />;
   }
 
   return (

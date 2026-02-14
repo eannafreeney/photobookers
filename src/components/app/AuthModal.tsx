@@ -16,7 +16,7 @@ const AuthModal = ({
   return (
     <Modal>
       <div class="flex flex-col gap-4 p-2">
-        <div id="modal-content">{`Please login or register ${action}`}</div>
+        <div class="text-on-surface text-center">{`Please login or register ${action}`}</div>
         <div class="flex flex-col gap-2">
           <Link
             href={`/auth/login${

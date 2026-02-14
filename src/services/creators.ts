@@ -295,8 +295,10 @@ export const searchCreators = async (searchQuery: string) => {
         booksAsArtist: {
           where: eq(books.publicationStatus, "published"),
         },
+        booksAsPublisher: {
+          where: eq(books.publicationStatus, "published"),
+        },
       },
-      limit: 10,
       orderBy: (creators, { asc }) => [asc(creators.displayName)],
     });
 

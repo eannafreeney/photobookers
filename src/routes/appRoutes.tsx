@@ -9,6 +9,7 @@ import LibraryPage from "../pages/LibraryPage";
 import FeedPage from "../pages/FeedTab";
 import NewBooksPage from "../pages/NewBooksPage";
 import { requireBookPreviewAccess } from "../middleware/bookGuard";
+import TermsAndConditionsPage from "../pages/TermsAndConditions";
 
 export const appRoutes = new Hono();
 
@@ -76,6 +77,7 @@ appRoutes.get("/books/tags/:tag", async (c) => {
 appRoutes.get("/new-books", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
+
   return c.html(
     <NewBooksPage user={user} flash={flash} currentPath="/new-books" />,
   );
@@ -93,4 +95,8 @@ appRoutes.get("/library", async (c) => {
   return c.html(
     <LibraryPage user={user} flash={flash} currentPath="/library" />,
   );
+});
+
+appRoutes.get("/terms-and-conditions", async (c) => {
+  return c.html(<TermsAndConditionsPage />);
 });
