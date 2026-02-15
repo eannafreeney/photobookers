@@ -22,7 +22,7 @@ const CreatorDetailPage = async ({
   creatorSlug,
   currentPath,
 }: CreatorDetailPageProps) => {
-  const result = await getCreatorBySlug(creatorSlug, 5);
+  const result = await getCreatorBySlug(creatorSlug);
 
   if (!result.creator) {
     return <ErrorPage errorMessage="Creator not found" />;

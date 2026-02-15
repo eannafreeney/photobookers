@@ -9,16 +9,14 @@ const NavSearchMobile = () => {
   };
 
   return (
-    <div class="block md:hidden relative" {...alpineAttrs}>
+    <div class="md:hidden relative w-5" {...alpineAttrs}>
       <form
         action="/api/search/mobile"
         method="get"
         autocomplete="off"
         {...formAttrs}
       >
-        <button x-on:click="$nextTick(() => $refs.searchInput?.focus())">
-          {searchIcon}
-        </button>
+        <button class="">{searchIcon}</button>
       </form>
       <div id="search-results-mobile"></div>
     </div>

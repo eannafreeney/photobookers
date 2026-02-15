@@ -1,11 +1,10 @@
 import clsx from "clsx";
 
 type NavSearchProps = {
-  action: string;
   isMobile?: boolean;
 };
 
-const NavSearch = ({ action, isMobile = false }: NavSearchProps) => {
+const NavSearch = ({ isMobile = false }: NavSearchProps) => {
   const alpineAttrs = {
     "x-data": "{ hasResults: false, searchValue: '' }",
     "x-on:click.outside": "hasResults = false",
@@ -29,7 +28,7 @@ const NavSearch = ({ action, isMobile = false }: NavSearchProps) => {
       )}
       {...alpineAttrs}
     >
-      <form action={action} method="get" autocomplete="off" {...formAttrs}>
+      <form action="/api/search" method="get" autocomplete="off" {...formAttrs}>
         {searchIcon}
         <input
           type="text"

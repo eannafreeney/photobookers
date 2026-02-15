@@ -231,35 +231,12 @@ apiRoutes.get("/check-website", async (c) => {
   );
 });
 
-apiRoutes.get("/search-artists", async (c) => {
-  const searchQuery = c.req.query("q");
-
-  if (!searchQuery || searchQuery.length < 2) {
-    return c.html(<div id="artist-search-results"></div>);
-  }
-
-  // Normalize query for searching
-  const searchTerm = searchQuery.trim().toLowerCase();
-  const searchPattern = `%${searchTerm}%`;
-
-  const matchingArtists = await db.query.creators.findMany({
-    where: or(
-      ilike(creators.displayName, searchPattern),
-      ilike(creators.displayName, `${searchTerm}%`),
-      sql`LOWER(${creators.displayName}) LIKE ANY(ARRAY[${searchTerm
-        .split(" ")
-        .map((word) => `'%${word}%'`)
-        .join(", ")}])`,
-    ),
-    orderBy: (creators, { asc }) => [asc(creators.displayName)],
-    limit: 5,
-  });
-
-  return c.html(<ArtistSearchResults artists={matchingArtists} />);
-});
-
 apiRoutes.get("/search", async (c) => {
   const searchQuery = c.req.query("search");
+
+  if (!searchQuery || searchQuery.length < 3) {
+    return c.html(<div id="search-results"></div>);
+  }
 
   const searchTerm = searchQuery?.trim().toLowerCase();
   const [bookResults, creatorResults] = await Promise.all([
@@ -280,33 +257,15 @@ apiRoutes.get("/search/mobile", async (c) => {
   return c.html(
     <div
       id="search-results-mobile"
-      class="fixed top-0 left-0 right-0 bottom-0 w-full z-10 backdrop-blur-sm"
+      class="fixed top-0 left-0 right-0 bottom-0 w-full z-10 backdrop-blur-md"
       x-data="{ isOpen: true }"
       x-show="isOpen"
     >
       <div class="flex items-center justify-between gap-4 p-4">
-        <NavSearch action="/api/search/mobile/results" isMobile />
+        <NavSearch isMobile />
         <button x-on:click="isOpen = false">{closeIcon}</button>
       </div>
     </div>,
-  );
-});
-
-apiRoutes.get("/search/mobile/results", async (c) => {
-  const searchQuery = c.req.query("search");
-
-  const searchTerm = searchQuery?.trim().toLowerCase();
-  const [bookResults, creatorResults] = await Promise.all([
-    searchBooks(searchTerm ?? ""),
-    searchCreators(searchTerm ?? ""),
-  ]);
-
-  return c.html(
-    <NavSearchResults
-      creators={creatorResults ?? []}
-      books={bookResults ?? []}
-      searchTerm={searchTerm ?? ""}
-    />,
   );
 });
 

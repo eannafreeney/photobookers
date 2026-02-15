@@ -53,6 +53,14 @@ export const getCreatorBySlug = async (
 
   // 3. Fetch one page of books
   const foundBooks = await db.query.books.findMany({
+    columns: {
+      id: true,
+      title: true,
+      slug: true,
+      coverUrl: true,
+      artistId: true,
+      publisherId: true,
+    },
     where: and(
       eq(bookColumn, creator.id),
       eq(books.publicationStatus, "published"),
@@ -60,7 +68,15 @@ export const getCreatorBySlug = async (
     orderBy: (books, { desc }) => [desc(books.createdAt)],
     limit,
     offset,
-    with: creator.type === "publisher" ? { artist: true } : undefined,
+    with: {
+      artist: {
+        columns: {
+          id: true,
+          displayName: true,
+          slug: true,
+        },
+      },
+    },
   });
 
   return {
@@ -327,9 +343,13 @@ export const searchCreators = async (searchQuery: string) => {
         },
       },
       orderBy: (creators, { asc }) => [asc(creators.displayName)],
+      limit: 5,
     });
 
-    return foundCreators.filter((creator) => creator.booksAsArtist.length > 0);
+    return foundCreators.filter(
+      (creator) =>
+        creator.booksAsArtist.length > 0 || creator.booksAsPublisher.length > 0,
+    );
   } catch (error) {
     console.error("Failed to search creators", error);
     return [];

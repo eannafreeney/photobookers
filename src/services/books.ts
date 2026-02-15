@@ -454,7 +454,7 @@ export const searchBooks = async (searchQuery: string) => {
         ),
       ),
       orderBy: (books, { asc }) => [asc(books.title)],
-      limit: 10,
+      limit: 5,
     });
   } catch (error) {
     console.error("Failed to search books", error);
