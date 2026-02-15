@@ -2,8 +2,8 @@ import { Context, Hono } from "hono";
 import FollowButton from "../components/api/FollowButton";
 import WishlistButton from "../components/api/WishlistButton";
 import { getUser } from "../utils";
-import { Book, Creator, creators } from "../db/schema";
-import { eq, ilike, or, sql } from "drizzle-orm";
+import { creators } from "../db/schema";
+import { eq } from "drizzle-orm";
 import {
   deleteFollow,
   deleteWishlist,
@@ -13,16 +13,22 @@ import {
 import AuthModal from "../components/app/AuthModal";
 import { findUserByEmail } from "../services/users";
 import { db } from "../db/client";
-import { getBookPermissionData, searchBooks } from "../services/books";
+import {
+  getBookPermissionData,
+  getBooksInWishlist,
+  searchBooks,
+} from "../services/books";
 import { getCreatorPermissionData, searchCreators } from "../services/creators";
 import NavSearchResults from "../components/app/NavSearchResults";
-import ArtistSearchResults from "../components/app/ArtistSearchResults";
 import Alert from "../components/app/Alert";
-import Input from "../components/cms/ui/Input";
 import NavSearch from "../components/layouts/NavSearch";
 import { closeIcon } from "../components/layouts/NavSearchMobile";
 import AppLayout from "../components/layouts/AppLayout";
 import { normalizeUrl } from "../services/verification";
+import BookCard from "../components/app/BookCard";
+import GridPanel from "../components/app/GridPanel";
+import WishlistedBooks from "../components/app/WishlistedBooks";
+import ErrorPage from "../pages/error/errorPage";
 
 export const apiRoutes = new Hono();
 
@@ -112,55 +118,26 @@ apiRoutes.post("/wishlist/:bookId", async (c) => {
         user={user}
         isCircleButton={buttonType === "circle"}
       />
+      <div x-sync id="server_events">
+        <div x-init="$dispatch('wishlist:updated')"></div>
+      </div>
     </>,
   );
+});
+
+apiRoutes.get("/wishlist-books", async (c) => {
+  const user = await getUser(c);
+  if (!user) {
+    return c.html(<ErrorPage errorMessage="User not found" />);
+  }
+  const wishlistBooks = await getBooksInWishlist(user.id);
+  return c.html(<WishlistedBooks wishlistBooks={wishlistBooks} user={user} />);
 });
 
 const showErrorAlert = (
   c: Context,
   errorMessage: string = "Action Failed! Please try again.",
 ) => c.html(<Alert type="danger" message={errorMessage} />, 422);
-
-// apiRoutes.post("/collection/:bookId", async (c) => {
-//   const bookId = c.req.param("bookId");
-//   const user = await getUser(c);
-//   const userId = user?.id;
-
-//   if (!userId) {
-//     return c.html(
-//       <AuthModal action="to add this book to your collection." />,
-//       401
-//     );
-//   }
-
-//   const body = await c.req.parseBody();
-//   const isCurrentlyInCollection = body.isInCollection === "true";
-//   const buttonType = body.buttonType; // "circle" or "default"
-
-//   try {
-//     if (isCurrentlyInCollection) {
-//       await deleteCollectionItem(userId, bookId);
-//     } else {
-//       await insertCollectionItem(userId, bookId);
-//     }
-//   } catch (error) {
-//     console.error("Failed to add/remove book to collection", error);
-//     return showErrorAlert(c);
-//   }
-
-//   const book = await getBookPermissionData(bookId);
-//   if (!book) {
-//     return showErrorAlert(c, "Book not found");
-//   }
-
-//   if (buttonType === "circle") {
-//     return c.html(
-//       <CollectionButton bookId={bookId} user={user} isCircleButton />
-//     );
-//   }
-
-//   return c.html(<CollectionButton bookId={bookId} user={user} />);
-// });
 
 apiRoutes.get("/check-email", async (c) => {
   const email = c.req.query("email");

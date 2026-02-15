@@ -3,6 +3,7 @@ import BookCard from "../components/app/BookCard";
 import Button from "../components/app/Button";
 import GridPanel from "../components/app/GridPanel";
 import SectionTitle from "../components/app/SectionTitle";
+import WishlistedBooks from "../components/app/WishlistedBooks";
 import AppLayout from "../components/layouts/AppLayout";
 import NavTabs from "../components/layouts/NavTabs";
 import Page from "../components/layouts/Page";
@@ -49,30 +50,12 @@ const LibraryPage = async ({ user, flash, currentPath }: Props) => {
 
   const wishlistBooks = await getBooksInWishlist(user.id);
 
-  if (wishlistBooks?.length === 0) {
-    return (
-      <AppLayout title="Books" user={user} flash={flash}>
-        <Page>
-          <NavTabs currentPath={currentPath} />
-          <div class="flex flex-col gap-4 items-center justify-center">
-            <SectionTitle>Wishlisted Books</SectionTitle>
-            Start adding books to your wishlist and collection to see them here.
-          </div>
-        </Page>
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
         <SectionTitle>Wishlisted Books</SectionTitle>
-        <GridPanel isFullWidth>
-          {wishlistBooks?.map((book) => (
-            <BookCard book={book} user={user} />
-          ))}
-        </GridPanel>
+        <WishlistedBooks wishlistBooks={wishlistBooks} user={user} />
       </Page>
     </AppLayout>
   );
