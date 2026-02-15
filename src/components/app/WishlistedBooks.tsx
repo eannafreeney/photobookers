@@ -2,13 +2,15 @@ import { Book } from "../../db/schema";
 import { AuthUser } from "../../../types";
 import BookCard from "./BookCard";
 import GridPanel from "./GridPanel";
+import { getBooksInWishlist } from "../../services/books";
 
 type WishlistedBooksProps = {
-  wishlistBooks: Book[] | null;
   user: AuthUser;
 };
 
-const WishlistedBooks = ({ wishlistBooks, user }: WishlistedBooksProps) => {
+const WishlistedBooks = async ({ user }: WishlistedBooksProps) => {
+  const wishlistBooks = await getBooksInWishlist(user.id);
+
   return (
     <GridPanel
       id="wishlist-books-grid"

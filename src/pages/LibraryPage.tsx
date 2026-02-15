@@ -48,14 +48,12 @@ const LibraryPage = async ({ user, flash, currentPath }: Props) => {
     );
   }
 
-  const wishlistBooks = await getBooksInWishlist(user.id);
-
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
         <SectionTitle>Wishlisted Books</SectionTitle>
-        <WishlistedBooks wishlistBooks={wishlistBooks} user={user} />
+        <WishlistedBooks user={user} />
       </Page>
     </AppLayout>
   );

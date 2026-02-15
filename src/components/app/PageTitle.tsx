@@ -1,5 +1,6 @@
+import Alpine from "alpinejs";
 import { Creator } from "../../db/schema";
-import { useMediaQuery } from "../../lib/device";
+import { getIsMobile, useMediaQuery } from "../../lib/device";
 import Avatar from "./Avatar";
 import Card from "./Card";
 import VerifiedCreator from "./VerifiedCreator";
@@ -10,7 +11,7 @@ type PageTitleProps = {
 };
 
 const PageTitle = ({ title, creator }: PageTitleProps) => {
-  const isMobile = useMediaQuery("(max-width: 767px)"); // or "(max-width: 768px)"
+  const isMobile = getIsMobile();
 
   return (
     <div class="flex items-center gap-4">

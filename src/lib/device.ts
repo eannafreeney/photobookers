@@ -10,6 +10,12 @@ export function isMobile(userAgent: string): "mobile" | "desktop" {
   return "desktop";
 }
 
+export const getIsMobile = () => {
+  return typeof window !== "undefined"
+    ? window.matchMedia("(max-width: 767px)").matches
+    : false;
+};
+
 export function useMediaQuery(query: string): boolean {
   const subscribe = (callback: () => void) => {
     const mql = window.matchMedia(query);
