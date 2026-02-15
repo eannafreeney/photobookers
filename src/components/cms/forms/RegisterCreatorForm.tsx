@@ -26,12 +26,13 @@ const RegisterCreatorForm = ({ type }: RegisterCreatorFormProps) => {
           showDisplayNameAvailabilityChecker
           required
         />
-
         <Input
           label="Website"
           name="form.website"
           type="url"
           placeholder="https://..."
+          validateInput="validateWebsite()"
+          showWebsiteAvailabilityStatus
           required
         />
         <Input

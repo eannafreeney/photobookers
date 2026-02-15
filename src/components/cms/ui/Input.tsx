@@ -12,6 +12,7 @@ type InputProps = {
   validateInput?: string;
   showEmailAvailabilityChecker?: boolean;
   showDisplayNameAvailabilityChecker?: boolean;
+  showWebsiteAvailabilityStatus?: boolean;
   isDisabled?: boolean;
   readOnly?: boolean;
 };
@@ -26,6 +27,7 @@ const Input = ({
   validateInput,
   showEmailAvailabilityChecker = false,
   showDisplayNameAvailabilityChecker = false,
+  showWebsiteAvailabilityStatus = false,
   isDisabled = false,
   readOnly = false,
   ...restProps
@@ -43,6 +45,7 @@ const Input = ({
         required={required}
         showEmailAvailabilityChecker={showEmailAvailabilityChecker}
         showDisplayNameAvailabilityChecker={showDisplayNameAvailabilityChecker}
+        showWebsiteAvailabilityStatus={showWebsiteAvailabilityStatus}
       />
       <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
         {getInputIcon(type)}

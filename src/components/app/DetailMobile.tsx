@@ -6,7 +6,6 @@ import CreatorCard from "./CreatorCard";
 import WishlistButton from "../api/WishlistButton";
 import { AuthUser } from "../../../types";
 import { BookWithGalleryImages } from "../../pages/BookDetailPage";
-import PreviewBanner from "./PreviewBanner";
 import CardCreatorCard from "./CardCreatorCard";
 import AvailabilityBadge from "./AvailabilityBadge";
 import PurchaseLink from "./PurchaseLink";

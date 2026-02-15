@@ -51,3 +51,31 @@ const Carousel = ({ images = [] }: Props) => {
 };
 
 export default Carousel;
+
+const leftArrowIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    fill="none"
+    stroke-width="3"
+    class="size-5 md:size-6 pr-0.5"
+    aria-hidden="true"
+  >
+    <path d="M15.75 19.5 8.25 12l7.5-7.5" />
+  </svg>
+);
+
+const rightArrowIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    fill="none"
+    stroke-width="3"
+    class="size-5 md:size-6 pl-0.5"
+    aria-hidden="true"
+  >
+    <path d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+  </svg>
+);

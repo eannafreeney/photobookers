@@ -7,10 +7,14 @@ export function registerRegisterCreatorForm() {
     return {
       isSubmitting: false,
       isEmailChecking: false,
+      isDisplayNameChecking: false,
+      isWebsiteChecking: false,
       emailAvailabilityStatus: "",
       displayNameAvailabilityStatus: "",
+      websiteAvailabilityStatus: "",
       emailIsTaken: false,
       displayNameIsTaken: false,
+      websiteIsTaken: false,
       form: {
         displayName: "",
         website: "",
@@ -50,8 +54,10 @@ export function registerRegisterCreatorForm() {
           this.form.agreeToTerms &&
           !this.isEmailChecking &&
           !this.emailIsTaken &&
+          !this.isDisplayNameChecking &&
           !this.displayNameIsTaken &&
-          !this.isDisplayNameChecking
+          !this.isWebsiteChecking &&
+          !this.websiteIsTaken
         );
       },
 

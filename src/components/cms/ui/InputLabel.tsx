@@ -5,6 +5,7 @@ type InputLabelProps = {
   required?: boolean;
   showEmailAvailabilityChecker?: boolean;
   showDisplayNameAvailabilityChecker?: boolean;
+  showWebsiteAvailabilityStatus?: boolean;
 };
 
 const InputLabel = ({
@@ -14,6 +15,7 @@ const InputLabel = ({
   required,
   showEmailAvailabilityChecker = false,
   showDisplayNameAvailabilityChecker = false,
+  showWebsiteAvailabilityStatus = false,
 }: InputLabelProps) => {
   return (
     <div class="flex items-center justify-between">
@@ -45,6 +47,13 @@ const InputLabel = ({
         <div
           id="display-name-availability-status"
           x-html="displayNameAvailabilityStatus"
+          class="h-5"
+        ></div>
+      )}
+      {showWebsiteAvailabilityStatus && (
+        <div
+          id="website-availability-status"
+          x-html="websiteAvailabilityStatus"
           class="h-5"
         ></div>
       )}

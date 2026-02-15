@@ -21,6 +21,8 @@ import Alert from "../components/app/Alert";
 import Input from "../components/cms/ui/Input";
 import NavSearch from "../components/layouts/NavSearch";
 import { closeIcon } from "../components/layouts/NavSearchMobile";
+import AppLayout from "../components/layouts/AppLayout";
+import { normalizeUrl } from "../services/verification";
 
 export const apiRoutes = new Hono();
 
@@ -205,6 +207,30 @@ apiRoutes.get("/check-displayName", async (c) => {
   );
 });
 
+apiRoutes.get("/check-website", async (c) => {
+  const website = c.req.query("website");
+
+  if (!website) {
+    return c.html(<div id="website-availability-status"></div>);
+  }
+
+  const existingWebsite = await db.query.creators.findFirst({
+    where: eq(creators.website, normalizeUrl(website)),
+  });
+
+  const available = !existingWebsite;
+
+  return c.html(
+    <div id="website-availability-status">
+      {available ? (
+        <p class="label text-success mt-1">✓ Website available</p>
+      ) : (
+        <p class="label text-danger mt-1">✗ Website taken</p>
+      )}
+    </div>,
+  );
+});
+
 apiRoutes.get("/search-artists", async (c) => {
   const searchQuery = c.req.query("q");
 
@@ -281,5 +307,18 @@ apiRoutes.get("/search/mobile/results", async (c) => {
       books={bookResults ?? []}
       searchTerm={searchTerm ?? ""}
     />,
+  );
+});
+
+apiRoutes.get("/test", async (c) => {
+  return c.html(
+    <AppLayout title="Test">
+      <div x-data>
+        <span
+          {...{ "x-on:notify.window": "() => console.log('hello world')" }}
+        ></span>
+        <button x-on:click="$dispatch('notify')">Notify</button>
+      </div>
+    </AppLayout>,
   );
 });

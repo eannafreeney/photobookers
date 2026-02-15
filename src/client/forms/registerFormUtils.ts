@@ -15,6 +15,19 @@ export function createRegisterFormUtils() {
       }
     },
 
+    validateWebsite() {
+      const websiteRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/i;
+      if (!this.form.website) {
+        this.errors.form.website = "Website is required";
+      } else if (!websiteRegex.test(this.form.website)) {
+        this.errors.form.website =
+          "Please enter a valid URL (e.g., https://example.com)";
+      } else {
+        this.errors.form.website = "";
+        this.checkWebsiteAvailability();
+      }
+    },
+
     validateDisplayName() {
       validateField(this, "displayName", registerCreatorFormSchema);
       if (this.form.displayName && this.form.displayName.length > 2) {
@@ -81,6 +94,27 @@ export function createRegisterFormUtils() {
         console.error("Failed to check display name availability", error);
       } finally {
         this.isDisplayNameChecking = false;
+      }
+    },
+
+    async checkWebsiteAvailability() {
+      if (!this.form.website) return;
+
+      this.isWebsiteChecking = true;
+      try {
+        const response = await fetch(
+          `/api/check-website?website=${encodeURIComponent(this.form.website)}`,
+        );
+        const html = await response.text();
+
+        this.websiteAvailabilityStatus = html;
+        console.log(html);
+
+        this.websiteIsTaken = html.includes("text-danger");
+      } catch (error) {
+        console.error("Failed to check website availability", error);
+      } finally {
+        this.isWebsiteChecking = false;
       }
     },
   };
