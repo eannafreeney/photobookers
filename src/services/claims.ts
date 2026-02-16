@@ -1,6 +1,12 @@
 import { db } from "../db/client";
-import { Creator, CreatorClaim, creatorClaims, creators } from "../db/schema";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import {
+  books,
+  Creator,
+  CreatorClaim,
+  creatorClaims,
+  creators,
+} from "../db/schema";
+import { and, desc, eq, gt, inArray, or } from "drizzle-orm";
 import {
   generateVerificationCode,
   getCodeExpiration,
@@ -12,41 +18,80 @@ import { nanoid } from "nanoid";
 import { AuthUser } from "../../types";
 import { getCreatorById } from "./creators";
 import { getUserById } from "./users";
+import { deleteBookById } from "./books";
 
 export const approveClaim = async (claimId: string) => {
-  const [claim] = await db
-    .update(creatorClaims)
-    .set({ status: "approved", verifiedAt: new Date() })
-    .where(eq(creatorClaims.id, claimId))
-    .returning();
+  try {
+    const [claim] = await db
+      .update(creatorClaims)
+      .set({ status: "approved", verifiedAt: new Date() })
+      .where(eq(creatorClaims.id, claimId))
+      .returning();
 
-  await updateCreatorOwnerAndStatus(claim);
+    await updateCreatorOwnerAndStatus(claim);
+    return claim;
+  } catch (error) {
+    console.error("Failed to approve claim:", error);
+    throw error;
+  }
 };
-
 export const rejectClaim = async (claimId: string) => {
-  const [claim] = await db
-    .select()
-    .from(creatorClaims)
-    .where(eq(creatorClaims.id, claimId))
-    .limit(1);
-
-  await db
-    .update(creatorClaims)
-    .set({ status: "rejected" })
-    .where(eq(creatorClaims.id, claimId));
-
-  if (claim) {
-    const [creator] = await db
+  try {
+    const [claim] = await db
       .select()
-      .from(creators)
-      .where(eq(creators.id, claim.creatorId))
+      .from(creatorClaims)
+      .where(eq(creatorClaims.id, claimId))
       .limit(1);
-    if (creator?.ownerUserId === claim.userId) {
-      await db
-        .update(creators)
-        .set({ ownerUserId: null, website: null })
-        .where(eq(creators.id, claim.creatorId));
+
+    await db
+      .update(creatorClaims)
+      .set({ status: "rejected" })
+      .where(eq(creatorClaims.id, claimId));
+
+    if (claim) {
+      const [creator] = await db
+        .select()
+        .from(creators)
+        .where(eq(creators.id, claim.creatorId))
+        .limit(1);
+      if (creator?.ownerUserId === claim.userId) {
+        await db
+          .update(creators)
+          .set({ ownerUserId: null, website: null })
+          .where(eq(creators.id, claim.creatorId));
+      }
+
+      try {
+        const creatorBookCondition = or(
+          eq(books.publisherId, claim.creatorId),
+          eq(books.artistId, claim.creatorId),
+        );
+        const createdByClaimant = eq(books.createdByUserId, claim.userId);
+        const createdAfterClaim = claim.verifiedAt
+          ? gt(books.createdAt, claim.verifiedAt)
+          : undefined;
+        const booksToDeleteWhere = createdAfterClaim
+          ? and(creatorBookCondition, createdByClaimant, createdAfterClaim)
+          : and(creatorBookCondition, createdByClaimant);
+
+        const booksToDelete = await db
+          .select({ id: books.id })
+          .from(books)
+          .where(booksToDeleteWhere);
+
+        for (const { id } of booksToDelete) {
+          await deleteBookById(id);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to delete claimant books on claim rejection:",
+          error,
+        );
+      }
     }
+  } catch (error) {
+    console.error("Failed to reject claim:", error);
+    throw error;
   }
 };
 
