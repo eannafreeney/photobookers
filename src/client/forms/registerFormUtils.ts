@@ -60,16 +60,22 @@ export function createRegisterFormUtils() {
     async checkEmailAvailability() {
       if (!this.form.email) return;
 
+      this._emailAbortController?.abort();
+      this._emailAbortController = new AbortController();
+      const signal = this._emailAbortController.signal;
+
       this.isEmailChecking = true;
       try {
         const response = await fetch(
           `/api/check-email?email=${encodeURIComponent(this.form.email)}`,
+          { signal },
         );
         const html = await response.text();
 
         this.emailAvailabilityStatus = html;
         this.emailIsTaken = html.includes("text-danger");
       } catch (error) {
+        if (error.name === "AbortError") return;
         console.error("Failed to check email availability", error);
       } finally {
         this.isEmailChecking = false;
@@ -79,10 +85,15 @@ export function createRegisterFormUtils() {
     async checkDisplayNameAvailability() {
       if (!this.form.displayName) return;
 
+      this._displayNameAbortController?.abort();
+      this._displayNameAbortController = new AbortController();
+      const signal = this._displayNameAbortController.signal;
+
       this.isDisplayNameChecking = true;
       try {
         const response = await fetch(
           `/api/check-displayName?displayName=${encodeURIComponent(this.form.displayName)}`,
+          { signal },
         );
         const html = await response.text();
 
@@ -91,6 +102,7 @@ export function createRegisterFormUtils() {
 
         this.displayNameIsTaken = html.includes("text-danger");
       } catch (error) {
+        if (error.name === "AbortError") return;
         console.error("Failed to check display name availability", error);
       } finally {
         this.isDisplayNameChecking = false;
@@ -100,18 +112,23 @@ export function createRegisterFormUtils() {
     async checkWebsiteAvailability() {
       if (!this.form.website) return;
 
+      this._websiteAbortController?.abort();
+      this._websiteAbortController = new AbortController();
+      const signal = this._websiteAbortController.signal;
+
       this.isWebsiteChecking = true;
       try {
         const response = await fetch(
           `/api/check-website?website=${encodeURIComponent(this.form.website)}`,
+          { signal },
         );
         const html = await response.text();
 
         this.websiteAvailabilityStatus = html;
-        console.log(html);
 
         this.websiteIsTaken = html.includes("text-danger");
       } catch (error) {
+        if (error.name === "AbortError") return;
         console.error("Failed to check website availability", error);
       } finally {
         this.isWebsiteChecking = false;

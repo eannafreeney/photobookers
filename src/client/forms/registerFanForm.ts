@@ -10,6 +10,7 @@ export function registerRegisterFanForm() {
       isEmailChecking: false,
       emailAvailabilityStatus: "",
       emailIsTaken: false,
+      _emailAbortController: null as AbortController | null,
       form: {
         firstName: "",
         lastName: "",
@@ -51,6 +52,10 @@ export function registerRegisterFanForm() {
           !this.isEmailChecking &&
           !this.emailIsTaken
         );
+      },
+
+      $destroy() {
+        this._emailAbortController?.abort();
       },
 
       submitForm(event: Event) {

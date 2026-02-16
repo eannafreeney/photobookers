@@ -35,7 +35,7 @@ const NewBooksPage = async ({
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <GridPanel isFullWidth id={targetId}>
+        <GridPanel isFullWidth id={targetId} xMerge="append">
           {books.map((book) => (
             <BookCard book={book} user={user} />
           ))}

@@ -44,7 +44,7 @@ const CreatorDetailPage = async ({
         <PageTitle creator={creator} />
         <div class="flex flex-col md:flex-row gap-4">
           <div class="md:w-3/4 flex flex-col gap-4">
-            <GridPanel id={targetId}>
+            <GridPanel id={targetId} xMerge="append">
               {books.map((book) => (
                 <BookCard book={book} user={user} creatorType={creator.type} />
               ))}

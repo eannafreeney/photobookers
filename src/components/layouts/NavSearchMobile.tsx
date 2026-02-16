@@ -16,7 +16,7 @@ const NavSearchMobile = () => {
         autocomplete="off"
         {...formAttrs}
       >
-        <button class="">{searchIcon}</button>
+        <button class="block">{searchIcon}</button>
       </form>
       <div id="search-results-mobile"></div>
     </div>

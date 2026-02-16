@@ -1,6 +1,7 @@
 import Alpine from "alpinejs";
 import { registerCreatorFormSchema } from "../../schemas";
 import { createRegisterFormUtils } from "./registerFormUtils";
+import { handleSubmit } from "./formUtils";
 
 export function registerRegisterCreatorForm() {
   Alpine.data("registerCreatorForm", () => {
@@ -15,6 +16,7 @@ export function registerRegisterCreatorForm() {
       emailIsTaken: false,
       displayNameIsTaken: false,
       websiteIsTaken: false,
+      _emailAbortController: null as AbortController | null,
       form: {
         displayName: "",
         website: "",
@@ -40,8 +42,6 @@ export function registerRegisterCreatorForm() {
       ...createRegisterFormUtils(),
 
       get isFormValid() {
-        console.log(this);
-
         return (
           Object.values(this.errors.form).every((err) => !err) &&
           this.form.displayName &&
@@ -61,16 +61,12 @@ export function registerRegisterCreatorForm() {
         );
       },
 
-      submitForm(event: Event) {
-        this.isSubmitting = true;
-        const result = registerCreatorFormSchema.safeParse(this.form);
+      $destroy() {
+        this._emailAbortController?.abort();
+      },
 
-        if (!result.success) {
-          event.preventDefault();
-          this.isSubmitting = false;
-          this.errors.form = result.error.flatten().fieldErrors;
-          return;
-        }
+      submitForm(event: Event) {
+        return handleSubmit(this, event, registerCreatorFormSchema);
       },
     };
   });

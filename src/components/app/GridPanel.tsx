@@ -5,20 +5,20 @@ type GridPanelProps = {
   children: ChildType | ChildType[];
   isFullWidth?: boolean;
   id?: string;
-  xMerge?: "append";
+  xMerge?: "replace" | "append";
 };
 
 const GridPanel = ({
   children,
   isFullWidth = false,
   id,
-  xMerge,
+  xMerge = "replace",
   ...props
 }: GridPanelProps) => {
   return (
     <div
       id={id}
-      x-merge={xMerge ?? "replace"}
+      x-merge={xMerge}
       className={clsx(
         "grid grid-cols-1 sm:grid-cols-2 gap-4",
         isFullWidth ? "lg:grid-cols-4 " : "lg:grid-cols-3",
