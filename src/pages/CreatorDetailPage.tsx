@@ -50,7 +50,12 @@ const CreatorDetailPage = async ({
           <div class="md:w-3/4 flex flex-col gap-4">
             <GridPanel id={targetId} xMerge="append">
               {books.map((book) => (
-                <BookCard book={book} user={user} creatorType={creator.type} />
+                <BookCard
+                  book={book}
+                  user={user}
+                  creatorType={creator.type}
+                  currentCreatorId={creator.id}
+                />
               ))}
             </GridPanel>
             <Pagination

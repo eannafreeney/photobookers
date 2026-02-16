@@ -14,16 +14,18 @@ const CardCreatorCard = async ({ creatorType, book }: CardCreatorCardProps) => {
   let creatorId: string | null = null;
 
   if (creatorType === "publisher") {
-    creatorId = book.artistId;
-  } else if (creatorType === "artist") {
-    creatorId = book.publisherId; // can be null → self-published
+    creatorId = book.publisherId;
   } else {
     creatorId = book.artistId;
   }
 
   const creator = creatorId ? await getCreatorById(creatorId) : null;
 
-  return creator ? (
+  if (!creator) {
+    return <></>;
+  }
+
+  return (
     <Link href={`/creators/${creator.slug}`}>
       <div class="flex items-center gap-1">
         <Avatar
@@ -35,8 +37,6 @@ const CardCreatorCard = async ({ creatorType, book }: CardCreatorCardProps) => {
         <VerifiedCreator creator={creator} size="xs" />
       </div>
     </Link>
-  ) : (
-    <Card.SubTitle>Self Published</Card.SubTitle>
   );
 };
 

@@ -10,9 +10,15 @@ type BookCardProps = {
   book: Book;
   user: AuthUser | null;
   showHeader?: boolean;
+  currentCreatorId?: string;
 };
 
-const BookCard = ({ book, user, showHeader = false }: BookCardProps) => {
+const BookCard = ({
+  book,
+  user,
+  showHeader = false,
+  currentCreatorId,
+}: BookCardProps) => {
   return (
     <Card>
       {showHeader && (
@@ -53,8 +59,12 @@ const BookCard = ({ book, user, showHeader = false }: BookCardProps) => {
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          <CardCreatorCard book={book} creatorType="publisher" />
-          <CardCreatorCard book={book} creatorType="artist" />
+          {(!currentCreatorId || currentCreatorId !== book.artistId) && (
+            <CardCreatorCard book={book} creatorType="artist" />
+          )}
+          {(!currentCreatorId || currentCreatorId !== book.publisherId) && (
+            <CardCreatorCard book={book} creatorType="publisher" />
+          )}
         </div>
       </Card.Body>
     </Card>
