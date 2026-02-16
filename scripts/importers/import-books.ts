@@ -78,7 +78,7 @@ function parseImages(imagesCell: string): string[] {
 
 async function main() {
   const csvPath =
-    process.argv[2] ?? join(process.cwd(), "output", "thevelvetcell-books.csv");
+    process.argv[2] ?? join(process.cwd(), "output", "gostbooks.csv");
 
   const createdByUserId = await getCreatedByUserId();
   console.log("Created-by user:", createdByUserId);
