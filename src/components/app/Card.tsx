@@ -38,7 +38,7 @@ const CardImage = ({
         loading="lazy"
         decoding="async"
         class="h-52 w-full transition duration-700 ease-out group-hover:scale-105 z-10 object-contain"
-        x-bind:class="isLandscape ? 'object-cover' : 'object-contain'"
+        x-bind:class="(isLandscape || isSquare) ? 'object-cover' : 'object-contain'"
       />
     </Link>
   </figure>
