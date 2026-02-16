@@ -7,34 +7,49 @@ import GridPanel from "../components/app/GridPanel";
 import BookCard from "../components/app/BookCard";
 import Page from "../components/layouts/Page";
 import NavTabs from "../components/layouts/NavTabs";
+import { Pagination } from "../components/app/Pagination";
+import { getBooksByTag } from "../services/books";
+import ErrorPage from "./error/errorPage";
 
 type TagPageProps = {
-  books: Book[];
   user: AuthUser | null;
   tag: string;
   isMobile: boolean;
+  currentPath: string;
+  currentPage: number;
 };
 
-const TagPage = async ({ books, user, tag, isMobile }: TagPageProps) => {
-  if (!books) {
-    return (
-      <AppLayout title="Books" user={user}>
-        <Page>
-          <div>No books found</div>
-        </Page>
-      </AppLayout>
-    );
+const TagPage = async ({
+  user,
+  tag,
+  isMobile,
+  currentPath,
+  currentPage,
+}: TagPageProps) => {
+  const result = await getBooksByTag(tag, currentPage);
+
+  if (!result?.books) {
+    return <ErrorPage errorMessage="No featured books found" />;
   }
+
+  const targetId = `books-grid-${tag}`;
+  const { books, totalPages, page } = result;
 
   return (
     <AppLayout title={`# ${capitalize(tag)}`} user={user}>
       <Page>
         <PageTitle title={`# ${capitalize(tag)}`} isMobile={isMobile} />
-        <GridPanel>
+        <GridPanel id={targetId} xMerge="append">
           {books.map((book) => (
             <BookCard book={book} user={user} />
           ))}
         </GridPanel>
+        <Pagination
+          baseUrl={currentPath}
+          page={page}
+          totalPages={totalPages}
+          targetId={targetId}
+        />
       </Page>
     </AppLayout>
   );

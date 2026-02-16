@@ -71,17 +71,26 @@ appRoutes.get("/books/preview/:slug", requireBookPreviewAccess, async (c) => {
 appRoutes.get("/books/tags/:tag", async (c) => {
   const tag = c.req.param("tag");
   const user = await getUser(c);
-  const books = (await getBooksByTag(tag)) ?? [];
+
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+  const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
 
   return c.html(
-    <TagPage books={books} user={user} tag={tag} isMobile={isMobile} />,
+    <TagPage
+      user={user}
+      tag={tag}
+      isMobile={isMobile}
+      currentPath={currentPath}
+      currentPage={page}
+    />,
   );
 });
 
 appRoutes.get("/new-books", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
+  const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
 
   return c.html(
@@ -89,7 +98,7 @@ appRoutes.get("/new-books", async (c) => {
       user={user}
       flash={flash}
       currentPage={page}
-      currentPath="/new-books"
+      currentPath={currentPath}
     />,
   );
 });
@@ -97,14 +106,18 @@ appRoutes.get("/new-books", async (c) => {
 appRoutes.get("/feed", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
-  return c.html(<FeedPage user={user} flash={flash} currentPath="/feed" />);
+  const currentPath = c.req.path;
+  return c.html(
+    <FeedPage user={user} flash={flash} currentPath={currentPath} />,
+  );
 });
 
 appRoutes.get("/library", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
+  const currentPath = c.req.path;
   return c.html(
-    <LibraryPage user={user} flash={flash} currentPath="/library" />,
+    <LibraryPage user={user} flash={flash} currentPath={currentPath} />,
   );
 });
 

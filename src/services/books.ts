@@ -62,17 +62,34 @@ export const getNewBooks = async (currentPage: number, defaultLimit = 10) => {
   }
 };
 
-export const getBooksByTag = async (tag: string) => {
+export const getBooksByTag = async (
+  tag: string,
+  currentPage: number,
+  defaultLimit = 10,
+) => {
   try {
-    const query = await db.query.books.findMany({
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(eq(books.publicationStatus, "published"));
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundBooks = await db.query.books.findMany({
       where: (books, { sql }) => sql`${books.tags} @> ARRAY[${tag}]::text[]`,
       with: {
         artist: true,
         publisher: true,
       },
       orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      limit: limit,
+      offset: offset,
     });
-    return query;
+    return { books: foundBooks, totalPages, page };
   } catch (error) {
     console.error("Failed to get books by tag", error);
     return null;
