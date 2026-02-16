@@ -23,11 +23,7 @@ type NavLinkProps = {
   currentPath?: string | null;
 };
 
-const NavLink = ({
-  href,
-  children,
-  currentPath,
-}: NavLinkProps): JSX.Element => {
+const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
   const isActive = currentPath === href;
   return (
     <li>

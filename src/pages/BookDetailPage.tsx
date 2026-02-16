@@ -20,7 +20,7 @@ type BookDetailPageProps = {
   currentPath: string;
   status?: "published" | "draft";
   isPreview?: boolean;
-  device: "mobile" | "desktop";
+  isMobile: boolean;
 };
 
 const BookDetailPage = async ({
@@ -29,7 +29,7 @@ const BookDetailPage = async ({
   currentPath,
   status = "published",
   isPreview = false,
-  device,
+  isMobile,
 }: BookDetailPageProps) => {
   const result = await getBookBySlug(bookSlug, status);
   if (!result?.book || !result.book.artist) {
@@ -43,12 +43,12 @@ const BookDetailPage = async ({
     ...(book?.images?.map((image) => image.imageUrl) ?? []),
   ];
 
-  const orientation = device === "mobile" ? "portrait" : "landscape";
+  const orientation = isMobile ? "portrait" : "landscape";
 
   return (
     <AppLayout title={book.title} user={user} isPreview={isPreview}>
       <Page>
-        {device === "mobile" ? (
+        {isMobile ? (
           <DetailMobile
             galleryImages={galleryImages}
             book={book}

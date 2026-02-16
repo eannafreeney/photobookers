@@ -4,15 +4,12 @@ import CreatorDetailPage from "../pages/CreatorDetailPage";
 import { getBooksByTag } from "../services/books";
 import { getFlash, getUser } from "../utils";
 import TagPage from "../pages/TagPage";
-import { isMobile } from "../lib/device";
+import { getIsMobile } from "../lib/device";
 import LibraryPage from "../pages/LibraryPage";
 import FeedPage from "../pages/FeedTab";
 import NewBooksPage from "../pages/NewBooksPage";
 import { requireBookPreviewAccess } from "../middleware/bookGuard";
 import TermsAndConditionsPage from "../pages/TermsAndConditions";
-import { db } from "../db/client";
-import { books } from "../db/schema";
-import { count, eq } from "drizzle-orm";
 
 export const appRoutes = new Hono();
 
@@ -25,12 +22,14 @@ appRoutes.get("/creators/:slug", async (c) => {
   const slug = c.req.param("slug");
   const user = await getUser(c);
   const currentPath = c.req.path;
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   return c.html(
     <CreatorDetailPage
       creatorSlug={slug}
       user={user}
       currentPath={currentPath}
+      isMobile={isMobile}
     />,
   );
 });
@@ -38,7 +37,7 @@ appRoutes.get("/creators/:slug", async (c) => {
 appRoutes.get("/books/:slug", async (c) => {
   const slug = c.req.param("slug");
   const user = await getUser(c);
-  const device = isMobile(c.req.header("user-agent") ?? "");
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
   const currentPath = c.req.path;
 
   return c.html(
@@ -46,7 +45,7 @@ appRoutes.get("/books/:slug", async (c) => {
       user={user}
       bookSlug={slug}
       currentPath={currentPath}
-      device={device}
+      isMobile={isMobile}
     />,
   );
 });
@@ -55,7 +54,7 @@ appRoutes.get("/books/preview/:slug", requireBookPreviewAccess, async (c) => {
   const book = c.get("book");
   const user = await getUser(c);
   const currentPath = c.req.path;
-  const device = isMobile(c.req.header("user-agent") ?? "");
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   return c.html(
     <BookDetailPage
@@ -64,7 +63,7 @@ appRoutes.get("/books/preview/:slug", requireBookPreviewAccess, async (c) => {
       bookSlug={book.slug}
       currentPath={currentPath}
       status="draft"
-      device={device}
+      isMobile={isMobile}
     />,
   );
 });
@@ -72,9 +71,12 @@ appRoutes.get("/books/preview/:slug", requireBookPreviewAccess, async (c) => {
 appRoutes.get("/books/tags/:tag", async (c) => {
   const tag = c.req.param("tag");
   const user = await getUser(c);
-  const books = await getBooksByTag(tag);
+  const books = (await getBooksByTag(tag)) ?? [];
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
-  return c.html(<TagPage books={books} user={user} tag={tag} />);
+  return c.html(
+    <TagPage books={books} user={user} tag={tag} isMobile={isMobile} />,
+  );
 });
 
 appRoutes.get("/new-books", async (c) => {

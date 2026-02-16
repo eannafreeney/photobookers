@@ -45,7 +45,7 @@ const ComboBox = ({
               x-ref="newOptionNameField"
               hidden
             />
-            <DropdownList name={name} type={type} />
+            <DropdownList name={name} type={type ?? "artist"} />
           </div>
         </fieldset>
       </div>
@@ -55,7 +55,13 @@ const ComboBox = ({
 
 export default ComboBox;
 
-const DropdownList = ({ name, type }: { name: string; type: "artist" | "publisher" }) => {
+const DropdownList = ({
+  name,
+  type,
+}: {
+  name: string;
+  type: "artist" | "publisher";
+}) => {
   const alpineAttrs = {
     "x-show": "isOpen || openedWithKeyboard",
     "x-on:click.outside": "isOpen = false, openedWithKeyboard = false",

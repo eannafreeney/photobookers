@@ -53,7 +53,13 @@ export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
   return false;
 }
 
-export function canPreviewBook(user: AuthUser | null, book: Book): boolean {
+export function canPreviewBook(
+  user: AuthUser | null,
+  book: Pick<
+    Book,
+    "coverUrl" | "publicationStatus" | "artistId" | "publisherId"
+  >,
+): boolean {
   if (!user) return false;
   if (!book.coverUrl) return false;
 

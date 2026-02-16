@@ -1,12 +1,11 @@
 import { AuthUser } from "../../../types";
-import Alert from "../../components/app/Alert";
 import AlertStatic from "../../components/app/AlertStatic";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
 import VerifiedCreator from "../../components/app/VerifiedCreator";
 import BooksCreatedByMeForOtherPublishersTable from "../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
 import BooksCreatedByMeForStubPublishersTable from "../../components/cms/ui/BooksCreatedForStubPublishersTable";
 import BooksForApprovalTable from "../../components/cms/ui/BooksForApprovalTable";
-import { BookTable } from "../../components/cms/ui/BookTable";
+import { BooksOverviewTable } from "../../components/cms/ui/BooksOverviewTable";
 import AppLayout from "../../components/layouts/AppLayout";
 import FeatureGuard from "../../components/layouts/FeatureGuard";
 import Page from "../../components/layouts/Page";
@@ -17,6 +16,7 @@ type BooksDashboardProps = {
   flash: any;
   currentPath: string;
   searchQuery?: string;
+  isMobile: boolean;
 };
 
 const BooksOverview = async ({
@@ -24,6 +24,7 @@ const BooksOverview = async ({
   user,
   flash,
   currentPath,
+  isMobile,
 }: BooksDashboardProps) => {
   if (!user.creator) {
     return (
@@ -47,11 +48,13 @@ const BooksOverview = async ({
           />
         ) : (
           <div class="flex items-center gap-2">
-            Account Verified <VerifiedCreator creator={user.creator} />
+            Account Verified{" "}
+            <VerifiedCreator creator={user.creator} size="sm" />
           </div>
         )}
         <div class="flex flex-col gap-16">
-          <BookTable
+          <BooksOverviewTable
+            isMobile={isMobile}
             searchQuery={searchQuery}
             creator={user.creator}
             user={user}

@@ -1,18 +1,14 @@
-import Alpine from "alpinejs";
 import { Creator } from "../../db/schema";
-import { getIsMobile, useMediaQuery } from "../../lib/device";
 import Avatar from "./Avatar";
-import Card from "./Card";
 import VerifiedCreator from "./VerifiedCreator";
 
 type PageTitleProps = {
   title?: string;
   creator?: Creator;
+  isMobile?: boolean;
 };
 
-const PageTitle = ({ title, creator }: PageTitleProps) => {
-  const isMobile = getIsMobile();
-
+const PageTitle = ({ title, creator, isMobile }: PageTitleProps) => {
   return (
     <div class="flex items-center gap-4">
       {creator?.coverUrl && (

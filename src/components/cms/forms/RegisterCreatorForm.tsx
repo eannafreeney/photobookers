@@ -50,7 +50,6 @@ const RegisterCreatorForm = ({ type }: RegisterCreatorFormProps) => {
           name="form.password"
           validateInput="validatePassword()"
           placeholder="••••••••"
-          minLength={8}
           required
         />
         <Input
@@ -59,7 +58,6 @@ const RegisterCreatorForm = ({ type }: RegisterCreatorFormProps) => {
           name="form.confirmPassword"
           validateInput="validateConfirmPassword()"
           placeholder="••••••••"
-          minLength={8}
           required
         />
         <Checkbox

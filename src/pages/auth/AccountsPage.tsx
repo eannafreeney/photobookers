@@ -32,13 +32,54 @@ const features = [
   { name: "Manage Your Books", fan: false, artist: true, publisher: true },
 ];
 
+const mobileFeatures = [
+  {
+    type: "Fan" as const,
+    slug: "fan",
+    features: features.filter((f) => f.fan),
+  },
+  {
+    type: "Artist" as const,
+    slug: "artist",
+    features: features.filter((f) => f.artist),
+  },
+  {
+    type: "Publisher" as const,
+    slug: "publisher",
+    features: features.filter((f) => f.publisher),
+  },
+];
+
 const AccountsPage = () => {
   return (
     <HeadlessLayout title="Accounts">
       <Page>
         <SectionTitle>Accounts</SectionTitle>
-
-        <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
+        {/* Mobile: cards */}
+        <div class="md:hidden space-y-4">
+          {mobileFeatures.map((account) => (
+            <div
+              key={account.slug}
+              class="rounded-radius border border-outline bg-surface-alt p-4 flex flex-col gap-4"
+            >
+              <h3 class="text-lg font-semibold text-on-surface-strong">
+                {account.type}
+              </h3>
+              <ul class="list-disc list-inside text-sm text-on-surface space-y-1">
+                {account.features.map((f) => (
+                  <li key={f.name}>{f.name}</li>
+                ))}
+              </ul>
+              <a href={`/auth/register?type=${account.slug}`} class="mt-auto">
+                <Button variant="solid" color="primary" width="full">
+                  Sign up
+                </Button>
+              </a>
+            </div>
+          ))}
+        </div>
+        {/* Desktop View */}
+        <div class="hidden md:block overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
           <table class="w-full text-left text-sm text-on-surface">
             <thead class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong">
               <tr>

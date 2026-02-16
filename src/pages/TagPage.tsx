@@ -12,9 +12,10 @@ type TagPageProps = {
   books: Book[];
   user: AuthUser | null;
   tag: string;
+  isMobile: boolean;
 };
 
-const TagPage = async ({ books, user, tag }: TagPageProps) => {
+const TagPage = async ({ books, user, tag, isMobile }: TagPageProps) => {
   if (!books) {
     return (
       <AppLayout title="Books" user={user}>
@@ -28,7 +29,7 @@ const TagPage = async ({ books, user, tag }: TagPageProps) => {
   return (
     <AppLayout title={`# ${capitalize(tag)}`} user={user}>
       <Page>
-        <PageTitle title={`# ${capitalize(tag)}`} />
+        <PageTitle title={`# ${capitalize(tag)}`} isMobile={isMobile} />
         <GridPanel>
           {books.map((book) => (
             <BookCard book={book} user={user} />

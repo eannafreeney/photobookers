@@ -1,12 +1,19 @@
+import clsx from "clsx";
 import { getInputIcon } from "../../../utils";
 
 type Props = {
   target: string;
   action: string;
   placeholder: string;
+  isMobile?: boolean;
 };
 
-const TableSearch = ({ target, action, placeholder }: Props) => {
+const TableSearch = ({
+  target,
+  action,
+  placeholder,
+  isMobile = false,
+}: Props) => {
   const alpineAttrs = {
     "x-on:input.debounce": "$el.form.requestSubmit()",
     "x-on:search": "$el.form.requestSubmit()",
@@ -14,7 +21,12 @@ const TableSearch = ({ target, action, placeholder }: Props) => {
 
   return (
     <form x-target={target} action={action} autocomplete="off">
-      <label class="bg-surface-alt w-64 rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
+      <label
+        class={clsx(
+          "bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary",
+          isMobile ? "w-full" : "w-64",
+        )}
+      >
         {getInputIcon("search")}
         <input
           type="search"

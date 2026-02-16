@@ -25,7 +25,6 @@ import {
 } from "../lib/validator";
 import { resolveArtist, resolvePublisher } from "../services/creators";
 import Alert from "../components/app/Alert";
-import { BookTable } from "../components/cms/ui/BookTable";
 import BooksForApprovalTable from "../components/cms/ui/BooksForApprovalTable";
 import {
   requireBookDeleteAccess,
@@ -34,6 +33,8 @@ import {
   requireBookUnpublishAccess,
 } from "../middleware/bookGuard";
 import { showErrorAlert } from "../lib/alertHelpers";
+import { getIsMobile } from "../lib/device";
+import { BooksOverviewTable } from "../components/cms/ui/BooksOverviewTable";
 
 export const booksDashboardRoutes = new Hono();
 
@@ -42,8 +43,11 @@ booksDashboardRoutes.get("/", async (c) => {
   const searchQuery = c.req.query("search");
   const user = await getUser(c);
   const flash = await getFlash(c);
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   const currentPath = c.req.path;
+
+  console.log("searchQuery", searchQuery);
 
   return c.html(
     <BooksOverview
@@ -51,6 +55,7 @@ booksDashboardRoutes.get("/", async (c) => {
       user={user}
       flash={flash}
       currentPath={currentPath}
+      isMobile={isMobile}
     />,
   );
 });
@@ -200,8 +205,9 @@ booksDashboardRoutes.post(
   async (c) => {
     const bookId = c.req.valid("param").bookId;
     const user = await getUser(c);
+    const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
-    if (!user.creator) showErrorAlert(c, "No Creator Profile Found");
+    if (!user.creator) return showErrorAlert(c, "No Creator Profile Found");
 
     const deletedBook = await deleteBookById(bookId);
 
@@ -212,11 +218,11 @@ booksDashboardRoutes.post(
     return c.html(
       <>
         <Alert type="success" message={`${deletedBook.title} deleted!`} />
-        <BookTable
+        <BooksOverviewTable
           searchQuery={undefined}
-          creatorType={user.creator?.type ?? "artist"}
-          creatorId={user.creator?.id ?? ""}
+          creator={user.creator}
           user={user}
+          isMobile={isMobile}
         />
       </>,
     );
@@ -292,43 +298,43 @@ booksDashboardRoutes.post(
 );
 
 // Add book cover image to book profile
-booksDashboardRoutes.post(
-  "/edit/:bookId/cover",
-  paramValidator(bookIdSchema),
-  async (c) => {
-    const bookId = c.req.valid("param").bookId;
-    const body = await c.req.parseBody();
+// booksDashboardRoutes.post(
+//   "/edit/:bookId/cover",
+//   paramValidator(bookIdSchema),
+//   async (c) => {
+//     const bookId = c.req.valid("param").bookId;
+//     const body = await c.req.parseBody();
 
-    const validatedFile = validateImageFile(body.cover);
-    if (!validatedFile.success) {
-      return c.html(<Alert type="danger" message={validatedFile.error} />, 422);
-    }
+//     const validatedFile = validateImageFile(body.cover);
+//     if (!validatedFile.success) {
+//       return c.html(<Alert type="danger" message={validatedFile.error} />, 422);
+//     }
 
-    let coverUrl: string | null = null;
-    try {
-      const result = await uploadImage(
-        validatedFile.file,
-        `books/covers/${bookId}`,
-      );
-      coverUrl = result.url;
-    } catch (error) {
-      return c.html(
-        <Alert type="danger" message="Failed to upload image" />,
-        422,
-      );
-    }
-    const updatedBook = await updateBookCoverImage(bookId, coverUrl);
+//     let coverUrl: string | null = null;
+//     try {
+//       const result = await uploadImage(
+//         validatedFile.file,
+//         `books/covers/${bookId}`,
+//       );
+//       coverUrl = result.url;
+//     } catch (error) {
+//       return c.html(
+//         <Alert type="danger" message="Failed to upload image" />,
+//         422,
+//       );
+//     }
+//     const updatedBook = await updateBookCoverImage(bookId, coverUrl);
 
-    if (!updatedBook) {
-      return c.html(
-        <Alert type="danger" message="Failed to update book cover" />,
-        422,
-      );
-    }
+//     if (!updatedBook) {
+//       return c.html(
+//         <Alert type="danger" message="Failed to update book cover" />,
+//         422,
+//       );
+//     }
 
-    return c.html(<Alert type="success" message="Cover updated!" />);
-  },
-);
+//     return c.html(<Alert type="success" message="Cover updated!" />);
+//   },
+// );
 
 // // Add book image to book profile
 // booksDashboardRoutes.post(

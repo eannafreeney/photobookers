@@ -1,6 +1,6 @@
 // src/middleware/bookGuard.ts
 import { createMiddleware } from "hono/factory";
-import { getBookById } from "../services/books";
+import { getBookById, getBookBySlug } from "../services/books";
 import {
   canDeleteBook,
   canEditBook,
@@ -12,12 +12,19 @@ import { getUser } from "../utils";
 import Alert from "../components/app/Alert";
 import { Book } from "../db/schema";
 import { showErrorAlert } from "../lib/alertHelpers";
+import ErrorPage from "../pages/error/errorPage";
 
 type BookEnv = {
   Variables: {
     book: Book;
   };
 };
+
+type BookFromSlug = NonNullable<
+  Awaited<ReturnType<typeof getBookBySlug>>
+>["book"];
+
+type BookPreviewEnv = { Variables: { book: BookFromSlug } };
 
 const notYetVerifiedErrorMessage =
   "Your creator profile is pending verification. You can upload and edit books, but publishing is only available after your profile is approved.";
@@ -28,12 +35,12 @@ export const requireBookEditAccess = createMiddleware<BookEnv>(
     const bookId = c.req.param("bookId");
 
     if (!bookId) {
-      return showErrorAlert(c, "Book ID is required");
+      return c.html(<ErrorPage errorMessage="Book ID is required" />, 400);
     }
 
     const book = await getBookById(bookId);
     if (!book) {
-      return showErrorAlert(c, "Book not found");
+      return c.html(<ErrorPage errorMessage="Book not found" />, 404);
     }
 
     if (!canEditBook(user, book)) {
@@ -43,9 +50,15 @@ export const requireBookEditAccess = createMiddleware<BookEnv>(
         user.creator.createdByUserId !== user.id;
 
       if (isClaimedProfileNotVerified) {
-        return showErrorAlert(c, notYetVerifiedErrorMessage);
+        return c.html(
+          <ErrorPage errorMessage={notYetVerifiedErrorMessage} />,
+          403,
+        );
       }
-      return showErrorAlert(c, "You are not authorized to edit this book");
+      return c.html(
+        <ErrorPage errorMessage="You are not authorized to edit this book" />,
+        403,
+      );
     }
 
     // Attach book to context so route doesn't need to fetch again
@@ -60,10 +73,11 @@ export const requireBookDeleteAccess = createMiddleware<BookEnv>(
     const bookId = c.req.param("bookId");
 
     if (!bookId) {
-      return c.html(<Alert type="danger" message="Book ID is required" />, 400);
+      return showErrorAlert(c, "Book ID is required");
     }
 
     const book = await getBookById(bookId);
+
     if (!book) {
       return showErrorAlert(c, "Book not found");
     }
@@ -135,22 +149,30 @@ export const requireBookUnpublishAccess = createMiddleware<BookEnv>(
   },
 );
 
-export const requireBookPreviewAccess = createMiddleware<BookEnv>(
+export const requireBookPreviewAccess = createMiddleware<BookPreviewEnv>(
   async (c, next) => {
     const user = await getUser(c);
-    const bookId = c.req.param("bookId");
+    const bookSlug = c.req.param("slug");
 
-    if (!bookId) {
-      return showErrorAlert(c, "Book ID is required");
+    if (!bookSlug) {
+      return c.html(<ErrorPage errorMessage="Book slug is required" />, 400);
     }
 
-    const book = await getBookById(bookId);
+    const result = await getBookBySlug(bookSlug, "draft");
+    if (!result?.book) {
+      return c.html(<ErrorPage errorMessage="Book not found" />, 404);
+    }
+
+    const { book } = result;
     if (!book) {
-      return showErrorAlert(c, "Book not found");
+      return c.html(<ErrorPage errorMessage="Book not found" />, 404);
     }
 
     if (!canPreviewBook(user, book)) {
-      return showErrorAlert(c, "You are not authorized to preview this book");
+      return c.html(
+        <ErrorPage errorMessage="You are not authorized to preview this book" />,
+        403,
+      );
     }
 
     // Attach book to context so route doesn't need to fetch again

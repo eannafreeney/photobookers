@@ -15,12 +15,14 @@ type CreatorDetailPageProps = {
   user: AuthUser | null;
   creatorSlug: string;
   currentPath: string;
+  isMobile: boolean;
 };
 
 const CreatorDetailPage = async ({
   user,
   creatorSlug,
   currentPath,
+  isMobile,
 }: CreatorDetailPageProps) => {
   const result = await getCreatorBySlug(creatorSlug);
 
@@ -41,7 +43,7 @@ const CreatorDetailPage = async ({
   return (
     <AppLayout title={creator?.displayName ?? ""} user={user}>
       <Page>
-        <PageTitle creator={creator} />
+        <PageTitle creator={creator} isMobile={isMobile} />
         <div class="flex flex-col md:flex-row gap-4">
           <div class="md:w-3/4 flex flex-col gap-4">
             <GridPanel id={targetId} xMerge="append">
