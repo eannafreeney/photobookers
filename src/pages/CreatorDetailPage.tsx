@@ -29,7 +29,7 @@ const CreatorDetailPage = async ({
   const result = await getCreatorBySlug(creatorSlug, currentPage);
 
   if (!result.creator) {
-    return <ErrorPage errorMessage="Creator not found" />;
+    return <ErrorPage errorMessage="Creator not found" user={user} />;
   }
 
   const { creator, books, totalPages, page } = result;

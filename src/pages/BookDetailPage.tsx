@@ -33,7 +33,7 @@ const BookDetailPage = async ({
 }: BookDetailPageProps) => {
   const result = await getBookBySlug(bookSlug, status);
   if (!result?.book || !result.book.artist) {
-    return <ErrorPage errorMessage="Book not found" />;
+    return <ErrorPage errorMessage="Book not found" user={user} />;
   }
 
   const { book } = result;

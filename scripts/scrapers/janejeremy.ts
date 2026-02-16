@@ -1,10 +1,10 @@
 /**
- * Poursuite Editions scraper
- * Fetches book data from https://www.poursuite-editions.org/?lang=en
+ * Jane & Jeremy scraper
+ * Fetches book/product data from https://www.jane-jeremy.co.uk/shop3
  * and writes CSV with: title, artist, artistExistsInDb, description, specs,
  * coverUrl, images, availability, purchaseLink
  *
- * Run: npx tsx scripts/scrapers/poursuite.ts [output-path]
+ * Run: npx tsx scripts/scrapers/janejeremy.ts [output-path]
  */
 
 import * as cheerio from "cheerio";
@@ -17,30 +17,46 @@ import {
   rowToCsv,
 } from "../scraperUtils";
 
-const BASE = "https://www.poursuite-editions.org";
-const CATALOG_URL = `${BASE}/?lang=en`;
+const BASE = "https://www.jane-jeremy.co.uk";
+const SHOP_URL = `${BASE}/shop3`;
 const AMOUNT_OF_BOOKS = 3;
 
+function parseTitleAndArtist(rawTitle: string): {
+  title: string;
+  artist: string;
+} {
+  const t = rawTitle.trim();
+  const pipeIdx = t.indexOf(" | ");
+  if (pipeIdx > -1) {
+    return {
+      title: t.slice(pipeIdx + 3).trim(),
+      artist: t.slice(0, pipeIdx).trim(),
+    };
+  }
+  const byIdx = t.lastIndexOf(" by ");
+  if (byIdx > -1) {
+    return {
+      title: t.slice(0, byIdx).trim(),
+      artist: t.slice(byIdx + 4).trim(),
+    };
+  }
+  return { title: t, artist: "" };
+}
+
 async function getAllProductUrls(): Promise<string[]> {
-  console.log("Fetching catalog:", CATALOG_URL);
-  const html = await fetchHtml(CATALOG_URL);
+  console.log("Fetching shop:", SHOP_URL);
+  const html = await fetchHtml(SHOP_URL);
   const $ = cheerio.load(html);
   const seen = new Set<string>();
   const urls: string[] = [];
 
-  $('a[href*="/products/"]').each((_, el) => {
+  $('a[href*="/shop3/p/"]').each((_, el) => {
     const href = $(el).attr("href");
-    if (!href || href.includes("add-to-cart")) return;
-    const pathOnly = href.split("?")[0];
-    const full = normalizeUrl(pathOnly, BASE);
-    const path = new URL(full).pathname;
-    if (!path.startsWith("/products/")) return;
-    const productPath = path.replace(/\/$/, "");
-    if (productPath === "/products") return;
-    const withLang = `${full}${full.includes("?") ? "&" : "?"}lang=en`;
-    if (!seen.has(withLang)) {
-      seen.add(withLang);
-      urls.push(withLang);
+    if (!href) return;
+    const full = normalizeUrl(href.split("?")[0], BASE);
+    if (!seen.has(full)) {
+      seen.add(full);
+      urls.push(full);
     }
   });
 
@@ -61,56 +77,47 @@ async function scrapeProduct(productUrl: string): Promise<{
   const html = await fetchHtml(productUrl);
   const $ = cheerio.load(html);
 
-  const title =
-    $("h1.product_title.entry-title").first().text().trim() ||
-    $("h1.entry-title").first().text().trim() ||
+  const rawTitle =
+    $("h1.product-title").first().text().trim() ||
     $('meta[property="og:title"]')
       .attr("content")
-      ?.replace(/\s*[-–|]\s*Poursuite\s*$/i, "")
+      ?.replace(/\s*—\s*Jane\s*&\s*Jeremy$/i, "")
       .trim() ||
     "";
+  const { title, artist } = parseTitleAndArtist(rawTitle);
 
-  const artist =
-    $("h5.elementor-heading-title a").first().text().trim() ||
-    $(".woocommerce-product-details__short-description")
-      .prev()
-      .find("h5 a")
-      .first()
-      .text()
-      .trim() ||
-    "";
+  const descBlock = $(".product-description").first();
+  const paragraphs = descBlock.find("p").toArray();
+  let description = "";
+  let specs = "";
 
-  const descriptionBlock = $(
-    ".elementor-widget-woocommerce-product-content .elementor-widget-container",
-  ).first();
-  const description = descriptionBlock
-    .find("p")
-    .toArray()
-    .map((p) => $(p).text().trim().replace(/\s+/g, " "))
-    .filter(Boolean)
-    .join("\n\n");
-
-  const specsEl = $(".woocommerce-product-details__short-description").first();
-  const specHtml = specsEl.html() ?? "";
-  const specs =
-    specHtml
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<[^>]+>/g, "")
-      .replace(/&nbsp;/gi, " ")
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .join("\n")
-      .trim() || "";
+  for (const p of paragraphs) {
+    const text = $(p).text().trim();
+    if (text.startsWith("Details")) {
+      let specHtml = $(p).html() ?? "";
+      specHtml = specHtml.replace(
+        /^\s*<strong>\s*Details\s*:?\s*<\/strong>\s*/i,
+        "",
+      );
+      specs = specHtml
+        .replace(/<br\s*\/?>/gi, "\n")
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .join("\n");
+      specs = specs.replace(/^Details:?\s*\n?/i, "").trim();
+      break;
+    }
+    description =
+      (description ? description + "\n\n" : "") + text.replace(/\s+/g, " ");
+  }
 
   const imageUrls: string[] = [];
   $(
-    ".woocommerce-product-gallery img, .product-gallery img, .elementor-widget-container img",
+    ".product-gallery-thumbnails-item-image, .product-gallery-slides-item-image",
   ).each((_, el) => {
     const src =
-      $(el).attr("data-src") ||
-      $(el).attr("data-large_image") ||
-      $(el).attr("src");
+      $(el).attr("data-image") || $(el).attr("data-src") || $(el).attr("src");
     if (src && !src.startsWith("data:") && !imageUrls.includes(src)) {
       imageUrls.push(normalizeUrl(src, BASE));
     }
@@ -123,15 +130,15 @@ async function scrapeProduct(productUrl: string): Promise<{
   const coverUrl = uniqueImages[0] ?? "";
   const images = uniqueImages.slice(1).join("|");
 
-  const hasOutOfStock =
-    $(".out-of-stock, .outofstock").length > 0 ||
-    $("p.stock").filter((_, el) =>
-      $(el).text().toLowerCase().includes("out of stock"),
-    ).length > 0;
-  const availability = hasOutOfStock ? "sold out" : "available";
-
-  const purchaseLink =
-    $('link[rel="canonical"]').attr("href")?.trim() || productUrl;
+  const availabilityMeta = $('meta[property="product:availability"]').attr(
+    "content",
+  );
+  const soldOutText = $(".product-mark.sold-out")
+    .text()
+    .toLowerCase()
+    .includes("sold out");
+  const isSoldOut = availabilityMeta?.toLowerCase() === "oos" || soldOutText;
+  const availability = isSoldOut ? "sold out" : "available";
 
   const artistExists = await artistExistsInDb(artist);
 
@@ -144,15 +151,13 @@ async function scrapeProduct(productUrl: string): Promise<{
     coverUrl,
     images,
     availability,
-    purchaseLink: purchaseLink.startsWith("http")
-      ? purchaseLink
-      : normalizeUrl(purchaseLink, BASE),
+    purchaseLink: productUrl,
   };
 }
 
 async function main() {
   const outPath =
-    process.argv[2] ?? join(process.cwd(), "output", "poursuite.csv");
+    process.argv[2] ?? join(process.cwd(), "output", "janejeremy.csv");
 
   console.log("Fetching product list...");
   const productUrls = (await getAllProductUrls()).slice(0, AMOUNT_OF_BOOKS);

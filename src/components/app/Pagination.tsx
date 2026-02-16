@@ -17,7 +17,7 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
         "x-intersect": `$ajax('${baseUrl}?page=${page + 1}', { target: 'pagination ${targetId}' })`,
       })}
     >
-      {`${page} of ${totalPages}`} <LoadingIcon />
+      {`${page} of ${totalPages}`} {page < totalPages && <LoadingIcon />}
     </nav>
   );
 };

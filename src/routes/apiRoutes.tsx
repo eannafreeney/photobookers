@@ -128,7 +128,7 @@ apiRoutes.post("/wishlist/:bookId", async (c) => {
 apiRoutes.get("/wishlist-books", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.html(<ErrorPage errorMessage="User not found" />);
+    return c.html(<ErrorPage errorMessage="User not found" user={user} />);
   }
   return c.html(<WishlistedBooks user={user} />);
 });

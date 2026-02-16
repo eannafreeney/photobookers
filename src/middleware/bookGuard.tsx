@@ -35,12 +35,18 @@ export const requireBookEditAccess = createMiddleware<BookEnv>(
     const bookId = c.req.param("bookId");
 
     if (!bookId) {
-      return c.html(<ErrorPage errorMessage="Book ID is required" />, 400);
+      return c.html(
+        <ErrorPage errorMessage="Book ID is required" user={user} />,
+        400,
+      );
     }
 
     const book = await getBookById(bookId);
     if (!book) {
-      return c.html(<ErrorPage errorMessage="Book not found" />, 404);
+      return c.html(
+        <ErrorPage errorMessage="Book not found" user={user} />,
+        404,
+      );
     }
 
     if (!canEditBook(user, book)) {
@@ -51,12 +57,15 @@ export const requireBookEditAccess = createMiddleware<BookEnv>(
 
       if (isClaimedProfileNotVerified) {
         return c.html(
-          <ErrorPage errorMessage={notYetVerifiedErrorMessage} />,
+          <ErrorPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
           403,
         );
       }
       return c.html(
-        <ErrorPage errorMessage="You are not authorized to edit this book" />,
+        <ErrorPage
+          errorMessage="You are not authorized to edit this book"
+          user={user}
+        />,
         403,
       );
     }
@@ -155,22 +164,34 @@ export const requireBookPreviewAccess = createMiddleware<BookPreviewEnv>(
     const bookSlug = c.req.param("slug");
 
     if (!bookSlug) {
-      return c.html(<ErrorPage errorMessage="Book slug is required" />, 400);
+      return c.html(
+        <ErrorPage errorMessage="Book slug is required" user={user} />,
+        400,
+      );
     }
 
     const result = await getBookBySlug(bookSlug, "draft");
     if (!result?.book) {
-      return c.html(<ErrorPage errorMessage="Book not found" />, 404);
+      return c.html(
+        <ErrorPage errorMessage="Book not found" user={user} />,
+        404,
+      );
     }
 
     const { book } = result;
     if (!book) {
-      return c.html(<ErrorPage errorMessage="Book not found" />, 404);
+      return c.html(
+        <ErrorPage errorMessage="Book not found" user={user} />,
+        404,
+      );
     }
 
     if (!canPreviewBook(user, book)) {
       return c.html(
-        <ErrorPage errorMessage="You are not authorized to preview this book" />,
+        <ErrorPage
+          errorMessage="You are not authorized to preview this book"
+          user={user}
+        />,
         403,
       );
     }

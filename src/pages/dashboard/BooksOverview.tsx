@@ -28,7 +28,10 @@ const BooksOverview = async ({
 }: BooksDashboardProps) => {
   if (!user.creator) {
     return (
-      <ErrorPage errorMessage="You are not authorized to access this page. Please contact support." />
+      <ErrorPage
+        errorMessage="You are not authorized to access this page. Please contact support."
+        user={user}
+      />
     );
   }
 

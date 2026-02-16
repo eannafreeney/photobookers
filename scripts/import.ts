@@ -14,8 +14,8 @@ import { createBook } from "../src/services/books";
 import { createStubCreatorProfile } from "../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 
-const SOURCE_CSV_FILE = "nazraeli.csv";
-const AMOUNT_OF_BOOKS = 11;
+const SOURCE_CSV_FILE = "hoxton.csv";
+const AMOUNT_OF_BOOKS = 3;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));

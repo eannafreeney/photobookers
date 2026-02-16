@@ -29,7 +29,7 @@ const TagPage = async ({
   const result = await getBooksByTag(tag, currentPage);
 
   if (!result?.books) {
-    return <ErrorPage errorMessage="No featured books found" />;
+    return <ErrorPage errorMessage="No featured books found" user={user} />;
   }
 
   const targetId = `books-grid-${tag}`;

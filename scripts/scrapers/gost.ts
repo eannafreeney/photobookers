@@ -18,6 +18,7 @@ import { creators } from "../../src/db/schema";
 
 const BASE = "https://gostbooks.com";
 const COLLECTION_BASE = `${BASE}/collections/current-books`;
+const AMOUNT_OF_BOOKS = 3;
 
 function escapeCsv(value: string): string {
   const s = String(value ?? "");
@@ -140,11 +141,16 @@ async function scrapeProduct(productUrl: string): Promise<{
     $('meta[name="description"]').attr("content")?.trim() ||
     "";
 
+  const specsEl = $("p.product__text.inline-richtext.specs").first();
+  const specHtml = specsEl.html() ?? "";
   const specs =
-    $("p.product__text.inline-richtext.specs")
-      .first()
-      .text()
-      .replace(/\s*\n\s*/g, "; ")
+    specHtml
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .join("\n")
       .trim() || "";
 
   const imageUrls: string[] = [];
@@ -193,7 +199,7 @@ async function main() {
   const outPath = process.argv[2] ?? join(process.cwd(), "output", "GOST.csv");
 
   console.log("Fetching product URLs from collection (all pages)...");
-  const productUrls = await getAllProductUrls();
+  const productUrls = (await getAllProductUrls()).slice(0, AMOUNT_OF_BOOKS);
   console.log(`Found ${productUrls.length} product URLs.`);
 
   const header: Record<string, string> = {

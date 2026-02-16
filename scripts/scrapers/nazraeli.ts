@@ -18,6 +18,7 @@ import {
 
 const BASE = "https://www.nazraeli.com";
 const CATALOGUE_URL = `${BASE}/complete-catalogue?category=Regular%20Edition`;
+const AMOUNT_OF_BOOKS = 3;
 
 function titleCase(s: string): string {
   return s
@@ -80,12 +81,25 @@ async function scrapeProduct(productUrl: string): Promise<{
   const descriptionParts: string[] = [];
   paragraphs.forEach((p, i) => {
     const text = $(p).text().trim().replace(/\s+/g, " ");
-    if (i === 0) specs = text;
-    else descriptionParts.push(text);
+    if (i < 2) {
+      specs = (specs ? specs + "\n" : "") + text;
+    } else {
+      descriptionParts.push(text);
+    }
   });
+  specs = specs
+    .replace(/,/g, "\n")
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join("\n");
+
   const description =
     descriptionParts.join("\n\n").trim() ||
     excerptEl.text().trim().replace(/\s+/g, " ");
+  const descriptionClean = description
+    .replace(/\s*Click images to enlarge\.?\s*$/i, "")
+    .trim();
 
   const imageUrls: string[] = [];
   $("#productSlideshow .slide img").each((_, el) => {
@@ -115,7 +129,7 @@ async function scrapeProduct(productUrl: string): Promise<{
     title,
     artist,
     artistExistsInDb: artistExists,
-    description,
+    description: descriptionClean,
     specs,
     coverUrl,
     images,
@@ -129,7 +143,7 @@ async function main() {
     process.argv[2] ?? join(process.cwd(), "output", "nazraeli.csv");
 
   console.log("Fetching catalogue...");
-  const productUrls = await getAllProductUrls();
+  const productUrls = (await getAllProductUrls()).slice(0, AMOUNT_OF_BOOKS);
   console.log(`Found ${productUrls.length} product URLs.`);
 
   const header: Record<string, string> = {

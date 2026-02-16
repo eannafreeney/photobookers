@@ -58,7 +58,21 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
           {creator.displayName}
         </Link>
       </td>
-      <td>{creator.id}</td>
+      <td>
+        <div
+          x-data={`{ cellValue: '${creator.id}' }`}
+          class="flex items-center gap-2"
+        >
+          <span x-text="cellValue"></span>
+          <button
+            type="button"
+            class="btn btn-xs cursor-pointer"
+            x-on:click="navigator.clipboard.writeText(cellValue)"
+          >
+            Copy
+          </button>
+        </div>
+      </td>
       <td>{capitalize(creator.type)}</td>
       <td>
         <Link href={creator.website ?? ""} target="_blank">

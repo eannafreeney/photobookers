@@ -23,6 +23,7 @@ import {
 const BASE = "https://hartmann-books.com";
 const CATEGORY_BASE = `${BASE}/en/produkt-kategorie/books`;
 const TOTAL_PAGES = 3;
+const AMOUNT_OF_BOOKS = 3;
 
 async function getAllProductUrls(): Promise<string[]> {
   const allUrls: string[] = [];
@@ -126,7 +127,7 @@ async function main() {
     process.argv[2] ?? join(process.cwd(), "output", "hartmann.csv");
 
   console.log("Fetching category pages...");
-  const productUrls = await getAllProductUrls();
+  const productUrls = (await getAllProductUrls()).slice(0, AMOUNT_OF_BOOKS);
   console.log(`Found ${productUrls.length} product URLs.`);
 
   const header: Record<string, string> = {
