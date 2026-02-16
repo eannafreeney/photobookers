@@ -11,17 +11,6 @@ type WishlistedBooksProps = {
 const WishlistedBooks = async ({ user }: WishlistedBooksProps) => {
   const wishlistBooks = await getBooksInWishlist(user.id);
 
-  if (!wishlistBooks || wishlistBooks?.length === 0) {
-    return (
-      <div
-        id="empty-wishlist-books"
-        class="flex flex-col gap-4 items-center justify-center"
-      >
-        Start adding books to your wishlist and collection to see them here.
-      </div>
-    );
-  }
-
   const attrs = {
     "x-init": true,
     "x-on:wishlist:updated.window":
@@ -29,11 +18,20 @@ const WishlistedBooks = async ({ user }: WishlistedBooksProps) => {
   };
 
   return (
-    <GridPanel id="wishlist-books-grid" isFullWidth {...attrs}>
-      {wishlistBooks?.map((book) => (
-        <BookCard book={book} user={user} />
-      ))}
-    </GridPanel>
+    <>
+      <div id="empty-wishlist-books">
+        {(!wishlistBooks || wishlistBooks?.length === 0) && (
+          <div>
+            Start adding books to your wishlist and collection to see them here.
+          </div>
+        )}
+      </div>
+      <GridPanel id="wishlist-books-grid" isFullWidth {...attrs}>
+        {wishlistBooks?.map((book) => (
+          <BookCard book={book} user={user} />
+        ))}
+      </GridPanel>
+    </>
   );
 };
 export default WishlistedBooks;
