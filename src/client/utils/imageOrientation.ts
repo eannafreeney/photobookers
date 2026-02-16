@@ -9,7 +9,7 @@ export function registerImageOrientation() {
       const img = this.$el.querySelector("img");
       if (!img) return;
 
-      this.coverSquare = this.$el.dataset.coverSquare;
+      this.coverSquare = this.$el.dataset.coverSquare === "true";
 
       const setOrientation = () => {
         const w = img.naturalWidth;
