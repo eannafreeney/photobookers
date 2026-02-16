@@ -133,7 +133,7 @@ async function scrapeProduct(productUrl: string): Promise<{
 
 async function main() {
   const outPath =
-    process.argv[2] ?? join(process.cwd(), "output", "falllinepress-books.csv");
+    process.argv[2] ?? join(process.cwd(), "output", "fallline.csv");
 
   console.log("Fetching collection page...");
   const collectionHtml = await fetchHtml(COLLECTION_URL);

@@ -139,11 +139,6 @@ export const bookFormSchema = z.object({
     .min(10, "Description must be at least 10 characters")
     .max(5000, "Description must be less than 5000 characters")
     .optional(),
-  specs: z
-    .string()
-    .min(10, "Specs must be at least 10 characters")
-    .max(1000, "Specs must be less than 1000 characters")
-    .optional(),
   release_date: optionalText,
   tags: optionalText,
   purchaseLink: optionalText,

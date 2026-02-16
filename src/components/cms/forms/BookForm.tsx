@@ -89,12 +89,6 @@ export const BookForm = async ({
             )}
           </FeatureGuard>
           <TextArea
-            label="Specs"
-            name="form.specs"
-            validateInput="validateField('specs')"
-            maxLength={1000}
-          />
-          <TextArea
             label="Description"
             name="form.description"
             validateInput="validateField('description')"

@@ -392,7 +392,6 @@ export const prepareBookData = async (
   return {
     title: formData.title,
     description: formData.description || null,
-    specs: formData.specs || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
     slug: await generateUniqueBookSlug(
       formData.title,
@@ -415,7 +414,6 @@ export const prepareBookUpdateData = (
   return {
     title: formData.title,
     description: formData.description || null,
-    specs: formData.specs || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
     slug: slugify(formData.title),
     tags: processTags(formData.tags),

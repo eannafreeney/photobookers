@@ -179,7 +179,7 @@ async function main() {
     process.argv[2] ?? join(process.cwd(), "output", "hoxton.csv");
 
   console.log("Fetching product list...");
-  const productUrls = (await getAllProductUrls()).slice(0, AMOUNT_OF_BOOKS);
+  const productUrls = await getAllProductUrls();
   console.log(`Found ${productUrls.length} product URLs.`);
 
   const header: Record<string, string> = {

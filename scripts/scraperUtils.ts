@@ -51,10 +51,14 @@ export function normalizeUrl(url: string, base: string): string {
 export async function artistExistsInDb(artistName: string): Promise<boolean> {
   const trimmed = artistName.trim();
   if (!trimmed) return false;
-  const rows = await db
-    .select({ id: creators.id })
-    .from(creators)
-    .where(ilike(creators.displayName, trimmed))
-    .limit(1);
-  return rows.length > 0;
+  try {
+    const rows = await db
+      .select({ id: creators.id })
+      .from(creators)
+      .where(ilike(creators.displayName, trimmed))
+      .limit(1);
+    return rows.length > 0;
+  } catch {
+    throw new Error(`Failed to check if artist exists in db: ${artistName}`);
+  }
 }

@@ -26,7 +26,6 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
     artist_id: book.artistId,
     publisher_id: book.publisherId,
     description: book.description,
-    specs: book.specs,
     purchase_link: book.purchaseLink,
     tags: book.tags?.join(", "),
     availability_status: book.availabilityStatus,

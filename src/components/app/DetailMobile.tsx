@@ -42,7 +42,6 @@ const DetailMobile = ({
       {book.description && (
         <Card.Description>{book.description}</Card.Description>
       )}
-      {book.specs && <Card.Description>{book.specs}</Card.Description>}
       <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
       <PurchaseLink purchaseLink={book.purchaseLink} />
       <TagList tags={book.tags ?? []} />

@@ -121,7 +121,6 @@ export const books = pgTable(
     slug: varchar("slug", { length: 255 }).notNull().unique(),
     title: text("title").notNull(),
     description: text("description"),
-    specs: text("specs"),
     artistId: uuid("artist_id").references(() => creators.id),
     publisherId: uuid("publisher_id").references(() => creators.id),
     releaseDate: timestamp("release_date"),

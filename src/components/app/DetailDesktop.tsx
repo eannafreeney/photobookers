@@ -53,7 +53,6 @@ const DetailDesktop = ({
             {book.description && (
               <Card.Description>{book.description}</Card.Description>
             )}
-            {book.specs && <Card.Description>{book.specs}</Card.Description>}
             <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
             <TagList tags={book.tags ?? []} />
             <PurchaseLink purchaseLink={book.purchaseLink} />
