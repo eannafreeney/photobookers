@@ -35,6 +35,7 @@ const RegisterFanForm = () => {
           name="form.email"
           validateInput="validateEmail()"
           placeholder="you@example.com"
+          validationTrigger="blur"
           showEmailAvailabilityChecker
           required
         />
@@ -44,6 +45,7 @@ const RegisterFanForm = () => {
           name="form.password"
           validateInput="validatePassword()"
           placeholder="••••••••"
+          validationTrigger="blur"
           required
         />
         <Input
@@ -52,6 +54,7 @@ const RegisterFanForm = () => {
           name="form.confirmPassword"
           validateInput="validateConfirmPassword()"
           placeholder="••••••••"
+          validationTrigger="blur"
           required
         />
         <Checkbox

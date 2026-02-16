@@ -24,6 +24,7 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
           validateInput="validateField('email')"
           type="email"
           placeholder="you@example.com"
+          validationTrigger="blur"
           required
         />
         <Input
@@ -32,6 +33,7 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
           validateInput="validateField('password')"
           type="password"
           placeholder="••••••••"
+          validationTrigger="blur"
           required
         />
         <FormButton buttonText="Log In" loadingText="Logging in..." />

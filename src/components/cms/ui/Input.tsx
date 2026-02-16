@@ -13,6 +13,7 @@ type InputProps = {
   showEmailAvailabilityChecker?: boolean;
   showDisplayNameAvailabilityChecker?: boolean;
   showWebsiteAvailabilityStatus?: boolean;
+  validationTrigger?: "blur" | "input";
   isDisabled?: boolean;
   readOnly?: boolean;
 };
@@ -28,12 +29,15 @@ const Input = ({
   showEmailAvailabilityChecker = false,
   showDisplayNameAvailabilityChecker = false,
   showWebsiteAvailabilityStatus = false,
+  validationTrigger = "input",
   isDisabled = false,
   readOnly = false,
   ...restProps
 }: InputProps) => {
-  const inputHandler = {
-    "x-on:input.debounce.500ms": validateInput,
+  const inputValidator = {
+    "x-on:input.debounce.500ms":
+      validationTrigger === "input" ? validateInput : undefined,
+    "x-on:blur": validationTrigger === "blur" ? validateInput : undefined,
   };
 
   return (
@@ -62,7 +66,7 @@ const Input = ({
           autocomplete="off"
           {...{ "x-on:blur": `${name} = ${name}.trim()` }}
           {...(readOnly && { readOnly: true })}
-          {...(validateInput && inputHandler)}
+          {...(validateInput && inputValidator)}
           {...restProps}
         />
       </label>
