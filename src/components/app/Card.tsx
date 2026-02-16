@@ -51,7 +51,7 @@ const CardImage = ({
 );
 
 const CardTitle = ({ children }: { children: ChildType }) => (
-  <h3 class="text-balance text-md font-bold text-on-surface-strong">
+  <h3 class="text-balance text-md font-semibold text-on-surface-strong">
     {children}
   </h3>
 );

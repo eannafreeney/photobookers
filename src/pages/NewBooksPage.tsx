@@ -37,7 +37,7 @@ const NewBooksPage = async ({
         <NavTabs currentPath={currentPath} />
         <GridPanel isFullWidth id={targetId} xMerge="append">
           {books.map((book) => (
-            <BookCard book={book} user={user} />
+            <BookCard book={book} user={user} showHeader />
           ))}
         </GridPanel>
         <Pagination

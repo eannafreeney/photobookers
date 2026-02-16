@@ -20,6 +20,7 @@ const LibraryPage = async ({ user, flash, currentPath }: Props) => {
     return (
       <AppLayout title="Books" user={user} flash={flash}>
         <Page>
+          <NavTabs currentPath={currentPath} />
           <div
             id="tab-content"
             class="flex flex-col items-center justify-center mt-4"

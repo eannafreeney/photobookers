@@ -25,14 +25,14 @@ const CardCreatorCard = async ({ creatorType, book }: CardCreatorCardProps) => {
 
   return creator ? (
     <Link href={`/creators/${creator.slug}`}>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1">
         <Avatar
           src={creator.coverUrl ?? ""}
           alt={creator.displayName ?? ""}
           size="xs"
         />
         <Card.SubTitle>{creator.displayName}</Card.SubTitle>
-        <VerifiedCreator creator={creator} size="sm" />
+        <VerifiedCreator creator={creator} size="xs" />
       </div>
     </Link>
   ) : (
