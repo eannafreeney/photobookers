@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { resolve, join } from "path";
+import { downloadAndUploadImage } from "./importImage";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.scripts") });
 dotenv.config();
@@ -7,11 +8,17 @@ dotenv.config();
 import { readFileSync } from "fs";
 import { parse } from "csv/sync";
 import { eq, ilike } from "drizzle-orm";
-import { db } from "../../src/db/client";
-import { bookImages, creators, users } from "../../src/db/schema";
-import { createBook } from "../../src/services/books";
-import { createStubCreatorProfile } from "../../src/services/creators";
-import { generateUniqueBookSlug, slugify } from "../../src/utils";
+import { db } from "../src/db/client";
+import { bookImages, creators, users, books } from "../src/db/schema";
+import { createBook } from "../src/services/books";
+import { createStubCreatorProfile } from "../src/services/creators";
+import { generateUniqueBookSlug, slugify } from "../src/utils";
+
+const SOURCE_CSV_FILE = "tisbooks-books.csv";
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
 type CsvRow = {
   title: string;
@@ -78,7 +85,7 @@ function parseImages(imagesCell: string): string[] {
 
 async function main() {
   const csvPath =
-    process.argv[2] ?? join(process.cwd(), "output", "gostbooks.csv");
+    process.argv[2] ?? join(process.cwd(), "output", SOURCE_CSV_FILE);
 
   const createdByUserId = await getCreatedByUserId();
   console.log("Created-by user:", createdByUserId);
@@ -119,7 +126,7 @@ async function main() {
     }
 
     const slug = await generateUniqueBookSlug(title, artistCreator.displayName);
-    const images = parseImages(row.images);
+    const coverUrlRaw = row.coverUrl?.trim() || null;
     const galleryUrls = parseImages(row.images);
 
     const newBook = await createBook({
@@ -127,34 +134,67 @@ async function main() {
       title,
       description: row.description?.trim() || null,
       artistId: artistCreator.id,
-      publisherId: process.env.TVC_ID,
+      publisherId: process.env.PUBLISHER_ID,
       createdByUserId,
       specs: row.specs?.trim() || null,
-      coverUrl: row.coverUrl?.trim() || null,
+      coverUrl: null,
       purchaseLink: row.purchaseLink?.trim() || null,
-      images: images.length > 0 ? images : null,
+      images: null,
       availabilityStatus: "available",
       approvalStatus: "approved",
       publicationStatus: "published",
       tags: null,
     });
 
-    if (newBook) {
-      if (galleryUrls.length > 0) {
-        await db.insert(bookImages).values(
-          galleryUrls.map((imageUrl, index) => ({
-            bookId: newBook.id,
-            imageUrl,
-            sortOrder: index,
-          })),
-        );
-      }
-      created++;
-      console.log(`[${rowIndex + 1}/${rows.length}] Created: ${newBook.title}`);
-    } else {
+    if (!newBook) {
       errors++;
       console.error(`[${rowIndex + 1}] Failed to create: ${title}`);
+      continue;
     }
+
+    const bookId = newBook.id;
+    const folderCover = `books/${bookId}/cover`;
+    const folderGallery = `books/${bookId}/gallery`;
+
+    // Download, compress, upload cover; then update book
+    if (coverUrlRaw) {
+      const newCoverUrl = await downloadAndUploadImage(
+        coverUrlRaw,
+        folderCover,
+        "cover",
+      );
+      if (newCoverUrl) {
+        await db
+          .update(books)
+          .set({ coverUrl: newCoverUrl })
+          .where(eq(books.id, bookId));
+      }
+      await sleep(200);
+    }
+
+    // Download, compress, upload each gallery image; then insert into bookImages
+    const uploadedGalleryUrls: string[] = [];
+    for (const url of galleryUrls) {
+      const newUrl = await downloadAndUploadImage(
+        url,
+        folderGallery,
+        "gallery",
+      );
+      if (newUrl) uploadedGalleryUrls.push(newUrl);
+      await sleep(200);
+    }
+    if (uploadedGalleryUrls.length > 0) {
+      await db.insert(bookImages).values(
+        uploadedGalleryUrls.map((imageUrl, index) => ({
+          bookId,
+          imageUrl,
+          sortOrder: index,
+        })),
+      );
+    }
+
+    created++;
+    console.log(`[${rowIndex + 1}/${rows.length}] Created: ${newBook.title}`);
   }
 
   console.log(

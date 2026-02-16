@@ -22,6 +22,7 @@ appRoutes.get("/creators/:slug", async (c) => {
   const slug = c.req.param("slug");
   const user = await getUser(c);
   const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   return c.html(
@@ -30,6 +31,7 @@ appRoutes.get("/creators/:slug", async (c) => {
       user={user}
       currentPath={currentPath}
       isMobile={isMobile}
+      currentPage={page}
     />,
   );
 });

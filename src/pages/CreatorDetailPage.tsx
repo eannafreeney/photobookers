@@ -16,6 +16,7 @@ type CreatorDetailPageProps = {
   creatorSlug: string;
   currentPath: string;
   isMobile: boolean;
+  currentPage: number;
 };
 
 const CreatorDetailPage = async ({
@@ -23,8 +24,9 @@ const CreatorDetailPage = async ({
   creatorSlug,
   currentPath,
   isMobile,
+  currentPage,
 }: CreatorDetailPageProps) => {
-  const result = await getCreatorBySlug(creatorSlug);
+  const result = await getCreatorBySlug(creatorSlug, currentPage);
 
   if (!result.creator) {
     return <ErrorPage errorMessage="Creator not found" />;

@@ -8,11 +8,9 @@ import {
 
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const payload = JSON.parse(Buffer.from(key.split(".")[1], "base64").toString());
-console.log("service Key role:", payload.role); // Should be "service_role"
 
 const anonKey = process.env.SUPABASE_ANON_KEY!;
 const x = JSON.parse(Buffer.from(anonKey.split(".")[1], "base64").toString());
-console.log("anonKey role:", x.role); // Should be "anon"
 
 const BUCKET_NAME = "images";
 
@@ -67,6 +65,35 @@ export async function uploadImage(
     url: urlData.publicUrl,
     path: filePath,
   };
+}
+
+/**
+ * Upload from a Buffer (for Node/scripts: import, etc.)
+ */
+export async function uploadImageFromBuffer(
+  buffer: Buffer,
+  folder: string,
+  options: { contentType?: string; extension?: string } = {},
+): Promise<UploadResult> {
+  const { contentType = "image/webp", extension = "webp" } = options;
+  const timestamp = Date.now();
+  const fileName = `${timestamp}-${Math.random().toString(36).substring(7)}.${extension}`;
+  const filePath = `${folder}/${fileName}`;
+
+  const { error } = await supabaseStorageAdmin.storage
+    .from(BUCKET_NAME)
+    .upload(filePath, buffer, {
+      contentType,
+      upsert: false,
+    });
+
+  if (error) throw new Error(`Upload failed: ${error.message}`);
+
+  const { data: urlData } = supabaseStorage.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(filePath);
+
+  return { url: urlData.publicUrl, path: filePath };
 }
 
 /**
