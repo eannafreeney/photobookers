@@ -1,18 +1,14 @@
 /**
- * Hartmann Books scraper
- * Fetches book data from https://hartmann-books.com/en/produkt-kategorie/books/
- * (paginated, 3 pages) and writes CSV with: title, artist, artistExistsInDb,
- * description, coverUrl, images, availability, tags, purchaseLink
+ * Nazraeli Press scraper
+ * Fetches book data from https://www.nazraeli.com/complete-catalogue?category=Regular%20Edition
+ * and writes CSV with: title, artist, artistExistsInDb, description, specs, coverUrl, images, availability, purchaseLink
  *
- * Run: npx tsx scripts/scrapers/scrape-hartmann.ts [output-path]
+ * Run: npx tsx scripts/scrapers/nazraeli.ts [output-path]
  */
 
 import * as cheerio from "cheerio";
-import { ilike } from "drizzle-orm";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
-import { db } from "../../src/db/client";
-import { creators } from "../../src/db/schema";
 import {
   artistExistsInDb,
   fetchHtml,
@@ -20,31 +16,38 @@ import {
   rowToCsv,
 } from "../scraperUtils";
 
-const BASE = "https://hartmann-books.com";
-const CATEGORY_BASE = `${BASE}/en/produkt-kategorie/books`;
-const TOTAL_PAGES = 3;
+const BASE = "https://www.nazraeli.com";
+const CATALOGUE_URL = `${BASE}/complete-catalogue?category=Regular%20Edition`;
+
+function titleCase(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+}
 
 async function getAllProductUrls(): Promise<string[]> {
+  console.log("Fetching catalogue:", CATALOGUE_URL);
+  const html = await fetchHtml(CATALOGUE_URL);
+  const $ = cheerio.load(html);
   const allUrls: string[] = [];
   const seen = new Set<string>();
 
-  for (let page = 1; page <= TOTAL_PAGES; page++) {
-    const url =
-      page === 1 ? `${CATEGORY_BASE}/` : `${CATEGORY_BASE}/page/${page}/`;
-    console.log(`Fetching page ${page}/${TOTAL_PAGES}: ${url}`);
-    const html = await fetchHtml(url);
-    const $ = cheerio.load(html);
-    $('a[href*="/produkt/"]').each((_, el) => {
-      const href = $(el).attr("href");
-      if (href) {
-        const full = normalizeUrl(href, BASE);
-        if (!seen.has(full)) {
-          seen.add(full);
-          allUrls.push(full);
-        }
-      }
-    });
-  }
+  $('a[href*="/complete-catalogue/"]').each((_, el) => {
+    const href = $(el).attr("href");
+    if (!href) return;
+    const pathOnly = href.split("?")[0];
+    const full = normalizeUrl(pathOnly, BASE);
+    const path = new URL(full).pathname;
+    const segments = path.split("/").filter(Boolean);
+    // Product pages are /complete-catalogue/slug (exactly two segments)
+    if (segments.length !== 2 || segments[0] !== "complete-catalogue") return;
+    if (!seen.has(full)) {
+      seen.add(full);
+      allUrls.push(full);
+    }
+  });
+
   return allUrls;
 }
 
@@ -62,38 +65,32 @@ async function scrapeProduct(productUrl: string): Promise<{
   const html = await fetchHtml(productUrl);
   const $ = cheerio.load(html);
 
-  const rawTitle =
-    $("h1.product-title").first().text().trim() ||
-    $('meta[property="og:title"]')
-      .attr("content")
-      ?.replace(/\s*\|\s*Hartmann Books$/, "")
-      .trim() ||
-    "";
+  const rawTitle = $("h1.product-title").first().text().trim() || "";
+  const pipeIndex = rawTitle.indexOf(" | ");
+  let artist = "";
+  let title = rawTitle;
+  if (pipeIndex > -1) {
+    artist = titleCase(rawTitle.slice(0, pipeIndex));
+    title = rawTitle.slice(pipeIndex + 3).trim();
+  }
 
-  const h1Html = $("h1.product-title").first().html() ?? "";
-  const parts = h1Html
-    .split(/<br\s*\/?>/i)
-    .map((s) => cheerio.load(s).text().trim())
-    .filter(Boolean);
-  const artist = parts[0] ?? "";
-  const title = parts.slice(1).join(" ").trim() || rawTitle;
-
-  const specs =
-    $(".product-short-description").first().text().trim() ||
-    $('meta[name="description"]').attr("content")?.trim() ||
-    "";
-
+  const excerptEl = $(".product-excerpt").first();
+  const paragraphs = excerptEl.find("p").toArray();
+  let specs = "";
+  const descriptionParts: string[] = [];
+  paragraphs.forEach((p, i) => {
+    const text = $(p).text().trim().replace(/\s+/g, " ");
+    if (i === 0) specs = text;
+    else descriptionParts.push(text);
+  });
   const description =
-    $(".panel.entry-content").first().text().trim() ||
-    $('meta[name="description"]').attr("content")?.trim() ||
-    "";
+    descriptionParts.join("\n\n").trim() ||
+    excerptEl.text().trim().replace(/\s+/g, " ");
 
   const imageUrls: string[] = [];
-  $(".woocommerce-product-gallery__image img").each((_, el) => {
+  $("#productSlideshow .slide img").each((_, el) => {
     const src =
-      $(el).attr("data-large_image") ||
-      $(el).attr("data-src") ||
-      $(el).attr("src");
+      $(el).attr("data-image") || $(el).attr("data-src") || $(el).attr("src");
     if (src && !src.includes("data:") && !imageUrls.includes(src)) {
       imageUrls.push(normalizeUrl(src, BASE));
     }
@@ -106,6 +103,12 @@ async function scrapeProduct(productUrl: string): Promise<{
   const coverUrl = uniqueImages[0] ?? "";
   const images = uniqueImages.slice(1).join("|");
 
+  const availabilityMeta = $('meta[property="product:availability"]').attr(
+    "content",
+  );
+  const availability =
+    availabilityMeta?.toLowerCase() === "instock" ? "available" : "available";
+
   const artistExists = await artistExistsInDb(artist);
 
   return {
@@ -116,16 +119,16 @@ async function scrapeProduct(productUrl: string): Promise<{
     specs,
     coverUrl,
     images,
-    availability: "available",
+    availability,
     purchaseLink: productUrl,
   };
 }
 
 async function main() {
   const outPath =
-    process.argv[2] ?? join(process.cwd(), "output", "hartmann.csv");
+    process.argv[2] ?? join(process.cwd(), "output", "nazraeli.csv");
 
-  console.log("Fetching category pages...");
+  console.log("Fetching catalogue...");
   const productUrls = await getAllProductUrls();
   console.log(`Found ${productUrls.length} product URLs.`);
 

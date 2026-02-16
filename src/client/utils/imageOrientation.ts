@@ -9,10 +9,11 @@ export function registerImageOrientation() {
       const img = this.$el.querySelector("img");
       if (!img) return;
 
+      this.coverSquare = this.$el.dataset.coverSquare;
+
       const setOrientation = () => {
         const w = img.naturalWidth;
         const h = img.naturalHeight;
-        console.log("w", w, "h", h);
         if (w > 0 && h > 0) {
           this.isLandscape = w > h;
           this.isSquare = w === h;
@@ -29,12 +30,10 @@ export function registerImageOrientation() {
       if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
         setOrientation();
       }
-
-      // if (img.complete) {
-      //   setOrientation();
-      // } else {
-      //   img.addEventListener("load", setOrientation);
-      // }
+    },
+    get objectFitClass() {
+      const useCover = this.isLandscape || (this.coverSquare && this.isSquare);
+      return useCover ? "object-cover" : "object-contain";
     },
   }));
 }

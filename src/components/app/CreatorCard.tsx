@@ -68,6 +68,7 @@ const CreatorCardPortrait = ({
         src={creator.coverUrl ?? ""}
         alt={creator.displayName}
         href={`/creators/${creator.slug}`}
+        coverLandscapeAndSquare
       />
       <Card.Body>
         <div>
@@ -115,6 +116,7 @@ const CreatorCardLandscape = ({
               src={creator.coverUrl ?? ""}
               alt={creator.displayName}
               href={`/creators/${creator.slug}`}
+              coverLandscapeAndSquare
             />
           </div>
           <div class="w-3/6">

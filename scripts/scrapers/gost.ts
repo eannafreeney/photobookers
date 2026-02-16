@@ -190,11 +190,10 @@ async function scrapeProduct(productUrl: string): Promise<{
 }
 
 async function main() {
-  const outPath =
-    process.argv[2] ?? join(process.cwd(), "output", "gostbooks.csv");
+  const outPath = process.argv[2] ?? join(process.cwd(), "output", "GOST.csv");
 
   console.log("Fetching product URLs from collection (all pages)...");
-  const productUrls = (await getAllProductUrls())?.slice(0, 10) ?? [];
+  const productUrls = await getAllProductUrls();
   console.log(`Found ${productUrls.length} product URLs.`);
 
   const header: Record<string, string> = {

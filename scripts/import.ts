@@ -14,7 +14,8 @@ import { createBook } from "../src/services/books";
 import { createStubCreatorProfile } from "../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 
-const SOURCE_CSV_FILE = "tisbooks-books.csv";
+const SOURCE_CSV_FILE = "nazraeli.csv";
+const AMOUNT_OF_BOOKS = 11;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -106,7 +107,7 @@ async function main() {
   let skipped = 0;
   let errors = 0;
 
-  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+  for (let rowIndex = 0; rowIndex < AMOUNT_OF_BOOKS; rowIndex++) {
     const row = rows[rowIndex];
     const title = row.title?.trim();
     if (!title) {
@@ -142,7 +143,7 @@ async function main() {
       images: null,
       availabilityStatus: "available",
       approvalStatus: "approved",
-      publicationStatus: "published",
+      publicationStatus: "draft",
       tags: null,
     });
 
@@ -157,18 +158,14 @@ async function main() {
     const folderGallery = `books/${bookId}/gallery`;
 
     // Download, compress, upload cover; then update book
+    let finalCoverUrl: string | null = null;
     if (coverUrlRaw) {
       const newCoverUrl = await downloadAndUploadImage(
         coverUrlRaw,
         folderCover,
         "cover",
       );
-      if (newCoverUrl) {
-        await db
-          .update(books)
-          .set({ coverUrl: newCoverUrl })
-          .where(eq(books.id, bookId));
-      }
+      if (newCoverUrl) finalCoverUrl = newCoverUrl;
       await sleep(200);
     }
 
@@ -192,6 +189,14 @@ async function main() {
         })),
       );
     }
+
+    await db
+      .update(books)
+      .set({
+        ...(finalCoverUrl && { coverUrl: finalCoverUrl }),
+        ...(finalCoverUrl && { publicationStatus: "published" as const }),
+      })
+      .where(eq(books.id, bookId));
 
     created++;
     console.log(`[${rowIndex + 1}/${rows.length}] Created: ${newBook.title}`);

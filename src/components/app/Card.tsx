@@ -25,20 +25,26 @@ const CardImage = ({
   src,
   alt,
   href,
+  coverLandscapeAndSquare = false,
 }: {
   src: string;
   alt: string;
   href: string;
+  coverLandscapeAndSquare?: boolean;
 }) => (
-  <figure class="w-full bg-white" x-data="imageOrientation">
+  <figure
+    class="w-full bg-white"
+    x-data="imageOrientation"
+    {...(coverLandscapeAndSquare && { "data-cover-square": "true" })}
+  >
     <Link href={href}>
       <img
         src={src}
         alt={alt}
         loading="lazy"
         decoding="async"
-        class="h-52 w-full transition duration-700 ease-out group-hover:scale-105 z-10 object-contain"
-        x-bind:class="(isLandscape || isSquare) ? 'object-cover' : 'object-contain'"
+        class="h-52 w-full transition duration-700 ease-out group-hover:scale-105 z-10"
+        x-bind:class="objectFitClass + ' object-contain'"
       />
     </Link>
   </figure>
