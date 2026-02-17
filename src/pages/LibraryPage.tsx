@@ -13,9 +13,15 @@ type Props = {
   user: AuthUser | null;
   flash: Flash;
   currentPath: string;
+  currentPage: number;
 };
 
-const LibraryPage = async ({ user, flash, currentPath }: Props) => {
+const LibraryPage = async ({
+  user,
+  flash,
+  currentPath,
+  currentPage,
+}: Props) => {
   if (!user) {
     return (
       <AppLayout title="Books" user={user} flash={flash}>
@@ -54,7 +60,11 @@ const LibraryPage = async ({ user, flash, currentPath }: Props) => {
       <Page>
         <NavTabs currentPath={currentPath} />
         <SectionTitle>Wishlisted Books</SectionTitle>
-        <WishlistedBooks user={user} />
+        <WishlistedBooks
+          user={user}
+          currentPage={currentPage}
+          currentPath={currentPath}
+        />
       </Page>
     </AppLayout>
   );

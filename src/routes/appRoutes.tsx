@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import BookDetailPage from "../pages/BookDetailPage";
 import CreatorDetailPage from "../pages/CreatorDetailPage";
-import { getBooksByTag } from "../services/books";
 import { getFlash, getUser } from "../utils";
 import TagPage from "../pages/TagPage";
 import { getIsMobile } from "../lib/device";
@@ -109,8 +108,15 @@ appRoutes.get("/feed", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
+
   return c.html(
-    <FeedPage user={user} flash={flash} currentPath={currentPath} />,
+    <FeedPage
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+      currentPage={page}
+    />,
   );
 });
 
@@ -118,8 +124,15 @@ appRoutes.get("/library", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
+
   return c.html(
-    <LibraryPage user={user} flash={flash} currentPath={currentPath} />,
+    <LibraryPage
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+      currentPage={page}
+    />,
   );
 });
 

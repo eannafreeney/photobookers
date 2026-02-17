@@ -513,13 +513,28 @@ export const getFeedBooks = async (userId: string) => {
   }
 };
 
-export const getBooksInWishlist = async (userId: string) => {
+export const getBooksInWishlist = async (
+  userId: string,
+  currentPage: number,
+  defaultLimit = 10,
+) => {
   try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(wishlists)
+      .where(eq(wishlists.userId, userId));
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
     const wishlistItems = await db.query.wishlists.findMany({
       where: eq(wishlists.userId, userId),
     });
 
-    return await db.query.books.findMany({
+    const wishlistedBooks = await db.query.books.findMany({
       where: inArray(
         books.id,
         wishlistItems.map((wishlist) => wishlist.bookId),
@@ -528,7 +543,11 @@ export const getBooksInWishlist = async (userId: string) => {
         artist: true,
         publisher: true,
       },
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      limit: limit,
+      offset: offset,
     });
+    return { books: wishlistedBooks, totalPages, page };
   } catch (error) {
     console.error("Failed to get books in wishlist", error);
     return null;
