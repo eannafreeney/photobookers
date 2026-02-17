@@ -1,7 +1,7 @@
 /**
  * Nazraeli Press scraper
  * Fetches book data from https://www.nazraeli.com/complete-catalogue?category=Regular%20Edition
- * and writes CSV with: title, artist, artistExistsInDb, description, specs, coverUrl, images, availability, purchaseLink
+ * and writes CSV with: title, artist, artistExistsInDb, description, coverUrl, images, availability, purchaseLink
  *
  * Run: npx tsx scripts/scrapers/nazraeli.ts [output-path]
  */
@@ -11,6 +11,7 @@ import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import {
   artistExistsInDb,
+  decodeHtmlEntities,
   fetchHtml,
   normalizeUrl,
   rowToCsv,
@@ -18,7 +19,6 @@ import {
 
 const BASE = "https://www.nazraeli.com";
 const CATALOGUE_URL = `${BASE}/complete-catalogue?category=Regular%20Edition`;
-const AMOUNT_OF_BOOKS = 3;
 
 function titleCase(s: string): string {
   return s
@@ -57,7 +57,6 @@ async function scrapeProduct(productUrl: string): Promise<{
   artist: string;
   artistExistsInDb: boolean;
   description: string;
-  specs: string;
   coverUrl: string;
   images: string;
   availability: string;
@@ -74,32 +73,6 @@ async function scrapeProduct(productUrl: string): Promise<{
     artist = titleCase(rawTitle.slice(0, pipeIndex));
     title = rawTitle.slice(pipeIndex + 3).trim();
   }
-
-  const excerptEl = $(".product-excerpt").first();
-  const paragraphs = excerptEl.find("p").toArray();
-  let specs = "";
-  const descriptionParts: string[] = [];
-  paragraphs.forEach((p, i) => {
-    const text = $(p).text().trim().replace(/\s+/g, " ");
-    if (i < 2) {
-      specs = (specs ? specs + "\n" : "") + text;
-    } else {
-      descriptionParts.push(text);
-    }
-  });
-  specs = specs
-    .replace(/,/g, "\n")
-    .split("\n")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .join("\n");
-
-  const description =
-    descriptionParts.join("\n\n").trim() ||
-    excerptEl.text().trim().replace(/\s+/g, " ");
-  const descriptionClean = description
-    .replace(/\s*Click images to enlarge\.?\s*$/i, "")
-    .trim();
 
   const imageUrls: string[] = [];
   $("#productSlideshow .slide img").each((_, el) => {
@@ -123,6 +96,23 @@ async function scrapeProduct(productUrl: string): Promise<{
   const availability =
     availabilityMeta?.toLowerCase() === "instock" ? "available" : "available";
 
+  const excerptEl = $("div.product-excerpt").first();
+  const excerptHtml = excerptEl.html() ?? "";
+  let descriptionClean = excerptHtml
+    .replace(/<\/p>\s*<p/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/\n /g, "\n")
+    .replace(/ \n/g, "\n")
+    .trim();
+
+  descriptionClean = decodeHtmlEntities(descriptionClean)
+    .replace(/\s*class="[^"]*"\s*>\s*/g, " ") // leftover class=""> fragments
+    .replace(/\s+/g, " ")
+    .replace(/\n\s*\n/g, "\n\n")
+    .trim();
+
   const artistExists = await artistExistsInDb(artist);
 
   return {
@@ -130,7 +120,6 @@ async function scrapeProduct(productUrl: string): Promise<{
     artist,
     artistExistsInDb: artistExists,
     description: descriptionClean,
-    specs,
     coverUrl,
     images,
     availability,
@@ -151,7 +140,6 @@ async function main() {
     artist: "artist",
     artistExistsInDb: "artistExistsInDb",
     description: "description",
-    specs: "specs",
     coverUrl: "coverUrl",
     images: "images",
     availability: "availability",

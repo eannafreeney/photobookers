@@ -1,5 +1,4 @@
 import { db } from "./client";
-import { bookImages, follows, books, creators, users } from "./schema";
 import { sql } from "drizzle-orm";
 
 async function reset() {
@@ -7,7 +6,7 @@ async function reset() {
 
   // Truncate all tables (order matters for foreign keys)
   await db.execute(
-    sql`TRUNCATE TABLE book_images, follows, books, creators, users RESTART IDENTITY CASCADE`
+    sql`TRUNCATE TABLE book_images, follows, books, creators, users RESTART IDENTITY CASCADE`,
   );
 
   console.log("Database reset complete!");

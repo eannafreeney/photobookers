@@ -1,10 +1,11 @@
 /**
- * Jane & Jeremy scraper
- * Fetches book/product data from https://www.jane-jeremy.co.uk/shop3
- * and writes CSV with: title, artist, artistExistsInDb, description, specs,
- * coverUrl, images, availability, purchaseLink
+ * Loose Joints Publishing scraper
+ * https://loosejoints.biz/
+ * Collections: Current Titles, Forthcoming, Signed & Bundles, Special & Rare, Out of Print
+ * Product title format: "Artist – Title"
+ * Description: .product__description__inner
  *
- * Run: npx tsx scripts/scrapers/janejeremy.ts [output-path]
+ * Run: npx tsx scripts/scrapers/loosejoints.ts [output-path]
  */
 
 import * as cheerio from "cheerio";
@@ -18,50 +19,50 @@ import {
   rowToCsv,
 } from "../scraperUtils";
 
-const BASE = "https://www.jane-jeremy.co.uk";
-const SHOP_URL = `${BASE}/shop3`;
-const AMOUNT_OF_BOOKS = 3;
+const BASE = "https://loosejoints.biz";
 
-function parseTitleAndArtist(rawTitle: string): {
-  title: string;
-  artist: string;
-} {
-  const t = rawTitle.trim();
-  const pipeIdx = t.indexOf(" | ");
-  if (pipeIdx > -1) {
-    return {
-      title: t.slice(pipeIdx + 3).trim(),
-      artist: t.slice(0, pipeIdx).trim(),
-    };
-  }
-  const byIdx = t.lastIndexOf(" by ");
-  if (byIdx > -1) {
-    return {
-      title: t.slice(0, byIdx).trim(),
-      artist: t.slice(byIdx + 4).trim(),
-    };
-  }
-  return { title: t, artist: "" };
+const COLLECTIONS = ["/collections/current-titles"];
+
+function getProductUrlsFromHtml(html: string): string[] {
+  const $ = cheerio.load(html);
+  const urls: string[] = [];
+  $('a[href*="/products/"]').each((_, el) => {
+    const href = $(el).attr("href");
+    if (href) {
+      const full = normalizeUrl(href.split("?")[0], BASE);
+      if (!urls.includes(full)) urls.push(full);
+    }
+  });
+  return urls;
 }
 
 async function getAllProductUrls(): Promise<string[]> {
-  console.log("Fetching shop:", SHOP_URL);
-  const html = await fetchHtml(SHOP_URL);
-  const $ = cheerio.load(html);
   const seen = new Set<string>();
-  const urls: string[] = [];
+  const all: string[] = [];
 
-  $('a[href*="/shop3/p/"]').each((_, el) => {
-    const href = $(el).attr("href");
-    if (!href) return;
-    const full = normalizeUrl(href.split("?")[0], BASE);
-    if (!seen.has(full)) {
-      seen.add(full);
-      urls.push(full);
+  for (const collPath of COLLECTIONS) {
+    let page = 1;
+    for (;;) {
+      const url =
+        page === 1 ? `${BASE}${collPath}` : `${BASE}${collPath}?page=${page}`;
+      console.log(`Fetching ${collPath} page ${page}...`);
+      const html = await fetchHtml(url);
+      const urls = getProductUrlsFromHtml(html);
+      if (urls.length === 0) break;
+      let added = 0;
+      for (const u of urls) {
+        if (!seen.has(u)) {
+          seen.add(u);
+          all.push(u);
+          added++;
+        }
+      }
+      if (added === 0) break;
+      page++;
     }
-  });
+  }
 
-  return urls;
+  return all;
 }
 
 async function scrapeProduct(productUrl: string): Promise<{
@@ -78,49 +79,18 @@ async function scrapeProduct(productUrl: string): Promise<{
   const $ = cheerio.load(html);
 
   const rawTitle =
-    $("h1.product-title").first().text().trim() ||
+    $(".product-product-title").first().text().trim() ||
     $('meta[property="og:title"]')
       .attr("content")
-      ?.replace(/\s*—\s*Jane\s*&\s*Jeremy$/i, "")
+      ?.replace(/\s*–\s*Loose Joints Publishing\s*$/i, "")
       .trim() ||
     "";
-  const { title, artist } = parseTitleAndArtist(rawTitle);
+  const dashIdx = rawTitle.indexOf(" – ");
+  const artist = dashIdx >= 0 ? rawTitle.slice(0, dashIdx).trim() : "";
+  const title = dashIdx >= 0 ? rawTitle.slice(dashIdx + 3).trim() : rawTitle;
 
-  const imageUrls: string[] = [];
-  $(
-    ".product-gallery-thumbnails-item-image, .product-gallery-slides-item-image",
-  ).each((_, el) => {
-    const src =
-      $(el).attr("data-image") || $(el).attr("data-src") || $(el).attr("src");
-    if (src && !src.startsWith("data:") && !imageUrls.includes(src)) {
-      imageUrls.push(normalizeUrl(src, BASE));
-    }
-  });
-  if (imageUrls.length === 0) {
-    const ogImage = $('meta[property="og:image"]').attr("content");
-    if (ogImage) imageUrls.push(normalizeUrl(ogImage, BASE));
-  }
-  const uniqueImages = [...new Set(imageUrls)];
-  const coverUrl = uniqueImages[0] ?? "";
-  const images = uniqueImages.slice(1).join("|");
-
-  const availabilityMeta = $('meta[property="product:availability"]').attr(
-    "content",
-  );
-  const soldOutText = $(".product-mark.sold-out")
-    .text()
-    .toLowerCase()
-    .includes("sold out");
-  const isSoldOut = availabilityMeta?.toLowerCase() === "oos" || soldOutText;
-  const availability = isSoldOut ? "sold out" : "available";
-
-  const artistExists = await artistExistsInDb(artist);
-
-  const descBlock = $(
-    ".product-description.hidden-up-md.product-description-spacing-mobile, .product-description",
-  ).first();
-
-  const descHtml = descBlock.html() ?? "";
+  const descEl = $(".product__description__inner").first();
+  const descHtml = descEl.html() ?? "";
   let description = decodeHtmlEntities(descHtml);
 
   // Block boundaries → newlines (so class="p2" etc. disappear with the tag)
@@ -151,6 +121,31 @@ async function scrapeProduct(productUrl: string): Promise<{
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
+  const imageUrls: string[] = [];
+  $("img.product-image").each((_, el) => {
+    const src = $(el).attr("data-src") || $(el).attr("src");
+    if (src && !src.startsWith("data:") && !imageUrls.includes(src)) {
+      imageUrls.push(normalizeUrl(src, BASE));
+    }
+  });
+  if (imageUrls.length === 0) {
+    const og = $('meta[property="og:image"]').attr("content");
+    if (og) imageUrls.push(normalizeUrl(og, BASE));
+  }
+  const uniqueImages = [...new Set(imageUrls)];
+  const coverUrl = uniqueImages[0] ?? "";
+  const images = uniqueImages.slice(1).join("|");
+
+  const availabilityMeta = $('meta[property="product:availability"]').attr(
+    "content",
+  );
+  const soldOut =
+    $("[data-submit-button-text]").text().toLowerCase().includes("sold out") ||
+    availabilityMeta?.toLowerCase() === "oos";
+  const availability = soldOut ? "sold out" : "available";
+
+  const artistExists = await artistExistsInDb(artist);
+
   return {
     title,
     artist,
@@ -165,9 +160,9 @@ async function scrapeProduct(productUrl: string): Promise<{
 
 async function main() {
   const outPath =
-    process.argv[2] ?? join(process.cwd(), "output", "janejeremy.csv");
+    process.argv[2] ?? join(process.cwd(), "output", "loosejoints.csv");
 
-  console.log("Fetching product list...");
+  console.log("Fetching product URLs from all collections...");
   const productUrls = await getAllProductUrls();
   console.log(`Found ${productUrls.length} product URLs.`);
 
@@ -188,12 +183,7 @@ async function main() {
     console.log(`[${i + 1}/${productUrls.length}] ${url}`);
     try {
       const row = await scrapeProduct(url);
-      lines.push(
-        rowToCsv({
-          ...row,
-          artistExistsInDb: row.artistExistsInDb,
-        }),
-      );
+      lines.push(rowToCsv({ ...row, artistExistsInDb: row.artistExistsInDb }));
     } catch (err) {
       console.error(`Error scraping ${url}:`, err);
     }

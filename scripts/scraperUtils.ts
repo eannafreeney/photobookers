@@ -62,3 +62,13 @@ export async function artistExistsInDb(artistName: string): Promise<boolean> {
     throw new Error(`Failed to check if artist exists in db: ${artistName}`);
   }
 }
+
+export function decodeHtmlEntities(s: string): string {
+  return s
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'");
+}

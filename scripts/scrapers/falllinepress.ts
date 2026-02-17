@@ -94,12 +94,15 @@ async function scrapeProduct(productUrl: string): Promise<{
   const title = byIndex >= 0 ? rawTitle.slice(0, byIndex).trim() : rawTitle;
   const artist = byIndex >= 0 ? rawTitle.slice(byIndex + 4).trim() : "";
 
-  let description =
-    $('meta[name="description"]').attr("content")?.trim() ||
-    $(".product__description.rte p").first().text().trim() ||
-    "";
-  if (!description && $(".product__description.rte").length) {
+  let description = "";
+  if ($(".product__description.rte").length) {
     description = $(".product__description.rte").text().trim();
+  }
+  if (!description) {
+    description =
+      $('meta[name="description"]').attr("content")?.trim() ||
+      $(".product__description.rte p").first().text().trim() ||
+      "";
   }
 
   const imageUrls: string[] = [];

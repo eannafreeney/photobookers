@@ -65,7 +65,7 @@ export const getNewBooks = async (currentPage: number, defaultLimit = 10) => {
 export const getBooksByTag = async (
   tag: string,
   currentPage: number,
-  defaultLimit = 10,
+  defaultLimit = 12,
 ) => {
   try {
     const [{ value: totalCount = 0 }] = await db
@@ -480,7 +480,7 @@ export const searchBooks = async (searchQuery: string) => {
 export const getFeedBooks = async (
   userId: string,
   currentPage: number,
-  defaultLimit = 10,
+  defaultLimit = 12,
 ) => {
   try {
     const [{ value: totalCount = 0 }] = await db
@@ -556,7 +556,7 @@ export const getFeedBooks = async (
 export const getBooksInWishlist = async (
   userId: string,
   currentPage: number,
-  defaultLimit = 10,
+  defaultLimit = 12,
 ) => {
   try {
     const [{ value: totalCount = 0 }] = await db

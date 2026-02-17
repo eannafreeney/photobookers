@@ -17,7 +17,7 @@ import { getPagination } from "../lib/pagination";
 export const getCreatorBySlug = async (
   slug: string,
   currentPage: number = 1,
-  defaultLimit = 10,
+  defaultLimit = 12,
 ) => {
   // 1. Fetch creator without books
   const creator = await db.query.creators.findFirst({

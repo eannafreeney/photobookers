@@ -19,7 +19,7 @@ import {
 
 const BASE = "https://www.poursuite-editions.org";
 const CATALOG_URL = `${BASE}/?lang=en`;
-const AMOUNT_OF_BOOKS = 3;
+const AMOUNT_OF_BOOKS = 10;
 
 async function getAllProductUrls(): Promise<string[]> {
   console.log("Fetching catalog:", CATALOG_URL);
@@ -52,7 +52,6 @@ async function scrapeProduct(productUrl: string): Promise<{
   artist: string;
   artistExistsInDb: boolean;
   description: string;
-  specs: string;
   coverUrl: string;
   images: string;
   availability: string;
@@ -83,7 +82,7 @@ async function scrapeProduct(productUrl: string): Promise<{
   const descriptionBlock = $(
     ".elementor-widget-woocommerce-product-content .elementor-widget-container",
   ).first();
-  const description = descriptionBlock
+  const mainDescription = descriptionBlock
     .find("p")
     .toArray()
     .map((p) => $(p).text().trim().replace(/\s+/g, " "))
@@ -92,16 +91,17 @@ async function scrapeProduct(productUrl: string): Promise<{
 
   const specsEl = $(".woocommerce-product-details__short-description").first();
   const specHtml = specsEl.html() ?? "";
-  const specs =
+  const shortDescription =
     specHtml
       .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<[^>]+>/g, "")
+      .replace(/<[^>]+>/g, " ")
       .replace(/&nbsp;/gi, " ")
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .join("\n")
+      .replace(/\s+/g, " ")
       .trim() || "";
+
+  const description = [mainDescription, shortDescription]
+    .filter(Boolean)
+    .join("\n\n");
 
   const imageUrls: string[] = [];
   $(
@@ -140,7 +140,6 @@ async function scrapeProduct(productUrl: string): Promise<{
     artist,
     artistExistsInDb: artistExists,
     description,
-    specs,
     coverUrl,
     images,
     availability,
@@ -163,7 +162,6 @@ async function main() {
     artist: "artist",
     artistExistsInDb: "artistExistsInDb",
     description: "description",
-    specs: "specs",
     coverUrl: "coverUrl",
     images: "images",
     availability: "availability",

@@ -1,9 +1,7 @@
-import type { Context } from "hono";
-
 export function getPagination(
   rawPage: number,
   totalCount: number,
-  defaultLimit = 10,
+  defaultLimit = 12,
 ) {
   const limit = defaultLimit;
 

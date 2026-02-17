@@ -4,54 +4,24 @@
  *   https://gostbooks.com/collections/current-books
  *   https://gostbooks.com/collections/current-books?page=2
  * Then scrapes each product page and writes CSV: title, artist, artistExistsInDb,
- * description, specs, coverUrl, images, availability, purchaseLink
+ * description, coverUrl, images, availability, purchaseLink
  *
  * Run: npx tsx scripts/scrapers/gostbooks.ts [output-path]
  */
 
 import * as cheerio from "cheerio";
-import { ilike } from "drizzle-orm";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
-import { db } from "../../src/db/client";
-import { creators } from "../../src/db/schema";
+import {
+  artistExistsInDb,
+  fetchHtml,
+  normalizeUrl,
+  rowToCsv,
+} from "../scraperUtils";
 
 const BASE = "https://gostbooks.com";
 const COLLECTION_BASE = `${BASE}/collections/current-books`;
-const AMOUNT_OF_BOOKS = 3;
-
-function escapeCsv(value: string): string {
-  const s = String(value ?? "");
-  if (
-    s.includes('"') ||
-    s.includes(",") ||
-    s.includes("\n") ||
-    s.includes("\r")
-  ) {
-    return `"${s.replace(/"/g, '""')}"`;
-  }
-  return s;
-}
-
-function rowToCsv(row: Record<string, string | boolean>): string {
-  return Object.values(row)
-    .map((v) => escapeCsv(String(v)))
-    .join(",");
-}
-
-async function fetchHtml(url: string): Promise<string> {
-  const res = await fetch(url, {
-    headers: { "User-Agent": "PhotobookersScraper/1.0" },
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
-  return res.text();
-}
-
-function normalizeUrl(url: string): string {
-  if (url.startsWith("//")) return `https:${url}`;
-  if (url.startsWith("/")) return `${BASE}${url}`;
-  return url;
-}
+const AMOUNT_OF_BOOKS = 10;
 
 /** Collect product URLs from one collection page HTML */
 function getProductUrlsFromHtml(html: string): string[] {
@@ -60,7 +30,7 @@ function getProductUrlsFromHtml(html: string): string[] {
   $('a[href*="/products/"]').each((_, el) => {
     const href = $(el).attr("href");
     if (href) {
-      const full = normalizeUrl(href.split("?")[0]);
+      const full = normalizeUrl(href.split("?")[0], BASE);
       if (!urls.includes(full)) urls.push(full);
     }
   });
@@ -95,23 +65,11 @@ async function getAllProductUrls(): Promise<string[]> {
   return all;
 }
 
-async function artistExistsInDb(artistName: string): Promise<boolean> {
-  const trimmed = artistName.trim();
-  if (!trimmed) return false;
-  const rows = await db
-    .select({ id: creators.id })
-    .from(creators)
-    .where(ilike(creators.displayName, trimmed))
-    .limit(1);
-  return rows.length > 0;
-}
-
 async function scrapeProduct(productUrl: string): Promise<{
   title: string;
   artist: string;
   artistExistsInDb: boolean;
   description: string;
-  specs: string;
   coverUrl: string;
   images: string;
   availability: string;
@@ -136,14 +94,13 @@ async function scrapeProduct(productUrl: string): Promise<{
     "";
   const artist = artistRaw.replace(/^\s*by\s+/i, "").trim();
 
-  const description =
+  const descFromRte =
     $(".product__description.rte").first().text().trim() ||
     $('meta[name="description"]').attr("content")?.trim() ||
     "";
-
   const specsEl = $("p.product__text.inline-richtext.specs").first();
   const specHtml = specsEl.html() ?? "";
-  const specs =
+  const specsText =
     specHtml
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<[^>]+>/g, "")
@@ -152,28 +109,24 @@ async function scrapeProduct(productUrl: string): Promise<{
       .filter(Boolean)
       .join("\n")
       .trim() || "";
+  const description = [descFromRte, specsText].filter(Boolean).join("\n\n");
 
   const imageUrls: string[] = [];
   $(".product__media img[src], .product-media-container img[src]").each(
     (_, el) => {
       const src = $(el).attr("src");
-      if (src && !src.startsWith("data:")) imageUrls.push(normalizeUrl(src));
+      if (src && !src.startsWith("data:"))
+        imageUrls.push(normalizeUrl(src, BASE));
     },
   );
   if (imageUrls.length === 0) {
     const ogImage = $('meta[property="og:image"]').attr("content");
-    if (ogImage) imageUrls.push(normalizeUrl(ogImage));
+    if (ogImage) imageUrls.push(normalizeUrl(ogImage, BASE));
   }
   const uniqueImages = [...new Set(imageUrls)];
   const coverUrl = uniqueImages[0] ?? "";
   const maxExtra = 5;
   const images = uniqueImages.slice(1, 1 + maxExtra).join("|");
-
-  const hasSoldOut =
-    $(".price__badge-sold-out, .badge--bottom-left.color-inverse").filter(
-      (_, el) => $(el).text().toLowerCase().includes("sold"),
-    ).length > 0;
-  const availability = hasSoldOut ? "sold out" : "available";
 
   const purchaseLink =
     $('link[rel="canonical"]').attr("href")?.trim() || productUrl;
@@ -185,13 +138,12 @@ async function scrapeProduct(productUrl: string): Promise<{
     artist,
     artistExistsInDb: artistExists,
     description,
-    specs,
     coverUrl,
     images,
-    availability,
+    availability: "available",
     purchaseLink: purchaseLink.startsWith("http")
       ? purchaseLink
-      : normalizeUrl(purchaseLink),
+      : normalizeUrl(purchaseLink, BASE),
   };
 }
 
@@ -207,7 +159,6 @@ async function main() {
     artist: "artist",
     artistExistsInDb: "artistExistsInDb",
     description: "description",
-    specs: "specs",
     coverUrl: "coverUrl",
     images: "images",
     availability: "availability",

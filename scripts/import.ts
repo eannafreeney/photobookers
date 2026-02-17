@@ -14,8 +14,8 @@ import { createBook } from "../src/services/books";
 import { createStubCreatorProfile } from "../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 
-const SOURCE_CSV_FILE = "hoxton.csv";
-const AMOUNT_OF_BOOKS = 3;
+const SOURCE_CSV_FILE = "eriskayconnection.csv";
+const AMOUNT_OF_BOOKS = 10;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -137,11 +137,11 @@ async function main() {
       artistId: artistCreator.id,
       publisherId: process.env.PUBLISHER_ID,
       createdByUserId,
-      specs: row.specs?.trim() || null,
       coverUrl: null,
       purchaseLink: row.purchaseLink?.trim() || null,
       images: null,
-      availabilityStatus: "available",
+      availabilityStatus:
+        row.availability?.trim() === "sold out" ? "sold_out" : "available",
       approvalStatus: "approved",
       publicationStatus: "draft",
       tags: null,
