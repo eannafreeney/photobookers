@@ -45,7 +45,7 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
         />
       </form>
       <div
-        class="absolute top-0 left-12 right-0 w-full z-1 "
+        class="absolute top-0 left-12 w-full z-1 "
         x-show="hasResults && searchValue.length > 0"
       >
         <div id={isMobile ? "search-results-mobile" : "search-results"}></div>

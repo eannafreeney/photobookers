@@ -43,7 +43,7 @@ const CardImage = ({
         alt={alt}
         loading="lazy"
         decoding="async"
-        class="h-52 w-full transition duration-700 ease-out group-hover:scale-105 z-10"
+        class="h-auto w-full transition duration-700 ease-out group-hover:scale-105 z-10"
         x-bind:class="objectFitClass + ' object-contain'"
       />
     </Link>

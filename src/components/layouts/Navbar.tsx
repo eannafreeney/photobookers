@@ -11,7 +11,7 @@ const Navbar = ({ currentPath }: { currentPath?: string | null }) => {
 
   return (
     <nav
-      class="flex items-center justify-between bg-surface border-b border-outline gap-4 px-6 py-4"
+      class="flex items-center justify-between bg-surface border-b border-outline gap-4 px-6 py-4 fixed top-0 left-0 right-0 z-50 md:static md:z-auto"
       {...alpineAttrs}
     >
       <BrandLogo />
