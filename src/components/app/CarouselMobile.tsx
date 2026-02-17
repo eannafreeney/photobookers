@@ -34,29 +34,20 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
         {rightArrowIcon}
       </button>
 
-      {/* slides container: height comes from sizer, slides overlay */}
-      <div class="relative w-full">
-        {/* sizer: in-flow, invisible image so container height = current image at full width */}
-        <img
-          class="block w-full h-auto max-h-[50vh] opacity-0"
-          aria-hidden="true"
-          x-bind:src="slides[currentSlideIndex - 1]?.imgSrc"
-          alt=""
-        />
-        {/* slides stack: absolute so they overlay; only one visible via x-show */}
+      {/* slides container: fixed height so no jump between different-size images */}
+      <div class="relative w-full h-[30vh]  min-h-32">
+        {/* slides stack: only one visible via x-show */}
         <div class="absolute inset-0">
           <template x-for="(slide, index) in slides">
             <div
               x-show="currentSlideIndex == index + 1"
               class="absolute inset-0"
-              x-data="imageOrientation"
               {...fadeTransition}
             >
               <img
-                class="absolute w-full h-full inset-0 text-on-surface dark:text-on-surface-dark"
+                class="absolute w-full h-full inset-0 object-contain"
                 x-bind:src="slide.imgSrc"
                 x-bind:alt="slide.imgAlt"
-                x-bind:class="isLandscape ? 'object-cover' : 'object-contain'"
               />
             </div>
           </template>
