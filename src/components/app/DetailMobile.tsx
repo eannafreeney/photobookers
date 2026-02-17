@@ -30,10 +30,10 @@ const DetailMobile = ({
       <CarouselMobile images={galleryImages} />
       <div class="flex flex-col gap-2">
         <Card.Title>{book.title}</Card.Title>
+        {book.artist && <CardCreatorCard creatorType="artist" book={book} />}
         {book.publisher && (
           <CardCreatorCard creatorType="publisher" book={book} />
         )}
-        {book.publisher && <CardCreatorCard creatorType="artist" book={book} />}
       </div>
       <WishlistButton book={book} user={user} />
       {book.releaseDate && (

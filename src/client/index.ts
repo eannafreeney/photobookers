@@ -13,6 +13,7 @@ import { registerImageOrientation } from "./utils/imageOrientation";
 import { registerRegisterFanForm } from "./forms/registerFanForm";
 import { registerRegisterCreatorForm } from "./forms/registerCreatorForm";
 import { registerCreatorFormAdmin } from "./forms/creatorFormAdmin";
+import { registerBookFormAdmin } from "./forms/bookFormAdmin";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -30,3 +31,4 @@ registerCountryForm();
 // registerShareButton();
 registerImageOrientation();
 registerCreatorFormAdmin();
+registerBookFormAdmin();

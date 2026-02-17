@@ -1,19 +1,24 @@
 import { Context, Hono } from "hono";
 import Alert from "../components/app/Alert";
-import { getUser } from "../utils";
+import { getFlash, getUser, setFlash } from "../utils";
 import {
   approveClaim,
   generateClaimApprovalEmail,
   generateClaimRejectionEmail,
   rejectClaim,
 } from "../services/claims";
-import { createStubCreatorProfile, getCreatorById } from "../services/creators";
+import {
+  createStubCreatorProfile,
+  getCreatorById,
+  resolveArtist,
+} from "../services/creators";
 import { supabaseAdmin } from "../lib/supabase";
 import ClaimsTable from "../components/admin/ClaimsTable";
 import AppLayout from "../components/layouts/AppLayout";
 import Page from "../components/layouts/Page";
 import CreatorFormAdmin from "../components/admin/CreatorFormAdmin";
 import {
+  bookFormSchema,
   bookIdSchema,
   creatorFormAdminSchema,
   creatorIdSchema,
@@ -29,7 +34,8 @@ import { requireAdminAccess } from "../middleware/adminGuard";
 import BooksTable from "../components/admin/BooksTable";
 import NavTabs from "../components/admin/NavTabs";
 import SectionTitle from "../components/app/SectionTitle";
-import { deleteBookById, getBookById } from "../services/books";
+import { createBook, getBookById, prepareBookData } from "../services/books";
+import { BookFormAdmin } from "../components/admin/BookFormAdmin";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -45,9 +51,10 @@ adminDashboardRoutes.get("/", requireAdminAccess, async (c) => {
 adminDashboardRoutes.get("/books", requireAdminAccess, async (c) => {
   const user = await getUser(c);
   const searchQuery = c.req.query("search");
+  const flash = await getFlash(c);
 
   return c.html(
-    <AppLayout title="Books" user={user}>
+    <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath="/dashboard/admin/books" />
         <BooksTable searchQuery={searchQuery} />
@@ -55,6 +62,53 @@ adminDashboardRoutes.get("/books", requireAdminAccess, async (c) => {
     </AppLayout>,
   );
 });
+
+adminDashboardRoutes.get("/books/new", requireAdminAccess, async (c) => {
+  const user = await getUser(c);
+
+  return c.html(
+    <AppLayout title="Books" user={user}>
+      <Page>
+        <NavTabs currentPath="/dashboard/admin/books" />
+        <BookFormAdmin isPublisher action="/dashboard/admin/books/new" />
+      </Page>
+    </AppLayout>,
+  );
+});
+
+adminDashboardRoutes.post(
+  "/books/new",
+  requireAdminAccess,
+  formValidator(bookFormSchema),
+  async (c) => {
+    const user = await getUser(c);
+    const formData = c.req.valid("form");
+
+    const artist = await resolveArtist(formData, user.id);
+
+    if (artist === "error" || !artist) {
+      return showErrorAlert(c, "Invalid artist");
+    }
+
+    const bookData = await prepareBookData(
+      formData,
+      artist,
+      user.id,
+      user.creator,
+    );
+    const newBook = await createBook(bookData);
+
+    if (!newBook) {
+      return c.html(
+        <Alert type="danger" message="Failed to create book" />,
+        422,
+      );
+    }
+
+    await setFlash(c, "success", `${newBook.title} created!`);
+    return c.redirect("/dashboard/admin/books");
+  },
+);
 
 adminDashboardRoutes.get("/claims", requireAdminAccess, async (c) => {
   const user = await getUser(c);
@@ -214,6 +268,7 @@ adminDashboardRoutes.post(
       <>
         <Alert type="success" message="Creator created!" />
         <CreatorsTable searchQuery={undefined} />
+        <CreatorFormAdmin />
       </>,
     );
   },

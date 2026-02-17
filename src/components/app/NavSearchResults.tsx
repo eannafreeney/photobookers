@@ -6,17 +6,19 @@ type NavSearchResultsProps = {
   creators: Creator[];
   books: (Book & { artist: Creator | null })[];
   user?: AuthUser | null;
+  isMobile?: boolean;
 };
 
-const NavSearchResults = ({ creators, books }: NavSearchResultsProps) => {
+const NavSearchResults = ({
+  creators,
+  books,
+  isMobile = false,
+}: NavSearchResultsProps) => {
   const hasResults = creators.length > 0 || books.length > 0;
-
-  console.log("creators", creators.length);
-  console.log("books", books.length);
 
   return (
     <div
-      id="search-results"
+      id={isMobile ? "search-results-mobile" : "search-results"}
       class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:-left-24 md:right-0 md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border shadow-sm border-outline bg-surface-alt "
       x-data="{ isOpen: true }"
       x-show="isOpen"

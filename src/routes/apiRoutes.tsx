@@ -207,9 +207,9 @@ apiRoutes.get("/check-website", async (c) => {
   return c.html(
     <div id="website-availability-status">
       {available ? (
-        <p class="label text-success mt-1">✓ Website available</p>
+        <p class="label text-success mt-1">✓</p>
       ) : (
-        <p class="label text-danger mt-1">✗ Website taken</p>
+        <p class="label text-danger mt-1">✗</p>
       )}
     </div>,
   );
@@ -217,6 +217,7 @@ apiRoutes.get("/check-website", async (c) => {
 
 apiRoutes.get("/search", async (c) => {
   const searchQuery = c.req.query("search");
+  const isMobile = c.req.query("isMobile") === "true";
 
   if (!searchQuery || searchQuery.length < 3) {
     return c.html(<div id="search-results"></div>);
@@ -228,8 +229,11 @@ apiRoutes.get("/search", async (c) => {
     searchCreators(searchTerm ?? ""),
   ]);
 
+  console.log("isMobile", isMobile);
+
   return c.html(
     <NavSearchResults
+      isMobile={isMobile}
       creators={creatorResults ?? []}
       books={bookResults ?? []}
     />,
@@ -239,7 +243,7 @@ apiRoutes.get("/search", async (c) => {
 apiRoutes.get("/search/mobile", async (c) => {
   return c.html(
     <div
-      id="search-results-mobile"
+      id="search-results-mobile-container"
       class="fixed top-0 left-0 right-0 bottom-0 w-full z-10 backdrop-blur-md"
       x-data="{ isOpen: true }"
       x-show="isOpen"

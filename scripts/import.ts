@@ -14,7 +14,7 @@ import { createBook } from "../src/services/books";
 import { createStubCreatorProfile } from "../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 
-const SOURCE_CSV_FILE = "eriskayconnection.csv";
+const SOURCE_CSV_FILE = "poursuite.csv";
 const AMOUNT_OF_BOOKS = 10;
 
 function sleep(ms: number) {

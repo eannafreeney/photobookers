@@ -5,7 +5,7 @@ const NavSearchMobile = () => {
   };
 
   const formAttrs = {
-    "x-target": "search-results-mobile",
+    "x-target": "search-results-mobile-container",
   };
 
   return (
@@ -18,7 +18,7 @@ const NavSearchMobile = () => {
       >
         <button class="block size-full w-full h-full">{searchIcon}</button>
       </form>
-      <div id="search-results-mobile"></div>
+      <div id="search-results-mobile-container"></div>
     </div>
   );
 };

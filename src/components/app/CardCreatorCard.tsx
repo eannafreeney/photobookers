@@ -27,7 +27,7 @@ const CardCreatorCard = async ({ creatorType, book }: CardCreatorCardProps) => {
 
   return (
     <Link href={`/creators/${creator.slug}`}>
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-2">
         <Avatar
           src={creator.coverUrl ?? ""}
           alt={creator.displayName ?? ""}

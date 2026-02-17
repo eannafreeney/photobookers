@@ -11,11 +11,11 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
   };
 
   const formAttrs = {
-    "x-target": "search-results",
+    "x-target": isMobile ? "search-results-mobile" : "search-results",
     "x-on:ajax:success": "hasResults = true",
   };
 
-  const inputttrs = {
+  const inputAttrs = {
     "x-model": "searchValue",
     "x-on:input.debounce.500ms": "$el.form.requestSubmit()",
   };
@@ -36,14 +36,19 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
           name="search"
           placeholder="Search"
           class="w-full rounded-radius border border-outline bg-surface py-2.5 pl-10 pr-2 text-md md:text-sm focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-75"
-          {...inputttrs}
+          {...inputAttrs}
+        />
+        <input
+          type="hidden"
+          name="isMobile"
+          value={isMobile ? "true" : "false"}
         />
       </form>
       <div
         class="absolute top-0 left-12 right-0 w-full z-1 "
         x-show="hasResults && searchValue.length > 0"
       >
-        <div id="search-results"></div>
+        <div id={isMobile ? "search-results-mobile" : "search-results"}></div>
       </div>
     </div>
   );

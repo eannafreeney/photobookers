@@ -6,8 +6,6 @@ import { getCreatorBySlug } from "../services/creators";
 import PageTitle from "../components/app/PageTitle";
 import GridPanel from "../components/app/GridPanel";
 import BookCard from "../components/app/BookCard";
-import Link from "../components/app/Link";
-import Button from "../components/app/Button";
 import ErrorPage from "./error/errorPage";
 import { Pagination } from "../components/app/Pagination";
 
