@@ -8,14 +8,16 @@ import { getFeedBooks } from "../services/books";
 import AppLayout from "../components/layouts/AppLayout";
 import Page from "../components/layouts/Page";
 import NavTabs from "../components/layouts/NavTabs";
+import BooksByFollowee from "../components/app/BooksByFollowee";
 
 type Props = {
   user: AuthUser | null;
   flash: Flash;
   currentPath: string;
+  currentPage: number;
 };
 
-const FeedPage = async ({ user, flash, currentPath }: Props) => {
+const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
   if (!user) {
     return (
       <AppLayout title="Books" user={user} flash={flash}>
@@ -23,7 +25,7 @@ const FeedPage = async ({ user, flash, currentPath }: Props) => {
           <NavTabs currentPath={currentPath} />
           <div
             id="tab-content"
-            class="flex flex-col items-center justify-center mt-4"
+            class="flex flex-col items-center justify-center mt-4 text-center text-on-surface"
           >
             <SectionTitle>Your Feed</SectionTitle>
             <p>
@@ -51,30 +53,16 @@ const FeedPage = async ({ user, flash, currentPath }: Props) => {
     );
   }
 
-  const feedBooks = await getFeedBooks(user.id);
-
-  if (feedBooks?.length === 0) {
-    return (
-      <AppLayout title="Books" user={user} flash={flash}>
-        <Page>
-          <NavTabs currentPath={currentPath} />
-          Start following artists and publishers to see their latest releases
-          here.
-        </Page>
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
         <SectionTitle>Your Feed</SectionTitle>
-        <GridPanel isFullWidth>
-          {feedBooks?.map((book) => (
-            <BookCard book={book} user={user} />
-          ))}
-        </GridPanel>
+        <BooksByFollowee
+          user={user}
+          currentPage={currentPage}
+          currentPath={currentPath}
+        />
       </Page>
     </AppLayout>
   );
@@ -84,7 +72,7 @@ export default FeedPage;
 
 const icon = (
   <svg
-    class="size-64"
+    class="size-48"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     width="709.78574"

@@ -29,7 +29,7 @@ const LibraryPage = async ({
           <NavTabs currentPath={currentPath} />
           <div
             id="tab-content"
-            class="flex flex-col items-center justify-center mt-4"
+            class="flex flex-col items-center justify-center mt-4 text-center text-on-surface"
           >
             <SectionTitle>Wishlisted Books</SectionTitle>
             <p>Manage your wishlist.</p>
@@ -74,7 +74,7 @@ export default LibraryPage;
 
 const icon = (
   <svg
-    class="size-64"
+    class="size-48"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     width="924.828"

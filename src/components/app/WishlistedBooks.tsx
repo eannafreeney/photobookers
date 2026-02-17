@@ -6,17 +6,13 @@ import { getBooksInWishlist } from "../../services/books";
 import ErrorPage from "../../pages/error/errorPage";
 import { Pagination } from "./Pagination";
 
-type WishlistedBooksProps = {
+type Props = {
   user: AuthUser;
   currentPage: number;
   currentPath: string;
 };
 
-const WishlistedBooks = async ({
-  user,
-  currentPage,
-  currentPath,
-}: WishlistedBooksProps) => {
+const WishlistedBooks = async ({ user, currentPage, currentPath }: Props) => {
   const result = await getBooksInWishlist(user.id, currentPage);
 
   if (!result?.books) {

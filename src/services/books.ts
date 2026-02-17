@@ -477,8 +477,22 @@ export const searchBooks = async (searchQuery: string) => {
   }
 };
 
-export const getFeedBooks = async (userId: string) => {
+export const getFeedBooks = async (
+  userId: string,
+  currentPage: number,
+  defaultLimit = 10,
+) => {
   try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(follows)
+      .where(eq(follows.followerUserId, userId));
+    console.log("totalCount", totalCount);
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
     const userFollows = await db.query.follows.findMany({
       where: and(
         eq(follows.followerUserId, userId),
@@ -486,27 +500,53 @@ export const getFeedBooks = async (userId: string) => {
       ),
     });
 
+    console.log("userFollows", userFollows);
+
     const followedCreatorIds = userFollows
       .map((follow) => follow.targetCreatorId)
       .filter((id): id is string => id !== null);
 
+    console.log("followedCreatorIds", followedCreatorIds);
+
     // Find books where artistCreatorId or publisherId is in the followed creators list
     const feedBooks = await db.query.books.findMany({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        artistId: true,
+        publisherId: true,
+        releaseDate: true,
+        coverUrl: true,
+      },
       where: and(
         or(
           inArray(books.artistId, followedCreatorIds),
           inArray(books.publisherId, followedCreatorIds),
         ),
         eq(books.publicationStatus, "published"),
-        lte(books.releaseDate, new Date()),
       ),
       with: {
-        artist: true,
-        publisher: true,
+        artist: {
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+          },
+        },
+        publisher: {
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+          },
+        },
       },
       orderBy: (books, { desc }) => [desc(books.createdAt)],
+      limit: limit,
+      offset: offset,
     });
-    return feedBooks;
+    return { books: feedBooks, totalPages, page };
   } catch (error) {
     console.error("Failed to get feed books", error);
     return null;
