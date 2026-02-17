@@ -1,4 +1,5 @@
 import { fadeTransition } from "../../../lib/transitions";
+import { MAX_GALLERY_IMAGES_PER_BOOK } from "../../../constants/images";
 import Button from "../../app/Button";
 import SectionTitle from "../../app/SectionTitle";
 import FileUploadInput from "../ui/FileUpload";
@@ -9,9 +10,11 @@ type Props = {
 };
 
 const BookGalleryForm = ({ initialImages, bookId }: Props) => {
-  const initialImagesString = initialImages ? JSON.stringify(initialImages) : null;
+  const initialImagesString = initialImages
+    ? JSON.stringify(initialImages)
+    : null;
   const alpineAttrs = {
-    "x-data":`bookGalleryForm({initialImages: ${initialImagesString}})`,
+    "x-data": `bookGalleryForm({initialImages: ${initialImagesString}})`,
     "x-target": "toast",
     "@ajax:before": "onBefore()",
     "@ajax:success": "onSuccess()",
@@ -22,6 +25,9 @@ const BookGalleryForm = ({ initialImages, bookId }: Props) => {
   return (
     <div class="space-y-4">
       <SectionTitle>Book Gallery</SectionTitle>
+      <p class="text-sm text-on-surface/70">
+        Up to {MAX_GALLERY_IMAGES_PER_BOOK} images.
+      </p>
       <form
         enctype="multipart/form-data"
         method="post"

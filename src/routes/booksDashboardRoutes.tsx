@@ -6,7 +6,6 @@ import {
   prepareBookUpdateData,
   rejectBookById,
   updateBook,
-  updateBookCoverImage,
   updateBookPublicationStatus,
 } from "../services/books";
 import { getFlash, getUser, setFlash } from "../utils";
@@ -17,12 +16,7 @@ import { Hono } from "hono";
 import PublishToggleForm from "../components/cms/forms/PublishToggleForm";
 import PreviewButton from "../components/api/PreviewButton";
 import { bookFormSchema, bookIdSchema } from "../schemas";
-import { uploadImage } from "../services/storage";
-import {
-  formValidator,
-  paramValidator,
-  validateImageFile,
-} from "../lib/validator";
+import { formValidator, paramValidator } from "../lib/validator";
 import { resolveArtist, resolvePublisher } from "../services/creators";
 import Alert from "../components/app/Alert";
 import BooksForApprovalTable from "../components/cms/ui/BooksForApprovalTable";
@@ -35,6 +29,7 @@ import {
 import { showErrorAlert } from "../lib/alertHelpers";
 import { getIsMobile } from "../lib/device";
 import { BooksOverviewTable } from "../components/cms/ui/BooksOverviewTable";
+import { limitBooksPerDay } from "../middleware/booksPerDayLimit";
 
 export const booksDashboardRoutes = new Hono();
 
@@ -69,6 +64,7 @@ booksDashboardRoutes.get("/new", async (c) => {
 // CREATE NEW BOOK AS PUBLISHER
 booksDashboardRoutes.post(
   "/new/publisher",
+  limitBooksPerDay,
   formValidator(bookFormSchema),
   async (c) => {
     const user = await getUser(c);
@@ -107,6 +103,7 @@ booksDashboardRoutes.post(
 // CREATE NEW BOOK AS ARTIST
 booksDashboardRoutes.post(
   "/new/artist",
+  limitBooksPerDay,
   formValidator(bookFormSchema),
   async (c) => {
     const user = await getUser(c);

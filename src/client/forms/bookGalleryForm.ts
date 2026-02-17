@@ -1,5 +1,6 @@
 import Alpine from "alpinejs";
 import { compressImage } from "../utils/imageCompression";
+import { MAX_GALLERY_IMAGES_PER_BOOK } from "../../constants/images";
 
 type ImageItem = {
   id: string;
@@ -19,6 +20,7 @@ export function registerBookGalleryForm() {
         previewImage: null,
         isCompressing: false,
         error: null as string | null,
+        maxImages: MAX_GALLERY_IMAGES_PER_BOOK,
 
         init() {
           const imgs = initialImages ?? [];
@@ -59,6 +61,11 @@ export function registerBookGalleryForm() {
             }
           }
 
+          if (this.images.length > this.maxImages) {
+            this.images = this.images.slice(0, this.maxImages);
+            this.error = `Maximum ${this.maxImages} images allowed. Extra files were not added.`;
+          }
+
           this.isCompressing = false;
           input.value = "";
         },
@@ -97,19 +104,19 @@ export function registerBookGalleryForm() {
           this.isSubmitting = false;
           // Update initialImages to reflect the current state (marking it as saved)
           this.initialImages = this.images
-          .filter(img => !img.file) // Keep only existing images (not new ones)
-          .map(img => ({ id: img.id, previewUrl: img.previewUrl }));
+            .filter((img) => !img.file) // Keep only existing images (not new ones)
+            .map((img) => ({ id: img.id, previewUrl: img.previewUrl }));
 
           // Clear removed IDs and new file references
           this.removedIds = [];
           // Remove file references from images that were just uploaded
-          this.images = this.images.map(img => {
+          this.images = this.images.map((img) => {
             if (img.file) {
               // Keep the preview URL but remove the file reference
               return { id: img.id, previewUrl: img.previewUrl };
             }
             return img;
-          }); 
+          });
         },
 
         onError() {
@@ -153,16 +160,16 @@ export function registerBookGalleryForm() {
               container.outerHTML = html;
             }
 
-             // Only reset state if successful
+            // Only reset state if successful
             if (response.ok) {
               // Update initialImages to reflect the current state
               this.initialImages = this.images
-                .filter(img => !img.file) // Keep only existing images
-                .map(img => ({ id: img.id, previewUrl: img.previewUrl }));
-              
+                .filter((img) => !img.file) // Keep only existing images
+                .map((img) => ({ id: img.id, previewUrl: img.previewUrl }));
+
               // Clear removed IDs and file references
               this.removedIds = [];
-              this.images = this.images.map(img => {
+              this.images = this.images.map((img) => {
                 if (img.file) {
                   return { id: img.id, previewUrl: img.previewUrl };
                 }
@@ -177,6 +184,6 @@ export function registerBookGalleryForm() {
           }
         },
       };
-    }
+    },
   );
 }

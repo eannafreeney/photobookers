@@ -1,0 +1,1 @@
+export const MAX_GALLERY_IMAGES_PER_BOOK = 10;

@@ -15,8 +15,8 @@ const Navbar = ({ currentPath }: { currentPath?: string | null }) => {
       {...alpineAttrs}
     >
       <BrandLogo />
-      <div class="flex items-center gap-4">
-        {/* <NavSearch action="/api/search" /> */}
+      <div class="hidden md:flex items-center gap-4">
+        <NavSearch />
         <NavDesktopMenu currentPath={currentPath} />
       </div>
       <NavMobileMenu currentPath={currentPath} />

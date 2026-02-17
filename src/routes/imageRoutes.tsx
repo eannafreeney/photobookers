@@ -9,12 +9,16 @@ import {
 import { paramValidator, validateImageFile } from "../lib/validator";
 import Alert from "../components/app/Alert";
 import { bookImages, Creator } from "../db/schema";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import { db } from "../db/client";
 import { updateCreatorCoverImage } from "../services/creators";
-import { requireImageEditAccess } from "../middleware/imageGuards";
+import {
+  requireBookImageEditAccess,
+  requireProfileCoverImageEditAccess,
+} from "../middleware/imageGuards";
 import NavAvatar from "../components/app/NavAvatar";
 import { getUser } from "../utils";
+import { MAX_GALLERY_IMAGES_PER_BOOK } from "../constants/images";
 
 export const imageRoutes = new Hono();
 
@@ -26,8 +30,8 @@ export const showErrorAlert = (
 // Add creator profile cover image
 imageRoutes.post(
   "creators/:creatorId/cover",
+  requireProfileCoverImageEditAccess,
   paramValidator(creatorIdSchema),
-  requireImageEditAccess,
   async (c) => {
     const creatorId = c.req.valid("param").creatorId;
     const body = await c.req.parseBody();
@@ -73,7 +77,7 @@ imageRoutes.post(
 // Add book cover image
 imageRoutes.post(
   "/books/:bookId/cover",
-  requireImageEditAccess,
+  requireBookImageEditAccess,
   paramValidator(bookIdSchema),
   async (c) => {
     const bookId = c.req.valid("param").bookId;
@@ -108,6 +112,7 @@ imageRoutes.post(
 // Add book image to book profile
 imageRoutes.post(
   "/:bookId/gallery",
+  requireBookImageEditAccess,
   paramValidator(bookIdSchema),
   async (c) => {
     const bookId = c.req.valid("param").bookId;
@@ -127,6 +132,24 @@ imageRoutes.post(
     const removedIds: string[] = body.removedIds
       ? JSON.parse(body.removedIds as string)
       : [];
+
+    // --- enforce max gallery images per book ---
+    const [{ value: currentCount }] = await db
+      .select({ value: count() })
+      .from(bookImages)
+      .where(eq(bookImages.bookId, bookId));
+
+    const countAfterChanges =
+      currentCount - removedIds.length + validFiles.length;
+    if (countAfterChanges > MAX_GALLERY_IMAGES_PER_BOOK) {
+      return c.html(
+        <Alert
+          type="danger"
+          message={`Gallery can have at most ${MAX_GALLERY_IMAGES_PER_BOOK} images. Remove some or upload fewer.`}
+        />,
+        422,
+      );
+    }
 
     // 3. Delete removed images from DB
     if (removedIds.length > 0) {
