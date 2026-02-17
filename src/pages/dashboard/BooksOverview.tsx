@@ -5,7 +5,7 @@ import VerifiedCreator from "../../components/app/VerifiedCreator";
 import BooksCreatedByMeForOtherPublishersTable from "../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
 import BooksCreatedByMeForStubPublishersTable from "../../components/cms/ui/BooksCreatedForStubPublishersTable";
 import BooksForApprovalTable from "../../components/cms/ui/BooksForApprovalTable";
-import { BooksOverviewTable } from "../../components/cms/ui/BooksOverviewTable";
+import { BooksOverviewTable } from "../../components/dashboard/BooksOverviewTable";
 import AppLayout from "../../components/layouts/AppLayout";
 import FeatureGuard from "../../components/layouts/FeatureGuard";
 import Page from "../../components/layouts/Page";

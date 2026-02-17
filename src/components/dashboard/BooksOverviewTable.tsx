@@ -1,11 +1,11 @@
-import { AuthUser } from "../../../../types";
-import { Creator } from "../../../db/schema";
+import { AuthUser } from "../../../types";
+import { Creator } from "../../db/schema";
 import {
   getBooksByArtistId,
   getBooksByPublisherId,
-} from "../../../services/books";
-import BooksOverviewDesktop from "../../dashboard/BooksOverviewDesktop";
-import BooksOverviewMobile from "../../dashboard/BooksOverviewMobile";
+} from "../../services/books";
+import BooksOverviewDesktop from "./BooksOverviewDesktop";
+import BooksOverviewMobile from "./BooksOverviewMobile";
 
 type BookTableProps = {
   searchQuery?: string;

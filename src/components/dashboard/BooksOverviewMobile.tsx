@@ -79,7 +79,7 @@ const BookTableRowMobile = ({ book, user }: RowProps) => {
               />
             ) : (
               <a href={`/dashboard/books/edit/${book.id}#book-images`}>
-                <Button variant="outline" color="warning" class="text-xs">
+                <Button variant="outline" color="warning">
                   <span>Upload Cover</span>
                 </Button>
               </a>
@@ -104,7 +104,7 @@ const BookTableRowMobile = ({ book, user }: RowProps) => {
           <PublishToggleForm book={book} user={user} />
           <PreviewButton book={book} user={user} />
           <a href={`/dashboard/books/edit/${book.id}`}>
-            <Button variant="outline" color="inverse">
+            <Button variant="outline" color="inverse" width="sm">
               Edit
             </Button>
           </a>

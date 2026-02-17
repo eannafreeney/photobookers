@@ -6,7 +6,7 @@ import NavSearchMobile from "./NavSearchMobile";
 
 const NavMobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
   return (
-    <div class="flex items-center gap-4 md:hidden">
+    <div class="flex items-center gap-5 md:hidden">
       <NavSearchMobile />
       <MobileMenu />
       <MobileDropDownMenu currentPath={currentPath} />
@@ -25,7 +25,7 @@ const MobileMenu = () => {
           <div class="text-sm">
             <Link href="/auth/login">Login</Link>
           </div>
-          <div class="text-sm text-primary">
+          <div class="text-sm">
             <Link href="/auth/accounts">Register</Link>
           </div>
         </>

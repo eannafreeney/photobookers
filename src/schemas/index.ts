@@ -136,7 +136,6 @@ export const bookFormSchema = z.object({
   new_publisher_name: optionalText,
   description: z
     .string()
-    .min(10, "Description must be at least 10 characters")
     .max(5000, "Description must be less than 5000 characters")
     .optional(),
   release_date: optionalText,

@@ -56,7 +56,7 @@ const Input = ({
         <input
           id={name}
           type={type}
-          class="w-full bg-surface-alt px-2 py-2 text-md md:text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 "
+          class="w-full bg-surface-alt px-2 py-2 text-base md:text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 "
           name={name.replace("form.", "")}
           placeholder={placeholder ?? label}
           required={required}

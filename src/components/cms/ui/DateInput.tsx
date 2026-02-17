@@ -23,7 +23,7 @@ const DateInput = ({
         <input
           id={name}
           type="date"
-          class="w-full bg-surface-alt px-2 py-2 text-sm font-normal cursor-pointer focus:outline-none"
+          class="w-full bg-surface-alt px-2 py-2 text-base md:text-sm font-normal cursor-pointer focus:outline-none"
           name={name.replace("form.", "")}
           required={required}
           x-model={name}

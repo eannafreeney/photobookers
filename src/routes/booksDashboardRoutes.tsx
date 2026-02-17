@@ -28,7 +28,7 @@ import {
 } from "../middleware/bookGuard";
 import { showErrorAlert } from "../lib/alertHelpers";
 import { getIsMobile } from "../lib/device";
-import { BooksOverviewTable } from "../components/cms/ui/BooksOverviewTable";
+import { BooksOverviewTable } from "../components/dashboard/BooksOverviewTable";
 import { limitBooksPerDay } from "../middleware/booksPerDayLimit";
 
 export const booksDashboardRoutes = new Hono();

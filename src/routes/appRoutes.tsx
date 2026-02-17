@@ -6,7 +6,7 @@ import { getFlash, getUser } from "../utils";
 import TagPage from "../pages/TagPage";
 import { getIsMobile } from "../lib/device";
 import LibraryPage from "../pages/LibraryPage";
-import FeedPage from "../pages/FeedTab";
+import FeedPage from "../pages/FeedPage";
 import NewBooksPage from "../pages/NewBooksPage";
 import { requireBookPreviewAccess } from "../middleware/bookGuard";
 import TermsAndConditionsPage from "../pages/TermsAndConditions";

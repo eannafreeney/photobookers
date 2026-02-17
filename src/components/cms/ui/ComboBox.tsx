@@ -82,7 +82,7 @@ const DropdownList = ({
         {searchIcon}
         <input
           type="text"
-          class="w-full border-b border-outline bg-surface-alt py-2.5 pl-11 pr-4 text-sm text-on-surface focus:outline-hidden focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-75 "
+          class="w-full border-b border-outline bg-surface-alt py-2.5 pl-11 pr-4 text-base md:text-sm text-on-surface focus:outline-hidden focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-75 "
           name="searchField"
           x-on:input="getFilteredOptions($el.value)"
           x-ref="searchField"
@@ -152,11 +152,11 @@ const TriggerButton = () => {
     >
       <button
         type="button"
-        class="flex w-full items-center justify-between text-sm font-normal border-outline border bg-surface-alt px-2 py-2"
+        class="flex w-full items-center justify-between text-base md:text-sm font-normal border-outline border bg-surface-alt px-2 py-2"
         {...alpineAttrs}
       >
         <span
-          class="text-sm font-normal"
+          class="text-base md:text-sm font-normal"
           x-text="selectedOption ? selectedOption.label : 'Please Select'"
         ></span>
         <div class="flex items-center gap-1">

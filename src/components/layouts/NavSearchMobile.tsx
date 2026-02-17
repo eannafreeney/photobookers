@@ -9,14 +9,14 @@ const NavSearchMobile = () => {
   };
 
   return (
-    <div class="md:hidden relative w-5" {...alpineAttrs}>
+    <div class="md:hidden size-5" {...alpineAttrs}>
       <form
         action="/api/search/mobile"
         method="get"
         autocomplete="off"
         {...formAttrs}
       >
-        <button class="block">{searchIcon}</button>
+        <button class="block size-full w-full h-full">{searchIcon}</button>
       </form>
       <div id="search-results-mobile"></div>
     </div>
@@ -33,7 +33,7 @@ const searchIcon = (
     stroke-width="2"
     stroke="currentColor"
     aria-hidden="true"
-    class="absolute left-2.5 top-1/2 size-5 -translate-y-1/2 text-on-surface/50"
+    class=" text-on-surface/50 size-5"
   >
     <path
       stroke-linecap="round"

@@ -69,7 +69,8 @@ const FeedPage = async ({ user, flash, currentPath }: Props) => {
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <GridPanel isFullWidth xMerge="append">
+        <SectionTitle>Your Feed</SectionTitle>
+        <GridPanel isFullWidth>
           {feedBooks?.map((book) => (
             <BookCard book={book} user={user} />
           ))}
