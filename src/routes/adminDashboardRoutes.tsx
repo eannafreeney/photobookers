@@ -11,6 +11,7 @@ import {
   createStubCreatorProfile,
   getCreatorById,
   resolveArtist,
+  resolvePublisher,
 } from "../services/creators";
 import { supabaseAdmin } from "../lib/supabase";
 import ClaimsTable from "../components/admin/ClaimsTable";
@@ -34,8 +35,15 @@ import { requireAdminAccess } from "../middleware/adminGuard";
 import BooksTable from "../components/admin/BooksTable";
 import NavTabs from "../components/admin/NavTabs";
 import SectionTitle from "../components/app/SectionTitle";
-import { createBook, getBookById, prepareBookData } from "../services/books";
+import {
+  createBook,
+  getBookById,
+  prepareBookData,
+  prepareBookUpdateData,
+  updateBook,
+} from "../services/books";
 import { BookFormAdmin } from "../components/admin/BookFormAdmin";
+import EditBookFormAdmin from "../components/admin/EditBookFormAdmin";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -85,16 +93,21 @@ adminDashboardRoutes.post(
     const formData = c.req.valid("form");
 
     const artist = await resolveArtist(formData, user.id);
+    const publisher = await resolvePublisher(formData, user.id);
 
     if (artist === "error" || !artist) {
       return showErrorAlert(c, "Invalid artist");
+    }
+
+    if (publisher === "error") {
+      return showErrorAlert(c, "Invalid publisher");
     }
 
     const bookData = await prepareBookData(
       formData,
       artist,
       user.id,
-      user.creator,
+      publisher,
     );
     const newBook = await createBook(bookData);
 
@@ -107,6 +120,51 @@ adminDashboardRoutes.post(
 
     await setFlash(c, "success", `${newBook.title} created!`);
     return c.redirect("/dashboard/admin/books");
+  },
+);
+
+adminDashboardRoutes.get(
+  "/books/edit/:bookId",
+  requireAdminAccess,
+  paramValidator(bookIdSchema),
+  async (c) => {
+    const user = await getUser(c);
+    const bookId = c.req.param("bookId");
+    const flash = await getFlash(c);
+
+    return c.html(
+      <EditBookFormAdmin bookId={bookId} user={user} flash={flash} />,
+    );
+  },
+);
+
+adminDashboardRoutes.post(
+  "/books/edit/:bookId",
+  requireAdminAccess,
+  formValidator(bookFormSchema),
+  paramValidator(bookIdSchema),
+  async (c) => {
+    const bookId = c.req.valid("param").bookId;
+    const book = await getBookById(bookId);
+    if (!book) {
+      return showErrorAlert(c, "Book not found");
+    }
+
+    // make edit form component and extract form values
+    const formData = c.req.valid("form");
+    const bookData = await prepareBookUpdateData(
+      formData,
+      formData.artist_id,
+      user.id,
+      formData.publisher_id,
+    );
+    const updatedBook = await updateBook(bookData, bookId);
+    if (!updatedBook) {
+      return showErrorAlert(c, "Failed to update book");
+    }
+
+    await setFlash(c, "success", `${updatedBook.title} updated!`);
+    return c.redirect(`/dashboard/admin/books`);
   },
 );
 

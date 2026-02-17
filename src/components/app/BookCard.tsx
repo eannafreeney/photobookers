@@ -50,9 +50,11 @@ const BookCard = ({
             <Link href={`/books/${book.slug}`}>
               <Card.Title>{book.title}</Card.Title>
             </Link>
-            <Card.Text>
-              {book.releaseDate && formatDate(book.releaseDate)}
-            </Card.Text>
+            {!showHeader && (
+              <Card.Text>
+                {book.releaseDate && formatDate(book.releaseDate)}
+              </Card.Text>
+            )}
           </div>
           <div class="flex items-start self-start">
             <WishlistButton isCircleButton book={book} user={user} />

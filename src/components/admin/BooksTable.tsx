@@ -13,6 +13,9 @@ type Props = {
 
 const BooksTable = async ({ searchQuery }: Props) => {
   const books = await getAllBooksAdmin(searchQuery);
+
+  console.log("books", books[0]);
+
   return (
     <div class="flex flex-col gap-8">
       <SectionTitle>Books</SectionTitle>
@@ -55,7 +58,7 @@ const BooksTableRow = ({ book }: BooksTableRowProps) => {
   return (
     <tr>
       <td>
-        <Link href={`/book/${book.title}`} target="_blank">
+        <Link href={`/books/${book.slug}`} target="_blank">
           {book.title}
         </Link>
       </td>
@@ -73,7 +76,7 @@ const BooksTableRow = ({ book }: BooksTableRowProps) => {
       <td>{capitalize(book.approvalStatus ?? "")}</td>
       <td>{formatDate(book.createdAt ?? new Date())}</td>
       <td>
-        <a href={`/dashboard/books/edit/${book.id}`}>
+        <a href={`/dashboard/admin/books/edit/${book.id}`}>
           <Button variant="outline" color="inverse">
             <span>Edit</span>
           </Button>

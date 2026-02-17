@@ -34,24 +34,21 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
         {rightArrowIcon}
       </button>
 
-      {/* slides container: fixed height so no jump between different-size images */}
-      <div class="relative w-full h-[30vh]  min-h-32">
-        {/* slides stack: only one visible via x-show */}
-        <div class="absolute inset-0">
-          <template x-for="(slide, index) in slides">
-            <div
-              x-show="currentSlideIndex == index + 1"
-              class="absolute inset-0"
-              {...fadeTransition}
-            >
-              <img
-                class="absolute w-full h-full inset-0 object-contain"
-                x-bind:src="slide.imgSrc"
-                x-bind:alt="slide.imgAlt"
-              />
-            </div>
-          </template>
-        </div>
+      {/* slides container: one grid cell so height = tallest slide */}
+      <div class="relative w-full grid grid-cols-1 grid-rows-1">
+        <template x-for="(slide, index) in slides">
+          <div
+            class="col-start-1 row-start-1 flex items-center justify-center min-h-0"
+            x-bind:class="{ 'invisible': currentSlideIndex != index + 1 }"
+            {...fadeTransition}
+          >
+            <img
+              class="max-w-full w-full h-auto object-contain"
+              x-bind:src="slide.imgSrc"
+              x-bind:alt="slide.imgAlt"
+            />
+          </div>
+        </template>
       </div>
     </div>
   );

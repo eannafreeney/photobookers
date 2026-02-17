@@ -1,39 +1,29 @@
 import { getAllOptions } from "../../services/creators";
 import SectionTitle from "../app/SectionTitle";
-import FeatureGuard from "../layouts/FeatureGuard";
 import ComboBox from "../cms/ui/ComboBox";
 import DateInput from "../cms/ui/DateInput";
 import FormButtons from "../cms/ui/FormButtons";
 import Input from "../cms/ui/Input";
 import RadioFields from "../cms/ui/RadioFields";
 import TextArea from "../cms/ui/TextArea";
-import ToggleInput from "../cms/ui/ToggleInput";
 
 type BookFormProps = {
   formValues?: Record<string, any>;
-  isPublisher: boolean;
   bookId?: string;
-  action: string;
 };
 
-export const BookFormAdmin = async ({
-  formValues,
-  isPublisher,
-  bookId,
-  action,
-}: BookFormProps) => {
-  const artistOptions = isPublisher ? await getAllOptions("artist") : [];
-  const publisherOptions = !isPublisher ? await getAllOptions("publisher") : [];
+export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
+  const artistOptions = await getAllOptions("artist");
+  const publisherOptions = await getAllOptions("publisher");
   const isEditPage = !!bookId;
-  const isArtist = !isPublisher;
 
   const alpineAttrs = {
     "x-data": `bookFormAdmin(
       ${JSON.stringify(formValues)}, 
       ${JSON.stringify(artistOptions)}, 
       ${JSON.stringify(publisherOptions)},
-      ${isArtist},
-      ${isEditPage})`,
+      ${isEditPage},
+    )`,
     "x-on:submit": "submitForm($event)",
     "x-target": "toast",
     "x-target.away": "_top",
@@ -44,7 +34,15 @@ export const BookFormAdmin = async ({
   return (
     <div class="space-y-4 ">
       <SectionTitle>Book Details</SectionTitle>
-      <form action={action} method="post" {...alpineAttrs}>
+      <form
+        action={
+          isEditPage
+            ? `/dashboard/admin/books/edit/${bookId}`
+            : `/dashboard/admin/books/new`
+        }
+        method="post"
+        {...alpineAttrs}
+      >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Input
             label="Title"
@@ -61,31 +59,13 @@ export const BookFormAdmin = async ({
             options={artistOptions}
             required
           />
-          <FeatureGuard flagName="artists-can-create-stub-publishers">
-            {isArtist && !isEditPage ? (
-              <>
-                <div x-show="is_self_published">
-                  <ToggleInput
-                    label="Self Published"
-                    name="is_self_published"
-                    isChecked={isArtist}
-                  />
-                </div>
-                <div x-show="!is_self_published">
-                  <ComboBox
-                    label="Publisher"
-                    name="form.publisher_id"
-                    newOptionName="form.new_publisher_name"
-                    type="publisher"
-                    options={publisherOptions}
-                    required
-                  />
-                </div>
-              </>
-            ) : (
-              <></>
-            )}
-          </FeatureGuard>
+          <ComboBox
+            label="Publisher"
+            name="form.publisher_id"
+            newOptionName="form.new_publisher_name"
+            type="publisher"
+            options={publisherOptions}
+          />
           <TextArea
             label="Description"
             name="form.description"
@@ -102,7 +82,6 @@ export const BookFormAdmin = async ({
             label="Release Date"
             name="form.release_date"
             validateInput="validateField('release_date')"
-            required
           />
           <Input
             label="Tags"

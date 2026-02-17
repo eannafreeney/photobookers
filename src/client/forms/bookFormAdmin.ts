@@ -21,7 +21,6 @@ export function registerBookFormAdmin() {
       formValues: Partial<BookFormData> = {},
       artistOptions = [],
       publisherOptions = [],
-      isArtist: boolean = false,
       isEditMode: boolean = false,
     ) => {
       return {
@@ -30,8 +29,6 @@ export function registerBookFormAdmin() {
         isSubmitting: false,
         is_new_artist: false,
         is_new_publisher: false,
-        is_self_published: isArtist,
-        isArtist,
 
         ...createFormState(BOOK_FORM_FIELDS, formValues),
 

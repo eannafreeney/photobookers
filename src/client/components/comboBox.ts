@@ -14,8 +14,9 @@ export function registerComboBox() {
       init() {
         this.options = this.allOptions;
 
-        // Access parent form's artist_id value
-        const initialValue = this.form?.artist_id;
+        // Use the form field that matches this combobox type (artist vs publisher)
+        const fieldName = type === "publisher" ? "publisher_id" : "artist_id";
+        const initialValue = this.form?.[fieldName];
         if (initialValue) {
           const match = this.allOptions.find((opt) => opt.id === initialValue);
           if (match) {
@@ -25,12 +26,13 @@ export function registerComboBox() {
           }
         }
       },
+
       addNewOption() {
         const label = this.toTitleCase(this.searchQuery.trim());
         if (!label) return;
 
         const exists = this.allOptions.some(
-          (opt) => opt.label.toLowerCase() === label.toLowerCase()
+          (opt) => opt.label.toLowerCase() === label.toLowerCase(),
         );
 
         if (exists) return;
@@ -42,7 +44,7 @@ export function registerComboBox() {
       toTitleCase(str: string) {
         return str.replace(
           /\w\S*/g,
-          (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+          (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
         );
       },
       clearSearch() {
@@ -65,7 +67,7 @@ export function registerComboBox() {
         this.isOpen = false;
         this.openedWithKeyboard = false;
 
-        const selectedId = option.isNew ? "" : option.id ?? "";
+        const selectedId = option.isNew ? "" : (option.id ?? "");
         const newName = option.isNew ? option.label : "";
 
         // Set values - x-model will handle reactivity
@@ -81,10 +83,10 @@ export function registerComboBox() {
         // Trigger input event so x-model picks up the change
         this.$nextTick(() => {
           this.$refs.hiddenTextField.dispatchEvent(
-            new Event("input", { bubbles: true })
+            new Event("input", { bubbles: true }),
           );
           this.$refs.newOptionNameField.dispatchEvent(
-            new Event("input", { bubbles: true })
+            new Event("input", { bubbles: true }),
           );
         });
       },
@@ -92,7 +94,7 @@ export function registerComboBox() {
         this.searchQuery = query;
 
         this.options = this.allOptions.filter((option) =>
-          option.label.toLowerCase().includes(query.toLowerCase())
+          option.label.toLowerCase().includes(query.toLowerCase()),
         );
 
         if (this.options.length === 0 && this.searchQuery) {

@@ -42,8 +42,6 @@ booksDashboardRoutes.get("/", async (c) => {
 
   const currentPath = c.req.path;
 
-  console.log("searchQuery", searchQuery);
-
   return c.html(
     <BooksOverview
       searchQuery={searchQuery}
