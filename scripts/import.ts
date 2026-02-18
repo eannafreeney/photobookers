@@ -1,9 +1,7 @@
-import dotenv from "dotenv";
-import { resolve, join } from "path";
+// import dotenv from "dotenv";
+import "./env";
+import { join } from "path";
 import { downloadAndUploadImage } from "./importImage";
-
-dotenv.config({ path: resolve(process.cwd(), ".env.scripts") });
-dotenv.config();
 
 import { readFileSync } from "fs";
 import { parse } from "csv/sync";
@@ -15,7 +13,7 @@ import { createStubCreatorProfile } from "../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 
 const SOURCE_CSV_FILE = "poursuite.csv";
-const AMOUNT_OF_BOOKS = 10;
+const AMOUNT_OF_BOOKS = 15;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -26,7 +24,6 @@ type CsvRow = {
   artist: string;
   artistExistsInDb: string;
   description: string;
-  specs: string;
   coverUrl: string;
   images: string;
   availability: string;
@@ -34,8 +31,8 @@ type CsvRow = {
 };
 
 async function getCreatedByUserId(): Promise<string> {
-  //   const fromEnv = process.env.IMPORT_CREATED_BY_USER_ID;
-  //   if (fromEnv) return fromEnv;
+  const fromEnv = process.env.IMPORT_CREATED_BY_USER_ID;
+  if (fromEnv) return fromEnv;
   const [admin] = await db
     .select({ id: users.id })
     .from(users)
@@ -190,13 +187,15 @@ async function main() {
       );
     }
 
-    await db
-      .update(books)
-      .set({
-        ...(finalCoverUrl && { coverUrl: finalCoverUrl }),
-        ...(finalCoverUrl && { publicationStatus: "published" as const }),
-      })
-      .where(eq(books.id, bookId));
+    if (finalCoverUrl) {
+      await db
+        .update(books)
+        .set({
+          coverUrl: finalCoverUrl,
+          publicationStatus: "published",
+        })
+        .where(eq(books.id, bookId));
+    }
 
     created++;
     console.log(`[${rowIndex + 1}/${rows.length}] Created: ${newBook.title}`);

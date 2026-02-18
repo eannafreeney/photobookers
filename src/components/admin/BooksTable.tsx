@@ -4,6 +4,7 @@ import { capitalize, formatDate } from "../../utils";
 import Button from "../app/Button";
 import Link from "../app/Link";
 import SectionTitle from "../app/SectionTitle";
+import PublishToggleForm from "../cms/forms/PublishToggleForm";
 import Table from "../cms/ui/Table";
 import TableSearch from "../cms/ui/TableSearch";
 
@@ -57,17 +58,17 @@ type BooksTableRowProps = {
 const BooksTableRow = ({ book }: BooksTableRowProps) => {
   return (
     <tr>
-      <td>
+      <td class="max-w-48 wrap-break-word">
         <Link href={`/books/${book.slug}`} target="_blank">
           {book.title}
         </Link>
       </td>
-      <td>
+      <td class="max-w-48 wrap-break-word">
         <Link href={`/creators/${book.artist?.slug}`}>
           {book.artist?.displayName}
         </Link>
       </td>
-      <td>
+      <td class="max-w-48 wrap-break-word">
         <Link href={`/creators/${book.publisher?.slug}`}>
           {book.publisher?.displayName}
         </Link>
@@ -75,6 +76,9 @@ const BooksTableRow = ({ book }: BooksTableRowProps) => {
       <td>{book.releaseDate ? formatDate(book.releaseDate) : ""}</td>
       <td>{capitalize(book.approvalStatus ?? "")}</td>
       <td>{formatDate(book.createdAt ?? new Date())}</td>
+      <td>
+        <PublishToggleForm book={book} />
+      </td>
       <td>
         <a href={`/dashboard/admin/books/edit/${book.id}`}>
           <Button variant="outline" color="inverse">

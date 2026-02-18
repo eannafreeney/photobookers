@@ -78,7 +78,7 @@ adminDashboardRoutes.get("/books/new", requireAdminAccess, async (c) => {
     <AppLayout title="Books" user={user}>
       <Page>
         <NavTabs currentPath="/dashboard/admin/books" />
-        <BookFormAdmin isPublisher action="/dashboard/admin/books/new" />
+        <BookFormAdmin />
       </Page>
     </AppLayout>,
   );

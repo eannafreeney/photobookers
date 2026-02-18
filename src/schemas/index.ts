@@ -140,7 +140,7 @@ export const bookFormSchema = z.object({
     .optional(),
   release_date: optionalText,
   tags: optionalText,
-  purchaseLink: optionalText,
+  purchase_link: optionalText,
   availability_status: z
     .preprocess(
       (val) => (val === "" ? undefined : val),

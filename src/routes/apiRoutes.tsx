@@ -229,8 +229,6 @@ apiRoutes.get("/search", async (c) => {
     searchCreators(searchTerm ?? ""),
   ]);
 
-  console.log("isMobile", isMobile);
-
   return c.html(
     <NavSearchResults
       isMobile={isMobile}
