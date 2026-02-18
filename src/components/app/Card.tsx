@@ -21,26 +21,41 @@ const CardBody = ({ children }: { children: ChildType }) => (
   <div class="flex flex-col gap-4 p-4">{children}</div>
 );
 
+type CardImageProps = {
+  src: string;
+  alt: string;
+  href: string;
+  aspectSquare?: boolean;
+  objectCover?: boolean;
+};
+
 const CardImage = ({
   src,
   alt,
   href,
-  coverLandscapeAndSquare = false,
-}: {
-  src: string;
-  alt: string;
-  href: string;
-  coverLandscapeAndSquare?: boolean;
-}) => (
-  <figure class="w-full bg-white">
+  aspectSquare = false,
+  objectCover = false,
+}: CardImageProps) => (
+  <figure
+    class={`w-full bg-white ${aspectSquare ? "aspect-square overflow-hidden" : ""}`}
+    x-data="imageOrientation"
+  >
     <Link href={href}>
       <img
         src={src}
         alt={alt}
         loading="lazy"
         decoding="async"
-        class="h-76 w-full transition duration-700 ease-out group-hover:scale-105 z-10 "
-        x-bind:class={`object-cover': ${coverLandscapeAndSquare}`}
+        // class="h-76 w-full transition duration-700 ease-out group-hover:scale-105 z-10 "
+        // x-bind:class="objectFitClass + ' object-contain'"
+        class={
+          aspectSquare && objectCover
+            ? "h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105 z-10"
+            : "h-76 w-full transition duration-700 ease-out group-hover:scale-105 z-10"
+        }
+        {...(!(aspectSquare && objectCover)
+          ? { "x-bind:class": "objectFitClass + ' object-contain'" }
+          : {})}
       />
     </Link>
   </figure>
