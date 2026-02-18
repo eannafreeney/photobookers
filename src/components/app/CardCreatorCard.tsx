@@ -28,13 +28,19 @@ const CardCreatorCard = async ({ creatorType, book }: CardCreatorCardProps) => {
   return (
     <Link href={`/creators/${creator.slug}`}>
       <div class="flex items-center gap-2">
-        <Avatar
-          src={creator.coverUrl ?? ""}
-          alt={creator.displayName ?? ""}
-          size="xs"
-        />
+        <div class="relative">
+          <Avatar
+            src={creator.coverUrl ?? ""}
+            alt={creator.displayName ?? ""}
+            size="xs"
+          />
+          <div class="absolute -top-1 -right-1">
+            {creator?.ownerUserId && (
+              <VerifiedCreator creator={creator} size="xs" />
+            )}
+          </div>
+        </div>
         <Card.SubTitle>{creator.displayName}</Card.SubTitle>
-        <VerifiedCreator creator={creator} size="xs" />
       </div>
     </Link>
   );

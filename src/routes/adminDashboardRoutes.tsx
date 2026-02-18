@@ -144,20 +144,26 @@ adminDashboardRoutes.post(
   formValidator(bookFormSchema),
   paramValidator(bookIdSchema),
   async (c) => {
+    const formData = c.req.valid("form");
+    const user = await getUser(c);
     const bookId = c.req.valid("param").bookId;
     const book = await getBookById(bookId);
     if (!book) {
       return showErrorAlert(c, "Book not found");
     }
 
-    // make edit form component and extract form values
-    const formData = c.req.valid("form");
-    const bookData = await prepareBookUpdateData(
-      formData,
-      formData.artist_id,
-      user.id,
-      formData.publisher_id,
-    );
+    const artist = await resolveArtist(formData, user.id);
+    const publisher = await resolvePublisher(formData, user.id);
+
+    if (artist === "error" || !artist) {
+      return showErrorAlert(c, "Invalid artist");
+    }
+
+    if (publisher === "error") {
+      return showErrorAlert(c, "Invalid publisher");
+    }
+
+    const bookData = await prepareBookUpdateData(formData);
     const updatedBook = await updateBook(bookData, bookId);
     if (!updatedBook) {
       return showErrorAlert(c, "Failed to update book");
