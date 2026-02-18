@@ -192,7 +192,6 @@ async function main() {
         .update(books)
         .set({
           coverUrl: finalCoverUrl,
-          publicationStatus: "published",
         })
         .where(eq(books.id, bookId));
     }

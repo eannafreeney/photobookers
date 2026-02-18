@@ -19,7 +19,7 @@ const Carousel = ({ images = [] }: Props) => {
           x-bind:style="`transform: translateX(-${(currentSlideIndex - 1) * 100}%)`"
         >
           <template x-for="slide in slides">
-            <div class="w-full shrink-0 h-[60vh] min-h-[400px]">
+            <div class="w-full shrink-0 h-auto">
               <img
                 class="w-full h-full object-contain"
                 x-bind:src="slide.imgSrc"
