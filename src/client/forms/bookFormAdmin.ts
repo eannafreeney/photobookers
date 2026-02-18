@@ -61,8 +61,7 @@ export function registerBookFormAdmin() {
             this.isDirty &&
             Object.values(this.errors.form).every((err) => !err) &&
             this.form.title &&
-            this.form.availability_status &&
-            this.form.release_date;
+            this.form.availability_status;
 
           // Artists need publisher (unless self-published), publishers need artist
           const conditionalFieldsValid = this.isArtist
