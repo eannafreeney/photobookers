@@ -46,8 +46,6 @@ const CardImage = ({
         alt={alt}
         loading="lazy"
         decoding="async"
-        // class="h-76 w-full transition duration-700 ease-out group-hover:scale-105 z-10 "
-        // x-bind:class="objectFitClass + ' object-contain'"
         class={
           aspectSquare && objectCover
             ? "h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105 z-10"
