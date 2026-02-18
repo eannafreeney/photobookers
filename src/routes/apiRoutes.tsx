@@ -220,7 +220,9 @@ apiRoutes.get("/search", async (c) => {
   const isMobile = c.req.query("isMobile") === "true";
 
   if (!searchQuery || searchQuery.length < 3) {
-    return c.html(<div id="search-results"></div>);
+    return c.html(
+      <div id={isMobile ? "search-results-mobile" : "search-results"}></div>,
+    );
   }
 
   const searchTerm = searchQuery?.trim().toLowerCase();
