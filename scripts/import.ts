@@ -104,7 +104,7 @@ async function main() {
   let skipped = 0;
   let errors = 0;
 
-  for (let rowIndex = 0; rowIndex < AMOUNT_OF_BOOKS; rowIndex++) {
+  for (let rowIndex = 14; rowIndex < rows.length; rowIndex++) {
     const row = rows[rowIndex];
     const title = row.title?.trim();
     if (!title) {
@@ -192,7 +192,6 @@ async function main() {
         .update(books)
         .set({
           coverUrl: finalCoverUrl,
-          publicationStatus: "published",
         })
         .where(eq(books.id, bookId));
     }
