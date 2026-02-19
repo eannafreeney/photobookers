@@ -18,7 +18,7 @@ const CardHeader = ({ children }: { children: ChildType }) => (
 );
 
 const CardBody = ({ children }: { children: ChildType }) => (
-  <div class="flex flex-col gap-4 p-4">{children}</div>
+  <div class="flex flex-col gap-2 p-4">{children}</div>
 );
 
 type CardImageProps = {

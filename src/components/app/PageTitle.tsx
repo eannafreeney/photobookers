@@ -10,13 +10,14 @@ type PageTitleProps = {
 
 const PageTitle = ({ title, creator, isMobile }: PageTitleProps) => {
   return (
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-4 mb-0">
       {creator?.coverUrl && (
         <div class="relative">
           <Avatar
             src={creator.coverUrl ?? ""}
             alt={creator.displayName ?? ""}
-            size={isMobile ? "sm" : "md"}
+            // size={isMobile ? "md" : "md"}
+            size="md"
           />
           <div class="absolute -top-2 -right-2">
             {creator?.ownerUserId && (
@@ -26,7 +27,7 @@ const PageTitle = ({ title, creator, isMobile }: PageTitleProps) => {
         </div>
       )}
       <div class="flex flex-col gap-0.5">
-        <div class="text-xl md:text-4xl font-medium">
+        <div class="text-xl md:text-4xl font-medium -mb-1">
           {creator?.displayName ?? title}
         </div>
         <div class="text-xs text-on-surface-weak flex items-center gap-2">
