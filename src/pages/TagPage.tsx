@@ -39,7 +39,7 @@ const TagPage = async ({
     <AppLayout title={`# ${capitalize(tag)}`} user={user}>
       <Page>
         <PageTitle title={`# ${capitalize(tag)}`} isMobile={isMobile} />
-        <GridPanel id={targetId} xMerge="append">
+        <GridPanel id={targetId}>
           {books.map((book) => (
             <BookCard book={book} user={user} />
           ))}

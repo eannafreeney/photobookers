@@ -18,7 +18,7 @@ const CardHeader = ({ children }: { children: ChildType }) => (
 );
 
 const CardBody = ({ children }: { children: ChildType }) => (
-  <div class="flex flex-col gap-4 p-4">{children}</div>
+  <div class="flex flex-col gap-2 p-4">{children}</div>
 );
 
 type CardImageProps = {
@@ -49,7 +49,7 @@ const CardImage = ({
         class={
           aspectSquare && objectCover
             ? "h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105 z-10"
-            : "h-72 w-full transition duration-700 ease-out group-hover:scale-105 z-10"
+            : "h-auto w-full transition duration-700 ease-out group-hover:scale-105 z-10"
         }
         {...(!(aspectSquare && objectCover)
           ? { "x-bind:class": "objectFitClass + ' object-contain'" }
