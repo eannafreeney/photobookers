@@ -6,13 +6,11 @@
  *
  * Run: npx tsx scripts/scrapers/scrape-hartmann.ts [output-path]
  */
+import "../../scripts/env";
 
 import * as cheerio from "cheerio";
-import { ilike } from "drizzle-orm";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
-import { db } from "../../src/db/client";
-import { creators } from "../../src/db/schema";
 import {
   artistExistsInDb,
   fetchHtml,
@@ -54,7 +52,6 @@ async function scrapeProduct(productUrl: string): Promise<{
   artist: string;
   artistExistsInDb: boolean;
   description: string;
-  specs: string;
   coverUrl: string;
   images: string;
   availability: string;
@@ -78,11 +75,6 @@ async function scrapeProduct(productUrl: string): Promise<{
     .filter(Boolean);
   const artist = parts[0] ?? "";
   const title = parts.slice(1).join(" ").trim() || rawTitle;
-
-  const specs =
-    $(".product-short-description").first().text().trim() ||
-    $('meta[name="description"]').attr("content")?.trim() ||
-    "";
 
   const description =
     $(".panel.entry-content").first().text().trim() ||
@@ -114,7 +106,6 @@ async function scrapeProduct(productUrl: string): Promise<{
     artist,
     artistExistsInDb: artistExists,
     description,
-    specs,
     coverUrl,
     images,
     availability: "available",
@@ -127,7 +118,7 @@ async function main() {
     process.argv[2] ?? join(process.cwd(), "output", "hartmann.csv");
 
   console.log("Fetching category pages...");
-  const productUrls = (await getAllProductUrls()).slice(0, AMOUNT_OF_BOOKS);
+  const productUrls = await getAllProductUrls();
   console.log(`Found ${productUrls.length} product URLs.`);
 
   const header: Record<string, string> = {
@@ -135,7 +126,6 @@ async function main() {
     artist: "artist",
     artistExistsInDb: "artistExistsInDb",
     description: "description",
-    specs: "specs",
     coverUrl: "coverUrl",
     images: "images",
     availability: "availability",

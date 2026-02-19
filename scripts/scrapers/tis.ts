@@ -8,7 +8,7 @@
  *
  * Run: npx tsx scripts/scrapers/scrape-tisbooks.ts [output-path]
  */
-
+import "../../scripts/env";
 import * as cheerio from "cheerio";
 import { ilike } from "drizzle-orm";
 import { mkdir, writeFile } from "fs/promises";
@@ -104,7 +104,6 @@ async function scrapeProduct(productUrl: string): Promise<{
   artist: string;
   artistExistsInDb: boolean;
   description: string;
-  specs: string;
   coverUrl: string;
   images: string;
   availability: string;
@@ -170,7 +169,6 @@ async function scrapeProduct(productUrl: string): Promise<{
     artist,
     artistExistsInDb: artistExists,
     description,
-    specs,
     coverUrl,
     images,
     availability: "available",
@@ -193,7 +191,6 @@ async function main() {
     artist: "artist",
     artistExistsInDb: "artistExistsInDb",
     description: "description",
-    specs: "specs",
     coverUrl: "coverUrl",
     images: "images",
     availability: "availability",
