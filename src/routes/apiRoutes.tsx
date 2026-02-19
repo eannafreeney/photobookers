@@ -159,9 +159,9 @@ apiRoutes.get("/check-email", async (c) => {
   return c.html(
     <div id="email-availability-status">
       {available ? (
-        <p class="label text-success mt-1">✓ Email available</p>
+        <p class="label text-success mt-1">✓</p>
       ) : (
-        <p class="label text-danger mt-1">✗ Email taken</p>
+        <p class="label text-danger mt-1">✗</p>
       )}
     </div>,
   );
@@ -183,9 +183,9 @@ apiRoutes.get("/check-displayName", async (c) => {
   return c.html(
     <div id="display-name-availability-status">
       {available ? (
-        <p class="label text-success mt-1">✓ Name available</p>
+        <p class="label text-success mt-1">✓</p>
       ) : (
-        <p class="label text-danger mt-1">✗ Name taken</p>
+        <p class="label text-danger mt-1">✗</p>
       )}
     </div>,
   );

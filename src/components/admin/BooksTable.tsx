@@ -1,8 +1,12 @@
+import { useUser } from "../../contexts/UserContext";
 import { Book, Creator } from "../../db/schema";
+import ErrorPage from "../../pages/error/errorPage";
 import { getAllBooksAdmin } from "../../services/admin";
 import { capitalize, formatDate } from "../../utils";
+import PreviewButton from "../api/PreviewButton";
 import Button from "../app/Button";
 import Link from "../app/Link";
+import { Pagination } from "../app/Pagination";
 import SectionTitle from "../app/SectionTitle";
 import PublishToggleForm from "../cms/forms/PublishToggleForm";
 import Table from "../cms/ui/Table";
@@ -10,12 +14,20 @@ import TableSearch from "../cms/ui/TableSearch";
 
 type Props = {
   searchQuery?: string;
+  currentPage: number;
+  currentPath: string;
 };
 
-const BooksTable = async ({ searchQuery }: Props) => {
-  const books = await getAllBooksAdmin(searchQuery);
+const BooksTable = async ({ searchQuery, currentPage, currentPath }: Props) => {
+  const result = await getAllBooksAdmin(currentPage, searchQuery);
 
-  console.log("books", books[0]);
+  if (!result?.books) {
+    return <ErrorPage errorMessage="No featured books found" />;
+  }
+
+  const { books, totalPages, page } = result;
+
+  const targetId = "books-table-body";
 
   return (
     <div class="flex flex-col gap-8">
@@ -39,12 +51,18 @@ const BooksTable = async ({ searchQuery }: Props) => {
             <th>Actions</th>
           </tr>
         </Table.Head>
-        <Table.Body id="books-table-body">
+        <Table.Body id={targetId}>
           {books.map((book) => (
             <BooksTableRow book={book} />
           ))}
         </Table.Body>
       </Table>
+      <Pagination
+        baseUrl={currentPath}
+        page={page}
+        totalPages={totalPages}
+        targetId={targetId}
+      />
     </div>
   );
 };
@@ -56,6 +74,7 @@ type BooksTableRowProps = {
 };
 
 const BooksTableRow = ({ book }: BooksTableRowProps) => {
+  const user = useUser();
   return (
     <tr>
       <td class="max-w-48 wrap-break-word">
@@ -74,8 +93,17 @@ const BooksTableRow = ({ book }: BooksTableRowProps) => {
         </Link>
       </td>
       <td>{book.releaseDate ? formatDate(book.releaseDate) : ""}</td>
-      <td>{capitalize(book.approvalStatus ?? "")}</td>
+      <td>
+        {book.approvalStatus === "approved" ? (
+          <p class=" text-success">✓</p>
+        ) : (
+          <p class=" text-danger">✗</p>
+        )}
+      </td>
       <td>{formatDate(book.createdAt ?? new Date())}</td>
+      <td>
+        <PreviewButton book={book} user={user} />
+      </td>
       <td>
         <PublishToggleForm book={book} />
       </td>

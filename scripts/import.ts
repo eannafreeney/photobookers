@@ -12,7 +12,7 @@ import { createBook } from "../src/services/books";
 import { createStubCreatorProfile } from "../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 
-const SOURCE_CSV_FILE = "poursuite.csv";
+const SOURCE_CSV_FILE = "nazraeli.csv";
 const AMOUNT_OF_BOOKS = 15;
 
 function sleep(ms: number) {
@@ -104,7 +104,7 @@ async function main() {
   let skipped = 0;
   let errors = 0;
 
-  for (let rowIndex = 14; rowIndex < rows.length; rowIndex++) {
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
     const row = rows[rowIndex];
     const title = row.title?.trim();
     if (!title) {

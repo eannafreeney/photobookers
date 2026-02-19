@@ -62,6 +62,7 @@ export function canPreviewBook(
 ): boolean {
   if (!user) return false;
   if (!book.coverUrl) return false;
+  if (user.isAdmin) return true;
 
   const isDraftMode = book.publicationStatus === "draft";
 

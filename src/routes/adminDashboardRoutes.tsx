@@ -60,12 +60,18 @@ adminDashboardRoutes.get("/books", requireAdminAccess, async (c) => {
   const user = await getUser(c);
   const searchQuery = c.req.query("search");
   const flash = await getFlash(c);
+  const page = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
 
   return c.html(
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath="/dashboard/admin/books" />
-        <BooksTable searchQuery={searchQuery} />
+        <BooksTable
+          searchQuery={searchQuery}
+          currentPage={page}
+          currentPath={currentPath}
+        />
       </Page>
     </AppLayout>,
   );

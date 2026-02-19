@@ -29,7 +29,7 @@ const TableBody = ({
   id?: string;
   props?: PropsWithChildren;
 }>) => (
-  <tbody id={id} class="divide-y divide-outline" {...props}>
+  <tbody id={id} class="divide-y divide-outline" {...props} x-merge="append">
     {children}
   </tbody>
 );
