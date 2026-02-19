@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { db } from "../db/client";
 import {
   Book,
@@ -8,6 +8,7 @@ import {
   creatorClaims,
   creators,
 } from "../db/schema";
+import { getPagination } from "../lib/pagination";
 
 export const getAllCreatorProfilesAdmin = async (
   searchQuery?: string,
@@ -64,8 +65,10 @@ export const getClaimById = async (claimId: string) => {
 };
 
 export const getAllBooksAdmin = async (
+  currentPage: number = 1,
   searchQuery?: string,
-): Promise<Book[]> => {
+  defaultLimit = 30,
+): Promise<{ books: Book[]; totalPages: number; page: number }> => {
   let creatorIds: string[] = [];
   if (searchQuery) {
     const rows = await db
@@ -75,23 +78,51 @@ export const getAllBooksAdmin = async (
     creatorIds = rows.map((r) => r.id);
   }
 
-  return await db.query.books.findMany({
-    where:
-      searchQuery && searchQuery.trim() !== ""
-        ? creatorIds.length > 0
-          ? or(
-              ilike(books.title, `%${searchQuery}%`),
-              inArray(books.artistId, creatorIds),
-              inArray(books.publisherId, creatorIds),
-            )
-          : ilike(books.title, `%${searchQuery}%`)
-        : undefined,
+  const whereCondition =
+    searchQuery && searchQuery.trim() !== ""
+      ? creatorIds.length > 0
+        ? or(
+            ilike(books.title, `%${searchQuery}%`),
+            inArray(books.artistId, creatorIds),
+            inArray(books.publisherId, creatorIds),
+          )
+        : ilike(books.title, `%${searchQuery}%`)
+      : undefined;
+
+  const [{ value: totalCount = 0 }] = await db
+    .select({ value: count() })
+    .from(books)
+    .where(whereCondition);
+
+  const { page, limit, offset, totalPages } = getPagination(
+    currentPage,
+    totalCount,
+    defaultLimit,
+  );
+
+  const foundBooks = await db.query.books.findMany({
+    where: whereCondition,
     orderBy: (books, { desc }) => [desc(books.createdAt)],
+    limit: limit,
+    offset: offset,
     with: {
-      artist: true,
-      publisher: true,
+      artist: {
+        columns: {
+          id: true,
+          displayName: true,
+          slug: true,
+        },
+      },
+      publisher: {
+        columns: {
+          id: true,
+          displayName: true,
+          slug: true,
+        },
+      },
     },
   });
+  return { books: foundBooks, totalPages, page };
 };
 
 export const deleteBookByIdAdmin = async (bookId: string) => {

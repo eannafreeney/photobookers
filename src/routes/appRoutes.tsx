@@ -41,8 +41,6 @@ appRoutes.get("/books/:slug", async (c) => {
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
   const currentPath = c.req.path;
 
-  console.log("slug", slug);
-
   return c.html(
     <BookDetailPage
       user={user}

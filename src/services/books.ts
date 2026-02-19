@@ -30,7 +30,7 @@ import z from "zod";
 import { AuthUser } from "../../types";
 import { getPagination } from "../lib/pagination";
 
-export const getNewBooks = async (currentPage: number, defaultLimit = 10) => {
+export const getNewBooks = async (currentPage: number, defaultLimit = 12) => {
   try {
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
