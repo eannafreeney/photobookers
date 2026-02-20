@@ -12,6 +12,7 @@ type BookCardProps = {
   user: AuthUser | null;
   showHeader?: boolean;
   currentCreatorId?: string;
+  className?: string;
 };
 
 const BookCard = ({
@@ -19,25 +20,10 @@ const BookCard = ({
   user,
   showHeader = false,
   currentCreatorId,
+  className,
 }: BookCardProps) => {
   return (
-    <Card>
-      {showHeader && (
-        <Card.Header>
-          <div class="flex items-center justify-between w-full">
-            <Card.Text>
-              <span class="flex items-center gap-1 font-semibold">
-                {starsIcon}Book of the Day
-              </span>
-            </Card.Text>
-            <Card.Text>
-              {book.releaseDate
-                ? formatDate(book.releaseDate)
-                : formatDate(new Date())}
-            </Card.Text>
-          </div>
-        </Card.Header>
-      )}
+    <Card className={className}>
       <Link href={`/books/${book.slug}`}>
         <Card.Image
           src={book.coverUrl ?? ""}

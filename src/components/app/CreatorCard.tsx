@@ -90,7 +90,9 @@ const CreatorCardPortrait = ({
           </Card.SubTitle>
         </div>
         <FollowersCount followerCount={followerCount} />
-        {creator.tagline && <Card.Intro>{creator.tagline}</Card.Intro>}
+        {creator.tagline && (
+          <Card.Description>{creator.tagline}</Card.Description>
+        )}
         <FollowButton creator={creator} user={user} variant="desktop" />
         {creator.status === "stub" && (
           <ClaimCreatorBtn creator={creator} user={user} />
@@ -140,7 +142,9 @@ const CreatorCardLandscape = ({
                 </Card.SubTitle>
               </div>
               <FollowersCount followerCount={followerCount} />
-              {creator.tagline && <Card.Intro>{creator.tagline}</Card.Intro>}
+              {creator.tagline && (
+                <Card.Description>{creator.tagline}</Card.Description>
+              )}
               <SocialLinks creator={creator} />
             </Card.Body>
           </div>
@@ -160,7 +164,7 @@ const CreatorCardLandscape = ({
 
 const FollowersCount = ({ followerCount }: { followerCount: number }) => {
   if (followerCount === 0) return <></>;
-  return <Card.Intro>{`${followerCount} following`}</Card.Intro>;
+  return <Card.Text>{`${followerCount} following`}</Card.Text>;
 };
 
 const followersIcon = (

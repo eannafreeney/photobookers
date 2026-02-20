@@ -51,9 +51,7 @@ const DetailDesktop = ({
               <ShareButton />
             </div>
             {book.releaseDate && (
-              <Card.Description>
-                {formatDate(book.releaseDate)}
-              </Card.Description>
+              <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
             )}
             {book.description && (
               <Card.Description>{book.description}</Card.Description>
