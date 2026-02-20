@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { ChildType } from "../../../types";
 import { capitalize } from "../../utils";
 import Link from "./Link";
@@ -7,8 +8,13 @@ type CardProps = {
   className?: string;
 };
 
-const Card = ({ children }: CardProps) => (
-  <div class="group flex flex-col rounded-radius overflow-hidden border border-outline bg-surface text-on-surface">
+const Card = ({ children, className }: CardProps) => (
+  <div
+    class={clsx(
+      "group flex flex-col rounded-radius overflow-hidden border border-outline bg-surface text-on-surface",
+      className,
+    )}
+  >
     {children}
   </div>
 );
@@ -17,9 +23,13 @@ const CardHeader = ({ children }: { children: ChildType }) => (
   <div class="flex items-center justify-between gap-2 p-2">{children}</div>
 );
 
-const CardBody = ({ children }: { children: ChildType }) => (
-  <div class="flex flex-col gap-2 p-4">{children}</div>
-);
+const CardBody = ({
+  children,
+  gap = "2",
+}: {
+  children: ChildType;
+  gap?: string;
+}) => <div class={`flex flex-col gap-${gap} p-4`}>{children}</div>;
 
 type CardImageProps = {
   src: string;
@@ -44,7 +54,6 @@ const CardImage = ({
       <img
         src={src}
         alt={alt}
-        loading="lazy"
         decoding="async"
         class={
           aspectSquare && objectCover
@@ -70,7 +79,7 @@ const CardSubTitle = ({ children }: { children: ChildType }) => (
 );
 
 const CardIntro = ({ children }: { children: ChildType }) => (
-  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap">
+  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap line-clamp-5">
     {children}
   </p>
 );

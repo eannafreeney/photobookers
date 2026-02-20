@@ -11,9 +11,10 @@ import { bookImages, creators, users, books } from "../src/db/schema";
 import { createBook } from "../src/services/books";
 import { createStubCreatorProfile } from "../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
+import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "nazraeli.csv";
-const AMOUNT_OF_BOOKS = 15;
+const SOURCE_CSV_FILE = "pvk.csv";
+const AMOUNT_OF_BOOKS = 10;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -104,7 +105,7 @@ async function main() {
   let skipped = 0;
   let errors = 0;
 
-  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+  for (let rowIndex = 0; rowIndex < AMOUNT_OF_BOOKS; rowIndex++) {
     const row = rows[rowIndex];
     const title = row.title?.trim();
     if (!title) {
@@ -125,7 +126,10 @@ async function main() {
 
     const slug = await generateUniqueBookSlug(title, artistCreator.displayName);
     const coverUrlRaw = row.coverUrl?.trim() || null;
-    const galleryUrls = parseImages(row.images);
+    const galleryUrls = parseImages(row.images).slice(
+      0,
+      MAX_GALLERY_IMAGES_PER_BOOK,
+    );
 
     const newBook = await createBook({
       slug,
@@ -168,7 +172,12 @@ async function main() {
 
     // Download, compress, upload each gallery image; then insert into bookImages
     const uploadedGalleryUrls: string[] = [];
-    for (const url of galleryUrls) {
+    const galleryUrlsToProcess = galleryUrls.slice(
+      0,
+      MAX_GALLERY_IMAGES_PER_BOOK,
+    );
+
+    for (const url of galleryUrlsToProcess) {
       const newUrl = await downloadAndUploadImage(
         url,
         folderGallery,

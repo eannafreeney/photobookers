@@ -46,6 +46,9 @@ export const getNewBooks = async (currentPage: number, defaultLimit = 12) => {
     const foundBooks = await db.query.books.findMany({
       with: {
         artist: true,
+        images: {
+          orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+        },
       },
       orderBy: (books, { desc }) => [desc(books.createdAt)],
       where: and(

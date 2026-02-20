@@ -8,9 +8,14 @@ import VerifiedCreator from "./VerifiedCreator";
 type CardCreatorCardProps = {
   creatorType?: "publisher" | "artist";
   book: Book;
+  avatarSize?: "xs" | "sm" | "md" | "lg";
 };
 
-const CardCreatorCard = async ({ creatorType, book }: CardCreatorCardProps) => {
+const CardCreatorCard = async ({
+  creatorType,
+  book,
+  avatarSize = "xs",
+}: CardCreatorCardProps) => {
   let creatorId: string | null = null;
 
   if (creatorType === "publisher") {
@@ -32,7 +37,7 @@ const CardCreatorCard = async ({ creatorType, book }: CardCreatorCardProps) => {
           <Avatar
             src={creator.coverUrl ?? ""}
             alt={creator.displayName ?? ""}
-            size="xs"
+            size={avatarSize}
           />
           <div class="absolute -top-1 -right-1">
             {creator?.ownerUserId && (

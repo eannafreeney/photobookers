@@ -93,6 +93,7 @@ appRoutes.get("/new-books", async (c) => {
   const flash = await getFlash(c);
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   return c.html(
     <NewBooksPage
@@ -100,6 +101,7 @@ appRoutes.get("/new-books", async (c) => {
       flash={flash}
       currentPage={page}
       currentPath={currentPath}
+      isMobile={isMobile}
     />,
   );
 });

@@ -1,9 +1,25 @@
 import sharp from "sharp";
 import { uploadImageFromBuffer } from "../src/services/storage";
+import { MAX_GALLERY_SIZE_BYTES } from "../src/constants/images";
 
-const COVER_MAX = 1200; // max width/height, similar to client "cover"
-const GALLERY_MAX = 1920; // similar to client "gallery"
-const WEBP_QUALITY = 80;
+const COVER_MAX = 1200;
+const GALLERY_MAX = 1600; // tightened from 1920
+const COVER_QUALITY = 80;
+const GALLERY_QUALITY_INITIAL = 75;
+
+/** Encode to WebP; if over maxBytes, try lower quality until under. */
+async function webpToMaxSize(
+  sharpInstance: sharp.Sharp,
+  maxBytes: number,
+  initialQuality: number,
+): Promise<Buffer> {
+  const qualities = [initialQuality, 65, 55, 45];
+  for (const q of qualities) {
+    const out = await sharpInstance.webp({ quality: q }).toBuffer();
+    if (out.length <= maxBytes) return out;
+  }
+  return sharpInstance.webp({ quality: 40 }).toBuffer();
+}
 
 export async function downloadAndUploadImage(
   imageUrl: string,
@@ -16,10 +32,19 @@ export async function downloadAndUploadImage(
     const buf = Buffer.from(await res.arrayBuffer());
 
     const max = kind === "cover" ? COVER_MAX : GALLERY_MAX;
-    const out = await sharp(buf)
-      .resize(max, max, { fit: "inside", withoutEnlargement: true })
-      .webp({ quality: WEBP_QUALITY })
-      .toBuffer();
+    const pipeline = sharp(buf).resize(max, max, {
+      fit: "inside",
+      withoutEnlargement: true,
+    });
+
+    const out =
+      kind === "cover"
+        ? await pipeline.webp({ quality: COVER_QUALITY }).toBuffer()
+        : await webpToMaxSize(
+            pipeline,
+            MAX_GALLERY_SIZE_BYTES,
+            GALLERY_QUALITY_INITIAL,
+          );
 
     const result = await uploadImageFromBuffer(out, folder, {
       contentType: "image/webp",

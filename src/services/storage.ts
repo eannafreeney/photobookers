@@ -97,6 +97,22 @@ export async function uploadImageFromBuffer(
 }
 
 /**
+ * Overwrite an existing file in storage (e.g. for re-compressing in place).
+ * Uses upsert: true so the object at path is replaced.
+ */
+export async function overwriteImageAtPath(
+  buffer: Buffer,
+  path: string,
+  contentType: string = "image/webp",
+): Promise<void> {
+  const { error } = await supabaseStorageAdmin.storage
+    .from(BUCKET_NAME)
+    .upload(path, buffer, { contentType, upsert: true });
+
+  if (error) throw new Error(`Overwrite failed: ${error.message}`);
+}
+
+/**
  * Upload multiple images
  */
 export async function uploadImages(
