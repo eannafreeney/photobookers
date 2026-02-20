@@ -5,6 +5,7 @@
  *
  * Run: npx tsx scripts/scrapers/scrape-falllinepress.ts [output-path]
  */
+import "../../scripts/env";
 
 import * as cheerio from "cheerio";
 import { ilike } from "drizzle-orm";
@@ -105,28 +106,13 @@ async function scrapeProduct(productUrl: string): Promise<{
     "";
 
   const imageUrls: string[] = [];
-  $('script[type="application/ld+json"]').each((_, el) => {
-    try {
-      const data = JSON.parse($(el).html() ?? "{}");
-      if (data["@type"] === "Product" && Array.isArray(data.image)) {
-        for (const url of data.image) {
-          if (typeof url === "string") imageUrls.push(normalizeUrl(url));
-        }
-        return false; // break
-      }
-    } catch {
-      /* ignore */
-    }
+  $(
+    ".product-page--root .product-media--root img, .product-page--root .product-media--container img",
+  ).each((_, el) => {
+    const src = $(el).attr("data-src") || $(el).attr("src");
+    if (src && src.includes("cdn/shop/files"))
+      imageUrls.push(normalizeUrl(src));
   });
-  if (imageUrls.length === 0) {
-    $(
-      ".product-page--root .product-media--root img, .product-page--root .product-media--container img",
-    ).each((_, el) => {
-      const src = $(el).attr("data-src") || $(el).attr("src");
-      if (src && src.includes("cdn/shop/files"))
-        imageUrls.push(normalizeUrl(src));
-    });
-  }
   const uniqueImages = [...new Set(imageUrls)];
   const coverUrl = uniqueImages[0] ?? "";
   const images = uniqueImages.slice(1).join("|");

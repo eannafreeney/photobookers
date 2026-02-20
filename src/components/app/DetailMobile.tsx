@@ -9,6 +9,7 @@ import { BookWithGalleryImages } from "../../pages/BookDetailPage";
 import CardCreatorCard from "./CardCreatorCard";
 import AvailabilityBadge from "./AvailabilityBadge";
 import PurchaseLink from "./PurchaseLink";
+import ShareButton from "./ShareButton";
 
 type DetailProps = {
   galleryImages: string[];
@@ -35,7 +36,10 @@ const DetailMobile = ({
           <CardCreatorCard creatorType="publisher" book={book} />
         )}
       </div>
-      <WishlistButton book={book} user={user} />
+      <div class="flex items-center gap-2">
+        <WishlistButton book={book} user={user} />
+        <ShareButton />
+      </div>
       {book.releaseDate && (
         <Card.Description>{formatDate(book.releaseDate)}</Card.Description>
       )}

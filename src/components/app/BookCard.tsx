@@ -5,6 +5,7 @@ import CardCreatorCard from "./CardCreatorCard";
 import WishlistButton from "../api/WishlistButton";
 import Link from "./Link";
 import { AuthUser } from "../../../types";
+import ShareButton from "./ShareButton";
 
 type BookCardProps = {
   book: Book;
@@ -45,7 +46,7 @@ const BookCard = ({
         />
       </Link>
       <Card.Body>
-        <div class="flex items-center justify-between">
+        <div class="flex items-start justify-between">
           <div>
             <Link href={`/books/${book.slug}`}>
               <Card.Title>{book.title}</Card.Title>
@@ -56,8 +57,9 @@ const BookCard = ({
               </Card.Text>
             )}
           </div>
-          <div class="flex items-start self-start">
+          <div class="flex items-center gap-2">
             <WishlistButton isCircleButton book={book} user={user} />
+            <ShareButton isCircleButton />
           </div>
         </div>
         <div class="flex flex-col gap-2">

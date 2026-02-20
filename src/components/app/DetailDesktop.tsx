@@ -12,6 +12,7 @@ import AvailabilityBadge from "./AvailabilityBadge";
 import Button from "./Button";
 import PurchaseLink from "./PurchaseLink";
 import { formatDate } from "../../utils";
+import ShareButton from "./ShareButton";
 
 type DetailProps = {
   galleryImages: string[];
@@ -35,16 +36,20 @@ const DetailDesktop = ({
           <Carousel images={galleryImages} />
         </div>
         <div class="w-1/2">
-          <div class="mb-4">
-            <div class="text-2xl font-bold">{book.title}</div>
-            <div class="text-lg font-medium">
-              <Link href={`/creators/${book.artist?.slug}`}>
-                {book.artist?.displayName}
-              </Link>
-            </div>
+          <div class="mb-4 flex flex-col gap-2">
+            <Card.Title>{book.title}</Card.Title>
+            {book.artist && (
+              <CardCreatorCard creatorType="artist" book={book} />
+            )}
+            {/* {book.publisher && (
+              <CardCreatorCard creatorType="publisher" book={book} />
+            )} */}
           </div>
           <div class="flex flex-col gap-4">
-            <WishlistButton book={book} user={user} />
+            <div class="flex gap-2">
+              <WishlistButton book={book} user={user} />
+              <ShareButton />
+            </div>
             {book.releaseDate && (
               <Card.Description>
                 {formatDate(book.releaseDate)}

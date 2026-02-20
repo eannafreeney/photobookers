@@ -13,8 +13,8 @@ import { createStubCreatorProfile } from "../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "tisbooks-books.csv";
-const AMOUNT_OF_BOOKS = 15;
+const SOURCE_CSV_FILE = "pvk.csv";
+const AMOUNT_OF_BOOKS = 10;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -105,7 +105,7 @@ async function main() {
   let skipped = 0;
   let errors = 0;
 
-  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+  for (let rowIndex = 0; rowIndex < AMOUNT_OF_BOOKS; rowIndex++) {
     const row = rows[rowIndex];
     const title = row.title?.trim();
     if (!title) {
