@@ -148,3 +148,12 @@ export const bookFormSchema = z.object({
     )
     .default("available"),
 });
+
+// ============ BOOK OF THE DAY FORM SCHEMA ============
+export const bookOfTheDayFormSchema = z.object({
+  date: z.coerce.date(),
+  text: z
+    .string()
+    .min(1, "Text is required")
+    .max(200, "Text must be less than 200 characters"),
+});

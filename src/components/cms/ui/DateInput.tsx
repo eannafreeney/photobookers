@@ -18,7 +18,10 @@ const DateInput = ({
   return (
     <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
       <InputLabel label={label} name={name} required={required} />
-      <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
+      <label
+        x-on:click="$el.querySelector('input[type=date]')?.showPicker?.()"
+        class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary"
+      >
         {getInputIcon("date")}
         <input
           id={name}

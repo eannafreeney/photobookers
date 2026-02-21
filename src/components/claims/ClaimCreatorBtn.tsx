@@ -50,35 +50,6 @@ const ClaimCreatorBtn = async ({
 
 export default ClaimCreatorBtn;
 
-const Button = ({
-  isCircleButton,
-  isDisabled = false,
-}: {
-  isCircleButton: boolean;
-  isDisabled: boolean;
-}) => {
-  if (isCircleButton) {
-    return (
-      <button
-        class="cursor-pointer disabled:opacity-50"
-        disabled={isDisabled}
-        title="Claim Creator Profile"
-      >
-        {claimIcon}
-      </button>
-    );
-  }
-
-  return (
-    <button
-      class="flex cursor-pointer items-center justify-center gap-2 hover:cursor-pointer w-full disabled:opacity-50"
-      disabled={isDisabled}
-    >
-      Clain
-    </button>
-  );
-};
-
 const claimIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"

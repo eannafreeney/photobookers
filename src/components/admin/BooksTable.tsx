@@ -1,5 +1,5 @@
 import { useUser } from "../../contexts/UserContext";
-import { Book, Creator } from "../../db/schema";
+import { Book, BookOfTheDay, Creator } from "../../db/schema";
 import ErrorPage from "../../pages/error/errorPage";
 import { getAllBooksAdmin } from "../../services/admin";
 import { capitalize, formatDate } from "../../utils";
@@ -29,6 +29,12 @@ const BooksTable = async ({ searchQuery, currentPage, currentPath }: Props) => {
 
   const targetId = "books-table-body";
 
+  const tableAttrs = {
+    "x-init": "true",
+    "@ajax:before": "$dispatch('dialog:open')",
+    "book-of-the-day:updated.window": "$ajax('/dashboard/admin/books')",
+  };
+
   return (
     <div class="flex flex-col gap-8">
       <SectionTitle>Books</SectionTitle>
@@ -39,7 +45,7 @@ const BooksTable = async ({ searchQuery, currentPage, currentPath }: Props) => {
           placeholder="Filter books..."
         />
       </div>
-      <Table id="books-table">
+      <Table id="books-table" {...tableAttrs}>
         <Table.Head>
           <tr>
             <th>Title</th>
@@ -70,7 +76,11 @@ const BooksTable = async ({ searchQuery, currentPage, currentPath }: Props) => {
 export default BooksTable;
 
 type BooksTableRowProps = {
-  book: Book & { artist: Creator; publisher: Creator };
+  book: Book & {
+    artist: Creator;
+    publisher: Creator;
+    bookOfTheDayEntry: BookOfTheDay;
+  };
 };
 
 const BooksTableRow = ({ book }: BooksTableRowProps) => {
@@ -101,6 +111,21 @@ const BooksTableRow = ({ book }: BooksTableRowProps) => {
         )}
       </td>
       <td>{formatDate(book.createdAt ?? new Date())}</td>
+      <td>
+        {book.bookOfTheDayEntry ? (
+          <p>{formatDate(book.bookOfTheDayEntry.date)}</p>
+        ) : (
+          <a
+            href={`/dashboard/admin/book-of-the-day/${book.id}`}
+            x-target="modal-root"
+          >
+            <Button variant="outline" color="primary">
+              <span>Schedule</span>
+            </Button>
+          </a>
+        )}
+      </td>
+
       <td>
         <PreviewButton book={book} user={user} />
       </td>

@@ -287,6 +287,7 @@ export const getBookById = async (bookId: string) => {
       where: eq(books.id, bookId),
       with: {
         publisher: true,
+        artist: true,
         images: {
           orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
         },

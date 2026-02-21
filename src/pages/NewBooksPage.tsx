@@ -14,7 +14,11 @@ import AppLayout from "../components/layouts/AppLayout";
 import FeatureGuard from "../components/layouts/FeatureGuard";
 import NavTabs from "../components/layouts/NavTabs";
 import Page from "../components/layouts/Page";
-import { Book } from "../db/schema";
+import { Book, BookOfTheDay } from "../db/schema";
+import {
+  BookOfTheDayWithBook,
+  getTodaysBookOfTheDay,
+} from "../services/bookOfTheDay";
 import { getNewBooks } from "../services/books";
 import { formatDate } from "../utils";
 import ErrorPage from "./error/errorPage";
@@ -34,23 +38,11 @@ const NewBooksPage = async ({
   currentPage,
   isMobile,
 }: Props) => {
-  const result = await getNewBooks(currentPage, 20);
-
-  if (!result?.books) {
-    return <ErrorPage errorMessage="No featured books found" />;
-  }
-
-  const { books } = result;
-
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <SectionTitle>{star} Book of the Day</SectionTitle>
-        <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-end">
-          <BookOfTheDayCard isMobile={isMobile} book={books[8]} user={user} />
-          <MailingListSignup className="col-span-2" />
-        </div>
+        <FeaturedBooksGrid user={user} isMobile={isMobile} />
         <FeatureGuard flagName="featured-books">
           {/* <SectionTitle>New & Notable</SectionTitle>
           <GridPanel isFullWidth>
@@ -70,6 +62,34 @@ const NewBooksPage = async ({
 };
 
 export default NewBooksPage;
+
+const FeaturedBooksGrid = async ({
+  user,
+  isMobile,
+}: {
+  user: AuthUser | null;
+  isMobile: boolean;
+}) => {
+  const bookOfTheDay = await getTodaysBookOfTheDay();
+
+  if (!bookOfTheDay) {
+    return <></>;
+  }
+
+  return (
+    <>
+      <SectionTitle>{star} Book of the Day</SectionTitle>
+      <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-end">
+        <BookOfTheDayCard
+          isMobile={isMobile}
+          bookOfTheDay={bookOfTheDay}
+          user={user}
+        />
+        <MailingListSignup className="col-span-2" />
+      </div>
+    </>
+  );
+};
 
 const NewBooksGrid = async ({
   user,
@@ -110,15 +130,17 @@ const NewBooksGrid = async ({
 
 const BookOfTheDayCard = ({
   isMobile,
-  book,
+  bookOfTheDay,
   user,
   currentCreatorId,
 }: {
   isMobile: boolean;
-  book: Book;
+  bookOfTheDay: BookOfTheDayWithBook;
   user: AuthUser | null;
   currentCreatorId?: string | null;
 }) => {
+  const { book } = bookOfTheDay;
+
   if (isMobile) {
     return (
       <Card className="col-span-full">
@@ -135,7 +157,7 @@ const BookOfTheDayCard = ({
                 <Card.Title>{book.title}</Card.Title>
               </Link>
               <Card.Text>
-                {book.releaseDate && formatDate(book.releaseDate)}
+                {bookOfTheDay?.date && formatDate(bookOfTheDay.date)}
               </Card.Text>
             </div>
             <div class="flex items-center gap-2">
@@ -151,18 +173,13 @@ const BookOfTheDayCard = ({
               <CardCreatorCard book={book} creatorType="publisher" />
             )}
           </div>
-          <Card.Intro>
-            Reissued for the first time in pocket format, the the Atlas des
-            Régions Naturelles Vol.3 as its name suggests, the second volume of
-            a singular photographic adventure, as much for its size as for its
-            duration.
-          </Card.Intro>
+          <Card.Intro>{bookOfTheDay?.text}</Card.Intro>
           <Card.Tags tags={book.tags ?? []} />
-          <Link href={`/books/${book.slug}`}>
-            <span class="text-xs font-medium tracking-wide text-on-surface-weak italic hover:underline items-end">
+          <a href={`/books/${book.slug}`} class="self-end">
+            <span class="text-xs font-medium tracking-wide text-on-surface-weak italic hover:underline">
               See More
             </span>
-          </Link>
+          </a>
         </Card.Body>
       </Card>
     );
@@ -182,7 +199,9 @@ const BookOfTheDayCard = ({
         <div class="flex-1 min-w-0">
           <Card.Body gap="4">
             <div class="flex flex-col gap-2">
-              <Card.Text>Jan 11, 2018</Card.Text>
+              <Card.Text>
+                {bookOfTheDay?.date && formatDate(bookOfTheDay.date)}
+              </Card.Text>
               <Link href={`/books/${book.slug}`}>
                 <h3 class="text-balance text-2xl font-bold text-on-surface-strong">
                   {book.title}
@@ -197,14 +216,7 @@ const BookOfTheDayCard = ({
                 <CardCreatorCard book={book} creatorType="publisher" />
               )}
             </div>
-            <Card.Intro>
-              Reissued for the first time in pocket format, the the Atlas des
-              Régions Naturelles Vol.3 as its name suggests, the second volume
-              of a singular photographic adventure, as much for its size as for
-              its duration. Launched six years ago, its objective is to
-              document, in equal measure, the 450 natural regions or ‘lands’
-              constituting the territory of France.
-            </Card.Intro>
+            <Card.Intro>{bookOfTheDay?.text}</Card.Intro>
             <Card.Tags tags={book.tags ?? []} />
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">

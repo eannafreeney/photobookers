@@ -21,6 +21,7 @@ import CreatorFormAdmin from "../components/admin/CreatorFormAdmin";
 import {
   bookFormSchema,
   bookIdSchema,
+  bookOfTheDayFormSchema,
   creatorFormAdminSchema,
   creatorIdSchema,
 } from "../schemas";
@@ -44,6 +45,12 @@ import {
 } from "../services/books";
 import { BookFormAdmin } from "../components/admin/BookFormAdmin";
 import EditBookFormAdmin from "../components/admin/EditBookFormAdmin";
+import { UserProvider } from "../contexts/UserContext";
+import Modal from "../components/app/Modal";
+import Input from "../components/cms/ui/Input";
+import DateInput from "../components/cms/ui/DateInput";
+import Button from "../components/app/Button";
+import { setBookOfTheDay } from "../services/bookOfTheDay";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -373,6 +380,7 @@ adminDashboardRoutes.post(
   requireAdminAccess,
   async (c) => {
     const bookId = c.req.valid("param").bookId;
+    const user = await getUser(c);
     const book = await getBookById(bookId);
     if (!book) {
       return showErrorAlert(c, "Book not found");
@@ -382,10 +390,83 @@ adminDashboardRoutes.post(
       return showErrorAlert(c, "Failed to delete book");
     }
     return c.html(
-      <>
-        <Alert type="success" message={`${deletedBook.title} deleted!`} />
-        <BooksTable searchQuery={undefined} />
-      </>,
+      <Alert type="success" message={`${deletedBook.title} deleted!`} />,
     );
+  },
+);
+
+adminDashboardRoutes.get(
+  "/book-of-the-day/:bookId",
+  paramValidator(bookIdSchema),
+  requireAdminAccess,
+  async (c) => {
+    const bookId = c.req.param("bookId");
+    const book = await getBookById(bookId);
+    if (!book) {
+      return showErrorAlert(c, "Book not found");
+    }
+    const alpineAttrs = {
+      "x-data": "bookOfTheDayForm",
+      "x-target": "true",
+      "@ajax:after":
+        "$dispatch('dialog:close'); $dispatch('book-of-the-day:updated.window'); isSubmitting = false",
+    };
+    return c.html(
+      <Modal>
+        <div class="flex flex-col gap-4 p-2">
+          <h2>Set Book of the Day</h2>
+          <p>{book.title}</p>
+          <p>{book.artist?.displayName}</p>
+          <p>{book.publisher?.displayName}</p>
+        </div>
+        <form
+          id="book-of-the-day"
+          {...alpineAttrs}
+          // x-target
+          method="post"
+          action={`/dashboard/admin/book-of-the-day/${bookId}`}
+        >
+          <div>
+            <DateInput label="Date" name="form.date" required />
+            <Input
+              label="Text"
+              name="form.text"
+              type="text"
+              required
+              maxLength={200}
+            />
+          </div>
+          <Button variant="solid" color="primary" type="submit">
+            Schedule
+          </Button>
+        </form>
+      </Modal>,
+    );
+  },
+);
+
+adminDashboardRoutes.post(
+  "/book-of-the-day/:bookId",
+  formValidator(bookOfTheDayFormSchema),
+  paramValidator(bookIdSchema),
+  requireAdminAccess,
+  async (c) => {
+    const formData = c.req.valid("form");
+    const bookId = c.req.valid("param").bookId;
+
+    const bookOfTheDay = await setBookOfTheDay({
+      date: formData.date,
+      bookId: bookId,
+      text: formData.text,
+    });
+    if (!bookOfTheDay) {
+      return showErrorAlert(c, "Failed to set book of the day");
+    }
+    await setFlash(
+      c,
+      "success",
+      `Scheduled ${formData.date.toLocaleDateString()}!`,
+    );
+    return c.redirect(`/dashboard/admin/books`);
   },
 );

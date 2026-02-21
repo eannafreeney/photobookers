@@ -5,10 +5,14 @@ type Props = PropsWithChildren<{
   id?: string;
 }>;
 
-const Table = ({ children, id }: Props) => {
+const Table = ({ children, id, ...props }: Props) => {
   return (
     <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
-      <table id={id} class="w-full text-left text-sm text-on-surface">
+      <table
+        id={id}
+        class="w-full text-left text-sm text-on-surface"
+        {...props}
+      >
         {children}
       </table>
     </div>

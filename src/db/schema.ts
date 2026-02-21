@@ -167,6 +167,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   images: many(bookImages),
   wishlists: many(wishlists),
   collections: many(collectionItems),
+  bookOfTheDayEntry: one(bookOfTheDay),
 }));
 
 export const follows = pgTable(
@@ -326,6 +327,33 @@ export const wishlistsRelations = relations(wishlists, ({ one }) => ({
   }),
 }));
 
+// Add to imports at top if not already there - you have timestamp, uuid, text, unique
+
+export const bookOfTheDay = pgTable(
+  "book_of_the_day",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    date: timestamp("date", { mode: "date" }).notNull(),
+    bookId: uuid("book_id")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueDate: unique("book_of_the_day_date_unique").on(table.date),
+    uniqueBook: unique("book_of_the_day_book_unique").on(table.bookId),
+  }),
+);
+
+export const bookOfTheDayRelations = relations(bookOfTheDay, ({ one }) => ({
+  book: one(books, {
+    fields: [bookOfTheDay.bookId],
+    references: [books.id],
+  }),
+}));
+
 // Infer types from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -367,3 +395,6 @@ export type BookPublicationStatus =
 export type BookAvailabilityStatus =
   (typeof bookAvailabilityStatusEnum.enumValues)[number];
 export type CreatorStatus = (typeof creatorStatusEnum.enumValues)[number];
+
+export type BookOfTheDay = InferSelectModel<typeof bookOfTheDay>;
+export type NewBookOfTheDay = InferInsertModel<typeof bookOfTheDay>;
