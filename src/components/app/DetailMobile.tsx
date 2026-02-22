@@ -10,6 +10,8 @@ import CardCreatorCard from "./CardCreatorCard";
 import AvailabilityBadge from "./AvailabilityBadge";
 import PurchaseLink from "./PurchaseLink";
 import ShareButton from "./ShareButton";
+import Button from "./Button";
+import { canEditBook } from "../../lib/permissions";
 
 type DetailProps = {
   galleryImages: string[];
@@ -30,7 +32,9 @@ const DetailMobile = ({
     <div class="flex flex-col gap-4 ">
       <CarouselMobile images={galleryImages} />
       <div class="flex flex-col gap-2">
-        <Card.Title>{book.title}</Card.Title>
+        <h3 class="text-balance text-xl font-semibold text-on-surface-strong">
+          {book.title}
+        </h3>
         {book.artist && <CardCreatorCard creatorType="artist" book={book} />}
         {book.publisher && (
           <CardCreatorCard creatorType="publisher" book={book} />
@@ -49,19 +53,28 @@ const DetailMobile = ({
       <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
       <PurchaseLink purchaseLink={book.purchaseLink} />
       <TagList tags={book.tags ?? []} />
-      <CreatorCard
-        creator={book.artist}
-        currentPath={currentPath}
-        orientation={orientation}
-        user={user}
-      />
-      <CreatorCard
-        creator={book.publisher}
-        currentPath={currentPath}
-        title="Publisher"
-        orientation={orientation}
-        user={user}
-      />
+      {canEditBook(user, book) && (
+        <a href={`/dashboard/admin/books/edit/${book.id}`}>
+          <Button variant="outline" color="secondary" width="sm">
+            Edit
+          </Button>
+        </a>
+      )}
+      <div class="flex flex-col sm:items-center gap-2">
+        <CreatorCard
+          creator={book.artist}
+          currentPath={currentPath}
+          orientation={orientation}
+          user={user}
+        />
+        <CreatorCard
+          creator={book.publisher}
+          currentPath={currentPath}
+          title="Publisher"
+          orientation={orientation}
+          user={user}
+        />
+      </div>
     </div>
   );
 };

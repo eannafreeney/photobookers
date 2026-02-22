@@ -1,5 +1,6 @@
 import { AuthUser, Flash } from "../../types";
 import WishlistButton from "../components/api/WishlistButton";
+import Badge from "../components/app/Badge";
 import BookCard from "../components/app/BookCard";
 import Button from "../components/app/Button";
 import Card from "../components/app/Card";
@@ -14,19 +15,13 @@ import AppLayout from "../components/layouts/AppLayout";
 import FeatureGuard from "../components/layouts/FeatureGuard";
 import NavTabs from "../components/layouts/NavTabs";
 import Page from "../components/layouts/Page";
-import { Book, BookOfTheDay, bookOfTheWeek } from "../db/schema";
-import {
-  BookOfTheDayWithBook,
-  getTodaysBookOfTheDay,
-} from "../services/bookOfTheDay";
+import { DISCOVER_TAGS } from "../constants/discover";
 import {
   BookOfTheWeekWithBook,
   getThisWeeksBookOfTheWeek,
-  getTodaysBookOfTheWeek,
 } from "../services/bookOfTheWeek";
 import { getNewBooks } from "../services/books";
-import { formatDate } from "../utils";
-import ErrorPage from "./error/errorPage";
+import { capitalize, formatDate } from "../utils";
 
 type Props = {
   user: AuthUser | null;
@@ -47,7 +42,7 @@ const NewBooksPage = async ({
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <FeaturedBooksGrid user={user} isMobile={isMobile} />
+        <BookOfTheWeek user={user} isMobile={isMobile} />
         <FeatureGuard flagName="featured-books">
           {/* <SectionTitle>New & Notable</SectionTitle>
           <GridPanel isFullWidth>
@@ -56,6 +51,7 @@ const NewBooksPage = async ({
             ))}
           </GridPanel> */}
         </FeatureGuard>
+        <Discover />
         <NewBooksGrid
           user={user}
           currentPath={currentPath}
@@ -68,7 +64,22 @@ const NewBooksPage = async ({
 
 export default NewBooksPage;
 
-const FeaturedBooksGrid = async ({
+const Discover = () => {
+  return (
+    <>
+      <SectionTitle>Discover</SectionTitle>
+      <div class="flex flex-wrap items-center gap-2">
+        {DISCOVER_TAGS.map((tag) => (
+          <Link key={tag} href={`/books/tags/${tag.toLowerCase()}`}>
+            <Badge>{capitalize(tag)}</Badge>
+          </Link>
+        ))}
+      </div>
+    </>
+  );
+};
+
+const BookOfTheWeek = async ({
   user,
   isMobile,
 }: {

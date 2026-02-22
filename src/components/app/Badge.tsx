@@ -1,6 +1,6 @@
 type Props = {
   children: string;
-  variant:
+  variant?:
     | "success"
     | "warning"
     | "danger"
@@ -11,7 +11,7 @@ type Props = {
     | "secondary";
 };
 
-const Badge = ({ children, variant }: Props) => {
+const Badge = ({ children, variant = "default" }: Props) => {
   const badgeVariants = {
     default: "border-outline text-on-surface",
     inverse: "border-outline-dark text-on-surface",
@@ -36,7 +36,7 @@ const Badge = ({ children, variant }: Props) => {
 
   return (
     <span
-      class={`w-fit inline-flex overflow-hidden rounded-radius border bg-surface text-xs font-medium text-on-surface ${badgeVariants[variant]} `}
+      class={`w-fit inline-flex overflow-hidden rounded-radius border bg-surface text-sm font-medium text-on-surface ${badgeVariants[variant]} `}
     >
       <span class={`px-2 py-1 ${badgeInnerVariants[variant]} `}>
         {children}

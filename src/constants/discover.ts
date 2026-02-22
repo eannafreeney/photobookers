@@ -1,0 +1,18 @@
+export const DISCOVER_TAGS = [
+  "urban",
+  "architecture",
+  "landscape",
+  "america",
+  "europe",
+  "asia",
+  "africa",
+  "oceania",
+  "france",
+  "germany",
+  "italy",
+  "spain",
+  "street",
+  "still life",
+  "portraits",
+  "nature",
+];

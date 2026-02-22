@@ -393,3 +393,51 @@ export const generateClaimEmail = async (
         <p><small>This code expires in 7 days. If you need a new code, please submit a new claim.</small></p>
       `;
 };
+
+export const getAllCreatorsByType = async (
+  type: "artist" | "publisher",
+  currentPage: number = 1,
+  defaultLimit = 50,
+) => {
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(creators)
+      .where(eq(creators.type, type));
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+    const foundCreators = await db.query.creators.findMany({
+      where: eq(creators.type, type),
+      orderBy: (creators, { asc }) => [asc(creators.displayName)],
+      limit,
+      offset,
+      with: {
+        booksAsArtist: {
+          where: eq(books.publicationStatus, "published"),
+        },
+        booksAsPublisher: {
+          where: eq(books.publicationStatus, "published"),
+        },
+      },
+    });
+
+    const creatorsWithBooks = foundCreators
+      .filter(
+        (creator) =>
+          creator.booksAsArtist.length + creator.booksAsPublisher.length >= 1,
+      )
+      .map((creator) => ({
+        ...creator,
+        books: creator.booksAsArtist.length + creator.booksAsPublisher.length,
+      }));
+
+    return { creators: creatorsWithBooks, totalPages, page };
+  } catch (error) {
+    console.error("Failed to get all creators by type", error);
+    return { creators: [], totalPages: 0, page: 1 };
+  }
+};

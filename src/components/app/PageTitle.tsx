@@ -1,14 +1,18 @@
 import { Creator } from "../../db/schema";
 import Avatar from "./Avatar";
+import Button from "./Button";
 import VerifiedCreator from "./VerifiedCreator";
+import { AuthUser } from "../../../types";
+import { canEditCreator } from "../../lib/permissions";
 
 type PageTitleProps = {
   title?: string;
   creator?: Creator;
-  isMobile?: boolean;
+  user?: AuthUser | null;
 };
 
-const PageTitle = ({ title, creator, isMobile }: PageTitleProps) => {
+const PageTitle = ({ title, creator, user }: PageTitleProps) => {
+  const canEdit = user && creator ? canEditCreator(user, creator) : false;
   return (
     <div class="flex items-center gap-4 mb-0">
       {creator?.coverUrl && (
@@ -34,6 +38,13 @@ const PageTitle = ({ title, creator, isMobile }: PageTitleProps) => {
           {creator?.country ?? ""}
         </div>
       </div>
+      {canEdit && (
+        <a href={`/dashboard/creators/edit/${creator?.id}`}>
+          <Button variant="outline" color="secondary" width="sm">
+            Edit
+          </Button>
+        </a>
+      )}
     </div>
   );
 };

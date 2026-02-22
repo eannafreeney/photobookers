@@ -22,8 +22,6 @@ const BookOfTheWeekForm = ({ book, formValues, isEditMode }: Props) => {
     "x-target.error": "book-of-the-week-errors",
   };
 
-  console.log("formValues", formValues);
-
   return (
     <>
       <Card>

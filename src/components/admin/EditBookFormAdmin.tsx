@@ -34,9 +34,6 @@ const EditBookFormAdmin = async ({ user, bookId, flash }: Props) => {
       : "",
   };
 
-  console.log("book", book);
-  console.log("formValues", formValues);
-
   return (
     <AppLayout title="Edit Book" user={user} flash={flash}>
       <Page>
