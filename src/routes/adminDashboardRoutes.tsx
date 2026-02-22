@@ -22,6 +22,7 @@ import {
   bookFormSchema,
   bookIdSchema,
   bookOfTheDayFormSchema,
+  bookOfTheWeekFormSchema,
   creatorFormAdminSchema,
   creatorIdSchema,
 } from "../schemas";
@@ -51,6 +52,13 @@ import Input from "../components/cms/ui/Input";
 import DateInput from "../components/cms/ui/DateInput";
 import Button from "../components/app/Button";
 import { setBookOfTheDay } from "../services/bookOfTheDay";
+import BookOfTheDayForm from "../components/admin/BookOfTheDayForm";
+import BookOfTheWeekForm from "../components/admin/BookOfTheWeekForm";
+import {
+  deleteBookOfTheWeekByIdAdmin,
+  setBookOfTheWeek,
+} from "../services/bookOfTheWeek";
+import { toWeekString } from "../lib/utils";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -395,8 +403,71 @@ adminDashboardRoutes.post(
   },
 );
 
+// adminDashboardRoutes.get(
+//   "/book-of-the-day/:bookId",
+//   paramValidator(bookIdSchema),
+//   requireAdminAccess,
+//   async (c) => {
+//     const bookId = c.req.param("bookId");
+//     const book = await getBookById(bookId);
+//     if (!book) {
+//       return showErrorAlert(c, "Book not found");
+//     }
+
+//     return c.html(
+//       <Modal title="Set Book of the Day">
+//         <BookOfTheDayForm book={book} />
+//       </Modal>,
+//     );
+//   },
+// );
+
+// adminDashboardRoutes.post(
+//   "/book-of-the-day/:bookId",
+//   formValidator(bookOfTheDayFormSchema),
+//   paramValidator(bookIdSchema),
+//   requireAdminAccess,
+//   async (c) => {
+//     const formData = c.req.valid("form");
+//     const bookId = c.req.valid("param").bookId;
+
+//     const bookOfTheDay = await setBookOfTheDay({
+//       date: formData.date,
+//       bookId: bookId,
+//       text: formData.text,
+//     });
+
+//     const book = await getBookById(bookId);
+//     if (!book) return showErrorAlert(c, "Book not found");
+
+//     if (!bookOfTheDay) {
+//       return c.html(
+//         <div
+//           id="book-of-the-day-errors"
+//           class="text-danger text-xs my-2"
+//           role="alert"
+//         >
+//           That date already has a book of the day, or this book is already
+//           chosen for another date.
+//         </div>,
+
+//         422,
+//       );
+//     }
+
+//     return c.html(
+//       <>
+//         <Alert type="success" message="Book of the Day set!" />
+//         <div id="server_events">
+//           <div x-init="$dispatch('book-of-the-day:updated')"></div>
+//         </div>
+//       </>,
+//     );
+//   },
+// );
+
 adminDashboardRoutes.get(
-  "/book-of-the-day/:bookId",
+  "/book-of-the-week/edit/:bookId",
   paramValidator(bookIdSchema),
   requireAdminAccess,
   async (c) => {
@@ -405,68 +476,98 @@ adminDashboardRoutes.get(
     if (!book) {
       return showErrorAlert(c, "Book not found");
     }
-    const alpineAttrs = {
-      "x-data": "bookOfTheDayForm",
-      "x-target": "true",
-      "@ajax:after":
-        "$dispatch('dialog:close'); $dispatch('book-of-the-day:updated.window'); isSubmitting = false",
+
+    const formValues = {
+      weekStart: book.bookOfTheWeekEntry?.weekStart
+        ? toWeekString(book.bookOfTheWeekEntry?.weekStart)
+        : "",
+      text: book.bookOfTheWeekEntry?.text,
     };
+
     return c.html(
-      <Modal>
-        <div class="flex flex-col gap-4 p-2">
-          <h2>Set Book of the Day</h2>
-          <p>{book.title}</p>
-          <p>{book.artist?.displayName}</p>
-          <p>{book.publisher?.displayName}</p>
-        </div>
-        <form
-          id="book-of-the-day"
-          {...alpineAttrs}
-          // x-target
-          method="post"
-          action={`/dashboard/admin/book-of-the-day/${bookId}`}
-        >
-          <div>
-            <DateInput label="Date" name="form.date" required />
-            <Input
-              label="Text"
-              name="form.text"
-              type="text"
-              required
-              maxLength={200}
-            />
-          </div>
-          <Button variant="solid" color="primary" type="submit">
-            Schedule
-          </Button>
-        </form>
+      <Modal title="Edit Book of the Week">
+        <BookOfTheWeekForm book={book} formValues={formValues} isEditMode />
+      </Modal>,
+    );
+  },
+);
+
+adminDashboardRoutes.get(
+  "/book-of-the-week/:bookId",
+  paramValidator(bookIdSchema),
+  requireAdminAccess,
+  async (c) => {
+    const bookId = c.req.param("bookId");
+    const book = await getBookById(bookId);
+    if (!book) {
+      return showErrorAlert(c, "Book not found");
+    }
+
+    return c.html(
+      <Modal title="Set Book of the Week">
+        <BookOfTheWeekForm book={book} />
       </Modal>,
     );
   },
 );
 
 adminDashboardRoutes.post(
-  "/book-of-the-day/:bookId",
-  formValidator(bookOfTheDayFormSchema),
+  "/book-of-the-week/:bookId",
+  formValidator(bookOfTheWeekFormSchema),
   paramValidator(bookIdSchema),
   requireAdminAccess,
   async (c) => {
     const formData = c.req.valid("form");
     const bookId = c.req.valid("param").bookId;
 
-    const bookOfTheDay = await setBookOfTheDay({
-      date: formData.date,
+    const bookOfTheWeek = await setBookOfTheWeek({
+      weekStart: formData.weekStart,
       bookId: bookId,
       text: formData.text,
     });
-    if (!bookOfTheDay) {
-      return showErrorAlert(c, "Failed to set book of the day");
+
+    const book = await getBookById(bookId);
+    if (!book) return showErrorAlert(c, "Book not found");
+
+    if (!bookOfTheWeek) {
+      return c.html(
+        <div id="book-of-the-week-errors" class="text-danger text-xs my-2">
+          That week already has a book assigned, or this book is already chosen
+          for another week.
+        </div>,
+        422,
+      );
     }
-    await setFlash(
-      c,
-      "success",
-      `Scheduled ${formData.date.toLocaleDateString()}!`,
+
+    return c.html(
+      <>
+        <Alert type="success" message="Book of the Week set!" />
+        <div id="server_events">
+          <div x-init="$dispatch('book-of-the-week:updated')"></div>
+        </div>
+      </>,
     );
-    return c.redirect(`/dashboard/admin/books`);
+  },
+);
+
+adminDashboardRoutes.post(
+  "/book-of-the-week/delete/:bookId",
+  paramValidator(bookIdSchema),
+  requireAdminAccess,
+  async (c) => {
+    const bookId = c.req.valid("param").bookId;
+    const book = await getBookById(bookId);
+    if (!book) return showErrorAlert(c, "Book not found");
+    const deletedBookOfTheWeek = await deleteBookOfTheWeekByIdAdmin(bookId);
+    if (!deletedBookOfTheWeek)
+      return showErrorAlert(c, "Failed to delete book of the week");
+    return c.html(
+      <>
+        <Alert type="success" message="Book of the Week deleted!" />
+        <div id="server_events">
+          <div x-init="$dispatch('book-of-the-week:updated')"></div>
+        </div>
+      </>,
+    );
   },
 );

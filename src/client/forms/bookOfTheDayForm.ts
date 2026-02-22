@@ -1,20 +1,19 @@
 import Alpine from "alpinejs";
-import { bookFormSchema, bookOfTheDayFormSchema } from "../../schemas";
+import { bookOfTheDayFormSchema } from "../../schemas";
 import z from "zod";
 import {
   createFormState,
   getIsDirty,
   handleSubmit,
   initFormValues,
-  resetFormBaseline,
   validateField,
 } from "./formUtils";
 
-type BookOfTheDayFormData = z.infer<typeof bookOfTheDayFormSchema>;
+export type BookOfTheDayFormData = z.infer<typeof bookOfTheDayFormSchema>;
 
 const BOOK_OF_THE_DAY_FORM_FIELDS = Object.keys(bookOfTheDayFormSchema.shape);
 
-export function registerBookForm() {
+export function registerBookOfTheDayForm() {
   Alpine.data("bookOfTheDayForm", () => {
     return {
       isSubmitting: false,

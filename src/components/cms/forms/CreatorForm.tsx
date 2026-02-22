@@ -4,6 +4,7 @@ import CountrySelect from "../ui/CountrySelect";
 import TextArea from "../ui/TextArea";
 import SectionTitle from "../../app/SectionTitle";
 import { capitalize } from "../../../utils";
+import { useUser } from "../../../contexts/UserContext";
 
 type Props = {
   formValues?: string;
@@ -12,6 +13,9 @@ type Props = {
 };
 
 const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
+  const user = useUser();
+  const isAdmin = user?.isAdmin ?? false;
+
   const action = creatorId
     ? `/dashboard/creators/edit/${creatorId}`
     : "/dashboard/creators/new";
@@ -49,10 +53,15 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
             name="form.bio"
             validateInput="validateField('bio')"
             maxLength={1000}
-            required
+            required={!isAdmin}
           />
-          <Input label="City" name="form.city" maxLength={50} required />
-          <CountrySelect />
+          <Input
+            label="City"
+            name="form.city"
+            maxLength={50}
+            required={!isAdmin}
+          />
+          <CountrySelect required={!isAdmin} />
           <Input
             label="Website"
             name="form.website"

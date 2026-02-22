@@ -27,13 +27,13 @@ const TableHead = ({ children }: { children: ChildType }) => (
 
 const TableBody = ({
   children,
-  props,
   id,
+  ...props
 }: PropsWithChildren<{
   id?: string;
   props?: PropsWithChildren;
 }>) => (
-  <tbody id={id} class="divide-y divide-outline" {...props} x-merge="append">
+  <tbody id={id} class="divide-y divide-outline" x-merge="append" {...props}>
     {children}
   </tbody>
 );

@@ -1,7 +1,7 @@
 import { fadeTransition } from "../../../lib/transitions";
 import InputLabel from "./InputLabel";
 
-const CountrySelect = () => {
+const CountrySelect = ({ required = false }: { required?: boolean }) => {
   return (
     <div
       x-data="countryForm()"
@@ -20,6 +20,7 @@ const CountrySelect = () => {
             x-model="form.country"
             x-ref="hiddenCountryInput"
             hidden
+            required={required}
           />
           <DropdownList />
         </div>

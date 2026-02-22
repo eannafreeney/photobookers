@@ -1,5 +1,6 @@
 import { AuthUser } from "../../../types";
 import { Book } from "../../db/schema";
+import { previewIcon, viewIcon } from "../../lib/icons";
 import { canPreviewBook } from "../../lib/permissions";
 import Button from "../app/Button";
 import Link from "../app/Link";
@@ -15,11 +16,7 @@ const PreviewButton = ({ book, user }: Props) => {
   if (book.publicationStatus === "published") {
     return (
       <div id={`preview-button-${bookId}`}>
-        <Link href={`/books/${book.slug}`}>
-          <Button variant="outline" color="primary">
-            <span>View</span>
-          </Button>
-        </Link>
+        <Link href={`/books/${book.slug}`}>{viewIcon}</Link>
       </div>
     );
   }
@@ -27,30 +24,12 @@ const PreviewButton = ({ book, user }: Props) => {
   return (
     <div id={`preview-button-${bookId}`}>
       <Link href={`/books/preview/${book.slug}`} target="_blank">
-        <Button
-          variant="outline"
-          color="primary"
-          disabled={!canPreviewBook(user, book)}
-        >
-          <span>Preview</span>
-        </Button>
+        <button class="cursor-pointer" disabled={!canPreviewBook(user, book)}>
+          {previewIcon}
+        </button>
       </Link>
     </div>
   );
-
-  // return (
-  //   <div id={`preview-button-${bookId}`}>
-  //     <Link href={`/books/preview/${book.slug}`} target="_blank">
-  //       <Button
-  //         variant="outline"
-  //         color="primary"
-  //         disabled={!canPreviewBook(user, book)}
-  //       >
-  //         <span>Preview</span>
-  //       </Button>
-  //     </Link>
-  //   </div>
-  // );
 };
 
 export default PreviewButton;

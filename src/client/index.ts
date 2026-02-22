@@ -14,6 +14,8 @@ import { registerRegisterFanForm } from "./forms/registerFanForm";
 import { registerRegisterCreatorForm } from "./forms/registerCreatorForm";
 import { registerCreatorFormAdmin } from "./forms/creatorFormAdmin";
 import { registerBookFormAdmin } from "./forms/bookFormAdmin";
+import { registerBookOfTheDayForm } from "./forms/bookOfTheDayForm";
+import { registerBookOfTheWeekForm } from "./forms/bookOfTheWeekForm";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -32,3 +34,5 @@ registerShareButton();
 registerImageOrientation();
 registerCreatorFormAdmin();
 registerBookFormAdmin();
+registerBookOfTheDayForm();
+registerBookOfTheWeekForm();

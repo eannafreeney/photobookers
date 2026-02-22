@@ -16,7 +16,6 @@ const PageTitle = ({ title, creator, isMobile }: PageTitleProps) => {
           <Avatar
             src={creator.coverUrl ?? ""}
             alt={creator.displayName ?? ""}
-            // size={isMobile ? "md" : "md"}
             size="md"
           />
           <div class="absolute -top-2 -right-2">
@@ -30,7 +29,7 @@ const PageTitle = ({ title, creator, isMobile }: PageTitleProps) => {
         <div class="text-xl md:text-4xl font-medium -mb-1">
           {creator?.displayName ?? title}
         </div>
-        <div class="text-xs text-on-surface-weak flex items-center gap-2">
+        <div class="text-xs text-outline text-on-surface-weak flex items-center gap-2">
           {creator?.city ? `${creator.city}, ` : ""}
           {creator?.country ?? ""}
         </div>

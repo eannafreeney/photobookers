@@ -14,11 +14,16 @@ import AppLayout from "../components/layouts/AppLayout";
 import FeatureGuard from "../components/layouts/FeatureGuard";
 import NavTabs from "../components/layouts/NavTabs";
 import Page from "../components/layouts/Page";
-import { Book, BookOfTheDay } from "../db/schema";
+import { Book, BookOfTheDay, bookOfTheWeek } from "../db/schema";
 import {
   BookOfTheDayWithBook,
   getTodaysBookOfTheDay,
 } from "../services/bookOfTheDay";
+import {
+  BookOfTheWeekWithBook,
+  getThisWeeksBookOfTheWeek,
+  getTodaysBookOfTheWeek,
+} from "../services/bookOfTheWeek";
 import { getNewBooks } from "../services/books";
 import { formatDate } from "../utils";
 import ErrorPage from "./error/errorPage";
@@ -70,19 +75,19 @@ const FeaturedBooksGrid = async ({
   user: AuthUser | null;
   isMobile: boolean;
 }) => {
-  const bookOfTheDay = await getTodaysBookOfTheDay();
+  const bookOfTheWeek = await getThisWeeksBookOfTheWeek();
 
-  if (!bookOfTheDay) {
+  if (!bookOfTheWeek) {
     return <></>;
   }
 
   return (
     <>
-      <SectionTitle>{star} Book of the Day</SectionTitle>
+      <SectionTitle>{star} Book of the Week</SectionTitle>
       <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-end">
-        <BookOfTheDayCard
+        <BookOfTheWeekCard
           isMobile={isMobile}
-          bookOfTheDay={bookOfTheDay}
+          bookOfTheWeek={bookOfTheWeek}
           user={user}
         />
         <MailingListSignup className="col-span-2" />
@@ -112,7 +117,7 @@ const NewBooksGrid = async ({
 
   return (
     <>
-      <SectionTitle>Latest Releases</SectionTitle>
+      <SectionTitle>Latest</SectionTitle>
       <GridPanel isFullWidth id={targetId} xMerge="append">
         {books.map((book) => (
           <BookCard book={book} user={user} showHeader />
@@ -128,18 +133,18 @@ const NewBooksGrid = async ({
   );
 };
 
-const BookOfTheDayCard = ({
+const BookOfTheWeekCard = ({
   isMobile,
-  bookOfTheDay,
+  bookOfTheWeek,
   user,
   currentCreatorId,
 }: {
   isMobile: boolean;
-  bookOfTheDay: BookOfTheDayWithBook;
+  bookOfTheWeek: BookOfTheWeekWithBook;
   user: AuthUser | null;
   currentCreatorId?: string | null;
 }) => {
-  const { book } = bookOfTheDay;
+  const { book } = bookOfTheWeek;
 
   if (isMobile) {
     return (
@@ -157,7 +162,8 @@ const BookOfTheDayCard = ({
                 <Card.Title>{book.title}</Card.Title>
               </Link>
               <Card.Text>
-                {bookOfTheDay?.date && formatDate(bookOfTheDay.date)}
+                {bookOfTheWeek?.weekStart &&
+                  formatDate(bookOfTheWeek.weekStart)}
               </Card.Text>
             </div>
             <div class="flex items-center gap-2">
@@ -173,7 +179,7 @@ const BookOfTheDayCard = ({
               <CardCreatorCard book={book} creatorType="publisher" />
             )}
           </div>
-          <Card.Intro>{bookOfTheDay?.text}</Card.Intro>
+          <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
           <Card.Tags tags={book.tags ?? []} />
           <a href={`/books/${book.slug}`} class="self-end">
             <span class="text-xs font-medium tracking-wide text-on-surface-weak italic hover:underline">
@@ -200,7 +206,8 @@ const BookOfTheDayCard = ({
           <Card.Body gap="4">
             <div class="flex flex-col gap-2">
               <Card.Text>
-                {bookOfTheDay?.date && formatDate(bookOfTheDay.date)}
+                {bookOfTheWeek?.weekStart &&
+                  formatDate(bookOfTheWeek.weekStart)}
               </Card.Text>
               <Link href={`/books/${book.slug}`}>
                 <h3 class="text-balance text-2xl font-bold text-on-surface-strong">
@@ -216,7 +223,7 @@ const BookOfTheDayCard = ({
                 <CardCreatorCard book={book} creatorType="publisher" />
               )}
             </div>
-            <Card.Intro>{bookOfTheDay?.text}</Card.Intro>
+            <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
             <Card.Tags tags={book.tags ?? []} />
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">
