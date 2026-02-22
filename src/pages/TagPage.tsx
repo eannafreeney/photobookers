@@ -14,7 +14,6 @@ import ErrorPage from "./error/errorPage";
 type TagPageProps = {
   user: AuthUser | null;
   tag: string;
-  isMobile: boolean;
   currentPath: string;
   currentPage: number;
 };
@@ -22,14 +21,14 @@ type TagPageProps = {
 const TagPage = async ({
   user,
   tag,
-  isMobile,
   currentPath,
   currentPage,
 }: TagPageProps) => {
   const result = await getBooksByTag(tag, currentPage);
+  console.log("result", result);
 
-  if (!result?.books) {
-    return <ErrorPage errorMessage="No featured books found" user={user} />;
+  if (!result?.books.length) {
+    return <ErrorPage errorMessage="No books found for this tag" user={user} />;
   }
 
   const targetId = `books-grid-${tag}`;
@@ -38,8 +37,8 @@ const TagPage = async ({
   return (
     <AppLayout title={`# ${capitalize(tag)}`} user={user}>
       <Page>
-        <PageTitle title={`# ${capitalize(tag)}`} isMobile={isMobile} />
-        <GridPanel id={targetId}>
+        <PageTitle title={`# ${capitalize(tag)}`} />
+        <GridPanel id={targetId} xMerge="append" isFullWidth>
           {books.map((book) => (
             <BookCard book={book} user={user} />
           ))}

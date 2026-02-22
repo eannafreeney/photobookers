@@ -9,6 +9,8 @@ import FeedPage from "../pages/FeedPage";
 import NewBooksPage from "../pages/NewBooksPage";
 import { requireBookPreviewAccess } from "../middleware/bookGuard";
 import TermsAndConditionsPage from "../pages/TermsAndConditions";
+import ArtistsPage from "../pages/CreatorsPage";
+import CreatorsPage from "../pages/CreatorsPage";
 
 export const appRoutes = new Hono();
 
@@ -140,4 +142,24 @@ appRoutes.get("/library", async (c) => {
 
 appRoutes.get("/terms-and-conditions", async (c) => {
   return c.html(<TermsAndConditionsPage />);
+});
+
+appRoutes.get("/artists", async (c) => {
+  const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
+  return c.html(
+    <CreatorsPage type="artist" currentPath={currentPath} currentPage={page} />,
+  );
+});
+
+appRoutes.get("/publishers", async (c) => {
+  const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
+  return c.html(
+    <CreatorsPage
+      type="publisher"
+      currentPath={currentPath}
+      currentPage={page}
+    />,
+  );
 });

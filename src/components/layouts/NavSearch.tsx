@@ -24,7 +24,7 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
     <div
       class={clsx(
         "relative flex mr-auto flex-col gap-1 text-on-surface",
-        isMobile ? "w-full" : "max-w-64",
+        isMobile ? "w-full" : "w-96",
       )}
       {...alpineAttrs}
     >
@@ -45,7 +45,7 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
         />
       </form>
       <div
-        class="absolute top-0 left-12 w-full z-1 "
+        class="absolute top-0 left-0 right-0 w-full z-1 "
         x-show="hasResults && searchValue.length > 0"
       >
         <div id={isMobile ? "search-results-mobile" : "search-results"}></div>

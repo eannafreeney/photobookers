@@ -106,6 +106,7 @@ export const getAllBooksAdmin = async (
     limit: limit,
     offset: offset,
     with: {
+      bookOfTheWeekEntry: true,
       artist: {
         columns: {
           id: true,

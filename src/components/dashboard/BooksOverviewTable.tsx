@@ -27,8 +27,6 @@ export const BooksOverviewTable = async ({
 
   const books = await getBooksFn[creator.type](creator.id, searchQuery);
 
-  console.log("books", books);
-
   const validBooks = books?.filter((book) => book != null);
 
   if (isMobile) {

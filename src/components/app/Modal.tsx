@@ -1,23 +1,29 @@
 import { PropsWithChildren } from "hono/jsx";
 
+const Modal = ({
+  children,
+  title,
+}: PropsWithChildren<{ title?: string }> & { attrs?: Record<string, any> }) => {
+  const alpineAttrs = {
+    "x-data": "true",
+    "x-effect": "$el.showModal()",
+    "@dialog:open": "$el.showModal()",
+    "@dialog:close.window": "$el.close()",
+  };
 
-const Modal = ({ children }: PropsWithChildren) => {
   return (
-    <dialog
-      id="modal-root"
-      class="modal z-1 "
-      x-data
-      x-effect="$el.showModal()"
-      {...{ "x-on:dialog:close": "$el.close()" }}
-    >
+    <dialog id="modal-root" class="modal z-1" {...alpineAttrs}>
       <div class="modal-box bg-surface-alt rounded-radius">
         <form method="dialog">
-          <button
-            class="btn btn-sm btn-circle btn-ghost cursor-pointer absolute right-2 top-2"
-            aria-label="Close"
-          >
-            <CloseButton />
-          </button>
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-lg font-semibold">{title}</div>
+            <button
+              class="btn btn-sm btn-circle btn-ghost cursor-pointer"
+              aria-label="Close"
+            >
+              <CloseButton />
+            </button>
+          </div>
         </form>
         {children}
       </div>

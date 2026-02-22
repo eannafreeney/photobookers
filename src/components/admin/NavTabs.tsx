@@ -11,13 +11,13 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         {booksIcon}
         Books
       </NavLink>
-      <NavLink href="/dashboard/admin/claims" currentPath={currentPath}>
-        {claimsIcon}
-        Claims
-      </NavLink>
       <NavLink href="/dashboard/admin/creators" currentPath={currentPath}>
         {creatorsIcon}
         Creators
+      </NavLink>
+      <NavLink href="/dashboard/admin/claims" currentPath={currentPath}>
+        {claimsIcon}
+        Claims
       </NavLink>
     </nav>
   );

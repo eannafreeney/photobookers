@@ -1,8 +1,10 @@
 import { useUser } from "../../contexts/UserContext";
-import { Book, Creator } from "../../db/schema";
+import { Book, BookOfTheDay, BookOfTheWeek, Creator } from "../../db/schema";
+import { calendarIcon, deleteIcon, editIcon } from "../../lib/icons";
+import { toWeekString } from "../../lib/utils";
 import ErrorPage from "../../pages/error/errorPage";
 import { getAllBooksAdmin } from "../../services/admin";
-import { capitalize, formatDate } from "../../utils";
+import { formatDate } from "../../utils";
 import PreviewButton from "../api/PreviewButton";
 import Button from "../app/Button";
 import Link from "../app/Link";
@@ -11,6 +13,7 @@ import SectionTitle from "../app/SectionTitle";
 import PublishToggleForm from "../cms/forms/PublishToggleForm";
 import Table from "../cms/ui/Table";
 import TableSearch from "../cms/ui/TableSearch";
+import DeleteBookForm from "./DeleteBook";
 
 type Props = {
   searchQuery?: string;
@@ -29,8 +32,14 @@ const BooksTable = async ({ searchQuery, currentPage, currentPath }: Props) => {
 
   const targetId = "books-table-body";
 
+  const tableBodyAttrs = {
+    "x-init": "true",
+    "@ajax:before": "$dispatch('dialog:open')",
+    "@book-of-the-week:updated.window": `$dispatch('dialog:close'); $ajax('/dashboard/admin/books', { target: 'books-table-container' })`,
+  };
+
   return (
-    <div class="flex flex-col gap-8">
+    <div id="books-table-container" class="flex flex-col gap-8">
       <SectionTitle>Books</SectionTitle>
       <div class="flex items-center justify-between gap-4">
         <TableSearch
@@ -51,7 +60,7 @@ const BooksTable = async ({ searchQuery, currentPage, currentPath }: Props) => {
             <th>Actions</th>
           </tr>
         </Table.Head>
-        <Table.Body id={targetId}>
+        <Table.Body id={targetId} {...tableBodyAttrs}>
           {books.map((book) => (
             <BooksTableRow book={book} />
           ))}
@@ -70,7 +79,11 @@ const BooksTable = async ({ searchQuery, currentPage, currentPath }: Props) => {
 export default BooksTable;
 
 type BooksTableRowProps = {
-  book: Book & { artist: Creator; publisher: Creator };
+  book: Book & {
+    artist: Creator;
+    publisher: Creator;
+    bookOfTheWeekEntry: BookOfTheWeek;
+  };
 };
 
 const BooksTableRow = ({ book }: BooksTableRowProps) => {
@@ -102,35 +115,48 @@ const BooksTableRow = ({ book }: BooksTableRowProps) => {
       </td>
       <td>{formatDate(book.createdAt ?? new Date())}</td>
       <td>
+        <ScheduleWeekButton book={book} />
+      </td>
+      <td>
         <PreviewButton book={book} user={user} />
       </td>
       <td>
-        <PublishToggleForm book={book} />
-      </td>
-      <td>
         <a href={`/dashboard/admin/books/edit/${book.id}`}>
-          <Button variant="outline" color="inverse">
-            <span>Edit</span>
-          </Button>
+          <button class="cursor-pointer">{editIcon}</button>
         </a>
       </td>
       <td>
-        <form
-          x-target="books-table toast"
-          {...{ "x-target.error": "toast" }}
-          method="post"
-          action={`/dashboard/admin/books/delete/${book.id}`}
-          x-init
-          {...{
-            "@ajax:before":
-              "confirm('Are you sure?') || $event.preventDefault()",
-          }}
-        >
-          <Button variant="outline" color="danger">
-            <span>Delete</span>
-          </Button>
-        </form>
+        <DeleteBookForm book={book} />
       </td>
     </tr>
+  );
+};
+
+const ScheduleWeekButton = ({
+  book,
+}: {
+  book: Book & {
+    artist: Creator;
+    publisher: Creator;
+    bookOfTheWeekEntry: BookOfTheWeek;
+  };
+}) => {
+  if (book.bookOfTheWeekEntry) {
+    return (
+      <a
+        href={`/dashboard/admin/book-of-the-week/edit/${book.id}`}
+        x-target="modal-root"
+      >
+        {toWeekString(book.bookOfTheWeekEntry.weekStart)}
+      </a>
+    );
+  }
+  return (
+    <a
+      href={`/dashboard/admin/book-of-the-week/${book.id}`}
+      x-target="modal-root"
+    >
+      {calendarIcon}
+    </a>
   );
 };

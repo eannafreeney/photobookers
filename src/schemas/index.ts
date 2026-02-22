@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseWeekString } from "../lib/utils";
 
 const optionalText = z.preprocess(
   (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
@@ -147,4 +148,26 @@ export const bookFormSchema = z.object({
       z.enum(["available", "sold_out", "unavailable"]),
     )
     .default("available"),
+});
+
+// ============ BOOK OF THE DAY FORM SCHEMA ============
+export const bookOfTheDayFormSchema = z.object({
+  date: z.coerce.date(),
+  text: z
+    .string()
+    .min(1, "Text is required")
+    .max(200, "Text must be less than 200 characters"),
+});
+
+// ============ BOOK OF THE WEEK FORM SCHEMA ============
+export const bookOfTheWeekFormSchema = z.object({
+  weekStart: z
+    .string()
+    .min(1, "Week is required")
+    .transform(parseWeekString)
+    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
+  text: z
+    .string()
+    .min(1, "Text is required")
+    .max(250, "Text must be less than 250 characters"),
 });

@@ -9,7 +9,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
     >
       <NavLink href="/new-books" currentPath={currentPath}>
         {bookIcon}
-        New
+        Featured
       </NavLink>
       <NavLink href="/feed" currentPath={currentPath}>
         {feedIcon}

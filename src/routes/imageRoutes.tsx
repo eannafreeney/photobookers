@@ -63,13 +63,10 @@ imageRoutes.post(
     }
 
     return c.html(
-      <>
-        <Alert
-          type="success"
-          message={`${updatedCreator?.displayName ?? "Book"} Updated!`}
-        />
-        <NavAvatar creator={updatedCreator ?? undefined} user={user ?? null} />
-      </>,
+      <Alert
+        type="success"
+        message={`${updatedCreator?.displayName ?? "Book"} Updated!`}
+      />,
     );
   },
 );

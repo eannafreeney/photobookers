@@ -5,6 +5,7 @@ import { getInputIcon } from "../../../utils";
 type InputProps = {
   label: string;
   name: string;
+  type?: "date" | "week";
   required?: boolean;
   validateInput?: string;
 };
@@ -12,17 +13,21 @@ type InputProps = {
 const DateInput = ({
   label,
   name,
+  type = "date",
   validateInput,
   required = false,
 }: InputProps) => {
   return (
     <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
       <InputLabel label={label} name={name} required={required} />
-      <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
+      <label
+        x-on:click={`$el.querySelector('input[type=${type}]')?.showPicker?.()`}
+        class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary"
+      >
         {getInputIcon("date")}
         <input
           id={name}
-          type="date"
+          type={type}
           class="w-full bg-surface-alt px-2 py-2 text-base md:text-sm font-normal cursor-pointer focus:outline-none"
           name={name.replace("form.", "")}
           required={required}

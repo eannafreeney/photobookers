@@ -71,10 +71,15 @@ export const getBooksByTag = async (
   defaultLimit = 12,
 ) => {
   try {
+    const tagCondition = sql`EXISTS (
+      SELECT 1 FROM unnest(${books.tags}) AS t
+      WHERE LOWER(t) = LOWER(${tag})
+    )`;
+
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
       .from(books)
-      .where(eq(books.publicationStatus, "published"));
+      .where(and(eq(books.publicationStatus, "published"), tagCondition));
 
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
@@ -83,7 +88,14 @@ export const getBooksByTag = async (
     );
 
     const foundBooks = await db.query.books.findMany({
-      where: (books, { sql }) => sql`${books.tags} @> ARRAY[${tag}]::text[]`,
+      where: (books, { and, eq, sql }) =>
+        and(
+          eq(books.publicationStatus, "published"),
+          sql`EXISTS (
+            SELECT 1 FROM unnest(${books.tags}) AS t
+            WHERE LOWER(t) = LOWER(${tag})
+          )`,
+        ),
       with: {
         artist: true,
         publisher: true,
@@ -287,6 +299,8 @@ export const getBookById = async (bookId: string) => {
       where: eq(books.id, bookId),
       with: {
         publisher: true,
+        artist: true,
+        bookOfTheWeekEntry: true,
         images: {
           orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
         },

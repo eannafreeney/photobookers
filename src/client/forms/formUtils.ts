@@ -14,7 +14,7 @@ export function createFormState<T extends string[]>(
 export function initFormValues<T extends string[]>(
   context: any,
   fields: T,
-  isEditMode: boolean,
+  isEditMode: boolean = false,
 ) {
   if (isEditMode) {
     context.initialValues.form = Object.fromEntries(
