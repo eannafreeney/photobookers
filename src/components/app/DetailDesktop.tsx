@@ -4,10 +4,7 @@ import CreatorCard from "./CreatorCard";
 import WishlistButton from "../api/WishlistButton";
 import { AuthUser } from "../../../types";
 import { BookWithGalleryImages } from "../../pages/BookDetailPage";
-import PreviewBanner from "./PreviewBanner";
 import Carousel from "./Carousel";
-import Link from "./Link";
-import CardCreatorCard from "./CardCreatorCard";
 import AvailabilityBadge from "./AvailabilityBadge";
 import Button from "./Button";
 import PurchaseLink from "./PurchaseLink";
@@ -20,7 +17,6 @@ type DetailProps = {
   book: BookWithGalleryImages;
   currentPath: string;
   user: AuthUser | null;
-  orientation: "portrait" | "landscape";
 };
 
 const DetailDesktop = ({
@@ -28,15 +24,14 @@ const DetailDesktop = ({
   book,
   currentPath,
   user,
-  orientation,
 }: DetailProps) => {
   return (
     <div class="flex flex-col gap-8">
       <div class="flex gap-16">
-        <div class="w-1/2">
+        <div class="w-2/5">
           <Carousel images={galleryImages} />
         </div>
-        <div class="w-1/2">
+        <div class="w-2/5">
           <div class="mb-4 flex flex-col gap-2">
             <div class="flex items-center gap-4">
               <h3 class="text-balance text-2xl font-semibold text-on-surface-strong">
@@ -50,14 +45,14 @@ const DetailDesktop = ({
                 </a>
               )}
             </div>
-            <div class="flex items-center gap-2">
+            {/* <div class="flex flex-col gap-2">
               {book.artist && (
                 <CardCreatorCard creatorType="artist" book={book} />
               )}
               {book.publisher && (
                 <CardCreatorCard creatorType="publisher" book={book} />
               )}
-            </div>
+            </div> */}
           </div>
           <div class="flex flex-col gap-4">
             <div class="flex gap-2">
@@ -75,21 +70,20 @@ const DetailDesktop = ({
             <PurchaseLink purchaseLink={book.purchaseLink} />
           </div>
         </div>
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-        <CreatorCard
-          creator={book.artist}
-          currentPath={currentPath}
-          orientation={orientation}
-          user={user}
-        />
-        <CreatorCard
-          creator={book.publisher}
-          currentPath={currentPath}
-          title="Publisher"
-          orientation={orientation}
-          user={user}
-        />
+        <div class="w-1/5">
+          <CreatorCard
+            creator={book.artist}
+            currentPath={currentPath}
+            title="Artist"
+            user={user}
+          />
+          <CreatorCard
+            creator={book.publisher}
+            currentPath={currentPath}
+            title="Publisher"
+            user={user}
+          />
+        </div>
       </div>
     </div>
   );

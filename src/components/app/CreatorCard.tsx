@@ -12,155 +12,59 @@ type Props = {
   creator: Creator;
   currentPath: string;
   title?: string;
-  orientation: "portrait" | "landscape";
   user: AuthUser | null;
 };
 
-const CreatorCard = async ({
-  creator,
-  title = "About",
-  orientation = "portrait",
-  user,
-}: Props) => {
+const CreatorCard = async ({ creator, title = "About", user }: Props) => {
   if (!creator) return <></>;
 
   const followerCount = await findFollowersCount(creator.id);
 
-  if (orientation === "portrait")
-    return (
-      <CreatorCardPortrait
-        creator={creator}
-        title={title}
-        user={user}
-        followerCount={followerCount}
-      />
-    );
-
   return (
-    <CreatorCardLandscape
-      creator={creator}
-      title={title}
-      user={user}
-      followerCount={followerCount}
-    />
-  );
-};
-
-export default CreatorCard;
-
-type CreatorCardProps = {
-  creator: Creator;
-  title?: string;
-  user: AuthUser | null;
-  followerCount: number;
-};
-
-const CreatorCardPortrait = ({
-  creator,
-  title = "About",
-  user,
-  followerCount,
-}: CreatorCardProps) => (
-  <div class="mb-2">
-    <SectionTitle>{title}</SectionTitle>
-    <Card>
-      <Card.Image
-        src={creator.coverUrl ?? ""}
-        alt={creator.displayName}
-        href={`/creators/${creator.slug}`}
-        aspectSquare
-        objectCover
-      />
-      <Card.Body>
-        <div>
-          <Card.Title>
-            <a
-              href={`/creators/${creator.slug}`}
-              class="flex items-center gap-2"
-            >
-              {creator.displayName}{" "}
-              <VerifiedCreator creator={creator} size="sm" />
-            </a>
-          </Card.Title>
-          <Card.SubTitle>
-            <div class="flex items-center gap-2">
-              {creator.city ? `${creator.city}, ` : ""}
-              {creator?.country ?? ""}
-            </div>
-          </Card.SubTitle>
-        </div>
-        <FollowersCount followerCount={followerCount} />
-        {creator.tagline && (
-          <Card.Description>{creator.tagline}</Card.Description>
-        )}
-        <FollowButton creator={creator} user={user} variant="desktop" />
-        {creator.status === "stub" && (
-          <ClaimCreatorBtn creator={creator} user={user} />
-        )}
-        <SocialLinks creator={creator} />
-      </Card.Body>
-    </Card>
-  </div>
-);
-
-const CreatorCardLandscape = ({
-  creator,
-  title = "About",
-  user,
-  followerCount,
-}: CreatorCardProps) => {
-  return (
-    <div class="flex flex-col gap-2">
+    <div class="mb-2">
       <SectionTitle>{title}</SectionTitle>
       <Card>
-        <div class="flex">
-          <div class="shrink-0 w-2/6">
-            <Card.Image
-              src={creator.coverUrl ?? ""}
-              alt={creator.displayName}
-              href={`/creators/${creator.slug}`}
-              aspectSquare
-              objectCover
-            />
-          </div>
-          <div class="w-3/6">
-            <Card.Body>
-              <div>
-                <Card.Title>
-                  <a
-                    href={`/creators/${creator.slug}`}
-                    class="flex items-center gap-2"
-                  >
-                    {creator.displayName} {VerifiedCreator({ creator })}
-                  </a>
-                </Card.Title>
-                <Card.SubTitle>
-                  <div class="flex items-center gap-2">
-                    {creator.city ? `${creator.city}, ` : ""}
-                    {creator?.country ?? ""}
-                  </div>
-                </Card.SubTitle>
+        <Card.Image
+          src={creator.coverUrl ?? ""}
+          alt={creator.displayName}
+          href={`/creators/${creator.slug}`}
+          aspectSquare
+          objectCover
+        />
+        <Card.Body>
+          <div>
+            <Card.Title>
+              <a
+                href={`/creators/${creator.slug}`}
+                class="flex items-center gap-2 justify-between"
+              >
+                {creator.displayName}{" "}
+                <VerifiedCreator creator={creator} size="sm" />
+              </a>
+            </Card.Title>
+            <Card.SubTitle>
+              <div class="flex items-center gap-2">
+                {creator.city ? `${creator.city}, ` : ""}
+                {creator?.country ?? ""}
               </div>
-              <FollowersCount followerCount={followerCount} />
-              {creator.tagline && (
-                <Card.Description>{creator.tagline}</Card.Description>
-              )}
-              <SocialLinks creator={creator} isLandscape />
-            </Card.Body>
+            </Card.SubTitle>
           </div>
-          <div class="w-1/6">
-            <Card.Body>
-              <FollowButton creator={creator} user={user} isCircleButton />
-              {creator.status === "stub" && (
-                <ClaimCreatorBtn creator={creator} user={user} isCircleButton />
-              )}
-            </Card.Body>
-          </div>
-        </div>
+          <FollowersCount followerCount={followerCount} />
+          {creator.tagline && (
+            <Card.Description>{creator.tagline}</Card.Description>
+          )}
+          <FollowButton creator={creator} user={user} variant="desktop" />
+          {creator.status === "stub" && (
+            <ClaimCreatorBtn creator={creator} user={user} />
+          )}
+          <SocialLinks creator={creator} />
+        </Card.Body>
       </Card>
     </div>
   );
 };
+
+export default CreatorCard;
 
 const FollowersCount = ({ followerCount }: { followerCount: number }) => {
   if (followerCount === 0) return <></>;
