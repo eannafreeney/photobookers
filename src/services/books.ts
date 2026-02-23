@@ -125,12 +125,7 @@ export const getBooksByCreatorId = async (
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
       .from(books)
-      .where(
-        and(
-          eq(bookColumn, creatorId),
-          eq(books.publicationStatus, "published"),
-        ),
-      );
+      .where(and(eq(bookColumn, creatorId)));
 
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
@@ -138,10 +133,7 @@ export const getBooksByCreatorId = async (
       defaultLimit,
     );
 
-    const baseCondition = and(
-      eq(bookColumn, creatorId),
-      eq(books.publicationStatus, "published"),
-    );
+    const baseCondition = and(eq(bookColumn, creatorId));
 
     const whereClause = searchQuery
       ? and(baseCondition, ilike(books.title, `%${searchQuery}%`))

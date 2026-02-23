@@ -73,7 +73,8 @@ export const creatorFormSchema = z.object({
   bio: z
     .string()
     .min(10, "Description must be at least 10 characters")
-    .max(1000, "Description must be less than 1000 characters"),
+    .max(1000, "Description must be less than 1000 characters")
+    .optional(),
   city: optionalText,
   country: optionalText,
   type: z.preprocess(

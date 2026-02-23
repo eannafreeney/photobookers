@@ -43,8 +43,6 @@ const BookDetailPage = async ({
     ...(book?.images?.map((image) => image.imageUrl) ?? []),
   ];
 
-  const orientation = isMobile ? "portrait" : "landscape";
-
   return (
     <AppLayout title={book.title} user={user} isPreview={isPreview}>
       <Page>
@@ -54,14 +52,12 @@ const BookDetailPage = async ({
             book={book}
             currentPath={currentPath}
             user={user}
-            orientation={orientation}
           />
         ) : (
           <DetailDesktop
             galleryImages={galleryImages}
             book={book}
             currentPath={currentPath}
-            orientation={orientation}
             user={user}
           />
         )}

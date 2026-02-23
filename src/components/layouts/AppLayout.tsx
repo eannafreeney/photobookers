@@ -29,9 +29,7 @@ const AppLayout = ({
       <UserProvider user={user}>
         {isPreview && <PreviewBanner />}
         <Navbar currentPath={currentPath} />
-        <main class="container mx-auto min-h-screen px-4 pt-14 md:pt-0">
-          {children}
-        </main>
+        <main class="md:mx-12 min-h-screen pt-14 md:pt-0">{children}</main>
         <Footer />
       </UserProvider>
       <div id="modal-root"></div>

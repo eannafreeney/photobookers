@@ -49,9 +49,7 @@ const BookCard = ({
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          {/* {(!currentCreatorId || currentCreatorId !== book.artistId) && ( */}
           <CardCreatorCard book={book} creatorType="artist" />
-          {/* )} */}
           {(!currentCreatorId || currentCreatorId !== book.publisherId) && (
             <CardCreatorCard book={book} creatorType="publisher" />
           )}
