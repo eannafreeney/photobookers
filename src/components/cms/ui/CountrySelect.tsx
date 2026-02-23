@@ -1,7 +1,7 @@
 import { fadeTransition } from "../../../lib/transitions";
 import InputLabel from "./InputLabel";
 
-const CountrySelect = ({ required = false }: { required?: boolean }) => {
+const CountrySelect = ({ isRequired = false }: { isRequired?: boolean }) => {
   return (
     <div
       x-data="countryForm()"
@@ -10,7 +10,7 @@ const CountrySelect = ({ required = false }: { required?: boolean }) => {
       x-init="options = allOptions"
     >
       <fieldset class="fieldset py-0">
-        <InputLabel label="Country" name="country" required />
+        <InputLabel label="Country" name="country" required={isRequired} />
         <div class="relative">
           <TriggerButton />
           <input
@@ -20,7 +20,7 @@ const CountrySelect = ({ required = false }: { required?: boolean }) => {
             x-model="form.country"
             x-ref="hiddenCountryInput"
             hidden
-            required={required}
+            required={isRequired}
           />
           <DropdownList />
         </div>
