@@ -31,6 +31,8 @@ const EditCreatorFormAdmin = ({
     "x-on:submit": "submitForm($event)",
   };
 
+  console.log("formValues", formValues);
+
   return (
     <div class="space-y-4 ">
       <SectionTitle>{`${isEditPage ? "Edit" : "Create"} ${capitalize(

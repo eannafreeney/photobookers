@@ -7,7 +7,7 @@ type SocialLinksProps = {
 
 const SocialLinks = ({ creator }: SocialLinksProps) => {
   return (
-    <div class={`flex gap-4 items-center justify-start text-xs`}>
+    <div class={`flex gap-4 items-center justify-center text-xs mt-4`}>
       {creator.website && (
         <Link href={creator.website} target="_blank">
           {webIcon}

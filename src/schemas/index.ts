@@ -92,6 +92,13 @@ export const creatorFormAdminSchema = z.object({
   displayName: requiredText,
   website: z.url("Please enter a valid URL (e.g., https://example.com)"),
   type: z.enum(["artist", "publisher"]).default("artist"),
+  tagline: optionalText,
+  bio: optionalText,
+  city: optionalText,
+  country: optionalText,
+  facebook: optionalText,
+  twitter: optionalText,
+  instagram: optionalText,
 });
 
 // ============ Image FORM SCHEMA ============

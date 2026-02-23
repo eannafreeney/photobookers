@@ -12,6 +12,7 @@ import {
   getCreatorById,
   resolveArtist,
   resolvePublisher,
+  updateCreatorProfile,
 } from "../services/creators";
 import { supabaseAdmin } from "../lib/supabase";
 import ClaimsTable from "../components/admin/ClaimsTable";
@@ -240,6 +241,31 @@ adminDashboardRoutes.get(
         currentPath={currentPath}
         currentPage={currentPage}
       />,
+    );
+  },
+);
+
+adminDashboardRoutes.post(
+  "/creators/edit/:creatorId",
+  requireAdminAccess,
+  formValidator(creatorFormAdminSchema),
+  paramValidator(creatorIdSchema),
+  async (c) => {
+    const formData = c.req.valid("form");
+    const creatorId = c.req.valid("param").creatorId;
+    const creator = await getCreatorById(creatorId);
+    if (!creator) {
+      return showErrorAlert(c, "Creator not found");
+    }
+    const updatedCreator = await updateCreatorProfile(formData, creatorId);
+    if (!updatedCreator) {
+      return showErrorAlert(c, "Failed to update creator");
+    }
+    return c.html(
+      <>
+        <Alert type="success" message="Creator updated!" />
+        <CreatorFormAdmin />
+      </>,
     );
   },
 );
