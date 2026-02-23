@@ -111,14 +111,35 @@ export const getBooksByTag = async (
   }
 };
 
-export const getBooksByPublisherId = async (
+export const getBooksByCreatorId = async (
   creatorId: string,
+  creatorType: "artist" | "publisher",
+  currentPage: number,
   searchQuery?: string,
+  defaultLimit = 30,
 ) => {
+  const bookColumn =
+    creatorType === "artist" ? books.artistId : books.publisherId;
   try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(
+        and(
+          eq(bookColumn, creatorId),
+          eq(books.publicationStatus, "published"),
+        ),
+      );
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
     const baseCondition = and(
-      eq(books.publisherId, creatorId),
-      eq(books.approvalStatus, "approved"),
+      eq(bookColumn, creatorId),
+      eq(books.publicationStatus, "published"),
     );
 
     const whereClause = searchQuery
@@ -132,40 +153,14 @@ export const getBooksByPublisherId = async (
         artist: true,
         publisher: true,
       },
+      limit: limit,
+      offset: offset,
     });
 
-    return booksByCreator;
+    return { books: booksByCreator, totalPages, page };
   } catch (error) {
     console.error("Failed to get creator by slug", error);
-  }
-};
-
-export const getBooksByArtistId = async (
-  creatorId: string,
-  searchQuery?: string,
-) => {
-  try {
-    const baseCondition = and(
-      eq(books.artistId, creatorId),
-      isNull(books.publisherId),
-    );
-
-    const whereClause = searchQuery
-      ? and(baseCondition, ilike(books.title, `%${searchQuery}%`))
-      : baseCondition;
-
-    const booksByCreator = await db.query.books.findMany({
-      where: whereClause,
-      orderBy: (books, { desc }) => [desc(books.createdAt)],
-      with: {
-        artist: true,
-        publisher: true,
-      },
-    });
-
-    return booksByCreator;
-  } catch (error) {
-    console.error("Failed to get creator by slug", error);
+    return null;
   }
 };
 

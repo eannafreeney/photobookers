@@ -16,26 +16,19 @@ import TableSearch from "../cms/ui/TableSearch";
 import DeleteBookForm from "./DeleteBook";
 
 type Props = {
-  searchQuery?: string;
-  currentPage: number;
+  totalPages: number;
+  page: number;
+  books: Book[];
   currentPath: string;
 };
 
-const BooksTable = async ({ searchQuery, currentPage, currentPath }: Props) => {
-  const result = await getAllBooksAdmin(currentPage, searchQuery);
-
-  if (!result?.books) {
-    return <ErrorPage errorMessage="No featured books found" />;
-  }
-
-  const { books, totalPages, page } = result;
-
+const BooksTable = async ({ totalPages, page, books, currentPath }: Props) => {
   const targetId = "books-table-body";
 
   const tableBodyAttrs = {
     "x-init": "true",
     "@ajax:before": "$dispatch('dialog:open')",
-    "@book-of-the-week:updated.window": `$dispatch('dialog:close'); $ajax('/dashboard/admin/books', { target: 'books-table-container' })`,
+    "@books:updated.window": `$dispatch('dialog:close'); $ajax('/dashboard/admin/books', { target: 'books-table-container' })`,
   };
 
   return (
@@ -55,8 +48,8 @@ const BooksTable = async ({ searchQuery, currentPage, currentPath }: Props) => {
             <th>Artist</th>
             <th>Publisher</th>
             <th>Release Date</th>
-            <th>Approval Status</th>
-            <th>Created At</th>
+            <th>Approval</th>
+            <th>Publish</th>
             <th>Actions</th>
           </tr>
         </Table.Head>
@@ -113,7 +106,9 @@ const BooksTableRow = ({ book }: BooksTableRowProps) => {
           <p class=" text-danger">✗</p>
         )}
       </td>
-      <td>{formatDate(book.createdAt ?? new Date())}</td>
+      <td>
+        <PublishToggleForm book={book} />
+      </td>
       <td>
         <ScheduleWeekButton book={book} />
       </td>
@@ -126,7 +121,7 @@ const BooksTableRow = ({ book }: BooksTableRowProps) => {
         </a>
       </td>
       <td>
-        <DeleteBookForm book={book} />
+        <DeleteBookForm bookId={book.id} />
       </td>
     </tr>
   );

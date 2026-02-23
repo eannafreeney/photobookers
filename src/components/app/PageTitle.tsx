@@ -14,7 +14,7 @@ type PageTitleProps = {
 const PageTitle = ({ title, creator, user }: PageTitleProps) => {
   const canEdit = user && creator ? canEditCreator(user, creator) : false;
   return (
-    <div class="flex items-center gap-4 mb-0">
+    <div class="flex items-center gap-4 mb-2">
       {creator?.coverUrl && (
         <div class="relative">
           <Avatar
@@ -33,10 +33,10 @@ const PageTitle = ({ title, creator, user }: PageTitleProps) => {
         <div class="text-xl md:text-4xl font-medium -mb-1">
           {creator?.displayName ?? title}
         </div>
-        <div class="text-xs text-outline text-on-surface-weak flex items-center gap-2">
+        {/* <Card.SubTitle>
           {creator?.city ? `${creator.city}, ` : ""}
           {creator?.country ?? ""}
-        </div>
+        </Card.SubTitle> */}
       </div>
       {canEdit && (
         <a href={`/dashboard/creators/edit/${creator?.id}`}>

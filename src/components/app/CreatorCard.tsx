@@ -61,7 +61,7 @@ const CreatorCardPortrait = ({
   user,
   followerCount,
 }: CreatorCardProps) => (
-  <div class="flex flex-col gap-2">
+  <div class="mb-2">
     <SectionTitle>{title}</SectionTitle>
     <Card>
       <Card.Image
@@ -145,7 +145,7 @@ const CreatorCardLandscape = ({
               {creator.tagline && (
                 <Card.Description>{creator.tagline}</Card.Description>
               )}
-              <SocialLinks creator={creator} />
+              <SocialLinks creator={creator} isLandscape />
             </Card.Body>
           </div>
           <div class="w-1/6">

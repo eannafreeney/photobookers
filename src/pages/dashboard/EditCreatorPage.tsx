@@ -5,10 +5,21 @@ import Page from "../../components/layouts/Page";
 import CreatorImageForm from "../../components/cms/forms/CreatorCoverForm";
 import AppLayout from "../../components/layouts/AppLayout";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
+import CreatorBookList from "../../components/dashboard/BookList";
 
-type Props = { user: AuthUser; creator: Creator };
+type Props = {
+  user: AuthUser;
+  creator: Creator;
+  currentPath: string;
+  currentPage: number;
+};
 
-const EditCreatorPage = ({ user, creator }: Props) => {
+const EditCreatorPage = ({
+  user,
+  creator,
+  currentPath,
+  currentPage,
+}: Props) => {
   const formValues = JSON.stringify({
     displayName: creator?.displayName,
     bio: creator?.bio,
@@ -21,6 +32,8 @@ const EditCreatorPage = ({ user, creator }: Props) => {
     instagram: creator?.instagram,
     type: creator?.type ?? "artist",
   });
+
+  const isAdmin = user.isAdmin;
 
   return (
     <AppLayout title="Edit Creator Profile" user={user}>
@@ -56,6 +69,14 @@ const EditCreatorPage = ({ user, creator }: Props) => {
             />
           </div>
         </div>
+        {isAdmin && (
+          <CreatorBookList
+            creatorId={creator.id}
+            creatorType={creator.type}
+            currentPath={currentPath}
+            currentPage={currentPage}
+          />
+        )}
       </Page>
     </AppLayout>
   );

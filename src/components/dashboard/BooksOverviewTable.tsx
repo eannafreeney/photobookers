@@ -1,9 +1,6 @@
 import { AuthUser } from "../../../types";
 import { Creator } from "../../db/schema";
-import {
-  getBooksByArtistId,
-  getBooksByPublisherId,
-} from "../../services/books";
+import { getBooksByCreatorId } from "../../services/books";
 import BooksOverviewDesktop from "./BooksOverviewDesktop";
 import BooksOverviewMobile from "./BooksOverviewMobile";
 
@@ -20,12 +17,11 @@ export const BooksOverviewTable = async ({
   user,
   isMobile,
 }: BookTableProps) => {
-  const getBooksFn = {
-    artist: getBooksByArtistId,
-    publisher: getBooksByPublisherId,
-  };
-
-  const books = await getBooksFn[creator.type](creator.id, searchQuery);
+  const books = await getBooksByCreatorId(
+    creator.id,
+    creator.type,
+    searchQuery,
+  );
 
   const validBooks = books?.filter((book) => book != null);
 

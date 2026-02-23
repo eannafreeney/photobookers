@@ -59,6 +59,7 @@ import {
   setBookOfTheWeek,
 } from "../services/bookOfTheWeek";
 import { toWeekString } from "../lib/utils";
+import BooksPage from "../pages/admin/BooksPage";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -79,16 +80,13 @@ adminDashboardRoutes.get("/books", requireAdminAccess, async (c) => {
   const currentPath = c.req.path;
 
   return c.html(
-    <AppLayout title="Books" user={user} flash={flash}>
-      <Page>
-        <NavTabs currentPath="/dashboard/admin/books" />
-        <BooksTable
-          searchQuery={searchQuery}
-          currentPage={page}
-          currentPath={currentPath}
-        />
-      </Page>
-    </AppLayout>,
+    <BooksPage
+      user={user}
+      flash={flash}
+      searchQuery={searchQuery}
+      currentPage={page}
+      currentPath={currentPath}
+    />,
   );
 });
 
@@ -388,17 +386,23 @@ adminDashboardRoutes.post(
   requireAdminAccess,
   async (c) => {
     const bookId = c.req.valid("param").bookId;
-    const user = await getUser(c);
     const book = await getBookById(bookId);
     if (!book) {
       return showErrorAlert(c, "Book not found");
     }
+
     const deletedBook = await deleteBookByIdAdmin(bookId);
+
     if (!deletedBook) {
       return showErrorAlert(c, "Failed to delete book");
     }
     return c.html(
-      <Alert type="success" message={`${deletedBook.title} deleted!`} />,
+      <>
+        <div id="server_events">
+          <div x-init="$dispatch('books:updated')"></div>
+        </div>
+        <Alert type="success" message={`${deletedBook.title} deleted!`} />,
+      </>,
     );
   },
 );
@@ -543,7 +547,7 @@ adminDashboardRoutes.post(
       <>
         <Alert type="success" message="Book of the Week set!" />
         <div id="server_events">
-          <div x-init="$dispatch('book-of-the-week:updated')"></div>
+          <div x-init="$dispatch('books:updated')"></div>
         </div>
       </>,
     );
@@ -565,7 +569,7 @@ adminDashboardRoutes.post(
       <>
         <Alert type="success" message="Book of the Week deleted!" />
         <div id="server_events">
-          <div x-init="$dispatch('book-of-the-week:updated')"></div>
+          <div x-init="$dispatch('books:updated')"></div>
         </div>
       </>,
     );

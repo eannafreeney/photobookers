@@ -1,7 +1,7 @@
 import { Context, Hono } from "hono";
 import FollowButton from "../components/api/FollowButton";
 import WishlistButton from "../components/api/WishlistButton";
-import { getUser } from "../utils";
+import { capitalize, getUser } from "../utils";
 import { creators } from "../db/schema";
 import { eq } from "drizzle-orm";
 import {
@@ -29,6 +29,9 @@ import BookCard from "../components/app/BookCard";
 import GridPanel from "../components/app/GridPanel";
 import WishlistedBooks from "../components/app/WishlistedBooks";
 import ErrorPage from "../pages/error/errorPage";
+import { DISCOVER_TAGS } from "../constants/discover";
+import Badge from "../components/app/Badge";
+import Link from "../components/app/Link";
 
 export const apiRoutes = new Hono();
 
@@ -244,27 +247,25 @@ apiRoutes.get("/search/mobile", async (c) => {
   return c.html(
     <div
       id="search-results-mobile-container"
-      class="fixed top-0 left-0 right-0 bottom-0 w-full z-10 backdrop-blur-md"
+      class="fixed top-0 left-0 right-0 bottom-0 w-full z-10 backdrop-blur-2xl"
       x-data="{ isOpen: true }"
       x-show="isOpen"
     >
-      <div class="flex items-center justify-between gap-4 p-4">
-        <NavSearch isMobile />
-        <button x-on:click="isOpen = false">{closeIcon}</button>
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between gap-4 p-4">
+          <NavSearch isMobile />
+          <button x-on:click="isOpen = false">{closeIcon}</button>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-6 p-4">
+          {DISCOVER_TAGS.map((tag) => (
+            <Link href={`/books/tags/${tag.toLowerCase()}`} key={tag}>
+              <Badge variant="default" key={tag}>
+                {capitalize(tag)}
+              </Badge>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>,
-  );
-});
-
-apiRoutes.get("/test", async (c) => {
-  return c.html(
-    <AppLayout title="Test">
-      <div x-data>
-        <span
-          {...{ "x-on:notify.window": "() => console.log('hello world')" }}
-        ></span>
-        <button x-on:click="$dispatch('notify')">Notify</button>
-      </div>
-    </AppLayout>,
   );
 });
