@@ -78,7 +78,7 @@ const RegisterFanForm = () => {
       <p class="text-center text-sm mt-4">
         Already have an account?{" "}
         <Link href="/auth/login">
-          <span class="font-bold">Sign In</span>
+          <span class="font-semibold">Sign In</span>
         </Link>
       </p>
     </>
