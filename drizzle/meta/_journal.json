@@ -8,6 +8,13 @@
       "when": 1764701100011,
       "tag": "0001_fantastic_starhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771792075828,
+      "tag": "0002_keen_harpoon",
+      "breakpoints": true
     }
   ]
 }

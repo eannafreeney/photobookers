@@ -3,11 +3,14 @@ import { Creator } from "../../db/schema";
 
 type SocialLinksProps = {
   creator: Creator;
+  isLandscape?: boolean;
 };
 
-const SocialLinks = ({ creator }: SocialLinksProps) => {
+const SocialLinks = ({ creator, isLandscape = false }: SocialLinksProps) => {
   return (
-    <div class={`flex gap-2 items-center text-xs`}>
+    <div
+      class={`flex gap-4 items-center ${isLandscape ? "justify-start" : "justify-center"} text-xs`}
+    >
       {creator.website && (
         <Link href={creator.website} target="_blank">
           {webIcon}

@@ -1,9 +1,7 @@
 import clsx from "clsx";
 import { AuthUser } from "../../../types";
 import { useUser } from "../../contexts/UserContext";
-import { getInitialsAvatar } from "../../lib/avatar";
 import Button from "../app/Button";
-import { Creator } from "../../db/schema";
 import NavAvatar from "../app/NavAvatar";
 
 type Props = {
@@ -38,7 +36,11 @@ const NavDesktopMenu = ({ currentPath }: Props) => {
           }}
           class="relative flex items-center"
         >
-          <NavAvatar creator={user.creator ?? undefined} user={user} />
+          <NavAvatar
+            creator={user.creator ?? undefined}
+            user={user}
+            currentPath={currentPath}
+          />
           <DropDownMenu currentPath={currentPath} user={user} />
         </li>
       )}

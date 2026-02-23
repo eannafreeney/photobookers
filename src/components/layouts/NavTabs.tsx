@@ -7,7 +7,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       id="nav-tabs"
       class="flex items-center justify-center bg-surface-alt gap-4 mb-6 mt-2"
     >
-      <NavLink href="/new-books" currentPath={currentPath}>
+      <NavLink href="/featured" currentPath={currentPath}>
         {bookIcon}
         Featured
       </NavLink>

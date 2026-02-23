@@ -15,6 +15,12 @@ type Props = {
 };
 
 const BooksOverviewDesktop = ({ books, user }: Props) => {
+  const tableBodyAttrs = {
+    "x-init": "true",
+    "@book:approved.window":
+      "$ajax('/dashboard/books', target: 'books-table-body')",
+  };
+
   return (
     <div class="flex flex-col gap-4">
       <SectionTitle>My Books</SectionTitle>
@@ -43,13 +49,10 @@ const BooksOverviewDesktop = ({ books, user }: Props) => {
             <th class="p-4"></th>
           </tr>
         </Table.Head>
-        <Table.Body
-          id="books-table-body"
-          x-init
-          {...{ "@book:approved.window": "$ajax('/dashboard/books')" }}
-        >
-          {books?.length > 0 &&
-            books?.map((book) => <BookTableRow book={book} user={user} />)}
+        <Table.Body id="books-table-body" {...tableBodyAttrs}>
+          {books.map((book) => (
+            <BookTableRow book={book} user={user} />
+          ))}
         </Table.Body>
       </Table>
     </div>

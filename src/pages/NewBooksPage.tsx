@@ -95,12 +95,14 @@ const BookOfTheWeek = async ({
   return (
     <>
       <SectionTitle>{star} Book of the Week</SectionTitle>
-      <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-end">
-        <BookOfTheWeekCard
-          isMobile={isMobile}
-          bookOfTheWeek={bookOfTheWeek}
-          user={user}
-        />
+      <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-end w-full">
+        <div class="col-span-2 md:col-span-6">
+          <BookOfTheWeekCard
+            isMobile={isMobile}
+            bookOfTheWeek={bookOfTheWeek}
+            user={user}
+          />
+        </div>
         <MailingListSignup className="col-span-2" />
       </div>
     </>
@@ -159,7 +161,7 @@ const BookOfTheWeekCard = ({
 
   if (isMobile) {
     return (
-      <Card className="col-span-full">
+      <Card className="w-full min-w-0">
         <CarouselMobile
           images={[
             book.coverUrl,
@@ -192,11 +194,6 @@ const BookOfTheWeekCard = ({
           </div>
           <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
           <Card.Tags tags={book.tags ?? []} />
-          <a href={`/books/${book.slug}`} class="self-end">
-            <span class="text-xs font-medium tracking-wide text-on-surface-weak italic hover:underline">
-              See More
-            </span>
-          </a>
         </Card.Body>
       </Card>
     );
@@ -204,7 +201,7 @@ const BookOfTheWeekCard = ({
 
   return (
     <Card className="col-span-6">
-      <div class="flex items-end gap-2">
+      <div class="flex items-stretch gap-2">
         <div class="w-xl shrink-0">
           <CarouselMobile
             images={[
@@ -213,7 +210,11 @@ const BookOfTheWeekCard = ({
             ]}
           />
         </div>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 flex flex-col gap-2 grow justify-between">
+          <div class="flex items-center justify-end gap-2 p-4">
+            <WishlistButton isCircleButton book={book} user={user} />
+            <ShareButton isCircleButton />
+          </div>
           <Card.Body gap="4">
             <div class="flex flex-col gap-2">
               <Card.Text>
@@ -236,17 +237,6 @@ const BookOfTheWeekCard = ({
             </div>
             <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
             <Card.Tags tags={book.tags ?? []} />
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <WishlistButton isCircleButton book={book} user={user} />
-                <ShareButton isCircleButton />
-              </div>
-              <Link href={`/books/${book.slug}`}>
-                <span class="text-xs font-medium tracking-wide text-on-surface-weak italic hover:underline items-end">
-                  See More
-                </span>
-              </Link>
-            </div>
           </Card.Body>
         </div>
       </div>

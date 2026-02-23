@@ -78,7 +78,7 @@ const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
     <li>
       <a
         href={`/creators/${creator.slug}`}
-        class="flex items-center gap-3 rounded-radius hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+        class="flex items-center gap-3 rounded-radius hover:bg-surface transition-colors"
         aria-label={`View ${creator.displayName} profile`}
       >
         <div class="shrink-0">
@@ -111,7 +111,7 @@ const BookResultItem = ({ book }: BookResultItemProps) => {
     <li>
       <a
         href={`/books/${book.slug}`}
-        class="flex items-center gap-3 rounded-radius hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+        class="flex items-center gap-3 rounded-radius hover:bg-surface transition-colors"
         aria-label={`View ${book.title} by ${book.artist?.displayName ?? "Unknown artist"}`}
       >
         <div class="shrink-0">

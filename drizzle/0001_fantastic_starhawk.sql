@@ -1,7 +1,7 @@
-ALTER TABLE "creators" ADD COLUMN "facebook" text;--> statement-breakpoint
-ALTER TABLE "creators" ADD COLUMN "twitter" text;--> statement-breakpoint
-ALTER TABLE "creators" ADD COLUMN "instagram" text;--> statement-breakpoint
-ALTER TABLE "creators" ADD COLUMN "website" text;--> statement-breakpoint
-ALTER TABLE "books" DROP COLUMN "facebook";--> statement-breakpoint
-ALTER TABLE "books" DROP COLUMN "twitter";--> statement-breakpoint
-ALTER TABLE "books" DROP COLUMN "instagram";
+ALTER TABLE "creators" ADD COLUMN IF NOT EXISTS "facebook" text;--> statement-breakpoint
+ALTER TABLE "creators" ADD COLUMN IF NOT EXISTS "twitter" text;--> statement-breakpoint
+ALTER TABLE "creators" ADD COLUMN IF NOT EXISTS "instagram" text;--> statement-breakpoint
+ALTER TABLE "creators" ADD COLUMN IF NOT EXISTS "website" text;--> statement-breakpoint
+ALTER TABLE "books" DROP COLUMN IF EXISTS "facebook";--> statement-breakpoint
+ALTER TABLE "books" DROP COLUMN IF EXISTS "twitter";--> statement-breakpoint
+ALTER TABLE "books" DROP COLUMN IF EXISTS "instagram";

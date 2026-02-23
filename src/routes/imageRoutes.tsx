@@ -63,10 +63,15 @@ imageRoutes.post(
     }
 
     return c.html(
-      <Alert
-        type="success"
-        message={`${updatedCreator?.displayName ?? "Book"} Updated!`}
-      />,
+      <>
+        <Alert
+          type="success"
+          message={`${updatedCreator?.displayName ?? "Book"} Updated!`}
+        />
+        <div id="server_events">
+          <div x-init="$dispatch('avatar:updated')"></div>
+        </div>
+      </>,
     );
   },
 );

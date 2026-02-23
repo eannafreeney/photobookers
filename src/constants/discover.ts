@@ -5,8 +5,9 @@ export const DISCOVER_TAGS = [
   "america",
   "europe",
   "asia",
+  "japan",
   "africa",
-  "oceania",
+  "australia",
   "france",
   "germany",
   "italy",
@@ -15,4 +16,4 @@ export const DISCOVER_TAGS = [
   "still life",
   "portraits",
   "nature",
-];
+].sort((a, b) => a.localeCompare(b));

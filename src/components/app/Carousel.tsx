@@ -9,7 +9,7 @@ const Carousel = ({ images = [] }: Props) => {
 
   return (
     <div
-      x-data={`carousel(${JSON.stringify(images)})`}
+      x-data={`carouselForm(${JSON.stringify(images)})`}
       class="relative w-full overflow-hidden bg-white rounded-radius border border-outline p-2"
     >
       {/* Main slide area */}

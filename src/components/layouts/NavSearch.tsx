@@ -35,7 +35,7 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
           x-ref="searchInput"
           name="search"
           placeholder="Search"
-          class="w-full rounded-radius border border-outline bg-surface py-2.5 pl-10 pr-2 text-md md:text-sm focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-75"
+          class="w-full rounded-radius border border-outline bg-surface py-2.5 pl-10 pr-2 text-md md:text-sm focus:outline-none "
           {...inputAttrs}
         />
         <input
