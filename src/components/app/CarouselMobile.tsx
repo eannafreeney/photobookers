@@ -9,31 +9,10 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
 
   return (
     <div
-      x-data={`carousel(${JSON.stringify(images)})`}
+      x-init="autoplay"
+      x-data={`carouselForm(${JSON.stringify(images)})`}
       class="relative w-full overflow-hidden"
     >
-      {/* previous button */}
-      <button
-        type="button"
-        class="absolute left-2 top-1/2 z-5 flex rounded-full -translate-y-1/2 items-center justify-center bg-surface/40 p-2 text-on-surface transition hover:bg-surface/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:outline-offset-0 dark:bg-surface-dark/40 dark:text-on-surface-dark dark:hover:bg-surface-dark/60 dark:focus-visible:outline-primary-dark"
-        aria-label="previous slide"
-        x-on:click="previous()"
-        x-show="slides.length > 1"
-      >
-        {leftArrowIcon}
-      </button>
-
-      {/* next button */}
-      <button
-        type="button"
-        class="absolute right-2 top-1/2 z-5 flex rounded-full -translate-y-1/2 items-center justify-center bg-surface/40 p-2 text-on-surface transition hover:bg-surface/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:outline-offset-0 dark:bg-surface-dark/40 dark:text-on-surface-dark dark:hover:bg-surface-dark/60 dark:focus-visible:outline-primary-dark"
-        aria-label="next slide"
-        x-on:click="next()"
-        x-show="slides.length > 1"
-      >
-        {rightArrowIcon}
-      </button>
-
       {/* slides container: one grid cell so height = tallest slide */}
       <div class="relative w-full grid grid-cols-1 grid-rows-1">
         <template x-for="(slide, index) in slides">
@@ -48,6 +27,22 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
               x-bind:alt="slide.imgAlt"
             />
           </div>
+        </template>
+      </div>
+
+      {/* indicators */}
+      <div
+        class="absolute rounded-radius bottom-3 md:bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-4 md:gap-3 bg-surface/75 px-1.5 py-1 md:px-2 dark:bg-surface-dark/75"
+        role="group"
+        aria-label="slides"
+      >
+        <template x-for="(slide, index) in slides">
+          <button
+            class="size-2 rounded-full transition bg-on-surface dark:bg-on-surface-dark"
+            x-on:click="currentSlideIndex = index + 1"
+            x-bind:class="[currentSlideIndex === index + 1 ? 'bg-on-surface dark:bg-on-surface-dark' : 'bg-on-surface/50 dark:bg-on-surface-dark/50']"
+            x-bind:aria-label="'slide ' + (index + 1)"
+          ></button>
         </template>
       </div>
     </div>

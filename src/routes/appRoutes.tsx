@@ -9,14 +9,13 @@ import FeedPage from "../pages/FeedPage";
 import NewBooksPage from "../pages/NewBooksPage";
 import { requireBookPreviewAccess } from "../middleware/bookGuard";
 import TermsAndConditionsPage from "../pages/TermsAndConditions";
-import ArtistsPage from "../pages/CreatorsPage";
 import CreatorsPage from "../pages/CreatorsPage";
 
 export const appRoutes = new Hono();
 
 // HOME
 appRoutes.get("/", async (c) => {
-  return c.redirect("/new-books");
+  return c.redirect("/featured");
 });
 
 appRoutes.get("/creators/:slug", async (c) => {
@@ -90,7 +89,7 @@ appRoutes.get("/books/tags/:tag", async (c) => {
   );
 });
 
-appRoutes.get("/new-books", async (c) => {
+appRoutes.get("/featured", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;

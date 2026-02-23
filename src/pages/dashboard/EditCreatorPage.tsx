@@ -36,7 +36,11 @@ const EditCreatorPage = ({
   const isAdmin = user.isAdmin;
 
   return (
-    <AppLayout title="Edit Creator Profile" user={user}>
+    <AppLayout
+      title="Edit Creator Profile"
+      user={user}
+      currentPath={currentPath}
+    >
       <Page>
         <Breadcrumbs
           items={[

@@ -5,9 +5,10 @@ import { AuthUser } from "../../../types";
 type NavAvatarProps = {
   creator?: Creator;
   user?: AuthUser | null;
+  currentPath?: string | null;
 };
 
-const NavAvatar = ({ creator, user }: NavAvatarProps) => {
+const NavAvatar = ({ creator, user, currentPath }: NavAvatarProps) => {
   const avatarUrl =
     creator?.coverUrl ??
     getInitialsAvatar(user?.firstName ?? "", user?.lastName ?? "");
@@ -19,6 +20,7 @@ const NavAvatar = ({ creator, user }: NavAvatarProps) => {
     "x-on:keydown.enter.preven": "openWithKeyboard = true",
     "x-on:keydown.down.prevent": "openWithKeyboard = true",
     "@click": "userDropDownIsOpen = ! userDropDownIsOpen",
+    "@avatar:updated.window": `$ajax('${currentPath}', {target: 'nav-avatar'})`,
   };
   return (
     <button

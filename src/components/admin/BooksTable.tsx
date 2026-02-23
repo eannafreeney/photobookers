@@ -1,12 +1,9 @@
 import { useUser } from "../../contexts/UserContext";
-import { Book, BookOfTheDay, BookOfTheWeek, Creator } from "../../db/schema";
-import { calendarIcon, deleteIcon, editIcon } from "../../lib/icons";
+import { Book, BookOfTheWeek, Creator } from "../../db/schema";
+import { calendarIcon, editIcon } from "../../lib/icons";
 import { toWeekString } from "../../lib/utils";
-import ErrorPage from "../../pages/error/errorPage";
-import { getAllBooksAdmin } from "../../services/admin";
 import { formatDate } from "../../utils";
 import PreviewButton from "../api/PreviewButton";
-import Button from "../app/Button";
 import Link from "../app/Link";
 import { Pagination } from "../app/Pagination";
 import SectionTitle from "../app/SectionTitle";
