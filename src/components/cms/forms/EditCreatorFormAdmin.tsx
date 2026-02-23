@@ -4,7 +4,6 @@ import CountrySelect from "../ui/CountrySelect";
 import TextArea from "../ui/TextArea";
 import SectionTitle from "../../app/SectionTitle";
 import { capitalize } from "../../../utils";
-import { useUser } from "../../../contexts/UserContext";
 
 type Props = {
   formValues?: string;
@@ -12,18 +11,19 @@ type Props = {
   type?: "artist" | "publisher";
 };
 
-const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
-  const user = useUser();
-  const isAdmin = user?.isAdmin ?? false;
-
+const EditCreatorFormAdmin = ({
+  formValues,
+  creatorId,
+  type = "artist",
+}: Props) => {
   const action = creatorId
-    ? `/dashboard/creators/edit/${creatorId}`
-    : "/dashboard/creators/new";
+    ? `/dashboard/admin/creators/edit/${creatorId}`
+    : "/dashboard/admin/creators/new";
 
   const isEditPage = !!creatorId;
 
   const alpineAttrs = {
-    "x-data": `creatorForm(${formValues}, ${isEditPage})`,
+    "x-data": `editCreatorFormAdmin(${formValues}, ${isEditPage})`,
     "x-target": "toast",
     "x-target.away": "_top",
     "x-on:ajax:success": "onSuccess()",
@@ -44,7 +44,6 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
               name="form.displayName"
               validateInput="validateDisplayName()"
               showDisplayNameAvailabilityChecker
-              required
             />
           </div>
           <Input label="Tagline" name="form.tagline" maxLength={150} />
@@ -53,10 +52,9 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
             name="form.bio"
             validateInput="validateField('bio')"
             maxLength={1000}
-            required
           />
-          <Input label="City" name="form.city" maxLength={50} required />
-          <CountrySelect required />
+          <Input label="City" name="form.city" maxLength={50} />
+          <CountrySelect />
           <Input
             label="Website"
             name="form.website"
@@ -94,4 +92,4 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
   );
 };
 
-export default CreatorForm;
+export default EditCreatorFormAdmin;

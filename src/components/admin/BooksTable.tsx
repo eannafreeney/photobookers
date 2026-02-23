@@ -10,6 +10,7 @@ import SectionTitle from "../app/SectionTitle";
 import PublishToggleForm from "../cms/forms/PublishToggleForm";
 import Table from "../cms/ui/Table";
 import TableSearch from "../cms/ui/TableSearch";
+import DeleteFormButton from "./DeleteBook";
 import DeleteBookForm from "./DeleteBook";
 
 type Props = {
@@ -118,7 +119,7 @@ const BooksTableRow = ({ book }: BooksTableRowProps) => {
         </a>
       </td>
       <td>
-        <DeleteBookForm bookId={book.id} />
+        <DeleteFormButton action={`/dashboard/admin/books/delete/${book.id}`} />
       </td>
     </tr>
   );

@@ -60,6 +60,7 @@ import {
 } from "../services/bookOfTheWeek";
 import { toWeekString } from "../lib/utils";
 import BooksPage from "../pages/admin/BooksPage";
+import EditCreatorPageAdmin from "../pages/admin/EditCreatorPageAdmin";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -218,6 +219,30 @@ adminDashboardRoutes.get("/creators", requireAdminAccess, async (c) => {
     </AppLayout>,
   );
 });
+
+adminDashboardRoutes.get(
+  "/creators/edit/:creatorId",
+  paramValidator(creatorIdSchema),
+  requireAdminAccess,
+  async (c) => {
+    const user = await getUser(c);
+    const creatorId = c.req.valid("param").creatorId;
+    const creator = await getCreatorById(creatorId);
+    if (!creator) {
+      return showErrorAlert(c, "Creator not found");
+    }
+    const currentPath = c.req.path;
+    const currentPage = Number(c.req.query("page") ?? 1);
+    return c.html(
+      <EditCreatorPageAdmin
+        user={user}
+        creator={creator}
+        currentPath={currentPath}
+        currentPage={currentPage}
+      />,
+    );
+  },
+);
 
 adminDashboardRoutes.post(
   "/claims/:claimId/approve",

@@ -20,7 +20,7 @@ const NavAvatar = ({ creator, user, currentPath }: NavAvatarProps) => {
     "x-on:keydown.enter.preven": "openWithKeyboard = true",
     "x-on:keydown.down.prevent": "openWithKeyboard = true",
     "@click": "userDropDownIsOpen = ! userDropDownIsOpen",
-    "@avatar:updated.window": `$ajax('${currentPath}', {target: 'nav-avatar'})`,
+    "@avatar:updated.window": `$ajax('${currentPath}')`,
   };
   return (
     <button
