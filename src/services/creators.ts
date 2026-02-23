@@ -42,7 +42,11 @@ export const getCreatorBySlug = async (
     .select({ value: count() })
     .from(books)
     .where(
-      and(eq(bookColumn, creator.id), eq(books.publicationStatus, "published")),
+      and(
+        eq(bookColumn, creator.id),
+        eq(books.publicationStatus, "published"),
+        eq(books.approvalStatus, "approved"),
+      ),
     );
 
   const { page, limit, offset, totalPages } = getPagination(

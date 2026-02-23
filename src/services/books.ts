@@ -53,6 +53,7 @@ export const getNewBooks = async (currentPage: number, defaultLimit = 12) => {
       orderBy: (books, { desc }) => [desc(books.createdAt)],
       where: and(
         eq(books.publicationStatus, "published"),
+        eq(books.approvalStatus, "approved"),
         // lte(books.releaseDate, new Date()),
       ),
       limit: limit,
@@ -413,7 +414,7 @@ export const prepareBookData = async (
     publisherId: bookPublisher?.id ?? null,
     createdByUserId: userId,
     tags: processTags(formData.tags),
-    purchaseLink: formData.purchaseLink ?? null,
+    purchaseLink: formData.purchase_link ?? null,
     approvalStatus: existingPublisherSelected ? "pending" : "approved",
     publicationStatus: "draft",
     availabilityStatus: formData.availability_status,
@@ -427,7 +428,7 @@ export const prepareBookUpdateData = (
     title: formData.title,
     description: formData.description || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
-    slug: slugify(formData.title),
+    purchaseLink: formData.purchase_link ?? null,
     tags: processTags(formData.tags),
     availabilityStatus: formData.availability_status,
   };

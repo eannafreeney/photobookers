@@ -20,12 +20,12 @@ const NavAvatar = ({ creator, user, currentPath }: NavAvatarProps) => {
     "x-on:keydown.enter.preven": "openWithKeyboard = true",
     "x-on:keydown.down.prevent": "openWithKeyboard = true",
     "@click": "userDropDownIsOpen = ! userDropDownIsOpen",
-    "@avatar:updated.window": `$ajax('${currentPath}', {target: 'nav-avatar'})`,
+    "@avatar:updated.window": `$ajax('${currentPath}')`,
   };
   return (
     <button
       id="nav-avatar"
-      class="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer"
+      class="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2  cursor-pointer"
       {...alpineAttrs}
     >
       <img

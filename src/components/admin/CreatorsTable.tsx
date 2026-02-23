@@ -6,6 +6,7 @@ import Link from "../app/Link";
 import SectionTitle from "../app/SectionTitle";
 import Table from "../cms/ui/Table";
 import TableSearch from "../cms/ui/TableSearch";
+import DeleteFormButton from "./DeleteBook";
 
 type Props = {
   searchQuery?: string;
@@ -82,26 +83,16 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       <td>{capitalize(creator.status ?? "")}</td>
       <td>{formatDate(creator.createdAt ?? new Date())}</td>
       <td>
-        <a href={`/dashboard/creators/edit/${creator.id}`}>
+        <a href={`/dashboard/admin/creators/edit/${creator.id}`}>
           <Button variant="outline" color="inverse">
             <span>Edit</span>
           </Button>
         </a>
       </td>
       <td>
-        <form
-          method="post"
+        <DeleteFormButton
           action={`/dashboard/admin/creators/delete/${creator.id}`}
-          x-init
-          {...{
-            "@ajax:before":
-              "confirm('Are you sure?') || $event.preventDefault()",
-          }}
-        >
-          <Button variant="outline" color="danger">
-            <span>Delete</span>
-          </Button>
-        </form>
+        />
       </td>
     </tr>
   );

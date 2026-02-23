@@ -1,11 +1,11 @@
 import { AuthUser } from "../../../types";
 import { Creator } from "../../db/schema";
-import CreatorForm from "../../components/cms/forms/CreatorForm";
 import Page from "../../components/layouts/Page";
 import CreatorImageForm from "../../components/cms/forms/CreatorCoverForm";
 import AppLayout from "../../components/layouts/AppLayout";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
 import CreatorBookList from "../../components/dashboard/BookList";
+import EditCreatorFormAdmin from "../../components/cms/forms/EditCreatorFormAdmin";
 
 type Props = {
   user: AuthUser;
@@ -14,7 +14,12 @@ type Props = {
   currentPage: number;
 };
 
-const EditCreatorPage = ({ user, creator, currentPath }: Props) => {
+const EditCreatorPage = ({
+  user,
+  creator,
+  currentPath,
+  currentPage,
+}: Props) => {
   const formValues = JSON.stringify({
     displayName: creator?.displayName,
     bio: creator?.bio,
@@ -38,8 +43,8 @@ const EditCreatorPage = ({ user, creator, currentPath }: Props) => {
         <Breadcrumbs
           items={[
             {
-              label: `Dashboard`,
-              href: "/dashboard/books",
+              label: `Admin Creators Overview`,
+              href: "/dashboard/admin/creators",
             },
             {
               label: `Edit ${creator.displayName}`,
@@ -59,13 +64,19 @@ const EditCreatorPage = ({ user, creator, currentPath }: Props) => {
           />
           <hr class="my-4 md:hidden" />
           <div class="md:w-2/3">
-            <CreatorForm
+            <EditCreatorFormAdmin
               formValues={formValues}
               creatorId={creator?.id}
               type={creator?.type}
             />
           </div>
         </div>
+        <CreatorBookList
+          creatorId={creator.id}
+          creatorType={creator.type}
+          currentPath={currentPath}
+          currentPage={currentPage}
+        />
       </Page>
     </AppLayout>
   );
