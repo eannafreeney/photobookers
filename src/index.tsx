@@ -18,6 +18,7 @@ app.use("*", logger());
 // In dev, serve from src/client, in prod serve from dist/client
 // For now, let Vite handle /assets/* in dev mode via its dev server
 // Only serve static in production
+app.get("/favicon.svg", serveStatic({ path: "./public/favicon.svg" }));
 if (process.env.NODE_ENV === "production") {
   // Serve built CSS and JS at root level
   app.get("/styles.css", serveStatic({ path: "./dist/client/styles.css" }));
