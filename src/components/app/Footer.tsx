@@ -1,5 +1,5 @@
 const Footer = () => (
-  <footer class="flex items-center justify-between bg-surface text-on-surface text-sm p-4">
+  <footer class="flex flex-col md:flex-row items-center justify-between bg-surface text-on-surface text-sm p-4">
     <nav class="flex gap-4 justify-between items-center">
       <a href="/artists">Artists</a>
       <a href="/publishers">Publishers</a>

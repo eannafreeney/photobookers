@@ -41,9 +41,11 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
       <p class="text-center text-sm mt-4">
         Don't have an account?{" "}
         <Link href="/auth/accounts">
-          {" "}
           <span class="font-semibold">Register</span>
         </Link>
+      </p>
+      <p class="text-center text-sm mt-2">
+        <Link href="/auth/resend-verification">Resend verification email</Link>
       </p>
     </>
   );

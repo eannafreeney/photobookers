@@ -16,10 +16,16 @@ import Alert from "../components/app/Alert";
 import ResetPasswordConfirmPage from "../pages/auth/ResetPasswordConfirmPage";
 import ErrorPage from "../pages/error/errorPage";
 import { formValidator } from "../lib/validator";
-import { registerCreatorFormSchema, registerFanFormSchema } from "../schemas";
+import {
+  registerCreatorFormSchema,
+  registerFanFormSchema,
+  resendVerificationFormSchema,
+} from "../schemas";
 import { normalizeUrl } from "../services/verification";
 import { showErrorAlert } from "../lib/alertHelpers";
 import { createClaim, deleteClaim } from "../services/claims";
+import ResendVerificationPage from "../pages/auth/ResendVerificationPage";
+
 import {
   createStubCreatorProfile,
   generateClaimEmail,
@@ -53,6 +59,49 @@ authRoutes.get("/register", async (c) => {
   }
   return c.html(<RegisterPage type={type} />);
 });
+
+authRoutes.get("/resend-verification", async (c) => {
+  const user = await getUser(c);
+  if (user) {
+    return c.redirect("/");
+  }
+  return c.html(<ResendVerificationPage />);
+});
+
+authRoutes.post(
+  "/resend-verification",
+  formValidator(resendVerificationFormSchema),
+  async (c) => {
+    const formData = c.req.valid("form");
+    const email = formData.email as string;
+
+    const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
+    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
+
+    const { error } = await supabaseAnon.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo },
+    });
+
+    if (error) {
+      return c.html(
+        <Alert
+          type="danger"
+          message="We couldn’t send a new verification email. Check the address or try signing in if you’re already verified."
+        />,
+        400,
+      );
+    }
+
+    await setFlash(
+      c,
+      "success",
+      "If an unverified account exists for this email, we’ve sent a new verification link. Check your inbox and spam.",
+    );
+    return c.redirect("/auth/login");
+  },
+);
 
 // Log in
 authRoutes.post("/login", async (c) => {
@@ -101,8 +150,34 @@ authRoutes.post(
       },
     });
 
+    const alreadyRegisteredMessage =
+      "This email is already registered. Please log in, or use 'Resend verification email' if you didn't receive the first one.";
+
     if (error) {
-      return c.html(<Alert type="danger" message={error.message} />, 401);
+      const isAlreadyRegistered =
+        error.message?.toLowerCase().includes("already") ||
+        error.message?.toLowerCase().includes("registered") ||
+        error.code === "user_already_exists";
+      return c.html(
+        <Alert
+          type="danger"
+          message={
+            isAlreadyRegistered ? alreadyRegisteredMessage : error.message
+          }
+        />,
+        401,
+      );
+    }
+
+    // With email confirmation on, Supabase returns success but empty identities when email exists
+    if (
+      data.user &&
+      (!data.user.identities || data.user.identities.length === 0)
+    ) {
+      return c.html(
+        <Alert type="danger" message={alreadyRegisteredMessage} />,
+        401,
+      );
     }
 
     await setFlash(
@@ -246,11 +321,46 @@ authRoutes.post(
   },
 );
 
+function getCallbackErrorMessage(
+  error: string | undefined,
+  errorCode: string | undefined,
+  errorDescription: string | undefined,
+): string {
+  if (
+    errorCode === "otp_expired" ||
+    errorDescription?.toLowerCase().includes("expired")
+  ) {
+    return "This verification link has expired or was already used. Please log in with your password, or register again to receive a new verification email.";
+  }
+  if (errorCode === "access_denied" || error === "access_denied") {
+    return "This link is invalid or has expired. Please try logging in with your password, or register again to get a new verification email.";
+  }
+  if (error && errorDescription) {
+    return errorDescription.replace(/\+/g, " ");
+  }
+  if (error) {
+    return "Something went wrong with verification. Please try logging in or register again.";
+  }
+  return "No authorization code provided. If you were verifying your email, the link may have expired—please request a new one.";
+}
+
 authRoutes.get("/callback", async (c) => {
   const code = c.req.query("code");
+  const error = c.req.query("error");
+  const errorCode = c.req.query("error_code");
+  const errorDescription = c.req.query("error_description");
+
+  if (error || errorCode) {
+    const message = getCallbackErrorMessage(error, errorCode, errorDescription);
+    return c.html(<ErrorPage errorMessage={message} />);
+  }
 
   if (!code) {
-    return c.html(<ErrorPage errorMessage="No authorization code provided" />);
+    return c.html(
+      <ErrorPage
+        errorMessage={getCallbackErrorMessage(undefined, undefined, undefined)}
+      />,
+    );
   }
 
   // Create SSR client that uses cookies
