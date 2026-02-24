@@ -7,7 +7,7 @@ type RegisterPageProps = {
   type: "fan" | "artist" | "publisher";
 };
 
-const RegisterPage = ({ type = "fan" }: RegisterPageProps) => {
+const RegisterPage = ({ type }: RegisterPageProps) => {
   const intendedCreatorType = type === "artist" || type === "publisher";
 
   return (
@@ -16,7 +16,7 @@ const RegisterPage = ({ type = "fan" }: RegisterPageProps) => {
         <div class="card w-96 bg-base-100 shadow-none border-none my-4">
           <div class="card-body">
             <h2 class="text-2xl font-bold text-center mb-4">
-              Create {capitalize(type)} Account
+              Create {type === "fan" ? "" : capitalize(type)} Account
             </h2>
             {intendedCreatorType ? (
               <RegisterCreatorForm type={type} />

@@ -35,7 +35,6 @@ const RegisterFanForm = () => {
           name="form.email"
           validateInput="validateEmail()"
           placeholder="you@example.com"
-          validationTrigger="blur"
           showEmailAvailabilityChecker
           required
         />

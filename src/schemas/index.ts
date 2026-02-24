@@ -26,6 +26,11 @@ const agreeToTerms = z.preprocess(
     ),
 );
 
+// ============ RESEND VERIFICATION FORM SCHEMA ============
+export const resendVerificationFormSchema = z.object({
+  email: z.email().min(1, "Email is required"),
+});
+
 // ============ REGISTER CREATOR FORM SCHEMA ============
 export const registerCreatorFormSchema = z.object({
   displayName: z.string().min(3, "Display Name must be at least 3 characters"),
