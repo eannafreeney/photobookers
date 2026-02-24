@@ -22,7 +22,9 @@ const CreatorCard = async ({ creator, title = "About", user }: Props) => {
 
   return (
     <div class="mb-2">
-      <SectionTitle>{title}</SectionTitle>
+      <div class="mb-2">
+        <SectionTitle>{title}</SectionTitle>
+      </div>
       <Card>
         <Card.Image
           src={creator.coverUrl ?? ""}

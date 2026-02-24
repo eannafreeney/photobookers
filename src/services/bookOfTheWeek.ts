@@ -42,7 +42,6 @@ export type BookOfTheWeekWithBook = Awaited<
 
 export async function getBookOfTheWeekForDateQuery(date: Date) {
   const weekStart = toWeekStart(date);
-  console.log("weekStart", weekStart);
   const book = await db.query.bookOfTheWeek.findFirst({
     where: eq(bookOfTheWeek.weekStart, weekStart),
     with: {
@@ -81,7 +80,6 @@ export async function getBookOfTheWeekForDateQuery(date: Date) {
       },
     },
   });
-  console.log("book", book);
   if (!book) return null;
 
   return book;
