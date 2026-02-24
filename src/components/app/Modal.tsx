@@ -15,12 +15,9 @@ const Modal = ({
     <dialog id="modal-root" class="modal z-1" {...alpineAttrs}>
       <div class="modal-box bg-surface-alt rounded-radius">
         <form method="dialog">
-          <div class="flex items-center justify-between mb-4">
-            <div class="text-lg font-semibold">{title}</div>
-            <button
-              class="btn btn-sm btn-circle btn-ghost cursor-pointer"
-              aria-label="Close"
-            >
+          <div class="flex items-center justify-between">
+            {title && <div class="text-lg font-semibold">{title}</div>}
+            <button class="btn btn-sm btn-circle btn-ghost cursor-pointer ml-auto">
               <CloseButton />
             </button>
           </div>

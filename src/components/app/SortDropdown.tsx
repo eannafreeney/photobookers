@@ -75,7 +75,6 @@ const SortDropdown = ({ sortBy, currentPath }: SortDropdownProps) => {
         <div
           {...dropdownAttrs}
           class="absolute top-11 -left-6 flex w-fit min-w-40 flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt py-1.5"
-          role="menu"
         >
           <a href={currentPath} class={linkClass} role="menuitem">
             Newest first

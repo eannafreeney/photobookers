@@ -86,11 +86,14 @@ authRoutes.post(
 
     const supabase = createSupabaseClient(c);
 
+    const baseUrl = process.env.SITE_URL ?? "http://localhost:5173"; // fallback for dev
+    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `http://localhost:5173/auth/callback`,
+        emailRedirectTo,
         data: {
           firstName: firstName ?? null,
           lastName: lastName ?? null,
