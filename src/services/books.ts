@@ -392,6 +392,7 @@ export const prepareBookData = async (
   userId: string,
   bookPublisher?: Creator | null,
 ): Promise<NewBook> => {
+  // when artists can select a publisher, we need to set the approval status to pending
   const existingPublisherSelected = formData.publisher_id ? true : false;
 
   return {
@@ -407,7 +408,8 @@ export const prepareBookData = async (
     createdByUserId: userId,
     tags: processTags(formData.tags),
     purchaseLink: formData.purchase_link ?? null,
-    approvalStatus: existingPublisherSelected ? "pending" : "approved",
+    // approvalStatus: existingPublisherSelected ? "pending" : "approved",
+    approvalStatus: "approved",
     publicationStatus: "draft",
     availabilityStatus: formData.availability_status,
   };
