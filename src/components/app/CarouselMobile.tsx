@@ -14,7 +14,12 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
       class="relative w-full overflow-hidden"
     >
       {/* slides container: one grid cell so height = tallest slide */}
-      <div class="relative w-full grid grid-cols-1 grid-rows-1">
+      <div
+        class="relative w-full grid grid-cols-1 grid-rows-1"
+        x-on:touchstart="handleTouchStart($event)"
+        x-on:touchmove="handleTouchMove($event)"
+        x-on:touchend="handleTouchEnd()"
+      >
         <template x-for="(slide, index) in slides">
           <div
             class="col-start-1 row-start-1 flex items-center justify-center min-h-0"

@@ -50,9 +50,11 @@ export function registerCarouselForm() {
       },
       handleTouchStart(event: TouchEvent) {
         this.touchStartX = event.touches[0].clientX;
+        this.isPaused = true;
       },
       handleTouchMove(event: TouchEvent) {
         this.touchEndX = event.touches[0].clientX;
+        this.isPaused = true;
       },
       handleTouchEnd() {
         if (this.touchEndX) {
@@ -65,6 +67,10 @@ export function registerCarouselForm() {
           this.touchStartX = null;
           this.touchEndX = null;
         }
+        // Resume autoplay after a short delay so the slide doesn't jump immediately
+        setTimeout(() => {
+          this.isPaused = false;
+        }, 800);
       },
     };
   });
