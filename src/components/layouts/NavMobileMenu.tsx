@@ -3,6 +3,7 @@ import { useUser } from "../../contexts/UserContext";
 import { fadeTransition } from "../../lib/transitions";
 import Link from "../app/Link";
 import NavSearchMobile from "./NavSearchMobile";
+import { getInitialsAvatar } from "../../lib/avatar";
 
 const NavMobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
   return (
@@ -76,7 +77,7 @@ const MobileDropDownMenu = ({
   const user = useUser();
   const avatarUrl =
     user?.creator?.coverUrl ??
-    `https://avatar.iran.liara.run/username?username=${user?.firstName}+${user?.lastName}`;
+    getInitialsAvatar(user?.firstName ?? "", user?.lastName ?? "");
   const avatarAlt = `${user?.firstName} ${user?.lastName}`;
 
   return (
@@ -93,6 +94,7 @@ const MobileDropDownMenu = ({
               <img
                 src={avatarUrl}
                 alt={avatarAlt}
+                loading="lazy"
                 class="size-12 rounded-full object-cover"
               />
               <div>
