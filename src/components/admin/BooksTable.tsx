@@ -4,6 +4,7 @@ import { calendarIcon, editIcon } from "../../lib/icons";
 import { toWeekString } from "../../lib/utils";
 import { formatDate } from "../../utils";
 import PreviewButton from "../api/PreviewButton";
+import Button from "../app/Button";
 import Link from "../app/Link";
 import { Pagination } from "../app/Pagination";
 import SectionTitle from "../app/SectionTitle";
@@ -38,6 +39,12 @@ const BooksTable = async ({ totalPages, page, books, currentPath }: Props) => {
           action="/dashboard/admin/books"
           placeholder="Filter books..."
         />
+
+        <Link href="/dashboard/admin/books/new">
+          <Button variant="solid" color="primary">
+            New Book
+          </Button>
+        </Link>
       </div>
       <Table id="books-table">
         <Table.Head>
