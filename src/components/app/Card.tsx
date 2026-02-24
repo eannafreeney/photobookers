@@ -79,7 +79,7 @@ const CardSubTitle = ({ children }: { children: ChildType }) => (
 );
 
 const CardIntro = ({ children }: { children: ChildType }) => (
-  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap line-clamp-5">
+  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap line-clamp-7">
     {children}
   </p>
 );

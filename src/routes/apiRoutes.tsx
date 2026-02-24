@@ -162,9 +162,9 @@ apiRoutes.get("/check-email", async (c) => {
   return c.html(
     <div id="email-availability-status">
       {available ? (
-        <p class="label text-success mt-1">✓</p>
+        <p class="label text-success mt-1">✓ Available</p>
       ) : (
-        <p class="label text-danger mt-1">✗</p>
+        <p class="label text-danger mt-1">✗ Taken</p>
       )}
     </div>,
   );
@@ -186,9 +186,9 @@ apiRoutes.get("/check-displayName", async (c) => {
   return c.html(
     <div id="display-name-availability-status">
       {available ? (
-        <p class="label text-success mt-1">✓</p>
+        <p class="label text-success mt-1">✓ Available</p>
       ) : (
-        <p class="label text-danger mt-1">✗</p>
+        <p class="label text-danger mt-1">✗ Taken</p>
       )}
     </div>,
   );
@@ -210,9 +210,9 @@ apiRoutes.get("/check-website", async (c) => {
   return c.html(
     <div id="website-availability-status">
       {available ? (
-        <p class="label text-success mt-1">✓</p>
+        <p class="label text-success mt-1">✓ Available</p>
       ) : (
-        <p class="label text-danger mt-1">✗</p>
+        <p class="label text-danger mt-1">✗ Taken</p>
       )}
     </div>,
   );
