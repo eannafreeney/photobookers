@@ -10,6 +10,7 @@ import NewBooksPage from "../pages/NewBooksPage";
 import { requireBookPreviewAccess } from "../middleware/bookGuard";
 import TermsAndConditionsPage from "../pages/TermsAndConditions";
 import CreatorsPage from "../pages/CreatorsPage";
+import AboutPage from "../pages/AboutPage";
 
 export const appRoutes = new Hono();
 
@@ -139,7 +140,15 @@ appRoutes.get("/library", async (c) => {
   );
 });
 
-appRoutes.get("/terms-and-conditions", async (c) => {
+appRoutes.get("/about", async (c) => {
+  return c.html(<AboutPage />);
+});
+
+// appRoutes.get("/contact", async (c) => {
+//   return c.html(<ContactPage />);
+// });
+
+appRoutes.get("/terms", async (c) => {
   return c.html(<TermsAndConditionsPage />);
 });
 

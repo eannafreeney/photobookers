@@ -10,7 +10,7 @@ const PurchaseLink = ({ purchaseLink }: PurchaseLinkProps) => {
   return (
     <Link href={purchaseLink} target="_blank">
       <Button variant="solid" color="primary" width="md">
-        <span>Purchase</span>
+        <span>See More</span>
       </Button>
     </Link>
   );

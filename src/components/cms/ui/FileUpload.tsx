@@ -12,7 +12,7 @@ type FileUploadProps = {
 
 const FileUploadInput = ({
   label,
-  maxSize = "Max 10MB",
+  maxSize = "Max 5MB",
   required = false,
   multiple = false,
   accept = "image/*",

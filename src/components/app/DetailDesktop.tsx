@@ -28,8 +28,12 @@ const DetailDesktop = ({
   return (
     <div class="flex flex-col gap-8">
       <div class="flex gap-16">
-        <div class="w-2/5">
+        <div class="flex flex-col gap-4 w-2/5">
           <Carousel images={galleryImages} />
+          <div class="flex gap-2">
+            <WishlistButton book={book} user={user} />
+            <ShareButton />
+          </div>
         </div>
         <div class="w-2/5">
           <div class="mb-4 flex flex-col gap-2">
@@ -45,20 +49,8 @@ const DetailDesktop = ({
                 </a>
               )}
             </div>
-            {/* <div class="flex flex-col gap-2">
-              {book.artist && (
-                <CardCreatorCard creatorType="artist" book={book} />
-              )}
-              {book.publisher && (
-                <CardCreatorCard creatorType="publisher" book={book} />
-              )}
-            </div> */}
           </div>
           <div class="flex flex-col gap-4">
-            <div class="flex gap-2">
-              <WishlistButton book={book} user={user} />
-              <ShareButton />
-            </div>
             {book.releaseDate && (
               <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
             )}
