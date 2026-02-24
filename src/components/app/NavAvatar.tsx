@@ -31,6 +31,7 @@ const NavAvatar = ({ creator, user, currentPath }: NavAvatarProps) => {
       <img
         src={avatarUrl ?? user?.creator?.coverUrl ?? ""}
         alt={avatarAlt}
+        loading="lazy"
         class="size-10 rounded-full object-cover"
       />
     </button>

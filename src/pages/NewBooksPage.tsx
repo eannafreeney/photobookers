@@ -51,7 +51,7 @@ const NewBooksPage = async ({
             ))}
           </GridPanel> */}
         </FeatureGuard>
-        <Discover />
+        {/* <Discover /> */}
         <NewBooksGrid
           user={user}
           currentPath={currentPath}
