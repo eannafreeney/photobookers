@@ -13,8 +13,8 @@ import { createStubCreatorProfile } from "../src/services/creators";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "skinnerboox-books.csv";
-const AMOUNT_OF_BOOKS = 10;
+const SOURCE_CSV_FILE = "sub-obj.csv";
+const AMOUNT_OF_BOOKS = 11;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));

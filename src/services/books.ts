@@ -12,6 +12,7 @@ import {
 } from "../db/schema";
 import {
   and,
+  asc,
   count,
   eq,
   exists,
@@ -29,6 +30,7 @@ import { bookFormSchema } from "../schemas";
 import z from "zod";
 import { AuthUser } from "../../types";
 import { getPagination } from "../lib/pagination";
+import { getBooksOrderBy } from "../lib/booksOrderBy";
 
 export const getNewBooks = async (currentPage: number, defaultLimit = 12) => {
   try {
@@ -69,6 +71,7 @@ export const getNewBooks = async (currentPage: number, defaultLimit = 12) => {
 export const getBooksByTag = async (
   tag: string,
   currentPage: number,
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc",
   defaultLimit = 12,
 ) => {
   try {
@@ -101,7 +104,7 @@ export const getBooksByTag = async (
         artist: true,
         publisher: true,
       },
-      orderBy: (books, { desc }) => [desc(books.releaseDate)],
+      orderBy: getBooksOrderBy(sortBy),
       limit: limit,
       offset: offset,
     });
