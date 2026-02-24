@@ -11,6 +11,7 @@ import Link from "../components/app/Link";
 import { Pagination } from "../components/app/Pagination";
 import SectionTitle from "../components/app/SectionTitle";
 import ShareButton from "../components/app/ShareButton";
+import SortDropdown from "../components/app/SortDropdown";
 import AppLayout from "../components/layouts/AppLayout";
 import FeatureGuard from "../components/layouts/FeatureGuard";
 import NavTabs from "../components/layouts/NavTabs";
@@ -29,6 +30,7 @@ type Props = {
   currentPath: string;
   currentPage: number;
   isMobile: boolean;
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
 };
 
 const NewBooksPage = async ({
@@ -37,6 +39,7 @@ const NewBooksPage = async ({
   currentPath,
   currentPage,
   isMobile,
+  sortBy,
 }: Props) => {
   return (
     <AppLayout title="Books" user={user} flash={flash}>
@@ -56,6 +59,7 @@ const NewBooksPage = async ({
           user={user}
           currentPath={currentPath}
           currentPage={currentPage}
+          sortBy={sortBy}
         />
       </Page>
     </AppLayout>
@@ -113,14 +117,16 @@ const NewBooksGrid = async ({
   user,
   currentPath,
   currentPage,
+  sortBy,
 }: {
   user: AuthUser | null;
   currentPath: string;
   currentPage: number;
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
 }) => {
   const targetId = "new-books-grid";
 
-  const result = await getNewBooks(currentPage, 20);
+  const result = await getNewBooks(currentPage, 10);
 
   if (!result?.books) {
     return <div>No featured books found</div>;
@@ -128,16 +134,22 @@ const NewBooksGrid = async ({
 
   const { books, totalPages, page } = result;
 
+  const baseUrlWithSort =
+    sortBy !== "newest" ? `${currentPath}?sortBy=${sortBy}` : currentPath;
+
   return (
     <>
-      <SectionTitle>Latest</SectionTitle>
+      <div class="flex justify-between items-center">
+        <SectionTitle>Latest</SectionTitle>
+        <SortDropdown sortBy={sortBy} currentPath={currentPath} />
+      </div>
       <GridPanel isFullWidth id={targetId} xMerge="append">
         {books.map((book) => (
           <BookCard book={book} user={user} showHeader />
         ))}
       </GridPanel>
       <Pagination
-        baseUrl={currentPath}
+        baseUrl={baseUrlWithSort}
         page={page}
         totalPages={totalPages}
         targetId={targetId}
@@ -305,6 +317,7 @@ const MailingListSignup = ({
         name="email"
         placeholder="you@example.com"
         required
+        disabled
         class="w-full md:w-auto min-w-0 flex-1 rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-weak focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
       />
       <Button variant="outline" color="inverse" width="full">

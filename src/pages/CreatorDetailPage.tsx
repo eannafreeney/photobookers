@@ -8,6 +8,7 @@ import GridPanel from "../components/app/GridPanel";
 import BookCard from "../components/app/BookCard";
 import ErrorPage from "./error/errorPage";
 import { Pagination } from "../components/app/Pagination";
+import SortDropdown from "../components/app/SortDropdown";
 
 type CreatorDetailPageProps = {
   user: AuthUser | null;
@@ -15,16 +16,17 @@ type CreatorDetailPageProps = {
   currentPath: string;
   isMobile: boolean;
   currentPage: number;
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
 };
 
 const CreatorDetailPage = async ({
   user,
   creatorSlug,
   currentPath,
-  isMobile,
   currentPage,
+  sortBy,
 }: CreatorDetailPageProps) => {
-  const result = await getCreatorBySlug(creatorSlug, currentPage);
+  const result = await getCreatorBySlug(creatorSlug, currentPage, sortBy);
 
   if (!result.creator) {
     return <ErrorPage errorMessage="Creator not found" user={user} />;
@@ -39,6 +41,8 @@ const CreatorDetailPage = async ({
   }
 
   const targetId = `books-grid-${creator.id}`;
+  const baseUrlWithSort =
+    sortBy !== "newest" ? `${currentPath}?sortBy=${sortBy}` : currentPath;
 
   return (
     <AppLayout title={creator?.displayName ?? ""} user={user}>
@@ -46,6 +50,9 @@ const CreatorDetailPage = async ({
         <PageTitle creator={creator} user={user} />
         <div class="flex flex-col md:flex-row gap-4">
           <div class="md:w-4/5 flex flex-col gap-4">
+            <div class="flex justify-end">
+              <SortDropdown sortBy={sortBy} currentPath={currentPath} />
+            </div>
             <GridPanel id={targetId} xMerge="append">
               {books.map((book) => (
                 <BookCard
@@ -57,7 +64,7 @@ const CreatorDetailPage = async ({
               ))}
             </GridPanel>
             <Pagination
-              baseUrl={currentPath}
+              baseUrl={baseUrlWithSort}
               page={page}
               totalPages={totalPages}
               targetId={targetId}

@@ -1,4 +1,4 @@
-import { and, count, eq, exists, ilike, isNull } from "drizzle-orm";
+import { and, asc, count, eq, exists, ilike, isNull } from "drizzle-orm";
 import { db } from "../db/client";
 import {
   books,
@@ -13,10 +13,12 @@ import { bookFormSchema } from "../schemas";
 import z from "zod";
 import { AuthUser } from "../../types";
 import { getPagination } from "../lib/pagination";
+import { getBooksOrderBy } from "../lib/booksOrderBy";
 
 export const getCreatorBySlug = async (
   slug: string,
   currentPage: number = 1,
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
   defaultLimit = 12,
 ) => {
   // 1. Fetch creator without books
@@ -69,7 +71,7 @@ export const getCreatorBySlug = async (
       eq(bookColumn, creator.id),
       eq(books.publicationStatus, "published"),
     ),
-    orderBy: (books, { desc }) => [desc(books.createdAt)],
+    orderBy: getBooksOrderBy(sortBy),
     limit,
     offset,
     with: {

@@ -25,6 +25,11 @@ appRoutes.get("/creators/:slug", async (c) => {
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+  const rawSort = c.req.query("sortBy");
+  const sortBy =
+    rawSort === "oldest" || rawSort === "title_asc" || rawSort === "title_desc"
+      ? rawSort
+      : "newest";
 
   return c.html(
     <CreatorDetailPage
@@ -33,6 +38,7 @@ appRoutes.get("/creators/:slug", async (c) => {
       currentPath={currentPath}
       isMobile={isMobile}
       currentPage={page}
+      sortBy={sortBy}
     />,
   );
 });
@@ -74,18 +80,21 @@ appRoutes.get("/books/preview/:slug", requireBookPreviewAccess, async (c) => {
 appRoutes.get("/books/tags/:tag", async (c) => {
   const tag = c.req.param("tag");
   const user = await getUser(c);
-
-  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
+  const rawSort = c.req.query("sortBy");
+  const sortBy =
+    rawSort === "oldest" || rawSort === "title_asc" || rawSort === "title_desc"
+      ? rawSort
+      : "newest";
 
   return c.html(
     <TagPage
       user={user}
       tag={tag}
-      isMobile={isMobile}
       currentPath={currentPath}
       currentPage={page}
+      sortBy={sortBy}
     />,
   );
 });
@@ -96,11 +105,17 @@ appRoutes.get("/featured", async (c) => {
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+  const rawSort = c.req.query("sortBy");
+  const sortBy =
+    rawSort === "oldest" || rawSort === "title_asc" || rawSort === "title_desc"
+      ? rawSort
+      : "newest";
 
   return c.html(
     <NewBooksPage
       user={user}
       flash={flash}
+      sortBy={sortBy}
       currentPage={page}
       currentPath={currentPath}
       isMobile={isMobile}
