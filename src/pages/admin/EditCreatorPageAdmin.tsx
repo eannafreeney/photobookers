@@ -98,17 +98,18 @@ const ManualAssignCreatorForm = ({ creatorId }: { creatorId: string }) => {
           action={`/dashboard/admin/creators/edit/${creatorId}/assign`}
           method="post"
           class="flex flex-wrap items-end gap-3"
+          x-target="toast"
         >
           <input
             type="email"
-            name="form.email"
+            name="email"
             placeholder="User email"
             required
             class="input input-bordered input-sm w-48"
           />
           <input
             type="url"
-            name="form.website"
+            name="website"
             placeholder="https://their-website.com"
             required
             class="input input-bordered input-sm w-56"

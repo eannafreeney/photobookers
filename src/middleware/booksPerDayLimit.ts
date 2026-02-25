@@ -4,10 +4,11 @@ import { setFlash } from "../utils";
 import { db } from "../db/client";
 import { books } from "../db/schema";
 import { and, count, eq, gte } from "drizzle-orm";
+import { Context } from "hono";
 
 const MAX_BOOKS_PER_DAY = 5;
 
-export const limitBooksPerDay = createMiddleware(async (c, next) => {
+export const limitBooksPerDay = createMiddleware(async (c: Context, next) => {
   const user = await getUser(c);
   if (!user) {
     return c.redirect("/auth/login");
