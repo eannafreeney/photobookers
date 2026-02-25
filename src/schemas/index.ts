@@ -63,6 +63,7 @@ export const registerFanFormSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
   agreeToTerms,
+  redirectUrl: z.string().optional(),
 });
 
 // ============ LOGIN FORM SCHEMA ============
@@ -77,7 +78,6 @@ export const creatorFormSchema = z.object({
   tagline: z.string().max(150, "Tagline must be less than 150 characters"),
   bio: z
     .string()
-    .min(10, "Description must be at least 10 characters")
     .max(1000, "Description must be less than 1000 characters")
     .optional(),
   city: optionalText,
@@ -130,9 +130,12 @@ export const creatorIdSchema = z.object({
   creatorId: uuidField,
 });
 
+export const redirectUrlSchema = z.object({
+  redirectUrl: z.string().optional(),
+});
+
 // ============ CLAIM FORM SCHEMA ============
 export const claimFormSchema = z.object({
-  buttonType: z.enum(["default", "circle"]).default("default"),
   verificationMethod: z.enum(["website", "instagram"]).default("website"),
   verificationUrl: z
     .url("Please enter a valid URL (e.g., https://example.com)")
@@ -141,7 +144,6 @@ export const claimFormSchema = z.object({
 });
 
 // ============ BOOK FORM SCHEMA ============
-// This validates form input, NOT database values
 export const bookFormSchema = z.object({
   title: z.string().min(3, "Title is required"),
   artist_id: optionalText,

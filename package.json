@@ -4,7 +4,7 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "start": "NODE_ENV=production node --import tsx src/server.ts",
+    "start": "NODE_ENV=production dotenv -e .env.production -- node --import tsx src/server.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

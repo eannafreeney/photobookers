@@ -35,9 +35,9 @@ claimRoutes.get("/:creatorId", async (c) => {
       <>
         <div id="toast"></div>
         <AuthModal
-          action="to claim this creator."
+          action="first to claim this creator."
           redirectUrl={currentPath}
-          registerButtonUrl="/auth/register?type=fan"
+          registerButtonUrl={`/auth/register?type=fan&redirectUrl=${currentPath}`}
         />
       </>,
       422,
@@ -46,11 +46,7 @@ claimRoutes.get("/:creatorId", async (c) => {
 
   const creator = await getCreatorById(creatorId);
 
-  if (!creator) {
-    return c.html(<Alert type="danger" message="Creator not found" />, 404);
-  }
-
-  const buttonType = c.req.query("buttonType") ?? "default";
+  if (!creator) return showErrorAlert(c, "Creator Not Found");
 
   return c.html(
     <>
@@ -58,15 +54,10 @@ claimRoutes.get("/:creatorId", async (c) => {
         <ClaimModal
           creatorId={creatorId}
           user={user}
-          buttonType={buttonType}
           creatorWebsite={creator.website ?? ""}
         />
       </Modal>
-      <ClaimCreatorBtn
-        creator={creator}
-        isCircleButton={buttonType === "circle"}
-        user={user}
-      />
+      <ClaimCreatorBtn creator={creator} user={user} />
       <div id="toast"></div>
     </>,
   );
@@ -81,12 +72,10 @@ claimRoutes.post(
     const formData = c.req.valid("form");
     const creatorId = c.req.valid("param").creatorId;
     const user = await getUser(c);
-    const userId = user?.id;
+    const userId = user.id;
 
     const creator = await getCreatorById(creatorId);
-    if (!creator) {
-      return showErrorAlert(c, "Creator not found");
-    }
+    if (!creator) return showErrorAlert(c, "Creator not found");
 
     // Normalize and validate URL
     const verificationUrl = normalizeUrl(formData.verificationUrl);
@@ -130,7 +119,7 @@ claimRoutes.post(
     try {
       const { error } = await supabaseAdmin.functions.invoke("send-email", {
         body: {
-          to: user?.email,
+          to: user.email,
           subject: `Verify Your Claim for ${creator.displayName}`,
           html: emailHtml,
         },
@@ -156,19 +145,13 @@ claimRoutes.post(
       );
     }
 
-    const buttonType = formData.buttonType ?? "default";
-
     return c.html(
       <>
         <Alert
           type="success"
           message={`Verification email sent! Please check your inbox.`}
         />
-        <ClaimCreatorBtn
-          creator={creator}
-          isCircleButton={buttonType === "circle"}
-          user={user}
-        />
+        <ClaimCreatorBtn creator={creator} user={user} />
       </>,
     );
   },
