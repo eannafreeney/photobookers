@@ -186,3 +186,9 @@ export const bookOfTheWeekFormSchema = z.object({
     .min(1, "Text is required")
     .max(250, "Text must be less than 250 characters"),
 });
+
+// ============ MANUAL ASSIGN CREATOR SCHEMA ============
+export const manualAssignCreatorSchema = z.object({
+  email: z.email("Enter a valid email"),
+  website: z.url("Enter a valid website URL"),
+});

@@ -69,6 +69,7 @@ const EditCreatorPage = ({
               creatorId={creator?.id}
               type={creator?.type}
             />
+            <ManualAssignCreatorForm creatorId={creator.id} />
           </div>
         </div>
         <CreatorBookList
@@ -83,3 +84,40 @@ const EditCreatorPage = ({
 };
 
 export default EditCreatorPage;
+
+const ManualAssignCreatorForm = ({ creatorId }: { creatorId: string }) => {
+  return (
+    <>
+      <div class="mt-8 p-4 border border-outline rounded-lg">
+        <h3 class="text-lg font-semibold mb-2">Assign creator to user</h3>
+        <p class="text-sm text-base-content/70 mb-3">
+          Assign this creator profile to an existing user (by email). They will
+          own it without going through verification.
+        </p>
+        <form
+          action={`/dashboard/admin/creators/edit/${creatorId}/assign`}
+          method="post"
+          class="flex flex-wrap items-end gap-3"
+        >
+          <input
+            type="email"
+            name="form.email"
+            placeholder="User email"
+            required
+            class="input input-bordered input-sm w-48"
+          />
+          <input
+            type="url"
+            name="form.website"
+            placeholder="https://their-website.com"
+            required
+            class="input input-bordered input-sm w-56"
+          />
+          <button type="submit" class="btn btn-primary btn-sm">
+            Assign
+          </button>
+        </form>
+      </div>
+    </>
+  );
+};

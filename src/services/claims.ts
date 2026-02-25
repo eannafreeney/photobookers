@@ -329,3 +329,27 @@ export const getPendingClaimByUserAndCreator = async (
     .limit(1);
   return claim ?? null;
 };
+
+export const assignCreatorToUserManually = async (
+  userId: string,
+  creatorId: string,
+  websiteUrl: string,
+) => {
+  const verificationToken = nanoid(32);
+  const [claim] = await db
+    .insert(creatorClaims)
+    .values({
+      userId,
+      creatorId,
+      verificationToken,
+      verificationMethod: "website",
+      verificationUrl: websiteUrl,
+      status: "approved",
+      verifiedAt: new Date(),
+    })
+    .returning();
+
+  if (!claim) return null;
+  await updateCreatorOwnerAndStatus(claim);
+  return claim;
+};
