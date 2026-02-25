@@ -6,7 +6,6 @@ import AppLayout from "../../components/layouts/AppLayout";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
 import CreatorBookList from "../../components/dashboard/BookList";
 import EditCreatorFormAdmin from "../../components/cms/forms/EditCreatorFormAdmin";
-import Input from "../../components/cms/ui/Input";
 import Button from "../../components/app/Button";
 
 type Props = {
@@ -99,22 +98,21 @@ const ManualAssignCreatorForm = ({ creatorId }: { creatorId: string }) => {
         <form
           action={`/dashboard/admin/creators/edit/${creatorId}/assign`}
           method="post"
-          class="flex flex-wrap items-end gap-3"
-          x-target="toast"
+          class="flex items-center gap-2"
         >
-          <Input
-            label="User email"
-            name="email"
+          <input
             type="email"
+            name="email"
             placeholder="User email"
             required
+            class="input input-bordered input-sm w-48"
           />
-          <Input
-            label="Website"
-            name="website"
+          <input
             type="url"
+            name="website"
             placeholder="https://their-website.com"
             required
+            class="input input-bordered input-sm w-56"
           />
           <Button variant="solid" color="primary" width="fit">
             Assign
