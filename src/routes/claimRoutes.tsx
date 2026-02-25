@@ -145,6 +145,8 @@ claimRoutes.post(
       );
     }
 
+    console.log("got past try block", claim);
+
     return c.html(
       <>
         <Alert

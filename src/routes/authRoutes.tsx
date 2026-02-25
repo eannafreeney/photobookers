@@ -428,15 +428,20 @@ authRoutes.get("/callback", async (c) => {
 
 // Log out
 authRoutes.get("/logout", async (c) => {
-  const currentPath = c.req.path;
+  const redirectUrl = c.req.query("redirectUrl");
+  console.log("redirectUrl", redirectUrl);
+  const safePath =
+    redirectUrl &&
+    !redirectUrl.startsWith("/auth/") &&
+    redirectUrl.startsWith("/")
+      ? redirectUrl
+      : "/";
   const { error } = await supabaseAdmin.auth.signOut();
 
-  if (error) {
-    return showErrorAlert(c);
-  }
+  if (error) return showErrorAlert(c);
 
   deleteCookie(c, "token");
-  return c.redirect(currentPath ?? "/");
+  return c.redirect(safePath);
 });
 
 authRoutes.get("/reset-password", async (c) => {
