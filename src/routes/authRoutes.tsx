@@ -15,8 +15,9 @@ import AccountsPage from "../pages/auth/AccountsPage";
 import Alert from "../components/app/Alert";
 import ResetPasswordConfirmPage from "../pages/auth/ResetPasswordConfirmPage";
 import ErrorPage from "../pages/error/errorPage";
-import { formValidator } from "../lib/validator";
+import { formValidator, paramValidator } from "../lib/validator";
 import {
+  redirectUrlSchema,
   registerCreatorFormSchema,
   registerFanFormSchema,
   resendVerificationFormSchema,
@@ -30,6 +31,8 @@ import {
   createStubCreatorProfile,
   generateClaimEmail,
 } from "../services/creators";
+import Modal from "../components/app/Modal";
+import Input from "../components/cms/ui/Input";
 
 const authRoutes = new Hono();
 
@@ -42,7 +45,7 @@ authRoutes.get("/accounts", async (c) => {
 });
 
 authRoutes.get("/login", async (c) => {
-  const redirectUrl = c.req.query("redirectUrl");
+  const redirectUrl = c.req.query("redirectUrl") ?? null;
   const user = await getUser(c);
   const flash = await getFlash(c);
   if (user) {
@@ -54,10 +57,11 @@ authRoutes.get("/login", async (c) => {
 authRoutes.get("/register", async (c) => {
   const type = c.req.query("type") as "fan" | "artist" | "publisher";
   const user = await getUser(c);
+  const redirectUrl = c.req.query("redirectUrl") ?? "";
   if (user) {
     return c.redirect("/");
   }
-  return c.html(<RegisterPage type={type} />);
+  return c.html(<RegisterPage type={type} redirectUrl={redirectUrl} />);
 });
 
 authRoutes.get("/resend-verification", async (c) => {
@@ -104,9 +108,9 @@ authRoutes.post(
 );
 
 // Log in
-authRoutes.post("/login", async (c) => {
+authRoutes.post("/login", paramValidator(redirectUrlSchema), async (c) => {
   const body = await c.req.parseBody();
-  const redirectUrl = c.req.query("redirectUrl");
+  const redirectUrl = c.req.valid("param").redirectUrl;
   const email = body.email as string;
   const password = body.password as string;
   const error = await login(c, email, password);
@@ -125,9 +129,11 @@ authRoutes.post("/login", async (c) => {
 
 authRoutes.post(
   "/register-fan",
+  paramValidator(redirectUrlSchema),
   formValidator(registerFanFormSchema),
   async (c) => {
     const formData = c.req.valid("form");
+    const redirectUrl = c.req.valid("param").redirectUrl;
     const firstName = formData.firstName as string;
     const lastName = formData.lastName as string;
     const email = formData.email as string;
@@ -136,7 +142,7 @@ authRoutes.post(
     const supabase = createSupabaseClient(c);
 
     const baseUrl = process.env.SITE_URL ?? "http://localhost:5173"; // fallback for dev
-    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
+    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback${redirectUrl ? `?redirectUrl=${redirectUrl}` : ""}`;
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -346,6 +352,7 @@ function getCallbackErrorMessage(
 
 authRoutes.get("/callback", async (c) => {
   const code = c.req.query("code");
+  const redirectUrl = c.req.query("redirectUrl");
   const error = c.req.query("error");
   const errorCode = c.req.query("error_code");
   const errorDescription = c.req.query("error_description");
@@ -416,29 +423,66 @@ authRoutes.get("/callback", async (c) => {
     `Hi ${user.user_metadata?.firstName ?? "there"}! Your account has been verified successfully. Have fun!`,
   );
 
-  return c.redirect("/");
+  return c.redirect(redirectUrl ?? "/");
 });
 
 // Log out
 authRoutes.get("/logout", async (c) => {
+  const redirectUrl = c.req.query("redirectUrl");
+  console.log("redirectUrl", redirectUrl);
+  const safePath =
+    redirectUrl &&
+    !redirectUrl.startsWith("/auth/") &&
+    redirectUrl.startsWith("/")
+      ? redirectUrl
+      : "/";
   const { error } = await supabaseAdmin.auth.signOut();
 
-  if (error) {
-    return c.json({ error: error.message }, 401);
-  }
+  if (error) return showErrorAlert(c);
 
   deleteCookie(c, "token");
-  return c.redirect("/");
+  return c.redirect(safePath);
 });
 
-// GET - Show reset password form
-// authRoutes.get("/reset-password", async (c) => {
-//   const user = await getUser(c);
-//   if (user) {
-//     return c.redirect("/");
-//   }
-//   return c.html(<ResetPasswordPage />);
-// });
+authRoutes.get("/reset-password", async (c) => {
+  const user = await getUser(c);
+  if (user) {
+    return c.redirect("/");
+  }
+
+  const alpineAttrs = {
+    "x-data": "resetPasswordForm()",
+    // "x-on:submit": "submitForm($event)",
+    // "x-target.away": "_top",
+    "x-target": "toast",
+    // "x-on:ajax:error": "isSubmitting = false",
+  };
+
+  return c.html(
+    <Modal>
+      <form action="/reset-password" method="post" {...alpineAttrs}>
+        <Input
+          type="password"
+          label="Password"
+          name="form.password"
+          validateInput="validatePassword()"
+          placeholder="••••••••"
+          validationTrigger="blur"
+          required
+        />
+        <Input
+          type="password"
+          label="Confirm Password"
+          name="form.confirmPassword"
+          validateInput="validateConfirmPassword()"
+          placeholder="••••••••"
+          validationTrigger="blur"
+          required
+        />
+      </form>
+    </Modal>,
+  );
+});
 
 authRoutes.post("/reset-password", async (c) => {
   const user = await getUser(c);

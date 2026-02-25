@@ -5,9 +5,10 @@ import { capitalize } from "../../utils";
 
 type RegisterPageProps = {
   type: "fan" | "artist" | "publisher";
+  redirectUrl?: string;
 };
 
-const RegisterPage = ({ type }: RegisterPageProps) => {
+const RegisterPage = ({ type, redirectUrl }: RegisterPageProps) => {
   const intendedCreatorType = type === "artist" || type === "publisher";
 
   return (
@@ -21,7 +22,7 @@ const RegisterPage = ({ type }: RegisterPageProps) => {
             {intendedCreatorType ? (
               <RegisterCreatorForm type={type} />
             ) : (
-              <RegisterFanForm />
+              <RegisterFanForm redirectUrl={redirectUrl} />
             )}
           </div>
         </div>

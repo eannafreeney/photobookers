@@ -140,7 +140,10 @@ const DropDownMenu = ({
           <NavLink href="/user/my-account" currentPath={currentPath}>
             Edit Account
           </NavLink>
-          <NavLink href="/auth/logout" currentPath={currentPath}>
+          <NavLink
+            href={`/auth/logout?redirectUrl=${encodeURIComponent(currentPath ?? "")}`}
+            currentPath={currentPath}
+          >
             Logout
           </NavLink>
         </>

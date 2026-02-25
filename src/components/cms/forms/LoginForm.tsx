@@ -11,13 +11,13 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
     "x-on:ajax:error": "isSubmitting = false",
   };
 
+  const action = redirectUrl
+    ? `/auth/login?redirectUrl=${redirectUrl}`
+    : `/auth/login`;
+
   return (
     <>
-      <form
-        action={`/auth/login?redirectUrl=${redirectUrl}`}
-        method="post"
-        {...alpineAttrs}
-      >
+      <form action={action} method="post" {...alpineAttrs}>
         <Input
           label="Email"
           name="form.email"

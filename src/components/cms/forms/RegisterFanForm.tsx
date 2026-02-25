@@ -3,7 +3,11 @@ import Checkbox from "../ui/Checkbox";
 import FormButton from "../ui/FormButtons";
 import Input from "../ui/Input";
 
-const RegisterFanForm = () => {
+type Props = {
+  redirectUrl?: string;
+};
+
+const RegisterFanForm = ({ redirectUrl }: Props) => {
   const alpineAttrs = {
     "x-data": "registerFanForm()",
     "x-on:submit": "submitForm($event)",
@@ -12,9 +16,13 @@ const RegisterFanForm = () => {
     "x-on:ajax:error": "isSubmitting = false",
   };
 
+  const action = redirectUrl
+    ? `/auth/register-fan?redirectUrl=${redirectUrl}`
+    : "/auth/register-fan";
+
   return (
     <>
-      <form action="/auth/register-fan" method="post" {...alpineAttrs}>
+      <form action={action} method="post" {...alpineAttrs}>
         <Input
           label="First Name"
           name="form.firstName"

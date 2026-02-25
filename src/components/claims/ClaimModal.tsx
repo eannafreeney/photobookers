@@ -5,11 +5,10 @@ import Input from "../cms/ui/Input";
 type Props = {
   creatorId: string;
   user: AuthUser;
-  buttonType: string;
   creatorWebsite?: string;
 };
 
-const ClaimModal = ({ creatorId, user, buttonType, creatorWebsite }: Props) => {
+const ClaimModal = ({ creatorId, user, creatorWebsite }: Props) => {
   const alpineAttrs = {
     "x-data": `claimForm(${JSON.stringify({ creatorWebsite: creatorWebsite ?? null })})`,
     "x-target": `toast claim-${creatorId}`,
@@ -55,7 +54,6 @@ const ClaimModal = ({ creatorId, user, buttonType, creatorWebsite }: Props) => {
         </div>
 
         <input type="hidden" name="email" value={user?.email} />
-        <input type="hidden" name="buttonType" value={buttonType} />
         <Button variant="solid" color="primary">
           Start Verification
         </Button>

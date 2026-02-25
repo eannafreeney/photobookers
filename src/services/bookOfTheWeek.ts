@@ -36,6 +36,29 @@ export async function setBookOfTheWeek(params: {
   }
 }
 
+export async function updateBookOfTheWeek(params: {
+  weekStart: Date;
+  bookId: string;
+  text: string;
+}): Promise<BookOfTheWeek | null> {
+  const weekStart = toWeekStart(params.weekStart);
+  try {
+    const [row] = await db
+      .insert(bookOfTheWeek)
+      .values({
+        weekStart,
+        bookId: params.bookId,
+        text: params.text,
+      })
+      .returning();
+    return row ?? null;
+  } catch (e) {
+    // uniqueDate or uniqueBook violation
+    console.error("setBookOfTheWeek", e);
+    return null;
+  }
+}
+
 export type BookOfTheWeekWithBook = Awaited<
   ReturnType<typeof getBookOfTheWeekForDateQuery>
 >;

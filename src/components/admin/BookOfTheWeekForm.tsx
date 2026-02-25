@@ -22,6 +22,10 @@ const BookOfTheWeekForm = ({ book, formValues, isEditMode }: Props) => {
     "x-target.error": "book-of-the-week-errors",
   };
 
+  const action = isEditMode
+    ? `/dashboard/admin/book-of-the-week/edit/${book.id}`
+    : `/dashboard/admin/book-of-the-week/${book.id}`;
+
   return (
     <>
       <Card>
@@ -57,7 +61,7 @@ const BookOfTheWeekForm = ({ book, formValues, isEditMode }: Props) => {
         id="book-of-the-week"
         class="mt-4"
         method="post"
-        action={`/dashboard/admin/book-of-the-week/${book.id}`}
+        action={action}
         {...alpineAttrs}
       >
         <div>
