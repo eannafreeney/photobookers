@@ -65,7 +65,7 @@ import {
 import { toWeekString } from "../lib/utils";
 import BooksPage from "../pages/admin/BooksPage";
 import EditCreatorPageAdmin from "../pages/admin/EditCreatorPageAdmin";
-import { findUserByEmail } from "../services/users";
+import { findUserByEmail, getUserById } from "../services/users";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -238,12 +238,20 @@ adminDashboardRoutes.get(
     }
     const currentPath = c.req.path;
     const currentPage = Number(c.req.query("page") ?? 1);
+
+    let ownerEmail: string | null = null;
+    if (creator.ownerUserId) {
+      const owner = await getUserById(creator.ownerUserId);
+      ownerEmail = owner?.email ?? null;
+    }
+
     return c.html(
       <EditCreatorPageAdmin
         user={user}
         creator={creator}
         currentPath={currentPath}
         currentPage={currentPage}
+        ownerEmail={ownerEmail}
       />,
     );
   },

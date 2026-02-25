@@ -13,6 +13,7 @@ type Props = {
   creator: Creator;
   currentPath: string;
   currentPage: number;
+  ownerEmail: string | null;
 };
 
 const EditCreatorPage = ({
@@ -20,6 +21,7 @@ const EditCreatorPage = ({
   creator,
   currentPath,
   currentPage,
+  ownerEmail,
 }: Props) => {
   const formValues = JSON.stringify({
     displayName: creator?.displayName,
@@ -73,6 +75,7 @@ const EditCreatorPage = ({
             <ManualAssignCreatorForm
               creatorId={creator.id}
               creatorWebsite={creator?.website ?? ""}
+              ownerEmail={ownerEmail}
             />
           </div>
         </div>
@@ -90,11 +93,13 @@ const EditCreatorPage = ({
 export default EditCreatorPage;
 
 const ManualAssignCreatorForm = ({
+  ownerEmail,
   creatorId,
   creatorWebsite,
 }: {
+  ownerEmail: string | null;
   creatorId: string;
-  creatorWebsite: string;
+  creatorWebsite: string | null;
 }) => {
   return (
     <>
@@ -114,6 +119,7 @@ const ManualAssignCreatorForm = ({
             name="email"
             placeholder="User email"
             required
+            value={ownerEmail ?? ""}
             class="input input-bordered input-sm w-48"
           />
           <input
