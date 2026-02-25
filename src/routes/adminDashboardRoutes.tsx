@@ -3,6 +3,7 @@ import Alert from "../components/app/Alert";
 import { getFlash, getUser, setFlash } from "../utils";
 import {
   approveClaim,
+  assignCreatorToUserManually,
   generateClaimApprovalEmail,
   generateClaimRejectionEmail,
   rejectClaim,
@@ -26,6 +27,7 @@ import {
   bookOfTheWeekFormSchema,
   creatorFormAdminSchema,
   creatorIdSchema,
+  manualAssignCreatorSchema,
 } from "../schemas";
 import { formValidator, paramValidator } from "../lib/validator";
 import { CreatorsTable } from "../components/admin/CreatorsTable";
@@ -63,6 +65,7 @@ import {
 import { toWeekString } from "../lib/utils";
 import BooksPage from "../pages/admin/BooksPage";
 import EditCreatorPageAdmin from "../pages/admin/EditCreatorPageAdmin";
+import { findUserByEmail } from "../services/users";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -664,5 +667,30 @@ adminDashboardRoutes.post(
         </div>
       </>,
     );
+  },
+);
+
+adminDashboardRoutes.post(
+  "/creators/edit/:creatorId/assign",
+  requireAdminAccess,
+  paramValidator(creatorIdSchema),
+  formValidator(manualAssignCreatorSchema),
+  async (c) => {
+    const creatorId = c.req.valid("param").creatorId;
+    const { email, website } = c.req.valid("form");
+    const creator = await getCreatorById(creatorId);
+    if (!creator) return showErrorAlert(c, "Creator not found");
+
+    const user = await findUserByEmail(email);
+    if (!user) return showErrorAlert(c, "No user found with that email");
+
+    try {
+      await assignCreatorToUserManually(user.id, creatorId, website);
+    } catch (err) {
+      console.error("Manual assign failed:", err);
+      return showErrorAlert(c, "Failed to assign creator. Please try again.");
+    }
+    await setFlash(c, "success", `Creator assigned to ${user.email}`);
+    return c.redirect(`/dashboard/admin/creators/edit/${creatorId}`);
   },
 );

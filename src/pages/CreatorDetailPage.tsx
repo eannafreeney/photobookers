@@ -47,11 +47,13 @@ const CreatorDetailPage = async ({
   return (
     <AppLayout title={creator?.displayName ?? ""} user={user}>
       <Page>
-        <PageTitle creator={creator} user={user} />
         <div class="flex flex-col md:flex-row gap-4">
           <div class="md:w-4/5 flex flex-col gap-4">
-            <div class="flex justify-end">
-              <SortDropdown sortBy={sortBy} currentPath={currentPath} />
+            <div class="flex flex-col md:flex-row justify-between items-center gap-1">
+              <PageTitle creator={creator} user={user} />
+              <div class="flex justify-end">
+                <SortDropdown sortBy={sortBy} currentPath={currentPath} />
+              </div>
             </div>
             <GridPanel id={targetId} xMerge="append">
               {books.map((book) => (
@@ -70,7 +72,7 @@ const CreatorDetailPage = async ({
               targetId={targetId}
             />
           </div>
-          <div class="md:w-1/5">
+          <div class="md:w-1/5 md:mt-14">
             <CreatorCard
               creator={creator}
               currentPath={currentPath}
