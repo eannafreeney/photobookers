@@ -6,6 +6,8 @@ import AppLayout from "../../components/layouts/AppLayout";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
 import CreatorBookList from "../../components/dashboard/BookList";
 import EditCreatorFormAdmin from "../../components/cms/forms/EditCreatorFormAdmin";
+import Input from "../../components/cms/ui/Input";
+import Button from "../../components/app/Button";
 
 type Props = {
   user: AuthUser;
@@ -100,23 +102,23 @@ const ManualAssignCreatorForm = ({ creatorId }: { creatorId: string }) => {
           class="flex flex-wrap items-end gap-3"
           x-target="toast"
         >
-          <input
-            type="email"
+          <Input
+            label="User email"
             name="email"
+            type="email"
             placeholder="User email"
             required
-            class="input input-bordered input-sm w-48"
           />
-          <input
-            type="url"
+          <Input
+            label="Website"
             name="website"
+            type="url"
             placeholder="https://their-website.com"
             required
-            class="input input-bordered input-sm w-56"
           />
-          <button type="submit" class="btn btn-primary btn-sm">
+          <Button variant="solid" color="primary" width="fit">
             Assign
-          </button>
+          </Button>
         </form>
       </div>
     </>
