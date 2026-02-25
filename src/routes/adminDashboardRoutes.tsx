@@ -684,8 +684,10 @@ adminDashboardRoutes.post(
     const user = await findUserByEmail(email);
     if (!user) return showErrorAlert(c, "No user found with that email");
 
+    const websiteUrl = website?.trim() || null;
+
     try {
-      await assignCreatorToUserManually(user.id, creatorId, website);
+      await assignCreatorToUserManually(user.id, creatorId, websiteUrl);
     } catch (err) {
       console.error("Manual assign failed:", err);
       return showErrorAlert(c, "Failed to assign creator. Please try again.");

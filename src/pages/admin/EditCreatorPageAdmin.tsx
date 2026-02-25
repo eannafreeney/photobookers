@@ -70,7 +70,10 @@ const EditCreatorPage = ({
               creatorId={creator?.id}
               type={creator?.type}
             />
-            <ManualAssignCreatorForm creatorId={creator.id} />
+            <ManualAssignCreatorForm
+              creatorId={creator.id}
+              creatorWebsite={creator?.website ?? ""}
+            />
           </div>
         </div>
         <CreatorBookList
@@ -86,7 +89,13 @@ const EditCreatorPage = ({
 
 export default EditCreatorPage;
 
-const ManualAssignCreatorForm = ({ creatorId }: { creatorId: string }) => {
+const ManualAssignCreatorForm = ({
+  creatorId,
+  creatorWebsite,
+}: {
+  creatorId: string;
+  creatorWebsite: string;
+}) => {
   return (
     <>
       <div class="mt-8 p-4 border border-outline rounded-lg">
@@ -111,7 +120,7 @@ const ManualAssignCreatorForm = ({ creatorId }: { creatorId: string }) => {
             type="url"
             name="website"
             placeholder="https://their-website.com"
-            required
+            value={creatorWebsite ?? ""}
             class="input input-bordered input-sm w-56"
           />
           <Button variant="solid" color="primary" width="fit">
