@@ -333,7 +333,7 @@ export const getPendingClaimByUserAndCreator = async (
 export const assignCreatorToUserManually = async (
   userId: string,
   creatorId: string,
-  websiteUrl: string,
+  websiteUrl?: string | null,
 ) => {
   const verificationToken = nanoid(32);
   const [claim] = await db
@@ -343,7 +343,7 @@ export const assignCreatorToUserManually = async (
       creatorId,
       verificationToken,
       verificationMethod: "website",
-      verificationUrl: websiteUrl,
+      verificationUrl: websiteUrl ?? null,
       status: "approved",
       verifiedAt: new Date(),
     })

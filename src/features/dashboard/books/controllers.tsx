@@ -3,10 +3,29 @@ import { getFlash, getUser, setFlash } from "../../../utils";
 import { getIsMobile } from "../../../lib/device";
 import BooksOverview from "../../../pages/dashboard/BooksOverview";
 import AddBookPage from "../../../pages/dashboard/AddBookPage";
-import { resolveArtist } from "../../../services/creators";
+import { resolveArtist, resolvePublisher } from "../../../services/creators";
 import { showErrorAlert } from "../../../lib/alertHelpers";
-import { createBook, prepareBookData } from "../../../services/books";
 import Alert from "../../../components/app/Alert";
+import BookEditPage from "../../../pages/dashboard/BookEditPage";
+import {
+  BookFormContext,
+  BookFormWithBookContext,
+  BookIdContext,
+} from "./types";
+import { BooksOverviewTable } from "../../../components/dashboard/BooksOverviewTable";
+import PublishToggleForm from "../../../components/cms/forms/PublishToggleForm";
+import PreviewButton from "../../../components/api/PreviewButton";
+import BooksForApprovalTable from "../../../components/cms/ui/BooksForApprovalTable";
+import {
+  approveBookById,
+  createBook,
+  rejectBookById,
+  updateBook,
+  deleteBookById,
+  prepareBookData,
+  prepareBookUpdateData,
+  updateBookPublicationStatus,
+} from "./services";
 
 export const getBooksOverview = async (c: Context) => {
   const searchQuery = c.req.query("search");
@@ -32,7 +51,7 @@ export const getAddBookPage = async (c: Context) => {
   return c.html(<AddBookPage user={user} />);
 };
 
-export const createBookAsPublisher = async (c: Context) => {
+export const createBookAsPublisher = async (c: BookFormContext) => {
   const user = await getUser(c);
   const formData = c.req.valid("form");
 
@@ -60,4 +79,208 @@ export const createBookAsPublisher = async (c: Context) => {
 
   await setFlash(c, "success", `${newBook.title} created!`);
   return c.redirect("/dashboard/books");
+};
+
+export const createBookAsArtist = async (c: BookFormContext) => {
+  const user = await getUser(c);
+  const formData = c.req.valid("form");
+
+  if (!user.creator) {
+    return showErrorAlert(c, "No Creator Profile Found");
+  }
+
+  const publisher = await resolvePublisher(formData, user.id);
+
+  if (publisher === "error") {
+    return showErrorAlert(c, "Invalid publisher");
+  }
+
+  const bookData = await prepareBookData(
+    formData,
+    user.creator,
+    user.id,
+    publisher,
+  );
+
+  const newBook = await createBook(bookData);
+
+  if (!newBook) {
+    return showErrorAlert(c, "Failed to create book");
+  }
+
+  await setFlash(c, "success", `Successfully created "${newBook.title}"!`);
+  return c.redirect("/dashboard/books");
+};
+
+export const getEditBookPage = async (c: BookIdContext) => {
+  const bookId = c.req.valid("param").bookId;
+  const user = await getUser(c);
+  const flash = await getFlash(c);
+
+  return c.html(<BookEditPage user={user} bookId={bookId} flash={flash} />);
+};
+
+export const updateBookAsPublisher = async (c: BookFormWithBookContext) => {
+  const formData = c.req.valid("form");
+  const book = c.get("book");
+
+  const bookData = prepareBookUpdateData(formData);
+  const updatedBook = await updateBook(bookData, book.id);
+
+  if (!updatedBook) return showErrorAlert(c, "Failed to update book");
+
+  return c.html(
+    <Alert type="success" message={`${updatedBook.title} updated!`} />,
+  );
+};
+
+export const updateBookAsArtist = async (c: BookFormWithBookContext) => {
+  const formData = c.req.valid("form");
+  const book = c.get("book");
+
+  const bookData = prepareBookUpdateData(formData);
+  const updatedBook = await updateBook(bookData, book.id);
+
+  if (!updatedBook) {
+    return showErrorAlert(c, "Failed to update book");
+  }
+
+  return c.html(
+    <Alert type="success" message={`${updatedBook.title} updated!`} />,
+  );
+};
+
+export const deleteBook = async (c: BookIdContext) => {
+  const bookId = c.req.valid("param").bookId;
+  const user = await getUser(c);
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+
+  if (!user.creator) return showErrorAlert(c, "No Creator Profile Found");
+
+  const deletedBook = await deleteBookById(bookId);
+
+  if (!deletedBook) {
+    return showErrorAlert(c, "Failed to delete book");
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message={`${deletedBook.title} deleted!`} />
+      <BooksOverviewTable
+        searchQuery={undefined}
+        creator={user.creator}
+        user={user}
+        isMobile={isMobile}
+      />
+    </>,
+  );
+};
+
+export const makeBookPublic = async (c: BookFormWithBookContext) => {
+  const book = c.get("book");
+  const user = await getUser(c);
+
+  if (!book) {
+    return c.html(<Alert type="danger" message="Book not found" />, 422);
+  }
+
+  const result = await updateBookPublicationStatus(book.id, "published");
+
+  if (!result.success) {
+    return c.html(<Alert type="danger" message={result.error} />, 400);
+  }
+
+  const updatedBook = result.book;
+
+  return c.html(
+    <>
+      <Alert
+        type="success"
+        message={`${updatedBook?.title ?? "Book"} Published!`}
+      />
+      <PublishToggleForm book={updatedBook} />
+      <PreviewButton book={updatedBook} user={user} />
+    </>,
+  );
+};
+
+export const makeBookDraft = async (c: BookFormWithBookContext) => {
+  const book = c.get("book");
+  const user = await getUser(c);
+
+  const result = await updateBookPublicationStatus(book.id, "draft");
+
+  if (!result.success) {
+    return c.html(
+      <>
+        <Alert type="danger" message={result.error} />
+        <PublishToggleForm book={book} />
+      </>,
+      400,
+    );
+  }
+
+  const updatedBook = result.book;
+
+  return c.html(
+    <>
+      <Alert
+        type="warning"
+        message={`${updatedBook?.title ?? "Book"} Unpublished!`}
+      />
+      <PublishToggleForm book={updatedBook} />
+      <PreviewButton book={updatedBook} user={user} />
+    </>,
+  );
+};
+
+export const approveBook = async (c: BookIdContext) => {
+  const bookId = c.req.valid("param").bookId;
+  const user = await getUser(c);
+
+  if (!user.creator) {
+    return c.html(
+      <Alert type="danger" message="No Creator Profile Found" />,
+      422,
+    );
+  }
+  const updatedBook = await approveBookById(bookId);
+
+  if (!updatedBook) {
+    return c.html(
+      <Alert type="danger" message="Failed to approve book" />,
+      422,
+    );
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message="Book Approved!" />
+      <BooksForApprovalTable creatorId={user.creator.id} />
+    </>,
+  );
+};
+
+export const rejectBook = async (c: BookIdContext) => {
+  const bookId = c.req.valid("param").bookId;
+  const user = await getUser(c);
+
+  if (!user.creator) {
+    return c.html(
+      <Alert type="danger" message="No Creator Profile Found" />,
+      422,
+    );
+  }
+  const updatedBook = await rejectBookById(bookId);
+
+  if (!updatedBook) {
+    return c.html(<Alert type="danger" message="Failed to reject book" />, 422);
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message="Book Rejected!" />
+      <BooksForApprovalTable creatorId={user.creator.id} />
+    </>,
+  );
 };

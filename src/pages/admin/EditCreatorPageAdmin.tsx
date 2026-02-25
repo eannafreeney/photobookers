@@ -13,6 +13,7 @@ type Props = {
   creator: Creator;
   currentPath: string;
   currentPage: number;
+  ownerEmail: string | null;
 };
 
 const EditCreatorPage = ({
@@ -20,6 +21,7 @@ const EditCreatorPage = ({
   creator,
   currentPath,
   currentPage,
+  ownerEmail,
 }: Props) => {
   const formValues = JSON.stringify({
     displayName: creator?.displayName,
@@ -70,7 +72,11 @@ const EditCreatorPage = ({
               creatorId={creator?.id}
               type={creator?.type}
             />
-            <ManualAssignCreatorForm creatorId={creator.id} />
+            <ManualAssignCreatorForm
+              creatorId={creator.id}
+              creatorWebsite={creator?.website ?? ""}
+              ownerEmail={ownerEmail}
+            />
           </div>
         </div>
         <CreatorBookList
@@ -86,7 +92,15 @@ const EditCreatorPage = ({
 
 export default EditCreatorPage;
 
-const ManualAssignCreatorForm = ({ creatorId }: { creatorId: string }) => {
+const ManualAssignCreatorForm = ({
+  ownerEmail,
+  creatorId,
+  creatorWebsite,
+}: {
+  ownerEmail: string | null;
+  creatorId: string;
+  creatorWebsite: string | null;
+}) => {
   return (
     <>
       <div class="mt-8 p-4 border border-outline rounded-lg">
@@ -105,13 +119,14 @@ const ManualAssignCreatorForm = ({ creatorId }: { creatorId: string }) => {
             name="email"
             placeholder="User email"
             required
+            value={ownerEmail ?? ""}
             class="input input-bordered input-sm w-48"
           />
           <input
             type="url"
             name="website"
             placeholder="https://their-website.com"
-            required
+            value={creatorWebsite ?? ""}
             class="input input-bordered input-sm w-56"
           />
           <Button variant="solid" color="primary" width="fit">

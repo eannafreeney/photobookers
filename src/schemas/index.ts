@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { parseWeekString } from "../lib/utils";
 
-const optionalText = z.preprocess(
+export const optionalText = z.preprocess(
   (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
   z.string().optional(),
 );
@@ -190,5 +190,8 @@ export const bookOfTheWeekFormSchema = z.object({
 // ============ MANUAL ASSIGN CREATOR SCHEMA ============
 export const manualAssignCreatorSchema = z.object({
   email: z.email("Enter a valid email"),
-  website: z.url("Enter a valid website URL"),
+  website: z
+    .string()
+    .optional()
+    .transform((s) => (s && s.trim() ? s : undefined)),
 });
