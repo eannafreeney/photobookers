@@ -1,48 +1,38 @@
-import { Context, Hono } from "hono";
-import FollowButton from "../components/api/FollowButton";
-import WishlistButton from "../components/api/WishlistButton";
-import { capitalize, getUser } from "../utils";
-import { creators } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { Context } from "hono";
+import { capitalize, getUser } from "../../utils";
+import AuthModal from "../../components/app/AuthModal";
 import {
   deleteFollow,
   deleteWishlist,
+  getBookPermissionData,
+  getCreatorByDisplayName,
+  getCreatorByWebsite,
+  getCreatorPermissionData,
   insertFollow,
   insertWishlist,
-} from "../db/queries";
-import AuthModal from "../components/app/AuthModal";
-import { findUserByEmail } from "../services/users";
-import { db } from "../db/client";
-import {
-  getBookPermissionData,
-  getBooksInWishlist,
-  searchBooks,
-} from "../services/books";
-import { getCreatorPermissionData, searchCreators } from "../services/creators";
-import NavSearchResults from "../components/app/NavSearchResults";
-import Alert from "../components/app/Alert";
-import NavSearch from "../components/layouts/NavSearch";
-import { closeIcon } from "../components/layouts/NavSearchMobile";
-import AppLayout from "../components/layouts/AppLayout";
-import { normalizeUrl } from "../services/verification";
-import BookCard from "../components/app/BookCard";
-import GridPanel from "../components/app/GridPanel";
-import WishlistedBooks from "../components/app/WishlistedBooks";
-import ErrorPage from "../pages/error/errorPage";
-import { DISCOVER_TAGS } from "../constants/discover";
-import Badge from "../components/app/Badge";
-import Link from "../components/app/Link";
+} from "./services";
+import { showErrorAlert } from "../../lib/alertHelpers";
+import Alert from "../../components/app/Alert";
+import FollowButton from "../../components/api/FollowButton";
+import WishlistButton from "../../components/api/WishlistButton";
+import { findUserByEmail } from "../../services/users";
+import ValidationLabel from "./components/ValidationLabel";
+import { searchBooks } from "../../services/books";
+import { searchCreators } from "../../services/creators";
+import NavSearchResults from "../../components/app/NavSearchResults";
+import NavSearch from "../../components/layouts/NavSearch";
+import { DISCOVER_TAGS } from "../../constants/discover";
+import Link from "../../components/app/Link";
+import Badge from "../../components/app/Badge";
+import { closeIcon } from "../../lib/icons";
 
-export const apiRoutes = new Hono();
-
-apiRoutes.post("/follow/creator/:creatorId", async (c) => {
+export const followCreator = async (c: Context) => {
   const creatorId = c.req.param("creatorId");
   const user = await getUser(c);
   const userId = user?.id;
 
-  if (!userId) {
+  if (!userId)
     return c.html(<AuthModal action="to follow this creator." />, 401);
-  }
 
   const body = await c.req.parseBody();
   const isCurrentlyFollowing = body.isFollowing === "true";
@@ -60,13 +50,11 @@ apiRoutes.post("/follow/creator/:creatorId", async (c) => {
   }
 
   const creator = await getCreatorPermissionData(creatorId);
-  if (!creator) {
-    return showErrorAlert(c, "Book not found");
-  }
+  if (!creator) return showErrorAlert(c, "Book not found");
 
   const message = isCurrentlyFollowing
-    ? `You are no longer following ${creator.displayName}.`
-    : `You are now following ${creator.displayName}.`;
+    ? `No longer following ${creator.displayName}.`
+    : `Now following ${creator.displayName}.`;
 
   return c.html(
     <>
@@ -78,16 +66,15 @@ apiRoutes.post("/follow/creator/:creatorId", async (c) => {
       />
     </>,
   );
-});
+};
 
-apiRoutes.post("/wishlist/:bookId", async (c) => {
+export const wishlistBook = async (c: Context) => {
   const bookId = c.req.param("bookId");
   const user = await getUser(c);
   const userId = user?.id;
 
-  if (!userId) {
+  if (!userId)
     return c.html(<AuthModal action="to wishlist this book." />, 401);
-  }
 
   const body = await c.req.parseBody();
   const isCurrentlyWishlisted = body.isWishlisted === "true";
@@ -105,9 +92,7 @@ apiRoutes.post("/wishlist/:bookId", async (c) => {
   }
 
   const book = await getBookPermissionData(bookId);
-  if (!book) {
-    return showErrorAlert(c, "Book not found");
-  }
+  if (!book) return showErrorAlert(c, "Book not found");
 
   const message = isCurrentlyWishlisted
     ? `${book.title} has been removed from your wishlist`
@@ -126,83 +111,33 @@ apiRoutes.post("/wishlist/:bookId", async (c) => {
       </div>
     </>,
   );
-});
+};
 
-const showErrorAlert = (
-  c: Context,
-  errorMessage: string = "Action Failed! Please try again.",
-) => c.html(<Alert type="danger" message={errorMessage} />, 422);
-
-apiRoutes.get("/check-email", async (c) => {
+export const validateEmail = async (c: Context) => {
   const email = c.req.query("email");
-
-  if (!email) {
-    return c.html(<div id="email-availability-status"></div>);
-  }
-
+  const id = "email-availability-status";
+  if (!email) return c.html(<div id={id}></div>);
   const existingUser = await findUserByEmail(email);
-  const available = !existingUser;
+  return c.html(<ValidationLabel id={id} entityExists={!!existingUser} />);
+};
 
-  return c.html(
-    <div id="email-availability-status">
-      {available ? (
-        <p class="label text-success mt-1">✓ Available</p>
-      ) : (
-        <p class="label text-danger mt-1">✗ Taken</p>
-      )}
-    </div>,
-  );
-});
-
-apiRoutes.get("/check-displayName", async (c) => {
+export const validateDisplayName = async (c: Context) => {
   const displayName = c.req.query("displayName");
+  const id = "display-name-availability-status";
+  if (!displayName) return c.html(<div id={id}></div>);
+  const existingCreator = await getCreatorByDisplayName(displayName);
+  return c.html(<ValidationLabel id={id} entityExists={!!existingCreator} />);
+};
 
-  if (!displayName) {
-    return c.html(<div id="display-name-availability-status"></div>);
-  }
-
-  const existingCreator = await db.query.creators.findFirst({
-    where: eq(creators.displayName, displayName),
-  });
-
-  const available = !existingCreator;
-
-  return c.html(
-    <div id="display-name-availability-status">
-      {available ? (
-        <p class="label text-success mt-1">✓ Available</p>
-      ) : (
-        <p class="label text-danger mt-1">✗ Taken</p>
-      )}
-    </div>,
-  );
-});
-
-apiRoutes.get("/check-website", async (c) => {
+export const validateWebsite = async (c: Context) => {
   const website = c.req.query("website");
+  const id = "website-availability-status";
+  if (!website) return c.html(<div id={id}></div>);
+  const existingWebsite = await getCreatorByWebsite(website);
+  return c.html(<ValidationLabel id={id} entityExists={!!existingWebsite} />);
+};
 
-  if (!website) {
-    return c.html(<div id="website-availability-status"></div>);
-  }
-
-  const existingWebsite = await db.query.creators.findFirst({
-    where: eq(creators.website, normalizeUrl(website)),
-  });
-
-  const available = !existingWebsite;
-
-  return c.html(
-    <div id="website-availability-status">
-      {available ? (
-        <p class="label text-success mt-1">✓ Available</p>
-      ) : (
-        <p class="label text-danger mt-1">✗ Taken</p>
-      )}
-    </div>,
-  );
-});
-
-apiRoutes.get("/search", async (c) => {
+export const getSearchResults = async (c: Context) => {
   const searchQuery = c.req.query("search");
   const isMobile = c.req.query("isMobile") === "true";
 
@@ -225,9 +160,9 @@ apiRoutes.get("/search", async (c) => {
       books={bookResults ?? []}
     />,
   );
-});
+};
 
-apiRoutes.get("/search/mobile", async (c) => {
+export const getMobileSearchScreen = async (c: Context) => {
   return c.html(
     <div
       id="search-results-mobile-container"
@@ -252,4 +187,4 @@ apiRoutes.get("/search/mobile", async (c) => {
       </div>
     </div>,
   );
-});
+};

@@ -16,7 +16,6 @@ import {
   requireBookImageEditAccess,
   requireProfileCoverImageEditAccess,
 } from "../middleware/imageGuards";
-import NavAvatar from "../components/app/NavAvatar";
 import { getUser } from "../utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../constants/images";
 

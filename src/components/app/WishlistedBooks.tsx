@@ -24,7 +24,7 @@ const WishlistedBooks = async ({ user, currentPage, currentPath }: Props) => {
   const attrs = {
     "x-init": true,
     "x-on:wishlist:updated.window":
-      "$ajax('/api/wishlist-books', { target: 'wishlist-books-container', sync: true })",
+      "$ajax('/wishlist-books', { target: 'wishlist-books-container', sync: true })",
   };
 
   return (

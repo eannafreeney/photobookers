@@ -39,9 +39,6 @@ export async function uploadImage(
 
   const arrayBuffer = await file.arrayBuffer();
 
-  console.log("Uploading to:", BUCKET_NAME, filePath);
-  console.log("File size:", arrayBuffer.byteLength);
-
   // Upload to Supabase Storage
   const { data, error } = await supabaseStorageAdmin.storage
     .from(BUCKET_NAME)
@@ -49,8 +46,6 @@ export async function uploadImage(
       contentType: file.type,
       upsert: false,
     });
-
-  console.log("Upload result:", { data, error });
 
   if (error) {
     throw new Error(`Upload failed: ${error.message}`);

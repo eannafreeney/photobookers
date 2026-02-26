@@ -1,27 +1,23 @@
-import { Hono } from "hono";
-import BookDetailPage from "../pages/BookDetailPage";
-import CreatorDetailPage from "../pages/CreatorDetailPage";
-import { getFlash, getUser } from "../utils";
-import TagPage from "../pages/TagPage";
-import { getIsMobile } from "../lib/device";
-import LibraryPage from "../pages/LibraryPage";
-import FeedPage from "../pages/FeedPage";
-import NewBooksPage from "../pages/NewBooksPage";
-import { requireBookPreviewAccess } from "../middleware/bookGuard";
-import TermsAndConditionsPage from "../pages/TermsAndConditions";
-import CreatorsPage from "../pages/CreatorsPage";
-import AboutPage from "../pages/AboutPage";
-import ErrorPage from "../pages/error/errorPage";
-import WishlistedBooks from "../components/app/WishlistedBooks";
+import { Context } from "hono";
+import { getFlash, getUser } from "../../utils";
+import { getIsMobile } from "../../lib/device";
+import WishlistedBooks from "../../components/app/WishlistedBooks";
+import CreatorDetailPage from "./pages/CreatorDetailPage";
+import BookDetailPage from "./pages/BookDetailPage";
+import TagPage from "./pages/TagPage";
+import FeaturedBooksPage from "./pages/FeaturedBooksPage";
+import FeedPage from "./pages/FeedPage";
+import LibraryPage from "./pages/LibraryPage";
+import AboutPage from "./pages/AboutPage";
+import TermsAndConditionsPage from "./pages/TermsAndConditions";
+import CreatorsPage from "./pages/CreatorsPage";
+import ErrorPage from "../../pages/error/errorPage";
 
-export const appRoutes = new Hono();
-
-// HOME
-appRoutes.get("/", async (c) => {
+export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
-});
+};
 
-appRoutes.get("/creators/:slug", async (c) => {
+export const getCreatorDetailPage = async (c: Context) => {
   const slug = c.req.param("slug");
   const user = await getUser(c);
   const currentPath = c.req.path;
@@ -43,9 +39,9 @@ appRoutes.get("/creators/:slug", async (c) => {
       sortBy={sortBy}
     />,
   );
-});
+};
 
-appRoutes.get("/books/:slug", async (c) => {
+export const getBookDetailPage = async (c: Context) => {
   const slug = c.req.param("slug");
   const user = await getUser(c);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
@@ -59,9 +55,9 @@ appRoutes.get("/books/:slug", async (c) => {
       isMobile={isMobile}
     />,
   );
-});
+};
 
-appRoutes.get("/books/preview/:slug", requireBookPreviewAccess, async (c) => {
+export const getBookPreviewPage = async (c: Context) => {
   const book = c.get("book");
   const user = await getUser(c);
   const currentPath = c.req.path;
@@ -77,9 +73,9 @@ appRoutes.get("/books/preview/:slug", requireBookPreviewAccess, async (c) => {
       isMobile={isMobile}
     />,
   );
-});
+};
 
-appRoutes.get("/books/tags/:tag", async (c) => {
+export const getTagPage = async (c: Context) => {
   const tag = c.req.param("tag");
   const user = await getUser(c);
   const currentPath = c.req.path;
@@ -99,9 +95,9 @@ appRoutes.get("/books/tags/:tag", async (c) => {
       sortBy={sortBy}
     />,
   );
-});
+};
 
-appRoutes.get("/featured", async (c) => {
+export const getFeaturedPage = async (c: Context) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
@@ -114,7 +110,7 @@ appRoutes.get("/featured", async (c) => {
       : "newest";
 
   return c.html(
-    <NewBooksPage
+    <FeaturedBooksPage
       user={user}
       flash={flash}
       sortBy={sortBy}
@@ -123,9 +119,9 @@ appRoutes.get("/featured", async (c) => {
       isMobile={isMobile}
     />,
   );
-});
+};
 
-appRoutes.get("/feed", async (c) => {
+export const getFeedPage = async (c: Context) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
@@ -139,9 +135,9 @@ appRoutes.get("/feed", async (c) => {
       currentPage={page}
     />,
   );
-});
+};
 
-appRoutes.get("/library", async (c) => {
+export const getLibraryPage = async (c: Context) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
@@ -155,29 +151,29 @@ appRoutes.get("/library", async (c) => {
       currentPage={page}
     />,
   );
-});
+};
 
-appRoutes.get("/about", async (c) => {
+export const getAboutPage = async (c: Context) => {
   return c.html(<AboutPage />);
-});
+};
 
-// appRoutes.get("/contact", async (c) => {
-//   return c.html(<ContactPage />);
-// });
+export const getContactPage = async (c: Context) => {
+  //   return c.html(<ContactPage />);
+};
 
-appRoutes.get("/terms", async (c) => {
+export const getTermsPage = async (c: Context) => {
   return c.html(<TermsAndConditionsPage />);
-});
+};
 
-appRoutes.get("/artists", async (c) => {
+export const getArtistsPage = async (c: Context) => {
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
   return c.html(
     <CreatorsPage type="artist" currentPath={currentPath} currentPage={page} />,
   );
-});
+};
 
-appRoutes.get("/publishers", async (c) => {
+export const getPublishersPage = async (c: Context) => {
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
   return c.html(
@@ -187,9 +183,9 @@ appRoutes.get("/publishers", async (c) => {
       currentPage={page}
     />,
   );
-});
+};
 
-appRoutes.get("/wishlist-books", async (c) => {
+export const getWishlistedBooks = async (c: Context) => {
   const user = await getUser(c);
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
@@ -203,4 +199,4 @@ appRoutes.get("/wishlist-books", async (c) => {
       currentPath={currentPath}
     />,
   );
-});
+};
