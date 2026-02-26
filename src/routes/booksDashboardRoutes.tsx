@@ -39,6 +39,7 @@ booksDashboardRoutes.get("/", async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+  const currentPage = parseInt(c.req.query("page") ?? "1");
 
   const currentPath = c.req.path;
 
@@ -49,6 +50,7 @@ booksDashboardRoutes.get("/", async (c) => {
       flash={flash}
       currentPath={currentPath}
       isMobile={isMobile}
+      currentPage={currentPage}
     />,
   );
 });

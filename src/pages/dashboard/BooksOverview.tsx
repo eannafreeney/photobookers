@@ -17,6 +17,7 @@ type BooksDashboardProps = {
   currentPath: string;
   searchQuery?: string;
   isMobile: boolean;
+  currentPage: number;
 };
 
 const BooksOverview = async ({
@@ -25,6 +26,7 @@ const BooksOverview = async ({
   flash,
   currentPath,
   isMobile,
+  currentPage,
 }: BooksDashboardProps) => {
   if (!user.creator) {
     return (
@@ -61,6 +63,7 @@ const BooksOverview = async ({
             searchQuery={searchQuery}
             creator={user.creator}
             user={user}
+            currentPage={currentPage}
           />
           <FeatureGuard flagName="artists-can-create-stub-publishers">
             {user.creator.type === "artist" ? (

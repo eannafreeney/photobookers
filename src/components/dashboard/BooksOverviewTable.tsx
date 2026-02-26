@@ -9,6 +9,7 @@ type BookTableProps = {
   creator: Creator;
   user: AuthUser | null;
   isMobile: boolean;
+  currentPage: number;
 };
 
 export const BooksOverviewTable = async ({
@@ -16,14 +17,16 @@ export const BooksOverviewTable = async ({
   creator,
   user,
   isMobile,
+  currentPage,
 }: BookTableProps) => {
-  const books = await getBooksByCreatorId(
+  const result = await getBooksByCreatorId(
     creator.id,
     creator.type,
+    currentPage,
     searchQuery,
   );
 
-  const validBooks = books?.filter((book) => book != null);
+  const validBooks = result?.books?.filter((book) => book != null);
 
   if (isMobile) {
     return <BooksOverviewMobile books={validBooks} user={user} />;

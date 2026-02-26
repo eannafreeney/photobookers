@@ -700,7 +700,6 @@ adminDashboardRoutes.post(
       console.error("Manual assign failed:", err);
       return showErrorAlert(c, "Failed to assign creator. Please try again.");
     }
-    await setFlash(c, "success", `Creator assigned to ${user.email}`);
-    return c.redirect(`/dashboard/admin/creators/edit/${creatorId}`);
+    return c.html(<Alert type="success" message="Creator assigned!" />);
   },
 );
