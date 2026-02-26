@@ -32,6 +32,7 @@ export const getBooksOverview = async (c: Context) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+  const currentPage = parseInt(c.req.query("page") ?? "1");
 
   const currentPath = c.req.path;
 
@@ -42,6 +43,7 @@ export const getBooksOverview = async (c: Context) => {
       flash={flash}
       currentPath={currentPath}
       isMobile={isMobile}
+      currentPage={currentPage}
     />,
   );
 };

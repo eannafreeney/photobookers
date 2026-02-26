@@ -20,7 +20,7 @@ const VerifiedCreator = ({ creator, size = "md" }: VerifiedCreatorProps) => {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={`${sizes[size]} text-green-500 fill-green-500`}
+      className={`${sizes[size]} text-blue-500 fill-blue-500`}
     >
       <path
         strokeLinecap="round"
