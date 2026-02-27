@@ -2,7 +2,11 @@ import { Context, Next } from "hono";
 import { setCookie } from "hono/cookie";
 import { supabaseAdmin } from "../lib/supabase";
 import { AuthUser } from "../../types";
-import { getAuthCookieOptions } from "../features/auth/services";
+import {
+  getAuthCookieOptions,
+  setAccessToken,
+  setRefreshToken,
+} from "../features/auth/services";
 
 export async function checkIncompleteCreatorSignup(c: Context, user: AuthUser) {
   // Check if user has an intended creator type but no creator profile
@@ -37,15 +41,20 @@ export async function login(c: Context, email: string, password: string) {
     return error.message;
   }
 
-  // Store access token (short-lived)
-  setCookie(c, "token", data.session.access_token, {
-    ...getAuthCookieOptions(),
-    maxAge: data.session.expires_in,
-  });
+  const { access_token, refresh_token, expires_in } = data.session;
 
-  // Store refresh token (long-lived, e.g., 7 days)
-  setCookie(c, "refresh_token", data.session.refresh_token, {
-    ...getAuthCookieOptions(),
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  });
+  setAccessToken(c, access_token, expires_in);
+  setRefreshToken(c, refresh_token);
+
+  // Store access token (short-lived)
+  // setCookie(c, "token", data.session.access_token, {
+  //   ...getAuthCookieOptions(),
+  //   maxAge: data.session.expires_in,
+  // });
+
+  // // Store refresh token (long-lived, e.g., 7 days)
+  // setCookie(c, "refresh_token", data.session.refresh_token, {
+  //   ...getAuthCookieOptions(),
+  //   maxAge: 60 * 60 * 24 * 7, // 7 days
+  // });
 }
