@@ -536,6 +536,24 @@ authRoutes.post("/set-session", async (c) => {
     return c.json({ error: "Invalid or expired token" }, 401);
   }
 
+  try {
+    await db
+      .insert(users)
+      .values({
+        id: user.id,
+        email: user.email!,
+        firstName: user.user_metadata?.firstName ?? null,
+        lastName: user.user_metadata?.lastName ?? null,
+      })
+      .onConflictDoNothing({ target: users.id });
+  } catch (dbError) {
+    console.error("Database error during set-session:", dbError);
+    return c.json(
+      { error: "Failed to create account. Please try again." },
+      500,
+    );
+  }
+
   setAccessToken(c, access_token, expires_in);
   setRefreshToken(c, refresh_token);
 
