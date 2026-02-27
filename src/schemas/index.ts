@@ -48,6 +48,12 @@ export const registerCreatorFormSchema = z.object({
   agreeToTerms,
 });
 
+// ============ RESET PASSWORD FORM SCHEMA ============
+export const resetPasswordFormSchema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 // ============ REGISTER FAN FORM SCHEMA ============
 export const registerFanFormSchema = z.object({
   firstName: z
@@ -106,6 +112,14 @@ export const creatorFormAdminSchema = z.object({
   instagram: optionalText,
 });
 
+// ============ NEW USER FORM SCHEMA ============
+export const newUserFormSchema = z.object({
+  email: z.email().min(1, "Email is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 // ============ Image FORM SCHEMA ============
 export const coverImageFormSchema = z.object({
   cover: z.object({
@@ -126,6 +140,10 @@ export const bookIdSchema = z.object({
   bookId: uuidField,
 });
 
+export const userIdSchema = z.object({
+  userId: uuidField,
+});
+
 export const creatorIdSchema = z.object({
   creatorId: uuidField,
 });
@@ -141,6 +159,11 @@ export const claimFormSchema = z.object({
     .url("Please enter a valid URL (e.g., https://example.com)")
     .min(1, "Website URL is required"),
   email: z.email(),
+});
+
+// ============ SEND MAGIC LINK FORM SCHEMA ============
+export const sendMagicLinkFormSchema = z.object({
+  actionLink: z.string().min(1, "Action link is required"),
 });
 
 // ============ BOOK FORM SCHEMA ============

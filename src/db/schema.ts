@@ -240,7 +240,7 @@ export const creatorClaims = pgTable("creator_claims", {
     .references(() => creators.id)
     .notNull(),
   userId: uuid("user_id")
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   status: creatorClaimStatusEnum("status").notNull().default("pending"), // pending, approved, rejected
   requestedAt: timestamp("requested_at").defaultNow(),

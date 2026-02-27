@@ -11,6 +11,8 @@ import { requireBookPreviewAccess } from "../middleware/bookGuard";
 import TermsAndConditionsPage from "../pages/TermsAndConditions";
 import CreatorsPage from "../pages/CreatorsPage";
 import AboutPage from "../pages/AboutPage";
+import ErrorPage from "../pages/error/errorPage";
+import WishlistedBooks from "../components/app/WishlistedBooks";
 
 export const appRoutes = new Hono();
 
@@ -183,6 +185,22 @@ appRoutes.get("/publishers", async (c) => {
       type="publisher"
       currentPath={currentPath}
       currentPage={page}
+    />,
+  );
+});
+
+appRoutes.get("/wishlist-books", async (c) => {
+  const user = await getUser(c);
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
+  if (!user) {
+    return c.html(<ErrorPage errorMessage="User not found" user={user} />);
+  }
+  return c.html(
+    <WishlistedBooks
+      user={user}
+      currentPage={currentPage}
+      currentPath={currentPath}
     />,
   );
 });

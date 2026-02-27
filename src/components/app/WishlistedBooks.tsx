@@ -1,4 +1,3 @@
-import { Book } from "../../db/schema";
 import { AuthUser } from "../../../types";
 import BookCard from "./BookCard";
 import GridPanel from "./GridPanel";
@@ -24,7 +23,7 @@ const WishlistedBooks = async ({ user, currentPage, currentPath }: Props) => {
   const attrs = {
     "x-init": true,
     "x-on:wishlist:updated.window":
-      "$ajax('/api/wishlist-books', { target: 'wishlist-books-container', sync: true })",
+      "$ajax('/wishlist-books', { target: 'wishlist-books-container', sync: true })",
   };
 
   return (

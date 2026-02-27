@@ -2,7 +2,7 @@ import TableSearch from "../cms/ui/TableSearch";
 import SectionTitle from "../app/SectionTitle";
 import Button from "../app/Button";
 import Link from "../app/Link";
-import Table from "../cms/ui/Table";
+import Table from "../../components/cms/ui/Table";
 import { Book, Creator } from "../../db/schema";
 import { AuthUser } from "../../../types";
 import PreviewButton from "../api/PreviewButton";
@@ -15,9 +15,9 @@ type Props = {
 };
 
 const BooksOverviewDesktop = ({ books, user }: Props) => {
-  const tableBodyAttrs = {
+  const alpineAttrs = {
     "x-init": "true",
-    "@book:approved.window":
+    "@books:updated.window":
       "$ajax('/dashboard/books', target: 'books-table-body')",
   };
 
@@ -49,7 +49,7 @@ const BooksOverviewDesktop = ({ books, user }: Props) => {
             <th class="p-4"></th>
           </tr>
         </Table.Head>
-        <Table.Body id="books-table-body" {...tableBodyAttrs}>
+        <Table.Body id="books-table-body" {...alpineAttrs}>
           {books.map((book) => (
             <BookTableRow book={book} user={user} />
           ))}

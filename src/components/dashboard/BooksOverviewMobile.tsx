@@ -14,6 +14,12 @@ type BooksOverviewMobileProps = {
 };
 
 const BooksOverviewMobile = ({ books, user }: BooksOverviewMobileProps) => {
+  const alpineAttrs = {
+    "x-init": "true",
+    "@books:updated.window":
+      "$ajax('/dashboard/books', target: 'books-table-body')",
+  };
+
   return (
     <div class="flex flex-col gap-4">
       <SectionTitle>My Books</SectionTitle>
@@ -32,12 +38,7 @@ const BooksOverviewMobile = ({ books, user }: BooksOverviewMobileProps) => {
       </div>
 
       {books?.length > 0 && (
-        <ul
-          class="flex flex-col gap-4"
-          id="books-table"
-          x-init
-          {...{ "@book:approved.window": "$ajax('/dashboard/books')" }}
-        >
+        <ul class="flex flex-col gap-4" id="books-table" {...alpineAttrs}>
           {books.map((book) => (
             <BookTableRowMobile key={book.id} book={book} user={user} />
           ))}

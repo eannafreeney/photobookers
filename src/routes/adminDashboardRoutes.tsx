@@ -28,6 +28,9 @@ import {
   creatorFormAdminSchema,
   creatorIdSchema,
   manualAssignCreatorSchema,
+  newUserFormSchema,
+  sendMagicLinkFormSchema,
+  userIdSchema,
 } from "../schemas";
 import { formValidator, paramValidator } from "../lib/validator";
 import { CreatorsTable } from "../components/admin/CreatorsTable";
@@ -65,7 +68,17 @@ import {
 import { toWeekString } from "../lib/utils";
 import BooksPage from "../pages/admin/BooksPage";
 import EditCreatorPageAdmin from "../pages/admin/EditCreatorPageAdmin";
-import { findUserByEmail, getUserById } from "../services/users";
+import {
+  createNewUser,
+  deleteUserById,
+  findUserByEmail,
+  getUserById,
+} from "../services/users";
+import UsersPage from "../pages/admin/UsersPage";
+import { createUser } from "../features/auth/services";
+import ErrorPage from "../pages/error/errorPage";
+import { generateMagicLinkEmail } from "../features/claims/emails";
+import CopyCellCol from "../components/admin/CopyCellCol";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -209,6 +222,142 @@ adminDashboardRoutes.get("/claims", requireAdminAccess, async (c) => {
     </AppLayout>,
   );
 });
+
+adminDashboardRoutes.get("/users", requireAdminAccess, async (c) => {
+  const user = await getUser(c);
+  const currentPath = c.req.path;
+  return c.html(<UsersPage user={user} currentPath={currentPath} />);
+});
+
+adminDashboardRoutes.post(
+  "/users/new",
+  requireAdminAccess,
+  formValidator(newUserFormSchema),
+  async (c) => {
+    const user = await getUser(c);
+    const currentPath = c.req.path;
+    const formData = c.req.valid("form");
+    const newUser = await createNewUser(formData);
+    if (!newUser) return showErrorAlert(c, "Failed to create user");
+
+    return c.html(
+      <>
+        <Alert type="success" message="User created!" />
+        <UsersPage user={user} currentPath={currentPath} />
+      </>,
+    );
+  },
+);
+
+adminDashboardRoutes.post(
+  "/users/delete/:userId",
+  requireAdminAccess,
+  paramValidator(userIdSchema),
+  async (c) => {
+    const userId = c.req.valid("param").userId;
+    const deletedUser = await deleteUserById(userId);
+    if (!deletedUser) return showErrorAlert(c, "Failed to delete user");
+    return c.html(
+      <>
+        <Alert type="success" message="User deleted!" />
+        <div id="server_events">
+          <div x-init="$dispatch('users:updated')"></div>
+        </div>
+      </>,
+    );
+  },
+);
+
+adminDashboardRoutes.get(
+  "/users/generate-magic-link/:userId",
+  requireAdminAccess,
+  paramValidator(userIdSchema),
+  async (c) => {
+    const userId = c.req.valid("param").userId;
+    const user = await getUserById(userId);
+    const email = user?.email as string;
+
+    // inavlidate current password
+    await supabaseAdmin.auth.admin.updateUserById(userId, {
+      password: crypto.randomUUID(),
+    });
+
+    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email,
+      options: {
+        // redirectTo: `${process.env.SITE_URL ?? "http://localhost:5173"}/auth/force-reset-password`,
+        redirectTo: "http://localhost:5173/auth/force-reset-password",
+      },
+    });
+
+    const actionLink = data?.properties?.action_link;
+
+    return c.html(
+      <Modal title="Generate Magic Link">
+        {error && <div class="text-red-500">{error?.message}</div>}
+        {!actionLink && (
+          <div class="text-red-500">Error sending magic link</div>
+        )}
+        {actionLink && (
+          <div class="flex flex-col gap-4 items-center justify-center">
+            <p>Magic link Generated</p>
+            <div class="flex flex-col gap-2 w-full">
+              <form
+                x-target="toast"
+                method="post"
+                action={`/dashboard/admin/users/${userId}/send-magic-link`}
+              >
+                <input type="hidden" name="actionLink" value={actionLink} />
+                <Button variant="solid" color="primary">
+                  Send to {user?.firstName} {user?.lastName}
+                </Button>
+              </form>
+              <CopyCellCol entity={actionLink} buttonWidth="full" />
+            </div>
+          </div>
+        )}
+      </Modal>,
+    );
+  },
+);
+
+adminDashboardRoutes.post(
+  "/users/:userId/send-magic-link",
+  requireAdminAccess,
+  formValidator(sendMagicLinkFormSchema),
+  paramValidator(userIdSchema),
+  async (c) => {
+    const userId = c.req.valid("param").userId;
+    const actionLink = c.req.valid("form").actionLink;
+    const user = await getUserById(userId);
+    if (!user) return showErrorAlert(c, "User not found");
+
+    const emailHTML = await generateMagicLinkEmail(user, actionLink);
+    const { error } = await supabaseAdmin.functions.invoke("send-email", {
+      body: {
+        to: user.email,
+        subject: "Photobookers - Magic Link",
+        html: emailHTML,
+      },
+      headers: {
+        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
+      },
+    });
+    if (error) {
+      console.error("Failed to send magic link:", error);
+      return showErrorAlert(c, "Failed to send magic link");
+    }
+    return c.html(
+      <>
+        <Alert type="success" message="Magic link sent!" />
+        <div id="server_events">
+          <div x-init="$dispatch('dialog:close')"></div>
+        </div>
+      </>,
+    );
+  },
+);
 
 adminDashboardRoutes.get("/creators", requireAdminAccess, async (c) => {
   const user = await getUser(c);

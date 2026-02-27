@@ -21,6 +21,8 @@ import {
   registerCreatorFormSchema,
   registerFanFormSchema,
   resendVerificationFormSchema,
+  resetPasswordFormSchema,
+  userIdSchema,
 } from "../schemas";
 import { normalizeUrl } from "../services/verification";
 import { showErrorAlert } from "../lib/alertHelpers";
@@ -33,6 +35,10 @@ import {
 } from "../services/creators";
 import Modal from "../components/app/Modal";
 import Input from "../components/cms/ui/Input";
+import ForceResetPasswordPage from "../pages/auth/ResetPasswordPage";
+import { setAccessToken, setRefreshToken } from "../features/auth/services";
+import ResetPasswordForm from "../components/cms/forms/ResetPasswordForm";
+import MagicLinkHashHandlerPage from "../pages/auth/MagicLinkHashHandlerPage";
 
 const authRoutes = new Hono();
 
@@ -384,17 +390,8 @@ authRoutes.get("/callback", async (c) => {
     );
   }
 
-  setCookie(c, "token", data.session?.access_token, {
-    httpOnly: true,
-    maxAge: data.session.expires_in,
-    path: "/",
-  });
-
-  setCookie(c, "refresh_token", data.session.refresh_token, {
-    httpOnly: true,
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: "/",
-  });
+  setAccessToken(c, data.session?.access_token, data.session.expires_in);
+  setRefreshToken(c, data.session.refresh_token);
 
   // Now get user from the session (no need for another getUser call)
   const user = data.session.user;
@@ -428,180 +425,116 @@ authRoutes.get("/callback", async (c) => {
 
 // Log out
 authRoutes.get("/logout", async (c) => {
-  const redirectUrl = c.req.query("redirectUrl");
-  console.log("redirectUrl", redirectUrl);
-  const safePath =
-    redirectUrl &&
-    !redirectUrl.startsWith("/auth/") &&
-    redirectUrl.startsWith("/")
-      ? redirectUrl
-      : "/";
+  const user = await getUser(c);
+  if (!user) return c.redirect("/auth/login");
+
   const { error } = await supabaseAdmin.auth.signOut();
 
   if (error) return showErrorAlert(c);
 
   deleteCookie(c, "token");
-  return c.redirect(safePath);
+  return c.redirect("/");
+});
+
+authRoutes.get("/force-reset-password", async (c) => {
+  const user = await getUser(c);
+  if (user) {
+    return c.html(<ForceResetPasswordPage />);
+  }
+
+  return c.html(<MagicLinkHashHandlerPage />);
 });
 
 authRoutes.get("/reset-password", async (c) => {
   const user = await getUser(c);
-  if (user) {
-    return c.redirect("/");
-  }
+  if (!user) return c.redirect("/auth/login");
 
   const alpineAttrs = {
     "x-data": "resetPasswordForm()",
-    // "x-on:submit": "submitForm($event)",
-    // "x-target.away": "_top",
     "x-target": "toast",
-    // "x-on:ajax:error": "isSubmitting = false",
+    "x-on:submit": "submitForm($event)",
+    "x-on:ajax:after": "$dispatch('dialog:close')",
+    "x-on:ajax:error": "isSubmitting = false",
   };
 
   return c.html(
-    <Modal>
-      <form action="/reset-password" method="post" {...alpineAttrs}>
-        <Input
-          type="password"
-          label="Password"
-          name="form.password"
-          validateInput="validatePassword()"
-          placeholder="••••••••"
-          validationTrigger="blur"
-          required
-        />
-        <Input
-          type="password"
-          label="Confirm Password"
-          name="form.confirmPassword"
-          validateInput="validateConfirmPassword()"
-          placeholder="••••••••"
-          validationTrigger="blur"
-          required
-        />
+    <Modal title="Reset Password">
+      <form action="/auth/reset-password" method="post" {...alpineAttrs}>
+        <ResetPasswordForm />
       </form>
     </Modal>,
   );
 });
 
-authRoutes.post("/reset-password", async (c) => {
-  const user = await getUser(c);
+authRoutes.post(
+  "/reset-password",
+  formValidator(resetPasswordFormSchema),
+  async (c) => {
+    const user = await getUser(c);
+    if (!user) return c.redirect("/auth/login");
 
-  if (!user || !user.email) {
-    return c.html(
-      <Alert
-        type="danger"
-        message="You must be logged in to reset your password."
-      />,
-      401,
-    );
+    const formData = c.req.valid("form");
+    const password = formData.password as string;
+    const confirmPassword = formData.confirmPassword as string;
+
+    if (password !== confirmPassword)
+      return showErrorAlert(c, "Passwords do not match");
+    if (password.length < 8)
+      return showErrorAlert(c, "Password must be at least 8 characters");
+
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      password,
+    });
+
+    if (error) return showErrorAlert(c, error.message);
+
+    const { data } = await supabaseAnon.auth.signInWithPassword({
+      email: user.email,
+      password,
+    });
+
+    if (!data.session) return showErrorAlert(c, "Failed to sign in");
+
+    setAccessToken(c, data.session.access_token, data.session.expires_in);
+    setRefreshToken(c, data.session.refresh_token);
+
+    await setFlash(c, "success", "Your password has been reset successfully!");
+    return c.redirect("/");
+  },
+);
+
+authRoutes.post("/set-session", async (c) => {
+  let body: {
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+  };
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "Invalid body" }, 400);
+  }
+  const access_token = body.access_token;
+  const refresh_token = body.refresh_token ?? "";
+  const expires_in =
+    typeof body.expires_in === "number" ? body.expires_in : 3600;
+
+  if (!access_token || typeof access_token !== "string") {
+    return c.json({ error: "Missing access_token" }, 400);
   }
 
-  // Use Supabase's password reset functionality
-  const { error } = await supabaseAdmin.auth.admin.generateLink({
-    type: "recovery",
-    email: user.email,
-    options: {
-      redirectTo: `${c.req.url.split("/auth")[0]}/auth/reset-password/confirm`,
-    },
-  });
-
-  if (error) {
-    return c.html(
-      <Alert
-        type="danger"
-        message="Failed to send password reset email. Please try again."
-      />,
-    );
+  const {
+    data: { user },
+    error,
+  } = await supabaseAdmin.auth.getUser(access_token);
+  if (error || !user) {
+    return c.json({ error: "Invalid or expired token" }, 401);
   }
 
-  return c.html(
-    <Alert
-      type="success"
-      message="Password reset link has been sent to your email."
-    />,
-  );
-});
+  setAccessToken(c, access_token, expires_in);
+  setRefreshToken(c, refresh_token);
 
-// GET - Show password reset confirmation form (when user clicks email link)
-authRoutes.get("/reset-password/confirm", async (c) => {
-  const code = c.req.query("code");
-  const token = c.req.query("token");
-
-  if (!code || !token) {
-    return c.html(<ErrorPage errorMessage="Invalid or missing reset token" />);
-  }
-
-  return c.html(<ResetPasswordConfirmPage code={code || token} />);
-});
-
-// POST - Update password after confirmation
-authRoutes.post("/reset-password/confirm", async (c) => {
-  const body = await c.req.parseBody();
-  const code = body.code as string;
-  const password = body.password as string;
-  const confirmPassword = body.confirmPassword as string;
-
-  if (!code || !password || !confirmPassword) {
-    return c.html(
-      <Alert type="danger" message="All fields are required" />,
-      400,
-    );
-  }
-
-  if (password !== confirmPassword) {
-    return c.html(
-      <Alert type="danger" message="Passwords do not match" />,
-      400,
-    );
-  }
-
-  if (password.length < 8) {
-    return c.html(
-      <Alert type="danger" message="Password must be at least 8 characters" />,
-      400,
-    );
-  }
-
-  const supabase = createSupabaseClient(c);
-
-  // Exchange the code for a session and update password
-  const { error: exchangeError, data } =
-    await supabase.auth.exchangeCodeForSession(code);
-
-  if (exchangeError || !data.session) {
-    return c.html(
-      <ErrorPage
-        errorMessage={exchangeError?.message || "Invalid or expired reset link"}
-      />,
-    );
-  }
-
-  // Update the password
-  const { error: updateError } = await supabase.auth.updateUser({
-    password: password,
-  });
-
-  if (updateError) {
-    return c.html(<Alert type="danger" message={updateError.message} />, 400);
-  }
-
-  // Update session cookies
-  setCookie(c, "token", data.session.access_token, {
-    httpOnly: true,
-    maxAge: data.session.expires_in,
-    path: "/",
-  });
-
-  setCookie(c, "refresh_token", data.session.refresh_token, {
-    httpOnly: true,
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: "/",
-  });
-
-  await setFlash(c, "success", "Your password has been reset successfully!");
-
-  return c.redirect("/");
+  return c.json({ ok: true });
 });
 
 export { authRoutes };

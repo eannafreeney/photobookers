@@ -11,8 +11,8 @@ import SectionTitle from "../app/SectionTitle";
 import PublishToggleForm from "../cms/forms/PublishToggleForm";
 import Table from "../cms/ui/Table";
 import TableSearch from "../cms/ui/TableSearch";
-import DeleteFormButton from "./DeleteBook";
-import DeleteBookForm from "./DeleteBook";
+import DeleteFormButton from "./DeleteFormButton";
+import DeleteBookForm from "./DeleteFormButton";
 
 type Props = {
   totalPages: number;
