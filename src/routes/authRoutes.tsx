@@ -439,6 +439,11 @@ authRoutes.get("/logout", async (c) => {
 authRoutes.get("/force-reset-password", async (c) => {
   const user = await getUser(c);
   if (user) {
+    // inavlidate current password
+    await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      password: crypto.randomUUID(),
+    });
+
     return c.html(<ForceResetPasswordPage user={user} />);
   }
 

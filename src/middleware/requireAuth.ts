@@ -3,6 +3,7 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { refreshAccessToken } from "./refreshAccessToken";
 import { getUserFromToken } from "./getUserFromToken";
 import { checkIncompleteCreatorSignup } from "./auth";
+import { getAuthCookieOptions } from "../features/auth/services";
 
 export const requireAuth = async (c: Context, next: Next) => {
   let token = getCookie(c, "token");
@@ -13,14 +14,12 @@ export const requireAuth = async (c: Context, next: Next) => {
     const refreshedToken = await refreshAccessToken(refreshToken, c);
     if (refreshedToken) {
       setCookie(c, "token", refreshedToken.access_token, {
-        httpOnly: true,
+        ...getAuthCookieOptions(),
         maxAge: refreshedToken.expires_in,
-        path: "/",
       });
       setCookie(c, "refresh_token", refreshedToken.refresh_token, {
-        httpOnly: true,
+        ...getAuthCookieOptions(),
         maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: "/",
       });
       token = refreshedToken.access_token;
       refreshToken = refreshedToken.refresh_token;
