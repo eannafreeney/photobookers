@@ -35,7 +35,7 @@ import {
 } from "../services/creators";
 import Modal from "../components/app/Modal";
 import Input from "../components/cms/ui/Input";
-import ForceResetPasswordPage from "../pages/auth/ResetPasswordPage";
+import ForceResetPasswordPage from "../pages/auth/ForceResetPasswordPage";
 import { setAccessToken, setRefreshToken } from "../features/auth/services";
 import ResetPasswordForm from "../components/cms/forms/ResetPasswordForm";
 import MagicLinkHashHandlerPage from "../pages/auth/MagicLinkHashHandlerPage";
@@ -439,7 +439,7 @@ authRoutes.get("/logout", async (c) => {
 authRoutes.get("/force-reset-password", async (c) => {
   const user = await getUser(c);
   if (user) {
-    return c.html(<ForceResetPasswordPage />);
+    return c.html(<ForceResetPasswordPage user={user} />);
   }
 
   return c.html(<MagicLinkHashHandlerPage />);
