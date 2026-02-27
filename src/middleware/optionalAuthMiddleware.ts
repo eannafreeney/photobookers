@@ -3,6 +3,7 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { refreshAccessToken } from "./refreshAccessToken";
 import { getUserFromToken } from "./getUserFromToken";
 import { checkIncompleteCreatorSignup } from "./auth";
+import { getAuthCookieOptions } from "../features/auth/services";
 
 export const optionalAuthMiddleware = async (c: Context, next: Next) => {
   let token = getCookie(c, "token");
@@ -13,14 +14,12 @@ export const optionalAuthMiddleware = async (c: Context, next: Next) => {
     const refreshed = await refreshAccessToken(refreshToken, c);
     if (refreshed) {
       setCookie(c, "token", refreshed.access_token, {
-        httpOnly: true,
+        ...getAuthCookieOptions(),
         maxAge: refreshed.expires_in,
-        path: "/",
       });
       setCookie(c, "refresh_token", refreshed.refresh_token, {
-        httpOnly: true,
+        ...getAuthCookieOptions(),
         maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: "/",
       });
       token = refreshed.access_token;
       refreshToken = refreshed.refresh_token;
@@ -34,14 +33,12 @@ export const optionalAuthMiddleware = async (c: Context, next: Next) => {
     const refreshed = await refreshAccessToken(refreshToken, c);
     if (refreshed) {
       setCookie(c, "token", refreshed.access_token, {
-        httpOnly: true,
+        ...getAuthCookieOptions(),
         maxAge: refreshed.expires_in,
-        path: "/",
       });
       setCookie(c, "refresh_token", refreshed.refresh_token, {
-        httpOnly: true,
+        ...getAuthCookieOptions(),
         maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: "/",
       });
       token = refreshed.access_token;
       refreshToken = refreshed.refresh_token;
