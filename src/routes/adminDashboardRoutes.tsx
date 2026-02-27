@@ -277,11 +277,6 @@ adminDashboardRoutes.get(
     const user = await getUserById(userId);
     const email = user?.email as string;
 
-    // inavlidate current password
-    await supabaseAdmin.auth.admin.updateUserById(userId, {
-      password: crypto.randomUUID(),
-    });
-
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
       email,
