@@ -28,6 +28,8 @@ import {
   creatorFormAdminSchema,
   creatorIdSchema,
   manualAssignCreatorSchema,
+  newUserFormSchema,
+  userIdSchema,
 } from "../schemas";
 import { formValidator, paramValidator } from "../lib/validator";
 import { CreatorsTable } from "../components/admin/CreatorsTable";
@@ -65,7 +67,14 @@ import {
 import { toWeekString } from "../lib/utils";
 import BooksPage from "../pages/admin/BooksPage";
 import EditCreatorPageAdmin from "../pages/admin/EditCreatorPageAdmin";
-import { findUserByEmail, getUserById } from "../services/users";
+import {
+  createNewUser,
+  deleteUserById,
+  findUserByEmail,
+  getUserById,
+} from "../services/users";
+import UsersPage from "../pages/admin/UsersPage";
+import { createUser } from "../features/auth/services";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -209,6 +218,51 @@ adminDashboardRoutes.get("/claims", requireAdminAccess, async (c) => {
     </AppLayout>,
   );
 });
+
+adminDashboardRoutes.get("/users", requireAdminAccess, async (c) => {
+  const user = await getUser(c);
+  const currentPath = c.req.path;
+  return c.html(<UsersPage user={user} currentPath={currentPath} />);
+});
+
+adminDashboardRoutes.post(
+  "/users/new",
+  requireAdminAccess,
+  formValidator(newUserFormSchema),
+  async (c) => {
+    const user = await getUser(c);
+    const currentPath = c.req.path;
+    const formData = c.req.valid("form");
+    const newUser = await createNewUser(formData);
+    if (!newUser) return showErrorAlert(c, "Failed to create user");
+
+    return c.html(
+      <>
+        <Alert type="success" message="User created!" />
+        <UsersPage user={user} currentPath={currentPath} />
+      </>,
+    );
+  },
+);
+
+adminDashboardRoutes.post(
+  "/users/delete/:userId",
+  requireAdminAccess,
+  paramValidator(userIdSchema),
+  async (c) => {
+    const userId = c.req.valid("param").userId;
+    const deletedUser = await deleteUserById(userId);
+    if (!deletedUser) return showErrorAlert(c, "Failed to delete user");
+    return c.html(
+      <>
+        <Alert type="success" message="User deleted!" />
+        <div id="server_events">
+          <div x-init="$dispatch('users:updated')"></div>
+        </div>
+      </>,
+    );
+  },
+);
 
 adminDashboardRoutes.get("/creators", requireAdminAccess, async (c) => {
   const user = await getUser(c);

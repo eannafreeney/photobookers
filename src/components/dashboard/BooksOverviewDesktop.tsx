@@ -2,7 +2,7 @@ import TableSearch from "../cms/ui/TableSearch";
 import SectionTitle from "../app/SectionTitle";
 import Button from "../app/Button";
 import Link from "../app/Link";
-import Table from "../cms/ui/Table";
+import Table from "../../components/cms/ui/Table";
 import { Book, Creator } from "../../db/schema";
 import { AuthUser } from "../../../types";
 import PreviewButton from "../api/PreviewButton";

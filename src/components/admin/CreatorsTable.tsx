@@ -6,7 +6,8 @@ import Link from "../app/Link";
 import SectionTitle from "../app/SectionTitle";
 import Table from "../cms/ui/Table";
 import TableSearch from "../cms/ui/TableSearch";
-import DeleteFormButton from "./DeleteBook";
+import CopyCellCol from "./CopyCellCol";
+import DeleteFormButton from "./DeleteFormButton";
 
 type Props = {
   searchQuery?: string;
@@ -60,19 +61,7 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
         </Link>
       </td>
       <td>
-        <div
-          x-data={`{ cellValue: '${creator.id}' }`}
-          class="flex items-center gap-2"
-        >
-          <span x-text="cellValue"></span>
-          <button
-            type="button"
-            class="btn btn-xs cursor-pointer"
-            x-on:click="navigator.clipboard.writeText(cellValue)"
-          >
-            Copy
-          </button>
-        </div>
+        <CopyCellCol entity={creator.id} />
       </td>
       <td>{capitalize(creator.type)}</td>
       <td>

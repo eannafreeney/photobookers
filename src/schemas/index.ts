@@ -106,6 +106,14 @@ export const creatorFormAdminSchema = z.object({
   instagram: optionalText,
 });
 
+// ============ NEW USER FORM SCHEMA ============
+export const newUserFormSchema = z.object({
+  email: z.email().min(1, "Email is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 // ============ Image FORM SCHEMA ============
 export const coverImageFormSchema = z.object({
   cover: z.object({
@@ -124,6 +132,10 @@ const uuidField = z
 // Use for specific params
 export const bookIdSchema = z.object({
   bookId: uuidField,
+});
+
+export const userIdSchema = z.object({
+  userId: uuidField,
 });
 
 export const creatorIdSchema = z.object({
