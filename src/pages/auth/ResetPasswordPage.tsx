@@ -1,13 +1,8 @@
 import Page from "../../components/layouts/Page";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
-import { AuthUser } from "../../../types";
 import ResetPasswordForm from "../../components/cms/forms/ResetPasswordForm";
 
-type Props = {
-  user: AuthUser;
-};
-
-const ForceResetPasswordPage = ({ user }: Props) => {
+const ForceResetPasswordPage = () => {
   const alpineAttrs = {
     "x-data": "resetPasswordForm()",
     "x-on:submit": "submitForm($event)",

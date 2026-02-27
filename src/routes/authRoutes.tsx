@@ -425,26 +425,21 @@ authRoutes.get("/callback", async (c) => {
 
 // Log out
 authRoutes.get("/logout", async (c) => {
-  const redirectUrl = c.req.query("redirectUrl");
-  console.log("redirectUrl", redirectUrl);
-  const safePath =
-    redirectUrl &&
-    !redirectUrl.startsWith("/auth/") &&
-    redirectUrl.startsWith("/")
-      ? redirectUrl
-      : "/";
+  const user = await getUser(c);
+  if (!user) return c.redirect("/auth/login");
+
   const { error } = await supabaseAdmin.auth.signOut();
 
   if (error) return showErrorAlert(c);
 
   deleteCookie(c, "token");
-  return c.redirect(safePath);
+  return c.redirect("/");
 });
 
 authRoutes.get("/force-reset-password", async (c) => {
   const user = await getUser(c);
   if (user) {
-    return c.html(<ForceResetPasswordPage user={user} />);
+    return c.html(<ForceResetPasswordPage />);
   }
 
   return c.html(<MagicLinkHashHandlerPage />);
@@ -456,9 +451,9 @@ authRoutes.get("/reset-password", async (c) => {
 
   const alpineAttrs = {
     "x-data": "resetPasswordForm()",
-    "x-target": "toast modal-root",
-    "x-target.error": "toast modal-root",
-    "x-on:success": "$dipatch(dialog:close)",
+    "x-target": "toast",
+    "x-on:submit": "submitForm($event)",
+    "x-on:ajax:after": "$dispatch('dialog:close')",
     "x-on:ajax:error": "isSubmitting = false",
   };
 
