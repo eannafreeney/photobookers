@@ -25,11 +25,11 @@ const ForceResetPasswordPage = ({ user }: Props) => {
                 Reset Password
               </h2>
               <form
-                action={`/auth/reset-password/${user.id}`}
+                action="/auth/reset-password"
                 method="post"
                 {...alpineAttrs}
               >
-                <ResetPasswordForm  />
+                <ResetPasswordForm />
               </form>
             </div>
           </div>

@@ -464,11 +464,7 @@ authRoutes.get("/reset-password", async (c) => {
 
   return c.html(
     <Modal title="Reset Password">
-      <form
-        action={`/auth/reset-password/${user.id}`}
-        method="post"
-        {...alpineAttrs}
-      >
+      <form action="/auth/reset-password" method="post" {...alpineAttrs}>
         <ResetPasswordForm />
       </form>
     </Modal>,
@@ -476,28 +472,36 @@ authRoutes.get("/reset-password", async (c) => {
 });
 
 authRoutes.post(
-  "/reset-password/:userId",
-  paramValidator(userIdSchema),
+  "/reset-password",
   formValidator(resetPasswordFormSchema),
   async (c) => {
+    const user = await getUser(c);
+    if (!user) return c.redirect("/auth/login");
+
     const formData = c.req.valid("form");
-    const userId = c.req.valid("param").userId;
     const password = formData.password as string;
     const confirmPassword = formData.confirmPassword as string;
-
 
     if (password !== confirmPassword)
       return showErrorAlert(c, "Passwords do not match");
     if (password.length < 8)
       return showErrorAlert(c, "Password must be at least 8 characters");
 
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
       password,
     });
 
-
     if (error) return showErrorAlert(c, error.message);
 
+    const { data } = await supabaseAnon.auth.signInWithPassword({
+      email: user.email,
+      password,
+    });
+
+    if (!data.session) return showErrorAlert(c, "Failed to sign in");
+
+    setAccessToken(c, data.session.access_token, data.session.expires_in);
+    setRefreshToken(c, data.session.refresh_token);
 
     await setFlash(c, "success", "Your password has been reset successfully!");
     return c.redirect("/");
