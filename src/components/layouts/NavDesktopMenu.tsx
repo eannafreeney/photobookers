@@ -146,10 +146,7 @@ const DropDownMenu = ({
           >
             Reset Password
           </NavLink>
-          <NavLink
-            href={`/auth/logout?redirectUrl=${encodeURIComponent(currentPath ?? "")}`}
-            currentPath={currentPath}
-          >
+          <NavLink href="/auth/logout" currentPath={currentPath}>
             Logout
           </NavLink>
         </>

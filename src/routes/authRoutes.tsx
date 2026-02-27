@@ -430,7 +430,7 @@ authRoutes.get("/logout", async (c) => {
 
   const { error } = await supabaseAdmin.auth.signOut();
 
-  if (error) return showErrorAlert(c);
+  if (error) return c.html(<ErrorPage errorMessage="Failed to sign out" />);
 
   deleteCookie(c, "token");
   return c.redirect("/");
