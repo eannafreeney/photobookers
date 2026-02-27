@@ -1,13 +1,9 @@
-import { AuthUser, Flash } from "../../types";
-import BookCard from "../components/app/BookCard";
-import Button from "../components/app/Button";
-import GridPanel from "../components/app/GridPanel";
-import SectionTitle from "../components/app/SectionTitle";
-import WishlistedBooks from "../components/app/WishlistedBooks";
-import AppLayout from "../components/layouts/AppLayout";
-import NavTabs from "../components/layouts/NavTabs";
-import Page from "../components/layouts/Page";
-import { getBooksInWishlist } from "../services/books";
+import { AuthUser, Flash } from "../../../../types";
+import AppLayout from "../../../components/layouts/AppLayout";
+import NavTabs from "../../../components/layouts/NavTabs";
+import Page from "../../../components/layouts/Page";
+import { getBooksInWishlist } from "../../../services/books";
+import BooksGrid from "../components/BooksGrid";
 
 type Props = {
   user: AuthUser | null;
@@ -24,53 +20,89 @@ const LibraryPage = async ({
 }: Props) => {
   if (!user) {
     return (
-      <AppLayout title="Books" user={user} flash={flash}>
-        <Page>
-          <NavTabs currentPath={currentPath} />
-          <div
-            id="tab-content"
-            class="flex flex-col items-center justify-center mt-4 text-center text-on-surface"
-          >
-            <SectionTitle>Wishlisted Books</SectionTitle>
-            <p>Manage your wishlist.</p>
-            {icon}
-            <div class="flex flex-col gap-4 justify-center items-center mt-8">
-              <span>Login or register to view your feed.</span>
-              <div class="flex gap-2 justify-center items-center">
-                <a href="/auth/login">
-                  <Button variant="solid" color="inverse">
-                    Login
-                  </Button>
-                </a>
-                <a href="/auth/register">
-                  <Button variant="solid" color="primary">
-                    Register
-                  </Button>
-                </a>
-              </div>
-            </div>
-          </div>
-        </Page>
-      </AppLayout>
+      <LoggedOutLibraryScreen
+        user={user}
+        flash={flash}
+        currentPath={currentPath}
+      />
     );
   }
+
+  const result = await getBooksInWishlist(user.id, currentPage);
+
+  if (!result?.books) {
+    return <ErrorPage errorMessage="No wishlisted books found" user={user} />;
+  }
+
+  const alpineAttrs = {
+    "x-init": true,
+    "x-on:wishlist:updated.window":
+      "$ajax('/wishlist-books', { target: 'wishlist-books-container', sync: true })",
+  };
 
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <SectionTitle>Wishlisted Books</SectionTitle>
-        <WishlistedBooks
+        {/* <SectionTitle>Wishlisted Books</SectionTitle> */}
+        <div id="wishlist-books-container" x-merge="replace" {...alpineAttrs}>
+          <BooksGrid
+            title="Wishlisted Books"
+            user={user}
+            currentPath={currentPath}
+            sortBy="newest"
+            result={result}
+          />
+        </div>
+        {/* <WishlistedBooks
           user={user}
           currentPage={currentPage}
           currentPath={currentPath}
-        />
+        /> */}
       </Page>
     </AppLayout>
   );
 };
 
 export default LibraryPage;
+
+type LoggedOutProps = {
+  user: AuthUser | null;
+  flash: Flash;
+  currentPath: string;
+};
+
+const LoggedOutLibraryScreen = ({
+  user,
+  flash,
+  currentPath,
+}: LoggedOutProps) => (
+  <AppLayout title="Books" user={user} flash={flash}>
+    <Page>
+      <NavTabs currentPath={currentPath} />
+      <div class="flex flex-col items-center justify-center mt-4 text-center text-on-surface">
+        <SectionTitle>Wishlisted Books</SectionTitle>
+        <p>Manage your wishlist.</p>
+        {icon}
+        <div class="flex flex-col gap-4 justify-center items-center mt-8">
+          <span>Login or register to view your feed.</span>
+          <div class="flex gap-2 justify-center items-center">
+            <a href="/auth/login">
+              <Button variant="solid" color="inverse">
+                Login
+              </Button>
+            </a>
+            <a href="/auth/register">
+              <Button variant="solid" color="primary">
+                Register
+              </Button>
+            </a>
+          </div>
+        </div>
+      </div>
+    </Page>
+  </AppLayout>
+);
 
 const icon = (
   <svg

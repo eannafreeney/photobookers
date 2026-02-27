@@ -10,76 +10,73 @@ export const getBooksByCreatorSlug = async (
   sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
   defaultLimit = 12,
 ) => {
-  // 1. Fetch creator without books
-  const creator = await db.query.creators.findFirst({
-    where: eq(creators.slug, slug),
-  });
+  try {
+    // 1. Fetch creator without books
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.slug, slug),
+    });
 
-  if (!creator) {
-    return {
-      creator: null,
-      books: [],
-      artists: [],
-      totalPages: 0,
-      page: 1,
-      limit: defaultLimit,
-    };
-  }
+    if (!creator) {
+      return {
+        creator: null,
+        books: [],
+        artists: [],
+        totalPages: 0,
+        page: 1,
+        limit: defaultLimit,
+      };
+    }
 
-  // 2. Count books for this creator (by type)
-  const bookColumn =
-    creator.type === "publisher" ? books.publisherId : books.artistId;
-  const [{ value: totalCount = 0 }] = await db
-    .select({ value: count() })
-    .from(books)
-    .where(
-      and(
-        eq(bookColumn, creator.id),
-        eq(books.publicationStatus, "published"),
-        eq(books.approvalStatus, "approved"),
-      ),
+    // 2. Count books for this creator (by type)
+    const bookColumn =
+      creator.type === "publisher" ? books.publisherId : books.artistId;
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(
+        and(
+          eq(bookColumn, creator.id),
+          eq(books.publicationStatus, "published"),
+          eq(books.approvalStatus, "approved"),
+        ),
+      );
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
     );
 
-  const { page, limit, offset, totalPages } = getPagination(
-    currentPage,
-    totalCount,
-    defaultLimit,
-  );
-
-  // 3. Fetch one page of books
-  const foundBooks = await db.query.books.findMany({
-    columns: {
-      id: true,
-      title: true,
-      slug: true,
-      coverUrl: true,
-      artistId: true,
-      publisherId: true,
-    },
-    where: and(
-      eq(bookColumn, creator.id),
-      eq(books.publicationStatus, "published"),
-    ),
-    orderBy: getBooksOrderBy(sortBy),
-    limit,
-    offset,
-    with: {
-      artist: {
-        columns: {
-          id: true,
-          displayName: true,
-          slug: true,
+    // 3. Fetch one page of books
+    const foundBooks = await db.query.books.findMany({
+      where: and(
+        eq(bookColumn, creator.id),
+        eq(books.publicationStatus, "published"),
+      ),
+      orderBy: getBooksOrderBy(sortBy),
+      limit,
+      offset,
+      with: {
+        artist: {
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  return {
-    creator,
-    books: foundBooks,
-    totalPages,
-    page,
-  };
+    return {
+      creator,
+      books: foundBooks,
+      totalPages,
+      page,
+    };
+  } catch (error) {
+    console.warn(error);
+    return { creator: null, books: [], totalPages: 0, page: 1 };
+  }
 };
 
 export const getBookBySlug = async (
@@ -160,7 +157,7 @@ export const getBooksByTag = async (
     return { books: foundBooks, totalPages, page };
   } catch (error) {
     console.error("Failed to get books by tag", error);
-    return null;
+    return { books: [], totalPages: 0, page: 1 };
   }
 };
 
@@ -199,6 +196,6 @@ export const getLatestBooks = async (
     return { books: foundBooks, totalPages, page };
   } catch (error) {
     console.error("Failed to get books", error);
-    return null;
+    return { books: [], totalPages: 0, page: 1 };
   }
 };

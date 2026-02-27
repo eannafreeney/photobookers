@@ -497,12 +497,13 @@ export const getFeedBooks = async (
       .select({ value: count() })
       .from(follows)
       .where(eq(follows.followerUserId, userId));
-    console.log("totalCount", totalCount);
+
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
       defaultLimit,
     );
+
     const userFollows = await db.query.follows.findMany({
       where: and(
         eq(follows.followerUserId, userId),
@@ -510,25 +511,12 @@ export const getFeedBooks = async (
       ),
     });
 
-    console.log("userFollows", userFollows);
-
     const followedCreatorIds = userFollows
       .map((follow) => follow.targetCreatorId)
       .filter((id): id is string => id !== null);
 
-    console.log("followedCreatorIds", followedCreatorIds);
-
     // Find books where artistCreatorId or publisherId is in the followed creators list
     const feedBooks = await db.query.books.findMany({
-      columns: {
-        id: true,
-        title: true,
-        slug: true,
-        artistId: true,
-        publisherId: true,
-        releaseDate: true,
-        coverUrl: true,
-      },
       where: and(
         or(
           inArray(books.artistId, followedCreatorIds),

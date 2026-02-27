@@ -1,16 +1,15 @@
-import Avatar from "../components/app/Avatar";
-import Card from "../components/app/Card";
-import CardCreatorCard from "../components/app/CardCreatorCard";
-import GridPanel from "../components/app/GridPanel";
-import Link from "../components/app/Link";
-import PageTitle from "../components/app/PageTitle";
-import { Pagination } from "../components/app/Pagination";
-import VerifiedCreator from "../components/app/VerifiedCreator";
-import AppLayout from "../components/layouts/AppLayout";
-import Page from "../components/layouts/Page";
-import { Creator } from "../db/schema";
-import { getAllCreatorsByType } from "../services/creators";
-import ErrorPage from "./error/errorPage";
+import Avatar from "../../../components/app/Avatar";
+import Card from "../../../components/app/Card";
+import GridPanel from "../../../components/app/GridPanel";
+import Link from "../../../components/app/Link";
+import PageTitle from "../../../components/app/PageTitle";
+import { Pagination } from "../../../components/app/Pagination";
+import VerifiedCreator from "../../../components/app/VerifiedCreator";
+import AppLayout from "../../../components/layouts/AppLayout";
+import Page from "../../../components/layouts/Page";
+import { Creator } from "../../../db/schema";
+import ErrorPage from "../../../pages/error/errorPage";
+import { getAllCreatorsByType } from "../../../services/creators";
 
 type Props = {
   type: "artist" | "publisher";
@@ -28,11 +27,13 @@ const CreatorsPage = async ({ type, currentPath, currentPage }: Props) => {
     return <ErrorPage errorMessage="Artists not found" />;
   }
 
+  const title = type === "artist" ? "Artists" : "Publishers";
   const targetId = `creators-grid-${type}`;
+
   return (
-    <AppLayout title={type === "artist" ? "Artists" : "Publishers"}>
+    <AppLayout title={title}>
       <Page>
-        <PageTitle title={type === "artist" ? "Artists" : "Publishers"} />
+        <PageTitle title={title} />
         <GridPanel id={targetId} xMerge="append">
           {creators.map((creator) => (
             <CreatorCard key={creator.id} creator={creator} />

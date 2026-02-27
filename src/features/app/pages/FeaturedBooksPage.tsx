@@ -6,7 +6,7 @@ import Page from "../../../components/layouts/Page";
 import BooksGrid from "../components/BooksGrid";
 import BookOfTheWeekGrid from "../components/BOTWGrid";
 import DiscoveryTags from "../components/DiscoveryTags";
-import LatestBooksGrid from "../components/LatestBooksGrid";
+import { getLatestBooks } from "../services";
 
 type Props = {
   user: AuthUser | null;
@@ -25,6 +25,8 @@ const FeaturedBooksPage = async ({
   isMobile,
   sortBy,
 }: Props) => {
+  const result = await getLatestBooks(currentPage, 10);
+
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
@@ -39,11 +41,11 @@ const FeaturedBooksPage = async ({
           </GridPanel> */}
         </FeatureGuard>
         <DiscoveryTags />
-        <LatestBooksGrid
+        <BooksGrid
           user={user}
           currentPath={currentPath}
-          currentPage={currentPage}
           sortBy={sortBy}
+          result={result}
         />
       </Page>
     </AppLayout>

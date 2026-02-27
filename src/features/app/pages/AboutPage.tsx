@@ -1,6 +1,6 @@
-import SectionTitle from "../components/app/SectionTitle";
-import AppLayout from "../components/layouts/AppLayout";
-import Page from "../components/layouts/Page";
+import SectionTitle from "../../../components/app/SectionTitle";
+import AppLayout from "../../../components/layouts/AppLayout";
+import Page from "../../../components/layouts/Page";
 
 const AboutPage = () => {
   return (

@@ -8,6 +8,7 @@ import SortDropdown from "../../../components/app/SortDropdown";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
+import BooksGrid from "../components/BooksGrid";
 import { getBooksByCreatorSlug } from "../services";
 
 type CreatorDetailPageProps = {
@@ -32,24 +33,20 @@ const CreatorDetailPage = async ({
     return <ErrorPage errorMessage="Creator not found" user={user} />;
   }
 
-  const { creator, books, totalPages, page } = result;
-
-  if (!books.length) {
-    return (
-      <ErrorPage errorMessage="No books found for this creator" user={user} />
-    );
-  }
-
-  const targetId = `books-grid-${creator.id}`;
-  const baseUrlWithSort =
-    sortBy !== "newest" ? `${currentPath}?sortBy=${sortBy}` : currentPath;
+  const { creator, ...rest } = result;
 
   return (
     <AppLayout title={creator?.displayName ?? ""} user={user}>
       <Page>
         <div class="flex flex-col md:flex-row gap-4">
           <div class="md:w-4/5 flex flex-col gap-4">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-1">
+            <BooksGrid
+              user={user}
+              currentPath={currentPath}
+              sortBy={sortBy}
+              result={{ ...rest }}
+            />
+            {/* <div class="flex flex-col md:flex-row justify-between items-center gap-1">
               <PageTitle creator={creator} user={user} />
               <div class="flex justify-end">
                 <SortDropdown sortBy={sortBy} currentPath={currentPath} />
@@ -70,7 +67,7 @@ const CreatorDetailPage = async ({
               page={page}
               totalPages={totalPages}
               targetId={targetId}
-            />
+            /> */}
           </div>
           <div class="md:w-1/5 md:mt-14">
             <CreatorCard

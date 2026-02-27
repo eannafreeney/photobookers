@@ -8,6 +8,7 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
 import { capitalize } from "../../../utils";
+import BooksGrid from "../components/BooksGrid";
 import { getBooksByTag } from "../services";
 
 type TagPageProps = {
@@ -31,29 +32,14 @@ const TagPage = async ({
     return <ErrorPage errorMessage="No books found for this tag" user={user} />;
   }
 
-  const targetId = `books-grid-${tag}`;
-  const { books, totalPages, page } = result;
-
-  const baseUrlWithSort =
-    sortBy !== "newest" ? `${currentPath}?sortBy=${sortBy}` : currentPath;
-
   return (
     <AppLayout title={`# ${capitalize(tag)}`} user={user}>
       <Page>
-        <PageTitle title={`# ${capitalize(tag)}`} />
-        <div class="flex justify-end">
-          <SortDropdown sortBy={sortBy} currentPath={currentPath} />
-        </div>
-        <GridPanel id={targetId} xMerge="append" isFullWidth>
-          {books.map((book) => (
-            <BookCard book={book} user={user} />
-          ))}
-        </GridPanel>
-        <Pagination
-          baseUrl={baseUrlWithSort}
-          page={page}
-          totalPages={totalPages}
-          targetId={targetId}
+        <BooksGrid
+          user={user}
+          currentPath={currentPath}
+          sortBy={sortBy}
+          result={result}
         />
       </Page>
     </AppLayout>

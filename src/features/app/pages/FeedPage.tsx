@@ -1,14 +1,12 @@
-import { AuthUser, Flash } from "../../types";
-import BookCard from "../components/app/BookCard";
-import Button from "../components/app/Button";
-import GridPanel from "../components/app/GridPanel";
-import SectionTitle from "../components/app/SectionTitle";
-
-import { getFeedBooks } from "../services/books";
-import AppLayout from "../components/layouts/AppLayout";
-import Page from "../components/layouts/Page";
-import NavTabs from "../components/layouts/NavTabs";
-import BooksByFollowee from "../components/app/BooksByFollowee";
+import { AuthUser, Flash } from "../../../../types";
+import BooksGrid from "../components/BooksGrid";
+import ErrorPage from "../../../pages/error/errorPage";
+import { getFeedBooks } from "../../../services/books";
+import AppLayout from "../../../components/layouts/AppLayout";
+import Page from "../../../components/layouts/Page";
+import NavTabs from "../../../components/layouts/NavTabs";
+import SectionTitle from "../../../components/app/SectionTitle";
+import Button from "../../../components/app/Button";
 
 type Props = {
   user: AuthUser | null;
@@ -20,34 +18,29 @@ type Props = {
 const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
   if (!user) {
     return (
+      <LoggedOutFeedScreen
+        user={user}
+        flash={flash}
+        currentPath={currentPath}
+      />
+    );
+  }
+
+  const result = await getFeedBooks(user.id, currentPage);
+
+  if (!result?.books) {
+    return (
+      <ErrorPage errorMessage="No books found by your followees" user={user} />
+    );
+  }
+
+  if (!result?.books || result?.books?.length === 0) {
+    return (
       <AppLayout title="Books" user={user} flash={flash}>
         <Page>
           <NavTabs currentPath={currentPath} />
-          <div
-            id="tab-content"
-            class="flex flex-col items-center justify-center mt-4 text-center text-on-surface"
-          >
-            <SectionTitle>Your Feed</SectionTitle>
-            <p>
-              See the latest releases from your favorite artists and publishers.
-            </p>
-            {icon}
-            <div class="flex flex-col gap-4 justify-center items-center mt-8">
-              <span>Login or register to view your feed.</span>
-              <div class="flex gap-2 justify-center items-center">
-                <a href="/auth/login">
-                  <Button variant="solid" color="inverse">
-                    Login
-                  </Button>
-                </a>
-                <a href="/auth/register">
-                  <Button variant="solid" color="primary">
-                    Register
-                  </Button>
-                </a>
-              </div>
-            </div>
-          </div>
+          Start following artists and publishers to see their latest releases
+          here.
         </Page>
       </AppLayout>
     );
@@ -57,11 +50,12 @@ const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <SectionTitle>Your Feed</SectionTitle>
-        <BooksByFollowee
+        <BooksGrid
+          title="Your Feed"
           user={user}
-          currentPage={currentPage}
           currentPath={currentPath}
+          sortBy="newest"
+          result={result}
         />
       </Page>
     </AppLayout>
@@ -69,6 +63,35 @@ const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
 };
 
 export default FeedPage;
+
+type LoggedOutProps = {
+  user: AuthUser | null;
+  flash: Flash;
+  currentPath: string;
+};
+
+const LoggedOutFeedScreen = ({ user, flash, currentPath }: LoggedOutProps) => (
+  <AppLayout title="Books" user={user} flash={flash}>
+    <Page>
+      <NavTabs currentPath={currentPath} />
+      <div class="flex flex-col gap-4 justify-center items-center mt-8">
+        <span>Login or register to view your feed.</span>
+        <div class="flex gap-2 justify-center items-center">
+          <a href="/auth/login">
+            <Button variant="solid" color="inverse">
+              Login
+            </Button>
+          </a>
+          <a href="/auth/register">
+            <Button variant="solid" color="primary">
+              Register
+            </Button>
+          </a>
+        </div>
+      </div>
+    </Page>
+  </AppLayout>
+);
 
 const icon = (
   <svg

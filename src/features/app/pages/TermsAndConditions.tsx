@@ -1,5 +1,5 @@
-import AppLayout from "../components/layouts/AppLayout";
-import Page from "../components/layouts/Page";
+import AppLayout from "../../../components/layouts/AppLayout";
+import Page from "../../../components/layouts/Page";
 
 const TermsAndConditionsPage = () => {
   return (

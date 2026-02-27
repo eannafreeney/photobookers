@@ -1,4 +1,3 @@
-import { Book } from "../../db/schema";
 import { AuthUser } from "../../../types";
 import BookCard from "./BookCard";
 import GridPanel from "./GridPanel";
