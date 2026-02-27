@@ -1,8 +1,13 @@
 import Page from "../../components/layouts/Page";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 import ResetPasswordForm from "../../components/cms/forms/ResetPasswordForm";
+import { AuthUser } from "../../../types";
 
-const ForceResetPasswordPage = () => {
+type Props = {
+  user: AuthUser;
+};
+
+const ForceResetPasswordPage = ({ user }: Props) => {
   const alpineAttrs = {
     "x-data": "resetPasswordForm()",
     "x-on:submit": "submitForm($event)",
@@ -16,9 +21,12 @@ const ForceResetPasswordPage = () => {
         <div class="min-h-screen flex items-center justify-center bg-base-200">
           <div class="card w-96 bg-base-100 shadow-none border-none my-4">
             <div class="card-body">
-              <h2 class="text-2xl font-bold text-center mb-4">
-                Reset Password
-              </h2>
+              <div class="text-2xl font-bold text-center mb-4">
+                Hi {user?.firstName ?? "there"}!
+              </div>
+              <div class="text-sm text-center mb-4">
+                Please enter your new password below.
+              </div>
               <form
                 action="/auth/reset-password"
                 method="post"

@@ -286,8 +286,7 @@ adminDashboardRoutes.get(
       type: "magiclink",
       email,
       options: {
-        // redirectTo: `${process.env.SITE_URL ?? "http://localhost:5173"}/auth/force-reset-password`,
-        redirectTo: "http://localhost:5173/auth/force-reset-password",
+        redirectTo: `${process.env.SITE_URL ?? "http://localhost:5173"}/auth/force-reset-password`,
       },
     });
 
