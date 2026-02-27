@@ -54,9 +54,10 @@ type NavLinkProps = {
   href: string;
   children: string;
   currentPath?: string | null;
+  [key: string]: any;
 };
 
-const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
+const NavLink = ({ href, children, currentPath, ...props }: NavLinkProps) => {
   const isActive = currentPath === href;
 
   return (
@@ -67,6 +68,7 @@ const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
           "block bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-surface-dark-alt/5 hover:text-on-surface-strong focus-visible:bg-surface-dark-alt/10 focus-visible:text-on-surface-strong focus-visible:outline-hidden",
           isActive ? "text-primary" : "text-on-surface",
         )}
+        {...props}
       >
         {children}
       </a>
@@ -137,8 +139,12 @@ const DropDownMenu = ({
       )}
       {user && (
         <>
-          <NavLink href="/user/my-account" currentPath={currentPath}>
-            Edit Account
+          <NavLink
+            href="/auth/reset-password"
+            currentPath={currentPath}
+            {...{ "x-target": "modal-root" }}
+          >
+            Reset Password
           </NavLink>
           <NavLink
             href={`/auth/logout?redirectUrl=${encodeURIComponent(currentPath ?? "")}`}

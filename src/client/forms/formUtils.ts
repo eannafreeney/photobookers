@@ -64,11 +64,12 @@ export function handleSubmit(
 ): boolean {
   context.isSubmitting = true;
   const result = schema.safeParse(context.form);
+  console.log("result", result);
 
   if (!result.success) {
     event.preventDefault();
     context.isSubmitting = false;
-    context.errors.form = result.error.flatten().fieldErrors;
+    context.errors.globalError = "Invalid Input";
     return false;
   }
 

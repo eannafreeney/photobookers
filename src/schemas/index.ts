@@ -48,6 +48,12 @@ export const registerCreatorFormSchema = z.object({
   agreeToTerms,
 });
 
+// ============ RESET PASSWORD FORM SCHEMA ============
+export const resetPasswordFormSchema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 // ============ REGISTER FAN FORM SCHEMA ============
 export const registerFanFormSchema = z.object({
   firstName: z
@@ -153,6 +159,11 @@ export const claimFormSchema = z.object({
     .url("Please enter a valid URL (e.g., https://example.com)")
     .min(1, "Website URL is required"),
   email: z.email(),
+});
+
+// ============ SEND MAGIC LINK FORM SCHEMA ============
+export const sendMagicLinkFormSchema = z.object({
+  actionLink: z.string().min(1, "Action link is required"),
 });
 
 // ============ BOOK FORM SCHEMA ============

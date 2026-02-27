@@ -11,8 +11,8 @@ const RegisterFanForm = ({ redirectUrl }: Props) => {
   const alpineAttrs = {
     "x-data": "registerFanForm()",
     "x-on:submit": "submitForm($event)",
-    "x-target.away": "_top",
     "x-target": "toast",
+    "x-target.away": "_top",
     "x-on:ajax:error": "isSubmitting = false",
   };
 

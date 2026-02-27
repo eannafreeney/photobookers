@@ -119,8 +119,6 @@ const UsersTable = async () => {
             <th class="p-4">Name</th>
             <th class="p-4">Email</th>
             <th class="p-4">ID</th>
-            <th class="p-4">Created At</th>
-            <th class="p-4">Is Admin</th>
           </tr>
         </Table.Head>
         <Table.Body id="users-table-body" {...alpineAttrs}>
@@ -151,8 +149,6 @@ const UserTableRow = ({ user }: RowProps) => {
       <td>
         <CopyCellCol entity={user.id} />
       </td>
-      <td class="p-4">{formatDate(user.createdAt)}</td>
-      <td class="p-4">{user.isAdmin ? "Yes" : "No"}</td>
       <td class="p-4">
         <a href={`/dashboard/admin/users/edit/${user.id}`}>
           <Button variant="outline" color="inverse">
@@ -160,8 +156,12 @@ const UserTableRow = ({ user }: RowProps) => {
           </Button>
         </a>
       </td>
+
       <td class="p-4">
-        <a href={`/dashboard/admin/users/generate-magic-link/${user.id}`}>
+        <a
+          href={`/dashboard/admin/users/generate-magic-link/${user.id}`}
+          x-target="modal-root"
+        >
           <Button variant="outline" color="inverse">
             <span>Generate Magic Link</span>
           </Button>
