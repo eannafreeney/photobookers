@@ -1,5 +1,6 @@
 import { Creator } from "../../db/schema";
 import { getAllCreatorProfilesAdmin } from "../../services/admin";
+import { getUserById } from "../../services/users";
 import { capitalize, formatDate } from "../../utils";
 import Button from "../app/Button";
 import Link from "../app/Link";
@@ -35,6 +36,7 @@ export const CreatorsTable = async ({ searchQuery }: Props) => {
             <th>Website</th>
             <th>Status</th>
             <th>Created At</th>
+            <th>Owner</th>
             <th>Actions</th>
           </tr>
         </Table.Head>
@@ -72,6 +74,9 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       <td>{capitalize(creator.status ?? "")}</td>
       <td>{formatDate(creator.createdAt ?? new Date())}</td>
       <td>
+        <AssignOwnerCell ownerUserId={creator.ownerUserId} />
+      </td>
+      <td>
         <a href={`/dashboard/admin/creators/edit/${creator.id}`}>
           <Button variant="outline" color="inverse">
             <span>Edit</span>
@@ -85,4 +90,32 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       </td>
     </tr>
   );
+};
+
+const AssignOwnerCell = async ({
+  ownerUserId,
+}: {
+  ownerUserId?: string | null;
+}) => {
+  // if not owned, assign owner button that opens a modal to assign an owner (user)
+  if (ownerUserId) {
+    const user = await getUserById(ownerUserId);
+    return (
+      <Link href={`/dashboard/admin/users/edit/${ownerUserId}`}>
+        {user?.email ?? "Unassigned"}
+      </Link>
+    );
+  }
+
+  return (
+    <a
+      href={`/dashboard/admin/creators/edit/assign-owner`}
+      x-target="modal-root"
+    >
+      <Button variant="outline" color="inverse">
+        <span>Assign Owner</span>
+      </Button>
+    </a>
+  );
+  // otherwise show the owner's email
 };

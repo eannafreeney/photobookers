@@ -6,14 +6,12 @@ import AppLayout from "../../components/layouts/AppLayout";
 import Breadcrumbs from "../../components/app/Breadcrumbs";
 import CreatorBookList from "../../components/dashboard/BookList";
 import EditCreatorFormAdmin from "../../components/cms/forms/EditCreatorFormAdmin";
-import Button from "../../components/app/Button";
 
 type Props = {
   user: AuthUser;
   creator: Creator;
   currentPath: string;
   currentPage: number;
-  ownerEmail: string | null;
 };
 
 const EditCreatorPage = ({
@@ -21,7 +19,6 @@ const EditCreatorPage = ({
   creator,
   currentPath,
   currentPage,
-  ownerEmail,
 }: Props) => {
   const formValues = JSON.stringify({
     displayName: creator?.displayName,
@@ -72,11 +69,6 @@ const EditCreatorPage = ({
               creatorId={creator?.id}
               type={creator?.type}
             />
-            <ManualAssignCreatorForm
-              creatorId={creator.id}
-              creatorWebsite={creator?.website ?? ""}
-              ownerEmail={ownerEmail}
-            />
           </div>
         </div>
         <CreatorBookList
@@ -91,49 +83,3 @@ const EditCreatorPage = ({
 };
 
 export default EditCreatorPage;
-
-const ManualAssignCreatorForm = ({
-  ownerEmail,
-  creatorId,
-  creatorWebsite,
-}: {
-  ownerEmail: string | null;
-  creatorId: string;
-  creatorWebsite: string | null;
-}) => {
-  return (
-    <>
-      <div class="mt-8 p-4 border border-outline rounded-lg">
-        <h3 class="text-lg font-semibold mb-2">Assign creator to user</h3>
-        <p class="text-sm text-base-content/70 mb-3">
-          Assign this creator profile to an existing user (by email). They will
-          own it without going through verification.
-        </p>
-        <form
-          action={`/dashboard/admin/creators/edit/${creatorId}/assign`}
-          method="post"
-          class="flex items-center gap-2"
-        >
-          <input
-            type="email"
-            name="email"
-            placeholder="User email"
-            required
-            value={ownerEmail ?? ""}
-            class="input input-bordered input-sm w-48"
-          />
-          <input
-            type="url"
-            name="website"
-            placeholder="https://their-website.com"
-            value={creatorWebsite ?? ""}
-            class="input input-bordered input-sm w-56"
-          />
-          <Button variant="solid" color="primary" width="fit">
-            Assign
-          </Button>
-        </form>
-      </div>
-    </>
-  );
-};

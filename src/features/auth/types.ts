@@ -8,6 +8,7 @@ import {
   registerCreatorFormSchema,
   registerFanFormSchema,
   resendVerificationFormSchema,
+  resetPasswordFormSchema,
 } from "../../schemas";
 
 export type VerificationFormContext = Context<
@@ -42,4 +43,10 @@ export type RegisterCreatorFormContext = Context<
   Env,
   string,
   { out: { form: z.infer<typeof registerCreatorFormSchema> } }
+>;
+
+export type ResetPasswordFormContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof resetPasswordFormSchema> } }
 >;

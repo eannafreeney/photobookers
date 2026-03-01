@@ -1,15 +1,19 @@
 import { Hono } from "hono";
 import {
   getAccountsPage,
+  getForceResetPasswordPage,
   getLoginPage,
   getRegisterPage,
   getResendVerficationEmailPage,
+  getResetPasswordModal,
   login,
   logout,
   processRegister,
   registerCreator,
   registerFan,
   resendVerificationEmail,
+  resetPassword,
+  setSession,
 } from "./controllers";
 import {
   loginFormSchema,
@@ -17,15 +21,20 @@ import {
   registerCreatorFormSchema,
   registerFanFormSchema,
   resendVerificationFormSchema,
+  resetPasswordFormSchema,
 } from "../../schemas";
 import { formValidator, paramValidator } from "../../lib/validator";
 
-const authRoutes = new Hono();
+export const authRoutes = new Hono();
 
 authRoutes.get("/accounts", getAccountsPage);
 authRoutes.get("/login", getLoginPage);
 authRoutes.get("/register", getRegisterPage);
 authRoutes.get("/resend-verification", getResendVerficationEmailPage);
+authRoutes.get("/callback", processRegister);
+authRoutes.get("/logout", logout);
+authRoutes.get("/force-reset-password", getForceResetPasswordPage);
+authRoutes.get("/reset-password", getResetPasswordModal);
 authRoutes.post(
   "/resend-verification",
   formValidator(resendVerificationFormSchema),
@@ -48,5 +57,9 @@ authRoutes.post(
   formValidator(registerCreatorFormSchema),
   registerCreator,
 );
-authRoutes.get("/callback", processRegister);
-authRoutes.get("/logout", logout);
+authRoutes.post(
+  "/reset-password",
+  formValidator(resetPasswordFormSchema),
+  resetPassword,
+);
+authRoutes.post("/set-session", setSession);

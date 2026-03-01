@@ -35,8 +35,8 @@ const CreatorFormAdmin = () => {
             name="form.website"
             type="url"
             placeholder="https://..."
-            required
             showWebsiteAvailabilityStatus
+            required
             validateInput="validateWebsite()"
           />
           <Select

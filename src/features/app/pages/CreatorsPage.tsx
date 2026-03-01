@@ -21,6 +21,7 @@ const CreatorsPage = async ({ type, currentPath, currentPage }: Props) => {
   const { creators, totalPages, page } = await getAllCreatorsByType(
     type,
     currentPage,
+    50,
   );
 
   if (!creators) {

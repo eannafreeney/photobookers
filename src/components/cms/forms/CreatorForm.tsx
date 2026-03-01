@@ -4,7 +4,6 @@ import CountrySelect from "../ui/CountrySelect";
 import TextArea from "../ui/TextArea";
 import SectionTitle from "../../app/SectionTitle";
 import { capitalize } from "../../../utils";
-import { useUser } from "../../../contexts/UserContext";
 
 type Props = {
   formValues?: string;
@@ -13,14 +12,12 @@ type Props = {
 };
 
 const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
-  const user = useUser();
-  const isAdmin = user?.isAdmin ?? false;
+  const isEditPage = !!creatorId;
+  const method = isEditPage ? "PATCH" : "POST";
 
   const action = creatorId
     ? `/dashboard/creators/edit/${creatorId}`
     : "/dashboard/creators/new";
-
-  const isEditPage = !!creatorId;
 
   const alpineAttrs = {
     "x-data": `creatorForm(${formValues}, ${isEditPage})`,
@@ -56,7 +53,7 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
             required
           />
           <Input label="City" name="form.city" maxLength={50} required />
-          <CountrySelect required />
+          <CountrySelect isRequired />
           <Input
             label="Website"
             name="form.website"
@@ -87,6 +84,7 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
             value={type}
             x-init={`form.type = '${type}'`}
           />
+          <input type="hidden" name="_method" value={method} />
         </div>
         <FormButtons />
       </form>

@@ -16,6 +16,11 @@ const numberField = z.preprocess(
   z.number().optional(),
 );
 
+export const methodField = z.preprocess(
+  (v) => (v === "" ? undefined : v),
+  z.enum(["PATCH", "POST", "DELETE"]).optional(),
+);
+
 const agreeToTerms = z.preprocess(
   (v) => v === true || v === "on" || v === "true" || v === "1",
   z
@@ -80,6 +85,7 @@ export const loginFormSchema = z.object({
 
 // ============ CREATOR FORM SCHEMA ============
 export const creatorFormSchema = z.object({
+  _method: methodField,
   displayName: z.string().min(3, "Display Name must be at least 3 characters"),
   tagline: z.string().max(150, "Tagline must be less than 150 characters"),
   bio: z
@@ -113,7 +119,7 @@ export const creatorFormAdminSchema = z.object({
 });
 
 // ============ NEW USER FORM SCHEMA ============
-export const newUserFormSchema = z.object({
+export const newUserFormAdminSchema = z.object({
   email: z.email().min(1, "Email is required"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
@@ -127,6 +133,11 @@ export const coverImageFormSchema = z.object({
     type: z.string(),
     name: z.string(),
   }),
+});
+
+// ============ MAGIC LINK FORM SCHEMA ============
+export const magicLinkFormSchema = z.object({
+  actionLink: z.string().min(1, "Action link is required"),
 });
 
 // ============ UUID SCHEMA ============
@@ -161,9 +172,16 @@ export const claimFormSchema = z.object({
   email: z.email(),
 });
 
-// ============ SEND MAGIC LINK FORM SCHEMA ============
-export const sendMagicLinkFormSchema = z.object({
-  actionLink: z.string().min(1, "Action link is required"),
+// ============ DELETE BOOK FORM SCHEMA ============
+export const deleteBookFormSchema = z.object({
+  _method: methodField,
+  bookId: uuidField,
+});
+
+// ============ PUBLISH TOGGLE FORM SCHEMA ============
+export const publishToggleFormSchema = z.object({
+  _method: methodField,
+  bookId: uuidField,
 });
 
 // ============ BOOK FORM SCHEMA ============
@@ -186,6 +204,7 @@ export const bookFormSchema = z.object({
       z.enum(["available", "sold_out", "unavailable"]),
     )
     .default("available"),
+  _method: methodField,
 });
 
 // ============ BOOK OF THE DAY FORM SCHEMA ============

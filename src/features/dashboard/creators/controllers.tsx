@@ -1,9 +1,10 @@
 import { Context } from "hono";
 import { getUser } from "../../../utils";
-import EditCreatorPage from "../../../pages/dashboard/EditCreatorPage";
+
 import { updateCreatorProfile } from "../../../services/creators";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import { CreatorFormWithBookContext } from "./types";
+import EditCreatorPage from "./pages/EditCreatorPage";
 
 export const getEditCreatorPage = async (c: Context) => {
   const creator = c.get("creator");

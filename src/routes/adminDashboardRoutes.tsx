@@ -37,6 +37,8 @@ import { CreatorsTable } from "../components/admin/CreatorsTable";
 import {
   deleteBookByIdAdmin,
   deleteCreatorByIdAdmin,
+  getAllCreatorProfilesAdmin,
+  getAllUserProfilesAdmin,
   getClaimById,
 } from "../services/admin";
 import { requireAdminAccess } from "../middleware/adminGuard";
@@ -50,8 +52,11 @@ import {
   prepareBookUpdateData,
   updateBook,
 } from "../services/books";
-import { BookFormAdmin } from "../components/admin/BookFormAdmin";
-import EditBookFormAdmin from "../components/admin/EditBookFormAdmin";
+import {
+  AddBookForm,
+  BookFormAdmin,
+} from "../features/dashboard/admin/books/components/AddBookForm";
+import EditBookFormAdmin from "../features/dashboard/admin/books/pages/EditBookFormAdmin";
 import { UserProvider } from "../contexts/UserContext";
 import Modal from "../components/app/Modal";
 import Input from "../components/cms/ui/Input";
@@ -74,11 +79,14 @@ import {
   findUserByEmail,
   getUserById,
 } from "../services/users";
-import UsersPage from "../pages/admin/UsersPage";
+import UsersPage from "../features/dashboard/admin/users/pages/UsersPageAdmin";
 import { createUser } from "../features/auth/services";
 import ErrorPage from "../pages/error/errorPage";
 import { generateMagicLinkEmail } from "../features/claims/emails";
 import CopyCellCol from "../components/admin/CopyCellCol";
+import { showSuccessAlert } from "../lib/alertHelpers";
+import { loadingIcon } from "../lib/icons";
+import CreatorsComboBox from "../components/admin/CreatorsComboBox";
 
 export const adminDashboardRoutes = new Hono();
 
@@ -87,130 +95,130 @@ export const showErrorAlert = (
   errorMessage: string = "Action Failed! Please try again.",
 ) => c.html(<Alert type="danger" message={errorMessage} />, 422);
 
-adminDashboardRoutes.get("/", requireAdminAccess, async (c) => {
-  return c.redirect("/dashboard/admin/books");
-});
+// adminDashboardRoutes.get("/", requireAdminAccess, async (c) => {
+//   return c.redirect("/dashboard/admin/books");
+// });
 
-adminDashboardRoutes.get("/books", requireAdminAccess, async (c) => {
-  const user = await getUser(c);
-  const searchQuery = c.req.query("search");
-  const flash = await getFlash(c);
-  const page = Number(c.req.query("page") ?? 1);
-  const currentPath = c.req.path;
+// adminDashboardRoutes.get("/books", requireAdminAccess, async (c) => {
+//   const user = await getUser(c);
+//   const searchQuery = c.req.query("search");
+//   const flash = await getFlash(c);
+//   const page = Number(c.req.query("page") ?? 1);
+//   const currentPath = c.req.path;
 
-  return c.html(
-    <BooksPage
-      user={user}
-      flash={flash}
-      searchQuery={searchQuery}
-      currentPage={page}
-      currentPath={currentPath}
-    />,
-  );
-});
+//   return c.html(
+//     <BooksPage
+//       user={user}
+//       flash={flash}
+//       searchQuery={searchQuery}
+//       currentPage={page}
+//       currentPath={currentPath}
+//     />,
+//   );
+// });
 
-adminDashboardRoutes.get("/books/new", requireAdminAccess, async (c) => {
-  const user = await getUser(c);
+// adminDashboardRoutes.get("/books/new", requireAdminAccess, async (c) => {
+//   const user = await getUser(c);
 
-  return c.html(
-    <AppLayout title="Books" user={user}>
-      <Page>
-        <NavTabs currentPath="/dashboard/admin/books" />
-        <BookFormAdmin />
-      </Page>
-    </AppLayout>,
-  );
-});
+//   return c.html(
+//     <AppLayout title="Books" user={user}>
+//       <Page>
+//         <NavTabs currentPath="/dashboard/admin/books" />
+//         <AddBookForm />
+//       </Page>
+//     </AppLayout>,
+//   );
+// });
 
-adminDashboardRoutes.post(
-  "/books/new",
-  requireAdminAccess,
-  formValidator(bookFormSchema),
-  async (c) => {
-    const user = await getUser(c);
-    const formData = c.req.valid("form");
+// adminDashboardRoutes.post(
+//   "/books/new",
+//   requireAdminAccess,
+//   formValidator(bookFormSchema),
+//   async (c) => {
+//     const user = await getUser(c);
+//     const formData = c.req.valid("form");
 
-    const artist = await resolveArtist(formData, user.id);
-    const publisher = await resolvePublisher(formData, user.id);
+//     const artist = await resolveArtist(formData, user.id);
+//     const publisher = await resolvePublisher(formData, user.id);
 
-    if (artist === "error" || !artist) {
-      return showErrorAlert(c, "Invalid artist");
-    }
+//     if (artist === "error" || !artist) {
+//       return showErrorAlert(c, "Invalid artist");
+//     }
 
-    if (publisher === "error") {
-      return showErrorAlert(c, "Invalid publisher");
-    }
+//     if (publisher === "error") {
+//       return showErrorAlert(c, "Invalid publisher");
+//     }
 
-    const bookData = await prepareBookData(
-      formData,
-      artist,
-      user.id,
-      publisher,
-    );
-    const newBook = await createBook(bookData);
+//     const bookData = await prepareBookData(
+//       formData,
+//       artist,
+//       user.id,
+//       publisher,
+//     );
+//     const newBook = await createBook(bookData);
 
-    if (!newBook) {
-      return c.html(
-        <Alert type="danger" message="Failed to create book" />,
-        422,
-      );
-    }
+//     if (!newBook) {
+//       return c.html(
+//         <Alert type="danger" message="Failed to create book" />,
+//         422,
+//       );
+//     }
 
-    await setFlash(c, "success", `${newBook.title} created!`);
-    return c.redirect("/dashboard/admin/books");
-  },
-);
+//     await setFlash(c, "success", `${newBook.title} created!`);
+//     return c.redirect("/dashboard/admin/books");
+//   },
+// );
 
-adminDashboardRoutes.get(
-  "/books/edit/:bookId",
-  requireAdminAccess,
-  paramValidator(bookIdSchema),
-  async (c) => {
-    const user = await getUser(c);
-    const bookId = c.req.param("bookId");
-    const flash = await getFlash(c);
+// adminDashboardRoutes.get(
+//   "/books/edit/:bookId",
+//   requireAdminAccess,
+//   paramValidator(bookIdSchema),
+//   async (c) => {
+//     const user = await getUser(c);
+//     const bookId = c.req.param("bookId");
+//     const flash = await getFlash(c);
 
-    return c.html(
-      <EditBookFormAdmin bookId={bookId} user={user} flash={flash} />,
-    );
-  },
-);
+//     return c.html(
+//       <EditBookFormAdmin bookId={bookId} user={user} flash={flash} />,
+//     );
+//   },
+// );
 
-adminDashboardRoutes.post(
-  "/books/edit/:bookId",
-  requireAdminAccess,
-  formValidator(bookFormSchema),
-  paramValidator(bookIdSchema),
-  async (c) => {
-    const formData = c.req.valid("form");
-    const user = await getUser(c);
-    const bookId = c.req.valid("param").bookId;
-    const book = await getBookById(bookId);
-    if (!book) {
-      return showErrorAlert(c, "Book not found");
-    }
+// adminDashboardRoutes.post(
+//   "/books/edit/:bookId",
+//   requireAdminAccess,
+//   formValidator(bookFormSchema),
+//   paramValidator(bookIdSchema),
+//   async (c) => {
+//     const formData = c.req.valid("form");
+//     const user = await getUser(c);
+//     const bookId = c.req.valid("param").bookId;
+//     const book = await getBookById(bookId);
+//     if (!book) {
+//       return showErrorAlert(c, "Book not found");
+//     }
 
-    const artist = await resolveArtist(formData, user.id);
-    const publisher = await resolvePublisher(formData, user.id);
+//     const artist = await resolveArtist(formData, user.id);
+//     const publisher = await resolvePublisher(formData, user.id);
 
-    if (artist === "error" || !artist) {
-      return showErrorAlert(c, "Invalid artist");
-    }
+//     if (artist === "error" || !artist) {
+//       return showErrorAlert(c, "Invalid artist");
+//     }
 
-    if (publisher === "error") {
-      return showErrorAlert(c, "Invalid publisher");
-    }
+//     if (publisher === "error") {
+//       return showErrorAlert(c, "Invalid publisher");
+//     }
 
-    const bookData = await prepareBookUpdateData(formData);
-    const updatedBook = await updateBook(bookData, bookId);
-    if (!updatedBook) {
-      return showErrorAlert(c, "Failed to update book");
-    }
+//     const bookData = await prepareBookUpdateData(formData);
+//     const updatedBook = await updateBook(bookData, bookId);
+//     if (!updatedBook) {
+//       return showErrorAlert(c, "Failed to update book");
+//     }
 
-    await setFlash(c, "success", `${updatedBook.title} updated!`);
-    return c.redirect(`/dashboard/admin/books`);
-  },
-);
+//     await setFlash(c, "success", `${updatedBook.title} updated!`);
+//     return c.redirect(`/dashboard/admin/books`);
+//   },
+// );
 
 adminDashboardRoutes.get("/claims", requireAdminAccess, async (c) => {
   const user = await getUser(c);
@@ -361,69 +369,12 @@ adminDashboardRoutes.get("/creators", requireAdminAccess, async (c) => {
       <Page>
         <NavTabs currentPath="/dashboard/admin/creators" />
         <SectionTitle>Creators</SectionTitle>
-        <CreatorFormAdmin />
+        {/* <CreatorFormAdmin /> */}
         <CreatorsTable searchQuery={searchQuery} />
       </Page>
     </AppLayout>,
   );
 });
-
-adminDashboardRoutes.get(
-  "/creators/edit/:creatorId",
-  paramValidator(creatorIdSchema),
-  requireAdminAccess,
-  async (c) => {
-    const user = await getUser(c);
-    const creatorId = c.req.valid("param").creatorId;
-    const creator = await getCreatorById(creatorId);
-    if (!creator) {
-      return showErrorAlert(c, "Creator not found");
-    }
-    const currentPath = c.req.path;
-    const currentPage = Number(c.req.query("page") ?? 1);
-
-    let ownerEmail: string | null = null;
-    if (creator.ownerUserId) {
-      const owner = await getUserById(creator.ownerUserId);
-      ownerEmail = owner?.email ?? null;
-    }
-
-    return c.html(
-      <EditCreatorPageAdmin
-        user={user}
-        creator={creator}
-        currentPath={currentPath}
-        currentPage={currentPage}
-        ownerEmail={ownerEmail}
-      />,
-    );
-  },
-);
-
-adminDashboardRoutes.post(
-  "/creators/edit/:creatorId",
-  requireAdminAccess,
-  formValidator(creatorFormAdminSchema),
-  paramValidator(creatorIdSchema),
-  async (c) => {
-    const formData = c.req.valid("form");
-    const creatorId = c.req.valid("param").creatorId;
-    const creator = await getCreatorById(creatorId);
-    if (!creator) {
-      return showErrorAlert(c, "Creator not found");
-    }
-    const updatedCreator = await updateCreatorProfile(formData, creatorId);
-    if (!updatedCreator) {
-      return showErrorAlert(c, "Failed to update creator");
-    }
-    return c.html(
-      <>
-        <Alert type="success" message="Creator updated!" />
-        <CreatorFormAdmin />
-      </>,
-    );
-  },
-);
 
 adminDashboardRoutes.post(
   "/claims/:claimId/approve",
@@ -821,6 +772,97 @@ adminDashboardRoutes.post(
   },
 );
 
+adminDashboardRoutes.get(
+  "/creators/edit/assign-owner",
+  requireAdminAccess,
+  async (c) => {
+    return c.html(
+      <Modal title="Assign User as Creator Owner">
+        <div
+          id="assign-owner-content"
+          class="h-64"
+          x-init="$ajax('/dashboard/admin/creators/edit/assign-owner-content')"
+        >
+          ...loading content...
+        </div>
+      </Modal>,
+    );
+  },
+);
+
+adminDashboardRoutes.get(
+  "/creators/edit/assign-owner-content",
+  requireAdminAccess,
+  async (c) => {
+    // get all creators
+    const users = await getAllUserProfilesAdmin();
+
+    return c.html(
+      <div id="assign-owner-content" class="h-64">
+        <form
+          method="post"
+          action="/dashboard/admin/creators/edit/assign-owner"
+        >
+          <CreatorsComboBox users={users} />
+          <Button variant="solid" color="primary">
+            Assign
+          </Button>
+        </form>
+      </div>,
+    );
+  },
+);
+
+adminDashboardRoutes.get(
+  "/creators/edit/:creatorId",
+  paramValidator(creatorIdSchema),
+  requireAdminAccess,
+  async (c) => {
+    const user = await getUser(c);
+    const creatorId = c.req.valid("param").creatorId;
+    const creator = await getCreatorById(creatorId);
+    if (!creator) {
+      return showErrorAlert(c, "Creator not found");
+    }
+    const currentPath = c.req.path;
+    const currentPage = Number(c.req.query("page") ?? 1);
+
+    return c.html(
+      <EditCreatorPageAdmin
+        user={user}
+        creator={creator}
+        currentPath={currentPath}
+        currentPage={currentPage}
+      />,
+    );
+  },
+);
+
+adminDashboardRoutes.post(
+  "/creators/edit/:creatorId",
+  requireAdminAccess,
+  formValidator(creatorFormAdminSchema),
+  paramValidator(creatorIdSchema),
+  async (c) => {
+    const formData = c.req.valid("form");
+    const creatorId = c.req.valid("param").creatorId;
+    const creator = await getCreatorById(creatorId);
+    if (!creator) {
+      return showErrorAlert(c, "Creator not found");
+    }
+    const updatedCreator = await updateCreatorProfile(formData, creatorId);
+    if (!updatedCreator) {
+      return showErrorAlert(c, "Failed to update creator");
+    }
+    return c.html(
+      <>
+        <Alert type="success" message="Creator updated!" />
+        <CreatorFormAdmin />
+      </>,
+    );
+  },
+);
+
 adminDashboardRoutes.post(
   "/creators/edit/:creatorId/assign",
   requireAdminAccess,
@@ -843,6 +885,7 @@ adminDashboardRoutes.post(
       console.error("Manual assign failed:", err);
       return showErrorAlert(c, "Failed to assign creator. Please try again.");
     }
-    return c.html(<Alert type="success" message="Creator assigned!" />);
+
+    return showSuccessAlert(c, "Creator assigned!");
   },
 );

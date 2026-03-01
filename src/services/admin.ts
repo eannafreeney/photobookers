@@ -7,6 +7,7 @@ import {
   CreatorClaim,
   creatorClaims,
   creators,
+  User,
 } from "../db/schema";
 import { getPagination } from "../lib/pagination";
 
@@ -17,6 +18,19 @@ export const getAllCreatorProfilesAdmin = async (
     where: and(
       searchQuery ? ilike(creators.displayName, `%${searchQuery}%`) : undefined,
     ),
+  });
+};
+
+export const getAllUserProfilesAdmin = async (): Promise<
+  Pick<User, "id" | "email" | "firstName" | "lastName">[]
+> => {
+  return await db.query.users.findMany({
+    columns: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+    },
   });
 };
 

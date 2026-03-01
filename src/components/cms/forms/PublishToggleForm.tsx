@@ -15,9 +15,8 @@ const PublishToggleForm = ({ book }: Props) => {
     "x-target": `publish-toggle-${bookId} preview-button-${bookId} toast`,
     "x-target.error": "toast",
     "x-on:ajax:error": `isPublished = ${isPublished}`,
-    "x-target.back": `toast publish-toggle-${bookId}`
+    "x-target.back": `toast publish-toggle-${bookId}`,
   };
-  
 
   const action = `/dashboard/books/${bookId}/${
     isPublished ? "unpublish" : "publish"
@@ -30,6 +29,7 @@ const PublishToggleForm = ({ book }: Props) => {
       action={action}
       {...alpineAttrs}
     >
+      <input type="hidden" name="_method" value="PATCH" />
       <ToggleButton
         isChecked={isPublished}
         name="isPublished"

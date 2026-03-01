@@ -9,9 +9,9 @@ import {
   updateBookPublicationStatus,
 } from "../services/books";
 import { getFlash, getUser, setFlash } from "../utils";
-import BooksOverview from "../pages/dashboard/BooksOverview";
-import AddBookPage from "../pages/dashboard/AddBookPage";
-import BookEditPage from "../pages/dashboard/BookEditPage";
+import BooksOverview from "../features/dashboard/books/pages/BooksOverview";
+import AddBookPage from "../features/dashboard/books/pages/AddBookPage";
+import BookEditPage from "../features/dashboard/books/pages/BookEditPage";
 import { Hono } from "hono";
 import PublishToggleForm from "../components/cms/forms/PublishToggleForm";
 import PreviewButton from "../components/api/PreviewButton";

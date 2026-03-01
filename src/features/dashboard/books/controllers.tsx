@@ -1,12 +1,12 @@
 import { Context } from "hono";
 import { getFlash, getUser, setFlash } from "../../../utils";
 import { getIsMobile } from "../../../lib/device";
-import BooksOverview from "../../../pages/dashboard/BooksOverview";
-import AddBookPage from "../../../pages/dashboard/AddBookPage";
+import BooksOverview from "./pages/BooksOverview";
+import AddBookPage from "./pages/AddBookPage";
 import { resolveArtist, resolvePublisher } from "../../../services/creators";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
-import BookEditPage from "../../../pages/dashboard/BookEditPage";
+import BookEditPage from "./pages/BookEditPage";
 import {
   BookFormContext,
   BookFormWithBookContext,

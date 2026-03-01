@@ -1,6 +1,8 @@
 import { AuthUser } from "../../../../types";
 import SectionTitle from "../../../components/app/SectionTitle";
+import { star } from "../../../lib/icons";
 import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
+import BookOfTheWeekCard from "./BOTWCard";
 import NewsletterCard from "./NewsletterCard";
 
 type Props = {
