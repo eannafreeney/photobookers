@@ -3,23 +3,12 @@ type InputLabelProps = {
   maxLength?: number;
   name?: string;
   required?: boolean;
-  showEmailAvailabilityChecker?: boolean;
-  showDisplayNameAvailabilityChecker?: boolean;
-  showWebsiteAvailabilityStatus?: boolean;
 };
 
-const InputLabel = ({
-  label,
-  maxLength,
-  name,
-  required,
-  showEmailAvailabilityChecker = false,
-  showDisplayNameAvailabilityChecker = false,
-  showWebsiteAvailabilityStatus = false,
-}: InputLabelProps) => {
+const InputLabel = ({ label, maxLength, name, required }: InputLabelProps) => {
   return (
-    <div class="flex items-center justify-between">
-      <legend class="w-fit pl-0.5 text-sm">
+    <div class="flex items-center justify-between text-xs">
+      <legend class="w-fit pl-0.5">
         {label} {required && <span class="text-danger -ml-1"> *</span>}
       </legend>
       {maxLength && (
@@ -35,27 +24,6 @@ const InputLabel = ({
         >
           <span x-text={`${name}.length`}></span> / {maxLength}
         </p>
-      )}
-      {showEmailAvailabilityChecker && (
-        <div
-          id="email-availability-status"
-          x-html="emailAvailabilityStatus"
-          class="h-5"
-        ></div>
-      )}
-      {showDisplayNameAvailabilityChecker && (
-        <div
-          id="display-name-availability-status"
-          x-html="displayNameAvailabilityStatus"
-          class="h-5"
-        ></div>
-      )}
-      {showWebsiteAvailabilityStatus && (
-        <div
-          id="website-availability-status"
-          x-html="websiteAvailabilityStatus"
-          class="h-5"
-        ></div>
       )}
     </div>
   );

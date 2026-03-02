@@ -105,13 +105,3 @@ export const deleteWishlist = async (userId: string, bookId: string) => {
     .delete(wishlists)
     .where(and(eq(wishlists.userId, userId), eq(wishlists.bookId, bookId)));
 };
-
-export const getCreatorByDisplayName = (displayName: string) =>
-  db.query.creators.findFirst({
-    where: eq(creators.displayName, displayName),
-  });
-
-export const getCreatorByWebsite = (website: string) =>
-  db.query.creators.findFirst({
-    where: eq(creators.website, normalizeUrl(website)),
-  });

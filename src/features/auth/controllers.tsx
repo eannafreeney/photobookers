@@ -15,10 +15,15 @@ import {
   RegisterCreatorFormContext,
   RegisterFanFormContext,
   ResetPasswordFormContext,
+  ValidateDisplayNameContext,
+  ValidateEmailContext,
+  ValidateWebsiteContext,
   VerificationFormContext,
 } from "./types";
 import {
   createUser,
+  getCreatorByDisplayName,
+  getCreatorByWebsite,
   loginAndSetCookies,
   setAccessToken,
   setRefreshToken,
@@ -35,6 +40,10 @@ import { deleteCookie } from "hono/cookie";
 import ForceResetPasswordPage from "./pages/ForceResetPasswordPage";
 import MagicLinkHashHandlerPage from "./pages/MagicLinkHashHandlerPage";
 import ResetPasswordModal from "./modals/ResetPasswordModal";
+import { findUserByEmail } from "../../services/users";
+import ValidateEmail from "./components/ValidateEmail";
+import ValidateDisplayName from "./components/ValidateDisplayName";
+import ValidateWebsite from "./components/ValidateWebsite";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -445,4 +454,31 @@ export const setSession = async (c: Context) => {
   setRefreshToken(c, refresh_token);
 
   return c.json({ ok: true });
+};
+
+export const validateEmail = async (c: ValidateEmailContext) => {
+  const email = c.req.valid("form").email;
+
+  const existingUser = await findUserByEmail(email);
+  const isAvailable = !Boolean(existingUser);
+
+  return c.html(<ValidateEmail isAvailable={isAvailable} />);
+};
+
+export const validateDisplayName = async (c: ValidateDisplayNameContext) => {
+  const displayName = c.req.valid("form").displayName;
+
+  const existingCreator = await getCreatorByDisplayName(displayName);
+  const isAvailable = !Boolean(existingCreator);
+
+  return c.html(<ValidateDisplayName isAvailable={isAvailable} />);
+};
+
+export const validateWebsite = async (c: ValidateWebsiteContext) => {
+  const website = c.req.valid("form").website;
+
+  const existingWebsite = await getCreatorByWebsite(website);
+  const isAvailable = !Boolean(existingWebsite);
+
+  return c.html(<ValidateWebsite isAvailable={isAvailable} />);
 };

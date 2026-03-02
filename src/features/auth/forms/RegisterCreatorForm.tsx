@@ -2,6 +2,9 @@ import Link from "../../../components/app/Link";
 import Checkbox from "../../../components/cms/ui/Checkbox";
 import FormButton from "../../../components/cms/ui/FormButtons";
 import Input from "../../../components/cms/ui/Input";
+import ValidateDisplayName from "../components/ValidateDisplayName";
+import ValidateEmail from "../components/ValidateEmail";
+import ValidateWebsite from "../components/ValidateWebsite";
 
 type RegisterCreatorFormProps = {
   type: "artist" | "publisher";
@@ -14,36 +17,20 @@ const RegisterCreatorForm = ({ type }: RegisterCreatorFormProps) => {
     "x-target.away": "_top",
     "x-target": "toast",
     "x-on:ajax:error": "isSubmitting = false",
+    "x-on:email-availability.window":
+      "emailIsTaken = !$event.detail.emailIsAvailable",
+    "x-on:displayName-availability.window":
+      "displayNameIsTaken = !$event.detail.displayNameIsAvailable",
+    "x-on:website-availability.window":
+      "websiteIsTaken = !$event.detail.websiteIsAvailable",
   };
 
   return (
     <>
       <form action="/auth/register-creator" method="post" {...alpineAttrs}>
-        <Input
-          label="Display Name"
-          name="form.displayName"
-          validateInput="validateDisplayName()"
-          showDisplayNameAvailabilityChecker
-          required
-        />
-        <Input
-          label="Website"
-          name="form.website"
-          type="url"
-          placeholder="https://..."
-          validateInput="validateWebsite()"
-          showWebsiteAvailabilityStatus
-          required
-        />
-        <Input
-          type="email"
-          label="Email"
-          name="form.email"
-          validateInput="validateEmail()"
-          placeholder="you@example.com"
-          showEmailAvailabilityChecker
-          required
-        />
+        <ValidateDisplayName />
+        <ValidateWebsite />
+        <ValidateEmail />
         <Input
           type="password"
           label="Password"

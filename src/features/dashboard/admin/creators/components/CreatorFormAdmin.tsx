@@ -2,6 +2,8 @@ import FormButtons from "../../../../../components/cms/ui/FormButtons";
 import Input from "../../../../../components/cms/ui/Input";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import Select from "../../../../../components/cms/ui/Select";
+import ValidateDisplayName from "../../../../auth/components/ValidateDisplayName";
+import ValidateWebsite from "../../../../auth/components/ValidateWebsite";
 
 const CreatorFormAdmin = () => {
   const alpineAttrs = {
@@ -23,22 +25,8 @@ const CreatorFormAdmin = () => {
         {...alpineAttrs}
       >
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-2">
-          <Input
-            label="Display Name"
-            name="form.displayName"
-            validateInput="validateDisplayName()"
-            showDisplayNameAvailabilityChecker
-            required
-          />
-          <Input
-            label="Website"
-            name="form.website"
-            type="url"
-            placeholder="https://..."
-            showWebsiteAvailabilityStatus
-            required
-            validateInput="validateWebsite()"
-          />
+          <ValidateDisplayName />
+          <ValidateWebsite />
           <Select
             label="Type"
             name="form.type"

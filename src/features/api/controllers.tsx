@@ -5,8 +5,6 @@ import {
   deleteFollow,
   deleteWishlist,
   getBookPermissionData,
-  getCreatorByDisplayName,
-  getCreatorByWebsite,
   getCreatorPermissionData,
   insertFollow,
   insertWishlist,
@@ -15,8 +13,6 @@ import { showErrorAlert } from "../../lib/alertHelpers";
 import Alert from "../../components/app/Alert";
 import FollowButton from "./components/FollowButton";
 import WishlistButton from "./components/WishlistButton";
-import { findUserByEmail } from "../../services/users";
-import ValidationLabel from "./components/ValidationLabel";
 import { searchBooks } from "../../services/books";
 import { searchCreators } from "../../services/creators";
 import NavSearchResults from "../../components/app/NavSearchResults";
@@ -111,30 +107,6 @@ export const wishlistBook = async (c: Context) => {
       </div>
     </>,
   );
-};
-
-export const validateEmail = async (c: Context) => {
-  const email = c.req.query("email");
-  const id = "email-availability-status";
-  if (!email) return c.html(<div id={id}></div>);
-  const existingUser = await findUserByEmail(email);
-  return c.html(<ValidationLabel id={id} entityExists={!!existingUser} />);
-};
-
-export const validateDisplayName = async (c: Context) => {
-  const displayName = c.req.query("displayName");
-  const id = "display-name-availability-status";
-  if (!displayName) return c.html(<div id={id}></div>);
-  const existingCreator = await getCreatorByDisplayName(displayName);
-  return c.html(<ValidationLabel id={id} entityExists={!!existingCreator} />);
-};
-
-export const validateWebsite = async (c: Context) => {
-  const website = c.req.query("website");
-  const id = "website-availability-status";
-  if (!website) return c.html(<div id={id}></div>);
-  const existingWebsite = await getCreatorByWebsite(website);
-  return c.html(<ValidationLabel id={id} entityExists={!!existingWebsite} />);
 };
 
 export const getSearchResults = async (c: Context) => {

@@ -4,6 +4,8 @@ import CountrySelect from "../../../../../components/cms/ui/CountrySelect";
 import TextArea from "../../../../../components/cms/ui/TextArea";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import { capitalize } from "../../../../../utils";
+import ValidateDisplayName from "../../../../auth/components/ValidateDisplayName";
+import ValidateWebsite from "../../../../auth/components/ValidateWebsite";
 
 type Props = {
   formValues?: string;
@@ -41,14 +43,7 @@ const EditCreatorFormAdmin = ({
       )} Profile`}</SectionTitle>
       <form action={action} method="post" {...alpineAttrs}>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-          <div>
-            <Input
-              label="Display Name"
-              name="form.displayName"
-              validateInput="validateDisplayName()"
-              showDisplayNameAvailabilityChecker
-            />
-          </div>
+          <ValidateDisplayName />
           <Input label="Tagline" name="form.tagline" maxLength={150} />
           <TextArea
             label="Biography"
@@ -58,12 +53,7 @@ const EditCreatorFormAdmin = ({
           />
           <Input label="City" name="form.city" maxLength={50} />
           <CountrySelect />
-          <Input
-            label="Website"
-            name="form.website"
-            type="url"
-            placeholder="https://..."
-          />
+          <ValidateWebsite />
           <Input
             label="Facebook"
             name="form.facebook"

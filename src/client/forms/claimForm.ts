@@ -14,6 +14,7 @@ export function registerClaimForm() {
       isSubmitting: false,
       form: {
         verificationUrl: props.creatorWebsite ?? "",
+        email: "",
       },
 
       initialValues: {

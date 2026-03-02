@@ -5,14 +5,17 @@ export function registerCountryForm() {
   Alpine.data("countryForm", () => {
     return {
       allOptions: countries,
-      options: [],
+      options: [] as { label: string; iso: string }[],
       isOpen: false,
-      selectedOption: null,
+      selectedOption: null as { label: string; iso: string } | null,
       init() {
         this.options = this.allOptions;
 
         this.$nextTick(() => {
-          const initialValue = this.$refs.hiddenCountryInput?.value?.trim();
+          const input = this.$refs.hiddenCountryInput as
+            | HTMLInputElement
+            | undefined;
+          const initialValue = input?.value?.trim();
           if (initialValue) {
             const match = this.allOptions.find(
               (opt) =>
@@ -21,14 +24,17 @@ export function registerCountryForm() {
             );
             if (match) {
               this.selectedOption = match;
-              this.$refs.hiddenCountryInput.value = match.label;
+              if (input) input.value = match.label;
             }
           }
         });
       },
-      setSelectedOption(option) {
+      setSelectedOption(option: { label: string; iso: string }) {
         this.selectedOption = option;
         this.isOpen = false;
+
+        const input = this.$refs.hiddenCountryInput as HTMLInputElement;
+        input.value = option.label;
 
         this.$refs.hiddenCountryInput.value = option.label;
 
@@ -39,7 +45,7 @@ export function registerCountryForm() {
           );
         });
       },
-      getFilteredOptions(query) {
+      getFilteredOptions(query: string) {
         this.options = this.allOptions.filter((option) =>
           option.label.toLowerCase().includes(query.toLowerCase()),
         );
@@ -49,7 +55,7 @@ export function registerCountryForm() {
           this.$refs.noResultsMessage.classList.add("hidden");
         }
       },
-      handleKeydownOnOptions(event) {
+      handleKeydownOnOptions(event: KeyboardEvent) {
         // if the user presses backspace or the alpha-numeric keys, focus on the search field
         if (
           (event.keyCode >= 65 && event.keyCode <= 90) ||

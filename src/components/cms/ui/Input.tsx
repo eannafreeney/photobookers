@@ -10,12 +10,11 @@ type InputProps = {
   name: string;
   maxLength?: number;
   validateInput?: string;
-  showEmailAvailabilityChecker?: boolean;
-  showDisplayNameAvailabilityChecker?: boolean;
-  showWebsiteAvailabilityStatus?: boolean;
-  validationTrigger?: "blur" | "input";
+  validationTrigger?: "blur" | "input" | "change";
   isDisabled?: boolean;
   readOnly?: boolean;
+  isError?: boolean;
+  isSuccess?: boolean;
 };
 
 const Input = ({
@@ -26,18 +25,18 @@ const Input = ({
   name,
   maxLength,
   validateInput,
-  showEmailAvailabilityChecker = false,
-  showDisplayNameAvailabilityChecker = false,
-  showWebsiteAvailabilityStatus = false,
   validationTrigger = "input",
   isDisabled = false,
   readOnly = false,
+  isError = false,
+  isSuccess = false,
   ...restProps
 }: InputProps) => {
   const inputValidator = {
     "x-on:input.debounce.500ms":
       validationTrigger === "input" ? validateInput : undefined,
     "x-on:blur": validationTrigger === "blur" ? validateInput : undefined,
+    "x-on:change": validationTrigger === "change" ? validateInput : undefined,
   };
 
   return (
@@ -47,9 +46,6 @@ const Input = ({
         maxLength={maxLength}
         name={name}
         required={required}
-        showEmailAvailabilityChecker={showEmailAvailabilityChecker}
-        showDisplayNameAvailabilityChecker={showDisplayNameAvailabilityChecker}
-        showWebsiteAvailabilityStatus={showWebsiteAvailabilityStatus}
       />
       <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
         {getInputIcon(type)}
@@ -62,6 +58,7 @@ const Input = ({
           required={required}
           disabled={isDisabled}
           x-model={name}
+          x-autofocus
           maxLength={maxLength}
           autocomplete="off"
           {...{ "x-on:blur": `${name} = ${name}.trim()` }}
@@ -70,16 +67,36 @@ const Input = ({
           {...restProps}
         />
       </label>
-      <div class="text-sm min-h-[20px] mt-1 block">
-        <span
-          class="text-danger"
-          x-show={`errors.${name}`}
-          x-text={`errors.${name}`}
-          {...fadeTransition}
-        ></span>
-      </div>
+      <InputError isError={isError} isSuccess={isSuccess} name={name} />
     </fieldset>
   );
 };
 
 export default Input;
+
+type InputErrorProps = {
+  isError?: boolean;
+  isSuccess?: boolean;
+  name: string;
+};
+
+const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (
+  <div class="text-xs min-h-[16px] mt-1 block text-right">
+    {isError ? (
+      <span class="text-danger" {...fadeTransition}>
+        ✗ Taken
+      </span>
+    ) : isSuccess ? (
+      <span class="text-success" {...fadeTransition}>
+        ✓ Available
+      </span>
+    ) : (
+      <span
+        class="text-danger"
+        x-show={`errors.${name}`}
+        x-text={`errors.${name}`}
+        {...fadeTransition}
+      />
+    )}
+  </div>
+);

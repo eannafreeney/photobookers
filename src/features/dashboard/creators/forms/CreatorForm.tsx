@@ -4,6 +4,7 @@ import CountrySelect from "../../../../components/cms/ui/CountrySelect";
 import TextArea from "../../../../components/cms/ui/TextArea";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import { capitalize } from "../../../../utils";
+import ValidateDisplayName from "../../../auth/components/ValidateDisplayName";
 
 type Props = {
   formValues?: string;
@@ -35,15 +36,7 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
       )} Profile`}</SectionTitle>
       <form action={action} method="post" {...alpineAttrs}>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-          <div>
-            <Input
-              label="Display Name"
-              name="form.displayName"
-              validateInput="validateDisplayName()"
-              showDisplayNameAvailabilityChecker
-              required
-            />
-          </div>
+          <ValidateDisplayName />
           <Input label="Tagline" name="form.tagline" maxLength={150} />
           <TextArea
             label="Biography"

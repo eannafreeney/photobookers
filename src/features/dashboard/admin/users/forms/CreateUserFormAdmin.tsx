@@ -1,6 +1,7 @@
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import FormButtons from "../../../../../components/cms/ui/FormButtons";
 import Input from "../../../../../components/cms/ui/Input";
+import ValidateEmail from "../../../../auth/components/ValidateEmail";
 
 const CreateUserFormAdmin = () => {
   const alpineAttrs = {
@@ -18,14 +19,7 @@ const CreateUserFormAdmin = () => {
         class="flex items-center justify-between gap-4"
       >
         <div class="flex-1 min-w-0">
-          <Input
-            label="Email"
-            name="form.email"
-            type="email"
-            required
-            validateInput="validateEmail()"
-            showEmailAvailabilityChecker
-          />
+          <ValidateEmail />
         </div>
         <div class="flex-1 min-w-0">
           <Input

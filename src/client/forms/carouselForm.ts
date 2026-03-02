@@ -12,9 +12,9 @@ export function registerCarouselForm() {
 
       currentSlideIndex: 1,
       isPaused: false,
-      autoplayInterval: null,
-      touchStartX: null,
-      touchEndX: null,
+      autoplayInterval: null as ReturnType<typeof setInterval> | null,
+      touchStartX: null as number | null,
+      touchEndX: null as number | null,
       swipeThreshold: 50,
 
       previous() {
@@ -57,7 +57,7 @@ export function registerCarouselForm() {
         this.isPaused = true;
       },
       handleTouchEnd() {
-        if (this.touchEndX) {
+        if (this.touchEndX != null && this.touchStartX != null) {
           if (this.touchStartX - this.touchEndX > this.swipeThreshold) {
             this.next();
           }

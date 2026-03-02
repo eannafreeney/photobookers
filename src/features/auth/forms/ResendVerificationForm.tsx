@@ -17,9 +17,7 @@ const ResendVerificationForm = () => {
         <Input
           label="Email"
           name="form.email"
-          validateInput="validateField('email')"
           type="email"
-          placeholder="you@example.com"
           validationTrigger="blur"
           required
         />

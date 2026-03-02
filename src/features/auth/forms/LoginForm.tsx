@@ -1,6 +1,7 @@
 import Link from "../../../components/app/Link";
 import FormButton from "../../../components/cms/ui/FormButtons";
 import Input from "../../../components/cms/ui/Input";
+import ValidateEmail from "../components/ValidateEmail";
 
 const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
   const alpineAttrs = {
@@ -18,15 +19,7 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
   return (
     <>
       <form action={action} method="post" {...alpineAttrs}>
-        <Input
-          label="Email"
-          name="form.email"
-          validateInput="validateField('email')"
-          type="email"
-          placeholder="you@example.com"
-          validationTrigger="blur"
-          required
-        />
+        <ValidateEmail />
         <Input
           label="Password"
           name="form.password"

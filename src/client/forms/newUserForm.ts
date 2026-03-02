@@ -65,26 +65,7 @@ export function registerNewUserForm() {
       },
 
       onError() {
-        this.isSubmitting = false;
-      },
-
-      async checkEmailAvailability() {
-        if (!this.form.email) return;
-
-        this.isEmailChecking = true;
-        try {
-          const response = await fetch(
-            `/api/check-email?email=${encodeURIComponent(this.form.email)}`,
-          );
-          const html = await response.text();
-
-          this.emailAvailabilityStatus = html;
-          this.emailIsTaken = html.includes("text-error");
-        } catch (error) {
-          console.error("Failed to check email availability", error);
-        } finally {
-          this.isEmailChecking = false;
-        }
+        (this as unknown as { isSubmitting: boolean }).isSubmitting = false;
       },
     };
   });

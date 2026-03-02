@@ -8,10 +8,10 @@ export function registerBookCoverForm() {
       return {
         previewUrl: initialUrl || null,
         initialUrl: initialUrl || null,
-        selectedFile: null,
+        selectedFile: null as File | null,
         isSubmitting: false,
         isCompressing: false,
-        error: null,
+        error: null as string | null,
 
         async onFileChange(e: Event) {
           const file = (e.target as HTMLInputElement).files?.[0];
@@ -45,7 +45,7 @@ export function registerBookCoverForm() {
 
         onSuccess() {
           this.isSubmitting = false;
-          this.initialUrl = this.previewUrl;  // Mark current state as "saved"
+          this.initialUrl = this.previewUrl; // Mark current state as "saved"
         },
 
         onError() {
@@ -57,8 +57,7 @@ export function registerBookCoverForm() {
           this.previewUrl = this.initialUrl;
           this.error = null;
         },
-       
       };
-    }
+    },
   );
 }

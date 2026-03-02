@@ -8,10 +8,10 @@ export function registerCreatorCoverForm() {
       return {
         previewUrl: initialUrl || null,
         initialUrl: initialUrl || null,
-        selectedFile: null,
+        selectedFile: null as File | null,
         isSubmitting: false,
         isCompressing: false,
-        error: null,
+        error: null as string | null,
 
         async onFileChange(e: Event) {
           const file = (e.target as HTMLInputElement).files?.[0];
@@ -42,7 +42,6 @@ export function registerCreatorCoverForm() {
 
         onSuccess() {
           this.isSubmitting = false;
-
         },
 
         onError() {
@@ -50,7 +49,7 @@ export function registerCreatorCoverForm() {
           this.error = "Failed to save cover";
 
           // rollback optimistic UI
-          this.previewUrl = this.previousUrl;
+          this.previewUrl = this.initialUrl;
         },
 
         cancelSelection() {
@@ -65,7 +64,9 @@ export function registerCreatorCoverForm() {
           this.error = null;
 
           const formData = new FormData();
-          formData.append("cover", this.selectedFile);
+          if (this.selectedFile) {
+            formData.append("cover", this.selectedFile);
+          }
 
           try {
             await fetch((event.target as HTMLFormElement).action, {
@@ -79,6 +80,6 @@ export function registerCreatorCoverForm() {
           }
         },
       };
-    }
+    },
   );
 }

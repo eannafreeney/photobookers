@@ -52,3 +52,26 @@ export const resetPasswordFormSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
 });
+
+// ============ VALIDATE EMAIL SCHEMA ============
+export const validateEmailSchema = z.object({
+  email: z.string().email().min(1, "Email is required"),
+});
+
+// ============ VALIDATE DISPLAY NAME SCHEMA ============
+export const validateDisplayNameSchema = z.object({
+  displayName: z.string().min(1, "Display Name is required"),
+});
+
+// ============ VALIDATE WEBSITE SCHEMA ============
+export const validateWebsiteSchema = z.object({
+  website: z
+    .string()
+    .url()
+    .min(1, "Please enter a valid URL (e.g., https://example.com)"),
+});
+
+// ============ VALIDATE PASSWORD SCHEMA ============
+export const validatePasswordSchema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});

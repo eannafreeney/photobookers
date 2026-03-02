@@ -2,6 +2,7 @@ import Link from "../../../components/app/Link";
 import Checkbox from "../../../components/cms/ui/Checkbox";
 import FormButton from "../../../components/cms/ui/FormButtons";
 import Input from "../../../components/cms/ui/Input";
+import ValidateEmail from "../components/ValidateEmail";
 
 type Props = {
   redirectUrl?: string;
@@ -37,15 +38,7 @@ const RegisterFanForm = ({ redirectUrl }: Props) => {
           validateInput="validateField('lastName')"
           required
         />
-        <Input
-          type="email"
-          label="Email"
-          name="form.email"
-          validateInput="validateEmail()"
-          placeholder="you@example.com"
-          showEmailAvailabilityChecker
-          required
-        />
+        <ValidateEmail />
         <Input
           type="password"
           label="Password"

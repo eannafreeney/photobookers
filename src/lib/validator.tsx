@@ -23,12 +23,15 @@ export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
   });
 };
 
-// export type ValidatedFile = {
-//   arrayBuffer: () => Promise<ArrayBuffer>;
-//   name: string;
-//   type: string;
-//   size: number;
-// };
+export const jsonValidator = <T extends z.ZodSchema>(schema: T) => {
+  return validator("json", (value, c) => {
+    const result = schema.safeParse(value);
+    if (!result.success) {
+      return showErrorAlert(c, "Invalid request body");
+    }
+    return result.data as z.infer<T>;
+  });
+};
 
 export type FileValidationResult =
   | { success: true; file: File }

@@ -56,7 +56,6 @@ const DropdownList = () => (
     x-show="isOpen"
     id="countriesList"
     class="absolute left-0 top-11 z-10 w-full overflow-hidden rounded-radius border border-outline bg-surface-alt"
-    role="listbox"
     {...{ "x-on:click.outside": "isOpen = false" }}
     {...fadeTransition}
   >

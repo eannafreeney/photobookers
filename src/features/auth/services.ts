@@ -2,7 +2,9 @@ import { Context } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
 import { setCookie } from "hono/cookie";
 import { db } from "../../db/client";
-import { users } from "../../db/schema";
+import { creators, users } from "../../db/schema";
+import { eq } from "drizzle-orm";
+import { normalizeUrl } from "../../services/verification";
 
 export function getAuthCookieOptions(): {
   httpOnly: true;
@@ -89,3 +91,13 @@ export const createUser = async (userId: string, email: string) => {
     })
     .onConflictDoNothing({ target: users.id });
 };
+
+export const getCreatorByDisplayName = (displayName: string) =>
+  db.query.creators.findFirst({
+    where: eq(creators.displayName, displayName),
+  });
+
+export const getCreatorByWebsite = (website: string) =>
+  db.query.creators.findFirst({
+    where: eq(creators.website, normalizeUrl(website)),
+  });
