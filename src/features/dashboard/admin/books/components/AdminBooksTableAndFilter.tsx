@@ -2,7 +2,6 @@ import { AuthUser } from "../../../../../../types";
 import Link from "../../../../../components/app/Link";
 import { Pagination } from "../../../../../components/app/Pagination";
 import Table from "../../../../../components/app/Table";
-import { useUser } from "../../../../../contexts/UserContext";
 import { calendarIcon, editIcon } from "../../../../../lib/icons";
 import { toWeekString } from "../../../../../lib/utils";
 import { formatDate } from "../../../../../utils";
@@ -10,25 +9,32 @@ import PreviewButton from "../../../../api/components/PreviewButton";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import BookStatusForm from "../forms/BookStatusForm";
+import { getAllBooksAdmin } from "../services";
 import { BookWithAdminRelations } from "../types";
 
 type Props = {
-  books: BookWithAdminRelations[];
   status?: "approved" | "pending" | "rejected" | undefined;
-  totalPages: number;
-  page: number;
+  currentPage: number;
+  searchQuery?: string;
   currentPath: string;
   user: AuthUser | null;
 };
 
 const AdminBooksTableAndFilter = async ({
-  books,
   status = undefined,
-  totalPages,
-  page,
+  currentPage,
+  searchQuery,
   currentPath,
   user,
 }: Props) => {
+  const result = await getAllBooksAdmin(currentPage, searchQuery, status);
+
+  if (!result?.books) {
+    return <div>No featured books found</div>;
+  }
+
+  const { books, totalPages, page } = result;
+
   const targetId = "books-table-body";
 
   const tableBodyAttrs = {

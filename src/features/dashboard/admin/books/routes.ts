@@ -9,7 +9,7 @@ import {
   deleteBookAdmin,
   getAddBookPageAdmin,
   getBooksOverviewPageAdmin,
-  getBooksTableFilterPageAdmin,
+  getBooksTableFilter,
   getEditBookPageAdmin,
   updateBookAdmin,
 } from "./controllers";
@@ -29,7 +29,7 @@ adminBooksDashboardRoutes.get(
 adminBooksDashboardRoutes.get(
   "/books-table-filter",
   requireAdminAccess,
-  getBooksTableFilterPageAdmin,
+  getBooksTableFilter,
 );
 adminBooksDashboardRoutes.get("/new", requireAdminAccess, getAddBookPageAdmin);
 adminBooksDashboardRoutes.get(

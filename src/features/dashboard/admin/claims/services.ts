@@ -7,8 +7,9 @@ import {
   creatorClaims,
   creators,
 } from "../../../../db/schema";
-import { and, desc, eq, gt, ilike, inArray, or } from "drizzle-orm";
+import { and, count, desc, eq, gt, ilike, inArray, or } from "drizzle-orm";
 import { deleteBookByIdAdmin } from "../books/services";
+import { getPagination } from "../../../../lib/pagination";
 
 export const assignCreatorToUserAdmin = async (
   userId: string,
@@ -87,16 +88,6 @@ export const getClaimById = async (claimId: string) => {
     .where(eq(creatorClaims.id, claimId))
     .limit(1);
   return claim ?? null;
-};
-
-export const getAllCreatorProfilesAdmin = async (
-  searchQuery?: string,
-): Promise<Creator[]> => {
-  return await db.query.creators.findMany({
-    where: and(
-      searchQuery ? ilike(creators.displayName, `%${searchQuery}%`) : undefined,
-    ),
-  });
 };
 
 export const approveClaim = async (claimId: string) => {

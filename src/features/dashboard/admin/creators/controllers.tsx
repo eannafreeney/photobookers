@@ -3,10 +3,9 @@ import EditCreatorPageAdmin from "./Pages/EditCreatorPageAdmin";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { getUser } from "../../../../utils";
 import CreatorFormAdmin from "./components/CreatorFormAdmin";
-import { CreatorsTable } from "./components/CreatorsTable";
 import AssignOwnerForm from "./forms/AssignOwnerForm";
 import AssignOwnerModal from "./modals/AssignOwnerModal";
-import CreatorsOverviewPageAdmin from "./Pages/CreatorsOverviewPageAdmin";
+import AdminCreatorsOverviewPage from "./Pages/AdminCreatorsOverviewPage";
 import {
   createStubCreatorProfileAdmin,
   deleteCreatorByIdAdmin,
@@ -25,12 +24,40 @@ import {
 import { showSuccessAlert } from "../../../../lib/alertHelpers";
 import { Context } from "hono";
 import { assignCreatorToUserAdmin } from "../claims/services";
+import AdminCreatorsTableAndFilter from "./components/adminCreatorsTableAndFilter";
 
-export const getCreatorsPageAdmin = async (c: Context) => {
+export const getCreatorsOverviewPage = async (c: Context) => {
   const user = await getUser(c);
   const searchQuery = c.req.query("search");
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
   return c.html(
-    <CreatorsOverviewPageAdmin user={user} searchQuery={searchQuery} />,
+    <AdminCreatorsOverviewPage
+      user={user}
+      searchQuery={searchQuery}
+      currentPage={currentPage}
+      currentPath={currentPath}
+    />,
+  );
+};
+
+export const getCreatorsTableFilter = async (c: Context) => {
+  const rawType = c.req.query("type");
+  const type =
+    rawType === "artist" || rawType === "publisher" ? rawType : undefined;
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
+  const searchQuery = c.req.query("search");
+
+  console.log("type", type);
+
+  return c.html(
+    <AdminCreatorsTableAndFilter
+      type={type}
+      currentPage={currentPage}
+      searchQuery={searchQuery}
+      currentPath={currentPath}
+    />,
   );
 };
 
@@ -75,6 +102,8 @@ export const updateCreatorAdmin = async (c: UpdateCreatorAdminContext) => {
 export const createCreatorAdmin = async (c: CreateCreatorAdminContext) => {
   const user = await getUser(c);
   const formData = c.req.valid("form");
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
   const displayName = formData.displayName;
   const website = formData.website;
   const type = formData.type;
@@ -91,7 +120,12 @@ export const createCreatorAdmin = async (c: CreateCreatorAdminContext) => {
   return c.html(
     <>
       <Alert type="success" message="Creator created!" />
-      <CreatorsTable searchQuery={undefined} />
+      <AdminCreatorsTableAndFilter
+        searchQuery={undefined}
+        currentPage={currentPage}
+        currentPath={currentPath}
+        user={user}
+      />
       <CreatorFormAdmin />
     </>,
   );
@@ -99,6 +133,9 @@ export const createCreatorAdmin = async (c: CreateCreatorAdminContext) => {
 
 export const deleteCreatorAdmin = async (c: CreatorIdContext) => {
   const creatorId = c.req.valid("param").creatorId;
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
+  const user = await getUser(c);
   const deletedCreator = await deleteCreatorByIdAdmin(creatorId);
   if (!deletedCreator) {
     return showErrorAlert(c, "Failed to delete creator");
@@ -106,7 +143,12 @@ export const deleteCreatorAdmin = async (c: CreatorIdContext) => {
   return c.html(
     <>
       <Alert type="success" message="Creator deleted!" />
-      <CreatorsTable searchQuery={undefined} />
+      <AdminCreatorsTableAndFilter
+        searchQuery={undefined}
+        currentPage={currentPage}
+        currentPath={currentPath}
+        user={user}
+      />
     </>,
   );
 };

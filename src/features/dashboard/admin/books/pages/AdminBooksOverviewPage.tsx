@@ -1,10 +1,8 @@
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import Page from "../../../../../components/layouts/Page";
 import NavTabs from "../../components/NavTabs";
-import AdminBooksTable from "../components/AdminBooksTable";
+import AdminBooksTableContainer from "../components/AdminBooksTableContainer";
 import { AuthUser, Flash } from "../../../../../../types";
-import ErrorPage from "../../../../../pages/error/errorPage";
-import { getAllBooksAdmin } from "../services";
 
 type Props = {
   user: AuthUser;
@@ -25,7 +23,7 @@ const AdminBooksOverviewPage = async ({
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <AdminBooksTable
+        <AdminBooksTableContainer
           user={user}
           currentPath={currentPath}
           currentPage={currentPage}

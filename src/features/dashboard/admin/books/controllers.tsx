@@ -36,7 +36,7 @@ export const getBooksOverviewPageAdmin = async (c: Context) => {
   );
 };
 
-export const getBooksTableFilterPageAdmin = async (c: Context) => {
+export const getBooksTableFilter = async (c: Context) => {
   const rawStatus = c.req.query("status");
   const status =
     rawStatus === "approved" ||
@@ -49,16 +49,12 @@ export const getBooksTableFilterPageAdmin = async (c: Context) => {
   const searchQuery = c.req.query("search");
   const user = await getUser(c);
 
-  const result = await getAllBooksAdmin(currentPage, searchQuery, status);
-  const { books, totalPages, page } = result;
-
   return c.html(
     <AdminBooksTableAndFilter
       user={user}
-      books={books}
       status={status}
-      totalPages={totalPages}
-      page={page}
+      currentPage={currentPage}
+      searchQuery={searchQuery}
       currentPath={currentPath}
     />,
   );

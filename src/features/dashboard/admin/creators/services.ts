@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, count, eq, ilike } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   Creator,
@@ -16,6 +16,7 @@ import {
   createStubCreatorProfile,
   getCreatorById,
 } from "../../creators/services";
+import { getPagination } from "../../../../lib/pagination";
 
 export const getAllUserProfilesAdmin = async (): Promise<
   Pick<User, "id" | "email" | "firstName" | "lastName">[]
@@ -28,6 +29,51 @@ export const getAllUserProfilesAdmin = async (): Promise<
       lastName: true,
     },
   });
+};
+
+export const getAllCreatorProfilesAdmin = async (
+  searchQuery?: string,
+  currentPage: number = 1,
+  type: "artist" | "publisher" | undefined = undefined,
+): Promise<{ creators: Creator[]; totalPages: number; page: number }> => {
+  let creatorIds: string[] = [];
+  if (searchQuery) {
+    const rows = await db
+      .select({ id: creators.id })
+      .from(creators)
+      .where(ilike(creators.displayName, `%${searchQuery}%`));
+    creatorIds = rows.map((r) => r.id);
+  }
+
+  const searchCondition =
+    searchQuery && searchQuery.trim() !== ""
+      ? ilike(creators.displayName, `%${searchQuery}%`)
+      : undefined;
+
+  const typeCondition = type ? eq(creators.type, type) : undefined;
+
+  const whereCondition =
+    searchCondition && typeCondition
+      ? searchCondition && typeCondition
+      : (searchCondition ?? typeCondition ?? undefined);
+
+  const [{ value: totalCount = 0 }] = await db
+    .select({ value: count() })
+    .from(creators)
+    .where(whereCondition);
+
+  const { page, limit, offset, totalPages } = getPagination(
+    currentPage,
+    totalCount,
+    30,
+  );
+
+  const foundCreators = await db.query.creators.findMany({
+    where: whereCondition,
+    offset,
+    limit,
+  });
+  return { creators: foundCreators, totalPages, page };
 };
 
 export const getCreatorByIdAdmin = async (creatorId: string) => {

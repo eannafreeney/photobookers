@@ -1,5 +1,5 @@
 import ErrorPage from "../../../../pages/error/errorPage";
-import BooksTable from "../../admin/books/components/AdminBooksTable";
+import BooksTable from "../../admin/books/components/AdminBooksTableContainer";
 import { getBooksByCreatorId } from "../services";
 
 type Props = {
@@ -23,14 +23,15 @@ const CreatorBookList = async ({
 
   const { books, totalPages, page } = result;
 
-  return (
-    <BooksTable
-      totalPages={totalPages}
-      page={page}
-      books={books}
-      currentPath={currentPath}
-    />
-  );
+  return <div>FIX THIS COMPONENT</div>;
+  // return (
+  //   <BooksTable
+  //     totalPages={totalPages}
+  //     page={page}
+  //     books={books}
+  //     currentPath={currentPath}
+  //   />
+  // );
 };
 
 export default CreatorBookList;

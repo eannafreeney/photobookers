@@ -7,7 +7,8 @@ import {
   deleteCreatorAdmin,
   getAssignOwnerModal,
   getAssignOwnerModalContent,
-  getCreatorsPageAdmin,
+  getCreatorsOverviewPage,
+  getCreatorsTableFilter,
   getEditCreatorPageAdmin,
   updateCreatorAdmin,
 } from "./controllers";
@@ -22,7 +23,16 @@ adminCreatorsDashboardRoutes.use(
   methodOverride({ app: adminCreatorsDashboardRoutes }),
 );
 
-adminCreatorsDashboardRoutes.get("/", requireAdminAccess, getCreatorsPageAdmin);
+adminCreatorsDashboardRoutes.get(
+  "/",
+  requireAdminAccess,
+  getCreatorsOverviewPage,
+);
+adminCreatorsDashboardRoutes.get(
+  "/creators-table-filter",
+  requireAdminAccess,
+  getCreatorsTableFilter,
+);
 adminCreatorsDashboardRoutes.post(
   "/new",
   requireAdminAccess,
