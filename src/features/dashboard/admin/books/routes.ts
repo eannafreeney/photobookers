@@ -9,7 +9,7 @@ import {
   deleteBookAdmin,
   getAddBookPageAdmin,
   getBooksOverviewPageAdmin,
-  getBooksPageAdmin,
+  getBooksTableFilterPageAdmin,
   getEditBookPageAdmin,
   updateBookAdmin,
 } from "./controllers";
@@ -21,11 +21,15 @@ adminBooksDashboardRoutes.use(
   methodOverride({ app: adminBooksDashboardRoutes }),
 );
 
-adminBooksDashboardRoutes.get("/", requireAdminAccess, getBooksPageAdmin);
 adminBooksDashboardRoutes.get(
   "/",
   requireAdminAccess,
   getBooksOverviewPageAdmin,
+);
+adminBooksDashboardRoutes.get(
+  "/books-table-filter",
+  requireAdminAccess,
+  getBooksTableFilterPageAdmin,
 );
 adminBooksDashboardRoutes.get("/new", requireAdminAccess, getAddBookPageAdmin);
 adminBooksDashboardRoutes.get(

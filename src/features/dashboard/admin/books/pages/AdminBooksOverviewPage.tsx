@@ -1,7 +1,7 @@
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import Page from "../../../../../components/layouts/Page";
 import NavTabs from "../../components/NavTabs";
-import BooksTable from "../components/BooksTable";
+import AdminBooksTable from "../components/AdminBooksTable";
 import { AuthUser, Flash } from "../../../../../../types";
 import ErrorPage from "../../../../../pages/error/errorPage";
 import { getAllBooksAdmin } from "../services";
@@ -13,34 +13,27 @@ type Props = {
   currentPage: number;
   currentPath: string;
 };
-const BooksPage = async ({
+
+const AdminBooksOverviewPage = async ({
   user,
   flash,
   searchQuery,
   currentPage,
   currentPath,
 }: Props) => {
-  const result = await getAllBooksAdmin(currentPage, searchQuery);
-
-  if (!result?.books) {
-    return <ErrorPage errorMessage="No featured books found" />;
-  }
-
-  const { books, totalPages, page } = result;
-
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <BooksTable
-          totalPages={totalPages}
-          page={page}
-          books={books}
+        <AdminBooksTable
+          user={user}
           currentPath={currentPath}
+          currentPage={currentPage}
+          searchQuery={searchQuery}
         />
       </Page>
     </AppLayout>
   );
 };
 
-export default BooksPage;
+export default AdminBooksOverviewPage;

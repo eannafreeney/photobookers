@@ -1,8 +1,8 @@
 import SectionTitle from "../../../../../components/app/SectionTitle";
-import TableSearch from "../../../../../components/forms/TableSearch";
+import TableSearch from "../../../../../components/app/TableSearch";
 import Link from "../../../../../components/app/Link";
 import Button from "../../../../../components/app/Button";
-import Table from "../../../../../components/forms/Table";
+import Table from "../../../../../components/app/Table";
 import CopyCellCol from "../../../../../components/app/CopyCellCol";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import { User } from "../../../../../db/schema";

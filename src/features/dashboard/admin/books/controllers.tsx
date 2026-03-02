@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import BooksPage from "./pages/BooksPage";
+import AdminBooksOverviewPage from "./pages/AdminBooksOverviewPage";
 import { getFlash, getUser, setFlash } from "../../../../utils";
 import AddBookPage from "./pages/AddBookPage";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
@@ -13,26 +13,52 @@ import {
 } from "../../books/services";
 import EditBookPageAdmin from "./pages/EditBookFormAdmin";
 import { BookIdContext } from "../../books/types";
-import { deleteBookByIdAdmin } from "./services";
+import { deleteBookByIdAdmin, getAllBooksAdmin } from "./services";
 import { getBookById } from "../../../app/services";
 import { resolveArtist, resolvePublisher } from "../creators/services";
-
-export const getBooksPageAdmin = async (c: Context) =>
-  c.redirect("/dashboard/admin/books");
+import AdminBooksTableAndFilter from "./components/AdminBooksTableAndFilter";
 
 export const getBooksOverviewPageAdmin = async (c: Context) => {
   const user = await getUser(c);
   const searchQuery = c.req.query("search");
   const flash = await getFlash(c);
-  const page = Number(c.req.query("page") ?? 1);
+  const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
 
   return c.html(
-    <BooksPage
+    <AdminBooksOverviewPage
       user={user}
       flash={flash}
       searchQuery={searchQuery}
-      currentPage={page}
+      currentPage={currentPage}
+      currentPath={currentPath}
+    />,
+  );
+};
+
+export const getBooksTableFilterPageAdmin = async (c: Context) => {
+  const rawStatus = c.req.query("status");
+  const status =
+    rawStatus === "approved" ||
+    rawStatus === "pending" ||
+    rawStatus === "rejected"
+      ? rawStatus
+      : undefined;
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
+  const searchQuery = c.req.query("search");
+  const user = await getUser(c);
+
+  const result = await getAllBooksAdmin(currentPage, searchQuery, status);
+  const { books, totalPages, page } = result;
+
+  return c.html(
+    <AdminBooksTableAndFilter
+      user={user}
+      books={books}
+      status={status}
+      totalPages={totalPages}
+      page={page}
       currentPath={currentPath}
     />,
   );

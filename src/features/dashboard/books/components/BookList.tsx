@@ -1,5 +1,5 @@
 import ErrorPage from "../../../../pages/error/errorPage";
-import BooksTable from "../../admin/books/components/BooksTable";
+import BooksTable from "../../admin/books/components/AdminBooksTable";
 import { getBooksByCreatorId } from "../services";
 
 type Props = {

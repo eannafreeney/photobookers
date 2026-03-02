@@ -1,4 +1,4 @@
-import { count, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, or } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { books, creators } from "../../../../db/schema";
 import { BookWithAdminRelations } from "./types";
@@ -20,7 +20,7 @@ export const deleteBookByIdAdmin = async (bookId: string) => {
 export const getAllBooksAdmin = async (
   currentPage: number = 1,
   searchQuery?: string,
-  defaultLimit = 30,
+  status?: "approved" | "pending" | "rejected" | undefined,
 ): Promise<{
   books: BookWithAdminRelations[];
   totalPages: number;
@@ -35,7 +35,7 @@ export const getAllBooksAdmin = async (
     creatorIds = rows.map((r) => r.id);
   }
 
-  const whereCondition =
+  const searchCondition =
     searchQuery && searchQuery.trim() !== ""
       ? creatorIds.length > 0
         ? or(
@@ -46,6 +46,13 @@ export const getAllBooksAdmin = async (
         : ilike(books.title, `%${searchQuery}%`)
       : undefined;
 
+  const statusCondition = status ? eq(books.approvalStatus, status) : undefined;
+
+  const whereCondition =
+    searchCondition && statusCondition
+      ? and(searchCondition, statusCondition)
+      : (searchCondition ?? statusCondition ?? undefined);
+
   const [{ value: totalCount = 0 }] = await db
     .select({ value: count() })
     .from(books)
@@ -54,7 +61,7 @@ export const getAllBooksAdmin = async (
   const { page, limit, offset, totalPages } = getPagination(
     currentPage,
     totalCount,
-    defaultLimit,
+    30,
   );
 
   const foundBooks = await db.query.books.findMany({

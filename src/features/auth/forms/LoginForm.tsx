@@ -19,7 +19,15 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
   return (
     <>
       <form action={action} method="post" {...alpineAttrs}>
-        <ValidateEmail />
+        <Input
+          label="Email"
+          name="form.email"
+          validateInput="validateField('email')"
+          type="email"
+          placeholder="you@example.com"
+          validationTrigger="blur"
+          required
+        />
         <Input
           label="Password"
           name="form.password"

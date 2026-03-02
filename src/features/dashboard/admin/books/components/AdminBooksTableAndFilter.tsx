@@ -1,27 +1,34 @@
+import { AuthUser } from "../../../../../../types";
+import Link from "../../../../../components/app/Link";
+import { Pagination } from "../../../../../components/app/Pagination";
+import Table from "../../../../../components/app/Table";
 import { useUser } from "../../../../../contexts/UserContext";
-import { Book, BookOfTheWeek, Creator } from "../../../../../db/schema";
 import { calendarIcon, editIcon } from "../../../../../lib/icons";
 import { toWeekString } from "../../../../../lib/utils";
 import { formatDate } from "../../../../../utils";
 import PreviewButton from "../../../../api/components/PreviewButton";
-import Button from "../../../../../components/app/Button";
-import Link from "../../../../../components/app/Link";
-import { Pagination } from "../../../../../components/app/Pagination";
-import SectionTitle from "../../../../../components/app/SectionTitle";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
-import Table from "../../../../../components/forms/Table";
-import TableSearch from "../../../../../components/forms/TableSearch";
 import DeleteFormButton from "../../components/DeleteFormButton";
+import BookStatusForm from "../forms/BookStatusForm";
 import { BookWithAdminRelations } from "../types";
 
 type Props = {
+  books: BookWithAdminRelations[];
+  status?: "approved" | "pending" | "rejected" | undefined;
   totalPages: number;
   page: number;
-  books: BookWithAdminRelations[];
   currentPath: string;
+  user: AuthUser | null;
 };
 
-const BooksTable = async ({ totalPages, page, books, currentPath }: Props) => {
+const AdminBooksTableAndFilter = async ({
+  books,
+  status = undefined,
+  totalPages,
+  page,
+  currentPath,
+  user,
+}: Props) => {
   const targetId = "books-table-body";
 
   const tableBodyAttrs = {
@@ -31,36 +38,24 @@ const BooksTable = async ({ totalPages, page, books, currentPath }: Props) => {
   };
 
   return (
-    <div id="books-table-container" class="flex flex-col gap-8">
-      <SectionTitle>Books</SectionTitle>
-      <div class="flex items-center justify-between gap-4">
-        <TableSearch
-          target="books-table"
-          action="/dashboard/admin/books"
-          placeholder="Filter books..."
-        />
-
-        <Link href="/dashboard/admin/books/new">
-          <Button variant="solid" color="primary">
-            New Book
-          </Button>
-        </Link>
-      </div>
+    <div id="books-table-container" class="flex flex-col gap-4">
+      <BookStatusForm status={status} />
       <Table id="books-table">
         <Table.Head>
           <tr>
-            <th>Title</th>
-            <th>Artist</th>
-            <th>Publisher</th>
-            <th>Release Date</th>
-            <th>Approval</th>
-            <th>Publish</th>
-            <th>Actions</th>
+            <Table.HeadRow>Title</Table.HeadRow>
+            <Table.HeadRow>Artist</Table.HeadRow>
+            <Table.HeadRow>Publisher</Table.HeadRow>
+            <Table.HeadRow>Release Date</Table.HeadRow>
+            <Table.HeadRow>Approval</Table.HeadRow>
+            <Table.HeadRow>Publish</Table.HeadRow>
+            <Table.HeadRow>Actions</Table.HeadRow>
           </tr>
         </Table.Head>
         <Table.Body id={targetId} {...tableBodyAttrs}>
           {books.map((book) => (
-            <BooksTableRow key={book.id} book={book} />
+            <BooksTableRow key={book.id} book={book} user={user} />
+            // <span>Book {book.id}</span>
           ))}
         </Table.Body>
       </Table>
@@ -74,14 +69,16 @@ const BooksTable = async ({ totalPages, page, books, currentPath }: Props) => {
   );
 };
 
-export default BooksTable;
+export default AdminBooksTableAndFilter;
 
 type BooksTableRowProps = {
   book: BookWithAdminRelations;
+  user: AuthUser | null;
 };
 
-const BooksTableRow = ({ book }: BooksTableRowProps) => {
-  const user = useUser();
+const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
+  if (!user) return <></>;
+
   return (
     <tr>
       <td class="max-w-48 wrap-break-word">

@@ -1,8 +1,8 @@
-import TableSearch from "../../../../components/forms/TableSearch";
+import TableSearch from "../../../../components/app/TableSearch";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import Button from "../../../../components/app/Button";
 import Link from "../../../../components/app/Link";
-import Table from "../../../../components/forms/Table";
+import Table from "../../../../components/app/Table";
 import { Book, Creator } from "../../../../db/schema";
 import { AuthUser } from "../../../../../types";
 import PreviewButton from "../../../api/components/PreviewButton";

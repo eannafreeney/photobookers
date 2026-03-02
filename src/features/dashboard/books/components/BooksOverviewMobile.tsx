@@ -5,7 +5,7 @@ import Button from "../../../../components/app/Button";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import PublishToggleForm from "./PublishToggleForm";
 import DeleteBookForm from "./BookDeleteForm";
-import TableSearch from "../../../../components/forms/TableSearch";
+import TableSearch from "../../../../components/app/TableSearch";
 import Link from "../../../../components/app/Link";
 
 type BooksOverviewMobileProps = {
