@@ -1,4 +1,4 @@
-import CopyCellCol from "../../../../../components/admin/CopyCellCol";
+import CopyCellCol from "../../../../../components/app/CopyCellCol";
 import Button from "../../../../../components/app/Button";
 import Modal from "../../../../../components/app/Modal";
 import { User } from "../../../../../db/schema";

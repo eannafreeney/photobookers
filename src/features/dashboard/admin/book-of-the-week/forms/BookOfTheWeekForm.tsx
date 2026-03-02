@@ -1,9 +1,9 @@
 import { Book, BookOfTheWeek, Creator } from "../../../../../db/schema";
-import DateInput from "../../../../../components/cms/ui/DateInput";
+import DateInput from "../../../../../components/forms/DateInput";
 import Button from "../../../../../components/app/Button";
 import Card from "../../../../../components/app/Card";
 import CardCreatorCard from "../../../../../components/app/CardCreatorCard";
-import TextArea from "../../../../../components/cms/ui/TextArea";
+import TextArea from "../../../../../components/forms/TextArea";
 
 type Props = {
   book: Book & {

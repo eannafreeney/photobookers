@@ -1,6 +1,6 @@
 import { AuthUser } from "../../../../../types";
 import { Creator } from "../../../../db/schema";
-import { getBooksByCreatorId } from "../../../../services/books";
+import { getBooksByCreatorId } from "../services";
 import BooksOverviewDesktop from "./BooksOverviewDesktop";
 import BooksOverviewMobile from "./BooksOverviewMobile";
 

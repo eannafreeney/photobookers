@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
+  Creator,
   creatorClaims,
   creators,
   NewCreator,
@@ -10,7 +11,11 @@ import {
 } from "../../../../db/schema";
 import { getRandomCoverUrl, slugify } from "../../../../utils";
 import { nanoid } from "nanoid";
-import { updateCreatorOwnerAndStatus } from "../../../../services/claims";
+import { updateCreatorOwnerAndStatus } from "../claims/services";
+import {
+  createStubCreatorProfile,
+  getCreatorById,
+} from "../../creators/services";
 
 export const getAllUserProfilesAdmin = async (): Promise<
   Pick<User, "id" | "email" | "firstName" | "lastName">[]
@@ -167,4 +172,74 @@ export const assignCreatorToUserManually = async (
   if (!claim) return null;
   await updateCreatorOwnerAndStatus(claim);
   return claim;
+};
+
+export const getAllCreatorOptions = async (
+  creatorType: "artist" | "publisher",
+) => {
+  const foundCreators = await db.query.creators.findMany({
+    where: eq(creators.type, creatorType),
+    orderBy: (creators, { asc }) => [asc(creators.sortName)],
+  });
+  return (
+    foundCreators?.map((creator) => ({
+      id: creator.id,
+      label: creator.displayName,
+    })) ?? []
+  );
+};
+
+export const resolveArtist = async (
+  formData: { artist_id?: string; new_artist_name?: string },
+  userId: string,
+): Promise<Creator | null | "error"> => {
+  const { artist_id, new_artist_name } = formData;
+
+  // Using existing artist
+  if (artist_id) {
+    const creator = await getCreatorById(artist_id);
+    return creator?.type === "artist" ? creator : "error";
+  }
+
+  // Create new stub artist
+  if (new_artist_name) {
+    const creator = await createStubCreatorProfile(
+      new_artist_name,
+      userId,
+      "artist",
+    );
+    return creator?.type === "artist" ? creator : "error";
+  }
+
+  return null;
+};
+
+export const resolvePublisher = async (
+  formData: { publisher_id?: string; new_publisher_name?: string },
+  userId: string,
+): Promise<Creator | null | "error"> => {
+  const { publisher_id, new_publisher_name } = formData;
+
+  // No publisher specified
+  if (!publisher_id && !new_publisher_name) {
+    return null;
+  }
+
+  // Using existing publisher
+  if (publisher_id) {
+    const creator = await getCreatorById(publisher_id);
+    return creator?.type === "publisher" ? creator : "error";
+  }
+
+  // Create new stub publisher
+  if (new_publisher_name) {
+    const publisher = await createStubCreatorProfile(
+      new_publisher_name,
+      userId,
+      "publisher",
+    );
+    return publisher?.type === "publisher" ? publisher : "error";
+  }
+
+  return null;
 };

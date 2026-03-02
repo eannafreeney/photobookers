@@ -1,5 +1,4 @@
 import { AuthUser } from "../../../../../../types";
-import { getBookById } from "../../../../../services/books";
 import BookGalleryForm from "../../../images/forms/BookGalleryForm";
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import { Flash } from "../../../../../../types";
@@ -7,6 +6,7 @@ import Page from "../../../../../components/layouts/Page";
 import BookCoverForm from "../../../images/forms/BookCoverForm";
 import { BookFormAdmin } from "../components/AddBookForm";
 import Breadcrumbs from "../../components/Breadcrumbs";
+import { getBookById } from "../../../../app/services";
 
 type Props = {
   bookId: string;

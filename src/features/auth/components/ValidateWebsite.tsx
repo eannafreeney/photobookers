@@ -1,4 +1,4 @@
-import Input from "../../../components/cms/ui/Input";
+import Input from "../../../components/forms/Input";
 
 type Props = {
   isAvailable?: boolean;

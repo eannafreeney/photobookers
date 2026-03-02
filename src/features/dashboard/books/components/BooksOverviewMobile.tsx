@@ -3,9 +3,9 @@ import { Book, Creator } from "../../../../db/schema";
 import PreviewButton from "../../../api/components/PreviewButton";
 import Button from "../../../../components/app/Button";
 import SectionTitle from "../../../../components/app/SectionTitle";
-import PublishToggleForm from "../../../../components/cms/forms/PublishToggleForm";
-import DeleteBookForm from "../../../../components/dashboard/BookDeleteForm";
-import TableSearch from "../../../../components/cms/ui/TableSearch";
+import PublishToggleForm from "./PublishToggleForm";
+import DeleteBookForm from "./BookDeleteForm";
+import TableSearch from "../../../../components/forms/TableSearch";
 import Link from "../../../../components/app/Link";
 
 type BooksOverviewMobileProps = {

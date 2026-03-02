@@ -2,19 +2,20 @@ import { Context } from "hono";
 import BooksPage from "./pages/BooksPage";
 import { getFlash, getUser, setFlash } from "../../../../utils";
 import AddBookPage from "./pages/AddBookPage";
-import { resolveArtist, resolvePublisher } from "../../../../services/creators";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
-import { getBookById, prepareBookData } from "../../../../services/books";
 import Alert from "../../../../components/app/Alert";
 import { BookFormContext, BookFormWithBookIdContext } from "./types";
 import {
   createBook,
+  prepareBookData,
   prepareBookUpdateData,
   updateBook,
 } from "../../books/services";
 import EditBookPageAdmin from "./pages/EditBookFormAdmin";
-import { deleteBookByIdAdmin } from "../../../../services/admin";
 import { BookIdContext } from "../../books/types";
+import { deleteBookByIdAdmin } from "./services";
+import { getBookById } from "../../../app/services";
+import { resolveArtist, resolvePublisher } from "../creators/services";
 
 export const getBooksPageAdmin = async (c: Context) =>
   c.redirect("/dashboard/admin/books");

@@ -2,7 +2,7 @@ import { fadeTransition } from "../../../../lib/transitions";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../../../../constants/images";
 import Button from "../../../../components/app/Button";
 import SectionTitle from "../../../../components/app/SectionTitle";
-import FileUploadInput from "../../../../components/cms/ui/FileUpload";
+import FileUploadInput from "../../../../components/forms/FileUpload";
 
 type Props = {
   initialImages: { id: string; url: string }[]; // actual DB records

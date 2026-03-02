@@ -1,6 +1,6 @@
 import Link from "../../../components/app/Link";
-import FormButton from "../../../components/cms/ui/FormButtons";
-import Input from "../../../components/cms/ui/Input";
+import FormButton from "../../../components/forms/FormButtons";
+import Input from "../../../components/forms/Input";
 
 const ResendVerificationForm = () => {
   const alpineAttrs = {

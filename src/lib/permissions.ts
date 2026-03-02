@@ -3,7 +3,7 @@
 import { AuthUser } from "../../types";
 import { Book, Creator } from "../db/schema";
 import { BookWithGalleryImages } from "../features/app/types";
-import { BookWithAdminRelations } from "../services/admin";
+import { BookWithAdminRelations } from "../features/dashboard/admin/books/types";
 
 export function canEditBook(
   user: AuthUser | null,

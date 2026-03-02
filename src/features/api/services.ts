@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   Book,
@@ -104,4 +104,40 @@ export const deleteWishlist = async (userId: string, bookId: string) => {
   await db
     .delete(wishlists)
     .where(and(eq(wishlists.userId, userId), eq(wishlists.bookId, bookId)));
+};
+
+export const searchBooks = async (searchQuery: string) => {
+  try {
+    const searchPattern = `%${searchQuery}%`;
+
+    // Find creator IDs matching the search
+    const matchingCreatorIds = db
+      .select({ id: creators.id })
+      .from(creators)
+      .where(ilike(creators.displayName, searchPattern));
+
+    return await db.query.books.findMany({
+      with: {
+        artist: true,
+        publisher: true,
+      },
+      where: and(
+        eq(books.publicationStatus, "published"),
+        or(
+          ilike(books.title, searchPattern),
+          inArray(books.artistId, matchingCreatorIds),
+          sql`EXISTS (
+          SELECT 1
+          FROM unnest(${books.tags}) AS tag
+          WHERE LOWER(tag) LIKE ${searchPattern.toLowerCase()}
+        )`,
+        ),
+      ),
+      orderBy: (books, { asc }) => [asc(books.title)],
+      limit: 5,
+    });
+  } catch (error) {
+    console.error("Failed to search books", error);
+    return [];
+  }
 };

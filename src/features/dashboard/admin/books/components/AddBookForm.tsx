@@ -1,11 +1,11 @@
-import { getAllOptions } from "../../../../../services/creators";
 import SectionTitle from "../../../../../components/app/SectionTitle";
-import ComboBox from "../../../../../components/cms/ui/ComboBox";
-import DateInput from "../../../../../components/cms/ui/DateInput";
-import FormButtons from "../../../../../components/cms/ui/FormButtons";
-import Input from "../../../../../components/cms/ui/Input";
-import RadioFields from "../../../../../components/cms/ui/RadioFields";
-import TextArea from "../../../../../components/cms/ui/TextArea";
+import ComboBox from "../../../../../components/forms/ComboBox";
+import DateInput from "../../../../../components/forms/DateInput";
+import FormButtons from "../../../../../components/forms/FormButtons";
+import Input from "../../../../../components/forms/Input";
+import RadioFields from "../../../../../components/forms/RadioFields";
+import TextArea from "../../../../../components/forms/TextArea";
+import { getAllCreatorOptions } from "../../creators/services";
 
 type BookFormProps = {
   formValues?: Record<string, any>;
@@ -13,8 +13,8 @@ type BookFormProps = {
 };
 
 export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
-  const artistOptions = await getAllOptions("artist");
-  const publisherOptions = await getAllOptions("publisher");
+  const artistOptions = await getAllCreatorOptions("artist");
+  const publisherOptions = await getAllCreatorOptions("publisher");
   const isEditPage = !!bookId;
 
   const method = isEditPage ? "PATCH" : "POST";

@@ -1,6 +1,6 @@
 import SectionTitle from "../../../../../components/app/SectionTitle";
-import FormButtons from "../../../../../components/cms/ui/FormButtons";
-import Input from "../../../../../components/cms/ui/Input";
+import FormButtons from "../../../../../components/forms/FormButtons";
+import Input from "../../../../../components/forms/Input";
 import ValidateEmail from "../../../../auth/components/ValidateEmail";
 
 const CreateUserFormAdmin = () => {

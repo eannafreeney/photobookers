@@ -2,8 +2,8 @@ import Link from "./Link";
 import Avatar from "./Avatar";
 import { Book } from "../../db/schema";
 import Card from "./Card";
-import { getCreatorById } from "../../services/creators";
 import VerifiedCreator from "./VerifiedCreator";
+import { getCreatorById } from "../../features/dashboard/creators/services";
 
 type CardCreatorCardProps = {
   creatorType?: "publisher" | "artist";

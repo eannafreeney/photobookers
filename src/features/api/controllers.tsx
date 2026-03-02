@@ -8,19 +8,19 @@ import {
   getCreatorPermissionData,
   insertFollow,
   insertWishlist,
+  searchBooks,
 } from "./services";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import Alert from "../../components/app/Alert";
 import FollowButton from "./components/FollowButton";
 import WishlistButton from "./components/WishlistButton";
-import { searchBooks } from "../../services/books";
-import { searchCreators } from "../../services/creators";
 import NavSearchResults from "../../components/app/NavSearchResults";
 import NavSearch from "../../components/layouts/NavSearch";
 import { DISCOVER_TAGS } from "../../constants/discover";
 import Link from "../../components/app/Link";
 import Badge from "../../components/app/Badge";
 import { closeIcon } from "../../lib/icons";
+import { searchCreators } from "../app/services";
 
 export const followCreator = async (c: Context) => {
   const creatorId = c.req.param("creatorId");

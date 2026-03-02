@@ -8,11 +8,11 @@ import Button from "../../../../../components/app/Button";
 import Link from "../../../../../components/app/Link";
 import { Pagination } from "../../../../../components/app/Pagination";
 import SectionTitle from "../../../../../components/app/SectionTitle";
-import PublishToggleForm from "../../../../../components/cms/forms/PublishToggleForm";
-import Table from "../../../../../components/cms/ui/Table";
-import TableSearch from "../../../../../components/cms/ui/TableSearch";
+import PublishToggleForm from "../../../books/components/PublishToggleForm";
+import Table from "../../../../../components/forms/Table";
+import TableSearch from "../../../../../components/forms/TableSearch";
 import DeleteFormButton from "../../components/DeleteFormButton";
-import { BookWithAdminRelations } from "../../../../../services/admin";
+import { BookWithAdminRelations } from "../types";
 
 type Props = {
   totalPages: number;

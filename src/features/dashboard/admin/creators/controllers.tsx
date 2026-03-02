@@ -23,8 +23,8 @@ import {
   UpdateCreatorAdminContext,
 } from "./types";
 import { showSuccessAlert } from "../../../../lib/alertHelpers";
-import { assignCreatorToUserAdmin } from "../../../../services/claims";
 import { Context } from "hono";
+import { assignCreatorToUserAdmin } from "../claims/services";
 
 export const getCreatorsPageAdmin = async (c: Context) => {
   const user = await getUser(c);

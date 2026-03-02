@@ -1,7 +1,7 @@
-import FormButtons from "../../../../../components/cms/ui/FormButtons";
-import Input from "../../../../../components/cms/ui/Input";
+import FormButtons from "../../../../../components/forms/FormButtons";
+import Input from "../../../../../components/forms/Input";
 import SectionTitle from "../../../../../components/app/SectionTitle";
-import Select from "../../../../../components/cms/ui/Select";
+import Select from "../../../../../components/forms/Select";
 import ValidateDisplayName from "../../../../auth/components/ValidateDisplayName";
 import ValidateWebsite from "../../../../auth/components/ValidateWebsite";
 

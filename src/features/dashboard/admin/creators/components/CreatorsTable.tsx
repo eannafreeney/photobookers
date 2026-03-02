@@ -1,14 +1,14 @@
 import { Creator } from "../../../../../db/schema";
-import { getAllCreatorProfilesAdmin } from "../../../../../services/admin";
 import { capitalize, formatDate } from "../../../../../utils";
 import Button from "../../../../../components/app/Button";
 import Link from "../../../../../components/app/Link";
 import SectionTitle from "../../../../../components/app/SectionTitle";
-import Table from "../../../../../components/cms/ui/Table";
-import TableSearch from "../../../../../components/cms/ui/TableSearch";
-import CopyCellCol from "../../../../../components/admin/CopyCellCol";
+import Table from "../../../../../components/forms/Table";
+import TableSearch from "../../../../../components/forms/TableSearch";
+import CopyCellCol from "../../../../../components/app/CopyCellCol";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import { getUserByIdAdmin } from "../services";
+import { getAllCreatorProfilesAdmin } from "../../claims/services";
 
 type Props = {
   searchQuery?: string;

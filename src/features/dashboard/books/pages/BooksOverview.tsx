@@ -2,9 +2,9 @@ import { AuthUser } from "../../../../../types";
 import AlertStatic from "../../../../components/app/AlertStatic";
 import Breadcrumbs from "../../admin/components/Breadcrumbs";
 import VerifiedCreator from "../../../../components/app/VerifiedCreator";
-import BooksCreatedByMeForOtherPublishersTable from "../../../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
-import BooksCreatedByMeForStubPublishersTable from "../../../../components/cms/ui/BooksCreatedForStubPublishersTable";
-import BooksForApprovalTable from "../../../../components/cms/ui/BooksForApprovalTable";
+// import BooksCreatedByMeForOtherPublishersTable from "../../../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
+// import BooksCreatedByMeForStubPublishersTable from "../../../../components/cms/ui/BooksCreatedForStubPublishersTable";
+// import BooksForApprovalTable from "../../../../components/cms/ui/BooksForApprovalTable";
 import { BooksOverviewTable } from "../components/BooksOverviewTable";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import FeatureGuard from "../../../../components/layouts/FeatureGuard";
@@ -82,11 +82,12 @@ export default BooksOverview;
 
 const ArtistTables = () => (
   <>
-    <BooksCreatedByMeForOtherPublishersTable />
-    <BooksCreatedByMeForStubPublishersTable />
+    {/* <BooksCreatedByMeForOtherPublishersTable />
+    <BooksCreatedByMeForStubPublishersTable /> */}
   </>
 );
 
 const PublisherTables = ({ creatorId }: { creatorId: string }) => (
-  <BooksForApprovalTable creatorId={creatorId} />
+  <></>
+  // <BooksForApprovalTable creatorId={creatorId} />
 );

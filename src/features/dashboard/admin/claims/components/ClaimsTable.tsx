@@ -1,6 +1,6 @@
 import { Creator, CreatorClaim } from "../../../../../db/schema";
-import { getClaimsPendingAdminReview } from "../../../../../services/admin";
 import Button from "../../../../../components/app/Button";
+import { getClaimsPendingAdminReview } from "../services";
 
 type Props = {
   searchQuery?: string;

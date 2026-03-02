@@ -1,7 +1,7 @@
-import FormButtons from "../../../../components/cms/ui/FormButtons";
-import Input from "../../../../components/cms/ui/Input";
-import CountrySelect from "../../../../components/cms/ui/CountrySelect";
-import TextArea from "../../../../components/cms/ui/TextArea";
+import FormButtons from "../../../../components/forms/FormButtons";
+import Input from "../../../../components/forms/Input";
+import CountrySelect from "../../../../components/forms/CountrySelect";
+import TextArea from "../../../../components/forms/TextArea";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import { capitalize } from "../../../../utils";
 import ValidateDisplayName from "../../../auth/components/ValidateDisplayName";

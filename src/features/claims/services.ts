@@ -15,10 +15,10 @@ import {
   verifyWebsite,
 } from "../../services/verification";
 import { and, eq, gt, inArray, or } from "drizzle-orm";
-import { getCreatorById } from "../../services/creators";
-import { getUserById } from "../../services/users";
 import { updateCreatorOwnerAndStatus } from "../dashboard/admin/claims/services";
 import { cleanupOrphanedStubCreator } from "../dashboard/books/services";
+import { getCreatorById } from "../dashboard/creators/services";
+import { getUserByIdAdmin } from "../dashboard/admin/creators/services";
 
 export const getPendingClaim = async (userId: string, creatorId: string) => {
   if (!userId || !creatorId) return null;
@@ -247,7 +247,7 @@ export const verifyClaim = async (claim: CreatorClaim) => {
   }
 
   // New creator: same domain for email and website → auto-approve; else pending_admin_review
-  const user = await getUserById(claim.userId);
+  const user = await getUserByIdAdmin(claim.userId);
   if (!user) {
     return {
       verified: false,

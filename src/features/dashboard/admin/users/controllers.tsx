@@ -1,20 +1,13 @@
 import Alert from "../../../../components/app/Alert";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
-import {
-  createNewUser,
-  deleteUserById,
-  getUserById,
-} from "../../../../services/users";
 import { getUser } from "../../../../utils";
 import UsersPageAdmin from "./pages/UsersPageAdmin";
 import { Context } from "hono";
 import { MagicLinkFormContext, UserFormContext, UserIdContext } from "./types";
-import Modal from "../../../../components/app/Modal";
-import Button from "../../../../components/app/Button";
-import CopyCellCol from "../../../../components/admin/CopyCellCol";
 import { supabaseAdmin } from "../../../../lib/supabase";
 import { generateMagicLinkEmail } from "./emails";
 import MagicLinkModal from "./modals/MagicLinkModal";
+import { createNewUser, deleteUserById, getUserById } from "./services";
 
 export const getUsersPageAdmin = async (c: Context) => {
   const user = await getUser(c);

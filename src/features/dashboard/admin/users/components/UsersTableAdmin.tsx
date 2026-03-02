@@ -1,16 +1,15 @@
-import { getAllUsers } from "../../../../../services/users";
 import SectionTitle from "../../../../../components/app/SectionTitle";
-import TableSearch from "../../../../../components/cms/ui/TableSearch";
+import TableSearch from "../../../../../components/forms/TableSearch";
 import Link from "../../../../../components/app/Link";
 import Button from "../../../../../components/app/Button";
-import Table from "../../../../../components/cms/ui/Table";
-import CopyCellCol from "../../../../../components/admin/CopyCellCol";
-import { AuthUser } from "../../../../../../types";
+import Table from "../../../../../components/forms/Table";
+import CopyCellCol from "../../../../../components/app/CopyCellCol";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import { User } from "../../../../../db/schema";
+import { getAllUsersAdmin } from "../services";
 
 const UsersTableAdmin = async () => {
-  const users = await getAllUsers();
+  const users = await getAllUsersAdmin();
 
   const alpineAttrs = {
     "x-init": "true",

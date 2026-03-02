@@ -4,7 +4,7 @@ import NavTabs from "../../components/NavTabs";
 import BooksTable from "../components/BooksTable";
 import { AuthUser, Flash } from "../../../../../../types";
 import ErrorPage from "../../../../../pages/error/errorPage";
-import { getAllBooksAdmin } from "../../../../../services/admin";
+import { getAllBooksAdmin } from "../services";
 
 type Props = {
   user: AuthUser;

@@ -9,7 +9,7 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import { Creator } from "../../../db/schema";
 import ErrorPage from "../../../pages/error/errorPage";
-import { getAllCreatorsByType } from "../../../services/creators";
+import { getAllCreatorsByType } from "../services";
 
 type Props = {
   type: "artist" | "publisher";

@@ -1,12 +1,11 @@
 import { AuthUser, Flash } from "../../../../types";
 import BooksGrid from "../components/BooksGrid";
 import ErrorPage from "../../../pages/error/errorPage";
-import { getFeedBooks } from "../../../services/books";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import NavTabs from "../../../components/layouts/NavTabs";
-import SectionTitle from "../../../components/app/SectionTitle";
 import Button from "../../../components/app/Button";
+import { getFeedBooks } from "../services";
 
 type Props = {
   user: AuthUser | null;

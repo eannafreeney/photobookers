@@ -5,8 +5,8 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
-import { getBooksInWishlist } from "../../../services/books";
 import BooksGrid from "../components/BooksGrid";
+import { getBooksInWishlist } from "../services";
 
 type Props = {
   user: AuthUser | null;

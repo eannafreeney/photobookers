@@ -29,7 +29,6 @@ import {
   setRefreshToken,
 } from "./services";
 import { normalizeUrl } from "../../services/verification";
-import { createStubCreatorProfile } from "../../services/creators";
 import { createClaim, deleteClaim } from "../claims/services";
 import { generateClaimEmail } from "../claims/emails";
 import ErrorPage from "../../pages/error/errorPage";
@@ -40,10 +39,11 @@ import { deleteCookie } from "hono/cookie";
 import ForceResetPasswordPage from "./pages/ForceResetPasswordPage";
 import MagicLinkHashHandlerPage from "./pages/MagicLinkHashHandlerPage";
 import ResetPasswordModal from "./modals/ResetPasswordModal";
-import { findUserByEmail } from "../../services/users";
 import ValidateEmail from "./components/ValidateEmail";
 import ValidateDisplayName from "./components/ValidateDisplayName";
 import ValidateWebsite from "./components/ValidateWebsite";
+import { createStubCreatorProfile } from "../dashboard/creators/services";
+import { findUserByEmailAdmin } from "../dashboard/admin/creators/services";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -459,7 +459,7 @@ export const setSession = async (c: Context) => {
 export const validateEmail = async (c: ValidateEmailContext) => {
   const email = c.req.valid("form").email;
 
-  const existingUser = await findUserByEmail(email);
+  const existingUser = await findUserByEmailAdmin(email);
   const isAvailable = !Boolean(existingUser);
 
   return c.html(<ValidateEmail isAvailable={isAvailable} />);

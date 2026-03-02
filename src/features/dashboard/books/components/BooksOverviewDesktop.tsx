@@ -1,13 +1,13 @@
-import TableSearch from "../../../../components/cms/ui/TableSearch";
+import TableSearch from "../../../../components/forms/TableSearch";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import Button from "../../../../components/app/Button";
 import Link from "../../../../components/app/Link";
-import Table from "../../../../components/cms/ui/Table";
+import Table from "../../../../components/forms/Table";
 import { Book, Creator } from "../../../../db/schema";
 import { AuthUser } from "../../../../../types";
 import PreviewButton from "../../../api/components/PreviewButton";
-import PublishToggleForm from "../../../../components/cms/forms/PublishToggleForm";
-import DeleteBookForm from "../../../../components/dashboard/BookDeleteForm";
+import PublishToggleForm from "./PublishToggleForm";
+import DeleteBookForm from "./BookDeleteForm";
 
 type Props = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];

@@ -1,6 +1,6 @@
 import { AuthUser } from "../../../../types";
 import Button from "../../../components/app/Button";
-import Input from "../../../components/cms/ui/Input";
+import Input from "../../../components/forms/Input";
 
 type Props = {
   creatorId: string;

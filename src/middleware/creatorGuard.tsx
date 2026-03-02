@@ -2,8 +2,8 @@ import { createMiddleware } from "hono/factory";
 import { getUser } from "../utils";
 import { Creator } from "../db/schema";
 import { showErrorAlert } from "../lib/alertHelpers";
-import { getCreatorById } from "../services/creators";
 import { canEditCreator } from "../lib/permissions";
+import { getCreatorById } from "../features/dashboard/creators/services";
 
 type CreatorEnv = {
   Variables: {

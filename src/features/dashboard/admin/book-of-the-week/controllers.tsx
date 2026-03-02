@@ -1,6 +1,6 @@
 import Alert from "../../../../components/app/Alert";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
-import { getBookById } from "../../../../services/books";
+import { getBookById } from "../../../app/services";
 import BOTWModal from "./modals/BOTWModal";
 import EditBOTWModal from "./modals/EditBOTWModal";
 import {

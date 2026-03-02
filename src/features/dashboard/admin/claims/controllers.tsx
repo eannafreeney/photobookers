@@ -1,19 +1,15 @@
 import { Context } from "hono";
 import { getUser } from "../../../../utils";
 import ClaimsOverviewAdmin from "./pages/ClaimsOverviewAdmin";
-import { getClaimById } from "../../../../services/admin";
-import { getCreatorById } from "../../../../services/creators";
+import { approveClaim, getClaimById, rejectClaim } from "./services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
-import {
-  approveClaim,
-  generateClaimApprovalEmail,
-  generateClaimRejectionEmail,
-  rejectClaim,
-} from "../../../../services/claims";
 import { supabaseAdmin } from "../../../../lib/supabase";
 import Alert from "../../../../components/app/Alert";
 import ClaimsTableAdmin from "./components/ClaimsTable";
 import { ClaimIdContext } from "./types";
+import { generateClaimApprovalEmail } from "./emails";
+import { generateClaimRejectionEmail } from "../../../claims/emails";
+import { getCreatorById } from "../../creators/services";
 
 export const getClaimsOverviewPageAdmin = async (c: Context) => {
   const user = await getUser(c);

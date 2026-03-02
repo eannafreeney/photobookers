@@ -1,7 +1,7 @@
 import Button from "../../../../components/app/Button";
 import SectionTitle from "../../../../components/app/SectionTitle";
-import FileUploadInput from "../../../../components/cms/ui/FileUpload";
-import ImagePreview from "../../../../components/cms/ui/ImagePreview";
+import FileUploadInput from "../../../../components/forms/FileUpload";
+import ImagePreview from "../../../../components/forms/ImagePreview";
 
 type Props = {
   initialUrl: string | null;

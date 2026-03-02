@@ -19,17 +19,22 @@ const Card = ({ children, className }: CardProps) => (
   </div>
 );
 
-const CardHeader = ({ children }: { children: ChildType }) => (
+type HeaderProps = {
+  children: ChildType;
+};
+
+const CardHeader = ({ children }: HeaderProps) => (
   <div class="flex items-center justify-between gap-2 p-2">{children}</div>
 );
 
-const CardBody = ({
-  children,
-  gap = "2",
-}: {
+type BodyProps = {
   children: ChildType;
   gap?: string;
-}) => <div class={`flex flex-col gap-${gap} p-4`}>{children}</div>;
+};
+
+const CardBody = ({ children, gap = "2" }: BodyProps) => (
+  <div class={`flex flex-col gap-${gap} p-4`}>{children}</div>
+);
 
 type CardImageProps = {
   src: string;
@@ -67,35 +72,59 @@ const CardImage = ({
   </figure>
 );
 
-const CardTitle = ({ children }: { children: ChildType }) => (
+type TitleProps = {
+  children: ChildType;
+};
+
+const CardTitle = ({ children }: TitleProps) => (
   <h3 class="text-balance text-md font-semibold text-on-surface-strong">
     {children}
   </h3>
 );
 
-const CardSubTitle = ({ children }: { children: ChildType }) => (
+type SubTitleProps = {
+  children: ChildType;
+};
+
+const CardSubTitle = ({ children }: SubTitleProps) => (
   <span class="text-sm font-medium">{children}</span>
 );
 
-const CardIntro = ({ children }: { children: ChildType }) => (
+type IntroProps = {
+  children: ChildType;
+};
+
+const CardIntro = ({ children }: IntroProps) => (
   <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap line-clamp-7">
     {children}
   </p>
 );
 
-const CardDescription = ({ children }: { children: ChildType }) => (
+type DescriptionProps = {
+  children: ChildType;
+};
+
+const CardDescription = ({ children }: DescriptionProps) => (
   <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap">
     {children}
   </p>
 );
 
-const CardText = ({ children }: { children: ChildType }) => (
+type TextProps = {
+  children: ChildType;
+};
+
+const CardText = ({ children }: TextProps) => (
   <span class="text-xs text-on-surface-weak whitespace-pre-wrap line-clamp-2">
     {children}
   </span>
 );
 
-const CardTags = ({ tags }: { tags: string[] }) => {
+type TagsProps = {
+  tags: string[];
+};
+
+const CardTags = ({ tags }: TagsProps) => {
   if (tags.length === 0) return <></>;
   return (
     <div class="flex items-center flex-wrap gap-2">

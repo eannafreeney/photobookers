@@ -1,13 +1,13 @@
-import { getAllOptions } from "../../../../services/creators";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import FeatureGuard from "../../../../components/layouts/FeatureGuard";
-import ComboBox from "../../../../components/cms/ui/ComboBox";
-import DateInput from "../../../../components/cms/ui/DateInput";
-import FormButtons from "../../../../components/cms/ui/FormButtons";
-import Input from "../../../../components/cms/ui/Input";
-import RadioFields from "../../../../components/cms/ui/RadioFields";
-import TextArea from "../../../../components/cms/ui/TextArea";
-import ToggleInput from "../../../../components/cms/ui/ToggleInput";
+import ComboBox from "../../../../components/forms/ComboBox";
+import DateInput from "../../../../components/forms/DateInput";
+import FormButtons from "../../../../components/forms/FormButtons";
+import Input from "../../../../components/forms/Input";
+import RadioFields from "../../../../components/forms/RadioFields";
+import TextArea from "../../../../components/forms/TextArea";
+import ToggleInput from "../../../../components/forms/ToggleInput";
+import { getAllCreatorOptions } from "../../admin/creators/services";
 
 type BookFormProps = {
   formValues?: Record<string, any>;
@@ -22,8 +22,10 @@ export const BookForm = async ({
   bookId,
   action,
 }: BookFormProps) => {
-  const artistOptions = isPublisher ? await getAllOptions("artist") : [];
-  const publisherOptions = !isPublisher ? await getAllOptions("publisher") : [];
+  const artistOptions = isPublisher ? await getAllCreatorOptions("artist") : [];
+  const publisherOptions = !isPublisher
+    ? await getAllCreatorOptions("publisher")
+    : [];
   const isEditPage = !!bookId;
   const isArtist = !isPublisher;
   const method = isEditPage ? "PATCH" : "POST";

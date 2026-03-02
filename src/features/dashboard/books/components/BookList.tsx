@@ -1,6 +1,6 @@
 import ErrorPage from "../../../../pages/error/errorPage";
-import { getBooksByCreatorId } from "../../../../services/books";
 import BooksTable from "../../admin/books/components/BooksTable";
+import { getBooksByCreatorId } from "../services";
 
 type Props = {
   creatorId: string;
