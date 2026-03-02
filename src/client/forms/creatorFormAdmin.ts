@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { creatorFormAdminSchema } from "../../schemas";
+import { creatorFormAdminSchema } from "../../features/dashboard/admin/creators/schemas";
 import {
   createFormState,
   getIsDirty,
@@ -9,6 +9,9 @@ import {
   validateField,
 } from "./formUtils";
 import { createRegisterFormUtils } from "./registerFormUtils";
+import z from "zod";
+
+type CreatorFormAdminShape = z.infer<typeof creatorFormAdminSchema>;
 
 const CREATOR_FORM_ADMIN_FIELDS = Object.keys(creatorFormAdminSchema.shape);
 
@@ -37,14 +40,21 @@ export function registerCreatorFormAdmin() {
       },
 
       get isFormValid() {
+        const ctx = this as unknown as {
+          errors: { form: Record<keyof CreatorFormAdminShape, string> };
+          form: CreatorFormAdminShape;
+          isDirty: boolean;
+          displayNameIsTaken: boolean;
+          isDisplayNameChecking: boolean;
+        };
         return !!(
-          this.isDirty &&
-          Object.values(this.errors.form).every((err) => !err) &&
-          !this.displayNameIsTaken &&
-          !this.isDisplayNameChecking &&
-          this.form.displayName &&
-          this.form.type &&
-          this.form.website
+          ctx.isDirty &&
+          Object.values(ctx.errors.form).every((err) => !err) &&
+          !ctx.displayNameIsTaken &&
+          !ctx.isDisplayNameChecking &&
+          ctx.form.displayName &&
+          ctx.form.type &&
+          ctx.form.website
         );
       },
 

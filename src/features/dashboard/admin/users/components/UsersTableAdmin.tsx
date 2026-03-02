@@ -5,8 +5,9 @@ import Link from "../../../../../components/app/Link";
 import Button from "../../../../../components/app/Button";
 import Table from "../../../../../components/cms/ui/Table";
 import CopyCellCol from "../../../../../components/admin/CopyCellCol";
-import DeleteFormButton from "../../../../../components/admin/DeleteFormButton";
 import { AuthUser } from "../../../../../../types";
+import DeleteFormButton from "../../components/DeleteFormButton";
+import { User } from "../../../../../db/schema";
 
 const UsersTableAdmin = async () => {
   const users = await getAllUsers();
@@ -42,7 +43,7 @@ const UsersTableAdmin = async () => {
         </Table.Head>
         <Table.Body id="users-table-body" {...alpineAttrs}>
           {users.map((user) => (
-            <UserTableRow user={user} />
+            <UserTableRow key={user.id} user={user} />
           ))}
         </Table.Body>
       </Table>
@@ -53,7 +54,7 @@ const UsersTableAdmin = async () => {
 export default UsersTableAdmin;
 
 type RowProps = {
-  user: AuthUser | null;
+  user: User | null;
 };
 
 const UserTableRow = ({ user }: RowProps) => {
@@ -89,7 +90,7 @@ const UserTableRow = ({ user }: RowProps) => {
         </a>
       </td>
       <td class="p-4">
-        <DeleteFormButton action={`/dashboard/admin/${user.id}`} />
+        <DeleteFormButton action={`/dashboard/admin/users/${user.id}`} />
       </td>
     </tr>
   );

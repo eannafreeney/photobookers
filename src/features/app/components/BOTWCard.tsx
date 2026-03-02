@@ -54,7 +54,9 @@ const BOTWDesktopCard = ({
   currentCreatorId,
   user,
 }: CardProps) => {
-  const { book } = bookOfTheWeek;
+  const book = bookOfTheWeek?.book ?? null;
+
+  if (!book || !book.coverUrl) return <></>;
 
   return (
     <Card className="col-span-6">
@@ -106,7 +108,9 @@ const BOTWMobileCard = ({
   currentCreatorId,
   user,
 }: CardProps) => {
-  const { book } = bookOfTheWeek;
+  const book = bookOfTheWeek?.book ?? null;
+  if (!book || !book.coverUrl) return <></>;
+
   return (
     <Card className="w-full min-w-0">
       <CarouselMobile

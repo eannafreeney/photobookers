@@ -13,8 +13,8 @@ import {
 } from "./services";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import Alert from "../../components/app/Alert";
-import FollowButton from "../../components/api/FollowButton";
-import WishlistButton from "../../components/api/WishlistButton";
+import FollowButton from "./components/FollowButton";
+import WishlistButton from "./components/WishlistButton";
 import { findUserByEmail } from "../../services/users";
 import ValidationLabel from "./components/ValidationLabel";
 import { searchBooks } from "../../services/books";

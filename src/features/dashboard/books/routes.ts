@@ -10,12 +10,10 @@ import {
   getEditBookPage,
   makeBookDraft,
   makeBookPublic,
-  rejectBook,
   updateBookAsArtist,
   updateBookAsPublisher,
 } from "./controllers";
 import {
-  bookFormSchema,
   bookIdSchema,
   deleteBookFormSchema,
   publishToggleFormSchema,
@@ -28,6 +26,7 @@ import {
   requireBookPublishAccess,
   requireBookUnpublishAccess,
 } from "../../../middleware/bookGuard";
+import { bookFormAdminSchema } from "../admin/books/schema";
 
 export const booksDashboardRoutes = new Hono();
 booksDashboardRoutes.use(
@@ -46,26 +45,26 @@ booksDashboardRoutes.get(
 booksDashboardRoutes.post(
   "/new/publisher",
   limitBooksPerDay,
-  formValidator(bookFormSchema),
+  formValidator(bookFormAdminSchema),
   createBookAsPublisher,
 );
 booksDashboardRoutes.post(
   "/new/artist",
   limitBooksPerDay,
-  formValidator(bookFormSchema),
+  formValidator(bookFormAdminSchema),
   createBookAsArtist,
 );
 booksDashboardRoutes.post(
   "/edit/:bookId/publisher",
   paramValidator(bookIdSchema),
-  formValidator(bookFormSchema),
+  formValidator(bookFormAdminSchema),
   requireBookEditAccess,
   updateBookAsPublisher,
 );
 booksDashboardRoutes.patch(
   "/edit/:bookId/artist",
   paramValidator(bookIdSchema),
-  formValidator(bookFormSchema),
+  formValidator(bookFormAdminSchema),
   requireBookEditAccess,
   updateBookAsArtist,
 );

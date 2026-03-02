@@ -1,5 +1,5 @@
-import { getBookById } from "../services/books";
-import { AuthUser } from "../../types";
+import { getBookById } from "../../../services/books";
+import { AuthUser } from "../../../../types";
 
 type BookPreviewPageProps = {
   bookId: string;

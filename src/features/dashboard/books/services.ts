@@ -98,7 +98,7 @@ export const deleteBookById = async (bookId: string) => {
   }
 };
 
-async function cleanupOrphanedStubCreator(creatorId: string) {
+export async function cleanupOrphanedStubCreator(creatorId: string) {
   const [creator] = await db
     .select()
     .from(creators)

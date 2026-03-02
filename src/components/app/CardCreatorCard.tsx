@@ -7,7 +7,7 @@ import VerifiedCreator from "./VerifiedCreator";
 
 type CardCreatorCardProps = {
   creatorType?: "publisher" | "artist";
-  book: Book;
+  book: Pick<Book, "artistId" | "publisherId">;
   avatarSize?: "xs" | "sm" | "md" | "lg";
 };
 

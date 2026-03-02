@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { getEditCreatorPage, updateCreator } from "./controllers";
 import { formValidator, paramValidator } from "../../../lib/validator";
-import { creatorFormSchema, creatorIdSchema } from "../../../schemas";
+import { creatorIdSchema } from "../../../schemas";
+import { creatorFormSchema } from "./schema";
 import { requireCreatorEditAccess } from "../../../middleware/creatorGuard";
 import { methodOverride } from "hono/method-override";
 
@@ -13,14 +14,13 @@ creatorDashboardRoutes.use(
 );
 
 creatorDashboardRoutes.get(
-  "/edit/:creatorId",
+  "/:creatorId",
   paramValidator(creatorIdSchema),
   requireCreatorEditAccess,
   getEditCreatorPage,
 );
-
 creatorDashboardRoutes.patch(
-  "/edit/:creatorId",
+  "/:creatorId",
   paramValidator(creatorIdSchema),
   formValidator(creatorFormSchema),
   requireCreatorEditAccess,

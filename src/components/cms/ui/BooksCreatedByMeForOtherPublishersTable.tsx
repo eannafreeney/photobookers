@@ -41,11 +41,11 @@ const BooksCreatedByMeForOtherPublishersTable = async () => {
               <th class="p-4"></th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-outline">
+          {/* <tbody class="divide-y divide-outline">
             {validBooks?.map((book) => (
               <BookTableRow book={book} creatorType="publisher" />
             ))}
-          </tbody>
+          </tbody> */}
         </table>
       </div>
     </div>
@@ -94,7 +94,7 @@ const BookTableRow = ({ book }: BookTableRowProps) => {
       </td>
 
       <td class="p-4">
-        <a href={`/dashboard/books/edit/${book.id}`}>
+        {/* <a href={`/dashboard/books/edit/${book.id}`}>
           <Button
             variant="outline"
             color="inverse"
@@ -102,40 +102,38 @@ const BookTableRow = ({ book }: BookTableRowProps) => {
           >
             <span>Edit</span>
           </Button>
-        </a>
+        </a> */}
       </td>
-      <td class="p-4">
-        <DeleteBookForm book={book} user={user} />
-      </td>
+      <td class="p-4">{/* <DeleteBookForm book={book} user={user} /> */}</td>
     </tr>
   );
 };
 
-const DeleteBookForm = ({
-  book,
-  user,
-}: {
-  book: Book & { artist: Creator; publisher: Creator };
-  user: AuthUser | null;
-}) => {
-  const attrs = {
-    "x-target": "books-other-publishers-table toast",
-    "x-target.error": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-  };
-  return (
-    <form
-      {...attrs}
-      method="POST"
-      action={`/dashboard/books/delete/${book.id}`}
-    >
-      <Button
-        variant="outline"
-        color="danger"
-        isDisabled={canDeleteBook(user, book)}
-      >
-        <span>Delete</span>
-      </Button>
-    </form>
-  );
-};
+// const DeleteBookForm = ({
+//   book,
+//   user,
+// }: {
+//   book: Book & { artist: Creator; publisher: Creator };
+//   user: AuthUser | null;
+// }) => {
+//   const attrs = {
+//     "x-target": "books-other-publishers-table toast",
+//     "x-target.error": "toast",
+//     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+//   };
+//   return (
+//     <form
+//       {...attrs}
+//       method="POST"
+//       action={`/dashboard/books/delete/${book.id}`}
+//     >
+//       <Button
+//         variant="outline"
+//         color="danger"
+//         isDisabled={canDeleteBook(user, book)}
+//       >
+//         <span>Delete</span>
+//       </Button>
+//     </form>
+//   );
+// };

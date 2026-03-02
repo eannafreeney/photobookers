@@ -2,7 +2,6 @@ import { Context, Next } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { refreshAccessToken } from "./refreshAccessToken";
 import { getUserFromToken } from "./getUserFromToken";
-import { checkIncompleteCreatorSignup } from "./auth";
 import { getAuthCookieOptions } from "../features/auth/services";
 
 export const optionalAuthMiddleware = async (c: Context, next: Next) => {
@@ -52,19 +51,6 @@ export const optionalAuthMiddleware = async (c: Context, next: Next) => {
   }
 
   c.set("user", user);
-
-  const path = c.req.path;
-
-  // Only check for incomplete signup if NOT already on the creator form page or auth pages
-  if (
-    !path.startsWith("/dashboard/creators/new") &&
-    !path.startsWith("/auth/") &&
-    !path.startsWith("/api/") &&
-    user
-  ) {
-    const redirect = await checkIncompleteCreatorSignup(c, user);
-    if (redirect) return redirect;
-  }
 
   await next();
 };

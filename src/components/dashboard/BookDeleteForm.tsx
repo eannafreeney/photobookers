@@ -4,7 +4,7 @@ import Button from "../app/Button";
 import { canDeleteBook } from "../../lib/permissions";
 
 type Props = {
-  book: Book & { artist: Creator; publisher: Creator };
+  book: Book & { artist: Creator | null; publisher: Creator | null };
   user: AuthUser | null;
 };
 

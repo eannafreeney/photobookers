@@ -1,8 +1,6 @@
-import { useUser } from "../../../contexts/UserContext";
 import { getBooksForApproval } from "../../../services/books";
 import SectionTitle from "../../app/SectionTitle";
 import ApproveBookTableRow from "./ApproveBookTableRow";
-import BookTableRow from "./BookTableRow";
 
 const BooksForApprovalTable = async ({ creatorId }: { creatorId: string }) => {
   const books = await getBooksForApproval(creatorId);
@@ -35,11 +33,11 @@ const BooksForApprovalTable = async ({ creatorId }: { creatorId: string }) => {
               <th class="p-4"></th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-outline">
+          {/* <tbody class="divide-y divide-outline">
             {validBooks?.map((book) => (
               <ApproveBookTableRow book={book} creatorType="artist" />
             ))}
-          </tbody>
+          </tbody> */}
         </table>
       </div>
     </div>

@@ -1,11 +1,11 @@
 import { AuthUser } from "../../../../../types";
 import AlertStatic from "../../../../components/app/AlertStatic";
-import Breadcrumbs from "../../../../components/app/Breadcrumbs";
+import Breadcrumbs from "../../admin/components/Breadcrumbs";
 import VerifiedCreator from "../../../../components/app/VerifiedCreator";
 import BooksCreatedByMeForOtherPublishersTable from "../../../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
 import BooksCreatedByMeForStubPublishersTable from "../../../../components/cms/ui/BooksCreatedForStubPublishersTable";
 import BooksForApprovalTable from "../../../../components/cms/ui/BooksForApprovalTable";
-import { BooksOverviewTable } from "../../../../components/dashboard/BooksOverviewTable";
+import { BooksOverviewTable } from "../components/BooksOverviewTable";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import FeatureGuard from "../../../../components/layouts/FeatureGuard";
 import Page from "../../../../components/layouts/Page";

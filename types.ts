@@ -1,7 +1,7 @@
 import { Creator } from "./src/db/schema";
 
 export type Flash = {
-  type: "success" | "error" | "info";
+  type: "success" | "info" | "warning" | "danger" | "neutral";
   message: string;
 };
 

@@ -3,9 +3,9 @@ import Card from "./Card";
 import TagList from "./TagList";
 import { formatDate } from "../../utils";
 import CreatorCard from "./CreatorCard";
-import WishlistButton from "../api/WishlistButton";
+import WishlistButton from "../../features/api/components/WishlistButton";
 import { AuthUser } from "../../../types";
-import { BookWithGalleryImages } from "../../pages/BookDetailPage";
+import { BookWithGalleryImages } from "../../features/app/types";
 import CardCreatorCard from "./CardCreatorCard";
 import AvailabilityBadge from "./AvailabilityBadge";
 import PurchaseLink from "./PurchaseLink";
@@ -64,14 +64,12 @@ const DetailMobile = ({
         <CreatorCard
           creator={book.artist}
           currentPath={currentPath}
-          orientation={orientation}
           user={user}
         />
         <CreatorCard
           creator={book.publisher}
           currentPath={currentPath}
           title="Publisher"
-          orientation={orientation}
           user={user}
         />
       </div>

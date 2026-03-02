@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { bookFormSchema } from "../../schemas";
+import { bookFormSchema } from "../../features/dashboard/books/schema";
 import z from "zod";
 import {
   createFormState,

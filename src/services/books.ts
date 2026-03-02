@@ -12,21 +12,18 @@ import {
 } from "../db/schema";
 import {
   and,
-  asc,
   count,
   eq,
   exists,
   ilike,
   inArray,
-  isNull,
-  lte,
   ne,
   not,
   or,
   sql,
 } from "drizzle-orm";
-import { generateUniqueBookSlug, slugify } from "../utils";
-import { bookFormSchema } from "../schemas";
+import { generateUniqueBookSlug } from "../utils";
+import { bookFormSchema } from "../features/dashboard/books/schema";
 import z from "zod";
 import { AuthUser } from "../../types";
 import { getPagination } from "../lib/pagination";

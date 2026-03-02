@@ -1,5 +1,5 @@
 import AppLayout from "../../../../../components/layouts/AppLayout";
-import NavTabs from "../../../../../components/admin/NavTabs";
+import NavTabs from "../../components/NavTabs";
 import { AuthUser } from "../../../../../../types";
 import Page from "../../../../../components/layouts/Page";
 import CreateUserFormAdmin from "../forms/CreateUserFormAdmin";

@@ -1,10 +1,10 @@
 import { AuthUser } from "../../../../../types";
 import { Creator } from "../../../../db/schema";
-import CreatorForm from "../../../../components/cms/forms/CreatorForm";
+import CreatorForm from "../forms/CreatorForm";
 import Page from "../../../../components/layouts/Page";
-import CreatorImageForm from "../../../../components/cms/forms/CreatorCoverForm";
+import CreatorImageForm from "../../images/forms/CreatorCoverForm";
 import AppLayout from "../../../../components/layouts/AppLayout";
-import Breadcrumbs from "../../../../components/app/Breadcrumbs";
+import Breadcrumbs from "../../admin/components/Breadcrumbs";
 
 type Props = {
   user: AuthUser;

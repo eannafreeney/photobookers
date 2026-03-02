@@ -1,7 +1,10 @@
 import Alpine from "alpinejs";
-import { registerCreatorFormSchema } from "../../schemas";
+import { registerCreatorFormSchema } from "../../features/auth/schema";
 import { createRegisterFormUtils } from "./registerFormUtils";
 import { handleSubmit } from "./formUtils";
+import z from "zod";
+
+type RegisterCreatorFormShape = z.infer<typeof registerCreatorFormSchema>;
 
 export function registerRegisterCreatorForm() {
   Alpine.data("registerCreatorForm", () => {
@@ -42,22 +45,32 @@ export function registerRegisterCreatorForm() {
       ...createRegisterFormUtils(),
 
       get isFormValid() {
+        const ctx = this as unknown as {
+          errors: { form: Record<keyof RegisterCreatorFormShape, string> };
+          form: RegisterCreatorFormShape;
+          isEmailChecking: boolean;
+          emailIsTaken: boolean;
+          isDisplayNameChecking: boolean;
+          displayNameIsTaken: boolean;
+          isWebsiteChecking: boolean;
+          websiteIsTaken: boolean;
+        };
         return (
-          Object.values(this.errors.form).every((err) => !err) &&
-          this.form.displayName &&
-          this.form.website &&
-          this.form.type &&
-          this.form.email &&
-          this.form.password &&
-          this.form.confirmPassword &&
-          this.form.confirmPassword === this.form.password &&
-          this.form.agreeToTerms &&
-          !this.isEmailChecking &&
-          !this.emailIsTaken &&
-          !this.isDisplayNameChecking &&
-          !this.displayNameIsTaken &&
-          !this.isWebsiteChecking &&
-          !this.websiteIsTaken
+          Object.values(ctx.errors.form).every((err) => !err) &&
+          ctx.form.displayName &&
+          ctx.form.website &&
+          ctx.form.type &&
+          ctx.form.email &&
+          ctx.form.password &&
+          ctx.form.confirmPassword &&
+          ctx.form.confirmPassword === ctx.form.password &&
+          ctx.form.agreeToTerms &&
+          !ctx.isEmailChecking &&
+          !ctx.emailIsTaken &&
+          !ctx.isDisplayNameChecking &&
+          !ctx.displayNameIsTaken &&
+          !ctx.isWebsiteChecking &&
+          !ctx.websiteIsTaken
         );
       },
 

@@ -1,4 +1,6 @@
 import { AuthUser, Flash } from "../../../../types";
+import Button from "../../../components/app/Button";
+import SectionTitle from "../../../components/app/SectionTitle";
 import AppLayout from "../../../components/layouts/AppLayout";
 import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";

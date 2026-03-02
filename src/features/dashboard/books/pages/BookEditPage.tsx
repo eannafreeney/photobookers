@@ -1,12 +1,12 @@
-import { BookForm } from "../../../../components/cms/forms/BookForm";
+import { BookForm } from "../forms/BookForm";
 import { AuthUser } from "../../../../../types";
 import { getBookById } from "../../../../services/books";
-import Breadcrumbs from "../../../../components/app/Breadcrumbs";
-import BookGalleryForm from "../../../../components/cms/forms/BookGalleryForm";
+import Breadcrumbs from "../../admin/components/Breadcrumbs";
+import BookGalleryForm from "../../images/forms/BookGalleryForm";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import { Flash } from "../../../../../types";
 import Page from "../../../../components/layouts/Page";
-import BookCoverForm from "../../../../components/cms/forms/BookCoverForm";
+import BookCoverForm from "../../images/forms/BookCoverForm";
 
 type EditBookPageProps = {
   bookId: string;

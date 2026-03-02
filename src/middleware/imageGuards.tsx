@@ -5,6 +5,7 @@ import { User } from "../db/schema";
 import { getBookById } from "../services/books";
 import { canEditBook, canEditCreator } from "../lib/permissions";
 import { getCreatorById } from "../services/creators";
+import { BookWithAdminRelations } from "../services/admin";
 
 type ImageEnv = {
   Variables: {

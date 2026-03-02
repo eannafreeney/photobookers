@@ -76,6 +76,7 @@ export async function getBookOfTheWeekForDateQuery(date: Date) {
           coverUrl: true,
           artistId: true,
           publisherId: true,
+          tags: true,
         },
         with: {
           artist: {

@@ -15,15 +15,15 @@ import {
   resetPassword,
   setSession,
 } from "./controllers";
+import { redirectUrlSchema } from "../../schemas";
+import { formValidator, paramValidator } from "../../lib/validator";
 import {
   loginFormSchema,
-  redirectUrlSchema,
   registerCreatorFormSchema,
   registerFanFormSchema,
   resendVerificationFormSchema,
   resetPasswordFormSchema,
-} from "../../schemas";
-import { formValidator, paramValidator } from "../../lib/validator";
+} from "./schema";
 
 export const authRoutes = new Hono();
 

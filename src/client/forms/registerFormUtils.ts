@@ -1,5 +1,8 @@
-import { registerCreatorFormSchema } from "../../schemas";
+import { registerCreatorFormSchema } from "../../features/auth/schema";
 import { validateField } from "./formUtils";
+import z from "zod";
+
+type RegisterCreatorFormShape = z.infer<typeof registerCreatorFormSchema>;
 
 export function createRegisterFormUtils() {
   return {

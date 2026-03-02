@@ -12,9 +12,8 @@ import {
   BookFormWithBookContext,
   BookIdContext,
 } from "./types";
-import { BooksOverviewTable } from "../../../components/dashboard/BooksOverviewTable";
 import PublishToggleForm from "../../../components/cms/forms/PublishToggleForm";
-import PreviewButton from "../../../components/api/PreviewButton";
+import PreviewButton from "../../../features/api/components/PreviewButton";
 import BooksForApprovalTable from "../../../components/cms/ui/BooksForApprovalTable";
 import {
   approveBookById,

@@ -1,5 +1,9 @@
 import Alpine from "alpinejs";
-import { loginFormSchema } from "../../schemas";
+import { loginFormSchema } from "../../features/auth/schema";
+import z from "zod";
+import { handleSubmit } from "./formUtils";
+
+type LoginFormShape = z.infer<typeof loginFormSchema>;
 
 export function registerLoginForm() {
   Alpine.data("loginForm", () => {
@@ -39,15 +43,7 @@ export function registerLoginForm() {
       },
 
       submitForm(event: Event) {
-        this.isSubmitting = true;
-        const result = loginFormSchema.safeParse(this.form);
-
-        if (!result.success) {
-          event.preventDefault();
-
-          this.errors.form = result.error.flatten().fieldErrors;
-          return;
-        }
+        return handleSubmit(this, event, loginFormSchema);
       },
     };
   });

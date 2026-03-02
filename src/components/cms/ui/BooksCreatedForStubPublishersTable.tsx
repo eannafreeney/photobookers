@@ -1,7 +1,7 @@
 import { useUser } from "../../../contexts/UserContext";
 import { Book, Creator } from "../../../db/schema";
 import { getBooksByCreatorIdForUnclaimedPublishers } from "../../../services/books";
-import PreviewButton from "../../api/PreviewButton";
+import PreviewButton from "../../../features/api/components/PreviewButton";
 import Button from "../../app/Button";
 import SectionTitle from "../../app/SectionTitle";
 import PublishToggleForm from "../forms/PublishToggleForm";
@@ -40,11 +40,11 @@ const BooksCreatedByMeForStubPublishersTable = async () => {
               <th class="p-4"></th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-outline">
+          {/* <tbody class="divide-y divide-outline">
             {validBooks?.map((book) => (
               <BookTableRow book={book} creatorType="publisher" />
             ))}
-          </tbody>
+          </tbody> */}
         </table>
       </div>
     </div>
@@ -58,6 +58,7 @@ type BookTableRowProps = {
 };
 
 const BookTableRow = ({ book }: BookTableRowProps) => {
+  const user = useUser();
   return (
     <tr>
       <td class="p-4">
@@ -91,7 +92,7 @@ const BookTableRow = ({ book }: BookTableRowProps) => {
         <PublishToggleForm book={book} />
       </td>
       <td class="p-4">
-        <PreviewButton book={book} />
+        <PreviewButton book={book} user={user} />
       </td>
 
       <td class="p-4">
@@ -101,7 +102,7 @@ const BookTableRow = ({ book }: BookTableRowProps) => {
           </Button>
         </a>
       </td>
-      <td class="p-4">
+      {/* <td class="p-4">
         <form
           x-target="books-other-publishers-table"
           method="POST"
@@ -116,7 +117,7 @@ const BookTableRow = ({ book }: BookTableRowProps) => {
             <span>Delete</span>
           </Button>
         </form>
-      </td>
+      </td> */}
     </tr>
   );
 };

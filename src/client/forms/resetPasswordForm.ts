@@ -1,7 +1,10 @@
 import Alpine from "alpinejs";
-import { resetPasswordFormSchema } from "../../schemas";
 import { createRegisterFormUtils } from "./registerFormUtils";
 import { handleSubmit, validateField } from "./formUtils";
+import { resetPasswordFormSchema } from "../../features/auth/schema";
+import z from "zod";
+
+type ResetPasswordFormShape = z.infer<typeof resetPasswordFormSchema>;
 
 export function registerResetPasswordForm() {
   Alpine.data("resetPasswordForm", () => {
@@ -27,11 +30,18 @@ export function registerResetPasswordForm() {
       ...createRegisterFormUtils(),
 
       get isFormValid() {
+        const ctx = this as {
+          errors: {
+            form: Record<keyof ResetPasswordFormShape, string>;
+            globalError: string;
+          };
+          form: ResetPasswordFormShape;
+        };
         return (
-          Object.values(this.errors.form).every((err) => !err) &&
-          this.form.password &&
-          this.form.confirmPassword &&
-          this.form.confirmPassword === this.form.password
+          Object.values(ctx.errors.form).every((err) => !err) &&
+          ctx.form.password &&
+          ctx.form.confirmPassword &&
+          ctx.form.confirmPassword === ctx.form.password
         );
       },
 

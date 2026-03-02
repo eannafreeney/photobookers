@@ -2,14 +2,14 @@ import { z } from "zod";
 import { Env } from "hono/types";
 import { Context } from "hono";
 
+import { redirectUrlSchema } from "../../schemas";
 import {
   loginFormSchema,
-  redirectUrlSchema,
   registerCreatorFormSchema,
   registerFanFormSchema,
   resendVerificationFormSchema,
   resetPasswordFormSchema,
-} from "../../schemas";
+} from "./schema";
 
 export type VerificationFormContext = Context<
   Env,

@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import BooksPage from "../../../../pages/admin/BooksPage";
+import BooksPage from "./pages/BooksPage";
 import { getFlash, getUser, setFlash } from "../../../../utils";
 import AddBookPage from "./pages/AddBookPage";
 import { resolveArtist, resolvePublisher } from "../../../../services/creators";
@@ -13,6 +13,8 @@ import {
   updateBook,
 } from "../../books/services";
 import EditBookPageAdmin from "./pages/EditBookFormAdmin";
+import { deleteBookByIdAdmin } from "../../../../services/admin";
+import { BookIdContext } from "../../books/types";
 
 export const getBooksPageAdmin = async (c: Context) =>
   c.redirect("/dashboard/admin/books");
@@ -104,4 +106,26 @@ export const updateBookAdmin = async (c: BookFormWithBookIdContext) => {
 
   await setFlash(c, "success", `${updatedBook.title} updated!`);
   return c.redirect(`/dashboard/admin/books`);
+};
+
+export const deleteBookAdmin = async (c: BookIdContext) => {
+  const bookId = c.req.valid("param").bookId;
+  const book = await getBookById(bookId);
+  if (!book) {
+    return showErrorAlert(c, "Book not found");
+  }
+
+  const deletedBook = await deleteBookByIdAdmin(bookId);
+
+  if (!deletedBook) {
+    return showErrorAlert(c, "Failed to delete book");
+  }
+  return c.html(
+    <>
+      <div id="server_events">
+        <div x-init="$dispatch('books:updated')"></div>
+      </div>
+      <Alert type="success" message={`${deletedBook.title} deleted!`} />,
+    </>,
+  );
 };

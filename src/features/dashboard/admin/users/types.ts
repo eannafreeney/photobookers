@@ -1,9 +1,6 @@
 import { Env } from "hono/types";
-import {
-  magicLinkFormSchema,
-  newUserFormAdminSchema,
-  userIdSchema,
-} from "../../../../schemas";
+import { magicLinkFormSchema, userIdSchema } from "../../../../schemas";
+import { newUserFormAdminSchema } from "./schema";
 import { Context } from "hono";
 import z from "zod";
 

@@ -1,5 +1,3 @@
-import { fadeTransition } from "../../lib/transitions";
-
 type Props = {
   images: string[];
 };

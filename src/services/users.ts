@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import { db } from "../db/client";
 import { users } from "../db/schema";
 import z from "zod";
-import { newUserFormSchema } from "../schemas";
+import { newUserFormAdminSchema } from "../features/dashboard/admin/users/schema";
 
-type NewUserForm = z.infer<typeof newUserFormSchema>;
+type NewUserForm = z.infer<typeof newUserFormAdminSchema>;
 
 export const findUserByEmail = async (email: string) => {
   try {

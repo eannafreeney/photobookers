@@ -1,9 +1,9 @@
 import Card from "./Card";
 import TagList from "./TagList";
 import CreatorCard from "./CreatorCard";
-import WishlistButton from "../api/WishlistButton";
+import WishlistButton from "../../features/api/components/WishlistButton";
 import { AuthUser } from "../../../types";
-import { BookWithGalleryImages } from "../../pages/BookDetailPage";
+import { BookWithGalleryImages } from "../../features/app/types";
 import Carousel from "./Carousel";
 import AvailabilityBadge from "./AvailabilityBadge";
 import Button from "./Button";

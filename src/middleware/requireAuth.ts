@@ -2,7 +2,6 @@ import { Context, Next } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { refreshAccessToken } from "./refreshAccessToken";
 import { getUserFromToken } from "./getUserFromToken";
-import { checkIncompleteCreatorSignup } from "./auth";
 import { getAuthCookieOptions } from "../features/auth/services";
 
 export const requireAuth = async (c: Context, next: Next) => {
@@ -61,17 +60,6 @@ export const requireAuth = async (c: Context, next: Next) => {
 
   // Attach user to context
   c.set("user", user);
-
-  // Check for incomplete creator signup (but allow dashboard routes to handle their own redirects)
-  const path = c.req.path;
-  if (
-    !path.startsWith("/dashboard/creators/new") &&
-    !path.startsWith("/auth/") &&
-    !path.startsWith("/api/")
-  ) {
-    const redirect = await checkIncompleteCreatorSignup(c, user);
-    if (redirect) return redirect;
-  }
 
   await next();
 };

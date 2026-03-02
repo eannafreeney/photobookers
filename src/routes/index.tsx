@@ -2,11 +2,7 @@ import "dotenv/config";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/requireAuth";
 import { optionalAuthMiddleware } from "../middleware/optionalAuthMiddleware";
-import { apiRoutes } from "./apiRoutes";
 import { useSession } from "@hono/session";
-import { claimRoutes } from "./claimRoutes";
-import { imageRoutes } from "./imageRoutes";
-import { adminDashboardRoutes } from "./adminDashboardRoutes";
 import { requireAdmin } from "../middleware/requireAdmin";
 import { appRoutes } from "../features/app/routes";
 import { authRoutes } from "../features/auth/routes";
@@ -14,6 +10,12 @@ import { booksDashboardRoutes } from "../features/dashboard/books/routes";
 import { creatorDashboardRoutes } from "../features/dashboard/creators/routes";
 import { adminBooksDashboardRoutes } from "../features/dashboard/admin/books/routes";
 import { adminUsersDashboardRoutes } from "../features/dashboard/admin/users/routes";
+import { adminClaimsDashboardRoutes } from "../features/dashboard/admin/claims/routes";
+import { adminBookOfTheWeekDashboardRoutes } from "../features/dashboard/admin/book-of-the-week/routes";
+import { adminCreatorsDashboardRoutes } from "../features/dashboard/admin/creators/routes";
+import { apiRoutes } from "../features/api/routes";
+import { imageRoutes } from "../features/dashboard/images/routes";
+import { claimRoutes } from "../features/claims/routes";
 
 export const routes = new Hono();
 
@@ -53,6 +55,11 @@ routes.route("/api", apiRoutes);
 
 // Admin routes
 routes.use("/dashboard/admin/*", requireAdmin);
-routes.route("/dashboard/admin", adminDashboardRoutes);
 routes.route("/dashboard/admin/books", adminBooksDashboardRoutes);
 routes.route("/dashboard/admin/users", adminUsersDashboardRoutes);
+routes.route("/dashboard/admin/claims", adminClaimsDashboardRoutes);
+routes.route("/dashboard/admin/creators", adminCreatorsDashboardRoutes);
+routes.route(
+  "/dashboard/admin/book-of-the-week",
+  adminBookOfTheWeekDashboardRoutes,
+);

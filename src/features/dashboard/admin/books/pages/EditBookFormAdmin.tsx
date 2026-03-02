@@ -1,12 +1,12 @@
 import { AuthUser } from "../../../../../../types";
 import { getBookById } from "../../../../../services/books";
-import BookGalleryForm from "../../../../../components/cms/forms/BookGalleryForm";
+import BookGalleryForm from "../../../images/forms/BookGalleryForm";
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import { Flash } from "../../../../../../types";
 import Page from "../../../../../components/layouts/Page";
-import BookCoverForm from "../../../../../components/cms/forms/BookCoverForm";
+import BookCoverForm from "../../../images/forms/BookCoverForm";
 import { BookFormAdmin } from "../components/AddBookForm";
-import Breadcrumbs from "../../../../../components/app/Breadcrumbs";
+import Breadcrumbs from "../../components/Breadcrumbs";
 
 type Props = {
   bookId: string;

@@ -1,31 +1,6 @@
-import { Context, Next } from "hono";
-import { setCookie } from "hono/cookie";
+import { Context } from "hono";
 import { supabaseAdmin } from "../lib/supabase";
-import { AuthUser } from "../../types";
-import {
-  getAuthCookieOptions,
-  setAccessToken,
-  setRefreshToken,
-} from "../features/auth/services";
-
-export async function checkIncompleteCreatorSignup(c: Context, user: AuthUser) {
-  // Check if user has an intended creator type but no creator profile
-  if (!user) return null;
-
-  // First check the database field (primary source)
-  let intendedType = user.intendedCreatorType;
-
-  // If user has an intended creator type but no creator profile, redirect them
-  if (
-    intendedType &&
-    (intendedType === "artist" || intendedType === "publisher") &&
-    !user.creator
-  ) {
-    return c.redirect(`/dashboard/creators/new?type=${intendedType}`);
-  }
-
-  return null;
-}
+import { setAccessToken, setRefreshToken } from "../features/auth/services";
 
 // REQUIRED auth - redirects to login if not authenticated
 

@@ -48,7 +48,6 @@ const CardImage = ({
 }: CardImageProps) => (
   <figure
     class={`w-full bg-white ${aspectSquare ? "aspect-square overflow-hidden" : ""}`}
-    x-data="imageOrientation"
   >
     <Link href={href}>
       <img

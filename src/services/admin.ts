@@ -2,6 +2,7 @@ import { and, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { db } from "../db/client";
 import {
   Book,
+  BookOfTheWeek,
   books,
   Creator,
   CreatorClaim,
@@ -78,11 +79,21 @@ export const getClaimById = async (claimId: string) => {
   return claim ?? null;
 };
 
+export type BookWithAdminRelations = Book & {
+  artist: Pick<Creator, "id" | "displayName" | "slug"> | null;
+  publisher: Pick<Creator, "id" | "displayName" | "slug"> | null;
+  bookOfTheWeekEntry?: BookOfTheWeek | null;
+};
+
 export const getAllBooksAdmin = async (
   currentPage: number = 1,
   searchQuery?: string,
   defaultLimit = 30,
-): Promise<{ books: Book[]; totalPages: number; page: number }> => {
+): Promise<{
+  books: BookWithAdminRelations[];
+  totalPages: number;
+  page: number;
+}> => {
   let creatorIds: string[] = [];
   if (searchQuery) {
     const rows = await db

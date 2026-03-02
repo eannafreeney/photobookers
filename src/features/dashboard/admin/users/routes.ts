@@ -9,11 +9,8 @@ import {
   sendMagicLinkAdmin,
 } from "./controllers";
 import { formValidator, paramValidator } from "../../../../lib/validator";
-import {
-  magicLinkFormSchema,
-  newUserFormAdminSchema,
-  userIdSchema,
-} from "../../../../schemas";
+import { magicLinkFormSchema, userIdSchema } from "../../../../schemas";
+import { newUserFormAdminSchema } from "./schema";
 
 export const adminUsersDashboardRoutes = new Hono();
 adminUsersDashboardRoutes.use(

@@ -330,7 +330,7 @@ export const getPendingClaimByUserAndCreator = async (
   return claim ?? null;
 };
 
-export const assignCreatorToUserManually = async (
+export const assignCreatorToUserAdmin = async (
   userId: string,
   creatorId: string,
   websiteUrl?: string | null,

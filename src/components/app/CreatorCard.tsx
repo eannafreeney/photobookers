@@ -1,7 +1,7 @@
 import { Creator } from "../../db/schema";
 import Card from "./Card";
-import ClaimCreatorBtn from "../claims/ClaimCreatorBtn";
-import FollowButton from "../api/FollowButton";
+import ClaimCreatorBtn from "../../features/claims/components/ClaimCreatorBtn";
+import FollowButton from "../../features/api/components/FollowButton";
 import SectionTitle from "./SectionTitle";
 import SocialLinks from "./SocialLinks";
 import VerifiedCreator from "./VerifiedCreator";
@@ -9,13 +9,18 @@ import { AuthUser } from "../../../types";
 import { findFollowersCount } from "../../db/queries";
 
 type Props = {
-  creator: Creator;
+  creator: Creator | null;
   currentPath: string;
   title?: string;
   user: AuthUser | null;
 };
 
-const CreatorCard = async ({ creator, title = "About", user }: Props) => {
+const CreatorCard = async ({
+  creator,
+  currentPath,
+  title = "About",
+  user,
+}: Props) => {
   if (!creator) return <></>;
 
   const followerCount = await findFollowersCount(creator.id);
@@ -57,7 +62,11 @@ const CreatorCard = async ({ creator, title = "About", user }: Props) => {
           )}
           <FollowButton creator={creator} user={user} variant="desktop" />
           {creator.status === "stub" && (
-            <ClaimCreatorBtn creator={creator} user={user} />
+            <ClaimCreatorBtn
+              creator={creator}
+              user={user}
+              currentPath={currentPath}
+            />
           )}
           <SocialLinks creator={creator} />
         </Card.Body>

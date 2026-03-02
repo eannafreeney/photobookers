@@ -1,4 +1,4 @@
-import { BookForm } from "../../../../components/cms/forms/BookForm";
+import { BookForm } from "../forms/BookForm";
 import { AuthUser } from "../../../../../types";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import Page from "../../../../components/layouts/Page";

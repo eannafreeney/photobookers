@@ -1,4 +1,5 @@
-import { bookFormSchema, bookIdSchema } from "../../../../schemas";
+import { bookIdSchema } from "../../../../schemas";
+import { bookFormAdminSchema } from "./schema";
 import { z } from "zod";
 import { Env } from "hono/types";
 import { Context } from "hono";
@@ -6,7 +7,7 @@ import { Context } from "hono";
 export type BookFormContext = Context<
   Env,
   string,
-  { out: { form: z.infer<typeof bookFormSchema> } }
+  { out: { form: z.infer<typeof bookFormAdminSchema> } }
 >;
 
 export type BookFormWithBookIdContext = Context<
@@ -15,7 +16,7 @@ export type BookFormWithBookIdContext = Context<
   {
     out: {
       param: z.infer<typeof bookIdSchema>;
-      form: z.infer<typeof bookFormSchema>;
+      form: z.infer<typeof bookFormAdminSchema>;
     };
   }
 >;
