@@ -19,11 +19,7 @@ import {
   validateWebsite,
 } from "./controllers";
 import { redirectUrlSchema } from "../../schemas";
-import {
-  formValidator,
-  jsonValidator,
-  paramValidator,
-} from "../../lib/validator";
+import { formValidator, paramValidator } from "../../lib/validator";
 import {
   loginFormSchema,
   registerCreatorFormSchema,

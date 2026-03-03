@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../../../db/client";
-import { users } from "../../../../db/schema";
+import { creators, users } from "../../../../db/schema";
 import { newUserFormAdminSchema } from "./schema";
 import z from "zod";
 
@@ -28,10 +28,26 @@ export const getUserById = async (id: string) => {
   }
 };
 
-export const createNewUser = async (formData: NewUserForm) => {
+export const getCreatorByOwnerUserId = async (userId: string) => {
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.ownerUserId, userId),
+    });
+    return creator ?? null;
+  } catch (error) {
+    console.error("Failed to get creator by owner user id", error);
+    return null;
+  }
+};
+
+export const createUserWithAuthId = async (
+  authUserId: string,
+  formData: NewUserForm,
+) => {
   return await db
     .insert(users)
     .values({
+      id: authUserId,
       email: formData.email,
       firstName: formData.firstName,
       lastName: formData.lastName,

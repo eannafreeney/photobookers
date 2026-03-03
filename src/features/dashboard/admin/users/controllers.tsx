@@ -1,5 +1,5 @@
 import Alert from "../../../../components/app/Alert";
-import { showErrorAlert } from "../../../../lib/alertHelpers";
+import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers";
 import { getUser } from "../../../../utils";
 import UsersPageAdmin from "./pages/UsersPageAdmin";
 import { Context } from "hono";
@@ -7,7 +7,7 @@ import { MagicLinkFormContext, UserFormContext, UserIdContext } from "./types";
 import { supabaseAdmin } from "../../../../lib/supabase";
 import { generateMagicLinkEmail } from "./emails";
 import MagicLinkModal from "./modals/MagicLinkModal";
-import { createNewUser, deleteUserById, getUserById } from "./services";
+import { createUserWithAuthId, deleteUserById, getUserById } from "./services";
 
 export const getUsersPageAdmin = async (c: Context) => {
   const user = await getUser(c);
@@ -16,18 +16,31 @@ export const getUsersPageAdmin = async (c: Context) => {
 };
 
 export const createNewUserAdmin = async (c: UserFormContext) => {
-  const user = await getUser(c);
-  const currentPath = c.req.path;
   const formData = c.req.valid("form");
-  const newUser = await createNewUser(formData);
-  if (!newUser) return showErrorAlert(c, "Failed to create user");
+  const { email, firstName, lastName } = formData;
 
-  return c.html(
-    <>
-      <Alert type="success" message="User created!" />
-      <UsersPageAdmin user={user} currentPath={currentPath} />
-    </>,
-  );
+  const { data: authData, error: authError } =
+    await supabaseAdmin.auth.admin.createUser({
+      email,
+      password: crypto.randomUUID(),
+      email_confirm: true,
+      user_metadata: { firstName, lastName },
+    });
+
+  if (authError) {
+    return showErrorAlert(c, authError.message);
+  }
+  const authUserId = authData.user?.id;
+  if (!authUserId) {
+    return showErrorAlert(c, "Failed to create user.");
+  }
+
+  const newUser = await createUserWithAuthId(authUserId, formData);
+  if (!newUser) {
+    return showErrorAlert(c, "Failed to create user");
+  }
+
+  return showSuccessAlert(c, "User created!");
 };
 
 export const deleteUserAdmin = async (c: UserIdContext) => {
@@ -46,8 +59,12 @@ export const deleteUserAdmin = async (c: UserIdContext) => {
 
 export const generateMagicLinkAdmin = async (c: UserIdContext) => {
   const userId = c.req.valid("param").userId;
+  console.log("userId", userId);
+
   const user = await getUserById(userId);
   const email = user?.email as string;
+
+  console.log("email", email);
 
   const { data, error } = await supabaseAdmin.auth.admin.generateLink({
     type: "magiclink",
@@ -58,6 +75,8 @@ export const generateMagicLinkAdmin = async (c: UserIdContext) => {
   });
 
   const actionLink = data?.properties?.action_link;
+
+  console.log("actionLink", actionLink);
 
   return c.html(
     <MagicLinkModal

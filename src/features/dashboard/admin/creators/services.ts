@@ -1,4 +1,4 @@
-import { and, count, eq, ilike } from "drizzle-orm";
+import { and, count, eq, ilike, isNull, not } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   Creator,
@@ -20,14 +20,16 @@ import { getPagination } from "../../../../lib/pagination";
 export const getAllUserProfilesAdmin = async (): Promise<
   Pick<User, "id" | "email" | "firstName" | "lastName">[]
 > => {
-  return await db.query.users.findMany({
-    columns: {
-      id: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-    },
-  });
+  return await db
+    .select({
+      id: users.id,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+    })
+    .from(users)
+    .leftJoin(creators, eq(creators.ownerUserId, users.id))
+    .where(isNull(creators.id));
 };
 
 export const getAllCreatorProfilesAdmin = async (

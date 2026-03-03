@@ -361,11 +361,6 @@ export const logout = async (c: Context) => {
 export const getForceResetPasswordPage = async (c: Context) => {
   const user = await getUser(c);
   if (user) {
-    // invalidate current password
-    await supabaseAdmin.auth.admin.updateUserById(user.id, {
-      password: crypto.randomUUID(),
-    });
-
     return c.html(<ForceResetPasswordPage user={user} />);
   }
   return c.html(<MagicLinkHashHandlerPage />);
@@ -410,6 +405,8 @@ export const resetPassword = async (c: ResetPasswordFormContext) => {
     data.session.expires_in,
     data.user.id,
   );
+
+  console.log("user", data.user);
 
   await setFlash(c, "success", "Your password has been reset successfully!");
   return c.redirect("/");

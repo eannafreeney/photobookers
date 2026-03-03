@@ -6,7 +6,9 @@ import Table from "../../../../../components/app/Table";
 import CopyCellCol from "../../../../../components/app/CopyCellCol";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import { User } from "../../../../../db/schema";
-import { getAllUsersAdmin } from "../services";
+import { getAllUsersAdmin, getCreatorByOwnerUserId } from "../services";
+import Badge from "../../../../../components/app/Badge";
+import { capitalize } from "../../../../../utils";
 
 const UsersTableAdmin = async () => {
   const users = await getAllUsersAdmin();
@@ -35,9 +37,10 @@ const UsersTableAdmin = async () => {
       <Table id="users-table">
         <Table.Head>
           <tr>
-            <th class="p-4">Name</th>
-            <th class="p-4">Email</th>
-            <th class="p-4">ID</th>
+            <Table.HeadRow>Name</Table.HeadRow>
+            <Table.HeadRow>Email</Table.HeadRow>
+            <Table.HeadRow>Creator Status</Table.HeadRow>
+            <Table.HeadRow>ID</Table.HeadRow>
           </tr>
         </Table.Head>
         <Table.Body id="users-table-body" {...alpineAttrs}>
@@ -63,22 +66,25 @@ const UserTableRow = ({ user }: RowProps) => {
 
   return (
     <tr>
-      <td class="p-4">
+      <Table.BodyRow>
         {user.firstName} {user.lastName}
-      </td>
-      <td class="p-4">{user.email}</td>
-      <td>
+      </Table.BodyRow>
+      <Table.BodyRow>{user.email}</Table.BodyRow>
+      <Table.BodyRow>
+        <CreatorStatus userId={user.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
         <CopyCellCol entity={user.id} />
-      </td>
-      <td class="p-4">
+      </Table.BodyRow>
+      <Table.BodyRow>
         <a href={`/dashboard/admin/users/edit/${user.id}`}>
           <Button variant="outline" color="inverse">
             <span>Edit</span>
           </Button>
         </a>
-      </td>
+      </Table.BodyRow>
 
-      <td class="p-4">
+      <Table.BodyRow>
         <a
           href={`/dashboard/admin/users/generate-magic-link/${user.id}`}
           x-target="modal-root"
@@ -87,10 +93,20 @@ const UserTableRow = ({ user }: RowProps) => {
             <span>Generate Magic Link</span>
           </Button>
         </a>
-      </td>
-      <td class="p-4">
+      </Table.BodyRow>
+      <Table.BodyRow>
         <DeleteFormButton action={`/dashboard/admin/users/${user.id}`} />
-      </td>
+      </Table.BodyRow>
     </tr>
+  );
+};
+
+const CreatorStatus = async ({ userId }: { userId: string }) => {
+  const creator = await getCreatorByOwnerUserId(userId);
+  if (!creator) return <></>;
+  return (
+    <Link href={`/creators/${creator.slug}`} target="_blank">
+      <Badge>{capitalize(creator.status ?? "")}</Badge>
+    </Link>
   );
 };

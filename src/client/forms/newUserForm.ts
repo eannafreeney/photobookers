@@ -51,8 +51,7 @@ export function registerNewUserForm() {
           !ctx.emailIsTaken &&
           ctx.form.email &&
           ctx.form.firstName &&
-          ctx.form.lastName &&
-          ctx.form.password
+          ctx.form.lastName
         );
       },
 

@@ -6,7 +6,8 @@ import ValidateEmail from "../../../../auth/components/ValidateEmail";
 const CreateUserFormAdmin = () => {
   const alpineAttrs = {
     "x-data": "newUserForm()",
-    "x-target": "toast users-table-container new-user-form",
+    "x-target": "toast",
+    "x-on:ajax:success": "$dispatch('users:updated')",
   };
 
   return (
@@ -35,15 +36,6 @@ const CreateUserFormAdmin = () => {
             name="form.lastName"
             required
             validateInput="validateField('lastName')"
-          />
-        </div>
-        <div class="flex-1 min-w-0">
-          <Input
-            label="Password"
-            name="form.password"
-            type="password"
-            required
-            validateInput="validateField('password')"
           />
         </div>
         <FormButtons buttonText="Create" loadingText="Creating..." />
