@@ -21,7 +21,7 @@ import {
 } from "./types";
 import { showSuccessAlert } from "../../../../lib/alertHelpers";
 import { Context } from "hono";
-import AdminCreatorsTableAndFilter from "./components/adminCreatorsTableAndFilter";
+import AdminCreatorsTableAndFilter from "./components/AdminCreatorsTableAndFilter";
 import { assignUserAsCreatorOwnerAdmin } from "../claims/services";
 import AssignOwnerModalContent from "./components/AssignOwnerModalContent";
 
