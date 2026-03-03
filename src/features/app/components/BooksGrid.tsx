@@ -1,6 +1,7 @@
 import { AuthUser } from "../../../../types";
 import BookCard from "../../../components/app/BookCard";
 import GridPanel from "../../../components/app/GridPanel";
+import PageTitle from "../../../components/app/PageTitle";
 import { Pagination } from "../../../components/app/Pagination";
 import SectionTitle from "../../../components/app/SectionTitle";
 import SortDropdown from "../../../components/app/SortDropdown";
@@ -15,7 +16,8 @@ type Props = {
     page: number;
   };
   sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
-  title: string;
+  title?: string;
+  creator?: Creator;
 };
 
 const BooksGrid = async ({
@@ -24,6 +26,7 @@ const BooksGrid = async ({
   currentPath,
   sortBy,
   title,
+  creator,
 }: Props) => {
   const { books, totalPages, page } = result;
   const targetId = "books-grid";
@@ -37,8 +40,9 @@ const BooksGrid = async ({
 
   return (
     <>
-      <div class="flex justify-between items-center">
-        <SectionTitle>{title}</SectionTitle>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+        {title && <SectionTitle>{title}</SectionTitle>}
+        {creator && <PageTitle creator={creator} user={user} />}
         <SortDropdown sortBy={sortBy} currentPath={currentPath} />
       </div>
       <GridPanel isFullWidth id={targetId} xMerge="append">

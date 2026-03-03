@@ -36,6 +36,7 @@ const TagPage = async ({
     <AppLayout title={`# ${capitalize(tag)}`} user={user}>
       <Page>
         <BooksGrid
+          title={`# ${capitalize(tag)}`}
           user={user}
           currentPath={currentPath}
           sortBy={sortBy}

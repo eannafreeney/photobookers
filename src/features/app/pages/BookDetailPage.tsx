@@ -11,19 +11,12 @@ import ShareButton from "../../../components/app/ShareButton";
 import TagList from "../../../components/app/TagList";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
-import { Book, Creator } from "../../../db/schema";
 import { canEditBook } from "../../../lib/permissions";
 import ErrorPage from "../../../pages/error/errorPage";
 import { formatDate } from "../../../utils";
 import WishlistButton from "../../api/components/WishlistButton";
 import { getBookBySlug } from "../services";
-
-export type BookWithGalleryImages = Omit<
-  Book & { artist: Creator; publisher: Creator },
-  "images"
-> & {
-  images: { imageUrl: string }[];
-};
+import { BookWithGalleryImages } from "../types";
 
 type BookDetailPageProps = {
   user: AuthUser | null;

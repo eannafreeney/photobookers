@@ -42,6 +42,7 @@ const FeaturedBooksPage = async ({
         </FeatureGuard>
         <DiscoveryTags />
         <BooksGrid
+          title="New & Notable"
           user={user}
           currentPath={currentPath}
           sortBy={sortBy}

@@ -1,6 +1,5 @@
 // src/middleware/bookGuard.ts
 import { createMiddleware } from "hono/factory";
-import { getBookById, getBookBySlug } from "../services/books";
 import {
   canDeleteBook,
   canEditBook,
@@ -9,10 +8,10 @@ import {
   canUnpublishBook,
 } from "../lib/permissions";
 import { getUser } from "../utils";
-import Alert from "../components/app/Alert";
 import { Book } from "../db/schema";
 import { showErrorAlert } from "../lib/alertHelpers";
 import ErrorPage from "../pages/error/errorPage";
+import { getBookById, getBookBySlug } from "../features/app/services";
 
 type BookEnv = {
   Variables: {

@@ -6,12 +6,6 @@ import {
   supabaseStorageAdmin,
 } from "../lib/supabase";
 
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const payload = JSON.parse(Buffer.from(key.split(".")[1], "base64").toString());
-
-const anonKey = process.env.SUPABASE_ANON_KEY!;
-const x = JSON.parse(Buffer.from(anonKey.split(".")[1], "base64").toString());
-
 const BUCKET_NAME = "images";
 
 type UploadResult = {

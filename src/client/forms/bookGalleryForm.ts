@@ -142,10 +142,13 @@ export function registerBookGalleryForm() {
           formData.append("removedIds", JSON.stringify(this.removedIds));
 
           try {
-            const response = await fetch(event.target.action, {
-              method: "POST",
-              body: formData,
-            });
+            const response = await fetch(
+              (event.target as HTMLFormElement)?.action,
+              {
+                method: "POST",
+                body: formData,
+              },
+            );
 
             const html = await response.text();
 

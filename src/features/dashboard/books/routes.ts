@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { methodOverride } from "hono/method-override";
 import {
   approveBook,
   createBookAsArtist,
@@ -9,11 +10,14 @@ import {
   getEditBookPage,
   makeBookDraft,
   makeBookPublic,
-  rejectBook,
   updateBookAsArtist,
   updateBookAsPublisher,
 } from "./controllers";
-import { bookFormSchema, bookIdSchema } from "../../../schemas";
+import {
+  bookIdSchema,
+  deleteBookFormSchema,
+  publishToggleFormSchema,
+} from "../../../schemas";
 import { limitBooksPerDay } from "../../../middleware/booksPerDayLimit";
 import { formValidator, paramValidator } from "../../../lib/validator";
 import {
@@ -22,8 +26,13 @@ import {
   requireBookPublishAccess,
   requireBookUnpublishAccess,
 } from "../../../middleware/bookGuard";
+import { bookFormAdminSchema } from "../admin/books/schema";
 
 export const booksDashboardRoutes = new Hono();
+booksDashboardRoutes.use(
+  "/posts",
+  methodOverride({ app: booksDashboardRoutes }),
+);
 
 // GET
 booksDashboardRoutes.get("/", getBooksOverview);
@@ -33,56 +42,60 @@ booksDashboardRoutes.get(
   paramValidator(bookIdSchema),
   getEditBookPage,
 );
-// POST
 booksDashboardRoutes.post(
   "/new/publisher",
   limitBooksPerDay,
-  formValidator(bookFormSchema),
+  formValidator(bookFormAdminSchema),
   createBookAsPublisher,
 );
 booksDashboardRoutes.post(
   "/new/artist",
   limitBooksPerDay,
-  formValidator(bookFormSchema),
+  formValidator(bookFormAdminSchema),
   createBookAsArtist,
 );
 booksDashboardRoutes.post(
   "/edit/:bookId/publisher",
   paramValidator(bookIdSchema),
-  formValidator(bookFormSchema),
+  formValidator(bookFormAdminSchema),
   requireBookEditAccess,
   updateBookAsPublisher,
 );
-booksDashboardRoutes.post(
+booksDashboardRoutes.patch(
   "/edit/:bookId/artist",
   paramValidator(bookIdSchema),
-  formValidator(bookFormSchema),
+  formValidator(bookFormAdminSchema),
   requireBookEditAccess,
   updateBookAsArtist,
 );
-booksDashboardRoutes.post(
+booksDashboardRoutes.delete(
   "/delete/:bookId",
   paramValidator(bookIdSchema),
+  formValidator(deleteBookFormSchema),
   requireBookDeleteAccess,
   deleteBook,
 );
-booksDashboardRoutes.post(
+booksDashboardRoutes.patch(
   "/:bookId/publish",
+  paramValidator(bookIdSchema),
+  formValidator(publishToggleFormSchema),
   requireBookPublishAccess,
   makeBookPublic,
 );
-booksDashboardRoutes.post(
+booksDashboardRoutes.patch(
   "/:bookId/unpublish",
+  paramValidator(bookIdSchema),
+  formValidator(publishToggleFormSchema),
   requireBookUnpublishAccess,
   makeBookDraft,
 );
-booksDashboardRoutes.post(
-  "/:bookId/approve",
-  paramValidator(bookIdSchema),
-  approveBook,
-);
-booksDashboardRoutes.post(
-  "/:bookId/reject",
-  paramValidator(bookIdSchema),
-  rejectBook,
-);
+// booksDashboardRoutes.patch(
+//   "/:bookId/approve",
+//   paramValidator(bookIdSchema),
+//   approveBook,
+// );
+// booksDashboardRoutes.patch(
+//   "/:bookId/reject",
+//   paramValidator(bookIdSchema),
+//   rejectBook,
+// );

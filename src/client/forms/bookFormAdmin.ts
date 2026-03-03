@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { bookFormSchema } from "../../schemas";
+import { bookFormAdminSchema } from "../../features/dashboard/admin/books/schema";
 import z from "zod";
 import {
   createFormState,
@@ -10,15 +10,15 @@ import {
   validateField,
 } from "./formUtils";
 
-type BookFormData = z.infer<typeof bookFormSchema>;
+type BookFormAdminShape = z.infer<typeof bookFormAdminSchema>;
 
-const BOOK_FORM_FIELDS = Object.keys(bookFormSchema.shape);
+const BOOK_FORM_FIELDS = Object.keys(bookFormAdminSchema.shape);
 
 export function registerBookFormAdmin() {
   Alpine.data(
     "bookFormAdmin",
     (
-      formValues: Partial<BookFormData> = {},
+      formValues: Partial<BookFormAdminShape> = {},
       artistOptions = [],
       publisherOptions = [],
       isEditMode: boolean = false,
@@ -41,7 +41,7 @@ export function registerBookFormAdmin() {
         },
 
         validateField(field: string) {
-          return validateField(this, field, bookFormSchema);
+          return validateField(this, field, bookFormAdminSchema);
         },
 
         get isFormValid() {
@@ -72,7 +72,7 @@ export function registerBookFormAdmin() {
         },
 
         submitForm(event: Event) {
-          return handleSubmit(this, event, bookFormSchema);
+          return handleSubmit(this, event, bookFormAdminSchema);
         },
 
         onSuccess() {

@@ -1,5 +1,5 @@
-import { db } from "../db/client";
-import { bookOfTheWeek, BookOfTheWeek } from "../db/schema";
+import { db } from "../../db/client";
+import { bookOfTheWeek, BookOfTheWeek } from "../../db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 /** Normalize to start of day UTC for consistent storage/comparison */
@@ -76,6 +76,7 @@ export async function getBookOfTheWeekForDateQuery(date: Date) {
           coverUrl: true,
           artistId: true,
           publisherId: true,
+          tags: true,
         },
         with: {
           artist: {

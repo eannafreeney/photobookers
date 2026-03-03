@@ -1,0 +1,181 @@
+import Alert from "../../../../components/app/Alert";
+import EditCreatorPageAdmin from "./Pages/EditCreatorPageAdmin";
+import { showErrorAlert } from "../../../../lib/alertHelpers";
+import { getUser } from "../../../../utils";
+import CreatorFormAdmin from "./components/CreatorFormAdmin";
+import AssignOwnerModal from "./modals/AssignOwnerModal";
+import AdminCreatorsOverviewPage from "./Pages/AdminCreatorsOverviewPage";
+import {
+  createStubCreatorProfileAdmin,
+  deleteCreatorByIdAdmin,
+  getAllUserProfilesAdmin,
+  getCreatorByIdAdmin,
+  updateCreatorProfileAdmin,
+} from "./services";
+import {
+  AssignOwnerContext,
+  CreateCreatorAdminContext,
+  CreatorIdContext,
+  EditCreatorPageAdminContext,
+  UpdateCreatorAdminContext,
+} from "./types";
+import { showSuccessAlert } from "../../../../lib/alertHelpers";
+import { Context } from "hono";
+import AdminCreatorsTableAndFilter from "./components/adminCreatorsTableAndFilter";
+import { assignUserAsCreatorOwnerAdmin } from "../claims/services";
+import AssignOwnerModalContent from "./components/AssignOwnerModalContent";
+
+export const getCreatorsOverviewPage = async (c: Context) => {
+  const user = await getUser(c);
+  const searchQuery = c.req.query("search");
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
+  return c.html(
+    <AdminCreatorsOverviewPage
+      user={user}
+      searchQuery={searchQuery}
+      currentPage={currentPage}
+      currentPath={currentPath}
+    />,
+  );
+};
+
+export const getCreatorsTableFilter = async (c: Context) => {
+  const rawType = c.req.query("type");
+  const type =
+    rawType === "artist" || rawType === "publisher" ? rawType : undefined;
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
+  const searchQuery = c.req.query("search");
+
+  return c.html(
+    <AdminCreatorsTableAndFilter
+      type={type}
+      currentPage={currentPage}
+      searchQuery={searchQuery}
+      currentPath={currentPath}
+    />,
+  );
+};
+
+export const getEditCreatorPageAdmin = async (
+  c: EditCreatorPageAdminContext,
+) => {
+  const user = await getUser(c);
+  const creatorId = c.req.valid("param").creatorId;
+  const creator = await getCreatorByIdAdmin(creatorId);
+  if (!creator) {
+    return showErrorAlert(c, "Creator not found");
+  }
+  const currentPath = c.req.path;
+  const currentPage = Number(c.req.query("page") ?? 1);
+
+  return c.html(
+    <EditCreatorPageAdmin
+      user={user}
+      creator={creator}
+      currentPath={currentPath}
+      currentPage={currentPage}
+    />,
+  );
+};
+
+export const updateCreatorAdmin = async (c: UpdateCreatorAdminContext) => {
+  const formData = c.req.valid("form");
+  const creatorId = c.req.valid("param").creatorId;
+
+  const updatedCreator = await updateCreatorProfileAdmin(formData, creatorId);
+  if (!updatedCreator) {
+    return showErrorAlert(c, "Failed to update creator");
+  }
+  return c.html(
+    <>
+      <Alert type="success" message="Creator updated!" />
+      <CreatorFormAdmin />
+    </>,
+  );
+};
+
+export const createCreatorAdmin = async (c: CreateCreatorAdminContext) => {
+  const user = await getUser(c);
+  const formData = c.req.valid("form");
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
+  const displayName = formData.displayName;
+  const website = formData.website;
+  const type = formData.type;
+
+  try {
+    await createStubCreatorProfileAdmin(displayName, user.id, type, website);
+  } catch (error) {
+    return showErrorAlert(
+      c,
+      "Failed to create stub creator profile. Please try again.",
+    );
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message="Creator created!" />
+      <AdminCreatorsTableAndFilter
+        searchQuery={undefined}
+        currentPage={currentPage}
+        currentPath={currentPath}
+      />
+      <CreatorFormAdmin />
+    </>,
+  );
+};
+
+export const deleteCreatorAdmin = async (c: CreatorIdContext) => {
+  const creatorId = c.req.valid("param").creatorId;
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
+  const deletedCreator = await deleteCreatorByIdAdmin(creatorId);
+  if (!deletedCreator) {
+    return showErrorAlert(c, "Failed to delete creator");
+  }
+  return c.html(
+    <>
+      <Alert type="success" message="Creator deleted!" />
+      <AdminCreatorsTableAndFilter
+        searchQuery={undefined}
+        currentPage={currentPage}
+        currentPath={currentPath}
+      />
+    </>,
+  );
+};
+
+export const getAssignOwnerModal = async (c: CreatorIdContext) => {
+  const creatorId = c.req.valid("param").creatorId;
+  const creator = await getCreatorByIdAdmin(creatorId);
+  return c.html(
+    <AssignOwnerModal
+      creatorName={creator?.displayName ?? "this creator"}
+      creatorId={creatorId}
+    />,
+  );
+};
+
+export const getAssignOwnerModalContent = async (c: CreatorIdContext) => {
+  const creatorId = c.req.valid("param").creatorId;
+  const users = await getAllUserProfilesAdmin();
+  return c.html(
+    <AssignOwnerModalContent users={users} creatorId={creatorId} />,
+  );
+};
+
+export const assignOwnerAdmin = async (c: AssignOwnerContext) => {
+  const creatorId = c.req.valid("param").creatorId;
+  const userId = c.req.valid("form").userId;
+
+  try {
+    await assignUserAsCreatorOwnerAdmin(userId, creatorId);
+  } catch (err) {
+    console.error("Manual assign failed:", err);
+    return showErrorAlert(c, "Failed to assign creator. Please try again.");
+  }
+
+  return showSuccessAlert(c, "Creator assigned!");
+};

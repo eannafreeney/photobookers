@@ -1,5 +1,10 @@
 import Alpine from "alpinejs";
-import { bookFormSchema, claimFormSchema } from "../../schemas";
+import { claimFormSchema } from "../../features/claims/schema";
+import z from "zod";
+import { bookFormAdminSchema } from "../../features/dashboard/admin/books/schema";
+import { handleSubmit } from "./formUtils";
+
+type ClaimFormShape = z.infer<typeof claimFormSchema>;
 
 const CLAIM_FORM_FIELDS = Object.keys(claimFormSchema.shape);
 
@@ -9,6 +14,7 @@ export function registerClaimForm() {
       isSubmitting: false,
       form: {
         verificationUrl: props.creatorWebsite ?? "",
+        email: "",
       },
 
       initialValues: {
@@ -19,15 +25,8 @@ export function registerClaimForm() {
         form: {},
       },
 
-      // init() {
-      //   // Initialize with empty strings for create mode so isDirty works correctly
-      //   this.initialValues.form = Object.fromEntries(
-      //     CLAIM_FORM_FIELDS.map((key) => [key, ""])
-      //   );
-      // },
-
       validateField(field: string) {
-        const result = bookFormSchema.safeParse(this.form);
+        const result = bookFormAdminSchema.safeParse(this.form);
         const fieldError =
           result.error?.flatten().fieldErrors[
             field as keyof typeof this.errors.form
@@ -51,16 +50,7 @@ export function registerClaimForm() {
       },
 
       submitForm(event: Event) {
-        this.isSubmitting = true;
-        const result = bookFormSchema.safeParse(this.form);
-
-        if (!result.success) {
-          event.preventDefault();
-          this.isSubmitting = false;
-
-          this.errors.form = result.error.flatten().fieldErrors;
-          return;
-        }
+        return handleSubmit(this, event, claimFormSchema);
       },
     };
   });

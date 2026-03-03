@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import { useUser } from "../../contexts/UserContext";
 import { fadeTransition } from "../../lib/transitions";
-import Link from "../app/Link";
 import NavSearchMobile from "./NavSearchMobile";
 import { getInitialsAvatar } from "../../lib/avatar";
 
@@ -9,7 +8,7 @@ const NavMobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
   return (
     <div class="flex items-center gap-5 md:hidden">
       <NavSearchMobile />
-      <MobileMenu />
+      <MobileMenuButton />
       <MobileDropDownMenu currentPath={currentPath} />
     </div>
   );
@@ -17,32 +16,17 @@ const NavMobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
 
 export default NavMobileMenu;
 
-const MobileMenu = () => {
-  const user = useUser();
+const MobileMenuButton = () => {
   return (
-    <>
-      {!user && (
-        <>
-          <div class="text-sm">
-            <Link href="/auth/login">Login</Link>
-          </div>
-          <div class="text-sm">
-            <Link href="/auth/accounts">Register</Link>
-          </div>
-        </>
-      )}
-      {user && (
-        <button
-          x-on:click="mobileMenuIsOpen = !mobileMenuIsOpen"
-          x-bind:class="mobileMenuIsOpen ? 'fixed top-6 right-6 z-20' : null"
-          type="button"
-          class="flex text-on-surface sm:hidden"
-        >
-          {openMobileMenuIcon}
-          {closeMobileMenuIcon}
-        </button>
-      )}
-    </>
+    <button
+      x-on:click="mobileMenuIsOpen = !mobileMenuIsOpen"
+      x-bind:class="mobileMenuIsOpen ? 'fixed top-6 right-6 z-20' : null"
+      type="button"
+      class="flex text-on-surface sm:hidden"
+    >
+      {openMobileMenuIcon}
+      {closeMobileMenuIcon}
+    </button>
   );
 };
 
@@ -144,12 +128,22 @@ const MobileDropDownMenu = ({
           Admin Dashboard
         </NavLink>
       )}
-
-      <NavLink href="/user/my-account" currentPath={currentPath}>
-        Edit Account
+      {user && (
+        <NavLink href="/auth/logout" currentPath={currentPath}>
+          Logout
+        </NavLink>
+      )}
+      <NavLink href="/artists" currentPath={currentPath}>
+        Artists
       </NavLink>
-      <NavLink href="/auth/logout" currentPath={currentPath}>
-        Logout
+      <NavLink href="/publishers" currentPath={currentPath}>
+        Publishers
+      </NavLink>
+      <NavLink href="/about" currentPath={currentPath}>
+        About
+      </NavLink>
+      <NavLink href="/contact" currentPath={currentPath}>
+        Contact
       </NavLink>
     </ul>
   );

@@ -1,8 +1,49 @@
-import { and, count, eq, sql } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
-import { books, creators } from "../../db/schema";
+import { books, creators, follows, wishlists } from "../../db/schema";
 import { getPagination } from "../../lib/pagination";
 import { getBooksOrderBy } from "../../lib/booksOrderBy";
+
+export const getBooksInWishlist = async (
+  userId: string,
+  currentPage: number,
+  defaultLimit = 12,
+) => {
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(wishlists)
+      .where(eq(wishlists.userId, userId));
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const wishlistItems = await db.query.wishlists.findMany({
+      where: eq(wishlists.userId, userId),
+    });
+
+    const wishlistedBooks = await db.query.books.findMany({
+      where: inArray(
+        books.id,
+        wishlistItems.map((wishlist) => wishlist.bookId),
+      ),
+      with: {
+        artist: true,
+        publisher: true,
+      },
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      limit: limit,
+      offset: offset,
+    });
+    return { books: wishlistedBooks, totalPages, page };
+  } catch (error) {
+    console.error("Failed to get books in wishlist", error);
+    return null;
+  }
+};
 
 export const getBooksByCreatorSlug = async (
   slug: string,
@@ -197,5 +238,167 @@ export const getLatestBooks = async (
   } catch (error) {
     console.error("Failed to get books", error);
     return { books: [], totalPages: 0, page: 1 };
+  }
+};
+
+export const getBookById = async (bookId: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      with: {
+        publisher: true,
+        artist: true,
+        bookOfTheWeekEntry: true,
+        images: {
+          orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+        },
+      },
+    });
+    return book ?? null;
+  } catch (error) {
+    console.error("Failed to get book by id", error);
+    return null;
+  }
+};
+
+export const getFeedBooks = async (
+  userId: string,
+  currentPage: number,
+  defaultLimit = 12,
+) => {
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(follows)
+      .where(eq(follows.followerUserId, userId));
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const userFollows = await db.query.follows.findMany({
+      where: and(
+        eq(follows.followerUserId, userId),
+        eq(follows.targetType, "creator"),
+      ),
+    });
+
+    const followedCreatorIds = userFollows
+      .map((follow) => follow.targetCreatorId)
+      .filter((id): id is string => id !== null);
+
+    // Find books where artistCreatorId or publisherId is in the followed creators list
+    const feedBooks = await db.query.books.findMany({
+      where: and(
+        or(
+          inArray(books.artistId, followedCreatorIds),
+          inArray(books.publisherId, followedCreatorIds),
+        ),
+        eq(books.publicationStatus, "published"),
+      ),
+      with: {
+        artist: {
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+          },
+        },
+        publisher: {
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      limit: limit,
+      offset: offset,
+    });
+    return { books: feedBooks, totalPages, page };
+  } catch (error) {
+    console.error("Failed to get feed books", error);
+    return null;
+  }
+};
+
+export const getAllCreatorsByType = async (
+  type: "artist" | "publisher",
+  currentPage: number = 1,
+  defaultLimit = 50,
+) => {
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(creators)
+      .where(eq(creators.type, type));
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+    const foundCreators = await db.query.creators.findMany({
+      where: eq(creators.type, type),
+      orderBy: (creators, { asc }) => [asc(creators.displayName)],
+      limit,
+      offset,
+      with: {
+        booksAsArtist: {
+          where: eq(books.publicationStatus, "published"),
+        },
+        booksAsPublisher: {
+          where: eq(books.publicationStatus, "published"),
+        },
+      },
+    });
+
+    const creatorsWithBooks = foundCreators
+      .filter(
+        (creator) =>
+          creator.booksAsArtist.length + creator.booksAsPublisher.length >= 1,
+      )
+      .map((creator) => ({
+        ...creator,
+        books: creator.booksAsArtist.length + creator.booksAsPublisher.length,
+      }));
+
+    return { creators: creatorsWithBooks, totalPages, page };
+  } catch (error) {
+    console.error("Failed to get all creators by type", error);
+    return { creators: [], totalPages: 0, page: 1 };
+  }
+};
+
+export const searchCreators = async (searchQuery: string) => {
+  // find creators with at least one book
+  try {
+    const foundCreators = await db.query.creators.findMany({
+      where: and(
+        ilike(creators.displayName, `%${searchQuery}%`),
+        // exists(db.select().from(books).where(eq(books.artistId, creators.id))),
+      ),
+      with: {
+        booksAsArtist: {
+          where: eq(books.publicationStatus, "published"),
+        },
+        booksAsPublisher: {
+          where: eq(books.publicationStatus, "published"),
+        },
+      },
+      orderBy: (creators, { asc }) => [asc(creators.displayName)],
+      limit: 5,
+    });
+
+    return foundCreators.filter(
+      (creator) =>
+        creator.booksAsArtist.length > 0 || creator.booksAsPublisher.length > 0,
+    );
+  } catch (error) {
+    console.error("Failed to search creators", error);
+    return [];
   }
 };

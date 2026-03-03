@@ -29,11 +29,7 @@ const NavDesktopMenu = ({ currentPath }: Props) => {
       {/* <!-- User Pic --> */}
       {user && (
         <li
-          x-data="{ userDropDownIsOpen: false, openWithKeyboard: false }"
-          {...{
-            "x-on:keydown.esc.window":
-              "userDropDownIsOpen = false, openWithKeyboard = false",
-          }}
+          x-data="{ userDropDownIsOpen: false }"
           class="relative flex items-center"
         >
           <NavAvatar
@@ -85,13 +81,9 @@ const DropDownMenu = ({
 }) => {
   const alpineAttrs = {
     "x-cloak": "",
-    "x-show": "userDropDownIsOpen || openWithKeyboard",
-    "x-trap": "openWithKeyboard",
+    "x-show": "userDropDownIsOpen",
     "x-transition.opacity": "",
-    "x-on:click.outside":
-      "userDropDownIsOpen = false, openWithKeyboard = false",
-    "x-on:keydown.down.prevent": "$focus.wrap().next()",
-    "x-on:keydown.up.prevent": "$focus.wrap().previous()",
+    "x-on:click.outside": "userDropDownIsOpen = false",
   };
   return (
     <ul
@@ -133,7 +125,7 @@ const DropDownMenu = ({
         </>
       )}
       {user?.isAdmin && (
-        <NavLink href="/dashboard/admin" currentPath={currentPath}>
+        <NavLink href="/dashboard/admin/books" currentPath={currentPath}>
           Admin Dashboard
         </NavLink>
       )}

@@ -2,7 +2,33 @@ import { Context } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
 import { setCookie } from "hono/cookie";
 import { db } from "../../db/client";
-import { users } from "../../db/schema";
+import { creators, users } from "../../db/schema";
+import { and, eq, ne } from "drizzle-orm";
+import { normalizeUrl } from "../../services/verification";
+
+export const setCookiesAndVerifyUser = async (
+  c: Context,
+  accessToken: string,
+  refreshToken: string,
+  expiresIn: number,
+  userId: string,
+) => {
+  setAccessToken(c, accessToken, expiresIn);
+  setRefreshToken(c, refreshToken);
+
+  await markCreatorsOwnedByUserAsVerified(userId);
+};
+
+const markCreatorsOwnedByUserAsVerified = async (userId: string) => {
+  await db
+    .update(creators)
+    .set({
+      status: "verified",
+    })
+    .where(
+      and(eq(creators.ownerUserId, userId), ne(creators.status, "verified")),
+    );
+};
 
 export function getAuthCookieOptions(): {
   httpOnly: true;
@@ -58,8 +84,13 @@ export async function loginAndSetCookies(
 
   const { access_token, refresh_token, expires_in } = data.session;
 
-  setAccessToken(c, access_token, expires_in);
-  setRefreshToken(c, refresh_token);
+  await setCookiesAndVerifyUser(
+    c,
+    access_token,
+    refresh_token,
+    expires_in,
+    data.user.id,
+  );
 }
 
 export const setAccessToken = (
@@ -89,3 +120,13 @@ export const createUser = async (userId: string, email: string) => {
     })
     .onConflictDoNothing({ target: users.id });
 };
+
+export const getCreatorByDisplayName = (displayName: string) =>
+  db.query.creators.findFirst({
+    where: eq(creators.displayName, displayName),
+  });
+
+export const getCreatorByWebsite = (website: string) =>
+  db.query.creators.findFirst({
+    where: eq(creators.website, normalizeUrl(website)),
+  });

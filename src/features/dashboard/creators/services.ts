@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { creators, NewCreator } from "../../../db/schema";
 import { getRandomCoverUrl, slugify } from "../../../utils";
@@ -37,4 +38,15 @@ export const createCreatorProfile = async (input: NewCreator) => {
     console.error("Failed to create artist", error);
     return null;
   }
+};
+
+export const getCreatorById = async (creatorId: string) => {
+  const creator = await db.query.creators.findFirst({
+    where: eq(creators.id, creatorId),
+    with: {
+      booksAsArtist: true,
+      booksAsPublisher: true,
+    },
+  });
+  return creator ?? null;
 };

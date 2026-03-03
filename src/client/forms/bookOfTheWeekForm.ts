@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { bookOfTheWeekFormSchema } from "../../schemas";
+import { bookOfTheWeekFormSchema } from "../../features/dashboard/admin/book-of-the-week/schema";
 import z from "zod";
 import {
   createFormState,
@@ -35,11 +35,17 @@ export function registerBookOfTheWeekForm() {
         },
 
         get isFormValid() {
+          const ctx = this as unknown as {
+            errors: { form: Record<keyof BookOfTheWeekFormData, string> };
+            form: BookOfTheWeekFormData;
+            isDirty: boolean;
+          };
+
           return (
-            this.isDirty &&
-            Object.values(this.errors.form).every((err) => !err) &&
-            this.form.weekStart &&
-            this.form.text
+            ctx.isDirty &&
+            Object.values(ctx.errors.form).every((err) => !err) &&
+            ctx.form.weekStart &&
+            ctx.form.text
           );
         },
 

@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { creatorFormSchema } from "../../schemas";
+import { creatorFormAdminSchema } from "../../features/dashboard/admin/creators/schemas";
 import z from "zod";
 import {
   createFormState,
@@ -10,15 +10,15 @@ import {
   validateField,
 } from "./formUtils";
 
-type CreatorFormData = z.infer<typeof creatorFormSchema>;
+type CreatorFormAdminShape = z.infer<typeof creatorFormAdminSchema>;
 
-const CREATOR_FORM_FIELDS = Object.keys(creatorFormSchema.shape);
+const CREATOR_FORM_FIELDS = Object.keys(creatorFormAdminSchema.shape);
 
 export function registerEditCreatorFormAdmin() {
   Alpine.data(
     "editCreatorFormAdmin",
     (
-      formValues: Partial<CreatorFormData> = {},
+      formValues: Partial<CreatorFormAdminShape> = {},
       isEditMode: boolean = false,
     ) => {
       return {
@@ -26,7 +26,6 @@ export function registerEditCreatorFormAdmin() {
         isDisplayNameChecking: false,
         displayNameAvailabilityStatus: "",
         displayNameIsTaken: false,
-        artistSearchResults: "",
 
         ...createFormState(CREATOR_FORM_FIELDS, formValues),
 
@@ -39,20 +38,27 @@ export function registerEditCreatorFormAdmin() {
         },
 
         validateField(field: string) {
-          return validateField(this, field, creatorFormSchema);
+          return validateField(this, field, creatorFormAdminSchema);
         },
 
         get isFormValid() {
+          const ctx = this as unknown as {
+            errors: { form: Record<keyof CreatorFormAdminShape, string> };
+            form: CreatorFormAdminShape;
+            isDirty: boolean;
+            displayNameIsTaken: boolean;
+            isDisplayNameChecking: boolean;
+          };
           return (
-            this.isDirty &&
-            Object.values(this.errors.form).every((err) => !err) &&
-            !this.displayNameIsTaken &&
-            !this.isDisplayNameChecking
+            ctx.isDirty &&
+            Object.values(ctx.errors.form).every((err) => !err) &&
+            !ctx.displayNameIsTaken &&
+            !ctx.isDisplayNameChecking
           );
         },
 
         submitForm(event: Event) {
-          return handleSubmit(this, event, creatorFormSchema);
+          return handleSubmit(this, event, creatorFormAdminSchema);
         },
 
         onSuccess() {
@@ -60,28 +66,7 @@ export function registerEditCreatorFormAdmin() {
         },
 
         onError() {
-          this.isSubmitting = false;
-        },
-
-        async checkDisplayNameAvailability() {
-          if (!this.form.displayName) return;
-
-          this.isDisplayNameChecking = true;
-          try {
-            const response = await fetch(
-              `/api/check-displayName?displayName=${encodeURIComponent(
-                this.form.displayName,
-              )}`,
-            );
-            const html = await response.text();
-
-            this.displayNameAvailabilityStatus = html;
-            this.displayNameIsTaken = html.includes("text-error");
-          } catch (error) {
-            console.error("Failed to check email availability", error);
-          } finally {
-            this.isDisplayNameChecking = false;
-          }
+          (this as unknown as { isSubmitting: boolean }).isSubmitting = false;
         },
       };
     },

@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { getFlash, getUser } from "../../utils";
 import { getIsMobile } from "../../lib/device";
-import WishlistedBooks from "../../components/app/WishlistedBooks";
+import WishlistedBooks from "./components/WishlistedBooks";
 import CreatorDetailPage from "./pages/CreatorDetailPage";
 import BookDetailPage from "./pages/BookDetailPage";
 import TagPage from "./pages/TagPage";

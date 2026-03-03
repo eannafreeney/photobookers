@@ -3,8 +3,9 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
-import { getBooksInWishlist } from "../../../services/books";
 import BooksGrid from "../components/BooksGrid";
+import LoggedOutScreen from "../components/LoggedOutScreen";
+import { getBooksInWishlist } from "../services";
 
 type Props = {
   user: AuthUser | null;
@@ -21,11 +22,15 @@ const LibraryPage = async ({
 }: Props) => {
   if (!user) {
     return (
-      <LoggedOutLibraryScreen
+      <LoggedOutScreen
+        title="Wishlisted Books"
+        description="view your wishlisted books"
         user={user}
         flash={flash}
         currentPath={currentPath}
-      />
+      >
+        {icon}
+      </LoggedOutScreen>
     );
   }
 
@@ -45,7 +50,6 @@ const LibraryPage = async ({
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        {/* <SectionTitle>Wishlisted Books</SectionTitle> */}
         <div id="wishlist-books-container" x-merge="replace" {...alpineAttrs}>
           <BooksGrid
             title="Wishlisted Books"
@@ -55,55 +59,12 @@ const LibraryPage = async ({
             result={result}
           />
         </div>
-        {/* <WishlistedBooks
-          user={user}
-          currentPage={currentPage}
-          currentPath={currentPath}
-        /> */}
       </Page>
     </AppLayout>
   );
 };
 
 export default LibraryPage;
-
-type LoggedOutProps = {
-  user: AuthUser | null;
-  flash: Flash;
-  currentPath: string;
-};
-
-const LoggedOutLibraryScreen = ({
-  user,
-  flash,
-  currentPath,
-}: LoggedOutProps) => (
-  <AppLayout title="Books" user={user} flash={flash}>
-    <Page>
-      <NavTabs currentPath={currentPath} />
-      <div class="flex flex-col items-center justify-center mt-4 text-center text-on-surface">
-        <SectionTitle>Wishlisted Books</SectionTitle>
-        <p>Manage your wishlist.</p>
-        {icon}
-        <div class="flex flex-col gap-4 justify-center items-center mt-8">
-          <span>Login or register to view your feed.</span>
-          <div class="flex gap-2 justify-center items-center">
-            <a href="/auth/login">
-              <Button variant="solid" color="inverse">
-                Login
-              </Button>
-            </a>
-            <a href="/auth/register">
-              <Button variant="solid" color="primary">
-                Register
-              </Button>
-            </a>
-          </div>
-        </div>
-      </div>
-    </Page>
-  </AppLayout>
-);
 
 const icon = (
   <svg

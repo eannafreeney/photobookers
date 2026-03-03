@@ -1,7 +1,10 @@
 import Alpine from "alpinejs";
-import { registerFanFormSchema } from "../../schemas";
+import { registerFanFormSchema } from "../../features/auth/schema";
 import { createRegisterFormUtils } from "./registerFormUtils";
 import { handleSubmit, validateField } from "./formUtils";
+import z from "zod";
+
+type RegisterFanFormShape = z.infer<typeof registerFanFormSchema>;
 
 export function registerRegisterFanForm() {
   Alpine.data("registerFanForm", () => {
@@ -40,17 +43,23 @@ export function registerRegisterFanForm() {
       ...createRegisterFormUtils(),
 
       get isFormValid() {
+        const ctx = this as unknown as {
+          errors: { form: Record<keyof RegisterFanFormShape, string> };
+          form: RegisterFanFormShape;
+          isEmailChecking: boolean;
+          emailIsTaken: boolean;
+        };
         return (
-          Object.values(this.errors.form).every((err) => !err) &&
-          this.form.firstName &&
-          this.form.lastName &&
-          this.form.email &&
-          this.form.password &&
-          this.form.confirmPassword &&
-          this.form.confirmPassword === this.form.password &&
-          this.form.agreeToTerms &&
-          !this.isEmailChecking &&
-          !this.emailIsTaken
+          Object.values(ctx.errors.form).every((err) => !err) &&
+          ctx.form.firstName &&
+          ctx.form.lastName &&
+          ctx.form.email &&
+          ctx.form.password &&
+          ctx.form.confirmPassword &&
+          ctx.form.confirmPassword === ctx.form.password &&
+          ctx.form.agreeToTerms &&
+          !ctx.isEmailChecking &&
+          !ctx.emailIsTaken
         );
       },
 

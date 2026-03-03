@@ -2,9 +2,9 @@ import { createMiddleware } from "hono/factory";
 import { getUser } from "../utils";
 import { showErrorAlert } from "../lib/alertHelpers";
 import { User } from "../db/schema";
-import { getBookById } from "../services/books";
 import { canEditBook, canEditCreator } from "../lib/permissions";
-import { getCreatorById } from "../services/creators";
+import { getBookById } from "../features/app/services";
+import { getCreatorById } from "../features/dashboard/creators/services";
 
 type ImageEnv = {
   Variables: {

@@ -1,22 +1,19 @@
 import Alpine from "alpinejs";
-import { registerCreatorFormSchema } from "../../schemas";
+import { registerCreatorFormSchema } from "../../features/auth/schema";
 import { createRegisterFormUtils } from "./registerFormUtils";
 import { handleSubmit } from "./formUtils";
+import z from "zod";
+
+type RegisterCreatorFormShape = z.infer<typeof registerCreatorFormSchema>;
 
 export function registerRegisterCreatorForm() {
   Alpine.data("registerCreatorForm", () => {
     return {
       isSubmitting: false,
-      isEmailChecking: false,
-      isDisplayNameChecking: false,
-      isWebsiteChecking: false,
-      emailAvailabilityStatus: "",
-      displayNameAvailabilityStatus: "",
-      websiteAvailabilityStatus: "",
-      emailIsTaken: false,
-      displayNameIsTaken: false,
-      websiteIsTaken: false,
-      _emailAbortController: null as AbortController | null,
+      emailIsAvailable: true,
+      displayNameIsAvailable: true,
+      websiteIsAvailable: true,
+
       form: {
         displayName: "",
         website: "",
@@ -42,27 +39,23 @@ export function registerRegisterCreatorForm() {
       ...createRegisterFormUtils(),
 
       get isFormValid() {
+        const ctx = this as unknown as {
+          errors: { form: Record<keyof RegisterCreatorFormShape, string> };
+          form: RegisterCreatorFormShape;
+          emailIsAvailable: boolean;
+        };
         return (
-          Object.values(this.errors.form).every((err) => !err) &&
-          this.form.displayName &&
-          this.form.website &&
-          this.form.type &&
-          this.form.email &&
-          this.form.password &&
-          this.form.confirmPassword &&
-          this.form.confirmPassword === this.form.password &&
-          this.form.agreeToTerms &&
-          !this.isEmailChecking &&
-          !this.emailIsTaken &&
-          !this.isDisplayNameChecking &&
-          !this.displayNameIsTaken &&
-          !this.isWebsiteChecking &&
-          !this.websiteIsTaken
+          Object.values(ctx.errors.form).every((err) => !err) &&
+          ctx.form.displayName &&
+          ctx.form.website &&
+          ctx.form.type &&
+          ctx.form.email &&
+          ctx.form.password &&
+          ctx.form.confirmPassword &&
+          ctx.form.confirmPassword === ctx.form.password &&
+          ctx.form.agreeToTerms &&
+          ctx.emailIsAvailable
         );
-      },
-
-      $destroy() {
-        this._emailAbortController?.abort();
       },
 
       submitForm(event: Event) {

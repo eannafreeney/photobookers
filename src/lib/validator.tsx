@@ -4,6 +4,7 @@ import { showErrorAlert } from "./alertHelpers";
 
 export const formValidator = <T extends z.ZodSchema>(schema: T) => {
   return validator("form", (formData, c) => {
+    console.log("formData", formData);
     const result = schema.safeParse(formData);
     if (!result.success) {
       console.log("result.error", result.error);
@@ -23,12 +24,15 @@ export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
   });
 };
 
-// export type ValidatedFile = {
-//   arrayBuffer: () => Promise<ArrayBuffer>;
-//   name: string;
-//   type: string;
-//   size: number;
-// };
+export const jsonValidator = <T extends z.ZodSchema>(schema: T) => {
+  return validator("json", (value, c) => {
+    const result = schema.safeParse(value);
+    if (!result.success) {
+      return showErrorAlert(c, "Invalid request body");
+    }
+    return result.data as z.infer<T>;
+  });
+};
 
 export type FileValidationResult =
   | { success: true; file: File }

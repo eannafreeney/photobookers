@@ -1,29 +1,35 @@
 import { Context } from "hono";
 import { getFlash, getUser, setFlash } from "../../utils";
-import AccountsPage from "../../pages/auth/AccountsPage";
-import LoginPage from "../../pages/auth/LoginPage";
-import RegisterPage from "../../pages/auth/RegisterPage";
-import ResendVerificationPage from "../../pages/auth/ResendVerificationPage";
+import AccountsPage from "./pages/AccountsPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ResendVerificationPage from "./pages/ResendVerificationPage";
 import {
   createSupabaseClient,
   supabaseAdmin,
   supabaseAnon,
 } from "../../lib/supabase";
-import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
+import { showErrorAlert } from "../../lib/alertHelpers";
 import {
   LoginFormContext,
   RegisterCreatorFormContext,
   RegisterFanFormContext,
+  ResetPasswordFormContext,
+  ValidateDisplayNameContext,
+  ValidateEmailContext,
+  ValidateWebsiteContext,
   VerificationFormContext,
 } from "./types";
 import {
   createUser,
+  getCreatorByDisplayName,
+  getCreatorByWebsite,
   loginAndSetCookies,
   setAccessToken,
+  setCookiesAndVerifyUser,
   setRefreshToken,
 } from "./services";
 import { normalizeUrl } from "../../services/verification";
-import { createStubCreatorProfile } from "../../services/creators";
 import { createClaim, deleteClaim } from "../claims/services";
 import { generateClaimEmail } from "../claims/emails";
 import ErrorPage from "../../pages/error/errorPage";
@@ -31,10 +37,14 @@ import { db } from "../../db/client";
 import { users } from "../../db/schema";
 import { getCallbackErrorMessage } from "./utils";
 import { deleteCookie } from "hono/cookie";
-import Modal from "../../components/app/Modal";
-import Input from "../../components/cms/ui/Input";
-import FormButtons from "../../components/cms/ui/FormButtons";
-import Alert from "../../components/app/Alert";
+import ForceResetPasswordPage from "./pages/ForceResetPasswordPage";
+import MagicLinkHashHandlerPage from "./pages/MagicLinkHashHandlerPage";
+import ResetPasswordModal from "./modals/ResetPasswordModal";
+import ValidateEmail from "./components/ValidateEmail";
+import ValidateDisplayName from "./components/ValidateDisplayName";
+import ValidateWebsite from "./components/ValidateWebsite";
+import { createStubCreatorProfile } from "../dashboard/creators/services";
+import { findUserByEmailAdmin } from "../dashboard/admin/creators/services";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -298,8 +308,13 @@ export const processRegister = async (c: Context) => {
 
   const { access_token, refresh_token, expires_in } = data.session;
 
-  setAccessToken(c, access_token, expires_in);
-  setRefreshToken(c, refresh_token);
+  await setCookiesAndVerifyUser(
+    c,
+    access_token,
+    refresh_token,
+    expires_in,
+    data.user.id,
+  );
 
   // Now get user from the session (no need for another getUser call)
   const user = data.session.user;
@@ -332,18 +347,151 @@ export const processRegister = async (c: Context) => {
 };
 
 export const logout = async (c: Context) => {
-  const redirectUrl = c.req.query("redirectUrl");
-  console.log("redirectUrl", redirectUrl);
-  const safePath =
-    redirectUrl &&
-    !redirectUrl.startsWith("/auth/") &&
-    redirectUrl.startsWith("/")
-      ? redirectUrl
-      : "/";
+  const user = await getUser(c);
+  if (!user) return c.redirect("/auth/login");
+
   const { error } = await supabaseAdmin.auth.signOut();
 
   if (error) return showErrorAlert(c);
 
   deleteCookie(c, "token");
-  return c.redirect(safePath);
+  return c.redirect("/");
+};
+
+export const getForceResetPasswordPage = async (c: Context) => {
+  const user = await getUser(c);
+  if (user) {
+    return c.html(<ForceResetPasswordPage user={user} />);
+  }
+  return c.html(<MagicLinkHashHandlerPage />);
+};
+
+export const getResetPasswordModal = async (c: Context) => {
+  const user = await getUser(c);
+  if (!user) return c.redirect("/auth/login");
+  return c.html(<ResetPasswordModal />);
+};
+
+export const resetPassword = async (c: ResetPasswordFormContext) => {
+  const user = await getUser(c);
+  if (!user) return c.redirect("/auth/login");
+
+  const formData = c.req.valid("form");
+  const password = formData.password as string;
+  const confirmPassword = formData.confirmPassword as string;
+
+  if (password !== confirmPassword)
+    return showErrorAlert(c, "Passwords do not match");
+  if (password.length < 8)
+    return showErrorAlert(c, "Password must be at least 8 characters");
+
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+    password,
+  });
+
+  if (error) return showErrorAlert(c, error.message);
+
+  const { data } = await supabaseAnon.auth.signInWithPassword({
+    email: user.email,
+    password,
+  });
+
+  if (!data.session) return showErrorAlert(c, "Failed to sign in");
+
+  await setCookiesAndVerifyUser(
+    c,
+    data.session.access_token,
+    data.session.refresh_token,
+    data.session.expires_in,
+    data.user.id,
+  );
+
+  console.log("user", data.user);
+
+  await setFlash(c, "success", "Your password has been reset successfully!");
+  return c.redirect("/");
+};
+
+export const setSession = async (c: Context) => {
+  let body: {
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+  };
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "Invalid body" }, 400);
+  }
+  const access_token = body.access_token;
+  const refresh_token = body.refresh_token ?? "";
+  const expires_in =
+    typeof body.expires_in === "number" ? body.expires_in : 3600;
+
+  if (!access_token || typeof access_token !== "string") {
+    return c.json({ error: "Missing access_token" }, 400);
+  }
+
+  const {
+    data: { user },
+    error,
+  } = await supabaseAdmin.auth.getUser(access_token);
+  if (error || !user) {
+    return c.json({ error: "Invalid or expired token" }, 401);
+  }
+
+  try {
+    await db
+      .insert(users)
+      .values({
+        id: user.id,
+        email: user.email!,
+        firstName: user.user_metadata?.firstName ?? null,
+        lastName: user.user_metadata?.lastName ?? null,
+      })
+      .onConflictDoNothing({ target: users.id });
+  } catch (dbError) {
+    console.error("Database error during set-session:", dbError);
+    return c.json(
+      { error: "Failed to create account. Please try again." },
+      500,
+    );
+  }
+
+  await setCookiesAndVerifyUser(
+    c,
+    access_token,
+    refresh_token,
+    expires_in,
+    user.id,
+  );
+
+  return c.json({ ok: true });
+};
+
+export const validateEmail = async (c: ValidateEmailContext) => {
+  const email = c.req.valid("form").email;
+
+  const existingUser = await findUserByEmailAdmin(email);
+  const isAvailable = !Boolean(existingUser);
+
+  return c.html(<ValidateEmail isAvailable={isAvailable} />);
+};
+
+export const validateDisplayName = async (c: ValidateDisplayNameContext) => {
+  const displayName = c.req.valid("form").displayName;
+
+  const existingCreator = await getCreatorByDisplayName(displayName);
+  const isAvailable = !Boolean(existingCreator);
+
+  return c.html(<ValidateDisplayName isAvailable={isAvailable} />);
+};
+
+export const validateWebsite = async (c: ValidateWebsiteContext) => {
+  const website = c.req.valid("form").website;
+
+  const existingWebsite = await getCreatorByWebsite(website);
+  const isAvailable = !Boolean(existingWebsite);
+
+  return c.html(<ValidateWebsite isAvailable={isAvailable} />);
 };

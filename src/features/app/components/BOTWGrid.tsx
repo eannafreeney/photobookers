@@ -1,6 +1,8 @@
 import { AuthUser } from "../../../../types";
 import SectionTitle from "../../../components/app/SectionTitle";
+import { star } from "../../../lib/icons";
 import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
+import BookOfTheWeekCard from "./BOTWCard";
 import NewsletterCard from "./NewsletterCard";
 
 type Props = {
@@ -17,7 +19,7 @@ const BookOfTheWeekGrid = async ({ user, isMobile }: Props) => {
 
   return (
     <>
-      <SectionTitle>{star} Book of the Week</SectionTitle>
+      <SectionTitle>Book of the Week</SectionTitle>
       <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-end w-full">
         <div class="col-span-2 md:col-span-6">
           <BookOfTheWeekCard

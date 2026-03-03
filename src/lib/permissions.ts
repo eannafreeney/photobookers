@@ -2,11 +2,12 @@
 
 import { AuthUser } from "../../types";
 import { Book, Creator } from "../db/schema";
-import { BookWithGalleryImages } from "../pages/BookDetailPage";
+import { BookWithGalleryImages } from "../features/app/types";
+import { BookWithAdminRelations } from "../features/dashboard/admin/books/types";
 
 export function canEditBook(
   user: AuthUser | null,
-  book: BookWithGalleryImages,
+  book: BookWithGalleryImages | BookWithAdminRelations,
 ): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;

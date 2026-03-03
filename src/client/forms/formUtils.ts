@@ -48,9 +48,13 @@ export function validateField(
   schema: z.ZodSchema,
 ) {
   const result = schema.safeParse(context.form);
-  const fieldError = result.error?.flatten().fieldErrors[field];
+  const fieldErrors = result.error?.flatten().fieldErrors as Record<
+    string,
+    string[] | undefined
+  >;
+  const fieldError = fieldErrors?.[field];
 
-  if (fieldError && fieldError[0]) {
+  if (fieldError?.[0]) {
     context.errors.form[field] = fieldError[0];
   } else {
     delete context.errors.form[field];

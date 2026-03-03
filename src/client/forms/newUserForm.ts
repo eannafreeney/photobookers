@@ -1,5 +1,4 @@
 import Alpine from "alpinejs";
-import { creatorFormAdminSchema, newUserFormSchema } from "../../schemas";
 import {
   createFormState,
   getIsDirty,
@@ -9,14 +8,18 @@ import {
   validateField,
 } from "./formUtils";
 import { createRegisterFormUtils } from "./registerFormUtils";
+import { newUserFormAdminSchema } from "../../features/dashboard/admin/users/schema";
+import z from "zod";
+import { creatorFormAdminSchema } from "../../features/dashboard/admin/creators/schemas";
 
-const NEW_USER_FORM_FIELDS = Object.keys(newUserFormSchema.shape);
+type NewUserFormShape = z.infer<typeof newUserFormAdminSchema>;
+
+const NEW_USER_FORM_FIELDS = Object.keys(newUserFormAdminSchema.shape);
 
 export function registerNewUserForm() {
   Alpine.data("newUserForm", () => {
     return {
       isSubmitting: false,
-      emailAvailabilityStatus: "",
       emailIsTaken: false,
 
       ...createFormState(NEW_USER_FORM_FIELDS),
@@ -31,18 +34,23 @@ export function registerNewUserForm() {
       },
 
       validateField(field: string) {
-        return validateField(this, field, newUserFormSchema);
+        return validateField(this, field, newUserFormAdminSchema);
       },
 
       get isFormValid() {
+        const ctx = this as unknown as {
+          errors: { form: Record<keyof NewUserFormShape, string> };
+          form: NewUserFormShape;
+          emailIsTaken: boolean;
+          isDirty: boolean;
+        };
         return !!(
-          this.isDirty &&
-          Object.values(this.errors.form).every((err) => !err) &&
-          !this.emailIsTaken &&
-          this.form.email &&
-          this.form.firstName &&
-          this.form.lastName &&
-          this.form.password
+          ctx.isDirty &&
+          Object.values(ctx.errors.form).every((err) => !err) &&
+          !ctx.emailIsTaken &&
+          ctx.form.email &&
+          ctx.form.firstName &&
+          ctx.form.lastName
         );
       },
 
@@ -51,30 +59,11 @@ export function registerNewUserForm() {
       },
 
       onSuccess() {
-        resetFormBaseline(this, NEW_USER_FORM_FIELDS);
+        return resetFormBaseline(this, NEW_USER_FORM_FIELDS);
       },
 
       onError() {
-        this.isSubmitting = false;
-      },
-
-      async checkEmailAvailability() {
-        if (!this.form.email) return;
-
-        this.isEmailChecking = true;
-        try {
-          const response = await fetch(
-            `/api/check-email?email=${encodeURIComponent(this.form.email)}`,
-          );
-          const html = await response.text();
-
-          this.emailAvailabilityStatus = html;
-          this.emailIsTaken = html.includes("text-error");
-        } catch (error) {
-          console.error("Failed to check email availability", error);
-        } finally {
-          this.isEmailChecking = false;
-        }
+        (this as unknown as { isSubmitting: boolean }).isSubmitting = false;
       },
     };
   });

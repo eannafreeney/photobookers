@@ -1,21 +1,19 @@
 import { Context } from "hono";
 import { getFlash, getUser, setFlash } from "../../../utils";
 import { getIsMobile } from "../../../lib/device";
-import BooksOverview from "../../../pages/dashboard/BooksOverview";
-import AddBookPage from "../../../pages/dashboard/AddBookPage";
-import { resolveArtist, resolvePublisher } from "../../../services/creators";
+import BooksOverview from "./pages/BooksOverview";
+import AddBookPage from "./pages/AddBookPage";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
-import BookEditPage from "../../../pages/dashboard/BookEditPage";
+import BookEditPage from "./pages/BookEditPage";
 import {
   BookFormContext,
   BookFormWithBookContext,
   BookIdContext,
 } from "./types";
-import { BooksOverviewTable } from "../../../components/dashboard/BooksOverviewTable";
-import PublishToggleForm from "../../../components/cms/forms/PublishToggleForm";
-import PreviewButton from "../../../components/api/PreviewButton";
-import BooksForApprovalTable from "../../../components/cms/ui/BooksForApprovalTable";
+import PublishToggleForm from "./components/PublishToggleForm";
+import PreviewButton from "../../../features/api/components/PreviewButton";
+// import BooksForApprovalTable from "../../../components/cms/ui/BooksForApprovalTable";
 import {
   approveBookById,
   createBook,
@@ -26,6 +24,7 @@ import {
   prepareBookUpdateData,
   updateBookPublicationStatus,
 } from "./services";
+import { resolveArtist, resolvePublisher } from "../admin/creators/services";
 
 export const getBooksOverview = async (c: Context) => {
   const searchQuery = c.req.query("search");
@@ -235,7 +234,7 @@ export const approveBook = async (c: BookIdContext) => {
   return c.html(
     <>
       <Alert type="success" message="Book Approved!" />
-      <BooksForApprovalTable creatorId={user.creator.id} />
+      {/* <BooksForApprovalTable creatorId={user.creator.id} /> */}
     </>,
   );
 };
@@ -253,7 +252,7 @@ export const rejectBook = async (c: BookIdContext) => {
   return c.html(
     <>
       <Alert type="success" message="Book Rejected!" />
-      <BooksForApprovalTable creatorId={user.creator.id} />
+      {/* <BooksForApprovalTable creatorId={user.creator.id} /> */}
     </>,
   );
 };

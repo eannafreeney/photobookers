@@ -9,6 +9,7 @@ type APIButtonProps = {
   buttonText: ChildType;
   hiddenInput?: { name: string; value: boolean };
   isDisabled?: boolean;
+  currentPath?: string;
 };
 
 const APIButton = ({
@@ -18,6 +19,7 @@ const APIButton = ({
   buttonText,
   hiddenInput,
   isDisabled = false,
+  currentPath,
 }: APIButtonProps) => {
   const alpineAttrs = {
     "x-data": "{ isSubmitting: false }",
@@ -47,6 +49,9 @@ const APIButton = ({
           name={hiddenInput.name}
           value={hiddenInput.value ? "true" : "false"}
         />
+      )}
+      {currentPath && (
+        <input type="hidden" name="currentPath" value={currentPath} />
       )}
       <button
         class="flex cursor-pointer items-center justify-center gap-2 hover:cursor-pointer w-full disabled:opacity-50 hover:opacity-75"

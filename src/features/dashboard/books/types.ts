@@ -1,4 +1,5 @@
-import { bookFormSchema, bookIdSchema } from "../../../schemas";
+import { bookIdSchema } from "../../../schemas";
+import { bookFormSchema } from "./schema";
 import { z } from "zod";
 import { Env } from "hono/types";
 import { Context } from "hono";

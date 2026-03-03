@@ -1,11 +1,12 @@
 import { Creator } from "./src/db/schema";
+import type { Child } from "hono/jsx";
 
 export type Flash = {
-  type: "success" | "error" | "info";
+  type: "success" | "info" | "warning" | "danger" | "neutral";
   message: string;
 };
 
-export type ChildType = JSX.Element | JSX.Element[] | string;
+export type ChildType = Child | Child[] | string;
 
 export type AuthUser = {
   id: string;

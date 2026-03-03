@@ -1,4 +1,4 @@
-import { eq, or } from "drizzle-orm";
+import { and, count, eq, ilike, or } from "drizzle-orm";
 import { db } from "../../../db/client";
 import {
   Book,
@@ -9,10 +9,11 @@ import {
   NewBook,
   UpdateBook,
 } from "../../../db/schema";
-import { processTags } from "../../../services/books";
 import { generateUniqueBookSlug } from "../../../utils";
 import z from "zod";
 import { bookFormSchema } from "./schema";
+import { processTags } from "./utils";
+import { getPagination } from "../../../lib/pagination";
 
 export const approveBookById = async (bookId: string) => {
   try {
@@ -48,6 +49,51 @@ export const createBook = async (input: NewBook) => {
     return newBook;
   } catch (error) {
     console.error("Failed to create book", error);
+    return null;
+  }
+};
+
+export const getBooksByCreatorId = async (
+  creatorId: string,
+  creatorType: "artist" | "publisher",
+  currentPage: number,
+  searchQuery?: string,
+  defaultLimit = 30,
+) => {
+  const bookColumn =
+    creatorType === "artist" ? books.artistId : books.publisherId;
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(and(eq(bookColumn, creatorId)));
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const baseCondition = and(eq(bookColumn, creatorId));
+
+    const whereClause = searchQuery
+      ? and(baseCondition, ilike(books.title, `%${searchQuery}%`))
+      : baseCondition;
+
+    const booksByCreator = await db.query.books.findMany({
+      where: whereClause,
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      with: {
+        artist: true,
+        publisher: true,
+      },
+      limit: limit,
+      offset: offset,
+    });
+
+    return { books: booksByCreator, totalPages, page };
+  } catch (error) {
+    console.error("Failed to get creator by slug", error);
     return null;
   }
 };
@@ -98,7 +144,7 @@ export const deleteBookById = async (bookId: string) => {
   }
 };
 
-async function cleanupOrphanedStubCreator(creatorId: string) {
+export async function cleanupOrphanedStubCreator(creatorId: string) {
   const [creator] = await db
     .select()
     .from(creators)

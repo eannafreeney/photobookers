@@ -1,4 +1,4 @@
-import Modal from "../components/app/Modal";
+import Modal from "../../../components/app/Modal";
 
 type ClaimPageProps = {
   creatorId: string;

@@ -2,13 +2,17 @@ import { z } from "zod";
 import { Env } from "hono/types";
 import { Context } from "hono";
 
+import { redirectUrlSchema } from "../../schemas";
 import {
   loginFormSchema,
-  redirectUrlSchema,
   registerCreatorFormSchema,
   registerFanFormSchema,
   resendVerificationFormSchema,
-} from "../../schemas";
+  resetPasswordFormSchema,
+  validateEmailSchema,
+  validateDisplayNameSchema,
+  validateWebsiteSchema,
+} from "./schema";
 
 export type VerificationFormContext = Context<
   Env,
@@ -42,4 +46,28 @@ export type RegisterCreatorFormContext = Context<
   Env,
   string,
   { out: { form: z.infer<typeof registerCreatorFormSchema> } }
+>;
+
+export type ResetPasswordFormContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof resetPasswordFormSchema> } }
+>;
+
+export type ValidateEmailContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof validateEmailSchema> } }
+>;
+
+export type ValidateDisplayNameContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof validateDisplayNameSchema> } }
+>;
+
+export type ValidateWebsiteContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof validateWebsiteSchema> } }
 >;

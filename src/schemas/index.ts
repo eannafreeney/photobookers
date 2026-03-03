@@ -1,22 +1,31 @@
 import { z } from "zod";
-import { parseWeekString } from "../lib/utils";
 
 export const optionalText = z.preprocess(
   (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
   z.string().optional(),
 );
 
-const requiredText = z.preprocess(
+export const requiredText = z.preprocess(
   (v) => (typeof v === "string" ? v.trim() : v),
   z.string().min(2, "Required"),
 );
 
-const numberField = z.preprocess(
+export const numberField = z.preprocess(
   (v) => (v === "" ? undefined : Number(v)),
   z.number().optional(),
 );
 
-const agreeToTerms = z.preprocess(
+export const uuidField = z
+  .string()
+  .uuid("Invalid UUID format")
+  .transform((val) => val.toLowerCase());
+
+export const methodField = z.preprocess(
+  (v) => (v === "" ? undefined : v),
+  z.enum(["PATCH", "POST", "DELETE"]).optional(),
+);
+
+export const agreeToTerms = z.preprocess(
   (v) => v === true || v === "on" || v === "true" || v === "1",
   z
     .boolean()
@@ -26,114 +35,12 @@ const agreeToTerms = z.preprocess(
     ),
 );
 
-// ============ RESEND VERIFICATION FORM SCHEMA ============
-export const resendVerificationFormSchema = z.object({
-  email: z.email().min(1, "Email is required"),
-});
-
-// ============ REGISTER CREATOR FORM SCHEMA ============
-export const registerCreatorFormSchema = z.object({
-  displayName: z.string().min(3, "Display Name must be at least 3 characters"),
-  website: z.url("Please enter a valid URL (e.g., https://example.com)"),
-  type: z.enum(["artist", "publisher"]),
-  email: z.email().min(1, "Email is required"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(64, "Password must be less than 64 characters"),
-  confirmPassword: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(64, "Password must be less than 64 characters"),
-  agreeToTerms,
-});
-
-// ============ RESET PASSWORD FORM SCHEMA ============
-export const resetPasswordFormSchema = z.object({
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-// ============ REGISTER FAN FORM SCHEMA ============
-export const registerFanFormSchema = z.object({
-  firstName: z
-    .string()
-    .min(3, "First name must be at least 3 characters")
-    .max(255, "First name must be less than 255 characters"),
-  lastName: z
-    .string()
-    .min(3, "Last name must be at least 3 characters")
-    .max(255, "Last name must be less than 255 characters"),
-  type: z.literal("fan"),
-  email: z.email().min(1, "Email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-  agreeToTerms,
-  redirectUrl: z.string().optional(),
-});
-
-// ============ LOGIN FORM SCHEMA ============
-export const loginFormSchema = z.object({
-  email: z.email().min(1, "Email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-// ============ CREATOR FORM SCHEMA ============
-export const creatorFormSchema = z.object({
-  displayName: z.string().min(3, "Display Name must be at least 3 characters"),
-  tagline: z.string().max(150, "Tagline must be less than 150 characters"),
-  bio: z
-    .string()
-    .max(1000, "Description must be less than 1000 characters")
-    .optional(),
-  city: optionalText,
-  country: optionalText,
-  type: z.preprocess(
-    (val) => (val === "" ? undefined : val),
-    z.enum(["artist", "publisher"]),
-  ),
-  facebook: optionalText,
-  twitter: optionalText,
-  instagram: optionalText,
-  website: optionalText,
-});
-
-// ============ CREATOR FORM ADMIN SCHEMA ============
-export const creatorFormAdminSchema = z.object({
-  displayName: requiredText,
-  website: z.url("Please enter a valid URL (e.g., https://example.com)"),
-  type: z.enum(["artist", "publisher"]).default("artist"),
-  tagline: optionalText,
-  bio: optionalText,
-  city: optionalText,
-  country: optionalText,
-  facebook: optionalText,
-  twitter: optionalText,
-  instagram: optionalText,
-});
-
-// ============ NEW USER FORM SCHEMA ============
-export const newUserFormSchema = z.object({
-  email: z.email().min(1, "Email is required"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-// ============ Image FORM SCHEMA ============
-export const coverImageFormSchema = z.object({
-  cover: z.object({
-    size: z.number().max(5 * 1024 * 1024),
-    type: z.string(),
-    name: z.string(),
-  }),
+// ============ MAGIC LINK FORM SCHEMA ============
+export const magicLinkFormSchema = z.object({
+  actionLink: z.string().min(1, "Action link is required"),
 });
 
 // ============ UUID SCHEMA ============
-const uuidField = z
-  .string()
-  .uuid("Invalid UUID format")
-  .transform((val) => val.toLowerCase());
 
 // Use for specific params
 export const bookIdSchema = z.object({
@@ -148,73 +55,26 @@ export const creatorIdSchema = z.object({
   creatorId: uuidField,
 });
 
+export const claimIdSchema = z.object({
+  claimId: uuidField,
+});
+
 export const redirectUrlSchema = z.object({
   redirectUrl: z.string().optional(),
 });
 
-// ============ CLAIM FORM SCHEMA ============
-export const claimFormSchema = z.object({
-  verificationMethod: z.enum(["website", "instagram"]).default("website"),
-  verificationUrl: z
-    .url("Please enter a valid URL (e.g., https://example.com)")
-    .min(1, "Website URL is required"),
-  email: z.email(),
+export const currentPathSchema = z.object({
+  currentPath: z.string().optional(),
 });
 
-// ============ SEND MAGIC LINK FORM SCHEMA ============
-export const sendMagicLinkFormSchema = z.object({
-  actionLink: z.string().min(1, "Action link is required"),
+// ============ DELETE BOOK FORM SCHEMA ============
+export const deleteBookFormSchema = z.object({
+  _method: methodField,
+  bookId: uuidField,
 });
 
-// ============ BOOK FORM SCHEMA ============
-export const bookFormSchema = z.object({
-  title: z.string().min(3, "Title is required"),
-  artist_id: optionalText,
-  new_artist_name: optionalText,
-  publisher_id: optionalText,
-  new_publisher_name: optionalText,
-  description: z
-    .string()
-    .max(5000, "Description must be less than 5000 characters")
-    .optional(),
-  release_date: optionalText,
-  tags: optionalText,
-  purchase_link: optionalText,
-  availability_status: z
-    .preprocess(
-      (val) => (val === "" ? undefined : val),
-      z.enum(["available", "sold_out", "unavailable"]),
-    )
-    .default("available"),
-});
-
-// ============ BOOK OF THE DAY FORM SCHEMA ============
-export const bookOfTheDayFormSchema = z.object({
-  date: z.coerce.date(),
-  text: z
-    .string()
-    .min(1, "Text is required")
-    .max(200, "Text must be less than 200 characters"),
-});
-
-// ============ BOOK OF THE WEEK FORM SCHEMA ============
-export const bookOfTheWeekFormSchema = z.object({
-  weekStart: z
-    .string()
-    .min(1, "Week is required")
-    .transform(parseWeekString)
-    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
-  text: z
-    .string()
-    .min(1, "Text is required")
-    .max(250, "Text must be less than 250 characters"),
-});
-
-// ============ MANUAL ASSIGN CREATOR SCHEMA ============
-export const manualAssignCreatorSchema = z.object({
-  email: z.email("Enter a valid email"),
-  website: z
-    .string()
-    .optional()
-    .transform((s) => (s && s.trim() ? s : undefined)),
+// ============ PUBLISH TOGGLE FORM SCHEMA ============
+export const publishToggleFormSchema = z.object({
+  _method: methodField,
+  bookId: uuidField,
 });
