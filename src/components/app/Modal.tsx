@@ -13,8 +13,8 @@ const Modal = ({
 
   return (
     <dialog id="modal-root" class="modal z-1" {...alpineAttrs}>
-      <div class="modal-box bg-surface-alt rounded-radius">
-        <form method="dialog">
+      <div class="modal-box bg-surface-alt rounded-radius overflow-visible">
+        <form method="dialog" class="mb-4">
           <div class="flex items-center justify-between">
             {title && <div class="text-lg font-semibold">{title}</div>}
             <button class="btn btn-sm btn-circle btn-ghost cursor-pointer ml-auto">

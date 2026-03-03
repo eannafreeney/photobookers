@@ -35,6 +35,13 @@ const AdminCreatorsTableAndFilter = async ({
   const { creators, totalPages, page } = result;
 
   const targetId = "creators-table-body";
+
+  const tableBodyAttrs = {
+    "x-init": "true",
+    "@ajax:before": "$dispatch('dialog:open')",
+    "@creators:updated.window": `$dispatch('dialog:close'); $ajax('/dashboard/admin/creators', { target: 'creators-table-container' })`,
+  };
+
   return (
     <div id="creators-table-container" class="flex flex-col gap-4">
       <CreatorTypeForm type={type} />
@@ -51,7 +58,7 @@ const AdminCreatorsTableAndFilter = async ({
             <Table.HeadRow>Actions</Table.HeadRow>
           </tr>
         </Table.Head>
-        <Table.Body id={targetId}>
+        <Table.Body id={targetId} {...tableBodyAttrs}>
           {creators.map((creator) => (
             <CreatorsTableRow creator={creator} />
           ))}
@@ -95,7 +102,10 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
         {formatDate(creator.createdAt ?? new Date())}
       </Table.BodyRow>
       <Table.BodyRow>
-        <AssignOwnerCell ownerUserId={creator.ownerUserId} />
+        <AssignOwnerCell
+          ownerUserId={creator.ownerUserId}
+          creatorId={creator.id}
+        />
       </Table.BodyRow>
       <Table.BodyRow>
         <a href={`/dashboard/admin/creators/edit/${creator.id}`}>
@@ -115,9 +125,13 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
 
 type AssignOwnerCellProps = {
   ownerUserId?: string | null;
+  creatorId: string;
 };
 
-const AssignOwnerCell = async ({ ownerUserId }: AssignOwnerCellProps) => {
+const AssignOwnerCell = async ({
+  ownerUserId,
+  creatorId,
+}: AssignOwnerCellProps) => {
   // if not owned, assign owner button that opens a modal to assign an owner (user)
   if (ownerUserId) {
     const user = await getUserByIdAdmin(ownerUserId);
@@ -129,7 +143,10 @@ const AssignOwnerCell = async ({ ownerUserId }: AssignOwnerCellProps) => {
   }
 
   return (
-    <a href={`/dashboard/admin/creators/assign-owner`} x-target="modal-root">
+    <a
+      href={`/dashboard/admin/creators/assign-owner/${creatorId}`}
+      x-target="modal-root"
+    >
       <Button variant="outline" color="inverse">
         <span>Assign Owner</span>
       </Button>

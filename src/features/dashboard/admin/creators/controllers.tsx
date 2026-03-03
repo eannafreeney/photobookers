@@ -3,13 +3,11 @@ import EditCreatorPageAdmin from "./Pages/EditCreatorPageAdmin";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { getUser } from "../../../../utils";
 import CreatorFormAdmin from "./components/CreatorFormAdmin";
-import AssignOwnerForm from "./forms/AssignOwnerForm";
 import AssignOwnerModal from "./modals/AssignOwnerModal";
 import AdminCreatorsOverviewPage from "./Pages/AdminCreatorsOverviewPage";
 import {
   createStubCreatorProfileAdmin,
   deleteCreatorByIdAdmin,
-  findUserByEmailAdmin,
   getAllUserProfilesAdmin,
   getCreatorByIdAdmin,
   updateCreatorProfileAdmin,
@@ -23,8 +21,9 @@ import {
 } from "./types";
 import { showSuccessAlert } from "../../../../lib/alertHelpers";
 import { Context } from "hono";
-import { assignCreatorToUserAdmin } from "../claims/services";
 import AdminCreatorsTableAndFilter from "./components/adminCreatorsTableAndFilter";
+import { assignUserAsCreatorOwnerAdmin } from "../claims/services";
+import AssignOwnerModalContent from "./components/AssignOwnerModalContent";
 
 export const getCreatorsOverviewPage = async (c: Context) => {
   const user = await getUser(c);
@@ -48,8 +47,6 @@ export const getCreatorsTableFilter = async (c: Context) => {
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
   const searchQuery = c.req.query("search");
-
-  console.log("type", type);
 
   return c.html(
     <AdminCreatorsTableAndFilter
@@ -124,7 +121,6 @@ export const createCreatorAdmin = async (c: CreateCreatorAdminContext) => {
         searchQuery={undefined}
         currentPage={currentPage}
         currentPath={currentPath}
-        user={user}
       />
       <CreatorFormAdmin />
     </>,
@@ -135,7 +131,6 @@ export const deleteCreatorAdmin = async (c: CreatorIdContext) => {
   const creatorId = c.req.valid("param").creatorId;
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
-  const user = await getUser(c);
   const deletedCreator = await deleteCreatorByIdAdmin(creatorId);
   if (!deletedCreator) {
     return showErrorAlert(c, "Failed to delete creator");
@@ -147,36 +142,36 @@ export const deleteCreatorAdmin = async (c: CreatorIdContext) => {
         searchQuery={undefined}
         currentPage={currentPage}
         currentPath={currentPath}
-        user={user}
       />
     </>,
   );
 };
 
-export const getAssignOwnerModal = async (c: Context) => {
-  return c.html(<AssignOwnerModal />);
+export const getAssignOwnerModal = async (c: CreatorIdContext) => {
+  const creatorId = c.req.valid("param").creatorId;
+  const creator = await getCreatorByIdAdmin(creatorId);
+  return c.html(
+    <AssignOwnerModal
+      creatorName={creator?.displayName ?? "this creator"}
+      creatorId={creatorId}
+    />,
+  );
 };
 
-export const getAssignOwnerModalContent = async (c: Context) => {
+export const getAssignOwnerModalContent = async (c: CreatorIdContext) => {
+  const creatorId = c.req.valid("param").creatorId;
   const users = await getAllUserProfilesAdmin();
   return c.html(
-    <div id="assign-owner-content" class="h-64">
-      <AssignOwnerForm users={users} />
-    </div>,
+    <AssignOwnerModalContent users={users} creatorId={creatorId} />,
   );
 };
 
 export const assignOwnerAdmin = async (c: AssignOwnerContext) => {
   const creatorId = c.req.valid("param").creatorId;
-  const { email, website } = c.req.valid("form");
-
-  const user = await findUserByEmailAdmin(email);
-  if (!user) return showErrorAlert(c, "No user found with that email");
-
-  const websiteUrl = website?.trim() || null;
+  const userId = c.req.valid("form").userId;
 
   try {
-    await assignCreatorToUserAdmin(user.id, creatorId, websiteUrl);
+    await assignUserAsCreatorOwnerAdmin(userId, creatorId);
   } catch (err) {
     console.error("Manual assign failed:", err);
     return showErrorAlert(c, "Failed to assign creator. Please try again.");

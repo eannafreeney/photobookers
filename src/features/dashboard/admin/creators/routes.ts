@@ -46,14 +46,16 @@ adminCreatorsDashboardRoutes.delete(
   deleteCreatorAdmin,
 );
 adminCreatorsDashboardRoutes.get(
-  "/assign-owner",
+  "/assign-owner/:creatorId",
   requireAdminAccess,
+  paramValidator(creatorIdSchema),
   getAssignOwnerModal,
 );
 
 adminCreatorsDashboardRoutes.get(
-  "/assign-owner-content",
+  "/assign-owner-content/:creatorId",
   requireAdminAccess,
+  paramValidator(creatorIdSchema),
   getAssignOwnerModalContent,
 );
 
@@ -71,7 +73,7 @@ adminCreatorsDashboardRoutes.patch(
   updateCreatorAdmin,
 );
 adminCreatorsDashboardRoutes.post(
-  "/creators/edit/:creatorId/assign",
+  "/assign-owner/:creatorId",
   requireAdminAccess,
   paramValidator(creatorIdSchema),
   formValidator(manualAssignCreatorSchema),

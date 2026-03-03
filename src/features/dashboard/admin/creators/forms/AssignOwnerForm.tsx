@@ -4,11 +4,23 @@ import CreatorsComboBox from "../components/CreatorsComboBox";
 
 type Props = {
   users: Pick<User, "id" | "email" | "firstName" | "lastName">[];
+  creatorId: string;
 };
 
-const AssignOwnerForm = ({ users }: Props) => {
+const AssignOwnerForm = ({ users, creatorId }: Props) => {
+  const alpineAttrs = {
+    "x-target": "toast",
+    "x-on:ajax:after":
+      "$dispatch('dialog:close'), $dispatch('creators:updated')",
+  };
+
   return (
-    <form method="post" action="/dashboard/admin/creators/edit/assign-owner">
+    <form
+      {...alpineAttrs}
+      method="post"
+      action={`/dashboard/admin/creators/assign-owner/${creatorId}`}
+      class="w-full flex flex-col gap-4"
+    >
       <CreatorsComboBox users={users} />
       <Button variant="solid" color="primary">
         Assign

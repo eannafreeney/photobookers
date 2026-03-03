@@ -7,43 +7,21 @@ import {
   creatorClaims,
   creators,
 } from "../../../../db/schema";
-import { and, count, desc, eq, gt, ilike, inArray, or } from "drizzle-orm";
+import { and, desc, eq, gt, ilike, inArray, or } from "drizzle-orm";
 import { deleteBookByIdAdmin } from "../books/services";
-import { getPagination } from "../../../../lib/pagination";
 
-export const assignCreatorToUserAdmin = async (
+export const assignUserAsCreatorOwnerAdmin = async (
   userId: string,
   creatorId: string,
-  websiteUrl?: string | null,
+  isVerified: boolean = false,
 ) => {
-  const verificationToken = nanoid(32);
-  const [claim] = await db
-    .insert(creatorClaims)
-    .values({
-      userId,
-      creatorId,
-      verificationToken,
-      verificationMethod: "website",
-      verificationUrl: websiteUrl ?? null,
-      status: "approved",
-      verifiedAt: new Date(),
-    })
-    .returning();
-
-  if (!claim) return null;
-  await updateCreatorOwnerAndStatus(claim);
-  return claim;
-};
-
-export const updateCreatorOwnerAndStatus = async (claim: CreatorClaim) => {
   await db
     .update(creators)
     .set({
-      ownerUserId: claim.userId,
-      status: "verified",
-      website: claim.verificationUrl,
+      ownerUserId: userId,
+      status: isVerified ? "verified" : "stub",
     })
-    .where(eq(creators.id, claim.creatorId));
+    .where(eq(creators.id, creatorId));
 };
 
 export async function getClaimsPendingAdminReview(
@@ -98,7 +76,13 @@ export const approveClaim = async (claimId: string) => {
       .where(eq(creatorClaims.id, claimId))
       .returning();
 
-    await updateCreatorOwnerAndStatus(claim);
+    const isVerified = claim.status === "approved";
+
+    await assignUserAsCreatorOwnerAdmin(
+      claim.userId,
+      claim.creatorId,
+      isVerified,
+    );
     return claim;
   } catch (error) {
     console.error("Failed to approve claim:", error);

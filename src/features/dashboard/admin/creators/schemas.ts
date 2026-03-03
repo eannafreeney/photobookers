@@ -3,11 +3,7 @@ import { optionalText, requiredText } from "../../../../schemas";
 
 // ============ MANUAL ASSIGN CREATOR SCHEMA ============
 export const manualAssignCreatorSchema = z.object({
-  email: z.email("Enter a valid email"),
-  website: z
-    .string()
-    .optional()
-    .transform((s) => (s && s.trim() ? s : undefined)),
+  userId: requiredText,
 });
 
 // ============ CREATOR FORM ADMIN SCHEMA ============

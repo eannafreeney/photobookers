@@ -4,8 +4,8 @@ import ErrorPage from "../../../pages/error/errorPage";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import NavTabs from "../../../components/layouts/NavTabs";
-import Button from "../../../components/app/Button";
 import { getFeedBooks } from "../services";
+import LoggedOutScreen from "../components/LoggedOutScreen";
 
 type Props = {
   user: AuthUser | null;
@@ -17,11 +17,15 @@ type Props = {
 const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
   if (!user) {
     return (
-      <LoggedOutFeedScreen
+      <LoggedOutScreen
+        title="Your Feed"
+        description="view your feed"
         user={user}
         flash={flash}
         currentPath={currentPath}
-      />
+      >
+        {icon}
+      </LoggedOutScreen>
     );
   }
 
@@ -62,35 +66,6 @@ const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
 };
 
 export default FeedPage;
-
-type LoggedOutProps = {
-  user: AuthUser | null;
-  flash: Flash;
-  currentPath: string;
-};
-
-const LoggedOutFeedScreen = ({ user, flash, currentPath }: LoggedOutProps) => (
-  <AppLayout title="Books" user={user} flash={flash}>
-    <Page>
-      <NavTabs currentPath={currentPath} />
-      <div class="flex flex-col gap-4 justify-center items-center mt-8">
-        <span>Login or register to view your feed.</span>
-        <div class="flex gap-2 justify-center items-center">
-          <a href="/auth/login">
-            <Button variant="solid" color="inverse">
-              Login
-            </Button>
-          </a>
-          <a href="/auth/register">
-            <Button variant="solid" color="primary">
-              Register
-            </Button>
-          </a>
-        </div>
-      </div>
-    </Page>
-  </AppLayout>
-);
 
 const icon = (
   <svg

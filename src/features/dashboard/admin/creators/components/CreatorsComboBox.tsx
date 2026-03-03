@@ -36,18 +36,18 @@ const CreatorsComboBox = ({ users }: Props) => {
             }
         },
     }`}
-      class="w-full max-w-xs flex flex-col gap-1"
+      class="w-full flex flex-col gap-1"
       x-on:keydown="highlightFirstMatchingOption($event.key)"
     >
       <div class="relative">
         <button
           type="button"
           x-on:click="isOpen = !isOpen"
-          class="inline-flex w-full items-center justify-between gap-2 whitespace-nowrap border-outline bg-surface-alt px-4 py-2 text-sm font-medium capitalize tracking-wide text-on-surface transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-outline-dark dark:bg-surface-dark-alt/50 dark:text-on-surface-dark dark:focus-visible:outline-primary-dark rounded-radius border"
+          class="inline-flex w-full items-center justify-between gap-2 whitespace-nowrap border-outline bg-surface-alt px-4 py-2 text-sm font-medium tracking-wide text-on-surface transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-outline-dark dark:bg-surface-dark-alt/50 dark:text-on-surface-dark dark:focus-visible:outline-primary-dark rounded-radius border"
         >
           <span
             class="text-sm font-normal"
-            x-text="selectedOption ? selectedOption.value : 'Please Select'"
+            x-text="selectedOption ? (selectedOption.label + ' (' + selectedOption.value.toLowerCase() + ')') : 'Please Select'"
           ></span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -64,8 +64,8 @@ const CreatorsComboBox = ({ users }: Props) => {
         </button>
 
         <input
-          id="user"
-          name="user"
+          id="userId"
+          name="userId"
           type="text"
           x-ref="hiddenTextField"
           hidden
@@ -78,7 +78,6 @@ const CreatorsComboBox = ({ users }: Props) => {
         >
           <template x-for="(item, index) in options" x-bind:key="item.id">
             <li
-              //   class="combobox-option inline-flex justify-between items-center gap-6 bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-primary/10 hover:text-on-surface-strong focus-visible:bg-surface-dark-alt/5 focus-visible:text-on-surface-strong focus-visible:outline-hidden cursor-pointer"
               class="combobox-option cursor-pointer inline-flex justify-between items-center gap-6 bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-primary/10 hover:text-on-surface-strong focus-visible:bg-primary/10 focus-visible:text-on-surface-strong focus-visible:outline-primary focus-visible:outline-offset-1 focus-visible:outline rounded-radius"
               tabindex={0}
               x-on:click="setSelectedOption(item)"

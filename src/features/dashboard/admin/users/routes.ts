@@ -17,9 +17,9 @@ adminUsersDashboardRoutes.use(
   "/users",
   methodOverride({ app: adminUsersDashboardRoutes }),
 );
-adminUsersDashboardRoutes.get("/users", requireAdminAccess, getUsersPageAdmin);
+adminUsersDashboardRoutes.get("/", requireAdminAccess, getUsersPageAdmin);
 adminUsersDashboardRoutes.post(
-  "/users/new",
+  "/new",
   requireAdminAccess,
   formValidator(newUserFormAdminSchema),
   createNewUserAdmin,
