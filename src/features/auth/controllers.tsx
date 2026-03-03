@@ -26,6 +26,7 @@ import {
   getCreatorByWebsite,
   loginAndSetCookies,
   setAccessToken,
+  setCookiesAndVerifyUser,
   setRefreshToken,
 } from "./services";
 import { normalizeUrl } from "../../services/verification";
@@ -307,8 +308,13 @@ export const processRegister = async (c: Context) => {
 
   const { access_token, refresh_token, expires_in } = data.session;
 
-  setAccessToken(c, access_token, expires_in);
-  setRefreshToken(c, refresh_token);
+  await setCookiesAndVerifyUser(
+    c,
+    access_token,
+    refresh_token,
+    expires_in,
+    data.user.id,
+  );
 
   // Now get user from the session (no need for another getUser call)
   const user = data.session.user;
@@ -397,8 +403,13 @@ export const resetPassword = async (c: ResetPasswordFormContext) => {
 
   if (!data.session) return showErrorAlert(c, "Failed to sign in");
 
-  setAccessToken(c, data.session.access_token, data.session.expires_in);
-  setRefreshToken(c, data.session.refresh_token);
+  await setCookiesAndVerifyUser(
+    c,
+    data.session.access_token,
+    data.session.refresh_token,
+    data.session.expires_in,
+    data.user.id,
+  );
 
   await setFlash(c, "success", "Your password has been reset successfully!");
   return c.redirect("/");
@@ -450,8 +461,13 @@ export const setSession = async (c: Context) => {
     );
   }
 
-  setAccessToken(c, access_token, expires_in);
-  setRefreshToken(c, refresh_token);
+  await setCookiesAndVerifyUser(
+    c,
+    access_token,
+    refresh_token,
+    expires_in,
+    user.id,
+  );
 
   return c.json({ ok: true });
 };

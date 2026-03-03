@@ -11,7 +11,6 @@ import {
 } from "../../../../db/schema";
 import { getRandomCoverUrl, slugify } from "../../../../utils";
 import { nanoid } from "nanoid";
-import { updateCreatorOwnerAndStatus } from "../claims/services";
 import {
   createStubCreatorProfile,
   getCreatorById,
@@ -194,30 +193,6 @@ export const getUserByIdAdmin = async (id: string) => {
     console.error("Failed to get user by id", error);
     return null;
   }
-};
-
-export const assignCreatorToUserManually = async (
-  userId: string,
-  creatorId: string,
-  websiteUrl?: string | null,
-) => {
-  const verificationToken = nanoid(32);
-  const [claim] = await db
-    .insert(creatorClaims)
-    .values({
-      userId,
-      creatorId,
-      verificationToken,
-      verificationMethod: "website",
-      verificationUrl: websiteUrl ?? null,
-      status: "approved",
-      verifiedAt: new Date(),
-    })
-    .returning();
-
-  if (!claim) return null;
-  await updateCreatorOwnerAndStatus(claim);
-  return claim;
 };
 
 export const getAllCreatorOptions = async (

@@ -15,10 +15,10 @@ import {
   verifyWebsite,
 } from "../../services/verification";
 import { and, eq, gt, inArray, or } from "drizzle-orm";
-import { updateCreatorOwnerAndStatus } from "../dashboard/admin/claims/services";
 import { cleanupOrphanedStubCreator } from "../dashboard/books/services";
 import { getCreatorById } from "../dashboard/creators/services";
 import { getUserByIdAdmin } from "../dashboard/admin/creators/services";
+import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 
 export const getPendingClaim = async (userId: string, creatorId: string) => {
   if (!userId || !creatorId) return null;
@@ -81,7 +81,13 @@ export const approveClaim = async (claimId: string) => {
       .where(eq(creatorClaims.id, claimId))
       .returning();
 
-    await updateCreatorOwnerAndStatus(claim);
+    const isVerified = claim.status === "approved";
+
+    await assignUserAsCreatorOwnerAdmin(
+      claim.userId,
+      claim.creatorId,
+      isVerified,
+    );
     return claim;
   } catch (error) {
     console.error("Failed to approve claim:", error);
@@ -242,7 +248,12 @@ export const verifyClaim = async (claim: CreatorClaim) => {
         verifiedAt: new Date(),
       })
       .where(eq(creatorClaims.id, claim.id));
-    await updateCreatorOwnerAndStatus(claim);
+    const isVerified = claim.status === "approved";
+    await assignUserAsCreatorOwnerAdmin(
+      claim.userId,
+      claim.creatorId,
+      isVerified,
+    );
     return { verified: true, error: null, requiresApproval: false };
   }
 
@@ -266,7 +277,12 @@ export const verifyClaim = async (claim: CreatorClaim) => {
         verifiedAt: new Date(),
       })
       .where(eq(creatorClaims.id, claim.id));
-    await updateCreatorOwnerAndStatus(claim);
+    const isVerified = claim.status === "approved";
+    await assignUserAsCreatorOwnerAdmin(
+      claim.userId,
+      claim.creatorId,
+      isVerified,
+    );
     return { verified: true, error: null, requiresApproval: false };
   }
 
