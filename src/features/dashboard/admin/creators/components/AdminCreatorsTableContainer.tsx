@@ -1,6 +1,6 @@
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import TableSearch from "../../../../../components/app/TableSearch";
-import AdminCreatorsTableAndFilter from "./adminCreatorsTableAndFilter";
+import AdminCreatorsTableAndFilter from "./AdminCreatorsTableAndFilter";
 
 type Props = {
   searchQuery?: string;
