@@ -39,7 +39,7 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
       <form
         action={
           isEditPage
-            ? `/dashboard/admin/books/edit/${bookId}`
+            ? `/dashboard/admin/books/${bookId}`
             : `/dashboard/admin/books/new`
         }
         method="post"

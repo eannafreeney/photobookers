@@ -13,10 +13,7 @@ import { magicLinkFormSchema, userIdSchema } from "../../../../schemas";
 import { newUserFormAdminSchema } from "./schema";
 
 export const adminUsersDashboardRoutes = new Hono();
-adminUsersDashboardRoutes.use(
-  "/users",
-  methodOverride({ app: adminUsersDashboardRoutes }),
-);
+
 adminUsersDashboardRoutes.get("/", requireAdminAccess, getUsersPageAdmin);
 adminUsersDashboardRoutes.post(
   "/new",

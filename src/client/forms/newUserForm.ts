@@ -20,7 +20,6 @@ export function registerNewUserForm() {
   Alpine.data("newUserForm", () => {
     return {
       isSubmitting: false,
-      emailAvailabilityStatus: "",
       emailIsTaken: false,
 
       ...createFormState(NEW_USER_FORM_FIELDS),
@@ -60,7 +59,7 @@ export function registerNewUserForm() {
       },
 
       onSuccess() {
-        resetFormBaseline(this, NEW_USER_FORM_FIELDS);
+        return resetFormBaseline(this, NEW_USER_FORM_FIELDS);
       },
 
       onError() {

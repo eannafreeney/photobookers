@@ -12,11 +12,6 @@ import { claimApproveFormSchema, claimRejectFormSchema } from "./schema";
 
 export const adminClaimsDashboardRoutes = new Hono();
 
-adminClaimsDashboardRoutes.use(
-  "/claims",
-  methodOverride({ app: adminClaimsDashboardRoutes }),
-);
-
 adminClaimsDashboardRoutes.get(
   "/",
   requireAdminAccess,

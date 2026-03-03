@@ -16,6 +16,7 @@ import { adminCreatorsDashboardRoutes } from "../features/dashboard/admin/creato
 import { apiRoutes } from "../features/api/routes";
 import { imageRoutes } from "../features/dashboard/images/routes";
 import { claimRoutes } from "../features/claims/routes";
+import { methodOverride } from "hono/method-override";
 
 export const routes = new Hono();
 
@@ -33,6 +34,13 @@ routes.use(
     duration: {
       absolute: 60 * 60 * 24, // 24 hours
     },
+  }),
+);
+
+routes.use(
+  methodOverride({
+    app: routes,
+    form: "_method",
   }),
 );
 

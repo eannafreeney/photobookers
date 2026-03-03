@@ -19,7 +19,7 @@ const MagicLinkModal = ({ userId, errorMessage, actionLink, user }: Props) => {
         <div class="flex flex-col gap-4 items-center justify-center">
           <p>Magic link Generated</p>
           <div class="flex flex-col gap-2 w-full">
-            <form
+            {/* <form
               x-target="toast"
               method="post"
               action={`/dashboard/admin/users/${userId}/send-magic-link`}
@@ -28,7 +28,7 @@ const MagicLinkModal = ({ userId, errorMessage, actionLink, user }: Props) => {
               <Button variant="solid" color="primary">
                 Send to {user?.firstName} {user?.lastName}
               </Button>
-            </form>
+            </form> */}
             <CopyCellCol entity={actionLink} buttonWidth="full" />
           </div>
         </div>

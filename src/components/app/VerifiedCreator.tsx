@@ -6,7 +6,7 @@ type VerifiedCreatorProps = {
 };
 
 const VerifiedCreator = ({ creator, size = "md" }: VerifiedCreatorProps) => {
-  if (!creator.ownerUserId) return <></>;
+  if (creator.status !== "verified") return <></>;
   const sizes = {
     xs: "size-4",
     sm: "size-6",

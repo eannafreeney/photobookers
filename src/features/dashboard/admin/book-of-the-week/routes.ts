@@ -14,11 +14,6 @@ import { bookOfTheWeekFormSchema } from "./schema";
 
 export const adminBookOfTheWeekDashboardRoutes = new Hono();
 
-adminBookOfTheWeekDashboardRoutes.use(
-  "/book-of-the-week",
-  methodOverride({ app: adminBookOfTheWeekDashboardRoutes }),
-);
-
 adminBookOfTheWeekDashboardRoutes.get(
   "/:bookId",
   paramValidator(bookIdSchema),

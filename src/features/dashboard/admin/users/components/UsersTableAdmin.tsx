@@ -39,6 +39,7 @@ const UsersTableAdmin = async () => {
           <tr>
             <Table.HeadRow>Name</Table.HeadRow>
             <Table.HeadRow>Email</Table.HeadRow>
+            <Table.HeadRow>Creator Profile</Table.HeadRow>
             <Table.HeadRow>Creator Status</Table.HeadRow>
             <Table.HeadRow>ID</Table.HeadRow>
           </tr>
@@ -71,19 +72,14 @@ const UserTableRow = ({ user }: RowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>{user.email}</Table.BodyRow>
       <Table.BodyRow>
+        <CreatorName userId={user.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
         <CreatorStatus userId={user.id} />
       </Table.BodyRow>
       <Table.BodyRow>
         <CopyCellCol entity={user.id} />
       </Table.BodyRow>
-      <Table.BodyRow>
-        <a href={`/dashboard/admin/users/edit/${user.id}`}>
-          <Button variant="outline" color="inverse">
-            <span>Edit</span>
-          </Button>
-        </a>
-      </Table.BodyRow>
-
       <Table.BodyRow>
         <a
           href={`/dashboard/admin/users/generate-magic-link/${user.id}`}
@@ -98,6 +94,16 @@ const UserTableRow = ({ user }: RowProps) => {
         <DeleteFormButton action={`/dashboard/admin/users/${user.id}`} />
       </Table.BodyRow>
     </tr>
+  );
+};
+
+const CreatorName = async ({ userId }: { userId: string }) => {
+  const creator = await getCreatorByOwnerUserId(userId);
+  if (!creator) return <></>;
+  return (
+    <Link href={`/creators/${creator.slug}`} target="_blank">
+      {creator.displayName}
+    </Link>
   );
 };
 

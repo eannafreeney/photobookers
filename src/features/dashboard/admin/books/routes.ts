@@ -16,10 +16,19 @@ import {
 
 export const adminBooksDashboardRoutes = new Hono();
 
-adminBooksDashboardRoutes.use(
-  "/books",
-  methodOverride({ app: adminBooksDashboardRoutes }),
-);
+adminBooksDashboardRoutes.use("*", async (c, next) => {
+  console.log("Original method:", c.req.method);
+  console.log("Headers:", Object.fromEntries(c.req.raw.headers));
+
+  try {
+    const body = await c.req.parseBody();
+    console.log("Body:", body);
+  } catch (e) {
+    console.log("No parsable body");
+  }
+
+  await next();
+});
 
 adminBooksDashboardRoutes.get(
   "/",
@@ -33,7 +42,7 @@ adminBooksDashboardRoutes.get(
 );
 adminBooksDashboardRoutes.get("/new", requireAdminAccess, getAddBookPageAdmin);
 adminBooksDashboardRoutes.get(
-  "/edit/:bookId",
+  "/:bookId",
   requireAdminAccess,
   paramValidator(bookIdSchema),
   getEditBookPageAdmin,
@@ -45,7 +54,7 @@ adminBooksDashboardRoutes.post(
   createNewBookAdmin,
 );
 adminBooksDashboardRoutes.patch(
-  "/edit/:bookId",
+  "/:bookId",
   requireAdminAccess,
   formValidator(bookFormAdminSchema),
   paramValidator(bookIdSchema),

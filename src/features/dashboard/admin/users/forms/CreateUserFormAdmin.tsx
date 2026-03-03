@@ -7,7 +7,7 @@ const CreateUserFormAdmin = () => {
   const alpineAttrs = {
     "x-data": "newUserForm()",
     "x-target": "toast",
-    "x-on:ajax:success": "$dispatch('users:updated')",
+    "x-on:ajax:success": "onSuccess(), $dispatch('users:updated')",
   };
 
   return (

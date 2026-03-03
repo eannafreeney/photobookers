@@ -39,14 +39,11 @@ const BooksOverviewDesktop = ({ books, user }: Props) => {
       <Table id="books-table">
         <Table.Head>
           <tr>
-            <th class="p-4">Cover</th>
-            <th class="p-4">Title</th>
-            <th class="p-4">Artist</th>
-            <th class="p-4">Release Date</th>
-            <th class="p-4">Publish</th>
-            <th class="p-4"></th>
-            <th class="p-4"></th>
-            <th class="p-4"></th>
+            <Table.HeadRow>Cover</Table.HeadRow>
+            <Table.HeadRow>Title</Table.HeadRow>
+            <Table.HeadRow>Artist</Table.HeadRow>
+            <Table.HeadRow>Release Date</Table.HeadRow>
+            <Table.HeadRow>Publish</Table.HeadRow>
           </tr>
         </Table.Head>
         <Table.Body id="books-table-body" {...alpineAttrs}>
@@ -73,7 +70,7 @@ const BookTableRow = ({ book, user }: RowProps) => {
 
   return (
     <tr>
-      <td class="p-4">
+      <Table.BodyRow>
         {book.coverUrl ? (
           <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />
         ) : (
@@ -83,14 +80,14 @@ const BookTableRow = ({ book, user }: RowProps) => {
             </Button>
           </a>
         )}
-      </td>
-      <td class="p-4">{book.title}</td>
-      <td class="p-4">
+      </Table.BodyRow>
+      <Table.BodyRow>{book.title}</Table.BodyRow>
+      <Table.BodyRow>
         <a href={`/creators/${book.artist?.slug}`}>
           {book.artist?.displayName}
         </a>
-      </td>
-      <td class="p-4">
+      </Table.BodyRow>
+      <Table.BodyRow>
         {book.releaseDate
           ? book.releaseDate
               .toISOString()
@@ -99,23 +96,23 @@ const BookTableRow = ({ book, user }: RowProps) => {
               .reverse()
               .join("/")
           : ""}
-      </td>
-      <td class="p-4">
+      </Table.BodyRow>
+      <Table.BodyRow>
         <PublishToggleForm book={book} />
-      </td>
-      <td class="p-4">
+      </Table.BodyRow>
+      <Table.BodyRow>
         <PreviewButton book={book} user={user} />
-      </td>
-      <td class="p-4">
+      </Table.BodyRow>
+      <Table.BodyRow>
         <a href={`/dashboard/books/edit/${book.id}`}>
           <Button variant="outline" color="inverse">
             <span>Edit</span>
           </Button>
         </a>
-      </td>
-      <td class="p-4">
+      </Table.BodyRow>
+      <Table.BodyRow>
         <DeleteBookForm book={book} user={user} />
-      </td>
+      </Table.BodyRow>
     </tr>
   );
 };

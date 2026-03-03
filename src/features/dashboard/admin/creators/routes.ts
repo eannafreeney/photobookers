@@ -18,11 +18,6 @@ import { formValidator, paramValidator } from "../../../../lib/validator";
 
 export const adminCreatorsDashboardRoutes = new Hono();
 
-adminCreatorsDashboardRoutes.use(
-  "/creators",
-  methodOverride({ app: adminCreatorsDashboardRoutes }),
-);
-
 adminCreatorsDashboardRoutes.get(
   "/",
   requireAdminAccess,

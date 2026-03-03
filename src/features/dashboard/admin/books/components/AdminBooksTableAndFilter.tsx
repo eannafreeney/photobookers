@@ -87,46 +87,50 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
 
   return (
     <tr>
-      <td class="max-w-48 wrap-break-word">
+      <Table.BodyRow>
         <Link href={`/books/${book.slug}`} target="_blank">
           {book.title}
         </Link>
-      </td>
-      <td class="max-w-48 wrap-break-word">
+      </Table.BodyRow>
+      <Table.BodyRow>
         <Link href={`/creators/${book.artist?.slug}`}>
           {book.artist?.displayName}
         </Link>
-      </td>
-      <td class="max-w-48 wrap-break-word">
+      </Table.BodyRow>
+      <Table.BodyRow>
         <Link href={`/creators/${book.publisher?.slug}`}>
           {book.publisher?.displayName}
         </Link>
-      </td>
-      <td>{book.releaseDate ? formatDate(book.releaseDate) : ""}</td>
-      <td>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        {book.releaseDate ? formatDate(book.releaseDate) : ""}
+      </Table.BodyRow>
+      <Table.BodyRow>
         {book.approvalStatus === "approved" ? (
-          <p class=" text-success">✓</p>
-        ) : (
-          <p class=" text-danger">✗</p>
-        )}
-      </td>
-      <td>
+          <p class=" text-success">✓ Approved</p>
+        ) : book.approvalStatus === "pending" ? (
+          <p class=" text-warning">⋯ Pending</p>
+        ) : book.approvalStatus === "rejected" ? (
+          <p class=" text-danger">✗ Rejected</p>
+        ) : null}
+      </Table.BodyRow>
+      <Table.BodyRow>
         <PublishToggleForm book={book} />
-      </td>
-      <td>
+      </Table.BodyRow>
+      <Table.BodyRow>
         <ScheduleWeekButton book={book} />
-      </td>
-      <td>
+      </Table.BodyRow>
+      <Table.BodyRow>
         <PreviewButton book={book} user={user} />
-      </td>
-      <td>
-        <a href={`/dashboard/admin/books/edit/${book.id}`}>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <a href={`/dashboard/admin/books/${book.id}`}>
           <button class="cursor-pointer">{editIcon}</button>
         </a>
-      </td>
-      <td>
+      </Table.BodyRow>
+      <Table.BodyRow>
         <DeleteFormButton action={`/dashboard/admin/books/delete/${book.id}`} />
-      </td>
+      </Table.BodyRow>
     </tr>
   );
 };
