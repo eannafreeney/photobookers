@@ -1,7 +1,5 @@
 import { Hono } from "hono";
-import { methodOverride } from "hono/method-override";
 import {
-  approveBook,
   createBookAsArtist,
   createBookAsPublisher,
   deleteBook,
@@ -29,19 +27,18 @@ import {
 import { bookFormAdminSchema } from "../admin/books/schema";
 
 export const booksDashboardRoutes = new Hono();
-booksDashboardRoutes.use(
-  "/posts",
-  methodOverride({ app: booksDashboardRoutes }),
-);
 
-// GET
+// ---------- Pages (GET) ----------
 booksDashboardRoutes.get("/", getBooksOverview);
 booksDashboardRoutes.get("/new", getAddBookPage);
 booksDashboardRoutes.get(
-  "/edit/:bookId",
+  "/:bookId/update",
   paramValidator(bookIdSchema),
+  requireBookEditAccess,
   getEditBookPage,
 );
+
+// ---------- Create (POST) ----------
 booksDashboardRoutes.post(
   "/new/publisher",
   limitBooksPerDay,
@@ -54,35 +51,41 @@ booksDashboardRoutes.post(
   formValidator(bookFormAdminSchema),
   createBookAsArtist,
 );
+
+// ---------- Update (POST) ----------
 booksDashboardRoutes.post(
-  "/edit/:bookId/publisher",
+  "/:bookId/update/publisher",
   paramValidator(bookIdSchema),
   formValidator(bookFormAdminSchema),
   requireBookEditAccess,
   updateBookAsPublisher,
 );
-booksDashboardRoutes.patch(
-  "/edit/:bookId/artist",
+booksDashboardRoutes.post(
+  "/:bookId/update/artist",
   paramValidator(bookIdSchema),
   formValidator(bookFormAdminSchema),
   requireBookEditAccess,
   updateBookAsArtist,
 );
-booksDashboardRoutes.delete(
-  "/delete/:bookId",
+
+// ---------- Delete (POST) ----------
+booksDashboardRoutes.post(
+  "/:bookId/delete",
   paramValidator(bookIdSchema),
   formValidator(deleteBookFormSchema),
   requireBookDeleteAccess,
   deleteBook,
 );
-booksDashboardRoutes.patch(
+
+// ---------- Publish / Unpublish (POST) ----------
+booksDashboardRoutes.post(
   "/:bookId/publish",
   paramValidator(bookIdSchema),
   formValidator(publishToggleFormSchema),
   requireBookPublishAccess,
   makeBookPublic,
 );
-booksDashboardRoutes.patch(
+booksDashboardRoutes.post(
   "/:bookId/unpublish",
   paramValidator(bookIdSchema),
   formValidator(publishToggleFormSchema),

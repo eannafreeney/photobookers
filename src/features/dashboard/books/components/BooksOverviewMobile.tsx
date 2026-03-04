@@ -76,7 +76,7 @@ const BookTableRowMobile = ({ book, user }: RowProps) => {
                 class="h-14 w-11 object-cover rounded-sm"
               />
             ) : (
-              <a href={`/dashboard/books/edit/${book.id}#book-images`}>
+              <a href={`/dashboard/books/${book.id}/update#book-images`}>
                 <Button variant="outline" color="warning">
                   <span>Upload Cover</span>
                 </Button>
@@ -101,7 +101,7 @@ const BookTableRowMobile = ({ book, user }: RowProps) => {
         <div class="flex items-center gap-2 border-t border-outline pt-3">
           <PublishToggleForm book={book} />
           <PreviewButton book={book} user={user} />
-          <a href={`/dashboard/books/edit/${book.id}`}>
+          <a href={`/dashboard/books/${book.id}/update`}>
             <Button variant="outline" color="inverse" width="sm">
               Edit
             </Button>

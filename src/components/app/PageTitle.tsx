@@ -39,7 +39,7 @@ const PageTitle = ({ title, creator, user }: PageTitleProps) => {
         </Card.SubTitle> */}
       </div>
       {canEdit && (
-        <a href={`/dashboard/admin/creators/edit/${creator?.id}`}>
+        <a href={`/dashboard/admin/creators/${creator?.id}/update`}>
           <Button variant="outline" color="secondary" width="sm">
             Edit
           </Button>

@@ -4,7 +4,6 @@ import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import CarouselMobile from "../../../components/app/CarouselMobile";
 import Link from "../../../components/app/Link";
 import ShareButton from "../../../components/app/ShareButton";
-import { Book } from "../../../db/schema";
 import { formatDate } from "../../../utils";
 import WishlistButton from "../../api/components/WishlistButton";
 import { BookOfTheWeekWithBook } from "../BOTWServices";
@@ -60,16 +59,21 @@ const BOTWDesktopCard = ({
 
   return (
     <Card className="col-span-6">
-      <div class="flex items-stretch gap-2">
-        <div class="w-xl shrink-0">
-          <CarouselMobile
+      <div class="flex gap-2">
+        <div class="w-1/2 shrink-0">
+          <Card.Image
+            src={book.coverUrl}
+            alt={book.title}
+            href={`/books/${book.slug}`}
+          />
+          {/* <CarouselMobile
             images={[
               book.coverUrl,
               ...(book?.images?.map((image) => image.imageUrl) ?? []),
             ]}
-          />
+          /> */}
         </div>
-        <div class="flex-1 min-w-0 flex flex-col gap-2 grow justify-between">
+        <div class="w-1/2 min-w-0 flex flex-col gap-2 grow justify-center">
           <div class="flex items-center justify-end gap-2 p-4">
             <WishlistButton isCircleButton book={book} user={user} />
             <ShareButton isCircleButton />
@@ -113,12 +117,17 @@ const BOTWMobileCard = ({
 
   return (
     <Card className="w-full min-w-0">
-      <CarouselMobile
+      <Card.Image
+        src={book.coverUrl}
+        alt={book.title}
+        href={`/books/${book.slug}`}
+      />
+      {/* <CarouselMobile
         images={[
           book.coverUrl,
           ...(book?.images?.map((image) => image.imageUrl) ?? []),
         ]}
-      />
+      /> */}
       <Card.Body>
         <div class="flex items-start justify-between">
           <div>

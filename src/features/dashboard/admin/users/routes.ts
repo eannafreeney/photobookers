@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { methodOverride } from "hono/method-override";
 import { requireAdminAccess } from "../../../../middleware/adminGuard";
 import {
   createNewUserAdmin,
+  deleteMultipleUsersAdmin,
   deleteUserAdmin,
   generateMagicLinkAdmin,
   getUsersPageAdmin,
@@ -10,25 +10,37 @@ import {
 } from "./controllers";
 import { formValidator, paramValidator } from "../../../../lib/validator";
 import { magicLinkFormSchema, userIdSchema } from "../../../../schemas";
-import { newUserFormAdminSchema } from "./schema";
+import { deleteMultipleUsersSchema, newUserFormAdminSchema } from "./schema";
 
 export const adminUsersDashboardRoutes = new Hono();
 
+// ---------- Pages (GET) ----------
 adminUsersDashboardRoutes.get("/", requireAdminAccess, getUsersPageAdmin);
+
+// ---------- Create (POST) ----------
 adminUsersDashboardRoutes.post(
-  "/new",
+  "/create",
   requireAdminAccess,
   formValidator(newUserFormAdminSchema),
   createNewUserAdmin,
 );
-adminUsersDashboardRoutes.delete(
-  "/:userId",
+
+// ---------- Delete (POST) ----------
+adminUsersDashboardRoutes.post(
+  "/:userId/delete",
   requireAdminAccess,
   paramValidator(userIdSchema),
   deleteUserAdmin,
 );
+adminUsersDashboardRoutes.post(
+  "/delete-multiple",
+  requireAdminAccess,
+  formValidator(deleteMultipleUsersSchema),
+  deleteMultipleUsersAdmin,
+);
+// ---------- Generate Magic Link (GET) ----------
 adminUsersDashboardRoutes.get(
-  "/generate-magic-link/:userId",
+  "/:userId/generate-magic-link",
   requireAdminAccess,
   paramValidator(userIdSchema),
   generateMagicLinkAdmin,

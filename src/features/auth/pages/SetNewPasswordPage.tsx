@@ -1,13 +1,13 @@
 import Page from "../../../components/layouts/Page";
 import HeadlessLayout from "../../../components/layouts/HeadlessLayout";
-import ResetPasswordForm from "../forms/ResetPasswordForm";
+import ResetPasswordForm from "../forms/SetPasswordForm";
 import { AuthUser } from "../../../../types";
 
 type Props = {
   user: AuthUser;
 };
 
-const ForceResetPasswordPage = ({ user }: Props) => {
+const SetNewPasswordPage = ({ user }: Props) => {
   const alpineAttrs = {
     "x-data": "resetPasswordForm()",
     "x-on:submit": "submitForm($event)",
@@ -25,7 +25,7 @@ const ForceResetPasswordPage = ({ user }: Props) => {
                 Hi {user?.firstName ?? "there"}!
               </div>
               <div class="text-sm text-center mb-4">
-                Please enter your new password below.
+                Please enter your password below.
               </div>
               <form
                 action="/auth/reset-password"
@@ -41,4 +41,4 @@ const ForceResetPasswordPage = ({ user }: Props) => {
     </HeadlessLayout>
   );
 };
-export default ForceResetPasswordPage;
+export default SetNewPasswordPage;

@@ -24,11 +24,11 @@ export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
   });
 };
 
-export const jsonValidator = <T extends z.ZodSchema>(schema: T) => {
-  return validator("json", (value, c) => {
-    const result = schema.safeParse(value);
+export const queryValidator = <T extends z.ZodSchema>(schema: T) => {
+  return validator("query", (query, c) => {
+    const result = schema.safeParse(query);
     if (!result.success) {
-      return showErrorAlert(c, "Invalid request body");
+      return showErrorAlert(c, "Invalid query parameters");
     }
     return result.data as z.infer<T>;
   });

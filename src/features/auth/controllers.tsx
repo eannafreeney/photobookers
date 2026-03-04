@@ -25,9 +25,7 @@ import {
   getCreatorByDisplayName,
   getCreatorByWebsite,
   loginAndSetCookies,
-  setAccessToken,
   setCookiesAndVerifyUser,
-  setRefreshToken,
 } from "./services";
 import { normalizeUrl } from "../../services/verification";
 import { createClaim, deleteClaim } from "../claims/services";
@@ -37,7 +35,7 @@ import { db } from "../../db/client";
 import { users } from "../../db/schema";
 import { getCallbackErrorMessage } from "./utils";
 import { deleteCookie } from "hono/cookie";
-import ForceResetPasswordPage from "./pages/ForceResetPasswordPage";
+import ForceResetPasswordPage from "./pages/SetNewPasswordPage";
 import MagicLinkHashHandlerPage from "./pages/MagicLinkHashHandlerPage";
 import ResetPasswordModal from "./modals/ResetPasswordModal";
 import ValidateEmail from "./components/ValidateEmail";
@@ -68,7 +66,7 @@ export const getRegisterPage = async (c: Context) => {
   return c.html(<RegisterPage type={type} redirectUrl={redirectUrl} />);
 };
 
-export const getResendVerficationEmailPage = async (c: Context) => {
+export const getResendVerificationEmailPage = async (c: Context) => {
   const user = await getUser(c);
   if (user) return c.redirect("/");
   return c.html(<ResendVerificationPage />);
@@ -112,7 +110,7 @@ export const login = async (c: LoginFormContext) => {
   const safeRedirectUrl =
     redirectUrl && redirectUrl !== "undefined" ? redirectUrl : "/";
 
-  if (error) return showErrorAlert(c, "nvalid email or password", 401);
+  if (error) return showErrorAlert(c, "Invalid email or password", 401);
 
   return c.redirect(safeRedirectUrl ?? "/");
 };
@@ -358,7 +356,7 @@ export const logout = async (c: Context) => {
   return c.redirect("/");
 };
 
-export const getForceResetPasswordPage = async (c: Context) => {
+export const getSetNewPasswordPage = async (c: Context) => {
   const user = await getUser(c);
   if (user) {
     return c.html(<ForceResetPasswordPage user={user} />);

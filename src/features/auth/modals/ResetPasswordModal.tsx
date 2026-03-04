@@ -1,5 +1,5 @@
 import Modal from "../../../components/app/Modal";
-import ResetPasswordForm from "../forms/ResetPasswordForm";
+import ResetPasswordForm from "../forms/SetPasswordForm";
 
 const ResetPasswordModal = () => {
   const alpineAttrs = {
@@ -13,7 +13,10 @@ const ResetPasswordModal = () => {
   return (
     <Modal title="Reset Password">
       <form action="/auth/reset-password" method="post" {...alpineAttrs}>
-        <ResetPasswordForm />
+        <ResetPasswordForm
+          buttonText="Reset Password"
+          loadingText="Resetting..."
+        />
       </form>
     </Modal>
   );

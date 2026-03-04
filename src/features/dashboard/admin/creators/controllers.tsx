@@ -2,7 +2,7 @@ import Alert from "../../../../components/app/Alert";
 import EditCreatorPageAdmin from "./Pages/EditCreatorPageAdmin";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { getUser } from "../../../../utils";
-import CreatorFormAdmin from "./components/CreatorFormAdmin";
+import CreatorFormAdmin from "./forms/AddCreatorFormAdmin";
 import AssignOwnerModal from "./modals/AssignOwnerModal";
 import AdminCreatorsOverviewPage from "./Pages/AdminCreatorsOverviewPage";
 import {
@@ -30,6 +30,7 @@ export const getCreatorsOverviewPage = async (c: Context) => {
   const searchQuery = c.req.query("search");
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
+
   return c.html(
     <AdminCreatorsOverviewPage
       user={user}

@@ -3,11 +3,22 @@ import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers";
 import { getUser } from "../../../../utils";
 import UsersPageAdmin from "./pages/UsersPageAdmin";
 import { Context } from "hono";
-import { MagicLinkFormContext, UserFormContext, UserIdContext } from "./types";
+import {
+  DeleteMultipleUsersContext,
+  MagicLinkFormContext,
+  UserFormContext,
+  UserIdContext,
+} from "./types";
 import { supabaseAdmin } from "../../../../lib/supabase";
 import { generateMagicLinkEmail } from "./emails";
 import MagicLinkModal from "./modals/MagicLinkModal";
 import { createUserWithAuthId, deleteUserById, getUserById } from "./services";
+
+const updaterUsersEvent = () => (
+  <div id="server_events">
+    <div x-init="$dispatch('users:updated')"></div>
+  </div>
+);
 
 export const getUsersPageAdmin = async (c: Context) => {
   const user = await getUser(c);
@@ -18,7 +29,6 @@ export const getUsersPageAdmin = async (c: Context) => {
 export const createNewUserAdmin = async (c: UserFormContext) => {
   const formData = c.req.valid("form");
   const { email, firstName, lastName } = formData;
-
   const { data: authData, error: authError } =
     await supabaseAdmin.auth.admin.createUser({
       email,
@@ -39,8 +49,12 @@ export const createNewUserAdmin = async (c: UserFormContext) => {
   if (!newUser) {
     return showErrorAlert(c, "Failed to create user");
   }
-
-  return showSuccessAlert(c, "User created!");
+  return c.html(
+    <>
+      <Alert type="success" message="User created!" />
+      {updaterUsersEvent()}
+    </>,
+  );
 };
 
 export const deleteUserAdmin = async (c: UserIdContext) => {
@@ -50,21 +64,30 @@ export const deleteUserAdmin = async (c: UserIdContext) => {
   return c.html(
     <>
       <Alert type="success" message="User deleted!" />
-      <div id="server_events">
-        <div x-init="$dispatch('users:updated')"></div>
-      </div>
+      {updaterUsersEvent()}
+    </>,
+  );
+};
+
+export const deleteMultipleUsersAdmin = async (
+  c: DeleteMultipleUsersContext,
+) => {
+  const { ids } = c.req.valid("form");
+  const results = await Promise.all(ids.map((id) => deleteUserById(id)));
+  const deleted = results.filter(Boolean).length;
+  return c.html(
+    <>
+      <Alert type="success" message={`${deleted} user(s) deleted.`} />
+      {updaterUsersEvent()}
     </>,
   );
 };
 
 export const generateMagicLinkAdmin = async (c: UserIdContext) => {
   const userId = c.req.valid("param").userId;
-  console.log("userId", userId);
 
   const user = await getUserById(userId);
   const email = user?.email as string;
-
-  console.log("email", email);
 
   const { data, error } = await supabaseAdmin.auth.admin.generateLink({
     type: "magiclink",

@@ -1,6 +1,6 @@
 import { Env } from "hono/types";
 import { magicLinkFormSchema, userIdSchema } from "../../../../schemas";
-import { newUserFormAdminSchema } from "./schema";
+import { deleteMultipleUsersSchema, newUserFormAdminSchema } from "./schema";
 import { Context } from "hono";
 import z from "zod";
 
@@ -25,4 +25,10 @@ export type MagicLinkFormContext = Context<
       param: z.infer<typeof userIdSchema>;
     };
   }
+>;
+
+export type DeleteMultipleUsersContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof deleteMultipleUsersSchema> } }
 >;

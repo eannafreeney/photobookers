@@ -21,7 +21,7 @@ const ApproveBookTableRow = ({ book }: Props) => {
           : ""}
       </td>
       <td class="p-4">
-        <a href={`/dashboard/books/edit/${book.id}`}>
+        <a href={`/dashboard/books/${book.id}/update`}>
           <Button variant="outline" color="inverse">
             <span>Edit</span>
           </Button>

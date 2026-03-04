@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../../../db/client";
-import { creators, users } from "../../../../db/schema";
+import { creatorClaims, creators, follows, users } from "../../../../db/schema";
 import { newUserFormAdminSchema } from "./schema";
 import z from "zod";
 
@@ -56,5 +56,17 @@ export const createUserWithAuthId = async (
 };
 
 export const deleteUserById = async (userId: string) => {
-  return await db.delete(users).where(eq(users.id, userId)).returning();
+  return await db.transaction(async (tx) => {
+    await tx
+      .update(creators)
+      .set({ ownerUserId: null })
+      .where(eq(creators.ownerUserId, userId));
+    await tx.delete(creatorClaims).where(eq(creatorClaims.userId, userId));
+    await tx.delete(follows).where(eq(follows.followerUserId, userId));
+    const result = await tx
+      .delete(users)
+      .where(eq(users.id, userId))
+      .returning();
+    return result;
+  });
 };

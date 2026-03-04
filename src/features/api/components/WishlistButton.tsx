@@ -40,7 +40,7 @@ const WishlistButton = async ({
 
   const props = {
     id,
-    action: `/api/wishlist/${book.id}`,
+    action: `/api/books/${book.id}/wishlist`,
     hiddenInput: { name: "isWishlisted", value: isWishlisted },
     buttonText: isCircleButton ? (
       buttonIcon

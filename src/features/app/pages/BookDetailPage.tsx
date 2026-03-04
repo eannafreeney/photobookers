@@ -102,7 +102,7 @@ const DetailDesktop = ({
                 {book.title}
               </h3>
               {user?.isAdmin && (
-                <a href={`/dashboard/admin/books/edit/${book.id}`}>
+                <a href={`/dashboard/admin/books/${book.id}/update`}>
                   <Button variant="outline" color="secondary" width="sm">
                     Edit
                   </Button>
@@ -173,7 +173,7 @@ const DetailMobile = ({
       <PurchaseLink purchaseLink={book.purchaseLink} />
       <TagList tags={book.tags ?? []} />
       {canEditBook(user, book) && (
-        <a href={`/dashboard/admin/books/edit/${book.id}`}>
+        <a href={`/dashboard/admin/books/${book.id}/update`}>
           <Button variant="outline" color="secondary" width="sm">
             Edit
           </Button>

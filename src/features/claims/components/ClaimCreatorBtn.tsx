@@ -24,7 +24,9 @@ const ClaimCreatorBtn = async ({ creator, user, currentPath }: Props) => {
   const isDisabled = !canClaimCreator(user, creator) || hasPendingClaim;
   const props = {
     id,
-    action: `/claim/${creator.id}`,
+    action: currentPath
+      ? `/claim/${creator.id}?currentPath=${encodeURIComponent(currentPath)}`
+      : `/claim/${creator.id}`,
     disabled: isDisabled,
     method: "get" as const as "get" | "post",
     tooltipText: "Claim Creator Profile",

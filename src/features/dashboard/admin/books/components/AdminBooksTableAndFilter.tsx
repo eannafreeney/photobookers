@@ -124,12 +124,12 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
         <PreviewButton book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
-        <a href={`/dashboard/admin/books/${book.id}`}>
+        <a href={`/dashboard/admin/books/${book.id}/update`}>
           <button class="cursor-pointer">{editIcon}</button>
         </a>
       </Table.BodyRow>
       <Table.BodyRow>
-        <DeleteFormButton action={`/dashboard/admin/books/delete/${book.id}`} />
+        <DeleteFormButton action={`/dashboard/admin/books/${book.id}/delete`} />
       </Table.BodyRow>
     </tr>
   );
@@ -139,7 +139,7 @@ const ScheduleWeekButton = ({ book }: { book: BookWithAdminRelations }) => {
   if (book.bookOfTheWeekEntry) {
     return (
       <a
-        href={`/dashboard/admin/book-of-the-week/edit/${book.id}`}
+        href={`/dashboard/admin/book-of-the-week/${book.id}/update`}
         x-target="modal-root"
       >
         {toWeekString(book.bookOfTheWeekEntry.weekStart)}
@@ -148,7 +148,7 @@ const ScheduleWeekButton = ({ book }: { book: BookWithAdminRelations }) => {
   }
   return (
     <a
-      href={`/dashboard/admin/book-of-the-week/${book.id}`}
+      href={`/dashboard/admin/book-of-the-week/${book.id}/create`}
       x-target="modal-root"
     >
       {calendarIcon}

@@ -62,14 +62,6 @@ export function registerCreatorForm() {
         submitForm(event: Event) {
           return handleSubmit(this, event, registerCreatorFormSchema);
         },
-
-        onSuccess() {
-          resetFormBaseline(this, CREATOR_FORM_FIELDS);
-        },
-
-        onError() {
-          (this as unknown as { isSubmitting: boolean }).isSubmitting = false;
-        },
       };
     },
   );

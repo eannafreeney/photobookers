@@ -29,7 +29,6 @@ const PublishToggleForm = ({ book }: Props) => {
       action={action}
       {...alpineAttrs}
     >
-      <input type="hidden" name="_method" value="PATCH" />
       <ToggleButton
         isChecked={isPublished}
         name="isPublished"

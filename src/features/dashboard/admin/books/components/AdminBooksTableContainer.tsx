@@ -27,7 +27,7 @@ const AdminBooksTableContainer = async ({
           action="/dashboard/admin/books"
           placeholder="Filter books..."
         />
-        <Link href="/dashboard/admin/books/new">
+        <Link href="/dashboard/admin/books/create">
           <Button variant="solid" color="primary">
             New Book
           </Button>

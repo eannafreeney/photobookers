@@ -8,6 +8,30 @@ interface AlertProps {
 }
 
 const Alert = ({ type, message }: AlertProps) => {
+  // return (
+  //   <ul x-sync id="notification_list" x-merge="prepend" role="status">
+  //     <li
+  //       x-data="{
+  //         show: false,
+  //         init() {
+  //           this.$nextTick(() => this.show = true)
+  //           setTimeout(() => this.dismiss(), 6000)
+  //         },
+  //         dismiss() {
+  //           this.show = false
+  //           setTimeout(() => this.$root.remove(), 500)
+  //         }
+  //       }"
+  //       x-show="show"
+  //       {...{ "x-transition.duration.500ms": true }}
+  //     >
+  //       <span>The button was clicked 1 time.</span>
+  //       <button x-on:click="dismiss" type="button" aria-label="Dismiss">
+  //         &times;
+  //       </button>
+  //     </li>
+  //   </ul>
+  // );
   const variant = alertVariants[type];
 
   const alpineAttrs = {

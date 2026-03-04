@@ -18,10 +18,9 @@ const DeleteBookForm = ({ book, user }: Props) => {
   return (
     <form
       method="post"
-      action={`/dashboard/books/delete/${book.id}`}
+      action={`/dashboard/books/${book.id}/delete`}
       {...attrs}
     >
-      <input type="hidden" name="_method" value="DELETE" />
       <Button
         variant="outline"
         color="danger"

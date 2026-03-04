@@ -26,7 +26,9 @@ const BookOfTheWeekForm = ({ book, formValues }: Props) => {
     "x-target.error": "book-of-the-week-errors",
   };
 
-  const method = isEditMode ? "PATCH" : "POST";
+  const action = isEditMode
+    ? `/dashboard/admin/book-of-the-week/${book.id}/update`
+    : `/dashboard/admin/book-of-the-week/${book.id}/create`;
 
   return (
     <>
@@ -63,7 +65,7 @@ const BookOfTheWeekForm = ({ book, formValues }: Props) => {
         id="book-of-the-week"
         class="mt-4"
         method="post"
-        action={`/dashboard/admin/book-of-the-week/${book.id}`}
+        action={action}
         {...alpineAttrs}
       >
         <div>
@@ -75,7 +77,6 @@ const BookOfTheWeekForm = ({ book, formValues }: Props) => {
             maxLength={250}
             minRows={4}
           />
-          <input type="hidden" name="_method" value={method} />
         </div>
         <div id="book-of-the-week-errors"></div>
         <Button variant="solid" color="primary" type="submit">
@@ -87,9 +88,8 @@ const BookOfTheWeekForm = ({ book, formValues }: Props) => {
           class="mt-4"
           method="post"
           x-target="toast"
-          action={`/dashboard/admin/book-of-the-week/delete/${book.id}`}
+          action={`/dashboard/admin/book-of-the-week/${book.id}/delete`}
         >
-          <input type="hidden" name="_method" value="DELETE" />
           <Button variant="outline" color="danger" width="full">
             Delete
           </Button>

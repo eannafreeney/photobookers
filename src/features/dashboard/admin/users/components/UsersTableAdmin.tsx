@@ -20,7 +20,11 @@ const UsersTableAdmin = async () => {
   };
 
   return (
-    <div id="users-table-container" class="flex flex-col gap-4">
+    <div
+      x-data="{ selectedCount: 0 }"
+      id="users-table-container"
+      class="flex flex-col gap-4"
+    >
       <SectionTitle>Users</SectionTitle>
       <div class="flex items-center justify-between gap-4">
         <TableSearch
@@ -50,6 +54,7 @@ const UsersTableAdmin = async () => {
           ))}
         </Table.Body>
       </Table>
+      <DeleteMultipleUsersForm />
     </div>
   );
 };
@@ -68,6 +73,15 @@ const UserTableRow = ({ user }: RowProps) => {
   return (
     <tr>
       <Table.BodyRow>
+        <input
+          type="checkbox"
+          form="users-table-form"
+          name="ids"
+          value={user.id}
+          class="cursor-pointer"
+        />
+      </Table.BodyRow>
+      <Table.BodyRow>
         {user.firstName} {user.lastName}
       </Table.BodyRow>
       <Table.BodyRow>{user.email}</Table.BodyRow>
@@ -82,7 +96,7 @@ const UserTableRow = ({ user }: RowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <a
-          href={`/dashboard/admin/users/generate-magic-link/${user.id}`}
+          href={`/dashboard/admin/users/${user.id}/generate-magic-link`}
           x-target="modal-root"
         >
           <Button variant="outline" color="inverse">
@@ -91,7 +105,7 @@ const UserTableRow = ({ user }: RowProps) => {
         </a>
       </Table.BodyRow>
       <Table.BodyRow>
-        <DeleteFormButton action={`/dashboard/admin/users/${user.id}`} />
+        <DeleteFormButton action={`/dashboard/admin/users/${user.id}/delete`} />
       </Table.BodyRow>
     </tr>
   );
@@ -114,5 +128,26 @@ const CreatorStatus = async ({ userId }: { userId: string }) => {
     <Link href={`/creators/${creator.slug}`} target="_blank">
       <Badge>{capitalize(creator.status ?? "")}</Badge>
     </Link>
+  );
+};
+
+const DeleteMultipleUsersForm = () => {
+  const deleteAttrs = {
+    "x-target": "toast",
+    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+  };
+
+  return (
+    <form
+      x-ref="form"
+      id="users-table-form"
+      method="post"
+      action="/dashboard/admin/users/delete-multiple"
+      {...deleteAttrs}
+    >
+      <Button variant="outline" color="danger" type="submit">
+        Delete
+      </Button>
+    </form>
   );
 };
