@@ -66,15 +66,3 @@ export const redirectUrlSchema = z.object({
 export const currentPathSchema = z.object({
   currentPath: z.string().optional(),
 });
-
-// ============ DELETE BOOK FORM SCHEMA ============
-export const deleteBookFormSchema = z.object({
-  _method: methodField,
-  bookId: uuidField,
-});
-
-// ============ PUBLISH TOGGLE FORM SCHEMA ============
-export const publishToggleFormSchema = z.object({
-  _method: methodField,
-  bookId: uuidField,
-});

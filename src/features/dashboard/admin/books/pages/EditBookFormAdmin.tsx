@@ -6,7 +6,9 @@ import Page from "../../../../../components/layouts/Page";
 import BookCoverForm from "../../../images/forms/BookCoverForm";
 import { BookFormAdmin } from "../components/AddBookForm";
 import Breadcrumbs from "../../components/Breadcrumbs";
-import { getBookById } from "../../../../app/services";
+import { getBookById } from "../../../books/services";
+import PreviewButton from "../../../../api/components/PreviewButton";
+import PublishToggleForm from "../../../books/components/PublishToggleForm";
 
 type Props = {
   bookId: string;
@@ -45,6 +47,12 @@ const EditBookPageAdmin = async ({ user, bookId, flash }: Props) => {
             },
           ]}
         />
+        <div class="flex justify-end">
+          <div class="flex items-center gap-4">
+            <PublishToggleForm book={book} />
+            <PreviewButton book={book} user={user} />
+          </div>
+        </div>
         <BookFormAdmin bookId={book.id} formValues={formValues} />
         <hr class="my-4" />
         <div

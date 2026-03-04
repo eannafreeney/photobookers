@@ -38,3 +38,10 @@ export function toWeekString(d: Date): string {
   const w = Math.max(1, Math.min(53, weekNum));
   return `${year}-W${String(w).padStart(2, "0")}`;
 }
+
+const VALID_SORT = ["newest", "oldest", "title_asc", "title_desc"] as const;
+type SortBy = (typeof VALID_SORT)[number];
+
+export function parseSortBy(raw: string | undefined): SortBy {
+  return VALID_SORT.includes(raw as SortBy) ? (raw as SortBy) : "newest";
+}

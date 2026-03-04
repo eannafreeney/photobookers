@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, isNull, or } from "drizzle-orm";
 import { db } from "../../../db/client";
 import {
   Book,
@@ -60,40 +60,94 @@ export const getBooksByCreatorId = async (
   searchQuery?: string,
   defaultLimit = 30,
 ) => {
-  const bookColumn =
-    creatorType === "artist" ? books.artistId : books.publisherId;
   try {
-    const [{ value: totalCount = 0 }] = await db
+    if (creatorType === "publisher") {
+      const [{ value: totalCount = 0 }] = await db
+        .select({ value: count() })
+        .from(books)
+        .where(and(eq(books.publisherId, creatorId)));
+
+      const { page, limit, offset, totalPages } = getPagination(
+        currentPage,
+        totalCount,
+        defaultLimit,
+      );
+
+      const baseCondition = and(eq(books.publisherId, creatorId));
+      const whereClause = searchQuery
+        ? and(baseCondition, ilike(books.title, `%${searchQuery}%`))
+        : baseCondition;
+
+      const booksByCreator = await db.query.books.findMany({
+        where: whereClause,
+        orderBy: (books, { desc }) => [desc(books.createdAt)],
+        with: { artist: true, publisher: true },
+        limit,
+        offset,
+      });
+
+      return { books: booksByCreator, totalPages, page };
+    }
+
+    // Artist: only books where artistId === creatorId AND (no publisher OR publisher.status === 'stub')
+    const artistBookFilter = and(
+      eq(books.artistId, creatorId),
+      or(isNull(books.publisherId), eq(creators.status, "stub")),
+    );
+    const artistWhereClause = searchQuery
+      ? and(artistBookFilter, ilike(books.title, `%${searchQuery}%`))
+      : artistBookFilter;
+
+    const artistBookIdsSubquery = db
+      .select({ id: books.id })
+      .from(books)
+      .leftJoin(creators, eq(books.publisherId, creators.id))
+      .where(artistWhereClause);
+
+    const countResult = await db
       .select({ value: count() })
       .from(books)
-      .where(and(eq(bookColumn, creatorId)));
+      .leftJoin(creators, eq(books.publisherId, creators.id))
+      .where(artistWhereClause);
 
+    const totalCount = Number(countResult[0]?.value ?? 0);
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
       defaultLimit,
     );
 
-    const baseCondition = and(eq(bookColumn, creatorId));
-
-    const whereClause = searchQuery
-      ? and(baseCondition, ilike(books.title, `%${searchQuery}%`))
-      : baseCondition;
-
     const booksByCreator = await db.query.books.findMany({
-      where: whereClause,
+      where: inArray(books.id, artistBookIdsSubquery),
       orderBy: (books, { desc }) => [desc(books.createdAt)],
-      with: {
-        artist: true,
-        publisher: true,
-      },
-      limit: limit,
-      offset: offset,
+      with: { artist: true, publisher: true },
+      limit,
+      offset,
     });
 
     return { books: booksByCreator, totalPages, page };
   } catch (error) {
-    console.error("Failed to get creator by slug", error);
+    console.error("Failed to get books by creator", error);
+    return null;
+  }
+};
+
+export const getBookById = async (bookId: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      with: {
+        publisher: true,
+        artist: true,
+        bookOfTheWeekEntry: true,
+        images: {
+          orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+        },
+      },
+    });
+    return book ?? null;
+  } catch (error) {
+    console.error("Failed to get book by id", error);
     return null;
   }
 };

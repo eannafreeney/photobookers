@@ -34,7 +34,13 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
       )} Profile`}</SectionTitle>
       <form action={action} method="post" {...alpineAttrs}>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-          <ValidateDisplayName />
+          <Input
+            label="Display Name"
+            name="form.displayName"
+            validateInput="validateField('displayName')"
+            maxLength={100}
+            required
+          />
           <Input label="Tagline" name="form.tagline" maxLength={150} />
           <TextArea
             label="Biography"

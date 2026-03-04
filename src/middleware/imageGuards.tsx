@@ -3,7 +3,7 @@ import { getUser } from "../utils";
 import { showErrorAlert } from "../lib/alertHelpers";
 import { User } from "../db/schema";
 import { canEditBook, canEditCreator } from "../lib/permissions";
-import { getBookById } from "../features/app/services";
+import { getBookById } from "../features/dashboard/books/services";
 import { getCreatorById } from "../features/dashboard/creators/services";
 
 type ImageEnv = {

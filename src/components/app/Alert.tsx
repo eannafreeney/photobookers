@@ -8,65 +8,45 @@ interface AlertProps {
 }
 
 const Alert = ({ type, message }: AlertProps) => {
-  // return (
-  //   <ul x-sync id="notification_list" x-merge="prepend" role="status">
-  //     <li
-  //       x-data="{
-  //         show: false,
-  //         init() {
-  //           this.$nextTick(() => this.show = true)
-  //           setTimeout(() => this.dismiss(), 6000)
-  //         },
-  //         dismiss() {
-  //           this.show = false
-  //           setTimeout(() => this.$root.remove(), 500)
-  //         }
-  //       }"
-  //       x-show="show"
-  //       {...{ "x-transition.duration.500ms": true }}
-  //     >
-  //       <span>The button was clicked 1 time.</span>
-  //       <button x-on:click="dismiss" type="button" aria-label="Dismiss">
-  //         &times;
-  //       </button>
-  //     </li>
-  //   </ul>
-  // );
   const variant = alertVariants[type];
 
   const alpineAttrs = {
-    "x-data": "{ show: false }",
-    "x-init":
-      "$nextTick(() => show = true); setTimeout(() => { show = false; setTimeout(() => $el.remove(), 300) }, 4000)",
     "x-show": "show",
+    "x-transition.duration.500ms": true,
   };
 
   return (
-    <div
-      id="toast"
-      x-sync
-      {...alpineAttrs}
-      {...fadeTransition}
-      class={`fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-md z-50 overflow-hidden rounded-sm border
+    <ul id="toast" x-merge="prepend" role="status">
+      <li
+        x-data="{
+        show: false,
+        init() {
+          this.$nextTick(() => this.show = true)
+          setTimeout(() => this.dismiss(), 4000)
+          },
+          dismiss() {
+            this.show = false
+            setTimeout(() => this.$root.remove(), 500)
+            }
+          }"
+        {...alpineAttrs}
+        class={`fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-md z-50 overflow-hidden rounded-sm border
         bg-surface text-on-surface
         ${variant.border}`}
-    >
-      <div class={`flex w-full items-center gap-2 p-4 ${variant.bg}`}>
-        <div
-          aria-hidden="true"
-          class={`rounded-full p-1 ${variant.iconWrapper}`}
-        >
-          {variant.Icon}
+      >
+        <div class={`flex w-full items-center gap-2 p-4 ${variant.bg}`}>
+          <div class={`rounded-full p-1 ${variant.iconWrapper}`}>
+            {variant.Icon}
+          </div>
+          <div class="ml-2">
+            <h3 class={`text-sm font-semibold ${variant.class}`}>
+              {variant.title}
+            </h3>
+            <p class="text-xs font-medium sm:text-sm">{message}</p>
+          </div>
         </div>
-
-        <div class="ml-2">
-          <h3 class={`text-sm font-semibold ${variant.class}`}>
-            {variant.title}
-          </h3>
-          <p class="text-xs font-medium sm:text-sm">{message}</p>
-        </div>
-      </div>
-    </div>
+      </li>
+    </ul>
   );
 };
 

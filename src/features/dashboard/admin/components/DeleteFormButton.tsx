@@ -8,7 +8,6 @@ const DeleteFormButton = ({ action }: { action: string }) => {
   };
   return (
     <form method="post" action={action} {...alpineAttrs}>
-      <input type="hidden" name="_method" value="DELETE" />
       <button type="submit" class="cursor-pointer">
         {deleteIcon}
       </button>

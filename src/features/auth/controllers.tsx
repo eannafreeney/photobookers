@@ -404,9 +404,7 @@ export const resetPassword = async (c: ResetPasswordFormContext) => {
     data.user.id,
   );
 
-  console.log("user", data.user);
-
-  await setFlash(c, "success", "Your password has been reset successfully!");
+  await setFlash(c, "success", "Your password has been updated successfully!");
   return c.redirect("/");
 };
 

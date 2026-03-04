@@ -11,7 +11,8 @@ import { getUser } from "../utils";
 import { Book } from "../db/schema";
 import { showErrorAlert } from "../lib/alertHelpers";
 import ErrorPage from "../pages/error/errorPage";
-import { getBookById, getBookBySlug } from "../features/app/services";
+import { getBookBySlug } from "../features/app/services";
+import { getBookById } from "../features/dashboard/books/services";
 
 type BookEnv = {
   Variables: {

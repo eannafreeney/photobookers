@@ -1,7 +1,6 @@
 import Link from "../../../components/app/Link";
 import FormButton from "../../../components/forms/FormButtons";
 import Input from "../../../components/forms/Input";
-import ValidateEmail from "../components/ValidateEmail";
 
 const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
   const alpineAttrs = {

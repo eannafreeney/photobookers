@@ -3,6 +3,7 @@ import { AuthUser } from "../../../../../types";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import Page from "../../../../components/layouts/Page";
 import AppLayout from "../../../../components/layouts/AppLayout";
+import Breadcrumbs from "../../admin/components/Breadcrumbs";
 
 type AddNewBookPageProps = {
   user: AuthUser;
@@ -18,10 +19,15 @@ const AddNewBookPage = ({ user }: AddNewBookPageProps) => {
   return (
     <AppLayout title="Add Book" user={user}>
       <Page>
-        <div class="py-8">
-          <SectionTitle>Create Book</SectionTitle>
-          <BookForm action={action} isPublisher={isPublisher} />
-        </div>
+        <Breadcrumbs
+          items={[
+            { label: "Books Overview", href: "/dashboard/books" },
+            {
+              label: `Create Book`,
+            },
+          ]}
+        />
+        <BookForm action={action} isPublisher={isPublisher} />
       </Page>
     </AppLayout>
   );

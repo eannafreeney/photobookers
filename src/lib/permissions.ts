@@ -65,6 +65,7 @@ export function canPreviewBook(
     "coverUrl" | "publicationStatus" | "artistId" | "publisherId"
   >,
 ): boolean {
+  console.log("user", user);
   if (!user) return false;
   if (!book.coverUrl) return false;
   if (user.isAdmin) return true;

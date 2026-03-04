@@ -14,7 +14,7 @@ const HeadlessLayout = ({ title, children, flash }: LayoutProps) => (
     <Head title={title} />
     <body class="bg-surface">
       {flash && <Alert type={flash.type} message={flash.message} />}
-      <div id="toast"></div>
+      <ul x-sync id="toast" x-merge="prepend" role="status"></ul>
       <Navbar />
       <main class="container mx-auto min-h-screen px-4">{children}</main>
     </body>

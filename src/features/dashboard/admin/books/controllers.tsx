@@ -13,8 +13,8 @@ import {
 } from "../../books/services";
 import EditBookPageAdmin from "./pages/EditBookFormAdmin";
 import { BookIdContext } from "../../books/types";
-import { deleteBookByIdAdmin, getAllBooksAdmin } from "./services";
-import { getBookById } from "../../../app/services";
+import { deleteBookByIdAdmin } from "./services";
+import { getBookById } from "../../books/services";
 import { resolveArtist, resolvePublisher } from "../creators/services";
 import AdminBooksTableAndFilter from "./components/AdminBooksTableAndFilter";
 
@@ -88,7 +88,7 @@ export const createNewBookAdmin = async (c: BookFormContext) => {
   }
 
   await setFlash(c, "success", `${newBook.title} created!`);
-  return c.redirect("/dashboard/admin/books");
+  return c.redirect(`/dashboard/admin/books/${newBook.id}/update`);
 };
 
 export const getEditBookPageAdmin = async (c: Context) => {

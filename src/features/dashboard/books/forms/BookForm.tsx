@@ -90,12 +90,6 @@ export const BookForm = async ({
               <></>
             )}
           </FeatureGuard>
-          <TextArea
-            label="Description"
-            name="form.description"
-            validateInput="validateField('description')"
-            maxLength={5000}
-          />
           <Input
             label="Purchase Link"
             name="form.purchase_link"
@@ -122,6 +116,14 @@ export const BookForm = async ({
               { value: "sold_out", label: "Sold Out" },
               { value: "unavailable", label: "Unavailable" },
             ]}
+          />
+          <TextArea
+            label="Description"
+            name="form.description"
+            validateInput="validateField('description')"
+            maxLength={5000}
+            minRows={5}
+            required
           />
           <FormButtons />
         </div>

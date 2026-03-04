@@ -42,6 +42,7 @@ const BooksOverviewDesktop = ({ books, user }: Props) => {
             <Table.HeadRow>Cover</Table.HeadRow>
             <Table.HeadRow>Title</Table.HeadRow>
             <Table.HeadRow>Artist</Table.HeadRow>
+            <Table.HeadRow>Publisher</Table.HeadRow>
             <Table.HeadRow>Release Date</Table.HeadRow>
             <Table.HeadRow>Publish</Table.HeadRow>
           </tr>
@@ -81,11 +82,26 @@ const BookTableRow = ({ book, user }: RowProps) => {
           </a>
         )}
       </Table.BodyRow>
-      <Table.BodyRow>{book.title}</Table.BodyRow>
       <Table.BodyRow>
-        <a href={`/creators/${book.artist?.slug}`}>
+        <Link
+          href={
+            book.publicationStatus === "published"
+              ? `/books/${book.slug}`
+              : `/books/preview/${book.slug}`
+          }
+        >
+          {book.title}
+        </Link>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Link href={`/creators/${book.artist?.slug}`}>
           {book.artist?.displayName}
-        </a>
+        </Link>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Link href={`/creators/${book.publisher?.slug}`}>
+          {book.publisher?.displayName ?? ""}
+        </Link>
       </Table.BodyRow>
       <Table.BodyRow>
         {book.releaseDate

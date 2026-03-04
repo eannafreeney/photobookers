@@ -12,6 +12,7 @@ import AboutPage from "./pages/AboutPage";
 import TermsAndConditionsPage from "./pages/TermsAndConditions";
 import CreatorsPage from "./pages/CreatorsPage";
 import ErrorPage from "../../pages/error/errorPage";
+import { parseSortBy } from "../../lib/utils";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -23,11 +24,7 @@ export const getCreatorDetailPage = async (c: Context) => {
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
-  const rawSort = c.req.query("sortBy");
-  const sortBy =
-    rawSort === "oldest" || rawSort === "title_asc" || rawSort === "title_desc"
-      ? rawSort
-      : "newest";
+  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <CreatorDetailPage
@@ -80,11 +77,7 @@ export const getTagPage = async (c: Context) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
-  const rawSort = c.req.query("sortBy");
-  const sortBy =
-    rawSort === "oldest" || rawSort === "title_asc" || rawSort === "title_desc"
-      ? rawSort
-      : "newest";
+  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <TagPage
@@ -103,11 +96,7 @@ export const getFeaturedPage = async (c: Context) => {
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
-  const rawSort = c.req.query("sortBy");
-  const sortBy =
-    rawSort === "oldest" || rawSort === "title_asc" || rawSort === "title_desc"
-      ? rawSort
-      : "newest";
+  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <FeaturedBooksPage
@@ -126,6 +115,7 @@ export const getFeedPage = async (c: Context) => {
   const flash = await getFlash(c);
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
+  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <FeedPage
@@ -133,6 +123,7 @@ export const getFeedPage = async (c: Context) => {
       flash={flash}
       currentPath={currentPath}
       currentPage={page}
+      sortBy={sortBy}
     />,
   );
 };
@@ -142,6 +133,7 @@ export const getLibraryPage = async (c: Context) => {
   const flash = await getFlash(c);
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
+  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <LibraryPage
@@ -149,6 +141,7 @@ export const getLibraryPage = async (c: Context) => {
       flash={flash}
       currentPath={currentPath}
       currentPage={page}
+      sortBy={sortBy}
     />,
   );
 };

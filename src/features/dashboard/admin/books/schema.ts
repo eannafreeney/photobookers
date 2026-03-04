@@ -22,5 +22,4 @@ export const bookFormAdminSchema = z.object({
       z.enum(["available", "sold_out", "unavailable"]),
     )
     .default("available"),
-  _method: methodField,
 });

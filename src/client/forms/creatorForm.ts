@@ -6,13 +6,13 @@ import {
   getIsDirty,
   handleSubmit,
   initFormValues,
-  resetFormBaseline,
   validateField,
 } from "./formUtils";
+import { creatorFormSchema } from "../../features/dashboard/creators/schema";
 
-type CreatorFormShape = z.infer<typeof registerCreatorFormSchema>;
+type CreatorFormShape = z.infer<typeof creatorFormSchema>;
 
-const CREATOR_FORM_FIELDS = Object.keys(registerCreatorFormSchema.shape);
+const CREATOR_FORM_FIELDS = Object.keys(creatorFormSchema.shape);
 
 export function registerCreatorForm() {
   Alpine.data(
@@ -23,9 +23,6 @@ export function registerCreatorForm() {
     ) => {
       return {
         isSubmitting: false,
-        isDisplayNameChecking: false,
-        displayNameAvailabilityStatus: "",
-        displayNameIsTaken: false,
 
         ...createFormState(CREATOR_FORM_FIELDS, formValues),
 
@@ -38,7 +35,7 @@ export function registerCreatorForm() {
         },
 
         validateField(field: string) {
-          return validateField(this, field, registerCreatorFormSchema);
+          return validateField(this, field, creatorFormSchema);
         },
 
         get isFormValid() {
@@ -46,21 +43,17 @@ export function registerCreatorForm() {
             errors: { form: Record<keyof CreatorFormShape, string> };
             form: CreatorFormShape;
             isDirty: boolean;
-            displayNameIsTaken: boolean;
-            isDisplayNameChecking: boolean;
           };
           return (
             ctx.isDirty &&
             Object.values(ctx.errors.form).every((err) => !err) &&
-            !ctx.displayNameIsTaken &&
-            !ctx.isDisplayNameChecking &&
             ctx.form.displayName &&
             ctx.form.type
           );
         },
 
         submitForm(event: Event) {
-          return handleSubmit(this, event, registerCreatorFormSchema);
+          return handleSubmit(this, event, creatorFormSchema);
         },
       };
     },

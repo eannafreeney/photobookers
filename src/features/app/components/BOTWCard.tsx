@@ -1,4 +1,5 @@
 import { AuthUser } from "../../../../types";
+import Button from "../../../components/app/Button";
 import Card from "../../../components/app/Card";
 import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import CarouselMobile from "../../../components/app/CarouselMobile";
@@ -61,17 +62,17 @@ const BOTWDesktopCard = ({
     <Card className="col-span-6">
       <div class="flex gap-2">
         <div class="w-1/2 shrink-0">
-          <Card.Image
+          {/* <Card.Image
             src={book.coverUrl}
             alt={book.title}
             href={`/books/${book.slug}`}
-          />
-          {/* <CarouselMobile
+          /> */}
+          <CarouselMobile
             images={[
               book.coverUrl,
               ...(book?.images?.map((image) => image.imageUrl) ?? []),
             ]}
-          /> */}
+          />
         </div>
         <div class="w-1/2 min-w-0 flex flex-col gap-2 grow justify-center">
           <div class="flex items-center justify-end gap-2 p-4">
@@ -99,7 +100,10 @@ const BOTWDesktopCard = ({
               )}
             </div>
             <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
-            <Card.Tags tags={book.tags ?? []} />
+            <Card.Tags tags={book.tags?.slice(0, 3) ?? []} />
+            <Button variant="solid" color="primary" width="full">
+              View Book
+            </Button>
           </Card.Body>
         </div>
       </div>
@@ -117,17 +121,17 @@ const BOTWMobileCard = ({
 
   return (
     <Card className="w-full min-w-0">
-      <Card.Image
+      {/* <Card.Image
         src={book.coverUrl}
         alt={book.title}
         href={`/books/${book.slug}`}
-      />
-      {/* <CarouselMobile
+      /> */}
+      <CarouselMobile
         images={[
           book.coverUrl,
           ...(book?.images?.map((image) => image.imageUrl) ?? []),
         ]}
-      /> */}
+      />
       <Card.Body>
         <div class="flex items-start justify-between">
           <div>
@@ -152,7 +156,10 @@ const BOTWMobileCard = ({
           )}
         </div>
         <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
-        <Card.Tags tags={book.tags ?? []} />
+        <Card.Tags tags={book.tags?.slice(0, 3) ?? []} />
+        <Button variant="solid" color="primary" width="full">
+          View Book
+        </Button>
       </Card.Body>
     </Card>
   );
