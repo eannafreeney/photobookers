@@ -16,7 +16,6 @@ import { adminCreatorsDashboardRoutes } from "../features/dashboard/admin/creato
 import { apiRoutes } from "../features/api/routes";
 import { imageRoutes } from "../features/dashboard/images/routes";
 import { claimRoutes } from "../features/claims/routes";
-import { methodOverride } from "hono/method-override";
 
 export const routes = new Hono();
 
@@ -36,13 +35,6 @@ routes.use(
     },
   }),
 );
-
-// routes.use(
-//   methodOverride({
-//     app: routes,
-//     form: "_method",
-//   }),
-// );
 
 // Apply optional auth to ALL routes (loads user if logged in)
 routes.use("*", optionalAuthMiddleware);

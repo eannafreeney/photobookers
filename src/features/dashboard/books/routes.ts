@@ -11,11 +11,7 @@ import {
   updateBookAsArtist,
   updateBookAsPublisher,
 } from "./controllers";
-import {
-  bookIdSchema,
-  deleteBookFormSchema,
-  publishToggleFormSchema,
-} from "../../../schemas";
+import { bookIdSchema } from "../../../schemas";
 import { limitBooksPerDay } from "../../../middleware/booksPerDayLimit";
 import { formValidator, paramValidator } from "../../../lib/validator";
 import {
@@ -72,7 +68,6 @@ booksDashboardRoutes.post(
 booksDashboardRoutes.post(
   "/:bookId/delete",
   paramValidator(bookIdSchema),
-  formValidator(deleteBookFormSchema),
   requireBookDeleteAccess,
   deleteBook,
 );
@@ -81,14 +76,12 @@ booksDashboardRoutes.post(
 booksDashboardRoutes.post(
   "/:bookId/publish",
   paramValidator(bookIdSchema),
-  formValidator(publishToggleFormSchema),
   requireBookPublishAccess,
   makeBookPublic,
 );
 booksDashboardRoutes.post(
   "/:bookId/unpublish",
   paramValidator(bookIdSchema),
-  formValidator(publishToggleFormSchema),
   requireBookUnpublishAccess,
   makeBookDraft,
 );

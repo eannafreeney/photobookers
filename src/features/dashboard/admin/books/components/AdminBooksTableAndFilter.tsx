@@ -1,4 +1,5 @@
 import { AuthUser } from "../../../../../../types";
+import Button from "../../../../../components/app/Button";
 import Link from "../../../../../components/app/Link";
 import { Pagination } from "../../../../../components/app/Pagination";
 import Table from "../../../../../components/app/Table";
@@ -49,6 +50,7 @@ const AdminBooksTableAndFilter = async ({
       <Table id="books-table">
         <Table.Head>
           <tr>
+            <Table.HeadRow>Cover</Table.HeadRow>
             <Table.HeadRow>Title</Table.HeadRow>
             <Table.HeadRow>Artist</Table.HeadRow>
             <Table.HeadRow>Publisher</Table.HeadRow>
@@ -88,7 +90,25 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
   return (
     <tr>
       <Table.BodyRow>
-        <Link href={`/books/${book.slug}`} target="_blank">
+        {book.coverUrl ? (
+          <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />
+        ) : (
+          <a href={`/dashboard/admin/books/${book.id}/update#book-images`}>
+            <Button variant="outline" color="warning">
+              <span>Upload Cover</span>
+            </Button>
+          </a>
+        )}
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Link
+          href={
+            book.publicationStatus === "published"
+              ? `/books/${book.slug}`
+              : `/books/preview/${book.slug}`
+          }
+          target="_blank"
+        >
           {book.title}
         </Link>
       </Table.BodyRow>

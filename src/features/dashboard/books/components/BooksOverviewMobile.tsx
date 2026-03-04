@@ -24,7 +24,7 @@ const BooksOverviewMobile = ({ books, user }: BooksOverviewMobileProps) => {
     <div class="flex flex-col gap-4">
       <SectionTitle>My Books</SectionTitle>
       <div class="flex flex-col gap-4">
-        <Link href="/dashboard/books/new">
+        <Link href="/dashboard/books/create">
           <Button variant="solid" color="primary">
             New Book
           </Button>
@@ -84,7 +84,15 @@ const BookTableRowMobile = ({ book, user }: RowProps) => {
             )}
           </div>
           <div class="min-w-0 flex-1 flex flex-col gap-0.5">
-            <p class="font-medium text-on-surface truncate">{book.title}</p>
+            <Link
+              href={
+                book.publicationStatus === "published"
+                  ? `/books/${book.slug}`
+                  : `/books/preview/${book.slug}`
+              }
+            >
+              <p class="font-medium text-on-surface truncate">{book.title}</p>
+            </Link>
             {book.artist && (
               <a
                 href={`/creators/${book.artist.slug}`}

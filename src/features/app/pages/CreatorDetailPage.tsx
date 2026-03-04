@@ -1,6 +1,5 @@
 import { AuthUser } from "../../../../types";
 import CreatorCard from "../../../components/app/CreatorCard";
-import PageTitle from "../../../components/app/PageTitle";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";

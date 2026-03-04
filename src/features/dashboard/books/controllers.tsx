@@ -108,7 +108,7 @@ export const createBookAsArtist = async (c: BookFormContext) => {
   }
 
   await setFlash(c, "success", `Successfully created "${newBook.title}"!`);
-  return c.redirect("/dashboard/books");
+  return c.redirect(`/dashboard/books/${newBook.id}/update`);
 };
 
 export const getEditBookPage = async (c: BookIdContext) => {

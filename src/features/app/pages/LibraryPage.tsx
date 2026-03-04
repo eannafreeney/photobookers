@@ -12,6 +12,7 @@ type Props = {
   flash: Flash;
   currentPath: string;
   currentPage: number;
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
 };
 
 const LibraryPage = async ({
@@ -19,6 +20,7 @@ const LibraryPage = async ({
   flash,
   currentPath,
   currentPage,
+  sortBy,
 }: Props) => {
   if (!user) {
     return (
@@ -34,7 +36,7 @@ const LibraryPage = async ({
     );
   }
 
-  const result = await getBooksInWishlist(user.id, currentPage);
+  const result = await getBooksInWishlist(user.id, currentPage, sortBy);
 
   if (!result?.books) {
     return <ErrorPage errorMessage="No wishlisted books found" user={user} />;

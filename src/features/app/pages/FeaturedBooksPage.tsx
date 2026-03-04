@@ -25,7 +25,7 @@ const FeaturedBooksPage = async ({
   isMobile,
   sortBy,
 }: Props) => {
-  const result = await getLatestBooks(currentPage, 10);
+  const result = await getLatestBooks(currentPage, 10, sortBy);
 
   return (
     <AppLayout title="Books" user={user} flash={flash}>

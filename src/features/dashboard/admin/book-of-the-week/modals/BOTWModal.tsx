@@ -11,9 +11,15 @@ type Props = {
 };
 
 const BOTWModal = ({ book, formValues }: Props) => {
+  const defaultFormValues = {
+    weekStart: "",
+    text: book.description ?? "",
+  };
+  const initialFormValues = formValues ?? defaultFormValues;
+
   return (
-    <Modal title="Edit Book of the Week">
-      <BookOfTheWeekForm book={book} formValues={formValues} />
+    <Modal title="Schedule Book of the Week">
+      <BookOfTheWeekForm book={book} formValues={initialFormValues} />
     </Modal>
   );
 };

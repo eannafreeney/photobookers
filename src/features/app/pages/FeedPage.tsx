@@ -12,9 +12,16 @@ type Props = {
   flash: Flash;
   currentPath: string;
   currentPage: number;
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
 };
 
-const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
+const FeedPage = async ({
+  user,
+  flash,
+  currentPath,
+  currentPage,
+  sortBy,
+}: Props) => {
   if (!user) {
     return (
       <LoggedOutScreen
@@ -29,7 +36,7 @@ const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
     );
   }
 
-  const result = await getFeedBooks(user.id, currentPage);
+  const result = await getFeedBooks(user.id, currentPage, sortBy);
 
   if (!result?.books) {
     return (
@@ -57,7 +64,7 @@ const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
           title="Your Feed"
           user={user}
           currentPath={currentPath}
-          sortBy="newest"
+          sortBy={sortBy}
           result={result}
         />
       </Page>

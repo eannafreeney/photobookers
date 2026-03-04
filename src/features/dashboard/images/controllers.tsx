@@ -133,5 +133,5 @@ export const uploadGalleryImages = async (c: BookIdContext) => {
     return showErrorAlert(c, "Failed to upload images");
   }
 
-  return showSuccessAlert(c, "ImagesUpdated");
+  return showSuccessAlert(c, "Images Updated");
 };

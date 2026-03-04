@@ -11,5 +11,5 @@ export const bookOfTheWeekFormSchema = z.object({
   text: z
     .string()
     .min(1, "Text is required")
-    .max(250, "Text must be less than 250 characters"),
+    .max(500, "Text must be less than 500 characters"),
 });

@@ -85,7 +85,6 @@ const ApproveClaimForm = ({ claim }: { claim: CreatorClaim }) => {
       action={`/dashboard/admin/claims/${claim.id}`}
       {...alpineAttrs}
     >
-      <input type="hidden" name="_method" value="POST" />
       <Button variant="outline" color="primary">
         Approve
       </Button>
@@ -106,7 +105,6 @@ const RejectClaimForm = ({ claim }: { claim: CreatorClaim }) => {
       action={`/dashboard/admin/claims/${claim.id}`}
       {...alpineAttrs}
     >
-      <input type="hidden" name="_method" value="DELETE" />
       <Button variant="outline" color="danger">
         Reject
       </Button>

@@ -7,6 +7,7 @@ import { getBooksOrderBy } from "../../lib/booksOrderBy";
 export const getBooksInWishlist = async (
   userId: string,
   currentPage: number,
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
   defaultLimit = 12,
 ) => {
   try {
@@ -31,10 +32,22 @@ export const getBooksInWishlist = async (
         wishlistItems.map((wishlist) => wishlist.bookId),
       ),
       with: {
-        artist: true,
-        publisher: true,
+        artist: {
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+          },
+        },
+        publisher: {
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+          },
+        },
       },
-      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      orderBy: getBooksOrderBy(sortBy),
       limit: limit,
       offset: offset,
     });
@@ -205,6 +218,7 @@ export const getBooksByTag = async (
 export const getLatestBooks = async (
   currentPage: number,
   defaultLimit = 12,
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
 ) => {
   try {
     const [{ value: totalCount = 0 }] = await db
@@ -225,7 +239,6 @@ export const getLatestBooks = async (
           orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
         },
       },
-      orderBy: (books, { desc }) => [desc(books.createdAt)],
       where: and(
         eq(books.publicationStatus, "published"),
         eq(books.approvalStatus, "approved"),
@@ -233,6 +246,7 @@ export const getLatestBooks = async (
       ),
       limit: limit,
       offset: offset,
+      orderBy: getBooksOrderBy(sortBy),
     });
     return { books: foundBooks, totalPages, page };
   } catch (error) {
@@ -241,29 +255,10 @@ export const getLatestBooks = async (
   }
 };
 
-export const getBookById = async (bookId: string) => {
-  try {
-    const book = await db.query.books.findFirst({
-      where: eq(books.id, bookId),
-      with: {
-        publisher: true,
-        artist: true,
-        bookOfTheWeekEntry: true,
-        images: {
-          orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
-        },
-      },
-    });
-    return book ?? null;
-  } catch (error) {
-    console.error("Failed to get book by id", error);
-    return null;
-  }
-};
-
 export const getFeedBooks = async (
   userId: string,
   currentPage: number,
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
   defaultLimit = 12,
 ) => {
   try {
@@ -314,7 +309,7 @@ export const getFeedBooks = async (
           },
         },
       },
-      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      orderBy: getBooksOrderBy(sortBy),
       limit: limit,
       offset: offset,
     });
