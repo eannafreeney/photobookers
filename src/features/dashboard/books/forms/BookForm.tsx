@@ -28,7 +28,6 @@ export const BookForm = async ({
     : [];
   const isEditPage = !!bookId;
   const isArtist = !isPublisher;
-  const method = isEditPage ? "PATCH" : "POST";
 
   const alpineAttrs = {
     "x-data": `bookForm(
@@ -124,7 +123,6 @@ export const BookForm = async ({
               { value: "unavailable", label: "Unavailable" },
             ]}
           />
-          <input type="hidden" name="_method" value={method} />
           <FormButtons />
         </div>
       </form>

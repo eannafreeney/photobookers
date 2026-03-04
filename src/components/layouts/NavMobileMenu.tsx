@@ -3,6 +3,7 @@ import { useUser } from "../../contexts/UserContext";
 import { fadeTransition } from "../../lib/transitions";
 import NavSearchMobile from "./NavSearchMobile";
 import { getInitialsAvatar } from "../../lib/avatar";
+import Button from "../app/Button";
 
 const NavMobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
   return (
@@ -114,7 +115,7 @@ const MobileDropDownMenu = ({
             View Profile
           </NavLink>
           <NavLink
-            href={`/dashboard/creators/edit/${user?.creator?.id}`}
+            href={`/dashboard/creators/${user?.creator?.id}/update`}
             currentPath={currentPath}
           >
             {`Edit ${
@@ -128,11 +129,7 @@ const MobileDropDownMenu = ({
           Admin Dashboard
         </NavLink>
       )}
-      {user && (
-        <NavLink href="/auth/logout" currentPath={currentPath}>
-          Logout
-        </NavLink>
-      )}
+
       <NavLink href="/artists" currentPath={currentPath}>
         Artists
       </NavLink>
@@ -145,6 +142,16 @@ const MobileDropDownMenu = ({
       <NavLink href="/contact" currentPath={currentPath}>
         Contact
       </NavLink>
+      {user && (
+        <form
+          action={`/auth/logout?redirectUrl=${encodeURIComponent(currentPath ?? "")}`}
+          method="post"
+        >
+          <Button variant="outline" color="primary" type="submit">
+            <span>Logout</span>
+          </Button>
+        </form>
+      )}
     </ul>
   );
 };

@@ -74,7 +74,7 @@ const BookTableRow = ({ book, user }: RowProps) => {
         {book.coverUrl ? (
           <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />
         ) : (
-          <a href={`/dashboard/books/edit/${book.id}#book-images`}>
+          <a href={`/dashboard/books/${book.id}/update#book-images`}>
             <Button variant="outline" color="warning">
               <span>Upload Cover</span>
             </Button>
@@ -104,7 +104,7 @@ const BookTableRow = ({ book, user }: RowProps) => {
         <PreviewButton book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
-        <a href={`/dashboard/books/edit/${book.id}`}>
+        <a href={`/dashboard/books/${book.id}/update`}>
           <Button variant="outline" color="inverse">
             <span>Edit</span>
           </Button>

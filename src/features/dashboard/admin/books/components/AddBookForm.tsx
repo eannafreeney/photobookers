@@ -17,8 +17,6 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
   const publisherOptions = await getAllCreatorOptions("publisher");
   const isEditPage = !!bookId;
 
-  const method = isEditPage ? "PATCH" : "POST";
-
   const alpineAttrs = {
     "x-data": `bookFormAdmin(
       ${JSON.stringify(formValues)}, 
@@ -39,8 +37,8 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
       <form
         action={
           isEditPage
-            ? `/dashboard/admin/books/${bookId}`
-            : `/dashboard/admin/books/new`
+            ? `/dashboard/admin/books/${bookId}/update`
+            : `/dashboard/admin/books/create`
         }
         method="post"
         {...alpineAttrs}
@@ -100,7 +98,6 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
               { value: "unavailable", label: "Unavailable" },
             ]}
           />
-          <input type="hidden" name="_method" value={method} />
           <FormButtons />
         </div>
       </form>

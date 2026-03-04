@@ -14,18 +14,16 @@ type Props = {
 
 const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
   const isEditPage = !!creatorId;
-  const method = isEditPage ? "PATCH" : "POST";
 
   const action = creatorId
-    ? `/dashboard/creators/edit/${creatorId}`
+    ? `/dashboard/creators/${creatorId}/update`
     : "/dashboard/creators/new";
 
   const alpineAttrs = {
     "x-data": `creatorForm(${formValues}, ${isEditPage})`,
     "x-target": "toast",
     "x-target.away": "_top",
-    "x-on:ajax:success": "onSuccess()",
-    "x-on:ajax:error": "onError()",
+    "x-on:ajax:error": "isSubmitting = false",
     "x-on:submit": "submitForm($event)",
   };
 
@@ -77,7 +75,6 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
             value={type}
             x-init={`form.type = '${type}'`}
           />
-          <input type="hidden" name="_method" value={method} />
         </div>
         <FormButtons />
       </form>

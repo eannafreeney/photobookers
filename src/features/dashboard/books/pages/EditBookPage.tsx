@@ -40,7 +40,7 @@ const BookEditPage = async ({ user, bookId, flash }: EditBookPageProps) => {
 
   const isPublisher = user.creator?.type === "publisher";
 
-  const action = `/dashboard/books/edit/${bookId}/${
+  const action = `/dashboard/books/${bookId}/update/${
     isPublisher ? "publisher" : "artist"
   }`;
 

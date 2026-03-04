@@ -1,7 +1,7 @@
 import FormButtons from "../../../components/forms/FormButtons";
 import Input from "../../../components/forms/Input";
 
-const ResetPasswordForm = () => {
+const SetPasswordForm = () => {
   return (
     <>
       <Input
@@ -22,15 +22,15 @@ const ResetPasswordForm = () => {
         validationTrigger="blur"
         required
       />
-      <FormButtons buttonText="Reset Password" loadingText="Resetting..." />
-      <div class="h-2">
+      <FormButtons buttonText="Set Password" loadingText="Setting..." />
+      <div class="h-4 w-full text-left">
         <p
           x-show="errors.globalError"
-          class="text-red-500"
+          class="text-red-500 text-left"
           x-text="errors.globalError"
         />
       </div>
     </>
   );
 };
-export default ResetPasswordForm;
+export default SetPasswordForm;

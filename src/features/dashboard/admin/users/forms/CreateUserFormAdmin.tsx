@@ -14,10 +14,10 @@ const CreateUserFormAdmin = () => {
     <div id="new-user-form" class="flex flex-col gap-4">
       <SectionTitle>New User</SectionTitle>
       <form
-        action="/dashboard/admin/users/new"
+        action="/dashboard/admin/users/create"
         method="post"
-        {...alpineAttrs}
         class="flex items-center justify-between gap-4"
+        {...alpineAttrs}
       >
         <div class="flex-1 min-w-0">
           <ValidateEmail />

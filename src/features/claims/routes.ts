@@ -1,15 +1,20 @@
 import { Hono } from "hono";
 import { getClaimModal, processClaim, verifyClaimPage } from "./controllers";
-import { creatorIdSchema, currentPathSchema } from "../../schemas";
-import { formValidator, paramValidator } from "../../lib/validator";
+import { currentPathSchema, creatorIdSchema } from "../../schemas";
+import {
+  formValidator,
+  paramValidator,
+  queryValidator,
+} from "../../lib/validator";
 import { claimFormSchema, tokenSchema } from "./schema";
 
 export const claimRoutes = new Hono();
 
+claimRoutes.get("/verify/:token", paramValidator(tokenSchema), verifyClaimPage);
 claimRoutes.get(
   "/:creatorId",
   paramValidator(creatorIdSchema),
-  formValidator(currentPathSchema),
+  queryValidator(currentPathSchema),
   getClaimModal,
 );
 claimRoutes.post(
@@ -18,4 +23,3 @@ claimRoutes.post(
   formValidator(claimFormSchema),
   processClaim,
 );
-claimRoutes.get("/verify/:token", paramValidator(tokenSchema), verifyClaimPage);

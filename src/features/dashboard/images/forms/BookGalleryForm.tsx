@@ -31,7 +31,7 @@ const BookGalleryForm = ({ initialImages, bookId }: Props) => {
       <form
         enctype="multipart/form-data"
         method="post"
-        action={`/dashboard/images/${bookId}/gallery`}
+        action={`/dashboard/images/books/${bookId}/gallery`}
         {...alpineAttrs}
       >
         <div class="space-y-4">

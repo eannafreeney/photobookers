@@ -108,7 +108,7 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
         />
       </Table.BodyRow>
       <Table.BodyRow>
-        <a href={`/dashboard/admin/creators/edit/${creator.id}`}>
+        <a href={`/dashboard/admin/creators/${creator.id}/update`}>
           <Button variant="outline" color="inverse">
             <span>Edit</span>
           </Button>
@@ -116,7 +116,7 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <DeleteFormButton
-          action={`/dashboard/admin/creators/delete/${creator.id}`}
+          action={`/dashboard/admin/creators/${creator.id}/delete`}
         />
       </Table.BodyRow>
     </tr>
@@ -136,7 +136,7 @@ const AssignOwnerCell = async ({
   if (ownerUserId) {
     const user = await getUserByIdAdmin(ownerUserId);
     return (
-      <Link href={`/dashboard/admin/users/edit/${ownerUserId}`}>
+      <Link href={`/dashboard/admin/users/${ownerUserId}`}>
         {user?.email ?? "Unassigned"}
       </Link>
     );

@@ -50,9 +50,6 @@ const APIButton = ({
           value={hiddenInput.value ? "true" : "false"}
         />
       )}
-      {currentPath && (
-        <input type="hidden" name="currentPath" value={currentPath} />
-      )}
       <button
         class="flex cursor-pointer items-center justify-center gap-2 hover:cursor-pointer w-full disabled:opacity-50 hover:opacity-75"
         disabled={isDisabled}

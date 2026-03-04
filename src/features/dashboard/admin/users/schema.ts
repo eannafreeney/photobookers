@@ -6,3 +6,10 @@ export const newUserFormAdminSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
 });
+
+export const deleteMultipleUsersSchema = z.object({
+  ids: z.preprocess(
+    (val) => (Array.isArray(val) ? val : val ? [val] : []),
+    z.array(z.string().uuid()).min(1, "Select at least one user"),
+  ),
+});

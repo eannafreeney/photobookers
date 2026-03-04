@@ -35,6 +35,7 @@ const AppLayout = ({
       <div id="modal-root"></div>
       {flash && <Alert type={flash.type} message={flash.message} />}
       <div id="toast"></div>
+      <ul x-sync id="notification_list" x-merge="prepend" role="status"></ul>
       <div x-sync id="server_events"></div>
       <script
         src="//instant.page/5.2.0"

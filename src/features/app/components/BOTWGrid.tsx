@@ -1,6 +1,5 @@
 import { AuthUser } from "../../../../types";
 import SectionTitle from "../../../components/app/SectionTitle";
-import { star } from "../../../lib/icons";
 import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
 import BookOfTheWeekCard from "./BOTWCard";
 import NewsletterCard from "./NewsletterCard";
@@ -21,14 +20,14 @@ const BookOfTheWeekGrid = async ({ user, isMobile }: Props) => {
     <>
       <SectionTitle>Book of the Week</SectionTitle>
       <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-end w-full">
-        <div class="col-span-2 md:col-span-6">
+        <div class="col-span-2 md:col-span-5">
           <BookOfTheWeekCard
             isMobile={isMobile}
             bookOfTheWeek={bookOfTheWeek}
             user={user}
           />
         </div>
-        <NewsletterCard className="col-span-2" />
+        <NewsletterCard className="col-span-3" />
       </div>
     </>
   );

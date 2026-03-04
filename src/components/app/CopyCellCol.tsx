@@ -10,6 +10,7 @@ const CopyCellCol = ({ entity, buttonWidth = "fit" }: Props) => {
     <div
       x-data={`{ cellValue: '${entity}', copied: false }`}
       class="flex items-center gap-2"
+      x-on:click="$dispatch('dialog:close')"
     >
       <Button
         variant="outline"

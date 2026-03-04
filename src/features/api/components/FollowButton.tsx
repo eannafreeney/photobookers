@@ -43,7 +43,7 @@ const FollowButton = async ({
 
   const props = {
     id,
-    action: `/api/follow/creator/${creator.id}`,
+    action: `/api/creators/${creator.id}/follow`,
     disabled: userIsCreator,
     tooltipText: isFollowing ? "Unfollow" : "Follow",
     hiddenInput: { name: "isFollowing", value: isFollowing },

@@ -7,7 +7,7 @@ type Props = {
 const ValidateEmail = ({ isAvailable }: Props) => {
   const emailAlpineAttrs = {
     "x-on:input.debounce.500ms":
-      "$ajax('/auth/validate-email', { method: 'post', body: { email: form.email } })",
+      "$ajax('/auth/validate/email', { method: 'post', body: { email: form.email } })",
   };
 
   return (

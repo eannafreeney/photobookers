@@ -8,7 +8,7 @@ import {
 
 export const apiRoutes = new Hono();
 
-apiRoutes.post("/follow/creator/:creatorId", followCreator);
-apiRoutes.post("/wishlist/:bookId", wishlistBook);
+apiRoutes.post("/creators/:creatorId/follow", followCreator);
+apiRoutes.post("/books/:bookId/wishlist", wishlistBook);
 apiRoutes.get("/search", getSearchResults);
 apiRoutes.get("/search/mobile", getMobileSearchScreen);

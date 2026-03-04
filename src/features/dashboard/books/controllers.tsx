@@ -5,7 +5,7 @@ import BooksOverview from "./pages/BooksOverview";
 import AddBookPage from "./pages/AddBookPage";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
-import BookEditPage from "./pages/BookEditPage";
+import BookEditPage from "./pages/EditBookPage";
 import {
   BookFormContext,
   BookFormWithBookContext,
@@ -77,7 +77,7 @@ export const createBookAsPublisher = async (c: BookFormContext) => {
   if (!newBook) return showErrorAlert(c, "Failed to create book");
 
   await setFlash(c, "success", `${newBook.title} created!`);
-  return c.redirect(`/dashboard/books/edit/${newBook.id}`);
+  return c.redirect(`/dashboard/books/${newBook.id}/update`);
 };
 
 export const createBookAsArtist = async (c: BookFormContext) => {

@@ -3,7 +3,6 @@ import { requireAdminAccess } from "../../../../middleware/adminGuard";
 import { bookIdSchema } from "../../../../schemas";
 import { bookFormAdminSchema } from "./schema";
 import { formValidator, paramValidator } from "../../../../lib/validator";
-import { methodOverride } from "hono/method-override";
 import {
   createNewBookAdmin,
   deleteBookAdmin,
@@ -16,20 +15,7 @@ import {
 
 export const adminBooksDashboardRoutes = new Hono();
 
-adminBooksDashboardRoutes.use("*", async (c, next) => {
-  console.log("Original method:", c.req.method);
-  console.log("Headers:", Object.fromEntries(c.req.raw.headers));
-
-  try {
-    const body = await c.req.parseBody();
-    console.log("Body:", body);
-  } catch (e) {
-    console.log("No parsable body");
-  }
-
-  await next();
-});
-
+// ---------- Pages (GET) ----------
 adminBooksDashboardRoutes.get(
   "/",
   requireAdminAccess,
@@ -40,28 +26,38 @@ adminBooksDashboardRoutes.get(
   requireAdminAccess,
   getBooksTableFilter,
 );
-adminBooksDashboardRoutes.get("/new", requireAdminAccess, getAddBookPageAdmin);
 adminBooksDashboardRoutes.get(
-  "/:bookId",
+  "/create",
+  requireAdminAccess,
+  getAddBookPageAdmin,
+);
+adminBooksDashboardRoutes.get(
+  "/:bookId/update",
   requireAdminAccess,
   paramValidator(bookIdSchema),
   getEditBookPageAdmin,
 );
+
+// ---------- Create (POST) ----------
 adminBooksDashboardRoutes.post(
-  "/new",
+  "/create",
   requireAdminAccess,
   formValidator(bookFormAdminSchema),
   createNewBookAdmin,
 );
-adminBooksDashboardRoutes.patch(
-  "/:bookId",
+
+// ---------- Update (POST) ----------
+adminBooksDashboardRoutes.post(
+  "/:bookId/update",
   requireAdminAccess,
   formValidator(bookFormAdminSchema),
   paramValidator(bookIdSchema),
   updateBookAdmin,
 );
-adminBooksDashboardRoutes.delete(
-  "/:bookId",
+
+// ---------- Delete (POST) ----------
+adminBooksDashboardRoutes.post(
+  "/:bookId/delete",
   paramValidator(bookIdSchema),
   requireAdminAccess,
   deleteBookAdmin,

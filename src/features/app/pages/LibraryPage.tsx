@@ -43,7 +43,7 @@ const LibraryPage = async ({
   const alpineAttrs = {
     "x-init": true,
     "x-on:wishlist:updated.window":
-      "$ajax('/wishlist-books', { target: 'wishlist-books-container', sync: true })",
+      "() => console.log('wishlist updated'); $ajax('/library/wishlist-books', { target: 'wishlist-books-container' })",
   };
 
   return (

@@ -115,7 +115,7 @@ const DropDownMenu = ({
             {`View ${user?.creator?.displayName}`}
           </NavLink>
           <NavLink
-            href={`/dashboard/creators/edit/${user?.creator?.id}`}
+            href={`/dashboard/creators/${user?.creator?.id}/update`}
             currentPath={currentPath}
           >
             {`Edit ${
@@ -138,12 +138,17 @@ const DropDownMenu = ({
           >
             Reset Password
           </NavLink>
-          <NavLink
-            href={`/auth/logout?redirectUrl=${encodeURIComponent(currentPath ?? "")}`}
-            currentPath={currentPath}
+          <form
+            action={`/auth/logout?redirectUrl=${encodeURIComponent(currentPath ?? "")}`}
+            method="post"
           >
-            Logout
-          </NavLink>
+            <button
+              class="block bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-surface-dark-alt/5 hover:text-on-surface-strong focus-visible:bg-surface-dark-alt/10 focus-visible:text-on-surface-strong focus-visible:outline-hidden"
+              type="submit"
+            >
+              Logout
+            </button>
+          </form>
         </>
       )}
     </ul>

@@ -5,24 +5,29 @@ import {
 } from "../../../middleware/imageGuards";
 import { paramValidator } from "../../../lib/validator";
 import { bookIdSchema, creatorIdSchema } from "../../../schemas";
-import { updateBookCover, uploadGalleryImages } from "./controllers";
+import {
+  updateBookCover,
+  updateCreatorCover,
+  uploadGalleryImages,
+} from "./controllers";
 
 export const imageRoutes = new Hono();
 
 imageRoutes.post(
-  "creators/:creatorId/cover",
+  "/creators/:creatorId/cover",
   paramValidator(creatorIdSchema),
   requireProfileCoverImageEditAccess,
+  updateCreatorCover,
 );
 imageRoutes.post(
   "/books/:bookId/cover",
-  requireBookImageEditAccess,
   paramValidator(bookIdSchema),
+  requireBookImageEditAccess,
   updateBookCover,
 );
 imageRoutes.post(
-  "/:bookId/gallery",
-  requireBookImageEditAccess,
+  "/books/:bookId/gallery",
   paramValidator(bookIdSchema),
+  requireBookImageEditAccess,
   uploadGalleryImages,
 );

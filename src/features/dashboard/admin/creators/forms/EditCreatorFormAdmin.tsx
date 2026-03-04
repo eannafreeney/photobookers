@@ -18,12 +18,7 @@ const EditCreatorFormAdmin = ({
   creatorId,
   type = "artist",
 }: Props) => {
-  const action = creatorId
-    ? `/dashboard/admin/creators/${creatorId}`
-    : "/dashboard/admin/creators/new";
-
   const isEditPage = !!creatorId;
-  const method = isEditPage ? "PATCH" : "POST";
 
   const alpineAttrs = {
     "x-data": `editCreatorFormAdmin(${formValues}, ${isEditPage})`,
@@ -41,7 +36,11 @@ const EditCreatorFormAdmin = ({
       <SectionTitle>{`${isEditPage ? "Edit" : "Create"} ${capitalize(
         type,
       )} Profile`}</SectionTitle>
-      <form action={action} method="post" {...alpineAttrs}>
+      <form
+        action={`/dashboard/admin/creators/${creatorId}/update`}
+        method="post"
+        {...alpineAttrs}
+      >
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
           <ValidateDisplayName />
           <Input label="Tagline" name="form.tagline" maxLength={150} />
@@ -78,7 +77,6 @@ const EditCreatorFormAdmin = ({
             value={type}
             x-init={`form.type = '${type}'`}
           />
-          <input type="hidden" name="method" value={method} />
         </div>
         <FormButtons />
       </form>

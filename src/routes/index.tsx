@@ -37,12 +37,12 @@ routes.use(
   }),
 );
 
-routes.use(
-  methodOverride({
-    app: routes,
-    form: "_method",
-  }),
-);
+// routes.use(
+//   methodOverride({
+//     app: routes,
+//     form: "_method",
+//   }),
+// );
 
 // Apply optional auth to ALL routes (loads user if logged in)
 routes.use("*", optionalAuthMiddleware);

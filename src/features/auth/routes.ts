@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import {
   getAccountsPage,
-  getForceResetPasswordPage,
+  getSetNewPasswordPage,
   getLoginPage,
   getRegisterPage,
-  getResendVerficationEmailPage,
+  getResendVerificationEmailPage,
   getResetPasswordModal,
   login,
   logout,
@@ -32,15 +32,17 @@ import {
 } from "./schema";
 
 export const authRoutes = new Hono();
-
+// ---------- Pages (GET) ----------
 authRoutes.get("/accounts", getAccountsPage);
 authRoutes.get("/login", getLoginPage);
 authRoutes.get("/register", getRegisterPage);
-authRoutes.get("/resend-verification", getResendVerficationEmailPage);
-authRoutes.get("/callback", processRegister);
-authRoutes.get("/logout", logout);
-authRoutes.get("/force-reset-password", getForceResetPasswordPage);
+authRoutes.get("/resend-verification", getResendVerificationEmailPage);
+authRoutes.get("/force-reset-password", getSetNewPasswordPage);
 authRoutes.get("/reset-password", getResetPasswordModal);
+
+// ---------- Auth flow (GET/POST) ----------
+authRoutes.get("/callback", processRegister);
+authRoutes.post("/logout", logout);
 authRoutes.post(
   "/resend-verification",
   formValidator(resendVerificationFormSchema),
@@ -69,18 +71,20 @@ authRoutes.post(
   resetPassword,
 );
 authRoutes.post("/set-session", setSession);
+
+// ---------- Validation (POST) ----------
 authRoutes.post(
-  "/validate-email",
+  "/validate/email",
   formValidator(validateEmailSchema),
   validateEmail,
 );
 authRoutes.post(
-  "/validate-displayName",
+  "/validate/display-name",
   formValidator(validateDisplayNameSchema),
   validateDisplayName,
 );
 authRoutes.post(
-  "/validate-website",
+  "/validate/website",
   formValidator(validateWebsiteSchema),
   validateWebsite,
 );

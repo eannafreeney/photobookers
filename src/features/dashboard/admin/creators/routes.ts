@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { methodOverride } from "hono/method-override";
 import { requireAdminAccess } from "../../../../middleware/adminGuard";
 import {
   assignOwnerAdmin,
@@ -18,6 +17,7 @@ import { formValidator, paramValidator } from "../../../../lib/validator";
 
 export const adminCreatorsDashboardRoutes = new Hono();
 
+// ---------- Pages (GET) ----------
 adminCreatorsDashboardRoutes.get(
   "/",
   requireAdminAccess,
@@ -28,18 +28,24 @@ adminCreatorsDashboardRoutes.get(
   requireAdminAccess,
   getCreatorsTableFilter,
 );
+
+// ---------- Create (POST) ----------
 adminCreatorsDashboardRoutes.post(
-  "/new",
+  "/create",
   requireAdminAccess,
   formValidator(creatorFormAdminSchema),
   createCreatorAdmin,
 );
-adminCreatorsDashboardRoutes.delete(
-  "/:creatorId",
+
+// ---------- Delete (POST) ----------
+adminCreatorsDashboardRoutes.post(
+  "/:creatorId/delete",
   paramValidator(creatorIdSchema),
   requireAdminAccess,
   deleteCreatorAdmin,
 );
+
+// ---------- Assign Owner (GET) ----------
 adminCreatorsDashboardRoutes.get(
   "/assign-owner/:creatorId",
   requireAdminAccess,
@@ -53,24 +59,25 @@ adminCreatorsDashboardRoutes.get(
   paramValidator(creatorIdSchema),
   getAssignOwnerModalContent,
 );
-
-adminCreatorsDashboardRoutes.get(
-  "/:creatorId",
-  paramValidator(creatorIdSchema),
-  requireAdminAccess,
-  getEditCreatorPageAdmin,
-);
-adminCreatorsDashboardRoutes.patch(
-  "/:creatorId",
-  requireAdminAccess,
-  formValidator(creatorFormAdminSchema),
-  paramValidator(creatorIdSchema),
-  updateCreatorAdmin,
-);
 adminCreatorsDashboardRoutes.post(
   "/assign-owner/:creatorId",
   requireAdminAccess,
   paramValidator(creatorIdSchema),
   formValidator(manualAssignCreatorSchema),
   assignOwnerAdmin,
+);
+
+// ---------- Edit (GET and POST) ----------
+adminCreatorsDashboardRoutes.get(
+  "/:creatorId/update",
+  paramValidator(creatorIdSchema),
+  requireAdminAccess,
+  getEditCreatorPageAdmin,
+);
+adminCreatorsDashboardRoutes.post(
+  "/:creatorId/update",
+  requireAdminAccess,
+  formValidator(creatorFormAdminSchema),
+  paramValidator(creatorIdSchema),
+  updateCreatorAdmin,
 );

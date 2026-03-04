@@ -1,5 +1,5 @@
 import Modal from "../../../components/app/Modal";
-import ResetPasswordForm from "../forms/ResetPasswordForm";
+import ResetPasswordForm from "../forms/SetPasswordForm";
 
 const ResetPasswordModal = () => {
   const alpineAttrs = {

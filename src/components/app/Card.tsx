@@ -64,9 +64,6 @@ const CardImage = ({
             ? "h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105 z-10"
             : "h-auto w-full transition duration-700 ease-out group-hover:scale-105 z-10"
         }
-        {...(!(aspectSquare && objectCover)
-          ? { "x-bind:class": "objectFitClass + ' object-contain'" }
-          : {})}
       />
     </Link>
   </figure>
