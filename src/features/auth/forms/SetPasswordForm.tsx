@@ -1,7 +1,15 @@
 import FormButtons from "../../../components/forms/FormButtons";
 import Input from "../../../components/forms/Input";
 
-const SetPasswordForm = () => {
+type SetPasswordFormProps = {
+  buttonText?: string;
+  loadingText?: string;
+};
+
+const SetPasswordForm = ({
+  buttonText = "Set Password",
+  loadingText = "Setting...",
+}: SetPasswordFormProps) => {
   return (
     <>
       <Input
@@ -22,11 +30,11 @@ const SetPasswordForm = () => {
         validationTrigger="blur"
         required
       />
-      <FormButtons buttonText="Set Password" loadingText="Setting..." />
-      <div class="h-4 w-full text-left">
+      <FormButtons buttonText={buttonText} loadingText={loadingText} />
+      <div class="h-4">
         <p
           x-show="errors.globalError"
-          class="text-red-500 text-left"
+          class="text-red-500"
           x-text="errors.globalError"
         />
       </div>

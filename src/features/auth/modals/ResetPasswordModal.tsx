@@ -13,7 +13,10 @@ const ResetPasswordModal = () => {
   return (
     <Modal title="Reset Password">
       <form action="/auth/reset-password" method="post" {...alpineAttrs}>
-        <ResetPasswordForm />
+        <ResetPasswordForm
+          buttonText="Reset Password"
+          loadingText="Resetting..."
+        />
       </form>
     </Modal>
   );

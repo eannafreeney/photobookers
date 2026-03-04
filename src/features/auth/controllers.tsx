@@ -110,7 +110,7 @@ export const login = async (c: LoginFormContext) => {
   const safeRedirectUrl =
     redirectUrl && redirectUrl !== "undefined" ? redirectUrl : "/";
 
-  if (error) return showErrorAlert(c, "nvalid email or password", 401);
+  if (error) return showErrorAlert(c, "Invalid email or password", 401);
 
   return c.redirect(safeRedirectUrl ?? "/");
 };

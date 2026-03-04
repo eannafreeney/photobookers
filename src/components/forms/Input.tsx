@@ -81,13 +81,13 @@ type InputErrorProps = {
 };
 
 const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (
-  <div class="text-xs min-h-[16px] mt-1 block text-right">
+  <div class="text-xs min-h-[16px] my-2 block">
     {isError ? (
-      <span class="text-danger" {...fadeTransition}>
+      <span class="text-danger text-right" {...fadeTransition}>
         ✗ Taken
       </span>
     ) : isSuccess ? (
-      <span class="text-success" {...fadeTransition}>
+      <span class="text-success text-right" {...fadeTransition}>
         ✓ Available
       </span>
     ) : (
