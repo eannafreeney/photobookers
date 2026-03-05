@@ -69,8 +69,6 @@ type RowProps = {
 const UserTableRow = ({ user }: RowProps) => {
   if (!user) return <></>;
 
-  console.log("user", user);
-
   return (
     <tr>
       <Table.BodyRow>

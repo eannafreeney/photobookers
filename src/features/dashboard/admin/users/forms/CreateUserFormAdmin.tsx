@@ -6,7 +6,8 @@ import ValidateEmail from "../../../../auth/components/ValidateEmail";
 const CreateUserFormAdmin = () => {
   const alpineAttrs = {
     "x-data": "newUserForm()",
-    "x-target": "toast modal-root create-user-form",
+    "x-target": "modal-root create-user-form",
+    "x-target.error": "toast",
     "x-on:ajax:success": "isSubmitting = false, $dispatch('users:updated')",
     "x-on:ajax:error": "isSubmitting = false",
   };

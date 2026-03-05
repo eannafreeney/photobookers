@@ -4,7 +4,6 @@ import { showErrorAlert } from "./alertHelpers";
 
 export const formValidator = <T extends z.ZodSchema>(schema: T) => {
   return validator("form", (formData, c) => {
-    console.log("formData", formData);
     const result = schema.safeParse(formData);
     if (!result.success) {
       console.log("result.error", result.error);

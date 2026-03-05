@@ -22,6 +22,7 @@ import {
 } from "./types";
 import {
   createUser,
+  getAuthCookieOptions,
   getCreatorByDisplayName,
   getCreatorByWebsite,
   loginAndSetCookies,
@@ -34,7 +35,7 @@ import ErrorPage from "../../pages/error/errorPage";
 import { db } from "../../db/client";
 import { users } from "../../db/schema";
 import { getCallbackErrorMessage } from "./utils";
-import { deleteCookie } from "hono/cookie";
+import { deleteCookie, getCookie } from "hono/cookie";
 import ForceResetPasswordPage from "./pages/SetNewPasswordPage";
 import MagicLinkHashHandlerPage from "./pages/MagicLinkHashHandlerPage";
 import ResetPasswordModal from "./modals/ResetPasswordModal";
@@ -356,13 +357,25 @@ export const processRegister = async (c: Context) => {
 
 export const logout = async (c: Context) => {
   const user = await getUser(c);
+  const jwt = getCookie(c, "token");
   if (!user) return c.redirect("/auth/login");
 
-  const { error } = await supabaseAdmin.auth.signOut();
+  const cookieOpts = getAuthCookieOptions();
+  deleteCookie(c, "token", {
+    path: cookieOpts.path,
+    domain: cookieOpts.domain,
+  });
+  deleteCookie(c, "refresh_token", {
+    path: cookieOpts.path,
+    domain: cookieOpts.domain,
+  });
 
-  if (error) return showErrorAlert(c);
+  if (jwt) {
+    const { error } = await supabaseAdmin.auth.admin.signOut(jwt);
+    if (error) console.error("Failed to revoke session:", error);
+    if (error) return showErrorAlert(c);
+  }
 
-  deleteCookie(c, "token");
   return c.redirect("/");
 };
 

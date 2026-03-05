@@ -25,14 +25,17 @@ const SetNewPasswordPage = ({ user }: Props) => {
                 Hi {user?.firstName ?? "there"}!
               </div>
               <div class="text-sm text-center mb-4">
-                Please enter your password below.
+                Please reset your password below.
               </div>
               <form
                 action="/auth/reset-password"
                 method="post"
                 {...alpineAttrs}
               >
-                <ResetPasswordForm />
+                <ResetPasswordForm
+                  buttonText="Reset Password"
+                  loadingText="Resetting..."
+                />
               </form>
             </div>
           </div>
