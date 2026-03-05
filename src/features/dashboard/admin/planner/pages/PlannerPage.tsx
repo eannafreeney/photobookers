@@ -22,6 +22,12 @@ const PlannerPage = ({
   currentPath,
   botwByWeekStart,
 }: Props) => {
+  const alpineAttrs = {
+    "x-init": true,
+    "x-on:planner:updated.window":
+      "() => console.log('planner updated'); $ajax('/dashboard/admin/planner', { target: 'planner-grid' })",
+  };
+
   return (
     <AppLayout title="BOTW Planner" user={user}>
       <Page>
@@ -46,7 +52,11 @@ const PlannerPage = ({
             </a>
           </div>
         </div>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div
+          id="planner-grid"
+          class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          {...alpineAttrs}
+        >
           {weekStarts.map((weekStart) => {
             const key = toWeekString(weekStart);
             const botw = botwByWeekStart.get(key) ?? null;
