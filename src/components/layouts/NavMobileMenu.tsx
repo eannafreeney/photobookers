@@ -144,7 +144,8 @@ const MobileDropDownMenu = ({
       </NavLink>
       {user && (
         <form
-          action={`/auth/logout?redirectUrl=${encodeURIComponent(currentPath ?? "")}`}
+          {...{ "x-target.away": "_top", "x-target": "toast" }}
+          action="/auth/logout"
           method="post"
         >
           <Button variant="outline" color="primary" type="submit">

@@ -139,7 +139,8 @@ const DropDownMenu = ({
             Reset Password
           </NavLink>
           <form
-            action={`/auth/logout?redirectUrl=${encodeURIComponent(currentPath ?? "")}`}
+            {...{ "x-target.away": "_top", "x-target": "toast" }}
+            action="/auth/logout"
             method="post"
           >
             <button
