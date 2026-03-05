@@ -41,11 +41,11 @@ const UsersTableAdmin = async () => {
       <Table id="users-table">
         <Table.Head>
           <tr>
+            <Table.HeadRow> </Table.HeadRow>
             <Table.HeadRow>Name</Table.HeadRow>
             <Table.HeadRow>Email</Table.HeadRow>
             <Table.HeadRow>Creator Profile</Table.HeadRow>
             <Table.HeadRow>Creator Status</Table.HeadRow>
-            <Table.HeadRow>ID</Table.HeadRow>
           </tr>
         </Table.Head>
         <Table.Body id="users-table-body" {...alpineAttrs}>
@@ -91,10 +91,10 @@ const UserTableRow = ({ user }: RowProps) => {
       <Table.BodyRow>
         <CreatorStatus userId={user.id} />
       </Table.BodyRow>
-      <Table.BodyRow>
+      {/* <Table.BodyRow>
         <CopyCellCol entity={user.id} />
-      </Table.BodyRow>
-      <Table.BodyRow>
+      </Table.BodyRow>*/}
+      {/* <Table.BodyRow>
         <a
           href={`/dashboard/admin/users/${user.id}/generate-magic-link`}
           x-target="modal-root"
@@ -103,7 +103,7 @@ const UserTableRow = ({ user }: RowProps) => {
             <span>Generate Magic Link</span>
           </Button>
         </a>
-      </Table.BodyRow>
+      </Table.BodyRow> */}
       <Table.BodyRow>
         <DeleteFormButton action={`/dashboard/admin/users/${user.id}/delete`} />
       </Table.BodyRow>

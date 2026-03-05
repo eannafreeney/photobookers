@@ -61,5 +61,15 @@ export const requireAuth = async (c: Context, next: Next) => {
   // Attach user to context
   c.set("user", user);
 
+  if (user.mustResetPassword) {
+    const path = new URL(c.req.url).pathname;
+    if (
+      path !== "/auth/force-reset-password" &&
+      path !== "/auth/reset-password"
+    ) {
+      return c.redirect("/auth/force-reset-password");
+    }
+  }
+
   await next();
 };

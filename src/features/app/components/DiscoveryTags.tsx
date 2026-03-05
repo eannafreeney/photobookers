@@ -8,7 +8,7 @@ const DiscoveryTags = () => {
   return (
     <>
       <SectionTitle>Discover</SectionTitle>
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center justify-between gap-2">
         {DISCOVER_TAGS.map((tag) => (
           <Link key={tag} href={`/books/tags/${tag.toLowerCase()}`}>
             <Badge>{capitalize(tag)}</Badge>

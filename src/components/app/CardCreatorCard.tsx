@@ -1,34 +1,19 @@
 import Link from "./Link";
 import Avatar from "./Avatar";
-import { Book } from "../../db/schema";
 import Card from "./Card";
 import VerifiedCreator from "./VerifiedCreator";
-import { getCreatorById } from "../../features/dashboard/creators/services";
+import { CreatorCardResult } from "../../constants/queries";
 
 type CardCreatorCardProps = {
-  creatorType?: "publisher" | "artist";
-  book: Pick<Book, "artistId" | "publisherId">;
+  creator: CreatorCardResult | null;
   avatarSize?: "xs" | "sm" | "md" | "lg";
 };
 
 const CardCreatorCard = async ({
-  creatorType,
-  book,
+  creator,
   avatarSize = "xs",
 }: CardCreatorCardProps) => {
-  let creatorId: string | null = null;
-
-  if (creatorType === "publisher") {
-    creatorId = book.publisherId;
-  } else {
-    creatorId = book.artistId;
-  }
-
-  const creator = creatorId ? await getCreatorById(creatorId) : null;
-
-  if (!creator) {
-    return <></>;
-  }
+  if (!creator) return <></>;
 
   return (
     <Link href={`/creators/${creator.slug}`}>
@@ -40,9 +25,7 @@ const CardCreatorCard = async ({
             size={avatarSize}
           />
           <div class="absolute -top-1 -right-1">
-            {creator?.ownerUserId && (
-              <VerifiedCreator creator={creator} size="xs" />
-            )}
+            <VerifiedCreator creatorStatus={creator.status} size="xs" />
           </div>
         </div>
         <Card.SubTitle>{creator.displayName}</Card.SubTitle>

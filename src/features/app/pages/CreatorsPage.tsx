@@ -63,9 +63,7 @@ const CreatorCard = ({ creator }: { creator: Creator }) => (
           size="md"
         />
         <div class="absolute -top-1 -right-1">
-          {creator?.ownerUserId && (
-            <VerifiedCreator creator={creator} size="xs" />
-          )}
+          <VerifiedCreator creatorStatus={creator.status ?? "stub"} size="xs" />
         </div>
       </div>
       <Card.SubTitle>{creator.displayName}</Card.SubTitle>

@@ -23,9 +23,10 @@ const PageTitle = ({ title, creator, user }: PageTitleProps) => {
             size="md"
           />
           <div class="absolute -top-2 -right-2">
-            {creator?.ownerUserId && (
-              <VerifiedCreator creator={creator} size="sm" />
-            )}
+            <VerifiedCreator
+              creatorStatus={creator.status ?? "stub"}
+              size="sm"
+            />
           </div>
         </div>
       )}
@@ -33,10 +34,6 @@ const PageTitle = ({ title, creator, user }: PageTitleProps) => {
         <div class="text-xl md:text-4xl font-medium -mb-1">
           {creator?.displayName ?? title}
         </div>
-        {/* <Card.SubTitle>
-          {creator?.city ? `${creator.city}, ` : ""}
-          {creator?.country ?? ""}
-        </Card.SubTitle> */}
       </div>
       {canEdit && (
         <a href={`/dashboard/admin/creators/${creator?.id}/update`}>

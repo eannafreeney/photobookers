@@ -1,14 +1,14 @@
 import Card from "./Card";
-import { Book } from "../../db/schema";
 import { formatDate } from "../../utils";
 import CardCreatorCard from "./CardCreatorCard";
 import WishlistButton from "../../features/api/components/WishlistButton";
 import Link from "./Link";
 import { AuthUser } from "../../../types";
 import ShareButton from "./ShareButton";
+import { BookCardResult } from "../../constants/queries";
 
 type BookCardProps = {
-  book: Book;
+  book: BookCardResult;
   user: AuthUser | null;
   showHeader?: boolean;
   currentCreatorId?: string;
@@ -49,9 +49,9 @@ const BookCard = ({
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          <CardCreatorCard book={book} creatorType="artist" />
+          <CardCreatorCard creator={book.artist ?? null} />
           {(!currentCreatorId || currentCreatorId !== book.publisherId) && (
-            <CardCreatorCard book={book} creatorType="publisher" />
+            <CardCreatorCard creator={book.publisher ?? null} />
           )}
         </div>
       </Card.Body>

@@ -4,6 +4,7 @@ import {
   booksIcon,
   claimsIcon,
   creatorsIcon,
+  plannerIcon,
   usersIcon,
 } from "../../../../lib/icons";
 
@@ -13,6 +14,10 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       id="nav-tabs"
       class="flex items-center justify-center bg-surface-alt gap-4 mb-8 mt-4"
     >
+      <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
+        {plannerIcon}
+        Planner
+      </NavLink>
       <NavLink href="/dashboard/admin/books" currentPath={currentPath}>
         {booksIcon}
         Books

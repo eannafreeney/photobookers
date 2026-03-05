@@ -28,6 +28,7 @@ export async function getUserFromToken(token: string) {
         lastName: dbUser.lastName,
         creator: creatorProfile || null,
         isAdmin: dbUser.isAdmin ?? false,
+        mustResetPassword: dbUser.mustResetPassword ?? false,
       };
     } catch (dbError: any) {
       // Handle database connection errors

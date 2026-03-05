@@ -154,10 +154,8 @@ const DetailMobile = ({
         <h3 class="text-balance text-xl font-semibold text-on-surface-strong">
           {book.title}
         </h3>
-        {book.artist && <CardCreatorCard creatorType="artist" book={book} />}
-        {book.publisher && (
-          <CardCreatorCard creatorType="publisher" book={book} />
-        )}
+        {book.artist && <CardCreatorCard creator={book.artist} />}
+        {book.publisher && <CardCreatorCard creator={book.publisher} />}
       </div>
       <div class="flex items-center gap-2">
         <WishlistButton book={book} user={user} />

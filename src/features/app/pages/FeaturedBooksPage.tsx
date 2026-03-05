@@ -3,6 +3,7 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import FeatureGuard from "../../../components/layouts/FeatureGuard";
 import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";
+import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
 import BooksGrid from "../components/BooksGrid";
 import BookOfTheWeekGrid from "../components/BOTWGrid";
 import DiscoveryTags from "../components/DiscoveryTags";
@@ -25,13 +26,20 @@ const FeaturedBooksPage = async ({
   isMobile,
   sortBy,
 }: Props) => {
-  const result = await getLatestBooks(currentPage, 10, sortBy);
+  const [result, bookOfTheWeek] = await Promise.all([
+    getLatestBooks(currentPage, sortBy),
+    getThisWeeksBookOfTheWeek(),
+  ]);
 
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <BookOfTheWeekGrid user={user} isMobile={isMobile} />
+        <BookOfTheWeekGrid
+          bookOfTheWeek={bookOfTheWeek}
+          user={user}
+          isMobile={isMobile}
+        />
         <FeatureGuard flagName="featured-books">
           {/* <SectionTitle>New & Notable</SectionTitle>
           <GridPanel isFullWidth>
@@ -47,6 +55,7 @@ const FeaturedBooksPage = async ({
           currentPath={currentPath}
           sortBy={sortBy}
           result={result}
+          isFullWidth
         />
       </Page>
     </AppLayout>

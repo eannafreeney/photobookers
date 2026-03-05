@@ -24,7 +24,7 @@ const BookOfTheWeekForm = ({ book, formValues }: Props) => {
 
   return (
     <>
-      <PreviewCard book={book} />
+      {/* <PreviewCard book={book} /> */}
       <ScheduleForm
         book={book}
         formValues={formValues}
@@ -109,7 +109,7 @@ const ScheduleForm = ({ book, formValues, isEditMode }: ScheduleFormProps) => {
           name="form.text"
           required
           maxLength={500}
-          minRows={4}
+          minRows={10}
         />
       </div>
       <div id="book-of-the-week-errors"></div>

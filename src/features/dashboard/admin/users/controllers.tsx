@@ -13,6 +13,8 @@ import { supabaseAdmin } from "../../../../lib/supabase";
 import { generateMagicLinkEmail } from "./emails";
 import MagicLinkModal from "./modals/MagicLinkModal";
 import { createUserWithAuthId, deleteUserById, getUserById } from "./services";
+import NewUserCredentialsModal from "./modals/NewUserCredentialsModal";
+import CreateUserFormAdmin from "./forms/CreateUserFormAdmin";
 
 const updaterUsersEvent = () => (
   <div id="server_events">
@@ -29,10 +31,12 @@ export const getUsersPageAdmin = async (c: Context) => {
 export const createNewUserAdmin = async (c: UserFormContext) => {
   const formData = c.req.valid("form");
   const { email, firstName, lastName } = formData;
+  const temporaryPassword = crypto.randomUUID();
+
   const { data: authData, error: authError } =
     await supabaseAdmin.auth.admin.createUser({
       email,
-      password: crypto.randomUUID(),
+      password: temporaryPassword,
       email_confirm: true,
       user_metadata: { firstName, lastName },
     });
@@ -45,13 +49,19 @@ export const createNewUserAdmin = async (c: UserFormContext) => {
     return showErrorAlert(c, "Failed to create user.");
   }
 
-  const newUser = await createUserWithAuthId(authUserId, formData);
+  const newUser = await createUserWithAuthId(authUserId, formData, {
+    mustResetPassword: true,
+  });
   if (!newUser) {
     return showErrorAlert(c, "Failed to create user");
   }
   return c.html(
     <>
-      <Alert type="success" message="User created!" />
+      <CreateUserFormAdmin />
+      <NewUserCredentialsModal
+        email={email}
+        temporaryPassword={temporaryPassword}
+      />
       {updaterUsersEvent()}
     </>,
   );
@@ -98,8 +108,6 @@ export const generateMagicLinkAdmin = async (c: UserIdContext) => {
   });
 
   const actionLink = data?.properties?.action_link;
-
-  console.log("actionLink", actionLink);
 
   return c.html(
     <MagicLinkModal

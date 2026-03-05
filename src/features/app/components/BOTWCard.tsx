@@ -61,7 +61,7 @@ const BOTWDesktopCard = ({
   return (
     <Card className="col-span-6">
       <div class="flex gap-2">
-        <div class="w-1/2 shrink-0">
+        <div class="w-2/3 shrink-0">
           {/* <Card.Image
             src={book.coverUrl}
             alt={book.title}
@@ -74,8 +74,8 @@ const BOTWDesktopCard = ({
             ]}
           />
         </div>
-        <div class="w-1/2 min-w-0 flex flex-col gap-2 grow justify-center">
-          <div class="flex items-center justify-end gap-2 p-4">
+        <div class="w-1/3 min-w-0 flex flex-col gap-2 grow justify-between">
+          <div class="flex items-center justify-start gap-2 p-4">
             <WishlistButton isCircleButton book={book} user={user} />
             <ShareButton isCircleButton />
           </div>
@@ -92,18 +92,18 @@ const BOTWDesktopCard = ({
               </Link>
             </div>
             <div class="flex flex-col gap-2">
-              {(!currentCreatorId || currentCreatorId !== book.artistId) && (
-                <CardCreatorCard book={book} creatorType="artist" />
-              )}
+              <CardCreatorCard creator={book.artist ?? null} />
               {(!currentCreatorId || currentCreatorId !== book.publisherId) && (
-                <CardCreatorCard book={book} creatorType="publisher" />
+                <CardCreatorCard creator={book.publisher ?? null} />
               )}
             </div>
             <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
             <Card.Tags tags={book.tags?.slice(0, 3) ?? []} />
-            <Button variant="solid" color="primary" width="full">
-              View Book
-            </Button>
+            <Link href={`/books/${book.slug}`}>
+              <Button variant="solid" color="primary" width="full">
+                View Book
+              </Button>
+            </Link>
           </Card.Body>
         </div>
       </div>
@@ -149,17 +149,19 @@ const BOTWMobileCard = ({
         </div>
         <div class="flex flex-col gap-2">
           {(!currentCreatorId || currentCreatorId !== book.artistId) && (
-            <CardCreatorCard book={book} creatorType="artist" />
+            <CardCreatorCard creator={book.artist} />
           )}
           {(!currentCreatorId || currentCreatorId !== book.publisherId) && (
-            <CardCreatorCard book={book} creatorType="publisher" />
+            <CardCreatorCard creator={book.publisher} />
           )}
         </div>
         <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
         <Card.Tags tags={book.tags?.slice(0, 3) ?? []} />
-        <Button variant="solid" color="primary" width="full">
-          View Book
-        </Button>
+        <Link href={`/books/${book.slug}`}>
+          <Button variant="solid" color="primary" width="full">
+            View Book
+          </Button>
+        </Link>
       </Card.Body>
     </Card>
   );

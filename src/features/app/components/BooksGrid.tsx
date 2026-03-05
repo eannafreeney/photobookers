@@ -5,19 +5,21 @@ import PageTitle from "../../../components/app/PageTitle";
 import { Pagination } from "../../../components/app/Pagination";
 import SectionTitle from "../../../components/app/SectionTitle";
 import SortDropdown from "../../../components/app/SortDropdown";
-import { Book, Creator } from "../../../db/schema";
+import { Creator } from "../../../db/schema";
+import { BookCardResult } from "../../../constants/queries";
 
 type Props = {
   user: AuthUser | null;
   currentPath: string;
   result: {
-    books: Book[];
+    books: BookCardResult[];
     totalPages: number;
     page: number;
   };
   sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
   title?: string;
   creator?: Creator;
+  isFullWidth?: boolean;
 };
 
 const BooksGrid = async ({
@@ -27,6 +29,7 @@ const BooksGrid = async ({
   sortBy,
   title,
   creator,
+  isFullWidth = false,
 }: Props) => {
   const { books, totalPages, page } = result;
   const targetId = "books-grid";
@@ -45,9 +48,9 @@ const BooksGrid = async ({
         {creator && <PageTitle creator={creator} user={user} />}
         <SortDropdown sortBy={sortBy} currentPath={currentPath} />
       </div>
-      <GridPanel isFullWidth id={targetId} xMerge="append">
+      <GridPanel id={targetId} isFullWidth={isFullWidth} xMerge="append">
         {books.map((book) => (
-          <BookCard book={book} user={user} showHeader />
+          <BookCard book={book} user={user} />
         ))}
       </GridPanel>
       <Pagination

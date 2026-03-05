@@ -56,6 +56,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name", { length: 255 }),
   acceptsTerms: timestamp("accepts_terms"),
   isAdmin: boolean("is_admin").default(false).notNull(),
+  mustResetPassword: boolean("must_reset_password").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
