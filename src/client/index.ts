@@ -18,6 +18,7 @@ import { registerBookOfTheWeekForm } from "./forms/bookOfTheWeekForm";
 import { registerEditCreatorFormAdmin } from "./forms/editCreatorFormAdmin";
 import { registerNewUserForm } from "./forms/newUserForm";
 import { registerResetPasswordForm } from "./forms/resetPasswordForm";
+import { registerImageOrientation } from "./utils/imageOrientation";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -40,3 +41,4 @@ registerEditCreatorFormAdmin();
 registerNewUserForm();
 registerResetPasswordForm();
 registerMagicLinkHashHandler();
+registerImageOrientation();

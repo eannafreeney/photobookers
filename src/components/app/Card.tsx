@@ -42,6 +42,7 @@ type CardImageProps = {
   href: string;
   aspectSquare?: boolean;
   objectCover?: boolean;
+  coverLandscapeAndSquare?: boolean;
 };
 
 const CardImage = ({
@@ -50,20 +51,27 @@ const CardImage = ({
   href,
   aspectSquare = false,
   objectCover = false,
+  coverLandscapeAndSquare = false,
 }: CardImageProps) => (
   <figure
+    x-data="imageOrientation"
     class={`w-full bg-white ${aspectSquare ? "aspect-square overflow-hidden" : ""}`}
+    {...(coverLandscapeAndSquare && { "data-cover-square": "true" })}
   >
     <Link href={href}>
       <img
         src={src}
         alt={alt}
+        loading="lazy"
         decoding="async"
         class={
           aspectSquare && objectCover
             ? "h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105 z-10"
             : "h-auto w-full transition duration-700 ease-out group-hover:scale-105 z-10"
         }
+        {...(!(aspectSquare && objectCover)
+          ? { "x-bind:class": "objectFitClass + ' object-contain'" }
+          : {})}
       />
     </Link>
   </figure>

@@ -103,6 +103,14 @@ export const getBooksByCreatorSlug = async (
 
     // 3. Fetch one page of books
     const foundBooks = await db.query.books.findMany({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        coverUrl: true,
+        artistId: true,
+        publisherId: true,
+      },
       where: and(
         eq(bookColumn, creator.id),
         eq(books.publicationStatus, "published"),
@@ -233,11 +241,14 @@ export const getLatestBooks = async (
     );
 
     const foundBooks = await db.query.books.findMany({
-      with: {
-        artist: true,
-        images: {
-          orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
-        },
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        coverUrl: true,
+        publisherId: true,
+        artistId: true,
+        releaseDate: true,
       },
       where: and(
         eq(books.publicationStatus, "published"),
@@ -247,6 +258,26 @@ export const getLatestBooks = async (
       limit: limit,
       offset: offset,
       orderBy: getBooksOrderBy(sortBy),
+      with: {
+        artist: {
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+            coverUrl: true,
+            ownerUserId: true,
+          },
+        },
+        publisher: {
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+            coverUrl: true,
+            ownerUserId: true,
+          },
+        },
+      },
     });
     return { books: foundBooks, totalPages, page };
   } catch (error) {
