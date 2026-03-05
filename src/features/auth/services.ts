@@ -72,15 +72,13 @@ export async function loginAndSetCookies(
   c: Context,
   email: string,
   password: string,
-) {
+): Promise<{ userId: string } | { error: string }> {
   const { data, error } = await supabaseAdmin.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (error) {
-    return error.message;
-  }
+  if (error) return { error: error.message };
 
   const { access_token, refresh_token, expires_in } = data.session;
 
@@ -91,6 +89,8 @@ export async function loginAndSetCookies(
     expires_in,
     data.user.id,
   );
+
+  return { userId: data.user.id };
 }
 
 export const setAccessToken = (

@@ -43,6 +43,7 @@ import ValidateDisplayName from "./components/ValidateDisplayName";
 import ValidateWebsite from "./components/ValidateWebsite";
 import { createStubCreatorProfile } from "../dashboard/creators/services";
 import { findUserByEmailAdmin } from "../dashboard/admin/creators/services";
+import { eq } from "drizzle-orm";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -105,12 +106,21 @@ export const login = async (c: LoginFormContext) => {
   const redirectUrl = c.req.valid("param").redirectUrl;
   const email = formData.email as string;
   const password = formData.password as string;
-  const error = await loginAndSetCookies(c, email, password);
+  const result = await loginAndSetCookies(c, email, password);
 
   const safeRedirectUrl =
     redirectUrl && redirectUrl !== "undefined" ? redirectUrl : "/";
 
-  if (error) return showErrorAlert(c, "Invalid email or password", 401);
+  if ("error" in result)
+    return showErrorAlert(c, "Invalid email or password", 401);
+
+  const dbUser = await db.query.users.findFirst({
+    where: eq(users.id, result.userId),
+    columns: { mustResetPassword: true },
+  });
+  if (dbUser?.mustResetPassword) {
+    return c.redirect("/auth/force-reset-password");
+  }
 
   return c.redirect(safeRedirectUrl ?? "/");
 };
@@ -388,6 +398,11 @@ export const resetPassword = async (c: ResetPasswordFormContext) => {
   });
 
   if (error) return showErrorAlert(c, error.message);
+
+  await db
+    .update(users)
+    .set({ mustResetPassword: false })
+    .where(eq(users.id, user.id));
 
   const { data } = await supabaseAnon.auth.signInWithPassword({
     email: user.email,

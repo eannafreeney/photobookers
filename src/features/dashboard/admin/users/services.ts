@@ -43,6 +43,9 @@ export const getCreatorByOwnerUserId = async (userId: string) => {
 export const createUserWithAuthId = async (
   authUserId: string,
   formData: NewUserForm,
+  options?: {
+    mustResetPassword?: boolean;
+  },
 ) => {
   return await db
     .insert(users)
@@ -51,6 +54,7 @@ export const createUserWithAuthId = async (
       email: formData.email,
       firstName: formData.firstName,
       lastName: formData.lastName,
+      mustResetPassword: options?.mustResetPassword ?? false,
     })
     .onConflictDoNothing({ target: users.id });
 };

@@ -15,4 +15,5 @@ export type AuthUser = {
   lastName: string | null;
   creator: Creator | null;
   isAdmin: boolean;
+  mustResetPassword: boolean;
 };
