@@ -372,6 +372,12 @@ export const searchCreators = async (searchQuery: string) => {
   // find creators with at least one book
   try {
     const foundCreators = await db.query.creators.findMany({
+      columns: {
+        id: true,
+        displayName: true,
+        slug: true,
+        coverUrl: true,
+      },
       where: and(
         ilike(creators.displayName, `%${searchQuery}%`),
         // exists(db.select().from(books).where(eq(books.artistId, creators.id))),

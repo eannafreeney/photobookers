@@ -32,7 +32,7 @@ export const getAllUserProfilesAdmin = async (): Promise<
     .where(isNull(creators.id));
 };
 
-export const getAllCreatorProfilesAdmin = async (
+export const getAllCreatorProfilesByTypeAdmin = async (
   searchQuery?: string,
   currentPage: number = 1,
   type: "artist" | "publisher" | undefined = undefined,
@@ -75,6 +75,13 @@ export const getAllCreatorProfilesAdmin = async (
     limit,
   });
   return { creators: foundCreators, totalPages, page };
+};
+
+export const getAllCreatorProfiles = async () => {
+  return await db.query.creators.findMany({
+    where: isNull(creators.ownerUserId),
+    orderBy: (creators, { asc }) => [asc(creators.displayName)],
+  });
 };
 
 export const getCreatorByIdAdmin = async (creatorId: string) => {

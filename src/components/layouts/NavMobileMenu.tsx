@@ -102,7 +102,16 @@ const MobileDropDownMenu = ({
           </button>
         </div>
       </li>
-
+      {!user && (
+        <>
+          <NavLink href="/auth/login" currentPath={currentPath}>
+            Login
+          </NavLink>
+          <NavLink href="/auth/accounts" currentPath={currentPath}>
+            Register
+          </NavLink>
+        </>
+      )}
       {user?.creator?.id && (
         <>
           <NavLink href="/dashboard/books" currentPath={currentPath}>

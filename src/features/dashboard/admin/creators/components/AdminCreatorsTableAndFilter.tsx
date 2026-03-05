@@ -7,7 +7,10 @@ import { Creator } from "../../../../../db/schema";
 import { capitalize, formatDate } from "../../../../../utils";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import CreatorTypeForm from "../forms/CreatorTypeForm";
-import { getAllCreatorProfilesAdmin, getUserByIdAdmin } from "../services";
+import {
+  getAllCreatorProfilesByTypeAdmin,
+  getUserByIdAdmin,
+} from "../services";
 
 type Props = {
   type?: "artist" | "publisher" | undefined;
@@ -22,7 +25,7 @@ const AdminCreatorsTableAndFilter = async ({
   searchQuery,
   currentPath,
 }: Props) => {
-  const result = await getAllCreatorProfilesAdmin(
+  const result = await getAllCreatorProfilesByTypeAdmin(
     searchQuery,
     currentPage,
     type,

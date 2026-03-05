@@ -2,8 +2,12 @@ import SectionTitle from "../../../../../components/app/SectionTitle";
 import FormButtons from "../../../../../components/forms/FormButtons";
 import Input from "../../../../../components/forms/Input";
 import ValidateEmail from "../../../../auth/components/ValidateEmail";
+import { getAllCreatorProfiles } from "../../creators/services";
+import CreatorsComboBox from "../components/CreatorsComboBox";
 
-const CreateUserFormAdmin = () => {
+const CreateUserFormAdmin = async () => {
+  const creators = await getAllCreatorProfiles();
+
   const alpineAttrs = {
     "x-data": "newUserForm()",
     "x-target": "modal-root create-user-form",
@@ -39,6 +43,9 @@ const CreateUserFormAdmin = () => {
             required
             validateInput="validateField('lastName')"
           />
+        </div>
+        <div class="flex-1 min-w-0">
+          <CreatorsComboBox creators={creators} />
         </div>
         <FormButtons buttonText="Create" loadingText="Creating..." />
       </form>

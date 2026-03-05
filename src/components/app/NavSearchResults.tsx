@@ -4,7 +4,7 @@ import { AuthUser } from "../../../types";
 
 type NavSearchResultsProps = {
   creators: Creator[];
-  books: (Book & { artist: Creator | null })[];
+  books: (Book & { artist: Creator | null; publisher: Creator | null })[];
   user?: AuthUser | null;
   isMobile?: boolean;
 };
@@ -103,7 +103,7 @@ const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
 };
 
 type BookResultItemProps = {
-  book: Book & { artist: Creator | null };
+  book: Book & { artist: Creator | null; publisher: Creator | null };
 };
 
 const BookResultItem = ({ book }: BookResultItemProps) => {
@@ -126,7 +126,9 @@ const BookResultItem = ({ book }: BookResultItemProps) => {
           <div class="font-semibold text-on-surface truncate">{book.title}</div>
           {book.artist && (
             <div class="text-xs text-on-surface truncate">
-              {book.artist.displayName}
+              {book.artist.displayName}{" "}
+              {book.publisher?.displayName &&
+                `- ${book.publisher?.displayName}`}
             </div>
           )}
         </div>
