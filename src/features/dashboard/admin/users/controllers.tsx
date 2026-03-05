@@ -14,6 +14,7 @@ import { generateMagicLinkEmail } from "./emails";
 import MagicLinkModal from "./modals/MagicLinkModal";
 import { createUserWithAuthId, deleteUserById, getUserById } from "./services";
 import NewUserCredentialsModal from "./modals/NewUserCredentialsModal";
+import CreateUserFormAdmin from "./forms/CreateUserFormAdmin";
 
 const updaterUsersEvent = () => (
   <div id="server_events">
@@ -56,7 +57,7 @@ export const createNewUserAdmin = async (c: UserFormContext) => {
   }
   return c.html(
     <>
-      <Alert type="success" message="User created!" />
+      <CreateUserFormAdmin />
       <NewUserCredentialsModal
         email={email}
         temporaryPassword={temporaryPassword}

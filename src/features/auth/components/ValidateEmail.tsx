@@ -21,6 +21,7 @@ const ValidateEmail = ({ isAvailable }: Props) => {
         isError={isAvailable === false}
         isSuccess={isAvailable === true}
         required
+        autofocus
       />
       {typeof isAvailable === "boolean" && (
         <div

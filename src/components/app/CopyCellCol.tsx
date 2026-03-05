@@ -6,9 +6,14 @@ type Props = {
 };
 
 const CopyCellCol = ({ entity, buttonWidth = "fit" }: Props) => {
+  const escapedEntity = entity
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r");
   return (
     <div
-      x-data={`{ cellValue: '${entity}', copied: false }`}
+      x-data={`{ cellValue: '${escapedEntity}', copied: false }`}
       class="flex items-center gap-2"
       x-on:click="$dispatch('dialog:close')"
     >

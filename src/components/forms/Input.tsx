@@ -15,6 +15,7 @@ type InputProps = {
   readOnly?: boolean;
   isError?: boolean;
   isSuccess?: boolean;
+  autofocus?: boolean;
 };
 
 const Input = ({
@@ -30,6 +31,7 @@ const Input = ({
   readOnly = false,
   isError = false,
   isSuccess = false,
+  autofocus = false,
   ...restProps
 }: InputProps) => {
   const inputValidator = {
@@ -58,10 +60,12 @@ const Input = ({
           required={required}
           disabled={isDisabled}
           x-model={name}
-          x-autofocus
           maxLength={maxLength}
           autocomplete="off"
-          {...{ "x-on:blur": `${name} = ${name}.trim()` }}
+          {...{
+            "x-on:blur": `${name} = ${name}.trim()`,
+            "x-autofocus": autofocus,
+          }}
           {...(readOnly && { readOnly: true })}
           {...(validateInput && inputValidator)}
           {...restProps}
@@ -83,16 +87,16 @@ type InputErrorProps = {
 const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (
   <div class="text-xs min-h-[16px] my-2 block">
     {isError ? (
-      <span class="text-danger text-right" {...fadeTransition}>
+      <span class="text-danger block text-right" {...fadeTransition}>
         ✗ Taken
       </span>
     ) : isSuccess ? (
-      <span class="text-success text-right" {...fadeTransition}>
+      <span class="text-success block text-right" {...fadeTransition}>
         ✓ Available
       </span>
     ) : (
       <span
-        class="text-danger"
+        class="text-danger block text-left"
         x-show={`errors.${name}`}
         x-text={`errors.${name}`}
         {...fadeTransition}

@@ -57,14 +57,6 @@ export function registerNewUserForm() {
       submitForm(event: Event) {
         return handleSubmit(this, event, creatorFormAdminSchema);
       },
-
-      onSuccess() {
-        return resetFormBaseline(this, NEW_USER_FORM_FIELDS);
-      },
-
-      onError() {
-        (this as unknown as { isSubmitting: boolean }).isSubmitting = false;
-      },
     };
   });
 }
