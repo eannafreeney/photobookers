@@ -7,11 +7,13 @@ type LoginFormShape = z.infer<typeof loginFormSchema>;
 
 export function registerLoginForm() {
   Alpine.data("loginForm", () => {
+    const params = new URLSearchParams(window.location.search);
+
     return {
       isSubmitting: false,
       form: {
-        email: "",
-        password: "",
+        email: params.get("email") ?? "",
+        password: params.get("password") ?? "",
       },
       errors: {
         form: {

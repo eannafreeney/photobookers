@@ -12,6 +12,7 @@ type Props = {
 };
 
 const Badge = ({ children, variant = "default" }: Props) => {
+  if (!children) return <></>;
   const badgeVariants = {
     default: "border-outline text-on-surface",
     inverse: "border-outline-dark text-on-surface",
