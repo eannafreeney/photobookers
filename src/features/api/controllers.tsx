@@ -22,6 +22,18 @@ import Badge from "../../components/app/Badge";
 import { closeIcon } from "../../lib/icons";
 import { searchCreators } from "../app/services";
 
+const updateCreatorCard = () => (
+  <div x-sync id="server_events">
+    <div x-init="$dispatch('creator:updated')"></div>
+  </div>
+);
+
+const updateWishlistBooks = () => (
+  <div x-sync id="server_events">
+    <div x-init="$dispatch('wishlist:updated')"></div>
+  </div>
+);
+
 export const followCreator = async (c: Context) => {
   const creatorId = c.req.param("creatorId");
   const user = await getUser(c);
@@ -60,6 +72,7 @@ export const followCreator = async (c: Context) => {
         user={user}
         isCircleButton={buttonType === "circle"}
       />
+      {updateCreatorCard()}
     </>,
   );
 };
@@ -102,9 +115,7 @@ export const wishlistBook = async (c: Context) => {
         user={user}
         isCircleButton={buttonType === "circle"}
       />
-      <div x-sync id="server_events">
-        <div x-init="$dispatch('wishlist:updated')"></div>
-      </div>
+      {updateWishlistBooks()}
     </>,
   );
 };

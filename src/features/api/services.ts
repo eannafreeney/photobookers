@@ -117,9 +117,25 @@ export const searchBooks = async (searchQuery: string) => {
       .where(ilike(creators.displayName, searchPattern));
 
     return await db.query.books.findMany({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        coverUrl: true,
+      },
       with: {
-        artist: true,
-        publisher: true,
+        artist: {
+          columns: {
+            id: true,
+            displayName: true,
+          },
+        },
+        publisher: {
+          columns: {
+            id: true,
+            displayName: true,
+          },
+        },
       },
       where: and(
         eq(books.publicationStatus, "published"),

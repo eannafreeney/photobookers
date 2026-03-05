@@ -43,7 +43,7 @@ const BooksGrid = async ({
 
   return (
     <>
-      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2 mb-4">
         {title && <SectionTitle>{title}</SectionTitle>}
         {creator && <PageTitle creator={creator} user={user} />}
         <SortDropdown sortBy={sortBy} currentPath={currentPath} />
