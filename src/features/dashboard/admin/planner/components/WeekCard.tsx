@@ -1,0 +1,99 @@
+import Card from "../../../../../components/app/Card";
+import { formatWeekRange, isWeekInPast } from "../utils";
+import { BookOfTheWeekWithBook } from "../../../../app/BOTWServices";
+import { toWeekString } from "../../../../../lib/utils";
+import clsx from "clsx";
+import Button from "../../../../../components/app/Button";
+
+type Props = {
+  weekStart: Date;
+  weekNumber: number;
+  bookOfTheWeek: BookOfTheWeekWithBook | null;
+};
+
+const BOTWWeekCard = ({ weekStart, weekNumber, bookOfTheWeek }: Props) => {
+  const weekKey = toWeekString(weekStart);
+  const book = bookOfTheWeek?.book ?? null;
+  const isPast = isWeekInPast(weekStart);
+
+  return (
+    <Card
+      className={clsx(
+        "flex flex-col",
+        isPast && "opacity-30 cursor-not-allowed",
+      )}
+    >
+      <div class="p-3 border-b border-outline">
+        <span class="text-xs font-medium text-on-surface-weak">
+          Week {weekNumber}
+        </span>
+        <p class="text-sm font-medium text-on-surface-strong">
+          {formatWeekRange(weekStart)}
+        </p>
+      </div>
+      <Card.Body gap="2">
+        {book ? (
+          <>
+            <div class="flex gap-3">
+              {book.coverUrl && (
+                <img
+                  src={book.coverUrl}
+                  alt={book.title}
+                  class="h-16 w-12 rounded object-cover"
+                />
+              )}
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-on-surface-strong line-clamp-2">
+                  {book.title}
+                </p>
+                {book.artist && (
+                  <p class="text-xs text-on-surface-weak truncate">
+                    {book.artist.displayName}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <a
+                href={`/books/${book.slug}`}
+                class="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+              >
+                <Button variant="solid" color="primary">
+                  View Book
+                </Button>
+              </a>
+              <a
+                href={`/dashboard/admin/planner/book-of-the-week/${book.id}/update`}
+                x-target="modal-root"
+                class="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+              >
+                <Button variant="outline" color="primary">
+                  Edit
+                </Button>
+              </a>
+              <a
+                href={`/dashboard/admin/planner/book-of-the-week/${book.id}/delete`}
+                x-target="modal-root"
+                class="mt-2 inline-block text-sm font-medium text-danger hover:underline"
+              >
+                <Button variant="outline" color="danger">
+                  Delete
+                </Button>
+              </a>
+            </div>
+          </>
+        ) : (
+          <a
+            href={`/dashboard/admin/planner/book-of-the-week/create?week=${weekKey}`}
+            x-target="modal-root"
+            class="flex min-h-16 flex-col items-center justify-center rounded border border-dashed border-outline bg-surface-alt/50 py-4 text-sm font-medium text-on-surface-weak hover:border-outline-strong hover:bg-surface-alt hover:text-on-surface"
+          >
+            Schedule
+          </a>
+        )}
+      </Card.Body>
+    </Card>
+  );
+};
+
+export default BOTWWeekCard;

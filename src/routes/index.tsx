@@ -16,6 +16,7 @@ import { adminCreatorsDashboardRoutes } from "../features/dashboard/admin/creato
 import { apiRoutes } from "../features/api/routes";
 import { imageRoutes } from "../features/dashboard/images/routes";
 import { claimRoutes } from "../features/claims/routes";
+import { adminPlannerDashboardRoutes } from "../features/dashboard/admin/planner/routes";
 
 export const routes = new Hono();
 
@@ -63,3 +64,5 @@ routes.route(
   "/dashboard/admin/book-of-the-week",
   adminBookOfTheWeekDashboardRoutes,
 );
+
+routes.route("/dashboard/admin/planner", adminPlannerDashboardRoutes);

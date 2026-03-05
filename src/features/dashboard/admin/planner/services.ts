@@ -1,8 +1,21 @@
-import { BOOK_CARD_COLUMNS } from "../../constants/queries";
-import { CREATOR_CARD_COLUMNS } from "../../constants/queries";
-import { db } from "../../db/client";
-import { bookOfTheWeek, BookOfTheWeek } from "../../db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { getBooksOfTheWeekInRange } from "../../../app/BOTWServices";
+import { toWeekString } from "../../../../lib/utils";
+import { getWeekStarts } from "./utils";
+import { BookOfTheWeek, bookOfTheWeek } from "../../../../db/schema";
+import { db } from "../../../../db/client";
+import { desc, eq } from "drizzle-orm";
+
+export async function getBotwByWeekStart(
+  year: number,
+): Promise<Map<string, BookOfTheWeekWithBook>> {
+  const weekStarts = getWeekStarts(year);
+  if (weekStarts.length === 0) return new Map();
+
+  const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
+  const entries = await getBooksOfTheWeekInRange(first, last);
+
+  return new Map(entries.map((b) => [toWeekString(b.weekStart), b]));
+}
 
 /** Normalize to start of day UTC for consistent storage/comparison */
 function toWeekStart(d: Date): Date {
@@ -71,13 +84,28 @@ export async function getBookOfTheWeekForDateQuery(date: Date) {
     where: eq(bookOfTheWeek.weekStart, weekStart),
     with: {
       book: {
-        columns: BOOK_CARD_COLUMNS,
+        columns: {
+          id: true,
+          title: true,
+          slug: true,
+          coverUrl: true,
+          artistId: true,
+          publisherId: true,
+        },
         with: {
           artist: {
-            columns: CREATOR_CARD_COLUMNS,
+            columns: {
+              id: true,
+              displayName: true,
+              slug: true,
+            },
           },
           publisher: {
-            columns: CREATOR_CARD_COLUMNS,
+            columns: {
+              id: true,
+              displayName: true,
+              slug: true,
+            },
           },
           images: {
             columns: {
@@ -117,30 +145,4 @@ export async function deleteBookOfTheWeekByIdAdmin(bookId: string) {
     console.error("deleteBookOfTheWeekByIdAdmin", e);
     return null;
   }
-}
-
-export async function getBooksOfTheWeekInRange(start: Date, end: Date) {
-  const weekStartMin = toWeekStart(start);
-  const weekStartMax = toWeekStart(end);
-  return db.query.bookOfTheWeek.findMany({
-    where: (table, { and, gte: gteOp, lte: lteOp }) =>
-      and(
-        gteOp(table.weekStart, weekStartMin),
-        lteOp(table.weekStart, weekStartMax),
-      ),
-    orderBy: [bookOfTheWeek.weekStart],
-    with: {
-      book: {
-        columns: BOOK_CARD_COLUMNS,
-        with: {
-          artist: { columns: CREATOR_CARD_COLUMNS },
-          publisher: { columns: CREATOR_CARD_COLUMNS },
-          images: {
-            columns: { id: true, imageUrl: true },
-            orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
-          },
-        },
-      },
-    },
-  });
 }
