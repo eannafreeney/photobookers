@@ -8,8 +8,7 @@ type Props = {
 };
 
 const NewUserCredentialsModal = ({ email, temporaryPassword }: Props) => {
-  const loginUrl = "https://photobookers.com/auth/login";
-  const credentialsText = `Login: ${loginUrl}\nEmail: ${email}\nPassword: ${temporaryPassword}`;
+  const credentialsText = `https://photobookers.com/auth/login?email=${email}&password=${temporaryPassword}`;
   return (
     <Modal title="User created – send these credentials">
       <div class="flex flex-col gap-2">

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { creatorClaims, creators, follows, users } from "../../../../db/schema";
 import { newUserFormAdminSchema } from "./schema";
@@ -8,8 +8,21 @@ type NewUserForm = z.infer<typeof newUserFormAdminSchema>;
 
 export const getAllUsersAdmin = async () => {
   try {
-    const users = await db.query.users.findMany();
-    return users ?? [];
+    const usersData = await db.query.users.findMany({
+      orderBy: [desc(users.createdAt)],
+      columns: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
+      with: {
+        creators: {
+          columns: { id: true, slug: true, displayName: true, status: true },
+        },
+      },
+    });
+    return usersData ?? [];
   } catch (error) {
     console.error("Failed to get all users", error);
     return [];
@@ -32,6 +45,12 @@ export const getCreatorByOwnerUserId = async (userId: string) => {
   try {
     const creator = await db.query.creators.findFirst({
       where: eq(creators.ownerUserId, userId),
+      columns: {
+        id: true,
+        slug: true,
+        type: true,
+        displayName: true,
+      },
     });
     return creator ?? null;
   } catch (error) {

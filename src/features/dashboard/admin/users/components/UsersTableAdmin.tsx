@@ -3,9 +3,8 @@ import TableSearch from "../../../../../components/app/TableSearch";
 import Link from "../../../../../components/app/Link";
 import Button from "../../../../../components/app/Button";
 import Table from "../../../../../components/app/Table";
-import CopyCellCol from "../../../../../components/app/CopyCellCol";
 import DeleteFormButton from "../../components/DeleteFormButton";
-import { User } from "../../../../../db/schema";
+import { Creator, User } from "../../../../../db/schema";
 import { getAllUsersAdmin, getCreatorByOwnerUserId } from "../services";
 import Badge from "../../../../../components/app/Badge";
 import { capitalize } from "../../../../../utils";
@@ -61,14 +60,16 @@ const UsersTableAdmin = async () => {
 
 export default UsersTableAdmin;
 
+type UserRow = Awaited<ReturnType<typeof getAllUsersAdmin>>[number];
+
 type RowProps = {
-  user: User | null;
+  user: UserRow;
 };
 
 const UserTableRow = ({ user }: RowProps) => {
-  if (!user) {
-    return <></>;
-  }
+  if (!user) return <></>;
+
+  console.log("user", user);
 
   return (
     <tr>
@@ -86,10 +87,14 @@ const UserTableRow = ({ user }: RowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>{user.email}</Table.BodyRow>
       <Table.BodyRow>
-        <CreatorName userId={user.id} />
+        <Link href={`/creators/${user.creators[0]?.slug}`} target="_blank">
+          {user.creators[0]?.displayName}
+        </Link>
       </Table.BodyRow>
       <Table.BodyRow>
-        <CreatorStatus userId={user.id} />
+        <Link href={`/creators/${user.creators[0]?.slug}`} target="_blank">
+          <Badge>{capitalize(user.creators[0]?.status ?? "") ?? null}</Badge>
+        </Link>
       </Table.BodyRow>
       {/* <Table.BodyRow>
         <CopyCellCol entity={user.id} />
@@ -108,26 +113,6 @@ const UserTableRow = ({ user }: RowProps) => {
         <DeleteFormButton action={`/dashboard/admin/users/${user.id}/delete`} />
       </Table.BodyRow>
     </tr>
-  );
-};
-
-const CreatorName = async ({ userId }: { userId: string }) => {
-  const creator = await getCreatorByOwnerUserId(userId);
-  if (!creator) return <></>;
-  return (
-    <Link href={`/creators/${creator.slug}`} target="_blank">
-      {creator.displayName}
-    </Link>
-  );
-};
-
-const CreatorStatus = async ({ userId }: { userId: string }) => {
-  const creator = await getCreatorByOwnerUserId(userId);
-  if (!creator) return <></>;
-  return (
-    <Link href={`/creators/${creator.slug}`} target="_blank">
-      <Badge>{capitalize(creator.status ?? "")}</Badge>
-    </Link>
   );
 };
 
