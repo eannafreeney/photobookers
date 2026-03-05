@@ -60,11 +60,9 @@ const PreviewCard = ({ book }: PreviewCardProps) => {
               </h3>
             </div>
             <div class="flex flex-col gap-2">
-              {book.artist && (
-                <CardCreatorCard book={book} creatorType="artist" />
-              )}
+              {book.artist && <CardCreatorCard creator={book.artist} />}
               {book.publisher && (
-                <CardCreatorCard book={book} creatorType="publisher" />
+                <CardCreatorCard creator={book.publisher ?? null} />
               )}
             </div>
             <Card.Tags tags={book.tags ?? []} />

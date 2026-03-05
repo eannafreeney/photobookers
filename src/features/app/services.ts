@@ -3,6 +3,10 @@ import { db } from "../../db/client";
 import { books, creators, follows, wishlists } from "../../db/schema";
 import { getPagination } from "../../lib/pagination";
 import { getBooksOrderBy } from "../../lib/booksOrderBy";
+import {
+  BOOK_CARD_COLUMNS,
+  CREATOR_CARD_COLUMNS,
+} from "../../constants/queries";
 
 export const getBooksInWishlist = async (
   userId: string,
@@ -27,24 +31,17 @@ export const getBooksInWishlist = async (
     });
 
     const wishlistedBooks = await db.query.books.findMany({
+      columns: BOOK_CARD_COLUMNS,
       where: inArray(
         books.id,
         wishlistItems.map((wishlist) => wishlist.bookId),
       ),
       with: {
         artist: {
-          columns: {
-            id: true,
-            displayName: true,
-            slug: true,
-          },
+          columns: CREATOR_CARD_COLUMNS,
         },
         publisher: {
-          columns: {
-            id: true,
-            displayName: true,
-            slug: true,
-          },
+          columns: CREATOR_CARD_COLUMNS,
         },
       },
       orderBy: getBooksOrderBy(sortBy),
@@ -84,56 +81,50 @@ export const getBooksByCreatorSlug = async (
     // 2. Count books for this creator (by type)
     const bookColumn =
       creator.type === "publisher" ? books.publisherId : books.artistId;
-    const [{ value: totalCount = 0 }] = await db
-      .select({ value: count() })
-      .from(books)
-      .where(
-        and(
+
+    const limit = defaultLimit;
+    const offset = (currentPage - 1) * defaultLimit;
+
+    const [countResult, foundBooks] = await Promise.all([
+      db
+        .select({ value: count() })
+        .from(books)
+        .where(
+          and(
+            eq(bookColumn, creator.id),
+            eq(books.publicationStatus, "published"),
+            eq(books.approvalStatus, "approved"),
+          ),
+        ),
+      db.query.books.findMany({
+        columns: BOOK_CARD_COLUMNS,
+        where: and(
           eq(bookColumn, creator.id),
           eq(books.publicationStatus, "published"),
-          eq(books.approvalStatus, "approved"),
         ),
-      );
-
-    const { page, limit, offset, totalPages } = getPagination(
-      currentPage,
-      totalCount,
-      defaultLimit,
-    );
-
-    // 3. Fetch one page of books
-    const foundBooks = await db.query.books.findMany({
-      columns: {
-        id: true,
-        title: true,
-        slug: true,
-        coverUrl: true,
-        artistId: true,
-        publisherId: true,
-      },
-      where: and(
-        eq(bookColumn, creator.id),
-        eq(books.publicationStatus, "published"),
-      ),
-      orderBy: getBooksOrderBy(sortBy),
-      limit,
-      offset,
-      with: {
-        artist: {
-          columns: {
-            id: true,
-            displayName: true,
-            slug: true,
+        orderBy: getBooksOrderBy(sortBy),
+        limit,
+        offset,
+        with: {
+          artist: {
+            columns: CREATOR_CARD_COLUMNS,
+          },
+          publisher: {
+            columns: CREATOR_CARD_COLUMNS,
           },
         },
-      },
-    });
+      }),
+    ]);
+
+    const totalCount = countResult[0]?.value ?? 0;
+    const { totalPages: totalPagesComputed, page: pageComputed } =
+      getPagination(currentPage, totalCount, defaultLimit);
 
     return {
       creator,
       books: foundBooks,
-      totalPages,
-      page,
+      totalPages: totalPagesComputed,
+      page: pageComputed,
     };
   } catch (error) {
     console.warn(error);
@@ -150,10 +141,10 @@ export const getBookBySlug = async (
       where: and(eq(books.slug, bookSlug), eq(books.publicationStatus, status)),
       with: {
         publisher: true,
+        artist: true,
         images: {
           orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
         },
-        artist: true,
       },
     });
 
@@ -208,9 +199,14 @@ export const getBooksByTag = async (
             WHERE LOWER(t) = LOWER(${tag})
           )`,
         ),
+      columns: BOOK_CARD_COLUMNS,
       with: {
-        artist: true,
-        publisher: true,
+        artist: {
+          columns: CREATOR_CARD_COLUMNS,
+        },
+        publisher: {
+          columns: CREATOR_CARD_COLUMNS,
+        },
       },
       orderBy: getBooksOrderBy(sortBy),
       limit: limit,
@@ -225,8 +221,8 @@ export const getBooksByTag = async (
 
 export const getLatestBooks = async (
   currentPage: number,
-  defaultLimit = 12,
   sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
+  defaultLimit = 10,
 ) => {
   try {
     const [{ value: totalCount = 0 }] = await db
@@ -241,15 +237,7 @@ export const getLatestBooks = async (
     );
 
     const foundBooks = await db.query.books.findMany({
-      columns: {
-        id: true,
-        title: true,
-        slug: true,
-        coverUrl: true,
-        publisherId: true,
-        artistId: true,
-        releaseDate: true,
-      },
+      columns: BOOK_CARD_COLUMNS,
       where: and(
         eq(books.publicationStatus, "published"),
         eq(books.approvalStatus, "approved"),
@@ -260,22 +248,10 @@ export const getLatestBooks = async (
       orderBy: getBooksOrderBy(sortBy),
       with: {
         artist: {
-          columns: {
-            id: true,
-            displayName: true,
-            slug: true,
-            coverUrl: true,
-            ownerUserId: true,
-          },
+          columns: CREATOR_CARD_COLUMNS,
         },
         publisher: {
-          columns: {
-            id: true,
-            displayName: true,
-            slug: true,
-            coverUrl: true,
-            ownerUserId: true,
-          },
+          columns: CREATOR_CARD_COLUMNS,
         },
       },
     });
@@ -324,20 +300,13 @@ export const getFeedBooks = async (
         ),
         eq(books.publicationStatus, "published"),
       ),
+      columns: BOOK_CARD_COLUMNS,
       with: {
         artist: {
-          columns: {
-            id: true,
-            displayName: true,
-            slug: true,
-          },
+          columns: CREATOR_CARD_COLUMNS,
         },
         publisher: {
-          columns: {
-            id: true,
-            displayName: true,
-            slug: true,
-          },
+          columns: CREATOR_CARD_COLUMNS,
         },
       },
       orderBy: getBooksOrderBy(sortBy),

@@ -1,17 +1,16 @@
 import { AuthUser } from "../../../../types";
 import SectionTitle from "../../../components/app/SectionTitle";
-import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
+import { BookOfTheWeekWithBook } from "../BOTWServices";
 import BookOfTheWeekCard from "./BOTWCard";
 import NewsletterCard from "./NewsletterCard";
 
 type Props = {
+  bookOfTheWeek: BookOfTheWeekWithBook;
   user: AuthUser | null;
   isMobile: boolean;
 };
 
-const BookOfTheWeekGrid = async ({ user, isMobile }: Props) => {
-  const bookOfTheWeek = await getThisWeeksBookOfTheWeek();
-
+const BookOfTheWeekGrid = async ({ bookOfTheWeek, user, isMobile }: Props) => {
   if (!bookOfTheWeek) {
     return <></>;
   }

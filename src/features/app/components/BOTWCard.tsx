@@ -62,7 +62,6 @@ const BOTWDesktopCard = ({
     <Card className="col-span-6">
       <div class="flex gap-2">
         <div class="w-2/3 shrink-0">
-          {" "}
           {/* <Card.Image
             src={book.coverUrl}
             alt={book.title}
@@ -93,11 +92,9 @@ const BOTWDesktopCard = ({
               </Link>
             </div>
             <div class="flex flex-col gap-2">
-              {(!currentCreatorId || currentCreatorId !== book.artistId) && (
-                <CardCreatorCard book={book} creatorType="artist" />
-              )}
+              <CardCreatorCard creator={book.artist ?? null} />
               {(!currentCreatorId || currentCreatorId !== book.publisherId) && (
-                <CardCreatorCard book={book} creatorType="publisher" />
+                <CardCreatorCard creator={book.publisher ?? null} />
               )}
             </div>
             <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
@@ -152,10 +149,10 @@ const BOTWMobileCard = ({
         </div>
         <div class="flex flex-col gap-2">
           {(!currentCreatorId || currentCreatorId !== book.artistId) && (
-            <CardCreatorCard book={book} creatorType="artist" />
+            <CardCreatorCard creator={book.artist} />
           )}
           {(!currentCreatorId || currentCreatorId !== book.publisherId) && (
-            <CardCreatorCard book={book} creatorType="publisher" />
+            <CardCreatorCard creator={book.publisher} />
           )}
         </div>
         <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>

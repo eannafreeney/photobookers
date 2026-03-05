@@ -100,7 +100,7 @@ type IntroProps = {
 };
 
 const CardIntro = ({ children }: IntroProps) => (
-  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap line-clamp-7">
+  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap">
     {children}
   </p>
 );

@@ -54,7 +54,7 @@ const BooksOverview = async ({
         ) : (
           <div class="flex items-center gap-2">
             Account Verified{" "}
-            <VerifiedCreator creator={user.creator} size="sm" />
+            <VerifiedCreator creatorStatus={user.creator.status} size="sm" />
           </div>
         )}
         <div class="flex flex-col gap-16">

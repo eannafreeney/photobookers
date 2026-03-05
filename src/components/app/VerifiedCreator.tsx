@@ -1,18 +1,20 @@
-import { Creator } from "../../db/schema";
-
 type VerifiedCreatorProps = {
-  creator: Creator;
+  creatorStatus: "stub" | "verified" | "suspended" | "deleted" | null;
   size?: "xs" | "sm" | "md" | "lg";
 };
 
-const VerifiedCreator = ({ creator, size = "md" }: VerifiedCreatorProps) => {
-  if (creator.status !== "verified") return <></>;
+const VerifiedCreator = ({
+  creatorStatus = "stub",
+  size = "md",
+}: VerifiedCreatorProps) => {
+  if (creatorStatus !== "verified") return <></>;
   const sizes = {
     xs: "size-4",
     sm: "size-6",
     md: "size-8",
     lg: "size-10",
   };
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

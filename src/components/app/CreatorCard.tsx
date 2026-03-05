@@ -46,7 +46,10 @@ const CreatorCard = async ({
                 class="flex items-center gap-2 justify-between"
               >
                 {creator.displayName}{" "}
-                <VerifiedCreator creator={creator} size="sm" />
+                <VerifiedCreator
+                  creatorStatus={creator.status ?? "stub"}
+                  size="sm"
+                />
               </a>
             </Card.Title>
             <Card.SubTitle>

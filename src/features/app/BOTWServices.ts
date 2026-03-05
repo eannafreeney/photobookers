@@ -1,3 +1,5 @@
+import { BOOK_CARD_COLUMNS } from "../../constants/queries";
+import { CREATOR_CARD_COLUMNS } from "../../constants/queries";
 import { db } from "../../db/client";
 import { bookOfTheWeek, BookOfTheWeek } from "../../db/schema";
 import { eq, desc, sql } from "drizzle-orm";
@@ -69,29 +71,13 @@ export async function getBookOfTheWeekForDateQuery(date: Date) {
     where: eq(bookOfTheWeek.weekStart, weekStart),
     with: {
       book: {
-        columns: {
-          id: true,
-          title: true,
-          slug: true,
-          coverUrl: true,
-          artistId: true,
-          publisherId: true,
-          tags: true,
-        },
+        columns: BOOK_CARD_COLUMNS,
         with: {
           artist: {
-            columns: {
-              id: true,
-              displayName: true,
-              slug: true,
-            },
+            columns: CREATOR_CARD_COLUMNS,
           },
           publisher: {
-            columns: {
-              id: true,
-              displayName: true,
-              slug: true,
-            },
+            columns: CREATOR_CARD_COLUMNS,
           },
           images: {
             columns: {
