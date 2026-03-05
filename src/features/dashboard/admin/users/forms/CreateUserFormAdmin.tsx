@@ -44,10 +44,15 @@ const CreateUserFormAdmin = async () => {
             validateInput="validateField('lastName')"
           />
         </div>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 grid gap-1.5 text-xs">
+          <label class="pl-0.5">Assign Creator</label>
           <CreatorsComboBox creators={creators} />
         </div>
-        <FormButtons buttonText="Create" loadingText="Creating..." />
+        <div class="grid gap-1.5 text-xs">
+          <span class="pl-0.5 opacity-0">‎</span>{" "}
+          {/* invisible spacer matching label height */}
+          <FormButtons buttonText="Create" loadingText="Creating..." />
+        </div>{" "}
       </form>
     </div>
   );

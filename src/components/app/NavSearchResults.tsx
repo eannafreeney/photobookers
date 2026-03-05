@@ -1,6 +1,7 @@
 //
 import { Book, Creator } from "../../db/schema";
 import { AuthUser } from "../../../types";
+import VerifiedCreator from "./VerifiedCreator";
 
 type NavSearchResultsProps = {
   creators: Creator[];
@@ -79,7 +80,6 @@ const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
       <a
         href={`/creators/${creator.slug}`}
         class="flex items-center gap-3 rounded-radius hover:bg-surface transition-colors"
-        aria-label={`View ${creator.displayName} profile`}
       >
         <div class="shrink-0">
           <img
@@ -88,6 +88,7 @@ const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
             class="w-10 h-10 rounded-full object-cover"
             loading="lazy"
           />
+          {/* <VerifiedCreator creatorStatus={creator.status} size="xs" /> */}
         </div>
         <div class="flex-1 min-w-0">
           <div class="font-semibold text-on-surface truncate">
