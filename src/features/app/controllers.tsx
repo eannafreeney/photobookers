@@ -205,7 +205,7 @@ export const processContact = async (c: ContactFormContext) => {
   try {
     const { error } = await supabaseAdmin.functions.invoke("send-email", {
       body: {
-        to: "eannadefreine@gmail.com",
+        to: "hello@photobookers.com",
         subject: "New Contact Form Submission",
         html: generateContactEmail(form),
       },

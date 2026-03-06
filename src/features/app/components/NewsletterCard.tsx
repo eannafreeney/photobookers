@@ -1,4 +1,5 @@
 import Button from "../../../components/app/Button";
+import Input from "../../../components/forms/Input";
 import { stars } from "../../../lib/icons";
 
 type Props = {
@@ -19,17 +20,18 @@ const NewsletterCard = ({
     <p class="text-sm font-medium text-on-surface-strong">{title}</p>
     <p class="text-xs text-on-surface-weak">{description}</p>
     <form
+      id="newsletter-form"
       action="/api/newsletter"
       method="post"
+      x-target="toast newsletter-form"
       class="flex flex-col gap-2 w-full"
     >
       <input
         type="email"
         name="email"
         placeholder="you@example.com"
-        required
-        disabled
         class="w-full md:w-auto min-w-0 flex-1 rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-weak focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+        required
       />
       <Button variant="outline" color="inverse" width="full">
         Sign up
