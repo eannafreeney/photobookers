@@ -7,6 +7,7 @@ import { AuthUser } from "../../../types";
 import ShareButton from "./ShareButton";
 import { BookCardResult } from "../../constants/queries";
 import CollectButton from "../../features/api/components/CollectButton";
+import BookCreators from "./BookCreators";
 
 type BookCardProps = {
   book: BookCardResult;
@@ -50,12 +51,7 @@ const BookCard = ({
             <ShareButton isCircleButton />
           </div>
         </div>
-        <div class="flex flex-col gap-2">
-          <CardCreatorCard creator={book.artist ?? null} />
-          {(!currentCreatorId || currentCreatorId !== book.publisherId) && (
-            <CardCreatorCard creator={book.publisher ?? null} />
-          )}
-        </div>
+        <BookCreators book={book} currentCreatorId={currentCreatorId} />
       </Card.Body>
     </Card>
   );

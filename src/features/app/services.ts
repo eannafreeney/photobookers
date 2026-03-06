@@ -13,6 +13,7 @@ import {
   BOOK_CARD_COLUMNS,
   BookCardResult,
   CREATOR_CARD_COLUMNS,
+  CreatorCardResult,
 } from "../../constants/queries";
 
 export const getBooksInWishlist = async (
@@ -552,6 +553,46 @@ export const getRelatedBooks = async (
     return result.slice(0, limit);
   } catch (error) {
     console.error("Failed to get related books", error);
+    return [];
+  }
+};
+
+export const getRelatedCreators = async (
+  creatorId: string,
+  creatorType: "artist" | "publisher",
+): Promise<CreatorCardResult[]> => {
+  try {
+    const relatedColumn =
+      creatorType === "publisher" ? books.artistId : books.publisherId;
+    const myColumn =
+      creatorType === "publisher" ? books.publisherId : books.artistId;
+
+    const publishedBooks = await db
+      .selectDistinct({ relatedId: relatedColumn })
+      .from(books)
+      .where(
+        and(
+          eq(myColumn, creatorId),
+          eq(books.publicationStatus, "published"),
+          eq(books.approvalStatus, "approved"),
+        ),
+      );
+
+    const relatedIds = publishedBooks
+      .map((r) => r.relatedId)
+      .filter((id): id is string => id != null);
+
+    if (relatedIds.length === 0) return [];
+
+    const related = await db.query.creators.findMany({
+      columns: CREATOR_CARD_COLUMNS,
+      where: inArray(creators.id, relatedIds),
+      orderBy: (c, { asc }) => [asc(c.displayName)],
+    });
+
+    return related;
+  } catch (error) {
+    console.error("Failed to get related creators", error);
     return [];
   }
 };

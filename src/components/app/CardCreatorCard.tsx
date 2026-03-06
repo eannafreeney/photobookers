@@ -16,21 +16,23 @@ const CardCreatorCard = async ({
   if (!creator) return <></>;
 
   return (
-    <Link href={`/creators/${creator.slug}`}>
-      <div class="flex items-center gap-2">
-        <div class="relative">
+    <div class="flex items-center gap-2">
+      <div class="relative">
+        <Link href={`/creators/${creator.slug}`}>
           <Avatar
             src={creator.coverUrl ?? ""}
             alt={creator.displayName ?? ""}
             size={avatarSize}
           />
-          <div class="absolute -top-1 -right-1">
-            <VerifiedCreator creatorStatus={creator.status} size="xs" />
-          </div>
+        </Link>
+        <div class="absolute -top-1 -right-1">
+          <VerifiedCreator creatorStatus={creator.status} size="xs" />
         </div>
-        <Card.SubTitle>{creator.displayName}</Card.SubTitle>
       </div>
-    </Link>
+      <Link href={`/creators/${creator.slug}`}>
+        <Card.SubTitle>{creator.displayName}</Card.SubTitle>
+      </Link>
+    </div>
   );
 };
 

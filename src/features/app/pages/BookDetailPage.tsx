@@ -20,6 +20,7 @@ import WishlistButton from "../../api/components/WishlistButton";
 import { getBookBySlug, getRelatedBooks } from "../services";
 import { BookWithGalleryImages } from "../types";
 import BookCard from "../../../components/app/BookCard";
+import BookCreators from "../../../components/app/BookCreators";
 
 type BookDetailPageProps = {
   user: AuthUser | null;
@@ -120,6 +121,13 @@ const DetailDesktop = ({
             {book.description && (
               <Card.Description>{book.description}</Card.Description>
             )}
+            <div class="flex flex-col gap-2">
+              <p class="text-sm font-medium text-on-surface-strong">Credits</p>
+              {book.releaseDate && (
+                <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
+              )}
+              {book.publisher && <CardCreatorCard creator={book.publisher} />}
+            </div>
             <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
             <TagList tags={book.tags ?? []} />
             <PurchaseLink purchaseLink={book.purchaseLink} />
@@ -132,12 +140,12 @@ const DetailDesktop = ({
             title="Artist"
             user={user}
           />
-          <CreatorCard
+          {/* <CreatorCard
             creator={book.publisher}
             currentPath={currentPath}
             title="Publisher"
             user={user}
-          />
+          /> */}
         </div>
       </div>
       <RelatedBooks book={book} user={user} />
@@ -158,8 +166,7 @@ const DetailMobile = ({
         <h3 class="text-balance text-xl font-semibold text-on-surface-strong">
           {book.title}
         </h3>
-        {book.artist && <CardCreatorCard creator={book.artist} />}
-        {book.publisher && <CardCreatorCard creator={book.publisher} />}
+        <BookCreators book={book} />
       </div>
       <div class="flex items-center gap-2">
         <WishlistButton book={book} user={user} />
@@ -171,6 +178,13 @@ const DetailMobile = ({
       {book.description && (
         <Card.Description>{book.description}</Card.Description>
       )}
+      <div class="flex flex-col gap-2">
+        <p class="text-sm font-medium text-on-surface-strong">Credits</p>
+        {book.releaseDate && (
+          <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
+        )}
+        {book.publisher && <CardCreatorCard creator={book.publisher} />}
+      </div>
       <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
       <PurchaseLink purchaseLink={book.purchaseLink} />
       <TagList tags={book.tags ?? []} />
@@ -187,12 +201,12 @@ const DetailMobile = ({
           currentPath={currentPath}
           user={user}
         />
-        <CreatorCard
+        {/* <CreatorCard
           creator={book.publisher}
           currentPath={currentPath}
           title="Publisher"
           user={user}
-        />
+        /> */}
       </div>
       <RelatedBooks book={book} user={user} />
     </div>
