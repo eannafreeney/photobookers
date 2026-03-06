@@ -1,6 +1,6 @@
 import { Env } from "hono/types";
 import { Book, Creator } from "../../db/schema";
-import { contactFormSchema } from "./schema";
+import { contactFormSchema, newsletterFormSchema } from "./schema";
 import { Context } from "hono";
 import { z } from "zod";
 
@@ -17,4 +17,10 @@ export type ContactFormContext = Context<
   Env,
   string,
   { out: { form: z.infer<typeof contactFormSchema> } }
+>;
+
+export type NewsletterFormContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof newsletterFormSchema> } }
 >;

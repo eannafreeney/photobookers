@@ -10,7 +10,7 @@ import {
   insertWishlist,
   searchBooks,
 } from "./services";
-import { showErrorAlert } from "../../lib/alertHelpers";
+import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
 import Alert from "../../components/app/Alert";
 import FollowButton from "./components/FollowButton";
 import WishlistButton from "./components/WishlistButton";
@@ -21,6 +21,8 @@ import Link from "../../components/app/Link";
 import Badge from "../../components/app/Badge";
 import { closeIcon } from "../../lib/icons";
 import { searchCreators } from "../app/services";
+import { NewsletterFormContext } from "../app/types";
+import NewsletterCard from "../app/components/NewsletterCard";
 
 const updateCreatorCard = () => (
   <div x-sync id="server_events">
@@ -169,5 +171,43 @@ export const getMobileSearchScreen = async (c: Context) => {
         </div>
       </div>
     </div>,
+  );
+};
+
+export const processNewsletter = async (c: NewsletterFormContext) => {
+  const form = c.req.valid("form");
+  const email = form.email;
+
+  const apiKey = process.env.MAILER_LITE_API_KEY;
+  if (!apiKey) {
+    console.error("MAILERLITE_API_KEY is not set");
+    return showErrorAlert(c, "Newsletter signup is not configured.");
+  }
+
+  const body: { email: string; groups?: string[] } = { email };
+  const res = await fetch("https://connect.mailerlite.com/api/subscribers", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    if (res.status === 422) {
+      return c.html(
+        <Alert type="danger" message="Invalid email or already subscribed." />,
+        422,
+      );
+    }
+    return showErrorAlert(c, "Could not sign up. Try again later.");
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message="Newsletter signup successful" />
+      <NewsletterCard />
+    </>,
   );
 };

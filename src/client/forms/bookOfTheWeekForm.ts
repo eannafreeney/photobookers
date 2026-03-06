@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { bookOfTheWeekFormSchema } from "../../features/dashboard/admin/book-of-the-week/schema";
+import { bookOfTheWeekFormSchema } from "../../features/dashboard/admin/planner/schema";
 import z from "zod";
 import {
   createFormState,
