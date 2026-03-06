@@ -5,7 +5,7 @@ import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
 import BooksGrid from "../components/BooksGrid";
 import LoggedOutScreen from "../components/LoggedOutScreen";
-import { getBooksInWishlist } from "../services";
+import { getBooksInCollection, getBooksInWishlist } from "../services";
 
 type Props = {
   user: AuthUser | null;
@@ -36,29 +36,49 @@ const LibraryPage = async ({
     );
   }
 
-  const result = await getBooksInWishlist(user.id, currentPage, sortBy);
+  const [wishlistResult, collectionResult] = await Promise.all([
+    getBooksInWishlist(user.id, currentPage, sortBy),
+    getBooksInCollection(user.id, currentPage, sortBy),
+  ]);
 
-  if (!result?.books) {
+  if (!wishlistResult?.books || !collectionResult?.books) {
     return <ErrorPage errorMessage="No wishlisted books found" user={user} />;
   }
 
   const alpineAttrs = {
     "x-init": true,
-    "x-on:wishlist:updated.window":
-      "() => console.log('wishlist updated'); $ajax('/library/wishlist-books', { target: 'wishlist-books-container' })",
+    "x-merge": "replace",
+    "@library:updated.window":
+      "$ajax('/library', { target: 'library-container' })",
   };
 
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <div id="wishlist-books-container" x-merge="replace" {...alpineAttrs}>
+        <div
+          id="library-container"
+          class="flex flex-col gap-4"
+          {...alpineAttrs}
+        >
           <BooksGrid
             title="Wishlisted Books"
             user={user}
             currentPath={currentPath}
             sortBy="newest"
-            result={result}
+            result={wishlistResult}
+            isFullWidth
+            noResultsMessage="Add books to your wishlist to see them here."
+          />
+          <div class="border-b border-outline my-4"></div>
+          <BooksGrid
+            title="Your Collection"
+            user={user}
+            currentPath={currentPath}
+            sortBy="newest"
+            result={collectionResult}
+            isFullWidth
+            noResultsMessage="Add books to your collection to see them here."
           />
         </div>
       </Page>

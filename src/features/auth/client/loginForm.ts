@@ -1,29 +1,26 @@
 import Alpine from "alpinejs";
-import z from "zod";
-import { handleSubmit } from "./formUtils";
-import { contactFormSchema } from "../../features/app/schema";
+import { loginFormSchema } from "../schema";
+import { handleSubmit } from "../../../client/forms/formUtils";
 
-type ContactFormShape = z.infer<typeof contactFormSchema>;
+export function registerLoginForm() {
+  Alpine.data("loginForm", () => {
+    const params = new URLSearchParams(window.location.search);
 
-export function registerContactForm() {
-  Alpine.data("contactForm", () => {
     return {
       isSubmitting: false,
       form: {
-        name: "",
-        email: "",
-        message: "",
+        email: params.get("email") ?? "",
+        password: params.get("password") ?? "",
       },
       errors: {
         form: {
-          name: "",
           email: "",
-          message: "",
+          password: "",
         },
       },
 
       validateField(field: string) {
-        const result = contactFormSchema.safeParse(this.form);
+        const result = loginFormSchema.safeParse(this.form);
         const fieldError =
           result.error?.flatten().fieldErrors[
             field as keyof typeof this.errors.form
@@ -40,13 +37,12 @@ export function registerContactForm() {
         return (
           Object.values(this.errors.form).every((err) => !err) &&
           this.form.email &&
-          this.form.name &&
-          this.form.message
+          this.form.password
         );
       },
 
       submitForm(event: Event) {
-        return handleSubmit(this, event, contactFormSchema);
+        return handleSubmit(this, event, loginFormSchema);
       },
     };
   });

@@ -1,6 +1,4 @@
 import { AuthUser, Flash } from "../../../../types";
-import BooksGrid from "../components/BooksGrid";
-import ErrorPage from "../../../pages/error/errorPage";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import NavTabs from "../../../components/layouts/NavTabs";

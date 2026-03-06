@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import {
+  collectBook,
   followCreator,
   getMobileSearchScreen,
   getSearchResults,
@@ -13,6 +14,7 @@ export const apiRoutes = new Hono();
 
 apiRoutes.post("/creators/:creatorId/follow", followCreator);
 apiRoutes.post("/books/:bookId/wishlist", wishlistBook);
+apiRoutes.post("/books/:bookId/collect", collectBook);
 apiRoutes.get("/search", getSearchResults);
 apiRoutes.get("/search/mobile", getMobileSearchScreen);
 apiRoutes.post(

@@ -1,7 +1,7 @@
 import Alpine from "alpinejs";
-import { registerFanFormSchema } from "../../features/auth/schema";
+import { registerFanFormSchema } from "../schema";
 import { createRegisterFormUtils } from "./registerFormUtils";
-import { handleSubmit, validateField } from "./formUtils";
+import { handleSubmit, validateField } from "../../../client/forms/formUtils";
 import z from "zod";
 
 type RegisterFanFormShape = z.infer<typeof registerFanFormSchema>;
@@ -61,10 +61,6 @@ export function registerRegisterFanForm() {
           !ctx.isEmailChecking &&
           !ctx.emailIsTaken
         );
-      },
-
-      $destroy() {
-        this._emailAbortController?.abort();
       },
 
       submitForm(event: Event) {

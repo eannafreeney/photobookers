@@ -1,6 +1,6 @@
 import Alpine from "alpinejs";
-import { compressImage } from "../utils/imageCompression";
-import { MAX_GALLERY_IMAGES_PER_BOOK } from "../../constants/images";
+import { compressImage } from "../../../../client/utils/imageCompression";
+import { MAX_GALLERY_IMAGES_PER_BOOK } from "../../../../constants/images";
 
 type ImageItem = {
   id: string;

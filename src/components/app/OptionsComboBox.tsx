@@ -1,4 +1,5 @@
 import { Creator } from "../../db/schema";
+import InputLabel from "../forms/InputLabel";
 
 type Props = {
   options: {
@@ -7,9 +8,10 @@ type Props = {
     img?: string | null;
   }[];
   name: string;
+  label?: string;
 };
 
-const OptionsComboBox = ({ options, name }: Props) => {
+const OptionsComboBox = ({ options, name, label = "Creator" }: Props) => {
   return (
     <div
       x-data={`{
@@ -44,27 +46,30 @@ const OptionsComboBox = ({ options, name }: Props) => {
     >
       <div class="relative">
         {/* trigger button  */}
-        <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
-          <button
-            type="button"
-            x-on:click="isOpen = !isOpen"
-            class="w-full py-2 text-sm font-normal text-left focus:outline-none"
-            x-text="selectedOption ? selectedOption.label : 'Please Select'"
-          ></button>
-          <button
-            type="button"
-            {...{
-              "x-cloak": "true",
-              "x-show": "selectedOption !== null",
-              "x-on:click.stop":
-                "selectedOption = null; $refs.hiddenTextField.value = ''",
-            }}
-            class="text-on-surface-alt hover:text-on-surface focus:outline-none"
-          >
-            {clearIcon}
-          </button>
-          {chevronIcon}
-        </label>
+        <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
+          <InputLabel label={label} name={name} />
+          <label class="bg-surface-alt -mb-1 rounded-radius border border-outline text-on-surface-alt flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
+            <button
+              type="button"
+              x-on:click="isOpen = !isOpen"
+              class="w-full bg-surface-alt px-2 py-2 text-base md:text-sm font-normal text-left focus:outline-none"
+              x-text="selectedOption ? selectedOption.label : 'Please Select'"
+            ></button>
+            <button
+              type="button"
+              {...{
+                "x-cloak": "true",
+                "x-show": "selectedOption !== null",
+                "x-on:click.stop":
+                  "selectedOption = null; $refs.hiddenTextField.value = ''",
+              }}
+              class="text-on-surface-alt hover:text-on-surface focus:outline-none"
+            >
+              {clearIcon}
+            </button>
+            {chevronIcon}
+          </label>
+        </fieldset>
 
         <input
           id={name}

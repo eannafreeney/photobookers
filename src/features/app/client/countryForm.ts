@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { countries } from "../../lib/countries";
+import { countries } from "../../../lib/countries";
 
 export function registerCountryForm() {
   Alpine.data("countryForm", () => {

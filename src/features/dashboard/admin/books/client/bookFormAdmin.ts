@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { bookFormAdminSchema } from "../../features/dashboard/admin/books/schema";
+import { bookFormAdminSchema } from "../schema";
 import z from "zod";
 import {
   createFormState,
@@ -8,7 +8,7 @@ import {
   initFormValues,
   resetFormBaseline,
   validateField,
-} from "./formUtils";
+} from "../../../../../client/forms/formUtils";
 
 type BookFormAdminShape = z.infer<typeof bookFormAdminSchema>;
 

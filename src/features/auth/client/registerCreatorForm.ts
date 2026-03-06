@@ -1,7 +1,7 @@
 import Alpine from "alpinejs";
-import { registerCreatorFormSchema } from "../../features/auth/schema";
-import { createRegisterFormUtils } from "./registerFormUtils";
-import { handleSubmit } from "./formUtils";
+import { registerCreatorFormSchema } from "../schema";
+import { createRegisterFormUtils } from "../client/registerFormUtils";
+import { handleSubmit } from "../../../client/forms/formUtils";
 import z from "zod";
 
 type RegisterCreatorFormShape = z.infer<typeof registerCreatorFormSchema>;

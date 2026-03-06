@@ -9,7 +9,6 @@ import {
   FollowTarget,
   wishlists,
 } from "../../db/schema";
-import { normalizeUrl } from "../../services/verification";
 
 export const deleteFollow = async (creatorId: string, userId: string) => {
   await db

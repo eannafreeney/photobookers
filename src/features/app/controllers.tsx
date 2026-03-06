@@ -1,7 +1,6 @@
 import { Context } from "hono";
 import { getFlash, getUser, setFlash } from "../../utils";
 import { getIsMobile } from "../../lib/device";
-import WishlistedBooks from "./components/WishlistedBooks";
 import CreatorDetailPage from "./pages/CreatorDetailPage";
 import BookDetailPage from "./pages/BookDetailPage";
 import TagPage from "./pages/TagPage";
@@ -15,7 +14,7 @@ import ErrorPage from "../../pages/error/errorPage";
 import { parseSortBy } from "../../lib/utils";
 import ContactPage from "./pages/ContactPage";
 import { ContactFormContext } from "./types";
-import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
+import { showErrorAlert } from "../../lib/alertHelpers";
 import { supabaseAdmin } from "../../lib/supabase";
 import { generateContactEmail } from "./emails";
 
@@ -179,22 +178,6 @@ export const getPublishersPage = async (c: Context) => {
       type="publisher"
       currentPath={currentPath}
       currentPage={page}
-    />,
-  );
-};
-
-export const getWishlistedBooks = async (c: Context) => {
-  const user = await getUser(c);
-  const currentPage = Number(c.req.query("page") ?? 1);
-  const currentPath = c.req.path;
-  if (!user) {
-    return c.html(<ErrorPage errorMessage="User not found" user={user} />);
-  }
-  return c.html(
-    <WishlistedBooks
-      user={user}
-      currentPage={currentPage}
-      currentPath={currentPath}
     />,
   );
 };
