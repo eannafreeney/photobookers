@@ -4,6 +4,7 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
 import BooksGrid from "../components/BooksGrid";
+import RelatedCreators from "../components/RelatedCreators";
 import { getBooksByCreatorSlug } from "../services";
 
 type CreatorDetailPageProps = {
@@ -21,6 +22,7 @@ const CreatorDetailPage = async ({
   currentPath,
   currentPage,
   sortBy,
+  isMobile,
 }: CreatorDetailPageProps) => {
   const result = await getBooksByCreatorSlug(creatorSlug, currentPage, sortBy);
 
@@ -42,6 +44,12 @@ const CreatorDetailPage = async ({
               sortBy={sortBy}
               result={{ ...rest }}
             />
+            {isMobile && (
+              <RelatedCreators
+                creatorType={creator?.type ?? "artist"}
+                creatorId={creator.id}
+              />
+            )}
           </div>
           <div class="md:w-1/5 md:mt-14">
             <CreatorCard
@@ -49,6 +57,12 @@ const CreatorDetailPage = async ({
               currentPath={currentPath}
               user={user}
             />
+            {!isMobile && (
+              <RelatedCreators
+                creatorType={creator?.type ?? "artist"}
+                creatorId={creator.id}
+              />
+            )}
           </div>
         </div>
       </Page>
