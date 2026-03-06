@@ -1,16 +1,15 @@
-import { Creator } from "../../../../../db/schema";
+import { Creator } from "../../db/schema";
 
 type Props = {
-  creators: Pick<Creator, "id" | "displayName" | "slug" | "coverUrl">[];
+  options: {
+    id: string;
+    label: string;
+    img?: string | null;
+  }[];
+  name: string;
 };
 
-const CreatorsComboBox = ({ creators }: Props) => {
-  const options = creators.map((creator) => ({
-    id: creator.id,
-    label: creator.displayName,
-    img: creator.coverUrl,
-  }));
-
+const OptionsComboBox = ({ options, name }: Props) => {
   return (
     <div
       x-data={`{
@@ -22,8 +21,8 @@ const CreatorsComboBox = ({ creators }: Props) => {
         setSelectedOption(option) {
             this.selectedOption = option
             this.isOpen = false
-            this.openedWithKeyboard = false
-            this.$refs.hiddenTextField.value = option.value
+            this.$refs.hiddenTextField.value = option.id
+
         },
         getFilteredOptions(query) {
             this.options = this.allOptions.filter((option) =>
@@ -35,18 +34,12 @@ const CreatorsComboBox = ({ creators }: Props) => {
                 this.$refs.noResultsMessage.classList.add('hidden')
             }
         },
-        handleKeydownOnOptions(event) {
-            // if the user presses backspace or the alpha-numeric keys, focus on the search field
-            if ((event.keyCode >= 65 && event.keyCode <= 90) || (event.keyCode >= 48 && event.keyCode <= 57) || event.keyCode === 8) {
-                this.$refs.searchField.focus()
-            }
-        },
+       
     }`}
       class="w-full flex flex-col gap-1"
       {...{
         "x-on:click.outside": "isOpen = false",
         "x-init": "options = allOptions",
-        "x-on:keydown": "handleKeydownOnOptions($event)",
       }}
     >
       <div class="relative">
@@ -74,8 +67,8 @@ const CreatorsComboBox = ({ creators }: Props) => {
         </label>
 
         <input
-          id="userId"
-          name="userId"
+          id={name}
+          name={name.replace("form.", "")}
           type="text"
           x-ref="hiddenTextField"
           hidden
@@ -103,18 +96,16 @@ const CreatorsComboBox = ({ creators }: Props) => {
           </div>
           {/* Options  */}
           <ul
-            // x-cloak
-            // x-show="isOpen"
             id="usersList"
             class="flex max-h-44 w-full flex-col overflow-hidden overflow-y-auto border-outline bg-surface-alt py-1.5 rounded-radius border"
           >
             <li
-              class="hidden px-4 py-2 text-sm text-on-surface dark:text-on-surface-dark"
+              class="hidden px-4 py-2 text-sm text-on-surface"
               x-ref="noResultsMessage"
             >
               <span>No matches found</span>
             </li>
-            <template x-for="(item, index) in options" x-bind:key="item.id">
+            <template x-for="(item, index) in options" x-bind:key="index">
               <li
                 class="combobox-option cursor-pointer inline-flex justify-between items-center gap-6 bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-primary/10 hover:text-on-surface-strong focus-visible:bg-primary/10 focus-visible:text-on-surface-strong focus-visible:outline-primary focus-visible:outline-offset-1 focus-visible:outline rounded-radius"
                 tabindex={0}
@@ -130,13 +121,11 @@ const CreatorsComboBox = ({ creators }: Props) => {
                     x-bind:src="item.img"
                     alt="Creator avatar"
                   />
-
                   <div class="flex flex-col">
                     <span
                       x-bind:class="selectedOption == item ? 'font-bold' : null"
                       x-text="item.label"
                     ></span>
-                    <span class="text-xs" x-text="item.value"></span>
                   </div>
                 </div>
                 {iconCheck}
@@ -149,7 +138,7 @@ const CreatorsComboBox = ({ creators }: Props) => {
   );
 };
 
-export default CreatorsComboBox;
+export default OptionsComboBox;
 
 const clearIcon = (
   <svg

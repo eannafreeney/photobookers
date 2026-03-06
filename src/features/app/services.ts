@@ -377,6 +377,8 @@ export const searchCreators = async (searchQuery: string) => {
         displayName: true,
         slug: true,
         coverUrl: true,
+        status: true,
+        type: true,
       },
       where: and(
         ilike(creators.displayName, `%${searchQuery}%`),

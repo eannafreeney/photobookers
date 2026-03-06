@@ -6,6 +6,13 @@ type SocialLinksProps = {
 };
 
 const SocialLinks = ({ creator }: SocialLinksProps) => {
+  if (
+    !creator.website &&
+    !creator.facebook &&
+    !creator.instagram &&
+    !creator.twitter
+  )
+    return <></>;
   return (
     <div class={`flex gap-4 items-center justify-center text-xs mt-4`}>
       {creator.website && (

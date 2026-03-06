@@ -2,10 +2,21 @@
 import { Book, Creator } from "../../db/schema";
 import { AuthUser } from "../../../types";
 import VerifiedCreator from "./VerifiedCreator";
+import Avatar from "./Avatar";
+
+type CreatorSearchResult = Pick<
+  Creator,
+  "id" | "slug" | "displayName" | "coverUrl" | "status" | "type"
+>;
+
+type BookSearchResult = Pick<Book, "id" | "slug" | "coverUrl" | "title"> & {
+  artist: Pick<Creator, "id" | "displayName"> | null;
+  publisher: Pick<Creator, "id" | "displayName"> | null;
+};
 
 type NavSearchResultsProps = {
-  creators: Creator[];
-  books: (Book & { artist: Creator | null; publisher: Creator | null })[];
+  creators: CreatorSearchResult[];
+  books: BookSearchResult[];
   user?: AuthUser | null;
   isMobile?: boolean;
 };
@@ -71,7 +82,7 @@ const NavSearchResults = ({
 };
 
 type CreatorResultItemProps = {
-  creator: Creator;
+  creator: CreatorSearchResult;
 };
 
 const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
@@ -81,14 +92,18 @@ const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
         href={`/creators/${creator.slug}`}
         class="flex items-center gap-3 rounded-radius hover:bg-surface transition-colors"
       >
-        <div class="shrink-0">
-          <img
+        <div class="relative">
+          <Avatar
             src={creator.coverUrl ?? ""}
-            alt={`${creator.displayName} avatar`}
-            class="w-10 h-10 rounded-full object-cover"
-            loading="lazy"
+            alt={creator.displayName ?? ""}
+            size="md"
           />
-          {/* <VerifiedCreator creatorStatus={creator.status} size="xs" /> */}
+          <div class="absolute -top-1 -right-1">
+            <VerifiedCreator
+              creatorStatus={creator.status ?? "stub"}
+              size="xs"
+            />
+          </div>
         </div>
         <div class="flex-1 min-w-0">
           <div class="font-semibold text-on-surface truncate">
@@ -104,7 +119,7 @@ const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
 };
 
 type BookResultItemProps = {
-  book: Book & { artist: Creator | null; publisher: Creator | null };
+  book: BookSearchResult;
 };
 
 const BookResultItem = ({ book }: BookResultItemProps) => {

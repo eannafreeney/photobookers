@@ -1,11 +1,12 @@
 import z from "zod";
+import { optionalText } from "../../../../schemas";
 
 // ============ NEW USER FORM SCHEMA ============
 export const newUserFormAdminSchema = z.object({
   email: z.email().min(1, "Email is required"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  creatorId: z.string().uuid().optional(),
+  firstName: optionalText,
+  lastName: optionalText,
+  creatorId: optionalText,
 });
 
 export const deleteMultipleUsersSchema = z.object({

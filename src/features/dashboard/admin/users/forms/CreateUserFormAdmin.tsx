@@ -3,7 +3,7 @@ import FormButtons from "../../../../../components/forms/FormButtons";
 import Input from "../../../../../components/forms/Input";
 import ValidateEmail from "../../../../auth/components/ValidateEmail";
 import { getAllCreatorProfiles } from "../../creators/services";
-import CreatorsComboBox from "../components/CreatorsComboBox";
+import OptionsComboBox from "../../../../../components/app/OptionsComboBox";
 
 const CreateUserFormAdmin = async () => {
   const creators = await getAllCreatorProfiles();
@@ -15,6 +15,12 @@ const CreateUserFormAdmin = async () => {
     "x-on:ajax:success": "isSubmitting = false, $dispatch('users:updated')",
     "x-on:ajax:error": "isSubmitting = false",
   };
+
+  const options = creators.map((creator) => ({
+    id: creator.id,
+    label: creator.displayName,
+    img: creator.coverUrl,
+  }));
 
   return (
     <div id="create-user-form" class="flex flex-col gap-4">
@@ -32,7 +38,6 @@ const CreateUserFormAdmin = async () => {
           <Input
             label="First Name"
             name="form.firstName"
-            required
             validateInput="validateField('firstName')"
           />
         </div>
@@ -40,19 +45,13 @@ const CreateUserFormAdmin = async () => {
           <Input
             label="Last Name"
             name="form.lastName"
-            required
             validateInput="validateField('lastName')"
           />
         </div>
-        <div class="flex-1 min-w-0 grid gap-1.5 text-xs">
-          <label class="pl-0.5">Assign Creator</label>
-          <CreatorsComboBox creators={creators} />
+        <div class="flex-1 min-w-0">
+          <OptionsComboBox options={options} name="form.creatorId" />
         </div>
-        <div class="grid gap-1.5 text-xs">
-          <span class="pl-0.5 opacity-0">‎</span>{" "}
-          {/* invisible spacer matching label height */}
-          <FormButtons buttonText="Create" loadingText="Creating..." />
-        </div>{" "}
+        <FormButtons buttonText="Create" loadingText="Creating..." />
       </form>
     </div>
   );

@@ -14,6 +14,7 @@ import { getBookById } from "../../books/services";
 import EditBOTWModal from "./modals/EditBOTWModal";
 import Alert from "../../../../components/app/Alert";
 import ScheduleBOTWModal from "./modals/ScheduleBOTWModal";
+import ScheduleBOTWContent from "./components/ScheduleBOTWContent";
 
 const updatePlanner = () => (
   <div id="server_events">
@@ -41,8 +42,14 @@ export const getPlannerPageAdmin = async (c: Context) => {
 
 // ---------- BOOK OF THE WEEK  ----------
 
-export const getBOTWModalAdmin = async (c: BOTWBookIdContext) => {
-  return c.html(<ScheduleBOTWModal />);
+export const getScheduleBOTWModal = async (c: BOTWBookIdContext) => {
+  const week = c.req.query("week") ?? "";
+  return c.html(<ScheduleBOTWModal week={week} />);
+};
+
+export const getScheduleBOTWModalContent = async (c: Context) => {
+  const week = c.req.query("week") ?? "";
+  return c.html(<ScheduleBOTWContent week={week} />);
 };
 
 export const getEditBOTWModalAdmin = async (c: BOTWBookIdContext) => {
@@ -54,25 +61,19 @@ export const getEditBOTWModalAdmin = async (c: BOTWBookIdContext) => {
 
 export const setBOTWAdmin = async (c: BOTWFormWithBookIdContext) => {
   const formData = c.req.valid("form");
-  const bookId = c.req.valid("param").bookId;
+  const bookId = formData.bookId;
+  const weekStart = formData.weekStart;
 
-  const bookOfTheWeek = await setBookOfTheWeek({
-    weekStart: formData.weekStart,
-    bookId: bookId,
-    text: formData.text,
-  });
-
-  const book = await getBookById(bookId);
-  if (!book) return showErrorAlert(c, "Book not found");
-
-  if (!bookOfTheWeek) {
-    return c.html(
-      <div id="book-of-the-week-errors" class="text-danger text-xs my-2">
-        That week already has a book assigned, or this book is already chosen
-        for another week.
-      </div>,
-      422,
-    );
+  try {
+    const bookOfTheWeek = await setBookOfTheWeek({
+      weekStart,
+      bookId,
+    });
+    if (!bookOfTheWeek) {
+      return showErrorAlert(c, "Failed to set book of the week");
+    }
+  } catch (error) {
+    return showErrorAlert(c, "Failed to set book of the week");
   }
 
   return c.html(
@@ -85,12 +86,14 @@ export const setBOTWAdmin = async (c: BOTWFormWithBookIdContext) => {
 
 export const updateBOTWAdmin = async (c: BOTWFormWithBookIdContext) => {
   const formData = c.req.valid("form");
-  const bookId = c.req.valid("param").bookId;
+  const bookId = formData.bookId;
+  const weekStart = formData.weekStart;
+  const text = formData.text;
 
   const bookOfTheWeek = await updateBookOfTheWeek({
-    weekStart: formData.weekStart,
-    bookId: bookId,
-    text: formData.text,
+    weekStart,
+    bookId,
+    text: text ?? "",
   });
 
   const book = await getBookById(bookId);

@@ -1,9 +1,35 @@
 import { getBooksOfTheWeekInRange } from "../../../app/BOTWServices";
 import { toWeekString } from "../../../../lib/utils";
 import { getWeekStarts } from "./utils";
-import { BookOfTheWeek, bookOfTheWeek } from "../../../../db/schema";
+import { BookOfTheWeek, bookOfTheWeek, books } from "../../../../db/schema";
 import { db } from "../../../../db/client";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
+
+export async function getAllBooksPreview() {
+  return db.query.books.findMany({
+    columns: {
+      id: true,
+      title: true,
+      coverUrl: true,
+      description: true,
+    },
+    with: {
+      artist: {
+        columns: {
+          id: true,
+          displayName: true,
+        },
+      },
+      publisher: {
+        columns: {
+          id: true,
+          displayName: true,
+        },
+      },
+    },
+    where: and(eq(books.approvalStatus, "approved"), isNotNull(books.coverUrl)),
+  });
+}
 
 export async function getBotwByWeekStart(
   year: number,
@@ -31,7 +57,6 @@ function toWeekStart(d: Date): Date {
 export async function setBookOfTheWeek(params: {
   weekStart: Date;
   bookId: string;
-  text: string;
 }): Promise<BookOfTheWeek | null> {
   const weekStart = toWeekStart(params.weekStart);
   try {
@@ -40,7 +65,7 @@ export async function setBookOfTheWeek(params: {
       .values({
         weekStart,
         bookId: params.bookId,
-        text: params.text,
+        text: "",
       })
       .returning();
     return row ?? null;

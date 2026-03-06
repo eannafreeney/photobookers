@@ -26,7 +26,7 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
     )`,
     "x-on:submit": "submitForm($event)",
     "x-target": "toast",
-    "x-target.away": "_top",
+    "x-target.error": "toast",
     "x-on:ajax:error": "isSubmitting = false",
     "x-on:ajax:success": "onSuccess()",
   };
