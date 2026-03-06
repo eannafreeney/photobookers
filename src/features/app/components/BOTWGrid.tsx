@@ -11,9 +11,7 @@ type Props = {
 };
 
 const BookOfTheWeekGrid = async ({ bookOfTheWeek, user, isMobile }: Props) => {
-  if (!bookOfTheWeek) {
-    return <></>;
-  }
+  if (!bookOfTheWeek) return <></>;
 
   return (
     <>

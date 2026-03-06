@@ -14,8 +14,11 @@ import {
   getTagPage,
   getTermsPage,
   getWishlistedBooks,
+  processContact,
 } from "./controllers";
 import { requireBookPreviewAccess } from "../../middleware/bookGuard";
+import { formValidator } from "../../lib/validator";
+import { contactFormSchema } from "./schema";
 
 export const appRoutes = new Hono();
 
@@ -38,3 +41,6 @@ appRoutes.get("/contact", getContactPage);
 appRoutes.get("/terms", getTermsPage);
 appRoutes.get("/artists", getArtistsPage);
 appRoutes.get("/publishers", getPublishersPage);
+
+// POST
+appRoutes.post("/contact", formValidator(contactFormSchema), processContact);

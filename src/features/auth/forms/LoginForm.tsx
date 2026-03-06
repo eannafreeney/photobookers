@@ -44,9 +44,6 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
           <span class="font-semibold">Register</span>
         </Link>
       </p>
-      <p class="text-center text-sm mt-2">
-        <Link href="/auth/resend-verification">Resend verification email</Link>
-      </p>
     </>
   );
 };

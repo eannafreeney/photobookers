@@ -3,7 +3,6 @@ import { getFlash, getUser, setFlash } from "../../utils";
 import AccountsPage from "./pages/AccountsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import ResendVerificationPage from "./pages/ResendVerificationPage";
 import {
   createSupabaseClient,
   supabaseAdmin,
@@ -15,10 +14,6 @@ import {
   RegisterCreatorFormContext,
   RegisterFanFormContext,
   ResetPasswordFormContext,
-  ValidateDisplayNameContext,
-  ValidateEmailContext,
-  ValidateWebsiteContext,
-  VerificationFormContext,
 } from "./types";
 import {
   createUser,
@@ -28,9 +23,13 @@ import {
   loginAndSetCookies,
   setCookiesAndVerifyUser,
 } from "./services";
-import { normalizeUrl } from "../../services/verification";
-import { createClaim, deleteClaim } from "../claims/services";
-import { generateClaimEmail } from "../claims/emails";
+import { getHostname, normalizeUrl } from "../../services/verification";
+import { createClaimWithStatus, deleteClaim } from "../claims/services";
+import {
+  generateClaimApprovalEmail,
+  generateClaimEmail,
+  generatePendingReviewEmail,
+} from "../claims/emails";
 import ErrorPage from "../../pages/error/errorPage";
 import { db } from "../../db/client";
 import { users } from "../../db/schema";
@@ -45,6 +44,7 @@ import ValidateWebsite from "./components/ValidateWebsite";
 import { createStubCreatorProfile } from "../dashboard/creators/services";
 import { findUserByEmailAdmin } from "../dashboard/admin/creators/services";
 import { eq } from "drizzle-orm";
+import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -66,40 +66,6 @@ export const getRegisterPage = async (c: Context) => {
   const redirectUrl = c.req.query("redirectUrl") ?? "";
   if (user) return c.redirect("/");
   return c.html(<RegisterPage type={type} redirectUrl={redirectUrl} />);
-};
-
-export const getResendVerificationEmailPage = async (c: Context) => {
-  const user = await getUser(c);
-  if (user) return c.redirect("/");
-  return c.html(<ResendVerificationPage />);
-};
-
-export const resendVerificationEmail = async (c: VerificationFormContext) => {
-  const formData = c.req.valid("form");
-  const email = formData.email as string;
-
-  const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
-  const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
-
-  const { error } = await supabaseAnon.auth.resend({
-    type: "signup",
-    email,
-    options: { emailRedirectTo },
-  });
-
-  if (error)
-    showErrorAlert(
-      c,
-      "We couldn’t send a new verification email. Check the address or try signing in if you’re already verified.",
-      400,
-    );
-
-  await setFlash(
-    c,
-    "success",
-    "If an unverified account exists for this email, we’ve sent a new verification link. Check your inbox and spam.",
-  );
-  return c.redirect("/auth/login");
 };
 
 export const login = async (c: LoginFormContext) => {
@@ -229,55 +195,60 @@ export const registerCreator = async (c: RegisterCreatorFormContext) => {
     return showErrorAlert(c, "Failed to create stub creator profile.");
   }
 
+  const emailDomain = email.split("@")[1]?.toLowerCase() ?? "";
+  const websiteHost = getHostname(verificationUrl);
+  const domainsMatch = emailDomain.length > 0 && emailDomain === websiteHost;
+  const claimStatus = domainsMatch ? "approved" : "pending_admin_review";
   // CREATE CLAIM
   let claim;
   try {
-    claim = await createClaim(
+    claim = await createClaimWithStatus(
       userId,
       newCreator.id,
       verificationUrl,
-      "website",
+      claimStatus,
     );
   } catch (error) {
     return showErrorAlert(c, "Failed to create claim. Please try again.");
   }
-
-  // SEND VERIFICATION EMAIL
+  // If auto-approved, assign the creator immediately
+  if (claimStatus === "approved") {
+    await assignUserAsCreatorOwnerAdmin(userId, newCreator.id, true);
+  }
+  // SEND EMAIL
   const origin = new URL(c.req.url).origin;
-  const verificationLink = `${origin}/claim/verify/${claim.verificationToken}`;
-
-  const emailHtml = await generateClaimEmail(
-    claim,
-    newCreator,
-    verificationUrl,
-    verificationLink,
-  );
+  const emailHtml = domainsMatch
+    ? await generateClaimApprovalEmail(newCreator)
+    : await generatePendingReviewEmail(newCreator);
 
   try {
     const { error } = await supabaseAdmin.functions.invoke("send-email", {
       body: {
         to: data.user?.email ?? email,
-        subject: `Verify Your Website for ${newCreator.displayName}`,
+        subject: domainsMatch
+          ? `Welcome to Photobookers, ${newCreator.displayName}!`
+          : `Your claim for ${newCreator.displayName} is under review`,
         html: emailHtml,
       },
       headers: {
         "x-function-secret": process.env.FUNCTION_SECRET ?? "",
       },
     });
-
     if (error) {
       console.error("Failed to send email:", error);
       await deleteClaim(claim.id);
-      return showErrorAlert(c, "Failed to send verification email.");
+      return showErrorAlert(c, "Failed to send email. Please try again.");
     }
   } catch (error) {
     console.error("Email error:", error);
     await deleteClaim(claim.id);
-    return showErrorAlert(c, "Failed to send verification email.");
+    return showErrorAlert(c, "Failed to send email. Please try again.");
   }
 
-  // SET FLASH MESSAGE AND REDIRECT TO HOMEPAGE
-  await setFlash(c, "success", "Please check your email for verification.");
+  const flashMessage = domainsMatch
+    ? "Account created! Check your email to log in and start managing your profile."
+    : "Account created! Your creator profile is pending review — we'll notify you once approved.";
+  await setFlash(c, "success", flashMessage);
   return c.redirect("/");
 };
 
@@ -381,10 +352,7 @@ export const logout = async (c: Context) => {
 
 export const getSetNewPasswordPage = async (c: Context) => {
   const user = await getUser(c);
-  if (user) {
-    return c.html(<ForceResetPasswordPage user={user} />);
-  }
-  return c.html(<MagicLinkHashHandlerPage />);
+  return c.html(<ForceResetPasswordPage user={user} />);
 };
 
 export const getResetPasswordModal = async (c: Context) => {
@@ -493,8 +461,10 @@ export const setSession = async (c: Context) => {
   return c.json({ ok: true });
 };
 
-export const validateEmail = async (c: ValidateEmailContext) => {
-  const email = c.req.valid("form").email;
+export const validateEmail = async (c: Context) => {
+  const body = await c.req.parseBody();
+  const email = body["email"] as string | undefined;
+  if (!email) return c.html(<ValidateEmail />);
 
   const existingUser = await findUserByEmailAdmin(email);
   const isAvailable = !Boolean(existingUser);
@@ -502,8 +472,10 @@ export const validateEmail = async (c: ValidateEmailContext) => {
   return c.html(<ValidateEmail isAvailable={isAvailable} />);
 };
 
-export const validateDisplayName = async (c: ValidateDisplayNameContext) => {
-  const displayName = c.req.valid("form").displayName;
+export const validateDisplayName = async (c: Context) => {
+  const body = await c.req.parseBody();
+  const displayName = body["displayName"] as string | undefined;
+  if (!displayName) return c.html(<ValidateDisplayName />);
 
   const existingCreator = await getCreatorByDisplayName(displayName);
   const isAvailable = !Boolean(existingCreator);
@@ -511,8 +483,10 @@ export const validateDisplayName = async (c: ValidateDisplayNameContext) => {
   return c.html(<ValidateDisplayName isAvailable={isAvailable} />);
 };
 
-export const validateWebsite = async (c: ValidateWebsiteContext) => {
-  const website = c.req.valid("form").website;
+export const validateWebsite = async (c: Context) => {
+  const body = await c.req.parseBody();
+  const website = body["website"] as string | undefined;
+  if (!website) return c.html(<ValidateWebsite />);
 
   const existingWebsite = await getCreatorByWebsite(website);
   const isAvailable = !Boolean(existingWebsite);

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { parseWeekString } from "../../../../lib/utils";
+import { optionalText } from "../../../../schemas";
 
 // ============ BOOK OF THE WEEK FORM SCHEMA ============
 export const bookOfTheWeekFormSchema = z.object({
@@ -8,8 +9,6 @@ export const bookOfTheWeekFormSchema = z.object({
     .min(1, "Week is required")
     .transform(parseWeekString)
     .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
-  text: z
-    .string()
-    .min(1, "Text is required")
-    .max(500, "Text must be less than 500 characters"),
+  bookId: z.string().min(1, "Book is required"),
+  text: optionalText,
 });

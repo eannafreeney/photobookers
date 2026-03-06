@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { getFlash, getUser } from "../../utils";
+import { getFlash, getUser, setFlash } from "../../utils";
 import { getIsMobile } from "../../lib/device";
 import WishlistedBooks from "./components/WishlistedBooks";
 import CreatorDetailPage from "./pages/CreatorDetailPage";
@@ -13,6 +13,11 @@ import TermsAndConditionsPage from "./pages/TermsAndConditions";
 import CreatorsPage from "./pages/CreatorsPage";
 import ErrorPage from "../../pages/error/errorPage";
 import { parseSortBy } from "../../lib/utils";
+import ContactPage from "./pages/ContactPage";
+import { ContactFormContext } from "./types";
+import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
+import { supabaseAdmin } from "../../lib/supabase";
+import { generateContactEmail } from "./emails";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -151,7 +156,7 @@ export const getAboutPage = async (c: Context) => {
 };
 
 export const getContactPage = async (c: Context) => {
-  //   return c.html(<ContactPage />);
+  return c.html(<ContactPage />);
 };
 
 export const getTermsPage = async (c: Context) => {
@@ -192,4 +197,34 @@ export const getWishlistedBooks = async (c: Context) => {
       currentPath={currentPath}
     />,
   );
+};
+
+export const processContact = async (c: ContactFormContext) => {
+  const form = c.req.valid("form");
+
+  try {
+    const { error } = await supabaseAdmin.functions.invoke("send-email", {
+      body: {
+        to: "eannadefreine@gmail.com",
+        subject: "New Contact Form Submission",
+        html: generateContactEmail(form),
+      },
+      headers: {
+        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
+      },
+    });
+    if (error) {
+      console.error("Failed to send email:", error);
+      return showErrorAlert(
+        c,
+        "Failed to send contact email. Please try again.",
+      );
+    }
+  } catch (error) {
+    console.error("Error sending contact email:", error);
+    return showErrorAlert(c, "Failed to send contact email");
+  }
+
+  await setFlash(c, "success", "Contact form submitted successfully");
+  return c.redirect("/");
 };

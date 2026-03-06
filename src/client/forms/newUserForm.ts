@@ -48,9 +48,7 @@ export function registerNewUserForm() {
           ctx.isDirty &&
           Object.values(ctx.errors.form).every((err) => !err) &&
           !ctx.emailIsTaken &&
-          ctx.form.email &&
-          ctx.form.firstName &&
-          ctx.form.lastName
+          ctx.form.email
         );
       },
 

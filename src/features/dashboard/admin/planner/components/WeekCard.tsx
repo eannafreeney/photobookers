@@ -23,13 +23,20 @@ const BOTWWeekCard = ({ weekStart, weekNumber, bookOfTheWeek }: Props) => {
         isPast && "opacity-30 cursor-not-allowed",
       )}
     >
-      <div class="p-3 border-b border-outline">
-        <span class="text-xs font-medium text-on-surface-weak">
-          Week {weekNumber}
-        </span>
-        <p class="text-sm font-medium text-on-surface-strong">
-          {formatWeekRange(weekStart)}
-        </p>
+      <div class="flex items-center justify-between p-3 border-b border-outline">
+        <div>
+          <span class="text-xs font-medium text-on-surface-weak">
+            Week {weekNumber}
+          </span>
+          <p class="text-sm font-medium text-on-surface-strong">
+            {formatWeekRange(weekStart)}
+          </p>
+        </div>
+        <div>
+          {bookOfTheWeek && !bookOfTheWeek?.text && !isPast && (
+            <p class="text-sm font-medium text-danger">Text Missing</p>
+          )}
+        </div>
       </div>
       <Card.Body gap="2">
         {book ? (
@@ -71,15 +78,7 @@ const BOTWWeekCard = ({ weekStart, weekNumber, bookOfTheWeek }: Props) => {
                   Edit
                 </Button>
               </a>
-              <a
-                href={`/dashboard/admin/planner/book-of-the-week/${book.id}/delete`}
-                x-target="modal-root"
-                class="mt-2 inline-block text-sm font-medium text-danger hover:underline"
-              >
-                <Button variant="outline" color="danger">
-                  Delete
-                </Button>
-              </a>
+              <DeleteBookOfTheWeekForm bookId={book.id} />
             </div>
           </>
         ) : (
@@ -88,7 +87,7 @@ const BOTWWeekCard = ({ weekStart, weekNumber, bookOfTheWeek }: Props) => {
             x-target="modal-root"
             class="flex min-h-16 flex-col items-center justify-center rounded border border-dashed border-outline bg-surface-alt/50 py-4 text-sm font-medium text-on-surface-weak hover:border-outline-strong hover:bg-surface-alt hover:text-on-surface"
           >
-            Schedule
+            Schedule Book of the Week
           </a>
         )}
       </Card.Body>
@@ -97,3 +96,24 @@ const BOTWWeekCard = ({ weekStart, weekNumber, bookOfTheWeek }: Props) => {
 };
 
 export default BOTWWeekCard;
+
+const DeleteBookOfTheWeekForm = ({ bookId }: { bookId: string }) => {
+  const alpineAttrs = {
+    "x-target": "toast",
+    "x-on:ajax:success":
+      "$dispatch('dialog:close'), $dispatch('planner:updated')",
+    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+  };
+  return (
+    <form
+      action={`/dashboard/admin/planner/book-of-the-week/${bookId}/delete`}
+      method="post"
+      {...alpineAttrs}
+      class="mt-2 inline-block text-sm font-medium text-danger hover:underline"
+    >
+      <Button variant="outline" color="danger">
+        Delete
+      </Button>
+    </form>
+  );
+};

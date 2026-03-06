@@ -11,7 +11,6 @@ import { creatorDashboardRoutes } from "../features/dashboard/creators/routes";
 import { adminBooksDashboardRoutes } from "../features/dashboard/admin/books/routes";
 import { adminUsersDashboardRoutes } from "../features/dashboard/admin/users/routes";
 import { adminClaimsDashboardRoutes } from "../features/dashboard/admin/claims/routes";
-import { adminBookOfTheWeekDashboardRoutes } from "../features/dashboard/admin/book-of-the-week/routes";
 import { adminCreatorsDashboardRoutes } from "../features/dashboard/admin/creators/routes";
 import { apiRoutes } from "../features/api/routes";
 import { imageRoutes } from "../features/dashboard/images/routes";
@@ -60,9 +59,4 @@ routes.route("/dashboard/admin/books", adminBooksDashboardRoutes);
 routes.route("/dashboard/admin/users", adminUsersDashboardRoutes);
 routes.route("/dashboard/admin/claims", adminClaimsDashboardRoutes);
 routes.route("/dashboard/admin/creators", adminCreatorsDashboardRoutes);
-routes.route(
-  "/dashboard/admin/book-of-the-week",
-  adminBookOfTheWeekDashboardRoutes,
-);
-
 routes.route("/dashboard/admin/planner", adminPlannerDashboardRoutes);

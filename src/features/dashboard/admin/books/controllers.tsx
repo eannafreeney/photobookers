@@ -2,7 +2,7 @@ import { Context } from "hono";
 import AdminBooksOverviewPage from "./pages/AdminBooksOverviewPage";
 import { getFlash, getUser, setFlash } from "../../../../utils";
 import AddBookPage from "./pages/AddBookPage";
-import { showErrorAlert } from "../../../../lib/alertHelpers";
+import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers";
 import Alert from "../../../../components/app/Alert";
 import { BookFormContext, BookFormWithBookIdContext } from "./types";
 import {
@@ -127,8 +127,7 @@ export const updateBookAdmin = async (c: BookFormWithBookIdContext) => {
     return showErrorAlert(c, "Failed to update book");
   }
 
-  await setFlash(c, "success", `${updatedBook.title} updated!`);
-  return c.redirect(`/dashboard/admin/books`);
+  return showSuccessAlert(c, `${updatedBook.title} updated!`);
 };
 
 export const deleteBookAdmin = async (c: BookIdContext) => {

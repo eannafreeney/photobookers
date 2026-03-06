@@ -5,7 +5,6 @@ import { registerCarouselForm } from "./forms/carouselForm";
 import { registerBookCoverForm } from "./forms/bookCoverForm";
 import { registerCreatorCoverForm } from "./forms/creatorCoverForm";
 import { registerComboBox } from "./components/comboBox";
-import { registerMagicLinkHashHandler } from "./components/magicLinkHashHandler";
 import { registerBookGalleryForm } from "./forms/bookGalleryForm";
 import { registerClaimForm } from "./forms/claimForm";
 import { registerCountryForm } from "./forms/countryForm";
@@ -19,6 +18,7 @@ import { registerEditCreatorFormAdmin } from "./forms/editCreatorFormAdmin";
 import { registerNewUserForm } from "./forms/newUserForm";
 import { registerResetPasswordForm } from "./forms/resetPasswordForm";
 import { registerImageOrientation } from "./utils/imageOrientation";
+import { registerContactForm } from "./forms/contactForm";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -40,5 +40,5 @@ registerBookOfTheWeekForm();
 registerEditCreatorFormAdmin();
 registerNewUserForm();
 registerResetPasswordForm();
-registerMagicLinkHashHandler();
 registerImageOrientation();
+registerContactForm();

@@ -1,20 +1,19 @@
 import Alert from "../../../../components/app/Alert";
-import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers";
+import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { getUser } from "../../../../utils";
 import UsersPageAdmin from "./pages/UsersPageAdmin";
 import { Context } from "hono";
 import {
   DeleteMultipleUsersContext,
-  MagicLinkFormContext,
   UserFormContext,
   UserIdContext,
 } from "./types";
 import { supabaseAdmin } from "../../../../lib/supabase";
-import { generateMagicLinkEmail } from "./emails";
-import MagicLinkModal from "./modals/MagicLinkModal";
-import { createUserWithAuthId, deleteUserById, getUserById } from "./services";
+import { createUserWithAuthId, deleteUserById } from "./services";
 import NewUserCredentialsModal from "./modals/NewUserCredentialsModal";
 import CreateUserFormAdmin from "./forms/CreateUserFormAdmin";
+import { getCreatorById } from "../../creators/services";
+import { assignUserAsCreatorOwnerAdmin } from "../claims/services";
 
 const updaterUsersEvent = () => (
   <div id="server_events">
@@ -30,7 +29,8 @@ export const getUsersPageAdmin = async (c: Context) => {
 
 export const createNewUserAdmin = async (c: UserFormContext) => {
   const formData = c.req.valid("form");
-  const { email, firstName, lastName } = formData;
+  const { email, firstName, lastName, creatorId } = formData;
+  console.log("formData", formData);
   const temporaryPassword = crypto.randomUUID();
 
   const { data: authData, error: authError } =
@@ -41,6 +41,12 @@ export const createNewUserAdmin = async (c: UserFormContext) => {
       user_metadata: { firstName, lastName },
     });
 
+  let creator;
+  if (creatorId) {
+    creator = await getCreatorById(creatorId);
+    if (!creator) return showErrorAlert(c, "Creator not found");
+  }
+  console.log("creator", creator);
   if (authError) {
     return showErrorAlert(c, authError.message);
   }
@@ -49,18 +55,28 @@ export const createNewUserAdmin = async (c: UserFormContext) => {
     return showErrorAlert(c, "Failed to create user.");
   }
 
-  const newUser = await createUserWithAuthId(authUserId, formData, {
-    mustResetPassword: true,
-  });
-  if (!newUser) {
-    return showErrorAlert(c, "Failed to create user");
+  try {
+    const newUser = await createUserWithAuthId(authUserId, formData, {
+      mustResetPassword: true,
+    });
+    if (!newUser) {
+      return showErrorAlert(c, "Failed to create user");
+    }
+    if (creator) {
+      await assignUserAsCreatorOwnerAdmin(authUserId, creator.id);
+    }
+  } catch (error) {
+    console.error("Failed to create user and assign creator owner:", error);
+    return showErrorAlert(c, "Failed to create user and assign creator owner");
   }
+
   return c.html(
     <>
       <CreateUserFormAdmin />
       <NewUserCredentialsModal
         email={email}
         temporaryPassword={temporaryPassword}
+        creator={creator}
       />
       {updaterUsersEvent()}
     </>,
@@ -89,65 +105,6 @@ export const deleteMultipleUsersAdmin = async (
     <>
       <Alert type="success" message={`${deleted} user(s) deleted.`} />
       {updaterUsersEvent()}
-    </>,
-  );
-};
-
-export const generateMagicLinkAdmin = async (c: UserIdContext) => {
-  const userId = c.req.valid("param").userId;
-
-  const user = await getUserById(userId);
-  const email = user?.email as string;
-
-  const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-    type: "magiclink",
-    email,
-    options: {
-      redirectTo: `${process.env.SITE_URL ?? "http://localhost:5173"}/auth/force-reset-password`,
-    },
-  });
-
-  const actionLink = data?.properties?.action_link;
-
-  return c.html(
-    <MagicLinkModal
-      userId={userId}
-      errorMessage={error?.message ?? null}
-      actionLink={actionLink ?? null}
-      user={user}
-    />,
-  );
-};
-
-export const sendMagicLinkAdmin = async (c: MagicLinkFormContext) => {
-  const userId = c.req.valid("param").userId;
-  const actionLink = c.req.valid("form").actionLink;
-  const user = await getUserById(userId);
-  if (!user) return showErrorAlert(c, "User not found");
-
-  const emailHTML = await generateMagicLinkEmail(user, actionLink);
-  const { error } = await supabaseAdmin.functions.invoke("send-email", {
-    body: {
-      to: user.email,
-      subject: "Photobookers - Magic Link",
-      html: emailHTML,
-    },
-    headers: {
-      "x-function-secret": process.env.FUNCTION_SECRET ?? "",
-    },
-  });
-
-  if (error) {
-    console.error("Failed to send magic link:", error);
-    return showErrorAlert(c, "Failed to send magic link");
-  }
-
-  return c.html(
-    <>
-      <Alert type="success" message="Magic link sent!" />
-      <div id="server_events">
-        <div x-init="$dispatch('dialog:close')"></div>
-      </div>
     </>,
   );
 };

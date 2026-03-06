@@ -62,11 +62,6 @@ const BOTWDesktopCard = ({
     <Card className="col-span-6">
       <div class="flex gap-2">
         <div class="w-2/3 shrink-0">
-          {/* <Card.Image
-            src={book.coverUrl}
-            alt={book.title}
-            href={`/books/${book.slug}`}
-          /> */}
           <CarouselMobile
             images={[
               book.coverUrl,
@@ -121,11 +116,6 @@ const BOTWMobileCard = ({
 
   return (
     <Card className="w-full min-w-0">
-      {/* <Card.Image
-        src={book.coverUrl}
-        alt={book.title}
-        href={`/books/${book.slug}`}
-      /> */}
       <CarouselMobile
         images={[
           book.coverUrl,

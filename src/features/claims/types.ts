@@ -1,7 +1,7 @@
 import { Context, Env } from "hono";
 import { creatorIdSchema, currentPathSchema } from "../../schemas";
 import { z } from "zod";
-import { claimFormSchema, tokenSchema } from "./schema";
+import { claimFormSchema } from "./schema";
 
 export type ClaimModalContext = Context<
   Env,
@@ -21,16 +21,6 @@ export type ProcessClaimContext = Context<
     out: {
       form: z.infer<typeof claimFormSchema>;
       param: z.infer<typeof creatorIdSchema>;
-    };
-  }
->;
-
-export type VerifyClaimContext = Context<
-  Env,
-  string,
-  {
-    out: {
-      param: z.infer<typeof tokenSchema>;
     };
   }
 >;

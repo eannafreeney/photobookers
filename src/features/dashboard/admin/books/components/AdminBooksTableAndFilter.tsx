@@ -137,9 +137,7 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
       <Table.BodyRow>
         <PublishToggleForm book={book} />
       </Table.BodyRow>
-      <Table.BodyRow>
-        <ScheduleWeekButton book={book} />
-      </Table.BodyRow>
+
       <Table.BodyRow>
         <PreviewButton book={book} user={user} />
       </Table.BodyRow>
@@ -152,26 +150,5 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
         <DeleteFormButton action={`/dashboard/admin/books/${book.id}/delete`} />
       </Table.BodyRow>
     </tr>
-  );
-};
-
-const ScheduleWeekButton = ({ book }: { book: BookWithAdminRelations }) => {
-  if (book.bookOfTheWeekEntry) {
-    return (
-      <a
-        href={`/dashboard/admin/book-of-the-week/${book.id}/update`}
-        x-target="modal-root"
-      >
-        {toWeekString(book.bookOfTheWeekEntry.weekStart)}
-      </a>
-    );
-  }
-  return (
-    <a
-      href={`/dashboard/admin/book-of-the-week/${book.id}/create`}
-      x-target="modal-root"
-    >
-      {calendarIcon}
-    </a>
   );
 };

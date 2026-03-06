@@ -46,15 +46,15 @@ export const deleteClaim = async (claimId: string) => {
   }
 };
 
-export const createClaim = async (
+// Add to src/features/claims/services.ts
+
+export const createClaimWithStatus = async (
   userId: string,
   creatorId: string,
   verificationUrl: string,
-  verificationMethod: "website" | "instagram" = "website",
+  status: "approved" | "pending_admin_review",
 ) => {
-  const verificationCode = generateVerificationCode();
-  const codeExpiresAt = getCodeExpiration(7); // 7 days
-  const verificationToken = nanoid(32); // For email verification link
+  const verificationToken = nanoid(32);
 
   const [claim] = await db
     .insert(creatorClaims)
@@ -62,11 +62,11 @@ export const createClaim = async (
       userId,
       creatorId,
       verificationToken,
-      verificationMethod,
+      verificationMethod: "website",
       verificationUrl,
-      verificationCode,
-      codeExpiresAt,
-      status: "pending",
+      status,
+      verifiedAt: status === "approved" ? new Date() : null,
+      // verificationCode and codeExpiresAt intentionally omitted — not needed
     })
     .returning();
 
@@ -203,97 +203,4 @@ export const assignCreatorToClaimant = async (claim: CreatorClaim) => {
       website: claim.verificationUrl,
     })
     .where(eq(creators.id, claim.creatorId));
-};
-
-export const verifyClaim = async (claim: CreatorClaim) => {
-  if (isCodeExpired(claim.codeExpiresAt)) {
-    await db
-      .update(creatorClaims)
-      .set({ status: "rejected" })
-      .where(eq(creatorClaims.id, claim.id));
-
-    return {
-      verified: false,
-      error: "Verification code has expired. Please request a new one.",
-      requiresApproval: false,
-    };
-  }
-
-  if (claim.verificationMethod !== "website" || !claim.verificationUrl) {
-    return {
-      verified: false,
-      error: "Invalid verification method",
-      requiresApproval: false,
-    };
-  }
-
-  const result = await verifyWebsite(
-    claim.verificationUrl,
-    claim.verificationCode!,
-  );
-
-  if (!result.verified) {
-    return result;
-  }
-
-  const creator = await getCreatorById(claim.creatorId);
-  const websiteHost = getHostname(claim.verificationUrl);
-
-  // Existing creator already had this website on file → auto-approve (claim flow)
-  if (creator?.website) {
-    await db
-      .update(creatorClaims)
-      .set({
-        status: "approved",
-        verifiedAt: new Date(),
-      })
-      .where(eq(creatorClaims.id, claim.id));
-    const isVerified = claim.status === "approved";
-    await assignUserAsCreatorOwnerAdmin(
-      claim.userId,
-      claim.creatorId,
-      isVerified,
-    );
-    return { verified: true, error: null, requiresApproval: false };
-  }
-
-  // New creator: same domain for email and website → auto-approve; else pending_admin_review
-  const user = await getUserByIdAdmin(claim.userId);
-  if (!user) {
-    return {
-      verified: false,
-      error: "User not found",
-      requiresApproval: false,
-    };
-  }
-  const emailDomain = user?.email?.split("@")[1]?.toLowerCase() ?? "";
-  const domainsMatch = emailDomain.length > 0 && emailDomain === websiteHost;
-
-  if (domainsMatch) {
-    await db
-      .update(creatorClaims)
-      .set({
-        status: "approved",
-        verifiedAt: new Date(),
-      })
-      .where(eq(creatorClaims.id, claim.id));
-    const isVerified = claim.status === "approved";
-    await assignUserAsCreatorOwnerAdmin(
-      claim.userId,
-      claim.creatorId,
-      isVerified,
-    );
-    return { verified: true, error: null, requiresApproval: false };
-  }
-
-  // New creator: different domain for email and website → pending admin review
-  await db
-    .update(creatorClaims)
-    .set({
-      status: "pending_admin_review",
-      verifiedAt: new Date(),
-    })
-    .where(eq(creatorClaims.id, claim.id));
-  await assignCreatorToClaimant(claim);
-  return { verified: true, error: null, requiresApproval: true };
 };

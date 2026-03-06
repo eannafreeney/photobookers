@@ -1,20 +1,15 @@
-import BookOfTheWeekForm from "../forms/BookOfTheWeekForm";
 import Modal from "../../../../../components/app/Modal";
-import { Book, Creator } from "../../../../../db/schema";
 
-type Props = {
-  book: Book & { artist: Creator | null; publisher: Creator | null };
-  formValues?: {
-    weekStart: string;
-    text: string;
-  };
-};
-
-const ScheduleBOTWModal = ({ book, formValues }: Props) => {
+const ScheduleBOTWModal = async ({ week }: { week: string }) => {
   return (
     <Modal title="Schedule Book of the Week">
-      Book Of Trh qwwk
-      {/* <BookOfTheWeekForm book={book} formValues={initialFormValues} /> */}
+      <div
+        id="schedule-modal-content"
+        class="h-24"
+        x-init={`$ajax('/dashboard/admin/planner/book-of-the-week/schedule-modal-content?week=${week}')`}
+      >
+        ...loading content...
+      </div>
     </Modal>
   );
 };
