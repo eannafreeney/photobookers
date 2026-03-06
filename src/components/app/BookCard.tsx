@@ -12,17 +12,17 @@ import BookCreators from "./BookCreators";
 type BookCardProps = {
   book: BookCardResult;
   user: AuthUser | null;
-  showHeader?: boolean;
   currentCreatorId?: string;
   className?: string;
+  showPublisherInsteadOfArtist?: boolean;
 };
 
 const BookCard = ({
   book,
   user,
-  showHeader = false,
   currentCreatorId,
   className,
+  showPublisherInsteadOfArtist = false,
 }: BookCardProps) => {
   return (
     <Card className={className}>
@@ -39,11 +39,9 @@ const BookCard = ({
             <Link href={`/books/${book.slug}`}>
               <Card.Title>{book.title}</Card.Title>
             </Link>
-            {!showHeader && (
-              <Card.Text>
-                {book.releaseDate && formatDate(book.releaseDate)}
-              </Card.Text>
-            )}
+            <Card.Text>
+              {book.releaseDate && formatDate(book.releaseDate)}
+            </Card.Text>
           </div>
           <div class="flex items-center gap-2">
             <CollectButton isCircleButton book={book} user={user} />
@@ -51,7 +49,11 @@ const BookCard = ({
             <ShareButton isCircleButton />
           </div>
         </div>
-        <BookCreators book={book} currentCreatorId={currentCreatorId} />
+        <BookCreators
+          book={book}
+          currentCreatorId={currentCreatorId}
+          showPublisherInsteadOfArtist={showPublisherInsteadOfArtist}
+        />
       </Card.Body>
     </Card>
   );

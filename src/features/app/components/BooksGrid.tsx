@@ -48,7 +48,14 @@ const BooksGrid = async ({
       </div>
       <GridPanel id={targetId} isFullWidth={isFullWidth} xMerge="append">
         {books?.length > 0 ? (
-          books.map((book) => <BookCard book={book} user={user} />)
+          books.map((book) => (
+            <BookCard
+              book={book}
+              user={user}
+              currentCreatorId={creator?.id}
+              showPublisherInsteadOfArtist={creator?.type === "artist"}
+            />
+          ))
         ) : (
           <div class="col-span-full text-center text-sm text-on-surface-weak py-4">
             {noResultsMessage}
