@@ -16,7 +16,7 @@ const RelatedCreators = async ({ creatorType, creatorId }: Props) => {
   return (
     <section class="flex flex-col gap-2">
       <SectionTitle>{title}</SectionTitle>
-      <ul class="flex flex-col gap-2">
+      <ul class="flex flex-col gap-4">
         {relatedCreators.map((c) => (
           <CardCreatorCard creator={c} avatarSize="sm" />
         ))}
