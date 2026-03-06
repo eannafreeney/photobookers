@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { compressImage } from "../utils/imageCompression";
+import { compressImage } from "../../../../client/utils/imageCompression";
 
 export function registerBookCoverForm() {
   Alpine.data(

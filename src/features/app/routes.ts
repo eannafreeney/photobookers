@@ -13,7 +13,6 @@ import {
   getPublishersPage,
   getTagPage,
   getTermsPage,
-  getWishlistedBooks,
   processContact,
 } from "./controllers";
 import { requireBookPreviewAccess } from "../../middleware/bookGuard";
@@ -35,7 +34,6 @@ appRoutes.get("/books/tags/:tag", getTagPage);
 appRoutes.get("/featured", getFeaturedPage);
 appRoutes.get("/feed", getFeedPage);
 appRoutes.get("/library", getLibraryPage);
-appRoutes.get("/library/wishlist-books", getWishlistedBooks);
 appRoutes.get("/about", getAboutPage);
 appRoutes.get("/contact", getContactPage);
 appRoutes.get("/terms", getTermsPage);

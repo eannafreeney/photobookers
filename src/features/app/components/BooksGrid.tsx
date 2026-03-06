@@ -20,6 +20,7 @@ type Props = {
   title?: string;
   creator?: Creator;
   isFullWidth?: boolean;
+  noResultsMessage?: string;
 };
 
 const BooksGrid = async ({
@@ -30,16 +31,13 @@ const BooksGrid = async ({
   title,
   creator,
   isFullWidth = false,
+  noResultsMessage = "No books found",
 }: Props) => {
   const { books, totalPages, page } = result;
   const targetId = "books-grid";
 
   const baseUrlWithSort =
     sortBy !== "newest" ? `${currentPath}?sortBy=${sortBy}` : currentPath;
-
-  if (!result?.books) {
-    return <div>No featured books found</div>;
-  }
 
   return (
     <>
@@ -49,9 +47,13 @@ const BooksGrid = async ({
         <SortDropdown sortBy={sortBy} currentPath={currentPath} />
       </div>
       <GridPanel id={targetId} isFullWidth={isFullWidth} xMerge="append">
-        {books.map((book) => (
-          <BookCard book={book} user={user} />
-        ))}
+        {books?.length > 0 ? (
+          books.map((book) => <BookCard book={book} user={user} />)
+        ) : (
+          <div class="col-span-full text-center text-sm text-on-surface-weak py-4">
+            {noResultsMessage}
+          </div>
+        )}
       </GridPanel>
       <Pagination
         baseUrl={baseUrlWithSort}

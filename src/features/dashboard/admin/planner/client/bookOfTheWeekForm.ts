@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { bookOfTheWeekFormSchema } from "../../features/dashboard/admin/planner/schema";
+import { bookOfTheWeekFormSchema } from "../schema";
 import z from "zod";
 import {
   createFormState,
@@ -7,7 +7,7 @@ import {
   handleSubmit,
   initFormValues,
   validateField,
-} from "./formUtils";
+} from "../../../../../client/forms/formUtils";
 
 export type BookOfTheWeekFormData = z.infer<typeof bookOfTheWeekFormSchema>;
 

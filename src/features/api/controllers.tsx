@@ -10,7 +10,7 @@ import {
   insertWishlist,
   searchBooks,
 } from "./services";
-import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
+import { showErrorAlert } from "../../lib/alertHelpers";
 import Alert from "../../components/app/Alert";
 import FollowButton from "./components/FollowButton";
 import WishlistButton from "./components/WishlistButton";
@@ -20,21 +20,15 @@ import { DISCOVER_TAGS } from "../../constants/discover";
 import Link from "../../components/app/Link";
 import Badge from "../../components/app/Badge";
 import { closeIcon } from "../../lib/icons";
+import { dispatchEvents } from "../../lib/disatchEvents";
 import { searchCreators } from "../app/services";
 import { NewsletterFormContext } from "../app/types";
 import NewsletterCard from "../app/components/NewsletterCard";
+import { deleteCollectionItem, insertCollectionItem } from "../../db/queries";
+import CollectButton from "./components/CollectButton";
 
-const updateCreatorCard = () => (
-  <div x-sync id="server_events">
-    <div x-init="$dispatch('creator:updated')"></div>
-  </div>
-);
-
-const updateWishlistBooks = () => (
-  <div x-sync id="server_events">
-    <div x-init="$dispatch('wishlist:updated')"></div>
-  </div>
-);
+const updateCreatorCard = () => "creator:updated";
+const updateLibraryPage = () => "library:updated";
 
 export const followCreator = async (c: Context) => {
   const creatorId = c.req.param("creatorId");
@@ -74,7 +68,50 @@ export const followCreator = async (c: Context) => {
         user={user}
         isCircleButton={buttonType === "circle"}
       />
-      {updateCreatorCard()}
+      {dispatchEvents([updateCreatorCard()])}
+    </>,
+  );
+};
+
+export const collectBook = async (c: Context) => {
+  const bookId = c.req.param("bookId");
+  const user = await getUser(c);
+  const userId = user?.id;
+
+  if (!userId) return c.html(<AuthModal action="to collect this book." />, 401);
+
+  const body = await c.req.parseBody();
+  const isCurrentlyCollected = body.isCollected === "true";
+  const buttonType = body.buttonType; // "circle" or "default"
+
+  try {
+    if (isCurrentlyCollected) {
+      await deleteCollectionItem(userId, bookId);
+    } else {
+      await insertCollectionItem(userId, bookId);
+    }
+  } catch (error) {
+    console.error("Failed to add/remove book to wishlist", error);
+    return showErrorAlert(c);
+  }
+
+  const book = await getBookPermissionData(bookId);
+  if (!book) return showErrorAlert(c, "Book not found");
+
+  const message = isCurrentlyCollected
+    ? `${book.title} has been removed from your wishlist`
+    : `${book.title} has been added to your wishlist`;
+
+  return c.html(
+    <>
+      <Alert type="success" message={message} />
+      <CollectButton
+        book={book}
+        user={user}
+        isCircleButton={buttonType === "circle"}
+      />
+      <div id="modal-root"></div>
+      {dispatchEvents([updateLibraryPage()])}
     </>,
   );
 };
@@ -117,7 +154,7 @@ export const wishlistBook = async (c: Context) => {
         user={user}
         isCircleButton={buttonType === "circle"}
       />
-      {updateWishlistBooks()}
+      {dispatchEvents([updateLibraryPage()])}
     </>,
   );
 };

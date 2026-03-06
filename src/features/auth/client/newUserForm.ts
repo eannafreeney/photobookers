@@ -6,11 +6,11 @@ import {
   initFormValues,
   resetFormBaseline,
   validateField,
-} from "./formUtils";
+} from "../../../client/forms/formUtils";
 import { createRegisterFormUtils } from "./registerFormUtils";
-import { newUserFormAdminSchema } from "../../features/dashboard/admin/users/schema";
+import { newUserFormAdminSchema } from "../../dashboard/admin/users/schema";
 import z from "zod";
-import { creatorFormAdminSchema } from "../../features/dashboard/admin/creators/schemas";
+import { creatorFormAdminSchema } from "../../dashboard/admin/creators/schemas";
 
 type NewUserFormShape = z.infer<typeof newUserFormAdminSchema>;
 

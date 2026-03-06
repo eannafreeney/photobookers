@@ -1,7 +1,7 @@
 import Alpine from "alpinejs";
 import { createRegisterFormUtils } from "./registerFormUtils";
-import { handleSubmit, validateField } from "./formUtils";
-import { resetPasswordFormSchema } from "../../features/auth/schema";
+import { handleSubmit, validateField } from "../../../client/forms/formUtils";
+import { resetPasswordFormSchema } from "../schema";
 import z from "zod";
 
 type ResetPasswordFormShape = z.infer<typeof resetPasswordFormSchema>;

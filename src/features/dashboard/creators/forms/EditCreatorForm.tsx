@@ -12,15 +12,11 @@ type Props = {
   type?: "artist" | "publisher";
 };
 
-const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
+const EditCreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
   const isEditPage = !!creatorId;
 
-  const action = creatorId
-    ? `/dashboard/creators/${creatorId}/update`
-    : "/dashboard/creators/new";
-
   const alpineAttrs = {
-    "x-data": `creatorForm(${formValues}, ${isEditPage})`,
+    "x-data": `editCreatorForm(${formValues}, ${isEditPage})`,
     "x-target": "toast",
     "x-target.away": "_top",
     "x-on:ajax:error": "isSubmitting = false",
@@ -32,7 +28,11 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
       <SectionTitle>{`${isEditPage ? "Edit" : "Create"} ${capitalize(
         type,
       )} Profile`}</SectionTitle>
-      <form action={action} method="post" {...alpineAttrs}>
+      <form
+        action={`/dashboard/creators/${creatorId}/update`}
+        method="post"
+        {...alpineAttrs}
+      >
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
           <Input
             label="Display Name"
@@ -88,4 +88,4 @@ const CreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
   );
 };
 
-export default CreatorForm;
+export default EditCreatorForm;

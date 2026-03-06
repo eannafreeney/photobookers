@@ -1,12 +1,8 @@
 import Alpine from "alpinejs";
-import { claimFormSchema } from "../../features/claims/schema";
+import { claimFormSchema } from "../schema";
 import z from "zod";
-import { bookFormAdminSchema } from "../../features/dashboard/admin/books/schema";
-import { handleSubmit } from "./formUtils";
-
-type ClaimFormShape = z.infer<typeof claimFormSchema>;
-
-const CLAIM_FORM_FIELDS = Object.keys(claimFormSchema.shape);
+import { bookFormAdminSchema } from "../../dashboard/admin/books/schema";
+import { handleSubmit } from "../../../client/forms/formUtils";
 
 export function registerClaimForm() {
   Alpine.data("claimForm", (props: { creatorWebsite?: string }) => {

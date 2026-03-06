@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { creatorFormAdminSchema } from "../../features/dashboard/admin/creators/schemas";
+import { creatorFormAdminSchema } from "../schemas";
 import {
   createFormState,
   getIsDirty,
@@ -7,20 +7,18 @@ import {
   initFormValues,
   resetFormBaseline,
   validateField,
-} from "./formUtils";
-import { createRegisterFormUtils } from "./registerFormUtils";
+} from "../../../../../client/forms/formUtils";
+import { createRegisterFormUtils } from "../../../../auth/client/registerFormUtils";
 import z from "zod";
 
 type CreatorFormAdminShape = z.infer<typeof creatorFormAdminSchema>;
 
 const CREATOR_FORM_ADMIN_FIELDS = Object.keys(creatorFormAdminSchema.shape);
 
-export function registerCreatorFormAdmin() {
-  Alpine.data("creatorFormAdmin", () => {
+export function registerAddCreatorFormAdmin() {
+  Alpine.data("addCreatorFormAdmin", () => {
     return {
       isSubmitting: false,
-      isDisplayNameChecking: false,
-      displayNameAvailabilityStatus: "",
       displayNameIsTaken: false,
 
       ...createFormState(CREATOR_FORM_ADMIN_FIELDS),
@@ -44,13 +42,11 @@ export function registerCreatorFormAdmin() {
           form: CreatorFormAdminShape;
           isDirty: boolean;
           displayNameIsTaken: boolean;
-          isDisplayNameChecking: boolean;
         };
         return !!(
           ctx.isDirty &&
           Object.values(ctx.errors.form).every((err) => !err) &&
           !ctx.displayNameIsTaken &&
-          !ctx.isDisplayNameChecking &&
           ctx.form.displayName &&
           ctx.form.type &&
           ctx.form.website

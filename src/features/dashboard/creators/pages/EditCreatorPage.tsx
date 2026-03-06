@@ -1,6 +1,6 @@
 import { AuthUser } from "../../../../../types";
 import { Creator } from "../../../../db/schema";
-import CreatorForm from "../forms/CreatorForm";
+import CreatorForm from "../forms/EditCreatorForm";
 import Page from "../../../../components/layouts/Page";
 import CreatorImageForm from "../../images/forms/CreatorCoverForm";
 import AppLayout from "../../../../components/layouts/AppLayout";

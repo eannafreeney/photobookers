@@ -6,6 +6,7 @@ import Link from "./Link";
 import { AuthUser } from "../../../types";
 import ShareButton from "./ShareButton";
 import { BookCardResult } from "../../constants/queries";
+import CollectButton from "../../features/api/components/CollectButton";
 
 type BookCardProps = {
   book: BookCardResult;
@@ -44,6 +45,7 @@ const BookCard = ({
             )}
           </div>
           <div class="flex items-center gap-2">
+            <CollectButton isCircleButton book={book} user={user} />
             <WishlistButton isCircleButton book={book} user={user} />
             <ShareButton isCircleButton />
           </div>

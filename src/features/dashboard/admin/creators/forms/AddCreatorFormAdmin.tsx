@@ -6,7 +6,7 @@ import ValidateWebsite from "../../../../auth/components/ValidateWebsite";
 
 const AddCreatorFormAdmin = () => {
   const alpineAttrs = {
-    "x-data": `creatorFormAdmin()`,
+    "x-data": `addCreatorFormAdmin()`,
     "x-target": "toast creators-table",
     "x-target.error": "toast",
     "x-target.away": "_top",

@@ -12,7 +12,7 @@ const Alert = ({ type, message }: AlertProps) => {
 
   const alpineAttrs = {
     "x-show": "show",
-    "x-transition.duration.500ms": true,
+    ...fadeTransition,
   };
 
   return (

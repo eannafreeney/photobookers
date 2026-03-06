@@ -1,5 +1,4 @@
 import Alpine from "alpinejs";
-import { registerCreatorFormSchema } from "../../features/auth/schema";
 import z from "zod";
 import {
   createFormState,
@@ -7,16 +6,16 @@ import {
   handleSubmit,
   initFormValues,
   validateField,
-} from "./formUtils";
-import { creatorFormSchema } from "../../features/dashboard/creators/schema";
+} from "../../../../client/forms/formUtils";
+import { creatorFormSchema } from "../schema";
 
 type CreatorFormShape = z.infer<typeof creatorFormSchema>;
 
 const CREATOR_FORM_FIELDS = Object.keys(creatorFormSchema.shape);
 
-export function registerCreatorForm() {
+export function registerEditCreatorForm() {
   Alpine.data(
-    "creatorForm",
+    "editCreatorForm",
     (
       formValues: Partial<CreatorFormShape> = {},
       isEditMode: boolean = false,

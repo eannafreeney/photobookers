@@ -6,7 +6,9 @@ import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import Carousel from "../../../components/app/Carousel";
 import CarouselMobile from "../../../components/app/CarouselMobile";
 import CreatorCard from "../../../components/app/CreatorCard";
+import GridPanel from "../../../components/app/GridPanel";
 import PurchaseLink from "../../../components/app/PurchaseLink";
+import SectionTitle from "../../../components/app/SectionTitle";
 import ShareButton from "../../../components/app/ShareButton";
 import TagList from "../../../components/app/TagList";
 import AppLayout from "../../../components/layouts/AppLayout";
@@ -15,8 +17,9 @@ import { canEditBook } from "../../../lib/permissions";
 import ErrorPage from "../../../pages/error/errorPage";
 import { formatDate } from "../../../utils";
 import WishlistButton from "../../api/components/WishlistButton";
-import { getBookBySlug } from "../services";
+import { getBookBySlug, getRelatedBooks } from "../services";
 import { BookWithGalleryImages } from "../types";
+import BookCard from "../../../components/app/BookCard";
 
 type BookDetailPageProps = {
   user: AuthUser | null;
@@ -137,6 +140,7 @@ const DetailDesktop = ({
           />
         </div>
       </div>
+      <RelatedBooks book={book} user={user} />
     </div>
   );
 };
@@ -190,6 +194,33 @@ const DetailMobile = ({
           user={user}
         />
       </div>
+      <RelatedBooks book={book} user={user} />
     </div>
+  );
+};
+
+type RelatedBooksProps = {
+  book: BookWithGalleryImages;
+  user: AuthUser | null;
+};
+
+const RelatedBooks = async ({ book, user }: RelatedBooksProps) => {
+  const relatedBooks = await getRelatedBooks(book.id, {
+    artistId: book.artistId,
+    publisherId: book.publisherId,
+    tags: book.tags ?? [],
+  });
+
+  if (relatedBooks.length === 0) return <></>;
+
+  return (
+    <section class="flex flex-col gap-4">
+      <SectionTitle>You might also like</SectionTitle>
+      <GridPanel isFullWidth>
+        {relatedBooks.map((b) => (
+          <BookCard key={b.id} book={b} user={user} />
+        ))}
+      </GridPanel>
+    </section>
   );
 };

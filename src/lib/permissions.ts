@@ -142,7 +142,7 @@ export function canWishlistBook(
   );
 }
 
-export function canAddToCollection(
+export function canCollectBook(
   user: AuthUser | null,
   book: Pick<Book, "artistId" | "publisherId">,
 ): boolean {

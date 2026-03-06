@@ -1,10 +1,17 @@
-import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
-import { books, creators, follows, wishlists } from "../../db/schema";
+import {
+  books,
+  collectionItems,
+  creators,
+  follows,
+  wishlists,
+} from "../../db/schema";
 import { getPagination } from "../../lib/pagination";
 import { getBooksOrderBy } from "../../lib/booksOrderBy";
 import {
   BOOK_CARD_COLUMNS,
+  BookCardResult,
   CREATOR_CARD_COLUMNS,
 } from "../../constants/queries";
 
@@ -51,6 +58,54 @@ export const getBooksInWishlist = async (
     return { books: wishlistedBooks, totalPages, page };
   } catch (error) {
     console.error("Failed to get books in wishlist", error);
+    return null;
+  }
+};
+
+export const getBooksInCollection = async (
+  userId: string,
+  currentPage: number,
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
+  defaultLimit = 12,
+) => {
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(collectionItems)
+      .where(eq(collectionItems.userId, userId));
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundCollectionItems = await db.query.collectionItems.findMany({
+      where: eq(collectionItems.userId, userId),
+    });
+
+    const collectionBooks = await db.query.books.findMany({
+      columns: BOOK_CARD_COLUMNS,
+      where: inArray(
+        books.id,
+        foundCollectionItems.map((collectionItem) => collectionItem.bookId),
+      ),
+      with: {
+        artist: {
+          columns: CREATOR_CARD_COLUMNS,
+        },
+        publisher: {
+          columns: CREATOR_CARD_COLUMNS,
+        },
+      },
+      orderBy: getBooksOrderBy(sortBy),
+      limit: limit,
+      offset: offset,
+    });
+
+    return { books: collectionBooks, totalPages, page };
+  } catch (error) {
+    console.error("Failed to get books in collection", error);
     return null;
   }
 };
@@ -402,6 +457,101 @@ export const searchCreators = async (searchQuery: string) => {
     );
   } catch (error) {
     console.error("Failed to search creators", error);
+    return [];
+  }
+};
+
+export const getRelatedBooks = async (
+  currentBookId: string,
+  options: {
+    artistId: string | null;
+    publisherId: string | null;
+    tags: string[] | null;
+  },
+  limit = 5,
+): Promise<BookCardResult[]> => {
+  try {
+    const seenIds = new Set<string>([currentBookId]);
+    const result: BookCardResult[] = [];
+
+    const baseConditions = and(
+      ne(books.id, currentBookId),
+      eq(books.publicationStatus, "published"),
+      eq(books.approvalStatus, "approved"),
+    );
+
+    // 1. Same artist first
+    if (options.artistId) {
+      const byArtist = await db.query.books.findMany({
+        columns: BOOK_CARD_COLUMNS,
+        where: and(baseConditions, eq(books.artistId, options.artistId)),
+        with: {
+          artist: { columns: CREATOR_CARD_COLUMNS },
+          publisher: { columns: CREATOR_CARD_COLUMNS },
+        },
+        orderBy: (books, { desc }) => [desc(books.releaseDate)],
+        limit,
+      });
+      for (const b of byArtist) {
+        result.push(b);
+        seenIds.add(b.id);
+      }
+    }
+
+    if (result.length >= limit) return result.slice(0, limit);
+
+    // 2. By tag overlap — only when book has tags; exclude already-seen in JS
+    const tagsNormalized =
+      options.tags?.map((x) => x.trim().toLowerCase()).filter(Boolean) ?? [];
+    if (tagsNormalized.length > 0) {
+      const tagCondition = sql`EXISTS (
+        SELECT 1 FROM unnest(${books.tags}) AS t
+        WHERE LOWER(TRIM(t)) = ANY(${tagsNormalized})
+      )`;
+      const byTag = await db.query.books.findMany({
+        columns: BOOK_CARD_COLUMNS,
+        where: and(baseConditions, tagCondition),
+        with: {
+          artist: { columns: CREATOR_CARD_COLUMNS },
+          publisher: { columns: CREATOR_CARD_COLUMNS },
+        },
+        orderBy: (books, { desc }) => [desc(books.releaseDate)],
+        limit: limit + seenIds.size,
+      });
+      for (const b of byTag) {
+        if (result.length >= limit) break;
+        if (!seenIds.has(b.id)) {
+          result.push(b);
+          seenIds.add(b.id);
+        }
+      }
+    }
+
+    if (result.length >= limit) return result.slice(0, limit);
+
+    // 3. Same publisher — exclude already-seen in JS (no NOT IN array in SQL)
+    if (options.publisherId) {
+      const byPublisher = await db.query.books.findMany({
+        columns: BOOK_CARD_COLUMNS,
+        where: and(baseConditions, eq(books.publisherId, options.publisherId)),
+        with: {
+          artist: { columns: CREATOR_CARD_COLUMNS },
+          publisher: { columns: CREATOR_CARD_COLUMNS },
+        },
+        orderBy: (books, { desc }) => [desc(books.releaseDate)],
+        limit: limit + seenIds.size,
+      });
+      for (const b of byPublisher) {
+        if (result.length >= limit) break;
+        if (!seenIds.has(b.id)) {
+          result.push(b);
+        }
+      }
+    }
+
+    return result.slice(0, limit);
+  } catch (error) {
+    console.error("Failed to get related books", error);
     return [];
   }
 };

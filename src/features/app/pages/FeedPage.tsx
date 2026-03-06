@@ -44,29 +44,24 @@ const FeedPage = async ({
     );
   }
 
-  if (!result?.books || result?.books?.length === 0) {
-    return (
-      <AppLayout title="Books" user={user} flash={flash}>
-        <Page>
-          <NavTabs currentPath={currentPath} />
-          Start following artists and publishers to see their latest releases
-          here.
-        </Page>
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout title="Books" user={user} flash={flash}>
       <Page>
         <NavTabs currentPath={currentPath} />
-        <BooksGrid
-          title="Your Feed"
-          user={user}
-          currentPath={currentPath}
-          sortBy={sortBy}
-          result={result}
-        />
+        {!result?.books || result?.books?.length === 0 ? (
+          <div>
+            Start following artists and publishers to see their latest releases
+            here.
+          </div>
+        ) : (
+          <BooksGrid
+            title="Your Feed"
+            user={user}
+            currentPath={currentPath}
+            sortBy={sortBy}
+            result={result}
+          />
+        )}
       </Page>
     </AppLayout>
   );

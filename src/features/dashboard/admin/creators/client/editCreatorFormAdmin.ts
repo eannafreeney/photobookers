@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { creatorFormAdminSchema } from "../../features/dashboard/admin/creators/schemas";
+import { creatorFormAdminSchema } from "../schemas";
 import z from "zod";
 import {
   createFormState,
@@ -8,7 +8,7 @@ import {
   initFormValues,
   resetFormBaseline,
   validateField,
-} from "./formUtils";
+} from "../../../../../client/forms/formUtils";
 
 type CreatorFormAdminShape = z.infer<typeof creatorFormAdminSchema>;
 
