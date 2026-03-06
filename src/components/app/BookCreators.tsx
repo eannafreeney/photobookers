@@ -10,7 +10,7 @@ type Props = {
 const BookCreators = ({
   book,
   currentCreatorId,
-  showPublisher = false,
+  showPublisher = true,
 }: Props) => {
   return (
     <div class="flex items-center justify-between gap-2">
