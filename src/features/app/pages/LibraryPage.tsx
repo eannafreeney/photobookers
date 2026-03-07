@@ -1,4 +1,5 @@
 import { AuthUser, Flash } from "../../../../types";
+import Divider from "../../../components/Divider";
 import AppLayout from "../../../components/layouts/AppLayout";
 import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";
@@ -70,7 +71,7 @@ const LibraryPage = async ({
             isFullWidth
             noResultsMessage="Add books to your wishlist to see them here."
           />
-          <div class="border-b border-outline my-4"></div>
+          <Divider />
           <BooksGrid
             title="Your Collection"
             user={user}

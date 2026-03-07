@@ -68,7 +68,12 @@ export const followCreator = async (c: Context) => {
         user={user}
         isCircleButton={buttonType === "circle"}
       />
-      {dispatchEvents([updateCreatorCard()])}
+      <FollowButton
+        creator={creator}
+        user={user}
+        isCircleButton={buttonType === "circle"}
+        variant="mobile"
+      />
     </>,
   );
 };

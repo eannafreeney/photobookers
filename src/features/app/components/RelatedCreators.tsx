@@ -1,6 +1,8 @@
 import SectionTitle from "../../../components/app/SectionTitle";
-import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import { getRelatedCreators } from "../services";
+import { CreatorCardResult } from "../../../constants/queries";
+import Card from "../../../components/app/Card";
+import Link from "../../../components/app/Link";
 
 type Props = {
   creatorType: "artist" | "publisher";
@@ -16,13 +18,38 @@ const RelatedCreators = async ({ creatorType, creatorId }: Props) => {
   return (
     <section class="flex flex-col gap-2">
       <SectionTitle>{title}</SectionTitle>
-      <ul class="flex flex-col gap-4">
-        {relatedCreators.map((c) => (
-          <CardCreatorCard creator={c} avatarSize="sm" />
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {relatedCreators.map((creator) => (
+          <RelatedCreatorCard creator={creator} />
         ))}
-      </ul>
+      </div>
     </section>
   );
 };
 
 export default RelatedCreators;
+
+type RelatedCreatorCardProps = {
+  creator: CreatorCardResult;
+};
+
+const RelatedCreatorCard = async ({ creator }: RelatedCreatorCardProps) => {
+  return (
+    <Card>
+      <Link href={`/creators/${creator.slug}`}>
+        <Card.Image
+          src={creator.coverUrl ?? ""}
+          alt={creator.displayName ?? ""}
+          href={`/creators/${creator.slug}`}
+          aspectSquare
+          objectCover
+        />
+      </Link>
+      <Card.Body>
+        <Link href={`/creators/${creator.slug}`}>
+          <Card.Title>{creator.displayName}</Card.Title>
+        </Link>
+      </Card.Body>
+    </Card>
+  );
+};

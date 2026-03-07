@@ -1,5 +1,7 @@
 import { AuthUser } from "../../../../types";
 import CreatorCard from "../../../components/app/CreatorCard";
+import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
+import Divider from "../../../components/Divider";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
@@ -36,6 +38,7 @@ const CreatorDetailPage = async ({
     <AppLayout title={creator?.displayName ?? ""} user={user}>
       <Page>
         <div class="flex flex-col md:flex-row gap-4">
+          {isMobile && <MobileCreatorCard creator={creator} user={user} />}
           <div class="md:w-4/5 flex flex-col gap-4">
             <BooksGrid
               creator={creator}
@@ -43,13 +46,13 @@ const CreatorDetailPage = async ({
               currentPath={currentPath}
               sortBy={sortBy}
               result={{ ...rest }}
+              isMobile={isMobile}
             />
-            {isMobile && (
-              <RelatedCreators
-                creatorType={creator?.type ?? "artist"}
-                creatorId={creator.id}
-              />
-            )}
+            <Divider />
+            <RelatedCreators
+              creatorType={creator?.type ?? "artist"}
+              creatorId={creator.id}
+            />
           </div>
           <div class="md:w-1/5 md:mt-14">
             <CreatorCard
@@ -57,12 +60,6 @@ const CreatorDetailPage = async ({
               currentPath={currentPath}
               user={user}
             />
-            {!isMobile && (
-              <RelatedCreators
-                creatorType={creator?.type ?? "artist"}
-                creatorId={creator.id}
-              />
-            )}
           </div>
         </div>
       </Page>

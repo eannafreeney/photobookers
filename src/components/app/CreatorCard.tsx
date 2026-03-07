@@ -63,7 +63,7 @@ const CreatorCard = async ({
           {creator.tagline && (
             <Card.Description>{creator.tagline}</Card.Description>
           )}
-          <FollowButton creator={creator} user={user} variant="desktop" />
+          <FollowButton creator={creator} user={user} />
           {creator.status === "stub" && (
             <ClaimCreatorBtn
               creator={creator}

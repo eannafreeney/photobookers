@@ -21,6 +21,7 @@ type Props = {
   creator?: Creator;
   isFullWidth?: boolean;
   noResultsMessage?: string;
+  isMobile?: boolean;
 };
 
 const BooksGrid = async ({
@@ -32,6 +33,7 @@ const BooksGrid = async ({
   creator,
   isFullWidth = false,
   noResultsMessage = "No books found",
+  isMobile = false,
 }: Props) => {
   const { books, totalPages, page } = result;
   const targetId = "books-grid";
@@ -41,7 +43,9 @@ const BooksGrid = async ({
 
   return (
     <>
-      <div class="flex flex-col md:flex-row justify-between items-center gap-2 mb-4">
+      <div
+        class={`flex items-center gap-2 mb-0 ${title || !isMobile ? "justify-between" : "justify-center"}`}
+      >
         {title && <SectionTitle>{title}</SectionTitle>}
         {creator && <PageTitle creator={creator} user={user} />}
         <SortDropdown sortBy={sortBy} currentPath={currentPath} />

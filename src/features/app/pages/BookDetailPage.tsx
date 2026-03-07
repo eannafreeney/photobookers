@@ -22,6 +22,8 @@ import { BookWithGalleryImages } from "../types";
 import BookCard from "../../../components/app/BookCard";
 import BookCreators from "../../../components/app/BookCreators";
 import CollectButton from "../../api/components/CollectButton";
+import { Creator } from "../../../db/schema";
+import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 
 type BookDetailPageProps = {
   user: AuthUser | null;
@@ -61,6 +63,8 @@ const BookDetailPage = async ({
             book={book}
             currentPath={currentPath}
             user={user}
+            isMobile={isMobile}
+            creator={book.artist}
           />
         ) : (
           <DetailDesktop
@@ -82,6 +86,8 @@ type DetailProps = {
   book: BookWithGalleryImages;
   currentPath: string;
   user: AuthUser | null;
+  isMobile?: boolean;
+  creator?: Creator | null;
 };
 
 const DetailDesktop = ({
@@ -160,15 +166,20 @@ const DetailMobile = ({
   book,
   currentPath,
   user,
+  isMobile,
+  creator,
 }: DetailProps) => {
   return (
     <div class="flex flex-col gap-4 ">
+      {isMobile && creator && (
+        <MobileCreatorCard creator={creator} user={user} />
+      )}
       <CarouselMobile images={galleryImages} />
       <div class="flex flex-col gap-2">
         <h3 class="text-balance text-xl font-semibold text-on-surface-strong">
           {book.title}
         </h3>
-        <BookCreators book={book} />
+        {/* <BookCreators book={book} /> */}
       </div>
       <div class="flex items-center gap-2">
         <CollectButton book={book} user={user} />

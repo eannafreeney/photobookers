@@ -6,6 +6,7 @@ import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import CarouselMobile from "../../../components/app/CarouselMobile";
 import Link from "../../../components/app/Link";
 import ShareButton from "../../../components/app/ShareButton";
+import TagList from "../../../components/app/TagList";
 import { formatDate } from "../../../utils";
 import CollectButton from "../../api/components/CollectButton";
 import WishlistButton from "../../api/components/WishlistButton";
@@ -89,13 +90,9 @@ const BOTWDesktopCard = ({
                 </h3>
               </Link>
             </div>
-            <BookCreators
-              book={book}
-              currentCreatorId={currentCreatorId}
-              showPublisher={false}
-            />
+            <BookCreators book={book} currentCreatorId={currentCreatorId} />
             <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
-            <Card.Tags tags={book.tags?.slice(0, 3) ?? []} />
+            <TagList tags={book.tags?.slice(0, 3) ?? []} />
             <Link href={`/books/${book.slug}`}>
               <Button variant="solid" color="primary" width="full">
                 View Book
@@ -140,13 +137,9 @@ const BOTWMobileCard = ({
             <ShareButton isCircleButton />
           </div>
         </div>
-        <BookCreators
-          book={book}
-          currentCreatorId={currentCreatorId}
-          showPublisher={false}
-        />
+        <BookCreators book={book} currentCreatorId={currentCreatorId} />
         <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
-        <Card.Tags tags={book.tags?.slice(0, 3) ?? []} />
+        <TagList tags={book.tags?.slice(0, 3) ?? []} />
         <Link href={`/books/${book.slug}`}>
           <Button variant="solid" color="primary" width="full">
             View Book

@@ -5,7 +5,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
   return (
     <nav
       id="nav-tabs"
-      class="flex items-center justify-center bg-surface-alt gap-4 mb-6 mt-2"
+      class="flex items-center justify-center bg-surface-alt gap-4 mb-2 mt-2"
     >
       <NavLink href="/featured" currentPath={currentPath}>
         {bookIcon}
