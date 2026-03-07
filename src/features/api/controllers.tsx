@@ -99,8 +99,8 @@ export const collectBook = async (c: Context) => {
   if (!book) return showErrorAlert(c, "Book not found");
 
   const message = isCurrentlyCollected
-    ? `${book.title} has been removed from your wishlist`
-    : `${book.title} has been added to your wishlist`;
+    ? `${book.title} has been removed from your collection`
+    : `${book.title} has been added to your collection`;
 
   return c.html(
     <>

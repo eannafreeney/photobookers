@@ -17,6 +17,7 @@ const ValidateEmail = ({ isAvailable }: Props) => {
         type="email"
         label="Email"
         name="form.email"
+        validationTrigger="change"
         validateInput="validateEmail()"
         placeholder="you@example.com"
         isError={isAvailable === false}
