@@ -6,7 +6,7 @@ type Props = {
 
 const ValidateEmail = ({ isAvailable }: Props) => {
   const emailAlpineAttrs = {
-    "x-merge": "morph",
+    // "x-merge": "morph",
     "x-on:input.debounce.500ms":
       "$ajax('/auth/validate/email', { method: 'post', body: { email: form.email } })",
   };

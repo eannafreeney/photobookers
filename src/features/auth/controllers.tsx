@@ -117,14 +117,19 @@ export const registerFan = async (c: RegisterFanFormContext) => {
     },
   });
 
+  console.log("data", data);
+  console.log("error", error);
+
   const alreadyRegisteredMessage =
-    "This email is already registered. Please log in, or use 'Resend verification email' if you didn't receive the first one.";
+    "This email is already registered. Please log in.";
 
   if (error) {
     const isAlreadyRegistered =
       error.message?.toLowerCase().includes("already") ||
       error.message?.toLowerCase().includes("registered") ||
       error.code === "user_already_exists";
+    console.log(error.message);
+
     return showErrorAlert(
       c,
       isAlreadyRegistered ? alreadyRegisteredMessage : error.message,

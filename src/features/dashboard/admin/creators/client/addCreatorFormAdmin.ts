@@ -20,7 +20,7 @@ export function registerAddCreatorFormAdmin() {
     return {
       isSubmitting: false,
       displayNameIsTaken: false,
-
+      websiteIsTaken: false,
       ...createFormState(CREATOR_FORM_ADMIN_FIELDS),
       ...createRegisterFormUtils(),
 
@@ -42,14 +42,16 @@ export function registerAddCreatorFormAdmin() {
           form: CreatorFormAdminShape;
           isDirty: boolean;
           displayNameIsTaken: boolean;
+          websiteIsTaken: boolean;
         };
         return !!(
           ctx.isDirty &&
           Object.values(ctx.errors.form).every((err) => !err) &&
-          !ctx.displayNameIsTaken &&
           ctx.form.displayName &&
           ctx.form.type &&
-          ctx.form.website
+          ctx.form.website &&
+          !ctx.displayNameIsTaken &&
+          !ctx.websiteIsTaken
         );
       },
 

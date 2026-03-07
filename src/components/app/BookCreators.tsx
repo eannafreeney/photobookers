@@ -4,23 +4,24 @@ import { BookCardResult } from "../../constants/queries";
 type Props = {
   book: BookCardResult;
   currentCreatorId?: string | null;
-  showPublisher?: boolean;
+  showPublisherInsteadOfArtist?: boolean;
 };
 
 const BookCreators = ({
   book,
   currentCreatorId,
-  showPublisher = false,
+  showPublisherInsteadOfArtist = false,
 }: Props) => {
+  const showArtist =
+    !showPublisherInsteadOfArtist &&
+    (!currentCreatorId || currentCreatorId !== book.artistId);
+  const showPublisher =
+    showPublisherInsteadOfArtist &&
+    (!currentCreatorId || currentCreatorId !== book.publisherId);
   return (
     <div class="flex items-center justify-between gap-2">
-      {(!currentCreatorId || currentCreatorId !== book.publisherId) && (
-        <CardCreatorCard creator={book.artist ?? null} />
-      )}
-      {showPublisher &&
-        (!currentCreatorId || currentCreatorId !== book.publisherId) && (
-          <CardCreatorCard creator={book.publisher ?? null} />
-        )}
+      {showArtist && <CardCreatorCard creator={book.artist ?? null} />}
+      {showPublisher && <CardCreatorCard creator={book.publisher ?? null} />}
     </div>
   );
 };

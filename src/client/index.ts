@@ -15,7 +15,7 @@ import { registerAddCreatorFormAdmin } from "../features/dashboard/admin/creator
 import { registerBookFormAdmin } from "../features/dashboard/admin/books/client/bookFormAdmin";
 import { registerBookOfTheWeekForm } from "../features/dashboard/admin/planner/client/bookOfTheWeekForm";
 import { registerEditCreatorFormAdmin } from "../features/dashboard/admin/creators/client/editCreatorFormAdmin";
-import { registerNewUserForm } from "../features/auth/client/newUserForm";
+import { registerNewUserForm } from "../features/dashboard/admin/users/client/newUserForm";
 import { registerResetPasswordForm } from "../features/auth/client/resetPasswordForm";
 import { registerImageOrientation } from "./utils/imageOrientation";
 import { registerContactForm } from "../features/app/client/contactForm";

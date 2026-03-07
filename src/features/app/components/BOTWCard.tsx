@@ -89,7 +89,11 @@ const BOTWDesktopCard = ({
                 </h3>
               </Link>
             </div>
-            <BookCreators book={book} currentCreatorId={currentCreatorId} />
+            <BookCreators
+              book={book}
+              currentCreatorId={currentCreatorId}
+              showPublisher={false}
+            />
             <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
             <Card.Tags tags={book.tags?.slice(0, 3) ?? []} />
             <Link href={`/books/${book.slug}`}>
@@ -136,7 +140,11 @@ const BOTWMobileCard = ({
             <ShareButton isCircleButton />
           </div>
         </div>
-        <BookCreators book={book} currentCreatorId={currentCreatorId} />
+        <BookCreators
+          book={book}
+          currentCreatorId={currentCreatorId}
+          showPublisher={false}
+        />
         <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
         <Card.Tags tags={book.tags?.slice(0, 3) ?? []} />
         <Link href={`/books/${book.slug}`}>

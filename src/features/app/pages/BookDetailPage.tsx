@@ -21,6 +21,7 @@ import { getBookBySlug, getRelatedBooks } from "../services";
 import { BookWithGalleryImages } from "../types";
 import BookCard from "../../../components/app/BookCard";
 import BookCreators from "../../../components/app/BookCreators";
+import CollectButton from "../../api/components/CollectButton";
 
 type BookDetailPageProps = {
   user: AuthUser | null;
@@ -95,6 +96,7 @@ const DetailDesktop = ({
         <div class="flex flex-col gap-4 w-2/5">
           <Carousel images={galleryImages} />
           <div class="flex gap-2">
+            <CollectButton book={book} user={user} />
             <WishlistButton book={book} user={user} />
             <ShareButton />
           </div>
@@ -166,9 +168,10 @@ const DetailMobile = ({
         <h3 class="text-balance text-xl font-semibold text-on-surface-strong">
           {book.title}
         </h3>
-        <BookCreators book={book} />
+        <BookCreators book={book} showPublisher={false} />
       </div>
       <div class="flex items-center gap-2">
+        <CollectButton book={book} user={user} />
         <WishlistButton book={book} user={user} />
         <ShareButton />
       </div>

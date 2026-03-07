@@ -13,6 +13,10 @@ const AddCreatorFormAdmin = () => {
     "x-on:ajax:success": "onSuccess()",
     "x-on:ajax:error": "onError()",
     "x-on:submit": "submitForm($event)",
+    "x-on:displayName-availability.window":
+      "displayNameIsTaken = !$event.detail.displayNameIsAvailable",
+    "x-on:website-availability.window":
+      "websiteIsTaken = !$event.detail.websiteIsAvailable",
   };
 
   return (

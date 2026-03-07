@@ -23,8 +23,6 @@ export function registerEditCreatorFormAdmin() {
     ) => {
       return {
         isSubmitting: false,
-        isDisplayNameChecking: false,
-        displayNameAvailabilityStatus: "",
         displayNameIsTaken: false,
 
         ...createFormState(CREATOR_FORM_FIELDS, formValues),
@@ -47,13 +45,11 @@ export function registerEditCreatorFormAdmin() {
             form: CreatorFormAdminShape;
             isDirty: boolean;
             displayNameIsTaken: boolean;
-            isDisplayNameChecking: boolean;
           };
           return (
             ctx.isDirty &&
             Object.values(ctx.errors.form).every((err) => !err) &&
-            !ctx.displayNameIsTaken &&
-            !ctx.isDisplayNameChecking
+            !ctx.displayNameIsTaken
           );
         },
 

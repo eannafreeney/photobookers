@@ -10,9 +10,9 @@ export function registerRegisterCreatorForm() {
   Alpine.data("registerCreatorForm", () => {
     return {
       isSubmitting: false,
-      emailIsAvailable: true,
-      displayNameIsAvailable: true,
-      websiteIsAvailable: true,
+      emailIsTaken: false,
+      displayNameIsTaken: false,
+      websiteIsTaken: false,
 
       form: {
         displayName: "",
@@ -42,7 +42,9 @@ export function registerRegisterCreatorForm() {
         const ctx = this as unknown as {
           errors: { form: Record<keyof RegisterCreatorFormShape, string> };
           form: RegisterCreatorFormShape;
-          emailIsAvailable: boolean;
+          emailIsTaken: boolean;
+          displayNameIsTaken: boolean;
+          websiteIsTaken: boolean;
         };
         return (
           Object.values(ctx.errors.form).every((err) => !err) &&
@@ -54,7 +56,9 @@ export function registerRegisterCreatorForm() {
           ctx.form.confirmPassword &&
           ctx.form.confirmPassword === ctx.form.password &&
           ctx.form.agreeToTerms &&
-          ctx.emailIsAvailable
+          !ctx.emailIsTaken &&
+          !ctx.displayNameIsTaken &&
+          !ctx.websiteIsTaken
         );
       },
 

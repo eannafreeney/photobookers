@@ -10,10 +10,7 @@ export function registerRegisterFanForm() {
   Alpine.data("registerFanForm", () => {
     return {
       isSubmitting: false,
-      isEmailChecking: false,
-      emailAvailabilityStatus: "",
       emailIsTaken: false,
-      _emailAbortController: null as AbortController | null,
       form: {
         firstName: "",
         lastName: "",
@@ -46,7 +43,6 @@ export function registerRegisterFanForm() {
         const ctx = this as unknown as {
           errors: { form: Record<keyof RegisterFanFormShape, string> };
           form: RegisterFanFormShape;
-          isEmailChecking: boolean;
           emailIsTaken: boolean;
         };
         return (
@@ -58,7 +54,6 @@ export function registerRegisterFanForm() {
           ctx.form.confirmPassword &&
           ctx.form.confirmPassword === ctx.form.password &&
           ctx.form.agreeToTerms &&
-          !ctx.isEmailChecking &&
           !ctx.emailIsTaken
         );
       },
