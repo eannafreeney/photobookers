@@ -14,6 +14,8 @@ const CreateUserFormAdmin = async () => {
     "x-target.error": "toast",
     "x-on:ajax:success": "isSubmitting = false, $dispatch('users:updated')",
     "x-on:ajax:error": "isSubmitting = false",
+    "x-on:email-availability.window":
+      "emailIsTaken = !$event.detail.emailIsAvailable",
   };
 
   const options = creators.map((creator) => ({

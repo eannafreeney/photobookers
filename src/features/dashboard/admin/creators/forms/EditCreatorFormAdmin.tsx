@@ -27,9 +27,9 @@ const EditCreatorFormAdmin = ({
     "x-on:ajax:success": "onSuccess()",
     "x-on:ajax:error": "onError()",
     "x-on:submit": "submitForm($event)",
+    "x-on:displayName-availability.window":
+      "displayNameIsTaken = !$event.detail.displayNameIsAvailable",
   };
-
-  console.log("formValues", formValues);
 
   return (
     <div class="space-y-4 ">

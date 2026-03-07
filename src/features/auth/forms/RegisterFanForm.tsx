@@ -15,6 +15,8 @@ const RegisterFanForm = ({ redirectUrl }: Props) => {
     "x-target": "toast",
     "x-target.away": "_top",
     "x-on:ajax:error": "isSubmitting = false",
+    "x-on:email-availability.window":
+      "emailIsTaken = !$event.detail.emailIsAvailable",
   };
 
   const action = redirectUrl

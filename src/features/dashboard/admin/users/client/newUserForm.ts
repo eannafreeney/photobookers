@@ -4,13 +4,12 @@ import {
   getIsDirty,
   handleSubmit,
   initFormValues,
-  resetFormBaseline,
   validateField,
-} from "../../../client/forms/formUtils";
-import { createRegisterFormUtils } from "./registerFormUtils";
-import { newUserFormAdminSchema } from "../../dashboard/admin/users/schema";
+} from "../../../../../client/forms/formUtils";
+import { createRegisterFormUtils } from "../../../../auth/client/registerFormUtils";
+import { newUserFormAdminSchema } from "../schema";
 import z from "zod";
-import { creatorFormAdminSchema } from "../../dashboard/admin/creators/schemas";
+import { creatorFormAdminSchema } from "../../creators/schemas";
 
 type NewUserFormShape = z.infer<typeof newUserFormAdminSchema>;
 
