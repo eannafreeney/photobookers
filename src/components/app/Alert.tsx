@@ -22,7 +22,7 @@ const Alert = ({ type, message }: AlertProps) => {
         show: false,
         init() {
           this.$nextTick(() => this.show = true)
-          setTimeout(() => this.dismiss(), 4000)
+          setTimeout(() => this.dismiss(), 3000)
           },
           dismiss() {
             this.show = false
@@ -30,9 +30,9 @@ const Alert = ({ type, message }: AlertProps) => {
             }
           }"
         {...alpineAttrs}
-        class={`fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-md z-50 overflow-hidden rounded-sm border
-        bg-surface text-on-surface
-        ${variant.border}`}
+        class={`fixed top-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 w-auto sm:w-full max-w-md z-50 overflow-hidden rounded-sm border
+          bg-surface text-on-surface
+          ${variant.border}`}
       >
         <div class={`flex w-full items-center gap-2 p-4 ${variant.bg}`}>
           <div class={`rounded-full p-1 ${variant.iconWrapper}`}>
@@ -44,6 +44,23 @@ const Alert = ({ type, message }: AlertProps) => {
             </h3>
             <p class="text-xs font-medium sm:text-sm">{message}</p>
           </div>
+          <button class="ml-auto" x-on:click="dismiss()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              stroke="currentColor"
+              fill="none"
+              stroke-width="2.5"
+              class="size-4 shrink-0"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
       </li>
     </ul>

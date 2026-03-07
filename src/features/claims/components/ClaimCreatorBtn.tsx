@@ -25,8 +25,8 @@ const ClaimCreatorBtn = async ({ creator, user, currentPath }: Props) => {
   const props = {
     id,
     action: currentPath
-      ? `/claim/${creator.id}?currentPath=${encodeURIComponent(currentPath)}`
-      : `/claim/${creator.id}`,
+      ? `/claims/${creator.id}?currentPath=${encodeURIComponent(currentPath)}`
+      : `/claims/${creator.id}`,
     disabled: isDisabled,
     method: "get" as const as "get" | "post",
     tooltipText: "Claim Creator Profile",

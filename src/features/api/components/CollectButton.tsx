@@ -87,6 +87,7 @@ const addIcon = (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="size-5"
   >
     <path d="M12 5v14" />
     <path d="M5 12h14" />
@@ -104,6 +105,7 @@ const removeIcon = (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    className="size-5 text-red-500"
   >
     <path d="M5 12h14" />
   </svg>
