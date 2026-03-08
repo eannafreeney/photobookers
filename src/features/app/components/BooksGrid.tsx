@@ -50,7 +50,7 @@ const BooksGrid = async ({
         {creator && <PageTitle creator={creator} user={user} />}
         <SortDropdown sortBy={sortBy} currentPath={currentPath} />
       </div>
-      <GridPanel id={targetId} isFullWidth={isFullWidth} xMerge="append">
+      <GridPanel id={targetId} isFullWidth={isFullWidth}>
         {books?.length > 0 ? (
           books.map((book) => (
             <BookCard

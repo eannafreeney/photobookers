@@ -16,6 +16,7 @@ import {
   getCreatorById,
 } from "../../creators/services";
 import { getPagination } from "../../../../lib/pagination";
+import { supabaseAdmin } from "../../../../lib/supabase";
 
 export const getAllUserProfilesAdmin = async (): Promise<
   Pick<User, "id" | "email" | "firstName" | "lastName">[]
@@ -181,6 +182,7 @@ export const updateCreatorProfileAdmin = async (
 };
 
 export const findUserByEmailAdmin = async (email: string) => {
+  const normalizedEmail = email.trim().toLowerCase();
   try {
     const user = await db.query.users.findFirst({
       where: eq(users.email, email),

@@ -468,8 +468,24 @@ export const validateEmail = async (c: Context) => {
   const email = body["email"] as string | undefined;
   if (!email) return c.html(<ValidateEmail />);
 
+  const normalizedEmail = email.trim().toLowerCase();
+
+  let existsInAuth = false;
+  try {
+    const { data: authData } = await supabaseAdmin.auth.admin.listUsers({
+      perPage: 1000,
+      page: 1,
+    });
+    existsInAuth = authData?.users?.some(
+      (u) => u.email?.toLowerCase() === normalizedEmail,
+    );
+  } catch (error) {
+    console.error("Failed to check if email exists in Supabase Auth:", error);
+    return c.html(<ValidateEmail />);
+  }
+
   const existingUser = await findUserByEmailAdmin(email);
-  const isAvailable = !Boolean(existingUser);
+  const isAvailable = !existsInAuth && !existingUser;
 
   return c.html(<ValidateEmail isAvailable={isAvailable} />);
 };
