@@ -507,7 +507,10 @@ export const getRelatedBooks = async (
     if (tagsNormalized.length > 0) {
       const tagCondition = sql`EXISTS (
         SELECT 1 FROM unnest(${books.tags}) AS t
-        WHERE LOWER(TRIM(t)) = ANY(${tagsNormalized})
+        WHERE LOWER(TRIM(t)) IN (${sql.join(
+          tagsNormalized.map((tag) => sql`${tag}`),
+          sql`, `,
+        )})
       )`;
       const byTag = await db.query.books.findMany({
         columns: BOOK_CARD_COLUMNS,

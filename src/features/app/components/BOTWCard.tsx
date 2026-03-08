@@ -70,6 +70,7 @@ const BOTWDesktopCard = ({
               book.coverUrl,
               ...(book?.images?.map((image) => image.imageUrl) ?? []),
             ]}
+            showIndicators={false}
           />
         </div>
         <div class="w-1/3 min-w-0 flex flex-col gap-2 grow justify-between">

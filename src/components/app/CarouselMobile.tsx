@@ -2,9 +2,13 @@ import { fadeTransition } from "../../lib/transitions";
 
 type CarouselTouchProps = {
   images: string[];
+  showIndicators?: boolean;
 };
 
-const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
+const CarouselMobile = ({
+  images = [],
+  showIndicators = true,
+}: CarouselTouchProps) => {
   if (images.length === 0) return <></>;
 
   return (
@@ -15,7 +19,7 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
     >
       {/* slides container: one grid cell so height = tallest slide */}
       <div
-        class="relative w-full grid grid-cols-1 grid-rows-1"
+        class="w-full grid grid-cols-1 grid-rows-1"
         x-on:touchstart="handleTouchStart($event)"
         x-on:touchmove="handleTouchMove($event)"
         x-on:touchend="handleTouchEnd()"
@@ -36,20 +40,18 @@ const CarouselMobile = ({ images = [] }: CarouselTouchProps) => {
       </div>
 
       {/* indicators */}
-      <div
-        class="absolute rounded-radius bottom-3 md:bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-4 md:gap-3 bg-surface/75 px-1.5 py-1 md:px-2 dark:bg-surface-dark/75"
-        role="group"
-        aria-label="slides"
-      >
-        <template x-for="(slide, index) in slides">
-          <button
-            class="size-2 rounded-full transition bg-on-surface dark:bg-on-surface-dark"
-            x-on:click="currentSlideIndex = index + 1"
-            x-bind:class="[currentSlideIndex === index + 1 ? 'bg-on-surface dark:bg-on-surface-dark' : 'bg-on-surface/50 dark:bg-on-surface-dark/50']"
-            x-bind:aria-label="'slide ' + (index + 1)"
-          ></button>
-        </template>
-      </div>
+      {showIndicators && (
+        <div class="flex justify-center gap-4 mt-4 px-2">
+          <template x-for="(slide, index) in slides">
+            <button
+              class="size-2 rounded-full transition"
+              x-on:click="currentSlideIndex = index + 1"
+              x-bind:class="[currentSlideIndex === index + 1 ? 'bg-on-surface' : 'bg-on-surface/50']"
+              x-bind:aria-label="'slide ' + (index + 1)"
+            ></button>
+          </template>
+        </div>
+      )}
     </div>
   );
 };

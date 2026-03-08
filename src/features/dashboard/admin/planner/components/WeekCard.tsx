@@ -70,7 +70,7 @@ const BOTWWeekCard = ({ weekStart, weekNumber, bookOfTheWeek }: Props) => {
                 </Button>
               </a>
               <a
-                href={`/dashboard/admin/planner/book-of-the-week/${book.id}/update`}
+                href={`/dashboard/admin/planner/book-of-the-week/update`}
                 x-target="modal-root"
                 class="mt-2 inline-block text-sm font-medium text-primary hover:underline"
               >
