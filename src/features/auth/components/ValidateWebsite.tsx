@@ -7,7 +7,7 @@ type Props = {
 const ValidateWebsite = ({ isAvailable }: Props) => {
   const websiteAlpineAttrs = {
     // "x-merge": "morph",
-    "x-on:input.debounce.500ms":
+    "x-on:change":
       "$ajax('/auth/validate/website', { method: 'post', body: { website: form.website } })",
   };
   return (

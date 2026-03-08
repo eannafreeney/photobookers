@@ -7,7 +7,7 @@ type Props = {
 const ValidateDisplayName = ({ isAvailable }: Props) => {
   const displayNameAlpineAttrs = {
     // "x-merge": "morph",
-    "x-on:input.debounce.500ms":
+    "x-on:change":
       "$ajax('/auth/validate/display-name', { method: 'post', body: { displayName: form.displayName } })",
   };
 
