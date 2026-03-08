@@ -6,7 +6,6 @@ type Props = {
 
 const ValidateWebsite = ({ isAvailable }: Props) => {
   const websiteAlpineAttrs = {
-    // "x-merge": "morph",
     "x-on:change":
       "$ajax('/auth/validate/website', { method: 'post', body: { website: form.website } })",
   };
@@ -16,6 +15,7 @@ const ValidateWebsite = ({ isAvailable }: Props) => {
         label="Website"
         name="form.website"
         type="url"
+        validationTrigger="change"
         validateInput="validateWebsite()"
         isError={isAvailable === false}
         isSuccess={isAvailable === true}

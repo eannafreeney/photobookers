@@ -34,12 +34,15 @@ const Input = ({
   autofocus = false,
   ...restProps
 }: InputProps) => {
-  const inputValidator = {
-    "x-on:input.debounce.500ms":
-      validationTrigger === "input" ? validateInput : undefined,
-    "x-on:blur": validationTrigger === "blur" ? validateInput : undefined,
-    "x-on:change": validationTrigger === "change" ? validateInput : undefined,
-  };
+  const eventByTrigger = {
+    input: "x-on:input.debounce.500ms",
+    blur: "x-on:blur",
+    change: "x-on:change",
+  } as const;
+
+  const inputValidator = validateInput
+    ? { [eventByTrigger[validationTrigger]]: validateInput }
+    : {};
 
   return (
     <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
