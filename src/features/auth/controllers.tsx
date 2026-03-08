@@ -117,9 +117,6 @@ export const registerFan = async (c: RegisterFanFormContext) => {
     },
   });
 
-  console.log("data", data);
-  console.log("error", error);
-
   const alreadyRegisteredMessage =
     "This email is already registered. Please log in.";
 
@@ -128,7 +125,6 @@ export const registerFan = async (c: RegisterFanFormContext) => {
       error.message?.toLowerCase().includes("already") ||
       error.message?.toLowerCase().includes("registered") ||
       error.code === "user_already_exists";
-    console.log(error.message);
 
     return showErrorAlert(
       c,
@@ -284,6 +280,7 @@ export const processRegister = async (c: Context) => {
     await supabase.auth.exchangeCodeForSession(code);
 
   if (exchangeError || !data.session) {
+    console.error("Failed to create session:", exchangeError?.message);
     return c.html(
       <ErrorPage
         errorMessage={exchangeError?.message || "Failed to create session"}

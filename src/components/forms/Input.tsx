@@ -67,7 +67,6 @@ const Input = ({
           autocomplete="off"
           {...{
             "x-on:blur": `${name} = ${name}.trim()`,
-            "x-autofocus": autofocus,
           }}
           {...(readOnly && { readOnly: true })}
           {...(validateInput && inputValidator)}
