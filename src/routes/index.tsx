@@ -48,7 +48,7 @@ routes.use("/dashboard/*", requireAuth);
 routes.route("/dashboard/books", booksDashboardRoutes);
 routes.route("/dashboard/creators", creatorDashboardRoutes);
 routes.route("/dashboard/images", imageRoutes);
-routes.route("/claim", claimRoutes);
+routes.route("/claims", claimRoutes);
 
 // API routes
 routes.route("/api", apiRoutes);
