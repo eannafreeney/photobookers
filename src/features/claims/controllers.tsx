@@ -1,7 +1,7 @@
 import Alert from "../../components/app/Alert";
 import AuthModal from "../../components/app/AuthModal";
 import Modal from "../../components/app/Modal";
-import { showErrorAlert } from "../../lib/alertHelpers";
+import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
 import { isSameDomain, normalizeUrl } from "../../services/verification";
 import { getUser } from "../../utils";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
@@ -14,7 +14,7 @@ import { emailMatchesWebsite } from "./utils";
 
 export const getClaimModal = async (c: ClaimModalContext) => {
   const creatorId = c.req.valid("param").creatorId;
-  const currentPath = c.req.valid("form").currentPath;
+  const currentPath = c.req.valid("query").currentPath;
   const user = await getUser(c);
   const userId = user?.id;
 
@@ -50,7 +50,7 @@ export const getClaimModal = async (c: ClaimModalContext) => {
         user={user}
         currentPath={currentPath}
       />
-      {/* <div id="toast"></div> */}
+      <div id="toast"></div>
     </>,
   );
 };
@@ -80,14 +80,8 @@ export const processClaim = async (c: ProcessClaimContext) => {
   const status =
     domainMatches && creator.website ? "approved" : "pending_admin_review";
 
-  let claim;
   try {
-    claim = await createClaimWithStatus(
-      user.id,
-      creatorId,
-      verificationUrl,
-      status,
-    );
+    await createClaimWithStatus(user.id, creatorId, verificationUrl, status);
   } catch (error) {
     console.error("Error creating claim:", error);
     return showErrorAlert(c, "Failed to submit claim. Please try again.");
@@ -96,19 +90,20 @@ export const processClaim = async (c: ProcessClaimContext) => {
   if (status === "approved") {
     await assignUserAsCreatorOwnerAdmin(user.id, creatorId, true);
     // Optionally send a welcome email here
-    return c.html(
-      <Alert
-        type="success"
-        message="Your claim has been approved! Head to your dashboard to manage your profile."
-      />,
+    return showSuccessAlert(
+      c,
+      "Your claim has been approved! Head to your dashboard to manage your profile.",
     );
   }
   // pending_admin_review
   // Optionally: notify admin via email/Slack here
   return c.html(
-    <Alert
-      type="info"
-      message="Your claim has been submitted for review. We'll notify you once it's approved."
-    />,
+    <>
+      <Alert
+        type="info"
+        message="Your claim has been submitted for review. We'll notify you once it's approved."
+      />
+      <ClaimCreatorBtn creator={creator} user={user} />
+    </>,
   );
 };

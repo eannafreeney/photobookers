@@ -215,12 +215,6 @@ const DetailMobile = ({
           currentPath={currentPath}
           user={user}
         />
-        {/* <CreatorCard
-          creator={book.publisher}
-          currentPath={currentPath}
-          title="Publisher"
-          user={user}
-        /> */}
       </div>
       <RelatedBooks book={book} user={user} />
     </div>

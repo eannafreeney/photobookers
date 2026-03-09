@@ -8,8 +8,8 @@ export type ClaimModalContext = Context<
   string,
   {
     out: {
-      form: z.infer<typeof currentPathSchema>;
       param: z.infer<typeof creatorIdSchema>;
+      query: z.infer<typeof currentPathSchema>;
     };
   }
 >;

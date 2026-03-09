@@ -6,6 +6,8 @@ import {
   CreatorClaim,
   creatorClaims,
   creators,
+  User,
+  users,
 } from "../../../../db/schema";
 import { and, desc, eq, gt, ilike, inArray, or } from "drizzle-orm";
 import { deleteBookByIdAdmin } from "../books/services";
@@ -24,38 +26,39 @@ export const assignUserAsCreatorOwnerAdmin = async (
     .where(eq(creators.id, creatorId));
 };
 
-export async function getClaimsPendingAdminReview(
-  searchQuery?: string,
-): Promise<Array<{ claim: CreatorClaim; creator: Creator }>> {
+export async function getClaimsPendingAdminReview(): Promise<
+  Array<{ claim: CreatorClaim; creator: Creator; user: User }>
+> {
   const claims = await db
     .select()
     .from(creatorClaims)
-    .where(
-      and(
-        searchQuery
-          ? ilike(creatorClaims.status, `%${searchQuery}%`)
-          : undefined,
-        eq(creatorClaims.status, "pending_admin_review"),
-      ),
-    )
+    .where(eq(creatorClaims.status, "pending_admin_review"))
     .orderBy(desc(creatorClaims.requestedAt));
 
   const creatorIds = [...new Set(claims.map((c) => c.creatorId))];
-  const creatorsWithClaims =
+  const userIds = [...new Set(claims.map((c) => c.userId))];
+
+  const [creatorsWithClaims, usersWithClaims] = await Promise.all([
     creatorIds.length > 0
-      ? await db.select().from(creators).where(inArray(creators.id, creatorIds))
-      : [];
+      ? db.select().from(creators).where(inArray(creators.id, creatorIds))
+      : Promise.resolve([]),
+    userIds.length > 0
+      ? db.select().from(users).where(inArray(users.id, userIds))
+      : Promise.resolve([]),
+  ]);
 
   const creatorById = new Map(creatorsWithClaims.map((c) => [c.id, c]));
+  const userById = new Map(usersWithClaims.map((u) => [u.id, u]));
 
   return claims
     .map((claim) => ({
       claim,
       creator: creatorById.get(claim.creatorId),
+      user: userById.get(claim.userId),
     }))
     .filter(
-      (row): row is { claim: CreatorClaim; creator: Creator } =>
-        row.creator != null,
+      (row): row is { claim: CreatorClaim; creator: Creator; user: User } =>
+        row.creator != null && row.user != null,
     );
 }
 

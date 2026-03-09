@@ -16,40 +16,76 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
       <div class="flex items-center gap-1">
         <a
           x-target={`pagination ${targetId}`}
+          x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
           href={page > 1 ? pageUrl(page - 1) : undefined}
           class="rounded px-2 py-1 text-sm font-medium text-primary hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-50"
           {...(page <= 1 && { "aria-disabled": "true" })}
         >
-          Previous
+          {leftIcon}
         </a>
         <span class="text-sm text-on-surface-weak">
           {page} of {totalPages}
         </span>
         <a
           x-target={`pagination ${targetId}`}
+          x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
           href={page < totalPages ? pageUrl(page + 1) : undefined}
           class="rounded px-2 py-1 text-sm font-medium text-primary hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-50"
           {...(page >= totalPages && { "aria-disabled": "true" })}
         >
-          Next
+          {rightIcon}
         </a>
       </div>
     </nav>
   );
 
-  return (
-    <nav
-      id="pagination"
-      class="flex items-center justify-center gap-2"
-      x-init
-      {...(page < totalPages && {
-        "x-intersect": `$ajax('${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${page + 1}', { target: 'pagination ${targetId}' })`,
-      })}
-    >
-      {`${page} of ${totalPages}`} {page < totalPages && <LoadingIcon />}
-    </nav>
-  );
+  // return (
+  //   <nav
+  //     id="pagination"
+  //     class="flex items-center justify-center gap-2"
+  //     x-init
+  //     {...(page < totalPages && {
+  //       "x-intersect": `$ajax('${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${page + 1}', { target: 'pagination ${targetId}' })`,
+  //     })}
+  //   >
+  //     {`${page} of ${totalPages}`} {page < totalPages && <LoadingIcon />}
+  //   </nav>
+  // );
 };
+
+const rightIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke-width="1.5"
+    stroke="currentColor"
+    class="size-6"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+    />
+  </svg>
+);
+
+const leftIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke-width="1.5"
+    stroke="currentColor"
+    class="size-6"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+    />
+  </svg>
+);
 
 const LoadingIcon = () => (
   <svg

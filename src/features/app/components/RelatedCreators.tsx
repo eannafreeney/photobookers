@@ -3,6 +3,7 @@ import { getRelatedCreators } from "../services";
 import { CreatorCardResult } from "../../../constants/queries";
 import Card from "../../../components/app/Card";
 import Link from "../../../components/app/Link";
+import VerifiedCreator from "../../../components/app/VerifiedCreator";
 
 type Props = {
   creatorType: "artist" | "publisher";
@@ -16,8 +17,8 @@ const RelatedCreators = async ({ creatorType, creatorId }: Props) => {
   const title = creatorType === "publisher" ? "Artists" : "Publishers";
 
   return (
-    <section class="flex flex-col gap-2">
-      <SectionTitle>{title}</SectionTitle>
+    <section class="my-4">
+      <SectionTitle className="mb-2">{title}</SectionTitle>
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {relatedCreators.map((creator) => (
           <RelatedCreatorCard creator={creator} />
@@ -35,7 +36,7 @@ type RelatedCreatorCardProps = {
 
 const RelatedCreatorCard = async ({ creator }: RelatedCreatorCardProps) => {
   return (
-    <Card>
+    <Card className="shrink-0">
       <Link href={`/creators/${creator.slug}`}>
         <Card.Image
           src={creator.coverUrl ?? ""}

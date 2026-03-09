@@ -1,35 +1,42 @@
-import { Creator, CreatorClaim } from "../../../../../db/schema";
+import { Creator, CreatorClaim, User } from "../../../../../db/schema";
 import Button from "../../../../../components/app/Button";
 import { getClaimsPendingAdminReview } from "../services";
+import Table from "../../../../../components/app/Table";
+import Link from "../../../../../components/app/Link";
 
-type Props = {
-  searchQuery?: string;
-};
+const ClaimsTableAdmin = async () => {
+  const claims = await getClaimsPendingAdminReview();
 
-const ClaimsTableAdmin = async ({ searchQuery }: Props) => {
-  const claimsWithCreators = await getClaimsPendingAdminReview(searchQuery);
+  const targetId = "claims-table-body";
+
+  const tableBodyAttrs = {
+    "x-init": "true",
+    "@ajax:before": "$dispatch('dialog:open')",
+    "@claims:updated.window": `$dispatch('dialog:close'); $ajax('/dashboard/admin/claims', { target: 'claims-table-body' })`,
+  };
 
   return (
-    <div class="flex flex-col gap-8">
-      {/* Desktop Table View */}
-      <div class="hidden md:block overflow-x-auto">
-        <table id="claims-table" class="table">
-          <thead>
-            <tr>
-              <th>Profile Claimed</th>
-              <th>Requested At</th>
-              <th>Verification URL</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="claims-table-body">
-            {claimsWithCreators.map((claim) => (
-              <ClaimsTableRow claim={claim.claim} creator={claim.creator} />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <Table id="claims-table">
+      <Table.Head>
+        <tr>
+          <Table.HeadRow>User Profile</Table.HeadRow>
+          <Table.HeadRow>User Email</Table.HeadRow>
+          <Table.HeadRow>Creator Profile</Table.HeadRow>
+          <Table.HeadRow>Claimed At</Table.HeadRow>
+          <Table.HeadRow>Verification URL</Table.HeadRow>
+          <Table.HeadRow>Actions</Table.HeadRow>
+        </tr>
+      </Table.Head>
+      <Table.Body id={targetId} {...tableBodyAttrs}>
+        {claims.map((claim) => (
+          <ClaimsTableRow
+            claim={claim.claim}
+            creator={claim.creator}
+            user={claim.user}
+          />
+        ))}
+      </Table.Body>
+    </Table>
   );
 };
 
@@ -38,22 +45,29 @@ export default ClaimsTableAdmin;
 type ClaimsTableRowProps = {
   claim: CreatorClaim;
   creator: Creator;
+  user: User;
 };
 
-const ClaimsTableRow = ({ claim, creator }: ClaimsTableRowProps) => {
-  if (!claim || !claim.id || !claim.creatorId || !claim.userId) {
+const ClaimsTableRow = ({ claim, creator, user }: ClaimsTableRowProps) => {
+  if (!claim || !claim.id || !claim.creatorId || !user) {
     return <></>;
   }
 
   return (
     <tr>
-      <td>{creator.displayName}</td>
-      <td>
+      <Table.BodyRow>
+        {user?.firstName} {user?.lastName}
+      </Table.BodyRow>
+      <Table.BodyRow>{user.email}</Table.BodyRow>
+      <Table.BodyRow>
+        <Link href={`/creators/${creator.slug}`}>{creator.displayName}</Link>
+      </Table.BodyRow>
+      <Table.BodyRow>
         {claim.requestedAt
           ? new Date(claim.requestedAt).toLocaleDateString()
           : ""}
-      </td>
-      <td>
+      </Table.BodyRow>
+      <Table.BodyRow>
         <a
           href={claim.verificationUrl ?? ""}
           class="link link-primary"
@@ -61,13 +75,13 @@ const ClaimsTableRow = ({ claim, creator }: ClaimsTableRowProps) => {
         >
           {claim.verificationUrl ?? "No verification URL"}
         </a>
-      </td>
-      <td>
+      </Table.BodyRow>
+      <Table.BodyRow>
         <ApproveClaimForm claim={claim} />
-      </td>
-      <td>
+      </Table.BodyRow>
+      <Table.BodyRow>
         <RejectClaimForm claim={claim} />
-      </td>
+      </Table.BodyRow>
     </tr>
   );
 };

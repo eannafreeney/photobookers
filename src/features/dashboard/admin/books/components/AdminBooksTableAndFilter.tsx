@@ -3,8 +3,7 @@ import Button from "../../../../../components/app/Button";
 import Link from "../../../../../components/app/Link";
 import { Pagination } from "../../../../../components/app/Pagination";
 import Table from "../../../../../components/app/Table";
-import { calendarIcon, editIcon } from "../../../../../lib/icons";
-import { toWeekString } from "../../../../../lib/utils";
+import { editIcon } from "../../../../../lib/icons";
 import { formatDate } from "../../../../../utils";
 import PreviewButton from "../../../../api/components/PreviewButton";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
@@ -63,7 +62,6 @@ const AdminBooksTableAndFilter = async ({
         <Table.Body id={targetId} {...tableBodyAttrs}>
           {books.map((book) => (
             <BooksTableRow key={book.id} book={book} user={user} />
-            // <span>Book {book.id}</span>
           ))}
         </Table.Body>
       </Table>

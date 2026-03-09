@@ -12,8 +12,8 @@ type Props = {
 const ClaimModal = ({ creatorId, user, creatorWebsite }: Props) => {
   const alpineAttrs = {
     "x-data": `claimForm(${JSON.stringify({ creatorWebsite: creatorWebsite ?? null })})`,
-    "x-target": `toast claim-${creatorId}`,
-    "x-target.error": "toast",
+    "x-target": `toast`,
+    "x-on:submit": "submitForm($event)",
     "x-on:ajax:after": "$dispatch('dialog:close')",
   };
 
@@ -21,7 +21,7 @@ const ClaimModal = ({ creatorId, user, creatorWebsite }: Props) => {
     <div class="flex flex-col gap-4 p-2">
       <h2 class="text-2xl font-bold">Claim Creator Profile</h2>
 
-      <form method="post" action={`/claim/${creatorId}`} {...alpineAttrs}>
+      <form method="post" action={`/claims/${creatorId}`} {...alpineAttrs}>
         <div class="flex flex-col gap-3 mb-4">
           {creatorWebsite ? (
             <>
@@ -42,7 +42,7 @@ const ClaimModal = ({ creatorId, user, creatorWebsite }: Props) => {
             <>
               <p class="text-sm text-gray-600">
                 This creator doesn't have a website on file. Please provide
-                their website URL. Your claim will be reviewed by our team.
+                their website URL. Your claim will then be reviewed by our team.
               </p>
               <Input
                 label="Creator's Website URL"

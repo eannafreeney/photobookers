@@ -11,9 +11,11 @@ type Props = {
 const ClaimsOverviewAdmin = ({ user }: Props) => {
   return (
     <AppLayout title="Admin Dashboard" user={user}>
-      <NavTabs currentPath="/dashboard/admin/books" />
-      <SectionTitle>Claims Pending Admin Review</SectionTitle>
-      <ClaimsTable />
+      <NavTabs currentPath="/dashboard/admin/claims" />
+      <div class="flex flex-col gap-4">
+        <SectionTitle>Claims Pending Admin Review</SectionTitle>
+        <ClaimsTable />
+      </div>
     </AppLayout>
   );
 };
