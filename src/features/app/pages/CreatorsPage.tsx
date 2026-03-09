@@ -9,6 +9,7 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import { Creator } from "../../../db/schema";
 import ErrorPage from "../../../pages/error/errorPage";
+import CreatorsGrid from "../components/RelatedCreators";
 import { getAllCreatorsByType } from "../services";
 
 type Props = {
@@ -21,7 +22,6 @@ const CreatorsPage = async ({ type, currentPath, currentPage }: Props) => {
   const { creators, totalPages, page } = await getAllCreatorsByType(
     type,
     currentPage,
-    50,
   );
 
   if (!creators) {
@@ -34,18 +34,23 @@ const CreatorsPage = async ({ type, currentPath, currentPage }: Props) => {
   return (
     <AppLayout title={title}>
       <Page>
-        <PageTitle title={title} />
-        <GridPanel id={targetId} xMerge="append">
-          {creators.map((creator) => (
-            <CreatorCard key={creator.id} creator={creator} />
-          ))}
-        </GridPanel>
-        <Pagination
-          baseUrl={currentPath}
-          page={page}
-          totalPages={totalPages}
-          targetId={targetId}
-        />
+        <div x-data>
+          <div x-ref="paginationContent">
+            <PageTitle title={title} />
+          </div>
+          {/* <GridPanel id={targetId}>
+            {creators.map((creator) => (
+              <CreatorCard key={creator.id} creator={creator} />
+            ))}
+          </GridPanel> */}
+          <CreatorsGrid creators={creators} />
+          {/* <Pagination
+            baseUrl={currentPath}
+            page={page}
+            totalPages={totalPages}
+            targetId={targetId}
+          /> */}
+        </div>
       </Page>
     </AppLayout>
   );

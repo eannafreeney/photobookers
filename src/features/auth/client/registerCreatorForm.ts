@@ -58,24 +58,7 @@ export function registerRegisterCreatorForm() {
         const termsChecked = ctx.form.agreeToTerms;
         const nothingTaken =
           !ctx.emailIsTaken && !ctx.displayNameIsTaken && !ctx.websiteIsTaken;
-        console.log("registerCreatorForm validity", {
-          noErrors,
-          errorsForm: ctx.errors.form,
-          fieldsFilled,
-          form: { ...ctx.form },
-          passwordsMatch,
-          termsChecked,
-          nothingTaken,
-          emailIsTaken: ctx.emailIsTaken,
-          displayNameIsTaken: ctx.displayNameIsTaken,
-          websiteIsTaken: ctx.websiteIsTaken,
-          valid:
-            noErrors &&
-            fieldsFilled &&
-            passwordsMatch &&
-            termsChecked &&
-            nothingTaken,
-        });
+
         return (
           noErrors &&
           fieldsFilled &&

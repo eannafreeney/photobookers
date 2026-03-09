@@ -6,8 +6,9 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
 import BooksGrid from "../components/BooksGrid";
+import CreatorsGrid from "../components/RelatedCreators";
 import RelatedCreators from "../components/RelatedCreators";
-import { getBooksByCreatorSlug } from "../services";
+import { getBooksByCreatorSlug, getRelatedCreators } from "../services";
 
 type CreatorDetailPageProps = {
   user: AuthUser | null;
@@ -32,7 +33,9 @@ const CreatorDetailPage = async ({
     return <ErrorPage errorMessage="Creator not found" user={user} />;
   }
 
-  const { creator, ...rest } = result;
+  const { creator, relatedCreators, ...rest } = result;
+
+  const title = creator.type === "publisher" ? "Artists" : "Publishers";
 
   return (
     <AppLayout title={creator?.displayName ?? ""} user={user}>
@@ -49,10 +52,7 @@ const CreatorDetailPage = async ({
               isMobile={isMobile}
             />
             <Divider />
-            <RelatedCreators
-              creatorType={creator?.type ?? "artist"}
-              creatorId={creator.id}
-            />
+            <CreatorsGrid creators={relatedCreators} title={title} />
           </div>
           <div class="md:w-1/5 md:mt-14">
             <CreatorCard

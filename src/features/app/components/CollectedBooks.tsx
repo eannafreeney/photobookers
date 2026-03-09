@@ -18,6 +18,8 @@ const CollectedBooks = async ({ user, currentPage, currentPath }: Props) => {
     return <ErrorPage errorMessage="No collected books found" user={user} />;
   }
 
+  const targetId = "collection-books-grid";
+
   const { books, totalPages, page } = result;
 
   const attrs = {
@@ -27,25 +29,33 @@ const CollectedBooks = async ({ user, currentPage, currentPath }: Props) => {
   };
 
   return (
-    <div id="collection-books-container" x-merge="replace" {...attrs}>
-      <div>
-        {(!books || books?.length === 0) && (
-          <div>
-            Start adding books to your wishlist and collection to see them here.
-          </div>
-        )}
+    <div x-data>
+      <div
+        id="collection-books-container"
+        x-merge="replace"
+        {...attrs}
+        x-ref="paginationContent"
+      >
+        <div>
+          {(!books || books?.length === 0) && (
+            <div>
+              Start adding books to your wishlist and collection to see them
+              here.
+            </div>
+          )}
+        </div>
+        <GridPanel id={targetId} isFullWidth xMerge="append">
+          {books?.map((book) => (
+            <BookCard book={book} user={user} />
+          ))}
+        </GridPanel>
+        <Pagination
+          baseUrl={currentPath}
+          page={page}
+          totalPages={totalPages}
+          targetId={targetId}
+        />
       </div>
-      <GridPanel id="collection-books-grid" isFullWidth xMerge="append">
-        {books?.map((book) => (
-          <BookCard book={book} user={user} />
-        ))}
-      </GridPanel>
-      <Pagination
-        baseUrl={currentPath}
-        page={page}
-        totalPages={totalPages}
-        targetId="collection-books-grid"
-      />
     </div>
   );
 };

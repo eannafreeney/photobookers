@@ -44,33 +44,39 @@ const AdminBooksTableAndFilter = async ({
   };
 
   return (
-    <div id="books-table-container" class="flex flex-col gap-4">
-      <BookStatusForm status={status} />
-      <Table id="books-table">
-        <Table.Head>
-          <tr>
-            <Table.HeadRow>Cover</Table.HeadRow>
-            <Table.HeadRow>Title</Table.HeadRow>
-            <Table.HeadRow>Artist</Table.HeadRow>
-            <Table.HeadRow>Publisher</Table.HeadRow>
-            <Table.HeadRow>Release Date</Table.HeadRow>
-            <Table.HeadRow>Approval</Table.HeadRow>
-            <Table.HeadRow>Publish</Table.HeadRow>
-            <Table.HeadRow>Actions</Table.HeadRow>
-          </tr>
-        </Table.Head>
-        <Table.Body id={targetId} {...tableBodyAttrs}>
-          {books.map((book) => (
-            <BooksTableRow key={book.id} book={book} user={user} />
-          ))}
-        </Table.Body>
-      </Table>
-      <Pagination
-        baseUrl={currentPath}
-        page={page}
-        totalPages={totalPages}
-        targetId={targetId}
-      />
+    <div x-data>
+      <div
+        id="books-table-container"
+        class="flex flex-col gap-4"
+        x-ref="paginationContent"
+      >
+        <BookStatusForm status={status} />
+        <Table id="books-table">
+          <Table.Head>
+            <tr>
+              <Table.HeadRow>Cover</Table.HeadRow>
+              <Table.HeadRow>Title</Table.HeadRow>
+              <Table.HeadRow>Artist</Table.HeadRow>
+              <Table.HeadRow>Publisher</Table.HeadRow>
+              <Table.HeadRow>Release Date</Table.HeadRow>
+              <Table.HeadRow>Approval</Table.HeadRow>
+              <Table.HeadRow>Publish</Table.HeadRow>
+              <Table.HeadRow>Actions</Table.HeadRow>
+            </tr>
+          </Table.Head>
+          <Table.Body id={targetId} {...tableBodyAttrs}>
+            {books.map((book) => (
+              <BooksTableRow key={book.id} book={book} user={user} />
+            ))}
+          </Table.Body>
+        </Table>
+        <Pagination
+          baseUrl={currentPath}
+          page={page}
+          totalPages={totalPages}
+          targetId={targetId}
+        />
+      </div>
     </div>
   );
 };

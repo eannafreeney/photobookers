@@ -46,33 +46,39 @@ const AdminCreatorsTableAndFilter = async ({
   };
 
   return (
-    <div id="creators-table-container" class="flex flex-col gap-4">
-      <CreatorTypeForm type={type} />
-      <Table id="creators-table">
-        <Table.Head>
-          <tr>
-            <Table.HeadRow>Display Name</Table.HeadRow>
-            <Table.HeadRow>ID</Table.HeadRow>
-            <Table.HeadRow>Type</Table.HeadRow>
-            <Table.HeadRow>Website</Table.HeadRow>
-            <Table.HeadRow>Status</Table.HeadRow>
-            <Table.HeadRow>Created At</Table.HeadRow>
-            <Table.HeadRow>Owner</Table.HeadRow>
-            <Table.HeadRow>Actions</Table.HeadRow>
-          </tr>
-        </Table.Head>
-        <Table.Body id={targetId} {...tableBodyAttrs}>
-          {creators.map((creator) => (
-            <CreatorsTableRow creator={creator} />
-          ))}
-        </Table.Body>
-      </Table>
-      <Pagination
-        baseUrl={currentPath}
-        page={page}
-        totalPages={totalPages}
-        targetId={targetId}
-      />
+    <div x-data>
+      <div
+        id="creators-table-container"
+        class="flex flex-col gap-4"
+        x-ref="paginationContent"
+      >
+        <CreatorTypeForm type={type} />
+        <Table id="creators-table">
+          <Table.Head>
+            <tr>
+              <Table.HeadRow>Display Name</Table.HeadRow>
+              <Table.HeadRow>ID</Table.HeadRow>
+              <Table.HeadRow>Type</Table.HeadRow>
+              <Table.HeadRow>Website</Table.HeadRow>
+              <Table.HeadRow>Status</Table.HeadRow>
+              <Table.HeadRow>Created At</Table.HeadRow>
+              <Table.HeadRow>Owner</Table.HeadRow>
+              <Table.HeadRow>Actions</Table.HeadRow>
+            </tr>
+          </Table.Head>
+          <Table.Body id={targetId} {...tableBodyAttrs}>
+            {creators.map((creator) => (
+              <CreatorsTableRow creator={creator} />
+            ))}
+          </Table.Body>
+        </Table>
+        <Pagination
+          baseUrl={currentPath}
+          page={page}
+          totalPages={totalPages}
+          targetId={targetId}
+        />
+      </div>
     </div>
   );
 };
