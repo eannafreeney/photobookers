@@ -7,6 +7,8 @@ import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
 import BooksGrid from "../components/BooksGrid";
 import BookOfTheWeekGrid from "../components/BOTWGrid";
 import DiscoveryTags from "../components/DiscoveryTags";
+import FeaturedBooksGrid from "../components/FeaturedBooksGrid";
+import { getThisWeeksFeaturedBooks } from "../FeaturedServices";
 import { getLatestBooks } from "../services";
 
 type Props = {
@@ -26,9 +28,10 @@ const FeaturedBooksPage = async ({
   isMobile,
   sortBy,
 }: Props) => {
-  const [result, bookOfTheWeek] = await Promise.all([
+  const [result, bookOfTheWeek, featuredBooks] = await Promise.all([
     getLatestBooks(currentPage, sortBy),
     getThisWeeksBookOfTheWeek(),
+    getThisWeeksFeaturedBooks(),
   ]);
 
   return (
@@ -40,15 +43,8 @@ const FeaturedBooksPage = async ({
           user={user}
           isMobile={isMobile}
         />
-        <FeatureGuard flagName="featured-books">
-          {/* <SectionTitle>New & Notable</SectionTitle>
-          <GridPanel isFullWidth>
-            {books.map((book) => (
-              <BookCard book={book} user={user} showHeader />
-            ))}
-          </GridPanel> */}
-        </FeatureGuard>
         <DiscoveryTags />
+        <FeaturedBooksGrid featuredBooks={featuredBooks} user={user} />
         <BooksGrid
           title="New & Notable"
           user={user}

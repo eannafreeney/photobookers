@@ -2,7 +2,7 @@ import { bookIdSchema } from "../../../../schemas";
 import { Context } from "hono";
 import { Env } from "hono/types";
 import { z } from "zod";
-import { bookOfTheWeekFormSchema } from "./schema";
+import { bookOfTheWeekFormSchema, featuredBooksFormSchema } from "./schema";
 
 export type BOTWBookIdContext = Context<
   Env,
@@ -25,4 +25,10 @@ export type BOTWFormWithBookIdContext = Context<
       form: z.infer<typeof bookOfTheWeekFormSchema>;
     };
   }
+>;
+
+export type FeaturedFormContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof featuredBooksFormSchema> } }
 >;
