@@ -230,11 +230,6 @@ export const bookImagesRelations = relations(bookImages, ({ one }) => ({
   }),
 }));
 
-export const verificationMethodEnum = pgEnum("verification_method", [
-  "website",
-  "instagram",
-]);
-
 export const creatorClaims = pgTable("creator_claims", {
   id: uuid("id").primaryKey().defaultRandom(),
   creatorId: uuid("creator_id")
@@ -246,16 +241,7 @@ export const creatorClaims = pgTable("creator_claims", {
   status: creatorClaimStatusEnum("status").notNull().default("pending"), // pending, approved, rejected
   requestedAt: timestamp("requested_at").defaultNow(),
   verifiedAt: timestamp("verified_at"),
-  creatorCreatedByUserId: uuid("creator_created_by_user_id").references(
-    () => users.id,
-  ),
-  verificationToken: varchar("token", { length: 255 }).notNull(),
-  verificationMethod: verificationMethodEnum("verification_method").default(
-    "website",
-  ),
   verificationUrl: text("verification_url"), // The website URL to verify
-  verificationCode: varchar("verification_code", { length: 10 }), // The code to find on website
-  codeExpiresAt: timestamp("code_expires_at"),
 });
 
 export const creatorClaimsRelations = relations(creatorClaims, ({ one }) => ({
@@ -265,10 +251,6 @@ export const creatorClaimsRelations = relations(creatorClaims, ({ one }) => ({
   }),
   user: one(users, {
     fields: [creatorClaims.userId],
-    references: [users.id],
-  }),
-  creatorCreatedBy: one(users, {
-    fields: [creatorClaims.creatorCreatedByUserId],
     references: [users.id],
   }),
 }));
@@ -413,8 +395,7 @@ export type CreatorType = (typeof creatorTypeEnum.enumValues)[number];
 export type FollowTarget = (typeof followTargetEnum.enumValues)[number];
 export type CreatorClaimStatus =
   (typeof creatorClaimStatusEnum.enumValues)[number];
-export type VerificationMethod =
-  (typeof verificationMethodEnum.enumValues)[number];
+
 export type BookApprovalStatus =
   (typeof bookApprovalStatusEnum.enumValues)[number];
 export type BookPublicationStatus =

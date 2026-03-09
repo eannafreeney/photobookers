@@ -54,19 +54,14 @@ export const createClaimWithStatus = async (
   verificationUrl: string,
   status: "approved" | "pending_admin_review",
 ) => {
-  const verificationToken = nanoid(32);
-
   const [claim] = await db
     .insert(creatorClaims)
     .values({
       userId,
       creatorId,
-      verificationToken,
-      verificationMethod: "website",
       verificationUrl,
       status,
       verifiedAt: status === "approved" ? new Date() : null,
-      // verificationCode and codeExpiresAt intentionally omitted — not needed
     })
     .returning();
 
@@ -184,15 +179,6 @@ export const deleteBookById = async (bookId: string) => {
     console.error("Failed to delete book", error);
     return null;
   }
-};
-
-export const getClaimByToken = async (token: string) => {
-  const [claim] = await db
-    .select()
-    .from(creatorClaims)
-    .where(eq(creatorClaims.verificationToken, token))
-    .limit(1);
-  return claim ?? null;
 };
 
 export const assignCreatorToClaimant = async (claim: CreatorClaim) => {

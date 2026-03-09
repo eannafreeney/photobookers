@@ -27,7 +27,6 @@ import { getHostname, normalizeUrl } from "../../services/verification";
 import { createClaimWithStatus, deleteClaim } from "../claims/services";
 import {
   generateClaimApprovalEmail,
-  generateClaimEmail,
   generatePendingReviewEmail,
 } from "../claims/emails";
 import ErrorPage from "../../pages/error/errorPage";
@@ -36,7 +35,6 @@ import { users } from "../../db/schema";
 import { getCallbackErrorMessage } from "./utils";
 import { deleteCookie, getCookie } from "hono/cookie";
 import ForceResetPasswordPage from "./pages/SetNewPasswordPage";
-import MagicLinkHashHandlerPage from "./pages/MagicLinkHashHandlerPage";
 import ResetPasswordModal from "./modals/ResetPasswordModal";
 import ValidateEmail from "./components/ValidateEmail";
 import ValidateDisplayName from "./components/ValidateDisplayName";
