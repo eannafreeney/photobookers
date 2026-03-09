@@ -12,11 +12,16 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
     `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${p}`;
 
   return (
-    <nav id="pagination" class="flex items-center justify-center gap-2">
+    <nav
+      id="pagination"
+      class="flex items-center justify-center gap-2"
+      x-data={`{ targetId: '${targetId.replace(/'/g, "\\'")}' }`}
+    >
       <div class="flex items-center gap-1">
         <a
           x-target={`pagination ${targetId}`}
-          x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+          x-on:click="document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })"
+          // x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
           href={page > 1 ? pageUrl(page - 1) : undefined}
           class="rounded px-2 py-1 text-sm font-medium text-primary hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-50"
           {...(page <= 1 && { "aria-disabled": "true" })}
@@ -28,7 +33,8 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
         </span>
         <a
           x-target={`pagination ${targetId}`}
-          x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+          x-on:click="document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })"
+          // x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
           href={page < totalPages ? pageUrl(page + 1) : undefined}
           class="rounded px-2 py-1 text-sm font-medium text-primary hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-50"
           {...(page >= totalPages && { "aria-disabled": "true" })}
