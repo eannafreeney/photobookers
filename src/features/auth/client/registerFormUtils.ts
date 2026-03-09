@@ -35,13 +35,20 @@ export function createRegisterFormUtils() {
     validateWebsite() {
       const ctx = this as unknown as RegisterFormContext;
       const websiteRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/i;
-      if (!ctx.form.website) {
+      let value = (ctx.form.website || "").trim();
+      // Accept URLs without protocol: normalize for validation
+      if (value && !/^https?:\/\//i.test(value)) {
+        value = "https://" + value;
+      }
+      if (!ctx.form.website?.trim()) {
         ctx.errors.form.website = "Website is required";
-      } else if (!websiteRegex.test(ctx.form.website)) {
+      } else if (!websiteRegex.test(value)) {
         ctx.errors.form.website =
           "Please enter a valid URL (e.g., https://example.com)";
       } else {
         ctx.errors.form.website = "";
+        // Optional: keep form value normalized so submit sends full URL
+        ctx.form.website = value;
       }
     },
 

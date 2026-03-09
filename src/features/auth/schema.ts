@@ -1,6 +1,19 @@
 import z from "zod";
 import { agreeToTerms } from "../../schemas";
 
+// Helper: normalize URL for validation (accept www.example.com)
+const urlWithOptionalProtocol = z
+  .string()
+  .min(1, "Please enter a valid URL (e.g., https://example.com)")
+  .transform((val) => {
+    const trimmed = val.trim();
+    if (trimmed && !/^https?:\/\//i.test(trimmed)) {
+      return "https://" + trimmed;
+    }
+    return trimmed;
+  })
+  .pipe(z.string().url("Please enter a valid URL (e.g., https://example.com)"));
+
 // ============ LOGIN FORM SCHEMA ============
 export const loginFormSchema = z.object({
   email: z.email().min(1, "Email is required"),
@@ -28,7 +41,7 @@ export const registerFanFormSchema = z.object({
 // ============ REGISTER CREATOR FORM SCHEMA ============
 export const registerCreatorFormSchema = z.object({
   displayName: z.string().min(3, "Display Name must be at least 3 characters"),
-  website: z.url("Please enter a valid URL (e.g., https://example.com)"),
+  website: urlWithOptionalProtocol,
   type: z.enum(["artist", "publisher"]),
   email: z.email().min(1, "Email is required"),
   password: z
@@ -42,36 +55,8 @@ export const registerCreatorFormSchema = z.object({
   agreeToTerms,
 });
 
-// ============ RESEND VERIFICATION FORM SCHEMA ============
-export const resendVerificationFormSchema = z.object({
-  email: z.email().min(1, "Email is required"),
-});
-
 // ============ RESET PASSWORD FORM SCHEMA ============
 export const resetPasswordFormSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-// ============ VALIDATE EMAIL SCHEMA ============
-export const validateEmailSchema = z.object({
-  email: z.string().email().min(1, "Email is required"),
-});
-
-// ============ VALIDATE DISPLAY NAME SCHEMA ============
-export const validateDisplayNameSchema = z.object({
-  displayName: z.string().min(1, "Display Name is required"),
-});
-
-// ============ VALIDATE WEBSITE SCHEMA ============
-export const validateWebsiteSchema = z.object({
-  website: z
-    .string()
-    .url()
-    .min(1, "Please enter a valid URL (e.g., https://example.com)"),
-});
-
-// ============ VALIDATE PASSWORD SCHEMA ============
-export const validatePasswordSchema = z.object({
-  password: z.string().min(8, "Password must be at least 8 characters"),
 });

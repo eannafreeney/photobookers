@@ -46,19 +46,42 @@ export function registerRegisterCreatorForm() {
           displayNameIsTaken: boolean;
           websiteIsTaken: boolean;
         };
+        const noErrors = Object.values(ctx.errors.form).every((err) => !err);
+        const fieldsFilled =
+          !!ctx.form.displayName &&
+          !!ctx.form.website &&
+          !!ctx.form.type &&
+          !!ctx.form.email &&
+          !!ctx.form.password &&
+          !!ctx.form.confirmPassword;
+        const passwordsMatch = ctx.form.confirmPassword === ctx.form.password;
+        const termsChecked = ctx.form.agreeToTerms;
+        const nothingTaken =
+          !ctx.emailIsTaken && !ctx.displayNameIsTaken && !ctx.websiteIsTaken;
+        console.log("registerCreatorForm validity", {
+          noErrors,
+          errorsForm: ctx.errors.form,
+          fieldsFilled,
+          form: { ...ctx.form },
+          passwordsMatch,
+          termsChecked,
+          nothingTaken,
+          emailIsTaken: ctx.emailIsTaken,
+          displayNameIsTaken: ctx.displayNameIsTaken,
+          websiteIsTaken: ctx.websiteIsTaken,
+          valid:
+            noErrors &&
+            fieldsFilled &&
+            passwordsMatch &&
+            termsChecked &&
+            nothingTaken,
+        });
         return (
-          Object.values(ctx.errors.form).every((err) => !err) &&
-          ctx.form.displayName &&
-          ctx.form.website &&
-          ctx.form.type &&
-          ctx.form.email &&
-          ctx.form.password &&
-          ctx.form.confirmPassword &&
-          ctx.form.confirmPassword === ctx.form.password &&
-          ctx.form.agreeToTerms &&
-          !ctx.emailIsTaken &&
-          !ctx.displayNameIsTaken &&
-          !ctx.websiteIsTaken
+          noErrors &&
+          fieldsFilled &&
+          passwordsMatch &&
+          termsChecked &&
+          nothingTaken
         );
       },
 

@@ -23,9 +23,6 @@ import {
   registerCreatorFormSchema,
   registerFanFormSchema,
   resetPasswordFormSchema,
-  validateDisplayNameSchema,
-  validateEmailSchema,
-  validateWebsiteSchema,
 } from "./schema";
 
 export const authRoutes = new Hono();
