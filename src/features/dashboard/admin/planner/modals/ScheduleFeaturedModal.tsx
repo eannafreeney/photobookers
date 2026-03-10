@@ -23,7 +23,11 @@ const ScheduleFeaturedModal = async ({ week, formValues }: Props) => {
 
   return (
     <Modal title={`Featured books for ${week}`}>
-      <FeaturedBooksForm week={week} options={options} />
+      <FeaturedBooksForm
+        week={week}
+        options={options}
+        formValues={formValues}
+      />
     </Modal>
   );
 };

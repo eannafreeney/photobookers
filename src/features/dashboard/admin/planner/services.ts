@@ -26,7 +26,6 @@ export async function getAllBooksPreview() {
       id: true,
       title: true,
       coverUrl: true,
-      description: true,
     },
     with: {
       artist: {
@@ -42,7 +41,10 @@ export async function getAllBooksPreview() {
         },
       },
     },
-    where: and(eq(books.approvalStatus, "approved"), isNotNull(books.coverUrl)),
+    where: and(
+      eq(books.approvalStatus, "approved"),
+      eq(books.publicationStatus, "published"),
+    ),
   });
 }
 

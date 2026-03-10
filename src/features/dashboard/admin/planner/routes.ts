@@ -20,6 +20,7 @@ import {
   updatePublisherOfTheWeekAdmin,
   deletePublisherOfTheWeek,
   deleteArtistOfTheWeek,
+  updateFeaturedBooksAdmin,
 } from "./controllers";
 import { formValidator, paramValidator } from "../../../../lib/validator";
 import { bookIdSchema } from "../../../../schemas";
@@ -90,7 +91,7 @@ adminPlannerDashboardRoutes.post(
   "/featured/update",
   requireAdminAccess,
   formValidator(featuredBooksFormSchema),
-  // updateFeaturedAdmin,
+  updateFeaturedBooksAdmin,
 );
 
 // ---------- Artist of the week ----------

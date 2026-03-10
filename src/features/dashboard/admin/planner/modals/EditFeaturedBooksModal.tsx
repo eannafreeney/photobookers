@@ -19,6 +19,8 @@ const EditFeaturedBooksModal = async ({ featuredBooks, week }: Props) => {
     bookId5: featuredBooks[4]?.bookId ?? "",
   };
 
+  console.log("formValues", formValues);
+
   return <ScheduleFeaturedModal week={week} formValues={formValues} />;
 };
 export default EditFeaturedBooksModal;

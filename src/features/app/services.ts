@@ -115,7 +115,7 @@ export const getBooksByCreatorSlug = async (
   slug: string,
   currentPage: number = 1,
   sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
-  defaultLimit = 8,
+  defaultLimit = 16,
 ) => {
   try {
     // 1. Fetch creator without books

@@ -203,6 +203,36 @@ export const setFeaturedAdmin = async (c: FeaturedFormContext) => {
   );
 };
 
+export const updateFeaturedBooksAdmin = async (c: FeaturedFormContext) => {
+  const form = c.req.valid("form");
+  const weekStart = form.weekStart;
+  const bookIds: [string, string, string, string, string] = [
+    form.bookId1,
+    form.bookId2,
+    form.bookId3,
+    form.bookId4,
+    form.bookId5,
+  ];
+
+  const result = await setFeaturedBooksForWeek(weekStart, bookIds);
+
+  if (!result.ok) {
+    return c.html(
+      <div id="featured-errors" class="text-danger text-sm my-2">
+        {result.error ?? "Failed to set featured books."}
+      </div>,
+      422,
+    );
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message="Featured books updated!" />
+      {updatePlanner()}
+    </>,
+  );
+};
+
 // ---------- ARTIST OF THE WEEK ----------
 export const getScheduleArtistModal = async (c: Context) => {
   const week = c.req.query("week") ?? "";
