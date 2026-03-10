@@ -43,6 +43,7 @@ import { createStubCreatorProfile } from "../dashboard/creators/services";
 import { findUserByEmailAdmin } from "../dashboard/admin/creators/services";
 import { eq } from "drizzle-orm";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
+import { generateVerificationWelcomeEmail } from "./emails";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -315,6 +316,19 @@ export const processRegister = async (c: Context) => {
     return c.html(
       <ErrorPage errorMessage="Failed to create account. Please try again." />,
     );
+  }
+
+  const firstName = user.user_metadata?.firstName ?? null;
+  try {
+    await supabaseAdmin.functions.invoke("send-email", {
+      body: {
+        to: user.email!,
+        subject: "You're verified – welcome to Photobookers",
+        html: generateVerificationWelcomeEmail(firstName),
+      },
+    });
+  } catch (error) {
+    console.error("Verification welcome email failed:", error);
   }
 
   await setFlash(
