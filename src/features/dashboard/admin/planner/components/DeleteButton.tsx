@@ -13,7 +13,7 @@ const DeleteButton = ({ action }: { action: string }) => {
       action={action}
       method="post"
       {...alpineAttrs}
-      class="mt-2 inline-block text-sm font-medium text-danger hover:underline"
+      class="inline-block text-sm font-medium text-danger hover:underline"
     >
       <Button variant="outline" color="danger">
         Delete

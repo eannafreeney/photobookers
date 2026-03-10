@@ -20,132 +20,125 @@ import {
   updatePublisherOfTheWeekAdmin,
   deletePublisherOfTheWeek,
   deleteArtistOfTheWeek,
+  updateFeaturedBooksAdmin,
 } from "./controllers";
-import { formValidator, paramValidator } from "../../../../lib/validator";
+import {
+  formValidator,
+  paramValidator,
+  queryValidator,
+} from "../../../../lib/validator";
 import { bookIdSchema } from "../../../../schemas";
 import {
   artistOfTheWeekFormSchema,
   bookOfTheWeekFormSchema,
   featuredBooksFormSchema,
   publisherOfTheWeekFormSchema,
+  weekQuerySchema,
 } from "./schema";
 
 export const adminPlannerDashboardRoutes = new Hono();
 
 // ---------- Pages (GET) ----------
-adminPlannerDashboardRoutes.get("/", requireAdminAccess, getPlannerPageAdmin);
+adminPlannerDashboardRoutes.get("/", getPlannerPageAdmin);
 adminPlannerDashboardRoutes.get(
   "/book-of-the-week/create",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   getScheduleBOTWModal,
 );
 // ---------- Update (GET) ----------
 adminPlannerDashboardRoutes.get(
   "/book-of-the-week/update",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   getEditBOTWModalAdmin,
 );
 // ---------- Create (POST) ----------
 adminPlannerDashboardRoutes.post(
   "/book-of-the-week/create",
-  requireAdminAccess,
   formValidator(bookOfTheWeekFormSchema),
   setBOTWAdmin,
 );
 // ---------- Update (POST) ----------
 adminPlannerDashboardRoutes.post(
   "/book-of-the-week/update",
-  requireAdminAccess,
   formValidator(bookOfTheWeekFormSchema),
-  paramValidator(bookIdSchema),
   updateBOTWAdmin,
 );
 // ---------- Delete ----------
 adminPlannerDashboardRoutes.post(
-  "/book-of-the-week/:bookId/delete",
-  requireAdminAccess,
-  paramValidator(bookIdSchema),
+  "/book-of-the-week/delete",
+  queryValidator(weekQuerySchema),
   deleteBOTWAdmin,
 );
 
 // ---------- Featured (5) ----------
 adminPlannerDashboardRoutes.get(
   "/featured/create",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   getFeaturedModal,
 );
 adminPlannerDashboardRoutes.post(
   "/featured/create",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   formValidator(featuredBooksFormSchema),
   setFeaturedAdmin,
 );
 // ---------- Update (GET) ----------
-adminPlannerDashboardRoutes.get(
-  "/featured/update",
-  requireAdminAccess,
-  getEditFeaturedModal,
-);
+adminPlannerDashboardRoutes.get("/featured/update", getEditFeaturedModal);
 adminPlannerDashboardRoutes.post(
   "/featured/update",
-  requireAdminAccess,
   formValidator(featuredBooksFormSchema),
-  // updateFeaturedAdmin,
+  updateFeaturedBooksAdmin,
 );
 
 // ---------- Artist of the week ----------
 adminPlannerDashboardRoutes.get(
   "/artist-of-the-week/create",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   getScheduleArtistModal,
 );
 adminPlannerDashboardRoutes.post(
   "/artist-of-the-week/create",
-  requireAdminAccess,
   formValidator(artistOfTheWeekFormSchema),
   setArtistOfTheWeekAdmin,
 );
 adminPlannerDashboardRoutes.get(
   "/artist-of-the-week/update",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   getEditArtistModal,
 );
 adminPlannerDashboardRoutes.post(
   "/artist-of-the-week/update",
-  requireAdminAccess,
   formValidator(artistOfTheWeekFormSchema),
   updateArtistOfTheWeekAdmin,
 );
 adminPlannerDashboardRoutes.post(
   "/artist-of-the-week/delete",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   deleteArtistOfTheWeek,
 );
 // ---------- Publisher of the week ----------
 adminPlannerDashboardRoutes.get(
   "/publisher-of-the-week/create",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   getSchedulePublisherModal,
 );
 adminPlannerDashboardRoutes.post(
   "/publisher-of-the-week/create",
-  requireAdminAccess,
   formValidator(publisherOfTheWeekFormSchema),
   setPublisherOfTheWeekAdmin,
 );
 adminPlannerDashboardRoutes.get(
   "/publisher-of-the-week/update",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   getEditPublisherModal,
 );
 adminPlannerDashboardRoutes.post(
   "/publisher-of-the-week/update",
-  requireAdminAccess,
   formValidator(publisherOfTheWeekFormSchema),
   updatePublisherOfTheWeekAdmin,
 );
 adminPlannerDashboardRoutes.post(
   "/publisher-of-the-week/delete",
-  requireAdminAccess,
+  queryValidator(weekQuerySchema),
   deletePublisherOfTheWeek,
 );

@@ -7,6 +7,7 @@ import {
   bookOfTheWeekFormSchema,
   featuredBooksFormSchema,
   publisherOfTheWeekFormSchema,
+  weekQuerySchema,
 } from "./schema";
 
 export type BOTWBookIdContext = Context<
@@ -43,8 +44,15 @@ export type ArtistOfTheWeekFormContext = Context<
   string,
   { out: { form: z.infer<typeof artistOfTheWeekFormSchema> } }
 >;
+
 export type PublisherOfTheWeekFormContext = Context<
   Env,
   string,
   { out: { form: z.infer<typeof publisherOfTheWeekFormSchema> } }
+>;
+
+export type PlannerWeekQueryContext = Context<
+  Env,
+  string,
+  { out: { query: z.infer<typeof weekQuerySchema> } }
 >;

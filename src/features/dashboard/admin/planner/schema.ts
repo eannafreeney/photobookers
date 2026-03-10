@@ -57,3 +57,5 @@ export const publisherOfTheWeekFormSchema = z.object({
   creatorId: z.string().min(1, "Publisher is required"),
   text: z.string().max(400, "Text must be less than 400 characters"),
 });
+
+export const weekQuerySchema = z.object({ week: z.string() });

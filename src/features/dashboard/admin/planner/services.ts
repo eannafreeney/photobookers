@@ -145,11 +145,11 @@ export async function getThisWeeksBookOfTheWeek(): Promise<BookOfTheWeek | null>
   return getBookOfTheWeekForDateQuery(new Date());
 }
 
-export async function deleteBookOfTheWeekByIdAdmin(bookId: string) {
+export async function deleteBookOfTheWeekByWeekStart(weekStart: Date) {
   try {
     return db
       .delete(bookOfTheWeek)
-      .where(eq(bookOfTheWeek.bookId, bookId))
+      .where(eq(bookOfTheWeek.weekStart, toWeekStart(weekStart)))
       .returning();
   } catch (e) {
     console.error("deleteBookOfTheWeekByIdAdmin", e);
@@ -323,7 +323,7 @@ export async function updateArtistOfTheWeek(params: {
     return null;
   }
 }
-export async function deleteArtistOfTheWeekByWeek(weekStart: Date) {
+export async function deleteArtistOfTheWeekByWeekStart(weekStart: Date) {
   try {
     return db
       .delete(artistOfTheWeek)
@@ -415,7 +415,7 @@ export async function updatePublisherOfTheWeek(params: {
     return null;
   }
 }
-export async function deletePublisherOfTheWeekByWeek(weekStart: Date) {
+export async function deletePublisherOfTheWeekByWeekStart(weekStart: Date) {
   try {
     return db
       .delete(publisherOfTheWeek)

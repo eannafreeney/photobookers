@@ -62,7 +62,7 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
         <a
           href={`/books/${book.slug}`}
           target="_blank"
-          class="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+          class="inline-block text-sm font-medium text-primary hover:underline"
         >
           <Button variant="solid" color="primary">
             View Book
@@ -72,14 +72,14 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
           href={`/dashboard/admin/planner/book-of-the-week/update?week=${weekKey}`}
           x-target="modal-root"
           {...{ "x-target.error": "toast" }}
-          class="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+          class="inline-block text-sm font-medium text-primary hover:underline"
         >
           <Button variant="outline" color="primary">
             Edit
           </Button>
         </a>
         <DeleteButton
-          action={`/dashboard/admin/planner/book-of-the-week/${book.id}/delete`}
+          action={`/dashboard/admin/planner/book-of-the-week/delete?week=${weekKey}`}
         />
       </div>
     </>

@@ -3,9 +3,9 @@ import { getUser } from "../../../../utils";
 import PlannerPage from "./pages/PlannerPage";
 import { getWeekStarts } from "./utils";
 import {
-  deleteArtistOfTheWeekByWeek,
-  deleteBookOfTheWeekByIdAdmin,
-  deletePublisherOfTheWeekByWeek,
+  deleteArtistOfTheWeekByWeekStart,
+  deleteBookOfTheWeekByWeekStart,
+  deletePublisherOfTheWeekByWeekStart,
   getArtistOfTheWeekForDateQuery,
   getBookOfTheWeekForDateQuery,
   getFeaturedBooksForWeekQuery,
@@ -20,8 +20,8 @@ import {
 } from "./services";
 import {
   ArtistOfTheWeekFormContext,
-  BOTWBookIdContext,
   BOTWFormWithBookIdContext,
+  PlannerWeekQueryContext,
   PublisherOfTheWeekFormContext,
 } from "./types";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
@@ -62,13 +62,13 @@ export const getPlannerPageAdmin = async (c: Context) => {
 
 // ---------- BOOK OF THE WEEK  ----------
 
-export const getScheduleBOTWModal = async (c: Context) => {
-  const week = c.req.query("week") ?? "";
+export const getScheduleBOTWModal = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
   return c.html(<ScheduleBOTWModal week={week} />);
 };
 
-export const getEditBOTWModalAdmin = async (c: Context) => {
-  const week = c.req.query("week") ?? "";
+export const getEditBOTWModalAdmin = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
   const weekStart = parseWeekString(week);
   const bookOfTheWeek = Number.isNaN(weekStart.getTime())
     ? null
@@ -139,13 +139,14 @@ export const updateBOTWAdmin = async (c: BOTWFormWithBookIdContext) => {
   );
 };
 
-export const deleteBOTWAdmin = async (c: BOTWBookIdContext) => {
-  const bookId = c.req.valid("param").bookId;
-  const book = await getBookById(bookId);
-  if (!book) return showErrorAlert(c, "Book not found");
-  const deletedBookOfTheWeek = await deleteBookOfTheWeekByIdAdmin(bookId);
-  if (!deletedBookOfTheWeek)
-    return showErrorAlert(c, "Failed to delete book of the week");
+export const deleteBOTWAdmin = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
+  const weekStart = parseWeekString(week);
+  if (Number.isNaN(weekStart.getTime())) {
+    return showErrorAlert(c, "Invalid week");
+  }
+  const deleted = await deleteBookOfTheWeekByWeekStart(weekStart);
+  if (!deleted?.length) return showErrorAlert(c, "Failed to delete");
   return c.html(
     <>
       <Alert type="success" message="Book of the Week deleted!" />
@@ -156,13 +157,13 @@ export const deleteBOTWAdmin = async (c: BOTWBookIdContext) => {
 
 // ---------- FEATURED BOOKS ----------
 
-export const getFeaturedModal = async (c: Context) => {
-  const week = c.req.query("week") ?? "";
+export const getFeaturedModal = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
   return c.html(<ScheduleFeaturedModal week={week} />);
 };
 
-export const getEditFeaturedModal = async (c: Context) => {
-  const week = c.req.query("week") ?? "";
+export const getEditFeaturedModal = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
   const weekStart = parseWeekString(week);
   const featuredBooks = Number.isNaN(weekStart.getTime())
     ? []
@@ -203,14 +204,44 @@ export const setFeaturedAdmin = async (c: FeaturedFormContext) => {
   );
 };
 
+export const updateFeaturedBooksAdmin = async (c: FeaturedFormContext) => {
+  const form = c.req.valid("form");
+  const weekStart = form.weekStart;
+  const bookIds: [string, string, string, string, string] = [
+    form.bookId1,
+    form.bookId2,
+    form.bookId3,
+    form.bookId4,
+    form.bookId5,
+  ];
+
+  const result = await setFeaturedBooksForWeek(weekStart, bookIds);
+
+  if (!result.ok) {
+    return c.html(
+      <div id="featured-errors" class="text-danger text-sm my-2">
+        {result.error ?? "Failed to update featured books."}
+      </div>,
+      422,
+    );
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message="Featured books updated!" />
+      {updatePlanner()}
+    </>,
+  );
+};
+
 // ---------- ARTIST OF THE WEEK ----------
-export const getScheduleArtistModal = async (c: Context) => {
-  const week = c.req.query("week") ?? "";
+export const getScheduleArtistModal = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
   return c.html(<ScheduleAOTWModal week={week} />);
 };
 
-export const getEditArtistModal = async (c: Context) => {
-  const week = c.req.query("week") ?? "";
+export const getEditArtistModal = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
   const weekStart = parseWeekString(week);
   const artistOfTheWeek = Number.isNaN(weekStart.getTime())
     ? null
@@ -274,14 +305,13 @@ export const updateArtistOfTheWeekAdmin = async (
   );
 };
 
-export const deleteArtistOfTheWeek = async (c: Context) => {
-  const body = await c.req.parseBody();
-  const weekStr = (body?.weekStart ?? body?.week ?? "") as string;
-  const weekStart = parseWeekString(weekStr);
+export const deleteArtistOfTheWeek = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
+  const weekStart = parseWeekString(week);
   if (Number.isNaN(weekStart.getTime())) {
     return showErrorAlert(c, "Invalid week");
   }
-  const deleted = await deleteArtistOfTheWeekByWeek(weekStart);
+  const deleted = await deleteArtistOfTheWeekByWeekStart(weekStart);
   if (!deleted?.length) return showErrorAlert(c, "Failed to delete");
   return c.html(
     <>
@@ -290,14 +320,15 @@ export const deleteArtistOfTheWeek = async (c: Context) => {
     </>,
   );
 };
+
 // ---------- PUBLISHER OF THE WEEK ----------
-export const getSchedulePublisherModal = async (c: Context) => {
-  const week = c.req.query("week") ?? "";
+export const getSchedulePublisherModal = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
   return c.html(<SchedulePOTWModal week={week} />);
 };
 
-export const getEditPublisherModal = async (c: Context) => {
-  const week = c.req.query("week") ?? "";
+export const getEditPublisherModal = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
   const weekStart = parseWeekString(week);
   const publisherOfTheWeek = Number.isNaN(weekStart.getTime())
     ? null
@@ -357,14 +388,13 @@ export const updatePublisherOfTheWeekAdmin = async (
   );
 };
 
-export const deletePublisherOfTheWeek = async (c: Context) => {
-  const body = await c.req.parseBody();
-  const weekStr = (body?.weekStart ?? body?.week ?? "") as string;
-  const weekStart = parseWeekString(weekStr);
+export const deletePublisherOfTheWeek = async (c: PlannerWeekQueryContext) => {
+  const week = c.req.valid("query").week;
+  const weekStart = parseWeekString(week);
   if (Number.isNaN(weekStart.getTime())) {
     return showErrorAlert(c, "Invalid week");
   }
-  const deleted = await deletePublisherOfTheWeekByWeek(weekStart);
+  const deleted = await deletePublisherOfTheWeekByWeekStart(weekStart);
   if (!deleted?.length) return showErrorAlert(c, "Failed to delete");
   return c.html(
     <>
