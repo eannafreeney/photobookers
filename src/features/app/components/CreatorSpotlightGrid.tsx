@@ -1,0 +1,84 @@
+import Button from "../../../components/app/Button";
+import Card from "../../../components/app/Card";
+import SectionTitle from "../../../components/app/SectionTitle";
+import type {
+  ArtistOfTheWeekWithCreator,
+  PublisherOfTheWeekWithCreator,
+} from "../../dashboard/admin/planner/services";
+
+type CreatorSpotlightsGridProps = {
+  artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
+  publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
+};
+
+const CreatorSpotlightsGrid = ({
+  artistOfTheWeek,
+  publisherOfTheWeek,
+}: CreatorSpotlightsGridProps) => {
+  if (!artistOfTheWeek && !publisherOfTheWeek) return <></>;
+
+  const artist = artistOfTheWeek?.creator ?? null;
+  const publisher = publisherOfTheWeek?.creator ?? null;
+
+  return (
+    <div class="grid grid-cols-2 gap-4 w-full">
+      {artist && (
+        <div>
+          <SectionTitle className="mb-2">Artist spotlight</SectionTitle>
+          <CreatorSpotlight
+            creator={artist}
+            text={artistOfTheWeek?.text ?? null}
+            href={`/creators/${artist.slug}`}
+          />
+        </div>
+      )}
+      {publisher && (
+        <div>
+          <SectionTitle className="mb-2">Publisher spotlight</SectionTitle>
+          <CreatorSpotlight
+            creator={publisher}
+            text={publisherOfTheWeek?.text ?? null}
+            href={`/creators/${publisher.slug}`}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CreatorSpotlightsGrid;
+
+type CreatorSpotlightProps = {
+  creator: {
+    id: string;
+    displayName: string;
+    slug: string;
+    coverUrl: string | null;
+    bio?: string | null;
+  };
+  text?: string | null;
+  href: string;
+};
+
+const CreatorSpotlight = ({ creator, text, href }: CreatorSpotlightProps) => (
+  <Card className="flex-row">
+    <div className="w-1/2 shrink-0">
+      <Card.Image
+        src={creator.coverUrl ?? ""}
+        alt={creator.displayName}
+        href={href}
+        aspectSquare
+        objectCover
+      />
+    </div>
+    <div class="flex flex-col justify-end gap-2 w-1/2 min-w-0">
+      <Card.Body>
+        <Card.Title>{creator.displayName}</Card.Title>
+        {text && <Card.Description>{text}</Card.Description>}
+        <Button variant="solid" color="primary" width="full" href={href}>
+          View catalog
+        </Button>
+      </Card.Body>
+    </div>
+  </Card>
+);

@@ -37,3 +37,23 @@ export const featuredBooksFormSchema = z
       ]).size === 5,
     { message: "Duplicate books not allowed" },
   );
+
+export const artistOfTheWeekFormSchema = z.object({
+  weekStart: z
+    .string()
+    .min(1, "Week is required")
+    .transform(parseWeekString)
+    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
+  creatorId: z.string().min(1, "Artist is required"),
+  text: z.string().max(400, "Text must be less than 400 characters"),
+});
+
+export const publisherOfTheWeekFormSchema = z.object({
+  weekStart: z
+    .string()
+    .min(1, "Week is required")
+    .transform(parseWeekString)
+    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
+  creatorId: z.string().min(1, "Publisher is required"),
+  text: z.string().max(400, "Text must be less than 400 characters"),
+});

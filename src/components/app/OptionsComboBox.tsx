@@ -9,6 +9,7 @@ type Props = {
   name: string;
   label?: string;
   required?: boolean;
+  initialSelectedId?: string;
 };
 
 const OptionsComboBox = ({
@@ -16,16 +17,18 @@ const OptionsComboBox = ({
   name,
   label = "Creator",
   required,
+  initialSelectedId,
 }: Props) => {
   return (
     <div
       x-data={`{
-          fieldName: '${name.replace("form.", "")}',
+        fieldName: '${name.replace("form.", "")}',
         allOptions: ${JSON.stringify(options)},
         options: [],
         isOpen: false,
         openedWithKeyboard: false,
         selectedOption: null,
+        initialSelectedId: ${JSON.stringify(initialSelectedId ?? "")},
         setSelectedOption(option) {
             this.selectedOption = option
             this.isOpen = false
@@ -47,7 +50,8 @@ const OptionsComboBox = ({
       class="w-full flex flex-col gap-1"
       {...{
         "x-on:click.outside": "isOpen = false",
-        "x-init": "options = allOptions",
+        "x-init":
+          "options = allOptions; if (initialSelectedId) { const opt = allOptions.find(o => o.id === initialSelectedId); if (opt) { selectedOption = opt; if ($refs.hiddenTextField) $refs.hiddenTextField.value = opt.id } }",
       }}
     >
       <div class="relative">
@@ -85,8 +89,8 @@ const OptionsComboBox = ({
           hidden
         />
         <div
-          id="creatorsList"
-          class="absolute left-0 top-11 z-10 w-full overflow-hidden rounded-radius border border-outline bg-surface-alt"
+          id="list"
+          class="absolute left-0 top-16 z-10 w-full overflow-hidden rounded-radius border border-outline bg-surface-alt"
           {...{
             "x-show": "isOpen",
             "x-on:click.outside": "isOpen = false",
@@ -107,7 +111,7 @@ const OptionsComboBox = ({
           </div>
           {/* Options  */}
           <ul
-            id="usersList"
+            id="list"
             class="flex max-h-88 w-full flex-col overflow-hidden overflow-y-auto border-outline bg-surface-alt py-1.5 rounded-radius border"
           >
             <li

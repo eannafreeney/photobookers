@@ -28,4 +28,5 @@ const FeaturedBooksGrid = ({ featuredBooks, user }: Props) => {
     </>
   );
 };
+
 export default FeaturedBooksGrid;

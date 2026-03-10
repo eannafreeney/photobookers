@@ -2,7 +2,12 @@ import { bookIdSchema } from "../../../../schemas";
 import { Context } from "hono";
 import { Env } from "hono/types";
 import { z } from "zod";
-import { bookOfTheWeekFormSchema, featuredBooksFormSchema } from "./schema";
+import {
+  artistOfTheWeekFormSchema,
+  bookOfTheWeekFormSchema,
+  featuredBooksFormSchema,
+  publisherOfTheWeekFormSchema,
+} from "./schema";
 
 export type BOTWBookIdContext = Context<
   Env,
@@ -31,4 +36,15 @@ export type FeaturedFormContext = Context<
   Env,
   string,
   { out: { form: z.infer<typeof featuredBooksFormSchema> } }
+>;
+
+export type ArtistOfTheWeekFormContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof artistOfTheWeekFormSchema> } }
+>;
+export type PublisherOfTheWeekFormContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof publisherOfTheWeekFormSchema> } }
 >;

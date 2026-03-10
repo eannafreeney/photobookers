@@ -15,13 +15,14 @@ const FormButtons = ({
   return (
     <div class="flex items-center gap-4">
       {showCancelButton && (
-        <button
+        <Button
+          variant="outline"
           type="button"
-          class="btn btn-outline"
-          onclick="window.history.back()"
+          color="inverse"
+          x-on:click="$dispatch('dialog:close')"
         >
           Cancel
-        </button>
+        </Button>
       )}
       <Button
         variant="solid"

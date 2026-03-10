@@ -1,7 +1,5 @@
-import Modal from "../../../../../components/app/Modal";
-import { toWeekString } from "../../../../../lib/utils";
-import FeaturedBooksForm from "../forms/FeaturedBooksForm";
-import { FeaturedBookOfTheWeekWithBook, getAllBooksPreview } from "../services";
+import { FeaturedBookOfTheWeekWithBook } from "../services";
+import ScheduleFeaturedModal from "./ScheduleFeaturedModal";
 
 type Props = {
   featuredBooks: FeaturedBookOfTheWeekWithBook[];
@@ -13,23 +11,14 @@ const EditFeaturedBooksModal = async ({ featuredBooks, week }: Props) => {
     return <div>No featured books found</div>;
   }
 
-  const allBooks = await getAllBooksPreview();
-  const options = allBooks.map((book) => ({
-    id: book.id,
-    label: `${book.title} - ${book.artist?.displayName}${book.publisher ? ` - ${book.publisher?.displayName}` : ""}`,
-    img: book?.coverUrl ?? null,
-    description: book?.description,
-  }));
+  const formValues = {
+    bookId1: featuredBooks[0]?.bookId ?? "",
+    bookId2: featuredBooks[1]?.bookId ?? "",
+    bookId3: featuredBooks[2]?.bookId ?? "",
+    bookId4: featuredBooks[3]?.bookId ?? "",
+    bookId5: featuredBooks[4]?.bookId ?? "",
+  };
 
-  return (
-    <Modal title="Edit featured books">
-      <FeaturedBooksForm
-        featuredBooks={featuredBooks}
-        week={week}
-        options={options}
-        isEditMode
-      />
-    </Modal>
-  );
+  return <ScheduleFeaturedModal week={week} formValues={formValues} />;
 };
 export default EditFeaturedBooksModal;
