@@ -5,8 +5,7 @@ const ScheduleFeaturedModal = async ({ week }: { week: string }) => {
     <Modal title="Set 5 featured books">
       <div
         id="featured-set-modal-content"
-        class="min-h-[200px]"
-        x-init={`$ajax('/dashboard/admin/planner/featured/set-modal-content?week=${week}', { target: 'featured-set-modal-content' })`}
+        x-init={`$ajax('/dashboard/admin/planner/featured/featured-modal-content?week=${week}', { target: 'featured-set-modal-content' })`}
       >
         ...loading...
       </div>

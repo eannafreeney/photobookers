@@ -3,14 +3,15 @@ import { requireAdminAccess } from "../../../../middleware/adminGuard";
 import {
   deleteBOTWAdmin,
   getEditBOTWModalAdmin,
-  getFeaturedSetModal,
-  getFeaturedSetModalContent,
+  getFeaturedModalContent,
+  getFeaturedModal,
   getPlannerPageAdmin,
   getScheduleBOTWModal,
   getScheduleBOTWModalContent,
   setBOTWAdmin,
   setFeaturedAdmin,
   updateBOTWAdmin,
+  getEditFeaturedModal,
 } from "./controllers";
 import { formValidator, paramValidator } from "../../../../lib/validator";
 import { bookIdSchema } from "../../../../schemas";
@@ -61,18 +62,30 @@ adminPlannerDashboardRoutes.post(
 
 // ---------- Featured (5) ----------
 adminPlannerDashboardRoutes.get(
-  "/featured/set-modal",
+  "/featured/create",
   requireAdminAccess,
-  getFeaturedSetModal,
+  getFeaturedModal,
 );
 adminPlannerDashboardRoutes.get(
-  "/featured/set-modal-content",
+  "/featured/featured-modal-content",
   requireAdminAccess,
-  getFeaturedSetModalContent,
+  getFeaturedModalContent,
 );
 adminPlannerDashboardRoutes.post(
-  "/featured/set",
+  "/featured/create",
   requireAdminAccess,
   formValidator(featuredBooksFormSchema),
   setFeaturedAdmin,
+);
+// ---------- Update (GET) ----------
+adminPlannerDashboardRoutes.get(
+  "/featured/update",
+  requireAdminAccess,
+  getEditFeaturedModal,
+);
+adminPlannerDashboardRoutes.post(
+  "/featured/update",
+  requireAdminAccess,
+  formValidator(featuredBooksFormSchema),
+  // updateFeaturedAdmin,
 );

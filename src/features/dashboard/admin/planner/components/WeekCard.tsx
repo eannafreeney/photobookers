@@ -4,6 +4,7 @@ import { BookOfTheWeekWithBook } from "../../../../app/BOTWServices";
 import { toWeekString } from "../../../../../lib/utils";
 import Button from "../../../../../components/app/Button";
 import { FeaturedBookOfTheWeekWithBook } from "../services";
+import Link from "../../../../../components/app/Link";
 
 type Props = {
   weekStart: Date;
@@ -136,6 +137,7 @@ const FeaturedBooksForm = ({
 }: FeaturedBooksFormProps) => {
   const weekKey = toWeekString(weekStart);
   const hasFiveFeatured = featuredBooks.length === 5;
+  const action = hasFiveFeatured ? "update" : "create";
 
   return (
     <div class="mt-3 pt-3 border-t border-outline">
@@ -145,20 +147,26 @@ const FeaturedBooksForm = ({
           {featuredBooks.map((fb) => (
             <li key={fb.book.id} class="truncate flex items-center gap-3 py-1">
               {fb.book.coverUrl && (
-                <img
-                  src={fb.book.coverUrl}
-                  alt={fb.book.title}
-                  class="h-16 w-12 rounded object-cover"
-                />
+                <Link href={`/books/${fb.book.slug}`}>
+                  <img
+                    src={fb.book.coverUrl}
+                    alt={fb.book.title}
+                    class="h-16 w-12 rounded object-cover"
+                  />
+                </Link>
               )}
               <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold text-on-surface-strong line-clamp-2">
-                  {fb.book.title}
-                </p>
-                {fb.book.artist && (
-                  <p class="text-xs text-on-surface-weak truncate">
-                    {fb.book.artist.displayName}
+                <Link href={`/books/${fb.book.slug}`}>
+                  <p class="text-sm font-semibold text-on-surface-strong line-clamp-2">
+                    {fb.book.title}
                   </p>
+                </Link>
+                {fb.book.artist && (
+                  <Link href={`/creators/${fb.book.artist.slug}`}>
+                    <p class="text-xs text-on-surface-weak truncate">
+                      {fb.book.artist.displayName}
+                    </p>
+                  </Link>
                 )}
               </div>
             </li>
@@ -166,7 +174,7 @@ const FeaturedBooksForm = ({
         </ul>
       ) : null}
       <a
-        href={`/dashboard/admin/planner/featured/set-modal?week=${weekKey}`}
+        href={`/dashboard/admin/planner/featured/${action}?week=${weekKey}`}
         x-target="modal-root"
         class="flex min-h-16 flex-col items-center justify-center rounded border border-dashed border-outline bg-surface-alt/50 py-4 text-sm font-medium text-on-surface-weak hover:border-outline-strong hover:bg-surface-alt hover:text-on-surface"
       >

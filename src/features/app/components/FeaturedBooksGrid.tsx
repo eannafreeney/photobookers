@@ -10,6 +10,7 @@ type Props = {
 };
 
 const FeaturedBooksGrid = ({ featuredBooks, user }: Props) => {
+  if (!featuredBooks || featuredBooks.length === 0) return <></>;
   return (
     <>
       <div>

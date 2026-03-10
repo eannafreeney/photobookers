@@ -6,6 +6,7 @@ import {
   deleteBookOfTheWeekByIdAdmin,
   getBotwByWeekStart,
   getFeaturedBooksByWeekStart,
+  getFeaturedBooksForWeekQuery,
   setBookOfTheWeek,
   setFeaturedBooksForWeek,
   updateBookOfTheWeek,
@@ -20,6 +21,8 @@ import ScheduleBOTWContent from "./components/ScheduleBOTWContent";
 import ScheduleFeaturedModal from "./modals/ScheduleFeaturedModal";
 import ScheduleFeaturedContent from "./components/ScheduleFeaturedContent";
 import { FeaturedFormContext } from "./types";
+import EditFeaturedBooksModal from "./modals/EditFeaturedBooksModal";
+import { parseWeekString } from "../../../../lib/utils";
 
 const updatePlanner = () => (
   <div id="server_events">
@@ -141,15 +144,29 @@ export const deleteBOTWAdmin = async (c: BOTWBookIdContext) => {
   );
 };
 
-export const getFeaturedSetModal = async (c: Context) => {
+export const getFeaturedModal = async (c: Context) => {
   const week = c.req.query("week") ?? "";
   return c.html(<ScheduleFeaturedModal week={week} />);
 };
 
-export const getFeaturedSetModalContent = async (c: Context) => {
+export const getFeaturedModalContent = async (c: Context) => {
   const week = c.req.query("week") ?? "";
   // Optional: load existing featured for this week to pass initialBookIds
   return c.html(<ScheduleFeaturedContent week={week} />);
+};
+
+export const getEditFeaturedModal = async (c: Context) => {
+  const week = c.req.query("week") ?? "";
+  console.log("HELLO!");
+  const weekStart = parseWeekString(week);
+  const featuredBooks = Number.isNaN(weekStart.getTime())
+    ? []
+    : await getFeaturedBooksForWeekQuery(weekStart);
+
+  console.log("featuredBooks", featuredBooks);
+  return c.html(
+    <EditFeaturedBooksModal featuredBooks={featuredBooks} week={week} />,
+  );
 };
 
 export const setFeaturedAdmin = async (c: FeaturedFormContext) => {
