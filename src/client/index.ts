@@ -19,6 +19,7 @@ import { registerNewUserForm } from "../features/dashboard/admin/users/client/ne
 import { registerResetPasswordForm } from "../features/auth/client/resetPasswordForm";
 import { registerImageOrientation } from "./utils/imageOrientation";
 import { registerContactForm } from "../features/app/client/contactForm";
+import { registerFeaturedForm } from "../features/dashboard/admin/planner/client/featuredForm";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -42,3 +43,4 @@ registerNewUserForm();
 registerResetPasswordForm();
 registerImageOrientation();
 registerContactForm();
+registerFeaturedForm();

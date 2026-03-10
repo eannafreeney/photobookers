@@ -170,6 +170,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   collections: many(collectionItems),
   bookOfTheDay: one(bookOfTheDay),
   bookOfTheWeekEntry: one(bookOfTheWeek),
+  featuredBooksOfTheWeekEntry: one(featuredBooksOfTheWeek),
 }));
 
 export const follows = pgTable(
@@ -363,6 +364,38 @@ export const bookOfTheWeekRelations = relations(bookOfTheWeek, ({ one }) => ({
   }),
 }));
 
+// New table: 5 featured books per week; each book can only be featured once ever
+export const featuredBooksOfTheWeek = pgTable(
+  "featured_books_of_the_week",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    weekStart: timestamp("week_start", { mode: "date" }).notNull(),
+    bookId: uuid("book_id")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(), // 1-5
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueWeekPosition: unique("featured_books_week_position_unique").on(
+      table.weekStart,
+      table.position,
+    ),
+    uniqueBook: unique("featured_books_book_unique").on(table.bookId), // book only featured once
+  }),
+);
+
+export const featuredBooksOfTheWeekRelations = relations(
+  featuredBooksOfTheWeek,
+  ({ one }) => ({
+    book: one(books, {
+      fields: [featuredBooksOfTheWeek.bookId],
+      references: [books.id],
+    }),
+  }),
+);
+
 // Infer types from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -409,3 +442,10 @@ export type NewBookOfTheDay = InferInsertModel<typeof bookOfTheDay>;
 
 export type BookOfTheWeek = InferSelectModel<typeof bookOfTheWeek>;
 export type NewBookOfTheWeek = InferInsertModel<typeof bookOfTheWeek>;
+
+export type FeaturedBookOfTheWeek = InferSelectModel<
+  typeof featuredBooksOfTheWeek
+>;
+export type NewFeaturedBookOfTheWeek = InferInsertModel<
+  typeof featuredBooksOfTheWeek
+>;

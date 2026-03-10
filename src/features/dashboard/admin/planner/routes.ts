@@ -3,15 +3,19 @@ import { requireAdminAccess } from "../../../../middleware/adminGuard";
 import {
   deleteBOTWAdmin,
   getEditBOTWModalAdmin,
+  getFeaturedModalContent,
+  getFeaturedModal,
   getPlannerPageAdmin,
   getScheduleBOTWModal,
   getScheduleBOTWModalContent,
   setBOTWAdmin,
+  setFeaturedAdmin,
   updateBOTWAdmin,
+  getEditFeaturedModal,
 } from "./controllers";
 import { formValidator, paramValidator } from "../../../../lib/validator";
 import { bookIdSchema } from "../../../../schemas";
-import { bookOfTheWeekFormSchema } from "./schema";
+import { bookOfTheWeekFormSchema, featuredBooksFormSchema } from "./schema";
 
 export const adminPlannerDashboardRoutes = new Hono();
 
@@ -54,4 +58,34 @@ adminPlannerDashboardRoutes.post(
   requireAdminAccess,
   paramValidator(bookIdSchema),
   deleteBOTWAdmin,
+);
+
+// ---------- Featured (5) ----------
+adminPlannerDashboardRoutes.get(
+  "/featured/create",
+  requireAdminAccess,
+  getFeaturedModal,
+);
+adminPlannerDashboardRoutes.get(
+  "/featured/featured-modal-content",
+  requireAdminAccess,
+  getFeaturedModalContent,
+);
+adminPlannerDashboardRoutes.post(
+  "/featured/create",
+  requireAdminAccess,
+  formValidator(featuredBooksFormSchema),
+  setFeaturedAdmin,
+);
+// ---------- Update (GET) ----------
+adminPlannerDashboardRoutes.get(
+  "/featured/update",
+  requireAdminAccess,
+  getEditFeaturedModal,
+);
+adminPlannerDashboardRoutes.post(
+  "/featured/update",
+  requireAdminAccess,
+  formValidator(featuredBooksFormSchema),
+  // updateFeaturedAdmin,
 );

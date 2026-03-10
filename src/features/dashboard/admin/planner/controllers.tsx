@@ -5,7 +5,10 @@ import { getWeekStarts } from "./utils";
 import {
   deleteBookOfTheWeekByIdAdmin,
   getBotwByWeekStart,
+  getFeaturedBooksByWeekStart,
+  getFeaturedBooksForWeekQuery,
   setBookOfTheWeek,
+  setFeaturedBooksForWeek,
   updateBookOfTheWeek,
 } from "./services";
 import { BOTWBookIdContext, BOTWFormWithBookIdContext } from "./types";
@@ -15,6 +18,11 @@ import EditBOTWModal from "./modals/EditBOTWModal";
 import Alert from "../../../../components/app/Alert";
 import ScheduleBOTWModal from "./modals/ScheduleBOTWModal";
 import ScheduleBOTWContent from "./components/ScheduleBOTWContent";
+import ScheduleFeaturedModal from "./modals/ScheduleFeaturedModal";
+import ScheduleFeaturedContent from "./components/ScheduleFeaturedContent";
+import { FeaturedFormContext } from "./types";
+import EditFeaturedBooksModal from "./modals/EditFeaturedBooksModal";
+import { parseWeekString } from "../../../../lib/utils";
 
 const updatePlanner = () => (
   <div id="server_events">
@@ -27,7 +35,10 @@ export const getPlannerPageAdmin = async (c: Context) => {
   const year = Number(c.req.query("year") ?? new Date().getFullYear());
   const weekStarts = getWeekStarts(year);
   const currentPath = c.req.path;
-  const botwByWeekStart = await getBotwByWeekStart(year);
+  const [botwByWeekStart, featuredByWeekStart] = await Promise.all([
+    getBotwByWeekStart(year),
+    getFeaturedBooksByWeekStart(year),
+  ]);
 
   return c.html(
     <PlannerPage
@@ -36,6 +47,7 @@ export const getPlannerPageAdmin = async (c: Context) => {
       weekStarts={weekStarts}
       currentPath={currentPath}
       botwByWeekStart={botwByWeekStart}
+      featuredByWeekStart={featuredByWeekStart}
     />,
   );
 };
@@ -127,6 +139,61 @@ export const deleteBOTWAdmin = async (c: BOTWBookIdContext) => {
   return c.html(
     <>
       <Alert type="success" message="Book of the Week deleted!" />
+      {updatePlanner()}
+    </>,
+  );
+};
+
+export const getFeaturedModal = async (c: Context) => {
+  const week = c.req.query("week") ?? "";
+  return c.html(<ScheduleFeaturedModal week={week} />);
+};
+
+export const getFeaturedModalContent = async (c: Context) => {
+  const week = c.req.query("week") ?? "";
+  // Optional: load existing featured for this week to pass initialBookIds
+  return c.html(<ScheduleFeaturedContent week={week} />);
+};
+
+export const getEditFeaturedModal = async (c: Context) => {
+  const week = c.req.query("week") ?? "";
+  console.log("HELLO!");
+  const weekStart = parseWeekString(week);
+  const featuredBooks = Number.isNaN(weekStart.getTime())
+    ? []
+    : await getFeaturedBooksForWeekQuery(weekStart);
+
+  console.log("featuredBooks", featuredBooks);
+  return c.html(
+    <EditFeaturedBooksModal featuredBooks={featuredBooks} week={week} />,
+  );
+};
+
+export const setFeaturedAdmin = async (c: FeaturedFormContext) => {
+  const form = c.req.valid("form");
+  const weekStart = form.weekStart;
+  const bookIds: [string, string, string, string, string] = [
+    form.bookId1,
+    form.bookId2,
+    form.bookId3,
+    form.bookId4,
+    form.bookId5,
+  ];
+
+  const result = await setFeaturedBooksForWeek(weekStart, bookIds);
+
+  if (!result.ok) {
+    return c.html(
+      <div id="featured-errors" class="text-danger text-sm my-2">
+        {result.error ?? "Failed to set featured books."}
+      </div>,
+      422,
+    );
+  }
+
+  return c.html(
+    <>
+      <Alert type="success" message="Featured books set!" />
       {updatePlanner()}
     </>,
   );

@@ -29,6 +29,13 @@
       "when": 1773055444204,
       "tag": "0004_medical_colonel_america",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1765000000000,
+      "tag": "0005_featured_books_of_the_week",
+      "breakpoints": true
     }
   ]
 }

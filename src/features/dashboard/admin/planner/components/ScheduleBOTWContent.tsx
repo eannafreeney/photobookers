@@ -34,4 +34,5 @@ const ScheduleBOTWContent = async ({ week }: { week: string }) => {
     </div>
   );
 };
+
 export default ScheduleBOTWContent;

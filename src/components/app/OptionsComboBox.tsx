@@ -1,4 +1,3 @@
-import { Creator } from "../../db/schema";
 import InputLabel from "../forms/InputLabel";
 
 type Props = {
@@ -9,12 +8,19 @@ type Props = {
   }[];
   name: string;
   label?: string;
+  required?: boolean;
 };
 
-const OptionsComboBox = ({ options, name, label = "Creator" }: Props) => {
+const OptionsComboBox = ({
+  options,
+  name,
+  label = "Creator",
+  required,
+}: Props) => {
   return (
     <div
       x-data={`{
+          fieldName: '${name.replace("form.", "")}',
         allOptions: ${JSON.stringify(options)},
         options: [],
         isOpen: false,
@@ -24,7 +30,7 @@ const OptionsComboBox = ({ options, name, label = "Creator" }: Props) => {
             this.selectedOption = option
             this.isOpen = false
             this.$refs.hiddenTextField.value = option.id
-
+            this.$dispatch('form-field-update', { field: this.fieldName, value: option.id })
         },
         getFilteredOptions(query) {
             this.options = this.allOptions.filter((option) =>
@@ -47,7 +53,7 @@ const OptionsComboBox = ({ options, name, label = "Creator" }: Props) => {
       <div class="relative">
         {/* trigger button  */}
         <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
-          <InputLabel label={label} name={name} />
+          <InputLabel label={label} name={name} required={required} />
           <label class="bg-surface-alt -mb-1 rounded-radius border border-outline text-on-surface-alt flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
             <button
               type="button"
@@ -61,7 +67,7 @@ const OptionsComboBox = ({ options, name, label = "Creator" }: Props) => {
                 "x-cloak": "true",
                 "x-show": "selectedOption !== null",
                 "x-on:click.stop":
-                  "selectedOption = null; $refs.hiddenTextField.value = ''",
+                  "selectedOption = null; $refs.hiddenTextField.value = ''; $dispatch('form-field-update', { field: fieldName, value: '' })",
               }}
               class="text-on-surface-alt hover:text-on-surface focus:outline-none"
             >
@@ -102,7 +108,7 @@ const OptionsComboBox = ({ options, name, label = "Creator" }: Props) => {
           {/* Options  */}
           <ul
             id="usersList"
-            class="flex max-h-44 w-full flex-col overflow-hidden overflow-y-auto border-outline bg-surface-alt py-1.5 rounded-radius border"
+            class="flex max-h-88 w-full flex-col overflow-hidden overflow-y-auto border-outline bg-surface-alt py-1.5 rounded-radius border"
           >
             <li
               class="hidden px-4 py-2 text-sm text-on-surface"

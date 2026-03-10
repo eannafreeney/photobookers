@@ -1,11 +1,12 @@
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import Page from "../../../../../components/layouts/Page";
 import NavTabs from "../../components/NavTabs";
-import { AuthUser, Flash } from "../../../../../../types";
+import { AuthUser } from "../../../../../../types";
 import { toWeekString } from "../../../../../lib/utils";
-import { formatWeekRange, getWeekNumber } from "../utils";
+import { getWeekNumber, isWeekInPast } from "../utils";
 import WeekCard from "../components/WeekCard";
 import { BookOfTheWeekWithBook } from "../../../../app/BOTWServices";
+import { FeaturedBookOfTheWeekWithBook } from "../services";
 
 type Props = {
   user: AuthUser | null;
@@ -13,6 +14,7 @@ type Props = {
   weekStarts: Date[];
   currentPath: string;
   botwByWeekStart: Map<string, BookOfTheWeekWithBook | null>;
+  featuredByWeekStart: Map<string, FeaturedBookOfTheWeekWithBook[]>;
 };
 
 const PlannerPage = ({
@@ -21,11 +23,12 @@ const PlannerPage = ({
   weekStarts,
   currentPath,
   botwByWeekStart,
+  featuredByWeekStart,
 }: Props) => {
   const alpineAttrs = {
     "x-init": true,
     "x-on:planner:updated.window":
-      "() => console.log('planner updated'); $ajax('/dashboard/admin/planner', { target: 'planner-grid' })",
+      "$ajax('/dashboard/admin/planner', { target: 'planner-grid' })",
   };
 
   return (
@@ -57,19 +60,23 @@ const PlannerPage = ({
           class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           {...alpineAttrs}
         >
-          {weekStarts.map((weekStart) => {
-            const key = toWeekString(weekStart);
-            const botw = botwByWeekStart.get(key) ?? null;
+          {weekStarts
+            .filter((weekStart) => !isWeekInPast(weekStart))
+            .map((weekStart) => {
+              const key = toWeekString(weekStart);
+              const botw = botwByWeekStart.get(key) ?? null;
+              const featuredBooks = featuredByWeekStart.get(key) ?? [];
 
-            return (
-              <WeekCard
-                key={key}
-                weekStart={weekStart}
-                weekNumber={getWeekNumber(weekStart)}
-                bookOfTheWeek={botw}
-              />
-            );
-          })}
+              return (
+                <WeekCard
+                  key={key}
+                  weekStart={weekStart}
+                  weekNumber={getWeekNumber(weekStart)}
+                  bookOfTheWeek={botw}
+                  featuredBooks={featuredBooks}
+                />
+              );
+            })}
         </div>
       </Page>
     </AppLayout>
