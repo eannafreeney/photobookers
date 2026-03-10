@@ -1,3 +1,4 @@
+import { AuthUser } from "../../../../types";
 import Avatar from "../../../components/app/Avatar";
 import Card from "../../../components/app/Card";
 import GridPanel from "../../../components/app/GridPanel";
@@ -9,64 +10,36 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import { Creator } from "../../../db/schema";
 import ErrorPage from "../../../pages/error/errorPage";
+import CreatorCardSquare from "../components/CreatorCardSquare";
 import { getAllCreatorsByType } from "../services";
 
 type Props = {
   type: "artist" | "publisher";
-  currentPath: string;
   currentPage: number;
+  user: AuthUser | null;
 };
 
-const CreatorsPage = async ({ type, currentPath, currentPage }: Props) => {
-  const { creators, totalPages, page } = await getAllCreatorsByType(
-    type,
-    currentPage,
-    50,
-  );
+const CreatorsPage = async ({ type, currentPage, user }: Props) => {
+  const { creators } = await getAllCreatorsByType(type, currentPage, 50);
 
   if (!creators) {
     return <ErrorPage errorMessage="Artists not found" />;
   }
 
   const title = type === "artist" ? "Artists" : "Publishers";
-  const targetId = `creators-grid-${type}`;
 
   return (
-    <AppLayout title={title}>
+    <AppLayout title={title} user={user}>
       <Page>
         <PageTitle title={title} />
-        <GridPanel id={targetId} xMerge="append">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
           {creators.map((creator) => (
-            <CreatorCard key={creator.id} creator={creator} />
+            <CreatorCardSquare creator={creator} />
           ))}
-        </GridPanel>
-        <Pagination
-          baseUrl={currentPath}
-          page={page}
-          totalPages={totalPages}
-          targetId={targetId}
-        />
+        </div>
       </Page>
     </AppLayout>
   );
 };
 
 export default CreatorsPage;
-
-const CreatorCard = ({ creator }: { creator: Creator }) => (
-  <Link href={`/creators/${creator.slug}`}>
-    <div class="flex items-center gap-2">
-      <div class="relative">
-        <Avatar
-          src={creator.coverUrl ?? ""}
-          alt={creator.displayName ?? ""}
-          size="md"
-        />
-        <div class="absolute -top-1 -right-1">
-          <VerifiedCreator creatorStatus={creator.status ?? "stub"} size="xs" />
-        </div>
-      </div>
-      <Card.SubTitle>{creator.displayName}</Card.SubTitle>
-    </div>
-  </Link>
-);

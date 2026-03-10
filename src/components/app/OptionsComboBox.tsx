@@ -50,6 +50,7 @@ const OptionsComboBox = ({
       class="w-full flex flex-col gap-1"
       {...{
         "x-on:click.outside": "isOpen = false",
+        "x-effect": "isOpen && $nextTick(() => $refs.searchField?.focus())",
         "x-init":
           "options = allOptions; if (initialSelectedId) { const opt = allOptions.find(o => o.id === initialSelectedId); if (opt) { selectedOption = opt; if ($refs.hiddenTextField) $refs.hiddenTextField.value = opt.id } }",
       }}
