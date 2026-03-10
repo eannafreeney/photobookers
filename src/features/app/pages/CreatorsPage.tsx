@@ -1,14 +1,7 @@
 import { AuthUser } from "../../../../types";
-import Avatar from "../../../components/app/Avatar";
-import Card from "../../../components/app/Card";
-import GridPanel from "../../../components/app/GridPanel";
-import Link from "../../../components/app/Link";
 import PageTitle from "../../../components/app/PageTitle";
-import { Pagination } from "../../../components/app/Pagination";
-import VerifiedCreator from "../../../components/app/VerifiedCreator";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
-import { Creator } from "../../../db/schema";
 import ErrorPage from "../../../pages/error/errorPage";
 import CreatorCardSquare from "../components/CreatorCardSquare";
 import { getAllCreatorsByType } from "../services";
@@ -20,7 +13,7 @@ type Props = {
 };
 
 const CreatorsPage = async ({ type, currentPage, user }: Props) => {
-  const { creators } = await getAllCreatorsByType(type, currentPage, 50);
+  const { creators } = await getAllCreatorsByType(type, currentPage);
 
   if (!creators) {
     return <ErrorPage errorMessage="Artists not found" />;

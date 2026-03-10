@@ -74,32 +74,44 @@ input[type="search"]::-webkit-search-cancel-button {
   transform: translateX(0);
 }
 
-/* [aria-busy] {
-  --loading-size: 20px;
-  --loading-stroke: 2px;
+#books-grid[aria-busy] {
+  --loading-size: 48px;
+  --loading-stroke: 4px;
   --loading-duration: 0.8s;
   position: relative;
 }
 
-[aria-busy]:before {
+#books-grid[aria-busy]:before {
   content: "";
-  position: fixed;
-  top: 20px;
-  right: 20px;
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.65);
+  z-index: 10;
+}
+
+#books-grid[aria-busy]:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: var(--loading-size);
   height: var(--loading-size);
-  margin-top: calc(var(--loading-size) / 2 * -1);
-  margin-left: calc(var(--loading-size) / 2 * -1);
-  border: var(--loading-stroke) solid
-    var(--color-primary-200, rgba(0, 0, 0, 0.15));
+  margin-top: calc(var(--loading-size) / -2);
+  margin-left: calc(var(--loading-size) / -2);
+  border: var(--loading-stroke) solid var(--color-outline, rgba(0, 0, 0, 0.15));
   border-radius: 50%;
-  border-top-color: var(--color-primary); /* Uses your sky-700 
-  animation: rotate calc(var(--loading-duration)) linear infinite;
-  z-index: 50;
+  border-top-color: var(--color-primary);
+  animation: rotate var(--loading-duration) linear infinite;
+  z-index: 11;
+}
+
+#pagination[aria-busy] {
+  opacity: 0.7;
+  pointer-events: none; /* optional: prevent double-clicks */
 }
 
 @keyframes rotate {
   100% {
     transform: rotate(360deg);
   }
-} */
+}

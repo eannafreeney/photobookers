@@ -21,7 +21,7 @@ const CreatorSpotlightsGrid = ({
   const publisher = publisherOfTheWeek?.creator ?? null;
 
   return (
-    <div class="grid grid-cols-2 gap-4 w-full">
+    <div class="grid md:grid-cols-2 gap-4 w-full">
       {artist && (
         <div>
           <SectionTitle className="mb-2">Artist spotlight</SectionTitle>
@@ -61,8 +61,8 @@ type CreatorSpotlightProps = {
 };
 
 const CreatorSpotlight = ({ creator, text, href }: CreatorSpotlightProps) => (
-  <Card className="flex-row">
-    <div className="w-1/2 shrink-0">
+  <Card className="flex-col md:flex-row">
+    <div className="w-full md:w-1/2 shrink-0">
       <Card.Image
         src={creator.coverUrl ?? ""}
         alt={creator.displayName}
@@ -71,7 +71,7 @@ const CreatorSpotlight = ({ creator, text, href }: CreatorSpotlightProps) => (
         objectCover
       />
     </div>
-    <div class="flex flex-col justify-end gap-2 w-1/2 min-w-0">
+    <div class="flex flex-col justify-end gap-2 w-full md:w-1/2 min-w-0">
       <Card.Body>
         <Card.Title>{creator.displayName}</Card.Title>
         {text && <Card.Description>{text}</Card.Description>}

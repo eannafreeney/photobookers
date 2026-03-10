@@ -163,7 +163,6 @@ export const getTermsPage = async (c: Context) => {
 };
 
 export const getArtistsPage = async (c: Context) => {
-  const currentPath = c.req.path;
   const user = await getUser(c);
   const page = Number(c.req.query("page") ?? 1);
   return c.html(<CreatorsPage type="artist" user={user} currentPage={page} />);
@@ -171,7 +170,6 @@ export const getArtistsPage = async (c: Context) => {
 
 export const getPublishersPage = async (c: Context) => {
   const user = await getUser(c);
-  const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
   return c.html(
     <CreatorsPage type="publisher" user={user} currentPage={page} />,

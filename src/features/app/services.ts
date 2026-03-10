@@ -115,7 +115,7 @@ export const getBooksByCreatorSlug = async (
   slug: string,
   currentPage: number = 1,
   sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
-  defaultLimit = 12,
+  defaultLimit = 16,
 ) => {
   try {
     // 1. Fetch creator without books
@@ -131,6 +131,7 @@ export const getBooksByCreatorSlug = async (
         totalPages: 0,
         page: 1,
         limit: defaultLimit,
+        relatedCreators: [],
       };
     }
 
@@ -176,15 +177,24 @@ export const getBooksByCreatorSlug = async (
     const { totalPages: totalPagesComputed, page: pageComputed } =
       getPagination(currentPage, totalCount, defaultLimit);
 
+    const relatedCreators = await getRelatedCreators(creator.id, creator.type);
+
     return {
       creator,
       books: foundBooks,
       totalPages: totalPagesComputed,
       page: pageComputed,
+      relatedCreators,
     };
   } catch (error) {
     console.warn(error);
-    return { creator: null, books: [], totalPages: 0, page: 1 };
+    return {
+      creator: null,
+      relatedCreators: [],
+      books: [],
+      totalPages: 0,
+      page: 1,
+    };
   }
 };
 
@@ -379,7 +389,6 @@ export const getFeedBooks = async (
 export const getAllCreatorsByType = async (
   type: "artist" | "publisher",
   currentPage: number = 1,
-  defaultLimit = 50,
 ) => {
   try {
     const [{ value: totalCount = 0 }] = await db
@@ -390,12 +399,11 @@ export const getAllCreatorsByType = async (
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
-      defaultLimit,
     );
+
     const foundCreators = await db.query.creators.findMany({
       where: eq(creators.type, type),
       orderBy: (creators, { asc }) => [asc(creators.displayName)],
-      limit,
       offset,
       with: {
         booksAsArtist: {

@@ -1,27 +1,21 @@
 import SectionTitle from "../../../components/app/SectionTitle";
-import { getRelatedCreators } from "../services";
 import { CreatorCardResult } from "../../../constants/queries";
-import Card from "../../../components/app/Card";
-import Link from "../../../components/app/Link";
-import VerifiedCreator from "../../../components/app/VerifiedCreator";
 import CreatorCardSquare from "./CreatorCardSquare";
 
 type Props = {
-  creatorType: "artist" | "publisher";
-  creatorId: string;
+  creators: CreatorCardResult[];
+  title?: string;
 };
 
-const RelatedCreators = async ({ creatorType, creatorId }: Props) => {
-  const relatedCreators = await getRelatedCreators(creatorId, creatorType);
-  if (relatedCreators.length === 0) return <></>;
-
-  const title = creatorType === "publisher" ? "Artists" : "Publishers";
+const CreatorsGrid = async ({ creators, title }: Props) => {
+  if (!creators) return <></>;
+  if (creators.length === 0) return <></>;
 
   return (
     <section class="my-4">
-      <SectionTitle className="mb-2">{title}</SectionTitle>
+      {title && <SectionTitle className="mb-2">{title}</SectionTitle>}
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {relatedCreators.map((creator) => (
+        {creators.map((creator) => (
           <CreatorCardSquare creator={creator} />
         ))}
       </div>
@@ -29,4 +23,4 @@ const RelatedCreators = async ({ creatorType, creatorId }: Props) => {
   );
 };
 
-export default RelatedCreators;
+export default CreatorsGrid;

@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { requireAdminAccess } from "../../../../middleware/adminGuard";
 import {
   deleteBOTWAdmin,
   getEditBOTWModalAdmin,
@@ -22,12 +21,7 @@ import {
   deleteArtistOfTheWeek,
   updateFeaturedBooksAdmin,
 } from "./controllers";
-import {
-  formValidator,
-  paramValidator,
-  queryValidator,
-} from "../../../../lib/validator";
-import { bookIdSchema } from "../../../../schemas";
+import { formValidator, queryValidator } from "../../../../lib/validator";
 import {
   artistOfTheWeekFormSchema,
   bookOfTheWeekFormSchema,
