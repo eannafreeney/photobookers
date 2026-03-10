@@ -1,33 +1,22 @@
-import BookOfTheWeekForm from "../forms/BookOfTheWeekForm";
-import Modal from "../../../../../components/app/Modal";
-import { Book, BookOfTheWeek, Creator } from "../../../../../db/schema";
+import { BookOfTheWeek } from "../../../../../db/schema";
 import { toWeekString } from "../../../../../lib/utils";
+import ScheduleBOTWModal from "./ScheduleBOTWModal";
 
 type Props = {
-  book: Book & {
-    artist: Creator | null;
-    publisher: Creator | null;
-    bookOfTheWeekEntry: BookOfTheWeek | null;
-  };
-  formValues?: {
-    weekStart: string;
-    text: string;
-  };
+  bookOfTheWeek: BookOfTheWeek | null;
+  week: string;
 };
 
-const EditBOTWModal = ({ book }: Props) => {
+const EditBOTWModal = ({ week, bookOfTheWeek }: Props) => {
   const formValues = {
-    weekStart: book.bookOfTheWeekEntry?.weekStart
-      ? toWeekString(book.bookOfTheWeekEntry?.weekStart)
+    weekStart: bookOfTheWeek?.weekStart
+      ? toWeekString(bookOfTheWeek?.weekStart)
       : "",
-    text: book.bookOfTheWeekEntry?.text ?? "",
+    text: bookOfTheWeek?.text ?? "",
+    bookId: bookOfTheWeek?.bookId ?? "",
   };
 
-  return (
-    <Modal title={`Edit ${book.title}`}>
-      <BookOfTheWeekForm book={book} formValues={formValues} />
-    </Modal>
-  );
+  return <ScheduleBOTWModal formValues={formValues} week={week} />;
 };
 
 export default EditBOTWModal;

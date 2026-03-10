@@ -11,8 +11,13 @@ import { getCreatorById } from "../../dashboard/creators/services";
 import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
 import BooksGrid from "../components/BooksGrid";
 import BookOfTheWeekGrid from "../components/BOTWGrid";
+import CreatorSpotlightsGrid from "../components/CreatorSpotlightGrid";
 import DiscoveryTags from "../components/DiscoveryTags";
 import FeaturedBooksGrid from "../components/FeaturedBooksGrid";
+import {
+  getThisWeeksArtistOfTheWeek,
+  getThisWeeksPublisherOfTheWeek,
+} from "../CreatorSpotlightServices";
 import { getThisWeeksFeaturedBooks } from "../FeaturedServices";
 import { getLatestBooks } from "../services";
 
@@ -33,10 +38,18 @@ const FeaturedBooksPage = async ({
   isMobile,
   sortBy,
 }: Props) => {
-  const [result, bookOfTheWeek, featuredBooks] = await Promise.all([
+  const [
+    result,
+    bookOfTheWeek,
+    featuredBooks,
+    artistOfTheWeek,
+    publisherOfTheWeek,
+  ] = await Promise.all([
     getLatestBooks(currentPage, sortBy),
     getThisWeeksBookOfTheWeek(),
     getThisWeeksFeaturedBooks(),
+    getThisWeeksArtistOfTheWeek(),
+    getThisWeeksPublisherOfTheWeek(),
   ]);
 
   return (
@@ -50,7 +63,10 @@ const FeaturedBooksPage = async ({
         />
         <DiscoveryTags />
         <FeaturedBooksGrid featuredBooks={featuredBooks} user={user} />
-        {/* <CreatorSpotlightsGrid /> */}
+        <CreatorSpotlightsGrid
+          artistOfTheWeek={artistOfTheWeek}
+          publisherOfTheWeek={publisherOfTheWeek}
+        />
         <BooksGrid
           title="New & Notable"
           user={user}
@@ -65,48 +81,3 @@ const FeaturedBooksPage = async ({
 };
 
 export default FeaturedBooksPage;
-
-const CreatorSpotlightsGrid = () => {
-  return (
-    <div class="grid grid-cols-2 gap-4 w-full">
-      <div>
-        <SectionTitle className="mb-2">Publisher Spotlight</SectionTitle>
-        <CreatorSpotlight creatorId="0bc6f290-d574-4c51-8814-c325601736f8" />
-      </div>
-      <div>
-        <SectionTitle className="mb-2">Artist Spotlight</SectionTitle>
-        <CreatorSpotlight creatorId="1e8f2a61-c542-40f9-8abb-afee5a5ee06b" />
-      </div>
-    </div>
-  );
-};
-
-const CreatorSpotlight = async ({ creatorId }: { creatorId: string }) => {
-  const creator = await getCreatorById(creatorId);
-  if (!creator) return <></>;
-  return (
-    <Card className="flex-row">
-      <div className="w-1/2 shrink-0">
-        <Card.Image
-          src={creator?.coverUrl ?? ""}
-          alt={creator?.displayName ?? ""}
-          href={`/creators/${creator.slug}`}
-          aspectSquare
-          objectCover
-        />
-      </div>
-      <div class="flex flex-col justify-end gap-2 w-1/2 min-w-0">
-        <Card.Body>
-          <Card.Title>{creator?.displayName}</Card.Title>
-          <Card.Text>
-            {creator?.city ? `${creator?.city}, ` : ""} {creator?.country ?? ""}
-          </Card.Text>
-          <Card.Description>{creator?.bio}</Card.Description>
-          <Button variant="solid" color="primary" width="full">
-            View Catalog
-          </Button>
-        </Card.Body>
-      </div>
-    </Card>
-  );
-};

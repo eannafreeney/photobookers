@@ -1,55 +1,56 @@
+import Button from "../../../../../components/app/Button";
 import OptionsComboBox from "../../../../../components/app/OptionsComboBox";
 import FormButtons from "../../../../../components/forms/FormButtons";
+import TextArea from "../../../../../components/forms/TextArea";
 
 type Props = {
-  week: string;
   formValues?: {
-    bookId1: string;
-    bookId2: string;
-    bookId3: string;
-    bookId4: string;
-    bookId5: string;
+    weekStart: string;
+    creatorId: string;
+    text: string;
   };
   options: {
     id: string;
     label: string;
-    img: string | null;
+    img?: string | null;
   }[];
+  week: string;
 };
 
-const FeaturedBooksForm = ({ week, formValues, options }: Props) => {
+const POTWForm = ({ formValues, options, week }: Props) => {
   const isEditMode = !!formValues;
 
   const alpineAttrs = {
-    "x-data": `featuredForm(${JSON.stringify(formValues)}, ${isEditMode})`,
+    "x-data": `aotwForm(${JSON.stringify(formValues)}, ${isEditMode})`,
     "x-target": "toast",
     "x-on:ajax:after":
       "$dispatch('dialog:close'), $dispatch('planner:updated')",
     "x-on:form-field-update": "form[$event.detail.field] = $event.detail.value",
   };
 
-  const action = isEditMode ? "update" : "create";
+  const action = `/dashboard/admin/planner/publisher-of-the-week/${isEditMode ? "update" : "create"}`;
 
   return (
     <form
       {...alpineAttrs}
-      action={`/dashboard/admin/planner/featured/${action}`}
+      action={action}
       method="post"
       class="flex flex-col gap-4"
     >
-      {[1, 2, 3, 4, 5].map((i) => (
-        <div key={i}>
-          <OptionsComboBox
-            options={options}
-            name={`form.bookId${i}`}
-            label={`Book ${i}`}
-            required
-            initialSelectedId={
-              formValues?.[`bookId${i}` as keyof typeof formValues]
-            }
-          />
-        </div>
-      ))}
+      <OptionsComboBox
+        options={options}
+        name="form.creatorId"
+        label="Publisher"
+        initialSelectedId={formValues?.creatorId}
+        required
+      />
+      <TextArea
+        label="Text"
+        name="form.text"
+        validateInput="validateField('text')"
+        minRows={6}
+        maxLength={400}
+      />
       <input type="hidden" name="weekStart" value={week} />
       <FormButtons
         buttonText={isEditMode ? "Update" : "Schedule"}
@@ -59,4 +60,4 @@ const FeaturedBooksForm = ({ week, formValues, options }: Props) => {
     </form>
   );
 };
-export default FeaturedBooksForm;
+export default POTWForm;

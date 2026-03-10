@@ -113,6 +113,8 @@ export const creatorsRelations = relations(creators, ({ one, many }) => ({
   }),
   followers: many(follows),
   claims: many(creatorClaims),
+  artistOfTheWeekEntries: many(artistOfTheWeek),
+  publisherOfTheWeekEntries: many(publisherOfTheWeek),
 }));
 
 export const books = pgTable(
@@ -396,6 +398,62 @@ export const featuredBooksOfTheWeekRelations = relations(
   }),
 );
 
+// Artist of the week: one per week, optional text
+export const artistOfTheWeek = pgTable(
+  "artist_of_the_week",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    weekStart: timestamp("week_start", { mode: "date" }).notNull(),
+    creatorId: uuid("creator_id")
+      .notNull()
+      .references(() => creators.id, { onDelete: "cascade" }),
+    text: text("text").notNull().default(""),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueWeek: unique("artist_of_the_week_week_unique").on(table.weekStart),
+  }),
+);
+
+export const artistOfTheWeekRelations = relations(
+  artistOfTheWeek,
+  ({ one }) => ({
+    creator: one(creators, {
+      fields: [artistOfTheWeek.creatorId],
+      references: [creators.id],
+    }),
+  }),
+);
+
+// Publisher of the week: one per week, optional text
+export const publisherOfTheWeek = pgTable(
+  "publisher_of_the_week",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    weekStart: timestamp("week_start", { mode: "date" }).notNull(),
+    creatorId: uuid("creator_id")
+      .notNull()
+      .references(() => creators.id, { onDelete: "cascade" }),
+    text: text("text").notNull().default(""),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueWeek: unique("publisher_of_the_week_week_unique").on(table.weekStart),
+  }),
+);
+
+export const publisherOfTheWeekRelations = relations(
+  publisherOfTheWeek,
+  ({ one }) => ({
+    creator: one(creators, {
+      fields: [publisherOfTheWeek.creatorId],
+      references: [creators.id],
+    }),
+  }),
+);
+
 // Infer types from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -449,3 +507,7 @@ export type FeaturedBookOfTheWeek = InferSelectModel<
 export type NewFeaturedBookOfTheWeek = InferInsertModel<
   typeof featuredBooksOfTheWeek
 >;
+export type ArtistOfTheWeek = InferSelectModel<typeof artistOfTheWeek>;
+export type NewArtistOfTheWeek = InferInsertModel<typeof artistOfTheWeek>;
+export type PublisherOfTheWeek = InferSelectModel<typeof publisherOfTheWeek>;
+export type NewPublisherOfTheWeek = InferInsertModel<typeof publisherOfTheWeek>;

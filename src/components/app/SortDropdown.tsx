@@ -41,36 +41,34 @@ const SortDropdown = ({ sortBy, currentPath }: SortDropdownProps) => {
   };
 
   return (
-    <>
-      <div {...parentAttrs} class="relative w-fit ">
-        <button
-          type="button"
-          {...buttonAttrs}
-          class="inline-flex items-center gap-2 whitespace-nowrap rounded-radius border border-outline bg-surface-alt px-4 py-2 text-sm font-medium tracking-wide transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-outline-strong"
-          aria-haspopup="true"
-        >
-          {sortLabel}
-          {sortIcon}
-        </button>
-        <div
-          {...dropdownAttrs}
-          class="absolute top-11 -left-6 flex w-fit min-w-40 flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt py-1.5"
-        >
-          <a href={currentPath} class={linkClass} role="menuitem">
-            Newest
-          </a>
-          <a href={sortParam("oldest")} class={linkClass} role="menuitem">
-            Oldest
-          </a>
-          <a href={sortParam("title_asc")} class={linkClass} role="menuitem">
-            Title (A–Z)
-          </a>
-          <a href={sortParam("title_desc")} class={linkClass} role="menuitem">
-            Title (Z–A)
-          </a>
-        </div>
+    <div {...parentAttrs} class="relative w-fit ">
+      <button
+        type="button"
+        {...buttonAttrs}
+        class="inline-flex items-center gap-2 whitespace-nowrap rounded-radius border border-outline bg-surface-alt px-4 py-2 text-sm font-medium tracking-wide transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-outline-strong"
+        aria-haspopup="true"
+      >
+        {sortLabel}
+        {sortIcon}
+      </button>
+      <div
+        {...dropdownAttrs}
+        class="absolute top-11 right-0 flex min-w-40 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt py-1.5"
+      >
+        <a href={currentPath} class={linkClass} role="menuitem">
+          Newest
+        </a>
+        <a href={sortParam("oldest")} class={linkClass} role="menuitem">
+          Oldest
+        </a>
+        <a href={sortParam("title_asc")} class={linkClass} role="menuitem">
+          Title (A–Z)
+        </a>
+        <a href={sortParam("title_desc")} class={linkClass} role="menuitem">
+          Title (Z–A)
+        </a>
       </div>
-    </>
+    </div>
   );
 };
 

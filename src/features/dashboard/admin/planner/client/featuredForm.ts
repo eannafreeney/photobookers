@@ -47,9 +47,7 @@ export function registerFeaturedForm() {
             ctx.form.bookId3 &&
             ctx.form.bookId4 &&
             ctx.form.bookId5;
-          console.log("isValid", isValid);
-          console.log("errors", ctx.errors.form);
-          console.log("form", ctx.form);
+
           return isValid;
         },
 

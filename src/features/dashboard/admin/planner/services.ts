@@ -5,10 +5,13 @@ import {
 import { toWeekString } from "../../../../lib/utils";
 import { getWeekStarts } from "./utils";
 import {
+  artistOfTheWeek,
   BookOfTheWeek,
   bookOfTheWeek,
   books,
+  creators,
   featuredBooksOfTheWeek,
+  publisherOfTheWeek,
 } from "../../../../db/schema";
 import { db } from "../../../../db/client";
 import { and, desc, eq, gte, isNotNull, lte } from "drizzle-orm";
@@ -69,6 +72,7 @@ function toWeekStart(d: Date): Date {
 export async function setBookOfTheWeek(params: {
   weekStart: Date;
   bookId: string;
+  text: string;
 }): Promise<BookOfTheWeek | null> {
   const weekStart = toWeekStart(params.weekStart);
   try {
@@ -77,7 +81,7 @@ export async function setBookOfTheWeek(params: {
       .values({
         weekStart,
         bookId: params.bookId,
-        text: "",
+        text: params.text,
       })
       .returning();
     return row ?? null;
@@ -111,65 +115,34 @@ export async function updateBookOfTheWeek(params: {
   }
 }
 
-export type BookOfTheWeekWithBook = Awaited<
-  ReturnType<typeof getBookOfTheWeekForDateQuery>
->;
-
-export async function getBookOfTheWeekForDateQuery(date: Date) {
+export async function getBookOfTheWeekForDateQuery(
+  date: Date,
+): Promise<BookOfTheWeek | null> {
   const weekStart = toWeekStart(date);
-  const book = await db.query.bookOfTheWeek.findFirst({
+  const row = await db.query.bookOfTheWeek.findFirst({
     where: eq(bookOfTheWeek.weekStart, weekStart),
     with: {
       book: {
-        columns: {
-          id: true,
-          title: true,
-          slug: true,
-          coverUrl: true,
-          artistId: true,
-          publisherId: true,
-        },
+        columns: BOOK_CARD_COLUMNS,
         with: {
-          artist: {
-            columns: {
-              id: true,
-              displayName: true,
-              slug: true,
-            },
-          },
-          publisher: {
-            columns: {
-              id: true,
-              displayName: true,
-              slug: true,
-            },
-          },
-          images: {
-            columns: {
-              id: true,
-              imageUrl: true,
-            },
-            orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
-          },
+          artist: { columns: CREATOR_CARD_COLUMNS },
+          publisher: { columns: CREATOR_CARD_COLUMNS },
+          // images: {
+          //   columns: {
+          //     id: true,
+          //     imageUrl: true,
+          //   },
+          //   orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+          // },
         },
       },
     },
   });
-  if (!book) return null;
-
-  return book;
+  return row ?? null;
 }
 
-export async function getThisWeeksBookOfTheWeek(): Promise<BookOfTheWeekWithBook> {
+export async function getThisWeeksBookOfTheWeek(): Promise<BookOfTheWeek | null> {
   return getBookOfTheWeekForDateQuery(new Date());
-}
-
-export async function getRecentBooksOfTheWeek(limit = 20) {
-  return db.query.bookOfTheWeek.findMany({
-    orderBy: [desc(bookOfTheWeek.weekStart)],
-    limit,
-    with: { book: true },
-  });
 }
 
 export async function deleteBookOfTheWeekByIdAdmin(bookId: string) {
@@ -267,4 +240,204 @@ export async function setFeaturedBooksForWeek(
       error: "One or more books have already been featured.",
     };
   }
+}
+
+// ----- Artist of the week -----
+export type ArtistOfTheWeekWithCreator = Awaited<
+  ReturnType<typeof getArtistOfTheWeekForDateQuery>
+>;
+export async function getArtistOfTheWeekForDateQuery(date: Date) {
+  const weekStart = toWeekStart(date);
+  return db.query.artistOfTheWeek.findFirst({
+    where: eq(artistOfTheWeek.weekStart, weekStart),
+    with: {
+      creator: {
+        columns: CREATOR_CARD_COLUMNS,
+      },
+    },
+  });
+}
+export async function getArtistsOfTheWeekByWeekStart(year: number) {
+  const weekStarts = getWeekStarts(year);
+  if (weekStarts.length === 0)
+    return new Map<string, ArtistOfTheWeekWithCreator | null>();
+  const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
+  const entries = await db.query.artistOfTheWeek.findMany({
+    where: and(
+      gte(artistOfTheWeek.weekStart, toWeekStart(first)),
+      lte(artistOfTheWeek.weekStart, toWeekStart(last)),
+    ),
+    with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+  });
+  const byWeek = new Map<string, ArtistOfTheWeekWithCreator | null>();
+  for (const w of weekStarts) {
+    const key = toWeekString(w);
+    const entry =
+      entries.find((e) => toWeekString(e.weekStart) === key) ?? null;
+    byWeek.set(key, entry);
+  }
+  return byWeek;
+}
+export async function setArtistOfTheWeek(params: {
+  weekStart: Date;
+  creatorId: string;
+  text: string;
+}) {
+  const weekStart = toWeekStart(params.weekStart);
+  try {
+    const [row] = await db
+      .insert(artistOfTheWeek)
+      .values({
+        weekStart,
+        creatorId: params.creatorId,
+        text: params.text ?? "",
+      })
+      .returning();
+    return row ?? null;
+  } catch (e) {
+    console.error("setArtistOfTheWeek", e);
+    return null;
+  }
+}
+export async function updateArtistOfTheWeek(params: {
+  weekStart: Date;
+  creatorId: string;
+  text: string;
+}) {
+  const weekStart = toWeekStart(params.weekStart);
+  try {
+    await db
+      .delete(artistOfTheWeek)
+      .where(eq(artistOfTheWeek.weekStart, weekStart));
+    const [row] = await db
+      .insert(artistOfTheWeek)
+      .values({
+        weekStart,
+        creatorId: params.creatorId,
+        text: params.text ?? "",
+      })
+      .returning();
+    return row ?? null;
+  } catch (e) {
+    console.error("updateArtistOfTheWeek", e);
+    return null;
+  }
+}
+export async function deleteArtistOfTheWeekByWeek(weekStart: Date) {
+  try {
+    return db
+      .delete(artistOfTheWeek)
+      .where(eq(artistOfTheWeek.weekStart, toWeekStart(weekStart)))
+      .returning();
+  } catch (e) {
+    console.error("deleteArtistOfTheWeekByWeek", e);
+    return null;
+  }
+}
+// ----- Publisher of the week -----
+export type PublisherOfTheWeekWithCreator = Awaited<
+  ReturnType<typeof getPublisherOfTheWeekForDateQuery>
+>;
+
+export async function getPublisherOfTheWeekForDateQuery(date: Date) {
+  const weekStart = toWeekStart(date);
+  return db.query.publisherOfTheWeek.findFirst({
+    where: eq(publisherOfTheWeek.weekStart, weekStart),
+    with: {
+      creator: { columns: CREATOR_CARD_COLUMNS },
+    },
+  });
+}
+
+export async function getPublishersOfTheWeekByWeekStart(year: number) {
+  const weekStarts = getWeekStarts(year);
+  if (weekStarts.length === 0)
+    return new Map<string, PublisherOfTheWeekWithCreator | null>();
+  const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
+  const entries = await db.query.publisherOfTheWeek.findMany({
+    where: and(
+      gte(publisherOfTheWeek.weekStart, toWeekStart(first)),
+      lte(publisherOfTheWeek.weekStart, toWeekStart(last)),
+    ),
+    with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+  });
+  const byWeek = new Map<string, PublisherOfTheWeekWithCreator | null>();
+  for (const w of weekStarts) {
+    const key = toWeekString(w);
+    const entry =
+      entries.find((e) => toWeekString(e.weekStart) === key) ?? null;
+    byWeek.set(key, entry);
+  }
+  return byWeek;
+}
+export async function setPublisherOfTheWeek(params: {
+  weekStart: Date;
+  creatorId: string;
+  text: string;
+}) {
+  const weekStart = toWeekStart(params.weekStart);
+  try {
+    const [row] = await db
+      .insert(publisherOfTheWeek)
+      .values({
+        weekStart,
+        creatorId: params.creatorId,
+        text: params.text ?? "",
+      })
+      .returning();
+    return row ?? null;
+  } catch (e) {
+    console.error("setPublisherOfTheWeek", e);
+    return null;
+  }
+}
+export async function updatePublisherOfTheWeek(params: {
+  weekStart: Date;
+  creatorId: string;
+  text: string;
+}) {
+  const weekStart = toWeekStart(params.weekStart);
+  try {
+    await db
+      .delete(publisherOfTheWeek)
+      .where(eq(publisherOfTheWeek.weekStart, weekStart));
+    const [row] = await db
+      .insert(publisherOfTheWeek)
+      .values({
+        weekStart,
+        creatorId: params.creatorId,
+        text: params.text ?? "",
+      })
+      .returning();
+    return row ?? null;
+  } catch (e) {
+    console.error("updatePublisherOfTheWeek", e);
+    return null;
+  }
+}
+export async function deletePublisherOfTheWeekByWeek(weekStart: Date) {
+  try {
+    return db
+      .delete(publisherOfTheWeek)
+      .where(eq(publisherOfTheWeek.weekStart, toWeekStart(weekStart)))
+      .returning();
+  } catch (e) {
+    console.error("deletePublisherOfTheWeekByWeek", e);
+    return null;
+  }
+}
+
+export async function getCreatorsByTypeForPlanner(
+  type: "artist" | "publisher",
+) {
+  return db.query.creators.findMany({
+    columns: {
+      id: true,
+      displayName: true,
+      coverUrl: true,
+      slug: true,
+    },
+    where: eq(creators.type, type),
+    orderBy: (c, { asc }) => [asc(c.displayName)],
+  });
 }

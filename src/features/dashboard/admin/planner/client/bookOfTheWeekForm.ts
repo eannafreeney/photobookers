@@ -44,8 +44,8 @@ export function registerBookOfTheWeekForm() {
           return (
             ctx.isDirty &&
             Object.values(ctx.errors.form).every((err) => !err) &&
-            ctx.form.weekStart &&
-            ctx.form.text
+            ctx.form.text &&
+            ctx.form.bookId
           );
         },
 
