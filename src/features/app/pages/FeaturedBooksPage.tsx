@@ -3,6 +3,7 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";
 import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
+import BookGridSkeleton from "../components/BookGridSkeleton.";
 import BookOfTheWeekGrid from "../components/BOTWGrid";
 import CreatorSpotlightsGrid from "../components/CreatorSpotlightGrid";
 import DiscoveryTags from "../components/DiscoveryTags";
@@ -42,10 +43,13 @@ const FeaturedBooksPage = async ({
           isMobile={isMobile}
         />
         <DiscoveryTags />
+
         <Intersector
           id="featured-books-fragment"
           endpoint="/fragments/featured-books"
-        />
+        >
+          <BookGridSkeleton length={5} />
+        </Intersector>
         <CreatorSpotlightsGrid
           artistOfTheWeek={artistOfTheWeek}
           publisherOfTheWeek={publisherOfTheWeek}
@@ -53,7 +57,9 @@ const FeaturedBooksPage = async ({
         <Intersector
           id="latest-books-fragment"
           endpoint="/fragments/latest-books"
-        />
+        >
+          <BookGridSkeleton />
+        </Intersector>
       </Page>
     </AppLayout>
   );

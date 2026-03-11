@@ -1,11 +1,21 @@
+import { PropsWithChildren } from "hono/jsx";
 import { loadingIcon } from "../../../components/app/Pagination";
 
-const Intersector = ({ id, endpoint }: { id: string; endpoint: string }) => (
-  <div x-data id={id} x-intersect={`$ajax('${endpoint}', { target: '${id}' })`}>
-    <div class="flex justify-center items-center min-h-screen">
-      {loadingIcon}
+type Props = PropsWithChildren<{
+  id: string;
+  endpoint: string;
+}>;
+
+const Intersector = ({ id, endpoint, children }: Props) => {
+  const alpineAttrs = {
+    "x-intersect.margin.400px": `$ajax('${endpoint}', { target: '${id}' })`,
+  };
+
+  return (
+    <div id={id} x-data {...alpineAttrs}>
+      {children || loadingIcon}
     </div>
-  </div>
-);
+  );
+};
 
 export default Intersector;
