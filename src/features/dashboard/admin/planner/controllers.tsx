@@ -188,12 +188,7 @@ export const setFeaturedAdmin = async (c: FeaturedFormContext) => {
   const result = await setFeaturedBooksForWeek(weekStart, bookIds);
 
   if (!result.ok) {
-    return c.html(
-      <div id="featured-errors" class="text-danger text-sm my-2">
-        {result.error ?? "Failed to set featured books."}
-      </div>,
-      422,
-    );
+    return showErrorAlert(c, result.error ?? "Failed to set featured books.");
   }
 
   return c.html(
@@ -218,11 +213,9 @@ export const updateFeaturedBooksAdmin = async (c: FeaturedFormContext) => {
   const result = await setFeaturedBooksForWeek(weekStart, bookIds);
 
   if (!result.ok) {
-    return c.html(
-      <div id="featured-errors" class="text-danger text-sm my-2">
-        {result.error ?? "Failed to update featured books."}
-      </div>,
-      422,
+    return showErrorAlert(
+      c,
+      result.error ?? "Failed to update featured books.",
     );
   }
 

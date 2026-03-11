@@ -36,7 +36,12 @@ export type BOTWFormWithBookIdContext = Context<
 export type FeaturedFormContext = Context<
   Env,
   string,
-  { out: { form: z.infer<typeof featuredBooksFormSchema> } }
+  {
+    out: {
+      query: z.infer<typeof weekQuerySchema>;
+      form: z.infer<typeof featuredBooksFormSchema>;
+    };
+  }
 >;
 
 export type ArtistOfTheWeekFormContext = Context<

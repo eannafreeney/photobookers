@@ -22,6 +22,7 @@ type Props = {
   isFullWidth?: boolean;
   noResultsMessage?: string;
   isMobile?: boolean;
+  showHeader?: boolean;
 };
 
 const BooksGrid = async ({
@@ -34,6 +35,7 @@ const BooksGrid = async ({
   isFullWidth = false,
   noResultsMessage = "No books found",
   isMobile = false,
+  showHeader = false,
 }: Props) => {
   const { books, totalPages, page } = result;
   const targetId = "books-grid";
@@ -60,6 +62,7 @@ const BooksGrid = async ({
                 user={user}
                 currentCreatorId={creator?.id}
                 showPublisherInsteadOfArtist={creator?.type === "artist"}
+                showHeader={showHeader}
               />
             ))
           ) : (

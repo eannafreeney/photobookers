@@ -72,7 +72,6 @@ adminPlannerDashboardRoutes.get(
 );
 adminPlannerDashboardRoutes.post(
   "/featured/create",
-  queryValidator(weekQuerySchema),
   formValidator(featuredBooksFormSchema),
   setFeaturedAdmin,
 );

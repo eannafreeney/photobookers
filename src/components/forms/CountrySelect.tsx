@@ -8,6 +8,7 @@ const CountrySelect = ({ isRequired = false }: { isRequired?: boolean }) => {
       class="flex w-full max-w-xs flex-col gap-1"
       x-on:keydown="handleKeydownOnOptions($event)"
       x-init="options = allOptions"
+      x-effect="isOpen && $nextTick(() => $refs.searchField?.focus())"
     >
       <fieldset class="fieldset py-0">
         <InputLabel label="Country" name="country" required={isRequired} />

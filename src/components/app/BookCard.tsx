@@ -15,6 +15,7 @@ type BookCardProps = {
   currentCreatorId?: string;
   className?: string;
   showPublisherInsteadOfArtist?: boolean;
+  showHeader?: boolean;
 };
 
 const BookCard = ({
@@ -23,9 +24,11 @@ const BookCard = ({
   currentCreatorId,
   className,
   showPublisherInsteadOfArtist = false,
+  showHeader = false,
 }: BookCardProps) => {
   return (
     <Card className={className}>
+      {showHeader && <CardHeader showPublisherInsteadOfArtist book={book} />}
       <Link href={`/books/${book.slug}`}>
         <Card.Image
           src={book.coverUrl ?? ""}
@@ -60,3 +63,18 @@ const BookCard = ({
 };
 
 export default BookCard;
+
+type HeaderProps = {
+  showPublisherInsteadOfArtist: boolean;
+  book: BookCardResult;
+};
+const CardHeader = ({ showPublisherInsteadOfArtist, book }: HeaderProps) => {
+  const creator = showPublisherInsteadOfArtist ? book.publisher : book.artist;
+
+  return (
+    <div className="flex items-center gap-2 px-4 py-2">
+      <CardCreatorCard creator={creator ?? null} avatarSize="xs" />
+      <Card.SubTitle>released a new book</Card.SubTitle>
+    </div>
+  );
+};

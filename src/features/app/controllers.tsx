@@ -10,7 +10,6 @@ import LibraryPage from "./pages/LibraryPage";
 import AboutPage from "./pages/AboutPage";
 import TermsAndConditionsPage from "./pages/TermsAndConditions";
 import CreatorsPage from "./pages/CreatorsPage";
-import ErrorPage from "../../pages/error/errorPage";
 import { parseSortBy } from "../../lib/utils";
 import ContactPage from "./pages/ContactPage";
 import { ContactFormContext } from "./types";
@@ -100,16 +99,12 @@ export const getFeaturedPage = async (c: Context) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
-  const page = Number(c.req.query("page") ?? 1);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
-  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <FeaturedBooksPage
       user={user}
       flash={flash}
-      sortBy={sortBy}
-      currentPage={page}
       currentPath={currentPath}
       isMobile={isMobile}
     />,

@@ -60,6 +60,7 @@ const FeedPage = async ({
             currentPath={currentPath}
             sortBy={sortBy}
             result={result}
+            showHeader
           />
         )}
       </Page>
