@@ -2,11 +2,11 @@ import { AuthUser, Flash } from "../../../../types";
 import AppLayout from "../../../components/layouts/AppLayout";
 import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";
-import { loadingIcon } from "../../../lib/icons";
 import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
 import BookOfTheWeekGrid from "../components/BOTWGrid";
 import CreatorSpotlightsGrid from "../components/CreatorSpotlightGrid";
 import DiscoveryTags from "../components/DiscoveryTags";
+import Intersector from "../components/Intersector";
 import {
   getThisWeeksArtistOfTheWeek,
   getThisWeeksPublisherOfTheWeek,
@@ -60,9 +60,3 @@ const FeaturedBooksPage = async ({
 };
 
 export default FeaturedBooksPage;
-
-const Intersector = ({ id, endpoint }: { id: string; endpoint: string }) => (
-  <div x-data id={id} x-intersect={`$ajax('${endpoint}', { target: '${id}' })`}>
-    <div class="flex justify-center items-center">{loadingIcon}</div>
-  </div>
-);

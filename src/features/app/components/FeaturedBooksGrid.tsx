@@ -14,7 +14,7 @@ const FeaturedBooksGrid = ({ featuredBooks, user }: Props) => {
   return (
     <>
       <div>
-        <SectionTitle>Featured Books of the Week</SectionTitle>
+        <SectionTitle className="mb-2">Featured Books of the Week</SectionTitle>
       </div>
       <GridPanel isFullWidth>
         {featuredBooks?.length > 0 ? (

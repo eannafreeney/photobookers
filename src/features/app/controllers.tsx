@@ -18,6 +18,7 @@ import { supabaseAdmin } from "../../lib/supabase";
 import { generateContactEmail } from "./emails";
 import LatestBooksFragment from "./fragments/LatestBooksFragment";
 import FeaturedBooksFragment from "./fragments/FeaturedBooksFragment";
+import TagsFragment from "./fragments/TagsFragment";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -80,19 +81,8 @@ export const getBookPreviewPage = async (c: Context) => {
 export const getTagPage = async (c: Context) => {
   const tag = c.req.param("tag");
   const user = await getUser(c);
-  const currentPath = c.req.path;
-  const page = Number(c.req.query("page") ?? 1);
-  const sortBy = parseSortBy(c.req.query("sortBy"));
 
-  return c.html(
-    <TagPage
-      user={user}
-      tag={tag}
-      currentPath={currentPath}
-      currentPage={page}
-      sortBy={sortBy}
-    />,
-  );
+  return c.html(<TagPage user={user} tag={tag} />);
 };
 
 export const getFeaturedPage = async (c: Context) => {
@@ -225,4 +215,22 @@ export const getFeaturedBooksFragment = async (c: Context) => {
   const user = await getUser(c);
 
   return c.html(<FeaturedBooksFragment user={user} />);
+};
+
+export const getTagsFragment = async (c: Context) => {
+  const tag = c.req.query("tag") ?? "";
+  const user = await getUser(c);
+  const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
+  const sortBy = parseSortBy(c.req.query("sortBy"));
+
+  return c.html(
+    <TagsFragment
+      tag={tag}
+      user={user}
+      currentPage={page}
+      sortBy={sortBy}
+      currentPath={currentPath}
+    />,
+  );
 };
