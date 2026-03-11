@@ -17,6 +17,8 @@ import { ContactFormContext } from "./types";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import { supabaseAdmin } from "../../lib/supabase";
 import { generateContactEmail } from "./emails";
+import LatestBooksFragment from "./fragments/LatestBooksFragment";
+import FeaturedBooksFragment from "./fragments/FeaturedBooksFragment";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -204,4 +206,28 @@ export const processContact = async (c: ContactFormContext) => {
 
   await setFlash(c, "success", "Contact form submitted successfully");
   return c.redirect("/");
+};
+
+// Fragment routes
+
+export const getLatestBooksFragment = async (c: Context) => {
+  const user = await getUser(c);
+  const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
+  const sortBy = parseSortBy(c.req.query("sortBy"));
+
+  return c.html(
+    <LatestBooksFragment
+      user={user}
+      currentPage={page}
+      sortBy={sortBy}
+      currentPath={currentPath}
+    />,
+  );
+};
+
+export const getFeaturedBooksFragment = async (c: Context) => {
+  const user = await getUser(c);
+
+  return c.html(<FeaturedBooksFragment user={user} />);
 };

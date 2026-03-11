@@ -288,7 +288,7 @@ export const getBooksByTag = async (
 export const getLatestBooks = async (
   currentPage: number,
   sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
-  defaultLimit = 10,
+  defaultLimit = 15,
 ) => {
   try {
     const [{ value: totalCount = 0 }] = await db

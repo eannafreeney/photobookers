@@ -2,6 +2,7 @@ import { AuthUser, Flash } from "../../../../types";
 import AppLayout from "../../../components/layouts/AppLayout";
 import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";
+import { loadingIcon } from "../../../lib/icons";
 import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
 import BooksGrid from "../components/BooksGrid";
 import BookOfTheWeekGrid from "../components/BOTWGrid";
@@ -32,19 +33,12 @@ const FeaturedBooksPage = async ({
   isMobile,
   sortBy,
 }: Props) => {
-  const [
-    result,
-    bookOfTheWeek,
-    featuredBooks,
-    artistOfTheWeek,
-    publisherOfTheWeek,
-  ] = await Promise.all([
-    getLatestBooks(currentPage, sortBy),
-    getThisWeeksBookOfTheWeek(),
-    getThisWeeksFeaturedBooks(),
-    getThisWeeksArtistOfTheWeek(),
-    getThisWeeksPublisherOfTheWeek(),
-  ]);
+  const [bookOfTheWeek, artistOfTheWeek, publisherOfTheWeek] =
+    await Promise.all([
+      getThisWeeksBookOfTheWeek(),
+      getThisWeeksArtistOfTheWeek(),
+      getThisWeeksPublisherOfTheWeek(),
+    ]);
 
   return (
     <AppLayout title="Books" user={user} flash={flash}>
@@ -56,18 +50,17 @@ const FeaturedBooksPage = async ({
           isMobile={isMobile}
         />
         <DiscoveryTags />
-        <FeaturedBooksGrid featuredBooks={featuredBooks} user={user} />
+        <Intersector
+          id="featured-books-fragment"
+          endpoint="/fragments/featured-books"
+        />
         <CreatorSpotlightsGrid
           artistOfTheWeek={artistOfTheWeek}
           publisherOfTheWeek={publisherOfTheWeek}
         />
-        <BooksGrid
-          title="New & Notable"
-          user={user}
-          currentPath={currentPath}
-          sortBy={sortBy}
-          result={result}
-          isFullWidth
+        <Intersector
+          id="latest-books-fragment"
+          endpoint="/fragments/latest-books"
         />
       </Page>
     </AppLayout>
@@ -75,3 +68,9 @@ const FeaturedBooksPage = async ({
 };
 
 export default FeaturedBooksPage;
+
+const Intersector = ({ id, endpoint }: { id: string; endpoint: string }) => (
+  <div x-data id={id} x-intersect={`$ajax('${endpoint}', { target: '${id}' })`}>
+    <div class="flex justify-center items-center">{loadingIcon}</div>
+  </div>
+);
