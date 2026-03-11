@@ -22,7 +22,6 @@ const Head = ({ title }: HeadProps) => {
         href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
         rel="stylesheet"
       />
-
       <link
         rel="stylesheet"
         href={isDev ? "/src/styles/styles.css" : "/styles.css"}

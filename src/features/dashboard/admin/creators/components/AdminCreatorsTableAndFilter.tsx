@@ -5,6 +5,7 @@ import { Pagination } from "../../../../../components/app/Pagination";
 import Table from "../../../../../components/app/Table";
 import { Creator } from "../../../../../db/schema";
 import { capitalize, formatDate } from "../../../../../utils";
+import CreatorStatusBadge from "../../components/CreatorStatusBadge";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import CreatorTypeForm from "../forms/CreatorTypeForm";
 import {
@@ -106,7 +107,9 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
           {creator.website}
         </Link>
       </Table.BodyRow>
-      <Table.BodyRow>{capitalize(creator.status ?? "")}</Table.BodyRow>
+      <Table.BodyRow>
+        <CreatorStatusBadge creatorStatus={creator.status ?? "stub"} />
+      </Table.BodyRow>
       <Table.BodyRow>
         {formatDate(creator.createdAt ?? new Date())}
       </Table.BodyRow>

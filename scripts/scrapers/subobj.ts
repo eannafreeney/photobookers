@@ -21,7 +21,7 @@ import {
 
 const BASE = "https://subjectivelyobjective.com";
 const COLLECTION_URL = `${BASE}/product-category/books/`;
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 7;
 
 function getProductUrlsFromCategory(html: string): string[] {
   const $ = cheerio.load(html);

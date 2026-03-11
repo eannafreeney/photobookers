@@ -45,7 +45,7 @@ const PlannerPage = async ({ user, year, weekStarts, currentPath }: Props) => {
         <PlannerHeader year={year} />
         <div
           id="planner-grid"
-          class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           {...alpineAttrs}
         >
           {weekStarts

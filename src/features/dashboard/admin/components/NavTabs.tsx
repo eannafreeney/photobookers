@@ -12,7 +12,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
   return (
     <nav
       id="nav-tabs"
-      class="flex items-center justify-center bg-surface-alt gap-4 mb-8 mt-4"
+      class="flex flex-col md:flex-row items-center justify-center bg-surface-alt gap-4 mb-8 mt-4"
     >
       <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
         {plannerIcon}

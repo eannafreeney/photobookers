@@ -8,13 +8,13 @@ import { parse } from "csv/sync";
 import { eq, ilike } from "drizzle-orm";
 import { db } from "../src/db/client";
 import { bookImages, creators, users, books } from "../src/db/schema";
-import { createBook } from "../src/services/books";
-import { createStubCreatorProfile } from "../src/services/creators";
+import { createBook } from "../src/features/dashboard/books/services";
+import { createStubCreatorProfile } from "../src/features/dashboard/creators/services";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "tbwbooks-books.csv";
-const AMOUNT_OF_BOOKS = 11;
+const SOURCE_CSV_FILE = "rvb.csv";
+const AMOUNT_OF_BOOKS = 5;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));

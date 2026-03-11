@@ -179,16 +179,12 @@ const DetailMobile = ({
         <h3 class="text-balance text-xl font-semibold text-on-surface-strong">
           {book.title}
         </h3>
-        {/* <BookCreators book={book} /> */}
       </div>
       <div class="flex items-center gap-2">
         <CollectButton book={book} user={user} />
         <WishlistButton book={book} user={user} />
       </div>
       <ShareButton />
-      {book.releaseDate && (
-        <Card.Description>{formatDate(book.releaseDate)}</Card.Description>
-      )}
       {book.description && (
         <Card.Description>{book.description}</Card.Description>
       )}

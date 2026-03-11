@@ -4,10 +4,8 @@ import Link from "../../../../../components/app/Link";
 import Button from "../../../../../components/app/Button";
 import Table from "../../../../../components/app/Table";
 import DeleteFormButton from "../../components/DeleteFormButton";
-import { Creator, User } from "../../../../../db/schema";
-import { getAllUsersAdmin, getCreatorByOwnerUserId } from "../services";
-import Badge from "../../../../../components/app/Badge";
-import { capitalize } from "../../../../../utils";
+import { getAllUsersAdmin } from "../services";
+import CreatorStatusBadge from "../../components/CreatorStatusBadge";
 
 const UsersTableAdmin = async () => {
   const users = await getAllUsersAdmin();
@@ -91,22 +89,11 @@ const UserTableRow = ({ user }: RowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <Link href={`/creators/${user.creators[0]?.slug}`} target="_blank">
-          <Badge>{capitalize(user.creators[0]?.status ?? "") ?? null}</Badge>
+          {user.creators[0]?.status && (
+            <CreatorStatusBadge creatorStatus={user.creators[0]?.status} />
+          )}
         </Link>
       </Table.BodyRow>
-      {/* <Table.BodyRow>
-        <CopyCellCol entity={user.id} />
-      </Table.BodyRow>*/}
-      {/* <Table.BodyRow>
-        <a
-          href={`/dashboard/admin/users/${user.id}/generate-magic-link`}
-          x-target="modal-root"
-        >
-          <Button variant="outline" color="inverse">
-            <span>Generate Magic Link</span>
-          </Button>
-        </a>
-      </Table.BodyRow> */}
       <Table.BodyRow>
         <DeleteFormButton action={`/dashboard/admin/users/${user.id}/delete`} />
       </Table.BodyRow>

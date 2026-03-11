@@ -30,27 +30,27 @@ const CreateUserFormAdmin = async () => {
       <form
         action="/dashboard/admin/users/create"
         method="post"
-        class="flex items-center justify-between gap-4"
+        class="flex flex-col md:flex-row items-center justify-between gap-4"
         {...alpineAttrs}
       >
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 w-full md:w-auto">
           <ValidateEmail />
         </div>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 w-full md:w-auto">
           <Input
             label="First Name"
             name="form.firstName"
             validateInput="validateField('firstName')"
           />
         </div>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 w-full md:w-auto">
           <Input
             label="Last Name"
             name="form.lastName"
             validateInput="validateField('lastName')"
           />
         </div>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 w-full md:w-auto">
           <OptionsComboBox options={options} name="form.creatorId" />
         </div>
         <FormButtons buttonText="Create" loadingText="Creating..." />

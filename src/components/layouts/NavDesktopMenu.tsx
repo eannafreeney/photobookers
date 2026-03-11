@@ -125,7 +125,7 @@ const DropDownMenu = ({
         </>
       )}
       {user?.isAdmin && (
-        <NavLink href="/dashboard/admin/books" currentPath={currentPath}>
+        <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
           Admin Dashboard
         </NavLink>
       )}
