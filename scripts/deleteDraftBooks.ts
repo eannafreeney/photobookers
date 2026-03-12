@@ -6,7 +6,7 @@ import "./env";
 import { db } from "../src/db/client";
 import { bookImages, books } from "../src/db/schema";
 import { deleteImage } from "../src/services/storage";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 
 const BUCKET_PREFIX = "/storage/v1/object/public/images/";
 
@@ -23,10 +23,21 @@ async function main() {
     console.log("DRY RUN — no storage or DB changes will be made.\n");
   }
 
+  const creatorId = process.argv[2];
+  if (!creatorId) {
+    console.error("Usage: npx tsx scripts/deleteDraftBooks.ts <creator-id>");
+    process.exit(1);
+  }
+
   const draftBooks = await db
     .select({ id: books.id, title: books.title, coverUrl: books.coverUrl })
     .from(books)
-    .where(eq(books.publicationStatus, "draft"));
+    .where(
+      and(
+        eq(books.publicationStatus, "draft"),
+        or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)),
+      ),
+    );
 
   if (draftBooks.length === 0) {
     console.log("No draft books found.");

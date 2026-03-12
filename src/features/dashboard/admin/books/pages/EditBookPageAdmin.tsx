@@ -4,7 +4,7 @@ import AppLayout from "../../../../../components/layouts/AppLayout";
 import { Flash } from "../../../../../../types";
 import Page from "../../../../../components/layouts/Page";
 import BookCoverForm from "../../../images/forms/BookCoverForm";
-import { BookFormAdmin } from "../components/AddBookForm";
+import { BookFormAdmin } from "../forms/BookForm";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import { getBookById } from "../../../books/services";
 import PreviewButton from "../../../../api/components/PreviewButton";

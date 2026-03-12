@@ -11,7 +11,7 @@ import {
   prepareBookUpdateData,
   updateBook,
 } from "../../books/services";
-import EditBookPageAdmin from "./pages/EditBookFormAdmin";
+import EditBookPageAdmin from "./pages/EditBookPageAdmin";
 import { BookIdContext } from "../../books/types";
 import { deleteBookByIdAdmin } from "./services";
 import { getBookById } from "../../books/services";

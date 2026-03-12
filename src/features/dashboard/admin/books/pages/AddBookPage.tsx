@@ -2,7 +2,7 @@ import { AuthUser } from "../../../../../../types";
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import Page from "../../../../../components/layouts/Page";
 import NavTabs from "../../components/NavTabs";
-import { BookFormAdmin } from "../components/AddBookForm";
+import { BookFormAdmin } from "../forms/BookForm";
 
 type Props = {
   user: AuthUser;
