@@ -26,12 +26,11 @@ const FeaturedBooksPage = async ({
   currentPath,
   isMobile,
 }: Props) => {
-  const [bookOfTheWeek, artistOfTheWeek, publisherOfTheWeek] =
-    await Promise.all([
-      getThisWeeksBookOfTheWeek(),
-      getThisWeeksArtistOfTheWeek(),
-      getThisWeeksPublisherOfTheWeek(),
-    ]);
+  const [bookOfTheWeek] = await Promise.all([
+    getThisWeeksBookOfTheWeek(),
+    // getThisWeeksArtistOfTheWeek(),
+    // getThisWeeksPublisherOfTheWeek(),
+  ]);
 
   return (
     <AppLayout
@@ -52,10 +51,10 @@ const FeaturedBooksPage = async ({
           id="featured-books-fragment"
           endpoint="/fragments/featured-books"
         />
-        <CreatorSpotlightsGrid
+        {/* <CreatorSpotlightsGrid
           artistOfTheWeek={artistOfTheWeek}
           publisherOfTheWeek={publisherOfTheWeek}
-        />
+        /> */}
         <Intersector
           id="latest-books-fragment"
           endpoint="/fragments/latest-books"

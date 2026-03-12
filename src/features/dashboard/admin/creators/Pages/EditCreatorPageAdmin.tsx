@@ -6,6 +6,7 @@ import AppLayout from "../../../../../components/layouts/AppLayout";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import CreatorBookList from "../../../books/components/BookList";
 import EditCreatorFormAdmin from "../forms/EditCreatorFormAdmin";
+import FeatureGuard from "../../../../../components/layouts/FeatureGuard";
 
 type Props = {
   user: AuthUser;
@@ -77,6 +78,9 @@ const EditCreatorPageAdmin = ({
           currentPath={currentPath}
           currentPage={currentPage}
         />
+        <FeatureGuard flagName="messages">
+          {/* <CreatorMessageList creatorId={creator.id} /> */}
+        </FeatureGuard>
       </Page>
     </AppLayout>
   );

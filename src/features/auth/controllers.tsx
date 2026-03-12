@@ -299,6 +299,8 @@ export const processRegister = async (c: Context) => {
 
   // Now get user from the session (no need for another getUser call)
   const user = data.session.user;
+  const firstName = user.user_metadata?.firstName ?? null;
+  const lastName = user.user_metadata?.lastName ?? null;
 
   // Create user in database
   try {
@@ -307,10 +309,10 @@ export const processRegister = async (c: Context) => {
       .values({
         id: user.id,
         email: user.email!,
-        firstName: user.user_metadata?.firstName || null,
-        lastName: user.user_metadata?.lastName || null,
+        firstName,
+        lastName,
       })
-      .onConflictDoNothing({ target: users.id });
+      .onConflictDoUpdate({ target: users.id, set: { firstName, lastName } });
   } catch (dbError) {
     console.error("Database error during callback:", dbError);
     return c.html(
@@ -318,7 +320,6 @@ export const processRegister = async (c: Context) => {
     );
   }
 
-  const firstName = user.user_metadata?.firstName ?? null;
   try {
     await supabaseAdmin.functions.invoke("send-email", {
       body: {
@@ -446,16 +447,22 @@ export const setSession = async (c: Context) => {
     return c.json({ error: "Invalid or expired token" }, 401);
   }
 
+  const firstName = user.user_metadata?.firstName ?? null;
+  const lastName = user.user_metadata?.lastName ?? null;
+
   try {
     await db
       .insert(users)
       .values({
         id: user.id,
         email: user.email!,
-        firstName: user.user_metadata?.firstName ?? null,
-        lastName: user.user_metadata?.lastName ?? null,
+        firstName,
+        lastName,
       })
-      .onConflictDoNothing({ target: users.id });
+      .onConflictDoUpdate({
+        target: users.id,
+        set: { firstName, lastName },
+      });
   } catch (dbError) {
     console.error("Database error during set-session:", dbError);
     return c.json(

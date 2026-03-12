@@ -31,7 +31,7 @@ const AppLayout = ({
         {isPreview && <PreviewBanner />}
         <Navbar currentPath={currentPath} />
         <div class="pb-20 md:pb-0">
-          <main class="lg:mx-4 min-h-screen pt-14 md:pt-0">{children}</main>
+          <main class="min-h-60vh lg:mx-4 pt-14 md:pt-0">{children}</main>
           <Footer />
           <Dock currentPath={currentPath} />
         </div>
@@ -40,11 +40,11 @@ const AppLayout = ({
       {flash && <Alert type={flash.type} message={flash.message} />}
       <ul x-sync id="toast" x-merge="prepend" role="status"></ul>
       <div x-sync id="server_events"></div>
-      <script
+      {/* <script
         src="//instant.page/5.2.0"
         type="module"
         integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"
-      ></script>
+      ></script> */}
     </body>
   </html>
 );
