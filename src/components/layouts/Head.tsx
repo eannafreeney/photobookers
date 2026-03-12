@@ -4,6 +4,8 @@ type HeadProps = {
 
 const Head = ({ title }: HeadProps) => {
   const isDev = process.env.NODE_ENV !== "production";
+  const gaId =
+    process.env.VITE_GA_MEASUREMENT_ID || process.env.GA_MEASUREMENT_ID;
 
   return (
     <head>
@@ -30,6 +32,24 @@ const Head = ({ title }: HeadProps) => {
         type="module"
         src={isDev ? "/src/client/main.js" : "/main.js"}
       ></script>
+      {gaId && !isDev && (
+        <>
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+          />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${gaId}');
+        `,
+            }}
+          />
+        </>
+      )}
     </head>
   );
 };

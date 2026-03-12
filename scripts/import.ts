@@ -13,8 +13,8 @@ import { createStubCreatorProfile } from "../src/features/dashboard/creators/ser
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "rrb.csv";
-const AMOUNT_OF_BOOKS = 13;
+const SOURCE_CSV_FILE = "tallpoppy.csv";
+const AMOUNT_OF_BOOKS = 14;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));

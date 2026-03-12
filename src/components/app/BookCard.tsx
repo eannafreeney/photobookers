@@ -72,7 +72,7 @@ const CardHeader = ({ showPublisherInsteadOfArtist, book }: HeaderProps) => {
   const creator = showPublisherInsteadOfArtist ? book.publisher : book.artist;
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2">
+    <div className="flex items-center gap-1 px-4 py-2">
       <CardCreatorCard creator={creator ?? null} avatarSize="xs" />
       <Card.SubTitle>released a new book</Card.SubTitle>
     </div>

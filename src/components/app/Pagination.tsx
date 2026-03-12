@@ -11,15 +11,27 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
   const pageUrl = (p: number) =>
     `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${p}`;
 
+  const prevAttrs = {
+    "x-target.push": `pagination ${targetId}`,
+    "x-on:click":
+      "$refs.paginationContent?.scrollIntoView({ behavior: 'smooth', block: 'start' })",
+    ...(page <= 1 && { "aria-disabled": "true" }),
+  };
+
+  const nextAttrs = {
+    "x-target.push": `pagination ${targetId}`,
+    "x-on:click":
+      "$refs.paginationContent?.scrollIntoView({ behavior: 'smooth', block: 'start' })",
+    ...(page >= totalPages && { "aria-disabled": "true" }),
+  };
+
   return (
     <nav id="pagination" class="flex items-center justify-center gap-2 mt-4">
       <div class="flex items-center gap-1">
         <a
-          x-target={`pagination ${targetId}`}
-          x-on:click="$refs.paginationContent?.scrollIntoView({ behavior: 'smooth', block: 'start' })"
+          {...prevAttrs}
           href={page > 1 ? pageUrl(page - 1) : undefined}
           class="rounded px-2 py-1 text-sm font-medium text-primary hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-50"
-          {...(page <= 1 && { "aria-disabled": "true" })}
         >
           {leftIcon}
         </a>
@@ -27,11 +39,9 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
           {page} of {totalPages}
         </span>
         <a
-          x-target={`pagination ${targetId}`}
-          x-on:click="$refs.paginationContent?.scrollIntoView({ behavior: 'smooth', block: 'start' })"
+          {...nextAttrs}
           href={page < totalPages ? pageUrl(page + 1) : undefined}
           class="rounded px-2 py-1 text-sm font-medium text-primary hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-50"
-          {...(page >= totalPages && { "aria-disabled": "true" })}
         >
           {rightIcon}
         </a>

@@ -36,11 +36,17 @@ export const TableHeadRow = ({ children }: TableHeadRowProps) => (
 type TableBodyProps = {
   children: ChildType;
   id?: string;
+  xMerge?: "replace" | "append";
   props?: PropsWithChildren;
 };
 
-const TableBody = ({ children, id, ...props }: TableBodyProps) => (
-  <tbody id={id} class="divide-y divide-outline" x-merge="append" {...props}>
+const TableBody = ({
+  children,
+  id,
+  xMerge = "replace",
+  ...props
+}: TableBodyProps) => (
+  <tbody id={id} class="divide-y divide-outline" x-merge={xMerge} {...props}>
     {children}
   </tbody>
 );
