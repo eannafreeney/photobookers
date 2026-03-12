@@ -1,4 +1,15 @@
-import { and, count, eq, ilike, inArray, lte, ne, or, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  lte,
+  ne,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   books,
@@ -122,6 +133,7 @@ export const getBooksByCreatorSlug = async (
     const creator = await db.query.creators.findFirst({
       where: eq(creators.slug, slug),
     });
+    console.log("creator", creator);
 
     if (!creator) {
       return {
@@ -142,6 +154,8 @@ export const getBooksByCreatorSlug = async (
     const limit = defaultLimit;
     const offset = (currentPage - 1) * defaultLimit;
 
+    console.log("bookColumn", bookColumn);
+
     const [countResult, foundBooks] = await Promise.all([
       db
         .select({ value: count() })
@@ -158,7 +172,7 @@ export const getBooksByCreatorSlug = async (
         where: and(
           eq(bookColumn, creator.id),
           eq(books.publicationStatus, "published"),
-          lte(books.releaseDate, new Date()),
+          or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
         ),
         orderBy: getBooksOrderBy(sortBy),
         limit,
@@ -173,6 +187,9 @@ export const getBooksByCreatorSlug = async (
         },
       }),
     ]);
+
+    console.log("countResult", countResult);
+    console.log("foundBooks", foundBooks);
 
     const totalCount = countResult[0]?.value ?? 0;
     const { totalPages: totalPagesComputed, page: pageComputed } =
@@ -265,7 +282,7 @@ export const getBooksByTag = async (
             SELECT 1 FROM unnest(${books.tags}) AS t
             WHERE LOWER(t) = LOWER(${tag})
           )`,
-          lte(books.releaseDate, new Date()),
+          or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
         ),
       columns: BOOK_CARD_COLUMNS,
       with: {
@@ -309,7 +326,7 @@ export const getLatestBooks = async (
       where: and(
         eq(books.publicationStatus, "published"),
         eq(books.approvalStatus, "approved"),
-        lte(books.releaseDate, new Date()),
+        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
       ),
       limit: limit,
       offset: offset,
@@ -367,7 +384,7 @@ export const getFeedBooks = async (
           inArray(books.publisherId, followedCreatorIds),
         ),
         eq(books.publicationStatus, "published"),
-        lte(books.releaseDate, new Date()),
+        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
       ),
       columns: BOOK_CARD_COLUMNS,
       with: {
@@ -490,7 +507,7 @@ export const getRelatedBooks = async (
       ne(books.id, currentBookId),
       eq(books.publicationStatus, "published"),
       eq(books.approvalStatus, "approved"),
-      lte(books.releaseDate, new Date()),
+      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
     );
 
     // 1. Same artist first
@@ -590,7 +607,7 @@ export const getRelatedCreators = async (
           eq(myColumn, creatorId),
           eq(books.publicationStatus, "published"),
           eq(books.approvalStatus, "approved"),
-          lte(books.releaseDate, new Date()),
+          or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
         ),
       );
 

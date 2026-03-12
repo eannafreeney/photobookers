@@ -7,7 +7,6 @@ import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
 import BooksGrid from "../components/BooksGrid";
 import CreatorsGrid from "../components/RelatedCreators";
-import RelatedCreators from "../components/RelatedCreators";
 import { getBooksByCreatorSlug, getRelatedCreators } from "../services";
 
 type CreatorDetailPageProps = {
