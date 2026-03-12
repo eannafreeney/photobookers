@@ -115,6 +115,7 @@ export const creatorsRelations = relations(creators, ({ one, many }) => ({
   claims: many(creatorClaims),
   artistOfTheWeekEntries: many(artistOfTheWeek),
   publisherOfTheWeekEntries: many(publisherOfTheWeek),
+  messages: many(creatorMessages),
 }));
 
 export const books = pgTable(
@@ -215,6 +216,26 @@ export const followsRelations = relations(follows, ({ one }) => ({
     references: [creators.id],
   }),
 }));
+
+export const creatorMessages = pgTable("creator_messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  creatorId: uuid("creator_id")
+    .notNull()
+    .references(() => creators.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  imageUrls: text("image_urls").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const creatorMessagesRelations = relations(
+  creatorMessages,
+  ({ one }) => ({
+    creator: one(creators, {
+      fields: [creatorMessages.creatorId],
+      references: [creators.id],
+    }),
+  }),
+);
 
 export const bookImages = pgTable("book_images", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -511,3 +532,6 @@ export type ArtistOfTheWeek = InferSelectModel<typeof artistOfTheWeek>;
 export type NewArtistOfTheWeek = InferInsertModel<typeof artistOfTheWeek>;
 export type PublisherOfTheWeek = InferSelectModel<typeof publisherOfTheWeek>;
 export type NewPublisherOfTheWeek = InferInsertModel<typeof publisherOfTheWeek>;
+
+export type CreatorMessage = InferSelectModel<typeof creatorMessages>;
+export type NewCreatorMessage = InferInsertModel<typeof creatorMessages>;

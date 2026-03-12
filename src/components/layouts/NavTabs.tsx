@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { PropsWithChildren } from "hono/jsx";
-import { bookIcon, feedIcon, libraryIcon } from "../../lib/icons";
+import { bookIcon, feedIcon, libraryIcon, updatesIcon } from "../../lib/icons";
+import FeatureGuard from "./FeatureGuard";
 
 const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
   return (
@@ -20,6 +21,12 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         {libraryIcon}
         Library
       </NavLink>
+      <FeatureGuard flagName="messages">
+        <NavLink href="/messages" currentPath={currentPath}>
+          {updatesIcon}
+          Updates
+        </NavLink>
+      </FeatureGuard>
     </nav>
   );
 };

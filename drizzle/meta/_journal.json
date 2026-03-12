@@ -43,6 +43,13 @@
       "when": 1765000000000,
       "tag": "0006_artist_publisher_of_the_week",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1773316418153,
+      "tag": "0007_sudden_puff_adder",
+      "breakpoints": true
     }
   ]
 }

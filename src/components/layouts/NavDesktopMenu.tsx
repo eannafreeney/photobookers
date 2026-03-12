@@ -3,6 +3,7 @@ import { AuthUser } from "../../../types";
 import { useUser } from "../../contexts/UserContext";
 import Button from "../app/Button";
 import NavAvatar from "../app/NavAvatar";
+import FeatureGuard from "./FeatureGuard";
 
 type Props = {
   currentPath?: string | null;
@@ -122,6 +123,14 @@ const DropDownMenu = ({
               user.creator.type === "artist" ? "Artist" : "Publisher"
             } Profile`}
           </NavLink>
+          <FeatureGuard flagName="messages">
+            <NavLink
+              href={`/dashboard/messages/${user?.creator?.id}`}
+              currentPath={currentPath}
+            >
+              Messages
+            </NavLink>
+          </FeatureGuard>
         </>
       )}
       {user?.isAdmin && (

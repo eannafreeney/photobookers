@@ -16,6 +16,7 @@ import { apiRoutes } from "../features/api/routes";
 import { imageRoutes } from "../features/dashboard/images/routes";
 import { claimRoutes } from "../features/claims/routes";
 import { adminPlannerDashboardRoutes } from "../features/dashboard/admin/planner/routes";
+import { messagesDashboardRoutes } from "../features/dashboard/messages/routes";
 
 export const routes = new Hono();
 
@@ -47,6 +48,7 @@ routes.route("/auth", authRoutes);
 routes.use("/dashboard/*", requireAuth);
 routes.route("/dashboard/books", booksDashboardRoutes);
 routes.route("/dashboard/creators", creatorDashboardRoutes);
+routes.route("/dashboard/messages", messagesDashboardRoutes);
 routes.route("/dashboard/images", imageRoutes);
 routes.route("/claims", claimRoutes);
 

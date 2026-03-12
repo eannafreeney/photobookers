@@ -19,6 +19,7 @@ import { generateContactEmail } from "./emails";
 import LatestBooksFragment from "./fragments/LatestBooksFragment";
 import FeaturedBooksFragment from "./fragments/FeaturedBooksFragment";
 import TagsFragment from "./fragments/TagsFragment";
+import MessagesPage from "./pages/MessagesPage";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -177,6 +178,22 @@ export const getPublishersPage = async (c: Context) => {
       user={user}
       currentPage={page}
       currentPath={currentPath}
+    />,
+  );
+};
+
+export const getMessagesFeedPage = async (c: Context) => {
+  const user = await getUser(c);
+  const flash = await getFlash(c);
+  const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
+
+  return c.html(
+    <MessagesPage
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+      currentPage={page}
     />,
   );
 };

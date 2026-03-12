@@ -12,6 +12,7 @@ import {
   getHomePage,
   getLatestBooksFragment,
   getLibraryPage,
+  getMessagesFeedPage,
   getPublishersPage,
   getTagPage,
   getTagsFragment,
@@ -42,6 +43,7 @@ appRoutes.get("/contact", getContactPage);
 appRoutes.get("/terms", getTermsPage);
 appRoutes.get("/artists", getArtistsPage);
 appRoutes.get("/publishers", getPublishersPage);
+appRoutes.get("/messages", getMessagesFeedPage);
 
 // POST
 appRoutes.post("/contact", formValidator(contactFormSchema), processContact);

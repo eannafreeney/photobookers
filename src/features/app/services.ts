@@ -1,6 +1,7 @@
 import {
   and,
   count,
+  desc,
   eq,
   ilike,
   inArray,
@@ -26,6 +27,7 @@ import {
   CREATOR_CARD_COLUMNS,
   CreatorCardResult,
 } from "../../constants/queries";
+import { creatorMessages } from "../../db/schema";
 
 export const getBooksInWishlist = async (
   userId: string,
@@ -627,5 +629,55 @@ export const getRelatedCreators = async (
   } catch (error) {
     console.error("Failed to get related creators", error);
     return [];
+  }
+};
+
+// Add this function (and keep the getPagination + follows pattern consistent with getFeedBooks):
+export const getMessagesForFollower = async (
+  followerUserId: string,
+  currentPage = 1,
+  limit = 20,
+) => {
+  try {
+    const userFollows = await db.query.follows.findMany({
+      where: and(
+        eq(follows.followerUserId, followerUserId),
+        eq(follows.targetType, "creator"),
+      ),
+    });
+    const followedCreatorIds = userFollows
+      .map((f) => f.targetCreatorId)
+      .filter((id): id is string => id != null);
+    if (followedCreatorIds.length === 0) {
+      return { messages: [], totalPages: 0, page: 1 };
+    }
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(creatorMessages)
+      .where(inArray(creatorMessages.creatorId, followedCreatorIds));
+
+    const {
+      page,
+      limit: take,
+      offset,
+      totalPages,
+    } = getPagination(currentPage, totalCount, limit);
+
+    const messages = await db.query.creatorMessages.findMany({
+      where: inArray(creatorMessages.creatorId, followedCreatorIds),
+      orderBy: [desc(creatorMessages.createdAt)],
+      limit: take,
+      offset,
+      with: {
+        creator: {
+          columns: { id: true, displayName: true, slug: true, coverUrl: true },
+        },
+      },
+    });
+    return { messages, totalPages, page };
+  } catch (e) {
+    console.error("Failed to get messages for follower", e);
+    return { messages: [], totalPages: 0, page: 1 };
   }
 };
