@@ -39,6 +39,7 @@ const TagsFragment = async ({
         currentPath={currentPath}
         sortBy={sortBy}
         result={result}
+        showSortDropdown={false}
       />
     </div>
   );

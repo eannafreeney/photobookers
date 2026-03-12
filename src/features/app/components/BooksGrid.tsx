@@ -23,6 +23,7 @@ type Props = {
   noResultsMessage?: string;
   isMobile?: boolean;
   showHeader?: boolean;
+  showSortDropdown?: boolean;
 };
 
 const BooksGrid = async ({
@@ -36,6 +37,7 @@ const BooksGrid = async ({
   noResultsMessage = "No books found",
   isMobile = false,
   showHeader = false,
+  showSortDropdown = true,
 }: Props) => {
   const { books, totalPages, page } = result;
   const targetId = "books-grid";
@@ -52,7 +54,9 @@ const BooksGrid = async ({
         >
           {title && <SectionTitle>{title}</SectionTitle>}
           {creator && <PageTitle creator={creator} user={user} />}
-          <SortDropdown sortBy={sortBy} currentPath={currentPath} />
+          {showSortDropdown && (
+            <SortDropdown sortBy={sortBy} currentPath={currentPath} />
+          )}
         </div>
         <GridPanel id={targetId} isFullWidth={isFullWidth}>
           {books?.length > 0 ? (

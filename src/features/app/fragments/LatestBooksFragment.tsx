@@ -25,6 +25,7 @@ const LatestBooksFragment = async ({
         currentPath={currentPath}
         sortBy={sortBy}
         result={result}
+        showSortDropdown={false}
         isFullWidth
       />
     </div>
