@@ -32,7 +32,6 @@ export const getBooksOverview = async (c: Context) => {
   const flash = await getFlash(c);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
   const currentPage = parseInt(c.req.query("page") ?? "1");
-
   const currentPath = c.req.path;
 
   return c.html(
@@ -49,7 +48,8 @@ export const getBooksOverview = async (c: Context) => {
 
 export const getAddBookPage = async (c: Context) => {
   const user = await getUser(c);
-  return c.html(<AddBookPage user={user} />);
+  const currentPath = c.req.path;
+  return c.html(<AddBookPage user={user} currentPath={currentPath} />);
 };
 
 export const createBookAsPublisher = async (c: BookFormContext) => {
@@ -115,8 +115,15 @@ export const getEditBookPage = async (c: BookIdContext) => {
   const bookId = c.req.valid("param").bookId;
   const user = await getUser(c);
   const flash = await getFlash(c);
-
-  return c.html(<BookEditPage user={user} bookId={bookId} flash={flash} />);
+  const currentPath = c.req.path;
+  return c.html(
+    <BookEditPage
+      user={user}
+      bookId={bookId}
+      flash={flash}
+      currentPath={currentPath}
+    />,
+  );
 };
 
 export const updateBookAsPublisher = async (c: BookFormWithBookContext) => {

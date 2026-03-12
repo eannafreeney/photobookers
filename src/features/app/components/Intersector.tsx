@@ -8,14 +8,18 @@ type Props = PropsWithChildren<{
 
 const Intersector = ({ id, endpoint, children }: Props) => {
   const alpineAttrs = {
-    "x-intersect.margin.400px": `$ajax('${endpoint}', { target: '${id}' })`,
+    "x-intersect.margin.500px": `$ajax('${endpoint}', { target: '${id}' })`,
   };
 
   return (
     <div id={id} x-data {...alpineAttrs}>
-      {children || loadingIcon}
+      {children || <LoadingIcon />}
     </div>
   );
 };
 
 export default Intersector;
+
+const LoadingIcon = () => (
+  <div class="flex justify-center items-center min-h-screen">{loadingIcon}</div>
+);

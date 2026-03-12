@@ -5,15 +5,17 @@ type Props = {
   error?: string;
   verificationCode: string | null;
   verificationUrl: string | null;
+  currentPath: string;
 };
 
 const ClaimVerificationFailurePage = ({
   error,
   verificationCode,
   verificationUrl,
+  currentPath,
 }: Props) => {
   return (
-    <AppLayout title="Verification Failed">
+    <AppLayout title="Verification Failed" currentPath={currentPath}>
       <Page>
         <div class="flex flex-col gap-4 items-center justify-center min-h-screen">
           <h2 class="text-2xl font-bold mb-4">❌ Verification Failed</h2>

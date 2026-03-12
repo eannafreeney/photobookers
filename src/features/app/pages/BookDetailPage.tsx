@@ -55,7 +55,12 @@ const BookDetailPage = async ({
   ];
 
   return (
-    <AppLayout title={book.title} user={user} isPreview={isPreview}>
+    <AppLayout
+      title={book.title}
+      user={user}
+      isPreview={isPreview}
+      currentPath={currentPath}
+    >
       <Page>
         {isMobile ? (
           <DetailMobile
@@ -101,14 +106,9 @@ const DetailDesktop = ({
       <div class="flex gap-16">
         <div class="flex flex-col gap-4 w-2/5">
           <Carousel images={galleryImages} />
-          <div class="flex gap-2">
-            <CollectButton book={book} user={user} />
-            <WishlistButton book={book} user={user} />
-            <ShareButton />
-          </div>
         </div>
         <div class="w-2/5">
-          <div class="mb-4 flex flex-col gap-2">
+          <div class="mb-4 flex flex-col gap-4">
             <div class="flex items-center gap-4">
               <h3 class="text-balance text-2xl font-semibold text-on-surface-strong">
                 {book.title}
@@ -121,24 +121,31 @@ const DetailDesktop = ({
                 </a>
               )}
             </div>
-          </div>
-          <div class="flex flex-col gap-4">
-            {book.releaseDate && (
-              <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
-            )}
-            {book.description && (
-              <Card.Description>{book.description}</Card.Description>
-            )}
-            <div class="flex flex-col gap-2">
-              <p class="text-sm font-medium text-on-surface-strong">Credits</p>
+            <div class="flex gap-2">
+              <CollectButton book={book} user={user} />
+              <WishlistButton book={book} user={user} />
+              <ShareButton />
+            </div>
+            <div class="flex flex-col gap-4">
               {book.releaseDate && (
                 <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
               )}
-              {book.publisher && <CardCreatorCard creator={book.publisher} />}
+              {book.description && (
+                <Card.Description>{book.description}</Card.Description>
+              )}
+              <div class="flex flex-col gap-2">
+                <p class="text-sm font-medium text-on-surface-strong">
+                  Credits
+                </p>
+                {book.releaseDate && (
+                  <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
+                )}
+                {book.publisher && <CardCreatorCard creator={book.publisher} />}
+              </div>
+              <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
+              <TagList tags={book.tags ?? []} />
+              <PurchaseLink purchaseLink={book.purchaseLink} />
             </div>
-            <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
-            <TagList tags={book.tags ?? []} />
-            <PurchaseLink purchaseLink={book.purchaseLink} />
           </div>
         </div>
         <div class="w-1/5">

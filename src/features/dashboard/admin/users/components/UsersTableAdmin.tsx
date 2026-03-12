@@ -6,9 +6,29 @@ import Table from "../../../../../components/app/Table";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import { getAllUsersAdmin } from "../services";
 import CreatorStatusBadge from "../../components/CreatorStatusBadge";
+import { Pagination } from "../../../../../components/app/Pagination";
+import { Creator, User } from "../../../../../db/schema";
 
-const UsersTableAdmin = async () => {
-  const users = await getAllUsersAdmin();
+type Props = {
+  searchQuery?: string;
+  currentPage: number;
+  currentPath: string;
+};
+
+const UsersTableAdmin = async ({
+  searchQuery,
+  currentPage,
+  currentPath,
+}: Props) => {
+  const result = await getAllUsersAdmin(searchQuery, currentPage);
+
+  if (!result?.users) {
+    return <div>No users found</div>;
+  }
+
+  const { users, totalPages, page } = result;
+
+  const targetId = "users-table-body";
 
   const alpineAttrs = {
     "x-init": "true",
@@ -45,12 +65,18 @@ const UsersTableAdmin = async () => {
             <Table.HeadRow>Creator Status</Table.HeadRow>
           </tr>
         </Table.Head>
-        <Table.Body id="users-table-body" {...alpineAttrs}>
+        <Table.Body id={targetId} {...alpineAttrs}>
           {users.map((user) => (
             <UserTableRow key={user.id} user={user} />
           ))}
         </Table.Body>
       </Table>
+      <Pagination
+        baseUrl={currentPath}
+        page={page}
+        totalPages={totalPages}
+        targetId={targetId}
+      />
       <DeleteMultipleUsersForm />
     </div>
   );
@@ -58,7 +84,7 @@ const UsersTableAdmin = async () => {
 
 export default UsersTableAdmin;
 
-type UserRow = Awaited<ReturnType<typeof getAllUsersAdmin>>[number];
+type UserRow = Awaited<ReturnType<typeof getAllUsersAdmin>>["users"][number];
 
 type RowProps = {
   user: UserRow;

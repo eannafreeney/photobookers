@@ -39,7 +39,7 @@ const PlannerPage = async ({ user, year, weekStarts, currentPath }: Props) => {
   };
 
   return (
-    <AppLayout title="BOTW Planner" user={user}>
+    <AppLayout title="BOTW Planner" user={user} currentPath={currentPath}>
       <Page>
         <NavTabs currentPath={currentPath} />
         <PlannerHeader year={year} />

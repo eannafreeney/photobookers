@@ -34,7 +34,12 @@ const FeaturedBooksPage = async ({
     ]);
 
   return (
-    <AppLayout title="Books" user={user} flash={flash}>
+    <AppLayout
+      title="Books"
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+    >
       <Page>
         <NavTabs currentPath={currentPath} />
         <BookOfTheWeekGrid
@@ -43,13 +48,10 @@ const FeaturedBooksPage = async ({
           isMobile={isMobile}
         />
         <DiscoveryTags />
-
         <Intersector
           id="featured-books-fragment"
           endpoint="/fragments/featured-books"
-        >
-          <BookGridSkeleton length={5} />
-        </Intersector>
+        />
         <CreatorSpotlightsGrid
           artistOfTheWeek={artistOfTheWeek}
           publisherOfTheWeek={publisherOfTheWeek}
@@ -57,9 +59,7 @@ const FeaturedBooksPage = async ({
         <Intersector
           id="latest-books-fragment"
           endpoint="/fragments/latest-books"
-        >
-          <BookGridSkeleton />
-        </Intersector>
+        />
       </Page>
     </AppLayout>
   );

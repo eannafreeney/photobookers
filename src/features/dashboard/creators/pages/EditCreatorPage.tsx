@@ -10,7 +10,6 @@ type Props = {
   user: AuthUser;
   creator: Creator;
   currentPath: string;
-  currentPage: number;
 };
 
 const EditCreatorPage = ({ user, creator, currentPath }: Props) => {

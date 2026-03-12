@@ -45,24 +45,23 @@ const FeedPage = async ({
   }
 
   return (
-    <AppLayout title="Books" user={user} flash={flash}>
+    <AppLayout
+      title="Books"
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+    >
       <Page>
         <NavTabs currentPath={currentPath} />
-        {!result?.books || result?.books?.length === 0 ? (
-          <div>
-            Start following artists and publishers to see their latest releases
-            here.
-          </div>
-        ) : (
-          <BooksGrid
-            title="Your Feed"
-            user={user}
-            currentPath={currentPath}
-            sortBy={sortBy}
-            result={result}
-            showHeader
-          />
-        )}
+        <BooksGrid
+          title="Your Feed"
+          user={user}
+          currentPath={currentPath}
+          sortBy={sortBy}
+          result={result}
+          showHeader
+          noResultsMessage="Start following artists and publishers to see their latest releases here."
+        />
       </Page>
     </AppLayout>
   );

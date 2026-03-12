@@ -12,7 +12,7 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
     `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${p}`;
 
   return (
-    <nav id="pagination" class="flex items-center justify-center gap-2 mt-2">
+    <nav id="pagination" class="flex items-center justify-center gap-2 mt-4">
       <div class="flex items-center gap-1">
         <a
           x-target={`pagination ${targetId}`}

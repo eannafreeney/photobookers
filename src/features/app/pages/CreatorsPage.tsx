@@ -10,9 +10,15 @@ type Props = {
   type: "artist" | "publisher";
   currentPage: number;
   user: AuthUser | null;
+  currentPath: string;
 };
 
-const CreatorsPage = async ({ type, currentPage, user }: Props) => {
+const CreatorsPage = async ({
+  type,
+  currentPage,
+  user,
+  currentPath,
+}: Props) => {
   const { creators } = await getAllCreatorsByType(type, currentPage);
 
   if (!creators) {
@@ -22,7 +28,7 @@ const CreatorsPage = async ({ type, currentPage, user }: Props) => {
   const title = type === "artist" ? "Artists" : "Publishers";
 
   return (
-    <AppLayout title={title} user={user}>
+    <AppLayout title={title} user={user} currentPath={currentPath}>
       <Page>
         <PageTitle title={title} />
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">

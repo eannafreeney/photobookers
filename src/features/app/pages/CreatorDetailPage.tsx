@@ -38,7 +38,11 @@ const CreatorDetailPage = async ({
   const title = creator.type === "publisher" ? "Artists" : "Publishers";
 
   return (
-    <AppLayout title={creator?.displayName ?? ""} user={user}>
+    <AppLayout
+      title={creator?.displayName ?? ""}
+      user={user}
+      currentPath={currentPath}
+    >
       <Page>
         <div class="flex flex-col md:flex-row gap-4">
           {isMobile && <MobileCreatorCard creator={creator} user={user} />}

@@ -1,9 +1,9 @@
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 
-const TermsAndConditionsPage = () => {
+const TermsAndConditionsPage = ({ currentPath }: { currentPath: string }) => {
   return (
-    <AppLayout title="Terms and Conditions">
+    <AppLayout title="Terms and Conditions" currentPath={currentPath}>
       <Page>
         <div class="container mx-auto max-w-4xl flex flex-col gap-4">
           <div>

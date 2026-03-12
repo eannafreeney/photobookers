@@ -13,7 +13,8 @@ import { getCreatorById } from "../../creators/services";
 
 export const getClaimsOverviewPageAdmin = async (c: Context) => {
   const user = await getUser(c);
-  return c.html(<ClaimsOverviewAdmin user={user} />);
+  const currentPath = c.req.path;
+  return c.html(<ClaimsOverviewAdmin user={user} currentPath={currentPath} />);
 };
 
 export const approveClaimAdmin = async (c: ClaimIdContext) => {

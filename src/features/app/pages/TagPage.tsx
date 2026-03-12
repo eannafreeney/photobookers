@@ -8,11 +8,16 @@ import Intersector from "../components/Intersector";
 type TagPageProps = {
   user: AuthUser | null;
   tag: string;
+  currentPath: string;
 };
 
-const TagPage = async ({ user, tag }: TagPageProps) => {
+const TagPage = async ({ user, tag, currentPath }: TagPageProps) => {
   return (
-    <AppLayout title={`# ${capitalize(tag)}`} user={user}>
+    <AppLayout
+      title={`# ${capitalize(tag)}`}
+      user={user}
+      currentPath={currentPath}
+    >
       <Page>
         <Intersector
           id="tag-books-fragment"

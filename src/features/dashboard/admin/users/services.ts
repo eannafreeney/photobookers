@@ -1,12 +1,42 @@
-import { desc, eq } from "drizzle-orm";
+import { count, desc, eq, ilike } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { creatorClaims, creators, follows, users } from "../../../../db/schema";
 import { newUserFormAdminSchema } from "./schema";
 import z from "zod";
+import { getPagination } from "../../../../lib/pagination";
 
 type NewUserForm = z.infer<typeof newUserFormAdminSchema>;
 
-export const getAllUsersAdmin = async () => {
+export const getAllUsersAdmin = async (
+  searchQuery?: string,
+  currentPage: number = 1,
+  defaultLimit = 30,
+) => {
+  let userIds: string[] = [];
+  if (searchQuery) {
+    const rows = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(ilike(users.email, `%${searchQuery}%`));
+    userIds = rows.map((r) => r.id);
+  }
+
+  const searchCondition =
+    searchQuery && searchQuery.trim() !== ""
+      ? ilike(users.email, `%${searchQuery}%`)
+      : undefined;
+
+  const [{ value: totalCount = 0 }] = await db
+    .select({ value: count() })
+    .from(users)
+    .where(searchCondition);
+
+  const { page, limit, offset, totalPages } = getPagination(
+    currentPage,
+    totalCount,
+    defaultLimit,
+  );
+
   try {
     const usersData = await db.query.users.findMany({
       orderBy: [desc(users.createdAt)],
@@ -16,16 +46,19 @@ export const getAllUsersAdmin = async () => {
         firstName: true,
         lastName: true,
       },
+      where: searchCondition,
+      limit,
+      offset,
       with: {
         creators: {
           columns: { id: true, slug: true, displayName: true, status: true },
         },
       },
     });
-    return usersData ?? [];
+    return { users: usersData ?? [], totalPages, page };
   } catch (error) {
     console.error("Failed to get all users", error);
-    return [];
+    return { users: [], totalPages: 0, page: 1 };
   }
 };
 

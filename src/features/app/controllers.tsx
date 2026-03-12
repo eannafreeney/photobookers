@@ -81,8 +81,9 @@ export const getBookPreviewPage = async (c: Context) => {
 export const getTagPage = async (c: Context) => {
   const tag = c.req.param("tag");
   const user = await getUser(c);
+  const currentPath = c.req.path;
 
-  return c.html(<TagPage user={user} tag={tag} />);
+  return c.html(<TagPage user={user} tag={tag} currentPath={currentPath} />);
 };
 
 export const getFeaturedPage = async (c: Context) => {
@@ -138,28 +139,45 @@ export const getLibraryPage = async (c: Context) => {
 };
 
 export const getAboutPage = async (c: Context) => {
-  return c.html(<AboutPage />);
+  const currentPath = c.req.path;
+  return c.html(<AboutPage currentPath={currentPath} />);
 };
 
 export const getContactPage = async (c: Context) => {
-  return c.html(<ContactPage />);
+  const currentPath = c.req.path;
+  return c.html(<ContactPage currentPath={currentPath} />);
 };
 
 export const getTermsPage = async (c: Context) => {
-  return c.html(<TermsAndConditionsPage />);
+  const currentPath = c.req.path;
+  return c.html(<TermsAndConditionsPage currentPath={currentPath} />);
 };
 
 export const getArtistsPage = async (c: Context) => {
   const user = await getUser(c);
   const page = Number(c.req.query("page") ?? 1);
-  return c.html(<CreatorsPage type="artist" user={user} currentPage={page} />);
+  const currentPath = c.req.path;
+  return c.html(
+    <CreatorsPage
+      type="artist"
+      user={user}
+      currentPage={page}
+      currentPath={currentPath}
+    />,
+  );
 };
 
 export const getPublishersPage = async (c: Context) => {
   const user = await getUser(c);
   const page = Number(c.req.query("page") ?? 1);
+  const currentPath = c.req.path;
   return c.html(
-    <CreatorsPage type="publisher" user={user} currentPage={page} />,
+    <CreatorsPage
+      type="publisher"
+      user={user}
+      currentPage={page}
+      currentPath={currentPath}
+    />,
   );
 };
 
@@ -213,7 +231,6 @@ export const getLatestBooksFragment = async (c: Context) => {
 
 export const getFeaturedBooksFragment = async (c: Context) => {
   const user = await getUser(c);
-
   return c.html(<FeaturedBooksFragment user={user} />);
 };
 

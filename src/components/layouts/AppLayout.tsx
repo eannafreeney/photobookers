@@ -6,11 +6,12 @@ import Navbar from "./Navbar";
 import Footer from "../app/Footer";
 import Alert from "../app/Alert";
 import PreviewBanner from "../app/PreviewBanner";
+import Dock from "./Dock";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
   user?: AuthUser | null;
-  currentPath?: string | null;
+  currentPath: string;
   flash?: Flash | null;
   isPreview?: boolean;
 }>;
@@ -29,8 +30,11 @@ const AppLayout = ({
       <UserProvider user={user}>
         {isPreview && <PreviewBanner />}
         <Navbar currentPath={currentPath} />
-        <main class="lg:mx-4 min-h-screen pt-14 md:pt-0">{children}</main>
-        <Footer />
+        <div class="pb-20 md:pb-0">
+          <main class="lg:mx-4 min-h-screen pt-14 md:pt-0">{children}</main>
+          <Footer />
+          <Dock currentPath={currentPath} />
+        </div>
       </UserProvider>
       <div id="modal-root"></div>
       {flash && <Alert type={flash.type} message={flash.message} />}

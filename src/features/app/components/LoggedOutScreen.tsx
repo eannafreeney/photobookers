@@ -22,7 +22,12 @@ const LoggedOutScreen = ({
   children,
 }: Props) => {
   return (
-    <AppLayout title={title} user={user} flash={flash}>
+    <AppLayout
+      title={title}
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+    >
       <Page>
         <NavTabs currentPath={currentPath} />
         <div class="flex flex-col gap-4 justify-center items-center mt-8">

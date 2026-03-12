@@ -1,9 +1,9 @@
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 
-const ClaimVerificationSuccess = () => {
+const ClaimVerificationSuccess = ({ currentPath }: { currentPath: string }) => {
   return (
-    <AppLayout title="Verification Successful">
+    <AppLayout title="Verification Successful" currentPath={currentPath}>
       <Page>
         <h2 class="text-2xl font-bold mb-4">✅ Verification Successful!</h2>
         <p>

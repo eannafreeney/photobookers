@@ -19,7 +19,7 @@ const AdminCreatorsOverviewPage = ({
   currentPath,
 }: Props) => {
   return (
-    <AppLayout title="New Creator" user={user}>
+    <AppLayout title="New Creator" user={user} currentPath={currentPath}>
       <Page>
         <NavTabs currentPath="/dashboard/admin/creators" />
         <AddCreatorFormAdmin />

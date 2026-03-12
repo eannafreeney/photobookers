@@ -54,7 +54,12 @@ const LibraryPage = async ({
   };
 
   return (
-    <AppLayout title="Books" user={user} flash={flash}>
+    <AppLayout
+      title="Books"
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+    >
       <Page>
         <NavTabs currentPath={currentPath} />
         <div

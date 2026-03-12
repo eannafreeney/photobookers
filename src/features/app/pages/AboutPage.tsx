@@ -2,9 +2,9 @@ import SectionTitle from "../../../components/app/SectionTitle";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 
-const AboutPage = () => {
+const AboutPage = ({ currentPath }: { currentPath: string }) => {
   return (
-    <AppLayout title="About">
+    <AppLayout title="About" currentPath={currentPath}>
       <Page>
         <SectionTitle>About</SectionTitle>
         <p>

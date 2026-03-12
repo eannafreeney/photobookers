@@ -6,11 +6,12 @@ import { AuthUser } from "../../../../../../types";
 
 type Props = {
   user: AuthUser;
+  currentPath: string;
 };
 
-const ClaimsOverviewAdmin = ({ user }: Props) => {
+const ClaimsOverviewAdmin = ({ user, currentPath }: Props) => {
   return (
-    <AppLayout title="Admin Dashboard" user={user}>
+    <AppLayout title="Admin Dashboard" user={user} currentPath={currentPath}>
       <NavTabs currentPath="/dashboard/admin/claims" />
       <div class="flex flex-col gap-4">
         <SectionTitle>Claims Pending Admin Review</SectionTitle>

@@ -14,9 +14,15 @@ type Props = {
   bookId: string;
   user: AuthUser;
   flash: Flash;
+  currentPath: string;
 };
 
-const EditBookPageAdmin = async ({ user, bookId, flash }: Props) => {
+const EditBookPageAdmin = async ({
+  user,
+  bookId,
+  flash,
+  currentPath,
+}: Props) => {
   const book = await getBookById(bookId);
 
   if (!book) {
@@ -37,7 +43,12 @@ const EditBookPageAdmin = async ({ user, bookId, flash }: Props) => {
   };
 
   return (
-    <AppLayout title="Edit Book" user={user} flash={flash}>
+    <AppLayout
+      title="Edit Book"
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+    >
       <Page>
         <Breadcrumbs
           items={[

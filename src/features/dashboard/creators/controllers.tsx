@@ -9,15 +9,9 @@ export const getEditCreatorPage = async (c: Context) => {
   const creator = c.get("creator");
   const user = await getUser(c);
   const currentPath = c.req.path;
-  const page = Number(c.req.query("page") ?? 1);
 
   return c.html(
-    <EditCreatorPage
-      creator={creator}
-      user={user}
-      currentPath={currentPath}
-      currentPage={page}
-    />,
+    <EditCreatorPage creator={creator} user={user} currentPath={currentPath} />,
   );
 };
 

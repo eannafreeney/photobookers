@@ -62,7 +62,8 @@ export const getBooksTableFilter = async (c: Context) => {
 
 export const getAddBookPageAdmin = async (c: Context) => {
   const user = await getUser(c);
-  return c.html(<AddBookPage user={user} />);
+  const currentPath = c.req.path;
+  return c.html(<AddBookPage user={user} currentPath={currentPath} />);
 };
 
 export const createNewBookAdmin = async (c: BookFormContext) => {
@@ -95,9 +96,15 @@ export const getEditBookPageAdmin = async (c: Context) => {
   const user = await getUser(c);
   const bookId = c.req.param("bookId");
   const flash = await getFlash(c);
+  const currentPath = c.req.path;
 
   return c.html(
-    <EditBookPageAdmin bookId={bookId} user={user} flash={flash} />,
+    <EditBookPageAdmin
+      bookId={bookId}
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+    />,
   );
 };
 

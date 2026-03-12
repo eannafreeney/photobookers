@@ -20,7 +20,12 @@ const AdminBooksOverviewPage = async ({
   currentPath,
 }: Props) => {
   return (
-    <AppLayout title="Books" user={user} flash={flash}>
+    <AppLayout
+      title="Books"
+      user={user}
+      flash={flash}
+      currentPath={currentPath}
+    >
       <Page>
         <NavTabs currentPath={currentPath} />
         <AdminBooksTableContainer

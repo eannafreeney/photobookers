@@ -20,7 +20,7 @@ const TableSearch = ({
   };
 
   return (
-    <form x-target={target} action={action} autocomplete="off">
+    <form method="get" x-target={target} action={action} autocomplete="off">
       <label
         class={clsx(
           "bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary",

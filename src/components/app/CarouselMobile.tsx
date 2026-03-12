@@ -41,7 +41,7 @@ const CarouselMobile = ({
 
       {/* indicators */}
       {showIndicators && (
-        <div class="flex justify-center gap-4 mt-4 px-2">
+        <div class="flex justify-center gap-4 my-4 px-2">
           <template x-for="(slide, index) in slides">
             <button
               class="size-2 rounded-full transition"

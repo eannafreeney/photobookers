@@ -23,8 +23,18 @@ const updaterUsersEvent = () => (
 
 export const getUsersPageAdmin = async (c: Context) => {
   const user = await getUser(c);
+  const searchQuery = c.req.query("search");
+  const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
-  return c.html(<UsersPageAdmin user={user} currentPath={currentPath} />);
+
+  return c.html(
+    <UsersPageAdmin
+      user={user}
+      currentPath={currentPath}
+      searchQuery={searchQuery}
+      currentPage={currentPage}
+    />,
+  );
 };
 
 export const createNewUserAdmin = async (c: UserFormContext) => {

@@ -3,9 +3,9 @@ import Page from "../../../components/layouts/Page";
 import SectionTitle from "../../../components/app/SectionTitle";
 import ContactForm from "../forms/ContactForm";
 
-const ContactPage = () => {
+const ContactPage = ({ currentPath }: { currentPath: string }) => {
   return (
-    <AppLayout title="Contact">
+    <AppLayout title="Contact" currentPath={currentPath}>
       <Page>
         <SectionTitle>Contact</SectionTitle>
         <p class="mb-6 text-on-surface-weak">

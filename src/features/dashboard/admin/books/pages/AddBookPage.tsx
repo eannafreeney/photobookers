@@ -6,11 +6,12 @@ import { BookFormAdmin } from "../components/AddBookForm";
 
 type Props = {
   user: AuthUser;
+  currentPath: string;
 };
 
-const AddBookPage = ({ user }: Props) => {
+const AddBookPage = ({ user, currentPath }: Props) => {
   return (
-    <AppLayout title="Books" user={user}>
+    <AppLayout title="Books" user={user} currentPath={currentPath}>
       <Page>
         <NavTabs currentPath="/dashboard/admin/books" />
         <BookFormAdmin />

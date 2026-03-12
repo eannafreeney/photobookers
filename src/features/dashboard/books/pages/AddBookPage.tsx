@@ -7,9 +7,10 @@ import Breadcrumbs from "../../admin/components/Breadcrumbs";
 
 type AddNewBookPageProps = {
   user: AuthUser;
+  currentPath: string;
 };
 
-const AddNewBookPage = ({ user }: AddNewBookPageProps) => {
+const AddNewBookPage = ({ user, currentPath }: AddNewBookPageProps) => {
   const isPublisher = user.creator?.type === "publisher";
 
   const action = isPublisher
@@ -17,7 +18,7 @@ const AddNewBookPage = ({ user }: AddNewBookPageProps) => {
     : "/dashboard/books/new/artist";
 
   return (
-    <AppLayout title="Add Book" user={user}>
+    <AppLayout title="Add Book" user={user} currentPath={currentPath}>
       <Page>
         <Breadcrumbs
           items={[

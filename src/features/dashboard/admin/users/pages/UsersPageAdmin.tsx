@@ -8,15 +8,26 @@ import UsersTableAdmin from "../components/UsersTableAdmin";
 type Props = {
   user: AuthUser;
   currentPath: string;
+  searchQuery?: string;
+  currentPage: number;
 };
 
-const UsersPageAdmin = ({ user, currentPath }: Props) => {
+const UsersPageAdmin = ({
+  user,
+  currentPath,
+  searchQuery,
+  currentPage,
+}: Props) => {
   return (
-    <AppLayout title="Admin Dashboard" user={user}>
+    <AppLayout title="Admin Dashboard" user={user} currentPath={currentPath}>
       <Page>
         <NavTabs currentPath={currentPath} />
         <CreateUserFormAdmin />
-        <UsersTableAdmin />
+        <UsersTableAdmin
+          currentPage={currentPage}
+          searchQuery={searchQuery}
+          currentPath={currentPath}
+        />
       </Page>
     </AppLayout>
   );
