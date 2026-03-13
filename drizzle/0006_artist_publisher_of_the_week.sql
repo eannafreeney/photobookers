@@ -16,8 +16,19 @@ CREATE TABLE IF NOT EXISTS "publisher_of_the_week" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "artist_of_the_week" ADD CONSTRAINT "artist_of_the_week_week_unique" UNIQUE("week_start");
-ALTER TABLE "artist_of_the_week" ADD CONSTRAINT "artist_of_the_week_creator_id_creators_id_fk" FOREIGN KEY ("creator_id") REFERENCES "public"."creators"("id") ON DELETE cascade ON UPDATE no action;
-
-ALTER TABLE "publisher_of_the_week" ADD CONSTRAINT "publisher_of_the_week_week_unique" UNIQUE("week_start");
-ALTER TABLE "publisher_of_the_week" ADD CONSTRAINT "publisher_of_the_week_creator_id_creators_id_fk" FOREIGN KEY ("creator_id") REFERENCES "public"."creators"("id") ON DELETE cascade ON UPDATE no action;
+DO $$ BEGIN
+  ALTER TABLE "artist_of_the_week" ADD CONSTRAINT "artist_of_the_week_week_unique" UNIQUE("week_start");
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+DO $$ BEGIN
+  ALTER TABLE "artist_of_the_week" ADD CONSTRAINT "artist_of_the_week_creator_id_creators_id_fk" FOREIGN KEY ("creator_id") REFERENCES "public"."creators"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+DO $$ BEGIN
+  ALTER TABLE "publisher_of_the_week" ADD CONSTRAINT "publisher_of_the_week_week_unique" UNIQUE("week_start");
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+DO $$ BEGIN
+  ALTER TABLE "publisher_of_the_week" ADD CONSTRAINT "publisher_of_the_week_creator_id_creators_id_fk" FOREIGN KEY ("creator_id") REFERENCES "public"."creators"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
