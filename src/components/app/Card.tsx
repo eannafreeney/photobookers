@@ -79,7 +79,7 @@ const CardImage = ({
         alt={alt}
         loading="lazy"
         decoding="async"
-        class="relative z-10 h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
+        class="relative h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
         x-bind:class="!(aspectSquare && objectCover) ? objectFitClass + ' object-contain' : ''"
         x-on:load="onImageLoad()"
       />
