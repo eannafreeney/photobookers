@@ -54,24 +54,31 @@ const CardImage = ({
   coverLandscapeAndSquare = false,
 }: CardImageProps) => (
   <figure
-    x-data="imageOrientation"
-    class={`w-full bg-white ${aspectSquare ? "aspect-square overflow-hidden" : ""}`}
+    x-data="imageOrientation()"
+    class={clsx(
+      "relative w-full overflow-hidden bg-white",
+      aspectSquare ? "aspect-square" : "aspect-4/3",
+    )}
     {...(coverLandscapeAndSquare && { "data-cover-square": "true" })}
+    {...(aspectSquare && { "data-aspect-square": "true" })}
+    {...(objectCover && { "data-object-cover": "true" })}
+    x-bind:style="loaded && !aspectSquare && imageAspectRatio ? { aspectRatio: imageAspectRatio } : {}"
   >
-    <Link href={href}>
+    <div
+      class="absolute inset-0 bg-surface-variant/30 animate-pulse"
+      x-show="!loaded"
+      x-transition:leave="transition ease-out duration-200"
+      aria-hidden="true"
+    />
+    <Link href={href} className="relative block w-full h-full min-h-0">
       <img
         src={src}
         alt={alt}
         loading="lazy"
         decoding="async"
-        class={
-          aspectSquare && objectCover
-            ? "h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105 z-10"
-            : "h-auto w-full transition duration-700 ease-out group-hover:scale-105 z-10"
-        }
-        {...(!(aspectSquare && objectCover)
-          ? { "x-bind:class": "objectFitClass + ' object-contain'" }
-          : {})}
+        class="relative z-10 h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
+        x-bind:class="!(aspectSquare && objectCover) ? objectFitClass + ' object-contain' : ''"
+        x-on:load="onImageLoad()"
       />
     </Link>
   </figure>
