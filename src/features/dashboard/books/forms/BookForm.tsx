@@ -90,6 +90,14 @@ export const BookForm = async ({
               <></>
             )}
           </FeatureGuard>
+          <TextArea
+            label="Description"
+            name="form.description"
+            validateInput="validateField('description')"
+            maxLength={5000}
+            minRows={5}
+            required
+          />
           <Input
             label="Purchase Link"
             name="form.purchase_link"
@@ -117,14 +125,14 @@ export const BookForm = async ({
               { value: "unavailable", label: "Unavailable" },
             ]}
           />
-          <TextArea
-            label="Description"
-            name="form.description"
-            validateInput="validateField('description')"
-            maxLength={5000}
-            minRows={5}
-            required
-          />
+          {!isEditPage && (
+            <ToggleInput
+              label="Send email to followers on release date"
+              name="form.send_email_to_followers_on_release"
+              isChecked={false}
+              disabledBinding="!form.release_date"
+            />
+          )}
           <FormButtons />
         </div>
       </form>

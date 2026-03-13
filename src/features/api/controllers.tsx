@@ -238,11 +238,9 @@ export const processNewsletter = async (c: NewsletterFormContext) => {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     if (res.status === 422) {
-      return c.html(
-        <Alert type="danger" message="Invalid email or already subscribed." />,
-        422,
-      );
+      return showErrorAlert(c, "Invalid email or already subscribed.");
     }
+
     return showErrorAlert(c, "Could not sign up. Try again later.");
   }
 

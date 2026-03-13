@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, inArray, isNull, or } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "../../../db/client";
 import {
   Book,
@@ -6,14 +6,17 @@ import {
   books,
   Creator,
   creators,
+  follows,
   NewBook,
   UpdateBook,
+  users,
 } from "../../../db/schema";
 import { generateUniqueBookSlug } from "../../../utils";
 import z from "zod";
 import { bookFormSchema } from "./schema";
 import { processTags } from "./utils";
 import { getPagination } from "../../../lib/pagination";
+import { buildNewBookNotificationHtml } from "../../jobs/emails";
 
 export const approveBookById = async (bookId: string) => {
   try {
@@ -229,6 +232,9 @@ export const prepareBookData = async (
   // when artists can select a publisher, we need to set the approval status to pending
   const existingPublisherSelected = formData.publisher_id ? true : false;
 
+  const shouldNotify =
+    !!formData.send_email_to_followers_on_release && !!formData.release_date;
+
   return {
     title: formData.title,
     description: formData.description || null,
@@ -246,6 +252,12 @@ export const prepareBookData = async (
     approvalStatus: "approved",
     publicationStatus: "draft",
     availabilityStatus: formData.availability_status,
+    notifyFollowersOnRelease: shouldNotify,
+    notifyFollowersScheduledDate: shouldNotify
+      ? new Date(formData.release_date ?? "")
+      : null,
+    notifyFollowersSentAt: null,
+    notifyFollowersCreatorId: bookCreator?.id ?? null,
   };
 };
 

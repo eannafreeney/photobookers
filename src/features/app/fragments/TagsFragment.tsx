@@ -1,5 +1,4 @@
 import { AuthUser } from "../../../../types";
-import ErrorPage from "../../../pages/error/errorPage";
 import { capitalize } from "../../../utils";
 import BooksGrid from "../components/BooksGrid";
 import { getBooksByTag } from "../services";
@@ -7,19 +6,12 @@ import { getBooksByTag } from "../services";
 type Props = {
   user: AuthUser;
   currentPage: number;
-  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
   currentPath: string;
   tag: string;
 };
 
-const TagsFragment = async ({
-  user,
-  currentPage,
-  sortBy,
-  currentPath,
-  tag,
-}: Props) => {
-  const result = await getBooksByTag(tag, currentPage, sortBy);
+const TagsFragment = async ({ user, currentPage, currentPath, tag }: Props) => {
+  const result = await getBooksByTag(tag, currentPage);
 
   if (!result?.books.length) {
     return (
@@ -37,9 +29,7 @@ const TagsFragment = async ({
         title={`# ${capitalize(tag)}`}
         user={user}
         currentPath={currentPath}
-        sortBy={sortBy}
         result={result}
-        showSortDropdown={false}
       />
     </div>
   );

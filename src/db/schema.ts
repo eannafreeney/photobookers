@@ -142,6 +142,14 @@ export const books = pgTable(
     createdByUserId: uuid("created_by_user_id")
       .references(() => users.id)
       .notNull(),
+    notifyFollowersOnRelease: boolean("notify_followers_on_release")
+      .default(false)
+      .notNull(),
+    notifyFollowersScheduledDate: timestamp("notify_followers_scheduled_date"),
+    notifyFollowersSentAt: timestamp("notify_followers_sent_at"),
+    notifyFollowersCreatorId: uuid("notify_followers_creator_id").references(
+      () => creators.id,
+    ),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },

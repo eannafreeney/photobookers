@@ -1,5 +1,11 @@
 import { db } from "./client";
-import { collectionItems, follows, FollowTarget, wishlists } from "./schema";
+import {
+  collectionItems,
+  follows,
+  FollowTarget,
+  users,
+  wishlists,
+} from "./schema";
 import { and, count, eq, SQL } from "drizzle-orm";
 
 export const deleteFollow = async (creatorId: string, userId: string) => {

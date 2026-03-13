@@ -30,3 +30,14 @@ export const generateClaimRejectionEmail = async (
         <p>Please try again.</p>
       `;
 };
+
+const CLAIMS_DASHBOARD_URL =
+  "https://www.photobookers.com/dashboard/admin/claims";
+
+export const generateClaimNotificationEmail = () => {
+  return `
+    <h2>New claim submitted</h2>
+    <p>A new creator claim has been submitted.</p>
+    <p><a href="${CLAIMS_DASHBOARD_URL}">View claims in dashboard</a></p>
+  `;
+};

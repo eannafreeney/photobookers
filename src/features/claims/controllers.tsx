@@ -2,11 +2,13 @@ import Alert from "../../components/app/Alert";
 import AuthModal from "../../components/app/AuthModal";
 import Modal from "../../components/app/Modal";
 import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
+import { supabaseAdmin } from "../../lib/supabase";
 import { isSameDomain, normalizeUrl } from "../../services/verification";
 import { getUser } from "../../utils";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 import { getCreatorById } from "../dashboard/creators/services";
 import ClaimCreatorBtn from "./components/ClaimCreatorBtn";
+import { generateClaimNotificationEmail } from "./emails";
 import ClaimModal from "./modals/ClaimModal";
 import { createClaimWithStatus } from "./services";
 import { ClaimModalContext, ProcessClaimContext } from "./types";
@@ -85,6 +87,23 @@ export const processClaim = async (c: ProcessClaimContext) => {
   } catch (error) {
     console.error("Error creating claim:", error);
     return showErrorAlert(c, "Failed to submit claim. Please try again.");
+  }
+
+  const adminEmail = process.env.ADMIN_EMAIL ?? "hello@photobookers.com";
+  try {
+    const { error } = await supabaseAdmin.functions.invoke("send-email", {
+      body: {
+        to: adminEmail,
+        subject: "New creator claim submitted",
+        html: generateClaimNotificationEmail(),
+      },
+      headers: {
+        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
+      },
+    });
+    if (error) console.error("Failed to send claim notification email:", error);
+  } catch (e) {
+    console.error("Claim notification email error:", e);
   }
 
   if (status === "approved") {

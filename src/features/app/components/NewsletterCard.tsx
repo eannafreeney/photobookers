@@ -1,5 +1,4 @@
 import Button from "../../../components/app/Button";
-import Input from "../../../components/forms/Input";
 import { stars } from "../../../lib/icons";
 import { getInputIcon } from "../../../utils";
 
@@ -21,10 +20,11 @@ const NewsletterCard = ({
     <p class="text-sm font-medium text-on-surface-strong">{title}</p>
     <p class="text-xs text-on-surface-weak">{description}</p>
     <form
+      x-target="toast newsletter-form"
+      {...{ "x-target.error": "toast" }}
       id="newsletter-form"
       action="/api/newsletter"
       method="post"
-      x-target="toast newsletter-form"
       class="flex flex-col gap-2 w-full"
     >
       <label class="mb-2 bg-surface-alt rounded-radius border border-outline text-on-surface-alt flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">

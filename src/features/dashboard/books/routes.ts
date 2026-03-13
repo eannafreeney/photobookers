@@ -20,7 +20,7 @@ import {
   requireBookPublishAccess,
   requireBookUnpublishAccess,
 } from "../../../middleware/bookGuard";
-import { bookFormAdminSchema } from "../admin/books/schema";
+import { bookFormSchema } from "./schema";
 
 export const booksDashboardRoutes = new Hono();
 
@@ -38,13 +38,13 @@ booksDashboardRoutes.get(
 booksDashboardRoutes.post(
   "/new/publisher",
   limitBooksPerDay,
-  formValidator(bookFormAdminSchema),
+  formValidator(bookFormSchema),
   createBookAsPublisher,
 );
 booksDashboardRoutes.post(
   "/new/artist",
   limitBooksPerDay,
-  formValidator(bookFormAdminSchema),
+  formValidator(bookFormSchema),
   createBookAsArtist,
 );
 
@@ -52,14 +52,14 @@ booksDashboardRoutes.post(
 booksDashboardRoutes.post(
   "/:bookId/update/publisher",
   paramValidator(bookIdSchema),
-  formValidator(bookFormAdminSchema),
+  formValidator(bookFormSchema),
   requireBookEditAccess,
   updateBookAsPublisher,
 );
 booksDashboardRoutes.post(
   "/:bookId/update/artist",
   paramValidator(bookIdSchema),
-  formValidator(bookFormAdminSchema),
+  formValidator(bookFormSchema),
   requireBookEditAccess,
   updateBookAsArtist,
 );
