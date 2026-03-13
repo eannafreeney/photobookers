@@ -16,43 +16,36 @@ type Props = {
     totalPages: number;
     page: number;
   };
-  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
   title?: string;
   creator?: Creator;
   isFullWidth?: boolean;
   noResultsMessage?: string;
-  isMobile?: boolean;
   showHeader?: boolean;
 };
 
 const BooksGrid = async ({
+  currentPath,
   result,
   user,
-  currentPath,
-  sortBy,
   title,
   creator,
   isFullWidth = false,
   noResultsMessage = "No books found",
-  isMobile = false,
   showHeader = false,
 }: Props) => {
   const { books, totalPages, page } = result;
   const targetId = "books-grid";
 
-  const baseUrlWithSort =
-    sortBy !== "newest" ? `${currentPath}?sortBy=${sortBy}` : currentPath;
+  // const baseUrlWithSort =
+  //   sortBy !== "newest" ? `${currentPath}?sortBy=${sortBy}` : currentPath;
 
   return (
     <>
       <div x-data>
-        <div
-          x-ref="paginationContent"
-          class={`flex items-center gap-2 mb-4 ${title || !isMobile ? "justify-between" : "justify-center"}`}
-        >
+        <div x-ref="paginationContent" class={`mb-0 md:mb-4`}>
           {title && <SectionTitle>{title}</SectionTitle>}
           {creator && <PageTitle creator={creator} user={user} />}
-          <SortDropdown sortBy={sortBy} currentPath={currentPath} />
+          {/* <SortDropdown sortBy={sortBy} currentPath={currentPath} /> */}
         </div>
         <GridPanel id={targetId} isFullWidth={isFullWidth}>
           {books?.length > 0 ? (
@@ -72,7 +65,7 @@ const BooksGrid = async ({
           )}
         </GridPanel>
         <Pagination
-          baseUrl={baseUrlWithSort}
+          baseUrl={currentPath}
           page={page}
           totalPages={totalPages}
           targetId={targetId}

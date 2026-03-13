@@ -1,5 +1,4 @@
 import Button from "../../../components/app/Button";
-import Input from "../../../components/forms/Input";
 import { stars } from "../../../lib/icons";
 import { getInputIcon } from "../../../utils";
 
@@ -22,6 +21,7 @@ const NewsletterCard = ({
     <p class="text-xs text-on-surface-weak">{description}</p>
     <form
       x-target="toast newsletter-form"
+      {...{ "x-target.error": "toast" }}
       id="newsletter-form"
       action="/api/newsletter"
       method="post"
