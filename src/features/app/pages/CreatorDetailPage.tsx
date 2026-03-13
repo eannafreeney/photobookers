@@ -4,6 +4,7 @@ import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import Divider from "../../../components/Divider";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
+import { Creator } from "../../../db/schema";
 import ErrorPage from "../../../pages/error/errorPage";
 import BooksGrid from "../components/BooksGrid";
 import CreatorsGrid from "../components/RelatedCreators";
@@ -68,3 +69,25 @@ const CreatorDetailPage = async ({
 };
 
 export default CreatorDetailPage;
+
+type CreatorDetailMobileProps = {
+  creator: Creator;
+  user: AuthUser | null;
+  currentPath: string;
+};
+
+const CreatorDetailMobile = ({
+  creator,
+  user,
+  currentPath,
+}: CreatorDetailMobileProps) => (
+  <div class="flex flex-col gap-4">
+    {/* <MobileCreatorCard creator={creator} user={user} />
+    <BooksGrid
+      creator={creator}
+      user={user}
+      currentPath={currentPath}
+      result={{ ...rest }}
+    /> */}
+  </div>
+);

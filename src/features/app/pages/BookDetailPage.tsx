@@ -20,7 +20,6 @@ import WishlistButton from "../../api/components/WishlistButton";
 import { getBookBySlug, getRelatedBooks } from "../services";
 import { BookWithGalleryImages } from "../types";
 import BookCard from "../../../components/app/BookCard";
-import BookCreators from "../../../components/app/BookCreators";
 import CollectButton from "../../api/components/CollectButton";
 import { Creator } from "../../../db/schema";
 import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
@@ -43,6 +42,7 @@ const BookDetailPage = async ({
   isMobile,
 }: BookDetailPageProps) => {
   const result = await getBookBySlug(bookSlug, status);
+
   if (!result?.book || !result.book.artist) {
     return <ErrorPage errorMessage="Book not found" user={user} />;
   }
