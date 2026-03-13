@@ -17,6 +17,7 @@ import { imageRoutes } from "../features/dashboard/images/routes";
 import { claimRoutes } from "../features/claims/routes";
 import { adminPlannerDashboardRoutes } from "../features/dashboard/admin/planner/routes";
 import { messagesDashboardRoutes } from "../features/dashboard/messages/routes";
+import { jobsRoutes } from "../features/jobs/routes";
 
 export const routes = new Hono();
 
@@ -54,6 +55,9 @@ routes.route("/claims", claimRoutes);
 
 // API routes
 routes.route("/api", apiRoutes);
+
+// Jobs routes
+routes.route("/jobs", jobsRoutes);
 
 // Admin routes
 routes.use("/dashboard/admin/*", requireAdmin);

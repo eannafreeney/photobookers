@@ -55,6 +55,7 @@ export const getAddBookPage = async (c: Context) => {
 export const createBookAsPublisher = async (c: BookFormContext) => {
   const user = await getUser(c);
   const formData = c.req.valid("form");
+  console.log("formData", formData);
 
   if (!user.creator) {
     return showErrorAlert(c, "No Creator Profile Found");
@@ -72,8 +73,9 @@ export const createBookAsPublisher = async (c: BookFormContext) => {
     user.id,
     user.creator,
   );
+  console.log("bookData", bookData);
   const newBook = await createBook(bookData);
-
+  console.log("newBook", newBook);
   if (!newBook) return showErrorAlert(c, "Failed to create book");
 
   await setFlash(c, "success", `${newBook.title} created!`);

@@ -12,16 +12,9 @@ type Props = {
   flash: Flash;
   currentPath: string;
   currentPage: number;
-  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
 };
 
-const FeedPage = async ({
-  user,
-  flash,
-  currentPath,
-  currentPage,
-  sortBy,
-}: Props) => {
+const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
   if (!user) {
     return (
       <LoggedOutScreen
@@ -36,7 +29,7 @@ const FeedPage = async ({
     );
   }
 
-  const result = await getFeedBooks(user.id, currentPage, sortBy);
+  const result = await getFeedBooks(user.id, currentPage);
 
   if (!result?.books) {
     return (
@@ -57,7 +50,6 @@ const FeedPage = async ({
           title="Your Feed"
           user={user}
           currentPath={currentPath}
-          sortBy={sortBy}
           result={result}
           showHeader
           noResultsMessage="Start following artists and publishers to see their latest releases here."

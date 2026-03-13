@@ -13,7 +13,6 @@ type Props = {
   flash: Flash;
   currentPath: string;
   currentPage: number;
-  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
 };
 
 const LibraryPage = async ({
@@ -21,7 +20,6 @@ const LibraryPage = async ({
   flash,
   currentPath,
   currentPage,
-  sortBy,
 }: Props) => {
   if (!user) {
     return (
@@ -38,8 +36,8 @@ const LibraryPage = async ({
   }
 
   const [wishlistResult, collectionResult] = await Promise.all([
-    getBooksInWishlist(user.id, currentPage, sortBy),
-    getBooksInCollection(user.id, currentPage, sortBy),
+    getBooksInWishlist(user.id, currentPage),
+    getBooksInCollection(user.id, currentPage),
   ]);
 
   if (!wishlistResult?.books || !collectionResult?.books) {
@@ -71,7 +69,6 @@ const LibraryPage = async ({
             title="Wishlisted Books"
             user={user}
             currentPath={currentPath}
-            sortBy="newest"
             result={wishlistResult}
             isFullWidth
             noResultsMessage="Add books to your wishlist to see them here."
@@ -81,7 +78,6 @@ const LibraryPage = async ({
             title="Your Collection"
             user={user}
             currentPath={currentPath}
-            sortBy="newest"
             result={collectionResult}
             isFullWidth
             noResultsMessage="Add books to your collection to see them here."

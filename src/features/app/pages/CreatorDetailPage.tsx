@@ -7,7 +7,7 @@ import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
 import BooksGrid from "../components/BooksGrid";
 import CreatorsGrid from "../components/RelatedCreators";
-import { getBooksByCreatorSlug, getRelatedCreators } from "../services";
+import { getBooksByCreatorSlug } from "../services";
 
 type CreatorDetailPageProps = {
   user: AuthUser | null;
@@ -23,10 +23,9 @@ const CreatorDetailPage = async ({
   creatorSlug,
   currentPath,
   currentPage,
-  sortBy,
   isMobile,
 }: CreatorDetailPageProps) => {
-  const result = await getBooksByCreatorSlug(creatorSlug, currentPage, sortBy);
+  const result = await getBooksByCreatorSlug(creatorSlug, currentPage);
 
   if (!result.creator) {
     return <ErrorPage errorMessage="Creator not found" user={user} />;
@@ -50,9 +49,7 @@ const CreatorDetailPage = async ({
               creator={creator}
               user={user}
               currentPath={currentPath}
-              sortBy={sortBy}
               result={{ ...rest }}
-              isMobile={isMobile}
             />
             <Divider />
             <CreatorsGrid creators={relatedCreators} title={title} />

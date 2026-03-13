@@ -256,7 +256,7 @@ export const getBookBySlug = async (
 export const getBooksByTag = async (
   tag: string,
   currentPage: number,
-  sortBy: "newest" | "oldest" | "title_asc" | "title_desc",
+  sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
   defaultLimit = 12,
 ) => {
   try {

@@ -9,6 +9,7 @@ export const formValidator = <T extends z.ZodSchema>(schema: T) => {
       console.log("result.error", result.error);
       return showErrorAlert(c, "Schema validation failed");
     }
+
     return result.data as z.infer<T>;
   });
 };
