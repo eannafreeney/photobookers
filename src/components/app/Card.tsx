@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { ChildType } from "../../../types";
 import { capitalize } from "../../utils";
 import Link from "./Link";
+import { imageSkeletonIcon } from "../../lib/icons";
 
 type CardProps = {
   children: ChildType;
@@ -65,11 +66,13 @@ const CardImage = ({
     x-bind:style="loaded && !aspectSquare && imageAspectRatio ? { aspectRatio: imageAspectRatio } : {}"
   >
     <div
-      class="absolute inset-0 bg-surface-variant/30 animate-pulse"
+      class="absolute inset-0 flex items-center justify-center bg-surface-variant/30 animate-pulse"
       x-show="!loaded"
       x-transition:leave="transition ease-out duration-200"
       aria-hidden="true"
-    />
+    >
+      {imageSkeletonIcon}
+    </div>
     <Link href={href} className="relative block w-full h-full min-h-0">
       <img
         src={src}
