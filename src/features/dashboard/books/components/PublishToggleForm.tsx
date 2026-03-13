@@ -1,5 +1,4 @@
 import { Book } from "../../../../db/schema";
-import ToggleButton from "../../../../components/forms/ToggleButton";
 
 type Props = {
   book: Book;
@@ -29,11 +28,17 @@ const PublishToggleForm = ({ book }: Props) => {
       action={action}
       {...alpineAttrs}
     >
-      <ToggleButton
-        isChecked={isPublished}
-        name="isPublished"
-        onChange="$root.requestSubmit()"
-      />
+      <label class="cursor-pointer">
+        <input
+          type="checkbox"
+          class="peer sr-only"
+          checked={isPublished}
+          name="isPublished"
+          x-on:change="$root.requestSubmit()"
+          title="Publish"
+        />
+        <div class="relative h-6 w-11 after:h-5 after:w-5 peer-checked:after:translate-x-5 rounded-full border border-outline bg-surface-alt after:absolute after:bottom-0 after:left-[0.0625rem] after:top-0 after:my-auto after:rounded-full after:bg-on-surface after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:bg-on-primary peer-focus:outline-2 peer-focus:outline-offset-2 peer-focus:outline-outline-strong peer-focus:peer-checked:outline-primary peer-active:outline-offset-0 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"></div>
+      </label>
     </form>
   );
 };
