@@ -43,7 +43,7 @@ const BooksGrid = async ({
     <>
       <div x-data>
         <div x-ref="paginationContent" class={`mb-0 md:mb-4`}>
-          {title && <SectionTitle>{title}</SectionTitle>}
+          {title && <SectionTitle className="mb-2">{title}</SectionTitle>}
           {creator && <PageTitle creator={creator} user={user} />}
           {/* <SortDropdown sortBy={sortBy} currentPath={currentPath} /> */}
         </div>
