@@ -1,8 +1,8 @@
 import { AuthUser } from "../../../../../types";
 import { Creator } from "../../../../db/schema";
 import { getBooksByCreatorId } from "../services";
-import BooksOverviewDesktop from "./BooksOverviewDesktop";
-import BooksOverviewMobile from "./BooksOverviewMobile";
+import BooksOverviewDesktop from "../components/BooksOverviewDesktop";
+import BooksOverviewMobile from "../components/BooksOverviewMobile";
 
 type BookTableProps = {
   searchQuery?: string;
@@ -10,6 +10,7 @@ type BookTableProps = {
   user: AuthUser | null;
   isMobile: boolean;
   currentPage: number;
+  title?: string;
 };
 
 export const BooksOverviewTable = async ({
@@ -18,10 +19,9 @@ export const BooksOverviewTable = async ({
   user,
   isMobile,
   currentPage,
+  title,
 }: BookTableProps) => {
-  if (!user) return <></>;
-
-  if (!creator) return <></>;
+  if (!user || !creator) return <></>;
 
   const result = await getBooksByCreatorId(
     creator.id,
@@ -33,8 +33,12 @@ export const BooksOverviewTable = async ({
   const validBooks = result?.books?.filter((book) => book != null);
 
   if (isMobile) {
-    return <BooksOverviewMobile books={validBooks ?? []} user={user} />;
+    return (
+      <BooksOverviewMobile books={validBooks ?? []} user={user} title={title} />
+    );
   }
 
-  return <BooksOverviewDesktop books={validBooks ?? []} user={user} />;
+  return (
+    <BooksOverviewDesktop books={validBooks ?? []} user={user} title={title} />
+  );
 };

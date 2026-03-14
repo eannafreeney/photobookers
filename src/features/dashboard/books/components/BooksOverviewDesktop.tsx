@@ -12,9 +12,10 @@ import DeleteBookForm from "./BookDeleteForm";
 type Props = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
   user: AuthUser | null;
+  title?: string;
 };
 
-const BooksOverviewDesktop = ({ books, user }: Props) => {
+const BooksOverviewDesktop = ({ books, user, title = "My Books" }: Props) => {
   const alpineAttrs = {
     "x-init": "true",
     "@books:updated.window":
@@ -23,7 +24,7 @@ const BooksOverviewDesktop = ({ books, user }: Props) => {
 
   return (
     <div class="flex flex-col gap-4">
-      <SectionTitle>My Books</SectionTitle>
+      <SectionTitle>{title}</SectionTitle>
       <div class="flex items-center justify-between gap-4">
         <TableSearch
           target="books-table"

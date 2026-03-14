@@ -5,7 +5,7 @@ import VerifiedCreator from "../../../../components/app/VerifiedCreator";
 // import BooksCreatedByMeForOtherPublishersTable from "../../../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
 // import BooksCreatedByMeForStubPublishersTable from "../../../../components/cms/ui/BooksCreatedForStubPublishersTable";
 // import BooksForApprovalTable from "../../../../components/cms/ui/BooksForApprovalTable";
-import { BooksOverviewTable } from "../components/BooksOverviewTable";
+import { BooksOverviewTable } from "../tables/BooksOverviewTable";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import FeatureGuard from "../../../../components/layouts/FeatureGuard";
 import Page from "../../../../components/layouts/Page";
@@ -59,6 +59,7 @@ const BooksOverview = async ({
         )}
         <div class="flex flex-col gap-16">
           <BooksOverviewTable
+            title="My Books"
             isMobile={isMobile}
             searchQuery={searchQuery}
             creator={user.creator}
