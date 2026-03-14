@@ -10,9 +10,9 @@ type Props = {
 
 const DeleteBookForm = ({ book, user }: Props) => {
   const attrs = {
-    "x-target": "books-table toast",
-    "x-target.error": "toast",
+    "x-target": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+    "@ajax.success": "$dispatch('books:updated')",
   };
 
   return (

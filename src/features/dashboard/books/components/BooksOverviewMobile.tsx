@@ -22,7 +22,7 @@ const BooksOverviewMobile = ({
   const alpineAttrs = {
     "x-init": "true",
     "@books:updated.window":
-      "$ajax('/dashboard/books', target: 'books-table-body')",
+      "$ajax('/dashboard/books', { target: 'books-table-body' })",
   };
 
   return (

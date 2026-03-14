@@ -1,16 +1,9 @@
 import { AuthUser } from "../../../../../types";
-import AlertStatic from "../../../../components/app/AlertStatic";
 import Breadcrumbs from "../../admin/components/Breadcrumbs";
-import VerifiedCreator from "../../../../components/app/VerifiedCreator";
-// import BooksCreatedByMeForOtherPublishersTable from "../../../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
-import BooksCreatedByMeForStubPublishersTable from "../tables/BooksCreatedForStubPublishersTable";
-// import BooksForApprovalTable from "../../../../components/cms/ui/BooksForApprovalTable";
 import { BooksOverviewTable } from "../tables/BooksOverviewTable";
 import AppLayout from "../../../../components/layouts/AppLayout";
-import FeatureGuard from "../../../../components/layouts/FeatureGuard";
 import Page from "../../../../components/layouts/Page";
-import ErrorPage from "../../../../pages/error/errorPage";
-import { useUser } from "../../../../contexts/UserContext";
+import { getBooksByArtistId, getBooksByPublisherId } from "../services";
 
 type BooksDashboardProps = {
   user: AuthUser;
@@ -29,14 +22,20 @@ const BooksOverview = async ({
   isMobile,
   currentPage,
 }: BooksDashboardProps) => {
-  if (!user.creator) {
-    return (
-      <ErrorPage
-        errorMessage="You are not authorized to access this page. Please contact support."
-        user={user}
-      />
-    );
-  }
+  if (!user.creator) return <></>;
+
+  const creatorId = user.creator.id;
+  const creatorType = user.creator.type;
+
+  const result =
+    creatorType === "artist"
+      ? await getBooksByArtistId(creatorId, currentPage, searchQuery)
+      : await getBooksByPublisherId(creatorId, currentPage, searchQuery);
+
+  if (!result || !result.books || result.books.length === 0)
+    return <p>No Books Found</p>;
+
+  const { books, totalPages, page } = result;
 
   return (
     <AppLayout
@@ -47,7 +46,7 @@ const BooksOverview = async ({
     >
       <Page>
         <Breadcrumbs items={[{ label: "Books Overview" }]} />
-        {user.creator.status !== "verified" ? (
+        {/* {user.creator.status !== "verified" ? (
           <AlertStatic
             type="info"
             message="Your creator profile is not verified yet. In the meantime, you can start uploading books, or update your profile pic."
@@ -57,24 +56,17 @@ const BooksOverview = async ({
             Account Verified{" "}
             <VerifiedCreator creatorStatus={user.creator.status} size="sm" />
           </div>
-        )}
+        )} */}
         <div class="flex flex-col gap-16">
           <BooksOverviewTable
-            title="My Books"
+            books={books}
+            totalPages={totalPages}
+            page={page}
             isMobile={isMobile}
-            searchQuery={searchQuery}
             creator={user.creator}
             user={user}
-            currentPage={currentPage}
+            creatorType={creatorType}
           />
-          <FeatureGuard flagName="artists-can-create-stub-publishers">
-            {user.creator.type === "artist" ? (
-              <ArtistTables />
-            ) : (
-              <></>
-              // <PublisherTables creatorId={user.creator.id} />
-            )}
-          </FeatureGuard>
         </div>
       </Page>
     </AppLayout>
@@ -82,25 +74,3 @@ const BooksOverview = async ({
 };
 
 export default BooksOverview;
-
-const ArtistTables = () => {
-  const user = useUser();
-  if (!user) return <></>;
-
-  const creator = user.creator;
-  if (!creator) return <></>;
-  return (
-    <>
-      {/* <BooksCreatedByMeForOtherPublishersTable />*/}
-      <BooksCreatedByMeForStubPublishersTable
-        creator={user.creator}
-        user={user}
-      />
-    </>
-  );
-};
-
-// const PublisherTables = ({ creatorId }: { creatorId: string }) => (
-//   <></>
-//   <BooksForApprovalTable creatorId={creatorId} />
-// )

@@ -14,8 +14,8 @@ type Props = {
 };
 
 const BooksCreatedForStubPublishersTable = async ({ user, creator }: Props) => {
-  const books = await getBooksForStubPublishersByCreatorId(creator.id);
-
+  // const books = await getBooksForStubPublishersByCreatorId(creator.id);
+  const books = [];
   console.log("books for stub publishers", books);
 
   const validBooks = books?.filter((book) => book != null);
@@ -26,11 +26,11 @@ const BooksCreatedForStubPublishersTable = async ({ user, creator }: Props) => {
 
   return (
     <div>
-      <SectionTitle>Books Created by Me for Unclaimed Publishers</SectionTitle>
-      <p>
+      <SectionTitle>Published Books</SectionTitle>
+      {/* <p>
         Books created by you unclaimed publishers. You can edit, delete or
         publish the book as long as the publisher remains unclaimed.
-      </p>
+      </p> */}
       <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
         <table
           id="books-other-publishers-table"

@@ -67,62 +67,25 @@ export const createBook = async (input: NewBook) => {
   }
 };
 
-export const getBooksByCreatorId = async (
-  creatorId: string,
-  creatorType: "artist" | "publisher",
+export const getBooksByArtistId = async (
+  artistId: string,
   currentPage: number,
-  searchQuery?: string,
+  searchTerm?: string,
   defaultLimit = 30,
 ) => {
+  const baseFilter = eq(books.artistId, artistId);
+  const titleFilter = searchTerm?.trim()
+    ? ilike(books.title, `%${searchTerm.trim()}%`)
+    : undefined;
+
+  const whereClause = titleFilter ? and(baseFilter, titleFilter) : baseFilter;
+
   try {
-    if (creatorType === "publisher") {
-      const [{ value: totalCount = 0 }] = await db
-        .select({ value: count() })
-        .from(books)
-        .where(and(eq(books.publisherId, creatorId)));
-
-      const { page, limit, offset, totalPages } = getPagination(
-        currentPage,
-        totalCount,
-        defaultLimit,
-      );
-
-      const baseCondition = and(eq(books.publisherId, creatorId));
-      const whereClause = searchQuery
-        ? and(baseCondition, ilike(books.title, `%${searchQuery}%`))
-        : baseCondition;
-
-      const booksByCreator = await db.query.books.findMany({
-        where: whereClause,
-        orderBy: (books, { desc }) => [desc(books.createdAt)],
-        with: { artist: true, publisher: true },
-        limit,
-        offset,
-      });
-
-      return { books: booksByCreator, totalPages, page };
-    }
-
-    // Artist: only books where artistId === creatorId AND (no publisher OR publisher.status === 'stub')
-    const artistBookFilter = and(
-      eq(books.artistId, creatorId),
-      or(isNull(books.publisherId), eq(creators.status, "stub")),
-    );
-    const artistWhereClause = searchQuery
-      ? and(artistBookFilter, ilike(books.title, `%${searchQuery}%`))
-      : artistBookFilter;
-
-    const artistBookIdsSubquery = db
-      .select({ id: books.id })
-      .from(books)
-      .leftJoin(creators, eq(books.publisherId, creators.id))
-      .where(artistWhereClause);
-
     const countResult = await db
       .select({ value: count() })
       .from(books)
       .leftJoin(creators, eq(books.publisherId, creators.id))
-      .where(artistWhereClause);
+      .where(whereClause);
 
     const totalCount = Number(countResult[0]?.value ?? 0);
     const { page, limit, offset, totalPages } = getPagination(
@@ -131,7 +94,13 @@ export const getBooksByCreatorId = async (
       defaultLimit,
     );
 
-    const booksByCreator = await db.query.books.findMany({
+    const artistBookIdsSubquery = db
+      .select({ id: books.id })
+      .from(books)
+      .leftJoin(creators, eq(books.publisherId, creators.id))
+      .where(whereClause);
+
+    const booksByArtist = await db.query.books.findMany({
       where: inArray(books.id, artistBookIdsSubquery),
       orderBy: (books, { desc }) => [desc(books.createdAt)],
       with: { artist: true, publisher: true },
@@ -139,7 +108,50 @@ export const getBooksByCreatorId = async (
       offset,
     });
 
-    return { books: booksByCreator, totalPages, page };
+    return { books: booksByArtist, totalPages, page };
+  } catch (error) {
+    console.error("Failed to get books by artist", error);
+    return null;
+  }
+};
+
+export const getBooksByPublisherId = async (
+  publisherId: string,
+  currentPage: number,
+  searchTerm?: string,
+  defaultLimit = 30,
+) => {
+  const baseFilter = eq(books.publisherId, publisherId);
+  const titleFilter = searchTerm?.trim()
+    ? ilike(books.title, `%${searchTerm.trim()}%`)
+    : undefined;
+
+  const whereClause = titleFilter ? and(baseFilter, titleFilter) : baseFilter;
+
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(whereClause);
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const booksByPublisher = await db.query.books.findMany({
+      where: whereClause,
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      with: {
+        artist: true,
+        publisher: true,
+      },
+      limit,
+      offset,
+    });
+
+    return { books: booksByPublisher, totalPages, page };
   } catch (error) {
     console.error("Failed to get books by creator", error);
     return null;

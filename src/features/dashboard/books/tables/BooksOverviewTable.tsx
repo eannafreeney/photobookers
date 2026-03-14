@@ -1,45 +1,41 @@
 import { AuthUser } from "../../../../../types";
-import { Creator } from "../../../../db/schema";
-import { getBooksByCreatorId } from "../services";
+import { Book, Creator } from "../../../../db/schema";
 import BooksOverviewDesktop from "../components/BooksOverviewDesktop";
 import BooksOverviewMobile from "../components/BooksOverviewMobile";
 
 type BookTableProps = {
-  searchQuery?: string;
+  books: (Book & { artist: Creator | null; publisher: Creator | null })[];
   creator: Creator;
-  user: AuthUser | null;
+  user: AuthUser;
   isMobile: boolean;
-  currentPage: number;
-  title?: string;
+  totalPages: number;
+  page: number;
+  creatorType: "artist" | "publisher";
 };
 
 export const BooksOverviewTable = async ({
-  searchQuery,
+  books,
   creator,
   user,
   isMobile,
-  currentPage,
-  title,
+  totalPages,
+  page,
+  creatorType,
 }: BookTableProps) => {
   if (!user || !creator) return <></>;
 
-  const result = await getBooksByCreatorId(
-    creator.id,
-    creator.type,
-    currentPage,
-    searchQuery,
-  );
-
-  if (!result || !result.books || result.books.length === 0)
-    return <p>No Books Found</p>;
-
-  const { books, totalPages, page } = result;
-
-  console.log("books", books);
-
   if (isMobile) {
-    return <BooksOverviewMobile books={books} user={user} title={title} />;
+    return <span>Please use a desktop browser to view this page.</span>;
+    // return <BooksOverviewMobile books={books} user={user} />;
   }
 
-  return <BooksOverviewDesktop books={books} user={user} title={title} />;
+  return (
+    <BooksOverviewDesktop
+      books={books}
+      user={user}
+      totalPages={totalPages}
+      page={page}
+      creatorType={creatorType}
+    />
+  );
 };
