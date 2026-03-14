@@ -55,7 +55,6 @@ const BooksGrid = async ({
                 user={user}
                 currentCreatorId={creator?.id}
                 showPublisherInsteadOfArtist={creator?.type === "artist"}
-                showHeader={showHeader}
               />
             ))
           ) : (

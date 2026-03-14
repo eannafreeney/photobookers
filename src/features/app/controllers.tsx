@@ -83,8 +83,16 @@ export const getTagPage = async (c: Context) => {
   const tag = c.req.param("tag");
   const user = await getUser(c);
   const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
 
-  return c.html(<TagPage user={user} tag={tag} currentPath={currentPath} />);
+  return c.html(
+    <TagPage
+      user={user}
+      tag={tag}
+      currentPath={currentPath}
+      currentPage={page}
+    />,
+  );
 };
 
 export const getFeaturedPage = async (c: Context) => {
@@ -108,7 +116,6 @@ export const getFeedPage = async (c: Context) => {
   const flash = await getFlash(c);
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
-  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <FeedPage
@@ -116,7 +123,6 @@ export const getFeedPage = async (c: Context) => {
       flash={flash}
       currentPath={currentPath}
       currentPage={page}
-      sortBy={sortBy}
     />,
   );
 };
@@ -126,7 +132,6 @@ export const getLibraryPage = async (c: Context) => {
   const flash = await getFlash(c);
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
-  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <LibraryPage
@@ -134,7 +139,6 @@ export const getLibraryPage = async (c: Context) => {
       flash={flash}
       currentPath={currentPath}
       currentPage={page}
-      sortBy={sortBy}
     />,
   );
 };
@@ -234,13 +238,11 @@ export const getLatestBooksFragment = async (c: Context) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
-  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <LatestBooksFragment
       user={user}
       currentPage={page}
-      sortBy={sortBy}
       currentPath={currentPath}
     />,
   );
@@ -249,22 +251,4 @@ export const getLatestBooksFragment = async (c: Context) => {
 export const getFeaturedBooksFragment = async (c: Context) => {
   const user = await getUser(c);
   return c.html(<FeaturedBooksFragment user={user} />);
-};
-
-export const getTagsFragment = async (c: Context) => {
-  const tag = c.req.query("tag") ?? "";
-  const user = await getUser(c);
-  const currentPath = c.req.path;
-  const page = Number(c.req.query("page") ?? 1);
-  const sortBy = parseSortBy(c.req.query("sortBy"));
-
-  return c.html(
-    <TagsFragment
-      tag={tag}
-      user={user}
-      currentPage={page}
-      sortBy={sortBy}
-      currentPath={currentPath}
-    />,
-  );
 };

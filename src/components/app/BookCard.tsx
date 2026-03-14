@@ -15,7 +15,6 @@ type BookCardProps = {
   currentCreatorId?: string;
   className?: string;
   showPublisherInsteadOfArtist?: boolean;
-  showHeader?: boolean;
 };
 
 const BookCard = ({
@@ -24,11 +23,19 @@ const BookCard = ({
   currentCreatorId,
   className,
   showPublisherInsteadOfArtist = false,
-  showHeader = false,
 }: BookCardProps) => {
   return (
     <Card className={className}>
-      {showHeader && <CardHeader showPublisherInsteadOfArtist book={book} />}
+      <div class="px-2 py-2 flex items-center justify-between">
+        <BookCreators
+          book={book}
+          currentCreatorId={currentCreatorId}
+          showPublisherInsteadOfArtist={showPublisherInsteadOfArtist}
+        />
+        <Card.Text>
+          {book.releaseDate && formatDate(book.releaseDate)}
+        </Card.Text>
+      </div>
       <Link href={`/books/${book.slug}`}>
         <Card.Image
           src={book.coverUrl ?? ""}
@@ -38,43 +45,14 @@ const BookCard = ({
       </Link>
       <Card.Body>
         <div class="flex items-start justify-between">
-          <div>
-            <Link href={`/books/${book.slug}`}>
-              <Card.Title>{book.title}</Card.Title>
-            </Link>
-            <Card.Text>
-              {book.releaseDate && formatDate(book.releaseDate)}
-            </Card.Text>
-          </div>
-          <div class="flex items-center gap-2">
-            <CollectButton isCircleButton book={book} user={user} />
-            <WishlistButton isCircleButton book={book} user={user} />
-            <ShareButton isCircleButton />
-          </div>
+          <Link href={`/books/${book.slug}`}>
+            <Card.Title>{book.title}</Card.Title>
+          </Link>
+          <WishlistButton isCircleButton book={book} user={user} />
         </div>
-        <BookCreators
-          book={book}
-          currentCreatorId={currentCreatorId}
-          showPublisherInsteadOfArtist={showPublisherInsteadOfArtist}
-        />
       </Card.Body>
     </Card>
   );
 };
 
 export default BookCard;
-
-type HeaderProps = {
-  showPublisherInsteadOfArtist: boolean;
-  book: BookCardResult;
-};
-const CardHeader = ({ showPublisherInsteadOfArtist, book }: HeaderProps) => {
-  const creator = showPublisherInsteadOfArtist ? book.publisher : book.artist;
-
-  return (
-    <div className="flex items-center gap-1 px-4 py-2">
-      <CardCreatorCard creator={creator ?? null} avatarSize="xs" />
-      <Card.SubTitle>released a new book</Card.SubTitle>
-    </div>
-  );
-};

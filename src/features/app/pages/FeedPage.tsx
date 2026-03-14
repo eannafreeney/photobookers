@@ -47,6 +47,7 @@ const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
       <Page>
         <NavTabs currentPath={currentPath} />
         <BooksGrid
+          isFullWidth
           title="Your Feed"
           user={user}
           currentPath={currentPath}
