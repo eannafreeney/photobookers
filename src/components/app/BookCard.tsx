@@ -41,6 +41,7 @@ const BookCard = ({
           src={book.coverUrl ?? ""}
           alt={book.title}
           href={`/books/${book.slug}`}
+          height="300px"
         />
       </Link>
       <Card.Body>
