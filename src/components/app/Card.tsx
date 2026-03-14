@@ -54,7 +54,7 @@ const CardImage = ({
   aspectSquare = false,
   objectCover = false,
   coverLandscapeAndSquare = false,
-  height = "300px",
+  height = "auto",
 }: CardImageProps) => (
   <figure
     x-data="imageOrientation()"
