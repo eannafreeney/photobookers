@@ -12,7 +12,7 @@ type CardProps = {
 const Card = ({ children, className }: CardProps) => (
   <div
     class={clsx(
-      "group flex flex-col rounded-radius overflow-hidden border border-outline bg-surface text-on-surface",
+      "group flex flex-col rounded-radius overflow-hidden border border-outline bg-surface text-on-surface shadow-md",
       className,
     )}
   >
@@ -34,7 +34,7 @@ type BodyProps = {
 };
 
 const CardBody = ({ children, gap = "2" }: BodyProps) => (
-  <div class={`flex flex-col gap-${gap} p-4`}>{children}</div>
+  <div class={`flex flex-col gap-${gap} p-4 justify-between`}>{children}</div>
 );
 
 type CardImageProps = {
@@ -44,6 +44,7 @@ type CardImageProps = {
   aspectSquare?: boolean;
   objectCover?: boolean;
   coverLandscapeAndSquare?: boolean;
+  height?: string;
 };
 
 const CardImage = ({
@@ -53,17 +54,19 @@ const CardImage = ({
   aspectSquare = false,
   objectCover = false,
   coverLandscapeAndSquare = false,
+  height = "300px",
 }: CardImageProps) => (
   <figure
     x-data="imageOrientation()"
     class={clsx(
-      "relative w-full overflow-hidden bg-white",
+      "relative w-full overflow-hidden bg-white shadow-sm",
       aspectSquare ? "aspect-square" : "aspect-4/3",
     )}
     {...(coverLandscapeAndSquare && { "data-cover-square": "true" })}
     {...(aspectSquare && { "data-aspect-square": "true" })}
     {...(objectCover && { "data-object-cover": "true" })}
     x-bind:style="loaded && !aspectSquare && imageAspectRatio ? { aspectRatio: imageAspectRatio } : {}"
+    style={{ height }}
   >
     <div
       class="absolute inset-0 flex items-center justify-center bg-surface-variant/30 animate-pulse"

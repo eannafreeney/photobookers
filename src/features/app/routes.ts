@@ -15,7 +15,6 @@ import {
   getMessagesFeedPage,
   getPublishersPage,
   getTagPage,
-  getTagsFragment,
   getTermsPage,
   processContact,
 } from "./controllers";
@@ -51,4 +50,3 @@ appRoutes.post("/contact", formValidator(contactFormSchema), processContact);
 // Fragment routes
 appRoutes.get("/fragments/latest-books", getLatestBooksFragment);
 appRoutes.get("/fragments/featured-books", getFeaturedBooksFragment);
-appRoutes.get("/fragments/tags", getTagsFragment);

@@ -19,7 +19,7 @@ const BookCreators = ({
     showPublisherInsteadOfArtist &&
     (!currentCreatorId || currentCreatorId !== book.publisherId);
   return (
-    <div class="flex items-center justify-between gap-2">
+    <div class="flex items-center justify-between gap-2 book-creators">
       {showArtist && <CardCreatorCard creator={book.artist ?? null} />}
       {showPublisher && <CardCreatorCard creator={book.publisher ?? null} />}
     </div>

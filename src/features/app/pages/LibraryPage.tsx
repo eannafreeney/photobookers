@@ -66,11 +66,11 @@ const LibraryPage = async ({
           {...alpineAttrs}
         >
           <BooksGrid
+            isFullWidth
             title="Wishlisted Books"
             user={user}
             currentPath={currentPath}
             result={wishlistResult}
-            isFullWidth
             noResultsMessage="Add books to your wishlist to see them here."
           />
           <Divider />
