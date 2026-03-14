@@ -1,18 +1,22 @@
 import { AuthUser } from "../../../../../types";
 import Button from "../../../../components/app/Button";
+import SectionTitle from "../../../../components/app/SectionTitle";
 import Table from "../../../../components/app/Table";
+import { Creator } from "../../../../db/schema";
 import PreviewButton from "../../../api/components/PreviewButton";
-import { getBooksByCreatorIdForUnclaimedPublishers } from "../../services";
 import PublishToggleForm from "../components/PublishToggleForm";
+import { getBooksForStubPublishersByCreatorId } from "../services";
 
 type Props = {
+  searchQuery?: string;
+  creator: Creator;
   user: AuthUser | null;
 };
 
-const BooksCreatedByMeForStubPublishersTable = async ({ user }: Props) => {
-  const books = await getBooksByCreatorIdForUnclaimedPublishers(user ?? null);
+const BooksCreatedForStubPublishersTable = async ({ user, creator }: Props) => {
+  const books = await getBooksForStubPublishersByCreatorId(creator.id);
 
-  console.log("books", books);
+  console.log("books for stub publishers", books);
 
   const validBooks = books?.filter((book) => book != null);
 
@@ -42,9 +46,10 @@ const BooksCreatedByMeForStubPublishersTable = async ({ user }: Props) => {
             </tr>
           </Table.Head>
           <Table.Body>
-            {validBooks?.map((book) => (
+            <p>No books found</p>
+            {/* {validBooks?.map((book) => (
               <BookTableRow book={book} user={user} />
-            ))}
+            ))} */}
           </Table.Body>
         </table>
       </div>
@@ -52,7 +57,7 @@ const BooksCreatedByMeForStubPublishersTable = async ({ user }: Props) => {
   );
 };
 
-export default BooksCreatedByMeForStubPublishersTable;
+export default BooksCreatedForStubPublishersTable;
 
 type BookTableRowProps = {
   book: Book & { artist: Creator; publisher: Creator };

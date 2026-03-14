@@ -3,13 +3,14 @@ import AlertStatic from "../../../../components/app/AlertStatic";
 import Breadcrumbs from "../../admin/components/Breadcrumbs";
 import VerifiedCreator from "../../../../components/app/VerifiedCreator";
 // import BooksCreatedByMeForOtherPublishersTable from "../../../../components/cms/ui/BooksCreatedByMeForOtherPublishersTable";
-// import BooksCreatedByMeForStubPublishersTable from "../../../../components/cms/ui/BooksCreatedForStubPublishersTable";
+import BooksCreatedByMeForStubPublishersTable from "../tables/BooksCreatedForStubPublishersTable";
 // import BooksForApprovalTable from "../../../../components/cms/ui/BooksForApprovalTable";
 import { BooksOverviewTable } from "../tables/BooksOverviewTable";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import FeatureGuard from "../../../../components/layouts/FeatureGuard";
 import Page from "../../../../components/layouts/Page";
 import ErrorPage from "../../../../pages/error/errorPage";
+import { useUser } from "../../../../contexts/UserContext";
 
 type BooksDashboardProps = {
   user: AuthUser;
@@ -70,7 +71,8 @@ const BooksOverview = async ({
             {user.creator.type === "artist" ? (
               <ArtistTables />
             ) : (
-              <PublisherTables creatorId={user.creator.id} />
+              <></>
+              // <PublisherTables creatorId={user.creator.id} />
             )}
           </FeatureGuard>
         </div>
@@ -81,14 +83,24 @@ const BooksOverview = async ({
 
 export default BooksOverview;
 
-const ArtistTables = () => (
-  <>
-    {/* <BooksCreatedByMeForOtherPublishersTable />
-    <BooksCreatedByMeForStubPublishersTable /> */}
-  </>
-);
+const ArtistTables = () => {
+  const user = useUser();
+  if (!user) return <></>;
 
-const PublisherTables = ({ creatorId }: { creatorId: string }) => (
-  <></>
-  // <BooksForApprovalTable creatorId={creatorId} />
-);
+  const creator = user.creator;
+  if (!creator) return <></>;
+  return (
+    <>
+      {/* <BooksCreatedByMeForOtherPublishersTable />*/}
+      <BooksCreatedByMeForStubPublishersTable
+        creator={user.creator}
+        user={user}
+      />
+    </>
+  );
+};
+
+// const PublisherTables = ({ creatorId }: { creatorId: string }) => (
+//   <></>
+//   <BooksForApprovalTable creatorId={creatorId} />
+// )

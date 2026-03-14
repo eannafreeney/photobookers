@@ -1,4 +1,14 @@
-import { and, count, eq, ilike, inArray, isNull, or, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  ne,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../../db/client";
 import {
   Book,
@@ -17,6 +27,7 @@ import { bookFormSchema } from "./schema";
 import { processTags } from "./utils";
 import { getPagination } from "../../../lib/pagination";
 import { buildNewBookNotificationHtml } from "../../jobs/emails";
+import { AuthUser } from "../../../../types";
 
 export const approveBookById = async (bookId: string) => {
   try {
@@ -299,4 +310,20 @@ export const updateBookPublicationStatus = async (
 
     return { success: false, error: "Failed to update book mode" };
   }
+};
+
+export const getBooksForStubPublishersByCreatorId = async (
+  creatorId: string,
+) => {
+  if (!creatorId) return [];
+
+  const stubPublishersWithBooks = await db.query.creators.findMany({
+    where: and(eq(creators.status, "stub"), ne(creators.id, creatorId)),
+    with: {
+      booksAsPublisher: {
+        where: eq(books.artistId, creatorId),
+      },
+    },
+  });
+  return stubPublishersWithBooks.flatMap((c) => c.booksAsPublisher);
 };

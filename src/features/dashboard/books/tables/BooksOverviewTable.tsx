@@ -30,15 +30,16 @@ export const BooksOverviewTable = async ({
     searchQuery,
   );
 
-  const validBooks = result?.books?.filter((book) => book != null);
+  if (!result || !result.books || result.books.length === 0)
+    return <p>No Books Found</p>;
+
+  const { books, totalPages, page } = result;
+
+  console.log("books", books);
 
   if (isMobile) {
-    return (
-      <BooksOverviewMobile books={validBooks ?? []} user={user} title={title} />
-    );
+    return <BooksOverviewMobile books={books} user={user} title={title} />;
   }
 
-  return (
-    <BooksOverviewDesktop books={validBooks ?? []} user={user} title={title} />
-  );
+  return <BooksOverviewDesktop books={books} user={user} title={title} />;
 };
