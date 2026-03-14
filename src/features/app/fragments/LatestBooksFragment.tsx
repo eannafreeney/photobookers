@@ -11,7 +11,6 @@ type Props = {
 const LatestBooksFragment = async ({
   user,
   currentPage,
-
   currentPath,
 }: Props) => {
   const result = await getLatestBooks(currentPage);
