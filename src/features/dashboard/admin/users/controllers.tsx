@@ -40,7 +40,6 @@ export const getUsersPageAdmin = async (c: Context) => {
 export const createNewUserAdmin = async (c: UserFormContext) => {
   const formData = c.req.valid("form");
   const { email, firstName, lastName, creatorId } = formData;
-  console.log("formData", formData);
   const temporaryPassword = crypto.randomUUID();
 
   const { data: authData, error: authError } =

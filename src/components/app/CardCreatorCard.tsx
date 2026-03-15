@@ -3,6 +3,7 @@ import Avatar from "./Avatar";
 import Card from "./Card";
 import VerifiedCreator from "./VerifiedCreator";
 import { CreatorCardResult } from "../../constants/queries";
+import { truncate } from "../../lib/utils";
 
 type CardCreatorCardProps = {
   creator: CreatorCardResult | null;
@@ -30,7 +31,7 @@ const CardCreatorCard = async ({
         </div>
       </div>
       <Link href={`/creators/${creator.slug}`}>
-        <Card.SubTitle>{creator.displayName}</Card.SubTitle>
+        <Card.SubTitle>{truncate(creator.displayName, 20)}</Card.SubTitle>
       </Link>
     </div>
   );

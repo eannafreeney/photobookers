@@ -16,7 +16,7 @@ const Alert = ({ type, message }: AlertProps) => {
   };
 
   return (
-    <ul id="toast" x-merge="prepend" role="status">
+    <ul id="toast" role="status">
       <li
         x-data="{
         show: false,
