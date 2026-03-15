@@ -4,6 +4,8 @@ import { BooksOverviewTable } from "../tables/BooksOverviewTable";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
 import { getBooksByArtistId, getBooksByPublisherId } from "../services";
+import AlertStatic from "../../../../components/app/AlertStatic";
+import VerifiedCreator from "../../../../components/app/VerifiedCreator";
 
 type BooksDashboardProps = {
   user: AuthUser;
@@ -46,7 +48,7 @@ const BooksOverview = async ({
     >
       <Page>
         <Breadcrumbs items={[{ label: "Books Overview" }]} />
-        {/* {user.creator.status !== "verified" ? (
+        {user.creator.status === "stub" ? (
           <AlertStatic
             type="info"
             message="Your creator profile is not verified yet. In the meantime, you can start uploading books, or update your profile pic."
@@ -54,9 +56,12 @@ const BooksOverview = async ({
         ) : (
           <div class="flex items-center gap-2">
             Account Verified{" "}
-            <VerifiedCreator creatorStatus={user.creator.status} size="sm" />
+            <VerifiedCreator
+              creatorStatus={user.creator.status ?? "stub"}
+              size="sm"
+            />
           </div>
-        )} */}
+        )}
         <div class="flex flex-col gap-16">
           <BooksOverviewTable
             books={books}

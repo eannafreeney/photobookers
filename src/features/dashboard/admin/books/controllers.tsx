@@ -7,8 +7,8 @@ import Alert from "../../../../components/app/Alert";
 import { BookFormContext, BookFormWithBookIdContext } from "./types";
 import {
   createBook,
-  prepareBookData,
-  prepareBookUpdateData,
+  buildCreateBookData,
+  buildUpdateBookData,
   updateBook,
 } from "../../books/services";
 import EditBookPageAdmin from "./pages/EditBookPageAdmin";
@@ -81,7 +81,12 @@ export const createNewBookAdmin = async (c: BookFormContext) => {
     return showErrorAlert(c, "Invalid publisher");
   }
 
-  const bookData = await prepareBookData(formData, artist, user.id, publisher);
+  const bookData = await buildCreateBookData(
+    formData,
+    artist,
+    user.id,
+    publisher,
+  );
   const newBook = await createBook(bookData);
 
   if (!newBook) {
@@ -128,7 +133,7 @@ export const updateBookAdmin = async (c: BookFormWithBookIdContext) => {
     return showErrorAlert(c, "Invalid publisher");
   }
 
-  const bookData = prepareBookUpdateData(formData);
+  const bookData = buildUpdateBookData(formData);
   const updatedBook = await updateBook(bookData, bookId);
   if (!updatedBook) {
     return showErrorAlert(c, "Failed to update book");
