@@ -1,5 +1,5 @@
 import z from "zod";
-import { agreeToTerms } from "../../schemas";
+import { checkboxField } from "../../schemas";
 
 // Helper: normalize URL for validation (accept www.example.com)
 const urlWithOptionalProtocol = z
@@ -34,7 +34,7 @@ export const registerFanFormSchema = z.object({
   email: z.email().min(1, "Email is required"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-  agreeToTerms,
+  agreeToTerms: checkboxField,
   redirectUrl: z.string().optional(),
 });
 
@@ -52,7 +52,7 @@ export const registerCreatorFormSchema = z.object({
     .string()
     .min(8, "Password must be at least 8 characters")
     .max(64, "Password must be less than 64 characters"),
-  agreeToTerms,
+  agreeToTerms: checkboxField,
 });
 
 // ============ RESET PASSWORD FORM SCHEMA ============

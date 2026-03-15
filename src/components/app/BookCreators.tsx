@@ -20,8 +20,18 @@ const BookCreators = ({
     (!currentCreatorId || currentCreatorId !== book.publisherId);
   return (
     <div class="flex items-center justify-between gap-2 book-creators">
-      {showArtist && <CardCreatorCard creator={book.artist ?? null} />}
-      {showPublisher && <CardCreatorCard creator={book.publisher ?? null} />}
+      {showArtist && (
+        <CardCreatorCard
+          creator={book.artist ?? null}
+          maxDisplayNameLength={20}
+        />
+      )}
+      {showPublisher && (
+        <CardCreatorCard
+          creator={book.publisher ?? null}
+          maxDisplayNameLength={20}
+        />
+      )}
     </div>
   );
 };
