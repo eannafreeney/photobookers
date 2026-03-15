@@ -8,13 +8,20 @@ import { truncate } from "../../lib/utils";
 type CardCreatorCardProps = {
   creator: CreatorCardResult | null;
   avatarSize?: "xs" | "sm" | "md" | "lg";
+  maxDisplayNameLength?: number;
 };
 
 const CardCreatorCard = async ({
   creator,
   avatarSize = "xs",
+  maxDisplayNameLength = 20,
 }: CardCreatorCardProps) => {
   if (!creator) return <></>;
+
+  const displayName =
+    maxDisplayNameLength != null
+      ? truncate(creator.displayName, maxDisplayNameLength)
+      : (creator.displayName ?? "");
 
   return (
     <div class="flex items-center gap-2">
@@ -22,7 +29,7 @@ const CardCreatorCard = async ({
         <Link href={`/creators/${creator.slug}`}>
           <Avatar
             src={creator.coverUrl ?? ""}
-            alt={creator.displayName ?? ""}
+            alt={displayName}
             size={avatarSize}
           />
         </Link>
@@ -31,7 +38,7 @@ const CardCreatorCard = async ({
         </div>
       </div>
       <Link href={`/creators/${creator.slug}`}>
-        <Card.SubTitle>{truncate(creator.displayName, 20)}</Card.SubTitle>
+        <Card.SubTitle>{displayName}</Card.SubTitle>
       </Link>
     </div>
   );

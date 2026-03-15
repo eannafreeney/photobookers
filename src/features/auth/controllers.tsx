@@ -310,6 +310,7 @@ export const processRegister = async (c: Context) => {
         email: user.email!,
         firstName,
         lastName,
+        acceptsTerms: new Date(),
       })
       .onConflictDoUpdate({ target: users.id, set: { firstName, lastName } });
   } catch (dbError) {
