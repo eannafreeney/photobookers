@@ -40,11 +40,6 @@ const AppLayout = ({
       {flash && <Alert type={flash.type} message={flash.message} />}
       <ul x-sync id="toast" x-merge="prepend" role="status"></ul>
       <div x-sync id="server_events"></div>
-      {/* <script
-        src="//instant.page/5.2.0"
-        type="module"
-        integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"
-      ></script> */}
     </body>
   </html>
 );

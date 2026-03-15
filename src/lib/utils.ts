@@ -45,3 +45,8 @@ type SortBy = (typeof VALID_SORT)[number];
 export function parseSortBy(raw: string | undefined): SortBy {
   return VALID_SORT.includes(raw as SortBy) ? (raw as SortBy) : "newest";
 }
+
+export function truncate(str: string, maxLength: number): string {
+  if (!str || str.length <= maxLength) return str;
+  return str.slice(0, maxLength).trim() + "…";
+}

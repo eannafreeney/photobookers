@@ -105,7 +105,7 @@ type SubTitleProps = {
 };
 
 const CardSubTitle = ({ children }: SubTitleProps) => (
-  <span class="text-sm font-medium">{children}</span>
+  <span class="text-sm font-medium ">{children}</span>
 );
 
 type IntroProps = {

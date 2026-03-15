@@ -253,7 +253,7 @@ export const registerCreator = async (c: RegisterCreatorFormContext) => {
 };
 
 export const processRegister = async (c: Context) => {
-  const code = c.req.query("code");
+  const tokenHash = c.req.query("token_hash");
   const redirectUrl = c.req.query("redirectUrl");
   const error = c.req.query("error");
   const errorCode = c.req.query("error_code");
@@ -264,7 +264,7 @@ export const processRegister = async (c: Context) => {
     return c.html(<ErrorPage errorMessage={message} />);
   }
 
-  if (!code) {
+  if (!tokenHash) {
     return c.html(
       <ErrorPage
         errorMessage={getCallbackErrorMessage(undefined, undefined, undefined)}
@@ -272,17 +272,16 @@ export const processRegister = async (c: Context) => {
     );
   }
 
-  // Create SSR client that uses cookies
   const supabase = createSupabaseClient(c);
-
-  const { error: exchangeError, data } =
-    await supabase.auth.exchangeCodeForSession(code);
-
-  if (exchangeError || !data.session) {
-    console.error("Failed to create session:", exchangeError?.message);
+  const { error: authError, data } = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: "signup",
+  });
+  if (authError || !data?.session) {
+    console.error("Failed to create session:", authError?.message);
     return c.html(
       <ErrorPage
-        errorMessage={exchangeError?.message || "Failed to create session"}
+        errorMessage={authError?.message || "Failed to create session"}
       />,
     );
   }
@@ -294,7 +293,7 @@ export const processRegister = async (c: Context) => {
     access_token,
     refresh_token,
     expires_in,
-    data.user.id,
+    data.user?.id ?? "",
   );
 
   // Now get user from the session (no need for another getUser call)
@@ -311,6 +310,7 @@ export const processRegister = async (c: Context) => {
         email: user.email!,
         firstName,
         lastName,
+        acceptsTerms: new Date(),
       })
       .onConflictDoUpdate({ target: users.id, set: { firstName, lastName } });
   } catch (dbError) {
@@ -319,6 +319,8 @@ export const processRegister = async (c: Context) => {
       <ErrorPage errorMessage="Failed to create account. Please try again." />,
     );
   }
+
+  console.log("about to send email");
 
   try {
     await supabaseAdmin.functions.invoke("send-email", {
@@ -331,6 +333,8 @@ export const processRegister = async (c: Context) => {
   } catch (error) {
     console.error("Verification welcome email failed:", error);
   }
+
+  console.log("email sent. about to flash");
 
   await setFlash(
     c,
