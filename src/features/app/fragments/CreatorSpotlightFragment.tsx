@@ -10,8 +10,6 @@ const CreatorSpotlightFragment = async () => {
     getThisWeeksPublisherOfTheWeek(),
   ]);
 
-  console.log(artistOfTheWeek, publisherOfTheWeek);
-
   return (
     <div id="creator-spotlights-fragment">
       <CreatorSpotlightsGrid
