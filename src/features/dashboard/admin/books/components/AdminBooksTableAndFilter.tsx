@@ -1,11 +1,16 @@
 import { AuthUser } from "../../../../../../types";
 import Button from "../../../../../components/app/Button";
+import Card from "../../../../../components/app/Card";
 import Link from "../../../../../components/app/Link";
 import { Pagination } from "../../../../../components/app/Pagination";
 import Table from "../../../../../components/app/Table";
 import { editIcon } from "../../../../../lib/icons";
 import { formatDate } from "../../../../../utils";
 import PreviewButton from "../../../../api/components/PreviewButton";
+import {
+  findCollectionCount,
+  findWishlistCount,
+} from "../../../../api/services";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import BookStatusForm from "../forms/BookStatusForm";
@@ -59,7 +64,8 @@ const AdminBooksTableAndFilter = async ({
               <Table.HeadRow>Artist</Table.HeadRow>
               <Table.HeadRow>Publisher</Table.HeadRow>
               <Table.HeadRow>Release Date</Table.HeadRow>
-              <Table.HeadRow>Approval</Table.HeadRow>
+              <Table.HeadRow>Wishlists</Table.HeadRow>
+              <Table.HeadRow>Collections</Table.HeadRow>
               <Table.HeadRow>Publish</Table.HeadRow>
               <Table.HeadRow>Actions</Table.HeadRow>
             </tr>
@@ -130,18 +136,14 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
         {book.releaseDate ? formatDate(book.releaseDate) : ""}
       </Table.BodyRow>
       <Table.BodyRow>
-        {book.approvalStatus === "approved" ? (
-          <p class=" text-success">✓ Approved</p>
-        ) : book.approvalStatus === "pending" ? (
-          <p class=" text-warning">⋯ Pending</p>
-        ) : book.approvalStatus === "rejected" ? (
-          <p class=" text-danger">✗ Rejected</p>
-        ) : null}
+        <WishlistCount bookId={book.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <CollectionCount bookId={book.id} />
       </Table.BodyRow>
       <Table.BodyRow>
         <PublishToggleForm book={book} />
       </Table.BodyRow>
-
       <Table.BodyRow>
         <PreviewButton book={book} user={user} />
       </Table.BodyRow>
@@ -155,4 +157,14 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
       </Table.BodyRow>
     </tr>
   );
+};
+
+const WishlistCount = async ({ bookId }: { bookId: string }) => {
+  const wishlistCount = await findWishlistCount(bookId);
+  return <Card.Text>{wishlistCount.toString() ?? "0"}</Card.Text>;
+};
+
+const CollectionCount = async ({ bookId }: { bookId: string }) => {
+  const collectionCount = await findCollectionCount(bookId);
+  return <Card.Text>{collectionCount.toString() ?? "0"}</Card.Text>;
 };
