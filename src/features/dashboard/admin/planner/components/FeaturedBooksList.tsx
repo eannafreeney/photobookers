@@ -64,6 +64,13 @@ const FeaturedBooksListItem = ({ fb }: FeaturedBooksListItemProps) => (
           </p>
         </Link>
       )}
+      {fb.book.publisher && (
+        <Link href={`/creators/${fb.book.publisher.slug}`}>
+          <p class="text-xs text-on-surface-weak truncate">
+            {fb.book.publisher.displayName}
+          </p>
+        </Link>
+      )}
     </div>
   </li>
 );

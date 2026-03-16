@@ -14,7 +14,7 @@ import {
   publisherOfTheWeek,
 } from "../../../../db/schema";
 import { db } from "../../../../db/client";
-import { and, desc, eq, gte, isNotNull, lte } from "drizzle-orm";
+import { and, desc, eq, gte, isNotNull, lte, notInArray } from "drizzle-orm";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -44,6 +44,40 @@ export async function getAllBooksPreview() {
     where: and(
       eq(books.approvalStatus, "approved"),
       eq(books.publicationStatus, "published"),
+    ),
+  });
+}
+
+export async function getAllBooksPreviewForFeatured() {
+  return db.query.books.findMany({
+    columns: {
+      id: true,
+      title: true,
+      coverUrl: true,
+    },
+    with: {
+      artist: {
+        columns: {
+          id: true,
+          displayName: true,
+        },
+      },
+      publisher: {
+        columns: {
+          id: true,
+          displayName: true,
+        },
+      },
+    },
+    where: and(
+      eq(books.approvalStatus, "approved"),
+      eq(books.publicationStatus, "published"),
+      notInArray(
+        books.id,
+        db
+          .select({ bookId: featuredBooksOfTheWeek.bookId })
+          .from(featuredBooksOfTheWeek),
+      ),
     ),
   });
 }

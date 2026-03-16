@@ -1,6 +1,6 @@
 import Modal from "../../../../../components/app/Modal";
 import FeaturedBooksForm from "../forms/FeaturedBooksForm";
-import { getAllBooksPreview } from "../services";
+import { getAllBooksPreviewForFeatured } from "../services";
 
 type Props = {
   week: string;
@@ -14,7 +14,7 @@ type Props = {
 };
 
 const ScheduleFeaturedModal = async ({ week, formValues }: Props) => {
-  const allBooks = await getAllBooksPreview();
+  const allBooks = await getAllBooksPreviewForFeatured();
   const options = allBooks.map((book) => ({
     id: book.id,
     label: `${book.title} - ${book.artist?.displayName}${book.publisher ? ` - ${book.publisher?.displayName}` : ""}`,
