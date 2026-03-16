@@ -28,7 +28,7 @@ const BookCreators = ({
       )}
       {showPublisher && (
         <CardCreatorCard
-          creator={book.publisher ?? null}
+          creator={book.publisher ?? book.artist ?? null}
           maxDisplayNameLength={20}
         />
       )}

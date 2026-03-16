@@ -14,6 +14,10 @@ export const bookFormAdminSchema = z.object({
     .max(5000, "Description must be less than 5000 characters")
     .optional(),
   release_date: optionalText,
+  send_email_to_followers_on_release: z
+    .preprocess((val) => val !== undefined && val !== null, z.boolean())
+    .optional()
+    .default(false),
   tags: optionalText,
   purchase_link: optionalText,
   availability_status: z

@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, ne, or } from "drizzle-orm";
 import { db } from "../../../db/client";
 import {
   Book,
@@ -6,45 +6,15 @@ import {
   books,
   Creator,
   creators,
-  follows,
   NewBook,
   UpdateBook,
-  users,
 } from "../../../db/schema";
 import { generateUniqueBookSlug } from "../../../utils";
 import z from "zod";
 import { bookFormSchema } from "./schema";
 import { processTags } from "./utils";
 import { getPagination } from "../../../lib/pagination";
-import { buildNewBookNotificationHtml } from "../../jobs/emails";
-
-export const approveBookById = async (bookId: string) => {
-  try {
-    const [updatedBook] = await db
-      .update(books)
-      .set({ approvalStatus: "approved" })
-      .where(eq(books.id, bookId))
-      .returning();
-    return updatedBook;
-  } catch (error) {
-    console.error("Failed to approve book", error);
-    return null;
-  }
-};
-
-export const rejectBookById = async (bookId: string) => {
-  try {
-    const [updatedBook] = await db
-      .update(books)
-      .set({ approvalStatus: "rejected" })
-      .where(eq(books.id, bookId))
-      .returning();
-    return updatedBook;
-  } catch (error) {
-    console.error("Failed to reject book", error);
-    return null;
-  }
-};
+import { bookFormAdminSchema } from "../admin/books/schema";
 
 export const createBook = async (input: NewBook) => {
   try {
@@ -56,62 +26,25 @@ export const createBook = async (input: NewBook) => {
   }
 };
 
-export const getBooksByCreatorId = async (
-  creatorId: string,
-  creatorType: "artist" | "publisher",
+export const getBooksByArtistId = async (
+  artistId: string,
   currentPage: number,
-  searchQuery?: string,
+  searchTerm?: string,
   defaultLimit = 30,
 ) => {
+  const baseFilter = eq(books.artistId, artistId);
+  const titleFilter = searchTerm?.trim()
+    ? ilike(books.title, `%${searchTerm.trim()}%`)
+    : undefined;
+
+  const whereClause = titleFilter ? and(baseFilter, titleFilter) : baseFilter;
+
   try {
-    if (creatorType === "publisher") {
-      const [{ value: totalCount = 0 }] = await db
-        .select({ value: count() })
-        .from(books)
-        .where(and(eq(books.publisherId, creatorId)));
-
-      const { page, limit, offset, totalPages } = getPagination(
-        currentPage,
-        totalCount,
-        defaultLimit,
-      );
-
-      const baseCondition = and(eq(books.publisherId, creatorId));
-      const whereClause = searchQuery
-        ? and(baseCondition, ilike(books.title, `%${searchQuery}%`))
-        : baseCondition;
-
-      const booksByCreator = await db.query.books.findMany({
-        where: whereClause,
-        orderBy: (books, { desc }) => [desc(books.createdAt)],
-        with: { artist: true, publisher: true },
-        limit,
-        offset,
-      });
-
-      return { books: booksByCreator, totalPages, page };
-    }
-
-    // Artist: only books where artistId === creatorId AND (no publisher OR publisher.status === 'stub')
-    const artistBookFilter = and(
-      eq(books.artistId, creatorId),
-      or(isNull(books.publisherId), eq(creators.status, "stub")),
-    );
-    const artistWhereClause = searchQuery
-      ? and(artistBookFilter, ilike(books.title, `%${searchQuery}%`))
-      : artistBookFilter;
-
-    const artistBookIdsSubquery = db
-      .select({ id: books.id })
-      .from(books)
-      .leftJoin(creators, eq(books.publisherId, creators.id))
-      .where(artistWhereClause);
-
     const countResult = await db
       .select({ value: count() })
       .from(books)
       .leftJoin(creators, eq(books.publisherId, creators.id))
-      .where(artistWhereClause);
+      .where(whereClause);
 
     const totalCount = Number(countResult[0]?.value ?? 0);
     const { page, limit, offset, totalPages } = getPagination(
@@ -120,7 +53,13 @@ export const getBooksByCreatorId = async (
       defaultLimit,
     );
 
-    const booksByCreator = await db.query.books.findMany({
+    const artistBookIdsSubquery = db
+      .select({ id: books.id })
+      .from(books)
+      .leftJoin(creators, eq(books.publisherId, creators.id))
+      .where(whereClause);
+
+    const booksByArtist = await db.query.books.findMany({
       where: inArray(books.id, artistBookIdsSubquery),
       orderBy: (books, { desc }) => [desc(books.createdAt)],
       with: { artist: true, publisher: true },
@@ -128,7 +67,50 @@ export const getBooksByCreatorId = async (
       offset,
     });
 
-    return { books: booksByCreator, totalPages, page };
+    return { books: booksByArtist, totalPages, page };
+  } catch (error) {
+    console.error("Failed to get books by artist", error);
+    return null;
+  }
+};
+
+export const getBooksByPublisherId = async (
+  publisherId: string,
+  currentPage: number,
+  searchTerm?: string,
+  defaultLimit = 30,
+) => {
+  const baseFilter = eq(books.publisherId, publisherId);
+  const titleFilter = searchTerm?.trim()
+    ? ilike(books.title, `%${searchTerm.trim()}%`)
+    : undefined;
+
+  const whereClause = titleFilter ? and(baseFilter, titleFilter) : baseFilter;
+
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(whereClause);
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const booksByPublisher = await db.query.books.findMany({
+      where: whereClause,
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      with: {
+        artist: true,
+        publisher: true,
+      },
+      limit,
+      offset,
+    });
+
+    return { books: booksByPublisher, totalPages, page };
   } catch (error) {
     console.error("Failed to get books by creator", error);
     return null;
@@ -223,15 +205,14 @@ export async function cleanupOrphanedStubCreator(creatorId: string) {
   }
 }
 
-export const prepareBookData = async (
-  formData: z.infer<typeof bookFormSchema>,
+export const buildCreateBookData = async (
+  formData:
+    | z.infer<typeof bookFormSchema>
+    | z.infer<typeof bookFormAdminSchema>,
   bookCreator: Creator,
   userId: string,
   bookPublisher?: Creator | null,
 ): Promise<NewBook> => {
-  // when artists can select a publisher, we need to set the approval status to pending
-  const existingPublisherSelected = formData.publisher_id ? true : false;
-
   const shouldNotify =
     !!formData.send_email_to_followers_on_release && !!formData.release_date;
 
@@ -248,7 +229,6 @@ export const prepareBookData = async (
     createdByUserId: userId,
     tags: processTags(formData.tags),
     purchaseLink: formData.purchase_link ?? null,
-    // approvalStatus: existingPublisherSelected ? "pending" : "approved",
     approvalStatus: "approved",
     publicationStatus: "draft",
     availabilityStatus: formData.availability_status,
@@ -261,8 +241,10 @@ export const prepareBookData = async (
   };
 };
 
-export const prepareBookUpdateData = (
-  formData: z.infer<typeof bookFormSchema>,
+export const buildUpdateBookData = (
+  formData:
+    | z.infer<typeof bookFormSchema>
+    | z.infer<typeof bookFormAdminSchema>,
 ): UpdateBook => {
   return {
     title: formData.title,
@@ -299,4 +281,20 @@ export const updateBookPublicationStatus = async (
 
     return { success: false, error: "Failed to update book mode" };
   }
+};
+
+export const getBooksForStubPublishersByCreatorId = async (
+  creatorId: string,
+) => {
+  if (!creatorId) return [];
+
+  const stubPublishersWithBooks = await db.query.creators.findMany({
+    where: and(eq(creators.status, "stub"), ne(creators.id, creatorId)),
+    with: {
+      booksAsPublisher: {
+        where: eq(books.artistId, creatorId),
+      },
+    },
+  });
+  return stubPublishersWithBooks.flatMap((c) => c.booksAsPublisher);
 };

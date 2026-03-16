@@ -11,18 +11,23 @@ import Link from "../../../../components/app/Link";
 type BooksOverviewMobileProps = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
   user: AuthUser | null;
+  title?: string;
 };
 
-const BooksOverviewMobile = ({ books, user }: BooksOverviewMobileProps) => {
+const BooksOverviewMobile = ({
+  books,
+  user,
+  title = "My Books",
+}: BooksOverviewMobileProps) => {
   const alpineAttrs = {
     "x-init": "true",
     "@books:updated.window":
-      "$ajax('/dashboard/books', target: 'books-table-body')",
+      "$ajax('/dashboard/books', { target: 'books-table-body' })",
   };
 
   return (
     <div class="flex flex-col gap-4">
-      <SectionTitle>My Books</SectionTitle>
+      <SectionTitle>{title}</SectionTitle>
       <div class="flex flex-col gap-4">
         <Link href="/dashboard/books/create">
           <Button variant="solid" color="primary">

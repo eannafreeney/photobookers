@@ -1,4 +1,4 @@
 {
-  "artists-can-create-stub-publishers": false,
+  "artists-can-create-stub-publishers": true,
   "messages": false
 }

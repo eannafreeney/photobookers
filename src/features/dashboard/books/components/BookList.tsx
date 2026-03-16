@@ -1,6 +1,6 @@
 import ErrorPage from "../../../../pages/error/errorPage";
 import BooksTable from "../../admin/books/components/AdminBooksTableContainer";
-import { getBooksByCreatorId } from "../services";
+// import { getBooksByCreatorId } from "../services";
 
 type Props = {
   creatorId: string;
@@ -15,13 +15,13 @@ const CreatorBookList = async ({
   currentPath,
   currentPage,
 }: Props) => {
-  const result = await getBooksByCreatorId(creatorId, creatorType, currentPage);
+  // const result = await getBooksByCreatorId(creatorId, creatorType, currentPage);
 
-  if (!result?.books) {
-    return <ErrorPage errorMessage="No books found" />;
-  }
+  // if (!result?.books) {
+  //   return <ErrorPage errorMessage="No books found" />;
+  // }
 
-  const { books, totalPages, page } = result;
+  // const { books, totalPages, page } = result;
 
   return <div>FIX THIS COMPONENT</div>;
   // return (

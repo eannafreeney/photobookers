@@ -8,8 +8,7 @@ import {
   getEditBookPage,
   makeBookDraft,
   makeBookPublic,
-  updateBookAsArtist,
-  updateBookAsPublisher,
+  updateBookDetails,
 } from "./controllers";
 import { bookIdSchema } from "../../../schemas";
 import { limitBooksPerDay } from "../../../middleware/booksPerDayLimit";
@@ -54,14 +53,14 @@ booksDashboardRoutes.post(
   paramValidator(bookIdSchema),
   formValidator(bookFormSchema),
   requireBookEditAccess,
-  updateBookAsPublisher,
+  updateBookDetails,
 );
 booksDashboardRoutes.post(
   "/:bookId/update/artist",
   paramValidator(bookIdSchema),
   formValidator(bookFormSchema),
   requireBookEditAccess,
-  updateBookAsArtist,
+  updateBookDetails,
 );
 
 // ---------- Delete (POST) ----------
@@ -85,13 +84,3 @@ booksDashboardRoutes.post(
   requireBookUnpublishAccess,
   makeBookDraft,
 );
-// booksDashboardRoutes.patch(
-//   "/:bookId/approve",
-//   paramValidator(bookIdSchema),
-//   approveBook,
-// );
-// booksDashboardRoutes.patch(
-//   "/:bookId/reject",
-//   paramValidator(bookIdSchema),
-//   rejectBook,
-// );

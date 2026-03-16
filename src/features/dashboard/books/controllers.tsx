@@ -15,13 +15,11 @@ import PublishToggleForm from "./components/PublishToggleForm";
 import PreviewButton from "../../../features/api/components/PreviewButton";
 // import BooksForApprovalTable from "../../../components/cms/ui/BooksForApprovalTable";
 import {
-  approveBookById,
   createBook,
-  rejectBookById,
   updateBook,
   deleteBookById,
-  prepareBookData,
-  prepareBookUpdateData,
+  buildCreateBookData,
+  buildUpdateBookData,
   updateBookPublicationStatus,
 } from "./services";
 import { resolveArtist, resolvePublisher } from "../admin/creators/services";
@@ -66,7 +64,7 @@ export const createBookAsPublisher = async (c: BookFormContext) => {
     return showErrorAlert(c, "Invalid artist");
   }
 
-  const bookData = await prepareBookData(
+  const bookData = await buildCreateBookData(
     formData,
     artist,
     user.id,
@@ -95,7 +93,7 @@ export const createBookAsArtist = async (c: BookFormContext) => {
     return showErrorAlert(c, "Invalid publisher");
   }
 
-  const bookData = await prepareBookData(
+  const bookData = await buildCreateBookData(
     formData,
     user.creator,
     user.id,
@@ -127,23 +125,11 @@ export const getEditBookPage = async (c: BookIdContext) => {
   );
 };
 
-export const updateBookAsPublisher = async (c: BookFormWithBookContext) => {
+export const updateBookDetails = async (c: BookFormWithBookContext) => {
   const formData = c.req.valid("form");
   const book = c.get("book");
 
-  const bookData = prepareBookUpdateData(formData);
-  const updatedBook = await updateBook(bookData, book.id);
-
-  if (!updatedBook) return showErrorAlert(c, "Failed to update book");
-
-  return showSuccessAlert(c, `${updatedBook.title} updated!`);
-};
-
-export const updateBookAsArtist = async (c: BookFormWithBookContext) => {
-  const formData = c.req.valid("form");
-  const book = c.get("book");
-
-  const bookData = prepareBookUpdateData(formData);
+  const bookData = buildUpdateBookData(formData);
   const updatedBook = await updateBook(bookData, book.id);
 
   if (!updatedBook) {
@@ -225,42 +211,6 @@ export const makeBookDraft = async (c: BookFormWithBookContext) => {
       />
       <PublishToggleForm book={updatedBook} />
       <PreviewButton book={updatedBook} user={user} />
-    </>,
-  );
-};
-
-export const approveBook = async (c: BookIdContext) => {
-  const bookId = c.req.valid("param").bookId;
-  const user = await getUser(c);
-
-  if (!user.creator) return showErrorAlert(c, "No Creator Profile Found");
-
-  const updatedBook = await approveBookById(bookId);
-
-  if (!updatedBook) return showErrorAlert(c, "Failed to approve book");
-
-  return c.html(
-    <>
-      <Alert type="success" message="Book Approved!" />
-      {/* <BooksForApprovalTable creatorId={user.creator.id} /> */}
-    </>,
-  );
-};
-
-export const rejectBook = async (c: BookIdContext) => {
-  const bookId = c.req.valid("param").bookId;
-  const user = await getUser(c);
-
-  if (!user.creator) return showErrorAlert(c, "No Creator Profile Found");
-
-  const updatedBook = await rejectBookById(bookId);
-
-  if (!updatedBook) return showErrorAlert(c, "Failed to reject book");
-
-  return c.html(
-    <>
-      <Alert type="success" message="Book Rejected!" />
-      {/* <BooksForApprovalTable creatorId={user.creator.id} /> */}
     </>,
   );
 };
