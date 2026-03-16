@@ -12,6 +12,16 @@ import {
 
 type BookFormData = z.infer<typeof bookFormSchema>;
 
+type BookFormThis = {
+  is_new_artist: boolean;
+  is_new_publisher: boolean;
+  is_self_published: boolean;
+  isArtist: boolean;
+  form: Partial<BookFormData> & Record<string, unknown>;
+  errors: { form: Record<string, string> };
+  isDirty: boolean;
+};
+
 const BOOK_FORM_FIELDS = Object.keys(bookFormSchema.shape);
 
 export function registerBookForm() {
@@ -48,30 +58,24 @@ export function registerBookForm() {
         },
 
         get isFormValid() {
-          // Check artist requirement (for publishers)
-          const hasArtist = this.is_new_artist
-            ? !!this.form.new_artist_name
-            : !!this.form.artist_id;
-
-          // Check publisher requirement (for artists, unless self-published)
-          const hasPublisher = this.is_self_published
+          const ctx = this as unknown as BookFormThis;
+          const hasArtist = ctx.is_new_artist
+            ? !!ctx.form.new_artist_name
+            : !!ctx.form.artist_id;
+          const hasPublisher = ctx.is_self_published
             ? true
-            : this.is_new_publisher
-              ? !!this.form.new_publisher_name
-              : !!this.form.publisher_id;
-
+            : ctx.is_new_publisher
+              ? !!ctx.form.new_publisher_name
+              : !!ctx.form.publisher_id;
           const baseFieldsValid =
-            this.isDirty &&
-            Object.values(this.errors.form).every((err) => !err) &&
-            this.form.title &&
-            this.form.availability_status &&
-            this.form.release_date;
-
-          // Artists need publisher (unless self-published), publishers need artist
-          const conditionalFieldsValid = this.isArtist
+            ctx.isDirty &&
+            Object.values(ctx.errors.form).every((err) => !err) &&
+            ctx.form.title &&
+            ctx.form.availability_status &&
+            ctx.form.release_date;
+          const conditionalFieldsValid = ctx.isArtist
             ? hasPublisher
             : hasArtist;
-
           return baseFieldsValid && conditionalFieldsValid;
         },
 

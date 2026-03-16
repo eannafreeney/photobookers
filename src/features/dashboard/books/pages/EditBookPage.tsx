@@ -42,9 +42,7 @@ const BookEditPage = async ({
       : "",
   };
 
-  const dateIsInPast = book?.releaseDate
-    ? new Date(book.releaseDate) < new Date()
-    : false;
+  const publisherIsVerified = book?.publisher?.status === "verified";
 
   const isPublisher = user.creator?.type === "publisher";
 
@@ -68,19 +66,14 @@ const BookEditPage = async ({
             },
           ]}
         />
-        <div class="flex justify-end">
-          <div class="flex items-center gap-4">
-            <PublishToggleForm book={book} />
-            <PreviewButton book={book} user={user} />
+        {!publisherIsVerified && (
+          <div class="flex justify-end">
+            <div class="flex items-center gap-4">
+              <PublishToggleForm book={book} />
+              <PreviewButton book={book} user={user} />
+            </div>
           </div>
-        </div>
-        <BookForm
-          action={action}
-          bookId={book.id}
-          formValues={formValues}
-          isPublisher={isPublisher}
-        />
-        <hr class="my-4" />
+        )}
         <div
           class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"
           id="book-images"
@@ -97,6 +90,13 @@ const BookEditPage = async ({
             bookId={book.id}
           />
         </div>
+        <hr class="my-4" />
+        <BookForm
+          action={action}
+          bookId={book.id}
+          formValues={formValues}
+          isPublisher={isPublisher}
+        />
       </Page>
     </AppLayout>
   );
