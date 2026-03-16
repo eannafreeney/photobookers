@@ -135,7 +135,6 @@ export const getBooksByCreatorSlug = async (
     const creator = await db.query.creators.findFirst({
       where: eq(creators.slug, slug),
     });
-    console.log("creator", creator);
 
     if (!creator) {
       return {
@@ -155,8 +154,6 @@ export const getBooksByCreatorSlug = async (
 
     const limit = defaultLimit;
     const offset = (currentPage - 1) * defaultLimit;
-
-    console.log("bookColumn", bookColumn);
 
     const [countResult, foundBooks] = await Promise.all([
       db
@@ -189,9 +186,6 @@ export const getBooksByCreatorSlug = async (
         },
       }),
     ]);
-
-    console.log("countResult", countResult);
-    console.log("foundBooks", foundBooks);
 
     const totalCount = countResult[0]?.value ?? 0;
     const { totalPages: totalPagesComputed, page: pageComputed } =
