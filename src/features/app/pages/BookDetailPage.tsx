@@ -133,18 +133,14 @@ const DetailDesktop = ({
               {book.description && (
                 <Card.Description>{book.description}</Card.Description>
               )}
-              <div class="flex flex-col gap-2">
-                <p class="text-sm font-medium text-on-surface-strong">
-                  Credits
-                </p>
-                {book.releaseDate && (
-                  <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
-                )}
-                {book.publisher && <CardCreatorCard creator={book.publisher} />}
-              </div>
+
               <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
               <TagList tags={book.tags ?? []} />
               <PurchaseLink purchaseLink={book.purchaseLink} />
+              <Credits
+                releaseDate={book.releaseDate}
+                publisher={book.publisher}
+              />
             </div>
           </div>
         </div>
@@ -155,12 +151,6 @@ const DetailDesktop = ({
             title="Artist"
             user={user}
           />
-          {/* <CreatorCard
-            creator={book.publisher}
-            currentPath={currentPath}
-            title="Publisher"
-            user={user}
-          /> */}
         </div>
       </div>
       <RelatedBooks book={book} user={user} />
@@ -195,16 +185,10 @@ const DetailMobile = ({
       {book.description && (
         <Card.Description>{book.description}</Card.Description>
       )}
-      <div class="flex flex-col gap-2">
-        <p class="text-sm font-medium text-on-surface-strong">Credits</p>
-        {book.releaseDate && (
-          <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
-        )}
-        {book.publisher && <CardCreatorCard creator={book.publisher} />}
-      </div>
       <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
       <PurchaseLink purchaseLink={book.purchaseLink} />
       <TagList tags={book.tags ?? []} />
+      <Credits releaseDate={book.releaseDate} publisher={book.publisher} />
       {canEditBook(user, book) && (
         <a href={`/dashboard/admin/books/${book.id}/update`}>
           <Button variant="outline" color="secondary" width="sm">
@@ -249,3 +233,29 @@ const RelatedBooks = async ({ book, user }: RelatedBooksProps) => {
     </section>
   );
 };
+
+type CreditsProps = {
+  releaseDate: Date | null;
+  publisher: Creator | null;
+};
+
+const Credits = ({ releaseDate, publisher }: CreditsProps) => (
+  <div class="flex flex-col gap-2">
+    {releaseDate && (
+      <>
+        <p class="text-sm font-medium text-on-surface-strong">Release Date:</p>
+        <Card.Text>{formatDate(releaseDate)}</Card.Text>
+      </>
+    )}
+    {publisher && (
+      <>
+        <p class="text-sm font-medium text-on-surface-strong">Publisher:</p>
+        <CardCreatorCard creator={publisher} />
+      </>
+    )}
+    <p class="text-sm font-medium text-on-surface-strong">Credits</p>
+    <p class="text-sm text-on-surface-weak">
+      All images on this page are owned by the respective creator.
+    </p>
+  </div>
+);

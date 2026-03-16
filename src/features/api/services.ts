@@ -1,8 +1,9 @@
-import { and, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   Book,
   books,
+  collectionItems,
   Creator,
   creators,
   follows,
@@ -40,6 +41,22 @@ export const findFollow = async (creatorId: string, userId: string) => {
       eq(follows.followerUserId, userId),
     ),
   });
+};
+
+export const findWishlistCount = async (bookId: string) => {
+  const result = await db
+    .select({ value: count() })
+    .from(wishlists)
+    .where(eq(wishlists.bookId, bookId));
+  return result[0]?.value ?? 0;
+};
+
+export const findCollectionCount = async (bookId: string) => {
+  const result = await db
+    .select({ value: count() })
+    .from(collectionItems)
+    .where(eq(collectionItems.bookId, bookId));
+  return result[0]?.value ?? 0;
 };
 
 export const getCreatorPermissionData = async (
