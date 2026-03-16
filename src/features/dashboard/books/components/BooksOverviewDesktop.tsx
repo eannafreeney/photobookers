@@ -8,6 +8,8 @@ import { AuthUser } from "../../../../../types";
 import PreviewButton from "../../../api/components/PreviewButton";
 import PublishToggleForm from "./PublishToggleForm";
 import DeleteBookForm from "./BookDeleteForm";
+import { findCollectionCount, findWishlistCount } from "../../../api/services";
+import Card from "../../../../components/app/Card";
 
 type Props = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
@@ -43,6 +45,8 @@ const BooksOverviewDesktop = ({ books, user }: Props) => {
             <Table.HeadRow>Title</Table.HeadRow>
             <Table.HeadRow>Artist</Table.HeadRow>
             <Table.HeadRow>Publisher</Table.HeadRow>
+            <Table.HeadRow>Wishlists</Table.HeadRow>
+            <Table.HeadRow>Collections</Table.HeadRow>
             <Table.HeadRow>Release Date</Table.HeadRow>
             <Table.HeadRow>Publish</Table.HeadRow>
           </tr>
@@ -104,6 +108,12 @@ const BookTableRow = ({ book, user }: RowProps) => {
         </Link>
       </Table.BodyRow>
       <Table.BodyRow>
+        <WishlistCount bookId={book.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <CollectionCount bookId={book.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
         {book.releaseDate
           ? book.releaseDate
               .toISOString()
@@ -131,4 +141,14 @@ const BookTableRow = ({ book, user }: RowProps) => {
       </Table.BodyRow>
     </tr>
   );
+};
+
+const WishlistCount = async ({ bookId }: { bookId: string }) => {
+  const wishlistCount = await findWishlistCount(bookId);
+  return <Card.Text>{wishlistCount.toString() ?? "0"}</Card.Text>;
+};
+
+const CollectionCount = async ({ bookId }: { bookId: string }) => {
+  const collectionCount = await findCollectionCount(bookId);
+  return <Card.Text>{collectionCount.toString() ?? "0"}</Card.Text>;
 };
