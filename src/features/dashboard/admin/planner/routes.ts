@@ -76,7 +76,11 @@ adminPlannerDashboardRoutes.post(
   setFeaturedAdmin,
 );
 // ---------- Update (GET) ----------
-adminPlannerDashboardRoutes.get("/featured/update", getEditFeaturedModal);
+adminPlannerDashboardRoutes.get(
+  "/featured/update",
+  queryValidator(weekQuerySchema),
+  getEditFeaturedModal,
+);
 adminPlannerDashboardRoutes.post(
   "/featured/update",
   formValidator(featuredBooksFormSchema),
