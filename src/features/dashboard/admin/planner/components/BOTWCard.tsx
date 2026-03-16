@@ -1,4 +1,5 @@
 import Button from "../../../../../components/app/Button";
+import Link from "../../../../../components/app/Link";
 import { toWeekString } from "../../../../../lib/utils";
 import { BookOfTheWeekWithBook } from "../../../../app/BOTWServices";
 import DeleteButton from "./DeleteButton";
@@ -47,9 +48,18 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
             {book.title}
           </p>
           {book.artist && (
-            <p class="text-xs text-on-surface-weak truncate">
-              {book.artist.displayName}
-            </p>
+            <Link href={`/creators/${book.artist.slug}`}>
+              <p class="text-xs text-on-surface-weak truncate">
+                {book.artist.displayName}
+              </p>
+            </Link>
+          )}
+          {book.publisher && (
+            <Link href={`/creators/${book.publisher.slug}`}>
+              <p class="text-xs text-on-surface-weak truncate">
+                {book.publisher.displayName}
+              </p>
+            </Link>
           )}
           <div>
             {bookOfTheWeek && !bookOfTheWeek?.text && (
