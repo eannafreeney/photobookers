@@ -6,6 +6,7 @@ import {
   getBookPreviewPage,
   getContactPage,
   getCreatorDetailPage,
+  getCreatorSpotlightFragment,
   getFeaturedBooksFragment,
   getFeaturedPage,
   getFeedPage,
@@ -50,3 +51,4 @@ appRoutes.post("/contact", formValidator(contactFormSchema), processContact);
 // Fragment routes
 appRoutes.get("/fragments/latest-books", getLatestBooksFragment);
 appRoutes.get("/fragments/featured-books", getFeaturedBooksFragment);
+appRoutes.get("/fragments/creator-spotlights", getCreatorSpotlightFragment);

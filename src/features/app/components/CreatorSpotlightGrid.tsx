@@ -1,5 +1,6 @@
 import Button from "../../../components/app/Button";
 import Card from "../../../components/app/Card";
+import Link from "../../../components/app/Link";
 import SectionTitle from "../../../components/app/SectionTitle";
 import type {
   ArtistOfTheWeekWithCreator,
@@ -75,9 +76,11 @@ const CreatorSpotlight = ({ creator, text, href }: CreatorSpotlightProps) => (
       <Card.Body>
         <Card.Title>{creator.displayName}</Card.Title>
         {text && <Card.Description>{text}</Card.Description>}
-        <Button variant="solid" color="primary" width="full" href={href}>
-          View catalog
-        </Button>
+        <Link href={href}>
+          <Button variant="solid" color="primary" width="full">
+            View Catalogue
+          </Button>
+        </Link>
       </Card.Body>
     </div>
   </Card>

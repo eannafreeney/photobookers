@@ -1,8 +1,10 @@
 import Button from "../../../../../components/app/Button";
+import Card from "../../../../../components/app/Card";
 import CopyCellCol from "../../../../../components/app/CopyCellCol";
 import Link from "../../../../../components/app/Link";
 import { Pagination } from "../../../../../components/app/Pagination";
 import Table from "../../../../../components/app/Table";
+import { findFollowersCount } from "../../../../../db/queries";
 import { Creator } from "../../../../../db/schema";
 import { capitalize, formatDate } from "../../../../../utils";
 import CreatorStatusBadge from "../../components/CreatorStatusBadge";
@@ -62,6 +64,7 @@ const AdminCreatorsTableAndFilter = async ({
               <Table.HeadRow>Type</Table.HeadRow>
               <Table.HeadRow>Website</Table.HeadRow>
               <Table.HeadRow>Status</Table.HeadRow>
+              <Table.HeadRow>Followers</Table.HeadRow>
               <Table.HeadRow>Created At</Table.HeadRow>
               <Table.HeadRow>Owner</Table.HeadRow>
               <Table.HeadRow>Actions</Table.HeadRow>
@@ -109,6 +112,9 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <CreatorStatusBadge creatorStatus={creator.status ?? "stub"} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <FollowersCount creatorId={creator.id} />
       </Table.BodyRow>
       <Table.BodyRow>
         {formatDate(creator.createdAt ?? new Date())}
@@ -164,5 +170,9 @@ const AssignOwnerCell = async ({
       </Button>
     </a>
   );
-  // otherwise show the owner's email
+};
+
+const FollowersCount = async ({ creatorId }: { creatorId: string }) => {
+  const followerCount = await findFollowersCount(creatorId);
+  return <Card.Text>{followerCount.toString() ?? "0"}</Card.Text>;
 };

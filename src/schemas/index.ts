@@ -15,6 +15,11 @@ export const numberField = z.preprocess(
   z.number().optional(),
 );
 
+export const checkboxField = z.preprocess(
+  (v) => v === true || v === "on" || v === "true" || v === "1",
+  z.boolean(),
+);
+
 export const uuidField = z
   .string()
   .uuid("Invalid UUID format")
@@ -23,16 +28,6 @@ export const uuidField = z
 export const methodField = z.preprocess(
   (v) => (v === "" ? undefined : v),
   z.enum(["PATCH", "POST", "DELETE"]).optional(),
-);
-
-export const agreeToTerms = z.preprocess(
-  (v) => v === true || v === "on" || v === "true" || v === "1",
-  z
-    .boolean()
-    .refine(
-      (val) => val,
-      "Please agree to the terms and conditions to continue",
-    ),
 );
 
 // ============ MAGIC LINK FORM SCHEMA ============

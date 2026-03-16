@@ -27,8 +27,8 @@ const APIButtonCircle = ({
     "@ajax:before": "isSubmitting = true",
     "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false;",
     "@ajax:error": "isSubmitting = false",
-    "x-target": `${id} toast modal-root`,
-    "x-target.error": "toast modal-root",
+    "x-target": `${id} modal-root`,
+    "x-target.error": "modal-root",
     "x-target.401": "modal-root",
   };
 

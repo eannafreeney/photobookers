@@ -54,7 +54,7 @@ const CardImage = ({
   aspectSquare = false,
   objectCover = false,
   coverLandscapeAndSquare = false,
-  height = "300px",
+  height = "auto",
 }: CardImageProps) => (
   <figure
     x-data="imageOrientation()"
@@ -105,7 +105,7 @@ type SubTitleProps = {
 };
 
 const CardSubTitle = ({ children }: SubTitleProps) => (
-  <span class="text-sm font-medium">{children}</span>
+  <span class="text-sm font-medium ">{children}</span>
 );
 
 type IntroProps = {
