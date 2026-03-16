@@ -19,7 +19,7 @@ const LatestBooksFragment = async ({
   return (
     <div id="latest-books-fragment">
       <BooksGrid
-        title="New & Notable"
+        title="Latest Books"
         user={user}
         currentPath={currentPath}
         result={result}

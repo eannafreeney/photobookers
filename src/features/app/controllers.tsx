@@ -20,6 +20,7 @@ import LatestBooksFragment from "./fragments/LatestBooksFragment";
 import FeaturedBooksFragment from "./fragments/FeaturedBooksFragment";
 import TagsFragment from "./fragments/TagsFragment";
 import MessagesPage from "./pages/MessagesPage";
+import CreatorSpotlightFragment from "./fragments/CreatorSpotlightFragment";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -251,4 +252,8 @@ export const getLatestBooksFragment = async (c: Context) => {
 export const getFeaturedBooksFragment = async (c: Context) => {
   const user = await getUser(c);
   return c.html(<FeaturedBooksFragment user={user} />);
+};
+
+export const getCreatorSpotlightFragment = async (c: Context) => {
+  return c.html(<CreatorSpotlightFragment />);
 };
