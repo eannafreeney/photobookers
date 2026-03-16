@@ -9,6 +9,7 @@ import PublishToggleForm from "./PublishToggleForm";
 import DeleteBookForm from "./BookDeleteForm";
 import { findCollectionCount, findWishlistCount } from "../../../api/services";
 import Card from "../../../../components/app/Card";
+import Table from "../../../../components/app/Table";
 
 type Props = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
