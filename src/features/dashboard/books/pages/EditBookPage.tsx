@@ -78,7 +78,7 @@ const BookEditPage = async ({
           class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"
           id="book-images"
         >
-          <BookCoverForm initialUrl={book.coverUrl ?? null} bookId={book.id} />
+          <BookCoverForm initialUrl={book.coverUrl ?? null} book={book} />
           <hr class="my-4 md:hidden" />
           <BookGalleryForm
             initialImages={
