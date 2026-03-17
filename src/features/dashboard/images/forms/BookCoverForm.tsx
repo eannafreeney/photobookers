@@ -74,7 +74,7 @@ export default BookCoverForm;
 const CardPreview = ({ book }: { book: BookCardResult }) => (
   <div class="mb-4">
     <p class="text-sm text-on-surface-variant mb-2">Book Card Preview</p>
-    <Card className="max-w-[280px]">
+    <Card className="max-w-[300px]">
       <div class="px-2 py-2 flex items-center justify-between">
         <BookCreators book={book} showPublisherInsteadOfArtist={false} />
         <Card.Text>

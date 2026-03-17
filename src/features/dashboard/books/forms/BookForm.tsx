@@ -65,31 +65,29 @@ export const BookForm = async ({
               required
             />
           )}
-          <FeatureGuard flagName="artists-can-create-stub-publishers">
-            {isArtist && !isEditPage ? (
-              <>
-                <div x-show="is_self_published">
-                  <ToggleInput
-                    label="Self Published"
-                    name="is_self_published"
-                    isChecked={isArtist}
-                  />
-                </div>
-                <div x-show="!is_self_published">
-                  <ComboBox
-                    label="Publisher"
-                    name="form.publisher_id"
-                    newOptionName="form.new_publisher_name"
-                    type="publisher"
-                    options={publisherOptions}
-                    required
-                  />
-                </div>
-              </>
-            ) : (
-              <></>
-            )}
-          </FeatureGuard>
+          {isArtist && !isEditPage ? (
+            <>
+              <div x-show="is_self_published">
+                <ToggleInput
+                  label="Self Published"
+                  name="is_self_published"
+                  isChecked={isArtist}
+                />
+              </div>
+              <div x-show="!is_self_published">
+                <ComboBox
+                  label="Publisher"
+                  name="form.publisher_id"
+                  newOptionName="form.new_publisher_name"
+                  type="publisher"
+                  options={publisherOptions}
+                  required
+                />
+              </div>
+            </>
+          ) : (
+            <></>
+          )}
           <TextArea
             label="Description"
             name="form.description"
