@@ -7,7 +7,7 @@ import ValidateWebsite from "../../../../auth/components/ValidateWebsite";
 const AddCreatorFormAdmin = () => {
   const alpineAttrs = {
     "x-data": `addCreatorFormAdmin()`,
-    "x-target": "toast creators-table",
+    "x-target": "creators-table add-creator-form",
     "x-target.error": "toast",
     "x-target.away": "_top",
     "x-on:ajax:success": "onSuccess()",
@@ -20,7 +20,7 @@ const AddCreatorFormAdmin = () => {
   };
 
   return (
-    <div class="space-y-4 ">
+    <div id="add-creator-form" class="space-y-4">
       <SectionTitle>Create Creator</SectionTitle>
       <form
         action="/dashboard/admin/creators/create"
