@@ -21,6 +21,7 @@ import FeaturedBooksFragment from "./fragments/FeaturedBooksFragment";
 import TagsFragment from "./fragments/TagsFragment";
 import MessagesPage from "./pages/MessagesPage";
 import CreatorSpotlightFragment from "./fragments/CreatorSpotlightFragment";
+import NotFoundPage from "../../pages/NotFoundPage";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");

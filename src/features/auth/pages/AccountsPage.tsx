@@ -39,7 +39,7 @@ const mobileFeatures = [
     features: features.filter((f) => f.fan),
   },
   {
-    type: "Artist" as const,
+    type: "Artist / Self-Publisher" as const,
     slug: "artist",
     features: features.filter((f) => f.artist),
   },
@@ -90,7 +90,7 @@ const AccountsPage = () => {
                   Fan
                 </th>
                 <th scope="col" class="p-4 text-center">
-                  Artist
+                  Artist / Self-Publisher
                 </th>
                 <th scope="col" class="p-4 text-center">
                   Publisher

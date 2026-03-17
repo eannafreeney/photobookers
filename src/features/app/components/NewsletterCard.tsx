@@ -14,7 +14,7 @@ const NewsletterCard = ({
   description = "Get new book picks and updates in your inbox.",
 }: Props) => (
   <div
-    class={`flex flex-col gap-3 rounded-radius border border-outline bg-surface p-4 ${className}`}
+    class={`flex flex-col gap-3 rounded-radius border border-outline bg-surface p-4 ${className} shadow-md`}
   >
     {stars}
     <p class="text-sm font-medium text-on-surface-strong">{title}</p>

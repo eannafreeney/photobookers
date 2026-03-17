@@ -25,7 +25,7 @@ const CreatorSpotlightsGrid = ({
     <div class="grid md:grid-cols-2 gap-4 w-full">
       {artist && (
         <div>
-          <SectionTitle className="mb-2">Artist spotlight</SectionTitle>
+          <SectionTitle className="mb-2">Artist of the Week</SectionTitle>
           <CreatorSpotlight
             creator={artist}
             text={artistOfTheWeek?.text ?? null}
@@ -35,7 +35,7 @@ const CreatorSpotlightsGrid = ({
       )}
       {publisher && (
         <div>
-          <SectionTitle className="mb-2">Publisher spotlight</SectionTitle>
+          <SectionTitle className="mb-2">Publisher of the Week</SectionTitle>
           <CreatorSpotlight
             creator={publisher}
             text={publisherOfTheWeek?.text ?? null}

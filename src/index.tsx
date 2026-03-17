@@ -6,6 +6,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 
 // Import your grouped routes
 import { routes } from "./routes";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const app = new Hono();
 
@@ -29,6 +30,9 @@ if (process.env.NODE_ENV === "production") {
 
 // Mount your routes
 app.route("/", routes);
+
+// 404 route
+app.notFound((c) => c.html(<NotFoundPage currentPath={c.req.path} />, 404));
 
 // Export the Hono app (NO app.listen, NO manual server)
 export default app;
