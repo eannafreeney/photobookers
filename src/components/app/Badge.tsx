@@ -37,7 +37,7 @@ const Badge = ({ children, variant = "default" }: Props) => {
 
   return (
     <span
-      class={`w-fit inline-flex overflow-hidden rounded-radius border bg-surface text-sm font-medium text-on-surface ${badgeVariants[variant]} `}
+      class={`w-fit inline-flex overflow-hidden rounded-radius border bg-surface shadow-sm text-sm font-medium text-on-surface ${badgeVariants[variant]} `}
     >
       <span class={`px-2 py-1 ${badgeInnerVariants[variant]} `}>
         {children}

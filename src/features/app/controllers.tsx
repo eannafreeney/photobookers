@@ -208,11 +208,12 @@ export const processContact = async (c: ContactFormContext) => {
   const form = c.req.valid("form");
 
   try {
+    const html = await generateContactEmail(form);
     const { error } = await supabaseAdmin.functions.invoke("send-email", {
       body: {
         to: "hello@photobookers.com",
         subject: "New Contact Form Submission",
-        html: generateContactEmail(form),
+        html,
       },
       headers: {
         "x-function-secret": process.env.FUNCTION_SECRET ?? "",
