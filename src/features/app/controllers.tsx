@@ -21,7 +21,6 @@ import FeaturedBooksFragment from "./fragments/FeaturedBooksFragment";
 import TagsFragment from "./fragments/TagsFragment";
 import MessagesPage from "./pages/MessagesPage";
 import CreatorSpotlightFragment from "./fragments/CreatorSpotlightFragment";
-import NotFoundPage from "../../pages/NotFoundPage";
 import NewsletterConfirmationPage from "./pages/NewsletterConfirmationPage";
 
 export const getHomePage = async (c: Context) => {

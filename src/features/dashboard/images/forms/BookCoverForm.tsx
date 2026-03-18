@@ -3,9 +3,9 @@ import FileUploadInput from "../../../../components/forms/FileUpload";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import ImagePreview from "../../../../components/forms/ImagePreview";
 import Card from "../../../../components/app/Card";
-import BookCreators from "../../../../components/app/BookCreators";
 import { formatDate } from "../../../../utils";
 import { BookCardResult } from "../../../../constants/queries";
+import CardCreatorCard from "../../../../components/app/CardCreatorCard";
 
 type Props = {
   initialUrl: string | null;
@@ -76,7 +76,7 @@ const CardPreview = ({ book }: { book: BookCardResult }) => (
     <p class="text-sm text-on-surface-variant mb-2">Book Card Preview</p>
     <Card className="max-w-[300px]">
       <div class="px-2 py-2 flex items-center justify-between">
-        <BookCreators book={book} showPublisherInsteadOfArtist={false} />
+        <CardCreatorCard creator={book.artist ?? null} />
         <Card.Text>
           {book.releaseDate && formatDate(book.releaseDate)}
         </Card.Text>

@@ -26,10 +26,8 @@ const CreatorCard = async ({
   const followerCount = await findFollowersCount(creator.id);
 
   return (
-    <div class="mb-2">
-      <div class="mb-2">
-        <SectionTitle>{title}</SectionTitle>
-      </div>
+    <>
+      <SectionTitle className="mb-2">{title}</SectionTitle>
       <Card>
         <Card.Image
           src={creator.coverUrl ?? ""}
@@ -74,7 +72,7 @@ const CreatorCard = async ({
           <SocialLinks creator={creator} />
         </Card.Body>
       </Card>
-    </div>
+    </>
   );
 };
 

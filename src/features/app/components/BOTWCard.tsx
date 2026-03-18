@@ -1,5 +1,4 @@
 import { AuthUser } from "../../../../types";
-import BookCreators from "../../../components/app/BookCreators";
 import Button from "../../../components/app/Button";
 import Card from "../../../components/app/Card";
 import CardCreatorCard from "../../../components/app/CardCreatorCard";
@@ -91,7 +90,7 @@ const BOTWDesktopCard = ({
                 </h3>
               </Link>
             </div>
-            <BookCreators book={book} currentCreatorId={currentCreatorId} />
+            <CardCreatorCard creator={book.artist ?? null} />
             <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
             <TagList tags={book.tags?.slice(0, 3) ?? []} />
             <Link href={`/books/${book.slug}`}>
@@ -138,7 +137,7 @@ const BOTWMobileCard = ({
             <ShareButton isCircleButton />
           </div>
         </div>
-        <BookCreators book={book} currentCreatorId={currentCreatorId} />
+        <CardCreatorCard creator={book.artist ?? null} />
         <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
         <TagList tags={book.tags?.slice(0, 3) ?? []} />
         <Link href={`/books/${book.slug}`}>

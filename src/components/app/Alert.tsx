@@ -44,7 +44,7 @@ const Alert = ({ type, message }: AlertProps) => {
             </h3>
             <p class="text-xs font-medium sm:text-sm">{message}</p>
           </div>
-          <button class="ml-auto" x-on:click="dismiss()">
+          <button class="ml-auto cursor-pointer" x-on:click="dismiss()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"

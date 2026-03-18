@@ -1,18 +1,27 @@
+import clsx from "clsx";
 import { ChildType } from "../../../types";
+
+type LinkProps = {
+  href: string;
+  target?: string;
+  children: ChildType;
+  className?: string;
+  hoverUnderline?: boolean;
+};
 
 const Link = ({
   href,
   target,
   children,
   className,
-}: {
-  href: string;
-  target?: string;
-  children: ChildType;
-  className?: string;
-}) => (
+  hoverUnderline = false,
+}: LinkProps) => (
   <a
-    class={`font-medium underline-offset-2 hover:underline focus:underline focus:outline-hidden ${className}`}
+    class={clsx(
+      "font-medium underline-offset-2 focus:underline focus:outline-hidden",
+      className,
+      hoverUnderline && "hover:underline",
+    )}
     href={href}
     target={target}
   >

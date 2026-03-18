@@ -12,14 +12,14 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
     `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${p}`;
 
   const prevAttrs = {
-    "x-target.push": `pagination ${targetId}`,
+    "x-target": `pagination ${targetId}`,
     "x-on:click":
       "$refs.paginationContent?.scrollIntoView({ behavior: 'smooth', block: 'start' })",
     ...(page <= 1 && { "aria-disabled": "true" }),
   };
 
   const nextAttrs = {
-    "x-target.push": `pagination ${targetId}`,
+    "x-target": `pagination ${targetId}`,
     "x-on:click":
       "$refs.paginationContent?.scrollIntoView({ behavior: 'smooth', block: 'start' })",
     ...(page >= totalPages && { "aria-disabled": "true" }),

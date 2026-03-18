@@ -92,7 +92,7 @@ export default LibraryPage;
 
 const icon = (
   <svg
-    class="size-48"
+    class="size-64"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     width="924.828"

@@ -17,6 +17,7 @@ type CreatorDetailPageProps = {
   isMobile: boolean;
   currentPage: number;
   sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
+  currentCreatorId?: string | null;
 };
 
 const CreatorDetailPage = async ({
@@ -25,6 +26,7 @@ const CreatorDetailPage = async ({
   currentPath,
   currentPage,
   isMobile,
+  currentCreatorId,
 }: CreatorDetailPageProps) => {
   const result = await getBooksByCreatorSlug(creatorSlug, currentPage);
 
@@ -47,15 +49,16 @@ const CreatorDetailPage = async ({
           {isMobile && <MobileCreatorCard creator={creator} user={user} />}
           <div class="md:w-4/5 flex flex-col gap-4">
             <BooksGrid
-              creator={creator}
+              title={creator.displayName}
               user={user}
               currentPath={currentPath}
               result={{ ...rest }}
+              currentCreatorId={creator.id}
             />
             <Divider />
             <CreatorsGrid creators={relatedCreators} title={title} />
           </div>
-          <div class="md:w-1/5 md:mt-14">
+          <div class="md:w-1/5">
             <CreatorCard
               creator={creator}
               currentPath={currentPath}

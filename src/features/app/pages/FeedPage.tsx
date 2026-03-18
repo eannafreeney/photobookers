@@ -52,7 +52,6 @@ const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
           user={user}
           currentPath={currentPath}
           result={result}
-          showHeader
           noResultsMessage="Start following artists and publishers to see their latest releases here."
         />
       </Page>
@@ -64,7 +63,7 @@ export default FeedPage;
 
 const icon = (
   <svg
-    class="size-48"
+    class="size-64"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     width="709.78574"

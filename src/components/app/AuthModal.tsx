@@ -14,26 +14,26 @@ const AuthModal = ({
   registerButtonUrl = "/auth/accounts",
 }: Props) => {
   return (
-    <Modal>
-      <div class="flex flex-col gap-4 p-2">
-        <div class="text-on-surface text-center">{`Please login or register ${action}`}</div>
-        <div class="flex flex-col gap-2">
-          <Link
-            href={`/auth/login${
-              redirectUrl ? `?redirectUrl=${redirectUrl}` : ""
-            }`}
-          >
-            <Button variant="outline" color="primary">
-              <span>Login</span>
-            </Button>
-          </Link>
-          <Link href={registerButtonUrl}>
-            <Button variant="solid" color="primary">
-              <span>Register</span>
-            </Button>
-          </Link>
-        </div>
+    <Modal title={`Please login or register ${action}`}>
+      {/* <div class="flex flex-col gap-4"> */}
+      <div class="flex items-center justify-center gap-2">
+        <Link
+          href={`/auth/login${
+            redirectUrl ? `?redirectUrl=${redirectUrl}` : ""
+          }`}
+          className="w-full"
+        >
+          <Button variant="outline" color="primary" width="full">
+            <span>Login</span>
+          </Button>
+        </Link>
+        <Link href={registerButtonUrl} className="w-full">
+          <Button variant="solid" color="primary" width="full">
+            <span>Register</span>
+          </Button>
+        </Link>
       </div>
+      {/* </div> */}
     </Modal>
   );
 };

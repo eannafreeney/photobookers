@@ -80,7 +80,7 @@ const AccountsPage = () => {
         </div>
         {/* Desktop View */}
         <div class="hidden md:block overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
-          <table class="w-full text-left text-sm text-on-surface">
+          <table class="w-full table-fixed text-left text-sm text-on-surface">
             <thead class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong">
               <tr>
                 <th scope="col" class="p-4">
@@ -113,21 +113,21 @@ const AccountsPage = () => {
                 <td class="p-4"></td>
                 <td class="p-4 text-center">
                   <a href="/auth/register?type=fan">
-                    <Button variant="solid" color="primary">
+                    <Button variant="solid" color="primary" width="md">
                       Sign up
                     </Button>
                   </a>
                 </td>
                 <td class="p-4 text-center">
                   <a href="/auth/register?type=artist">
-                    <Button variant="solid" color="primary">
+                    <Button variant="solid" color="primary" width="md">
                       Sign up
                     </Button>
                   </a>
                 </td>
                 <td class="p-4 text-center">
                   <a href="/auth/register?type=publisher">
-                    <Button variant="solid" color="primary">
+                    <Button variant="solid" color="primary" width="md">
                       Sign up
                     </Button>
                   </a>
