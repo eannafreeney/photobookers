@@ -22,7 +22,7 @@ const RelatedBooks = async ({ book, user }: RelatedBooksProps) => {
   return (
     <div class="flex flex-col gap-4">
       <SectionTitle className="mb-2">You might also like</SectionTitle>
-      <GridPanel isFullWidth>
+      <GridPanel>
         {relatedBooks.map((b) => (
           <BookCard key={b.id} book={b} user={user} />
         ))}

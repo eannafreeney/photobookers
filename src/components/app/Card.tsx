@@ -54,19 +54,16 @@ const CardImage = ({
   aspectSquare = false,
   objectCover = false,
   coverLandscapeAndSquare = false,
-  height = "auto",
 }: CardImageProps) => (
   <figure
     x-data="imageOrientation()"
     class={clsx(
       "relative w-full overflow-hidden bg-white shadow-sm",
-      aspectSquare ? "aspect-square" : "aspect-4/3",
+      aspectSquare ? "aspect-square" : "aspect-[1]",
     )}
     {...(coverLandscapeAndSquare && { "data-cover-square": "true" })}
     {...(aspectSquare && { "data-aspect-square": "true" })}
     {...(objectCover && { "data-object-cover": "true" })}
-    x-bind:style="loaded && !aspectSquare && imageAspectRatio ? { aspectRatio: imageAspectRatio } : {}"
-    style={{ height }}
   >
     <div
       class="absolute inset-0 flex items-center justify-center bg-surface-variant/30 animate-pulse"

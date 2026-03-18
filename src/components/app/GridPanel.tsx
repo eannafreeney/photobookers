@@ -1,16 +1,13 @@
-import clsx from "clsx";
 import { ChildType } from "../../../types";
 
 type GridPanelProps = {
   children: ChildType | ChildType[];
-  isFullWidth?: boolean;
   id?: string;
   xMerge?: "replace" | "append";
 };
 
 const GridPanel = ({
   children,
-  isFullWidth = false,
   id,
   xMerge = "replace",
   ...props
@@ -19,10 +16,7 @@ const GridPanel = ({
     <div
       id={id}
       x-merge={xMerge}
-      className={clsx(
-        "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-stretch",
-        isFullWidth ? "lg:grid-cols-5 " : "lg:grid-cols-4",
-      )}
+      className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6" // className=" grid gap-4 grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]"
       {...props}
     >
       {children}

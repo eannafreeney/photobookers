@@ -14,9 +14,9 @@ type BookCardProps = {
 
 const BookCard = ({ book, user, currentCreatorId }: BookCardProps) => {
   return (
-    <Card className="">
+    <Card className="min-w-[200px] max-w-[24rem]">
       {currentCreatorId !== book.artist?.id && (
-        <div class="p-2 flex items-center justify-between">
+        <div class="p-2 flex items-center justify-between h-10">
           <CardCreatorCard
             creator={book.artist ?? null}
             maxDisplayNameLength={20}
@@ -31,7 +31,6 @@ const BookCard = ({ book, user, currentCreatorId }: BookCardProps) => {
           src={book.coverUrl ?? ""}
           alt={book.title}
           href={`/books/${book.slug}`}
-          height="330px"
         />
       </Link>
       <Card.Body>

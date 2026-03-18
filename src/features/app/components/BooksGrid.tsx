@@ -14,7 +14,6 @@ type Props = {
     page: number;
   };
   title?: string;
-  isFullWidth?: boolean;
   noResultsMessage?: string;
   currentCreatorId?: string | null;
 };
@@ -24,7 +23,6 @@ const BooksGrid = async ({
   result,
   user,
   title,
-  isFullWidth = false,
   noResultsMessage = "No books found",
   currentCreatorId,
 }: Props) => {
@@ -38,7 +36,7 @@ const BooksGrid = async ({
           {title && <SectionTitle className="mb-2">{title}</SectionTitle>}
           {/* <SortDropdown sortBy={sortBy} currentPath={currentPath} /> */}
         </div>
-        <GridPanel id={targetId} isFullWidth={isFullWidth}>
+        <GridPanel id={targetId}>
           {books?.length > 0 ? (
             books.map((book) => (
               <BookCard

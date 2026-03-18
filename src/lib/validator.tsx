@@ -16,8 +16,6 @@ export const formValidator = <T extends z.ZodSchema>(schema: T) => {
 };
 
 export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
-  console.log("HELLO FROM PARAM VALIDATOR");
-
   return validator("param", async (params, c) => {
     const result = schema.safeParse(params);
     if (!result.success) {

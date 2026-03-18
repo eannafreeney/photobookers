@@ -493,7 +493,7 @@ export const getRelatedBooks = async (
     publisherId: string | null;
     tags: string[] | null;
   },
-  limit = 5,
+  limit = 10,
 ): Promise<BookCardResult[]> => {
   try {
     const seenIds = new Set<string>([currentBookId]);
