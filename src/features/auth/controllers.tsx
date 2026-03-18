@@ -43,7 +43,12 @@ import { createStubCreatorProfile } from "../dashboard/creators/services";
 import { findUserByEmailAdmin } from "../dashboard/admin/creators/services";
 import { eq } from "drizzle-orm";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
-import { generateVerificationWelcomeEmail } from "./emails";
+import {
+  generateCreatorNotificationEmail,
+  generateFanNotificationEmail,
+  generateVerificationWelcomeEmail,
+} from "./emails";
+import { sendAdminEmail } from "../../lib/sendEmail";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -134,6 +139,11 @@ export const registerFan = async (c: RegisterFanFormContext) => {
   // With email confirmation on, Supabase returns success but empty identities when email exists
   if (data.user && (!data.user.identities || data.user.identities.length === 0))
     return showErrorAlert(c, alreadyRegisteredMessage);
+
+  await sendAdminEmail(
+    "New fan registered",
+    generateFanNotificationEmail(firstName, lastName, email),
+  );
 
   await setFlash(
     c,
@@ -244,6 +254,11 @@ export const registerCreator = async (c: RegisterCreatorFormContext) => {
     await deleteClaim(claim.id);
     return showErrorAlert(c, "Failed to send email. Please try again.");
   }
+
+  await sendAdminEmail(
+    "New creator registered",
+    generateCreatorNotificationEmail(newCreator),
+  );
 
   const flashMessage = domainsMatch
     ? "Account created! Check your email to log in and start managing your profile."

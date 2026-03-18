@@ -2,6 +2,7 @@ import Alert from "../../components/app/Alert";
 import AuthModal from "../../components/app/AuthModal";
 import Modal from "../../components/app/Modal";
 import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
+import { sendAdminEmail } from "../../lib/sendEmail";
 import { supabaseAdmin } from "../../lib/supabase";
 import { isSameDomain, normalizeUrl } from "../../services/verification";
 import { getUser } from "../../utils";
@@ -89,22 +90,10 @@ export const processClaim = async (c: ProcessClaimContext) => {
     return showErrorAlert(c, "Failed to submit claim. Please try again.");
   }
 
-  const adminEmail = process.env.ADMIN_EMAIL ?? "hello@photobookers.com";
-  try {
-    const { error } = await supabaseAdmin.functions.invoke("send-email", {
-      body: {
-        to: adminEmail,
-        subject: "New creator claim submitted",
-        html: generateClaimNotificationEmail(),
-      },
-      headers: {
-        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
-      },
-    });
-    if (error) console.error("Failed to send claim notification email:", error);
-  } catch (e) {
-    console.error("Claim notification email error:", e);
-  }
+  await sendAdminEmail(
+    "New creator claim submitted",
+    generateClaimNotificationEmail(),
+  );
 
   if (status === "approved") {
     await assignUserAsCreatorOwnerAdmin(user.id, creatorId, true);
