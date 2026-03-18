@@ -37,7 +37,7 @@ const BookCard = ({
           src={book.coverUrl ?? ""}
           alt={book.title}
           href={`/books/${book.slug}`}
-          height="300px"
+          height="330px"
         />
       </Link>
       <Card.Body>
