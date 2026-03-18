@@ -335,8 +335,6 @@ export const processRegister = async (c: Context) => {
     );
   }
 
-  console.log("about to send email");
-
   try {
     await supabaseAdmin.functions.invoke("send-email", {
       body: {
@@ -348,8 +346,6 @@ export const processRegister = async (c: Context) => {
   } catch (error) {
     console.error("Verification welcome email failed:", error);
   }
-
-  console.log("email sent. about to flash");
 
   await setFlash(
     c,
