@@ -73,7 +73,7 @@ const CardImage = ({
     >
       {imageSkeletonIcon}
     </div>
-    <Link href={href} className="relative block w-full h-full min-h-0">
+    <Link href={href}>
       <img
         src={src}
         alt={alt}

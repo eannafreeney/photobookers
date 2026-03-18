@@ -26,13 +26,11 @@ const BookCard = ({ book, user, currentCreatorId }: BookCardProps) => {
           </Card.Text>
         </div>
       )}
-      <Link href={`/books/${book.slug}`}>
-        <Card.Image
-          src={book.coverUrl ?? ""}
-          alt={book.title}
-          href={`/books/${book.slug}`}
-        />
-      </Link>
+      <Card.Image
+        src={book.coverUrl ?? ""}
+        alt={book.title}
+        href={`/books/${book.slug}`}
+      />
       <Card.Body>
         <div class="flex items-start justify-between">
           <Link href={`/books/${book.slug}`}>
