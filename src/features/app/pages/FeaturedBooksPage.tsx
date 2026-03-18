@@ -9,26 +9,16 @@ import Intersector from "../components/Intersector";
 
 type Props = {
   user: AuthUser | null;
-  flash: Flash;
+
   currentPath: string;
   isMobile: boolean;
 };
 
-const FeaturedBooksPage = async ({
-  user,
-  flash,
-  currentPath,
-  isMobile,
-}: Props) => {
+const FeaturedBooksPage = async ({ user, currentPath, isMobile }: Props) => {
   const bookOfTheWeek = await getThisWeeksBookOfTheWeek();
 
   return (
-    <AppLayout
-      title="Books"
-      user={user}
-      flash={flash}
-      currentPath={currentPath}
-    >
+    <AppLayout title="Books" user={user} currentPath={currentPath}>
       <Page>
         <NavTabs currentPath={currentPath} />
         <BookOfTheWeekGrid

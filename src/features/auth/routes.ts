@@ -15,6 +15,7 @@ import {
   validateDisplayName,
   validateEmail,
   validateWebsite,
+  getSignupSuccessPage,
 } from "./controllers";
 import { redirectUrlSchema } from "../../schemas";
 import { formValidator, paramValidator } from "../../lib/validator";
@@ -32,6 +33,7 @@ authRoutes.get("/login", getLoginPage);
 authRoutes.get("/register", getRegisterPage);
 authRoutes.get("/force-reset-password", getSetNewPasswordPage);
 authRoutes.get("/reset-password", getResetPasswordModal);
+authRoutes.get("/signup-success", getSignupSuccessPage);
 
 // ---------- Auth flow (GET/POST) ----------
 authRoutes.get("/callback", processRegister);

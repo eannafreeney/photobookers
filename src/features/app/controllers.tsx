@@ -18,10 +18,11 @@ import { supabaseAdmin } from "../../lib/supabase";
 import { generateContactEmail } from "./emails";
 import LatestBooksFragment from "./fragments/LatestBooksFragment";
 import FeaturedBooksFragment from "./fragments/FeaturedBooksFragment";
-import TagsFragment from "./fragments/TagsFragment";
 import MessagesPage from "./pages/MessagesPage";
 import CreatorSpotlightFragment from "./fragments/CreatorSpotlightFragment";
 import NewsletterConfirmationPage from "./pages/NewsletterConfirmationPage";
+import RelatedBooksFragment from "./fragments/RelatedBooksFragment";
+import { getBookBySlug } from "./services";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -99,14 +100,12 @@ export const getTagPage = async (c: Context) => {
 
 export const getFeaturedPage = async (c: Context) => {
   const user = await getUser(c);
-  const flash = await getFlash(c);
   const currentPath = c.req.path;
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   return c.html(
     <FeaturedBooksPage
       user={user}
-      flash={flash}
       currentPath={currentPath}
       isMobile={isMobile}
     />,
@@ -262,4 +261,14 @@ export const getFeaturedBooksFragment = async (c: Context) => {
 
 export const getCreatorSpotlightFragment = async (c: Context) => {
   return c.html(<CreatorSpotlightFragment />);
+};
+
+export const getRelatedBooksFragment = async (c: Context) => {
+  const bookSlug = c.req.param("slug");
+  const user = await getUser(c);
+  const result = await getBookBySlug(bookSlug);
+
+  return c.html(
+    <RelatedBooksFragment book={result?.book ?? null} user={user} />,
+  );
 };

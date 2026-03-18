@@ -49,6 +49,7 @@ import {
   generateVerificationWelcomeEmail,
 } from "./emails";
 import { sendAdminEmail } from "../../lib/sendEmail";
+import SignUpSuccessPage from "./pages/SignUpSuccessPage";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -70,6 +71,12 @@ export const getRegisterPage = async (c: Context) => {
   const redirectUrl = c.req.query("redirectUrl") ?? "";
   if (user) return c.redirect("/");
   return c.html(<RegisterPage type={type} redirectUrl={redirectUrl} />);
+};
+
+export const getSignupSuccessPage = async (c: Context) => {
+  const name = c.req.query("name") as string;
+  const message = c.req.query("message") as string;
+  return c.html(<SignUpSuccessPage name={name} message={message} />);
 };
 
 export const login = async (c: LoginFormContext) => {
@@ -145,12 +152,7 @@ export const registerFan = async (c: RegisterFanFormContext) => {
     generateFanNotificationEmail(firstName, lastName, email),
   );
 
-  await setFlash(
-    c,
-    "success",
-    `Hi ${data.user?.user_metadata?.firstName}! Your account has been created successfully. Check your email for verification.`,
-  );
-  return c.redirect("/");
+  return c.redirect(`/auth/signup-success?name=${firstName}`);
 };
 
 export const registerCreator = async (c: RegisterCreatorFormContext) => {
@@ -260,11 +262,13 @@ export const registerCreator = async (c: RegisterCreatorFormContext) => {
     generateCreatorNotificationEmail(newCreator),
   );
 
-  const flashMessage = domainsMatch
+  const message = domainsMatch
     ? "Account created! Check your email to log in and start managing your profile."
     : "Account created! Your creator profile is pending review — we'll notify you once approved.";
-  await setFlash(c, "success", flashMessage);
-  return c.redirect("/");
+
+  return c.redirect(
+    `/auth/signup-success?name=${newCreator.displayName}&message=${message}`,
+  );
 };
 
 export const processRegister = async (c: Context) => {

@@ -9,18 +9,12 @@ import { BookCardResult } from "../../constants/queries";
 type BookCardProps = {
   book: BookCardResult;
   user: AuthUser | null;
-  className?: string;
   currentCreatorId?: string | null;
 };
 
-const BookCard = ({
-  book,
-  user,
-  className,
-  currentCreatorId,
-}: BookCardProps) => {
+const BookCard = ({ book, user, currentCreatorId }: BookCardProps) => {
   return (
-    <Card className={className}>
+    <Card className="">
       {currentCreatorId !== book.artist?.id && (
         <div class="p-2 flex items-center justify-between">
           <CardCreatorCard

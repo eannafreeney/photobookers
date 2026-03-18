@@ -9,6 +9,8 @@ type Props = {
 const FeaturedBooksFragment = async ({ user }: Props) => {
   const featuredBooks = await getThisWeeksFeaturedBooks();
 
+  if (!featuredBooks || featuredBooks.length === 0) return <></>;
+
   return (
     <div id="featured-books-fragment">
       <FeaturedBooksGrid featuredBooks={featuredBooks} user={user} />

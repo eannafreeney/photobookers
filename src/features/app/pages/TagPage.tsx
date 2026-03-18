@@ -1,11 +1,11 @@
 import { AuthUser } from "../../../../types";
-import { loadingIcon } from "../../../components/app/Pagination";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
 import { capitalize } from "../../../utils";
 import BooksGrid from "../components/BooksGrid";
 import Intersector from "../components/Intersector";
+import RelatedBooks from "../components/RelatedBooks";
 import { getBooksByTag } from "../services";
 
 type TagPageProps = {
@@ -39,6 +39,10 @@ const TagPage = async ({
           user={user}
           currentPath={currentPath}
           result={result}
+        />
+        <Intersector
+          id="related-books-fragment"
+          endpoint={`/fragments/related-books/${result.books[0].slug}`}
         />
       </Page>
     </AppLayout>

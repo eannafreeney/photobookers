@@ -15,6 +15,8 @@ const LatestBooksFragment = async ({
 }: Props) => {
   const result = await getLatestBooks(currentPage);
 
+  if (!result?.books || result?.books.length === 0) return <></>;
+
   return (
     <div id="latest-books-fragment">
       <BooksGrid

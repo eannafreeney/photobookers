@@ -84,10 +84,10 @@ const Input = ({
             aria-label="Toggle password visibility"
           >
             <span x-show="inputType === 'password'" {...fadeTransition}>
-              {eyeIcon}
+              {eyeIcon(5)}
             </span>
             <span x-show="inputType === 'text'" {...fadeTransition}>
-              {eyeSlashIcon}
+              {eyeSlashIcon(5)}
             </span>
           </span>
         )}

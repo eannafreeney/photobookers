@@ -16,22 +16,28 @@ import {
   getMessagesFeedPage,
   getNewsletterConfirmationPage,
   getPublishersPage,
+  getRelatedBooksFragment,
   getTagPage,
   getTermsPage,
   processContact,
 } from "./controllers";
 import { requireBookPreviewAccess } from "../../middleware/bookGuard";
-import { formValidator } from "../../lib/validator";
-import { contactFormSchema } from "./schema";
+import { formValidator, paramValidator } from "../../lib/validator";
+import { contactFormSchema, slugSchema, tagSchema } from "./schema";
 
 export const app = new Hono();
 
 // HOME
 app.get("/", getHomePage);
-app.get("/creators/:slug", getCreatorDetailPage);
-app.get("/books/:slug", getBookDetailPage);
-app.get("/books/preview/:slug", requireBookPreviewAccess, getBookPreviewPage);
-app.get("/books/tags/:tag", getTagPage);
+app.get("/creators/:slug", paramValidator(slugSchema), getCreatorDetailPage);
+app.get("/books/:slug", paramValidator(slugSchema), getBookDetailPage);
+app.get(
+  "/books/preview/:slug",
+  paramValidator(slugSchema),
+  requireBookPreviewAccess,
+  getBookPreviewPage,
+);
+app.get("/books/tags/:tag", paramValidator(tagSchema), getTagPage);
 app.get("/featured", getFeaturedPage);
 app.get("/feed", getFeedPage);
 app.get("/library", getLibraryPage);
@@ -50,3 +56,8 @@ app.post("/contact", formValidator(contactFormSchema), processContact);
 app.get("/fragments/latest-books", getLatestBooksFragment);
 app.get("/fragments/featured-books", getFeaturedBooksFragment);
 app.get("/fragments/creator-spotlights", getCreatorSpotlightFragment);
+app.get(
+  "/fragments/related-books/:slug",
+  paramValidator(slugSchema),
+  getRelatedBooksFragment,
+);

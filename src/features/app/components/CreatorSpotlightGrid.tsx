@@ -16,8 +16,6 @@ const CreatorSpotlightsGrid = ({
   artistOfTheWeek,
   publisherOfTheWeek,
 }: CreatorSpotlightsGridProps) => {
-  if (!artistOfTheWeek && !publisherOfTheWeek) return <></>;
-
   const artist = artistOfTheWeek?.creator ?? null;
   const publisher = publisherOfTheWeek?.creator ?? null;
 

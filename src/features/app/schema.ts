@@ -10,3 +10,23 @@ export const contactFormSchema = z.object({
 export const newsletterFormSchema = z.object({
   email: z.string().email().min(1, "Email is required"),
 });
+
+export const slugSchema = z.object({
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Slug must contain only lowercase letters, numbers, and hyphens",
+    ),
+});
+
+export const tagSchema = z.object({
+  tag: z
+    .string()
+    .min(1, "Tag is required")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Tag must contain only lowercase letters, numbers, and hyphens",
+    ),
+});

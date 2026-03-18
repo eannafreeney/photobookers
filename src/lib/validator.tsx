@@ -1,13 +1,14 @@
 import z from "zod";
 import { validator } from "hono/validator";
-import { showErrorAlert } from "./alertHelpers";
+import ErrorPage from "../pages/error/errorPage";
+import { getUser } from "../utils";
 
 export const formValidator = <T extends z.ZodSchema>(schema: T) => {
-  return validator("form", (formData, c) => {
+  return validator("form", async (formData, c) => {
     const result = schema.safeParse(formData);
     if (!result.success) {
-      console.log("result.error", result.error);
-      return showErrorAlert(c, "Schema validation failed");
+      const user = await getUser(c);
+      return <ErrorPage errorMessage="Schema validation failed" user={user} />;
     }
 
     return result.data as z.infer<T>;
@@ -15,21 +16,24 @@ export const formValidator = <T extends z.ZodSchema>(schema: T) => {
 };
 
 export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
-  return validator("param", (params, c) => {
+  console.log("HELLO FROM PARAM VALIDATOR");
+
+  return validator("param", async (params, c) => {
     const result = schema.safeParse(params);
     if (!result.success) {
-      return showErrorAlert(c, "Invalid parameters");
+      const user = await getUser(c);
+      return <ErrorPage errorMessage="Invalid parameters" user={user} />;
     }
     return result.data as z.infer<T>;
   });
 };
 
 export const queryValidator = <T extends z.ZodSchema>(schema: T) => {
-  return validator("query", (query, c) => {
-    console.log("query", query);
+  return validator("query", async (query, c) => {
     const result = schema.safeParse(query);
     if (!result.success) {
-      return showErrorAlert(c, "Invalid query parameters");
+      const user = await getUser(c);
+      return <ErrorPage errorMessage="Invalid query parameters" user={user} />;
     }
     return result.data as z.infer<T>;
   });
