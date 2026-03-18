@@ -5,7 +5,7 @@ import { PropsWithChildren } from "hono/jsx";
 const button = tv({
   base: `
     whitespace-nowrap rounded-radius px-4 py-2
-    text-sm font-medium tracking-wide text-center
+    text-sm font-medium tracking-wide text-center shadow-sm
     transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2
     active:opacity-100 active:outline-offset-0 disabled:opacity-25 disabled:cursor-not-allowed cursor-pointer
   `,
@@ -17,7 +17,10 @@ const button = tv({
     },
     // color: Object.keys(colorMap) as (keyof typeof colorMap)[],
     color: Object.fromEntries(
-      (Object.keys(colorMap) as (keyof typeof colorMap)[]).map(key => [key, ""])
+      (Object.keys(colorMap) as (keyof typeof colorMap)[]).map((key) => [
+        key,
+        "",
+      ]),
     ) as Record<keyof typeof colorMap, string>,
     width: {
       full: "w-full",
@@ -35,7 +38,12 @@ const button = tv({
     width: "full",
   },
   compoundVariants: [
-    ...(Object.entries(colorMap) as [keyof typeof colorMap, typeof colorMap[keyof typeof colorMap]][]).flatMap(([color, styles]) => [
+    ...(
+      Object.entries(colorMap) as [
+        keyof typeof colorMap,
+        (typeof colorMap)[keyof typeof colorMap],
+      ][]
+    ).flatMap(([color, styles]) => [
       { variant: "solid" as const, color, class: styles.solid },
       { variant: "outline" as const, color, class: styles.outline },
       { variant: "ghost" as const, color, class: styles.ghost },

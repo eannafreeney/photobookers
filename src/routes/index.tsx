@@ -4,7 +4,7 @@ import { requireAuth } from "../middleware/requireAuth";
 import { optionalAuthMiddleware } from "../middleware/optionalAuthMiddleware";
 import { useSession } from "@hono/session";
 import { requireAdmin } from "../middleware/requireAdmin";
-import { appRoutes } from "../features/app/routes";
+import { app as appRoutes } from "../features/app/routes";
 import { authRoutes } from "../features/auth/routes";
 import { booksDashboardRoutes } from "../features/dashboard/books/routes";
 import { creatorDashboardRoutes } from "../features/dashboard/creators/routes";

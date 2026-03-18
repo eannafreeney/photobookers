@@ -14,6 +14,7 @@ import {
   getLatestBooksFragment,
   getLibraryPage,
   getMessagesFeedPage,
+  getNewsletterConfirmationPage,
   getPublishersPage,
   getTagPage,
   getTermsPage,
@@ -23,32 +24,29 @@ import { requireBookPreviewAccess } from "../../middleware/bookGuard";
 import { formValidator } from "../../lib/validator";
 import { contactFormSchema } from "./schema";
 
-export const appRoutes = new Hono();
+export const app = new Hono();
 
 // HOME
-appRoutes.get("/", getHomePage);
-appRoutes.get("/creators/:slug", getCreatorDetailPage);
-appRoutes.get("/books/:slug", getBookDetailPage);
-appRoutes.get(
-  "/books/preview/:slug",
-  requireBookPreviewAccess,
-  getBookPreviewPage,
-);
-appRoutes.get("/books/tags/:tag", getTagPage);
-appRoutes.get("/featured", getFeaturedPage);
-appRoutes.get("/feed", getFeedPage);
-appRoutes.get("/library", getLibraryPage);
-appRoutes.get("/about", getAboutPage);
-appRoutes.get("/contact", getContactPage);
-appRoutes.get("/terms", getTermsPage);
-appRoutes.get("/artists", getArtistsPage);
-appRoutes.get("/publishers", getPublishersPage);
-appRoutes.get("/messages", getMessagesFeedPage);
+app.get("/", getHomePage);
+app.get("/creators/:slug", getCreatorDetailPage);
+app.get("/books/:slug", getBookDetailPage);
+app.get("/books/preview/:slug", requireBookPreviewAccess, getBookPreviewPage);
+app.get("/books/tags/:tag", getTagPage);
+app.get("/featured", getFeaturedPage);
+app.get("/feed", getFeedPage);
+app.get("/library", getLibraryPage);
+app.get("/about", getAboutPage);
+app.get("/contact", getContactPage);
+app.get("/terms", getTermsPage);
+app.get("/artists", getArtistsPage);
+app.get("/publishers", getPublishersPage);
+app.get("/messages", getMessagesFeedPage);
+app.get("/newsletter-confirmation", getNewsletterConfirmationPage);
 
 // POST
-appRoutes.post("/contact", formValidator(contactFormSchema), processContact);
+app.post("/contact", formValidator(contactFormSchema), processContact);
 
 // Fragment routes
-appRoutes.get("/fragments/latest-books", getLatestBooksFragment);
-appRoutes.get("/fragments/featured-books", getFeaturedBooksFragment);
-appRoutes.get("/fragments/creator-spotlights", getCreatorSpotlightFragment);
+app.get("/fragments/latest-books", getLatestBooksFragment);
+app.get("/fragments/featured-books", getFeaturedBooksFragment);
+app.get("/fragments/creator-spotlights", getCreatorSpotlightFragment);

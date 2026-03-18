@@ -22,6 +22,7 @@ import TagsFragment from "./fragments/TagsFragment";
 import MessagesPage from "./pages/MessagesPage";
 import CreatorSpotlightFragment from "./fragments/CreatorSpotlightFragment";
 import NotFoundPage from "../../pages/NotFoundPage";
+import NewsletterConfirmationPage from "./pages/NewsletterConfirmationPage";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -202,6 +203,10 @@ export const getMessagesFeedPage = async (c: Context) => {
       currentPage={page}
     />,
   );
+};
+
+export const getNewsletterConfirmationPage = async (c: Context) => {
+  return c.html(<NewsletterConfirmationPage />);
 };
 
 export const processContact = async (c: ContactFormContext) => {
