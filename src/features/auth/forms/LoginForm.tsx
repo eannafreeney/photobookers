@@ -35,6 +35,8 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
           placeholder="••••••••"
           validationTrigger="blur"
           required
+          showPasswordToggle
+          {...{ "x-bind:type": "inputType" }}
         />
         <FormButton buttonText="Log In" loadingText="Logging in..." />
       </form>

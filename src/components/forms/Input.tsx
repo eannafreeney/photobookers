@@ -1,6 +1,7 @@
 import InputLabel from "./InputLabel";
 import { fadeTransition } from "../../lib/transitions";
 import { getInputIcon } from "../../utils";
+import { eyeIcon, eyeSlashIcon } from "../../lib/icons";
 
 type InputProps = {
   label: string;
@@ -16,6 +17,7 @@ type InputProps = {
   isError?: boolean;
   isSuccess?: boolean;
   autofocus?: boolean;
+  showPasswordToggle?: boolean;
 };
 
 const Input = ({
@@ -32,6 +34,7 @@ const Input = ({
   isError = false,
   isSuccess = false,
   autofocus = false,
+  showPasswordToggle = false,
   ...restProps
 }: InputProps) => {
   const eventByTrigger = {
@@ -72,6 +75,22 @@ const Input = ({
           {...(validateInput && inputValidator)}
           {...restProps}
         />
+        {showPasswordToggle && (
+          <span
+            x-on:click="togglePasswordVisibility()"
+            class="cursor-pointer inline-flex shrink-0"
+            role="button"
+            tabIndex={0}
+            aria-label="Toggle password visibility"
+          >
+            <span x-show="inputType === 'password'" {...fadeTransition}>
+              {eyeIcon}
+            </span>
+            <span x-show="inputType === 'text'" {...fadeTransition}>
+              {eyeSlashIcon}
+            </span>
+          </span>
+        )}
       </label>
       <InputError isError={isError} isSuccess={isSuccess} name={name} />
     </fieldset>
@@ -87,7 +106,7 @@ type InputErrorProps = {
 };
 
 const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (
-  <div class="text-xs min-h-[16px] my-2 block">
+  <div class="text-xs min-h-4 my-2 block">
     {isError ? (
       <span class="text-danger block text-right" {...fadeTransition}>
         ✗ Taken

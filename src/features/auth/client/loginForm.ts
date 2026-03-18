@@ -8,6 +8,11 @@ export function registerLoginForm() {
 
     return {
       isSubmitting: false,
+      inputType: "password" as "password" | "text",
+      togglePasswordVisibility() {
+        console.log("togglePasswordVisibility");
+        this.inputType = this.inputType === "password" ? "text" : "password";
+      },
       form: {
         email: params.get("email") ?? "",
         password: params.get("password") ?? "",

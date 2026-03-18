@@ -14,7 +14,7 @@ type CardCreatorCardProps = {
 const CardCreatorCard = async ({
   creator,
   avatarSize = "xs",
-  maxDisplayNameLength = 20,
+  maxDisplayNameLength,
 }: CardCreatorCardProps) => {
   if (!creator) return <></>;
 
@@ -38,7 +38,7 @@ const CardCreatorCard = async ({
         </div>
       </div>
       <Link href={`/creators/${creator.slug}`}>
-        <Card.SubTitle>{displayName}</Card.SubTitle>
+        <Card.SubTitle title={creator.displayName}>{displayName}</Card.SubTitle>
       </Link>
     </div>
   );

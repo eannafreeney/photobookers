@@ -22,7 +22,7 @@ const BookCard = ({
   return (
     <Card className={className}>
       {currentCreatorId !== book.artist?.id && (
-        <div class="px-2 py-2 flex items-center justify-between">
+        <div class="p-2 flex items-center justify-between">
           <CardCreatorCard
             creator={book.artist ?? null}
             maxDisplayNameLength={20}

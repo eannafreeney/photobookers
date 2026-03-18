@@ -116,7 +116,7 @@ export const editIcon = (
   </svg>
 );
 
-export const previewIcon = (
+export const eyeSlashIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
@@ -133,7 +133,7 @@ export const previewIcon = (
   </svg>
 );
 
-export const viewIcon = (
+export const eyeIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"

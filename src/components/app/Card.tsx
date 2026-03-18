@@ -102,10 +102,13 @@ const CardTitle = ({ children }: TitleProps) => (
 
 type SubTitleProps = {
   children: ChildType;
+  title?: string;
 };
 
-const CardSubTitle = ({ children }: SubTitleProps) => (
-  <span class="text-sm font-medium ">{children}</span>
+const CardSubTitle = ({ children, title }: SubTitleProps) => (
+  <span class="text-sm font-medium" title={title}>
+    {children}
+  </span>
 );
 
 type IntroProps = {

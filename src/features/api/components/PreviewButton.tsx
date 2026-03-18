@@ -1,6 +1,6 @@
 import { AuthUser } from "../../../../types";
 import { Book } from "../../../db/schema";
-import { previewIcon, viewIcon } from "../../../lib/icons";
+import { eyeIcon, eyeSlashIcon } from "../../../lib/icons";
 import { canPreviewBook } from "../../../lib/permissions";
 import Link from "../../../components/app/Link";
 
@@ -15,7 +15,7 @@ const PreviewButton = ({ book, user }: Props) => {
   if (book.publicationStatus === "published") {
     return (
       <div id={`preview-button-${bookId}`}>
-        <Link href={`/books/${book.slug}`}>{viewIcon}</Link>
+        <Link href={`/books/${book.slug}`}>{eyeIcon}</Link>
       </div>
     );
   }
@@ -24,7 +24,7 @@ const PreviewButton = ({ book, user }: Props) => {
     <div id={`preview-button-${bookId}`}>
       <Link href={`/books/preview/${book.slug}`} target="_blank">
         <button class="cursor-pointer" disabled={!canPreviewBook(user, book)}>
-          {previewIcon}
+          {eyeSlashIcon}
         </button>
       </Link>
     </div>
