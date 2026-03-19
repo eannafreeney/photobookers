@@ -1,6 +1,7 @@
 import { AuthUser } from "../../../../types";
 import { getLatestBooks } from "../services";
 import BooksGrid from "../components/BooksGrid";
+import { isErr } from "../../../lib/result";
 
 type Props = {
   user: AuthUser;
@@ -13,9 +14,9 @@ const LatestBooksFragment = async ({
   currentPage,
   currentPath,
 }: Props) => {
-  const result = await getLatestBooks(currentPage);
+  const [error, result] = await getLatestBooks(currentPage);
 
-  if (!result?.books || result?.books.length === 0) return <></>;
+  if (error) return <></>;
 
   return (
     <div id="latest-books-fragment">

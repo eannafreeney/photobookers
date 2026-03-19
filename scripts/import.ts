@@ -9,11 +9,11 @@ import { eq, ilike } from "drizzle-orm";
 import { db } from "../src/db/client";
 import { bookImages, creators, users, books } from "../src/db/schema";
 import { createBook } from "../src/features/dashboard/books/services";
-import { createStubCreatorProfile } from "../src/features/dashboard/creators/services";
+import { createStubCreatorProfileAdmin } from "../src/features/dashboard/admin/creators/services";
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "photo-editions.csv";
+const SOURCE_CSV_FILE = "magichour.csv";
 const AMOUNT_OF_BOOKS = 12;
 
 function sleep(ms: number) {
@@ -59,7 +59,7 @@ async function getOrCreateArtist(artistName: string, createdByUserId: string) {
   const creator = existing.find((c) => c.type === "artist");
   if (creator) return creator;
 
-  const created = await createStubCreatorProfile(
+  const created = await createStubCreatorProfileAdmin(
     trimmed,
     createdByUserId,
     "artist",

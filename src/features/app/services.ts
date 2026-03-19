@@ -28,6 +28,7 @@ import {
   CreatorCardResult,
 } from "../../constants/queries";
 import { creatorMessages } from "../../db/schema";
+import { err, ok } from "../../lib/result";
 
 export const getBooksInWishlist = async (
   userId: string,
@@ -326,7 +327,7 @@ export const getLatestBooks = async (
       ),
       limit: limit,
       offset: offset,
-      orderBy: getBooksOrderBy(sortBy),
+      orderBy: [desc(books.createdAt)],
       with: {
         artist: {
           columns: CREATOR_CARD_COLUMNS,
@@ -336,10 +337,10 @@ export const getLatestBooks = async (
         },
       },
     });
-    return { books: foundBooks, totalPages, page };
+    return ok({ books: foundBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get books", error);
-    return { books: [], totalPages: 0, page: 1 };
+    return err({ reason: "Failed to get books" });
   }
 };
 
