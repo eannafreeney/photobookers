@@ -1,4 +1,4 @@
-import { err, ok } from "./Result";
+import { err, ok } from "./result";
 import { supabaseAdmin } from "./supabase";
 
 const adminEmail = process.env.ADMIN_EMAIL ?? "hello@photobookers.com";

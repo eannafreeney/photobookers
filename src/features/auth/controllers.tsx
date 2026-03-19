@@ -53,7 +53,7 @@ import {
   generateVerificationWelcomeEmail,
 } from "./emails";
 import { sendAdminEmail, sendEmail } from "../../lib/sendEmail";
-import { isErr, isOk } from "../../lib/Result";
+import { isErr, isOk } from "../../lib/result";
 import RegisterSuccessScreen from "./components/RegisterSuccessScreen";
 
 export const getAccountsPage = async (c: Context) => {

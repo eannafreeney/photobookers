@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { err, ok } from "../../lib/Result";
+import { err, ok } from "../../lib/result";
 import { createSupabaseClient } from "../../lib/supabase";
 
 export function getCallbackErrorMessage(

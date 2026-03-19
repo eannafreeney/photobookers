@@ -14,7 +14,6 @@ import { parseSortBy } from "../../lib/utils";
 import ContactPage from "./pages/ContactPage";
 import { ContactFormContext } from "./types";
 import { showErrorAlert } from "../../lib/alertHelpers";
-import { supabaseAdmin } from "../../lib/supabase";
 import { generateContactEmail } from "./emails";
 import LatestBooksFragment from "./fragments/LatestBooksFragment";
 import FeaturedBooksFragment from "./fragments/FeaturedBooksFragment";
@@ -24,7 +23,7 @@ import NewsletterConfirmationPage from "./pages/NewsletterConfirmationPage";
 import RelatedBooksFragment from "./fragments/RelatedBooksFragment";
 import { getBookBySlug } from "./services";
 import { sendAdminEmail } from "../../lib/sendEmail";
-import { isErr, match } from "../../lib/Result";
+import { match } from "../../lib/result";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");

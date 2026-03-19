@@ -1,6 +1,7 @@
 import SectionTitle from "../components/app/SectionTitle";
 import AppLayout from "../components/layouts/AppLayout";
 import Page from "../components/layouts/Page";
+import Button from "../components/app/Button";
 
 const NotFoundPage = ({ currentPath }: { currentPath: string }) => {
   return (
@@ -12,8 +13,10 @@ const NotFoundPage = ({ currentPath }: { currentPath: string }) => {
           <p class="text-base-content/80 max-w-md">
             The page you’re looking for doesn’t exist or has been moved.
           </p>
-          <a href="/featured" class="btn btn-primary">
-            Back to home
+          <a href="/featured">
+            <Button variant="solid" color="primary">
+              Back home
+            </Button>
           </a>
         </div>
       </Page>

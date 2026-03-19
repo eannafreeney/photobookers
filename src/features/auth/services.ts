@@ -5,7 +5,7 @@ import { db } from "../../db/client";
 import { creators, User, users } from "../../db/schema";
 import { and, eq, ne } from "drizzle-orm";
 import { normalizeUrl } from "../../services/verification";
-import { err, ok } from "../../lib/Result";
+import { err, ok } from "../../lib/result";
 import { registerCreatorFormSchema, registerFanFormSchema } from "./schema";
 import z from "zod";
 import { AuthSession } from "@supabase/supabase-js";

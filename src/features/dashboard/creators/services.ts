@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { creators, NewCreator } from "../../../db/schema";
 import { getRandomCoverUrl, slugify } from "../../../utils";
-import { err, ok } from "../../../lib/Result";
+import { err, ok } from "../../../lib/result";
 import { AuthSession } from "@supabase/supabase-js";
 
 export const createStubCreatorProfile = async (session: AuthSession) => {
