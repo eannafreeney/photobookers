@@ -23,6 +23,8 @@ import CreatorSpotlightFragment from "./fragments/CreatorSpotlightFragment";
 import NewsletterConfirmationPage from "./pages/NewsletterConfirmationPage";
 import RelatedBooksFragment from "./fragments/RelatedBooksFragment";
 import { getBookBySlug } from "./services";
+import { sendAdminEmail } from "../../lib/sendEmail";
+import { isErr, match } from "../../lib/Result";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -210,32 +212,19 @@ export const getNewsletterConfirmationPage = async (c: Context) => {
 export const processContact = async (c: ContactFormContext) => {
   const form = c.req.valid("form");
 
-  try {
-    const html = await generateContactEmail(form);
-    const { error } = await supabaseAdmin.functions.invoke("send-email", {
-      body: {
-        to: "hello@photobookers.com",
-        subject: "New Contact Form Submission",
-        html,
+  match(
+    await sendAdminEmail(
+      "New Contact Form Submission",
+      generateContactEmail(form),
+    ),
+    {
+      err: () => showErrorAlert(c, "Failed to send contact email."),
+      ok: async () => {
+        await setFlash(c, "success", "Contact form submitted successfully");
+        return c.redirect("/");
       },
-      headers: {
-        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
-      },
-    });
-    if (error) {
-      console.error("Failed to send email:", error);
-      return showErrorAlert(
-        c,
-        "Failed to send contact email. Please try again.",
-      );
-    }
-  } catch (error) {
-    console.error("Error sending contact email:", error);
-    return showErrorAlert(c, "Failed to send contact email");
-  }
-
-  await setFlash(c, "success", "Contact form submitted successfully");
-  return c.redirect("/");
+    },
+  );
 };
 
 // Fragment routes

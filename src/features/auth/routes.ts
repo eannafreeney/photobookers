@@ -7,7 +7,6 @@ import {
   getResetPasswordModal,
   login,
   logout,
-  processRegister,
   registerCreator,
   registerFan,
   resetPassword,
@@ -15,7 +14,7 @@ import {
   validateDisplayName,
   validateEmail,
   validateWebsite,
-  getSignupSuccessPage,
+  processRegister,
 } from "./controllers";
 import { redirectUrlSchema } from "../../schemas";
 import { formValidator, paramValidator } from "../../lib/validator";
@@ -33,10 +32,9 @@ authRoutes.get("/login", getLoginPage);
 authRoutes.get("/register", getRegisterPage);
 authRoutes.get("/force-reset-password", getSetNewPasswordPage);
 authRoutes.get("/reset-password", getResetPasswordModal);
-authRoutes.get("/signup-success", getSignupSuccessPage);
 
 // ---------- Auth flow (GET/POST) ----------
-authRoutes.get("/callback", processRegister);
+
 authRoutes.post("/logout", logout);
 authRoutes.post(
   "/login",
@@ -55,6 +53,7 @@ authRoutes.post(
   formValidator(registerCreatorFormSchema),
   registerCreator,
 );
+authRoutes.get("/callback", processRegister);
 authRoutes.post(
   "/reset-password",
   formValidator(resetPasswordFormSchema),

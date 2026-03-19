@@ -1,4 +1,7 @@
+import z from "zod";
 import { Creator } from "../../db/schema";
+import { registerCreatorFormSchema } from "./schema";
+import { RegisterCreatorFormContext } from "./types";
 
 export function generateVerificationWelcomeEmail(firstName: string | null) {
   const name = firstName ?? "there";
@@ -21,22 +24,28 @@ export function generateFanNotificationEmail(
   email: string,
 ) {
   return `
-    <h2>New fan registered</h2>
     <p>A new fan has been registered.</p>
     <p>Name: ${firstName} ${lastName}</p>
     <p>Email: ${email}</p>
   `;
 }
 
-export function generateCreatorNotificationEmail(creator: Creator) {
+export function generateCreatorNotificationEmail(
+  formData: z.infer<typeof registerCreatorFormSchema>,
+) {
   return `
     <h2>New creator registered</h2>
     <p>A new creator has been registered.</p>
-    <p>Name: ${creator.displayName}</p>
-    <p>Type: ${creator.type}</p>
-    <p>Website: ${creator.website}</p>
-    <p>Status: ${creator.status}</p>
-    <p>Created At: ${creator.createdAt}</p>
-    <p>Updated At: ${creator.updatedAt}</p>
+    <p>Name: ${formData.displayName}</p>
+    <p>Type: ${formData.type}</p>
+    <p>Website: ${formData.website}</p>
+  `;
+}
+
+export function generateVerificationSuccessEmailAdmin(email: string) {
+  return `
+    <h2>New user verified</h2>
+    <p>A new user has been verified.</p>
+    <p>Email: ${email}</p>
   `;
 }

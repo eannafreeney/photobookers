@@ -1,33 +1,41 @@
 import { Context } from "hono";
-import { supabaseAdmin } from "../../lib/supabase";
+import { createSupabaseClient, supabaseAdmin } from "../../lib/supabase";
 import { setCookie } from "hono/cookie";
 import { db } from "../../db/client";
-import { creators, users } from "../../db/schema";
+import { creators, User, users } from "../../db/schema";
 import { and, eq, ne } from "drizzle-orm";
 import { normalizeUrl } from "../../services/verification";
+import { err, ok } from "../../lib/Result";
+import { registerCreatorFormSchema, registerFanFormSchema } from "./schema";
+import z from "zod";
+import { AuthSession } from "@supabase/supabase-js";
 
 export const setCookiesAndVerifyUser = async (
   c: Context,
-  accessToken: string,
-  refreshToken: string,
-  expiresIn: number,
-  userId: string,
+  session: AuthSession,
 ) => {
-  setAccessToken(c, accessToken, expiresIn);
-  setRefreshToken(c, refreshToken);
+  const { access_token, refresh_token, expires_in, user } = session;
 
-  await markCreatorsOwnedByUserAsVerified(userId);
+  setAccessToken(c, access_token, expires_in);
+  setRefreshToken(c, refresh_token);
+
+  await markCreatorsOwnedByUserAsVerified(user.id);
 };
 
 const markCreatorsOwnedByUserAsVerified = async (userId: string) => {
-  await db
-    .update(creators)
-    .set({
-      status: "verified",
-    })
-    .where(
-      and(eq(creators.ownerUserId, userId), ne(creators.status, "verified")),
-    );
+  try {
+    await db
+      .update(creators)
+      .set({
+        status: "verified",
+      })
+      .where(
+        and(eq(creators.ownerUserId, userId), ne(creators.status, "verified")),
+      );
+    return ok(undefined);
+  } catch (e) {
+    return err({ reason: "Failed to mark creators as verified", cause: e });
+  }
 };
 
 export function getAuthCookieOptions(): {
@@ -80,15 +88,7 @@ export async function loginAndSetCookies(
 
   if (error) return { error: error.message };
 
-  const { access_token, refresh_token, expires_in } = data.session;
-
-  await setCookiesAndVerifyUser(
-    c,
-    access_token,
-    refresh_token,
-    expires_in,
-    data.user.id,
-  );
+  await setCookiesAndVerifyUser(c, data.session);
 
   return { userId: data.user.id };
 }
@@ -121,12 +121,92 @@ export const createUser = async (userId: string, email: string) => {
     .onConflictDoNothing({ target: users.id });
 };
 
-export const getCreatorByDisplayName = (displayName: string) =>
+export const getCreatorBySlug = (slug: string) =>
   db.query.creators.findFirst({
-    where: eq(creators.displayName, displayName),
+    where: eq(creators.slug, slug),
   });
 
 export const getCreatorByWebsite = (website: string) =>
   db.query.creators.findFirst({
     where: eq(creators.website, normalizeUrl(website)),
   });
+
+export const createUserInDatabase = async (session: AuthSession) => {
+  const { user } = session;
+  const { id, email, user_metadata } = user;
+  if (!email) {
+    return err({ reason: "User has no email", cause: undefined });
+  }
+  const { firstName, lastName } = user_metadata ?? {};
+  try {
+    const newUser = await db
+      .insert(users)
+      .values({
+        id,
+        email,
+        firstName,
+        lastName,
+        acceptsTerms: new Date(),
+      })
+      .onConflictDoUpdate({ target: users.id, set: { firstName, lastName } })
+      .returning();
+    return ok(newUser);
+  } catch (e) {
+    return err({ reason: "Failed to create account", cause: e });
+  }
+};
+
+export const verifyOtpForFanSignup = async (
+  c: Context,
+  formData: z.infer<typeof registerFanFormSchema>,
+) => {
+  try {
+    const supabase = createSupabaseClient(c);
+    const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
+    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback/fan`;
+
+    const { error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        emailRedirectTo,
+        data: {
+          firstName: formData?.firstName ?? null,
+          lastName: formData?.lastName ?? null,
+        },
+      },
+    });
+    if (error) return err({ reason: error.message, cause: error });
+    return ok(undefined);
+  } catch (error) {
+    return err({ reason: "Failed to verify OTP", cause: error });
+  }
+};
+
+export const verifyOtpForCreatorSignup = async (
+  c: Context,
+  formData: z.infer<typeof registerCreatorFormSchema>,
+) => {
+  try {
+    const supabase = createSupabaseClient(c);
+    const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
+    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback/creator`;
+
+    const { error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        emailRedirectTo,
+        data: {
+          type: formData?.type ?? "artist",
+          website: normalizeUrl(formData?.website ?? ""),
+          displayName: formData?.displayName ?? null,
+        },
+      },
+    });
+    if (error) return err({ reason: error.message, cause: error });
+    return ok(undefined);
+  } catch (error) {
+    return err({ reason: "Failed to verify OTP", cause: error });
+  }
+};

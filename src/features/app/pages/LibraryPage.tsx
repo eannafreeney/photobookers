@@ -66,7 +66,6 @@ const LibraryPage = async ({
           {...alpineAttrs}
         >
           <BooksGrid
-            isFullWidth
             title="Wishlisted Books"
             user={user}
             currentPath={currentPath}
@@ -79,7 +78,6 @@ const LibraryPage = async ({
             user={user}
             currentPath={currentPath}
             result={collectionResult}
-            isFullWidth
             noResultsMessage="Add books to your collection to see them here."
           />
         </div>

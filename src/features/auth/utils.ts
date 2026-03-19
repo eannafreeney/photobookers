@@ -1,7 +1,11 @@
+import { Context } from "hono";
+import { err, ok } from "../../lib/Result";
+import { createSupabaseClient } from "../../lib/supabase";
+
 export function getCallbackErrorMessage(
-  error: string | undefined,
-  errorCode: string | undefined,
-  errorDescription: string | undefined,
+  error?: string | undefined,
+  errorCode?: string | undefined,
+  errorDescription?: string | undefined,
 ): string {
   if (
     errorCode === "otp_expired" ||
@@ -19,4 +23,19 @@ export function getCallbackErrorMessage(
     return "Something went wrong with verification. Please try logging in or register again.";
   }
   return "No authorization code provided. If you were verifying your email, the link may have expired—please request a new one.";
+}
+
+export async function verifyOtpForSignup(c: Context, tokenHash: string) {
+  const supabase = createSupabaseClient(c);
+  const { error, data } = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: "signup",
+  });
+  if (error || !data?.session) {
+    return err({
+      reason: error?.message ?? "Failed to create session",
+      cause: error,
+    });
+  }
+  return ok(data.session);
 }

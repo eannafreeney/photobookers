@@ -24,7 +24,6 @@ const LatestBooksFragment = async ({
         user={user}
         currentPath={currentPath}
         result={result}
-        isFullWidth
       />
     </div>
   );

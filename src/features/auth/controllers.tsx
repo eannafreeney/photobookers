@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { getFlash, getUser, setFlash } from "../../utils";
+import { getFlash, getUser, setFlash, slugify } from "../../utils";
 import AccountsPage from "./pages/AccountsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -17,11 +17,14 @@ import {
 } from "./types";
 import {
   createUser,
+  createUserInDatabase,
   getAuthCookieOptions,
-  getCreatorByDisplayName,
+  getCreatorBySlug,
   getCreatorByWebsite,
   loginAndSetCookies,
   setCookiesAndVerifyUser,
+  verifyOtpForCreatorSignup,
+  verifyOtpForFanSignup,
 } from "./services";
 import { getHostname, normalizeUrl } from "../../services/verification";
 import { createClaimWithStatus, deleteClaim } from "../claims/services";
@@ -32,7 +35,7 @@ import {
 import ErrorPage from "../../pages/error/errorPage";
 import { db } from "../../db/client";
 import { users } from "../../db/schema";
-import { getCallbackErrorMessage } from "./utils";
+import { getCallbackErrorMessage, verifyOtpForSignup } from "./utils";
 import { deleteCookie, getCookie } from "hono/cookie";
 import ForceResetPasswordPage from "./pages/SetNewPasswordPage";
 import ResetPasswordModal from "./modals/ResetPasswordModal";
@@ -46,10 +49,12 @@ import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/service
 import {
   generateCreatorNotificationEmail,
   generateFanNotificationEmail,
+  generateVerificationSuccessEmailAdmin,
   generateVerificationWelcomeEmail,
 } from "./emails";
-import { sendAdminEmail } from "../../lib/sendEmail";
-import SignUpSuccessPage from "./pages/SignUpSuccessPage";
+import { sendAdminEmail, sendEmail } from "../../lib/sendEmail";
+import { isErr, isOk } from "../../lib/Result";
+import RegisterSuccessScreen from "./components/RegisterSuccessScreen";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -71,12 +76,6 @@ export const getRegisterPage = async (c: Context) => {
   const redirectUrl = c.req.query("redirectUrl") ?? "";
   if (user) return c.redirect("/");
   return c.html(<RegisterPage type={type} redirectUrl={redirectUrl} />);
-};
-
-export const getSignupSuccessPage = async (c: Context) => {
-  const name = c.req.query("name") as string;
-  const message = c.req.query("message") as string;
-  return c.html(<SignUpSuccessPage name={name} message={message} />);
 };
 
 export const login = async (c: LoginFormContext) => {
@@ -105,175 +104,24 @@ export const login = async (c: LoginFormContext) => {
 
 export const registerFan = async (c: RegisterFanFormContext) => {
   const formData = c.req.valid("form");
-  const redirectUrl = c.req.valid("param").redirectUrl;
-  const firstName = formData.firstName as string;
-  const lastName = formData.lastName as string;
-  const email = formData.email as string;
-  const password = formData.password as string;
 
-  const supabase = createSupabaseClient(c);
+  const [verifyOtpError] = await verifyOtpForFanSignup(c, formData);
+  if (verifyOtpError) return showErrorAlert(c, verifyOtpError.reason);
 
-  const baseUrl = process.env.SITE_URL ?? "http://localhost:5173"; // fallback for dev
-  const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback${redirectUrl ? `?redirectUrl=${redirectUrl}` : ""}`;
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo,
-      data: {
-        firstName: firstName ?? null,
-        lastName: lastName ?? null,
-      },
-    },
-  });
-
-  const alreadyRegisteredMessage =
-    "This email is already registered. Please log in.";
-
-  if (error) {
-    const isAlreadyRegistered =
-      error.message?.toLowerCase().includes("already") ||
-      error.message?.toLowerCase().includes("registered") ||
-      error.code === "user_already_exists";
-
-    return showErrorAlert(
-      c,
-      isAlreadyRegistered ? alreadyRegisteredMessage : error.message,
-    );
-  }
-
-  // With email confirmation on, Supabase returns success but empty identities when email exists
-  if (data.user && (!data.user.identities || data.user.identities.length === 0))
-    return showErrorAlert(c, alreadyRegisteredMessage);
-
-  await sendAdminEmail(
-    "New fan registered",
-    generateFanNotificationEmail(firstName, lastName, email),
-  );
-
-  return c.redirect(`/auth/signup-success?name=${firstName}`);
+  return c.html(<RegisterSuccessScreen />);
 };
 
 export const registerCreator = async (c: RegisterCreatorFormContext) => {
-  // GET FORM DATA
   const formData = c.req.valid("form");
-  const displayName = formData.displayName as string;
-  const website = formData.website as string;
-  const email = formData.email as string;
-  const password = formData.password as string;
-  const type = formData.type as "artist" | "publisher";
 
-  if (!displayName?.trim() || !website?.trim()) {
-    return showErrorAlert(c, "Display name and website are required.");
-  }
+  const [verifyOtpError] = await verifyOtpForCreatorSignup(c, formData);
+  if (verifyOtpError) return showErrorAlert(c, verifyOtpError.reason);
 
-  // Normalize and validate URL
-  const verificationUrl = normalizeUrl(website);
-
-  // CREATE USER IN SUPABASE
-  const { data, error } = await supabaseAdmin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: {
-      displayName: displayName.trim(),
-      website: verificationUrl,
-    },
-  });
-
-  if (error) return showErrorAlert(c, error.message);
-
-  const userId = data.user?.id;
-  if (!userId) return showErrorAlert(c, "Failed to create user.");
-
-  // CREATE USER IN DB SO CLAIM AND CREATOR CAN REFERENCE THEM
-  try {
-    createUser(userId, data.user?.email ?? email);
-  } catch (dbErr) {
-    console.error("Database error on register-creator:", dbErr);
-    return showErrorAlert(c, "Failed to create account.");
-  }
-
-  // CREATE STUB CREATOR PROFILE
-  let newCreator;
-  try {
-    newCreator = await createStubCreatorProfile(displayName, userId, type);
-  } catch (error) {
-    return showErrorAlert(c, "Failed to create stub creator profile.");
-  }
-
-  if (!newCreator) {
-    return showErrorAlert(c, "Failed to create stub creator profile.");
-  }
-
-  const emailDomain = email.split("@")[1]?.toLowerCase() ?? "";
-  const websiteHost = getHostname(verificationUrl);
-  const domainsMatch = emailDomain.length > 0 && emailDomain === websiteHost;
-  const claimStatus = domainsMatch ? "approved" : "pending_admin_review";
-  // CREATE CLAIM
-  let claim;
-  try {
-    claim = await createClaimWithStatus(
-      userId,
-      newCreator.id,
-      verificationUrl,
-      claimStatus,
-    );
-  } catch (error) {
-    return showErrorAlert(c, "Failed to create claim. Please try again.");
-  }
-  // If auto-approved, assign the creator immediately
-  if (claimStatus === "approved") {
-    await assignUserAsCreatorOwnerAdmin(userId, newCreator.id, true);
-  }
-  // SEND EMAIL
-  const origin = new URL(c.req.url).origin;
-  const emailHtml = domainsMatch
-    ? await generateClaimApprovalEmail(newCreator)
-    : await generatePendingReviewEmail(newCreator);
-
-  try {
-    const { error } = await supabaseAdmin.functions.invoke("send-email", {
-      body: {
-        to: data.user?.email ?? email,
-        subject: domainsMatch
-          ? `Welcome to Photobookers, ${newCreator.displayName}!`
-          : `Your claim for ${newCreator.displayName} is under review`,
-        html: emailHtml,
-      },
-      headers: {
-        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
-      },
-    });
-    if (error) {
-      console.error("Failed to send email:", error);
-      await deleteClaim(claim.id);
-      return showErrorAlert(c, "Failed to send email. Please try again.");
-    }
-  } catch (error) {
-    console.error("Email error:", error);
-    await deleteClaim(claim.id);
-    return showErrorAlert(c, "Failed to send email. Please try again.");
-  }
-
-  await sendAdminEmail(
-    "New creator registered",
-    generateCreatorNotificationEmail(newCreator),
-  );
-
-  const message = domainsMatch
-    ? "Account created! Check your email to log in and start managing your profile."
-    : "Account created! Your creator profile is pending review — we'll notify you once approved.";
-
-  return c.redirect(
-    `/auth/signup-success?name=${newCreator.displayName}&message=${message}`,
-  );
+  return c.html(<RegisterSuccessScreen />);
 };
 
 export const processRegister = async (c: Context) => {
   const tokenHash = c.req.query("token_hash");
-  const redirectUrl = c.req.query("redirectUrl");
   const error = c.req.query("error");
   const errorCode = c.req.query("error_code");
   const errorDescription = c.req.query("error_description");
@@ -283,81 +131,58 @@ export const processRegister = async (c: Context) => {
     return c.html(<ErrorPage errorMessage={message} />);
   }
 
-  if (!tokenHash) {
-    return c.html(
-      <ErrorPage
-        errorMessage={getCallbackErrorMessage(undefined, undefined, undefined)}
-      />,
-    );
-  }
+  if (!tokenHash)
+    return c.html(<ErrorPage errorMessage={getCallbackErrorMessage()} />);
 
-  const supabase = createSupabaseClient(c);
-  const { error: authError, data } = await supabase.auth.verifyOtp({
-    token_hash: tokenHash,
-    type: "signup",
-  });
-  if (authError || !data?.session) {
-    console.error("Failed to create session:", authError?.message);
-    return c.html(
-      <ErrorPage
-        errorMessage={authError?.message || "Failed to create session"}
-      />,
-    );
-  }
+  const [signupError, session] = await verifyOtpForSignup(c, tokenHash);
+  if (signupError)
+    return c.html(<ErrorPage errorMessage={signupError.reason} />);
 
-  const { access_token, refresh_token, expires_in } = data.session;
+  const { user } = session;
+  const type = user.user_metadata?.type as string | undefined;
+  const isCreator = type === "artist" || type === "publisher";
 
-  await setCookiesAndVerifyUser(
-    c,
-    access_token,
-    refresh_token,
-    expires_in,
-    data.user?.id ?? "",
-  );
+  await setCookiesAndVerifyUser(c, session);
 
-  // Now get user from the session (no need for another getUser call)
-  const user = data.session.user;
-  const firstName = user.user_metadata?.firstName ?? null;
-  const lastName = user.user_metadata?.lastName ?? null;
-
-  // Create user in database
-  try {
-    await db
-      .insert(users)
-      .values({
-        id: user.id,
-        email: user.email!,
-        firstName,
-        lastName,
-        acceptsTerms: new Date(),
-      })
-      .onConflictDoUpdate({ target: users.id, set: { firstName, lastName } });
-  } catch (dbError) {
-    console.error("Database error during callback:", dbError);
+  if (!user.email)
     return c.html(
       <ErrorPage errorMessage="Failed to create account. Please try again." />,
     );
+
+  const [dbError] = await createUserInDatabase(session);
+  if (dbError) return c.html(<ErrorPage errorMessage={dbError.reason} />);
+
+  if (isCreator) {
+    const [newCreatorError] = await createStubCreatorProfile(session);
+    if (newCreatorError)
+      return c.html(<ErrorPage errorMessage={newCreatorError.reason} />);
   }
 
-  try {
-    await supabaseAdmin.functions.invoke("send-email", {
-      body: {
-        to: user.email!,
-        subject: "You're verified – welcome to Photobookers",
-        html: generateVerificationWelcomeEmail(firstName),
-      },
-    });
-  } catch (error) {
-    console.error("Verification welcome email failed:", error);
-  }
+  const adminEmailResult = await sendAdminEmail(
+    "New user verified",
+    generateVerificationSuccessEmailAdmin(user.email),
+  );
+  if (isErr(adminEmailResult))
+    console.error(
+      "Admin verification email failed:",
+      adminEmailResult[0].reason,
+    );
 
-  await setFlash(
-    c,
-    "success",
-    `Hi ${user.user_metadata?.firstName ?? "there"}! Your account has been verified successfully. Have fun!`,
+  const welcomeName = isCreator
+    ? (user.user_metadata?.displayName ?? null)
+    : (user.user_metadata?.firstName ?? null);
+
+  const emailResult = await sendEmail(
+    user.email,
+    "You're verified – welcome to Photobookers",
+    generateVerificationWelcomeEmail(welcomeName),
   );
 
-  return c.redirect(redirectUrl ?? "/");
+  if (isErr(emailResult))
+    console.error("Verification welcome email failed:", emailResult[0].reason);
+
+  await setFlash(c, "success", "Account Verified. Welcome to Photobookers!");
+  return c.redirect("/");
 };
 
 export const logout = async (c: Context) => {
@@ -426,13 +251,7 @@ export const resetPassword = async (c: ResetPasswordFormContext) => {
 
   if (!data.session) return showErrorAlert(c, "Failed to sign in");
 
-  await setCookiesAndVerifyUser(
-    c,
-    data.session.access_token,
-    data.session.refresh_token,
-    data.session.expires_in,
-    data.user.id,
-  );
+  await setCookiesAndVerifyUser(c, data.session);
 
   await setFlash(c, "success", "Your password has been updated successfully!");
   return c.redirect("/");
@@ -490,13 +309,13 @@ export const setSession = async (c: Context) => {
     );
   }
 
-  await setCookiesAndVerifyUser(
-    c,
+  await setCookiesAndVerifyUser(c, {
     access_token,
     refresh_token,
     expires_in,
-    user.id,
-  );
+    user,
+    token_type: "bearer",
+  });
 
   return c.json({ ok: true });
 };
@@ -533,7 +352,9 @@ export const validateDisplayName = async (c: Context) => {
   const displayName = body["displayName"] as string | undefined;
   if (!displayName) return c.html(<ValidateDisplayName />);
 
-  const existingCreator = await getCreatorByDisplayName(displayName);
+  // const existingCreator = await getCreatorByDisplayName(displayName);
+  const slug = slugify(displayName.trim());
+  const existingCreator = await getCreatorBySlug(slug);
   const isAvailable = !Boolean(existingCreator);
 
   return c.html(<ValidateDisplayName isAvailable={isAvailable} />);

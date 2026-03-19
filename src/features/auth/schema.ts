@@ -4,7 +4,6 @@ import { checkboxField } from "../../schemas";
 // Helper: normalize URL for validation (accept www.example.com)
 const urlWithOptionalProtocol = z
   .string()
-  .min(1, "Please enter a valid URL (e.g., https://example.com)")
   .transform((val) => {
     const trimmed = val.trim();
     if (trimmed && !/^https?:\/\//i.test(trimmed)) {
@@ -41,7 +40,13 @@ export const registerFanFormSchema = z.object({
 // ============ REGISTER CREATOR FORM SCHEMA ============
 export const registerCreatorFormSchema = z.object({
   displayName: z.string().min(3, "Display Name must be at least 3 characters"),
-  website: urlWithOptionalProtocol,
+  website: z.preprocess(
+    (val) =>
+      val === "" || (typeof val === "string" && val.trim() === "")
+        ? undefined
+        : val,
+    urlWithOptionalProtocol.optional(),
+  ),
   type: z.enum(["artist", "publisher"]),
   email: z.email().min(1, "Email is required"),
   password: z

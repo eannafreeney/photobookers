@@ -44,7 +44,7 @@ const CollectedBooks = async ({ user, currentPage, currentPath }: Props) => {
             </div>
           )}
         </div>
-        <GridPanel id={targetId} isFullWidth xMerge="append">
+        <GridPanel id={targetId} xMerge="append">
           {books?.map((book) => (
             <BookCard book={book} user={user} />
           ))}

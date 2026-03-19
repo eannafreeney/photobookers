@@ -2,9 +2,10 @@ import Input from "../../../components/forms/Input";
 
 type Props = {
   isAvailable?: boolean;
+  isRequired?: boolean;
 };
 
-const ValidateWebsite = ({ isAvailable }: Props) => {
+const ValidateWebsite = ({ isAvailable, isRequired = false }: Props) => {
   const websiteAlpineAttrs = {
     "x-on:change":
       "$ajax('/auth/validate/website', { method: 'post', body: { website: form.website } })",
@@ -19,7 +20,7 @@ const ValidateWebsite = ({ isAvailable }: Props) => {
         validateInput="validateWebsite()"
         isError={isAvailable === false}
         isSuccess={isAvailable === true}
-        required
+        required={isRequired}
       />
       {typeof isAvailable === "boolean" && (
         <div

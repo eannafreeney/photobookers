@@ -235,7 +235,7 @@ export const resolveArtist = async (
 
   // Create new stub artist
   if (new_artist_name) {
-    const creator = await createStubCreatorProfile(
+    const creator = await createStubCreatorProfileAdmin(
       new_artist_name,
       userId,
       "artist",
@@ -265,7 +265,7 @@ export const resolvePublisher = async (
 
   // Create new stub publisher
   if (new_publisher_name) {
-    const publisher = await createStubCreatorProfile(
+    const publisher = await createStubCreatorProfileAdmin(
       new_publisher_name,
       userId,
       "publisher",

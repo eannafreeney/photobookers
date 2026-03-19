@@ -1,7 +1,7 @@
 import { contactFormSchema } from "./schema";
 import { z } from "zod";
 
-export const generateContactEmail = async (
+export const generateContactEmail = (
   form: z.infer<typeof contactFormSchema>,
 ) => {
   return `

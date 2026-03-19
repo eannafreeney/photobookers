@@ -16,7 +16,7 @@ const FeaturedBooksGrid = ({ featuredBooks, user }: Props) => {
       <div>
         <SectionTitle className="mb-2">Featured Books of the Week</SectionTitle>
       </div>
-      <GridPanel isFullWidth>
+      <GridPanel>
         {featuredBooks?.length > 0 ? (
           featuredBooks.map((fb) => <BookCard book={fb.book} user={user} />)
         ) : (

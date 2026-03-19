@@ -5,6 +5,7 @@ import WishlistButton from "../../features/api/components/WishlistButton";
 import Link from "./Link";
 import { AuthUser } from "../../../types";
 import { BookCardResult } from "../../constants/queries";
+import Show from "./Show";
 
 type BookCardProps = {
   book: BookCardResult;
@@ -15,7 +16,7 @@ type BookCardProps = {
 const BookCard = ({ book, user, currentCreatorId }: BookCardProps) => {
   return (
     <Card className="min-w-[200px] max-w-[24rem]">
-      {currentCreatorId !== book.artist?.id && (
+      <Show when={currentCreatorId !== book.artist?.id}>
         <div class="p-2 flex items-center justify-between h-10">
           <CardCreatorCard
             creator={book.artist ?? null}
@@ -25,7 +26,7 @@ const BookCard = ({ book, user, currentCreatorId }: BookCardProps) => {
             {book.releaseDate && formatDate(book.releaseDate)}
           </Card.Text>
         </div>
-      )}
+      </Show>
       <Card.Image
         src={book.coverUrl ?? ""}
         alt={book.title}

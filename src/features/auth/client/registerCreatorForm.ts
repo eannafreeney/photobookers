@@ -49,7 +49,6 @@ export function registerRegisterCreatorForm() {
         const noErrors = Object.values(ctx.errors.form).every((err) => !err);
         const fieldsFilled =
           !!ctx.form.displayName &&
-          !!ctx.form.website &&
           !!ctx.form.type &&
           !!ctx.form.email &&
           !!ctx.form.password &&
@@ -57,7 +56,9 @@ export function registerRegisterCreatorForm() {
         const passwordsMatch = ctx.form.confirmPassword === ctx.form.password;
         const termsChecked = ctx.form.agreeToTerms;
         const nothingTaken =
-          !ctx.emailIsTaken && !ctx.displayNameIsTaken && !ctx.websiteIsTaken;
+          !ctx.emailIsTaken &&
+          !ctx.displayNameIsTaken &&
+          (ctx.form.website ? !ctx.websiteIsTaken : true);
 
         return (
           noErrors &&

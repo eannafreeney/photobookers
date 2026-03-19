@@ -40,14 +40,13 @@ export function createRegisterFormUtils() {
       if (value && !/^https?:\/\//i.test(value)) {
         value = "https://" + value;
       }
-      if (!ctx.form.website?.trim()) {
-        ctx.errors.form.website = "Website is required";
+      if (!value) {
+        ctx.errors.form.website = "";
       } else if (!websiteRegex.test(value)) {
         ctx.errors.form.website =
           "Please enter a valid URL (e.g., https://example.com)";
       } else {
         ctx.errors.form.website = "";
-        // Optional: keep form value normalized so submit sends full URL
         ctx.form.website = value;
       }
     },

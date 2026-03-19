@@ -14,8 +14,7 @@ const RegisterCreatorForm = ({ type }: RegisterCreatorFormProps) => {
   const alpineAttrs = {
     "x-data": "registerCreatorForm()",
     "x-on:submit": "submitForm($event)",
-    "x-target.away": "_top",
-    "x-target": "toast",
+    "x-target": "register-form toast",
     "x-on:ajax:error": "isSubmitting = false",
     "x-on:email-availability.window":
       "emailIsTaken = !$event.detail.emailIsAvailable",

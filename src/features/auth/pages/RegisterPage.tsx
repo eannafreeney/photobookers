@@ -2,6 +2,7 @@ import RegisterCreatorForm from "../forms/RegisterCreatorForm";
 import RegisterFanForm from "../forms/RegisterFanForm";
 import HeadlessLayout from "../../../components/layouts/HeadlessLayout";
 import { capitalize } from "../../../utils";
+import SuccessScreen from "../components/RegisterSuccessScreen";
 
 type RegisterPageProps = {
   type: "fan" | "artist" | "publisher";
@@ -16,14 +17,16 @@ const RegisterPage = ({ type, redirectUrl }: RegisterPageProps) => {
       <div class="min-h-screen flex items-center justify-center bg-base-200">
         <div class="card w-96 bg-base-100 shadow-none border-none my-4">
           <div class="card-body">
-            <h2 class="text-2xl font-bold text-center mb-4">
-              Create {type === "fan" ? "" : capitalize(type)} Account
-            </h2>
-            {intendedCreatorType ? (
-              <RegisterCreatorForm type={type} />
-            ) : (
-              <RegisterFanForm redirectUrl={redirectUrl} />
-            )}
+            <div id="register-form">
+              <h2 class="text-2xl font-bold text-center mb-4">
+                Create {type === "fan" ? "" : capitalize(type)} Account
+              </h2>
+              {intendedCreatorType ? (
+                <RegisterCreatorForm type={type} />
+              ) : (
+                <RegisterFanForm redirectUrl={redirectUrl} />
+              )}
+            </div>
           </div>
         </div>
       </div>
