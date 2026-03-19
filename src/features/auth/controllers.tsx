@@ -135,13 +135,13 @@ export const processRegister = async (c: Context) => {
     return c.html(<ErrorPage errorMessage={getCallbackErrorMessage()} />);
 
   const [signupError, session] = await verifyOtpForSignup(c, tokenHash);
-  if (signupError)
+  if (signupError) {
     return c.html(<ErrorPage errorMessage={signupError.reason} />);
+  }
 
   const { user } = session;
   const type = user.user_metadata?.type as string | undefined;
   const isCreator = type === "artist" || type === "publisher";
-
   await setCookiesAndVerifyUser(c, session);
 
   if (!user.email)

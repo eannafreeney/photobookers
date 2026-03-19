@@ -148,7 +148,14 @@ export const createUserInDatabase = async (session: AuthSession) => {
         lastName,
         acceptsTerms: new Date(),
       })
-      .onConflictDoUpdate({ target: users.id, set: { firstName, lastName } })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...(firstName != null && { firstName }),
+          ...(lastName != null && { lastName }),
+          updatedAt: new Date(),
+        },
+      })
       .returning();
     return ok(newUser);
   } catch (e) {
