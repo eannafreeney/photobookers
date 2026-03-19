@@ -10,15 +10,13 @@ type CreatorCardSquareProps = {
 const CreatorCardSquare = async ({ creator }: CreatorCardSquareProps) => {
   return (
     <Card className="shrink-0">
-      <Link href={`/creators/${creator.slug}`}>
-        <Card.Image
-          src={creator.coverUrl ?? ""}
-          alt={creator.displayName ?? ""}
-          href={`/creators/${creator.slug}`}
-          aspectSquare
-          objectCover
-        />
-      </Link>
+      <Card.Image
+        src={creator.coverUrl ?? ""}
+        alt={creator.displayName ?? ""}
+        href={`/creators/${creator.slug}`}
+        aspectSquare
+        objectCover
+      />
       <Card.Body>
         <div class="flex items-start gap-2">
           <Link href={`/creators/${creator.slug}`}>

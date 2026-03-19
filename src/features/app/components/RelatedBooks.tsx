@@ -24,7 +24,7 @@ const RelatedBooks = async ({ book, user }: RelatedBooksProps) => {
       <SectionTitle className="mb-2">You might also like</SectionTitle>
       <GridPanel>
         {relatedBooks.map((b) => (
-          <BookCard key={b.id} book={b} user={user} />
+          <BookCard book={b} user={user} />
         ))}
       </GridPanel>
     </div>

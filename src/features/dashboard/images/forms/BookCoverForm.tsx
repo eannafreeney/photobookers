@@ -32,7 +32,7 @@ const BookCoverForm = ({ initialUrl, book }: Props) => {
         {...alpineAttrs}
       >
         <div class="space-y-4">
-          <div class="flex items-center gap-4 justify-evenly">
+          <div class="flex flex-col md:flex-row items-center gap-4 justify-evenly">
             <ImagePreview />
             {book && <CardPreview book={book} />}
           </div>

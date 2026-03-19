@@ -82,6 +82,7 @@ export const processRegisterAndClaim = async (
 ) => {
   const creatorId = c.req.valid("param").creatorId;
   const formData = c.req.valid("form");
+  console.log("formData", formData);
 
   const creator = await getCreatorById(creatorId);
   if (!creator) return showErrorAlert(c, "Creator not found");

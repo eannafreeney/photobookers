@@ -16,19 +16,11 @@ const CarouselMobile = ({
     <div
       x-init="autoplay"
       x-data={`carouselForm(${JSON.stringify(images)})`}
-      class="relative w-full overflow-hidden aspect-square"
+      class="relative w-full overflow-hidden"
     >
       {/* slides container: one grid cell so height = tallest slide */}
       <div
-        class="absolute inset-0 flex items-center justify-center bg-surface-variant/30 animate-pulse"
-        x-show="!loaded"
-        x-transition:leave="transition ease-out duration-200"
-        aria-hidden="true"
-      >
-        {imageSkeletonIcon}
-      </div>
-      <div
-        class="w-full grid grid-cols-1 grid-rows-1 col-start-1 row-start-1"
+        class="grid grid-cols-1 grid-rows-1 col-start-1 row-start-1"
         x-on:touchstart="handleTouchStart($event)"
         x-on:touchmove="handleTouchMove($event)"
         x-on:touchend="handleTouchEnd()"
@@ -43,7 +35,6 @@ const CarouselMobile = ({
               class="max-w-full w-full h-auto object-contain"
               x-bind:src="slide.imgSrc"
               x-bind:alt="slide.imgAlt"
-              x-on:load="onSlideImageLoad(index)"
             />
           </div>
         </template>
