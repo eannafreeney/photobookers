@@ -163,7 +163,7 @@ export const verifyOtpForFanSignup = async (
   try {
     const supabase = createSupabaseClient(c);
     const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
-    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback/fan`;
+    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
 
     const { error } = await supabase.auth.signUp({
       email: formData.email,
@@ -190,7 +190,7 @@ export const verifyOtpForCreatorSignup = async (
   try {
     const supabase = createSupabaseClient(c);
     const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
-    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback/creator`;
+    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
 
     const { error } = await supabase.auth.signUp({
       email: formData.email,
