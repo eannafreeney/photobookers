@@ -13,7 +13,7 @@ const FormButtons = ({
   showCancelButton = false,
 }: Props) => {
   return (
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-4 mt-2">
       {showCancelButton && (
         <Button
           variant="outline"

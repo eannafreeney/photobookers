@@ -13,7 +13,7 @@ const ValidateEmail = ({ isAvailable }: Props) => {
   return (
     <div id="email_field" {...emailAlpineAttrs}>
       <Input
-        label="Email!!"
+        label="Email"
         name="form.email"
         type="email"
         placeholder="you@example.com"

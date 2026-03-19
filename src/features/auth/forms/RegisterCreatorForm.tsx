@@ -26,7 +26,12 @@ const RegisterCreatorForm = ({ type }: RegisterCreatorFormProps) => {
 
   return (
     <>
-      <form action="/auth/register-creator" method="post" {...alpineAttrs}>
+      <form
+        action="/auth/register-creator"
+        method="post"
+        {...alpineAttrs}
+        class="flex flex-col gap-2"
+      >
         <ValidateDisplayName />
         <ValidateWebsite />
         <ValidateEmail />

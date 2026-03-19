@@ -10,8 +10,7 @@ type CheckboxProps = {
 
 export const Checkbox = ({ label, name, required = false }: CheckboxProps) => {
   return (
-    <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
-      {/* <InputLabel label={label} name="" required={required} /> */}
+    <fieldset class="grid mt-2 text-xs grid-cols-1 auto-rows-max">
       <label
         for={name}
         class="flex items-center gap-2 text-sm font-medium text-on-surface dark:text-on-surface-dark has-checked:text-on-surface-strong dark:has-checked:text-on-surface-dark-strong has-disabled:cursor-not-allowed has-disabled:opacity-75"
@@ -43,20 +42,8 @@ export const Checkbox = ({ label, name, required = false }: CheckboxProps) => {
         </span>
         <span>{label}</span>
       </label>
-      <InputError name={name} />
     </fieldset>
   );
 };
 
 export default Checkbox;
-
-const InputError = ({ name }: { name: string }) => (
-  <div class="text-xs min-h-[16px] my-2 block">
-    <span
-      class="text-danger block text-left"
-      x-show={`errors.${name}`}
-      x-text={`errors.${name}`}
-      {...fadeTransition}
-    />
-  </div>
-);

@@ -48,12 +48,14 @@ const Input = ({
     : {};
 
   return (
-    <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
+    <fieldset class="grid gap-0 text-xs grid-cols-1 auto-rows-max">
       <InputLabel
         label={label}
         maxLength={maxLength}
         name={name}
         required={required}
+        isError={isError}
+        isSuccess={isSuccess}
       />
       <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
         {getInputIcon(type)}
@@ -92,36 +94,36 @@ const Input = ({
           </span>
         )}
       </label>
-      <InputError isError={isError} isSuccess={isSuccess} name={name} />
+      {/* <InputError isError={isError} isSuccess={isSuccess} name={name} /> */}
     </fieldset>
   );
 };
 
 export default Input;
 
-type InputErrorProps = {
-  isError?: boolean;
-  isSuccess?: boolean;
-  name: string;
-};
+// type InputErrorProps = {
+//   isError?: boolean;
+//   isSuccess?: boolean;
+//   name: string;
+// };
 
-const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (
-  <div class="text-xs min-h-4 my-2 block">
-    {isError ? (
-      <span class="text-danger block text-right" {...fadeTransition}>
-        ✗ Taken
-      </span>
-    ) : isSuccess ? (
-      <span class="text-success block text-right" {...fadeTransition}>
-        ✓ Available
-      </span>
-    ) : (
-      <span
-        class="text-danger block text-left"
-        x-show={`errors.${name}`}
-        x-text={`errors.${name}`}
-        {...fadeTransition}
-      />
-    )}
-  </div>
-);
+// const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (
+//   <div class="text-xs min-h-4 my-2 block">
+//     {isError ? (
+//       <span class="text-danger block text-right" {...fadeTransition}>
+//         ✗ Taken
+//       </span>
+//     ) : isSuccess ? (
+//       <span class="text-success block text-right" {...fadeTransition}>
+//         ✓ Available
+//       </span>
+//     ) : (
+//       <span
+//         class="text-danger block text-left"
+//         x-show={`errors.${name}`}
+//         x-text={`errors.${name}`}
+//         {...fadeTransition}
+//       />
+//     )}
+//   </div>
+// );

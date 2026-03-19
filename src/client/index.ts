@@ -22,6 +22,7 @@ import { registerContactForm } from "../features/app/client/contactForm";
 import { registerFeaturedForm } from "../features/dashboard/admin/planner/client/featuredForm";
 import { registerAOTWForm } from "../features/dashboard/admin/planner/client/aotwForm";
 import { registerPOTWForm } from "../features/dashboard/admin/planner/client/potwForm";
+import { registerClaimSignupForm } from "../features/claims/client/claimSignUpForm";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -48,3 +49,4 @@ registerContactForm();
 registerFeaturedForm();
 registerAOTWForm();
 registerPOTWForm();
+registerClaimSignupForm();

@@ -17,7 +17,12 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
 
   return (
     <>
-      <form action={action} method="post" {...alpineAttrs}>
+      <form
+        action={action}
+        method="post"
+        {...alpineAttrs}
+        class="flex flex-col gap-2"
+      >
         <Input
           label="Email"
           name="form.email"

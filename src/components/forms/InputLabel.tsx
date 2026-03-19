@@ -1,15 +1,26 @@
+import { fadeTransition } from "../../lib/transitions";
+
 type InputLabelProps = {
   label: string;
   maxLength?: number;
-  name?: string;
+  name: string;
   required?: boolean;
+  isError?: boolean;
+  isSuccess?: boolean;
 };
 
-const InputLabel = ({ label, maxLength, name, required }: InputLabelProps) => {
+const InputLabel = ({
+  label,
+  maxLength,
+  name,
+  required,
+  isError,
+  isSuccess,
+}: InputLabelProps) => {
   return (
     <div class="flex items-center justify-between text-xs">
       <legend class="w-fit pl-0.5">
-        {label} {required && <span class="text-danger -ml-1"> *</span>}
+        {label} {required && <span class="text-danger"> *</span>}
       </legend>
       {maxLength && (
         <p
@@ -25,8 +36,36 @@ const InputLabel = ({ label, maxLength, name, required }: InputLabelProps) => {
           <span x-text={`${name}.length`}></span> / {maxLength}
         </p>
       )}
+      <InputError isError={isError} isSuccess={isSuccess} name={name} />
     </div>
   );
 };
 
 export default InputLabel;
+
+type InputErrorProps = {
+  isError?: boolean;
+  isSuccess?: boolean;
+  name: string;
+};
+
+const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (
+  <div class="text-xs min-h-4 my-2 block">
+    {isError ? (
+      <span class="text-danger block text-right" {...fadeTransition}>
+        ✗ Taken
+      </span>
+    ) : isSuccess ? (
+      <span class="text-success block text-right" {...fadeTransition}>
+        ✓ Available
+      </span>
+    ) : (
+      <span
+        class="text-danger block text-left"
+        x-show={`errors.${name}`}
+        x-text={`errors.${name}`}
+        {...fadeTransition}
+      />
+    )}
+  </div>
+);
