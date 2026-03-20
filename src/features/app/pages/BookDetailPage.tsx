@@ -24,6 +24,7 @@ import CollectButton from "../../api/components/CollectButton";
 import { Creator } from "../../../db/schema";
 import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import RelatedBooks from "../components/RelatedBooks";
+import { imageSkeletonIcon } from "../../../lib/icons";
 
 type BookDetailPageProps = {
   user: AuthUser | null;
@@ -105,11 +106,20 @@ const DetailDesktop = ({
 }: DetailProps) => {
   return (
     <div class="flex flex-col gap-8">
-      <div class="flex gap-16">
-        <div class="flex flex-col gap-4 w-2/5">
-          <Carousel images={galleryImages} />
+      <div class="flex gap-8 h-[calc(100vh-8rem)]">
+        <div class="w-2/5 h-full overflow-y-auto pr-2">
+          <div class="flex flex-col">
+            {galleryImages.map((image, index) => (
+              <img
+                src={image}
+                alt={`${book.title} image ${index + 1}`}
+                loading="lazy"
+              />
+            ))}
+          </div>
         </div>
-        <div class="w-2/5">
+
+        <div class="w-2/5 h-full overflow-y-auto pr-2">
           <div class="mb-4 flex flex-col gap-4">
             <div class="flex items-center gap-4">
               <h3 class="text-balance text-2xl font-semibold text-on-surface-strong">
@@ -122,13 +132,9 @@ const DetailDesktop = ({
               <ShareButton />
             </div>
             <div class="flex flex-col gap-4">
-              {book.releaseDate && (
-                <Card.Text>{formatDate(book.releaseDate)}</Card.Text>
-              )}
               {book.description && (
                 <Card.Description>{book.description}</Card.Description>
               )}
-
               <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
               <TagList tags={book.tags ?? []} />
               <PurchaseLink purchaseLink={book.purchaseLink} />
