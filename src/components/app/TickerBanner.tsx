@@ -1,46 +1,38 @@
+import { Fragment } from "hono/jsx/jsx-runtime";
+import { capitalize } from "../../utils";
+import Badge from "./Badge";
 import Link from "./Link";
 
 const tickerItems = [
-  { text: "Discover New Photobooks" },
-  { text: "Join the Newsletter" },
-  { text: "Follow Your Favorite Artists / Publishers" },
-  { text: "Create a Profile" },
-  { text: "Book of The Week" },
-  { text: "Artist / Publisher of The Week" },
-] as const;
+  "Discover New Photobooks",
+  "Join the Newsletter",
+  "Follow Your Favorite Artists and Publishers",
+  "Create a Profile",
+  "Book of The Week",
+  "Artist of The Week",
+  "Publisher of The Week",
+  "Follow on Instagram",
+  "Wishlist Your Favorite Books",
+  "Collect Your Favorite Books",
+  "Share Your Favorite Books",
+];
 
-export default function TickerBanner({
-  durationSeconds = 40,
-}: {
-  durationSeconds?: number;
-}) {
+export default function TickerBanner() {
   const doubled = [...tickerItems, ...tickerItems];
+
   return (
-    <div
-      class="ticker-banner fixed top-0 left-0 right-0 z-40 md:static md:z-auto border-b border-outline bg-surface"
-      style={{ ["--ticker-duration" as any]: `${durationSeconds}s` }}
-    >
-      <div class="ticker-viewport py-1 flex items-center overflow-hidden whitespace-nowrap leading-none">
-        <div
-          class="ticker-track inline-flex whitespace-nowrap"
-          style={{ gap: 0 }}
-        >
-          <div class="ticker-seq">
-            {doubled.map((it, idx) => (
-              <span
-                key={idx}
-                class="ticker-item inline-flex items-center gap-4 whitespace-nowrap"
-              >
-                <span class="text-on-surface tracking-wide">{it.text}</span>
-                {idx < doubled.length - 1 && (
-                  <span class="text-on-surface/50" aria-hidden="true">
-                    •
-                  </span>
-                )}
+    <div class="relative left-1/2 -translate-x-1/2 w-screen overflow-hidden border border-b mt-[73px] md:mt-0">
+      <div class="marquee flex w-max items-center gap-2 whitespace-nowrap py-1 text-sm">
+        {doubled.map((item, idx) => (
+          <Fragment key={`${item}-${idx}`}>
+            <span class="text-on-surface tracking-wide">{item}</span>
+            {idx < doubled.length - 1 && (
+              <span class="text-on-surface/50" aria-hidden="true">
+                •
               </span>
-            ))}
-          </div>
-        </div>
+            )}
+          </Fragment>
+        ))}
       </div>
     </div>
   );

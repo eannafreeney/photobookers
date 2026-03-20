@@ -22,21 +22,23 @@ const InputLabel = ({
       <legend class="w-fit pl-0.5">
         {label} {required && <span class="text-danger"> *</span>}
       </legend>
-      {maxLength && (
-        <p
-          class="text-sm"
-          x-bind:class={`
-                ${maxLength} - ${name}.length <= 10 
-                  ? 'text-danger font-medium' 
-                  : ${maxLength} - ${name}.length <= 30 
-                    ? 'text-warning' 
-                    : 'text-on-surface/60'
-              `}
-        >
-          <span x-text={`${name}.length`}></span> / {maxLength}
-        </p>
-      )}
-      <InputError isError={isError} isSuccess={isSuccess} name={name} />
+      <div class="flex items-center gap-2">
+        {maxLength && (
+          <div
+            class="text-xs"
+            x-bind:class={`
+          ${maxLength} - ${name}.length <= 10 
+          ? 'text-danger font-medium' 
+          : ${maxLength} - ${name}.length <= 30 
+          ? 'text-warning' 
+          : 'text-on-surface/60'
+          `}
+          >
+            <span x-text={`${name}.length`}></span> / {maxLength}
+          </div>
+        )}
+        <InputError isError={isError} isSuccess={isSuccess} name={name} />
+      </div>
     </div>
   );
 };

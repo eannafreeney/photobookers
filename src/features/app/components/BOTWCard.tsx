@@ -41,16 +41,18 @@ const BOTWDesktopCard = ({ bookOfTheWeek, user }: CardProps) => {
     <Card className="col-span-6">
       <div class="flex gap-2">
         <div class="w-2/3 shrink-0">
-          <CarouselMobile
-            images={[
-              book.coverUrl,
-              ...(book?.images?.map((image) => image.imageUrl) ?? []),
-            ]}
-            showIndicators={false}
-          />
+          <a href={`/books/${book.slug}`}>
+            <CarouselMobile
+              images={[
+                book.coverUrl,
+                ...(book?.images?.map((image) => image.imageUrl) ?? []),
+              ]}
+              showIndicators={false}
+            />
+          </a>
         </div>
         <div class="w-1/3 min-w-0 flex flex-col gap-2 grow justify-between">
-          <div class="flex items-center justify-start gap-2 p-4">
+          <div class="flex items-center justify-end gap-2 p-4">
             <CollectButton isCircleButton book={book} user={user} />
             <WishlistButton isCircleButton book={book} user={user} />
             <ShareButton isCircleButton />
@@ -97,13 +99,15 @@ const BOTWMobileCard = ({ bookOfTheWeek, user }: CardProps) => {
           {bookOfTheWeek?.weekStart && formatDate(bookOfTheWeek.weekStart)}
         </Card.Text>
       </div>
-      <CarouselMobile
-        images={[
-          book.coverUrl,
-          ...(book?.images?.map((image) => image.imageUrl) ?? []),
-        ]}
-        showIndicators={false}
-      />
+      <a href={`/books/${book.slug}`}>
+        <CarouselMobile
+          images={[
+            book.coverUrl,
+            ...(book?.images?.map((image) => image.imageUrl) ?? []),
+          ]}
+          showIndicators={false}
+        />
+      </a>
       <Card.Body gap="3">
         <div class="flex items-start justify-between">
           <div>

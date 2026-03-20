@@ -1,6 +1,7 @@
 import { AuthUser } from "../../../../types";
 import Card from "../../../components/app/Card";
 import GridPanel from "../../../components/app/GridPanel";
+import TickerBanner from "../../../components/app/TickerBanner";
 import AppLayout from "../../../components/layouts/AppLayout";
 import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";
@@ -23,7 +24,7 @@ const FeaturedBooksPage = async ({ user, currentPath, isMobile }: Props) => {
 
   return (
     <AppLayout title="Books" user={user} currentPath={currentPath}>
-      {/* <TickerBanner /> */}
+      <TickerBanner />
       <Page>
         <NavTabs currentPath={currentPath} />
         <BookOfTheWeekGrid

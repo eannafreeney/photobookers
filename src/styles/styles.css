@@ -98,6 +98,20 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 }
 
+@keyframes marquee-animation {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+.marquee {
+  animation: marquee-animation 100s linear infinite;
+  will-change: transform;
+}
+
 .drawer .drawer-side {
   transform: translateX(100%);
 }
