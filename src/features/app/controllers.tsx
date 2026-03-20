@@ -210,7 +210,7 @@ export const getNewsletterConfirmationPage = async (c: Context) => {
 export const processContact = async (c: ContactFormContext) => {
   const form = c.req.valid("form");
 
-  match(
+  return match(
     await sendAdminEmail(
       "New Contact Form Submission",
       generateContactEmail(form),
