@@ -10,7 +10,7 @@ import Link from "../../../../components/app/Link";
 
 type BooksOverviewMobileProps = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
-  user: AuthUser | null;
+  user: AuthUser;
   title?: string;
 };
 
@@ -57,7 +57,7 @@ export default BooksOverviewMobile;
 
 type RowProps = {
   book: Book & { artist: Creator | null; publisher: Creator | null };
-  user: AuthUser | null;
+  user: AuthUser;
 };
 
 const BookTableRowMobile = ({ book, user }: RowProps) => {
@@ -112,7 +112,7 @@ const BookTableRowMobile = ({ book, user }: RowProps) => {
           </div>
         </div>
         <div class="flex items-center gap-2 border-t border-outline pt-3">
-          <PublishToggleForm book={book} />
+          <PublishToggleForm book={book} user={user} />
           <PreviewButton book={book} user={user} />
           <a href={`/dashboard/books/${book.id}/update`}>
             <Button variant="outline" color="inverse" width="sm">

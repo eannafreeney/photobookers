@@ -44,7 +44,6 @@ export const getCreatorDetailPage = async (c: Context) => {
       currentPath={currentPath}
       isMobile={isMobile}
       currentPage={page}
-      sortBy={sortBy}
     />,
   );
 };

@@ -27,7 +27,10 @@ export const getClaimModal = async (c: ClaimModalContext) => {
   const currentPath = c.req.valid("query").currentPath;
   const user = await getUser(c);
   const userId = user?.id;
-  const creator = await getCreatorById(creatorId);
+  const [error, creator] = await getCreatorById(creatorId);
+  if (error || !creator) {
+    return showErrorAlert(c, "Creator not found");
+  }
 
   if (!userId) {
     if (!creator) return showErrorAlert(c, "Creator Not Found");
@@ -82,7 +85,10 @@ export const processRegisterAndClaim = async (
   const creatorId = c.req.valid("param").creatorId;
   const formData = c.req.valid("form");
 
-  const creator = await getCreatorById(creatorId);
+  const [error, creator] = await getCreatorById(creatorId);
+  if (error || !creator) {
+    return showErrorAlert(c, "Creator not found");
+  }
   if (!creator) return showErrorAlert(c, "Creator not found");
   if (creator.status !== "stub")
     return showErrorAlert(c, "This profile is not available to claim.");
@@ -126,7 +132,16 @@ export const getClaimComplete = async (c: Context) => {
   const typed = c as unknown as ClaimCompleteQueryContext;
   const { creatorId, verificationUrl } = typed.req.valid("query");
 
-  const creator = await getCreatorById(creatorId);
+  const [creatorError, creator] = await getCreatorById(creatorId);
+  if (creatorError || !creator) {
+    return c.html(
+      <InfoPage
+        errorMessage={creatorError?.reason ?? "Creator not found"}
+        user={user}
+      />,
+      404,
+    );
+  }
   if (!creator) return showErrorAlert(c, "Creator not found");
   if (creator.status !== "stub")
     return c.html(
@@ -195,8 +210,11 @@ export const processClaim = async (c: ProcessClaimContext) => {
   const formData = c.req.valid("form");
   const creatorId = c.req.valid("param").creatorId;
   const user = await getUser(c);
-  const creator = await getCreatorById(creatorId);
-  if (!creator) return showErrorAlert(c, "Creator not found");
+
+  const [creatorError, creator] = await getCreatorById(creatorId);
+  if (creatorError || !creator) {
+    return showErrorAlert(c, "Creator not found");
+  }
   // Use creator's existing website, or fall back to user-submitted URL
   const rawUrl = creator.website ?? formData.verificationUrl;
   if (!rawUrl)

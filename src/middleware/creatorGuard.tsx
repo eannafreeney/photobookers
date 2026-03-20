@@ -24,7 +24,13 @@ export const requireCreatorEditAccess = createMiddleware<CreatorEnv>(
       );
     }
 
-    const creator = await getCreatorById(creatorId);
+    const [error, creator] = await getCreatorById(creatorId);
+    if (error || !creator) {
+      return c.html(
+        <InfoPage errorMessage="Creator not found" user={user} />,
+        404,
+      );
+    }
 
     if (!creator) {
       return c.html(

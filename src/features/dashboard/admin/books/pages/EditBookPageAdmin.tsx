@@ -23,9 +23,8 @@ const EditBookPageAdmin = async ({
   flash,
   currentPath,
 }: Props) => {
-  const book = await getBookById(bookId);
-
-  if (!book) {
+  const [error, book] = await getBookById(bookId);
+  if (error) {
     return <div>Book not found</div>;
   }
 
@@ -60,7 +59,7 @@ const EditBookPageAdmin = async ({
         />
         <div class="flex justify-end">
           <div class="flex items-center gap-4">
-            <PublishToggleForm book={book} />
+            <PublishToggleForm book={book} user={user} />
             <PreviewButton book={book} user={user} />
           </div>
         </div>
@@ -70,7 +69,11 @@ const EditBookPageAdmin = async ({
           class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"
           id="book-images"
         >
-          <BookCoverForm initialUrl={book.coverUrl ?? null} book={book} />
+          <BookCoverForm
+            initialUrl={book.coverUrl ?? null}
+            book={book}
+            user={user}
+          />
           <hr class="my-4 md:hidden" />
           <BookGalleryForm
             initialImages={
@@ -79,7 +82,8 @@ const EditBookPageAdmin = async ({
                 url: image.imageUrl,
               })) ?? []
             }
-            bookId={book.id}
+            book={book}
+            user={user}
           />
         </div>
       </Page>

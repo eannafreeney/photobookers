@@ -48,7 +48,7 @@ const EditCreatorPage = ({ user, creator, currentPath }: Props) => {
           <div class="md:w-1/3">
             <CreatorImageForm
               initialUrl={creator?.coverUrl ?? null}
-              creatorId={creator?.id}
+              creator={creator}
               user={user}
             />
           </div>

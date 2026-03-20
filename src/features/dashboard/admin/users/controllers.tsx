@@ -8,8 +8,11 @@ import {
   UserFormContext,
   UserIdContext,
 } from "./types";
-import { supabaseAdmin } from "../../../../lib/supabase";
-import { createUserWithAuthId, deleteUserById } from "./services";
+import {
+  createAuthUser,
+  createUserWithAuthId,
+  deleteUserById,
+} from "./services";
 import NewUserCredentialsModal from "./modals/NewUserCredentialsModal";
 import CreateUserFormAdmin from "./forms/CreateUserFormAdmin";
 import { getCreatorById } from "../../creators/services";
@@ -39,44 +42,41 @@ export const getUsersPageAdmin = async (c: Context) => {
 
 export const createNewUserAdmin = async (c: UserFormContext) => {
   const formData = c.req.valid("form");
-  const { email, firstName, lastName, creatorId } = formData;
+  const { email, creatorId } = formData;
   const temporaryPassword = crypto.randomUUID();
 
-  const { data: authData, error: authError } =
-    await supabaseAdmin.auth.admin.createUser({
-      email,
-      password: temporaryPassword,
-      email_confirm: true,
-      user_metadata: { firstName, lastName },
-    });
+  const [createAuthError, authData] = await createAuthUser(
+    temporaryPassword,
+    formData,
+  );
 
-  let creator;
+  if (createAuthError || !authData) {
+    return showErrorAlert(c, "Failed to create auth user");
+  }
+
+  const authUserId = authData.data.user.id;
+
+  let creator: Awaited<ReturnType<typeof getCreatorById>>[1] | null = null;
+
   if (creatorId) {
-    creator = await getCreatorById(creatorId);
-    if (!creator) return showErrorAlert(c, "Creator not found");
-  }
-  console.log("creator", creator);
-  if (authError) {
-    return showErrorAlert(c, authError.message);
-  }
-  const authUserId = authData.user?.id;
-  if (!authUserId) {
-    return showErrorAlert(c, "Failed to create user.");
+    const [error, foundCreator] = await getCreatorById(creatorId);
+    if (error || !foundCreator) {
+      return showErrorAlert(c, "Creator not found");
+    }
+    creator = foundCreator;
+    await assignUserAsCreatorOwnerAdmin(authUserId, creator.id);
   }
 
-  try {
-    const newUser = await createUserWithAuthId(authUserId, formData, {
+  const [createUserError, newUser] = await createUserWithAuthId(
+    authUserId,
+    formData,
+    {
       mustResetPassword: true,
-    });
-    if (!newUser) {
-      return showErrorAlert(c, "Failed to create user");
-    }
-    if (creator) {
-      await assignUserAsCreatorOwnerAdmin(authUserId, creator.id);
-    }
-  } catch (error) {
-    console.error("Failed to create user and assign creator owner:", error);
-    return showErrorAlert(c, "Failed to create user and assign creator owner");
+    },
+  );
+
+  if (createUserError || !newUser) {
+    return showErrorAlert(c, "Failed to create user");
   }
 
   return c.html(
@@ -85,7 +85,7 @@ export const createNewUserAdmin = async (c: UserFormContext) => {
       <NewUserCredentialsModal
         email={email}
         temporaryPassword={temporaryPassword}
-        creator={creator}
+        creator={creator ?? undefined}
       />
       {updaterUsersEvent()}
     </>,

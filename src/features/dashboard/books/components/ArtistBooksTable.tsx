@@ -103,7 +103,7 @@ const ArtistTableRow = ({ book, user }: ArtistTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>{formattedReleaseDate}</Table.BodyRow>
       <Table.BodyRow>
-        {!publisherIsVerified && <PublishToggleForm book={book} />}
+        {!publisherIsVerified && <PublishToggleForm book={book} user={user} />}
       </Table.BodyRow>
       <Table.BodyRow>
         {!publisherIsVerified && <PreviewButton book={book} user={user} />}

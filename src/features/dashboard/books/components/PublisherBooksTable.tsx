@@ -92,7 +92,7 @@ const PublisherTableRow = ({ book, user }: PublisherTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>{formattedReleaseDate}</Table.BodyRow>
       <Table.BodyRow>
-        <PublishToggleForm book={book} />
+        <PublishToggleForm book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
         <PreviewButton book={book} user={user} />

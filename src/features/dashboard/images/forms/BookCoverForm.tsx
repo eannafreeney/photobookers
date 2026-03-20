@@ -8,10 +8,11 @@ import { BookCardResult } from "../../../../constants/queries";
 import CardCreatorCard from "../../../../components/app/CardCreatorCard";
 import { AuthUser } from "../../../../../types";
 import { canUploadImage } from "../../../../lib/permissions";
+import { Book } from "../../../../db/schema";
 
 type Props = {
   initialUrl: string | null;
-  book: BookCardResult;
+  book: Book | BookCardResult;
   user: AuthUser;
 };
 

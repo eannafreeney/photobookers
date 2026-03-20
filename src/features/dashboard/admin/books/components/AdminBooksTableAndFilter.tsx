@@ -142,7 +142,7 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
         <CollectionCount bookId={book.id} />
       </Table.BodyRow>
       <Table.BodyRow>
-        <PublishToggleForm book={book} />
+        <PublishToggleForm book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
         <PreviewButton book={book} user={user} />

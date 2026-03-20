@@ -4,6 +4,8 @@ import { creatorClaims, creators, follows, users } from "../../../../db/schema";
 import { newUserFormAdminSchema } from "./schema";
 import z from "zod";
 import { getPagination } from "../../../../lib/pagination";
+import { supabaseAdmin } from "../../../../lib/supabase";
+import { err, ok } from "../../../../lib/result";
 
 type NewUserForm = z.infer<typeof newUserFormAdminSchema>;
 
@@ -99,16 +101,23 @@ export const createUserWithAuthId = async (
     mustResetPassword?: boolean;
   },
 ) => {
-  return await db
-    .insert(users)
-    .values({
-      id: authUserId,
-      email: formData.email,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      mustResetPassword: options?.mustResetPassword ?? false,
-    })
-    .onConflictDoNothing({ target: users.id });
+  try {
+    const user = await db
+      .insert(users)
+      .values({
+        id: authUserId,
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        mustResetPassword: options?.mustResetPassword ?? false,
+      })
+      .onConflictDoNothing({ target: users.id })
+      .returning();
+    return ok(user);
+  } catch (error) {
+    console.error("Failed to create user with auth id", error);
+    return err({ reason: "Failed to create user with auth id", cause: error });
+  }
 };
 
 export const deleteUserById = async (userId: string) => {
@@ -125,4 +134,42 @@ export const deleteUserById = async (userId: string) => {
       .returning();
     return result;
   });
+};
+
+export const createAuthUser = async (
+  temporaryPassword: string,
+  formData: NewUserForm,
+) => {
+  try {
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      email: formData.email,
+      password: temporaryPassword,
+      email_confirm: true,
+      user_metadata: {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+      },
+    });
+    if (error) {
+      return err({ reason: "Failed to create auth user", cause: error });
+    }
+    return ok({ data, temporaryPassword });
+  } catch (error) {
+    console.error("Failed to create auth user", error);
+    return err({ reason: "Failed to create auth user", cause: error });
+  }
+};
+
+export const createUserInDatabase = async (
+  userId: string,
+  formData: NewUserForm,
+) => {
+  try {
+    const user = await createUserWithAuthId(userId, formData, {
+      mustResetPassword: true,
+    });
+  } catch (error) {
+    console.error("Failed to create user in database", error);
+    return err({ reason: "Failed to create user in database", cause: error });
+  }
 };

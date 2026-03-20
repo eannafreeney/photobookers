@@ -223,7 +223,10 @@ export const resolveArtist = async (
 
   // Using existing artist
   if (artist_id) {
-    const creator = await getCreatorById(artist_id);
+    const [error, creator] = await getCreatorById(artist_id);
+    if (error || !creator) {
+      return "error";
+    }
     return creator?.type === "artist" ? creator : "error";
   }
 
@@ -253,7 +256,10 @@ export const resolvePublisher = async (
 
   // Using existing publisher
   if (publisher_id) {
-    const creator = await getCreatorById(publisher_id);
+    const [error, creator] = await getCreatorById(publisher_id);
+    if (error || !creator) {
+      return "error";
+    }
     return creator?.type === "publisher" ? creator : "error";
   }
 

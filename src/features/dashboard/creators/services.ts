@@ -50,12 +50,18 @@ export const createCreatorProfile = async (input: NewCreator) => {
 };
 
 export const getCreatorById = async (creatorId: string) => {
-  const creator = await db.query.creators.findFirst({
-    where: eq(creators.id, creatorId),
-    with: {
-      booksAsArtist: true,
-      booksAsPublisher: true,
-    },
-  });
-  return creator ?? null;
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.id, creatorId),
+      with: {
+        booksAsArtist: true,
+        booksAsPublisher: true,
+      },
+    });
+    if (!creator) return err({ reason: "Creator not found" });
+    return ok(creator);
+  } catch (error) {
+    console.error("Failed to get creator by id", error);
+    return err({ reason: "Failed to get creator by id" });
+  }
 };

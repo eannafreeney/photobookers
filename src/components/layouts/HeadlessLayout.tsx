@@ -3,6 +3,7 @@ import Head from "./Head";
 import BrandLogo from "../app/BrandLogo";
 import Alert from "../app/Alert";
 import { Flash } from "../../../types";
+import Footer from "../app/Footer";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
@@ -17,6 +18,7 @@ const HeadlessLayout = ({ title, children, flash }: LayoutProps) => (
       <ul x-sync id="toast" x-merge="prepend" role="status"></ul>
       <Navbar />
       <main class="container mx-auto min-h-screen px-4">{children}</main>
+      <Footer />
     </body>
   </html>
 );

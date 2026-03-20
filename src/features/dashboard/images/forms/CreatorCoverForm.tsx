@@ -3,14 +3,16 @@ import SectionTitle from "../../../../components/app/SectionTitle";
 import FileUploadInput from "../../../../components/forms/FileUpload";
 import ImagePreview from "../../../../components/forms/ImagePreview";
 import { AuthUser } from "../../../../../types";
+import { canUploadImage } from "../../../../lib/permissions";
+import { Creator } from "../../../../db/schema";
 
 type Props = {
   initialUrl: string | null;
-  creatorId: string;
+  creator: Creator;
   user: AuthUser;
 };
 
-const CreatorCoverForm = ({ initialUrl, creatorId, user }: Props) => {
+const CreatorCoverForm = ({ initialUrl, creator, user }: Props) => {
   const initialUrlString = initialUrl ? JSON.stringify(initialUrl) : null;
 
   const alpineAttrs = {
@@ -27,7 +29,7 @@ const CreatorCoverForm = ({ initialUrl, creatorId, user }: Props) => {
       <SectionTitle>Profile Image</SectionTitle>
       <form
         method="post"
-        action={`/dashboard/images/creators/${creatorId}/cover`}
+        action={`/dashboard/images/creators/${creator.id}/cover`}
         enctype="multipart/form-data"
         class="space-y-4"
         {...alpineAttrs}
@@ -39,7 +41,7 @@ const CreatorCoverForm = ({ initialUrl, creatorId, user }: Props) => {
             name="cover"
             x-on:change="onFileChange"
             x-ref="fileInput"
-            user={user}
+            // isDisabled={!canUploadImage(user, book)}
           />
           <p x-show="isCompressing" class="text-sm text-gray-500">
             Compressing image…

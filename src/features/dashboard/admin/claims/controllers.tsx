@@ -10,6 +10,7 @@ import { ClaimIdContext } from "./types";
 import { generateClaimApprovalEmail } from "./emails";
 import { generateClaimRejectionEmail } from "../../../claims/emails";
 import { getCreatorById } from "../../creators/services";
+import { sendEmail } from "../../../../lib/sendEmail";
 
 export const getClaimsOverviewPageAdmin = async (c: Context) => {
   const user = await getUser(c);
@@ -27,7 +28,10 @@ export const approveClaimAdmin = async (c: ClaimIdContext) => {
     return showErrorAlert(c, "Claim not found");
   }
   const user = await getUser(c);
-  const creator = await getCreatorById(claim.creatorId);
+  const [error, creator] = await getCreatorById(claim.creatorId);
+  if (error || !creator) {
+    return showErrorAlert(c, "Creator not found");
+  }
   if (!user || !creator) {
     return showErrorAlert(c, "User or creator not found");
   }
@@ -35,32 +39,11 @@ export const approveClaimAdmin = async (c: ClaimIdContext) => {
   await approveClaim(claimId);
   const emailHTML = await generateClaimApprovalEmail(user, creator);
 
-  try {
-    const { error } = await supabaseAdmin.functions.invoke("send-email", {
-      body: {
-        to: user?.email,
-        subject: `Your Claim for ${creator.displayName} has been approved`,
-        html: emailHTML,
-      },
-      headers: {
-        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
-      },
-    });
-
-    if (error) {
-      console.error("Failed to send email:", error);
-      return showErrorAlert(
-        c,
-        "Failed to send approval email. Please try again.",
-      );
-    }
-  } catch (error) {
-    console.error("Email error:", error);
-    return showErrorAlert(
-      c,
-      "Failed to send approval email. Please try again.",
-    );
-  }
+  await sendEmail(
+    user.email,
+    `Your Claim for ${creator.displayName} has been approved`,
+    emailHTML,
+  );
 
   return c.html(
     <>
@@ -80,40 +63,19 @@ export const rejectClaimAdmin = async (c: ClaimIdContext) => {
     return showErrorAlert(c, "Claim not found");
   }
   const user = await getUser(c);
-  const creator = await getCreatorById(claim.creatorId);
-  if (!user || !creator) {
-    return showErrorAlert(c, "User or creator not found");
+  const [error, creator] = await getCreatorById(claim.creatorId);
+  if (error || !creator) {
+    return showErrorAlert(c, "Creator not found");
   }
 
   await rejectClaim(claimId);
   const emailHTML = await generateClaimRejectionEmail(user, creator);
 
-  try {
-    const { error } = await supabaseAdmin.functions.invoke("send-email", {
-      body: {
-        to: user?.email,
-        subject: `Your Claim for ${creator.displayName} has been rejected`,
-        html: emailHTML,
-      },
-      headers: {
-        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
-      },
-    });
-
-    if (error) {
-      console.error("Failed to send email:", error);
-      return showErrorAlert(
-        c,
-        "Failed to send rejection email. Please try again.",
-      );
-    }
-  } catch (error) {
-    console.error("Email error:", error);
-    return showErrorAlert(
-      c,
-      "Failed to send rejection email. Please try again.",
-    );
-  }
+  await sendEmail(
+    user.email,
+    `Your Claim for ${creator.displayName} has been rejected`,
+    emailHTML,
+  );
 
   return c.html(
     <>

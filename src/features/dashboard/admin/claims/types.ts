@@ -1,7 +1,7 @@
 import { Context, Env } from "hono";
 import { claimIdSchema } from "../../../../schemas";
 import { z } from "zod";
-import { claimApproveFormSchema, claimRejectFormSchema } from "./schema";
+import { claimFormSchema } from "./schema";
 
 export type ClaimIdContext = Context<
   Env,
@@ -12,11 +12,11 @@ export type ClaimIdContext = Context<
 export type ClaimApproveFormContext = Context<
   Env,
   string,
-  { out: { form: z.infer<typeof claimApproveFormSchema> } }
+  { out: { form: z.infer<typeof claimFormSchema> } }
 >;
 
 export type ClaimRejectFormContext = Context<
   Env,
   string,
-  { out: { form: z.infer<typeof claimRejectFormSchema> } }
+  { out: { form: z.infer<typeof claimFormSchema> } }
 >;
