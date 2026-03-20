@@ -210,6 +210,35 @@ export const getNewsletterConfirmationPage = async (c: Context) => {
 export const processContact = async (c: ContactFormContext) => {
   const form = c.req.valid("form");
 
+  // 🍯 1. Honeypot (bots fill this)
+  if (form.website) {
+    return c.redirect("/");
+  }
+
+  // ⏱️ 2. Time check (bots are instant)
+  const ts = Number(form.ts);
+  if (!ts || Date.now() - ts < 3000) {
+    return c.redirect("/");
+  }
+
+  // 🧠 3. Content heuristics (cheap + effective)
+  const msg = String(form.message || "");
+
+  // too many links → spam
+  if ((msg.match(/http/gi) || []).length > 2) {
+    return c.redirect("/");
+  }
+
+  // nonsense length
+  if (msg.length < 10 || msg.length > 2000) {
+    return c.redirect("/");
+  }
+
+  // optional: block obvious keywords
+  if (/viagra|casino|crypto|loan/gi.test(msg)) {
+    return c.redirect("/");
+  }
+
   return match(
     await sendAdminEmail(
       "New Contact Form Submission",
