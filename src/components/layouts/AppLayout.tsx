@@ -14,6 +14,7 @@ type LayoutProps = PropsWithChildren<{
   currentPath: string;
   flash?: Flash | null;
   isPreview?: boolean;
+  adminEditHref?: string;
 }>;
 
 const AppLayout = ({
@@ -23,13 +24,18 @@ const AppLayout = ({
   currentPath,
   flash,
   isPreview,
+  adminEditHref,
 }: LayoutProps) => (
   <html lang="en">
     <Head title={title} />
     <body class="bg-surface-alt">
       <UserProvider user={user}>
         {isPreview && <PreviewBanner />}
-        <Navbar currentPath={currentPath} />
+        <Navbar
+          currentPath={currentPath}
+          user={user}
+          adminEditHref={adminEditHref}
+        />
         <div class="pb-20 md:pb-0">
           <main class="min-h-60vh lg:mx-4 pt-14 md:pt-0">{children}</main>
           <Footer />

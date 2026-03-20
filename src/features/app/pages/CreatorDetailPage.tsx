@@ -1,4 +1,5 @@
 import { AuthUser } from "../../../../types";
+import Button from "../../../components/app/Button";
 import CreatorCard from "../../../components/app/CreatorCard";
 import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import Divider from "../../../components/Divider";
@@ -40,6 +41,7 @@ const CreatorDetailPage = async ({
       title={creator?.displayName ?? ""}
       user={user}
       currentPath={currentPath}
+      adminEditHref={`/dashboard/admin/creators/${creator.id}/update`}
     >
       <Page>
         <div class="flex flex-col md:flex-row gap-4">

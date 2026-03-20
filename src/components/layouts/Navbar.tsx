@@ -2,8 +2,16 @@ import NavDesktopMenu from "./NavDesktopMenu";
 import NavMobileMenu from "./NavMobileMenu";
 import NavSearch from "./NavSearch";
 import BrandLogo from "../app/BrandLogo";
+import Button from "../app/Button";
+import { AuthUser } from "../../../types";
 
-const Navbar = ({ currentPath }: { currentPath?: string | null }) => {
+type NavbarProps = {
+  currentPath?: string | null;
+  user?: AuthUser | null;
+  adminEditHref?: string;
+};
+
+const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
   const alpineAttrs = {
     "x-data": "{ mobileMenuIsOpen: false }",
     "x-on:click.away": "mobileMenuIsOpen = false",
@@ -16,6 +24,7 @@ const Navbar = ({ currentPath }: { currentPath?: string | null }) => {
     >
       <BrandLogo />
       <div class="hidden md:flex items-center gap-4">
+        <AdminEditButton href={adminEditHref} user={user} />
         <NavSearch />
         <NavDesktopMenu currentPath={currentPath} />
       </div>
@@ -25,3 +34,19 @@ const Navbar = ({ currentPath }: { currentPath?: string | null }) => {
 };
 
 export default Navbar;
+
+type AdminEditButtonProps = {
+  href?: string;
+  user?: AuthUser | null;
+};
+
+const AdminEditButton = ({ href, user }: AdminEditButtonProps) => {
+  if (!user?.isAdmin) return <> </>;
+  return (
+    <a href={href}>
+      <Button variant="outline" color="secondary" width="sm">
+        Edit
+      </Button>
+    </a>
+  );
+};

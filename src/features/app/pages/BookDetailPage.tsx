@@ -61,6 +61,7 @@ const BookDetailPage = async ({
       user={user}
       isPreview={isPreview}
       currentPath={currentPath}
+      adminEditHref={`/dashboard/admin/books/${book.id}/update`}
     >
       <Page>
         {isMobile ? (
@@ -114,13 +115,6 @@ const DetailDesktop = ({
               <h3 class="text-balance text-2xl font-semibold text-on-surface-strong">
                 {book.title}
               </h3>
-              {user?.isAdmin && (
-                <a href={`/dashboard/admin/books/${book.id}/update`}>
-                  <Button variant="outline" color="secondary" width="sm">
-                    Edit
-                  </Button>
-                </a>
-              )}
             </div>
             <div class="flex gap-2">
               <CollectButton book={book} user={user} />
@@ -190,13 +184,6 @@ const DetailMobile = ({
       <PurchaseLink purchaseLink={book.purchaseLink} />
       <TagList tags={book.tags ?? []} />
       <Credits releaseDate={book.releaseDate} publisher={book.publisher} />
-      {canEditBook(user, book) && (
-        <a href={`/dashboard/admin/books/${book.id}/update`}>
-          <Button variant="outline" color="secondary" width="sm">
-            Edit
-          </Button>
-        </a>
-      )}
       <div class="flex flex-col sm:items-center gap-2">
         <CreatorCard
           creator={book.artist}
