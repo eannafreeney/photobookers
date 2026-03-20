@@ -138,15 +138,7 @@ export const getBooksByCreatorSlug = async (
     });
 
     if (!creator) {
-      return {
-        creator: null,
-        books: [],
-        artists: [],
-        totalPages: 0,
-        page: 1,
-        limit: defaultLimit,
-        relatedCreators: [],
-      };
+      return err({ reason: "Creator not found" });
     }
 
     // 2. Count books for this creator (by type)
@@ -194,22 +186,16 @@ export const getBooksByCreatorSlug = async (
 
     const relatedCreators = await getRelatedCreators(creator.id, creator.type);
 
-    return {
+    return ok({
       creator,
       books: foundBooks,
       totalPages: totalPagesComputed,
       page: pageComputed,
       relatedCreators,
-    };
+    });
   } catch (error) {
     console.warn(error);
-    return {
-      creator: null,
-      relatedCreators: [],
-      books: [],
-      totalPages: 0,
-      page: 1,
-    };
+    return err({ reason: "Failed to get books by creator slug", error });
   }
 };
 

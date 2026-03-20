@@ -14,10 +14,8 @@ type CreatorDetailPageProps = {
   user: AuthUser | null;
   creatorSlug: string;
   currentPath: string;
-  isMobile: boolean;
   currentPage: number;
-  sortBy: "newest" | "oldest" | "title_asc" | "title_desc";
-  currentCreatorId?: string | null;
+  isMobile: boolean;
 };
 
 const CreatorDetailPage = async ({
@@ -26,11 +24,10 @@ const CreatorDetailPage = async ({
   currentPath,
   currentPage,
   isMobile,
-  currentCreatorId,
 }: CreatorDetailPageProps) => {
-  const result = await getBooksByCreatorSlug(creatorSlug, currentPage);
+  const [error, result] = await getBooksByCreatorSlug(creatorSlug, currentPage);
 
-  if (!result.creator) {
+  if (error || !result?.books?.length) {
     return <ErrorPage errorMessage="Creator not found" user={user} />;
   }
 
