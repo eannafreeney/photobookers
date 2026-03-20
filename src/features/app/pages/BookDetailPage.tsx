@@ -162,7 +162,7 @@ const DetailMobile = ({
   creator,
 }: DetailProps) => {
   return (
-    <div class="flex flex-col gap-4 ">
+    <div class="flex flex-col gap-4">
       {isMobile && creator && (
         <MobileCreatorCard creator={creator} user={user} />
       )}
@@ -172,7 +172,7 @@ const DetailMobile = ({
           {book.title}
         </h3>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-4">
         <CollectButton book={book} user={user} />
         <WishlistButton book={book} user={user} />
       </div>

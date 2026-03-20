@@ -33,6 +33,14 @@ const ContactForm = () => {
         minRows={5}
         required
       />
+      <input
+        type="text"
+        name="website"
+        class="hidden"
+        tabindex={-1}
+        autocomplete="off"
+      />
+      <input type="hidden" name="ts" value="${Date.now()}" />
       <FormButton buttonText="Send message" loadingText="Sending..." />
     </form>
   );
