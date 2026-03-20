@@ -3,7 +3,7 @@ import { fadeTransition } from "../../lib/transitions";
 type InputLabelProps = {
   label: string;
   maxLength?: number;
-  name: string;
+  name?: string;
   required?: boolean;
   isError?: boolean;
   isSuccess?: boolean;
@@ -46,7 +46,7 @@ export default InputLabel;
 type InputErrorProps = {
   isError?: boolean;
   isSuccess?: boolean;
-  name: string;
+  name?: string;
 };
 
 const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (

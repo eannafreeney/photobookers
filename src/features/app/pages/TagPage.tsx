@@ -21,11 +21,9 @@ const TagPage = async ({
   currentPath,
   currentPage,
 }: TagPageProps) => {
-  const result = await getBooksByTag(tag, currentPage);
-
-  if (!result?.books.length) {
-    return <ErrorPage errorMessage="No books found for this tag" user={user} />;
-  }
+  const [error, result] = await getBooksByTag(tag, currentPage);
+  if (error)
+    return <ErrorPage errorMessage="Failed to get books by tag" user={user} />;
 
   return (
     <AppLayout

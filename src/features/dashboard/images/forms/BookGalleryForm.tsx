@@ -3,13 +3,17 @@ import { MAX_GALLERY_IMAGES_PER_BOOK } from "../../../../constants/images";
 import Button from "../../../../components/app/Button";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import FileUploadInput from "../../../../components/forms/FileUpload";
+import { AuthUser } from "../../../../../types";
+import { Book } from "../../../../db/schema";
+import { canUploadImage } from "../../../../lib/permissions";
 
 type Props = {
   initialImages: { id: string; url: string }[]; // actual DB records
-  bookId: string;
+  book: Book;
+  user: AuthUser;
 };
 
-const BookGalleryForm = ({ initialImages, bookId }: Props) => {
+const BookGalleryForm = ({ initialImages, book, user }: Props) => {
   const initialImagesString = initialImages
     ? JSON.stringify(initialImages)
     : null;
@@ -31,7 +35,7 @@ const BookGalleryForm = ({ initialImages, bookId }: Props) => {
       <form
         enctype="multipart/form-data"
         method="post"
-        action={`/dashboard/images/books/${bookId}/gallery`}
+        action={`/dashboard/images/books/${book.id}/gallery`}
         {...alpineAttrs}
       >
         <div class="space-y-4">
@@ -41,6 +45,7 @@ const BookGalleryForm = ({ initialImages, bookId }: Props) => {
             multiple
             x-on:change="onFilesChange"
             x-ref="fileInput"
+            isDisabled={!canUploadImage(user, book)}
           />
           <p x-show="isCompressing" class="text-sm text-gray-500">
             Compressing image…

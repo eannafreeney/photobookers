@@ -31,8 +31,9 @@ export const registerAndClaimFormSchema = z.object({
     .or(z.literal("")),
 });
 
-// ============ CLAIM COMPLETE QUERY (AFTER EMAIL VERIFICATION) ============
 export const claimCompleteQuerySchema = z.object({
   creatorId: z.string().uuid(),
-  verificationUrl: z.string().min(1, "Verification URL is required"),
+  verificationUrl: z
+    .string()
+    .url("Please enter a valid URL (e.g., https://example.com)"),
 });

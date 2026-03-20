@@ -65,3 +65,10 @@ export const resetPasswordFormSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
 });
+
+export const processRegisterQuerySchema = z.object({
+  token_hash: z.string(),
+  error: z.string().optional(),
+  error_code: z.string().optional(),
+  error_description: z.string().optional(),
+});

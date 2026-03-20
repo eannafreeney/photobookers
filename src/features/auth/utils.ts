@@ -39,3 +39,17 @@ export async function verifyOtpForSignup(c: Context, tokenHash: string) {
   }
   return ok(data.session);
 }
+
+export function getPendingCreatorId(
+  metadata: Record<string, unknown> | undefined,
+) {
+  return typeof metadata?.creatorId === "string" ? metadata.creatorId : null;
+}
+
+export function getPendingVerificationUrl(
+  metadata: Record<string, unknown> | undefined,
+) {
+  return typeof metadata?.verificationUrl === "string"
+    ? metadata.verificationUrl
+    : null;
+}

@@ -1,16 +1,12 @@
 import { AuthUser } from "../../../../../types";
 import { Book, Creator } from "../../../../db/schema";
 import BooksOverviewDesktop from "../components/BooksOverviewDesktop";
-import BooksOverviewMobile from "../components/BooksOverviewMobile";
 
 type BookTableProps = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
   creator: Creator;
   user: AuthUser;
   isMobile: boolean;
-  totalPages: number;
-  page: number;
-  creatorType: "artist" | "publisher";
 };
 
 export const BooksOverviewTable = async ({
@@ -18,9 +14,6 @@ export const BooksOverviewTable = async ({
   creator,
   user,
   isMobile,
-  totalPages,
-  page,
-  creatorType,
 }: BookTableProps) => {
   if (!user || !creator) return <></>;
 
@@ -29,13 +22,5 @@ export const BooksOverviewTable = async ({
     // return <BooksOverviewMobile books={books} user={user} />;
   }
 
-  return (
-    <BooksOverviewDesktop
-      books={books}
-      user={user}
-      totalPages={totalPages}
-      page={page}
-      creatorType={creatorType}
-    />
-  );
+  return <BooksOverviewDesktop books={books} user={user} />;
 };

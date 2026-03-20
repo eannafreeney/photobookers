@@ -1,11 +1,9 @@
 import Alert from "../../components/app/Alert";
-import AuthModal from "../../components/app/AuthModal";
 import Modal from "../../components/app/Modal";
 import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
 import { sendAdminEmail } from "../../lib/sendEmail";
-import { supabaseAdmin } from "../../lib/supabase";
 import { isSameDomain, normalizeUrl } from "../../services/verification";
-import { getUser } from "../../utils";
+import { getUser, setFlash } from "../../utils";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 import { getCreatorById } from "../dashboard/creators/services";
 import ClaimCreatorBtn from "./components/ClaimCreatorBtn";
@@ -13,15 +11,16 @@ import { generateClaimNotificationEmail } from "./emails";
 import ClaimModal from "./modals/ClaimModal";
 import { createClaimWithStatus } from "./services";
 import {
+  ClaimCompleteQueryContext,
   ClaimModalContext,
   ProcessClaimContext,
   RegisterAndClaimFormContext,
 } from "./types";
 import { emailMatchesWebsite } from "./utils";
-import { createSupabaseClient } from "../../lib/supabase"; // or wherever createSupabaseClient lives for auth
-import ClaimSignUpModal from "./modals/ClaimSignUpModal";
 import ClaimSignupModal from "./modals/ClaimSignUpModal";
+import { verifyOtpForClaimSignup } from "../auth/services";
 import { Context } from "hono";
+import InfoPage from "../../pages/InfoPage";
 
 export const getClaimModal = async (c: ClaimModalContext) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -82,7 +81,6 @@ export const processRegisterAndClaim = async (
 ) => {
   const creatorId = c.req.valid("param").creatorId;
   const formData = c.req.valid("form");
-  console.log("formData", formData);
 
   const creator = await getCreatorById(creatorId);
   if (!creator) return showErrorAlert(c, "Creator not found");
@@ -97,52 +95,23 @@ export const processRegisterAndClaim = async (
     );
 
   const verificationUrl = normalizeUrl(rawUrl);
-  if (creator.website && !isSameDomain(verificationUrl, creator.website))
-    return showErrorAlert(
-      c,
-      `The URL must match the creator's listed website (${creator.website}).`,
-    );
 
-  const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
-  const completeUrl = `/claims/complete?creatorId=${creatorId}&verificationUrl=${encodeURIComponent(verificationUrl)}`;
-  const redirectUrl = `${baseUrl.replace(/\/$/, "")}/auth/callback?redirectUrl=${encodeURIComponent(completeUrl)}`;
-  const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback?redirectUrl=${encodeURIComponent(completeUrl)}`;
-
-  const supabase = createSupabaseClient(c);
-  const { data, error } = await supabase.auth.signUp({
-    email: formData.email,
-    password: formData.password,
-    options: {
-      emailRedirectTo,
-      data: {
-        firstName: formData.firstName ?? null,
-        lastName: formData.lastName ?? null,
-      },
-    },
-  });
-
-  const alreadyRegisteredMessage =
-    "This email is already registered. Please log in.";
-  if (error) {
-    const isAlreadyRegistered =
-      error.message?.toLowerCase().includes("already") ||
-      error.message?.toLowerCase().includes("registered") ||
-      error.code === "user_already_exists";
-    return showErrorAlert(
-      c,
-      isAlreadyRegistered ? alreadyRegisteredMessage : error.message,
-    );
-  }
-  if (data.user && (!data.user.identities || data.user.identities.length === 0))
-    return showErrorAlert(c, alreadyRegisteredMessage);
+  const [verifyOtpError] = await verifyOtpForClaimSignup(
+    c,
+    formData,
+    creatorId,
+    verificationUrl,
+  );
+  if (verifyOtpError) return showErrorAlert(c, verifyOtpError.reason);
 
   await sendAdminEmail(
     "New fan registered (claim intent)",
     generateClaimNotificationEmail(),
   );
 
-  return c.redirect(
-    `/auth/signup-success?name=${formData.firstName}&message=${encodeURIComponent("Check your email to verify your account and complete your claim.")}`,
+  return showSuccessAlert(
+    c,
+    "Your claim has been submitted. Please check your email for verification.",
   );
 };
 
@@ -153,48 +122,73 @@ export const getClaimComplete = async (c: Context) => {
     return c.redirect(
       `/auth/login?redirectUrl=${encodeURIComponent(c.req.url)}`,
     );
-  const { creatorId, verificationUrl } = c.req.valid("query");
+
+  const typed = c as unknown as ClaimCompleteQueryContext;
+  const { creatorId, verificationUrl } = typed.req.valid("query");
+
   const creator = await getCreatorById(creatorId);
   if (!creator) return showErrorAlert(c, "Creator not found");
   if (creator.status !== "stub")
-    return showErrorAlert(c, "This profile is not available to claim.");
+    return c.html(
+      <InfoPage
+        errorMessage="This profile is not available to claim."
+        user={user}
+      />,
+      403,
+    );
+
   const normalizedUrl = normalizeUrl(verificationUrl);
   if (creator.website && !isSameDomain(normalizedUrl, creator.website))
-    return showErrorAlert(
-      c,
-      "Verification URL does not match creator website.",
+    return c.html(
+      <InfoPage
+        errorMessage="Verification URL does not match creator website."
+        user={user}
+      />,
     );
 
   const domainMatches = emailMatchesWebsite(user.email, normalizedUrl);
   const status =
     domainMatches && creator.website ? "approved" : "pending_admin_review";
 
-  try {
-    await createClaimWithStatus(user.id, creatorId, normalizedUrl, status);
-  } catch (err) {
-    console.error("Error creating claim:", err);
-    return showErrorAlert(c, "Failed to submit claim. Please try again.");
-  }
+  const [createClaimError] = await createClaimWithStatus(
+    user.id,
+    creatorId,
+    normalizedUrl,
+    status,
+  );
+  if (createClaimError)
+    return c.html(
+      <InfoPage errorMessage={createClaimError.reason} user={user} />,
+      400,
+    );
+
   await sendAdminEmail(
     "New creator claim submitted",
     generateClaimNotificationEmail(),
   );
+
   if (status === "approved") {
-    await assignUserAsCreatorOwnerAdmin(user.id, creatorId, true);
-    return showSuccessAlert(
+    const [error] = await assignUserAsCreatorOwnerAdmin(
+      user.id,
+      creatorId,
+      true,
+    );
+    if (error) {
+      return c.html(<InfoPage errorMessage={error.reason} user={user} />, 400);
+    }
+    await setFlash(
       c,
+      "success",
       "Your claim has been approved! Head to your dashboard to manage your profile.",
     );
+    return c.redirect("/dashboard/books");
   }
-  return c.html(
-    <>
-      <Alert
-        type="info"
-        message="Your claim has been submitted for review. We'll notify you once it's approved."
-      />
-      <ClaimCreatorBtn creator={creator} user={user} />
-    </>,
-  );
+
+  const [error] = await assignUserAsCreatorOwnerAdmin(user.id, creatorId);
+  if (error) {
+    return c.html(<InfoPage errorMessage={error.reason} user={user} />, 400);
+  }
+  return c.redirect("/dashboard/books");
 };
 
 export const processClaim = async (c: ProcessClaimContext) => {

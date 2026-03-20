@@ -27,4 +27,5 @@ export const BOOK_CARD_COLUMNS = {
   publisherId: true,
   releaseDate: true,
   tags: true,
+  createdByUserId: true,
 } as const;

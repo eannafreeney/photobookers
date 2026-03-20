@@ -6,13 +6,16 @@ import Card from "../../../../components/app/Card";
 import { formatDate } from "../../../../utils";
 import { BookCardResult } from "../../../../constants/queries";
 import CardCreatorCard from "../../../../components/app/CardCreatorCard";
+import { AuthUser } from "../../../../../types";
+import { canUploadImage } from "../../../../lib/permissions";
 
 type Props = {
   initialUrl: string | null;
   book: BookCardResult;
+  user: AuthUser;
 };
 
-const BookCoverForm = ({ initialUrl, book }: Props) => {
+const BookCoverForm = ({ initialUrl, book, user }: Props) => {
   const alpineAttrs = {
     "x-data": `bookCoverForm({initialUrl: ${JSON.stringify(initialUrl)}})`,
     "x-target": "toast",
@@ -42,6 +45,7 @@ const BookCoverForm = ({ initialUrl, book }: Props) => {
             required
             x-on:change="onFileChange"
             x-ref="fileInput"
+            isDisabled={!canUploadImage(user, book)}
           />
 
           <p x-show="error" class="text-sm text-red-600" x-text="error"></p>

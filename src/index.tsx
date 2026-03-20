@@ -7,6 +7,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 // Import your grouped routes
 import { routes } from "./routes";
 import NotFoundPage from "./pages/NotFoundPage";
+import { getUser } from "./utils";
 
 const app = new Hono();
 
@@ -32,7 +33,10 @@ if (process.env.NODE_ENV === "production") {
 app.route("/", routes);
 
 // 404 route
-app.notFound((c) => c.html(<NotFoundPage currentPath={c.req.path} />, 404));
+app.notFound(async (c) => {
+  const user = await getUser(c);
+  return c.html(<NotFoundPage currentPath={c.req.path} user={user} />, 404);
+});
 
 // Export the Hono app (NO app.listen, NO manual server)
 export default app;

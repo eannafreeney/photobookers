@@ -73,6 +73,31 @@ input[type="search"]::-webkit-search-cancel-button {
   cursor: pointer;
 }
 
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll var(--ticker-duration, 20s) linear infinite;
+  will-change: transform;
+}
+.ticker-seq {
+  display: flex;
+  gap: 1.5rem; /* match your gap-6 */
+}
+@keyframes ticker-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+}
+
 .drawer .drawer-side {
   transform: translateX(100%);
 }

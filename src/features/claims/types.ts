@@ -1,7 +1,11 @@
 import { Context, Env } from "hono";
 import { creatorIdSchema, currentPathSchema } from "../../schemas";
 import { z } from "zod";
-import { claimFormSchema, registerAndClaimFormSchema } from "./schema";
+import {
+  claimCompleteQuerySchema,
+  claimFormSchema,
+  registerAndClaimFormSchema,
+} from "./schema";
 
 export type ClaimModalContext = Context<
   Env,
@@ -32,6 +36,16 @@ export type RegisterAndClaimFormContext = Context<
     out: {
       form: z.infer<typeof registerAndClaimFormSchema>;
       param: z.infer<typeof creatorIdSchema>;
+    };
+  }
+>;
+
+export type ClaimCompleteQueryContext = Context<
+  Env,
+  string,
+  {
+    out: {
+      query: z.infer<typeof claimCompleteQuerySchema>;
     };
   }
 >;

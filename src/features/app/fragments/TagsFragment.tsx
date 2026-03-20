@@ -11,9 +11,9 @@ type Props = {
 };
 
 const TagsFragment = async ({ user, currentPage, currentPath, tag }: Props) => {
-  const result = await getBooksByTag(tag, currentPage);
+  const [error, result] = await getBooksByTag(tag, currentPage);
 
-  if (!result?.books.length) {
+  if (error || !result?.books.length) {
     return (
       <div id="tag-books-fragment">
         <div class="flex justify-center items-center min-h-screen">

@@ -4,6 +4,7 @@ import { Context } from "hono";
 import { redirectUrlSchema } from "../../schemas";
 import {
   loginFormSchema,
+  processRegisterQuerySchema,
   registerCreatorFormSchema,
   registerFanFormSchema,
   resetPasswordFormSchema,
@@ -41,6 +42,12 @@ export type ResetPasswordFormContext = Context<
   Env,
   string,
   { out: { form: z.infer<typeof resetPasswordFormSchema> } }
+>;
+
+export type ProcessRegisterQueryContext = Context<
+  Env,
+  string,
+  { out: { query: z.infer<typeof processRegisterQuerySchema> } }
 >;
 
 //

@@ -1,9 +1,21 @@
 // src/lib/permissions.ts
 
 import { AuthUser } from "../../types";
+import { BookCardResult } from "../constants/queries";
 import { Book, Creator } from "../db/schema";
 import { BookWithGalleryImages } from "../features/app/types";
 import { BookWithAdminRelations } from "../features/dashboard/admin/books/types";
+
+export function canUploadImage(
+  user: AuthUser | null,
+  book?: BookCardResult,
+): boolean {
+  if (!user) return false;
+  if (user.isAdmin) return true;
+  if (user.creator?.status !== "verified" && user.id === book?.createdByUserId)
+    return true;
+  return true;
+}
 
 export function canEditBook(
   user: AuthUser | null,
@@ -84,6 +96,7 @@ export function canEditCreator(
 ): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
+  if (user.creator?.status !== "verified") return false;
   // Owner of the creator profile
   return user.id === creator.ownerUserId;
 }

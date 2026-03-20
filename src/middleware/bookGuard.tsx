@@ -13,6 +13,7 @@ import { showErrorAlert } from "../lib/alertHelpers";
 import ErrorPage from "../pages/error/errorPage";
 import { getBookBySlug } from "../features/app/services";
 import { getBookById } from "../features/dashboard/books/services";
+import InfoPage from "../pages/InfoPage";
 
 type BookEnv = {
   Variables: {
@@ -41,8 +42,8 @@ export const requireBookEditAccess = createMiddleware<BookEnv>(
       );
     }
 
-    const book = await getBookById(bookId);
-    if (!book) {
+    const [err, book] = await getBookById(bookId);
+    if (err || !book) {
       return c.html(
         <ErrorPage errorMessage="Book not found" user={user} />,
         404,
@@ -50,17 +51,6 @@ export const requireBookEditAccess = createMiddleware<BookEnv>(
     }
 
     if (!canEditBook(user, book)) {
-      const isClaimedProfileNotVerified =
-        user?.creator &&
-        user.creator.status !== "verified" &&
-        user.creator.createdByUserId !== user.id;
-
-      if (isClaimedProfileNotVerified) {
-        return c.html(
-          <ErrorPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
-          403,
-        );
-      }
       return c.html(
         <ErrorPage
           errorMessage="You are not authorized to edit this book"
@@ -85,17 +75,28 @@ export const requireBookDeleteAccess = createMiddleware<BookEnv>(
       return showErrorAlert(c, "Book ID is required");
     }
 
-    const book = await getBookById(bookId);
-
-    if (!book) {
-      return showErrorAlert(c, "Book not found");
+    const [err, book] = await getBookById(bookId);
+    if (err || !book) {
+      return c.html(
+        <InfoPage errorMessage="Book not found" user={user} />,
+        404,
+      );
     }
 
     if (!canDeleteBook(user, book)) {
       if (user?.creator?.status !== "verified") {
-        return showErrorAlert(c, notYetVerifiedErrorMessage);
+        return c.html(
+          <InfoPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
+          403,
+        );
       }
-      return showErrorAlert(c, "You are not authorized to delete this book");
+      return c.html(
+        <ErrorPage
+          errorMessage="You are not authorized to delete this book"
+          user={user}
+        />,
+        403,
+      );
     }
 
     // Attach book to context so route doesn't need to fetch again
@@ -113,16 +114,28 @@ export const requireBookPublishAccess = createMiddleware<BookEnv>(
       return showErrorAlert(c, "Book ID is required");
     }
 
-    const book = await getBookById(bookId);
-    if (!book) {
-      return showErrorAlert(c, "Book not found");
+    const [err, book] = await getBookById(bookId);
+    if (err || !book) {
+      return c.html(
+        <InfoPage errorMessage="Book not found" user={user} />,
+        404,
+      );
     }
 
     if (!canPublishBook(user, book)) {
       if (user?.creator?.status !== "verified") {
-        return showErrorAlert(c, notYetVerifiedErrorMessage);
+        return c.html(
+          <InfoPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
+          403,
+        );
       }
-      return showErrorAlert(c, "Please add a cover image before publishing");
+      return c.html(
+        <ErrorPage
+          errorMessage="You are not authorized to publish this book"
+          user={user}
+        />,
+        403,
+      );
     }
 
     // Attach book to context so route doesn't need to fetch again
@@ -140,16 +153,34 @@ export const requireBookUnpublishAccess = createMiddleware<BookEnv>(
       return showErrorAlert(c, "Book ID is required");
     }
 
-    const book = await getBookById(bookId);
+    const [err, book] = await getBookById(bookId);
+    if (err || !book) {
+      return c.html(
+        <InfoPage errorMessage="Book not found" user={user} />,
+        404,
+      );
+    }
     if (!book) {
-      return showErrorAlert(c, "Book not found");
+      return c.html(
+        <ErrorPage errorMessage="Book not found" user={user} />,
+        404,
+      );
     }
 
     if (!canUnpublishBook(user, book)) {
       if (user?.creator?.status !== "verified") {
-        return showErrorAlert(c, notYetVerifiedErrorMessage);
+        return c.html(
+          <InfoPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
+          403,
+        );
       }
-      return showErrorAlert(c, "You are not authorized to unpublish this book");
+      return c.html(
+        <ErrorPage
+          errorMessage="You are not authorized to unpublish this book"
+          user={user}
+        />,
+        403,
+      );
     }
 
     // Attach book to context so route doesn't need to fetch again

@@ -109,20 +109,23 @@ const DropDownMenu = ({
           <NavLink href="/dashboard/books" currentPath={currentPath}>
             Dashboard
           </NavLink>
+
           <NavLink
             href={`/creators/${user?.creator?.slug}`}
             currentPath={currentPath}
           >
             {`View ${user?.creator?.displayName}`}
           </NavLink>
-          <NavLink
-            href={`/dashboard/creators/${user?.creator?.id}/update`}
-            currentPath={currentPath}
-          >
-            {`Edit ${
-              user.creator.type === "artist" ? "Artist" : "Publisher"
-            } Profile`}
-          </NavLink>
+          {user.creator.status === "verified" && (
+            <NavLink
+              href={`/dashboard/creators/${user?.creator?.id}/update`}
+              currentPath={currentPath}
+            >
+              {`Edit ${
+                user.creator.type === "artist" ? "Artist" : "Publisher"
+              } Profile`}
+            </NavLink>
+          )}
           <FeatureGuard flagName="messages">
             <NavLink
               href={`/dashboard/messages/${user?.creator?.id}`}

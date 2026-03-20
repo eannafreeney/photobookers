@@ -4,6 +4,7 @@ import { Creator } from "../db/schema";
 import { showErrorAlert } from "../lib/alertHelpers";
 import { canEditCreator } from "../lib/permissions";
 import { getCreatorById } from "../features/dashboard/creators/services";
+import InfoPage from "../pages/InfoPage";
 
 type CreatorEnv = {
   Variables: {
@@ -17,16 +18,31 @@ export const requireCreatorEditAccess = createMiddleware<CreatorEnv>(
     const creatorId = c.req.param("creatorId");
 
     if (!creatorId) {
-      return showErrorAlert(c, "Creator ID is required");
+      return c.html(
+        <InfoPage errorMessage="Creator ID is required" user={user} />,
+        400,
+      );
     }
+
     const creator = await getCreatorById(creatorId);
 
     if (!creator) {
-      return showErrorAlert(c, "Creator not found");
+      return c.html(
+        <InfoPage errorMessage="Creator not found" user={user} />,
+        404,
+      );
     }
 
     if (!canEditCreator(user, creator)) {
-      return showErrorAlert(c, "Unauthorized");
+      if (user?.creator?.status !== "verified") {
+        const notYetVerifiedErrorMessage =
+          "Your creator profile is pending verification. You can upload and edit books, but profile editing is only available after your profile is approved.";
+        return c.html(
+          <InfoPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
+          403,
+        );
+      }
+      return c.html(<InfoPage errorMessage="Unauthorized " user={user} />, 403);
     }
 
     // Attach creator to context so route doesn't need to fetch again

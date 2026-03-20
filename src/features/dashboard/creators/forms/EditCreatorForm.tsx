@@ -4,16 +4,24 @@ import CountrySelect from "../../../../components/forms/CountrySelect";
 import TextArea from "../../../../components/forms/TextArea";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import { capitalize } from "../../../../utils";
-import ValidateDisplayName from "../../../auth/components/ValidateDisplayName";
+import { AuthUser } from "../../../../../types";
+import { canEditCreator } from "../../../../lib/permissions";
+import { Creator } from "../../../../db/schema";
 
 type Props = {
   formValues?: string;
-  creatorId?: string;
+  creator: Creator;
   type?: "artist" | "publisher";
+  user: AuthUser;
 };
 
-const EditCreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
-  const isEditPage = !!creatorId;
+const EditCreatorForm = ({
+  formValues,
+  creator,
+  type = "artist",
+  user,
+}: Props) => {
+  const isEditPage = !!creator.id;
 
   const alpineAttrs = {
     "x-data": `editCreatorForm(${formValues}, ${isEditPage})`,
@@ -29,7 +37,7 @@ const EditCreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
         type,
       )} Profile`}</SectionTitle>
       <form
-        action={`/dashboard/creators/${creatorId}/update`}
+        action={`/dashboard/creators/${creator.id}/update`}
         method="post"
         {...alpineAttrs}
       >
@@ -82,7 +90,7 @@ const EditCreatorForm = ({ formValues, creatorId, type = "artist" }: Props) => {
             x-init={`form.type = '${type}'`}
           />
         </div>
-        <FormButtons />
+        <FormButtons isDisabled={!canEditCreator(user, creator)} />
       </form>
     </div>
   );

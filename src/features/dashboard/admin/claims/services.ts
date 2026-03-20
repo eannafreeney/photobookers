@@ -9,21 +9,35 @@ import {
   User,
   users,
 } from "../../../../db/schema";
-import { and, desc, eq, gt, ilike, inArray, or } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, or } from "drizzle-orm";
 import { deleteBookByIdAdmin } from "../books/services";
+import { err, ok } from "../../../../lib/result";
 
 export const assignUserAsCreatorOwnerAdmin = async (
   userId: string,
   creatorId: string,
-  isVerified: boolean = false,
+  isVerified?: boolean,
 ) => {
-  await db
-    .update(creators)
-    .set({
-      ownerUserId: userId,
-      status: isVerified ? "verified" : "stub",
-    })
-    .where(eq(creators.id, creatorId));
+  try {
+    const [updatedCreator] = await db
+      .update(creators)
+      .set({
+        ownerUserId: userId,
+        status: isVerified ? "verified" : "stub",
+      })
+      .where(eq(creators.id, creatorId))
+      .returning();
+    if (!updatedCreator) {
+      return err({ reason: "Creator not found", cause: undefined });
+    }
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to assign user as creator owner admin:", error);
+    return err({
+      reason: "Failed to assign user as creator owner admin",
+      cause: error,
+    });
+  }
 };
 
 export async function getClaimsPendingAdminReview(): Promise<

@@ -62,13 +62,13 @@ const CreatorCard = async ({
             <Card.Description>{creator.tagline}</Card.Description>
           )}
           <FollowButton creator={creator} user={user} />
-          {/* {creator.status === "stub" && (
+          {creator.status === "stub" && (
             <ClaimCreatorBtn
               creator={creator}
               user={user}
               currentPath={currentPath}
             />
-          )} */}
+          )}
           <SocialLinks creator={creator} />
         </Card.Body>
       </Card>

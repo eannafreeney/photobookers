@@ -12,7 +12,9 @@ const ErrorPage = ({ errorMessage, user }: ErrorPageProps) => (
   <AppLayout title="Error" user={user} currentPath="/">
     <Page>
       <div class="flex flex-col gap-4 items-center justify-center min-h-screen">
-        <div class="text-center text-2xl font-medium">{errorMessage}</div>
+        <div class="text-center text-2xl font-medium max-w-4xl">
+          {errorMessage}
+        </div>
         <a href="/">
           <Button variant="solid" color="primary">
             Go Home

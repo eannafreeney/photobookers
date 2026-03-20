@@ -2,13 +2,15 @@ import Button from "../../../../components/app/Button";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import FileUploadInput from "../../../../components/forms/FileUpload";
 import ImagePreview from "../../../../components/forms/ImagePreview";
+import { AuthUser } from "../../../../../types";
 
 type Props = {
   initialUrl: string | null;
   creatorId: string;
+  user: AuthUser;
 };
 
-const CreatorCoverForm = ({ initialUrl, creatorId }: Props) => {
+const CreatorCoverForm = ({ initialUrl, creatorId, user }: Props) => {
   const initialUrlString = initialUrl ? JSON.stringify(initialUrl) : null;
 
   const alpineAttrs = {
@@ -37,6 +39,7 @@ const CreatorCoverForm = ({ initialUrl, creatorId }: Props) => {
             name="cover"
             x-on:change="onFileChange"
             x-ref="fileInput"
+            user={user}
           />
           <p x-show="isCompressing" class="text-sm text-gray-500">
             Compressing image…

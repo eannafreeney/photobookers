@@ -2,7 +2,6 @@ import { and, count, eq, ilike, isNull, not } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   Creator,
-  creatorClaims,
   creators,
   NewCreator,
   UpdateCreator,
@@ -10,13 +9,8 @@ import {
   users,
 } from "../../../../db/schema";
 import { getRandomCoverUrl, slugify } from "../../../../utils";
-import { nanoid } from "nanoid";
-import {
-  createStubCreatorProfile,
-  getCreatorById,
-} from "../../creators/services";
+import { getCreatorById } from "../../creators/services";
 import { getPagination } from "../../../../lib/pagination";
-import { supabaseAdmin } from "../../../../lib/supabase";
 
 export const getAllUserProfilesAdmin = async (): Promise<
   Pick<User, "id" | "email" | "firstName" | "lastName">[]

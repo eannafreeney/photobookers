@@ -48,12 +48,7 @@ const BooksOverview = async ({
     >
       <Page>
         <Breadcrumbs items={[{ label: "Books Overview" }]} />
-        {user.creator.status === "stub" ? (
-          <AlertStatic
-            type="info"
-            message="Your creator profile is not verified yet. In the meantime, you can start uploading books, or update your profile pic."
-          />
-        ) : (
+        {user.creator.status === "verified" && (
           <div class="flex items-center gap-2">
             Account Verified{" "}
             <VerifiedCreator
@@ -65,12 +60,9 @@ const BooksOverview = async ({
         <div class="flex flex-col gap-16">
           <BooksOverviewTable
             books={books}
-            totalPages={totalPages}
-            page={page}
             isMobile={isMobile}
             creator={user.creator}
             user={user}
-            creatorType={creatorType}
           />
         </div>
       </Page>

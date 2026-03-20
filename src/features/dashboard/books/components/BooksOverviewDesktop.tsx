@@ -10,22 +10,14 @@ import DeleteBookForm from "./BookDeleteForm";
 import { findCollectionCount, findWishlistCount } from "../../../api/services";
 import Card from "../../../../components/app/Card";
 import Table from "../../../../components/app/Table";
+import { canEditBook } from "../../../../lib/permissions";
 
 type Props = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
   user: AuthUser;
-  totalPages: number;
-  page: number;
-  creatorType: "artist" | "publisher";
 };
 
-const BooksOverviewDesktop = ({
-  books,
-  user,
-  totalPages,
-  page,
-  creatorType,
-}: Props) => {
+const BooksOverviewDesktop = ({ books, user }: Props) => {
   const targetId = "books-table-body";
 
   const alpineAttrs = {
@@ -62,7 +54,7 @@ const BooksOverviewDesktop = ({
             <Table.HeadRow>Publish</Table.HeadRow>
           </tr>
         </Table.Head>
-        <Table.Body id="books-table-body" {...alpineAttrs}>
+        <Table.Body id={targetId} {...alpineAttrs}>
           {books.map((book) => (
             <BookTableRow book={book} user={user} />
           ))}
@@ -76,7 +68,7 @@ export default BooksOverviewDesktop;
 
 type RowProps = {
   book: Book & { artist: Creator | null; publisher: Creator | null };
-  user: AuthUser | null;
+  user: AuthUser;
 };
 
 const BookTableRow = ({ book, user }: RowProps) => {
@@ -135,14 +127,18 @@ const BookTableRow = ({ book, user }: RowProps) => {
           : ""}
       </Table.BodyRow>
       <Table.BodyRow>
-        <PublishToggleForm book={book} />
+        <PublishToggleForm book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
         <PreviewButton book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
         <a href={`/dashboard/books/${book.id}/update`}>
-          <Button variant="outline" color="inverse">
+          <Button
+            variant="outline"
+            color="inverse"
+            disabled={!canEditBook(user, book)}
+          >
             <span>Edit</span>
           </Button>
         </a>

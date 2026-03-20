@@ -2,10 +2,17 @@ import SectionTitle from "../components/app/SectionTitle";
 import AppLayout from "../components/layouts/AppLayout";
 import Page from "../components/layouts/Page";
 import Button from "../components/app/Button";
+import { AuthUser } from "../../types";
 
-const NotFoundPage = ({ currentPath }: { currentPath: string }) => {
+const NotFoundPage = ({
+  currentPath,
+  user,
+}: {
+  currentPath: string;
+  user?: AuthUser | null;
+}) => {
   return (
-    <AppLayout title="Page not found" currentPath={currentPath}>
+    <AppLayout title="Page not found" currentPath={currentPath} user={user}>
       <Page>
         <div class="flex flex-col items-center justify-center min-h-[50vh] text-center gap-6">
           <p class="text-6xl font-bold text-base-content/60">404</p>

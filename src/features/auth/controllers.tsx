@@ -11,6 +11,7 @@ import {
 import { showErrorAlert } from "../../lib/alertHelpers";
 import {
   LoginFormContext,
+  ProcessRegisterQueryContext,
   RegisterCreatorFormContext,
   RegisterFanFormContext,
   ResetPasswordFormContext,
@@ -35,7 +36,12 @@ import {
 import ErrorPage from "../../pages/error/errorPage";
 import { db } from "../../db/client";
 import { users } from "../../db/schema";
-import { getCallbackErrorMessage, verifyOtpForSignup } from "./utils";
+import {
+  getCallbackErrorMessage,
+  getPendingCreatorId,
+  getPendingVerificationUrl,
+  verifyOtpForSignup,
+} from "./utils";
 import { deleteCookie, getCookie } from "hono/cookie";
 import ForceResetPasswordPage from "./pages/SetNewPasswordPage";
 import ResetPasswordModal from "./modals/ResetPasswordModal";
@@ -120,11 +126,11 @@ export const registerCreator = async (c: RegisterCreatorFormContext) => {
   return c.html(<RegisterSuccessScreen />);
 };
 
-export const processRegister = async (c: Context) => {
-  const tokenHash = c.req.query("token_hash");
-  const error = c.req.query("error");
-  const errorCode = c.req.query("error_code");
-  const errorDescription = c.req.query("error_description");
+export const processRegister = async (c: ProcessRegisterQueryContext) => {
+  const tokenHash = c.req.valid("query").token_hash;
+  const error = c.req.valid("query").error;
+  const errorCode = c.req.valid("query").error_code;
+  const errorDescription = c.req.valid("query").error_description;
 
   if (error || errorCode) {
     const message = getCallbackErrorMessage(error, errorCode, errorDescription);
@@ -180,6 +186,17 @@ export const processRegister = async (c: Context) => {
 
   if (isErr(emailResult))
     console.error("Verification welcome email failed:", emailResult[0].reason);
+
+  if (user.user_metadata?.claimIntent) {
+    const pendingCreatorId = getPendingCreatorId(user.user_metadata);
+    const pendingVerificationUrl = getPendingVerificationUrl(
+      user.user_metadata,
+    );
+    if (pendingCreatorId && pendingVerificationUrl) {
+      const target = `/claims/complete?creatorId=${pendingCreatorId}&verificationUrl=${encodeURIComponent(pendingVerificationUrl)}`;
+      return c.redirect(target);
+    }
+  }
 
   await setFlash(c, "success", "Account Verified. Welcome to Photobookers!");
   return c.redirect("/");

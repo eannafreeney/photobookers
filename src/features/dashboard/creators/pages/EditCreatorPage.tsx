@@ -49,18 +49,17 @@ const EditCreatorPage = ({ user, creator, currentPath }: Props) => {
             <CreatorImageForm
               initialUrl={creator?.coverUrl ?? null}
               creatorId={creator?.id}
+              user={user}
             />
           </div>
-          <div
-            class="hidden md:block w-px shrink-0 bg-outline self-stretch"
-            aria-hidden="true"
-          />
+          <div class="hidden md:block w-px shrink-0 bg-outline self-stretch" />
           <hr class="my-4 md:hidden" />
           <div class="md:w-2/3">
             <CreatorForm
               formValues={formValues}
-              creatorId={creator?.id}
+              creator={creator}
               type={creator?.type}
+              user={user}
             />
           </div>
         </div>

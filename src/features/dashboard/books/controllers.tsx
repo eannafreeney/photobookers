@@ -119,6 +119,7 @@ export const getEditBookPage = async (c: BookIdContext) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
+
   return c.html(
     <BookEditPage
       user={user}
@@ -183,7 +184,7 @@ export const makeBookPublic = async (c: BookFormWithBookContext) => {
         type="success"
         message={`${updatedBook?.title ?? "Book"} Published!`}
       />
-      <PublishToggleForm book={updatedBook} />
+      <PublishToggleForm book={updatedBook} user={user} />
       <PreviewButton book={updatedBook} user={user} />
     </>,
   );
@@ -199,7 +200,7 @@ export const makeBookDraft = async (c: BookFormWithBookContext) => {
     return c.html(
       <>
         <Alert type="danger" message={result.error} />
-        <PublishToggleForm book={book} />
+        <PublishToggleForm book={book} user={user} />
       </>,
       400,
     );
@@ -213,7 +214,7 @@ export const makeBookDraft = async (c: BookFormWithBookContext) => {
         type="warning"
         message={`${updatedBook?.title ?? "Book"} Unpublished!`}
       />
-      <PublishToggleForm book={updatedBook} />
+      <PublishToggleForm book={updatedBook} user={user} />
       <PreviewButton book={updatedBook} user={user} />
     </>,
   );

@@ -9,6 +9,7 @@ import { err, ok } from "../../lib/result";
 import { registerCreatorFormSchema, registerFanFormSchema } from "./schema";
 import z from "zod";
 import { AuthSession } from "@supabase/supabase-js";
+import { registerAndClaimFormSchema } from "../claims/schema";
 
 export const setCookiesAndVerifyUser = async (
   c: Context,
@@ -160,6 +161,38 @@ export const createUserInDatabase = async (session: AuthSession) => {
     return ok(newUser);
   } catch (e) {
     return err({ reason: "Failed to create account", cause: e });
+  }
+};
+
+export const verifyOtpForClaimSignup = async (
+  c: Context,
+  formData: z.infer<typeof registerAndClaimFormSchema>,
+  creatorId: string,
+  verificationUrl: string,
+) => {
+  try {
+    const supabase = createSupabaseClient(c);
+    const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
+    const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
+
+    const { error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        emailRedirectTo,
+        data: {
+          firstName: formData?.firstName ?? null,
+          lastName: formData?.lastName ?? null,
+          verificationUrl: verificationUrl,
+          creatorId,
+          claimIntent: true,
+        },
+      },
+    });
+    if (error) return err({ reason: error.message, cause: error });
+    return ok(undefined);
+  } catch (error) {
+    return err({ reason: "Failed to verify OTP", cause: error });
   }
 };
 

@@ -15,6 +15,7 @@ import { bookFormSchema } from "./schema";
 import { processTags } from "./utils";
 import { getPagination } from "../../../lib/pagination";
 import { bookFormAdminSchema } from "../admin/books/schema";
+import { err, ok } from "../../../lib/result";
 
 export const createBook = async (input: NewBook) => {
   try {
@@ -130,10 +131,11 @@ export const getBookById = async (bookId: string) => {
         },
       },
     });
-    return book ?? null;
+    if (!book) return err({ reason: "Book not found" });
+    return ok(book);
   } catch (error) {
     console.error("Failed to get book by id", error);
-    return null;
+    return err({ reason: "Failed to get book by id" });
   }
 };
 

@@ -1,10 +1,13 @@
 import { Book } from "../../../../db/schema";
+import { canPublishBook } from "../../../../lib/permissions";
+import { AuthUser } from "../../../../../types";
 
 type Props = {
   book: Book;
+  user: AuthUser;
 };
 
-const PublishToggleForm = ({ book }: Props) => {
+const PublishToggleForm = ({ book, user }: Props) => {
   const bookId = book.id;
   const publicationStatus = book.publicationStatus ?? "draft";
   const isPublished = publicationStatus === "published";
@@ -36,6 +39,7 @@ const PublishToggleForm = ({ book }: Props) => {
           name="isPublished"
           x-on:change="$root.requestSubmit()"
           title="Publish"
+          disabled={!canPublishBook(user, book)}
         />
         <div class="relative h-6 w-11 after:h-5 after:w-5 peer-checked:after:translate-x-5 rounded-full border border-outline bg-surface-alt after:absolute after:bottom-0 after:left-[0.0625rem] after:top-0 after:my-auto after:rounded-full after:bg-on-surface after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:bg-on-primary peer-focus:outline-2 peer-focus:outline-offset-2 peer-focus:outline-outline-strong peer-focus:peer-checked:outline-primary peer-active:outline-offset-0 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"></div>
       </label>

@@ -29,7 +29,6 @@ booksDashboardRoutes.get("/new", getAddBookPage);
 booksDashboardRoutes.get(
   "/:bookId/update",
   paramValidator(bookIdSchema),
-  requireBookEditAccess,
   getEditBookPage,
 );
 

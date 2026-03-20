@@ -28,7 +28,7 @@ import {
   CreatorCardResult,
 } from "../../constants/queries";
 import { creatorMessages } from "../../db/schema";
-import { err, ok } from "../../lib/result";
+import { err, isErr, ok } from "../../lib/result";
 
 export const getBooksInWishlist = async (
   userId: string,
@@ -248,6 +248,18 @@ export const getBookBySlug = async (
   }
 };
 
+export const getFirstBookByTag = async (tag: string) => {
+  try {
+    const [error, result] = await getBooksByTag(tag, 1, "newest", 1);
+    if (error) return err({ reason: "Failed to get first book by tag", error });
+    const { books } = result;
+    return ok(books[0]); // could be undefined if no match
+  } catch (error) {
+    console.error("Failed to get first book by tag", error);
+    return err({ reason: "Failed to get first book by tag" });
+  }
+};
+
 export const getBooksByTag = async (
   tag: string,
   currentPage: number,
@@ -294,10 +306,10 @@ export const getBooksByTag = async (
       limit: limit,
       offset: offset,
     });
-    return { books: foundBooks, totalPages, page };
+    return ok({ books: foundBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get books by tag", error);
-    return { books: [], totalPages: 0, page: 1 };
+    return err({ reason: "Failed to get books by tag", error });
   }
 };
 

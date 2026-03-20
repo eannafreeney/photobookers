@@ -17,9 +17,14 @@ import {
   processRegister,
 } from "./controllers";
 import { redirectUrlSchema } from "../../schemas";
-import { formValidator, paramValidator } from "../../lib/validator";
+import {
+  formValidator,
+  paramValidator,
+  queryValidator,
+} from "../../lib/validator";
 import {
   loginFormSchema,
+  processRegisterQuerySchema,
   registerCreatorFormSchema,
   registerFanFormSchema,
   resetPasswordFormSchema,
@@ -53,7 +58,11 @@ authRoutes.post(
   formValidator(registerCreatorFormSchema),
   registerCreator,
 );
-authRoutes.get("/callback", processRegister);
+authRoutes.get(
+  "/callback",
+  queryValidator(processRegisterQuerySchema),
+  processRegister,
+);
 authRoutes.post(
   "/reset-password",
   formValidator(resetPasswordFormSchema),

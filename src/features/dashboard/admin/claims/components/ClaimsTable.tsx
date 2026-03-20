@@ -96,7 +96,7 @@ const ApproveClaimForm = ({ claim }: { claim: CreatorClaim }) => {
   return (
     <form
       method="post"
-      action={`/dashboard/admin/claims/${claim.id}`}
+      action={`/dashboard/admin/claims/${claim.id}/approve`}
       {...alpineAttrs}
     >
       <Button variant="outline" color="primary">
@@ -116,7 +116,7 @@ const RejectClaimForm = ({ claim }: { claim: CreatorClaim }) => {
   return (
     <form
       method="post"
-      action={`/dashboard/admin/claims/${claim.id}`}
+      action={`/dashboard/admin/claims/${claim.id}/reject`}
       {...alpineAttrs}
     >
       <Button variant="outline" color="danger">

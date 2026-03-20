@@ -8,7 +8,7 @@ import {
 } from "./controllers";
 import { formValidator, paramValidator } from "../../../../lib/validator";
 import { claimIdSchema } from "../../../../schemas";
-import { claimApproveFormSchema, claimRejectFormSchema } from "./schema";
+import { claimFormSchema } from "./schema";
 
 export const adminClaimsDashboardRoutes = new Hono();
 
@@ -19,15 +19,13 @@ adminClaimsDashboardRoutes.get(
 );
 adminClaimsDashboardRoutes.post(
   "/:claimId/approve",
-  requireAdminAccess,
   paramValidator(claimIdSchema),
-  formValidator(claimApproveFormSchema),
+  formValidator(claimFormSchema),
   approveClaimAdmin,
 );
-adminClaimsDashboardRoutes.delete(
+adminClaimsDashboardRoutes.post(
   "/:claimId/reject",
-  requireAdminAccess,
   paramValidator(claimIdSchema),
-  formValidator(claimRejectFormSchema),
+  formValidator(claimFormSchema),
   rejectClaimAdmin,
 );

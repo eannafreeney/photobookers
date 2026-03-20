@@ -15,32 +15,14 @@ type Props = {
   isMobile: boolean;
   bookOfTheWeek: BookOfTheWeekWithBook;
   user: AuthUser | null;
-  currentCreatorId?: string | null;
 };
 
-const BookOfTheWeekCard = ({
-  isMobile,
-  bookOfTheWeek,
-  user,
-  currentCreatorId,
-}: Props) => {
+const BookOfTheWeekCard = ({ isMobile, bookOfTheWeek, user }: Props) => {
   if (isMobile) {
-    return (
-      <BOTWMobileCard
-        bookOfTheWeek={bookOfTheWeek}
-        user={user}
-        currentCreatorId={currentCreatorId}
-      />
-    );
+    return <BOTWMobileCard bookOfTheWeek={bookOfTheWeek} user={user} />;
   }
 
-  return (
-    <BOTWDesktopCard
-      bookOfTheWeek={bookOfTheWeek}
-      user={user}
-      currentCreatorId={currentCreatorId}
-    />
-  );
+  return <BOTWDesktopCard bookOfTheWeek={bookOfTheWeek} user={user} />;
 };
 
 export default BookOfTheWeekCard;
@@ -48,14 +30,9 @@ export default BookOfTheWeekCard;
 type CardProps = {
   bookOfTheWeek: BookOfTheWeekWithBook;
   user: AuthUser | null;
-  currentCreatorId?: string | null;
 };
 
-const BOTWDesktopCard = ({
-  bookOfTheWeek,
-  currentCreatorId,
-  user,
-}: CardProps) => {
+const BOTWDesktopCard = ({ bookOfTheWeek, user }: CardProps) => {
   const book = bookOfTheWeek?.book ?? null;
 
   if (!book || !book.coverUrl) return <></>;
@@ -105,31 +82,34 @@ const BOTWDesktopCard = ({
   );
 };
 
-const BOTWMobileCard = ({
-  bookOfTheWeek,
-  currentCreatorId,
-  user,
-}: CardProps) => {
+const BOTWMobileCard = ({ bookOfTheWeek, user }: CardProps) => {
   const book = bookOfTheWeek?.book ?? null;
   if (!book || !book.coverUrl) return <></>;
 
   return (
     <Card className="w-full min-w-0">
+      <div class="p-2 flex items-center justify-between h-10">
+        <CardCreatorCard
+          creator={book.artist ?? null}
+          maxDisplayNameLength={20}
+        />
+        <Card.Text>
+          {bookOfTheWeek?.weekStart && formatDate(bookOfTheWeek.weekStart)}
+        </Card.Text>
+      </div>
       <CarouselMobile
         images={[
           book.coverUrl,
           ...(book?.images?.map((image) => image.imageUrl) ?? []),
         ]}
+        showIndicators={false}
       />
-      <Card.Body>
+      <Card.Body gap="3">
         <div class="flex items-start justify-between">
           <div>
             <Link href={`/books/${book.slug}`}>
               <Card.Title>{book.title}</Card.Title>
             </Link>
-            <Card.Text>
-              {bookOfTheWeek?.weekStart && formatDate(bookOfTheWeek.weekStart)}
-            </Card.Text>
           </div>
           <div class="flex items-center gap-2">
             <CollectButton isCircleButton book={book} user={user} />
@@ -137,7 +117,6 @@ const BOTWMobileCard = ({
             <ShareButton isCircleButton />
           </div>
         </div>
-        <CardCreatorCard creator={book.artist ?? null} />
         <Card.Intro>{bookOfTheWeek?.text}</Card.Intro>
         <TagList tags={book.tags?.slice(0, 3) ?? []} />
         <Link href={`/books/${book.slug}`}>

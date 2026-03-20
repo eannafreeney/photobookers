@@ -9,6 +9,7 @@ import BookCoverForm from "../../images/forms/BookCoverForm";
 import { getBookById } from "../services";
 import PublishToggleForm from "../components/PublishToggleForm";
 import PreviewButton from "../../../api/components/PreviewButton";
+import InfoPage from "../../../../pages/InfoPage";
 
 type EditBookPageProps = {
   bookId: string;
@@ -23,10 +24,10 @@ const BookEditPage = async ({
   flash,
   currentPath,
 }: EditBookPageProps) => {
-  const book = await getBookById(bookId);
+  const [err, book] = await getBookById(bookId);
 
-  if (!book) {
-    return <div>Book not found</div>;
+  if (err || !book) {
+    return <InfoPage errorMessage="Book not found" user={user} />;
   }
 
   const formValues = {
@@ -50,6 +51,9 @@ const BookEditPage = async ({
     isPublisher ? "publisher" : "artist"
   }`;
 
+  console.log("book", book);
+  console.log("user", user);
+
   return (
     <AppLayout
       title="Edit Book"
@@ -69,7 +73,7 @@ const BookEditPage = async ({
         {!publisherIsVerified && (
           <div class="flex justify-end">
             <div class="flex items-center gap-4">
-              <PublishToggleForm book={book} />
+              <PublishToggleForm book={book} user={user} />
               <PreviewButton book={book} user={user} />
             </div>
           </div>
@@ -78,7 +82,11 @@ const BookEditPage = async ({
           class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"
           id="book-images"
         >
-          <BookCoverForm initialUrl={book.coverUrl ?? null} book={book} />
+          <BookCoverForm
+            initialUrl={book.coverUrl ?? null}
+            book={book}
+            user={user}
+          />
           <hr class="my-4 md:hidden" />
           <BookGalleryForm
             initialImages={
@@ -87,7 +95,8 @@ const BookEditPage = async ({
                 url: image.imageUrl,
               })) ?? []
             }
-            bookId={book.id}
+            book={book}
+            user={user}
           />
         </div>
         <hr class="my-4" />

@@ -5,12 +5,14 @@ type Props = {
   buttonText?: string;
   loadingText?: string;
   showCancelButton?: boolean;
+  isDisabled?: boolean;
 };
 
 const FormButtons = ({
   buttonText = "Save",
   loadingText = "Saving...",
   showCancelButton = false,
+  isDisabled = false,
 }: Props) => {
   return (
     <div class="flex items-center gap-4 mt-4">
@@ -27,6 +29,7 @@ const FormButtons = ({
       <Button
         variant="solid"
         color="primary"
+        isDisabled={isDisabled}
         x-bind:disabled="isSubmitting || !isFormValid"
       >
         <div class="flex items-center justify-center gap-2">

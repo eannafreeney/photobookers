@@ -19,6 +19,7 @@ import { cleanupOrphanedStubCreator } from "../dashboard/books/services";
 import { getCreatorById } from "../dashboard/creators/services";
 import { getUserByIdAdmin } from "../dashboard/admin/creators/services";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
+import { err, ok } from "../../lib/result";
 
 export const getPendingClaim = async (userId: string, creatorId: string) => {
   if (!userId || !creatorId) return null;
@@ -54,18 +55,19 @@ export const createClaimWithStatus = async (
   verificationUrl: string,
   status: "approved" | "pending_admin_review",
 ) => {
-  const [claim] = await db
-    .insert(creatorClaims)
-    .values({
+  try {
+    await db.insert(creatorClaims).values({
       userId,
       creatorId,
       verificationUrl,
       status,
       verifiedAt: status === "approved" ? new Date() : null,
-    })
-    .returning();
-
-  return claim;
+    });
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to create claim:", error);
+    return err({ reason: "Failed to create claim", cause: error });
+  }
 };
 
 export const approveClaim = async (claimId: string) => {

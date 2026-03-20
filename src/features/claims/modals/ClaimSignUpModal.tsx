@@ -21,7 +21,6 @@ const ClaimSignupModal = ({
     "x-data": "claimSignupForm()",
     "x-on:submit": "submitForm($event)",
     "x-target": "toast",
-    "x-target.away": "_top",
     "x-on:ajax:error": "isSubmitting = false",
     "x-on:ajax:after": "$dispatch('dialog:close')",
     "x-on:email-availability.window":
@@ -33,7 +32,10 @@ const ClaimSignupModal = ({
     : `/auth/login?redirectUrl=${encodeURIComponent(`/claims/${creatorId}`)}`;
 
   return (
-    <div class="flex flex-col gap-2 p-2 max-h-[70vh] overflow-y-auto">
+    <div
+      id="register-form"
+      class="flex flex-col gap-2 p-2 max-h-[70vh] overflow-y-auto"
+    >
       <p class="text-sm text-gray-600 mb-2">
         Already have an account?{" "}
         <Link href={loginHref}>
@@ -62,6 +64,21 @@ const ClaimSignupModal = ({
             required
           />
           <ValidateEmail />
+          {creatorWebsite ? (
+            <input
+              type="hidden"
+              name="verificationUrl"
+              value={creatorWebsite}
+            />
+          ) : (
+            <Input
+              label="Website"
+              name="form.verificationUrl"
+              type="url"
+              placeholder="https://yourwebsite.com"
+              required
+            />
+          )}
           <Input
             type="password"
             label="Password"
@@ -80,27 +97,13 @@ const ClaimSignupModal = ({
             validationTrigger="blur"
             required
           />
-          {creatorWebsite ? (
-            <input
-              type="hidden"
-              name="form.verificationUrl"
-              value={creatorWebsite}
-            />
-          ) : (
-            <Input
-              label="Website"
-              name="form.verificationUrl"
-              type="url"
-              placeholder="https://yourwebsite.com"
-            />
-          )}
           <Checkbox
             label="I agree to the terms and conditions"
             name="form.agreeToTerms"
             required
           />
         </div>
-        <input type="hidden" name="form.type" value="fan" />
+        <input type="hidden" name="type" value="fan" />
         <FormButton
           buttonText="Create account & submit claim"
           loadingText="Submitting..."
