@@ -27,9 +27,7 @@ export default function TickerBanner() {
           <Fragment key={`${item}-${idx}`}>
             <span class="text-on-surface tracking-wide">{item}</span>
             {idx < doubled.length - 1 && (
-              <span class="text-on-surface/50" aria-hidden="true">
-                •
-              </span>
+              <span class="text-on-surface/50">•</span>
             )}
           </Fragment>
         ))}
