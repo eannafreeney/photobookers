@@ -114,10 +114,13 @@ const DetailDesktop = ({
 
         <div class="w-2/5 h-full overflow-y-auto pr-2">
           <div class="mb-4 flex flex-col gap-4">
-            <div class="flex items-center gap-4">
-              <h3 class="text-balance text-xl font-medium text-on-surface-strong">
+            <div class="flex flex-col gap-1">
+              <div class="text-balance text-lg font-semibold text-on-surface-strong">
                 {book.title}
-              </h3>
+              </div>
+              <div class="text-balance text-lg font-normal text-on-surface-strong">
+                {book.artist?.displayName}
+              </div>
             </div>
 
             <div class="flex gap-2">
@@ -168,15 +171,17 @@ const DetailMobile = ({
       )}
       <CarouselMobile images={galleryImages} />
       <div class="flex flex-col gap-2">
-        <h3 class="text-balance text-xl font-semibold text-on-surface-strong">
+        <div class="text-balance text-lg font-semibold text-on-surface-strong">
           {book.title}
-        </h3>
+        </div>
       </div>
-      <div class="flex items-center gap-4">
-        <CollectButton book={book} user={user} />
-        <WishlistButton book={book} user={user} />
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <CollectButton book={book} user={user} />
+          <WishlistButton book={book} user={user} />
+        </div>
+        <ShareButton />
       </div>
-      <ShareButton />
       {book.description && (
         <Card.Description>{book.description}</Card.Description>
       )}

@@ -38,21 +38,20 @@ const CarouselMobile = ({
             />
           </div>
         </template>
+        {/* indicators */}
+        {showIndicators && (
+          <div class="absolute bottom-2 left-0 right-0 z-10 flex justify-center gap-2 pb-2">
+            <template x-for="(slide, index) in slides">
+              <button
+                class="size-2 rounded-full transition"
+                x-on:click="currentSlideIndex = index + 1"
+                x-bind:class="[currentSlideIndex === index + 1 ? 'bg-on-surface' : 'bg-on-surface/50']"
+                x-bind:aria-label="'slide ' + (index + 1)"
+              ></button>
+            </template>
+          </div>
+        )}
       </div>
-
-      {/* indicators */}
-      {showIndicators && (
-        <div class="flex justify-center gap-4 my-4 px-2">
-          <template x-for="(slide, index) in slides">
-            <button
-              class="size-2 rounded-full transition"
-              x-on:click="currentSlideIndex = index + 1"
-              x-bind:class="[currentSlideIndex === index + 1 ? 'bg-on-surface' : 'bg-on-surface/50']"
-              x-bind:aria-label="'slide ' + (index + 1)"
-            ></button>
-          </template>
-        </div>
-      )}
     </div>
   );
 };
