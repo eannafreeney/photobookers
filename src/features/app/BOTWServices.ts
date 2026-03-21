@@ -3,6 +3,7 @@ import { CREATOR_CARD_COLUMNS } from "../../constants/queries";
 import { db } from "../../db/client";
 import { bookOfTheWeek, BookOfTheWeek } from "../../db/schema";
 import { eq, desc, sql } from "drizzle-orm";
+import { err, ok } from "../../lib/result";
 
 /** Normalize to start of day UTC for consistent storage/comparison */
 function toWeekStart(d: Date): Date {
@@ -61,41 +62,55 @@ export async function updateBookOfTheWeek(params: {
   }
 }
 
-export type BookOfTheWeekWithBook = Awaited<
+// export type BookOfTheWeekWithBook = Awaited<
+//   ReturnType<typeof getBookOfTheWeekForDateQuery>
+// >;
+
+type GetBookOfTheWeekForDateResult = Awaited<
   ReturnType<typeof getBookOfTheWeekForDateQuery>
 >;
 
+export type BookOfTheWeekWithBook = Extract<
+  GetBookOfTheWeekForDateResult,
+  [null, unknown]
+>[1];
+
 export async function getBookOfTheWeekForDateQuery(date: Date) {
   const weekStart = toWeekStart(date);
-  const book = await db.query.bookOfTheWeek.findFirst({
-    where: eq(bookOfTheWeek.weekStart, weekStart),
-    with: {
-      book: {
-        columns: BOOK_CARD_COLUMNS,
-        with: {
-          artist: {
-            columns: CREATOR_CARD_COLUMNS,
-          },
-          publisher: {
-            columns: CREATOR_CARD_COLUMNS,
-          },
-          images: {
-            columns: {
-              id: true,
-              imageUrl: true,
+  try {
+    const book = await db.query.bookOfTheWeek.findFirst({
+      where: eq(bookOfTheWeek.weekStart, weekStart),
+      with: {
+        book: {
+          columns: BOOK_CARD_COLUMNS,
+          with: {
+            artist: {
+              columns: CREATOR_CARD_COLUMNS,
             },
-            orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+            publisher: {
+              columns: CREATOR_CARD_COLUMNS,
+            },
+            images: {
+              columns: {
+                id: true,
+                imageUrl: true,
+              },
+              orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+            },
           },
         },
       },
-    },
-  });
-  if (!book) return null;
+    });
+    if (!book) return err({ reason: "Book of the week not found" });
 
-  return book;
+    return ok(book);
+  } catch (error) {
+    console.error("getBookOfTheWeekForDateQuery", error);
+    return err({ reason: "Failed to get book of the week for date" });
+  }
 }
 
-export async function getThisWeeksBookOfTheWeek(): Promise<BookOfTheWeekWithBook> {
+export async function getThisWeeksBookOfTheWeek() {
   return getBookOfTheWeekForDateQuery(new Date());
 }
 
