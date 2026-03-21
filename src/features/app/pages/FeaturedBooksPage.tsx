@@ -20,18 +20,12 @@ type Props = {
 };
 
 const FeaturedBooksPage = async ({ user, currentPath, isMobile }: Props) => {
-  const bookOfTheWeek = await getThisWeeksBookOfTheWeek();
-
   return (
     <AppLayout title="Books" user={user} currentPath={currentPath}>
       <TickerBanner />
       <Page>
         <NavTabs currentPath={currentPath} />
-        <BookOfTheWeekGrid
-          bookOfTheWeek={bookOfTheWeek}
-          user={user}
-          isMobile={isMobile}
-        />
+        <BookOfTheWeekGrid user={user} isMobile={isMobile} />
         <DiscoveryTags />
         <Intersector
           id="featured-books-fragment"

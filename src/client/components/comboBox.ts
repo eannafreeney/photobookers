@@ -1,117 +1,163 @@
 import Alpine from "alpinejs";
 
+export type ComboBoxOption = {
+  id: string;
+  label: string;
+  isNew?: boolean;
+};
+
+/** Alpine `$refs` are typed as HTMLElement; combobox uses hidden `<input>` refs. */
+function inputRef(el: HTMLElement): HTMLInputElement {
+  return el as HTMLInputElement;
+}
+
+type BookFormParentScope = {
+  form?: Record<string, unknown>;
+  is_new_artist?: boolean;
+  is_new_publisher?: boolean;
+};
+
+/** Alpine 3 has no `$parent` magic — read parent `bookForm` from the wrapping `<form>`. */
+function getBookFormScope(el: HTMLElement): BookFormParentScope | null {
+  const formEl = el.closest("form");
+  if (!formEl) return null;
+  const data = Alpine.$data(formEl);
+  if (!data || typeof data !== "object") return null;
+  return data as BookFormParentScope;
+}
+
+type ComboBoxScope = {
+  /** Same object reference as parent `bookForm.form`; assigned in `init()` */
+  form?: Record<string, unknown>;
+  is_new_artist?: boolean;
+  is_new_publisher?: boolean;
+};
+
 export function registerComboBox() {
-  Alpine.data("comboBox", (options = [], type: "artist" | "publisher") => {
-    return {
-      allOptions: options,
-      options: [],
-      isOpen: false,
-      openedWithKeyboard: false,
-      selectedOption: null,
-      searchQuery: "",
-      isDisabled: false,
+  Alpine.data(
+    "comboBox",
+    (options: ComboBoxOption[] = [], type: "artist" | "publisher") => {
+      return {
+        allOptions: options,
+        options: [] as ComboBoxOption[],
+        isOpen: false,
+        openedWithKeyboard: false,
+        selectedOption: null as ComboBoxOption | null,
+        searchQuery: "",
+        isDisabled: false,
+        is_new_artist: false,
+        is_new_publisher: false,
+        form: undefined as Record<string, unknown> | undefined,
 
-      init() {
-        this.options = this.allOptions;
-
-        // Use the form field that matches this combobox type (artist vs publisher)
-        const fieldName = type === "publisher" ? "publisher_id" : "artist_id";
-        const initialValue = this.form?.[fieldName];
-        if (initialValue) {
-          const match = this.allOptions.find((opt) => opt.id === initialValue);
-          if (match) {
-            this.selectedOption = match;
-            this.$refs.hiddenTextField.value = match.id;
-            this.isDisabled = true;
+        init() {
+          const bookForm = getBookFormScope(this.$el);
+          if (bookForm?.form) {
+            (this as unknown as ComboBoxScope).form = bookForm.form;
           }
-        }
-      },
 
-      addNewOption() {
-        const label = this.toTitleCase(this.searchQuery.trim());
-        if (!label) return;
+          this.options = this.allOptions;
 
-        const exists = this.allOptions.some(
-          (opt) => opt.label.toLowerCase() === label.toLowerCase(),
-        );
+          const fieldName = type === "publisher" ? "publisher_id" : "artist_id";
+          const initialValue = (this as unknown as ComboBoxScope).form?.[
+            fieldName
+          ];
+          if (initialValue) {
+            const match = this.allOptions.find(
+              (opt) => opt.id === initialValue,
+            );
+            if (match) {
+              this.selectedOption = match;
+              inputRef(this.$refs.hiddenTextField).value = String(match.id);
+              this.isDisabled = true;
+            }
+          }
+        },
 
-        if (exists) return;
+        addNewOption() {
+          const label = this.toTitleCase(this.searchQuery.trim());
+          if (!label) return;
 
-        const newOption = { id: `new-${Date.now()}`, label, isNew: true };
-        this.allOptions.push(newOption);
-        this.setSelectedOption(newOption);
-      },
-      toTitleCase(str: string) {
-        return str.replace(
-          /\w\S*/g,
-          (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
-        );
-      },
-      clearSearch() {
-        this.searchQuery = "";
-        this.$refs.searchField.value = "";
-        this.options = this.allOptions;
-        this.$refs.searchField.focus();
-      },
-      clearSelection() {
-        this.selectedOption = null;
-        this.$refs.hiddenTextField.value = "";
-      },
-      highlightAddNew() {
-        this.$nextTick(() => {
-          this.$refs.addNewOption?.focus();
-        });
-      },
-      setSelectedOption(option) {
-        this.selectedOption = option;
-        this.isOpen = false;
-        this.openedWithKeyboard = false;
-
-        const selectedId = option.isNew ? "" : (option.id ?? "");
-        const newName = option.isNew ? option.label : "";
-
-        // Set values - x-model will handle reactivity
-        this.$refs.hiddenTextField.value = selectedId;
-        this.$refs.newOptionNameField.value = newName;
-
-        if (type === "artist" && option.isNew) {
-          this.is_new_artist = true;
-        } else if (type === "publisher" && option.isNew) {
-          this.is_new_publisher = true;
-        }
-
-        // Trigger input event so x-model picks up the change
-        this.$nextTick(() => {
-          this.$refs.hiddenTextField.dispatchEvent(
-            new Event("input", { bubbles: true }),
+          const exists = this.allOptions.some(
+            (opt) => opt.label.toLowerCase() === label.toLowerCase(),
           );
-          this.$refs.newOptionNameField.dispatchEvent(
-            new Event("input", { bubbles: true }),
+
+          if (exists) return;
+
+          const newOption = { id: `new-${Date.now()}`, label, isNew: true };
+          this.allOptions.push(newOption);
+          this.setSelectedOption(newOption);
+        },
+        toTitleCase(str: string) {
+          return str.replace(
+            /\w\S*/g,
+            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
           );
-        });
-      },
-      getFilteredOptions(query) {
-        this.searchQuery = query;
+        },
+        clearSearch() {
+          this.searchQuery = "";
+          const search = inputRef(this.$refs.searchField);
+          search.value = "";
+          this.options = this.allOptions;
+          search.focus();
+        },
+        clearSelection() {
+          this.selectedOption = null;
+          inputRef(this.$refs.hiddenTextField).value = "";
+        },
+        highlightAddNew() {
+          this.$nextTick(() => {
+            this.$refs.addNewOption?.focus();
+          });
+        },
+        setSelectedOption(option: ComboBoxOption) {
+          this.selectedOption = option;
+          this.isOpen = false;
+          this.openedWithKeyboard = false;
 
-        this.options = this.allOptions.filter((option) =>
-          option.label.toLowerCase().includes(query.toLowerCase()),
-        );
+          const selectedId = option.isNew ? "" : (option.id ?? "");
+          const newName = option.isNew ? option.label : "";
 
-        if (this.options.length === 0 && this.searchQuery) {
-          this.highlightAddNew();
-        }
-      },
-      handleKeydownOnOptions(event) {
-        // if the user presses backspace or the alpha-numeric keys, focus on the search field
-        if (
-          (event.keyCode >= 65 && event.keyCode <= 90) ||
-          (event.keyCode >= 48 && event.keyCode <= 57) ||
-          event.keyCode === 8 ||
-          event.keyCode === 32 // Add space key
-        ) {
-          this.$refs.searchField.focus();
-        }
-      },
-    };
-  });
+          const hidden = inputRef(this.$refs.hiddenTextField);
+          const newNameField = inputRef(this.$refs.newOptionNameField);
+          hidden.value = selectedId;
+          newNameField.value = newName;
+
+          const bookForm = getBookFormScope(this.$el);
+          if (type === "artist" && option.isNew) {
+            this.is_new_artist = true;
+            if (bookForm) bookForm.is_new_artist = true;
+          } else if (type === "publisher" && option.isNew) {
+            this.is_new_publisher = true;
+            if (bookForm) bookForm.is_new_publisher = true;
+          }
+
+          this.$nextTick(() => {
+            hidden.dispatchEvent(new Event("input", { bubbles: true }));
+            newNameField.dispatchEvent(new Event("input", { bubbles: true }));
+          });
+        },
+        getFilteredOptions(query: string) {
+          this.searchQuery = query;
+
+          this.options = this.allOptions.filter((option) =>
+            option.label.toLowerCase().includes(query.toLowerCase()),
+          );
+
+          if (this.options.length === 0 && this.searchQuery) {
+            this.highlightAddNew();
+          }
+        },
+        handleKeydownOnOptions(event: KeyboardEvent) {
+          if (
+            (event.keyCode >= 65 && event.keyCode <= 90) ||
+            (event.keyCode >= 48 && event.keyCode <= 57) ||
+            event.keyCode === 8 ||
+            event.keyCode === 32
+          ) {
+            this.$refs.searchField.focus();
+          }
+        },
+      };
+    },
+  );
 }

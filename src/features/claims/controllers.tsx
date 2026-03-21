@@ -110,11 +110,6 @@ export const processRegisterAndClaim = async (
   );
   if (verifyOtpError) return showErrorAlert(c, verifyOtpError.reason);
 
-  await sendAdminEmail(
-    "New fan registered (claim intent)",
-    generateClaimNotificationEmail(),
-  );
-
   return showSuccessAlert(
     c,
     "Your claim has been submitted. Please check your email for verification.",
@@ -165,22 +160,23 @@ export const getClaimComplete = async (c: Context) => {
   const status =
     domainMatches && creator.website ? "approved" : "pending_admin_review";
 
-  const [createClaimError] = await createClaimWithStatus(
+  const [createClaimError, creatorClaim] = await createClaimWithStatus(
     user.id,
     creatorId,
     normalizedUrl,
     status,
   );
-  if (createClaimError)
+  if (createClaimError || !creatorClaim)
     return c.html(
-      <InfoPage errorMessage={createClaimError.reason} user={user} />,
+      <InfoPage
+        errorMessage={createClaimError?.reason ?? "Failed to create claim"}
+        user={user}
+      />,
       400,
     );
 
-  await sendAdminEmail(
-    "New creator claim submitted",
-    generateClaimNotificationEmail(),
-  );
+  const emailHtml = generateClaimNotificationEmail(creatorClaim, creator);
+  await sendAdminEmail("New creator claim", emailHtml);
 
   if (status === "approved") {
     const [error] = await assignUserAsCreatorOwnerAdmin(
@@ -240,11 +236,6 @@ export const processClaim = async (c: ProcessClaimContext) => {
     console.error("Error creating claim:", error);
     return showErrorAlert(c, "Failed to submit claim. Please try again.");
   }
-
-  await sendAdminEmail(
-    "New creator claim submitted",
-    generateClaimNotificationEmail(),
-  );
 
   if (status === "approved") {
     await assignUserAsCreatorOwnerAdmin(user.id, creatorId, true);

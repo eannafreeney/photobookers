@@ -36,8 +36,6 @@ export function registerCountryForm() {
         const input = this.$refs.hiddenCountryInput as HTMLInputElement;
         input.value = option.label;
 
-        this.$refs.hiddenCountryInput.value = option.label;
-
         // Trigger input event so x-model picks up the change
         this.$nextTick(() => {
           this.$refs.hiddenCountryInput.dispatchEvent(

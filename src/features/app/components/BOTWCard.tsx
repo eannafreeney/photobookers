@@ -18,11 +18,28 @@ type Props = {
 };
 
 const BookOfTheWeekCard = ({ isMobile, bookOfTheWeek, user }: Props) => {
+  const images = [
+    bookOfTheWeek?.book?.coverUrl,
+    ...(bookOfTheWeek?.book?.images?.map((image) => image.imageUrl) ?? []),
+  ].filter((url): url is string => Boolean(url));
+
   if (isMobile) {
-    return <BOTWMobileCard bookOfTheWeek={bookOfTheWeek} user={user} />;
+    return (
+      <BOTWMobileCard
+        bookOfTheWeek={bookOfTheWeek}
+        user={user}
+        images={images}
+      />
+    );
   }
 
-  return <BOTWDesktopCard bookOfTheWeek={bookOfTheWeek} user={user} />;
+  return (
+    <BOTWDesktopCard
+      bookOfTheWeek={bookOfTheWeek}
+      user={user}
+      images={images}
+    />
+  );
 };
 
 export default BookOfTheWeekCard;
@@ -30,25 +47,20 @@ export default BookOfTheWeekCard;
 type CardProps = {
   bookOfTheWeek: BookOfTheWeekWithBook;
   user: AuthUser | null;
+  images: string[];
 };
 
-const BOTWDesktopCard = ({ bookOfTheWeek, user }: CardProps) => {
+const BOTWDesktopCard = ({ bookOfTheWeek, user, images }: CardProps) => {
   const book = bookOfTheWeek?.book ?? null;
 
-  if (!book || !book.coverUrl) return <></>;
+  if (!book) return <></>;
 
   return (
     <Card className="col-span-6">
       <div class="flex gap-2">
         <div class="w-2/3 shrink-0">
           <a href={`/books/${book.slug}`}>
-            <CarouselMobile
-              images={[
-                book.coverUrl,
-                ...(book?.images?.map((image) => image.imageUrl) ?? []),
-              ]}
-              showIndicators={false}
-            />
+            <CarouselMobile images={images} />
           </a>
         </div>
         <div class="w-1/3 min-w-0 flex flex-col gap-2 grow justify-between">
@@ -84,9 +96,9 @@ const BOTWDesktopCard = ({ bookOfTheWeek, user }: CardProps) => {
   );
 };
 
-const BOTWMobileCard = ({ bookOfTheWeek, user }: CardProps) => {
+const BOTWMobileCard = ({ bookOfTheWeek, user, images }: CardProps) => {
   const book = bookOfTheWeek?.book ?? null;
-  if (!book || !book.coverUrl) return <></>;
+  if (!book) return <></>;
 
   return (
     <Card className="w-full min-w-0">
@@ -100,15 +112,9 @@ const BOTWMobileCard = ({ bookOfTheWeek, user }: CardProps) => {
         </Card.Text>
       </div>
       <a href={`/books/${book.slug}`}>
-        <CarouselMobile
-          images={[
-            book.coverUrl,
-            ...(book?.images?.map((image) => image.imageUrl) ?? []),
-          ]}
-          showIndicators={false}
-        />
+        <CarouselMobile images={images} />
       </a>
-      <Card.Body gap="3">
+      <Card.Body gap="4">
         <div class="flex items-start justify-between">
           <div>
             <Link href={`/books/${book.slug}`}>
