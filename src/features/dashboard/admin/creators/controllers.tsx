@@ -70,6 +70,7 @@ export const getEditCreatorPageAdmin = async (
   }
   const currentPath = c.req.path;
   const currentPage = Number(c.req.query("page") ?? 1);
+  const searchQuery = c.req.query("search");
 
   return c.html(
     <EditCreatorPageAdmin
@@ -77,6 +78,7 @@ export const getEditCreatorPageAdmin = async (
       creator={creator}
       currentPath={currentPath}
       currentPage={currentPage}
+      searchQuery={searchQuery}
     />,
   );
 };

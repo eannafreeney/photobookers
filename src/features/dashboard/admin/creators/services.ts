@@ -1,6 +1,7 @@
-import { and, count, eq, ilike, isNull, not } from "drizzle-orm";
+import { and, count, eq, ilike, isNull, not, or } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
+  books,
   Creator,
   creators,
   NewCreator,
@@ -11,6 +12,7 @@ import {
 import { getRandomCoverUrl, slugify } from "../../../../utils";
 import { getCreatorById } from "../../creators/services";
 import { getPagination } from "../../../../lib/pagination";
+import { err, ok } from "../../../../lib/result";
 
 export const getAllUserProfilesAdmin = async (): Promise<
   Pick<User, "id" | "email" | "firstName" | "lastName">[]
@@ -274,4 +276,50 @@ export const resolvePublisher = async (
   }
 
   return null;
+};
+
+export const getBooksByCreatorId = async (
+  creatorId: string,
+  currentPage: number,
+  searchQuery?: string,
+) => {
+  const baseFilter = or(
+    eq(books.artistId, creatorId),
+    eq(books.publisherId, creatorId),
+  );
+  const titleFilter = searchQuery?.trim()
+    ? ilike(books.title, `%${searchQuery.trim()}%`)
+    : undefined;
+
+  const whereClause = titleFilter ? and(baseFilter, titleFilter) : baseFilter;
+
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(whereClause);
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      30,
+    );
+
+    const foundBooks = await db.query.books.findMany({
+      where: whereClause,
+      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      with: {
+        artist: true,
+        publisher: true,
+      },
+      limit,
+      offset,
+    });
+    if (foundBooks.length === 0) return err({ reason: "No books found" });
+
+    return ok({ books: foundBooks, totalPages, page });
+  } catch (error) {
+    console.error("Failed to get books by creator id", error);
+    return err({ reason: "Failed to get books by creator id", cause: error });
+  }
 };
