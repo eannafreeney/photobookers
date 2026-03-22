@@ -21,7 +21,7 @@ export default function TickerBanner() {
   const doubled = [...tickerItems, ...tickerItems];
 
   return (
-    <div class="relative left-1/2 -translate-x-1/2 w-screen overflow-hidden border border-b mt-[13px] md:mt-0">
+    <div class="relative left-1/2 -translate-x-1/2 w-screen overflow-hidden border border-b mt-3 md:mt-0">
       <div class="marquee flex w-max items-center gap-2 whitespace-nowrap py-1 text-sm">
         {doubled.map((item, idx) => (
           <Fragment key={`${item}-${idx}`}>
