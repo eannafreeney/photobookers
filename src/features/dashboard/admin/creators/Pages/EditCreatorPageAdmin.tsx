@@ -111,7 +111,6 @@ const CreatorBookList = async ({
   );
   if (error) return <InfoPage errorMessage={error.reason} user={user} />;
 
-  console.log(`Books: ${result.books.length}`);
   const targetId = "creator-books-table-body";
 
   const { books, totalPages, page } = result;
