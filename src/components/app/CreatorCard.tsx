@@ -41,12 +41,12 @@ const CreatorCard = async ({
             <Card.Title>
               <a
                 href={`/creators/${creator.slug}`}
-                class="flex items-center gap-2 justify-between"
+                class="flex items-center gap-1"
               >
                 {creator.displayName}{" "}
                 <VerifiedCreator
                   creatorStatus={creator.status ?? "stub"}
-                  size="sm"
+                  size="xs"
                 />
               </a>
             </Card.Title>

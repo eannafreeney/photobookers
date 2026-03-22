@@ -4,15 +4,26 @@ import Page from "../../../../../components/layouts/Page";
 import CreatorImageForm from "../../../images/forms/CreatorCoverForm";
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import Breadcrumbs from "../../components/Breadcrumbs";
-import CreatorBookList from "../../../books/components/BookList";
 import EditCreatorFormAdmin from "../forms/EditCreatorFormAdmin";
 import FeatureGuard from "../../../../../components/layouts/FeatureGuard";
+import { getBooksByCreatorId } from "../services";
+import InfoPage from "../../../../../pages/InfoPage";
+import { useUser } from "../../../../../contexts/UserContext";
+import Table from "../../../../../components/app/Table";
+import { Pagination } from "../../../../../components/app/Pagination";
+import Button from "../../../../../components/app/Button";
+import DeleteFormButton from "../../components/DeleteFormButton";
+import SectionTitle from "../../../../../components/app/SectionTitle";
+import TableSearch from "../../../../../components/app/TableSearch";
+import Link from "../../../../../components/app/Link";
+import { getFormValues } from "../utils";
 
 type Props = {
   user: AuthUser;
   creator: Creator;
   currentPath: string;
   currentPage: number;
+  searchQuery?: string;
 };
 
 const EditCreatorPageAdmin = ({
@@ -20,19 +31,9 @@ const EditCreatorPageAdmin = ({
   creator,
   currentPath,
   currentPage,
+  searchQuery,
 }: Props) => {
-  const formValues = JSON.stringify({
-    displayName: creator?.displayName,
-    bio: creator?.bio,
-    city: creator?.city,
-    tagline: creator?.tagline,
-    country: creator?.country,
-    website: creator?.website,
-    facebook: creator?.facebook,
-    twitter: creator?.twitter,
-    instagram: creator?.instagram,
-    type: creator?.type ?? "artist",
-  });
+  const formValues = getFormValues(creator);
 
   return (
     <AppLayout
@@ -75,9 +76,9 @@ const EditCreatorPageAdmin = ({
         </div>
         <CreatorBookList
           creatorId={creator.id}
-          creatorType={creator.type}
           currentPath={currentPath}
           currentPage={currentPage}
+          searchQuery={searchQuery}
         />
         <FeatureGuard flagName="messages">
           {/* <CreatorMessageList creatorId={creator.id} /> */}
@@ -88,3 +89,89 @@ const EditCreatorPageAdmin = ({
 };
 
 export default EditCreatorPageAdmin;
+
+type CreatorBookListProps = {
+  creatorId: string;
+  currentPath: string;
+  currentPage: number;
+  searchQuery?: string;
+};
+
+const CreatorBookList = async ({
+  creatorId,
+  currentPath,
+  currentPage,
+  searchQuery,
+}: CreatorBookListProps) => {
+  const user = useUser();
+  const [error, result] = await getBooksByCreatorId(
+    creatorId,
+    currentPage,
+    searchQuery,
+  );
+  if (error) return <InfoPage errorMessage={error.reason} user={user} />;
+
+  const targetId = "creator-books-table-body";
+
+  const { books, totalPages, page } = result;
+
+  return (
+    <div class="flex flex-col gap-4">
+      <SectionTitle>Books</SectionTitle>
+      <div class="flex items-center justify-between gap-4">
+        <TableSearch
+          target="creator-books-table"
+          action={`/dashboard/admin/creators/${creatorId}/update`}
+          placeholder="Filter books..."
+        />
+        <Link href="/dashboard/admin/books/create">
+          <Button variant="solid" color="primary">
+            New Book
+          </Button>
+        </Link>
+      </div>
+      <Table id="creator-books-table">
+        <Table.Head>
+          <Table.HeadRow>Cover</Table.HeadRow>
+          <Table.HeadRow>Title</Table.HeadRow>
+          <Table.HeadRow>Artist</Table.HeadRow>
+          <Table.HeadRow>Publisher</Table.HeadRow>
+        </Table.Head>
+        <Table.Body id={targetId}>
+          {books.map((book) => (
+            <tr>
+              <Table.BodyRow>
+                <img
+                  src={book.coverUrl ?? ""}
+                  alt={book.title}
+                  class="w-auto h-12"
+                />
+              </Table.BodyRow>
+              <Table.BodyRow>{book.title}</Table.BodyRow>
+              <Table.BodyRow>{book.artist?.displayName}</Table.BodyRow>
+              <Table.BodyRow>{book.publisher?.displayName}</Table.BodyRow>
+              <Table.BodyRow>
+                <a href={`/dashboard/admin/books/${book.id}/update`}>
+                  <Button variant="outline" color="inverse">
+                    <span>Edit</span>
+                  </Button>
+                </a>
+              </Table.BodyRow>
+              <Table.BodyRow>
+                <DeleteFormButton
+                  action={`/dashboard/admin/books/${book.id}/delete`}
+                />
+              </Table.BodyRow>
+            </tr>
+          ))}
+        </Table.Body>
+      </Table>
+      <Pagination
+        baseUrl={currentPath}
+        page={page}
+        totalPages={totalPages}
+        targetId={targetId}
+      />
+    </div>
+  );
+};
