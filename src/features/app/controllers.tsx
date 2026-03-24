@@ -12,7 +12,7 @@ import TermsAndConditionsPage from "./pages/TermsAndConditions";
 import CreatorsPage from "./pages/CreatorsPage";
 import { parseSortBy } from "../../lib/utils";
 import ContactPage from "./pages/ContactPage";
-import { ContactFormContext} from "./types";
+import { ContactFormContext } from "./types";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import { generateContactEmail } from "./emails";
 import LatestBooksFragment from "./fragments/LatestBooksFragment";
@@ -21,10 +21,11 @@ import MessagesPage from "./pages/MessagesPage";
 import CreatorSpotlightFragment from "./fragments/CreatorSpotlightFragment";
 import NewsletterConfirmationPage from "./pages/NewsletterConfirmationPage";
 import RelatedBooksFragment from "./fragments/RelatedBooksFragment";
-import {  getBookBySlug } from "./services";
+import { getBookBySlug } from "./services";
 import { sendAdminEmail } from "../../lib/sendEmail";
 import { match } from "../../lib/result";
 import UpdateUserModal from "./modals/UpdateUser";
+import AuthModal from "../../components/app/AuthModal";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -115,6 +116,16 @@ export const getFeaturedPage = async (c: Context) => {
 
 export const getUserUpdateModal = async (c: Context) => {
   const user = await getUser(c);
+
+  if (!user) {
+    return c.html(
+      <>
+        <AuthModal action="to update your profile image." />
+        <div id="modal-root"></div>
+      </>,
+    );
+  }
+
   return c.html(<UpdateUserModal user={user} />);
 };
 
