@@ -17,13 +17,13 @@ const UserCoverForm = ({ initialUrl, user }: Props) => {
     "x-target": "toast nav-avatar",
     "x-target.error": "toast",
     "@ajax:before": "onBefore()",
-    "@ajax:success": "onSuccess(), $dispatch('avatar:updated'), $dispatch('dialog:close'), $dispatch('comments:updated')",
+    "@ajax:success":
+      "onSuccess(), $dispatch('avatar:updated'), $dispatch('dialog:close'), $dispatch('comments:updated')",
     "@ajax:error": "onError()",
   };
 
   return (
     <div class="space-y-4">
-      <SectionTitle>Profile Image</SectionTitle>
       <form
         method="post"
         action={`/dashboard/images/users/${user.id}/profile`}
@@ -34,7 +34,7 @@ const UserCoverForm = ({ initialUrl, user }: Props) => {
         <div class="space-y-4">
           <ImagePreview />
           <FileUploadInput
-            label="Replace Image"
+            label="Upload Image"
             name="userImageProfile"
             x-on:change="onFileChange"
             x-ref="fileInput"

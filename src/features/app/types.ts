@@ -4,6 +4,7 @@ import { contactFormSchema } from "./schema";
 import { Context } from "hono";
 import { z } from "zod";
 import { bookIdSchema } from "../../schemas";
+import { commentIdSchema } from "../api/schema";
 
 export type BookWithGalleryImages = Omit<
   Book & { artist: Creator | null; publisher: Creator | null },
@@ -20,8 +21,3 @@ export type ContactFormContext = Context<
   { out: { form: z.infer<typeof contactFormSchema> } }
 >;
 
-export type CreateCommentModalContext = Context<
-  Env,
-  string,
-  { out: { param: z.infer<typeof bookIdSchema> } }
->;

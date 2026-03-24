@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { uuidField } from "../../schemas";
 
 // ============ VALIDATE PASSWORD SCHEMA ============
 export const contactFormSchema = z.object({
@@ -8,8 +9,6 @@ export const contactFormSchema = z.object({
   website: z.string().optional(),
   ts: z.number().optional(),
 });
-
-
 
 export const slugSchema = z.object({
   slug: z

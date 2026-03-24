@@ -137,13 +137,17 @@ const DetailDesktop = ({
               <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
               <TagList tags={book.tags ?? []} />
               <PurchaseLink purchaseLink={book.purchaseLink} />
+              <FeatureGuard flagName="comments">
+                <CommentsSection
+                  bookId={book.id}
+                  user={user}
+                  bookSlug={book.slug}
+                />
+              </FeatureGuard>
               <Credits
                 releaseDate={book.releaseDate}
                 publisher={book.publisher}
               />
-              <FeatureGuard flagName="comments">
-              <CommentsSection bookId={book.id} user={user} bookSlug={book.slug} />
-              </FeatureGuard>
             </div>
           </div>
         </div>

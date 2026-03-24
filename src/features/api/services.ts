@@ -79,9 +79,7 @@ export const getCreatorPermissionData = async (
   }
 };
 
-export const getBookPermissionData = async (
-  bookId: string,
-) => {
+export const getBookPermissionData = async (bookId: string) => {
   try {
     const book = await db.query.books.findFirst({
       where: eq(books.id, bookId),
@@ -183,12 +181,15 @@ export const insertBookComment = async (
   body: string,
 ) => {
   try {
-  await db.insert(bookComments).values({
-    bookId,
-      userId,
-      body,
-    });
-    return ok(undefined);
+    const comment = await db
+      .insert(bookComments)
+      .values({
+        bookId,
+        userId,
+        body,
+      })
+      .returning();
+    return ok(comment[0] ?? null);
   } catch (error) {
     console.error("Failed to insert book comment", error);
     return err({ reason: "Failed to insert book comment" });

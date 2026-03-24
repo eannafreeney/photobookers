@@ -5,7 +5,6 @@ import {
   getBookDetailPage,
   getBookPreviewPage,
   getContactPage,
-  getCreateCommentModal,
   getCreatorDetailPage,
   getCreatorSpotlightFragment,
   getFeaturedBooksFragment,
@@ -26,7 +25,7 @@ import {
 import { requireBookPreviewAccess } from "../../middleware/bookGuard";
 import { formValidator, paramValidator } from "../../lib/validator";
 import { contactFormSchema, slugSchema, tagSchema } from "./schema";
-import { bookIdSchema, userIdSchema } from "../../schemas";
+import { userIdSchema } from "../../schemas";
 
 export const app = new Hono();
 
@@ -51,8 +50,11 @@ app.get("/artists", getArtistsPage);
 app.get("/publishers", getPublishersPage);
 app.get("/messages", getMessagesFeedPage);
 app.get("/newsletter-confirmation", getNewsletterConfirmationPage);
-app.get("/comments/:bookId",  paramValidator(bookIdSchema), getCreateCommentModal);
-app.get("/users/:userId/update", paramValidator(userIdSchema), getUserUpdateModal);
+app.get(
+  "/users/:userId/update",
+  paramValidator(userIdSchema),
+  getUserUpdateModal,
+);
 
 // POST
 app.post("/contact", formValidator(contactFormSchema), processContact);

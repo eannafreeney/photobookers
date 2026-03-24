@@ -29,24 +29,22 @@ import {
   CreatorCardResult,
 } from "../../constants/queries";
 import { creatorMessages } from "../../db/schema";
-import { err,  ok } from "../../lib/result";
+import { err, ok } from "../../lib/result";
 
-export const getDisplayName = async (commentUser: {
-  firstName: string | null;
-  lastName: string | null;
-  email: string;
-} | null) => {
+export const getDisplayName = (
+  commentUser: {
+    firstName: string | null;
+    lastName: string | null;
+    email: string;
+  } | null,
+) => {
   if (!commentUser) return "Unknown user";
-  try {
-    const fullName = [commentUser.firstName, commentUser.lastName]
-      .filter(Boolean)
-      .join(" ")
-      .trim();
-    return fullName || commentUser.email
-  } catch (error) {
-    console.error("Failed to get display name", error);
-    return commentUser?.email ?? "Unknown user";
-  }
+
+  const fullName = [commentUser.firstName, commentUser.lastName]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  return fullName || commentUser.email;
 };
 
 export const getBookComments = async (bookId: string) => {
@@ -82,6 +80,43 @@ export const getBookComments = async (bookId: string) => {
   } catch (error) {
     console.error("Failed to get book comments", error);
     return err({ reason: "Failed to get book comments", error });
+  }
+};
+
+export const getCommentById = async (commentId: string) => {
+  try {
+    const comment = await db.query.bookComments.findFirst({
+      where: eq(bookComments.id, commentId),
+    });
+    return ok(comment);
+  } catch (error) {
+    console.error("Failed to get comment by id", error);
+    return err({ reason: "Failed to get comment by id", error });
+  }
+};
+
+export const updateCommentById = async (commentId: string, body: string) => {
+  try {
+    const updatedComment = await db
+      .update(bookComments)
+      .set({ body })
+      .where(eq(bookComments.id, commentId))
+      .returning();
+    if (!updatedComment) return err({ reason: "Comment not found" });
+    return ok(updatedComment[0] ?? null);
+  } catch (error) {
+    console.error("Failed to update comment", error);
+    return err({ reason: "Failed to update comment", error });
+  }
+};
+
+export const deleteCommentById = async (commentId: string) => {
+  try {
+    await db.delete(bookComments).where(eq(bookComments.id, commentId));
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to delete comment", error);
+    return err({ reason: "Failed to delete comment", error });
   }
 };
 

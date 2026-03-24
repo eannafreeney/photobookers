@@ -14,9 +14,14 @@ export const addCommentFormSchema = z.object({
 });
 
 export const newsletterFormSchema = z.object({
-    email: z.string().email().min(1, "Email is required"),
-  });
+  email: z.string().email().min(1, "Email is required"),
+});
 
-  export const commentIdSchema = z.object({
-    commentId: uuidField,
-  });
+export const commentIdSchema = z.object({
+  commentId: uuidField,
+});
+
+export const editCommentParamSchema = z.object({
+  bookId: uuidField,
+  commentId: uuidField,
+});

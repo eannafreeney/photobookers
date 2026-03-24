@@ -24,11 +24,22 @@ import Link from "../../components/app/Link";
 import Badge from "../../components/app/Badge";
 import { closeIcon } from "../../lib/icons";
 import { dispatchEvents } from "../../lib/disatchEvents";
-import { searchCreators } from "../app/services";
+import { searchCreators, updateCommentById } from "../app/services";
 import NewsletterCard from "../app/components/NewsletterCard";
 import { deleteCollectionItem, insertCollectionItem } from "../../db/queries";
 import CollectButton from "./components/CollectButton";
-import { AddCommentFormContext, DeleteCommentFormContext, NewsletterFormContext } from "./types";
+import {
+  AddCommentFormContext,
+  CreateCommentModalContext,
+  DeleteCommentFormContext,
+  DeleteCommentGuardedContext,
+  NewsletterFormContext,
+  UpdateCommentFormContext,
+  UpdateCommentGuardedContext,
+} from "./types";
+import EditCommentModal from "./modals/EditCommentModal";
+import CommentModal from "./modals/CommentModal";
+import { sendAdminEmail } from "../../lib/sendEmail";
 
 const updateCreatorCard = () => "creator:updated";
 const updateLibraryPage = () => "library:updated";
@@ -256,58 +267,90 @@ export const processNewsletter = async (c: NewsletterFormContext) => {
   );
 };
 
+export const getCreateCommentModal = async (c: CreateCommentModalContext) => {
+  const bookId = c.req.valid("param").bookId;
+  const user = await getUser(c);
+  return c.html(<CommentModal bookId={bookId} user={user} />);
+};
+
+export const getEditCommentModal = async (c: UpdateCommentFormContext) => {
+  const user = await getUser(c);
+  const commentId = c.req.valid("param").commentId;
+  const bookId = c.req.valid("param").bookId;
+
+  const [err, comment] = await getBookCommentById(commentId);
+  if (err || !comment)
+    return showErrorAlert(c, err?.reason ?? "Comment not found");
+
+  return c.html(
+    <EditCommentModal commentId={commentId} bookId={bookId} user={user} />,
+  );
+};
+
 export const addBookComment = async (c: AddCommentFormContext) => {
   const user = await getUser(c);
   const userId = user?.id;
-  if (!userId) return c.html(<AuthModal action="to comment on this book." />, 401);
+  if (!userId)
+    return c.html(<AuthModal action="to comment on this book." />, 401);
 
   const bookId = c.req.valid("param").bookId;
   const form = c.req.valid("form");
 
   const hasProfilePic = !!(user?.creator?.coverUrl || user?.profileImageUrl);
-  
-if (!hasProfilePic) {
-  return showErrorAlert(c, "Please add a profile picture before commenting.");
-}
 
-  try {
-    await insertBookComment(bookId, userId, form.body);
-  } catch (error) {
-    console.error("Failed to add book comment", error);
-    return showErrorAlert(c, "Could not add comment.");
+  if (!hasProfilePic) {
+    return showErrorAlert(c, "Please add a profile picture before commenting.");
   }
 
-  return c.html(<>
-  <Alert type="success" message="Comment added successfully" />
-  {dispatchEvents([updateComments()])}
-  </>);
+  const [err, comment] = await insertBookComment(bookId, userId, form.body);
+  if (err || !comment)
+    return showErrorAlert(c, err?.reason ?? "Failed to add comment");
+
+  await sendAdminEmail(
+    "New comment on a book",
+    `A new comment has been added to the book ${bookId}. ${comment.body}`,
+  );
+
+  return c.html(
+    <>
+      <Alert type="success" message="Comment added successfully" />
+      {dispatchEvents([updateComments()])}
+      <div id="modal-root"></div>
+    </>,
+  );
 };
 
-export const deleteBookComment = async (c: DeleteCommentFormContext) => {
-  const user = await getUser(c);
-  const userId = user?.id;
-  if (!userId) return c.html(<AuthModal action="to delete this comment." />, 401);
-
-  const commentId = c.req.valid("param").commentId;
-  const [err, comment] = await getBookCommentById(commentId);
-  if (err || !comment) return showErrorAlert(c, err?.reason ?? "Comment not found");
-  if (!comment) return showErrorAlert(c, "Comment not found");
-
-
-  // owner of comment can delete
-  if (comment.userId !== userId) {
-    return showErrorAlert(c, "You do not have permission to delete this comment.");
+export const updateBookComment = async (c: UpdateCommentGuardedContext) => {
+  const comment = c.get("comment");
+  const body = c.req.valid("form").body;
+  const [err, updatedComment] = await updateCommentById(comment.id, body);
+  if (err || !updatedComment) {
+    return showErrorAlert(c, err?.reason ?? "Failed to update comment");
   }
 
-  try {
-    await deleteBookCommentById(commentId);
-  } catch (error) {
-    console.error("Failed to delete book comment", error);
-    return showErrorAlert(c, "Could not delete comment.");
-  }
+  await sendAdminEmail(
+    "Updated comment on a book",
+    `A comment has been updated. ${updatedComment.body}`,
+  );
+  return c.html(
+    <>
+      <Alert type="success" message="Comment updated successfully" />
+      {dispatchEvents([updateComments()])}
+      <div id="modal-root"></div>
+    </>,
+  );
+};
 
-  c.html(<>
-    <Alert type="success" message="Comment added successfully" />
-    {dispatchEvents([updateComments()])}
-    </>)
+export const deleteBookComment = async (c: DeleteCommentGuardedContext) => {
+  const comment = c.get("comment");
+  const [err] = await deleteBookCommentById(comment.id);
+  if (err) {
+    return showErrorAlert(c, err.reason);
+  }
+  return c.html(
+    <>
+      <Alert type="success" message="Comment deleted successfully" />
+      {dispatchEvents([updateComments()])}
+    </>,
+  );
 };

@@ -4,15 +4,23 @@ import {
   collectBook,
   deleteBookComment,
   followCreator,
+  getCreateCommentModal,
+  getEditCommentModal,
   getMobileSearchScreen,
   getSearchResults,
   processNewsletter,
+  updateBookComment,
   wishlistBook,
 } from "./controllers";
 import { formValidator, paramValidator } from "../../lib/validator";
-import { addCommentFormSchema, commentIdSchema, newsletterFormSchema } from "./schema";
+import {
+  addCommentFormSchema,
+  commentIdSchema,
+  newsletterFormSchema,
+} from "./schema";
 import { bookIdSchema } from "../../schemas";
-
+import { requireCommentOwner } from "../../middleware/commentGuard";
+import { editCommentParamSchema } from "./schema";
 
 export const apiRoutes = new Hono();
 
@@ -21,6 +29,16 @@ apiRoutes.post("/books/:bookId/wishlist", wishlistBook);
 apiRoutes.post("/books/:bookId/collect", collectBook);
 apiRoutes.get("/search", getSearchResults);
 apiRoutes.get("/search/mobile", getMobileSearchScreen);
+apiRoutes.get(
+  "/books/:bookId/comments",
+  paramValidator(bookIdSchema),
+  getCreateCommentModal,
+);
+apiRoutes.get(
+  "/books/:bookId/update/:commentId",
+  paramValidator(editCommentParamSchema),
+  getEditCommentModal,
+);
 
 // POST API Routes
 apiRoutes.post(
@@ -35,7 +53,15 @@ apiRoutes.post(
   addBookComment,
 );
 apiRoutes.post(
-  "/comments/:commentId/delete",
-  paramValidator(commentIdSchema),
+  "/books/:bookId/update/:commentId",
+  paramValidator(editCommentParamSchema),
+  formValidator(addCommentFormSchema),
+  requireCommentOwner,
+  updateBookComment,
+);
+apiRoutes.post(
+  "/books/:bookId/delete/:commentId",
+  paramValidator(editCommentParamSchema),
+  requireCommentOwner,
   deleteBookComment,
 );

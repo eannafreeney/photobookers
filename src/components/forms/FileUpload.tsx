@@ -27,7 +27,6 @@ const FileUploadInput = ({
     class="relative flex w-64 max-w-sm flex-col gap-2
    text-on-surface dark:text-on-surface-dark"
   >
-    <InputLabel label={label} required={required} name={name} />
     <input
       id="fileInput"
       type="file"

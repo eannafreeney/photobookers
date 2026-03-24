@@ -12,7 +12,7 @@ import TermsAndConditionsPage from "./pages/TermsAndConditions";
 import CreatorsPage from "./pages/CreatorsPage";
 import { parseSortBy } from "../../lib/utils";
 import ContactPage from "./pages/ContactPage";
-import { ContactFormContext, CreateCommentModalContext } from "./types";
+import { ContactFormContext} from "./types";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import { generateContactEmail } from "./emails";
 import LatestBooksFragment from "./fragments/LatestBooksFragment";
@@ -21,11 +21,10 @@ import MessagesPage from "./pages/MessagesPage";
 import CreatorSpotlightFragment from "./fragments/CreatorSpotlightFragment";
 import NewsletterConfirmationPage from "./pages/NewsletterConfirmationPage";
 import RelatedBooksFragment from "./fragments/RelatedBooksFragment";
-import { getBookBySlug } from "./services";
+import {  getBookBySlug } from "./services";
 import { sendAdminEmail } from "../../lib/sendEmail";
 import { match } from "../../lib/result";
 import UpdateUserModal from "./modals/UpdateUser";
-import CreateCommentModal from "./modals/CreateCommentModal";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -117,13 +116,6 @@ export const getFeaturedPage = async (c: Context) => {
 export const getUserUpdateModal = async (c: Context) => {
   const user = await getUser(c);
   return c.html(<UpdateUserModal user={user} />);
-};
-
-export const getCreateCommentModal = async (c: CreateCommentModalContext) => {
-  const user = await getUser(c);
-  const bookId = c.req.valid("param").bookId;
-  console.log("bookId", bookId);
-  return c.html(<CreateCommentModal bookId={bookId} user={user} />);
 };
 
 export const getFeedPage = async (c: Context) => {
