@@ -137,13 +137,11 @@ const DetailDesktop = ({
               <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
               <TagList tags={book.tags ?? []} />
               <PurchaseLink purchaseLink={book.purchaseLink} />
-              <FeatureGuard flagName="comments">
-                <CommentsSection
-                  bookId={book.id}
-                  user={user}
-                  bookSlug={book.slug}
-                />
-              </FeatureGuard>
+              <CommentsSection
+                bookId={book.id}
+                user={user}
+                bookSlug={book.slug}
+              />
               <Credits
                 releaseDate={book.releaseDate}
                 publisher={book.publisher}
@@ -197,6 +195,7 @@ const DetailMobile = ({
       <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
       <PurchaseLink purchaseLink={book.purchaseLink} />
       <TagList tags={book.tags ?? []} />
+      <CommentsSection bookId={book.id} user={user} bookSlug={book.slug} />
       <Credits releaseDate={book.releaseDate} publisher={book.publisher} />
       <div class="flex flex-col sm:items-center gap-2">
         <CreatorCard

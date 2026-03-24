@@ -60,7 +60,7 @@ const BOTWDesktopCard = ({ bookOfTheWeek, user, images }: CardProps) => {
       <div class="flex gap-2">
         <div class="w-2/3 shrink-0">
           <a href={`/books/${book.slug}`}>
-            <CarouselMobile images={images} />
+            <CarouselMobile images={[images[0]]} showIndicators={false} />
           </a>
         </div>
         <div class="w-1/3 min-w-0 flex flex-col gap-2 grow justify-between">
