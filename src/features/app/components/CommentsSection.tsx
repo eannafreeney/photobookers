@@ -49,8 +49,10 @@ const CommentsSection = async ({
           method="get"
           action={`/users/${user?.id}/update`}
           x-target="modal-root"
+          class="mt-2"
         >
-          <hiddenInput
+          <input
+            type="hidden"
             name="msg"
             value="Add a profile photo first to comment."
           />
