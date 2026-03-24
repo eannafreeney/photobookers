@@ -2,10 +2,13 @@ import { Context } from "hono";
 import { capitalize, getUser } from "../../utils";
 import AuthModal from "../../components/app/AuthModal";
 import {
+  deleteBookCommentById,
   deleteFollow,
   deleteWishlist,
+  getBookCommentById,
   getBookPermissionData,
   getCreatorPermissionData,
+  insertBookComment,
   insertFollow,
   insertWishlist,
   searchBooks,
@@ -22,13 +25,14 @@ import Badge from "../../components/app/Badge";
 import { closeIcon } from "../../lib/icons";
 import { dispatchEvents } from "../../lib/disatchEvents";
 import { searchCreators } from "../app/services";
-import { NewsletterFormContext } from "../app/types";
 import NewsletterCard from "../app/components/NewsletterCard";
 import { deleteCollectionItem, insertCollectionItem } from "../../db/queries";
 import CollectButton from "./components/CollectButton";
+import { AddCommentFormContext, DeleteCommentFormContext, NewsletterFormContext } from "./types";
 
 const updateCreatorCard = () => "creator:updated";
 const updateLibraryPage = () => "library:updated";
+const updateComments = () => "comments:updated";
 
 export const followCreator = async (c: Context) => {
   const creatorId = c.req.param("creatorId");
@@ -100,8 +104,8 @@ export const collectBook = async (c: Context) => {
     return showErrorAlert(c);
   }
 
-  const book = await getBookPermissionData(bookId);
-  if (!book) return showErrorAlert(c, "Book not found");
+  const [err, book] = await getBookPermissionData(bookId);
+  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
   const message = isCurrentlyCollected
     ? `${book.title} has been removed from your collection`
@@ -144,8 +148,8 @@ export const wishlistBook = async (c: Context) => {
     return showErrorAlert(c);
   }
 
-  const book = await getBookPermissionData(bookId);
-  if (!book) return showErrorAlert(c, "Book not found");
+  const [err, book] = await getBookPermissionData(bookId);
+  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
   const message = isCurrentlyWishlisted
     ? `${book.title} has been removed from your wishlist`
@@ -250,4 +254,60 @@ export const processNewsletter = async (c: NewsletterFormContext) => {
       <NewsletterCard />
     </>,
   );
+};
+
+export const addBookComment = async (c: AddCommentFormContext) => {
+  const user = await getUser(c);
+  const userId = user?.id;
+  if (!userId) return c.html(<AuthModal action="to comment on this book." />, 401);
+
+  const bookId = c.req.valid("param").bookId;
+  const form = c.req.valid("form");
+
+  const hasProfilePic = !!(user?.creator?.coverUrl || user?.profileImageUrl);
+  
+if (!hasProfilePic) {
+  return showErrorAlert(c, "Please add a profile picture before commenting.");
+}
+
+  try {
+    await insertBookComment(bookId, userId, form.body);
+  } catch (error) {
+    console.error("Failed to add book comment", error);
+    return showErrorAlert(c, "Could not add comment.");
+  }
+
+  return c.html(<>
+  <Alert type="success" message="Comment added successfully" />
+  {dispatchEvents([updateComments()])}
+  </>);
+};
+
+export const deleteBookComment = async (c: DeleteCommentFormContext) => {
+  const user = await getUser(c);
+  const userId = user?.id;
+  if (!userId) return c.html(<AuthModal action="to delete this comment." />, 401);
+
+  const commentId = c.req.valid("param").commentId;
+  const [err, comment] = await getBookCommentById(commentId);
+  if (err || !comment) return showErrorAlert(c, err?.reason ?? "Comment not found");
+  if (!comment) return showErrorAlert(c, "Comment not found");
+
+
+  // owner of comment can delete
+  if (comment.userId !== userId) {
+    return showErrorAlert(c, "You do not have permission to delete this comment.");
+  }
+
+  try {
+    await deleteBookCommentById(commentId);
+  } catch (error) {
+    console.error("Failed to delete book comment", error);
+    return showErrorAlert(c, "Could not delete comment.");
+  }
+
+  c.html(<>
+    <Alert type="success" message="Comment added successfully" />
+    {dispatchEvents([updateComments()])}
+    </>)
 };

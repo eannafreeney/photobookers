@@ -1,7 +1,7 @@
 import { fadeTransition } from "../../lib/transitions";
 
 type InputLabelProps = {
-  label: string;
+  label?: string;
   maxLength?: number;
   name?: string;
   required?: boolean;
@@ -20,7 +20,7 @@ const InputLabel = ({
   return (
     <div class="flex items-center justify-between text-xs">
       <legend class="w-fit pl-0.5">
-        {label} {required && <span class="text-danger"> *</span>}
+        {label} {label && required && <span class="text-danger"> *</span>}
       </legend>
       <div class="flex items-center gap-2">
         {maxLength && (
@@ -64,8 +64,8 @@ const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (
     ) : (
       <span
         class="text-danger block text-left"
-        x-show={`errors.${name}`}
-        x-text={`errors.${name}`}
+        x-show={`errors && errors.${name}`}
+        x-text={`errors && errors.${name}`}
         {...fadeTransition}
       />
     )}

@@ -26,6 +26,7 @@ export async function getUserFromToken(token: string) {
         email: dbUser.email,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
+        profileImageUrl: dbUser.profileImageUrl,
         creator: creatorProfile || null,
         isAdmin: dbUser.isAdmin ?? false,
         mustResetPassword: dbUser.mustResetPassword ?? false,

@@ -1,6 +1,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client";
-import { bookImages, books, creators } from "../../../db/schema";
+import { bookImages, books, creators, users } from "../../../db/schema";
+import { err, ok } from "../../../lib/result";
 
 export const updateCreatorCoverImage = async (
   coverUrl: string,
@@ -16,6 +17,24 @@ export const updateCreatorCoverImage = async (
   } catch (error) {
     console.error("Failed to update artist cover image", error);
     return null;
+  }
+};
+
+export const updateUserProfileImageDB = async (
+  userId: string,
+  profileImageUrl: string,
+) => {
+  try {
+    const [updatedUser] = await db
+      .update(users)
+      .set({ profileImageUrl })
+      .where(eq(users.id, userId))
+      .returning();
+    if (!updatedUser) return err({ reason: "Failed to update user profile image", cause: undefined });
+    return ok(updatedUser);
+  } catch (error) {
+    console.error("Failed to update user profile image", error);
+    return err({ reason: "Failed to update user profile image", cause: error });
   }
 };
 

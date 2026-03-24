@@ -4,31 +4,37 @@ import Card from "./Card";
 import VerifiedCreator from "./VerifiedCreator";
 import { CreatorCardResult } from "../../constants/queries";
 import { truncate } from "../../lib/utils";
+import { AuthUser } from "../../../types";
 
 type CardCreatorCardProps = {
   creator: CreatorCardResult | null;
+  user: AuthUser | null;
   avatarSize?: "xs" | "sm" | "md" | "lg";
   maxDisplayNameLength?: number;
 };
 
 const CardCreatorCard = async ({
   creator,
+  user,
   avatarSize = "xs",
   maxDisplayNameLength,
 }: CardCreatorCardProps) => {
   if (!creator) return <></>;
 
+  const avatarUrl = creator.coverUrl ?? user?.profileImageUrl ?? null;
+  const name =  creator.displayName ?? `${user?.firstName} ${user?.lastName}`;
+
   const displayName =
     maxDisplayNameLength != null
-      ? truncate(creator.displayName, maxDisplayNameLength)
-      : (creator.displayName ?? "");
+      ? truncate(name , maxDisplayNameLength)
+      : (name ?? "");
 
   return (
     <div class="flex items-center gap-2">
       <div class="relative">
         <Link href={`/creators/${creator.slug}`}>
           <Avatar
-            src={creator.coverUrl ?? ""}
+            src={avatarUrl ?? ""}
             alt={displayName}
             size={avatarSize}
           />
@@ -38,7 +44,7 @@ const CardCreatorCard = async ({
         </div>
       </div>
       <Link href={`/creators/${creator.slug}`}>
-        <Card.SubTitle title={creator.displayName}>{displayName}</Card.SubTitle>
+        <Card.SubTitle title={displayName}>{displayName}</Card.SubTitle>
       </Link>
     </div>
   );

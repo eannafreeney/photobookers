@@ -18,6 +18,8 @@ import CollectButton from "../../api/components/CollectButton";
 import { Creator } from "../../../db/schema";
 import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import RelatedBooks from "../components/RelatedBooks";
+import CommentsSection from "../components/CommentsSection";
+import FeatureGuard from "../../../components/layouts/FeatureGuard";
 
 type BookDetailPageProps = {
   user: AuthUser | null;
@@ -139,6 +141,9 @@ const DetailDesktop = ({
                 releaseDate={book.releaseDate}
                 publisher={book.publisher}
               />
+              <FeatureGuard flagName="comments">
+              <CommentsSection bookId={book.id} user={user} bookSlug={book.slug} />
+              </FeatureGuard>
             </div>
           </div>
         </div>

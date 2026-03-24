@@ -15,9 +15,12 @@ import {
   removeImages,
   updateBookCoverImage,
   updateCreatorCoverImage,
+  updateUserProfileImageDB,
 } from "./services";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../../../constants/images";
 import { db } from "../../../db/client";
+import { UserIdContext } from "../admin/users/types";
+import { match } from "../../../lib/result";
 
 export const updateCreatorCover = async (c: CreatorIdContext) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -58,6 +61,30 @@ export const updateCreatorCover = async (c: CreatorIdContext) => {
       </div>
     </>,
   );
+};
+
+export const updateUserProfileImage = async (c: UserIdContext) => {
+  const userId = c.req.valid("param").userId;
+  const body = await c.req.parseBody();
+
+  const validatedFile = validateImageFile(body.userImageProfile);
+  if (!validatedFile.success) return showErrorAlert(c, validatedFile.error);
+
+  let profileImageUrl: string | null = null;
+  try {
+    const result = await uploadImage(
+      validatedFile.file,
+      `users/profile-images/${userId}`,
+    );
+    profileImageUrl = result.url;
+  } catch (error) {
+    console.log(error, "error in upload cover image");
+    return showErrorAlert(c, "Failed to upload profile image");
+  }
+  return match(await updateUserProfileImageDB(userId, profileImageUrl), {
+    ok: () => showSuccessAlert(c, "Image Updated"),
+    err: (error) => showErrorAlert(c, error.reason),
+  });  
 };
 
 export const updateBookCover = async (c: BookIdContext) => {

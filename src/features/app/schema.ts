@@ -9,9 +9,7 @@ export const contactFormSchema = z.object({
   ts: z.number().optional(),
 });
 
-export const newsletterFormSchema = z.object({
-  email: z.string().email().min(1, "Email is required"),
-});
+
 
 export const slugSchema = z.object({
   slug: z

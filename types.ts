@@ -13,6 +13,7 @@ export type AuthUser = {
   email: string;
   firstName: string | null;
   lastName: string | null;
+  profileImageUrl: string | null;
   creator: Creator | null;
   isAdmin: boolean;
   mustResetPassword: boolean;

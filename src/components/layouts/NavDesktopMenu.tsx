@@ -4,6 +4,8 @@ import { useUser } from "../../contexts/UserContext";
 import Button from "../app/Button";
 import NavAvatar from "../app/NavAvatar";
 import FeatureGuard from "./FeatureGuard";
+import { log } from "console";
+import Link from "../app/Link";
 
 type Props = {
   currentPath?: string | null;
@@ -51,10 +53,11 @@ type NavLinkProps = {
   href: string;
   children: string;
   currentPath?: string | null;
+  xTarget?: string;
   [key: string]: any;
 };
 
-const NavLink = ({ href, children, currentPath, ...props }: NavLinkProps) => {
+const NavLink = ({ href, children, currentPath, xTarget, ...props }: NavLinkProps) => {
   const isActive = currentPath === href;
 
   return (
@@ -65,6 +68,7 @@ const NavLink = ({ href, children, currentPath, ...props }: NavLinkProps) => {
           "block bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-surface-dark-alt/5 hover:text-on-surface-strong focus-visible:bg-surface-dark-alt/10 focus-visible:text-on-surface-strong focus-visible:outline-hidden",
           isActive ? "text-primary" : "text-on-surface",
         )}
+        x-target={xTarget}
         {...props}
       >
         {children}
@@ -104,6 +108,14 @@ const DropDownMenu = ({
           </p>
         </div>
       </li>
+      {user?.id && !user.creator && (
+            <NavLink
+              href={`/users/${user?.id}/update`}
+              xTarget="modal-root"
+            >
+              Edit Profile
+            </NavLink>
+          )}
       {user.creator?.id && (
         <>
           <NavLink href="/dashboard/books" currentPath={currentPath}>

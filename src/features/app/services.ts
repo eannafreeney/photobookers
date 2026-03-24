@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
+  bookComments,
   books,
   collectionItems,
   creators,
@@ -28,7 +29,61 @@ import {
   CreatorCardResult,
 } from "../../constants/queries";
 import { creatorMessages } from "../../db/schema";
-import { err, isErr, ok } from "../../lib/result";
+import { err,  ok } from "../../lib/result";
+
+export const getDisplayName = async (commentUser: {
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+} | null) => {
+  if (!commentUser) return "Unknown user";
+  try {
+    const fullName = [commentUser.firstName, commentUser.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    return fullName || commentUser.email
+  } catch (error) {
+    console.error("Failed to get display name", error);
+    return commentUser?.email ?? "Unknown user";
+  }
+};
+
+export const getBookComments = async (bookId: string) => {
+  try {
+    const comments = await db.query.bookComments.findMany({
+      where: eq(bookComments.bookId, bookId),
+      orderBy: (bookComments, { desc }) => [desc(bookComments.createdAt)],
+      with: {
+        user: {
+          columns: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            profileImageUrl: true,
+          },
+          with: {
+            creators: {
+              columns: {
+                id: true,
+                slug: true,
+                displayName: true,
+                status: true,
+                coverUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!comments) return err({ reason: "No comments found" });
+    return ok(comments);
+  } catch (error) {
+    console.error("Failed to get book comments", error);
+    return err({ reason: "Failed to get book comments", error });
+  }
+};
 
 export const getBooksInWishlist = async (
   userId: string,

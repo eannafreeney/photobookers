@@ -2,7 +2,7 @@ import { fadeTransition } from "../../lib/transitions";
 import InputLabel from "./InputLabel";
 
 type TextAreaProps = {
-  label: string;
+  label?: string;
   minRows?: number;
   placeholder?: string;
   required?: boolean;

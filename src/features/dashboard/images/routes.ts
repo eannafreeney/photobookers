@@ -4,10 +4,11 @@ import {
   requireProfileCoverImageEditAccess,
 } from "../../../middleware/imageGuards";
 import { paramValidator } from "../../../lib/validator";
-import { bookIdSchema, creatorIdSchema } from "../../../schemas";
+import { bookIdSchema, creatorIdSchema, userIdSchema } from "../../../schemas";
 import {
   updateBookCover,
   updateCreatorCover,
+  updateUserProfileImage,
   uploadGalleryImages,
 } from "./controllers";
 
@@ -30,4 +31,10 @@ imageRoutes.post(
   paramValidator(bookIdSchema),
   requireBookImageEditAccess,
   uploadGalleryImages,
+);
+imageRoutes.post(
+  "/users/:userId/profile",
+  paramValidator(userIdSchema),
+  // requireUserProfileImageEditAccess,
+  updateUserProfileImage,
 );

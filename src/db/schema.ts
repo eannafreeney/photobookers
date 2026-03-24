@@ -54,6 +54,7 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 255 }).notNull(),
   firstName: varchar("first_name", { length: 255 }),
   lastName: varchar("last_name", { length: 255 }),
+  profileImageUrl: text("profile_image_url"),
   acceptsTerms: timestamp("accepts_terms"),
   isAdmin: boolean("is_admin").default(false).notNull(),
   mustResetPassword: boolean("must_reset_password").default(false).notNull(),
@@ -68,6 +69,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   collections: many(collectionItems),
   wishlists: many(wishlists),
   claims: many(creatorClaims),
+  comments: many(bookComments),
 }));
 
 export const creators = pgTable(
@@ -176,6 +178,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
     fields: [books.createdByUserId],
     references: [users.id],
   }),
+  comments: many(bookComments),
   images: many(bookImages),
   wishlists: many(wishlists),
   collections: many(collectionItems),
@@ -259,6 +262,30 @@ export const bookImagesRelations = relations(bookImages, ({ one }) => ({
   book: one(books, {
     fields: [bookImages.bookId],
     references: [books.id],
+  }),
+}));
+
+export const bookComments = pgTable("book_comments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  bookId: uuid("book_id")
+    .references(() => books.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const bookCommentsRelations = relations(bookComments, ({ one }) => ({
+  book: one(books, {
+    fields: [bookComments.bookId],
+    references: [books.id],
+  }),
+  user: one(users, {
+    fields: [bookComments.userId],
+    references: [users.id],
   }),
 }));
 
@@ -543,3 +570,6 @@ export type NewPublisherOfTheWeek = InferInsertModel<typeof publisherOfTheWeek>;
 
 export type CreatorMessage = InferSelectModel<typeof creatorMessages>;
 export type NewCreatorMessage = InferInsertModel<typeof creatorMessages>;
+
+export type BookComment = InferSelectModel<typeof bookComments>;
+export type NewBookComment = InferInsertModel<typeof bookComments>;

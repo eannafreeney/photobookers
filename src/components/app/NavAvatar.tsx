@@ -11,6 +11,7 @@ type NavAvatarProps = {
 const NavAvatar = ({ creator, user, currentPath }: NavAvatarProps) => {
   const avatarUrl =
     creator?.coverUrl ??
+    user?.profileImageUrl ??
     getInitialsAvatar(user?.firstName ?? "", user?.lastName ?? "");
 
   const avatarAlt = `${user?.firstName} ${user?.lastName}`;

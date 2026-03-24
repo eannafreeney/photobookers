@@ -7,6 +7,7 @@ type LinkProps = {
   children: ChildType;
   className?: string;
   hoverUnderline?: boolean;
+  xTarget?: string;
 };
 
 const Link = ({
@@ -14,6 +15,7 @@ const Link = ({
   target,
   children,
   className,
+  xTarget,
   hoverUnderline = false,
 }: LinkProps) => (
   <a
@@ -24,6 +26,7 @@ const Link = ({
     )}
     href={href}
     target={target}
+    x-target={xTarget}
   >
     {children}
   </a>

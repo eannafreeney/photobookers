@@ -1,8 +1,9 @@
 import { Env } from "hono/types";
 import { Book, Creator } from "../../db/schema";
-import { contactFormSchema, newsletterFormSchema } from "./schema";
+import { contactFormSchema } from "./schema";
 import { Context } from "hono";
 import { z } from "zod";
+import { bookIdSchema } from "../../schemas";
 
 export type BookWithGalleryImages = Omit<
   Book & { artist: Creator | null; publisher: Creator | null },
@@ -19,8 +20,8 @@ export type ContactFormContext = Context<
   { out: { form: z.infer<typeof contactFormSchema> } }
 >;
 
-export type NewsletterFormContext = Context<
+export type CreateCommentModalContext = Context<
   Env,
   string,
-  { out: { form: z.infer<typeof newsletterFormSchema> } }
+  { out: { param: z.infer<typeof bookIdSchema> } }
 >;

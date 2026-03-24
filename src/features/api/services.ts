@@ -2,6 +2,7 @@ import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   Book,
+  bookComments,
   books,
   collectionItems,
   Creator,
@@ -10,6 +11,7 @@ import {
   FollowTarget,
   wishlists,
 } from "../../db/schema";
+import { err, ok } from "../../lib/result";
 
 export const deleteFollow = async (creatorId: string, userId: string) => {
   await db
@@ -79,7 +81,7 @@ export const getCreatorPermissionData = async (
 
 export const getBookPermissionData = async (
   bookId: string,
-): Promise<Pick<Book, "id" | "artistId" | "publisherId" | "title"> | null> => {
+) => {
   try {
     const book = await db.query.books.findFirst({
       where: eq(books.id, bookId),
@@ -88,12 +90,13 @@ export const getBookPermissionData = async (
         artistId: true,
         publisherId: true,
         title: true,
+        slug: true,
       },
     });
-    return book ?? null;
+    return book ? ok(book) : err({ reason: "Book not found" });
   } catch (error) {
     console.error("Failed to get book permission data", error);
-    return null;
+    return err({ reason: "Failed to get book permission data", error });
   }
 };
 
@@ -171,5 +174,45 @@ export const searchBooks = async (searchQuery: string) => {
   } catch (error) {
     console.error("Failed to search books", error);
     return [];
+  }
+};
+
+export const insertBookComment = async (
+  bookId: string,
+  userId: string,
+  body: string,
+) => {
+  try {
+  await db.insert(bookComments).values({
+    bookId,
+      userId,
+      body,
+    });
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to insert book comment", error);
+    return err({ reason: "Failed to insert book comment" });
+  }
+};
+
+export const getBookCommentById = async (commentId: string) => {
+  try {
+    const comment = await db.query.bookComments.findFirst({
+      where: eq(bookComments.id, commentId),
+    });
+    return ok(comment);
+  } catch (error) {
+    console.error("Failed to get book comment by id", error);
+    return err({ reason: "Failed to get book comment by id" });
+  }
+};
+
+export const deleteBookCommentById = async (commentId: string) => {
+  try {
+    await db.delete(bookComments).where(eq(bookComments.id, commentId));
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to delete book comment by id", error);
+    return err({ reason: "Failed to delete book comment by id" });
   }
 };

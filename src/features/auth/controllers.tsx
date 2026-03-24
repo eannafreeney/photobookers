@@ -17,7 +17,6 @@ import {
   ResetPasswordFormContext,
 } from "./types";
 import {
-  createUser,
   createUserInDatabase,
   getAuthCookieOptions,
   getCreatorBySlug,
@@ -27,12 +26,6 @@ import {
   verifyOtpForCreatorSignup,
   verifyOtpForFanSignup,
 } from "./services";
-import { getHostname, normalizeUrl } from "../../services/verification";
-import { createClaimWithStatus, deleteClaim } from "../claims/services";
-import {
-  generateClaimApprovalEmail,
-  generatePendingReviewEmail,
-} from "../claims/emails";
 import ErrorPage from "../../pages/error/errorPage";
 import { db } from "../../db/client";
 import { users } from "../../db/schema";
@@ -51,16 +44,14 @@ import ValidateWebsite from "./components/ValidateWebsite";
 import { createStubCreatorProfile } from "../dashboard/creators/services";
 import { findUserByEmailAdmin } from "../dashboard/admin/creators/services";
 import { eq } from "drizzle-orm";
-import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 import {
-  generateCreatorNotificationEmail,
-  generateFanNotificationEmail,
   generateVerificationSuccessEmailAdmin,
   generateVerificationWelcomeEmail,
 } from "./emails";
 import { sendAdminEmail, sendEmail } from "../../lib/sendEmail";
-import { isErr, isOk } from "../../lib/result";
+import { isErr } from "../../lib/result";
 import RegisterSuccessScreen from "./components/RegisterSuccessScreen";
+import { log } from "console";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -104,7 +95,6 @@ export const login = async (c: LoginFormContext) => {
   if (dbUser?.mustResetPassword) {
     return c.redirect("/auth/force-reset-password");
   }
-
   return c.redirect(safeRedirectUrl ?? "/");
 };
 
