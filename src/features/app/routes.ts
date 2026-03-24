@@ -23,9 +23,14 @@ import {
   processContact,
 } from "./controllers";
 import { requireBookPreviewAccess } from "../../middleware/bookGuard";
-import { formValidator, paramValidator } from "../../lib/validator";
+import {
+  formValidator,
+  paramValidator,
+  queryValidator,
+} from "../../lib/validator";
 import { contactFormSchema, slugSchema, tagSchema } from "./schema";
 import { userIdSchema } from "../../schemas";
+import { z } from "zod";
 
 export const app = new Hono();
 
@@ -52,6 +57,7 @@ app.get("/messages", getMessagesFeedPage);
 app.get("/newsletter-confirmation", getNewsletterConfirmationPage);
 app.get(
   "/users/:userId/update",
+  formValidator(z.object({ msg: z.string().optional() })),
   paramValidator(userIdSchema),
   getUserUpdateModal,
 );

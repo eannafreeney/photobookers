@@ -12,7 +12,7 @@ import TermsAndConditionsPage from "./pages/TermsAndConditions";
 import CreatorsPage from "./pages/CreatorsPage";
 import { parseSortBy } from "../../lib/utils";
 import ContactPage from "./pages/ContactPage";
-import { ContactFormContext } from "./types";
+import { ContactFormContext, UserUpdateFormContext } from "./types";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import { generateContactEmail } from "./emails";
 import LatestBooksFragment from "./fragments/LatestBooksFragment";
@@ -114,7 +114,9 @@ export const getFeaturedPage = async (c: Context) => {
   );
 };
 
-export const getUserUpdateModal = async (c: Context) => {
+export const getUserUpdateModal = async (c: UserUpdateFormContext) => {
+  const form = c.req.valid("form");
+  const msg = form.msg;
   const user = await getUser(c);
 
   if (!user) {
@@ -126,7 +128,7 @@ export const getUserUpdateModal = async (c: Context) => {
     );
   }
 
-  return c.html(<UpdateUserModal user={user} />);
+  return c.html(<UpdateUserModal user={user} msg={msg} />);
 };
 
 export const getFeedPage = async (c: Context) => {

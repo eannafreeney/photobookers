@@ -10,6 +10,10 @@ export const contactFormSchema = z.object({
   ts: z.number().optional(),
 });
 
+export const userUpdateFormSchema = z.object({
+  msg: z.string().optional(),
+});
+
 export const slugSchema = z.object({
   slug: z
     .string()

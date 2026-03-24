@@ -2,9 +2,15 @@ import { AuthUser } from "../../../../types";
 import Modal from "../../../components/app/Modal";
 import UserCoverForm from "../forms/UserCoverForm";
 
-const UpdateUserModal = ({ user }: { user: AuthUser }) => {
+type Props = {
+  user: AuthUser;
+  msg: string | undefined;
+};
+
+const UpdateUserModal = ({ user, msg }: Props) => {
+  const title = msg ? msg : "Update Profile Image";
   return (
-    <Modal title="Update Profile Image">
+    <Modal title={title}>
       <UserCoverForm initialUrl={user.profileImageUrl} user={user} />
     </Modal>
   );

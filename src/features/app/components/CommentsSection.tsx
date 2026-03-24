@@ -45,16 +45,19 @@ const CommentsSection = async ({
       </h3>
       <CommentList bookId={bookId} comments={comments} user={user} />
       {!hasProfilePic ? (
-        <div class="flex flex-col items-start gap-1 mt-2">
-          <Link href={`/users/${user?.id}/update`} xTarget="modal-root">
-            <Button variant="outline" color="primary" width="fit">
-              Add Photo
-            </Button>
-          </Link>
-          <p class="text-xs text-on-surface-weak">
-            Add a profile photo to comment.
-          </p>
-        </div>
+        <form
+          method="get"
+          action={`/users/${user?.id}/update`}
+          x-target="modal-root"
+        >
+          <hiddenInput
+            name="msg"
+            value="Add a profile photo first to comment."
+          />
+          <Button type="submit" variant="outline" color="primary" width="fit">
+            Add Comment
+          </Button>
+        </form>
       ) : hasUserCommented ? (
         <></>
       ) : (
