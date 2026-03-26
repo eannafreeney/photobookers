@@ -8,6 +8,7 @@ import {
   getEditCommentModal,
   getMobileSearchScreen,
   getSearchResults,
+  likeBook,
   processNewsletter,
   updateBookComment,
   wishlistBook,
@@ -27,6 +28,7 @@ export const apiRoutes = new Hono();
 apiRoutes.post("/creators/:creatorId/follow", followCreator);
 apiRoutes.post("/books/:bookId/wishlist", wishlistBook);
 apiRoutes.post("/books/:bookId/collect", collectBook);
+apiRoutes.post("/books/:bookId/like", likeBook);
 apiRoutes.get("/search", getSearchResults);
 apiRoutes.get("/search/mobile", getMobileSearchScreen);
 apiRoutes.get(

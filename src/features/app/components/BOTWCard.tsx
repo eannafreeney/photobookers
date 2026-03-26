@@ -4,12 +4,13 @@ import Card from "../../../components/app/Card";
 import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import CarouselMobile from "../../../components/app/CarouselMobile";
 import Link from "../../../components/app/Link";
-import ShareButton from "../../../components/app/ShareButton";
+import ShareButton from "../../api/components/ShareButton";
 import TagList from "../../../components/app/TagList";
 import { formatDate } from "../../../utils";
 import CollectButton from "../../api/components/CollectButton";
 import WishlistButton from "../../api/components/WishlistButton";
 import { BookOfTheWeekWithBook } from "../BOTWServices";
+import LikeButton from "../../api/components/LikeButton";
 
 type Props = {
   isMobile: boolean;
@@ -65,6 +66,7 @@ const BOTWDesktopCard = ({ bookOfTheWeek, user, images }: CardProps) => {
         </div>
         <div class="w-1/3 min-w-0 flex flex-col gap-2 grow justify-between">
           <div class="flex items-center justify-end gap-2 p-4">
+            <LikeButton isCircleButton book={book} user={user} />
             <CollectButton isCircleButton book={book} user={user} />
             <WishlistButton isCircleButton book={book} user={user} />
             <ShareButton isCircleButton />
@@ -122,6 +124,7 @@ const BOTWMobileCard = ({ bookOfTheWeek, user, images }: CardProps) => {
             </Link>
           </div>
           <div class="flex items-center gap-2">
+            <LikeButton isCircleButton book={book} user={user} />
             <CollectButton isCircleButton book={book} user={user} />
             <WishlistButton isCircleButton book={book} user={user} />
             <ShareButton isCircleButton />

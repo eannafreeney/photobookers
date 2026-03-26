@@ -391,7 +391,6 @@ export const getBooksByTag = async (
 
 export const getLatestBooks = async (
   currentPage: number,
-  sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
   defaultLimit = 15,
 ) => {
   try {
@@ -763,4 +762,34 @@ export const getMessagesForFollower = async (
     console.error("Failed to get messages for follower", e);
     return { messages: [], totalPages: 0, page: 1 };
   }
+};
+
+export const getHomepageStats = async () => {
+  const now = new Date();
+  const [booksCountResult, artistsCountResult, publishersCountResult] =
+    await Promise.all([
+      db
+        .select({ value: count() })
+        .from(books)
+        .where(
+          and(
+            eq(books.publicationStatus, "published"),
+            eq(books.approvalStatus, "approved"),
+            or(isNull(books.releaseDate), lte(books.releaseDate, now)),
+          ),
+        ),
+      db
+        .select({ value: count() })
+        .from(creators)
+        .where(eq(creators.type, "artist")),
+      db
+        .select({ value: count() })
+        .from(creators)
+        .where(eq(creators.type, "publisher")),
+    ]);
+  return {
+    books: booksCountResult[0]?.value ?? 0,
+    artists: artistsCountResult[0]?.value ?? 0,
+    publishers: publishersCountResult[0]?.value ?? 0,
+  };
 };

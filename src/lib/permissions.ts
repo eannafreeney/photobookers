@@ -17,6 +17,16 @@ export function canUploadImage(
   return true;
 }
 
+export function canLikeBook(
+  user: AuthUser | null,
+  book: Pick<Book, "artistId" | "publisherId">,
+): boolean {
+  return (
+    user?.creator?.id !== book.artistId &&
+    user?.creator?.id !== book.publisherId
+  );
+}
+
 export function canEditBook(
   user: AuthUser | null,
   book: BookWithGalleryImages | BookWithAdminRelations,

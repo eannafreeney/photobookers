@@ -26,6 +26,7 @@ import { sendAdminEmail } from "../../lib/sendEmail";
 import { match } from "../../lib/result";
 import UpdateUserModal from "./modals/UpdateUser";
 import AuthModal from "../../components/app/AuthModal";
+import BooksPage from "./pages/BooksPage";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -63,6 +64,16 @@ export const getBookDetailPage = async (c: Context) => {
       currentPath={currentPath}
       isMobile={isMobile}
     />,
+  );
+};
+
+export const getBooksPage = async (c: Context) => {
+  const user = await getUser(c);
+  const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
+
+  return c.html(
+    <BooksPage user={user} currentPath={currentPath} currentPage={page} />,
   );
 };
 

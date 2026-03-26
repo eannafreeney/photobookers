@@ -9,9 +9,45 @@ import {
   creators,
   follows,
   FollowTarget,
+  likes,
   wishlists,
 } from "../../db/schema";
-import { err, ok } from "../../lib/result";
+import { err, isOk, ok } from "../../lib/result";
+
+export const findLike = async (userId: string, bookId: string) => {
+  try {
+    const like = await db.query.likes.findFirst({
+      where: and(eq(likes.userId, userId), eq(likes.bookId, bookId)),
+    });
+    if (!like) return err({ reason: "Like not found" });
+    return ok(like);
+  } catch (error) {
+    console.error("Failed to find like", error);
+    return err({ reason: "Failed to find like" });
+  }
+};
+export const insertLike = async (userId: string, bookId: string) => {
+  try {
+    const existingResult = await findLike(userId, bookId);
+    if (isOk(existingResult)) return;
+    await db.insert(likes).values({ userId, bookId });
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to insert like", error);
+    return err({ reason: "Failed to insert like" });
+  }
+};
+export const deleteLike = async (userId: string, bookId: string) => {
+  try {
+    await db
+      .delete(likes)
+      .where(and(eq(likes.userId, userId), eq(likes.bookId, bookId)));
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to delete like", error);
+    return err({ reason: "Failed to delete like" });
+  }
+};
 
 export const deleteFollow = async (creatorId: string, userId: string) => {
   await db

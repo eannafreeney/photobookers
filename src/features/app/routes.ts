@@ -4,6 +4,7 @@ import {
   getArtistsPage,
   getBookDetailPage,
   getBookPreviewPage,
+  getBooksPage,
   getContactPage,
   getCreatorDetailPage,
   getCreatorSpotlightFragment,
@@ -52,6 +53,7 @@ app.get(
 app.get("/books/tags/:tag", paramValidator(tagSchema), getTagPage);
 app.get("/featured", getFeaturedPage);
 app.get("/feed", getFeedPage);
+app.get("/books", getBooksPage);
 app.get("/library", getLibraryPage);
 app.get("/about", getAboutPage);
 app.get("/contact", getContactPage);

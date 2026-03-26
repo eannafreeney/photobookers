@@ -5,7 +5,7 @@ import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import CarouselMobile from "../../../components/app/CarouselMobile";
 import CreatorCard from "../../../components/app/CreatorCard";
 import PurchaseLink from "../../../components/app/PurchaseLink";
-import ShareButton from "../../../components/app/ShareButton";
+import ShareButton from "../../api/components/ShareButton";
 import TagList from "../../../components/app/TagList";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
@@ -20,6 +20,7 @@ import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import RelatedBooks from "../components/RelatedBooks";
 import CommentsSection from "../components/CommentsSection";
 import FeatureGuard from "../../../components/layouts/FeatureGuard";
+import LikeButton from "../../api/components/LikeButton";
 
 type BookDetailPageProps = {
   user: AuthUser | null;
@@ -125,7 +126,8 @@ const DetailDesktop = ({
               </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex items-center gap-2">
+              <LikeButton isCircleButton book={book} user={user} />
               <CollectButton isCircleButton book={book} user={user} />
               <WishlistButton isCircleButton book={book} user={user} />
               <ShareButton isCircleButton />
@@ -184,6 +186,7 @@ const DetailMobile = ({
       </div>
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
+          <LikeButton book={book} user={user} />
           <CollectButton book={book} user={user} />
           <WishlistButton book={book} user={user} />
         </div>

@@ -10,7 +10,7 @@ import { getThisWeeksBookOfTheWeek } from "../BOTWServices";
 import BookOfTheWeekGrid from "../components/BOTWGrid";
 import DiscoveryTags from "../components/DiscoveryTags";
 import Intersector from "../components/Intersector";
-import { getFirstBookByTag } from "../services";
+import { getFirstBookByTag, getHomepageStats } from "../services";
 
 type Props = {
   user: AuthUser | null;
@@ -26,6 +26,7 @@ const FeaturedBooksPage = async ({ user, currentPath, isMobile }: Props) => {
       <Page>
         <NavTabs currentPath={currentPath} />
         <BookOfTheWeekGrid user={user} isMobile={isMobile} />
+        <HomepageStats />
         <DiscoveryTags />
         <Intersector
           id="featured-books-fragment"
@@ -93,6 +94,32 @@ const DiscoveryCards = async () => {
             </div>
           </Card>
         ))}
+    </div>
+  );
+};
+
+const HomepageStats = async () => {
+  const stats = await getHomepageStats();
+  return (
+    <div class="flex items-center gap-4 my-6 justify-evenly">
+      <a href="/publishers">
+        <div class="flex items-center gap-2 border border-outline rounded-radius px-4 py-2">
+          <p class="text-2xl font-semibold">{stats.publishers}</p>
+          <p class="text-sm text-gray-500">Publishers</p>
+        </div>
+      </a>
+      <a href="/artists">
+        <div class="flex items-center gap-2 border border-outline rounded-radius px-4 py-2">
+          <p class="text-2xl font-semibold">{stats.artists}</p>
+          <p class="text-sm text-gray-500">Artists</p>
+        </div>
+      </a>
+      <a href="/books">
+        <div class="flex items-center gap-2 border border-outline rounded-radius px-4 py-2">
+          <p class="text-2xl font-semibold">{stats.books}</p>
+          <p class="text-sm text-gray-500">Books</p>
+        </div>
+      </a>
     </div>
   );
 };

@@ -71,6 +71,13 @@
       "when": 1774300117100,
       "tag": "0010_young_redwing",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1774518709942,
+      "tag": "0011_magenta_christian_walker",
+      "breakpoints": true
     }
   ]
 }

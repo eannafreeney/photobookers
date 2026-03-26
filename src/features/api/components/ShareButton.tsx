@@ -1,4 +1,4 @@
-import Button from "./Button";
+import Button from "../../../components/app/Button";
 
 type ShareButtonProps = {
   isCircleButton?: boolean;
@@ -42,7 +42,7 @@ const ShareButton = ({ isCircleButton = false }: ShareButtonProps) => {
 
 export default ShareButton;
 
-const shareIcon = (size: number = 5) => (
+const shareIcon = (size: number = 4) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"

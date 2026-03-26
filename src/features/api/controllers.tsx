@@ -4,12 +4,14 @@ import AuthModal from "../../components/app/AuthModal";
 import {
   deleteBookCommentById,
   deleteFollow,
+  deleteLike,
   deleteWishlist,
   getBookCommentById,
   getBookPermissionData,
   getCreatorPermissionData,
   insertBookComment,
   insertFollow,
+  insertLike,
   insertWishlist,
   searchBooks,
 } from "./services";
@@ -40,6 +42,8 @@ import {
 import EditCommentModal from "./modals/EditCommentModal";
 import CommentModal from "./modals/CommentModal";
 import { sendAdminEmail } from "../../lib/sendEmail";
+import LikeButton from "./components/LikeButton";
+import { log } from "console";
 
 const updateCreatorCard = () => "creator:updated";
 const updateLibraryPage = () => "library:updated";
@@ -89,6 +93,50 @@ export const followCreator = async (c: Context) => {
         isCircleButton={buttonType === "circle"}
         variant="mobile"
       />
+    </>,
+  );
+};
+
+export const likeBook = async (c: Context) => {
+  const bookId = c.req.param("bookId");
+  const user = await getUser(c);
+  const userId = user?.id;
+
+  if (!userId) return c.html(<AuthModal action="to like this book." />, 401);
+
+  const body = await c.req.parseBody();
+  const isCurrentlyLiked = body.isLiked === "true";
+  const buttonType = body.buttonType;
+
+  console.log("isCurrentlyLiked", isCurrentlyLiked);
+
+  try {
+    if (isCurrentlyLiked) {
+      await deleteLike(userId, bookId);
+    } else {
+      await insertLike(userId, bookId);
+    }
+  } catch (error) {
+    console.error("Failed to add/remove book like", error);
+    return showErrorAlert(c);
+  }
+
+  const [err, book] = await getBookPermissionData(bookId);
+  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
+
+  const message = isCurrentlyLiked
+    ? `${book.title} has been unliked`
+    : `${book.title} has been liked`;
+
+  return c.html(
+    <>
+      <Alert type="success" message={message} />
+      <LikeButton
+        book={book}
+        user={user}
+        isCircleButton={buttonType === "circle"}
+      />
+      {dispatchEvents([updateLibraryPage()])}
     </>,
   );
 };
