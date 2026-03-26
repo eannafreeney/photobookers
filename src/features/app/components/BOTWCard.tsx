@@ -114,7 +114,7 @@ const BOTWMobileCard = ({ bookOfTheWeek, user, images }: CardProps) => {
         </Card.Text>
       </div>
       <a href={`/books/${book.slug}`}>
-        <CarouselMobile images={[images[0]]} />
+        <CarouselMobile images={[images[0]]} showIndicators={false} />
       </a>
       <Card.Body gap="4">
         <div class="flex items-start justify-between">

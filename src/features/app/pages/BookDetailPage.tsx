@@ -184,13 +184,11 @@ const DetailMobile = ({
           {book.title}
         </div>
       </div>
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-          <LikeButton book={book} user={user} />
-          <CollectButton book={book} user={user} />
-          <WishlistButton book={book} user={user} />
-        </div>
-        <ShareButton />
+      <div class="flex items-center justify-evenly">
+        <LikeButton isCircleButton book={book} user={user} />
+        <CollectButton isCircleButton book={book} user={user} />
+        <WishlistButton isCircleButton book={book} user={user} />
+        <ShareButton isCircleButton />
       </div>
       {book.description && (
         <Card.Description>{book.description}</Card.Description>

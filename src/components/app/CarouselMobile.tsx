@@ -18,23 +18,26 @@ const CarouselMobile = ({
       x-data={`carouselForm(${JSON.stringify(images)})`}
       class="relative w-full overflow-hidden"
     >
-      {/* slides container: one grid cell so height = tallest slide */}
+      {/* slides container: active image controls container height */}
       <div
-        class="grid grid-cols-1 grid-rows-1 col-start-1 row-start-1"
+        class="relative w-full"
         x-on:touchstart="handleTouchStart($event)"
         x-on:touchmove="handleTouchMove($event)"
         x-on:touchend="handleTouchEnd()"
       >
         <template x-for="(slide, index) in slides">
           <div
-            class="col-start-1 row-start-1 flex items-center justify-center min-h-0"
-            x-bind:class="{ 'invisible': currentSlideIndex != index + 1 }"
+            class="w-full flex items-center justify-center min-h-0"
+            x-show="currentSlideIndex === index + 1"
+            x-bind:class="currentSlideIndex === index + 1 ? 'relative z-10' : 'absolute inset-0 z-0 pointer-events-none'"
             {...fadeTransition}
           >
             <img
-              class="max-w-full w-full h-auto object-contain"
+              class="block w-full max-w-full h-auto object-contain"
               x-bind:src="slide.imgSrc"
               x-bind:alt="slide.imgAlt"
+              x-on:load="if (index === 0) isFirstImageLoaded = true"
+              x-on:error="if (index === 0) isFirstImageLoaded = true"
             />
           </div>
         </template>

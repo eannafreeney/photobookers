@@ -1,9 +1,8 @@
 import { AuthUser } from "../../../../types";
 import { Book } from "../../../db/schema";
-import { emptyHeartIcon, fullHeartIcon } from "../../../lib/icons";
-import { canLikeBook, canWishlistBook } from "../../../lib/permissions";
+import { canLikeBook } from "../../../lib/permissions";
 import { isOk } from "../../../lib/result";
-import { findLike, findWishlist } from "../services";
+import { findLike } from "../services";
 import APIButton from "./APIButton";
 import APIButtonCircle from "./APIButtonCircle";
 

@@ -4,7 +4,7 @@ export function registerCarouselForm() {
   Alpine.data("carouselForm", (images: string[] = []) => {
     return {
       autoplayIntervalTime: 4000,
-
+      isFirstImageLoaded: false,
       slides: images.map((image, index) => ({
         imgSrc: image,
         imgAlt: `Image ${index + 1}`,
