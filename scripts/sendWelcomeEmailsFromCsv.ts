@@ -28,8 +28,10 @@ const INPUT_PATH = process.argv[2] ?? "tmp/stub-artists-emails.csv";
 const OUTPUT_PATH = process.argv[3] ?? "tmp/welcome-email-results.csv";
 const LIMIT_ARG = process.argv.find((a) => a.startsWith("--limit="));
 const START_ARG = process.argv.find((a) => a.startsWith("--start="));
+const TO_ARG = process.argv.find((a) => a.startsWith("--to="));
 const LIMIT = LIMIT_ARG ? Number(LIMIT_ARG.split("=")[1]) : 100;
 const START = START_ARG ? Number(START_ARG.split("=")[1]) : 0;
+const OVERRIDE_TO = TO_ARG ? TO_ARG.split("=")[1]?.trim().toLowerCase() : "";
 const DRY_RUN = process.argv.includes("--dry-run");
 
 function sleep(ms: number) {
@@ -74,9 +76,10 @@ async function run() {
     const artistName = (row.artist_name ?? "").trim();
     const profileUrl = (row.profile_url ?? "").trim();
     const recipientEmail = (row.email ?? "").trim().toLowerCase();
+    const targetEmail = OVERRIDE_TO || recipientEmail;
 
     console.log(
-      `[${i + 1}/${selected.length}] ${artistName} -> ${recipientEmail}`,
+      `[${i + 1}/${selected.length}] ${artistName} -> ${targetEmail}${OVERRIDE_TO ? " (override)" : ""}`,
     );
 
     const slug = slugFromProfileUrl(profileUrl);
@@ -84,7 +87,7 @@ async function run() {
       report.push({
         artist_name: artistName,
         profile_url: profileUrl,
-        email: recipientEmail,
+        email: targetEmail,
         status: "failed",
         reason: "Missing or invalid profile_url slug",
       });
@@ -108,7 +111,7 @@ async function run() {
       report.push({
         artist_name: artistName,
         profile_url: profileUrl,
-        email: recipientEmail,
+        email: targetEmail,
         status: "failed",
         reason: "Creator not found by slug",
       });
@@ -119,7 +122,7 @@ async function run() {
       report.push({
         artist_name: artistName || creator.displayName,
         profile_url: profileUrl,
-        email: recipientEmail,
+        email: targetEmail,
         status: "skipped",
         reason: "dry-run",
       });
@@ -128,13 +131,13 @@ async function run() {
 
     const html = generateWelcomeEmailForCreator(creator as any);
     const subject = `Hi ${creator.displayName}! Invitation to Photobookers`;
-    const [sendErr] = await sendEmail(recipientEmail, subject, html);
+    const [sendErr] = await sendEmail(targetEmail, subject, html);
 
     if (sendErr) {
       report.push({
         artist_name: artistName || creator.displayName,
         profile_url: profileUrl,
-        email: recipientEmail,
+        email: targetEmail,
         status: "failed",
         reason: `sendEmail failed: ${sendErr.reason}`,
       });
@@ -146,7 +149,7 @@ async function run() {
       report.push({
         artist_name: artistName || creator.displayName,
         profile_url: profileUrl,
-        email: recipientEmail,
+        email: targetEmail,
         status: "failed",
         reason: `markWelcomeEmailSentAdmin failed: ${markErr.reason}`,
       });
@@ -156,7 +159,7 @@ async function run() {
     report.push({
       artist_name: artistName || creator.displayName,
       profile_url: profileUrl,
-      email: recipientEmail,
+      email: targetEmail,
       status: "sent",
       reason: "sent and marked",
     });
