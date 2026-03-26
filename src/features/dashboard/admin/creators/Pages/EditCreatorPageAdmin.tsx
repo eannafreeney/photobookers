@@ -109,7 +109,7 @@ const CreatorBookList = async ({
     currentPage,
     searchQuery,
   );
-  if (error) return <InfoPage errorMessage={error.reason} user={user} />;
+  if (error) return <></>;
 
   const targetId = "creator-books-table-body";
 

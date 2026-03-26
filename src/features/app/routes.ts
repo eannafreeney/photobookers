@@ -28,7 +28,12 @@ import {
   paramValidator,
   queryValidator,
 } from "../../lib/validator";
-import { contactFormSchema, slugSchema, tagSchema } from "./schema";
+import {
+  contactFormSchema,
+  slugSchema,
+  tagSchema,
+  userUpdateFormSchema,
+} from "./schema";
 import { userIdSchema } from "../../schemas";
 import { z } from "zod";
 
@@ -57,7 +62,7 @@ app.get("/messages", getMessagesFeedPage);
 app.get("/newsletter-confirmation", getNewsletterConfirmationPage);
 app.get(
   "/users/:userId/update",
-  formValidator(z.object({ msg: z.string().optional() })),
+  formValidator(userUpdateFormSchema),
   paramValidator(userIdSchema),
   getUserUpdateModal,
 );

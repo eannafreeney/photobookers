@@ -29,11 +29,11 @@ const WishlistButton = async ({
     <>
       {/* Show empty heart when: not wishlisted OR (wishlisted AND submitting) */}
       <span x-show={isWishlisted ? "isSubmitting" : "!isSubmitting"} x-cloak>
-        {emptyHeartIcon}
+        {emptyHeartIcon()}
       </span>
       {/* Show full heart when: wishlisted OR (!wishlisted AND submitting) */}
       <span x-show={isWishlisted ? "!isSubmitting" : "isSubmitting"} x-cloak>
-        {fullHeartIcon}
+        {fullHeartIcon()}
       </span>
     </>
   );

@@ -57,8 +57,8 @@ const CollectButton = async ({
   };
 
   const tooltipText = isCollected
-    ? "Remove from Collection"
-    : "Add to Collection";
+    ? "Remove from my Collection"
+    : "Add to my Collection";
 
   if (isCircleButton) {
     return (

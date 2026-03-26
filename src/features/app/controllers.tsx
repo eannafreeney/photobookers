@@ -122,7 +122,7 @@ export const getUserUpdateModal = async (c: UserUpdateFormContext) => {
   if (!user) {
     return c.html(
       <>
-        <AuthModal action="to update your profile image." />
+        <AuthModal action="to complete this action." />
         <div id="modal-root"></div>
       </>,
     );

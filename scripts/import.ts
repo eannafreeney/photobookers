@@ -13,8 +13,8 @@ import { createStubCreatorProfileAdmin } from "../src/features/dashboard/admin/c
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "jungle.csv";
-const AMOUNT_OF_BOOKS = 10;
+const SOURCE_CSV_FILE = "gnomicbook.csv";
+const AMOUNT_OF_BOOKS = 11;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -32,8 +32,8 @@ type CsvRow = {
 };
 
 async function getCreatedByUserId(): Promise<string> {
-  const fromEnv = process.env.IMPORT_CREATED_BY_USER_ID;
-  if (fromEnv) return fromEnv;
+  // const fromEnv = process.env.IMPORT_CREATED_BY_USER_ID;
+  // if (fromEnv) return fromEnv;
   const [admin] = await db
     .select({ id: users.id })
     .from(users)

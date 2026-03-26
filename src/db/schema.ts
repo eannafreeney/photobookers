@@ -67,6 +67,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   books: many(books),
   follows: many(follows),
   collections: many(collectionItems),
+  likes: many(likes),
   wishlists: many(wishlists),
   claims: many(creatorClaims),
   comments: many(bookComments),
@@ -180,6 +181,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   }),
   comments: many(bookComments),
   images: many(bookImages),
+  likes: many(likes),
   wishlists: many(wishlists),
   collections: many(collectionItems),
   bookOfTheDay: one(bookOfTheDay),
@@ -338,6 +340,35 @@ export const collectionItemsRelations = relations(
     }),
   }),
 );
+
+export const likes = pgTable(
+  "likes",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    bookId: uuid("book_id")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => {
+    return {
+      pk: primaryKey(table.userId, table.bookId),
+    };
+  },
+);
+
+export const likesRelations = relations(likes, ({ one }) => ({
+  user: one(users, {
+    fields: [likes.userId],
+    references: [users.id],
+  }),
+  book: one(books, {
+    fields: [likes.bookId],
+    references: [books.id],
+  }),
+}));
 
 export const wishlists = pgTable(
   "wishlists",
@@ -527,6 +558,9 @@ export type NewFollow = InferInsertModel<typeof follows>;
 
 export type CollectionItem = InferSelectModel<typeof collectionItems>;
 export type NewCollectionItem = InferInsertModel<typeof collectionItems>;
+
+export type Like = InferSelectModel<typeof likes>;
+export type NewLike = InferInsertModel<typeof likes>;
 
 export type BookImage = InferSelectModel<typeof bookImages>;
 export type NewBookImage = InferInsertModel<typeof bookImages>;

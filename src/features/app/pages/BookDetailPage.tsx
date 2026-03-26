@@ -126,9 +126,9 @@ const DetailDesktop = ({
             </div>
 
             <div class="flex gap-2">
-              <CollectButton book={book} user={user} />
-              <WishlistButton book={book} user={user} />
-              <ShareButton />
+              <CollectButton isCircleButton book={book} user={user} />
+              <WishlistButton isCircleButton book={book} user={user} />
+              <ShareButton isCircleButton />
             </div>
             <div class="flex flex-col gap-4">
               {book.description && (
