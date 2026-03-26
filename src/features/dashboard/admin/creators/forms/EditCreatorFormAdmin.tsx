@@ -53,6 +53,7 @@ const EditCreatorFormAdmin = ({
           <Input label="City" name="form.city" maxLength={50} />
           <CountrySelect />
           <ValidateWebsite />
+          <Input label="Email" name="form.email" type="email" />
           <Input
             label="Facebook"
             name="form.facebook"

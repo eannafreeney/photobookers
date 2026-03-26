@@ -25,7 +25,7 @@ const TextArea = ({
     : {};
 
   return (
-    <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
+    <fieldset class="grid gap-0 text-xs grid-cols-1 auto-rows-max">
       <InputLabel
         label={label}
         maxLength={maxLength}

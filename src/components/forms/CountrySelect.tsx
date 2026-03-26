@@ -10,7 +10,7 @@ const CountrySelect = ({ isRequired = false }: { isRequired?: boolean }) => {
       x-init="options = allOptions"
       x-effect="isOpen && $nextTick(() => $refs.searchField?.focus())"
     >
-      <fieldset class="fieldset py-0">
+      <fieldset class="grid gap-0 text-xs grid-cols-1 auto-rows-max">
         <InputLabel label="Country" name="country" required={isRequired} />
         <div class="relative">
           <TriggerButton />

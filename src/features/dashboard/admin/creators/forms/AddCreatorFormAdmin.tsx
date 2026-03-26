@@ -3,6 +3,7 @@ import SectionTitle from "../../../../../components/app/SectionTitle";
 import Select from "../../../../../components/forms/Select";
 import ValidateDisplayName from "../../../../auth/components/ValidateDisplayName";
 import ValidateWebsite from "../../../../auth/components/ValidateWebsite";
+import Input from "../../../../../components/forms/Input";
 
 const AddCreatorFormAdmin = () => {
   const alpineAttrs = {
@@ -27,9 +28,10 @@ const AddCreatorFormAdmin = () => {
         method="post"
         {...alpineAttrs}
       >
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-2">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-6 gap-y-2">
           <ValidateDisplayName />
           <ValidateWebsite />
+          <Input label="Email" name="form.email" type="email" />
           <Select
             label="Type"
             name="form.type"

@@ -9,6 +9,7 @@ import {
   getCreatorsOverviewPage,
   getCreatorsTableFilter,
   getEditCreatorPageAdmin,
+  sendWelcomeEmailAdmin,
   updateCreatorAdmin,
 } from "./controllers";
 import { creatorIdSchema } from "../../../../schemas";
@@ -35,6 +36,14 @@ adminCreatorsDashboardRoutes.post(
   requireAdminAccess,
   formValidator(creatorFormAdminSchema),
   createCreatorAdmin,
+);
+
+// ---------- Send Welcome Email (POST) ----------
+adminCreatorsDashboardRoutes.post(
+  "/:creatorId/send-welcome-email",
+  paramValidator(creatorIdSchema),
+  requireAdminAccess,
+  sendWelcomeEmailAdmin,
 );
 
 // ---------- Delete (POST) ----------

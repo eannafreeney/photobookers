@@ -78,6 +78,20 @@
       "when": 1774518709942,
       "tag": "0011_magenta_christian_walker",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1774518709942,
+      "tag": "0012_creator_weclcome_email",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1774528004905,
+      "tag": "0013_overrated_quentin_quire",
+      "breakpoints": true
     }
   ]
 }

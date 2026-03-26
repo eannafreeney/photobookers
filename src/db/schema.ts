@@ -92,6 +92,8 @@ export const creators = pgTable(
     instagram: text("instagram"),
     website: text("website"),
     sortName: varchar("sort_name", { length: 255 }),
+    email: text("email"),
+    welcomeEmailSent: timestamp("welcome_email_sent"),
     createdByUserId: uuid("created_by_user_id")
       .references(() => users.id)
       .notNull(),

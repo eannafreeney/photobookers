@@ -9,7 +9,10 @@ export const manualAssignCreatorSchema = z.object({
 // ============ CREATOR FORM ADMIN SCHEMA ============
 export const creatorFormAdminSchema = z.object({
   displayName: requiredText,
-  website: z.url("Please enter a valid URL (e.g., https://example.com)"),
+  website: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+    z.url("Please enter a valid URL (e.g., https://example.com)").optional(),
+  ),
   type: z.enum(["artist", "publisher"]).default("artist"),
   tagline: optionalText,
   bio: optionalText,
@@ -18,4 +21,8 @@ export const creatorFormAdminSchema = z.object({
   facebook: optionalText,
   twitter: optionalText,
   instagram: optionalText,
+  email: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+    z.email("Please enter a valid email").optional(),
+  ),
 });

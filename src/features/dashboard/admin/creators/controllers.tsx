@@ -10,6 +10,7 @@ import {
   deleteCreatorByIdAdmin,
   getAllUserProfilesAdmin,
   getCreatorByIdAdmin,
+  markWelcomeEmailSentAdmin,
   updateCreatorProfileAdmin,
 } from "./services";
 import {
@@ -24,6 +25,9 @@ import { Context } from "hono";
 import AdminCreatorsTableAndFilter from "./components/AdminCreatorsTableAndFilter";
 import { assignUserAsCreatorOwnerAdmin } from "../claims/services";
 import AssignOwnerModalContent from "./components/AssignOwnerModalContent";
+import { generateWelcomeEmail } from "./emails";
+import { sendEmail } from "../../../../lib/sendEmail";
+import SendWelcomeEmailButton from "./components/SendWelcomeEmailButton";
 
 export const getCreatorsOverviewPage = async (c: Context) => {
   const user = await getUser(c);
@@ -107,10 +111,17 @@ export const createCreatorAdmin = async (c: CreateCreatorAdminContext) => {
   const displayName = formData.displayName;
   const website = formData.website;
   const type = formData.type;
+  const email = formData.email;
 
-  try {
-    await createStubCreatorProfileAdmin(displayName, user.id, type, website);
-  } catch (error) {
+  const [error, newCreator] = await createStubCreatorProfileAdmin(
+    displayName,
+    user.id,
+    type,
+    website,
+    email,
+  );
+
+  if (error || !newCreator) {
     return showErrorAlert(
       c,
       "Failed to create stub creator profile. Please try again.",
@@ -181,4 +192,37 @@ export const assignOwnerAdmin = async (c: AssignOwnerContext) => {
   }
 
   return showSuccessAlert(c, "Creator assigned!");
+};
+
+export const sendWelcomeEmailAdmin = async (c: CreatorIdContext) => {
+  const creatorId = c.req.valid("param").creatorId;
+  const creator = await getCreatorByIdAdmin(creatorId);
+  if (!creator) {
+    return showErrorAlert(c, "Creator not found");
+  }
+
+  const user = await getUser(c);
+  if (!user) {
+    return showErrorAlert(c, "User not found");
+  }
+  // send welcome email to creator
+  const emailHTML = generateWelcomeEmail(creator);
+
+  if (!creator.email) return showErrorAlert(c, "Creator has no email");
+
+  await sendEmail(
+    creator?.email,
+    `Hi ${creator.displayName}! Invitation to Photobookers`,
+    emailHTML,
+  );
+
+  const [error] = await markWelcomeEmailSentAdmin(creatorId);
+  if (error) return showErrorAlert(c, "Failed to mark welcome email sent");
+
+  return c.html(
+    <>
+      <Alert type="success" message="Welcome email sent!" />
+      <SendWelcomeEmailButton creator={creator} />
+    </>,
+  );
 };

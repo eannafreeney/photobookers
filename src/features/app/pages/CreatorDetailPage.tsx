@@ -49,7 +49,7 @@ const CreatorDetailPage = async ({
           <div class="md:w-4/5 flex flex-col gap-4">
             <BooksGrid
               isFullWidth={false}
-              title={isMobile ? undefined : creator.displayName}
+              title={isMobile ? undefined : "Books"}
               user={user}
               currentPath={currentPath}
               result={{ ...rest }}

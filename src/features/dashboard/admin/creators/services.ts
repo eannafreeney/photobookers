@@ -97,17 +97,25 @@ export const createStubCreatorProfileAdmin = async (
   userId: string,
   type: "publisher" | "artist",
   website?: string,
+  email?: string,
 ) => {
-  return await createCreatorProfileAdmin({
-    displayName: displayName.trim(),
-    slug: slugify(displayName),
-    coverUrl: getRandomCoverUrl(),
-    ownerUserId: null,
-    type,
-    status: "stub",
-    createdByUserId: userId,
-    website: website || null,
-  });
+  try {
+    const newCreator = await createCreatorProfileAdmin({
+      displayName: displayName.trim(),
+      slug: slugify(displayName),
+      coverUrl: getRandomCoverUrl(),
+      ownerUserId: null,
+      type,
+      status: "stub",
+      createdByUserId: userId,
+      website: website || null,
+      email: email || null,
+    });
+    return ok(newCreator);
+  } catch (error) {
+    console.error("Failed to create artist", error);
+    return err({ reason: "Failed to create artist", cause: error });
+  }
 };
 
 export const createCreatorProfileAdmin = async (input: NewCreator) => {
@@ -161,6 +169,7 @@ export const updateCreatorProfileAdmin = async (
       facebook: updateableFields.facebook || null,
       twitter: updateableFields.twitter || null,
       instagram: updateableFields.instagram || null,
+      email: updateableFields.email || null,
       updatedAt: new Date(),
     };
 
@@ -234,11 +243,14 @@ export const resolveArtist = async (
 
   // Create new stub artist
   if (new_artist_name) {
-    const creator = await createStubCreatorProfileAdmin(
+    const [error, creator] = await createStubCreatorProfileAdmin(
       new_artist_name,
       userId,
       "artist",
     );
+    if (error || !creator) {
+      return "error";
+    }
     return creator?.type === "artist" ? creator : "error";
   }
 
@@ -267,11 +279,14 @@ export const resolvePublisher = async (
 
   // Create new stub publisher
   if (new_publisher_name) {
-    const publisher = await createStubCreatorProfileAdmin(
+    const [error, publisher] = await createStubCreatorProfileAdmin(
       new_publisher_name,
       userId,
       "publisher",
     );
+    if (error || !publisher) {
+      return "error";
+    }
     return publisher?.type === "publisher" ? publisher : "error";
   }
 
@@ -321,5 +336,19 @@ export const getBooksByCreatorId = async (
   } catch (error) {
     console.error("Failed to get books by creator id", error);
     return err({ reason: "Failed to get books by creator id", cause: error });
+  }
+};
+
+export const markWelcomeEmailSentAdmin = async (creatorId: string) => {
+  try {
+    await db
+      .update(creators)
+      .set({ welcomeEmailSent: new Date() })
+      .where(eq(creators.id, creatorId));
+
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to mark welcome email sent", error);
+    return err({ reason: "Failed to mark welcome email sent", cause: error });
   }
 };
