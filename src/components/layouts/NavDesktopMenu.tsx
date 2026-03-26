@@ -4,8 +4,6 @@ import { useUser } from "../../contexts/UserContext";
 import Button from "../app/Button";
 import NavAvatar from "../app/NavAvatar";
 import FeatureGuard from "./FeatureGuard";
-import { log } from "console";
-import Link from "../app/Link";
 
 type Props = {
   currentPath?: string | null;
@@ -57,7 +55,13 @@ type NavLinkProps = {
   [key: string]: any;
 };
 
-const NavLink = ({ href, children, currentPath, xTarget, ...props }: NavLinkProps) => {
+const NavLink = ({
+  href,
+  children,
+  currentPath,
+  xTarget,
+  ...props
+}: NavLinkProps) => {
   const isActive = currentPath === href;
 
   return (
@@ -109,13 +113,10 @@ const DropDownMenu = ({
         </div>
       </li>
       {user?.id && !user.creator && (
-            <NavLink
-              href={`/users/${user?.id}/update`}
-              xTarget="modal-root"
-            >
-              Edit Profile
-            </NavLink>
-          )}
+        <NavLink href={`/users/${user?.id}/update`} xTarget="modal-root">
+          Edit Profile
+        </NavLink>
+      )}
       {user.creator?.id && (
         <>
           <NavLink href="/dashboard/books" currentPath={currentPath}>

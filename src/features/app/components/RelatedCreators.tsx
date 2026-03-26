@@ -12,7 +12,7 @@ const CreatorsGrid = async ({ creators, title }: Props) => {
   if (creators.length === 0) return <></>;
 
   return (
-    <section class="my-4">
+    <section>
       {title && <SectionTitle className="mb-2">{title}</SectionTitle>}
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {creators.map((creator) => (

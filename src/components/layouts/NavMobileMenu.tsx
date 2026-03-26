@@ -139,12 +139,12 @@ const MobileDropDownMenu = ({
         </NavLink>
       )}
 
-      {/* <NavLink href="/artists" currentPath={currentPath}>
+      <NavLink href="/artists" currentPath={currentPath}>
         Artists
       </NavLink>
       <NavLink href="/publishers" currentPath={currentPath}>
         Publishers
-      </NavLink> */}
+      </NavLink>
       <NavLink href="/about" currentPath={currentPath}>
         About
       </NavLink>
