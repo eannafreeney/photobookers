@@ -43,6 +43,7 @@ export const getUsersPageAdmin = async (c: Context) => {
 export const createNewUserAdmin = async (c: UserFormContext) => {
   const formData = c.req.valid("form");
   const { email, creatorId } = formData;
+
   const temporaryPassword = crypto.randomUUID();
 
   const [createAuthError, authData] = await createAuthUser(
@@ -50,9 +51,7 @@ export const createNewUserAdmin = async (c: UserFormContext) => {
     formData,
   );
 
-  if (createAuthError || !authData) {
-    return showErrorAlert(c, "Failed to create auth user");
-  }
+  if (createAuthError) return showErrorAlert(c, "Failed to create auth user");
 
   const authUserId = authData.data.user.id;
 
@@ -60,11 +59,8 @@ export const createNewUserAdmin = async (c: UserFormContext) => {
 
   if (creatorId) {
     const [error, foundCreator] = await getCreatorById(creatorId);
-    if (error || !foundCreator) {
-      return showErrorAlert(c, "Creator not found");
-    }
+    if (error || !foundCreator) return showErrorAlert(c, "Creator not found");
     creator = foundCreator;
-    await assignUserAsCreatorOwnerAdmin(authUserId, creator.id);
   }
 
   const [createUserError, newUser] = await createUserWithAuthId(
@@ -75,8 +71,16 @@ export const createNewUserAdmin = async (c: UserFormContext) => {
     },
   );
 
-  if (createUserError || !newUser) {
+  if (createUserError || !newUser)
     return showErrorAlert(c, "Failed to create user");
+
+  if (creator) {
+    const [assignError] = await assignUserAsCreatorOwnerAdmin(
+      authUserId,
+      creator.id,
+    );
+    if (assignError)
+      return showErrorAlert(c, "Failed to assign user as creator owner");
   }
 
   return c.html(
