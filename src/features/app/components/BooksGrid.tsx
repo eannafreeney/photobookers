@@ -1,9 +1,11 @@
 import { AuthUser } from "../../../../types";
 import BookCard from "../../../components/app/BookCard";
 import GridPanel from "../../../components/app/GridPanel";
+import { InfiniteScroll } from "../../../components/app/InfiniteScroll";
 import { Pagination } from "../../../components/app/Pagination";
 import SectionTitle from "../../../components/app/SectionTitle";
 import { BookCardResult } from "../../../constants/queries";
+import ListNavigation from "./ListNavigation";
 
 type Props = {
   user: AuthUser | null;
@@ -17,6 +19,7 @@ type Props = {
   noResultsMessage?: string;
   currentCreatorId?: string | null;
   isFullWidth?: boolean;
+  isInfiniteScroll?: boolean;
 };
 
 const BooksGrid = async ({
@@ -27,6 +30,7 @@ const BooksGrid = async ({
   title,
   noResultsMessage = "No books found",
   currentCreatorId,
+  isInfiniteScroll = false,
 }: Props) => {
   const { books, totalPages, page } = result;
   const targetId = "books-grid";
@@ -53,8 +57,9 @@ const BooksGrid = async ({
             </div>
           )}
         </GridPanel>
-        <Pagination
-          baseUrl={currentPath}
+        <ListNavigation
+          isInfiniteScroll={isInfiniteScroll}
+          currentPath={currentPath}
           page={page}
           totalPages={totalPages}
           targetId={targetId}

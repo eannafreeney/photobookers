@@ -23,6 +23,7 @@ const BooksPage = async ({ user, currentPath, currentPage }: Props) => {
           user={user}
           currentPath={currentPath}
           result={result}
+          isInfiniteScroll
         />
       </Page>
     </AppLayout>

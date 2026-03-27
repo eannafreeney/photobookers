@@ -27,6 +27,7 @@ import { match } from "../../lib/result";
 import UpdateUserModal from "./modals/UpdateUser";
 import AuthModal from "../../components/app/AuthModal";
 import BooksPage from "./pages/BooksPage";
+import StatsFragment from "./fragments/Stats";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -298,6 +299,10 @@ export const getLatestBooksFragment = async (c: Context) => {
       currentPath={currentPath}
     />,
   );
+};
+
+export const getStatsFragment = async (c: Context) => {
+  return c.html(<StatsFragment />);
 };
 
 export const getFeaturedBooksFragment = async (c: Context) => {

@@ -18,6 +18,7 @@ import {
   getNewsletterConfirmationPage,
   getPublishersPage,
   getRelatedBooksFragment,
+  getStatsFragment,
   getTagPage,
   getTermsPage,
   getUserUpdateModal,
@@ -76,6 +77,7 @@ app.post("/contact", formValidator(contactFormSchema), processContact);
 app.get("/fragments/latest-books", getLatestBooksFragment);
 app.get("/fragments/featured-books", getFeaturedBooksFragment);
 app.get("/fragments/creator-spotlights", getCreatorSpotlightFragment);
+app.get("/fragments/stats", getStatsFragment);
 app.get(
   "/fragments/related-books/:slug",
   paramValidator(slugSchema),
