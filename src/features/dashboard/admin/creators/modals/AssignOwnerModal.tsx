@@ -7,7 +7,7 @@ type Props = {
 
 const AssignOwnerModal = ({ creatorName, creatorId }: Props) => {
   return (
-    <Modal title={`Assign User as Owner of ${creatorName}`}>
+    <Modal title={`Assign User as Owner of creator: ${creatorName}`}>
       <div
         id="assign-owner-content"
         class="h-24"

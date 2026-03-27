@@ -14,6 +14,7 @@ import {
   getAllCreatorProfilesByTypeAdmin,
   getUserByIdAdmin,
 } from "../services";
+import RemoveOwnerButton from "./RemoveOwnerButton";
 import SendWelcomeEmailButton from "./SendWelcomeEmailButton";
 
 type Props = {
@@ -129,6 +130,9 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <SendWelcomeEmailButton creator={creator} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <RemoveOwnerButton creatorId={creator.id} />
       </Table.BodyRow>
       <Table.BodyRow>
         <a href={`/dashboard/admin/creators/${creator.id}/update`}>

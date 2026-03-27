@@ -11,6 +11,7 @@ import {
   getAllUserProfilesAdmin,
   getCreatorByIdAdmin,
   markWelcomeEmailSentAdmin,
+  removeCreatorOwnerAdminDB,
   updateCreatorProfileAdmin,
 } from "./services";
 import {
@@ -28,6 +29,7 @@ import AssignOwnerModalContent from "./components/AssignOwnerModalContent";
 import { generateWelcomeEmail } from "./emails";
 import { sendEmail } from "../../../../lib/sendEmail";
 import SendWelcomeEmailButton from "./components/SendWelcomeEmailButton";
+import { dispatchEvents } from "../../../../lib/disatchEvents";
 
 export const getCreatorsOverviewPage = async (c: Context) => {
   const user = await getUser(c);
@@ -227,6 +229,20 @@ export const sendWelcomeEmailAdmin = async (c: CreatorIdContext) => {
     <>
       <Alert type="success" message="Welcome email sent!" />
       <SendWelcomeEmailButton creator={creator} />
+    </>,
+  );
+};
+
+export const removeCreatorOwnerAdmin = async (c: CreatorIdContext) => {
+  const creatorId = c.req.valid("param").creatorId;
+  const [error, creator] = await removeCreatorOwnerAdminDB(creatorId);
+  if (error || !creator)
+    return showErrorAlert(c, "Failed to remove creator owner");
+
+  return c.html(
+    <>
+      <Alert type="success" message="Creator owner removed!" />
+      {dispatchEvents(["creators:updated"])}
     </>,
   );
 };

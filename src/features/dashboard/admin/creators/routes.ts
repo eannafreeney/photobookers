@@ -9,6 +9,7 @@ import {
   getCreatorsOverviewPage,
   getCreatorsTableFilter,
   getEditCreatorPageAdmin,
+  removeCreatorOwnerAdmin,
   sendWelcomeEmailAdmin,
   updateCreatorAdmin,
 } from "./controllers";
@@ -44,6 +45,14 @@ adminCreatorsDashboardRoutes.post(
   paramValidator(creatorIdSchema),
   requireAdminAccess,
   sendWelcomeEmailAdmin,
+);
+
+// ---------- Remove Owner (POST) ----------
+adminCreatorsDashboardRoutes.post(
+  "/:creatorId/remove-owner",
+  paramValidator(creatorIdSchema),
+  requireAdminAccess,
+  removeCreatorOwnerAdmin,
 );
 
 // ---------- Delete (POST) ----------

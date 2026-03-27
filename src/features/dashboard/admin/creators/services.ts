@@ -14,6 +14,26 @@ import { getCreatorById } from "../../creators/services";
 import { getPagination } from "../../../../lib/pagination";
 import { err, ok } from "../../../../lib/result";
 
+export const removeCreatorOwnerAdminDB = async (creatorId: string) => {
+  try {
+    const [updatedCreator] = await db
+      .update(creators)
+      .set({
+        ownerUserId: null,
+        status: "stub",
+      })
+      .where(eq(creators.id, creatorId))
+      .returning();
+    if (!updatedCreator) {
+      return err({ reason: "Creator not found", cause: undefined });
+    }
+    return ok(updatedCreator);
+  } catch (error) {
+    console.error("Failed to remove creator owner", error);
+    return err({ reason: "Failed to remove creator owner", cause: error });
+  }
+};
+
 export const getAllUserProfilesAdmin = async (): Promise<
   Pick<User, "id" | "email" | "firstName" | "lastName">[]
 > => {
