@@ -30,6 +30,7 @@ import { generateWelcomeEmail } from "./emails";
 import { sendEmail } from "../../../../lib/sendEmail";
 import SendWelcomeEmailButton from "./components/SendWelcomeEmailButton";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
+import OwnerCell from "./components/OwnerCell";
 
 export const getCreatorsOverviewPage = async (c: Context) => {
   const user = await getUser(c);
@@ -245,7 +246,7 @@ export const removeCreatorOwnerAdmin = async (c: CreatorIdContext) => {
         type="success"
         message={`user removed as owner of creator: ${creator.displayName}`}
       />
-      {dispatchEvents(["creators:updated"])}
+      <OwnerCell ownerUserId={null} creatorId={creatorId} />
     </>,
   );
 };

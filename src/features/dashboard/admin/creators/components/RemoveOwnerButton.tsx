@@ -8,7 +8,7 @@ type Props = {
 const RemoveOwnerButton = ({ creatorId }: Props) => {
   const alpineAttrs = {
     "x-init": "true",
-    "x-target": "toast",
+    "x-target": `creator-owner-${creatorId}`,
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
   };
   return (

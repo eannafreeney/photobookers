@@ -17,6 +17,7 @@ import {
 import RemoveOwnerButton from "./RemoveOwnerButton";
 import SendWelcomeEmailButton from "./SendWelcomeEmailButton";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
+import OwnerCell from "./OwnerCell";
 
 type Props = {
   type?: "artist" | "publisher" | undefined;
@@ -110,7 +111,12 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>{capitalize(creator.type)}</Table.BodyRow>
       <Table.BodyRow>
-        <Link href={creator.website ?? ""} target="_blank">
+        <Link
+          href={creator.website ?? ""}
+          target="_blank"
+          title={creator.website ?? "Unassigned"}
+          className="inline-block max-w-[180px] truncate"
+        >
           {creator.website}
         </Link>
       </Table.BodyRow>
@@ -142,41 +148,6 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
         />
       </Table.BodyRow>
     </tr>
-  );
-};
-
-type AssignOwnerCellProps = {
-  ownerUserId?: string | null;
-  creatorId: string;
-};
-
-const OwnerCell = async ({ ownerUserId, creatorId }: AssignOwnerCellProps) => {
-  // if not owned, assign owner button that opens a modal to assign an owner (user)
-  if (ownerUserId) {
-    const user = await getUserByIdAdmin(ownerUserId);
-    return (
-      <div class="flex items-center gap-2">
-        <Link
-          href={`/dashboard/admin/users/${ownerUserId}`}
-          title={user?.email ?? "Unassigned"}
-          className="inline-block max-w-[180px] truncate"
-        >
-          {user?.email ?? "Unassigned"}
-        </Link>
-        <RemoveOwnerButton creatorId={creatorId} />
-      </div>
-    );
-  }
-
-  return (
-    <a
-      href={`/dashboard/admin/creators/assign-owner/${creatorId}`}
-      x-target="modal-root"
-    >
-      <Button variant="outline" color="inverse">
-        <span>Assign Owner</span>
-      </Button>
-    </a>
   );
 };
 

@@ -19,7 +19,7 @@ export const InfiniteScroll = ({
       class="flex items-center justify-center gap-2"
       x-init
       {...(page < totalPages && {
-        "x-intersect": `$ajax('${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${page + 1}', { target: 'pagination ${targetId}' })`,
+        "x-intersect.margin.500px": `$ajax('${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${page + 1}', { target: 'pagination ${targetId}' })`,
       })}
     >
       {`${page} of ${totalPages}`} {page < totalPages && loadingIcon}
