@@ -1,6 +1,7 @@
 import { AuthUser } from "../../../../../../types";
 import Button from "../../../../../components/app/Button";
 import Card from "../../../../../components/app/Card";
+import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import Link from "../../../../../components/app/Link";
 import { Pagination } from "../../../../../components/app/Pagination";
 import Table from "../../../../../components/app/Table";
@@ -70,13 +71,13 @@ const AdminBooksTableAndFilter = async ({
               <Table.HeadRow>Actions</Table.HeadRow>
             </tr>
           </Table.Head>
-          <Table.Body id={targetId} {...tableBodyAttrs}>
+          <Table.Body id={targetId} {...tableBodyAttrs} xMerge="append">
             {books.map((book) => (
               <BooksTableRow key={book.id} book={book} user={user} />
             ))}
           </Table.Body>
         </Table>
-        <Pagination
+        <InfiniteScroll
           baseUrl={currentPath}
           page={page}
           totalPages={totalPages}

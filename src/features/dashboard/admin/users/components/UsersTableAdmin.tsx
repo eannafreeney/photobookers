@@ -8,6 +8,7 @@ import { getAllUsersAdmin } from "../services";
 import CreatorStatusBadge from "../../components/CreatorStatusBadge";
 import { Pagination } from "../../../../../components/app/Pagination";
 import { Creator, User } from "../../../../../db/schema";
+import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 
 type Props = {
   searchQuery?: string;
@@ -65,13 +66,13 @@ const UsersTableAdmin = async ({
             <Table.HeadRow>Creator Status</Table.HeadRow>
           </tr>
         </Table.Head>
-        <Table.Body id={targetId} {...alpineAttrs}>
+        <Table.Body id={targetId} {...alpineAttrs} xMerge="append">
           {users.map((user) => (
             <UserTableRow key={user.id} user={user} />
           ))}
         </Table.Body>
       </Table>
-      <Pagination
+      <InfiniteScroll
         baseUrl={currentPath}
         page={page}
         totalPages={totalPages}

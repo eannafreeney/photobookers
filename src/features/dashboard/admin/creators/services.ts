@@ -83,7 +83,7 @@ export const getAllCreatorProfilesByTypeAdmin = async (
   const { page, limit, offset, totalPages } = getPagination(
     currentPage,
     totalCount,
-    30,
+    20,
   );
 
   const foundCreators = await db.query.creators.findMany({

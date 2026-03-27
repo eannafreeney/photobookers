@@ -16,6 +16,7 @@ import {
 } from "../services";
 import RemoveOwnerButton from "./RemoveOwnerButton";
 import SendWelcomeEmailButton from "./SendWelcomeEmailButton";
+import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 
 type Props = {
   type?: "artist" | "publisher" | undefined;
@@ -73,13 +74,13 @@ const AdminCreatorsTableAndFilter = async ({
               <Table.HeadRow>Actions</Table.HeadRow>
             </tr>
           </Table.Head>
-          <Table.Body id={targetId} {...tableBodyAttrs}>
+          <Table.Body id={targetId} {...tableBodyAttrs} xMerge="append">
             {creators.map((creator) => (
               <CreatorsTableRow creator={creator} />
             ))}
           </Table.Body>
         </Table>
-        <Pagination
+        <InfiniteScroll
           baseUrl={currentPath}
           page={page}
           totalPages={totalPages}
