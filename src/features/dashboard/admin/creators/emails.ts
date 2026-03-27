@@ -1,8 +1,8 @@
 import { Creator } from "../../../../db/schema";
 
-export const generateWelcomeEmail = (creator: Creator) => {
+export const generateWelcomeEmail = (creator: Creator, loginLink: string) => {
   const creatorName = creator.displayName;
-  const profileUrl = `${process.env.SITE_URL ?? "https://photobookers.com"}/creators/${creator.slug}`;
+  const profileUrl = `https://photobookers.com/creators/${creator.slug}`;
   return `
       <p>Hi ${creatorName},</p>
       <p>I hope you are well.</p>
@@ -30,6 +30,9 @@ export const generateWelcomeEmail = (creator: Creator) => {
         I have already created a profile for you with a small selection of your books.
       </p>
       <p>
+        <a href="${loginLink}">Log in to your account</a> to claim and edit your profile.
+      </p>
+      <p>
         You are very welcome to claim and edit the page here:<br />
         <a href="${profileUrl}">View Profile</a>
       </p>
@@ -44,28 +47,36 @@ export const generateWelcomeEmail = (creator: Creator) => {
     `;
 };
 
-export const generateWelcomeEmailForCreator = (creator: Creator) => {
+export const generateWelcomeEmailForCreator = (
+  creator: Creator,
+  loginLink: string,
+) => {
   const creatorName = creator.displayName;
   const profileUrl = `https://photobookers.com/creators/${creator.slug}`;
   return `
     <p>Hi ${creatorName},</p>
-      <p>I hope you are well. Please forgive the cold email.</p>
-      <p>
-        I am writing today to share your Photobookers profile with you and to invite you to claim and edit it.
+      <p>I hope you are well. Please forgive the cold email.
+        I am writing today to share your Photobookers profile with you.
       </p>
       <p>
-        I am the founder of the independent publisher
+        About me: I am the founder of the independent publisher
         The Velvet Cell (Berlin/Bremen), which I stepped away from in 2025 to focus on new projects.
       </p>
       <p>
         I am now building Photobookers, a platform for discovering photobooks and following
-        the artists and publishers behind them — something closer in spirit to Bandcamp, but for photobooks.
+        the artists and publishers behind them — something close in spirit to Bandcamp, but for photobooks.
+      </p>
+      <p>
+        View your profile here: <br/>
+        <a href="${profileUrl}">View Profile</a>
+      </p>
+      <p>
+        <a href="${loginLink}">Log in to your account</a> to claim and edit your profile.
       </p>
       <p>The idea is to create a dedicated space where artists and publishers can:</p>
       <ul>
         <li>Share their books and catalogues</li>
         <li>Connect with fans directly</li>
-        <li>Stay informed about new releases</li>
         <li>Get discovered by new collectors</li>
       </ul>
       <p>...and collectors can:</p>
@@ -83,11 +94,6 @@ export const generateWelcomeEmailForCreator = (creator: Creator) => {
         I would love to include you as part of the platform.
         I have already created a profile for you with a small selection of your books.
       </p>
-      <p>
-        You are very welcome to claim and edit the page here:<br />
-        <a href="${profileUrl}">View Profile</a>
-      </p>
-      <p>— or just reply and I can set it up for you.</p>
       <p>
         We are still in an early phase, but building something thoughtful for the photobook community is the goal.
       </p>

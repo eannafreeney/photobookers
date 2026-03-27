@@ -6,8 +6,11 @@ import { db } from "../src/db/client";
 import { creators } from "../src/db/schema";
 import { sendEmail } from "../src/lib/sendEmail";
 import {
-  generateWelcomeEmailForCreator,
-} from "../src/features/dashboard/admin/creators/emails";
+  createAuthUser,
+  createUserWithAuthId,
+} from "../src/features/dashboard/admin/users/services";
+import { assignUserAsCreatorOwnerAdmin } from "../src/features/dashboard/admin/claims/services";
+import { generateWelcomeEmailForCreator } from "../src/features/dashboard/admin/creators/emails";
 import { markWelcomeEmailSentAdmin } from "../src/features/dashboard/admin/creators/services";
 
 type InputRow = {
@@ -33,6 +36,7 @@ const LIMIT = LIMIT_ARG ? Number(LIMIT_ARG.split("=")[1]) : 100;
 const START = START_ARG ? Number(START_ARG.split("=")[1]) : 0;
 const OVERRIDE_TO = TO_ARG ? TO_ARG.split("=")[1]?.trim().toLowerCase() : "";
 const DRY_RUN = process.argv.includes("--dry-run");
+const SITE_URL = "https://photobookers.com";
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -59,11 +63,13 @@ async function run() {
     trim: true,
   }) as InputRow[];
 
-  const withEmail = rows.filter((r) => (r.email ?? "").trim().length > 0);
-  const selected = withEmail.slice(START, START + LIMIT);
+  const selectedWindow = rows.slice(START, START + LIMIT);
+  const rowsToProcess = selectedWindow.filter(
+    (r) => (r.email ?? "").trim().length > 0,
+  );
 
   console.log(
-    `Loaded ${rows.length} rows; ${withEmail.length} have email; processing ${selected.length} starting at index ${START}.`,
+    `Loaded ${rows.length} rows; window=${selectedWindow.length} (start=${START}, limit=${LIMIT}); ${rowsToProcess.length} rows in window have email.`,
   );
   if (DRY_RUN) {
     console.log("Dry run mode enabled: emails will not be sent.");
@@ -71,17 +77,18 @@ async function run() {
 
   const report: ReportRow[] = [];
 
-  for (let i = 0; i < selected.length; i++) {
-    const row = selected[i];
+  for (let i = 0; i < rowsToProcess.length; i++) {
+    const row = rowsToProcess[i];
     const artistName = (row.artist_name ?? "").trim();
     const profileUrl = (row.profile_url ?? "").trim();
     const recipientEmail = (row.email ?? "").trim().toLowerCase();
     const targetEmail = OVERRIDE_TO || recipientEmail;
 
     console.log(
-      `[${i + 1}/${selected.length}] ${artistName} -> ${targetEmail}${OVERRIDE_TO ? " (override)" : ""}`,
+      `[${i + 1}/${rowsToProcess.length}] ${artistName} -> ${targetEmail}${OVERRIDE_TO ? " (override)" : ""}`,
     );
 
+    // GET CREATOR SLUG
     const slug = slugFromProfileUrl(profileUrl);
     if (!slug) {
       report.push({
@@ -94,6 +101,7 @@ async function run() {
       continue;
     }
 
+    // GET ARTIST BY SLUG
     const creatorRows = await db
       .select({
         id: creators.id,
@@ -129,7 +137,80 @@ async function run() {
       continue;
     }
 
-    const html = generateWelcomeEmailForCreator(creator as any);
+    const temporaryPassword = crypto.randomUUID();
+
+    // CREATE AUTH USER IN SUPABASE
+    const [createAuthError, authData] = await createAuthUser(
+      temporaryPassword,
+      {
+        email: targetEmail,
+        firstName: undefined,
+        lastName: undefined,
+        // creatorId: creator.id,
+      },
+    );
+
+    if (createAuthError || !authData) {
+      report.push({
+        artist_name: artistName || creator.displayName,
+        profile_url: profileUrl,
+        email: targetEmail,
+        status: "failed",
+        reason: "Failed to create auth user",
+      });
+      continue;
+    }
+
+    // GET AUTH USER ID
+    const authUserId = authData.data.user.id;
+
+    // CREATE APP USER ROW (MUST RESET PASSWORD)
+    const [createUserErr] = await createUserWithAuthId(
+      authUserId,
+      {
+        email: targetEmail,
+        firstName: undefined,
+        lastName: undefined,
+        // creatorId: creator.id,
+      },
+      { mustResetPassword: true },
+    );
+
+    if (createUserErr) {
+      report.push({
+        artist_name: artistName || creator.displayName,
+        profile_url: profileUrl,
+        email: targetEmail,
+        status: "failed",
+        reason: `Failed to create app user: ${createUserErr.reason}`,
+      });
+      continue;
+    }
+
+    // ASSIGN USER AS OWNER OF CREATOR
+    const [assignErr] = await assignUserAsCreatorOwnerAdmin(
+      authUserId,
+      creator.id,
+    );
+
+    if (assignErr) {
+      report.push({
+        artist_name: artistName || creator.displayName,
+        profile_url: profileUrl,
+        email: targetEmail,
+        status: "failed",
+        reason: `Failed to assign owner: ${assignErr.reason}`,
+      });
+      continue;
+    }
+
+    // GENERATE LOGIN LINK
+    const loginLink = `${SITE_URL}/auth/login?email=${encodeURIComponent(targetEmail)}&password=${encodeURIComponent(temporaryPassword)}`;
+
+    // GENERATE WELCOME EMAIL
+    const html = generateWelcomeEmailForCreator(creator as any, loginLink);
+
+    // SEND EMAIL
     const subject = `Hi ${creator.displayName}! Invitation to Photobookers`;
     const [sendErr] = await sendEmail(targetEmail, subject, html);
 
@@ -144,14 +225,15 @@ async function run() {
       continue;
     }
 
+    // MARK WELCOME EMAIL AS SENT
     const [markErr] = await markWelcomeEmailSentAdmin(creator.id);
     if (markErr) {
       report.push({
         artist_name: artistName || creator.displayName,
         profile_url: profileUrl,
         email: targetEmail,
-        status: "failed",
-        reason: `markWelcomeEmailSentAdmin failed: ${markErr.reason}`,
+        status: "sent",
+        reason: `sent, but markWelcomeEmailSentAdmin failed: ${markErr.reason}`,
       });
       continue;
     }
