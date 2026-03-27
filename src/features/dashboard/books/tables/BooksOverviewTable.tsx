@@ -7,6 +7,9 @@ type BookTableProps = {
   creator: Creator;
   user: AuthUser;
   isMobile: boolean;
+  currentPath: string;
+  page: number;
+  totalPages: number;
 };
 
 export const BooksOverviewTable = async ({
@@ -14,6 +17,9 @@ export const BooksOverviewTable = async ({
   creator,
   user,
   isMobile,
+  currentPath,
+  page,
+  totalPages,
 }: BookTableProps) => {
   if (!user || !creator) return <></>;
 
@@ -22,5 +28,13 @@ export const BooksOverviewTable = async ({
     // return <BooksOverviewMobile books={books} user={user} />;
   }
 
-  return <BooksOverviewDesktop books={books} user={user} />;
+  return (
+    <BooksOverviewDesktop
+      books={books}
+      user={user}
+      currentPath={currentPath}
+      page={page}
+      totalPages={totalPages}
+    />
+  );
 };

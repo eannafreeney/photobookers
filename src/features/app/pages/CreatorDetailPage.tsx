@@ -7,6 +7,7 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import { Creator } from "../../../db/schema";
 import ErrorPage from "../../../pages/error/errorPage";
+import InfoPage from "../../../pages/InfoPage";
 import BooksGrid from "../components/BooksGrid";
 import CreatorsGrid from "../components/RelatedCreators";
 import { getBooksByCreatorSlug } from "../services";
@@ -28,8 +29,8 @@ const CreatorDetailPage = async ({
 }: CreatorDetailPageProps) => {
   const [error, result] = await getBooksByCreatorSlug(creatorSlug, currentPage);
 
-  if (error || !result?.books?.length) {
-    return <ErrorPage errorMessage="Creator not found" user={user} />;
+  if (error) {
+    return <InfoPage errorMessage={error.reason} user={user} />;
   }
 
   const { creator, relatedCreators, ...rest } = result;
@@ -54,6 +55,7 @@ const CreatorDetailPage = async ({
               currentPath={currentPath}
               result={{ ...rest }}
               currentCreatorId={creator.id}
+              noResultsMessage="No books found"
             />
             <Divider />
             <CreatorsGrid creators={relatedCreators} title={title} />

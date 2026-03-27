@@ -6,6 +6,9 @@ import Page from "../../../../components/layouts/Page";
 import { getBooksByArtistId, getBooksByPublisherId } from "../services";
 import AlertStatic from "../../../../components/app/AlertStatic";
 import VerifiedCreator from "../../../../components/app/VerifiedCreator";
+import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
+import { CreatorStatus } from "../../../../db/schema";
+import InfoPage from "../../../../pages/InfoPage";
 
 type BooksDashboardProps = {
   user: AuthUser;
@@ -29,13 +32,12 @@ const BooksOverview = async ({
   const creatorId = user.creator.id;
   const creatorType = user.creator.type;
 
-  const result =
+  const [error, result] =
     creatorType === "artist"
       ? await getBooksByArtistId(creatorId, currentPage, searchQuery)
       : await getBooksByPublisherId(creatorId, currentPage, searchQuery);
 
-  if (!result || !result.books || result.books.length === 0)
-    return <p>No Books Found</p>;
+  if (error) return <InfoPage errorMessage={error.reason} user={user} />;
 
   const { books, totalPages, page } = result;
 
@@ -48,21 +50,16 @@ const BooksOverview = async ({
     >
       <Page>
         <Breadcrumbs items={[{ label: "Books Overview" }]} />
-        {user.creator.status === "verified" && (
-          <div class="flex items-center gap-2">
-            Account Verified{" "}
-            <VerifiedCreator
-              creatorStatus={user.creator.status ?? "stub"}
-              size="sm"
-            />
-          </div>
-        )}
+        <VerifiedCreatorBadge creatorStatus={user.creator.status ?? "stub"} />
         <div class="flex flex-col gap-16">
           <BooksOverviewTable
             books={books}
             isMobile={isMobile}
             creator={user.creator}
             user={user}
+            currentPath={currentPath}
+            page={page}
+            totalPages={totalPages}
           />
         </div>
       </Page>
@@ -71,3 +68,18 @@ const BooksOverview = async ({
 };
 
 export default BooksOverview;
+
+const VerifiedCreatorBadge = ({
+  creatorStatus,
+}: {
+  creatorStatus: CreatorStatus;
+}) => {
+  if (creatorStatus !== "verified") return <></>;
+
+  return (
+    <div class="flex items-center gap-2">
+      Account Verified{" "}
+      <VerifiedCreator creatorStatus={creatorStatus} size="sm" />
+    </div>
+  );
+};

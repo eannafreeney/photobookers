@@ -68,10 +68,10 @@ export const getBooksByArtistId = async (
       offset,
     });
 
-    return { books: booksByArtist, totalPages, page };
+    return ok({ books: booksByArtist, totalPages, page });
   } catch (error) {
     console.error("Failed to get books by artist", error);
-    return null;
+    return err({ reason: "Failed to get books by artist" });
   }
 };
 
@@ -111,10 +111,10 @@ export const getBooksByPublisherId = async (
       offset,
     });
 
-    return { books: booksByPublisher, totalPages, page };
+    return ok({ books: booksByPublisher, totalPages, page });
   } catch (error) {
     console.error("Failed to get books by creator", error);
-    return null;
+    return err({ reason: "Failed to get books by creator" });
   }
 };
 

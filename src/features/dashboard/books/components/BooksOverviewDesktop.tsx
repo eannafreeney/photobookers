@@ -11,13 +11,23 @@ import { findCollectionCount, findWishlistCount } from "../../../api/services";
 import Card from "../../../../components/app/Card";
 import Table from "../../../../components/app/Table";
 import { canEditBook } from "../../../../lib/permissions";
+import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
 
 type Props = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
   user: AuthUser;
+  currentPath: string;
+  page: number;
+  totalPages: number;
 };
 
-const BooksOverviewDesktop = ({ books, user }: Props) => {
+const BooksOverviewDesktop = ({
+  books,
+  user,
+  currentPath,
+  page,
+  totalPages,
+}: Props) => {
   const targetId = "books-table-body";
 
   const alpineAttrs = {
@@ -60,6 +70,12 @@ const BooksOverviewDesktop = ({ books, user }: Props) => {
           ))}
         </Table.Body>
       </Table>
+      <InfiniteScroll
+        baseUrl={currentPath}
+        page={page}
+        totalPages={totalPages}
+        targetId={targetId}
+      />
     </div>
   );
 };
