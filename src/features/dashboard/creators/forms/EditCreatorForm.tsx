@@ -28,6 +28,7 @@ const EditCreatorForm = ({
     "x-target": "toast",
     "x-target.away": "_top",
     "x-on:ajax:error": "isSubmitting = false",
+    "x-on:ajax:success": "isSubmitting = false",
     "x-on:submit": "submitForm($event)",
   };
 
