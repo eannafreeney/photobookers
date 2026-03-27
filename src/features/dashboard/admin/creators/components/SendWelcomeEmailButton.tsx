@@ -1,15 +1,15 @@
+import Badge from "../../../../../components/app/Badge";
 import Button from "../../../../../components/app/Button";
-import Card from "../../../../../components/app/Card";
 import { Creator } from "../../../../../db/schema";
 
 const SendWelcomeEmailButton = ({ creator }: { creator: Creator }) => {
   if (creator.status === "verified") return <></>;
 
   if (creator.welcomeEmailSent) {
-    return <Card.Text>Sent</Card.Text>;
+    return <Badge variant="success">Email Sent</Badge>;
   }
 
-  if (!creator.email) return <Card.Text>No email</Card.Text>;
+  if (!creator.email) return <Badge variant="danger">No email</Badge>;
 
   const alpineAttrs = {
     "x-target": `send-welcome-email-${creator.id}`,

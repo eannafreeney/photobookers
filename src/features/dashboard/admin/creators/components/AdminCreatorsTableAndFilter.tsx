@@ -68,6 +68,7 @@ const AdminCreatorsTableAndFilter = async ({
               <Table.HeadRow>Followers</Table.HeadRow>
               <Table.HeadRow>Created At</Table.HeadRow>
               <Table.HeadRow>Owner</Table.HeadRow>
+              <Table.HeadRow>Welcome Email</Table.HeadRow>
               <Table.HeadRow>Actions</Table.HeadRow>
             </tr>
           </Table.Head>
