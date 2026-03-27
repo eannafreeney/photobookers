@@ -8,7 +8,6 @@ export async function sendAdminEmail(subject: string, html: string) {
 }
 
 export async function sendEmail(to: string, subject: string, html: string) {
-  console.log(`Sending email to ${to}: ${subject}`);
   try {
     const { data, error } = await supabaseAdmin.functions.invoke("send-email", {
       body: {

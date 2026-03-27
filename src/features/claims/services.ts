@@ -56,14 +56,18 @@ export const createClaimWithStatus = async (
   status: "approved" | "pending_admin_review",
 ) => {
   try {
-    await db.insert(creatorClaims).values({
-      userId,
-      creatorId,
-      verificationUrl,
-      status,
-      verifiedAt: status === "approved" ? new Date() : null,
-    });
-    return ok(undefined);
+    const [claim] = await db
+      .insert(creatorClaims)
+      .values({
+        userId,
+        creatorId,
+        verificationUrl,
+        status,
+        verifiedAt: status === "approved" ? new Date() : null,
+      })
+      .returning();
+
+    return ok(claim);
   } catch (error) {
     console.error("Failed to create claim:", error);
     return err({ reason: "Failed to create claim", cause: error });
