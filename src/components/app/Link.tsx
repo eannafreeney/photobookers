@@ -8,6 +8,7 @@ type LinkProps = {
   className?: string;
   hoverUnderline?: boolean;
   xTarget?: string;
+  title?: string;
 };
 
 const Link = ({
@@ -16,6 +17,7 @@ const Link = ({
   children,
   className,
   xTarget,
+  title,
   hoverUnderline = false,
 }: LinkProps) => (
   <a
@@ -27,6 +29,7 @@ const Link = ({
     href={href}
     target={target}
     x-target={xTarget}
+    title={title}
   >
     {children}
   </a>

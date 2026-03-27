@@ -241,7 +241,10 @@ export const removeCreatorOwnerAdmin = async (c: CreatorIdContext) => {
 
   return c.html(
     <>
-      <Alert type="success" message="Creator owner removed!" />
+      <Alert
+        type="success"
+        message={`user removed as owner of creator: ${creator.displayName}`}
+      />
       {dispatchEvents(["creators:updated"])}
     </>,
   );

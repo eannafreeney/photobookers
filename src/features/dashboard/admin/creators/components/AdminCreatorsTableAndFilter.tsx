@@ -123,16 +123,10 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
         {formatDate(creator.createdAt ?? new Date())}
       </Table.BodyRow>
       <Table.BodyRow>
-        <AssignOwnerCell
-          ownerUserId={creator.ownerUserId}
-          creatorId={creator.id}
-        />
+        <OwnerCell ownerUserId={creator.ownerUserId} creatorId={creator.id} />
       </Table.BodyRow>
       <Table.BodyRow>
         <SendWelcomeEmailButton creator={creator} />
-      </Table.BodyRow>
-      <Table.BodyRow>
-        <RemoveOwnerButton creatorId={creator.id} />
       </Table.BodyRow>
       <Table.BodyRow>
         <a href={`/dashboard/admin/creators/${creator.id}/update`}>
@@ -155,17 +149,21 @@ type AssignOwnerCellProps = {
   creatorId: string;
 };
 
-const AssignOwnerCell = async ({
-  ownerUserId,
-  creatorId,
-}: AssignOwnerCellProps) => {
+const OwnerCell = async ({ ownerUserId, creatorId }: AssignOwnerCellProps) => {
   // if not owned, assign owner button that opens a modal to assign an owner (user)
   if (ownerUserId) {
     const user = await getUserByIdAdmin(ownerUserId);
     return (
-      <Link href={`/dashboard/admin/users/${ownerUserId}`}>
-        {user?.email ?? "Unassigned"}
-      </Link>
+      <div class="flex items-center gap-2">
+        <Link
+          href={`/dashboard/admin/users/${ownerUserId}`}
+          title={user?.email ?? "Unassigned"}
+          className="inline-block max-w-[180px] truncate"
+        >
+          {user?.email ?? "Unassigned"}
+        </Link>
+        <RemoveOwnerButton creatorId={creatorId} />
+      </div>
     );
   }
 
