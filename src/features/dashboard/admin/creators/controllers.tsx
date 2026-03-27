@@ -68,10 +68,9 @@ export const getEditCreatorPageAdmin = async (
 ) => {
   const user = await getUser(c);
   const creatorId = c.req.valid("param").creatorId;
-  const creator = await getCreatorByIdAdmin(creatorId);
-  if (!creator) {
-    return showErrorAlert(c, "Creator not found");
-  }
+  const [error, creator] = await getCreatorByIdAdmin(creatorId);
+  if (error || !creator) return showErrorAlert(c, "Failed to get creator");
+
   const currentPath = c.req.path;
   const currentPage = Number(c.req.query("page") ?? 1);
   const searchQuery = c.req.query("search");
@@ -163,7 +162,9 @@ export const deleteCreatorAdmin = async (c: CreatorIdContext) => {
 
 export const getAssignOwnerModal = async (c: CreatorIdContext) => {
   const creatorId = c.req.valid("param").creatorId;
-  const creator = await getCreatorByIdAdmin(creatorId);
+  const [error, creator] = await getCreatorByIdAdmin(creatorId);
+  if (error || !creator) return showErrorAlert(c, "Failed to get creator");
+
   return c.html(
     <AssignOwnerModal
       creatorName={creator?.displayName ?? "this creator"}
@@ -196,17 +197,19 @@ export const assignOwnerAdmin = async (c: AssignOwnerContext) => {
 
 export const sendWelcomeEmailAdmin = async (c: CreatorIdContext) => {
   const creatorId = c.req.valid("param").creatorId;
-  const creator = await getCreatorByIdAdmin(creatorId);
-  if (!creator) {
-    return showErrorAlert(c, "Creator not found");
-  }
+  const [error, creator] = await getCreatorByIdAdmin(creatorId);
+  if (error || !creator) return showErrorAlert(c, "Failed to get creator");
+  if (!creator.email) return showErrorAlert(c, "Creator has no email");
 
   const user = await getUser(c);
-  if (!user) {
-    return showErrorAlert(c, "User not found");
-  }
+  if (!user) return showErrorAlert(c, "User not found");
+
+  const temporaryPassword = crypto.randomUUID();
+
+  const loginLink = `${process.env.SITE_URL}/auth/login?email=${encodeURIComponent(creator.email)}&password=${encodeURIComponent(temporaryPassword)}`;
+
   // send welcome email to creator
-  const emailHTML = generateWelcomeEmail(creator);
+  const emailHTML = generateWelcomeEmail(creator, loginLink);
 
   if (!creator.email) return showErrorAlert(c, "Creator has no email");
 
@@ -216,8 +219,9 @@ export const sendWelcomeEmailAdmin = async (c: CreatorIdContext) => {
     emailHTML,
   );
 
-  const [error] = await markWelcomeEmailSentAdmin(creatorId);
-  if (error) return showErrorAlert(c, "Failed to mark welcome email sent");
+  const [markError, markResult] = await markWelcomeEmailSentAdmin(creatorId);
+  if (markError || !markResult)
+    return showErrorAlert(c, "Failed to mark welcome email sent");
 
   return c.html(
     <>

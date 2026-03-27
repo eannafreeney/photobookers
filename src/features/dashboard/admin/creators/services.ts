@@ -75,21 +75,32 @@ export const getAllCreatorProfilesByTypeAdmin = async (
 };
 
 export const getAllCreatorProfiles = async () => {
-  return await db.query.creators.findMany({
-    where: isNull(creators.ownerUserId),
-    orderBy: (creators, { asc }) => [asc(creators.displayName)],
-  });
+  try {
+    const foundCreators = await db.query.creators.findMany({
+      where: isNull(creators.ownerUserId),
+      orderBy: (creators, { asc }) => [asc(creators.displayName)],
+    });
+    return ok(foundCreators ?? []);
+  } catch (error) {
+    console.error("Failed to get all creator profiles", error);
+    return err({ reason: "Failed to get all creator profiles", cause: error });
+  }
 };
 
 export const getCreatorByIdAdmin = async (creatorId: string) => {
-  const creator = await db.query.creators.findFirst({
-    where: eq(creators.id, creatorId),
-    with: {
-      booksAsArtist: true,
-      booksAsPublisher: true,
-    },
-  });
-  return creator ?? null;
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.id, creatorId),
+      with: {
+        booksAsArtist: true,
+        booksAsPublisher: true,
+      },
+    });
+    return ok(creator ?? null);
+  } catch (error) {
+    console.error("Failed to get creator by id", error);
+    return err({ reason: "Failed to get creator by id", cause: error });
+  }
 };
 
 export const createStubCreatorProfileAdmin = async (

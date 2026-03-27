@@ -2,6 +2,7 @@ import InputLabel from "./InputLabel";
 import { fadeTransition } from "../../lib/transitions";
 import { getInputIcon } from "../../utils";
 import { eyeIcon, eyeSlashIcon } from "../../lib/icons";
+import FormElementWrapper from "./FormElementWrapper";
 
 type InputProps = {
   label: string;
@@ -48,7 +49,7 @@ const Input = ({
     : {};
 
   return (
-    <fieldset class="grid gap-0 text-xs grid-cols-1 auto-rows-max">
+    <FormElementWrapper>
       <InputLabel
         label={label}
         maxLength={maxLength}
@@ -94,36 +95,8 @@ const Input = ({
           </span>
         )}
       </label>
-      {/* <InputError isError={isError} isSuccess={isSuccess} name={name} /> */}
-    </fieldset>
+    </FormElementWrapper>
   );
 };
 
 export default Input;
-
-// type InputErrorProps = {
-//   isError?: boolean;
-//   isSuccess?: boolean;
-//   name: string;
-// };
-
-// const InputError = ({ isError, isSuccess, name }: InputErrorProps) => (
-//   <div class="text-xs min-h-4 my-2 block">
-//     {isError ? (
-//       <span class="text-danger block text-right" {...fadeTransition}>
-//         ✗ Taken
-//       </span>
-//     ) : isSuccess ? (
-//       <span class="text-success block text-right" {...fadeTransition}>
-//         ✓ Available
-//       </span>
-//     ) : (
-//       <span
-//         class="text-danger block text-left"
-//         x-show={`errors.${name}`}
-//         x-text={`errors.${name}`}
-//         {...fadeTransition}
-//       />
-//     )}
-//   </div>
-// );

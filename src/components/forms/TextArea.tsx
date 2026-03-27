@@ -1,4 +1,5 @@
 import { fadeTransition } from "../../lib/transitions";
+import FormElementWrapper from "./FormElementWrapper";
 import InputLabel from "./InputLabel";
 
 type TextAreaProps = {
@@ -25,7 +26,7 @@ const TextArea = ({
     : {};
 
   return (
-    <fieldset class="grid gap-0 text-xs grid-cols-1 auto-rows-max">
+    <FormElementWrapper>
       <InputLabel
         label={label}
         maxLength={maxLength}
@@ -53,7 +54,7 @@ const TextArea = ({
           {...fadeTransition}
         ></span>
       </div>
-    </fieldset>
+    </FormElementWrapper>
   );
 };
 

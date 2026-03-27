@@ -2,12 +2,10 @@ import SectionTitle from "../../../../../components/app/SectionTitle";
 import FormButtons from "../../../../../components/forms/FormButtons";
 import Input from "../../../../../components/forms/Input";
 import ValidateEmail from "../../../../auth/components/ValidateEmail";
-import { getAllCreatorProfiles } from "../../creators/services";
 import OptionsComboBox from "../../../../../components/app/OptionsComboBox";
+import CreatorsComboBox from "../components/CreatorsComboBox";
 
 const CreateUserFormAdmin = async () => {
-  const creators = await getAllCreatorProfiles();
-
   const alpineAttrs = {
     "x-data": "newUserForm()",
     "x-target": "modal-root create-user-form",
@@ -17,12 +15,6 @@ const CreateUserFormAdmin = async () => {
     "x-on:email-availability.window":
       "emailIsTaken = !$event.detail.emailIsAvailable",
   };
-
-  const options = creators.map((creator) => ({
-    id: creator.id,
-    label: creator.displayName,
-    img: creator.coverUrl,
-  }));
 
   return (
     <div id="create-user-form" class="flex flex-col gap-4">
@@ -51,7 +43,7 @@ const CreateUserFormAdmin = async () => {
           />
         </div>
         <div class="flex-1 min-w-0 w-full md:w-auto">
-          <OptionsComboBox options={options} name="form.creatorId" />
+          <CreatorsComboBox />
         </div>
         <FormButtons buttonText="Create" loadingText="Creating..." />
       </form>
