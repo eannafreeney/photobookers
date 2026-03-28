@@ -156,6 +156,9 @@ const DropDownMenu = ({
       )}
       {user && (
         <>
+          <NavLink href="/followed-creators" currentPath={currentPath}>
+            Creators I Follow
+          </NavLink>
           <NavLink
             href="/auth/reset-password"
             currentPath={currentPath}

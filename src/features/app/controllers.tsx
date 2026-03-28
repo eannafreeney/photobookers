@@ -28,6 +28,7 @@ import UpdateUserModal from "./modals/UpdateUser";
 import AuthModal from "../../components/app/AuthModal";
 import BooksPage from "./pages/BooksPage";
 import StatsFragment from "./fragments/Stats";
+import FollowedCreatorsPage from "./pages/FollowedCreatorsPage";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -308,6 +309,11 @@ export const getStatsFragment = async (c: Context) => {
 export const getFeaturedBooksFragment = async (c: Context) => {
   const user = await getUser(c);
   return c.html(<FeaturedBooksFragment user={user} />);
+};
+
+export const getFollowedCreatorsPage = async (c: Context) => {
+  const user = await getUser(c);
+  return c.html(<FollowedCreatorsPage user={user} />);
 };
 
 export const getCreatorSpotlightFragment = async (c: Context) => {

@@ -11,7 +11,7 @@ import Dock from "./Dock";
 type LayoutProps = PropsWithChildren<{
   title: string;
   user?: AuthUser | null;
-  currentPath: string;
+  currentPath?: string;
   flash?: Flash | null;
   isPreview?: boolean;
   adminEditHref?: string;

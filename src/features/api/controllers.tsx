@@ -33,7 +33,6 @@ import CollectButton from "./components/CollectButton";
 import {
   AddCommentFormContext,
   CreateCommentModalContext,
-  DeleteCommentFormContext,
   DeleteCommentGuardedContext,
   NewsletterFormContext,
   UpdateCommentFormContext,
@@ -41,13 +40,13 @@ import {
 } from "./types";
 import EditCommentModal from "./modals/EditCommentModal";
 import CommentModal from "./modals/CommentModal";
-import { sendAdminEmail } from "../../lib/sendEmail";
+import { sendAdminEmail, sendEmail } from "../../lib/sendEmail";
 import LikeButton from "./components/LikeButton";
-import { log } from "console";
 
 const updateCreatorCard = () => "creator:updated";
 const updateLibraryPage = () => "library:updated";
 const updateComments = () => "comments:updated";
+const updateFollowedCreatorsPage = () => "followed-creators:updated";
 
 export const followCreator = async (c: Context) => {
   const creatorId = c.req.param("creatorId");
@@ -76,8 +75,8 @@ export const followCreator = async (c: Context) => {
   if (!creator) return showErrorAlert(c, "Book not found");
 
   const message = isCurrentlyFollowing
-    ? `No longer following ${creator.displayName}.`
-    : `Now following ${creator.displayName}.`;
+    ? `Unfollowed ${creator.displayName}.`
+    : `Followed ${creator.displayName}.`;
 
   return c.html(
     <>
@@ -93,6 +92,7 @@ export const followCreator = async (c: Context) => {
         isCircleButton={buttonType === "circle"}
         variant="mobile"
       />
+      {/* {dispatchEvents([updateFollowedCreatorsPage()])} */}
     </>,
   );
 };
@@ -344,17 +344,29 @@ export const addBookComment = async (c: AddCommentFormContext) => {
   const bookId = c.req.valid("param").bookId;
   const form = c.req.valid("form");
 
+  const [err, book] = await getBookPermissionData(bookId);
+  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
+
   const hasProfilePic = !!(user?.creator?.coverUrl || user?.profileImageUrl);
 
-  if (!hasProfilePic) {
+  if (!hasProfilePic)
     return showErrorAlert(c, "Please add a profile picture before commenting.");
-  }
 
-  const [err, comment] = await insertBookComment(bookId, userId, form.body);
-  if (err || !comment)
-    return showErrorAlert(c, err?.reason ?? "Failed to add comment");
+  const [insertError, comment] = await insertBookComment(
+    bookId,
+    userId,
+    form.body,
+  );
+  if (insertError)
+    return showErrorAlert(c, insertError.reason ?? "Failed to add comment");
 
   await sendAdminEmail(
+    "New comment on a book",
+    `A new comment has been added to the book ${bookId}. ${comment.body}`,
+  );
+
+  await sendEmail(
+    book.creatorUser?.email ?? "",
     "New comment on a book",
     `A new comment has been added to the book ${bookId}. ${comment.body}`,
   );

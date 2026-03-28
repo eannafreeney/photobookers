@@ -126,6 +126,14 @@ export const getBookPermissionData = async (bookId: string) => {
         title: true,
         slug: true,
       },
+      with: {
+        creatorUser: {
+          columns: {
+            id: true,
+            email: true,
+          },
+        },
+      },
     });
     return book ? ok(book) : err({ reason: "Book not found" });
   } catch (error) {

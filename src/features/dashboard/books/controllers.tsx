@@ -72,11 +72,6 @@ export const createBookAsPublisher = async (c: BookFormContext) => {
   const newBook = await createBook(bookData);
   if (!newBook) return showErrorAlert(c, "Failed to create book");
 
-  await sendAdminEmail(
-    "New book created",
-    generateBookNotificationEmail(newBook, user.creator),
-  );
-
   await setFlash(c, "success", `${newBook.title} created!`);
   return c.redirect(`/dashboard/books/${newBook.id}/update`);
 };
@@ -104,11 +99,6 @@ export const createBookAsArtist = async (c: BookFormContext) => {
 
   const newBook = await createBook(bookData);
   if (!newBook) return showErrorAlert(c, "Failed to create book");
-
-  await sendAdminEmail(
-    "New book created",
-    generateBookNotificationEmail(newBook, user.creator),
-  );
 
   await setFlash(c, "success", `Successfully created "${newBook.title}"!`);
   return c.redirect(`/dashboard/books/${newBook.id}/update`);
@@ -169,7 +159,7 @@ export const deleteBook = async (c: BookIdContext) => {
 export const makeBookPublic = async (c: BookFormWithBookContext) => {
   const book = c.get("book");
   const user = await getUser(c);
-
+  if (!user.creator) return showErrorAlert(c, "No Creator Profile Found");
   if (!book) return showErrorAlert(c, "Book not found");
 
   const result = await updateBookPublicationStatus(book.id, "published");
@@ -177,6 +167,11 @@ export const makeBookPublic = async (c: BookFormWithBookContext) => {
   if (!result.success) return showErrorAlert(c, result.error, 400);
 
   const updatedBook = result.book;
+
+  await sendAdminEmail(
+    "New book created",
+    generateBookNotificationEmail(updatedBook, user.creator),
+  );
 
   return c.html(
     <>

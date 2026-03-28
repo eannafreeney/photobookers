@@ -3,11 +3,10 @@ import { bookIcon, feedIcon, libraryIcon, updatesIcon } from "../../lib/icons";
 import FeatureGuard from "./FeatureGuard";
 
 type DockProps = {
-  currentPath: string;
+  currentPath?: string;
 };
 
 const Dock = ({ currentPath }: DockProps) => {
-  console.log("currentPath", currentPath);
   return (
     <div class="md:hidden dock bg-surface-alt  text-neutral-content border border-t border-outline">
       <a

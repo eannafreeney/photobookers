@@ -11,6 +11,7 @@ export const CREATOR_CARD_COLUMNS = {
   slug: true,
   coverUrl: true,
   status: true,
+  type: true,
 } as const;
 
 export type BookCardResult = Pick<Book, keyof typeof BOOK_CARD_COLUMNS> & {

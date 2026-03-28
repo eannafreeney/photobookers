@@ -18,8 +18,6 @@ const FollowButton = async ({
   isCircleButton = false,
   variant = "desktop",
 }: FollowButtonProps) => {
-  const userIsCreator = user?.creator?.id === creator.id;
-
   // Only query if user is logged in, otherwise default to false
   let isFollowing = false;
   if (user?.id) {
@@ -44,7 +42,7 @@ const FollowButton = async ({
   const props = {
     id,
     action: `/api/creators/${creator.id}/follow`,
-    disabled: userIsCreator,
+    disabled: isDisabled,
     tooltipText: isFollowing ? "Unfollow" : "Follow",
     hiddenInput: { name: "isFollowing", value: isFollowing },
     buttonText: isCircleButton ? (

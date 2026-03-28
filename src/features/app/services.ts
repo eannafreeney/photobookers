@@ -793,3 +793,31 @@ export const getHomepageStats = async () => {
     publishers: publishersCountResult[0]?.value ?? 0,
   };
 };
+
+export const getFollowedCreators = async (followerUserId: string) => {
+  try {
+    const followRows = await db.query.follows.findMany({
+      where: and(
+        eq(follows.followerUserId, followerUserId),
+        eq(follows.targetType, "creator"),
+      ),
+      columns: { targetCreatorId: true },
+    });
+    const followedCreatorIds = followRows
+      .map((r) => r.targetCreatorId)
+      .filter((id): id is string => id != null);
+
+    const foundCreators = await db.query.creators.findMany({
+      where: inArray(creators.id, followedCreatorIds),
+      columns: CREATOR_CARD_COLUMNS,
+    });
+
+    const artists = foundCreators.filter((c) => c.type === "artist");
+    const publishers = foundCreators.filter((c) => c.type === "publisher");
+
+    return ok({ artists, publishers });
+  } catch (error) {
+    console.error("Failed to get followed creators", error);
+    return err({ reason: "Failed to get followed creators", error });
+  }
+};

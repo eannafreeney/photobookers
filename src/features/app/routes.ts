@@ -11,6 +11,7 @@ import {
   getFeaturedBooksFragment,
   getFeaturedPage,
   getFeedPage,
+  getFollowedCreatorsPage,
   getHomePage,
   getLatestBooksFragment,
   getLibraryPage,
@@ -69,6 +70,7 @@ app.get(
   paramValidator(userIdSchema),
   getUserUpdateModal,
 );
+app.get("/followed-creators", getFollowedCreatorsPage);
 
 // POST
 app.post("/contact", formValidator(contactFormSchema), processContact);
