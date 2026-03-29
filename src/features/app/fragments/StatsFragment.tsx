@@ -3,10 +3,7 @@ import { getHomepageStats } from "../services";
 const StatsFragment = async () => {
   const stats = await getHomepageStats();
   return (
-    <div
-      id="stats-fragment"
-      class="flex items-center gap-4 my-6 justify-evenly"
-    >
+    <div id="stats-fragment" class="flex items-center gap-4 justify-evenly">
       <a href="/publishers">
         <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2">
           <p class="text-2xl font-semibold">{stats.publishers}</p>

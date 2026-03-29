@@ -27,7 +27,7 @@ import { match } from "../../lib/result";
 import UpdateUserModal from "./modals/UpdateUser";
 import AuthModal from "../../components/app/AuthModal";
 import BooksPage from "./pages/BooksPage";
-import StatsFragment from "./fragments/Stats";
+import StatsFragment from "./fragments/StatsFragment";
 import FollowedCreatorsPage from "./pages/FollowedCreatorsPage";
 
 export const getHomePage = async (c: Context) => {
