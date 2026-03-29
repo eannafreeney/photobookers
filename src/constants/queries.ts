@@ -12,6 +12,9 @@ export const CREATOR_CARD_COLUMNS = {
   coverUrl: true,
   status: true,
   type: true,
+  city: true,
+  country: true,
+  tagline: true,
 } as const;
 
 export type BookCardResult = Pick<Book, keyof typeof BOOK_CARD_COLUMNS> & {

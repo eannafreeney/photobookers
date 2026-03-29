@@ -61,11 +61,11 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
               </p>
             </Link>
           )}
-          <div>
+          {/* <div>
             {bookOfTheWeek && !bookOfTheWeek?.text && (
               <p class="text-sm font-medium text-danger">Text Missing</p>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
       <div class="flex items-center gap-2">

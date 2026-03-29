@@ -39,7 +39,7 @@ const BooksGrid = async ({
     <>
       <div x-data>
         <div x-ref="paginationContent">
-          {title && <SectionTitle className="mb-2">{title}</SectionTitle>}
+          {title && <SectionTitle className="mb-4">{title}</SectionTitle>}
           {/* <SortDropdown sortBy={sortBy} currentPath={currentPath} /> */}
         </div>
         <GridPanel id={targetId} isFullWidth={isFullWidth}>

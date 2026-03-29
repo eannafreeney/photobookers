@@ -14,7 +14,7 @@ const FeaturedBooksGrid = ({ featuredBooks, user }: Props) => {
   return (
     <>
       <div>
-        <SectionTitle className="mb-2">Featured Books of the Week</SectionTitle>
+        <SectionTitle className="mb-4">Featured Books of the Week</SectionTitle>
       </div>
       <GridPanel>
         {featuredBooks?.length > 0 ? (

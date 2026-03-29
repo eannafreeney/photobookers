@@ -59,7 +59,6 @@ const LibraryPage = async ({
       currentPath={currentPath}
     >
       <Page>
-        <NavTabs currentPath={currentPath} />
         <div
           id="library-container"
           class="flex flex-col gap-4"

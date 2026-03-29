@@ -64,13 +64,7 @@ export const getBookComments = async (bookId: string) => {
           },
           with: {
             creators: {
-              columns: {
-                id: true,
-                slug: true,
-                displayName: true,
-                status: true,
-                coverUrl: true,
-              },
+              columns: CREATOR_CARD_COLUMNS,
             },
           },
         },

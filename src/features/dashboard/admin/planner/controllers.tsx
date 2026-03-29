@@ -37,6 +37,7 @@ import ScheduleAOTWModal from "./modals/ScheduleAOTWModal";
 import SchedulePOTWModal from "./modals/SchedulePOTWModal";
 import EditPOTWModal from "./modals/EditPOTWModal";
 import EditAOTWModal from "./modals/EditAOTWModal";
+import { isErr } from "../../../../lib/result";
 
 const updatePlanner = () => (
   <div id="server_events">
@@ -236,9 +237,13 @@ export const getScheduleArtistModal = async (c: PlannerWeekQueryContext) => {
 export const getEditArtistModal = async (c: PlannerWeekQueryContext) => {
   const week = c.req.valid("query").week;
   const weekStart = parseWeekString(week);
-  const artistOfTheWeek = Number.isNaN(weekStart.getTime())
-    ? null
-    : await getArtistOfTheWeekForDateQuery(weekStart);
+  if (Number.isNaN(weekStart.getTime()))
+    return showErrorAlert(c, "Invalid week");
+  const [err, artistOfTheWeek] =
+    await getArtistOfTheWeekForDateQuery(weekStart);
+  if (err) return showErrorAlert(c, err.reason);
+  if (!artistOfTheWeek)
+    return showErrorAlert(c, "Artist of the week not found");
 
   if (!artistOfTheWeek)
     return showErrorAlert(c, "Artist of the week not found");
@@ -255,7 +260,7 @@ export const setArtistOfTheWeekAdmin = async (
   const row = await setArtistOfTheWeek({
     weekStart: form.weekStart,
     creatorId: form.creatorId,
-    text: form.text,
+    text: form?.text ?? "",
   });
   if (!row) {
     return c.html(
@@ -323,9 +328,18 @@ export const getSchedulePublisherModal = async (c: PlannerWeekQueryContext) => {
 export const getEditPublisherModal = async (c: PlannerWeekQueryContext) => {
   const week = c.req.valid("query").week;
   const weekStart = parseWeekString(week);
-  const publisherOfTheWeek = Number.isNaN(weekStart.getTime())
-    ? null
-    : await getPublisherOfTheWeekForDateQuery(weekStart);
+  if (Number.isNaN(weekStart.getTime()))
+    return showErrorAlert(c, "Invalid week");
+
+  const [err, publisherOfTheWeek] =
+    await getPublisherOfTheWeekForDateQuery(weekStart);
+
+  if (err)
+    return showErrorAlert(
+      c,
+      err?.reason ?? "Failed to get publisher of the week",
+    );
+
   return c.html(
     <EditPOTWModal week={week} publisherOfTheWeek={publisherOfTheWeek} />,
   );

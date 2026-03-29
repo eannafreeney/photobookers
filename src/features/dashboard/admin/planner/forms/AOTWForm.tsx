@@ -43,13 +43,13 @@ const AOTWForm = ({ formValues, options, week }: Props) => {
         required
         initialSelectedId={formValues?.creatorId}
       />
-      <TextArea
+      {/* <TextArea
         label="Text"
         name="form.text"
         validateInput="validateField('text')"
         minRows={8}
         maxLength={400}
-      />
+      /> */}
       <input type="hidden" name="weekStart" value={week} />
       <FormButtons
         buttonText={isEditMode ? "Update" : "Schedule"}

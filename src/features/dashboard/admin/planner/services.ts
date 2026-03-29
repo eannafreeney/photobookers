@@ -273,9 +273,7 @@ export async function setFeaturedBooksForWeek(
 }
 
 // ----- Artist of the week -----
-export type ArtistOfTheWeekWithCreator = Awaited<
-  ReturnType<typeof getArtistOfTheWeekForDateQuery>
->;
+
 export async function getArtistOfTheWeekForDateQuery(date: Date) {
   const weekStart = toWeekStart(date);
   try {
@@ -295,26 +293,45 @@ export async function getArtistOfTheWeekForDateQuery(date: Date) {
   }
 }
 
+type GetArtistOfTheWeekForDateResult = Awaited<
+  ReturnType<typeof getArtistOfTheWeekForDateQuery>
+>;
+
+export type ArtistOfTheWeekWithCreator = Extract<
+  GetArtistOfTheWeekForDateResult,
+  [null, unknown]
+>[1];
+
 export async function getArtistsOfTheWeekByWeekStart(year: number) {
   const weekStarts = getWeekStarts(year);
   if (weekStarts.length === 0)
-    return new Map<string, ArtistOfTheWeekWithCreator | null>();
-  const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
-  const entries = await db.query.artistOfTheWeek.findMany({
-    where: and(
-      gte(artistOfTheWeek.weekStart, toWeekStart(first)),
-      lte(artistOfTheWeek.weekStart, toWeekStart(last)),
-    ),
-    with: { creator: { columns: CREATOR_CARD_COLUMNS } },
-  });
-  const byWeek = new Map<string, ArtistOfTheWeekWithCreator | null>();
-  for (const w of weekStarts) {
-    const key = toWeekString(w);
-    const entry =
-      entries.find((e) => toWeekString(e.weekStart) === key) ?? null;
-    byWeek.set(key, entry);
+    return ok(new Map<string, ArtistOfTheWeekWithCreator | null>());
+
+  try {
+    const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
+
+    const entries = await db.query.artistOfTheWeek.findMany({
+      where: and(
+        gte(artistOfTheWeek.weekStart, toWeekStart(first)),
+        lte(artistOfTheWeek.weekStart, toWeekStart(last)),
+      ),
+      with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+    });
+
+    const byWeek = new Map<string, ArtistOfTheWeekWithCreator | null>();
+
+    for (const w of weekStarts) {
+      const key = toWeekString(w);
+      const entry =
+        entries.find((e) => toWeekString(e.weekStart) === key) ?? null;
+      byWeek.set(key, entry);
+    }
+
+    return ok(byWeek);
+  } catch (e) {
+    console.error("getArtistsOfTheWeekByWeekStart", e);
+    return err({ reason: "Failed to get artists of the week by week start" });
   }
-  return byWeek;
 }
 
 export async function setArtistOfTheWeek(params: {
@@ -374,9 +391,6 @@ export async function deleteArtistOfTheWeekByWeekStart(weekStart: Date) {
   }
 }
 // ----- Publisher of the week -----
-export type PublisherOfTheWeekWithCreator = Awaited<
-  ReturnType<typeof getPublisherOfTheWeekForDateQuery>
->;
 
 export async function getPublisherOfTheWeekForDateQuery(date: Date) {
   const weekStart = toWeekStart(date);
@@ -395,26 +409,42 @@ export async function getPublisherOfTheWeekForDateQuery(date: Date) {
   }
 }
 
+type GetPublisherOfTheWeekForDateResult = Awaited<
+  ReturnType<typeof getPublisherOfTheWeekForDateQuery>
+>;
+export type PublisherOfTheWeekWithCreator = Extract<
+  GetPublisherOfTheWeekForDateResult,
+  [null, unknown]
+>[1];
+
 export async function getPublishersOfTheWeekByWeekStart(year: number) {
   const weekStarts = getWeekStarts(year);
   if (weekStarts.length === 0)
-    return new Map<string, PublisherOfTheWeekWithCreator | null>();
-  const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
-  const entries = await db.query.publisherOfTheWeek.findMany({
-    where: and(
-      gte(publisherOfTheWeek.weekStart, toWeekStart(first)),
-      lte(publisherOfTheWeek.weekStart, toWeekStart(last)),
-    ),
-    with: { creator: { columns: CREATOR_CARD_COLUMNS } },
-  });
-  const byWeek = new Map<string, PublisherOfTheWeekWithCreator | null>();
-  for (const w of weekStarts) {
-    const key = toWeekString(w);
-    const entry =
-      entries.find((e) => toWeekString(e.weekStart) === key) ?? null;
-    byWeek.set(key, entry);
+    return ok(new Map<string, PublisherOfTheWeekWithCreator | null>());
+
+  try {
+    const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
+    const entries = await db.query.publisherOfTheWeek.findMany({
+      where: and(
+        gte(publisherOfTheWeek.weekStart, toWeekStart(first)),
+        lte(publisherOfTheWeek.weekStart, toWeekStart(last)),
+      ),
+      with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+    });
+    const byWeek = new Map<string, PublisherOfTheWeekWithCreator | null>();
+    for (const w of weekStarts) {
+      const key = toWeekString(w);
+      const entry =
+        entries.find((e) => toWeekString(e.weekStart) === key) ?? null;
+      byWeek.set(key, entry);
+    }
+    return ok(byWeek);
+  } catch (e) {
+    console.error("getPublishersOfTheWeekByWeekStart", e);
+    return err({
+      reason: "Failed to get publishers of the week by week start",
+    });
   }
-  return byWeek;
 }
 
 export async function setPublisherOfTheWeek(params: {

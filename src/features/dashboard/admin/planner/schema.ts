@@ -45,7 +45,7 @@ export const artistOfTheWeekFormSchema = z.object({
     .transform(parseWeekString)
     .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
   creatorId: z.string().min(1, "Artist is required"),
-  text: z.string().max(400, "Text must be less than 400 characters"),
+  text: z.string().max(400, "Text must be less than 400 characters").optional(),
 });
 
 export const publisherOfTheWeekFormSchema = z.object({
@@ -55,7 +55,7 @@ export const publisherOfTheWeekFormSchema = z.object({
     .transform(parseWeekString)
     .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
   creatorId: z.string().min(1, "Publisher is required"),
-  text: z.string().max(400, "Text must be less than 400 characters"),
+  text: z.string().max(400, "Text must be less than 400 characters").optional(),
 });
 
 export const weekQuerySchema = z.object({ week: z.string() });

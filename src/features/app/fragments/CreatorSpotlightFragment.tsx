@@ -14,10 +14,10 @@ const CreatorSpotlightFragment = async () => {
 
   return (
     <div id="creator-spotlights-fragment">
-      <CreatorSpotlightsGrid
+      {/* <CreatorSpotlightsGrid
         artistOfTheWeek={artistOfTheWeek}
         publisherOfTheWeek={publisherOfTheWeek}
-      />
+      /> */}
     </div>
   );
 };

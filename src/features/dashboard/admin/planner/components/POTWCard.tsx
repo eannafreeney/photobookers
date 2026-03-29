@@ -70,13 +70,13 @@ const POTWCardContent = ({
         <p class="text-sm font-semibold text-on-surface-strong">
           {publisher.displayName}
         </p>
-        {publisherOfTheWeek?.text ? (
+        {/* {publisherOfTheWeek?.text ? (
           <p class="text-xs text-on-surface-weak line-clamp-2 mt-1">
             {publisherOfTheWeek.text}
           </p>
         ) : (
           <p class="text-sm font-medium text-danger">Text missing</p>
-        )}
+        )} */}
       </div>
     </div>
     <div class="flex items-center gap-2 mt-2">

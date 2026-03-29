@@ -11,6 +11,8 @@ import {
   getFeaturedBooksByWeekStart,
   getPublishersOfTheWeekByWeekStart,
 } from "../services";
+import { loadPlannerYearData } from "../queries";
+import ErrorPage from "../../../../../pages/error/errorPage";
 
 type Props = {
   user: AuthUser | null;
@@ -20,17 +22,18 @@ type Props = {
 };
 
 const PlannerPage = async ({ user, year, weekStarts, currentPath }: Props) => {
-  const [
+  const {
     botwByWeekStart,
     featuredByWeekStart,
     artistByWeekStart,
+    artistLoadError,
     publisherByWeekStart,
-  ] = await Promise.all([
-    getBotwByWeekStart(year),
-    getFeaturedBooksByWeekStart(year),
-    getArtistsOfTheWeekByWeekStart(year),
-    getPublishersOfTheWeekByWeekStart(year),
-  ]);
+    publisherLoadError,
+  } = await loadPlannerYearData(year);
+
+  if (artistLoadError || publisherLoadError) {
+    return <ErrorPage errorMessage="Failed to load planner year data" />;
+  }
 
   const alpineAttrs = {
     "x-init": true,
@@ -54,8 +57,8 @@ const PlannerPage = async ({ user, year, weekStarts, currentPath }: Props) => {
               const key = toWeekString(weekStart);
               const botw = botwByWeekStart.get(key) ?? null;
               const featuredBooks = featuredByWeekStart.get(key) ?? [];
-              const artistOfTheWeek = artistByWeekStart.get(key) ?? null;
-              const publisherOfTheWeek = publisherByWeekStart.get(key) ?? null;
+              const artistOfTheWeek = artistByWeekStart?.get(key) ?? null;
+              const publisherOfTheWeek = publisherByWeekStart?.get(key) ?? null;
 
               return (
                 <WeekCard

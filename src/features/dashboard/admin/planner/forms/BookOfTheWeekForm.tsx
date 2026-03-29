@@ -54,13 +54,13 @@ const BookOfTheWeekForm = ({ formValues, options, week }: Props) => {
         required
         initialSelectedId={formValues?.bookId}
       />
-      <TextArea
+      {/* <TextArea
         label="Text"
         name="form.text"
         required
         maxLength={500}
         minRows={10}
-      />
+      /> */}
       <input type="hidden" name="weekStart" value={week} />
       <FormButtons buttonText="Schedule" loadingText="Scheduling..." />
     </form>

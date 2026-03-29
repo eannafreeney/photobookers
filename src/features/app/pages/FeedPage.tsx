@@ -45,7 +45,6 @@ const FeedPage = async ({ user, flash, currentPath, currentPage }: Props) => {
       currentPath={currentPath}
     >
       <Page>
-        <NavTabs currentPath={currentPath} />
         <BooksGrid
           title="Books from Creators You Follow"
           user={user}
