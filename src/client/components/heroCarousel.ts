@@ -3,10 +3,10 @@ import Alpine from "alpinejs";
 export type HeroCarouselItem = {
   label: string;
   title: string;
-  subtitle: string;
-  meta: string;
-  image: string;
-  stack?: string;
+  creator: string;
+  image?: string;
+  coverStack?: string[];
+  slideClass?: string;
   link: string;
 };
 
@@ -40,8 +40,20 @@ export function registerHeroCarousel() {
         this.restart();
       },
 
+      pause() {
+        if (this.interval) {
+          clearInterval(this.interval);
+          this.interval = null;
+        }
+      },
+
+      resume() {
+        this.startAutoRotate();
+      },
+
       startAutoRotate() {
         if (this.items.length <= 1) return;
+        if (this.interval) clearInterval(this.interval);
         this.interval = setInterval(() => {
           this.next();
         }, 6000);

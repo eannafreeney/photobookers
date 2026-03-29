@@ -55,7 +55,7 @@ type NavLinkProps = {
   [key: string]: any;
 };
 
-const NavLink = ({
+export const NavLink = ({
   href,
   children,
   currentPath,
@@ -65,7 +65,7 @@ const NavLink = ({
   const isActive = currentPath === href;
 
   return (
-    <li>
+    <li class="list-none">
       <a
         href={href}
         class={clsx(

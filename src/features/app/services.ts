@@ -5,6 +5,7 @@ import {
   eq,
   ilike,
   inArray,
+  isNotNull,
   isNull,
   lte,
   ne,
@@ -821,3 +822,37 @@ export const getFollowedCreators = async (followerUserId: string) => {
     return err({ reason: "Failed to get followed creators", error });
   }
 };
+
+/** Recent published book covers for a publisher (creator id), newest first. */
+export async function getCoverUrlsForHeroCarousel(
+  creatorType: "publisher" | "artist",
+  creatorId: string,
+  limit = 4,
+) {
+  const column =
+    creatorType === "publisher" ? books.publisherId : books.artistId;
+  try {
+    const rows = await db.query.books.findMany({
+      columns: { coverUrl: true },
+      where: and(
+        eq(column, creatorId),
+        eq(books.publicationStatus, "published"),
+        eq(books.approvalStatus, "approved"),
+        isNotNull(books.coverUrl),
+        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+      ),
+      orderBy: (b, { desc: d }) => [d(b.releaseDate), d(b.createdAt)],
+      limit,
+    });
+    const coverUrls = rows
+      .map((r) => r.coverUrl)
+      .filter((url): url is string => Boolean(url));
+    return ok(coverUrls);
+  } catch (e) {
+    console.error("getCoverUrlsForPublisherCatalogue", e);
+    return err({
+      reason: "Failed to get cover urls for publisher catalogue",
+      error: e,
+    });
+  }
+}

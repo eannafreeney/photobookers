@@ -24,7 +24,7 @@ const FeaturedBooksPage = async ({ user, currentPath, isMobile }: Props) => {
       {/* <TickerBanner /> */}
       <Page>
         <HeroCarousel />
-        <NavTabs currentPath={currentPath} />
+        {/* <NavTabs currentPath={currentPath} /> */}
         {/* <BookOfTheWeekGrid user={user} isMobile={isMobile} /> */}
         <Intersector id="stats-fragment" endpoint="/fragments/stats" />
         <DiscoveryTags />

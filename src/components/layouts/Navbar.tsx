@@ -1,4 +1,4 @@
-import NavDesktopMenu from "./NavDesktopMenu";
+import NavDesktopMenu, { NavLink } from "./NavDesktopMenu";
 import NavMobileMenu from "./NavMobileMenu";
 import NavSearch from "./NavSearch";
 import BrandLogo from "../app/BrandLogo";
@@ -25,6 +25,19 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
       <BrandLogo />
       <div class="hidden md:flex items-center gap-4">
         <AdminEditButton href={adminEditHref} user={user} />
+        {user && (
+          <>
+            <NavLink href="/featured" currentPath={currentPath}>
+              Discover
+            </NavLink>
+            <NavLink href="/feed" currentPath={currentPath}>
+              Feed
+            </NavLink>
+            <NavLink href="/library" currentPath={currentPath}>
+              Library
+            </NavLink>
+          </>
+        )}
         <NavSearch />
         <NavDesktopMenu currentPath={currentPath} />
       </div>
