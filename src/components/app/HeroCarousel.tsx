@@ -77,7 +77,7 @@ const HeroCarousel = async () => {
               class="grid w-full grid-cols-1 grid-rows-[auto_auto] gap-6 md:grid-cols-[3fr_2fr] md:grid-rows-1 md:gap-10 md:items-center"
             >
               <div class="relative order-1 flex w-full justify-center md:order-0 ">
-                <template x-if="item.coverStack && item.coverStack.length > 3">
+                <template x-if="item.coverStack && item.coverStack.length >= 2">
                   <div class="grid w-full max-w-[700px] grid-cols-2 gap-2 min-[480px]:grid-cols-4 min-[480px]:gap-3">
                     <template x-for="(url, i) in item.coverStack">
                       <img
@@ -88,7 +88,7 @@ const HeroCarousel = async () => {
                     </template>
                   </div>
                 </template>
-                <template x-if="!item.coverStack || item.coverStack.length <= 3">
+                <template x-if="!item.coverStack || item.coverStack.length < 2">
                   <img
                     x-bind:src="item.image"
                     class="max-h-[220px] rounded-lg shadow-xl transition duration-500 hover:scale-102 sm:max-h-[300px] md:max-h-[340px]"
@@ -132,7 +132,7 @@ const HeroCarousel = async () => {
           x-show="items.length > 1"
           x-on:click="prev()"
           type="button"
-          class="hidden md:block absolute left-2 z-10 -translate-y-1/2 sm:left-6 md:left-10 top-1/2"
+          class="hidden md:block absolute left-2 z-10 -translate-y-1/2 sm:left-6 md:left-10 top-1/2 cursor-pointer"
         >
           {leftArrowIcon}
         </button>
@@ -141,7 +141,7 @@ const HeroCarousel = async () => {
           x-show="items.length > 1"
           x-on:click="next()"
           type="button"
-          class="hidden md:block absolute right-2 z-10 -translate-y-1/2 sm:right-6 md:right-10 top-1/2"
+          class="hidden md:block absolute right-2 z-10 -translate-y-1/2 sm:right-6 md:right-10 top-1/2 cursor-pointer"
         >
           {rightArrowIcon}
         </button>

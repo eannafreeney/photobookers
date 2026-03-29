@@ -1,6 +1,6 @@
 import { Fragment } from "hono/jsx/jsx-runtime";
 
-const tickerItems = [
+export const tickerItems = [
   "Discover New Photobooks",
   "Join the Newsletter",
   "Follow Your Favorite Artists and Publishers",

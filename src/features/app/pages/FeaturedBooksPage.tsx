@@ -1,24 +1,21 @@
 import { AuthUser } from "../../../../types";
 import Card from "../../../components/app/Card";
 import HeroCarousel from "../../../components/app/HeroCarousel";
-import TickerBanner from "../../../components/app/TickerBanner";
+
 import AppLayout from "../../../components/layouts/AppLayout";
-import NavTabs from "../../../components/layouts/NavTabs";
 import Page from "../../../components/layouts/Page";
 import { capitalize, getRandomCoverUrl } from "../../../utils";
-import BookOfTheWeekGrid from "../components/BOTWGrid";
 import DiscoveryTags from "../components/DiscoveryTags";
 import Intersector from "../components/Intersector";
-import { getFirstBookByTag, getHomepageStats } from "../services";
+import SiteFeatures from "../components/SiteFeatures";
+import { getFirstBookByTag } from "../services";
 
 type Props = {
   user: AuthUser | null;
-
   currentPath: string;
-  isMobile: boolean;
 };
 
-const FeaturedBooksPage = async ({ user, currentPath, isMobile }: Props) => {
+const FeaturedBooksPage = async ({ user, currentPath }: Props) => {
   return (
     <AppLayout title="Books" user={user} currentPath={currentPath}>
       {/* <TickerBanner /> */}
@@ -31,12 +28,9 @@ const FeaturedBooksPage = async ({ user, currentPath, isMobile }: Props) => {
           id="featured-books-fragment"
           endpoint="/fragments/featured-books"
         />
+        {/* <SiteFeatures /> */}
         <DiscoveryTags />
         {/* <DiscoveryCards /> */}
-        {/* <Intersector
-          id="creator-spotlights-fragment"
-          endpoint="/fragments/creator-spotlights"
-        /> */}
         <Intersector
           id="latest-books-fragment"
           endpoint="/fragments/latest-books"

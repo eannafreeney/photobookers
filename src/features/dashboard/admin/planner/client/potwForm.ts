@@ -42,8 +42,7 @@ export function registerPOTWForm() {
 
           return (
             Object.values(ctx.errors.form).every((err) => !err) &&
-            ctx.form.creatorId &&
-            ctx.form.text
+            ctx.form.creatorId
           );
         },
 

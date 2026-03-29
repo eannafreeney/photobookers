@@ -18,7 +18,6 @@ import { generateContactEmail } from "./emails";
 import LatestBooksFragment from "./fragments/LatestBooksFragment";
 import FeaturedBooksFragment from "./fragments/FeaturedBooksFragment";
 import MessagesPage from "./pages/MessagesPage";
-import CreatorSpotlightFragment from "./fragments/CreatorSpotlightFragment";
 import NewsletterConfirmationPage from "./pages/NewsletterConfirmationPage";
 import RelatedBooksFragment from "./fragments/RelatedBooksFragment";
 import { getBookBySlug } from "./services";
@@ -116,15 +115,8 @@ export const getTagPage = async (c: Context) => {
 export const getFeaturedPage = async (c: Context) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
-  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
-  return c.html(
-    <FeaturedBooksPage
-      user={user}
-      currentPath={currentPath}
-      isMobile={isMobile}
-    />,
-  );
+  return c.html(<FeaturedBooksPage user={user} currentPath={currentPath} />);
 };
 
 export const getUserUpdateModal = async (c: UserUpdateFormContext) => {
@@ -314,10 +306,6 @@ export const getFeaturedBooksFragment = async (c: Context) => {
 export const getFollowedCreatorsPage = async (c: Context) => {
   const user = await getUser(c);
   return c.html(<FollowedCreatorsPage user={user} />);
-};
-
-export const getCreatorSpotlightFragment = async (c: Context) => {
-  return c.html(<CreatorSpotlightFragment />);
 };
 
 export const getRelatedBooksFragment = async (c: Context) => {

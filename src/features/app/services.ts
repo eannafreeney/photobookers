@@ -48,6 +48,19 @@ export const getDisplayName = (
   return fullName || commentUser.email;
 };
 
+export const getVerifiedPublishers = async () => {
+  try {
+    const publishers = await db.query.creators.findMany({
+      where: eq(creators.status, "verified"),
+      columns: CREATOR_CARD_COLUMNS,
+    });
+    return ok(publishers);
+  } catch (error) {
+    console.error("Failed to get verified publishers", error);
+    return err({ reason: "Failed to get verified publishers", error });
+  }
+};
+
 export const getBookComments = async (bookId: string) => {
   try {
     const comments = await db.query.bookComments.findMany({

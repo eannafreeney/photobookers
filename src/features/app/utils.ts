@@ -72,11 +72,12 @@ export function buildHeroCarouselItems(
   const artist = artistOfTheWeek?.creator ?? null;
 
   if (artist) {
+    const stack = artistCoverStack.length >= 2 ? artistCoverStack : [];
     items.push({
       label: "Artist of the Week",
       title: artist.displayName,
       image: artist.coverUrl ?? undefined,
-      // coverStack: artistCoverStack.length > 3 ? artistCoverStack : [],
+      coverStack: stack,
       text: artist.tagline ?? "",
       link: `/creators/${artist.slug}`,
       slideClass: "bg-sky-100",
@@ -87,7 +88,7 @@ export function buildHeroCarouselItems(
   const publisher = publisherOfTheWeek?.creator;
 
   if (publisher) {
-    const stack = publisherCoverStack.length > 3 ? publisherCoverStack : [];
+    const stack = publisherCoverStack.length >= 2 ? publisherCoverStack : [];
 
     items.push({
       label: "Publisher of the Week",
