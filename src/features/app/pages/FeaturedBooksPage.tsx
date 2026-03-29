@@ -1,5 +1,6 @@
 import { AuthUser } from "../../../../types";
 import Card from "../../../components/app/Card";
+import HeroCarousel from "../../../components/app/HeroCarousel";
 import TickerBanner from "../../../components/app/TickerBanner";
 import AppLayout from "../../../components/layouts/AppLayout";
 import NavTabs from "../../../components/layouts/NavTabs";
@@ -20,10 +21,11 @@ type Props = {
 const FeaturedBooksPage = async ({ user, currentPath, isMobile }: Props) => {
   return (
     <AppLayout title="Books" user={user} currentPath={currentPath}>
-      <TickerBanner />
+      {/* <TickerBanner /> */}
       <Page>
+        <HeroCarousel />
         <NavTabs currentPath={currentPath} />
-        <BookOfTheWeekGrid user={user} isMobile={isMobile} />
+        {/* <BookOfTheWeekGrid user={user} isMobile={isMobile} /> */}
         <Intersector id="stats-fragment" endpoint="/fragments/stats" />
         <DiscoveryTags />
         <Intersector

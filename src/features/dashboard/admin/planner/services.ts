@@ -19,6 +19,7 @@ import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
 } from "../../../../constants/queries";
+import { err, ok } from "../../../../lib/result";
 
 export async function getAllBooksPreview() {
   return db.query.books.findMany({
@@ -277,15 +278,23 @@ export type ArtistOfTheWeekWithCreator = Awaited<
 >;
 export async function getArtistOfTheWeekForDateQuery(date: Date) {
   const weekStart = toWeekStart(date);
-  return db.query.artistOfTheWeek.findFirst({
-    where: eq(artistOfTheWeek.weekStart, weekStart),
-    with: {
-      creator: {
-        columns: CREATOR_CARD_COLUMNS,
+  try {
+    const artist = await db.query.artistOfTheWeek.findFirst({
+      where: eq(artistOfTheWeek.weekStart, weekStart),
+      with: {
+        creator: {
+          columns: CREATOR_CARD_COLUMNS,
+        },
       },
-    },
-  });
+    });
+    if (!artist) return err({ reason: "Artist of the week not found" });
+    return ok(artist);
+  } catch (e) {
+    console.error("getArtistOfTheWeekForDateQuery", e);
+    return err({ reason: "Failed to get artist of the week for date" });
+  }
 }
+
 export async function getArtistsOfTheWeekByWeekStart(year: number) {
   const weekStarts = getWeekStarts(year);
   if (weekStarts.length === 0)
@@ -307,6 +316,7 @@ export async function getArtistsOfTheWeekByWeekStart(year: number) {
   }
   return byWeek;
 }
+
 export async function setArtistOfTheWeek(params: {
   weekStart: Date;
   creatorId: string;
@@ -370,12 +380,19 @@ export type PublisherOfTheWeekWithCreator = Awaited<
 
 export async function getPublisherOfTheWeekForDateQuery(date: Date) {
   const weekStart = toWeekStart(date);
-  return db.query.publisherOfTheWeek.findFirst({
-    where: eq(publisherOfTheWeek.weekStart, weekStart),
-    with: {
-      creator: { columns: CREATOR_CARD_COLUMNS },
-    },
-  });
+  try {
+    const publisher = await db.query.publisherOfTheWeek.findFirst({
+      where: eq(publisherOfTheWeek.weekStart, weekStart),
+      with: {
+        creator: { columns: CREATOR_CARD_COLUMNS },
+      },
+    });
+    if (!publisher) return err({ reason: "Publisher of the week not found" });
+    return ok(publisher);
+  } catch (e) {
+    console.error("getPublisherOfTheWeekForDateQuery", e);
+    return err({ reason: "Failed to get publisher of the week for date" });
+  }
 }
 
 export async function getPublishersOfTheWeekByWeekStart(year: number) {
@@ -399,6 +416,7 @@ export async function getPublishersOfTheWeekByWeekStart(year: number) {
   }
   return byWeek;
 }
+
 export async function setPublisherOfTheWeek(params: {
   weekStart: Date;
   creatorId: string;

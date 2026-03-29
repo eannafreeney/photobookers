@@ -25,6 +25,7 @@ import { registerPOTWForm } from "../features/dashboard/admin/planner/client/pot
 import { registerClaimSignupForm } from "../features/claims/client/claimSignUpForm";
 import { registerUserProfileImageForm } from "../features/app/client/userProfileImageForm";
 import { registerCommentForm } from "../features/api/client/commentForm";
+import { registerHeroCarousel } from "./components/heroCarousel";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -54,3 +55,4 @@ registerPOTWForm();
 registerClaimSignupForm();
 registerUserProfileImageForm();
 registerCommentForm();
+registerHeroCarousel();
