@@ -91,20 +91,25 @@ const HeroCarousel = async () => {
                 <template x-if="!item.coverStack || item.coverStack.length <= 3">
                   <img
                     x-bind:src="item.image"
-                    class="max-h-[220px] rounded-lg shadow-xl transition duration-500 hover:scale-105 sm:max-h-[300px] md:max-h-[340px]"
+                    class="max-h-[220px] rounded-lg shadow-xl transition duration-500 hover:scale-102 sm:max-h-[300px] md:max-h-[340px]"
                   />
                 </template>
               </div>
-              <div class="order-2 flex w-full max-w-md flex-col gap-4 md:order-0">
+              <div class="order-2 flex w-full max-w-md flex-col gap-2 md:order-0">
                 <p
-                  class="text-sm text-on-surface-weak text-center md:text-left"
+                  class="text-sm text-center md:text-left"
                   x-text="item.label"
                 ></p>
                 <h2
-                  class="text-2xl font-semibold text-on-surface-strong sm:text-4xl"
+                  class="text-2xl font-semibold text-on-surface-strong sm:text-4xl text-center md:text-left"
                   x-text="item.title"
                 ></h2>
-                <p class="mb-2 text-on-surface" x-text="item.text"></p>
+                <template x-if="item.text">
+                  <p
+                    class="mb-2 text-on-surface text-center md:text-left"
+                    x-text="item.text"
+                  ></p>
+                </template>
 
                 <div class="flex justify-center md:justify-start">
                   <a x-bind:href="item.link">
