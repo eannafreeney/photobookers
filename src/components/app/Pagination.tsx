@@ -37,7 +37,7 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
         >
           {leftArrowIcon}
         </a>
-        <span class="text-sm text-on-surface-weak">
+        <span class="text-sm text-on-surfaces">
           {page} of {totalPages}
         </span>
         <a
