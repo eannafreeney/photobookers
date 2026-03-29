@@ -19,7 +19,7 @@ const PublisherOfTheWeek = ({
 
   return (
     <div class="mt-3 pt-3 border-t border-outline">
-      <p class="text-xs font-medium text-on-surface-weak mb-2">
+      <p class="text-xs font-medium text-on-surface mb-2">
         Publisher of the week
       </p>
       {publisher ? (

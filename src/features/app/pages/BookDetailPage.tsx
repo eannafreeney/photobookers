@@ -230,7 +230,7 @@ const Credits = ({ releaseDate, publisher }: CreditsProps) => (
       </>
     )}
     <p class="text-sm font-medium text-on-surface-strong">Credits</p>
-    <p class="text-sm text-on-surface-weak">
+    <p class="text-sm text-on-surface">
       All images on this page are owned by the respective creator.
     </p>
   </div>

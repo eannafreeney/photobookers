@@ -57,9 +57,7 @@ type WeekCardHeaderProps = {
 const WeekCardHeader = ({ weekStart, weekNumber }: WeekCardHeaderProps) => (
   <div class="flex items-center justify-between p-3 border-b border-outline">
     <div>
-      <span class="text-xs font-medium text-on-surface-weak">
-        Week {weekNumber}
-      </span>
+      <span class="text-xs font-medium text-on-surface">Week {weekNumber}</span>
       <p class="text-sm font-medium text-on-surface-strong">
         {formatWeekRange(weekStart)}
       </p>

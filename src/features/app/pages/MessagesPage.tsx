@@ -48,7 +48,7 @@ const MessagesFeedPage = async ({
             Updates from creators you follow
           </h1>
           {result.messages.length === 0 ? (
-            <p class="text-on-surface-weak">
+            <p class="text-on-surface">
               Follow artists or publishers to see their messages here.
             </p>
           ) : (
@@ -77,7 +77,7 @@ const MessagesFeedPage = async ({
                       ))}
                     </div>
                   ) : null}
-                  <p class="mt-2 text-xs text-on-surface-weak">
+                  <p class="mt-2 text-xs text-on-surface">
                     {msg.createdAt
                       ? new Date(msg.createdAt).toLocaleString()
                       : "—"}{" "}

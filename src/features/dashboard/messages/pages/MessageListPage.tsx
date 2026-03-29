@@ -37,11 +37,11 @@ const MessagesListPage = ({ user, creator, currentPath, messages }: Props) => {
               New message
             </a>
           </div>
-          <p class="text-sm text-on-surface-weak">
+          <p class="text-sm text-on-surface">
             Only people who follow you can see these messages.
           </p>
           {messages.length === 0 ? (
-            <p class="text-on-surface-weak">No messages yet.</p>
+            <p class="text-on-surface">No messages yet.</p>
           ) : (
             <ul class="space-y-4">
               {messages.map((msg) => (
@@ -62,7 +62,7 @@ const MessagesListPage = ({ user, creator, currentPath, messages }: Props) => {
                       ))}
                     </div>
                   ) : null}
-                  <p class="mt-2 text-xs text-on-surface-weak">
+                  <p class="mt-2 text-xs text-on-surface">
                     {msg.createdAt
                       ? new Date(msg.createdAt).toLocaleString()
                       : "—"}{" "}

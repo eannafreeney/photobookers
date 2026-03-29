@@ -18,7 +18,7 @@ const FeaturedBooksList = ({
 
   return (
     <div class="mt-3 pt-3 border-t border-outline">
-      <p class="text-xs font-medium text-on-surface-weak mb-2">Featured</p>
+      <p class="text-xs font-medium text-on-surface mb-2">Featured</p>
       {hasFiveFeatured ? (
         <ul class="text-xs text-on-surface-strong space-y-1">
           {featuredBooks.map((fb) => (
@@ -59,14 +59,14 @@ const FeaturedBooksListItem = ({ fb }: FeaturedBooksListItemProps) => (
       </Link>
       {fb.book.artist && (
         <Link href={`/creators/${fb.book.artist.slug}`}>
-          <p class="text-xs text-on-surface-weak truncate">
+          <p class="text-xs text-on-surface truncate">
             {fb.book.artist.displayName}
           </p>
         </Link>
       )}
       {fb.book.publisher && (
         <Link href={`/creators/${fb.book.publisher.slug}`}>
-          <p class="text-xs text-on-surface-weak truncate">
+          <p class="text-xs text-on-surface truncate">
             {fb.book.publisher.displayName}
           </p>
         </Link>

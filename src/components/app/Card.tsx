@@ -123,7 +123,7 @@ type DescriptionProps = {
 };
 
 const CardDescription = ({ children }: DescriptionProps) => (
-  <p class="text-pretty text-sm text-on-surface-weak whitespace-pre-wrap">
+  <p class="text-pretty text-sm text-on-surface whitespace-pre-wrap">
     {children}
   </p>
 );
@@ -133,7 +133,7 @@ type TextProps = {
 };
 
 const CardText = ({ children }: TextProps) => (
-  <span class="text-xs text-on-surface-weak whitespace-pre-wrap line-clamp-2">
+  <span class="text-xs text-on-surface whitespace-pre-wrap line-clamp-2">
     {children}
   </span>
 );

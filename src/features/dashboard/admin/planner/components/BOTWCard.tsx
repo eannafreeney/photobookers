@@ -49,14 +49,14 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
           </p>
           {book.artist && (
             <Link href={`/creators/${book.artist.slug}`}>
-              <p class="text-xs text-on-surface-weak truncate">
+              <p class="text-xs text-on-surface truncate">
                 {book.artist.displayName}
               </p>
             </Link>
           )}
           {book.publisher && (
             <Link href={`/creators/${book.publisher.slug}`}>
-              <p class="text-xs text-on-surface-weak truncate">
+              <p class="text-xs text-on-surface truncate">
                 {book.publisher.displayName}
               </p>
             </Link>

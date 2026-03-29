@@ -18,7 +18,7 @@ const NewsletterCard = ({
   >
     {stars}
     <p class="text-sm font-medium text-on-surface-strong">{title}</p>
-    <p class="text-xs text-on-surface-weak">{description}</p>
+    <p class="text-xs text-on-surface">{description}</p>
     <form
       x-target="toast newsletter-form"
       {...{ "x-target.error": "toast" }}

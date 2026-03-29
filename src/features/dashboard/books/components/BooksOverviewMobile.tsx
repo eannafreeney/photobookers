@@ -101,13 +101,13 @@ const BookTableRowMobile = ({ book, user }: RowProps) => {
             {book.artist && (
               <a
                 href={`/creators/${book.artist.slug}`}
-                class="text-sm text-on-surface-weak truncate hover:underline"
+                class="text-sm text-on-surface truncate hover:underline"
               >
                 {book.artist.displayName}
               </a>
             )}
             {releaseDateFormatted ? (
-              <p class="text-xs text-on-surface-weak">{releaseDateFormatted}</p>
+              <p class="text-xs text-on-surface">{releaseDateFormatted}</p>
             ) : null}
           </div>
         </div>

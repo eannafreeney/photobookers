@@ -38,13 +38,13 @@ const NavSearchResults = ({
       <div class="max-h-[calc(100vh-4rem)] overflow-y-auto p-4">
         {!hasResults ? (
           <div class="p-8 text-center">
-            <p class="text-sm text-on-surface-weak">No results found</p>
+            <p class="text-sm text-on-surface">No results found</p>
           </div>
         ) : (
           <ul class="flex flex-col gap-4">
             {creators.length > 0 && (
               <>
-                <li class="text-xs uppercase font-semibold text-on-surface-weak pt-2 pb-1">
+                <li class="text-xs uppercase font-semibold text-on-surface pt-2 pb-1">
                   Creators
                 </li>
                 <ul class="flex flex-col gap-4">
@@ -58,12 +58,12 @@ const NavSearchResults = ({
             {books.length > 0 && (
               <>
                 {creators.length > 0 && (
-                  <li class="text-xs uppercase font-semibold text-on-surface-weak pt-4 pb-1">
+                  <li class="text-xs uppercase font-semibold text-on-surface pt-4 pb-1">
                     Books
                   </li>
                 )}
                 {!creators.length && (
-                  <li class="text-xs uppercase font-semibold text-on-surface-weak pt-2 pb-1">
+                  <li class="text-xs uppercase font-semibold text-on-surface pt-2 pb-1">
                     Books
                   </li>
                 )}
@@ -109,7 +109,7 @@ const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
           <div class="font-semibold text-on-surface truncate">
             {creator.displayName}
           </div>
-          <div class="text-xs uppercase font-semibold text-on-surface-weak">
+          <div class="text-xs uppercase font-semibold text-on-surface">
             {creator.type}
           </div>
         </div>

@@ -20,7 +20,7 @@ const FeaturedBooksGrid = ({ featuredBooks, user }: Props) => {
         {featuredBooks?.length > 0 ? (
           featuredBooks.map((fb) => <BookCard book={fb.book} user={user} />)
         ) : (
-          <div class="col-span-full text-center text-sm text-on-surface-weak py-4">
+          <div class="col-span-full text-center text-sm text-on-surface py-4">
             No featured books found
           </div>
         )}

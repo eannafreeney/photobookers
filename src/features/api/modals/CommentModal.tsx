@@ -26,7 +26,7 @@ const CommentModal = ({
   };
 
   if (!user) {
-    return <p class="text-sm text-on-surface-weak">Log in to add a comment.</p>;
+    return <p class="text-sm text-on-surface">Log in to add a comment.</p>;
   }
 
   return (

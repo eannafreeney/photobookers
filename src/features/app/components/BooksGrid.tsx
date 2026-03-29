@@ -54,7 +54,7 @@ const BooksGrid = async ({
               />
             ))
           ) : (
-            <div class="col-span-full text-center text-sm text-on-surface-weak py-4">
+            <div class="col-span-full text-center text-sm text-on-surface py-4">
               {noResultsMessage}
             </div>
           )}

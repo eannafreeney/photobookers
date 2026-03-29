@@ -93,7 +93,7 @@ const PlannerHeader = ({ year }: { year: number }) => {
         >
           ← {year - 1}
         </a>
-        <span class="text-sm text-on-surface-weak">{year}</span>
+        <span class="text-sm text-on-surface">{year}</span>
         <a
           href={`/dashboard/admin/planner?year=${year + 1}`}
           class="rounded border border-outline bg-surface-alt px-3 py-1.5 text-sm font-medium text-on-surface hover:bg-surface"

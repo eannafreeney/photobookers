@@ -22,7 +22,7 @@ const CommentsSection = async ({
 }: CommentsSectionProps) => {
   const [err, comments] = await getBookComments(bookId);
 
-  if (err) return <p class="text-sm text-on-surface-weak">{err.reason}</p>;
+  if (err) return <p class="text-sm text-on-surface">{err.reason}</p>;
 
   const hasUserCommented =
     !!user?.id && !err && comments.some((c) => c.userId === user.id);
@@ -111,7 +111,7 @@ const CommentList = async ({ bookId, user, comments }: CommentListProps) => {
                 </div>
               )}
               {comment.createdAt && (
-                <p class="text-xs text-on-surface-weak">
+                <p class="text-xs text-on-surface">
                   {formatDate(comment.createdAt)}
                 </p>
               )}
@@ -119,7 +119,7 @@ const CommentList = async ({ bookId, user, comments }: CommentListProps) => {
             <div class="flex items-start justify-between">
               <CommentBody body={comment.body} />
               {user?.id === comment.userId && (
-                <div class="flex items-center gap-2 text-xs text-on-surface-weak cursor-pointer">
+                <div class="flex items-center gap-2 text-xs text-on-surface cursor-pointer">
                   <Link
                     href={`/api/books/${bookId}/update/${comment.id}`}
                     xTarget="modal-root"
@@ -145,7 +145,7 @@ const CommentBody = ({ body }: { body: string }) => (
     {body.length > 130 && (
       <button
         type="button"
-        class="mt-1 text-xs text-on-surface-weak hover:underline cursor-pointer"
+        class="mt-1 text-xs text-on-surface hover:underline cursor-pointer"
         x-on:click="expanded = !expanded"
         x-text="expanded ? 'Show less' : 'Show more'"
       />
@@ -172,7 +172,7 @@ const DeleteCommentButton = async ({
       {...alpineAttrs}
     >
       <button class="cursor-pointer hover:underline" type="submit">
-        <span class="text-xs text-on-surface-weak">delete</span>
+        <span class="text-xs text-on-surface">delete</span>
       </button>
     </form>
   );
