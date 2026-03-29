@@ -26,6 +26,7 @@ import { registerClaimSignupForm } from "../features/claims/client/claimSignUpFo
 import { registerUserProfileImageForm } from "../features/app/client/userProfileImageForm";
 import { registerCommentForm } from "../features/api/client/commentForm";
 import { registerHeroCarousel } from "./components/heroCarousel";
+import { registerCountUp } from "../features/app/client/countUp";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -56,3 +57,4 @@ registerClaimSignupForm();
 registerUserProfileImageForm();
 registerCommentForm();
 registerHeroCarousel();
+registerCountUp();

@@ -2,6 +2,7 @@ import { AuthUser } from "../../../../types";
 import { getLatestBooks } from "../services";
 import BooksGrid from "../components/BooksGrid";
 import { isErr } from "../../../lib/result";
+import Button from "../../../components/app/Button";
 
 type Props = {
   user: AuthUser;
@@ -25,7 +26,15 @@ const LatestBooksFragment = async ({
         user={user}
         currentPath={currentPath}
         result={result}
+        isPaginated={false}
       />
+      <div class="flex justify-center mt-8">
+        <a href="/books">
+          <Button variant="solid" color="primary" width="xl">
+            View All Books →
+          </Button>
+        </a>
+      </div>
     </div>
   );
 };

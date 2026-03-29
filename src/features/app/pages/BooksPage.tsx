@@ -19,7 +19,7 @@ const BooksPage = async ({ user, currentPath, currentPage }: Props) => {
     <AppLayout title="Books" user={user} currentPath={currentPath}>
       <Page>
         <BooksGrid
-          title="Latest Books"
+          title="All Books"
           user={user}
           currentPath={currentPath}
           result={result}

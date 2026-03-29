@@ -20,6 +20,7 @@ type Props = {
   currentCreatorId?: string | null;
   isFullWidth?: boolean;
   isInfiniteScroll?: boolean;
+  isPaginated?: boolean;
 };
 
 const BooksGrid = async ({
@@ -31,6 +32,7 @@ const BooksGrid = async ({
   noResultsMessage = "No books found",
   currentCreatorId,
   isInfiniteScroll = false,
+  isPaginated = true,
 }: Props) => {
   const { books, totalPages, page } = result;
   const targetId = "books-grid";
@@ -57,13 +59,15 @@ const BooksGrid = async ({
             </div>
           )}
         </GridPanel>
-        <ListNavigation
-          isInfiniteScroll={isInfiniteScroll}
-          currentPath={currentPath}
-          page={page}
-          totalPages={totalPages}
-          targetId={targetId}
-        />
+        {isPaginated && (
+          <ListNavigation
+            isInfiniteScroll={isInfiniteScroll}
+            currentPath={currentPath}
+            page={page}
+            totalPages={totalPages}
+            targetId={targetId}
+          />
+        )}
       </div>
     </>
   );

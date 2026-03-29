@@ -6,19 +6,34 @@ const StatsFragment = async () => {
     <div id="stats-fragment" class="flex items-center gap-4 justify-evenly">
       <a href="/publishers">
         <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2">
-          <p class="text-2xl font-semibold">{stats.publishers}</p>
+          <div
+            x-data={`countUp(${stats.publishers})`}
+            x-init="start()"
+            x-text="display"
+            class="text-2xl font-semibold"
+          ></div>
           <p class="text-sm text-gray-500">Publishers</p>
         </div>
       </a>
       <a href="/artists">
         <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2">
-          <p class="text-2xl font-semibold">{stats.artists}</p>
+          <div
+            x-data={`countUp(${stats.artists})`}
+            x-init="start()"
+            x-text="display"
+            class="text-2xl font-semibold"
+          ></div>
           <p class="text-sm text-gray-500">Artists</p>
         </div>
       </a>
       <a href="/books">
         <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2">
-          <p class="text-2xl font-semibold">{stats.books}</p>
+          <div
+            x-data={`countUp(${stats.books})`}
+            x-init="start()"
+            x-text="display"
+            class="text-2xl font-semibold"
+          ></div>
           <p class="text-sm text-gray-500">Books</p>
         </div>
       </a>
