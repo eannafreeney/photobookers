@@ -23,7 +23,7 @@ const CreatorCardSquare = async ({ creator }: CreatorCardSquareProps) => {
       />
       <Card.Body>
         <div class="flex items-start justify-between gap-2">
-          <div class="flex items-start gap-2">
+          <div class="flex items-center gap-2">
             <Link href={`/creators/${creator.slug}`}>
               <Card.Title>{creator.displayName}</Card.Title>
             </Link>

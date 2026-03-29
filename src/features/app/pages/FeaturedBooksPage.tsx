@@ -7,6 +7,7 @@ import Page from "../../../components/layouts/Page";
 import { capitalize, getRandomCoverUrl } from "../../../utils";
 import DiscoveryTags from "../components/DiscoveryTags";
 import Intersector from "../components/Intersector";
+import PublishersSlider from "../components/PublishersSlider";
 import SiteFeatures from "../components/SiteFeatures";
 import { getFirstBookByTag } from "../services";
 
@@ -24,6 +25,7 @@ const FeaturedBooksPage = async ({ user, currentPath }: Props) => {
         {/* <NavTabs currentPath={currentPath} /> */}
         {/* <BookOfTheWeekGrid user={user} isMobile={isMobile} /> */}
         <Intersector id="stats-fragment" endpoint="/fragments/stats" />
+        {/* <PublishersSlider /> */}
         <Intersector
           id="featured-books-fragment"
           endpoint="/fragments/featured-books"

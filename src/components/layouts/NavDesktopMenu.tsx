@@ -63,7 +63,6 @@ export const NavLink = ({
   ...props
 }: NavLinkProps) => {
   const isActive = currentPath === href;
-  console.log(currentPath, href, isActive);
 
   return (
     <li class="list-none">
