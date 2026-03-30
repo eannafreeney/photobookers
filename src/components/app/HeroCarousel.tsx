@@ -78,7 +78,10 @@ const HeroCarousel = async () => {
             >
               <div class="relative order-1 flex w-full justify-center md:order-0 ">
                 <template x-if="item.coverStack && item.coverStack.length >= 2">
-                  <div class="grid w-full max-w-[700px] grid-cols-2 gap-2 min-[480px]:grid-cols-4 min-[480px]:gap-3">
+                  <div
+                    class="mx-auto grid w-fit max-w-[700px] grid-cols-2 gap-2 min-[480px]:gap-3"
+                    x-bind:class="item.coverStack.length === 2 ? 'min-[480px]:grid-cols-2' : item.coverStack.length === 3 ? 'min-[480px]:grid-cols-3' : 'min-[480px]:grid-cols-4'"
+                  >
                     <template x-for="(url, i) in item.coverStack">
                       <img
                         x-bind:src="url"

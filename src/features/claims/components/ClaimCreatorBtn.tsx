@@ -30,7 +30,7 @@ const ClaimCreatorBtn = async ({ creator, user, currentPath }: Props) => {
     disabled: isDisabled,
     method: "get" as const as "get" | "post",
     tooltipText: "Claim Creator Profile",
-    buttonText: "Claim",
+    buttonText: "Is this you?",
     currentPath,
   };
 
