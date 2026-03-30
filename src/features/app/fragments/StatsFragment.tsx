@@ -5,7 +5,7 @@ const StatsFragment = async () => {
   return (
     <div id="stats-fragment" class="flex items-center gap-4 justify-evenly">
       <a href="/publishers">
-        <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2">
+        <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2 bg-surface shadow-sm">
           <div
             x-data={`countUp(${stats.publishers})`}
             x-init="start()"
@@ -16,7 +16,7 @@ const StatsFragment = async () => {
         </div>
       </a>
       <a href="/artists">
-        <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2">
+        <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2 bg-surface shadow-sm">
           <div
             x-data={`countUp(${stats.artists})`}
             x-init="start()"
@@ -27,7 +27,7 @@ const StatsFragment = async () => {
         </div>
       </a>
       <a href="/books">
-        <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2">
+        <div class="flex flex-col md:flex-row items-center gap-2 border border-outline rounded-radius px-4 py-2 bg-surface shadow-sm">
           <div
             x-data={`countUp(${stats.books})`}
             x-init="start()"

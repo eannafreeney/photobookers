@@ -108,3 +108,17 @@ export function buildHeroCarouselItems(
 export function toAlpineDataJson(items: HeroCarouselItem[]) {
   return JSON.stringify(items).replace(/</g, "\\u003c");
 }
+
+export function getImageSizeClass(size: number) {
+  const imageSizeClass =
+    {
+      12: "size-12",
+      14: "size-14",
+      16: "size-16",
+      20: "size-20",
+      24: "size-24",
+      28: "size-28",
+      32: "size-32",
+    }[size] ?? "size-24";
+  return imageSizeClass;
+}
