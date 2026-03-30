@@ -3,9 +3,9 @@ import { mailIcon } from "../../../lib/icons";
 import { getInputIcon } from "../../../utils";
 
 const NewsletterCard = () => (
-  <div class="rounded-radius md:mx-auto bg-surface p-4 shadow-md md:w-1/2">
-    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div class="flex items-center gap-3 md:w-1/2">
+  <div class="bg-sky-100 rounded-radius p-4">
+    <div class="flex flex-col items-center gap-4 md:flex-row md:items-center md:justify-center">
+      <div class="flex items-center justify-center gap-3">
         <div>{mailIcon(5)}</div>
         <div class="min-w-0 text-md font-semibold text-on-surface-strong">
           Join the mailing list
@@ -25,7 +25,7 @@ const NewsletterForm = () => (
     id="newsletter-form"
     action="/api/newsletter"
     method="post"
-    class="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-end"
+    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center"
   >
     <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt flex items-center gap-2 px-2 py-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary w-full sm:w-auto">
       {getInputIcon("email")}
@@ -38,7 +38,7 @@ const NewsletterForm = () => (
         required
       />
     </label>
-    <Button variant="outline" color="inverse" width="fit">
+    <Button variant="outline" color="primary" width="fit">
       Sign up
     </Button>
   </form>

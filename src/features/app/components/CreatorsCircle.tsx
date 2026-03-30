@@ -9,7 +9,7 @@ type Props = {
   size?: number;
 };
 
-const CreatorsCircle = ({ creator, size = 24 }: Props) => {
+const CreatorsCircle = ({ creator, size = 32 }: Props) => {
   if (!creator) return <></>;
 
   return (
@@ -22,7 +22,7 @@ const CreatorsCircle = ({ creator, size = 24 }: Props) => {
             title={creator.displayName ?? ""}
             class={`rounded-full object-cover ${getImageSizeClass(size)}`}
           />
-          <div class="absolute top-0 right-0">
+          <div class="absolute top-0 right-3">
             <VerifiedCreator creatorStatus={creator.status} size="sm" />
           </div>
         </div>

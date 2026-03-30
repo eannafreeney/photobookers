@@ -53,7 +53,7 @@ const FeatureCard = ({
   item: { title: string; icon: ChildType };
 }) => {
   return (
-    <div class="rounded-radius bg-surface p-4 shadow-md flex items-center justify-start">
+    <div class="bg-sky-100 rounded-radius p-4 flex items-center justify-start">
       <div class="w-full flex items-center gap-4 justify-start">
         <span class="w-6 h-6 flex items-center justify-center shrink-0">
           {item.icon}
