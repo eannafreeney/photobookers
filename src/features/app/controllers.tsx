@@ -29,6 +29,8 @@ import BooksPage from "./pages/BooksPage";
 import StatsFragment from "./fragments/StatsFragment";
 import FollowedCreatorsPage from "./pages/FollowedCreatorsPage";
 import CreatorsSliderFragment from "./fragments/CreatorsSliderFragment";
+import CreatorDetailMobileAboutPage from "./pages/CreatorDetailMobileAboutPage";
+import CreatorDetailMobileCreatorsPage from "./pages/CreatorDetailMobileCreatorsPage";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -40,7 +42,6 @@ export const getCreatorDetailPage = async (c: Context) => {
   const currentPath = c.req.path;
   const page = Number(c.req.query("page") ?? 1);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
-  const sortBy = parseSortBy(c.req.query("sortBy"));
 
   return c.html(
     <CreatorDetailPage
@@ -49,6 +50,35 @@ export const getCreatorDetailPage = async (c: Context) => {
       currentPath={currentPath}
       isMobile={isMobile}
       currentPage={page}
+    />,
+  );
+};
+
+export const getCreatorDetailMobileCreatorsPage = async (c: Context) => {
+  const slug = c.req.param("slug");
+  const user = await getUser(c);
+  const currentPath = c.req.path;
+  const page = Number(c.req.query("page") ?? 1);
+
+  return c.html(
+    <CreatorDetailMobileCreatorsPage
+      creatorSlug={slug}
+      user={user}
+      currentPath={currentPath}
+    />,
+  );
+};
+
+export const getCreatorDetailMobileAboutPage = async (c: Context) => {
+  const slug = c.req.param("slug");
+  const user = await getUser(c);
+  const currentPath = c.req.path;
+
+  return c.html(
+    <CreatorDetailMobileAboutPage
+      creatorSlug={slug}
+      user={user}
+      currentPath={currentPath}
     />,
   );
 };

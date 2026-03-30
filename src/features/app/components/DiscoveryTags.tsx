@@ -12,7 +12,7 @@ const DiscoveryTags = () => {
         <div class="flex w-max md:w-full items-center gap-2 whitespace-nowrap md:whitespace-normal md:justify-between">
           {DISCOVER_TAGS.map((tag) => (
             <Link key={tag} href={`/books/tags/${tag.toLowerCase()}`}>
-              <Badge>{capitalize(tag)}</Badge>
+              <Badge>{`#${capitalize(tag)}`}</Badge>
             </Link>
           ))}
         </div>

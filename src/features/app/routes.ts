@@ -6,6 +6,8 @@ import {
   getBookPreviewPage,
   getBooksPage,
   getContactPage,
+  getCreatorDetailMobileCreatorsPage,
+  getCreatorDetailMobileAboutPage,
   getCreatorDetailPage,
   getCreatorsSliderFragment,
   getFeaturedBooksFragment,
@@ -45,6 +47,16 @@ export const app = new Hono();
 // HOME
 app.get("/", getHomePage);
 app.get("/creators/:slug", paramValidator(slugSchema), getCreatorDetailPage);
+app.get(
+  "/creators/:slug/creators",
+  paramValidator(slugSchema),
+  getCreatorDetailMobileCreatorsPage,
+);
+app.get(
+  "/creators/:slug/about",
+  paramValidator(slugSchema),
+  getCreatorDetailMobileAboutPage,
+);
 app.get("/books/:slug", paramValidator(slugSchema), getBookDetailPage);
 app.get(
   "/books/preview/:slug",

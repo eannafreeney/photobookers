@@ -8,7 +8,9 @@ type Props = {
 };
 
 export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
-  if (totalPages <= 1) return null;
+  console.log("totalPages", totalPages);
+  console.log("page", page);
+  if (totalPages <= 1) return <></>;
 
   const pageUrl = (p: number) =>
     `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${p}`;

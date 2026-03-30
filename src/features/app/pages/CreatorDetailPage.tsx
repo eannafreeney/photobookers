@@ -4,9 +4,11 @@ import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import Divider from "../../../components/Divider";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
-import { Creator } from "../../../db/schema";
+import { CreatorCardResult, BookCardResult } from "../../../constants/queries";
+import { Book, Creator } from "../../../db/schema";
 import InfoPage from "../../../pages/InfoPage";
 import BooksGrid from "../components/BooksGrid";
+import CreatorNavTabs from "../components/CreatorNavTabs";
 import CreatorsGrid from "../components/RelatedCreators";
 import { getBooksByCreatorSlug } from "../services";
 
@@ -31,9 +33,7 @@ const CreatorDetailPage = async ({
     return <InfoPage errorMessage={error.reason} user={user} />;
   }
 
-  const { creator, relatedCreators, ...rest } = result;
-
-  const title = creator.type === "publisher" ? "Artists" : "Publishers";
+  const { creator, relatedCreators, books, totalPages, page } = result;
 
   return (
     <AppLayout
@@ -43,29 +43,23 @@ const CreatorDetailPage = async ({
       adminEditHref={`/dashboard/admin/creators/${creator.id}/update`}
     >
       <Page>
-        <div class="flex flex-col md:flex-row gap-4">
-          {isMobile && <MobileCreatorCard creator={creator} user={user} />}
-          <div class="md:w-4/5 flex flex-col gap-4">
-            <BooksGrid
-              isFullWidth={false}
-              title={isMobile ? undefined : "Books"}
-              user={user}
-              currentPath={currentPath}
-              result={{ ...rest }}
-              currentCreatorId={creator.id}
-              noResultsMessage="No books found"
-            />
-            <Divider />
-            <CreatorsGrid creators={relatedCreators} title={title} />
-          </div>
-          <div class="md:w-1/5">
-            <CreatorCard
-              creator={creator}
-              currentPath={currentPath}
-              user={user}
-            />
-          </div>
-        </div>
+        {isMobile ? (
+          <CreatorDetailMobile
+            creator={creator}
+            user={user}
+            currentPath={currentPath}
+            showCreatorsTab={relatedCreators.length > 0}
+            result={result}
+          />
+        ) : (
+          <CreatorDetailDesktop
+            creator={creator}
+            user={user}
+            currentPath={currentPath}
+            relatedCreators={relatedCreators}
+            result={result}
+          />
+        )}
       </Page>
     </AppLayout>
   );
@@ -77,20 +71,71 @@ type CreatorDetailMobileProps = {
   creator: Creator;
   user: AuthUser | null;
   currentPath: string;
+  result: {
+    books: BookCardResult[];
+    totalPages: number;
+    page: number;
+  };
+  showCreatorsTab: boolean;
 };
 
 const CreatorDetailMobile = ({
   creator,
   user,
   currentPath,
+  result,
+  showCreatorsTab,
 }: CreatorDetailMobileProps) => (
   <div class="flex flex-col gap-4">
-    {/* <MobileCreatorCard creator={creator} user={user} />
-    <BooksGrid
+    <MobileCreatorCard creator={creator} user={user} />
+    <CreatorNavTabs
+      showCreatorsTab={showCreatorsTab}
       creator={creator}
-      user={user}
       currentPath={currentPath}
-      result={{ ...rest }}
-    /> */}
+    />
+    <BooksGrid user={user} currentPath={currentPath} result={result} />
   </div>
 );
+
+type CreatorDetailDesktopProps = {
+  creator: Creator;
+  user: AuthUser | null;
+  currentPath: string;
+  relatedCreators: CreatorCardResult[];
+  result: {
+    books: BookCardResult[];
+    totalPages: number;
+    page: number;
+  };
+};
+
+export const CreatorDetailDesktop = ({
+  creator,
+  user,
+  currentPath,
+  relatedCreators,
+  result,
+}: CreatorDetailDesktopProps) => {
+  const title = creator.type === "publisher" ? "Artists" : "Publishers";
+
+  return (
+    <div class="flex flex-col md:flex-row gap-4">
+      <div class="md:w-4/5 flex flex-col gap-4">
+        <BooksGrid
+          isFullWidth={false}
+          title="Books"
+          user={user}
+          currentPath={currentPath}
+          result={result}
+          currentCreatorId={creator.id}
+          noResultsMessage="No books found"
+        />
+        <Divider />
+        <CreatorsGrid creators={relatedCreators} title={title} />
+      </div>
+      <div class="md:w-1/5">
+        <CreatorCard creator={creator} currentPath={currentPath} user={user} />
+      </div>
+    </div>
+  );
+};

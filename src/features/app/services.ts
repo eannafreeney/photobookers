@@ -315,6 +315,56 @@ export const getBooksByCreatorSlug = async (
   }
 };
 
+export const getCreatorAndAssociatedCreatorsByCreatorSlugMobile = async (
+  slug: string,
+) => {
+  try {
+    // 1. Fetch creator without books
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.slug, slug),
+    });
+
+    if (!creator) {
+      return err({ reason: "Creator not found" });
+    }
+
+    const associatedCreators = await getRelatedCreators(
+      creator.id,
+      creator.type,
+    );
+
+    return ok({
+      creator,
+      associatedCreators,
+    });
+  } catch (error) {
+    console.warn(error);
+    return err({ reason: "Failed to get books by creator slug", error });
+  }
+};
+
+export const getCreatorAboutBySlug = async (slug: string) => {
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.slug, slug),
+    });
+
+    if (!creator) {
+      return err({ reason: "Creator not found" });
+    }
+
+    const relatedCreators = await getRelatedCreators(creator.id, creator.type);
+
+    return ok({
+      creator,
+      relatedCreators,
+    });
+  } catch (error) {
+    console.warn(error);
+    return err({ reason: "Failed to get books by creator slug", error });
+  }
+};
+
 export const getBookBySlug = async (
   bookSlug: string,
   status: "published" | "draft" = "published",
@@ -709,12 +759,18 @@ export const getRelatedCreators = async (
     const myColumn =
       creatorType === "publisher" ? books.publisherId : books.artistId;
 
+    const peerColumnFilter =
+      creatorType === "publisher"
+        ? isNotNull(books.artistId)
+        : isNotNull(books.publisherId);
+
     const publishedBooks = await db
       .selectDistinct({ relatedId: relatedColumn })
       .from(books)
       .where(
         and(
           eq(myColumn, creatorId),
+          peerColumnFilter,
           eq(books.publicationStatus, "published"),
           eq(books.approvalStatus, "approved"),
           or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
