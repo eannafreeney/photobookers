@@ -93,7 +93,13 @@ const CreatorDetailMobile = ({
       creator={creator}
       currentPath={currentPath}
     />
-    <BooksGrid user={user} currentPath={currentPath} result={result} />
+    <BooksGrid
+      user={user}
+      currentPath={currentPath}
+      result={result}
+      currentCreatorId={creator.id}
+      noResultsMessage="No books found"
+    />
   </div>
 );
 
