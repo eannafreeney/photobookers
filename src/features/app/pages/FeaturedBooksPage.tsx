@@ -7,6 +7,7 @@ import Page from "../../../components/layouts/Page";
 import { capitalize, getRandomCoverUrl } from "../../../utils";
 import DiscoveryTags from "../components/DiscoveryTags";
 import Intersector from "../components/Intersector";
+import NewsletterCard from "../components/NewsletterCard";
 import PublishersSlider from "../components/PublishersSlider";
 import SiteFeatures from "../components/SiteFeatures";
 import { getFirstBookByTag } from "../services";
@@ -19,20 +20,20 @@ type Props = {
 const FeaturedBooksPage = async ({ user, currentPath }: Props) => {
   return (
     <AppLayout title="Books" user={user} currentPath={currentPath}>
-      {/* <TickerBanner /> */}
       <Page>
         <HeroCarousel />
-        {/* <NavTabs currentPath={currentPath} /> */}
-        {/* <BookOfTheWeekGrid user={user} isMobile={isMobile} /> */}
+        <div class="text-center text-2xl font-bold">
+          The social network for photobook lovers.
+        </div>
         <Intersector id="stats-fragment" endpoint="/fragments/stats" />
+        <SiteFeatures />
         {/* <PublishersSlider /> */}
         <Intersector
           id="featured-books-fragment"
           endpoint="/fragments/featured-books"
         />
-        {/* <SiteFeatures /> */}
+        <NewsletterCard />
         <DiscoveryTags />
-        {/* <DiscoveryCards /> */}
         <Intersector
           id="latest-books-fragment"
           endpoint="/fragments/latest-books"

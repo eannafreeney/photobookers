@@ -1,45 +1,43 @@
-import Card from "../../../components/app/Card";
 import {
-  bookIcon,
   editIcon,
-  fullHeartIcon,
+  emptyHeartIcon,
+  libraryIcon,
   mailIcon,
-  stars,
+  thumbsUpIcon,
   usersIcon,
 } from "../../../lib/icons";
 import type { ChildType } from "../../../../types";
-import { log } from "console";
 
 export const tickerItems = [
   {
     title: "Follow your favorite artists and publishers",
-    icon: usersIcon,
+    icon: usersIcon(5),
+  },
+  {
+    title: "Show some love to your favorite books with a 'like'",
+    icon: thumbsUpIcon(5),
+  },
+  {
+    title: "Add your favorite books to your collection",
+    icon: libraryIcon(5),
   },
   {
     title: "Wishlist your favorite books",
-    icon: fullHeartIcon(),
-  },
-  {
-    title: "Collect your favorite books",
-    icon: bookIcon,
-  },
-  {
-    title: "Join the Newsletter",
-    icon: stars,
+    icon: emptyHeartIcon(5),
   },
   {
     title: "Share what you loved about a book",
-    icon: editIcon,
+    icon: editIcon(5),
   },
   {
     title: "Join the Newsletter and be updated about new books",
-    icon: mailIcon,
+    icon: mailIcon(5),
   },
 ];
 
 const SiteFeatures = () => {
   return (
-    <div class="grid grid-cols-2 gap-4 mx-auto">
+    <div class="grid grid-cols-3 gap-4 mx-auto">
       {tickerItems.map((item) => (
         <FeatureCard key={item.title} item={item} />
       ))}
@@ -55,13 +53,15 @@ const FeatureCard = ({
   item: { title: string; icon: ChildType };
 }) => {
   return (
-    <Card className="">
-      <Card.Body>
-        <div className="flex items-center justify-center gap-2 min-w-64">
-          <span className="text-xs">{item.icon}</span>
-          <Card.Title>{item.title}</Card.Title>
+    <div class="rounded-radius bg-surface p-4 shadow-md flex items-center justify-start">
+      <div class="w-full flex items-center gap-4 justify-start">
+        <span class="w-6 h-6 flex items-center justify-center shrink-0">
+          {item.icon}
+        </span>
+        <div class="text-md font-semibold text-on-surface-strong min-w-0">
+          {item.title}
         </div>
-      </Card.Body>
-    </Card>
+      </div>
+    </div>
   );
 };

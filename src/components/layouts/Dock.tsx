@@ -17,7 +17,7 @@ const Dock = ({ currentPath }: DockProps) => {
         )}
       >
         {bookIcon}
-        <span class="dock-label">Featured</span>
+        <span class="dock-label">Discover</span>
       </a>
       <a
         href="/feed"

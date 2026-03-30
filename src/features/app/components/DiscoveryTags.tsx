@@ -7,7 +7,7 @@ import { capitalize } from "../../../utils";
 const DiscoveryTags = () => {
   return (
     <div className="mt-2 mb-4">
-      <SectionTitle>Discover</SectionTitle>
+      <SectionTitle className="mb-4">Discover</SectionTitle>
       <div class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-0">
         <div class="flex w-max md:w-full items-center gap-2 whitespace-nowrap md:whitespace-normal md:justify-between">
           {DISCOVER_TAGS.map((tag) => (

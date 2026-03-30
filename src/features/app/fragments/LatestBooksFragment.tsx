@@ -15,7 +15,7 @@ const LatestBooksFragment = async ({
   currentPage,
   currentPath,
 }: Props) => {
-  const [error, result] = await getLatestBooks(currentPage);
+  const [error, result] = await getLatestBooks(currentPage, 10);
 
   if (error) return <></>;
 

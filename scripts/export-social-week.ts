@@ -32,6 +32,7 @@ const CREATOR_COLUMNS_WITH_INSTAGRAM = {
   slug: true,
   coverUrl: true,
   status: true,
+  bio: true,
   instagram: true,
 } as const;
 
@@ -209,7 +210,11 @@ async function run() {
     if (artist) botwPost.push(artist.displayName);
     if (publisher) botwPost.push(publisher.displayName);
     botwPost.push("");
-    if (botwRow.text) botwPost.push(botwRow.text);
+    // Prefer the book description for BOTW. Fall back to creator bios if needed.
+    const bookDesc = b.description ?? null;
+    if (bookDesc) botwPost.push(bookDesc);
+    else if (artist?.bio) botwPost.push(artist.bio);
+    else if (publisher?.bio) botwPost.push(publisher.bio);
     botwPost.push("");
     if (artist) {
       const h = extractInstagramHandle(artist.instagram);
@@ -294,7 +299,9 @@ async function run() {
     artistPost.push("");
     artistPost.push(c.displayName);
     artistPost.push("");
-    if (aotwRow.text) artistPost.push(aotwRow.text);
+    const bio = c.bio ?? null;
+    if (bio) artistPost.push(bio);
+    else if (aotwRow.text) artistPost.push(aotwRow.text); // legacy fallback
     artistPost.push("");
     const h = extractInstagramHandle(c.instagram);
     if (h) artistPost.push(h);
@@ -323,7 +330,9 @@ async function run() {
     publisherPost.push("");
     publisherPost.push(c.displayName);
     publisherPost.push("");
-    if (potwRow.text) publisherPost.push(potwRow.text);
+    const bio = c.bio ?? null;
+    if (bio) publisherPost.push(bio);
+    else if (potwRow.text) publisherPost.push(potwRow.text); // legacy fallback
     publisherPost.push("");
     const ph = extractInstagramHandle(c.instagram);
     if (ph) publisherPost.push(ph);

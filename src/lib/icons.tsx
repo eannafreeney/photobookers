@@ -116,14 +116,14 @@ export const feedIcon = (
   </svg>
 );
 
-export const libraryIcon = (
+export const libraryIcon = (size: number = 5) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-5"
+    class={`size-${size}`}
   >
     <path
       stroke-linecap="round"
@@ -133,14 +133,14 @@ export const libraryIcon = (
   </svg>
 );
 
-export const editIcon = (
+export const editIcon = (size: number = 6) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-6"
+    class={`size-${size}`}
   >
     <path
       stroke-linecap="round"
@@ -297,14 +297,14 @@ export const stars = (
   </svg>
 );
 
-export const usersIcon = (
+export const usersIcon = (size: number = 4) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-4"
+    class={`size-${size}`}
   >
     <path
       stroke-linecap="round"
@@ -314,14 +314,14 @@ export const usersIcon = (
   </svg>
 );
 
-export const mailIcon = (
+export const mailIcon = (size: number = 6) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="size-6"
+    class={`size-${size}`}
   >
     <path
       stroke-linecap="round"
@@ -414,7 +414,7 @@ export const loadingIcon = (
   </svg>
 );
 
-export const thumbsUpIcon = (size: string = "8") => (
+export const thumbsUpIcon = (size: number = 8) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
