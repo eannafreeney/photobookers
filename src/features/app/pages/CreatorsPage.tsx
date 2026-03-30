@@ -3,7 +3,7 @@ import PageTitle from "../../../components/app/PageTitle";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import ErrorPage from "../../../pages/error/errorPage";
-import CreatorCardSquare from "../components/CreatorCardSquare";
+import CreatorsCircle from "../components/CreatorsCircle";
 import { getAllCreatorsByType } from "../services";
 
 type Props = {
@@ -31,9 +31,9 @@ const CreatorsPage = async ({
     <AppLayout title={title} user={user} currentPath={currentPath}>
       <Page>
         <PageTitle title={title} />
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6">
           {creators.map((creator) => (
-            <CreatorCardSquare creator={creator} />
+            <CreatorsCircle creator={creator} />
           ))}
         </div>
       </Page>

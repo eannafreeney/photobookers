@@ -1,5 +1,6 @@
 import SectionTitle from "../../../components/app/SectionTitle";
 import { CreatorCardResult } from "../../../constants/queries";
+import CreatorsCircle from "./CreatorsCircle";
 
 type PublishersSliderProps = {
   creators: CreatorCardResult[];
@@ -12,17 +13,7 @@ const CreatorsSlider = async ({ creators }: PublishersSliderProps) => {
       <div class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div class="flex w-max items-center gap-6">
           {creators.map((creator) => (
-            <a
-              href={`/creators/${creator.slug}`}
-              key={creator.id ?? creator.slug}
-            >
-              <img
-                src={creator.coverUrl ?? ""}
-                alt={creator.displayName ?? ""}
-                title={creator.displayName ?? ""}
-                class="size-24 rounded-full object-cover"
-              />
-            </a>
+            <CreatorsCircle creator={creator} />
           ))}
         </div>
       </div>

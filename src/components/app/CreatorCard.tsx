@@ -27,7 +27,7 @@ const CreatorCard = async ({
 
   return (
     <>
-      <SectionTitle className="mb-2">{title}</SectionTitle>
+      <SectionTitle className="mb-4">{title}</SectionTitle>
       <Card>
         <Card.Image
           src={creator.coverUrl ?? ""}

@@ -1,6 +1,6 @@
 import SectionTitle from "../../../components/app/SectionTitle";
 import { CreatorCardResult } from "../../../constants/queries";
-import CreatorCardSquare from "./CreatorCardSquare";
+import CreatorsCircle from "./CreatorsCircle";
 
 type Props = {
   creators: CreatorCardResult[];
@@ -13,10 +13,10 @@ const CreatorsGrid = async ({ creators, title }: Props) => {
 
   return (
     <section>
-      {title && <SectionTitle className="mb-2">{title}</SectionTitle>}
-      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      {title && <SectionTitle>{title}</SectionTitle>}
+      <div class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-6">
         {creators.map((creator) => (
-          <CreatorCardSquare creator={creator} />
+          <CreatorsCircle creator={creator} />
         ))}
       </div>
     </section>

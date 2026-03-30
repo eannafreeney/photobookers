@@ -1,12 +1,10 @@
 import { AuthUser } from "../../../../types";
-import Button from "../../../components/app/Button";
 import CreatorCard from "../../../components/app/CreatorCard";
 import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import Divider from "../../../components/Divider";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import { Creator } from "../../../db/schema";
-import ErrorPage from "../../../pages/error/errorPage";
 import InfoPage from "../../../pages/InfoPage";
 import BooksGrid from "../components/BooksGrid";
 import CreatorsGrid from "../components/RelatedCreators";

@@ -110,8 +110,6 @@ export const likeBook = async (c: Context) => {
   const isCurrentlyLiked = body.isLiked === "true";
   const buttonType = body.buttonType;
 
-  console.log("isCurrentlyLiked", isCurrentlyLiked);
-
   try {
     if (isCurrentlyLiked) {
       await deleteLike(userId, bookId);
@@ -197,6 +195,7 @@ export const wishlistBook = async (c: Context) => {
   const body = await c.req.parseBody();
   const isCurrentlyWishlisted = body.isWishlisted === "true";
   const buttonType = body.buttonType; // "circle" or "default"
+  const shouldRefreshWishlist = body.shouldRefreshWishlist === "true";
 
   try {
     if (isCurrentlyWishlisted) {
@@ -224,7 +223,7 @@ export const wishlistBook = async (c: Context) => {
         user={user}
         isCircleButton={buttonType === "circle"}
       />
-      {dispatchEvents([updateLibraryPage()])}
+      {shouldRefreshWishlist && dispatchEvents([updateLibraryPage()])}
     </>,
   );
 };

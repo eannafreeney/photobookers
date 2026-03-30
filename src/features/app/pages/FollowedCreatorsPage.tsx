@@ -6,7 +6,7 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import { CreatorCardResult } from "../../../constants/queries";
 import InfoPage from "../../../pages/InfoPage";
-import CreatorCardSquare from "../components/CreatorCardSquare";
+import CreatorsCircle from "../components/CreatorsCircle";
 import { getFollowedCreators } from "../services";
 
 const FollowedCreatorsPage = async ({ user }: { user: AuthUser }) => {
@@ -49,9 +49,9 @@ const FollowedCreatorsGrid = ({ creators, title }: Props) => {
   return (
     <section>
       <SectionTitle className="mb-4">{title}</SectionTitle>
-      <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6">
         {creators.map((creator) => (
-          <CreatorCardSquare creator={creator} />
+          <CreatorsCircle creator={creator} />
         ))}
       </div>
     </section>
