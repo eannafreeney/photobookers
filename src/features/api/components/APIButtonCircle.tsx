@@ -10,6 +10,7 @@ type APIButtonCircleProps = {
   buttonType?: "circle" | "default";
   isDisabled?: boolean;
   tooltipText?: string;
+  shouldRefreshFollowedCreators?: boolean;
 };
 
 const APIButtonCircle = ({
@@ -21,6 +22,7 @@ const APIButtonCircle = ({
   buttonType,
   isDisabled = false,
   tooltipText = "",
+  shouldRefreshFollowedCreators = false,
 }: APIButtonCircleProps) => {
   const attrs = {
     "x-data": "{ isSubmitting: false }",
@@ -49,6 +51,13 @@ const APIButtonCircle = ({
       )}
       {buttonType && (
         <input type="hidden" name="buttonType" value={buttonType} />
+      )}
+      {shouldRefreshFollowedCreators && (
+        <input
+          type="hidden"
+          name="shouldRefreshFollowedCreators"
+          value="true"
+        />
       )}
       <button
         class="cursor-pointer disabled:opacity-30"

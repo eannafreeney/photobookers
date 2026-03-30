@@ -58,8 +58,9 @@ export const followCreator = async (c: Context) => {
 
   const body = await c.req.parseBody();
   const isCurrentlyFollowing = body.isFollowing === "true";
-  const buttonType = body.buttonType; // "circle" or "default"
-
+  const buttonType = body.buttonType;
+  const shouldRefreshFollowedCreators =
+    body.shouldRefreshFollowedCreators === "true";
   try {
     if (isCurrentlyFollowing) {
       await deleteFollow(creatorId, userId);
@@ -92,7 +93,8 @@ export const followCreator = async (c: Context) => {
         isCircleButton={buttonType === "circle"}
         variant="mobile"
       />
-      {/* {dispatchEvents([updateFollowedCreatorsPage()])} */}
+      {shouldRefreshFollowedCreators &&
+        dispatchEvents([updateFollowedCreatorsPage()])}
     </>,
   );
 };

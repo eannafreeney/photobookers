@@ -27,7 +27,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         Creators
       </NavLink>
       <NavLink href="/dashboard/admin/users" currentPath={currentPath}>
-        {usersIcon}
+        {usersIcon(5)}
         Users
       </NavLink>
       <NavLink href="/dashboard/admin/claims" currentPath={currentPath}>

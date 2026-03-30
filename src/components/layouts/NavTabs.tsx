@@ -18,7 +18,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         Feed
       </NavLink>
       <NavLink href="/library" currentPath={currentPath}>
-        {libraryIcon}
+        {libraryIcon(5)}
         Library
       </NavLink>
       <FeatureGuard flagName="messages">

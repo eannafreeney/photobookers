@@ -7,6 +7,7 @@ import {
   getBooksPage,
   getContactPage,
   getCreatorDetailPage,
+  getCreatorsSliderFragment,
   getFeaturedBooksFragment,
   getFeaturedPage,
   getFeedPage,
@@ -83,3 +84,4 @@ app.get(
   paramValidator(slugSchema),
   getRelatedBooksFragment,
 );
+app.get("/fragments/creators-slider", getCreatorsSliderFragment);

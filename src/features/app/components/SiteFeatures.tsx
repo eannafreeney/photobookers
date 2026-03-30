@@ -37,7 +37,7 @@ export const tickerItems = [
 
 const SiteFeatures = () => {
   return (
-    <div class="grid grid-cols-3 gap-4 mx-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mx-auto">
       {tickerItems.map((item) => (
         <FeatureCard key={item.title} item={item} />
       ))}

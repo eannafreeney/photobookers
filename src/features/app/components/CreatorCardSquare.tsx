@@ -32,7 +32,12 @@ const CreatorCardSquare = async ({ creator }: CreatorCardSquareProps) => {
               size="xs"
             />
           </div>
-          <FollowButton creator={creator} user={user} isCircleButton />
+          <FollowButton
+            creator={creator}
+            user={user}
+            isCircleButton
+            shouldRefreshFollowedCreators
+          />
         </div>
       </Card.Body>
     </Card>

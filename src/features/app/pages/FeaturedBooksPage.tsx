@@ -8,7 +8,7 @@ import { capitalize, getRandomCoverUrl } from "../../../utils";
 import DiscoveryTags from "../components/DiscoveryTags";
 import Intersector from "../components/Intersector";
 import NewsletterCard from "../components/NewsletterCard";
-import PublishersSlider from "../components/PublishersSlider";
+import PublishersSlider from "../components/CreatorsSlider";
 import SiteFeatures from "../components/SiteFeatures";
 import { getFirstBookByTag } from "../services";
 
@@ -27,10 +27,13 @@ const FeaturedBooksPage = async ({ user, currentPath }: Props) => {
         </div>
         <Intersector id="stats-fragment" endpoint="/fragments/stats" />
         <SiteFeatures />
-        {/* <PublishersSlider /> */}
         <Intersector
           id="featured-books-fragment"
           endpoint="/fragments/featured-books"
+        />
+        <Intersector
+          id="creators-slider-fragment"
+          endpoint="/fragments/creators-slider"
         />
         <NewsletterCard />
         <DiscoveryTags />

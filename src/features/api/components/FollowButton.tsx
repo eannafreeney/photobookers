@@ -10,6 +10,7 @@ type FollowButtonProps = {
   user: AuthUser | null;
   isCircleButton?: boolean;
   variant?: "desktop" | "mobile";
+  shouldRefreshFollowedCreators?: boolean;
 };
 
 const FollowButton = async ({
@@ -17,6 +18,7 @@ const FollowButton = async ({
   user,
   isCircleButton = false,
   variant = "desktop",
+  shouldRefreshFollowedCreators = false,
 }: FollowButtonProps) => {
   // Only query if user is logged in, otherwise default to false
   let isFollowing = false;
@@ -62,11 +64,22 @@ const FollowButton = async ({
 
   if (isCircleButton) {
     return (
-      <APIButtonCircle {...props} buttonType="circle" isDisabled={isDisabled} />
+      <APIButtonCircle
+        {...props}
+        buttonType="circle"
+        isDisabled={isDisabled}
+        shouldRefreshFollowedCreators={shouldRefreshFollowedCreators}
+      />
     );
   }
 
-  return <APIButton {...props} isDisabled={isDisabled} />;
+  return (
+    <APIButton
+      {...props}
+      isDisabled={isDisabled}
+      shouldRefreshFollowedCreators={shouldRefreshFollowedCreators}
+    />
+  );
 };
 
 export default FollowButton;

@@ -9,7 +9,7 @@ type APIButtonProps = {
   buttonText: ChildType;
   hiddenInput?: { name: string; value: boolean };
   isDisabled?: boolean;
-  currentPath?: string;
+  shouldRefreshFollowedCreators?: boolean;
 };
 
 const APIButton = ({
@@ -19,7 +19,7 @@ const APIButton = ({
   buttonText,
   hiddenInput,
   isDisabled = false,
-  currentPath,
+  shouldRefreshFollowedCreators = false,
 }: APIButtonProps) => {
   const alpineAttrs = {
     "x-data": "{ isSubmitting: false }",
@@ -48,6 +48,13 @@ const APIButton = ({
           type="hidden"
           name={hiddenInput.name}
           value={hiddenInput.value ? "true" : "false"}
+        />
+      )}
+      {shouldRefreshFollowedCreators && (
+        <input
+          type="hidden"
+          name="shouldRefreshFollowedCreators"
+          value="true"
         />
       )}
       <button

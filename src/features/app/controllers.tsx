@@ -28,6 +28,7 @@ import AuthModal from "../../components/app/AuthModal";
 import BooksPage from "./pages/BooksPage";
 import StatsFragment from "./fragments/StatsFragment";
 import FollowedCreatorsPage from "./pages/FollowedCreatorsPage";
+import CreatorsSliderFragment from "./fragments/CreatorsSliderFragment";
 
 export const getHomePage = async (c: Context) => {
   return c.redirect("/featured");
@@ -316,4 +317,8 @@ export const getRelatedBooksFragment = async (c: Context) => {
   return c.html(
     <RelatedBooksFragment book={result?.book ?? null} user={user} />,
   );
+};
+
+export const getCreatorsSliderFragment = async (c: Context) => {
+  return c.html(<CreatorsSliderFragment />);
 };

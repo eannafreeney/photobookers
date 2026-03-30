@@ -3,7 +3,7 @@ import { mailIcon } from "../../../lib/icons";
 import { getInputIcon } from "../../../utils";
 
 const NewsletterCard = () => (
-  <div class="rounded-radius mx-auto bg-surface p-4 shadow-md w-1/2">
+  <div class="rounded-radius md:mx-auto bg-surface p-4 shadow-md md:w-1/2">
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div class="flex items-center gap-3 md:w-1/2">
         <div>{mailIcon(5)}</div>

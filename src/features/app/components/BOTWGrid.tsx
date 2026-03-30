@@ -24,7 +24,7 @@ const BookOfTheWeekGrid = async ({ user, isMobile }: Props) => {
             user={user}
           />
         </div>
-        <NewsletterCard className="col-span-2" />
+        <NewsletterCard />
       </div>
     </>
   );
