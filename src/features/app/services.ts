@@ -53,8 +53,26 @@ export const getVerifiedCreators = async () => {
     const foundCreators = await db.query.creators.findMany({
       where: eq(creators.status, "verified"),
       columns: CREATOR_CARD_COLUMNS,
+      with: {
+        booksAsArtist: {
+          columns: { id: true },
+          where: eq(books.publicationStatus, "published"),
+        },
+        booksAsPublisher: {
+          columns: { id: true },
+          where: eq(books.publicationStatus, "published"),
+        },
+      },
     });
-    return ok(foundCreators);
+    const verifiedCreatorsWithPublishedBooks = foundCreators
+      .filter(
+        (creator) =>
+          creator.booksAsArtist.length > 0 ||
+          creator.booksAsPublisher.length > 0,
+      )
+      .map(({ booksAsArtist, booksAsPublisher, ...creator }) => creator);
+
+    return ok(verifiedCreatorsWithPublishedBooks);
   } catch (error) {
     console.error("Failed to get verified creators", error);
     return err({ reason: "Failed to get verified creators", error });

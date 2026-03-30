@@ -14,7 +14,7 @@ const CreatorsGrid = async ({ creators, title }: Props) => {
   return (
     <section>
       {title && <SectionTitle>{title}</SectionTitle>}
-      <div class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-6">
+      <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6">
         {creators.map((creator) => (
           <CreatorsCircle creator={creator} />
         ))}

@@ -33,7 +33,7 @@ const Dock = ({ currentPath }: DockProps) => {
           currentPath === "/library" ? "dock-active" : "",
         )}
       >
-        {libraryIcon}
+        {libraryIcon(5)}
         <span class="dock-label">Library</span>
       </a>
       <FeatureGuard flagName="messages">
