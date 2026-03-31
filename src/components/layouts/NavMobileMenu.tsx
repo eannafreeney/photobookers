@@ -131,6 +131,9 @@ const MobileDropDownMenu = ({
               user.creator.type === "artist" ? "Artist" : "Publisher"
             } Profile`}
           </NavLink>
+          <NavLink href="/followed-creators" currentPath={currentPath}>
+            Creators I Follow
+          </NavLink>
         </>
       )}
       {user?.isAdmin && (
@@ -138,9 +141,7 @@ const MobileDropDownMenu = ({
           Admin Dashboard
         </NavLink>
       )}
-      <NavLink href="/followed-creators" currentPath={currentPath}>
-        Creators I Follow
-      </NavLink>
+
       <NavLink href="/artists" currentPath={currentPath}>
         Artists
       </NavLink>
