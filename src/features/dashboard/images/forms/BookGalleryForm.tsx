@@ -27,6 +27,13 @@ const BookGalleryForm = ({ initialImages, book, user }: Props) => {
     "x-on:submit": "submitForm($event)",
   };
 
+  const dragAttrs = {
+    "x-on:dragenter.prevent": "onDragEnter($event)",
+    "x-on:dragover.prevent": "onDragOver($event)",
+    "x-on:dragleave.prevent": "onDragLeave($event)",
+    "x-on:drop.prevent": "onDrop($event)",
+  };
+
   return (
     <div class="space-y-4">
       <SectionTitle>Book Gallery</SectionTitle>
@@ -42,6 +49,15 @@ const BookGalleryForm = ({ initialImages, book, user }: Props) => {
         <div class="space-y-4">
           <div x-show="images.length > 0 || initialImages.length > 0" x-cloak>
             <ImagePreviewGrid />
+          </div>
+          <div
+            class="rounded-lg border-2 border-dashed p-6 text-center transition"
+            x-bind:class="isDragOver ? 'border-success bg-success/5' : 'border-outline'"
+            {...dragAttrs}
+          >
+            <p class="text-sm text-on-surface/80">
+              Drag and drop images here, or use the file picker below.
+            </p>
           </div>
           <FileUploadInput
             label="Add Images"

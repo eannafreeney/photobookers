@@ -17,15 +17,15 @@ export function registerBookGalleryForm() {
         initialImages: [] as ImageItem[],
         removedIds: [] as string[],
         isSubmitting: false,
-        previewImage: null,
+        previewImage: null as string | null,
         isCompressing: false,
+        isDragOver: false,
         error: null as string | null,
         maxImages: MAX_GALLERY_IMAGES_PER_BOOK,
 
         init() {
           const imgs = initialImages ?? [];
-          // Convert initial URLs to image items
-          this.initialImages = imgs.map((img, i) => ({
+          this.initialImages = imgs.map((img) => ({
             id: img.id,
             previewUrl: img.url,
           }));
@@ -33,32 +33,37 @@ export function registerBookGalleryForm() {
         },
 
         get hasChanges() {
-          // Check if any images were removed
           if (this.removedIds.length > 0) return true;
-          // Check if any new images were added
           if (this.images.some((img) => img.file)) return true;
           return false;
         },
 
-        async onFilesChange(e: Event) {
-          const input = e.target as HTMLInputElement;
-          const files = Array.from(input.files || []);
+        async addFiles(files: File[]) {
+          if (!files.length) return;
 
           this.isCompressing = true;
           this.error = null;
 
-          for (const file of files) {
+          const availableSlots = this.maxImages - this.images.length;
+          const filesToProcess = files.slice(0, Math.max(availableSlots, 0));
+
+          for (const file of filesToProcess) {
+            if (!file.type.startsWith("image/")) continue;
+
             try {
               const compressed = await compressImage(file, "gallery");
-
               this.images.push({
                 id: `new-${Date.now()}-${Math.random()}`,
                 previewUrl: URL.createObjectURL(compressed),
                 file: compressed,
               });
-            } catch (err) {
+            } catch {
               this.error = `Failed to process "${file.name}"`;
             }
+          }
+
+          if (files.length > filesToProcess.length) {
+            this.error = `Maximum ${this.maxImages} images allowed. Extra files were not added.`;
           }
 
           if (this.images.length > this.maxImages) {
@@ -67,23 +72,56 @@ export function registerBookGalleryForm() {
           }
 
           this.isCompressing = false;
+        },
+
+        async onFilesChange(e: Event) {
+          const input = e.target as HTMLInputElement;
+          const files = Array.from(input.files || []);
+          await this.addFiles(files);
           input.value = "";
+        },
+
+        onDragEnter(e: DragEvent) {
+          e.preventDefault();
+          this.isDragOver = true;
+        },
+
+        onDragOver(e: DragEvent) {
+          e.preventDefault();
+          this.isDragOver = true;
+        },
+
+        onDragLeave(e: DragEvent) {
+          e.preventDefault();
+          const related = e.relatedTarget as Node | null;
+          if (!related || !(this.$el as HTMLElement).contains(related)) {
+            this.isDragOver = false;
+          }
+        },
+
+        async onDrop(e: DragEvent) {
+          e.preventDefault();
+          this.isDragOver = false;
+          const files = Array.from(e.dataTransfer?.files || []).filter((f) =>
+            f.type.startsWith("image/"),
+          );
+          await this.addFiles(files);
         },
 
         removeImage(index: number) {
           const removedImage = this.images.splice(index, 1)[0];
+          if (!removedImage) return;
+
           if (!removedImage.file) {
             this.removedIds.push(removedImage.id);
           }
 
-          // Revoke blob URL for new images to free memory
           if (removedImage.previewUrl.startsWith("blob:")) {
             URL.revokeObjectURL(removedImage.previewUrl);
           }
         },
 
         reset() {
-          // Revoke all new image URLs
           this.images.forEach((img) => {
             if (img.previewUrl.startsWith("blob:")) {
               URL.revokeObjectURL(img.previewUrl);
@@ -93,6 +131,7 @@ export function registerBookGalleryForm() {
           this.images = [...this.initialImages];
           this.removedIds = [];
           this.error = null;
+          this.isDragOver = false;
         },
 
         onBefore() {
@@ -100,21 +139,16 @@ export function registerBookGalleryForm() {
           this.error = null;
         },
 
-        onSuccess(event: CustomEvent) {
+        onSuccess() {
           this.isSubmitting = false;
-          // Update initialImages to reflect the current state (marking it as saved)
+
           this.initialImages = this.images
-            .filter((img) => !img.file) // Keep only existing images (not new ones)
+            .filter((img) => !img.file)
             .map((img) => ({ id: img.id, previewUrl: img.previewUrl }));
 
-          // Clear removed IDs and new file references
           this.removedIds = [];
-          // Remove file references from images that were just uploaded
           this.images = this.images.map((img) => {
-            if (img.file) {
-              // Keep the preview URL but remove the file reference
-              return { id: img.id, previewUrl: img.previewUrl };
-            }
+            if (img.file) return { id: img.id, previewUrl: img.previewUrl };
             return img;
           });
         },
@@ -131,19 +165,17 @@ export function registerBookGalleryForm() {
 
           const formData = new FormData();
 
-          // Append all files from the images array
           for (const img of this.images) {
             if (img.file) {
               formData.append("images", img.file);
             }
           }
 
-          // Append removed IDs
           formData.append("removedIds", JSON.stringify(this.removedIds));
 
           try {
             const response = await fetch(
-              (event.target as HTMLFormElement)?.action,
+              (event.target as HTMLFormElement).action,
               {
                 method: "POST",
                 body: formData,
@@ -152,7 +184,6 @@ export function registerBookGalleryForm() {
 
             const html = await response.text();
 
-            // Check if response is successful
             if (!response.ok) {
               this.error = "Failed to save images";
               this.isSubmitting = false;
@@ -163,25 +194,20 @@ export function registerBookGalleryForm() {
               container.outerHTML = html;
             }
 
-            // Only reset state if successful
             if (response.ok) {
-              // Update initialImages to reflect the current state
               this.initialImages = this.images
-                .filter((img) => !img.file) // Keep only existing images
+                .filter((img) => !img.file)
                 .map((img) => ({ id: img.id, previewUrl: img.previewUrl }));
 
-              // Clear removed IDs and file references
               this.removedIds = [];
               this.images = this.images.map((img) => {
-                if (img.file) {
-                  return { id: img.id, previewUrl: img.previewUrl };
-                }
+                if (img.file) return { id: img.id, previewUrl: img.previewUrl };
                 return img;
               });
             }
 
             this.isSubmitting = false;
-          } catch (err) {
+          } catch {
             this.error = "Failed to save images";
             this.isSubmitting = false;
           }
