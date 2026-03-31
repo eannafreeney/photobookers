@@ -131,9 +131,6 @@ const MobileDropDownMenu = ({
               user.creator.type === "artist" ? "Artist" : "Publisher"
             } Profile`}
           </NavLink>
-          <NavLink href="/followed-creators" currentPath={currentPath}>
-            Creators I Follow
-          </NavLink>
         </>
       )}
       {user?.isAdmin && (
@@ -155,15 +152,20 @@ const MobileDropDownMenu = ({
         Contact
       </NavLink>
       {user && (
-        <form
-          {...{ "x-target.away": "_top", "x-target": "toast" }}
-          action="/auth/logout"
-          method="post"
-        >
-          <Button variant="outline" color="primary" type="submit">
-            <span>Logout</span>
-          </Button>
-        </form>
+        <>
+          <NavLink href="/followed-creators" currentPath={currentPath}>
+            Creators I Follow
+          </NavLink>
+          <form
+            {...{ "x-target.away": "_top", "x-target": "toast" }}
+            action="/auth/logout"
+            method="post"
+          >
+            <Button variant="outline" color="primary" type="submit">
+              <span>Logout</span>
+            </Button>
+          </form>
+        </>
       )}
     </ul>
   );
