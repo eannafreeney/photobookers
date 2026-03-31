@@ -99,13 +99,15 @@ export const findCollectionCount = async (bookId: string) => {
 
 export const getCreatorPermissionData = async (
   creatorId: string,
-): Promise<Pick<Creator, "id" | "displayName"> | null> => {
+): Promise<Pick<Creator, "id" | "displayName" | "slug"> | null> => {
   try {
     const creator = await db.query.creators.findFirst({
       where: eq(creators.id, creatorId),
       columns: {
         id: true,
         displayName: true,
+        slug: true,
+        coverUrl: true,
       },
     });
     return creator ?? null;
@@ -125,12 +127,19 @@ export const getBookPermissionData = async (bookId: string) => {
         publisherId: true,
         title: true,
         slug: true,
+        coverUrl: true,
       },
       with: {
         creatorUser: {
           columns: {
             id: true,
             email: true,
+          },
+        },
+        artist: {
+          columns: {
+            id: true,
+            displayName: true,
           },
         },
       },

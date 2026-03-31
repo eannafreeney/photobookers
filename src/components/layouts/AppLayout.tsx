@@ -8,6 +8,7 @@ import Alert from "../app/Alert";
 import PreviewBanner from "../app/PreviewBanner";
 import Dock from "./Dock";
 import ToastContainer from "../app/ToastContainer";
+import ActivityStream from "../app/ActivityStream";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
@@ -46,6 +47,7 @@ const AppLayout = ({
       <div id="modal-root"></div>
       {flash && <Alert type={flash.type} message={flash.message} />}
       <ToastContainer />
+      <ActivityStream currentUserId={user?.id ?? undefined} />
       <div x-sync id="server_events"></div>
     </body>
   </html>

@@ -9,14 +9,6 @@ interface AlertProps {
 }
 
 const Alert = ({ type, message }: AlertProps) => {
-  const variant = alertVariants[type];
-
-  const alpineAttrs = {
-    "x-data": "alert",
-    "x-show": "show",
-    "x-transition.duration.500ms": "",
-  };
-
   return (
     <ToastContainer>
       <Toast type={type} message={message} />

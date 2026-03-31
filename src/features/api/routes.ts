@@ -10,6 +10,7 @@ import {
   getSearchResults,
   likeBook,
   processNewsletter,
+  streamActivity,
   updateBookComment,
   wishlistBook,
 } from "./controllers";
@@ -29,6 +30,7 @@ apiRoutes.post("/creators/:creatorId/follow", followCreator);
 apiRoutes.post("/books/:bookId/wishlist", wishlistBook);
 apiRoutes.post("/books/:bookId/collect", collectBook);
 apiRoutes.post("/books/:bookId/like", likeBook);
+apiRoutes.get("/activity/stream", streamActivity);
 apiRoutes.get("/search", getSearchResults);
 apiRoutes.get("/search/mobile", getMobileSearchScreen);
 apiRoutes.get(

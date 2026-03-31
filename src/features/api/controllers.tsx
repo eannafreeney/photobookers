@@ -42,6 +42,15 @@ import EditCommentModal from "./modals/EditCommentModal";
 import CommentModal from "./modals/CommentModal";
 import { sendAdminEmail, sendEmail } from "../../lib/sendEmail";
 import LikeButton from "./components/LikeButton";
+import { subscribeToActivityEvents } from "../../lib/activityEvents";
+import { streamSSE } from "hono/streaming";
+import {
+  publishCollectActivity,
+  publishCommentActivity,
+  publishFollowActivity,
+  publishLikeActivity,
+  publishWishlistActivity,
+} from "./utils";
 
 const updateCreatorCard = () => "creator:updated";
 const updateLibraryPage = () => "library:updated";
@@ -61,19 +70,21 @@ export const followCreator = async (c: Context) => {
   const buttonType = body.buttonType;
   const shouldRefreshFollowedCreators =
     body.shouldRefreshFollowedCreators === "true";
+
+  const creator = await getCreatorPermissionData(creatorId);
+  if (!creator) return showErrorAlert(c, "Book not found");
+
   try {
     if (isCurrentlyFollowing) {
       await deleteFollow(creatorId, userId);
     } else {
       await insertFollow(userId, creatorId);
+      publishFollowActivity(user, creator);
     }
   } catch (error) {
     console.error("Failed to add/remove creator from followers", error);
     return showErrorAlert(c);
   }
-
-  const creator = await getCreatorPermissionData(creatorId);
-  if (!creator) return showErrorAlert(c, "Book not found");
 
   const message = isCurrentlyFollowing
     ? `Unfollowed ${creator.displayName}.`
@@ -106,6 +117,9 @@ export const likeBook = async (c: Context) => {
 
   if (!userId) return c.html(<AuthModal action="to like this book." />, 401);
 
+  const [err, book] = await getBookPermissionData(bookId);
+  if (err) return showErrorAlert(c, err?.reason ?? "Book not found");
+
   const body = await c.req.parseBody();
   const isCurrentlyLiked = body.isLiked === "true";
   const buttonType = body.buttonType;
@@ -115,18 +129,16 @@ export const likeBook = async (c: Context) => {
       await deleteLike(userId, bookId);
     } else {
       await insertLike(userId, bookId);
+      publishLikeActivity(user, book);
     }
   } catch (error) {
     console.error("Failed to add/remove book like", error);
     return showErrorAlert(c);
   }
 
-  const [err, book] = await getBookPermissionData(bookId);
-  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
-
   const message = isCurrentlyLiked
-    ? `${book.title} has been unliked`
-    : `${book.title} has been liked`;
+    ? `${book.title} unliked`
+    : `${book.title} liked`;
 
   return c.html(
     <>
@@ -152,19 +164,20 @@ export const collectBook = async (c: Context) => {
   const isCurrentlyCollected = body.isCollected === "true";
   const buttonType = body.buttonType; // "circle" or "default"
 
+  const [err, book] = await getBookPermissionData(bookId);
+  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
+
   try {
     if (isCurrentlyCollected) {
       await deleteCollectionItem(userId, bookId);
     } else {
       await insertCollectionItem(userId, bookId);
+      publishCollectActivity(user, book);
     }
   } catch (error) {
     console.error("Failed to add/remove book to wishlist", error);
     return showErrorAlert(c);
   }
-
-  const [err, book] = await getBookPermissionData(bookId);
-  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
   const message = isCurrentlyCollected
     ? `${book.title} has been removed from your collection`
@@ -197,19 +210,20 @@ export const wishlistBook = async (c: Context) => {
   const buttonType = body.buttonType; // "circle" or "default"
   const shouldRefreshWishlist = body.shouldRefreshWishlist === "true";
 
+  const [err, book] = await getBookPermissionData(bookId);
+  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
+
   try {
     if (isCurrentlyWishlisted) {
       await deleteWishlist(userId, bookId);
     } else {
       await insertWishlist(userId, bookId);
+      publishWishlistActivity(user, book);
     }
   } catch (error) {
     console.error("Failed to add/remove book to wishlist", error);
     return showErrorAlert(c);
   }
-
-  const [err, book] = await getBookPermissionData(bookId);
-  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
   const message = isCurrentlyWishlisted
     ? `${book.title} has been removed from your wishlist`
@@ -226,6 +240,33 @@ export const wishlistBook = async (c: Context) => {
       {shouldRefreshWishlist && dispatchEvents([updateLibraryPage()])}
     </>,
   );
+};
+
+export const streamActivity = async (c: Context) => {
+  return streamSSE(c, async (stream) => {
+    const unsubscribe = subscribeToActivityEvents((event) => {
+      stream.writeSSE({
+        event: "activity",
+        data: JSON.stringify(event),
+      });
+    });
+
+    // keepalive every 20s so proxies don't close idle stream
+    const keepAlive = setInterval(() => {
+      stream.writeSSE({
+        event: "ping",
+        data: "ok",
+      });
+    }, 20000);
+
+    stream.onAbort(() => {
+      clearInterval(keepAlive);
+      unsubscribe();
+    });
+
+    // keep connection open
+    await new Promise(() => {});
+  });
 };
 
 export const getSearchResults = async (c: Context) => {
@@ -360,6 +401,8 @@ export const addBookComment = async (c: AddCommentFormContext) => {
   );
   if (insertError)
     return showErrorAlert(c, insertError.reason ?? "Failed to add comment");
+
+  publishCommentActivity(user, book);
 
   await sendAdminEmail(
     "New comment on a book",
