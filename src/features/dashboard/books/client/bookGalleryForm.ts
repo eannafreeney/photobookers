@@ -22,6 +22,8 @@ export function registerBookGalleryForm() {
         isDragOver: false,
         error: null as string | null,
         maxImages: MAX_GALLERY_IMAGES_PER_BOOK,
+        dragIndex: null as number | null,
+        dragOverIndex: null as number | null,
 
         init() {
           const imgs = initialImages ?? [];
@@ -35,7 +37,14 @@ export function registerBookGalleryForm() {
         get hasChanges() {
           if (this.removedIds.length > 0) return true;
           if (this.images.some((img) => img.file)) return true;
-          return false;
+          const initialOrder = this.initialImages
+            .map((img) => img.id)
+            .join(",");
+          const currentOrder = this.images
+            .filter((img) => !img.file) // existing images only
+            .map((img) => img.id)
+            .join(",");
+          return initialOrder !== currentOrder;
         },
 
         async addFiles(files: File[]) {
@@ -108,6 +117,33 @@ export function registerBookGalleryForm() {
           await this.addFiles(files);
         },
 
+        onReorderDragStart(index: number) {
+          this.dragIndex = index;
+          this.dragOverIndex = index;
+        },
+
+        onReorderDragEnter(hoverIndex: number) {
+          if (this.dragIndex == null) return;
+          if (hoverIndex === this.dragIndex) return;
+          const [moved] = this.images.splice(this.dragIndex, 1);
+          this.images.splice(hoverIndex, 0, moved);
+          // important: update drag index to new position
+          this.dragIndex = hoverIndex;
+          this.dragOverIndex = hoverIndex;
+        },
+
+        onReorderDragEnd() {
+          this.dragIndex = null;
+          this.dragOverIndex = null;
+        },
+
+        onReorderDrop(dropIndex: number) {
+          if (this.dragIndex == null || this.dragIndex === dropIndex) return;
+          const [moved] = this.images.splice(this.dragIndex, 1);
+          this.images.splice(dropIndex, 0, moved);
+          this.dragIndex = null;
+        },
+
         removeImage(index: number) {
           const removedImage = this.images.splice(index, 1)[0];
           if (!removedImage) return;
@@ -172,6 +208,11 @@ export function registerBookGalleryForm() {
           }
 
           formData.append("removedIds", JSON.stringify(this.removedIds));
+
+          const orderedIds = this.images
+            .filter((img) => !img.file) // existing db rows only
+            .map((img) => img.id);
+          formData.append("orderedIds", JSON.stringify(orderedIds));
 
           try {
             const response = await fetch(

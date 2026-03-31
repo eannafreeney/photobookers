@@ -30,7 +30,11 @@ export const updateUserProfileImageDB = async (
       .set({ profileImageUrl })
       .where(eq(users.id, userId))
       .returning();
-    if (!updatedUser) return err({ reason: "Failed to update user profile image", cause: undefined });
+    if (!updatedUser)
+      return err({
+        reason: "Failed to update user profile image",
+        cause: undefined,
+      });
     return ok(updatedUser);
   } catch (error) {
     console.error("Failed to update user profile image", error);
@@ -61,3 +65,26 @@ export const removeImages = async (bookId: string, removedIds: string[]) =>
     .where(
       and(eq(bookImages.bookId, bookId), inArray(bookImages.id, removedIds)),
     );
+
+export const reorderBookImages = async (
+  bookId: string,
+  orderedIds: string[],
+) => {
+  if (!orderedIds.length) return;
+  try {
+    await db.transaction(async (tx) => {
+      for (const [index, imageId] of orderedIds.entries()) {
+        await tx
+          .update(bookImages)
+          .set({ sortOrder: index })
+          .where(
+            and(eq(bookImages.bookId, bookId), eq(bookImages.id, imageId)),
+          );
+      }
+    });
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to reorder book images", error);
+    return err({ reason: "Failed to reorder book images", cause: error });
+  }
+};

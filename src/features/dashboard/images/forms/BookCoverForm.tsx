@@ -9,6 +9,7 @@ import CardCreatorCard from "../../../../components/app/CardCreatorCard";
 import { AuthUser } from "../../../../../types";
 import { canUploadImage } from "../../../../lib/permissions";
 import { Book } from "../../../../db/schema";
+import DragAndDropArea from "../components/DragAndDropArea";
 
 type Props = {
   initialUrl: string | null;
@@ -24,6 +25,14 @@ const BookCoverForm = ({ initialUrl, book, user }: Props) => {
     "@ajax:before": "onBefore()",
     "@ajax:success": "onSuccess()",
     "@ajax:error": "onError()",
+  };
+
+  const dragAttrs = {
+    "@dragenter.prevent": "onDragEnter($event)",
+    "@dragover.prevent": "onDragOver($event)",
+    "@dragleave.prevent": "onDragLeave($event)",
+    "@drop.prevent": "onDrop($event)",
+    ":class": "isDragOver ? 'border-success bg-success/5' : 'border-outline'",
   };
 
   return (
@@ -44,6 +53,7 @@ const BookCoverForm = ({ initialUrl, book, user }: Props) => {
             <ImagePreview />
             <CardPreview book={book} />
           </div>
+          <DragAndDropArea />
           <FileUploadInput
             label="Add Book Cover"
             name="cover"

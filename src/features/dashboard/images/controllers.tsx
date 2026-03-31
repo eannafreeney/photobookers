@@ -13,6 +13,7 @@ import { BookIdContext } from "../books/types";
 import { CreatorIdContext } from "../creators/types";
 import {
   removeImages,
+  reorderBookImages,
   updateBookCoverImage,
   updateCreatorCoverImage,
   updateUserProfileImageDB,
@@ -132,6 +133,15 @@ export const uploadGalleryImages = async (c: BookIdContext) => {
   const removedIds: string[] = body.removedIds
     ? JSON.parse(body.removedIds as string)
     : [];
+
+  // 3. Parse ordered image IDs
+  const orderedIds: string[] = body.orderedIds
+    ? JSON.parse(body.orderedIds as string)
+    : [];
+
+  if (orderedIds.length > 0) {
+    await reorderBookImages(bookId, orderedIds);
+  }
 
   // --- enforce max gallery images per book ---
   const [{ value: currentCount }] = await db

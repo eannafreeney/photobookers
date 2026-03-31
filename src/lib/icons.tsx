@@ -99,6 +99,18 @@ export const bookIcon = (
   </svg>
 );
 
+export const dragHandleIcon = (size: number = 5) => (
+  <svg
+    class="size-4"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    aria-hidden="true"
+    size={size}
+  >
+    <path d="M7 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm9-12a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+  </svg>
+);
+
 export const feedIcon = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
