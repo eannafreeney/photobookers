@@ -1,5 +1,6 @@
 // src/lib/permissions.ts
 
+import { log } from "console";
 import { AuthUser } from "../../types";
 import { BookCardResult } from "../constants/queries";
 import { Book, Creator } from "../db/schema";
@@ -81,15 +82,14 @@ export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
 }
 
 export function canPreviewBook(
-  user: AuthUser | null,
+  user: AuthUser,
   book: Pick<
     Book,
     "coverUrl" | "publicationStatus" | "artistId" | "publisherId"
   >,
 ): boolean {
-  if (!user) return false;
-  if (!book.coverUrl) return false;
   if (user.isAdmin) return true;
+  if (!book.coverUrl) return false;
 
   const isDraftMode = book.publicationStatus === "draft";
 

@@ -17,6 +17,7 @@ const BookGalleryForm = ({ initialImages, book, user }: Props) => {
   const initialImagesString = initialImages
     ? JSON.stringify(initialImages)
     : null;
+
   const alpineAttrs = {
     "x-data": `bookGalleryForm({initialImages: ${initialImagesString}})`,
     "x-target": "toast",
@@ -39,7 +40,9 @@ const BookGalleryForm = ({ initialImages, book, user }: Props) => {
         {...alpineAttrs}
       >
         <div class="space-y-4">
-          <ImagePreviewGrid />
+          <div x-show="images.length > 0 || initialImages.length > 0" x-cloak>
+            <ImagePreviewGrid />
+          </div>
           <FileUploadInput
             label="Add Images"
             multiple
@@ -72,7 +75,7 @@ const BookGalleryForm = ({ initialImages, book, user }: Props) => {
               x-show="hasChanges"
               x-on:click="reset()"
             >
-              <span>Reset</span>
+              <span>Undo Changes</span>
             </Button>
           </div>
           <ImagePreviewLightbox />

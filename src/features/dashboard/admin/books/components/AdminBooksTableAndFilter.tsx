@@ -3,7 +3,6 @@ import Button from "../../../../../components/app/Button";
 import Card from "../../../../../components/app/Card";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import Link from "../../../../../components/app/Link";
-import { Pagination } from "../../../../../components/app/Pagination";
 import Table from "../../../../../components/app/Table";
 import { editIcon } from "../../../../../lib/icons";
 import { formatDate } from "../../../../../utils";
@@ -150,7 +149,7 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <a href={`/dashboard/admin/books/${book.id}/update`}>
-          <button class="cursor-pointer">{editIcon}</button>
+          <button class="cursor-pointer">{editIcon()}</button>
         </a>
       </Table.BodyRow>
       <Table.BodyRow>

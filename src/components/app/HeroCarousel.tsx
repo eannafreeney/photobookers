@@ -103,10 +103,10 @@ const HeroCarousel = async () => {
                   class="text-sm text-center md:text-left"
                   x-text="item.label"
                 ></p>
-                <h2
+                <p
                   class="text-2xl font-semibold text-on-surface-strong sm:text-4xl text-center md:text-left"
                   x-text="item.title"
-                ></h2>
+                ></p>
                 <template x-if="item.text">
                   <p
                     class="mb-2 text-on-surface text-center md:text-left"

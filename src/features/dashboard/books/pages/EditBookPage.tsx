@@ -51,9 +51,6 @@ const BookEditPage = async ({
     isPublisher ? "publisher" : "artist"
   }`;
 
-  console.log("book", book);
-  console.log("user", user);
-
   return (
     <AppLayout
       title="Edit Book"

@@ -21,6 +21,7 @@ import { MAX_GALLERY_IMAGES_PER_BOOK } from "../../../constants/images";
 import { db } from "../../../db/client";
 import { UserIdContext } from "../admin/users/types";
 import { match } from "../../../lib/result";
+import BookCoverForm from "./forms/BookCoverForm";
 
 export const updateCreatorCover = async (c: CreatorIdContext) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -84,12 +85,13 @@ export const updateUserProfileImage = async (c: UserIdContext) => {
   return match(await updateUserProfileImageDB(userId, profileImageUrl), {
     ok: () => showSuccessAlert(c, "Image Updated"),
     err: (error) => showErrorAlert(c, error.reason),
-  });  
+  });
 };
 
 export const updateBookCover = async (c: BookIdContext) => {
   const bookId = c.req.valid("param").bookId;
   const body = await c.req.parseBody();
+  const user = await getUser(c);
 
   const validatedFile = validateImageFile(body.cover);
   if (!validatedFile.success) return showErrorAlert(c, validatedFile.error);

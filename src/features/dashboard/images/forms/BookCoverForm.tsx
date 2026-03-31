@@ -27,7 +27,7 @@ const BookCoverForm = ({ initialUrl, book, user }: Props) => {
   };
 
   return (
-    <div class="space-y-4">
+    <div id="book-cover-form" class="space-y-4">
       <SectionTitle>Book Cover</SectionTitle>
       <form
         action={`/dashboard/images/books/${book.id}/cover`}
@@ -36,9 +36,13 @@ const BookCoverForm = ({ initialUrl, book, user }: Props) => {
         {...alpineAttrs}
       >
         <div class="space-y-4">
-          <div class="flex flex-col md:flex-row items-center gap-4 justify-evenly">
+          <div
+            class="flex flex-col md:flex-row items-center gap-4 justify-evenly"
+            x-show="previewUrl || initialUrl"
+            x-cloak
+          >
             <ImagePreview />
-            {book && <CardPreview book={book} />}
+            <CardPreview book={book} />
           </div>
           <FileUploadInput
             label="Add Book Cover"
@@ -82,9 +86,6 @@ const CardPreview = ({ book }: { book: BookCardResult }) => (
     <Card className="max-w-[300px]">
       <div class="px-2 py-2 flex items-center justify-between">
         <CardCreatorCard creator={book.artist ?? null} />
-        <Card.Text>
-          {book.releaseDate && formatDate(book.releaseDate)}
-        </Card.Text>
       </div>
       <figure
         class="relative w-full overflow-hidden bg-white shadow-sm aspect-4/3"
