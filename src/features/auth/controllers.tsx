@@ -17,12 +17,14 @@ import {
   ResetPasswordFormContext,
 } from "./types";
 import {
+  checkWasForcedResetPassword,
   createUserInDatabase,
   getAuthCookieOptions,
   getCreatorBySlug,
   getCreatorByWebsite,
   loginAndSetCookies,
   setCookiesAndVerifyUser,
+  setResetPasswordFlag,
   verifyOtpForCreatorSignup,
   verifyOtpForFanSignup,
 } from "./services";
@@ -240,16 +242,32 @@ export const resetPassword = async (c: ResetPasswordFormContext) => {
   if (password.length < 8)
     return showErrorAlert(c, "Password must be at least 8 characters");
 
+  const [wasForcedResetPasswordError, wasForcedResetPassword] =
+    await checkWasForcedResetPassword(user.id);
+  if (wasForcedResetPasswordError)
+    return showErrorAlert(c, wasForcedResetPasswordError.reason);
+
   const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
     password,
   });
 
   if (error) return showErrorAlert(c, error.message);
 
-  await db
-    .update(users)
-    .set({ mustResetPassword: false })
-    .where(eq(users.id, user.id));
+  const [setResetPasswordFlagError] = await setResetPasswordFlag(user.id);
+  if (setResetPasswordFlagError)
+    return showErrorAlert(c, setResetPasswordFlagError.reason);
+
+  if (wasForcedResetPassword) {
+    const adminEmailResult = await sendAdminEmail(
+      "User claimed account (password set)",
+      generateVerificationSuccessEmailAdmin(user.email),
+    );
+    if (isErr(adminEmailResult))
+      console.error(
+        "Admin account-claimed email failed:",
+        adminEmailResult[0].reason,
+      );
+  }
 
   const { data } = await supabaseAnon.auth.signInWithPassword({
     email: user.email,

@@ -250,3 +250,30 @@ export const verifyOtpForCreatorSignup = async (
     return err({ reason: "Failed to verify OTP", cause: error });
   }
 };
+
+export const checkWasForcedResetPassword = async (userId: string) => {
+  try {
+    const dbUser = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { mustResetPassword: true },
+    });
+    return ok(dbUser?.mustResetPassword === true);
+  } catch (error) {
+    return err({
+      reason: "Failed to check if user was forced to reset password",
+      cause: error,
+    });
+  }
+};
+
+export const setResetPasswordFlag = async (userId: string) => {
+  try {
+    await db
+      .update(users)
+      .set({ mustResetPassword: true })
+      .where(eq(users.id, userId));
+    return ok(undefined);
+  } catch (error) {
+    return err({ reason: "Failed to set reset password flag", cause: error });
+  }
+};
