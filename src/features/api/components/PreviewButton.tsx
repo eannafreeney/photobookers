@@ -6,7 +6,7 @@ import Link from "../../../components/app/Link";
 
 type Props = {
   book: Book;
-  user: AuthUser | null;
+  user: AuthUser;
 };
 
 const PreviewButton = ({ book, user }: Props) => {
