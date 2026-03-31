@@ -4,11 +4,9 @@ import { BooksOverviewTable } from "../tables/BooksOverviewTable";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
 import { getBooksByArtistId, getBooksByPublisherId } from "../services";
-import AlertStatic from "../../../../components/app/AlertStatic";
-import VerifiedCreator from "../../../../components/app/VerifiedCreator";
-import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
 import { CreatorStatus } from "../../../../db/schema";
 import InfoPage from "../../../../pages/InfoPage";
+import Button from "../../../../components/app/Button";
 
 type BooksDashboardProps = {
   user: AuthUser;
@@ -48,9 +46,9 @@ const BooksOverview = async ({
       flash={flash}
       currentPath={currentPath}
     >
+      <VerificationStatusBanner creatorStatus={user.creator.status ?? "stub"} />
       <Page>
         <Breadcrumbs items={[{ label: "Books Overview" }]} />
-        <VerifiedCreatorBadge creatorStatus={user.creator.status ?? "stub"} />
         <div class="flex flex-col gap-16">
           <BooksOverviewTable
             books={books}
@@ -69,17 +67,28 @@ const BooksOverview = async ({
 
 export default BooksOverview;
 
-const VerifiedCreatorBadge = ({
-  creatorStatus,
-}: {
+type VerificationStatusProps = {
   creatorStatus: CreatorStatus;
-}) => {
-  if (creatorStatus !== "verified") return <></>;
+};
+
+const VerificationStatusBanner = ({
+  creatorStatus,
+}: VerificationStatusProps) => {
+  if (creatorStatus === "verified") return <></>;
 
   return (
-    <div class="flex items-center gap-2">
-      Account Verified{" "}
-      <VerifiedCreator creatorStatus={creatorStatus} size="sm" />
+    <div class="relative flex border-outline bg-surface-alt p-4 text-on-surface dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark border-b">
+      <div class="mx-auto flex flex-wrap items-center gap-2 px-6">
+        <p class="sm:text-sm text-pretty text-xs">
+          Your creator profile is pending verification. You can edit books, but
+          publishing is disabled until verification.
+        </p>
+        <form method="post" action="/auth/resend-verification" x-target="toast">
+          <Button variant="solid" color="warning">
+            Resend verification email
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };

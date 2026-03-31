@@ -15,6 +15,7 @@ import {
   validateEmail,
   validateWebsite,
   processRegister,
+  resendVerificationEmail,
 } from "./controllers";
 import { redirectUrlSchema } from "../../schemas";
 import {
@@ -74,3 +75,6 @@ authRoutes.post("/set-session", setSession);
 authRoutes.post("/validate/email", validateEmail);
 authRoutes.post("/validate/display-name", validateDisplayName);
 authRoutes.post("/validate/website", validateWebsite);
+
+// ---------- Resend Verification Email (POST) ----------
+authRoutes.post("/resend-verification", resendVerificationEmail);

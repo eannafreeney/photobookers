@@ -13,7 +13,6 @@ import {
 } from "./types";
 import PublishToggleForm from "./components/PublishToggleForm";
 import PreviewButton from "../../../features/api/components/PreviewButton";
-// import BooksForApprovalTable from "../../../components/cms/ui/BooksForApprovalTable";
 import {
   createBook,
   updateBook,
@@ -25,6 +24,7 @@ import {
 import { resolveArtist, resolvePublisher } from "../admin/creators/services";
 import { sendAdminEmail } from "../../../lib/sendEmail";
 import { generateBookNotificationEmail } from "./emails";
+import { supabaseAdmin } from "../../../lib/supabase";
 
 export const getBooksOverview = async (c: Context) => {
   const searchQuery = c.req.query("search");
