@@ -1,5 +1,6 @@
 import { Creator } from "./src/db/schema";
 import type { Child } from "hono/jsx";
+import { getBookById } from "./src/features/dashboard/books/services";
 
 export type Flash = {
   type: "success" | "info" | "warning" | "danger" | "neutral";
@@ -18,3 +19,7 @@ export type AuthUser = {
   isAdmin: boolean;
   mustResetPassword: boolean;
 };
+
+export type BookWithRelations = NonNullable<
+  Awaited<ReturnType<typeof getBookById>>[1]
+>;

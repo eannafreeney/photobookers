@@ -4,6 +4,7 @@ import { z } from "zod";
 import { Env } from "hono/types";
 import { Context } from "hono";
 import { Book } from "../../../db/schema";
+import { BookWithRelations } from "../../../../types";
 
 export type BookFormContext = Context<
   Env,
@@ -18,7 +19,7 @@ export type BookIdContext = Context<
 >;
 
 export type BookFormWithBookContext = Context<
-  Env & { Variables: { book: Book } },
+  Env & { Variables: { book: BookWithRelations } },
   string,
   { out: { form: z.infer<typeof bookFormSchema> } }
 >;

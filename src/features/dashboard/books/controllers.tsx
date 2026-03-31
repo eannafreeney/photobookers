@@ -159,9 +159,9 @@ export const deleteBook = async (c: BookIdContext) => {
 export const makeBookPublic = async (c: BookFormWithBookContext) => {
   const book = c.get("book");
   const user = await getUser(c);
-  if (!user.creator && !user.isAdmin)
-    return showErrorAlert(c, "No Creator Profile Found");
+
   if (!book) return showErrorAlert(c, "Book not found");
+  if (!book.artist) return showErrorAlert(c, "Artist not found");
 
   const result = await updateBookPublicationStatus(book.id, "published");
 
@@ -171,7 +171,7 @@ export const makeBookPublic = async (c: BookFormWithBookContext) => {
 
   await sendAdminEmail(
     "New book created",
-    generateBookNotificationEmail(updatedBook, user.creator),
+    generateBookNotificationEmail(updatedBook, book.artist),
   );
 
   return c.html(

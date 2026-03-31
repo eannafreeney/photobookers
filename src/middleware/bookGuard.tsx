@@ -8,16 +8,16 @@ import {
   canUnpublishBook,
 } from "../lib/permissions";
 import { getUser } from "../utils";
-import { Book } from "../db/schema";
 import { showErrorAlert } from "../lib/alertHelpers";
 import ErrorPage from "../pages/error/errorPage";
 import { getBookBySlug } from "../features/app/services";
 import { getBookById } from "../features/dashboard/books/services";
 import InfoPage from "../pages/InfoPage";
+import { BookWithRelations } from "../../types";
 
 type BookEnv = {
   Variables: {
-    book: Book;
+    book: BookWithRelations;
   };
 };
 
