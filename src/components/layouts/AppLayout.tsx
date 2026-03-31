@@ -7,6 +7,7 @@ import Footer from "../app/Footer";
 import Alert from "../app/Alert";
 import PreviewBanner from "../app/PreviewBanner";
 import Dock from "./Dock";
+import ToastContainer from "../app/ToastContainer";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
@@ -44,7 +45,7 @@ const AppLayout = ({
       </UserProvider>
       <div id="modal-root"></div>
       {flash && <Alert type={flash.type} message={flash.message} />}
-      <ul x-sync id="toast" x-merge="prepend" role="status"></ul>
+      <ToastContainer />
       <div x-sync id="server_events"></div>
     </body>
   </html>

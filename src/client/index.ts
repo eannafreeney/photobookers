@@ -27,6 +27,7 @@ import { registerUserProfileImageForm } from "../features/app/client/userProfile
 import { registerCommentForm } from "../features/api/client/commentForm";
 import { registerHeroCarousel } from "./components/heroCarousel";
 import { registerCountUp } from "../features/app/client/countUp";
+import { registerAlert } from "./components/alert";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -58,3 +59,4 @@ registerUserProfileImageForm();
 registerCommentForm();
 registerHeroCarousel();
 registerCountUp();
+registerAlert();

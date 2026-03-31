@@ -4,6 +4,7 @@ import BrandLogo from "../app/BrandLogo";
 import Alert from "../app/Alert";
 import { Flash } from "../../../types";
 import Footer from "../app/Footer";
+import ToastContainer from "../app/ToastContainer";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
@@ -15,7 +16,7 @@ const HeadlessLayout = ({ title, children, flash }: LayoutProps) => (
     <Head title={title} />
     <body class="bg-surface">
       {flash && <Alert type={flash.type} message={flash.message} />}
-      <ul x-sync id="toast" x-merge="prepend" role="status"></ul>
+      <ToastContainer />
       <Navbar />
       <main class="container mx-auto min-h-screen px-4">{children}</main>
       <Footer />

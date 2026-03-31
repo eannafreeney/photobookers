@@ -1,4 +1,5 @@
 import { fadeTransition } from "../../lib/transitions";
+import ToastContainer from "./ToastContainer";
 
 type AlertType = keyof typeof alertVariants;
 
@@ -11,55 +12,15 @@ const Alert = ({ type, message }: AlertProps) => {
   const variant = alertVariants[type];
 
   const alpineAttrs = {
+    "x-data": "alert",
     "x-show": "show",
-    ...fadeTransition,
+    "x-transition.duration.500ms": "",
   };
 
   return (
-    <ul id="toast" role="status">
-      <li
-        x-data="{
-        show: false,
-        init() {
-          this.$nextTick(() => this.show = true)
-          setTimeout(() => this.dismiss(), 3000)
-          },
-          dismiss() {
-            this.show = false
-            setTimeout(() => this.$root.remove(), 500)
-            }
-          }"
-        {...alpineAttrs}
-        class={`fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 max-w-md z-50 overflow-hidden rounded-sm border
-          bg-surface text-on-surface
-          ${variant.border}
-          `}
-      >
-        <div class={`flex w-full items-center gap-2 p-2 ${variant.bg}`}>
-          <div class={`rounded-full p-1 ${variant.iconWrapper}`}>
-            {variant.Icon}
-          </div>
-          <p class="text-xs font-medium sm:text-sm">{message}</p>
-          <button class="ml-auto cursor-pointer" x-on:click="dismiss()">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              stroke="currentColor"
-              fill="none"
-              stroke-width="2.5"
-              class="size-4 shrink-0"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-      </li>
-    </ul>
+    <ToastContainer>
+      <Toast type={type} message={message} />
+    </ToastContainer>
   );
 };
 
@@ -183,3 +144,51 @@ export const alertVariants = {
     title: "Note",
   },
 } as const;
+
+interface ToastProps {
+  type: AlertType;
+  message: string;
+}
+
+const Toast = ({ type, message }: ToastProps) => {
+  const variant = alertVariants[type];
+
+  const alpineAttrs = {
+    "x-data": "alert",
+    "x-show": "show",
+    "x-transition.duration.500ms": "",
+  };
+  return (
+    <li
+      {...alpineAttrs}
+      class={`overflow-hidden rounded-sm border
+          bg-surface text-on-surface
+          ${variant.border}
+          `}
+    >
+      <div class={`flex w-full items-center gap-2 p-2 ${variant.bg}`}>
+        <div class={`rounded-full p-1 ${variant.iconWrapper}`}>
+          {variant.Icon}
+        </div>
+        <p class="text-xs font-medium sm:text-sm">{message}</p>
+        <button class="ml-auto cursor-pointer" x-on:click="dismiss()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            stroke="currentColor"
+            fill="none"
+            stroke-width="2.5"
+            class="size-4 shrink-0"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+    </li>
+  );
+};
