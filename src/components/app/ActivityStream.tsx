@@ -14,7 +14,7 @@ const ActivityStream = ({ currentUserId }: { currentUserId?: string }) => {
     <ul
       {...alpineAttrs}
       data-current-user-id={currentUserId ?? ""}
-      class="fixed bottom-4 right-4 z-50 flex max-w-md flex-col gap-2"
+      class="fixed bottom-4 right-4 left-4 z-50 flex w-[calc(100vw-2rem)] flex-col gap-2"
     >
       <template x-for="item in items" x-bind:key="item.id">
         <li
