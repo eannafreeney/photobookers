@@ -17,6 +17,7 @@ import NewUserCredentialsModal from "./modals/NewUserCredentialsModal";
 import CreateUserFormAdmin from "./forms/CreateUserFormAdmin";
 import { getCreatorById } from "../../creators/services";
 import { assignUserAsCreatorOwnerAdmin } from "../claims/services";
+import UserPageAdmin from "./pages/UserPageAdmin";
 
 const updaterUsersEvent = () => (
   <div id="server_events">
@@ -38,6 +39,13 @@ export const getUsersPageAdmin = async (c: Context) => {
       currentPage={currentPage}
     />,
   );
+};
+
+export const getUserPageAdmin = async (c: UserIdContext) => {
+  const userId = c.req.valid("param").userId;
+  const sessionUser = await getUser(c);
+
+  return c.html(<UserPageAdmin userId={userId} user={sessionUser} />);
 };
 
 export const createNewUserAdmin = async (c: UserFormContext) => {

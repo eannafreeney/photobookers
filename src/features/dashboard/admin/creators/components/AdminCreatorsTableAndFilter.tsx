@@ -2,7 +2,6 @@ import Button from "../../../../../components/app/Button";
 import Card from "../../../../../components/app/Card";
 import CopyCellCol from "../../../../../components/app/CopyCellCol";
 import Link from "../../../../../components/app/Link";
-import { Pagination } from "../../../../../components/app/Pagination";
 import Table from "../../../../../components/app/Table";
 import { findFollowersCount } from "../../../../../db/queries";
 import { Creator } from "../../../../../db/schema";
@@ -10,11 +9,7 @@ import { capitalize, formatDate } from "../../../../../utils";
 import CreatorStatusBadge from "../../components/CreatorStatusBadge";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import CreatorTypeForm from "../forms/CreatorTypeForm";
-import {
-  getAllCreatorProfilesByTypeAdmin,
-  getUserByIdAdmin,
-} from "../services";
-import RemoveOwnerButton from "./RemoveOwnerButton";
+import { getAllCreatorProfilesByTypeAdmin } from "../services";
 import SendWelcomeEmailButton from "./SendWelcomeEmailButton";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import OwnerCell from "./OwnerCell";

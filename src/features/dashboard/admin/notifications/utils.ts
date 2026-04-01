@@ -1,5 +1,6 @@
 import { createAdminNotification } from "./services";
 import { AuthUser } from "../../../../../types";
+import { Creator } from "../../../../db/schema";
 
 type NotificationBookTarget = {
   title: string;
@@ -14,6 +15,7 @@ type NotificationCreatorTarget = {
 type NotificationUserTarget = {
   id: string;
   firstName?: string | null;
+  lastName?: string | null;
 };
 
 export const createCommentCreatedNotification = async (
@@ -130,7 +132,7 @@ export const createUserVerifiedNotification = async (
   await createAdminNotification({
     type: "user_verified",
     title: "User verified",
-    body: `${user?.firstName ?? "A user"} verified their account`,
+    body: `${user?.firstName ? `${user.firstName} ${user.lastName}` : "A user"} verified their account`,
     targetUrl: `/users/${user.id}`,
     actorUserId: user.id,
   });

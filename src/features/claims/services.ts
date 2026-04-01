@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import { db } from "../../db/client";
 import {
   bookImages,
@@ -7,17 +6,8 @@ import {
   creatorClaims,
   creators,
 } from "../../db/schema";
-import {
-  generateVerificationCode,
-  getCodeExpiration,
-  getHostname,
-  isCodeExpired,
-  verifyWebsite,
-} from "../../services/verification";
 import { and, eq, gt, inArray, or } from "drizzle-orm";
 import { cleanupOrphanedStubCreator } from "../dashboard/books/services";
-import { getCreatorById } from "../dashboard/creators/services";
-import { getUserByIdAdmin } from "../dashboard/admin/creators/services";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 import { err, ok } from "../../lib/result";
 

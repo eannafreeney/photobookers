@@ -4,6 +4,7 @@ import {
   createNewUserAdmin,
   deleteMultipleUsersAdmin,
   deleteUserAdmin,
+  getUserPageAdmin,
   getUsersPageAdmin,
 } from "./controllers";
 import { formValidator, paramValidator } from "../../../../lib/validator";
@@ -21,6 +22,12 @@ adminUsersDashboardRoutes.post(
   requireAdminAccess,
   formValidator(newUserFormAdminSchema),
   createNewUserAdmin,
+);
+adminUsersDashboardRoutes.get(
+  "/:userId",
+  requireAdminAccess,
+  paramValidator(userIdSchema),
+  getUserPageAdmin,
 );
 
 // ---------- Delete (POST) ----------

@@ -38,7 +38,6 @@ const NotificationsTableAdmin = async ({ currentPath, currentPage }: Props) => {
       <Table id="notifications-table">
         <Table.Head>
           <tr>
-            <Table.HeadRow>Type</Table.HeadRow>
             <Table.HeadRow>Title</Table.HeadRow>
             <Table.HeadRow>Message</Table.HeadRow>
             <Table.HeadRow>Date</Table.HeadRow>
@@ -54,7 +53,6 @@ const NotificationsTableAdmin = async ({ currentPath, currentPage }: Props) => {
               data-read={n.isRead ? "true" : "false"}
               class={n.isRead ? "bg-green-50" : "bg-red-50"}
             >
-              <Table.BodyRow>{n.type}</Table.BodyRow>
               <Table.BodyRow>{n.title}</Table.BodyRow>
               <Table.BodyRow>{n.body}</Table.BodyRow>
               <Table.BodyRow>
@@ -62,7 +60,10 @@ const NotificationsTableAdmin = async ({ currentPath, currentPage }: Props) => {
               </Table.BodyRow>
               <Table.BodyRow>
                 {n.targetUrl ? (
-                  <Link href={n.targetUrl} target="_blank">
+                  <Link
+                    href={`/dashboard/admin/${n.targetUrl}`}
+                    target="_blank"
+                  >
                     Open
                   </Link>
                 ) : (

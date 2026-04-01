@@ -236,11 +236,25 @@ export const getUserByIdAdmin = async (id: string) => {
   try {
     const user = await db.query.users.findFirst({
       where: eq(users.id, id),
+      with: {
+        creators: {
+          columns: {
+            id: true,
+            slug: true,
+            displayName: true,
+            coverUrl: true,
+          },
+          with: {
+            booksAsArtist: true,
+            booksAsPublisher: true,
+          },
+        },
+      },
     });
-    return user ?? null;
+    return ok(user);
   } catch (error) {
     console.error("Failed to get user by id", error);
-    return null;
+    return err({ reason: "Failed to get user by id", cause: error });
   }
 };
 

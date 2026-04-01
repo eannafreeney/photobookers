@@ -140,7 +140,7 @@ export const createUserInDatabase = async (session: AuthSession) => {
   }
   const { firstName, lastName } = user_metadata ?? {};
   try {
-    const newUser = await db
+    const [newUser] = await db
       .insert(users)
       .values({
         id,

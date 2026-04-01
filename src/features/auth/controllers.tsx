@@ -144,7 +144,7 @@ export const processRegister = async (c: ProcessRegisterQueryContext) => {
       <ErrorPage errorMessage="Failed to create account. Please try again." />,
     );
 
-  const [dbError] = await createUserInDatabase(session);
+  const [dbError, dbUser] = await createUserInDatabase(session);
   if (dbError) return c.html(<ErrorPage errorMessage={dbError.reason} />);
 
   if (isCreator) {
@@ -153,7 +153,7 @@ export const processRegister = async (c: ProcessRegisterQueryContext) => {
       return c.html(<ErrorPage errorMessage={newCreatorError.reason} />);
   }
 
-  await createUserVerifiedNotification(user);
+  await createUserVerifiedNotification(dbUser);
 
   const welcomeName = isCreator
     ? (user.user_metadata?.displayName ?? null)

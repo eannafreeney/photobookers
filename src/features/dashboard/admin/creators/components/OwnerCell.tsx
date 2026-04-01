@@ -11,7 +11,9 @@ type Props = {
 const OwnerCell = async ({ ownerUserId, creatorId }: Props) => {
   // if not owned, assign owner button that opens a modal to assign an owner (user)
   if (ownerUserId) {
-    const user = await getUserByIdAdmin(ownerUserId);
+    const [error, user] = await getUserByIdAdmin(ownerUserId);
+    if (error || !user) return <></>;
+
     return (
       <div id={`creator-owner-${creatorId}`} class="flex items-center gap-2">
         <Link
