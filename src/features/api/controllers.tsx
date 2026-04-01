@@ -51,6 +51,8 @@ import {
   publishLikeActivity,
   publishWishlistActivity,
 } from "./utils";
+import Modal from "../../components/app/Modal";
+import NewsletterForm from "../app/components/NewsletterForm";
 
 const updateCreatorCard = () => "creator:updated";
 const updateLibraryPage = () => "library:updated";
@@ -291,6 +293,14 @@ export const getSearchResults = async (c: Context) => {
       creators={creatorResults ?? []}
       books={bookResults ?? []}
     />,
+  );
+};
+
+export const getNewsletterModal = async (c: Context) => {
+  return c.html(
+    <Modal title="Sign up for our newsletter">
+      <NewsletterForm />
+    </Modal>,
   );
 };
 

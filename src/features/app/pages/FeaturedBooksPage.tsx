@@ -1,16 +1,15 @@
 import { AuthUser } from "../../../../types";
 import Card from "../../../components/app/Card";
 import HeroCarousel from "../../../components/app/HeroCarousel";
-
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import { capitalize, getRandomCoverUrl } from "../../../utils";
 import DiscoveryTags from "../components/DiscoveryTags";
 import Intersector from "../components/Intersector";
 import NewsletterCard from "../components/NewsletterCard";
-import PublishersSlider from "../components/CreatorsSlider";
 import SiteFeatures from "../components/SiteFeatures";
 import { getFirstBookByTag } from "../services";
+import NewsletterBanner from "../components/NewsletterBanner";
 
 type Props = {
   user: AuthUser | null;
@@ -20,6 +19,7 @@ type Props = {
 const FeaturedBooksPage = async ({ user, currentPath }: Props) => {
   return (
     <AppLayout title="Books" user={user} currentPath={currentPath}>
+      <NewsletterBanner />
       <Page>
         <HeroCarousel />
         <div class="text-center text-2xl font-bold">

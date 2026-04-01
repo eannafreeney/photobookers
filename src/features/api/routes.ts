@@ -7,6 +7,7 @@ import {
   getCreateCommentModal,
   getEditCommentModal,
   getMobileSearchScreen,
+  getNewsletterModal,
   getSearchResults,
   likeBook,
   processNewsletter,
@@ -42,6 +43,11 @@ apiRoutes.get(
   "/books/:bookId/update/:commentId",
   paramValidator(editCommentParamSchema),
   getEditCommentModal,
+);
+apiRoutes.get(
+  "/newsletter",
+  paramValidator(editCommentParamSchema),
+  getNewsletterModal,
 );
 
 // POST API Routes

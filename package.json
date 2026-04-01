@@ -17,6 +17,7 @@
     "@alpinejs/focus": "^3.15.3",
     "@alpinejs/intersect": "^3.15.8",
     "@alpinejs/morph": "^3.15.8",
+    "@alpinejs/persist": "^3.15.9",
     "@hono/node-server": "^1.8.2",
     "@hono/session": "^0.2.0",
     "@imacrayon/alpine-ajax": "^0.12.6",
