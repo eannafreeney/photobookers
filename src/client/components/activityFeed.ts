@@ -54,25 +54,21 @@ const toMessageParts = (
   }
 };
 
-const toMessage = (e: ActivityEvent) => {
-  switch (e.type) {
-    case "book_liked":
-      return `${e.actorName} just liked ${e.targetName} ${e.targetCreatorName ? `by ${e.targetCreatorName}` : ""}`;
-    case "book_wishlisted":
-      return `${e.actorName} just wishlisted ${e.targetName} ${e.targetCreatorName ? `by ${e.targetCreatorName}` : ""}`;
-    case "book_collected":
-      return `${e.actorName} added ${e.targetName} ${e.targetCreatorName ? `by ${e.targetCreatorName}` : ""}" to their collection`;
-    case "creator_followed":
-      return `${e.actorName} just followed ${e.targetName}`;
-    case "book_commented":
-      return `${e.actorName} just commented on ${e.targetName} ${e.targetCreatorName ? `by ${e.targetCreatorName}` : ""}`;
-  }
-};
-
 export function registerActivityFeed() {
   Alpine.data("activityFeed", () => ({
-    items: [] as Array<ActivityItem>,
+    // Desktop stack
+    items: [] as ActivityItem[],
+
+    // Mobile queue state
+    queue: [] as ActivityItem[],
+    activeItem: null as ActivityItem | null,
+    pendingCount: 0,
+    activeTimer: null as ReturnType<typeof setTimeout> | null,
+
     source: null as EventSource | null,
+    maxDesktopItems: 8,
+    desktopDurationMs: 6000,
+    mobileDurationMs: 4000,
 
     connect() {
       this.source = new EventSource("/api/activity/stream");
@@ -82,28 +78,45 @@ export function registerActivityFeed() {
 
         const currentUserId =
           (this.$el as HTMLElement).dataset.currentUserId || null;
-        if (currentUserId && evt.actorId === currentUserId) {
-          return; // don't show my own activity
-        }
+        if (currentUserId && evt.actorId === currentUserId) return;
 
-        const messageParts = toMessageParts(evt);
-        const item: ActivityItem = {
-          ...evt,
-          ...messageParts,
-        };
+        const item: ActivityItem = { ...evt, ...toMessageParts(evt) };
 
+        // Desktop: keep stacked feed
         this.items.unshift(item);
-        this.items = this.items.slice(0, 8);
-
-        // auto remove transient item
+        this.items = this.items.slice(0, this.maxDesktopItems);
         setTimeout(() => {
           this.items = this.items.filter((x) => x.id !== item.id);
-        }, 6000);
+        }, this.desktopDurationMs);
+
+        // Mobile: queue one-at-a-time
+        this.queue.push(item);
+        this.pendingCount = this.queue.length + (this.activeItem ? 1 : 0) - 1;
+        this.showNextMobile();
       });
 
       this.source.onerror = () => {
         // browser retries automatically
       };
+    },
+
+    showNextMobile() {
+      if (this.activeItem || this.queue.length === 0) return;
+      this.activeItem = this.queue.shift() ?? null;
+      this.pendingCount = this.queue.length;
+      if (this.activeTimer) clearTimeout(this.activeTimer);
+      this.activeTimer = setTimeout(() => {
+        this.activeItem = null;
+        this.pendingCount = this.queue.length;
+        this.showNextMobile();
+      }, this.mobileDurationMs);
+    },
+
+    dismissMobile() {
+      if (this.activeTimer) clearTimeout(this.activeTimer);
+      this.activeItem = null;
+      this.pendingCount = this.queue.length;
+      this.showNextMobile();
     },
 
     disconnect() {
