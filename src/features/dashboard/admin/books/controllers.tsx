@@ -117,13 +117,13 @@ export const updateBookAdmin = async (c: BookFormWithBookIdContext) => {
     return showErrorAlert(c, "Book not found");
   }
 
-  const [artistError] = await resolveArtist(formData, user.id);
-  const [publisherError] = await resolvePublisher(formData, user);
+  const [artistError, artist] = await resolveArtist(formData, user.id);
+  const [publisherError, publisher] = await resolvePublisher(formData, user);
 
   if (artistError) return showErrorAlert(c, artistError.reason);
   if (publisherError) return showErrorAlert(c, publisherError.reason);
 
-  const bookData = buildUpdateBookData(formData);
+  const bookData = buildUpdateBookData(formData, artist.id, publisher.id);
   const updatedBook = await updateBook(bookData, bookId);
   if (!updatedBook) {
     return showErrorAlert(c, "Failed to update book");
