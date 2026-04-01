@@ -247,8 +247,8 @@ export const buildUpdateBookData = (
   formData:
     | z.infer<typeof bookFormSchema>
     | z.infer<typeof bookFormAdminSchema>,
-  artistId: string,
-  publisherId: string,
+  artistId?: string,
+  publisherId?: string,
 ): UpdateBook => {
   return {
     title: formData.title,
