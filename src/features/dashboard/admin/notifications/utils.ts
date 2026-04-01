@@ -52,6 +52,18 @@ export const createBookPublishedNotification = async (
     actorUserId: user.id,
   });
 
+export const createNewPublisherNotification = async (
+  user: NotificationUserTarget,
+  creator: NotificationCreatorTarget,
+) =>
+  await createAdminNotification({
+    type: "new_publisher",
+    title: "New publisher",
+    body: `${creator.displayName} is a new publisher`,
+    targetUrl: `/creators/${creator.slug}`,
+    actorUserId: user.id,
+  });
+
 export const createCreatorClaimedNotification = async (
   user: NotificationUserTarget,
   creator: NotificationCreatorTarget,

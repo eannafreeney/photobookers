@@ -30,8 +30,12 @@ import { registerCountUp } from "../features/app/client/countUp";
 import { registerAlert } from "./components/alert";
 import { registerActivityFeed } from "./components/activityFeed";
 import { registerAdminNotificationsBadge } from "../features/dashboard/admin/notifications/client/adminNotificationsBadge";
+import { registerAdminClaimsBadge } from "../features/dashboard/admin/claims/client/adminClaimsBadge";
+import { registerAdminNotificationsTable } from "../features/dashboard/admin/notifications/client/adminNotificationsTable";
 
 // Register all Alpine.js data components
+registerAdminClaimsBadge();
+registerAdminNotificationsTable();
 registerLoginForm();
 registerRegisterFanForm();
 registerRegisterCreatorForm();

@@ -70,16 +70,11 @@ export const createNewBookAdmin = async (c: BookFormContext) => {
   const user = await getUser(c);
   const formData = c.req.valid("form");
 
-  const artist = await resolveArtist(formData, user.id);
-  const publisher = await resolvePublisher(formData, user.id);
+  const [artistError, artist] = await resolveArtist(formData, user.id);
+  const [publisherError, publisher] = await resolvePublisher(formData, user);
 
-  if (artist === "error" || !artist) {
-    return showErrorAlert(c, "Invalid artist");
-  }
-
-  if (publisher === "error") {
-    return showErrorAlert(c, "Invalid publisher");
-  }
+  if (artistError) return showErrorAlert(c, artistError.reason);
+  if (publisherError) return showErrorAlert(c, publisherError.reason);
 
   const bookData = await buildCreateBookData(
     formData,
@@ -122,16 +117,11 @@ export const updateBookAdmin = async (c: BookFormWithBookIdContext) => {
     return showErrorAlert(c, "Book not found");
   }
 
-  const artist = await resolveArtist(formData, user.id);
-  const publisher = await resolvePublisher(formData, user.id);
+  const [artistError] = await resolveArtist(formData, user.id);
+  const [publisherError] = await resolvePublisher(formData, user);
 
-  if (artist === "error" || !artist) {
-    return showErrorAlert(c, "Invalid artist");
-  }
-
-  if (publisher === "error") {
-    return showErrorAlert(c, "Invalid publisher");
-  }
+  if (artistError) return showErrorAlert(c, artistError.reason);
+  if (publisherError) return showErrorAlert(c, publisherError.reason);
 
   const bookData = buildUpdateBookData(formData);
   const updatedBook = await updateBook(bookData, bookId);

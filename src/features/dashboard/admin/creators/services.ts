@@ -13,6 +13,8 @@ import { getRandomCoverUrl, slugify } from "../../../../utils";
 import { getCreatorById } from "../../creators/services";
 import { getPagination } from "../../../../lib/pagination";
 import { err, ok } from "../../../../lib/result";
+import { createNewPublisherNotification } from "../notifications/utils";
+import { AuthUser } from "../../../../../types";
 
 export const removeCreatorOwnerAdminDB = async (creatorId: string) => {
   try {
@@ -260,68 +262,64 @@ export const getAllCreatorOptions = async (
 export const resolveArtist = async (
   formData: { artist_id?: string; new_artist_name?: string },
   userId: string,
-): Promise<Creator | null | "error"> => {
+) => {
   const { artist_id, new_artist_name } = formData;
+  if (!artist_id && !new_artist_name)
+    return err({ reason: "No artist selected" });
 
-  // Using existing artist
   if (artist_id) {
     const [error, creator] = await getCreatorById(artist_id);
-    if (error || !creator) {
-      return "error";
-    }
-    return creator?.type === "artist" ? creator : "error";
+    if (error || !creator) return err({ reason: "Invalid artist" });
+    if (creator.type !== "artist")
+      return err({ reason: "Creator is not an artist" });
+
+    return ok(creator);
   }
 
-  // Create new stub artist
-  if (new_artist_name) {
-    const [error, creator] = await createStubCreatorProfileAdmin(
-      new_artist_name,
-      userId,
-      "artist",
-    );
-    if (error || !creator) {
-      return "error";
-    }
-    return creator?.type === "artist" ? creator : "error";
-  }
+  const [stubError, stubArtist] = await createStubCreatorProfileAdmin(
+    new_artist_name!,
+    userId,
+    "artist",
+  );
+  if (stubError || !stubArtist)
+    return err({ reason: "Failed to create artist" });
+  if (stubArtist.type !== "artist")
+    return err({ reason: "Created creator is not an artist" });
 
-  return null;
+  return ok(stubArtist);
 };
 
 export const resolvePublisher = async (
   formData: { publisher_id?: string; new_publisher_name?: string },
-  userId: string,
-): Promise<Creator | null | "error"> => {
+  user: AuthUser,
+) => {
   const { publisher_id, new_publisher_name } = formData;
+  if (!publisher_id && !new_publisher_name)
+    return err({ reason: "No publisher selected" });
 
-  // No publisher specified
-  if (!publisher_id && !new_publisher_name) {
-    return null;
-  }
-
-  // Using existing publisher
   if (publisher_id) {
     const [error, creator] = await getCreatorById(publisher_id);
-    if (error || !creator) {
-      return "error";
-    }
-    return creator?.type === "publisher" ? creator : "error";
+    if (error || !creator) return err({ reason: "Invalid publisher" });
+    if (creator.type !== "publisher")
+      return err({ reason: "Creator is not a publisher" });
+
+    return ok(creator);
   }
 
-  // Create new stub publisher
-  if (new_publisher_name) {
-    const [error, publisher] = await createStubCreatorProfileAdmin(
-      new_publisher_name,
-      userId,
-      "publisher",
-    );
-    if (error || !publisher) {
-      return "error";
-    }
-    return publisher?.type === "publisher" ? publisher : "error";
-  }
+  // only new_publisher_name branch remains
+  const [stubError, stubPublisher] = await createStubCreatorProfileAdmin(
+    new_publisher_name!,
+    user.id,
+    "publisher",
+  );
 
-  return null;
+  if (stubError || !stubPublisher)
+    return err({ reason: "Failed to create publisher" });
+  if (stubPublisher.type !== "publisher")
+    return err({ reason: "Created creator is not a publisher" });
+
+  await createNewPublisherNotification(user, stubPublisher);
+  return ok(stubPublisher);
 };
 
 export const getBooksByCreatorId = async (
