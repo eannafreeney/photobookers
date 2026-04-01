@@ -9,6 +9,7 @@ import Breadcrumbs from "../../components/Breadcrumbs";
 import { getBookById } from "../../../books/services";
 import PreviewButton from "../../../../api/components/PreviewButton";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
+import InfoPage from "../../../../../pages/InfoPage";
 
 type Props = {
   bookId: string;
@@ -24,9 +25,7 @@ const EditBookPageAdmin = async ({
   currentPath,
 }: Props) => {
   const [error, book] = await getBookById(bookId);
-  if (error) {
-    return <div>Book not found</div>;
-  }
+  if (error) return <InfoPage errorMessage={error.reason} user={user} />;
 
   const formValues = {
     title: book.title,

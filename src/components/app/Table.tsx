@@ -56,7 +56,7 @@ type TableBodyRowProps = {
 };
 
 export const TableBodyRow = ({ children }: TableBodyRowProps) => (
-  <td class="p-4">{children}</td>
+  <td class="px-4 py-2">{children}</td>
 );
 
 Table.Head = TableHead;

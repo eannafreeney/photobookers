@@ -18,13 +18,13 @@ import {
 } from "./types";
 import {
   checkWasForcedResetPassword,
+  clearMustResetPassword,
   createUserInDatabase,
   getAuthCookieOptions,
   getCreatorBySlug,
   getCreatorByWebsite,
   loginAndSetCookies,
   setCookiesAndVerifyUser,
-  setResetPasswordFlag,
   verifyOtpForCreatorSignup,
   verifyOtpForFanSignup,
 } from "./services";
@@ -242,7 +242,7 @@ export const resetPassword = async (c: ResetPasswordFormContext) => {
 
   if (error) return showErrorAlert(c, error.message);
 
-  const [setResetPasswordFlagError] = await setResetPasswordFlag(user.id);
+  const [setResetPasswordFlagError] = await clearMustResetPassword(user.id);
   if (setResetPasswordFlagError)
     return showErrorAlert(c, setResetPasswordFlagError.reason);
 

@@ -80,7 +80,9 @@ export default CreatorCard;
 
 const FollowersCount = ({ followerCount }: { followerCount: number }) => {
   if (followerCount === 0) return <></>;
-  return <Card.Text>{`${followerCount} following`}</Card.Text>;
+  return (
+    <Card.Text>{`${followerCount} follower${followerCount > 1 ? "s" : ""}`}</Card.Text>
+  );
 };
 
 const followersIcon = (

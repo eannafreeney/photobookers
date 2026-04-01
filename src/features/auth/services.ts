@@ -266,11 +266,11 @@ export const checkWasForcedResetPassword = async (userId: string) => {
   }
 };
 
-export const setResetPasswordFlag = async (userId: string) => {
+export const clearMustResetPassword = async (userId: string) => {
   try {
     await db
       .update(users)
-      .set({ mustResetPassword: true })
+      .set({ mustResetPassword: false })
       .where(eq(users.id, userId));
     return ok(undefined);
   } catch (error) {

@@ -48,7 +48,7 @@ export const requireCreatorEditAccess = createMiddleware<CreatorEnv>(
           403,
         );
       }
-      return c.html(<InfoPage errorMessage="Unauthorized " user={user} />, 403);
+      return c.html(<InfoPage errorMessage="Unauthorized" user={user} />, 403);
     }
 
     // Attach creator to context so route doesn't need to fetch again
