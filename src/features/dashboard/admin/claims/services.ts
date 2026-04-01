@@ -9,9 +9,22 @@ import {
   User,
   users,
 } from "../../../../db/schema";
-import { and, desc, eq, gt, inArray, or } from "drizzle-orm";
+import { and, count, desc, eq, gt, inArray, or } from "drizzle-orm";
 import { deleteBookByIdAdmin } from "../books/services";
 import { err, ok } from "../../../../lib/result";
+
+export const getPendingClaimsCount = async () => {
+  try {
+    const [row] = await db
+      .select({ value: count() })
+      .from(creatorClaims)
+      .where(eq(creatorClaims.status, "pending_admin_review"));
+    return ok(Number(row?.value ?? 0));
+  } catch (error) {
+    console.error("Failed to get pending claims count:", error);
+    return err({ reason: "Failed to get pending claims count", cause: error });
+  }
+};
 
 export const assignUserAsCreatorOwnerAdmin = async (
   userId: string,

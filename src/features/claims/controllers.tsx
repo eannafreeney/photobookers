@@ -1,13 +1,11 @@
 import Alert from "../../components/app/Alert";
 import Modal from "../../components/app/Modal";
 import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
-import { sendAdminEmail } from "../../lib/sendEmail";
 import { isSameDomain, normalizeUrl } from "../../services/verification";
 import { getUser, setFlash } from "../../utils";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 import { getCreatorById } from "../dashboard/creators/services";
 import ClaimCreatorBtn from "./components/ClaimCreatorBtn";
-import { generateClaimNotificationEmail } from "./emails";
 import ClaimModal from "./modals/ClaimModal";
 import { createClaimWithStatus } from "./services";
 import {
@@ -21,6 +19,7 @@ import ClaimSignupModal from "./modals/ClaimSignUpModal";
 import { verifyOtpForClaimSignup } from "../auth/services";
 import { Context } from "hono";
 import InfoPage from "../../pages/InfoPage";
+import { createCreatorClaimedNotification } from "../dashboard/admin/notifications/utils";
 
 export const getClaimModal = async (c: ClaimModalContext) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -175,8 +174,7 @@ export const getClaimComplete = async (c: Context) => {
       400,
     );
 
-  const emailHtml = generateClaimNotificationEmail(creatorClaim, creator);
-  await sendAdminEmail("New creator claim", emailHtml);
+  await createCreatorClaimedNotification(user, creator);
 
   if (status === "approved") {
     const [error] = await assignUserAsCreatorOwnerAdmin(

@@ -16,6 +16,7 @@ import { apiRoutes } from "../features/api/routes";
 import { imageRoutes } from "../features/dashboard/images/routes";
 import { claimRoutes } from "../features/claims/routes";
 import { adminPlannerDashboardRoutes } from "../features/dashboard/admin/planner/routes";
+import { adminNotificationsDashboardRoutes } from "../features/dashboard/admin/notifications/routes";
 import { messagesDashboardRoutes } from "../features/dashboard/messages/routes";
 import { jobsRoutes } from "../features/jobs/routes";
 
@@ -66,3 +67,7 @@ routes.route("/dashboard/admin/users", adminUsersDashboardRoutes);
 routes.route("/dashboard/admin/claims", adminClaimsDashboardRoutes);
 routes.route("/dashboard/admin/creators", adminCreatorsDashboardRoutes);
 routes.route("/dashboard/admin/planner", adminPlannerDashboardRoutes);
+routes.route(
+  "/dashboard/admin/notifications",
+  adminNotificationsDashboardRoutes,
+);

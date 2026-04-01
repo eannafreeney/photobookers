@@ -22,9 +22,7 @@ import {
   updateBookPublicationStatus,
 } from "./services";
 import { resolveArtist, resolvePublisher } from "../admin/creators/services";
-import { sendAdminEmail } from "../../../lib/sendEmail";
-import { generateBookNotificationEmail } from "./emails";
-import { supabaseAdmin } from "../../../lib/supabase";
+import { createBookPublishedNotification } from "../admin/notifications/utils";
 
 export const getBooksOverview = async (c: Context) => {
   const searchQuery = c.req.query("search");
@@ -169,10 +167,7 @@ export const makeBookPublic = async (c: BookFormWithBookContext) => {
 
   const updatedBook = result.book;
 
-  await sendAdminEmail(
-    "New book created",
-    generateBookNotificationEmail(updatedBook, book.artist),
-  );
+  await createBookPublishedNotification(user, book);
 
   return c.html(
     <>

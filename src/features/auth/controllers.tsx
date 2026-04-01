@@ -46,14 +46,11 @@ import ValidateWebsite from "./components/ValidateWebsite";
 import { createStubCreatorProfile } from "../dashboard/creators/services";
 import { findUserByEmailAdmin } from "../dashboard/admin/creators/services";
 import { eq } from "drizzle-orm";
-import {
-  generateVerificationSuccessEmailAdmin,
-  generateVerificationWelcomeEmail,
-} from "./emails";
-import { sendAdminEmail, sendEmail } from "../../lib/sendEmail";
+import { generateVerificationWelcomeEmail } from "./emails";
+import { sendEmail } from "../../lib/sendEmail";
 import { isErr } from "../../lib/result";
 import RegisterSuccessScreen from "./components/RegisterSuccessScreen";
-import { log } from "console";
+import { createUserVerifiedNotification } from "../dashboard/admin/notifications/utils";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -156,15 +153,7 @@ export const processRegister = async (c: ProcessRegisterQueryContext) => {
       return c.html(<ErrorPage errorMessage={newCreatorError.reason} />);
   }
 
-  const adminEmailResult = await sendAdminEmail(
-    "New user verified",
-    generateVerificationSuccessEmailAdmin(user.email),
-  );
-  if (isErr(adminEmailResult))
-    console.error(
-      "Admin verification email failed:",
-      adminEmailResult[0].reason,
-    );
+  await createUserVerifiedNotification(user);
 
   const welcomeName = isCreator
     ? (user.user_metadata?.displayName ?? null)
@@ -258,15 +247,7 @@ export const resetPassword = async (c: ResetPasswordFormContext) => {
     return showErrorAlert(c, setResetPasswordFlagError.reason);
 
   if (wasForcedResetPassword) {
-    const adminEmailResult = await sendAdminEmail(
-      "User claimed account (password set)",
-      generateVerificationSuccessEmailAdmin(user.email),
-    );
-    if (isErr(adminEmailResult))
-      console.error(
-        "Admin account-claimed email failed:",
-        adminEmailResult[0].reason,
-      );
+    await createUserVerifiedNotification(user);
   }
 
   const { data } = await supabaseAnon.auth.signInWithPassword({

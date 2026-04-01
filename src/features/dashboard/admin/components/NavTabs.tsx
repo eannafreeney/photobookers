@@ -1,12 +1,15 @@
 import clsx from "clsx";
 import { PropsWithChildren } from "hono/jsx";
 import {
+  bellIcon,
   booksIcon,
   claimsIcon,
   creatorsIcon,
+  mailIcon,
   plannerIcon,
   usersIcon,
 } from "../../../../lib/icons";
+import AdminBadge from "./AdminBadge";
 
 const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
   return (
@@ -14,6 +17,11 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       id="nav-tabs"
       class="flex flex-col md:flex-row items-center justify-center bg-surface-alt gap-4 mb-8 mt-4"
     >
+      <NavLink href="/dashboard/admin/notifications" currentPath={currentPath}>
+        {bellIcon(4)}
+        Notifications
+        <AdminBadge xData="adminNotificationsBadge" />
+      </NavLink>
       <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
         {plannerIcon}
         Planner
@@ -33,6 +41,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       <NavLink href="/dashboard/admin/claims" currentPath={currentPath}>
         {claimsIcon}
         Claims
+        <AdminBadge xData="adminClaimsBadge" />
       </NavLink>
     </nav>
   );

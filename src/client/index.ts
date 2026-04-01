@@ -29,6 +29,7 @@ import { registerHeroCarousel } from "./components/heroCarousel";
 import { registerCountUp } from "../features/app/client/countUp";
 import { registerAlert } from "./components/alert";
 import { registerActivityFeed } from "./components/activityFeed";
+import { registerAdminNotificationsBadge } from "../features/dashboard/admin/notifications/client/adminNotificationsBadge";
 
 // Register all Alpine.js data components
 registerLoginForm();
@@ -62,3 +63,4 @@ registerHeroCarousel();
 registerCountUp();
 registerAlert();
 registerActivityFeed();
+registerAdminNotificationsBadge();

@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import {
   approveClaimAdmin,
   getClaimsOverviewPageAdmin,
+  getPendingClaimsCountAdmin,
   rejectClaimAdmin,
 } from "./controllers";
 import { formValidator, paramValidator } from "../../../../lib/validator";
@@ -28,4 +29,9 @@ adminClaimsDashboardRoutes.post(
   paramValidator(claimIdSchema),
   formValidator(claimFormSchema),
   rejectClaimAdmin,
+);
+adminClaimsDashboardRoutes.get(
+  "/pending-count",
+  requireAdminAccess,
+  getPendingClaimsCountAdmin,
 );

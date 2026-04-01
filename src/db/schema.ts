@@ -73,6 +73,17 @@ export const usersRelations = relations(users, ({ many }) => ({
   comments: many(bookComments),
 }));
 
+export const adminNotifications = pgTable("admin_notifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  type: varchar("type", { length: 64 }).notNull(), // e.g. "book_published"
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  targetUrl: text("target_url"),
+  actorUserId: uuid("actor_user_id").references(() => users.id),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const creators = pgTable(
   "creators",
   {
@@ -609,3 +620,6 @@ export type NewCreatorMessage = InferInsertModel<typeof creatorMessages>;
 
 export type BookComment = InferSelectModel<typeof bookComments>;
 export type NewBookComment = InferInsertModel<typeof bookComments>;
+
+export type AdminNotification = InferSelectModel<typeof adminNotifications>;
+export type NewAdminNotification = InferInsertModel<typeof adminNotifications>;

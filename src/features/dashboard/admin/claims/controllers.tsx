@@ -1,7 +1,12 @@
 import { Context } from "hono";
 import { getUser } from "../../../../utils";
 import ClaimsOverviewAdmin from "./pages/ClaimsOverviewAdmin";
-import { approveClaim, getClaimById, rejectClaim } from "./services";
+import {
+  approveClaim,
+  getClaimById,
+  getPendingClaimsCount,
+  rejectClaim,
+} from "./services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { supabaseAdmin } from "../../../../lib/supabase";
 import Alert from "../../../../components/app/Alert";
@@ -11,6 +16,15 @@ import { generateClaimApprovalEmail } from "./emails";
 import { generateClaimRejectionEmail } from "../../../claims/emails";
 import { getCreatorById } from "../../creators/services";
 import { sendEmail } from "../../../../lib/sendEmail";
+import { dispatchEvents } from "../../../../lib/disatchEvents";
+
+const updateClaimsPage = () => "admin-claims:updated";
+
+export const getPendingClaimsCountAdmin = async (c: Context) => {
+  const [error, count] = await getPendingClaimsCount();
+  if (error) return c.json({ ok: false, error: error.reason }, 500);
+  return c.json({ count });
+};
 
 export const getClaimsOverviewPageAdmin = async (c: Context) => {
   const user = await getUser(c);
@@ -49,6 +63,7 @@ export const approveClaimAdmin = async (c: ClaimIdContext) => {
     <>
       <Alert type="success" message="Claim approved!" />
       <ClaimsTableAdmin />
+      {dispatchEvents([updateClaimsPage()])}
     </>,
   );
 };
@@ -81,6 +96,7 @@ export const rejectClaimAdmin = async (c: ClaimIdContext) => {
     <>
       <Alert type="success" message="Claim rejected!" />
       <ClaimsTableAdmin />
+      {dispatchEvents([updateClaimsPage()])}
     </>,
   );
 };

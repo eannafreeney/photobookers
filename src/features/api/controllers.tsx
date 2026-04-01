@@ -40,7 +40,7 @@ import {
 } from "./types";
 import EditCommentModal from "./modals/EditCommentModal";
 import CommentModal from "./modals/CommentModal";
-import { sendAdminEmail, sendEmail } from "../../lib/sendEmail";
+import { sendEmail } from "../../lib/sendEmail";
 import LikeButton from "./components/LikeButton";
 import { subscribeToActivityEvents } from "../../lib/activityEvents";
 import { streamSSE } from "hono/streaming";
@@ -53,6 +53,14 @@ import {
 } from "./utils";
 import Modal from "../../components/app/Modal";
 import NewsletterForm from "../app/components/NewsletterForm";
+import {
+  createBookCollectedNotification,
+  createBookLikedNotification,
+  createBookWishlistedNotification,
+  createCommentCreatedNotification,
+  createCommentUpdatedNotification,
+  createCreatorFollowedNotification,
+} from "../dashboard/admin/notifications/utils";
 
 const updateCreatorCard = () => "creator:updated";
 const updateLibraryPage = () => "library:updated";
@@ -82,6 +90,7 @@ export const followCreator = async (c: Context) => {
     } else {
       await insertFollow(userId, creatorId);
       publishFollowActivity(user, creator);
+      await createCreatorFollowedNotification(user, creator);
     }
   } catch (error) {
     console.error("Failed to add/remove creator from followers", error);
@@ -132,6 +141,7 @@ export const likeBook = async (c: Context) => {
     } else {
       await insertLike(userId, bookId);
       publishLikeActivity(user, book);
+      await createBookLikedNotification(user, book);
     }
   } catch (error) {
     console.error("Failed to add/remove book like", error);
@@ -175,6 +185,7 @@ export const collectBook = async (c: Context) => {
     } else {
       await insertCollectionItem(userId, bookId);
       publishCollectActivity(user, book);
+      await createBookCollectedNotification(user, book);
     }
   } catch (error) {
     console.error("Failed to add/remove book to wishlist", error);
@@ -200,45 +211,42 @@ export const collectBook = async (c: Context) => {
 };
 
 export const wishlistBook = async (c: Context) => {
-  const bookId = c.req.param("bookId");
   const user = await getUser(c);
-  const userId = user?.id;
-
-  if (!userId)
+  if (!user.id)
     return c.html(<AuthModal action="to wishlist this book." />, 401);
 
+  const bookId = c.req.param("bookId");
   const body = await c.req.parseBody();
-  const isCurrentlyWishlisted = body.isWishlisted === "true";
-  const buttonType = body.buttonType; // "circle" or "default"
+
+  const isWishlisted = body.isWishlisted === "true";
+  const isCircleButton = body.buttonType === "circle";
   const shouldRefreshWishlist = body.shouldRefreshWishlist === "true";
+  const isAddingToWishlist = !isWishlisted;
 
   const [err, book] = await getBookPermissionData(bookId);
   if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
   try {
-    if (isCurrentlyWishlisted) {
-      await deleteWishlist(userId, bookId);
-    } else {
-      await insertWishlist(userId, bookId);
+    if (isAddingToWishlist) {
+      await insertWishlist(user.id, bookId);
       publishWishlistActivity(user, book);
+      await createBookWishlistedNotification(user, book);
+    } else {
+      await deleteWishlist(user.id, bookId);
     }
   } catch (error) {
     console.error("Failed to add/remove book to wishlist", error);
     return showErrorAlert(c);
   }
 
-  const message = isCurrentlyWishlisted
-    ? `${book.title} has been removed from your wishlist`
-    : `${book.title} has been added to your wishlist`;
+  const message = isAddingToWishlist
+    ? `${book.title} has been added to your wishlist`
+    : `${book.title} has been removed from your wishlist`;
 
   return c.html(
     <>
       <Alert type="success" message={message} />
-      <WishlistButton
-        book={book}
-        user={user}
-        isCircleButton={buttonType === "circle"}
-      />
+      <WishlistButton book={book} user={user} isCircleButton={isCircleButton} />
       {shouldRefreshWishlist && dispatchEvents([updateLibraryPage()])}
     </>,
   );
@@ -413,11 +421,7 @@ export const addBookComment = async (c: AddCommentFormContext) => {
     return showErrorAlert(c, insertError.reason ?? "Failed to add comment");
 
   publishCommentActivity(user, book);
-
-  await sendAdminEmail(
-    "New comment on a book",
-    `A new comment has been added to the book ${bookId}. ${comment.body}`,
-  );
+  await createCommentCreatedNotification(user, book);
 
   await sendEmail(
     book.creatorUser?.email ?? "",
@@ -436,16 +440,17 @@ export const addBookComment = async (c: AddCommentFormContext) => {
 
 export const updateBookComment = async (c: UpdateCommentGuardedContext) => {
   const comment = c.get("comment");
+  const user = await getUser(c);
   const body = c.req.valid("form").body;
   const [err, updatedComment] = await updateCommentById(comment.id, body);
-  if (err || !updatedComment) {
+  if (err || !updatedComment)
     return showErrorAlert(c, err?.reason ?? "Failed to update comment");
-  }
 
-  await sendAdminEmail(
-    "Updated comment on a book",
-    `A comment has been updated. ${updatedComment.body}`,
-  );
+  const [bookErr, book] = await getBookPermissionData(comment.bookId);
+  if (bookErr) return showErrorAlert(c, bookErr?.reason ?? "Book not found");
+
+  await createCommentUpdatedNotification(user, book);
+
   return c.html(
     <>
       <Alert type="success" message="Comment updated successfully" />

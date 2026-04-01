@@ -1,0 +1,1 @@
+ALTER TABLE "admin_notifications" ADD COLUMN "is_read" boolean DEFAULT false NOT NULL;
