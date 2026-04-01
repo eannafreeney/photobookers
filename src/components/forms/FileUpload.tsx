@@ -1,7 +1,3 @@
-import InputLabel from "./InputLabel";
-import { AuthUser } from "../../../types";
-import { canUploadImage } from "../../lib/permissions";
-
 type FileUploadProps = {
   label: string;
   maxSize?: string;

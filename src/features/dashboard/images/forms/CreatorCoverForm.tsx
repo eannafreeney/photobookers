@@ -5,6 +5,7 @@ import ImagePreview from "../../../../components/forms/ImagePreview";
 import { AuthUser } from "../../../../../types";
 import { canUploadImage } from "../../../../lib/permissions";
 import { Creator } from "../../../../db/schema";
+import DragAndDropArea from "../components/DragAndDropArea";
 
 type Props = {
   initialUrl: string | null;
@@ -36,12 +37,12 @@ const CreatorCoverForm = ({ initialUrl, creator, user }: Props) => {
       >
         <div class="space-y-4">
           <ImagePreview />
+          <DragAndDropArea />
           <FileUploadInput
             label="Replace Image"
             name="cover"
             x-on:change="onFileChange"
             x-ref="fileInput"
-            // isDisabled={!canUploadImage(user, book)}
           />
           <p x-show="isCompressing" class="text-sm text-gray-500">
             Compressing image…
