@@ -60,12 +60,7 @@ const NotificationsTableAdmin = async ({ currentPath, currentPage }: Props) => {
               </Table.BodyRow>
               <Table.BodyRow>
                 {n.targetUrl ? (
-                  <Link
-                    href={`/dashboard/admin/${n.targetUrl}`}
-                    target="_blank"
-                  >
-                    Open
-                  </Link>
+                  <Link href={`/dashboard/admin${n.targetUrl}`}>Open</Link>
                 ) : (
                   "-"
                 )}
