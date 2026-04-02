@@ -36,7 +36,11 @@ type ComboBoxScope = {
 export function registerComboBox() {
   Alpine.data(
     "comboBox",
-    (options: ComboBoxOption[] = [], type: "artist" | "publisher") => {
+    (
+      options: ComboBoxOption[] = [],
+      type: "artist" | "publisher",
+      disableOnInit: boolean = true,
+    ) => {
       return {
         allOptions: options,
         options: [] as ComboBoxOption[],
@@ -68,7 +72,7 @@ export function registerComboBox() {
             if (match) {
               this.selectedOption = match;
               inputRef(this.$refs.hiddenTextField).value = String(match.id);
-              this.isDisabled = true;
+              this.isDisabled = disableOnInit;
             }
           }
         },

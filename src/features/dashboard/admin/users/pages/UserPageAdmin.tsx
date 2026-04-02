@@ -1,6 +1,6 @@
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import Page from "../../../../../components/layouts/Page";
-import { getUserByIdAdmin } from "../../creators/services";
+import { getUserByIdAdmin } from "../services";
 import InfoPage from "../../../../../pages/InfoPage";
 import { AuthUser } from "../../../../../../types";
 import PageTitle from "../../../../../components/app/PageTitle";
@@ -14,8 +14,17 @@ type Props = {
 };
 
 const UserPageAdmin = async ({ userId, user: sessionUser }: Props) => {
-  const [error, viewedUser] = await getUserByIdAdmin(userId);
-  if (error) return <InfoPage errorMessage={error.reason} user={sessionUser} />;
+  const [error, viewedUser] = await getUserByIdAdmin(userId, {
+    withActivity: true,
+  });
+
+  if (error)
+    return <InfoPage errorMessage={error?.reason} user={sessionUser} />;
+
+  const likedBooks = viewedUser?.likedBooks ?? [];
+  const wishlistedBooks = viewedUser?.wishlistedBooks ?? [];
+  const collectedBooks = viewedUser?.collectedBooks ?? [];
+  const followedCreators = viewedUser?.followedCreators ?? [];
 
   return (
     <AppLayout title="Admin Dashboard" user={sessionUser}>
@@ -42,7 +51,6 @@ const UserPageAdmin = async ({ userId, user: sessionUser }: Props) => {
             <span>Updated At:</span>
             <span>{viewedUser?.updatedAt}</span>
           </div>
-
           <div>
             <span>Must Reset Password:</span>
             <span>{viewedUser?.mustResetPassword ? "Yes" : "No"}</span>
@@ -86,6 +94,108 @@ const UserPageAdmin = async ({ userId, user: sessionUser }: Props) => {
             </ul>
           )}
         </div>
+        <SectionTitle className="mb-4">Books liked</SectionTitle>
+        {likedBooks?.length === 0 ? (
+          <p class="text-sm text-on-surface/65">No liked books.</p>
+        ) : (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {viewedUser?.likedBooks.map((b) => (
+              <Card>
+                <Card.Image
+                  src={b.coverUrl ?? ""}
+                  alt={b.title}
+                  href={`/books/${b.slug}`}
+                  objectCover
+                />
+                <Card.Body>
+                  <Link href={`/books/${b.slug}`}>
+                    <Card.Title>{b.title}</Card.Title>
+                  </Link>
+                  {b.artist?.displayName && (
+                    <Card.Text>{b.artist.displayName}</Card.Text>
+                  )}
+                </Card.Body>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        <SectionTitle className="mb-4">Books wishlisted</SectionTitle>
+        {wishlistedBooks.length === 0 ? (
+          <p class="text-sm text-on-surface/65">No wishlisted books.</p>
+        ) : (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {wishlistedBooks.map((b) => (
+              <Card>
+                <Card.Image
+                  src={b.coverUrl ?? ""}
+                  alt={b.title}
+                  href={`/books/${b.slug}`}
+                  objectCover
+                />
+                <Card.Body>
+                  <Link href={`/books/${b.slug}`}>
+                    <Card.Title>{b.title}</Card.Title>
+                  </Link>
+                  {b.artist?.displayName && (
+                    <Card.Text>{b.artist.displayName}</Card.Text>
+                  )}
+                </Card.Body>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        <SectionTitle className="mb-4">Books collected</SectionTitle>
+        {collectedBooks.length === 0 ? (
+          <p class="text-sm text-on-surface/65">No collected books.</p>
+        ) : (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {collectedBooks.map((b) => (
+              <Card>
+                <Card.Image
+                  src={b.coverUrl ?? ""}
+                  alt={b.title}
+                  href={`/books/${b.slug}`}
+                  objectCover
+                />
+                <Card.Body>
+                  <Link href={`/books/${b.slug}`}>
+                    <Card.Title>{b.title}</Card.Title>
+                  </Link>
+                  {b.artist?.displayName && (
+                    <Card.Text>{b.artist.displayName}</Card.Text>
+                  )}
+                </Card.Body>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        <SectionTitle className="mb-4">Creators followed</SectionTitle>
+        {followedCreators.length === 0 ? (
+          <p class="text-sm text-on-surface/65">Not following any creators.</p>
+        ) : (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {followedCreators.map((c) => (
+              <Card>
+                <Card.Image
+                  src={c.coverUrl ?? ""}
+                  alt={c.displayName}
+                  href={`/dashboard/admin/creators/${c.id}/update`}
+                  aspectSquare
+                  objectCover
+                />
+                <Card.Body>
+                  <Link href={`/dashboard/admin/creators/${c.id}/update`}>
+                    <Card.Title>{c.displayName}</Card.Title>
+                  </Link>
+                  <Card.Text>{c.slug}</Card.Text>
+                </Card.Body>
+              </Card>
+            ))}
+          </div>
+        )}
       </Page>
     </AppLayout>
   );

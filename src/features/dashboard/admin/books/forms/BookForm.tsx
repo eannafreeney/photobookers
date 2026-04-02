@@ -57,6 +57,7 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
             newOptionName="form.new_artist_name"
             type="artist"
             options={artistOptions}
+            disableOnInit={false}
             required
           />
           <ComboBox
@@ -65,6 +66,7 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
             newOptionName="form.new_publisher_name"
             type="publisher"
             options={publisherOptions}
+            disableOnInit={false}
           />
           <TextArea
             label="Description"

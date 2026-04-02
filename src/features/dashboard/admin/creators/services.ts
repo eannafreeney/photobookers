@@ -232,32 +232,6 @@ export const findUserByEmailAdmin = async (email: string) => {
   }
 };
 
-export const getUserByIdAdmin = async (id: string) => {
-  try {
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, id),
-      with: {
-        creators: {
-          columns: {
-            id: true,
-            slug: true,
-            displayName: true,
-            coverUrl: true,
-          },
-          with: {
-            booksAsArtist: true,
-            booksAsPublisher: true,
-          },
-        },
-      },
-    });
-    return ok(user);
-  } catch (error) {
-    console.error("Failed to get user by id", error);
-    return err({ reason: "Failed to get user by id", cause: error });
-  }
-};
-
 export const getAllCreatorOptions = async (
   creatorType: "artist" | "publisher",
 ) => {

@@ -6,8 +6,6 @@ import Table from "../../../../../components/app/Table";
 import DeleteFormButton from "../../components/DeleteFormButton";
 import { getAllUsersAdmin } from "../services";
 import CreatorStatusBadge from "../../components/CreatorStatusBadge";
-import { Pagination } from "../../../../../components/app/Pagination";
-import { Creator, User } from "../../../../../db/schema";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 
 type Props = {
@@ -64,6 +62,7 @@ const UsersTableAdmin = async ({
             <Table.HeadRow>Email</Table.HeadRow>
             <Table.HeadRow>Creator Profile</Table.HeadRow>
             <Table.HeadRow>Creator Status</Table.HeadRow>
+            <Table.HeadRow>Actions</Table.HeadRow>
           </tr>
         </Table.Head>
         <Table.Body id={targetId} {...alpineAttrs} xMerge="append">
@@ -119,6 +118,13 @@ const UserTableRow = ({ user }: RowProps) => {
           {user.creators[0]?.status && (
             <CreatorStatusBadge creatorStatus={user.creators[0]?.status} />
           )}
+        </Link>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Link href={`/dashboard/admin/users/${user.id}`}>
+          <Button variant="outline" color="inverse">
+            <span>View</span>
+          </Button>
         </Link>
       </Table.BodyRow>
       <Table.BodyRow>

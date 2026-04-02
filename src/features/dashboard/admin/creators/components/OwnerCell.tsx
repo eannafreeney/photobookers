@@ -1,6 +1,6 @@
 import Button from "../../../../../components/app/Button";
 import Link from "../../../../../components/app/Link";
-import { getUserByIdAdmin } from "../services";
+import { getUserByIdAdmin } from "../../users/services";
 import RemoveOwnerButton from "./RemoveOwnerButton";
 
 type Props = {

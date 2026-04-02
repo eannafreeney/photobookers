@@ -8,6 +8,7 @@ type Props = {
   options: any[];
   type?: "artist" | "publisher";
   required?: boolean;
+  disableOnInit?: boolean;
 };
 
 const ComboBox = ({
@@ -17,9 +18,10 @@ const ComboBox = ({
   options,
   type,
   required = false,
+  disableOnInit = true,
 }: Props) => {
   const alpineAttrs = {
-    "x-data": `comboBox(${JSON.stringify(options)}, ${JSON.stringify(type)})`,
+    "x-data": `comboBox(${JSON.stringify(options)}, ${JSON.stringify(type)}, ${disableOnInit})`,
     "x-on:keydown": "handleKeydownOnOptions($event)",
     "x-on:keydown.esc.window": "isOpen = false, openedWithKeyboard = false",
     "x-init": "options = allOptions",
