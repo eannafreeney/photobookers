@@ -1,6 +1,4 @@
 import { createAdminNotification } from "./services";
-import { AuthUser } from "../../../../../types";
-import { Creator } from "../../../../db/schema";
 
 type NotificationBookTarget = {
   title: string;
@@ -133,6 +131,6 @@ export const createUserVerifiedNotification = async (
     type: "user_verified",
     title: "User verified",
     body: `${user?.firstName ? `${user.firstName} ${user.lastName}` : "A user"} verified their account`,
-    targetUrl: `/users/${user.id}`,
+    targetUrl: `/dashboard/admin/users/${user.id}`,
     actorUserId: user.id,
   });
