@@ -49,8 +49,9 @@ import { eq, sql } from "drizzle-orm";
 import { generateVerificationWelcomeEmail } from "./emails";
 import { sendEmail } from "../../lib/sendEmail";
 import { isErr } from "../../lib/result";
-import RegisterSuccessScreen from "./components/RegisterSuccessScreen";
+import RegisterSuccessScreen from "../../components/forms/FormSuccessScreen";
 import { createUserVerifiedNotification } from "../dashboard/admin/notifications/utils";
+import FormSuccessScreen from "../../components/forms/FormSuccessScreen";
 
 export const getAccountsPage = async (c: Context) => {
   const user = await getUser(c);
@@ -103,7 +104,12 @@ export const registerFan = async (c: RegisterFanFormContext) => {
   const [verifyOtpError] = await verifyOtpForFanSignup(c, formData);
   if (verifyOtpError) return showErrorAlert(c, verifyOtpError.reason);
 
-  return c.html(<RegisterSuccessScreen />);
+  return c.html(
+    <FormSuccessScreen
+      id="register-form"
+      message="Your account has been successfully created. Please check your email for verification."
+    />,
+  );
 };
 
 export const registerCreator = async (c: RegisterCreatorFormContext) => {
@@ -112,7 +118,12 @@ export const registerCreator = async (c: RegisterCreatorFormContext) => {
   const [verifyOtpError] = await verifyOtpForCreatorSignup(c, formData);
   if (verifyOtpError) return showErrorAlert(c, verifyOtpError.reason);
 
-  return c.html(<RegisterSuccessScreen />);
+  return c.html(
+    <FormSuccessScreen
+      id="register-form"
+      message="Your account has been successfully created. Please check your email for verification."
+    />,
+  );
 };
 
 export const processRegister = async (c: ProcessRegisterQueryContext) => {

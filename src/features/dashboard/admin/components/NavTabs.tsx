@@ -43,6 +43,10 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         Claims
         <AdminBadge xData="adminClaimsBadge" />
       </NavLink>
+      <NavLink href="/dashboard/admin/interviews" currentPath={currentPath}>
+        {usersIcon(5)}
+        Interviews
+      </NavLink>
     </nav>
   );
 };

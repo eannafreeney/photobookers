@@ -2,7 +2,7 @@ import RegisterCreatorForm from "../forms/RegisterCreatorForm";
 import RegisterFanForm from "../forms/RegisterFanForm";
 import HeadlessLayout from "../../../components/layouts/HeadlessLayout";
 import { capitalize } from "../../../utils";
-import SuccessScreen from "../components/RegisterSuccessScreen";
+import SuccessScreen from "../../../components/forms/FormSuccessScreen";
 
 type RegisterPageProps = {
   type: "fan" | "artist" | "publisher";

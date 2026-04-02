@@ -1,8 +1,9 @@
-import { and, count, eq, ilike, isNull, not, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, isNull, not, or } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   books,
   Creator,
+  creatorInterviews,
   creators,
   NewCreator,
   UpdateCreator,
@@ -360,14 +361,146 @@ export const getBooksByCreatorId = async (
 
 export const markWelcomeEmailSentAdmin = async (creatorId: string) => {
   try {
-    await db
+    const [row] = await db
       .update(creators)
       .set({ welcomeEmailSent: new Date() })
-      .where(eq(creators.id, creatorId));
-
-    return ok(undefined);
+      .where(eq(creators.id, creatorId))
+      .returning();
+    return ok(row);
   } catch (error) {
     console.error("Failed to mark welcome email sent", error);
     return err({ reason: "Failed to mark welcome email sent", cause: error });
+  }
+};
+
+export const getCreatorRecipientEmailAdmin = async (creatorId: string) => {
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.id, creatorId),
+      with: { owner: true },
+    });
+    if (!creator) return err({ reason: "Creator not found" });
+
+    return ok({
+      creator,
+      recipientEmail: creator.email ?? creator.owner?.email ?? null,
+    });
+  } catch (error) {
+    console.error("Failed to get creator recipient email", error);
+    return err({
+      reason: "Failed to get creator recipient email",
+      cause: error,
+    });
+  }
+};
+
+export const createCreatorInterviewInviteAdmin = async (input: {
+  creatorId: string;
+  recipientEmail: string;
+  invitedByUserId: string;
+  inviteToken: string;
+  interviewType?: "introduction" | "book";
+  bookId?: string | null;
+}) => {
+  try {
+    const [row] = await db
+      .insert(creatorInterviews)
+      .values({
+        creatorId: input.creatorId,
+        recipientEmail: input.recipientEmail,
+        invitedByUserId: input.invitedByUserId,
+        inviteToken: input.inviteToken,
+        interviewType: input.interviewType ?? "introduction",
+        bookId: input.bookId ?? null,
+        status: "sent",
+        invitedAt: new Date(),
+      })
+      .returning();
+    return ok(row);
+  } catch (error) {
+    return err({ reason: "Failed to create interview invite", cause: error });
+  }
+};
+
+export const getInterviewByToken = async (inviteToken: string) => {
+  try {
+    const interview = await db.query.creatorInterviews.findFirst({
+      where: eq(creatorInterviews.inviteToken, inviteToken),
+      with: { creator: true },
+    });
+    return ok(interview);
+  } catch (error) {
+    return err({ reason: "Failed to get interview by token", cause: error });
+  }
+};
+
+export const completeInterviewByToken = async (
+  inviteToken: string,
+  answers: { q1: string; q2: string; q3: string; q4: string; q5: string },
+) => {
+  try {
+    const [row] = await db
+      .update(creatorInterviews)
+      .set({
+        status: "completed",
+        completedAt: new Date(),
+        answers,
+      })
+      .where(
+        and(
+          eq(creatorInterviews.inviteToken, inviteToken),
+          eq(creatorInterviews.status, "sent"),
+        ),
+      )
+      .returning();
+
+    if (!row) {
+      return err({
+        reason: "Interview not found or already completed",
+        cause: undefined,
+      });
+    }
+
+    return ok(row);
+  } catch (error) {
+    return err({ reason: "Failed to complete interview", cause: error });
+  }
+};
+
+export const getAdminCreatorInterviews = async (currentPage: number) => {
+  try {
+    const rows = await db.query.creatorInterviews.findMany({
+      orderBy: [desc(creatorInterviews.invitedAt)],
+      with: { creator: true },
+    });
+    const totalCount = rows.length;
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      30,
+    );
+    return ok({
+      interviews: rows.slice(offset, offset + limit),
+      page,
+      totalPages,
+    });
+  } catch (error) {
+    return err({
+      reason: "Failed to get admin creator interviews",
+      cause: error,
+    });
+  }
+};
+
+export const markInterviewEmailSentAdmin = async (creatorId: string) => {
+  try {
+    const [row] = await db
+      .update(creators)
+      .set({ interviewEmailSent: new Date() })
+      .where(eq(creators.id, creatorId))
+      .returning();
+    return ok(row);
+  } catch (error) {
+    return err({ reason: "Failed to mark interview email sent", cause: error });
   }
 };

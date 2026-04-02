@@ -1,0 +1,2 @@
+ALTER TABLE "creator_interviews" ADD COLUMN "email_sent" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "creator_interviews" ADD COLUMN "is_completed" boolean DEFAULT false NOT NULL;

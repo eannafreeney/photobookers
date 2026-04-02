@@ -31,6 +31,7 @@ import { registerAlert } from "./components/alert";
 import { registerActivityFeed } from "./components/activityFeed";
 import { registerAdminNotificationsBadge } from "../features/dashboard/admin/notifications/client/adminNotificationsBadge";
 import { registerAdminClaimsBadge } from "../features/dashboard/admin/claims/client/adminClaimsBadge";
+import { registerInterviewForm } from "../features/interviews/client/interviewForm";
 
 // Register all Alpine.js data components
 registerAdminClaimsBadge();
@@ -66,3 +67,4 @@ registerCountUp();
 registerAlert();
 registerActivityFeed();
 registerAdminNotificationsBadge();
+registerInterviewForm();

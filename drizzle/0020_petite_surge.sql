@@ -1,0 +1,1 @@
+ALTER TABLE "creator_interviews" DROP COLUMN "is_completed";

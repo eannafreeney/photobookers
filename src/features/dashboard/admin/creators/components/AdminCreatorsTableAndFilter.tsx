@@ -13,6 +13,7 @@ import { getAllCreatorProfilesByTypeAdmin } from "../services";
 import SendWelcomeEmailButton from "./SendWelcomeEmailButton";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import OwnerCell from "./OwnerCell";
+import SendInterviewButton from "./SendInterviewButton";
 
 type Props = {
   type?: "artist" | "publisher" | undefined;
@@ -129,6 +130,9 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <SendWelcomeEmailButton creator={creator} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <SendInterviewButton creator={creator} />
       </Table.BodyRow>
       <Table.BodyRow>
         <a href={`/dashboard/admin/creators/${creator.id}/update`}>

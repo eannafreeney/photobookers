@@ -103,3 +103,16 @@ export const generateWelcomeEmailForCreator = (
       </p>
   `;
 };
+
+export const generateInterviewInviteEmail = (params: {
+  creatorName: string;
+  interviewLink: string;
+}) => {
+  return `
+    <p>Hi ${params.creatorName},</p>
+    <p>We would love to feature your voice on Photobookers.</p>
+    <p>Please complete this short 5-question interview:</p>
+    <p><a href="${params.interviewLink}">Start interview</a></p>
+    <p>Thank you,<br/>Photobookers</p>
+  `;
+};

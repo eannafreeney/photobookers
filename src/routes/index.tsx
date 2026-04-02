@@ -19,6 +19,8 @@ import { adminPlannerDashboardRoutes } from "../features/dashboard/admin/planner
 import { adminNotificationsDashboardRoutes } from "../features/dashboard/admin/notifications/routes";
 import { messagesDashboardRoutes } from "../features/dashboard/messages/routes";
 import { jobsRoutes } from "../features/jobs/routes";
+import { interviewRoutes } from "../features/interviews/routes";
+import { adminInterviewsDashboardRoutes } from "../features/dashboard/admin/interviews/routes";
 
 export const routes = new Hono();
 
@@ -45,6 +47,7 @@ routes.use("*", optionalAuthMiddleware);
 // Public routes
 routes.route("/", appRoutes);
 routes.route("/auth", authRoutes);
+routes.route("/interviews", interviewRoutes);
 
 // Protected routes (MUST be logged in)
 routes.use("/dashboard/*", requireAuth);
@@ -67,6 +70,7 @@ routes.route("/dashboard/admin/users", adminUsersDashboardRoutes);
 routes.route("/dashboard/admin/claims", adminClaimsDashboardRoutes);
 routes.route("/dashboard/admin/creators", adminCreatorsDashboardRoutes);
 routes.route("/dashboard/admin/planner", adminPlannerDashboardRoutes);
+routes.route("/dashboard/admin/interviews", adminInterviewsDashboardRoutes);
 routes.route(
   "/dashboard/admin/notifications",
   adminNotificationsDashboardRoutes,

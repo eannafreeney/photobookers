@@ -10,6 +10,7 @@ import {
   unique,
   check,
   boolean,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import {
   InferSelectModel,
@@ -49,6 +50,17 @@ export const creatorClaimStatusEnum = pgEnum("creator_claim_status", [
   "rejected",
 ]);
 
+export const creatorInterviewStatusEnum = pgEnum("creator_interview_status", [
+  "sent",
+  "completed",
+  "expired",
+]);
+
+export const interviewTypeEnum = pgEnum("interview_type", [
+  "introduction",
+  "book",
+]);
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: varchar("email", { length: 255 }).notNull(),
@@ -72,6 +84,49 @@ export const usersRelations = relations(users, ({ many }) => ({
   claims: many(creatorClaims),
   comments: many(bookComments),
 }));
+
+export const creatorInterviews = pgTable("creator_interviews", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  creatorId: uuid("creator_id")
+    .notNull()
+    .references(() => creators.id, { onDelete: "cascade" }),
+  interviewType: interviewTypeEnum("interview_type")
+    .notNull()
+    .default("introduction"),
+  bookId: uuid("book_id").references(() => books.id, { onDelete: "set null" }),
+  recipientEmail: text("recipient_email").notNull(),
+  inviteToken: varchar("invite_token", { length: 255 }).notNull().unique(),
+  invitedByUserId: uuid("invited_by_user_id").references(() => users.id),
+  status: creatorInterviewStatusEnum("status").notNull().default("sent"),
+  invitedAt: timestamp("invited_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+  expiresAt: timestamp("expires_at"),
+  answers: jsonb("answers").$type<{
+    q1: string;
+    q2: string;
+    q3: string;
+    q4: string;
+    q5: string;
+  }>(),
+});
+
+export const creatorInterviewsRelations = relations(
+  creatorInterviews,
+  ({ one }) => ({
+    creator: one(creators, {
+      fields: [creatorInterviews.creatorId],
+      references: [creators.id],
+    }),
+    invitedBy: one(users, {
+      fields: [creatorInterviews.invitedByUserId],
+      references: [users.id],
+    }),
+    book: one(books, {
+      fields: [creatorInterviews.bookId],
+      references: [books.id],
+    }),
+  }),
+);
 
 export const adminNotifications = pgTable("admin_notifications", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -105,6 +160,7 @@ export const creators = pgTable(
     sortName: varchar("sort_name", { length: 255 }),
     email: text("email"),
     welcomeEmailSent: timestamp("welcome_email_sent"),
+    interviewEmailSent: timestamp("interview_email_sent"),
     createdByUserId: uuid("created_by_user_id")
       .references(() => users.id)
       .notNull(),
@@ -127,6 +183,7 @@ export const creatorsRelations = relations(creators, ({ one, many }) => ({
   booksAsPublisher: many(books, {
     relationName: "publisherCreator",
   }),
+  interviews: many(creatorInterviews),
   followers: many(follows),
   claims: many(creatorClaims),
   artistOfTheWeekEntries: many(artistOfTheWeek),
@@ -623,3 +680,10 @@ export type NewBookComment = InferInsertModel<typeof bookComments>;
 
 export type AdminNotification = InferSelectModel<typeof adminNotifications>;
 export type NewAdminNotification = InferInsertModel<typeof adminNotifications>;
+
+export type CreatorInterview = InferSelectModel<typeof creatorInterviews>;
+export type NewCreatorInterview = InferInsertModel<typeof creatorInterviews>;
+export type CreatorInterviewStatus =
+  (typeof creatorInterviewStatusEnum.enumValues)[number];
+
+export type InterviewType = (typeof interviewTypeEnum.enumValues)[number];

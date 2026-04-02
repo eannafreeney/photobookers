@@ -10,6 +10,7 @@ import {
   getCreatorsTableFilter,
   getEditCreatorPageAdmin,
   removeCreatorOwnerAdmin,
+  sendInterviewAdmin,
   sendWelcomeEmailAdmin,
   updateCreatorAdmin,
 } from "./controllers";
@@ -98,4 +99,11 @@ adminCreatorsDashboardRoutes.post(
   formValidator(creatorFormAdminSchema),
   paramValidator(creatorIdSchema),
   updateCreatorAdmin,
+);
+
+adminCreatorsDashboardRoutes.post(
+  "/:creatorId/send-interview",
+  paramValidator(creatorIdSchema),
+  requireAdminAccess,
+  sendInterviewAdmin,
 );

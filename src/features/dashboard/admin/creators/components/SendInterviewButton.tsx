@@ -2,12 +2,14 @@ import Badge from "../../../../../components/app/Badge";
 import Button from "../../../../../components/app/Button";
 import { Creator } from "../../../../../db/schema";
 
-const SendWelcomeEmailButton = ({ creator }: { creator: Creator }) => {
-  if (creator.status === "verified") return <></>;
+const SendInterviewButton = ({ creator }: { creator: Creator }) => {
+  if (creator.status !== "verified") {
+    return <Badge variant="warning">Not Verified</Badge>;
+  }
 
-  const id = `send-welcome-email-${creator.id}`;
+  const id = `send-interview-${creator.id}`;
 
-  if (creator.welcomeEmailSent) {
+  if (creator.interviewEmailSent) {
     return (
       <div id={id}>
         <Badge variant="success">Email Sent</Badge>
@@ -15,26 +17,25 @@ const SendWelcomeEmailButton = ({ creator }: { creator: Creator }) => {
     );
   }
 
-  if (!creator.email) return <Badge variant="danger">No email</Badge>;
-
   const alpineAttrs = {
     "x-target": id,
     "x-target.error": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+    "@ajax:before":
+      "confirm('Send interview invite?') || $event.preventDefault()",
   };
 
   return (
     <form
       id={id}
       method="post"
-      action={`/dashboard/admin/creators/${creator.id}/send-welcome-email`}
+      action={`/dashboard/admin/creators/${creator.id}/send-interview`}
       {...alpineAttrs}
     >
       <Button variant="outline" color="inverse">
-        <span>Send Welcome Email</span>
+        <span>Send Interview</span>
       </Button>
     </form>
   );
 };
 
-export default SendWelcomeEmailButton;
+export default SendInterviewButton;

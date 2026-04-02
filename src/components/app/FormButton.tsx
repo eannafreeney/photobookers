@@ -14,9 +14,16 @@ type Props = {
     | "warning"
     | "danger"
     | "success";
+  loadingText?: string;
 };
 
-const FormButton = ({ action, buttonText, variant, color }: Props) => {
+const FormButton = ({
+  action,
+  buttonText,
+  variant,
+  color,
+  loadingText = "Submitting...",
+}: Props) => {
   const alpineAttrs = {
     "x-data": "{ isSubmitting: false }",
     "@ajax:before": "isSubmitting = true",
@@ -43,5 +50,3 @@ const FormButton = ({ action, buttonText, variant, color }: Props) => {
 };
 
 export default FormButton;
-
-const loadingText = "Saving...";

@@ -14,7 +14,7 @@ type TextAreaProps = {
 
 const TextArea = ({
   label,
-  minRows = 10,
+  minRows = 5,
   placeholder,
   maxLength,
   required,
@@ -44,6 +44,7 @@ const TextArea = ({
           rows={minRows}
           required={required}
           x-model={name}
+          x-autosize
           {...inputHandler}
         />
       </label>

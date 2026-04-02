@@ -6,10 +6,13 @@ import CreatorFormAdmin from "./forms/AddCreatorFormAdmin";
 import AssignOwnerModal from "./modals/AssignOwnerModal";
 import AdminCreatorsOverviewPage from "./Pages/AdminCreatorsOverviewPage";
 import {
+  createCreatorInterviewInviteAdmin,
   createStubCreatorProfileAdmin,
   deleteCreatorByIdAdmin,
   getAllUserProfilesAdmin,
   getCreatorByIdAdmin,
+  getCreatorRecipientEmailAdmin,
+  markInterviewEmailSentAdmin,
   markWelcomeEmailSentAdmin,
   removeCreatorOwnerAdminDB,
   updateCreatorProfileAdmin,
@@ -26,11 +29,12 @@ import { Context } from "hono";
 import AdminCreatorsTableAndFilter from "./components/AdminCreatorsTableAndFilter";
 import { assignUserAsCreatorOwnerAdmin } from "../claims/services";
 import AssignOwnerModalContent from "./components/AssignOwnerModalContent";
-import { generateWelcomeEmail } from "./emails";
+import { generateInterviewInviteEmail, generateWelcomeEmail } from "./emails";
 import { sendEmail } from "../../../../lib/sendEmail";
 import SendWelcomeEmailButton from "./components/SendWelcomeEmailButton";
-import { dispatchEvents } from "../../../../lib/disatchEvents";
 import OwnerCell from "./components/OwnerCell";
+import { nanoid } from "nanoid";
+import SendInterviewButton from "./components/SendInterviewButton";
 
 export const getCreatorsOverviewPage = async (c: Context) => {
   const user = await getUser(c);
@@ -222,13 +226,14 @@ export const sendWelcomeEmailAdmin = async (c: CreatorIdContext) => {
     emailHTML,
   );
 
-  const [markError] = await markWelcomeEmailSentAdmin(creatorId);
+  const [markError, updatedCreator] =
+    await markWelcomeEmailSentAdmin(creatorId);
   if (markError) return showErrorAlert(c, "Failed to mark welcome email sent");
 
   return c.html(
     <>
       <Alert type="success" message="Welcome email sent!" />
-      <SendWelcomeEmailButton creator={creator} />
+      <SendWelcomeEmailButton creator={updatedCreator} />
     </>,
   );
 };
@@ -246,6 +251,57 @@ export const removeCreatorOwnerAdmin = async (c: CreatorIdContext) => {
         message={`user removed as owner of creator: ${creator.displayName}`}
       />
       <OwnerCell ownerUserId={null} creatorId={creatorId} />
+    </>,
+  );
+};
+
+export const sendInterviewAdmin = async (c: CreatorIdContext) => {
+  const creatorId = c.req.valid("param").creatorId;
+  const [err, resolved] = await getCreatorRecipientEmailAdmin(creatorId);
+  if (err) return showErrorAlert(c, "Creator not found");
+  const { creator, recipientEmail } = resolved;
+
+  if (creator.status !== "verified") {
+    return showErrorAlert(c, "Interview can only be sent to verified creators");
+  }
+  if (!recipientEmail) return showErrorAlert(c, "No recipient email found");
+
+  const user = await getUser(c);
+  if (!user) return showErrorAlert(c, "User not found");
+
+  const inviteToken = nanoid(32);
+  const [createError] = await createCreatorInterviewInviteAdmin({
+    creatorId,
+    recipientEmail,
+    invitedByUserId: user.id,
+    inviteToken,
+    interviewType: "introduction",
+    bookId: null,
+  });
+  if (createError) return showErrorAlert(c, createError.reason);
+
+  const interviewLink = `${process.env.SITE_URL}/interviews/${inviteToken}`;
+  const html = generateInterviewInviteEmail({
+    creatorName: creator.displayName,
+    interviewLink,
+  });
+
+  const [emailError] = await sendEmail(
+    recipientEmail,
+    `Interview invitation for ${creator.displayName}`,
+    html,
+  );
+  if (emailError) return showErrorAlert(c, emailError.reason);
+
+  const [creatorErr, updatedCreator] =
+    await markInterviewEmailSentAdmin(creatorId);
+  if (creatorErr || !updatedCreator)
+    return showErrorAlert(c, "Failed to update creator");
+
+  return c.html(
+    <>
+      <Alert type="success" message="Interview invite sent!" />
+      <SendInterviewButton creator={updatedCreator} />
     </>,
   );
 };
