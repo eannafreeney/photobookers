@@ -282,8 +282,10 @@ export const resolvePublisher = async (
   user: AuthUser,
 ) => {
   const { publisher_id, new_publisher_name } = formData;
-  if (!publisher_id && !new_publisher_name)
-    return err({ reason: "No publisher selected" });
+
+  if (!publisher_id && !new_publisher_name) {
+    return ok(null);
+  }
 
   if (publisher_id) {
     const [error, creator] = await getCreatorById(publisher_id);

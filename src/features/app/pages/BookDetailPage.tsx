@@ -19,8 +19,8 @@ import { Creator } from "../../../db/schema";
 import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import RelatedBooks from "../components/RelatedBooks";
 import CommentsSection from "../components/CommentsSection";
-import FeatureGuard from "../../../components/layouts/FeatureGuard";
 import LikeButton from "../../api/components/LikeButton";
+import Divider from "../../../components/Divider";
 
 type BookDetailPageProps = {
   user: AuthUser | null;
@@ -160,6 +160,7 @@ const DetailDesktop = ({
           />
         </div>
       </div>
+      <Divider />
       <RelatedBooks book={book} user={user} />
     </div>
   );
