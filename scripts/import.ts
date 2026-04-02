@@ -13,8 +13,8 @@ import { createStubCreatorProfileAdmin } from "../src/features/dashboard/admin/c
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "heavybooks.csv";
-const AMOUNT_OF_BOOKS = 12;
+const SOURCE_CSV_FILE = "mack.csv";
+const AMOUNT_OF_BOOKS = 15;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -59,11 +59,15 @@ async function getOrCreateArtist(artistName: string, createdByUserId: string) {
   const creator = existing.find((c) => c.type === "artist");
   if (creator) return creator;
 
-  const created = await createStubCreatorProfileAdmin(
+  const [err, created] = await createStubCreatorProfileAdmin(
     trimmed,
     createdByUserId,
     "artist",
   );
+  if (err) {
+    console.error(`Failed to create artist "${trimmed}": ${err.reason}`);
+    return null;
+  }
   if (created) return created;
 
   const bySlug = await db

@@ -4,6 +4,7 @@ import Link from "../../../../../components/app/Link";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import { formatDate } from "../../../../../utils";
 import { getAdminNotifications } from "../services";
+import Button from "../../../../../components/app/Button";
 
 type Props = {
   currentPath: string;
@@ -27,12 +28,7 @@ const NotificationsTableAdmin = async ({ currentPath, currentPage }: Props) => {
   };
 
   return (
-    <div
-      id="notifications-table-container"
-      class="flex flex-col gap-4"
-      x-data="adminNotificationsTable"
-      x-init="init()"
-    >
+    <div id="notifications-table-container" class="flex flex-col gap-4">
       <SectionTitle>Notifications</SectionTitle>
       <MarkAllNotificationsReadButton />
       <Table id="notifications-table">
@@ -83,8 +79,8 @@ const MarkAllNotificationsReadButton = () => (
     method="post"
     x-target="toast"
   >
-    <button type="submit" class="text-sm underline cursor-pointer">
+    <Button type="submit" variant="outline" color="primary">
       Mark all as read
-    </button>
+    </Button>
   </form>
 );
