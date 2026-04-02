@@ -222,9 +222,8 @@ export const sendWelcomeEmailAdmin = async (c: CreatorIdContext) => {
     emailHTML,
   );
 
-  const [markError, markResult] = await markWelcomeEmailSentAdmin(creatorId);
-  if (markError || !markResult)
-    return showErrorAlert(c, "Failed to mark welcome email sent");
+  const [markError] = await markWelcomeEmailSentAdmin(creatorId);
+  if (markError) return showErrorAlert(c, "Failed to mark welcome email sent");
 
   return c.html(
     <>
