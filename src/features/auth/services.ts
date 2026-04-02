@@ -3,7 +3,7 @@ import { createSupabaseClient, supabaseAdmin } from "../../lib/supabase";
 import { setCookie } from "hono/cookie";
 import { db } from "../../db/client";
 import { creators, User, users } from "../../db/schema";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { normalizeUrl } from "../../services/verification";
 import { err, ok } from "../../lib/result";
 import { registerCreatorFormSchema, registerFanFormSchema } from "./schema";
@@ -148,12 +148,14 @@ export const createUserInDatabase = async (session: AuthSession) => {
         firstName,
         lastName,
         acceptsTerms: new Date(),
+        createdAt: new Date(),
       })
       .onConflictDoUpdate({
         target: users.id,
         set: {
           ...(firstName != null && { firstName }),
           ...(lastName != null && { lastName }),
+          createdAt: sql`COALESCE(${users.createdAt}, now())`,
           updatedAt: new Date(),
         },
       })

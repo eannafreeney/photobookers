@@ -45,7 +45,7 @@ import ValidateDisplayName from "./components/ValidateDisplayName";
 import ValidateWebsite from "./components/ValidateWebsite";
 import { createStubCreatorProfile } from "../dashboard/creators/services";
 import { findUserByEmailAdmin } from "../dashboard/admin/creators/services";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { generateVerificationWelcomeEmail } from "./emails";
 import { sendEmail } from "../../lib/sendEmail";
 import { isErr } from "../../lib/result";
@@ -302,10 +302,16 @@ export const setSession = async (c: Context) => {
         email: user.email!,
         firstName,
         lastName,
+        createdAt: new Date(),
       })
       .onConflictDoUpdate({
         target: users.id,
-        set: { firstName, lastName },
+        set: {
+          firstName,
+          lastName,
+          createdAt: sql`COALESCE(${users.createdAt}, now())`,
+          updatedAt: new Date(),
+        },
       });
   } catch (dbError) {
     console.error("Database error during set-session:", dbError);

@@ -58,7 +58,7 @@ export const users = pgTable("users", {
   acceptsTerms: timestamp("accepts_terms"),
   isAdmin: boolean("is_admin").default(false).notNull(),
   mustResetPassword: boolean("must_reset_password").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 

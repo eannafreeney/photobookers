@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, inArray } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   books,
@@ -114,7 +114,12 @@ export const createUserWithAuthId = async (
         lastName: formData.lastName,
         mustResetPassword: options?.mustResetPassword ?? false,
       })
-      .onConflictDoNothing({ target: users.id })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          createdAt: sql`COALESCE(${users.createdAt}, now())`,
+        },
+      })
       .returning();
     return ok(user);
   } catch (error) {
