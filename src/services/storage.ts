@@ -5,6 +5,40 @@ import {
   supabaseStorage,
   supabaseStorageAdmin,
 } from "../lib/supabase";
+import sharp from "sharp";
+import { MAX_GALLERY_SIZE_BYTES } from "../constants/images";
+
+export type UploadKind = "cover" | "gallery";
+const COVER_MAX_DIMENSION = 1200;
+const GALLERY_MAX_DIMENSION = 1600;
+const COVER_QUALITY = 80;
+const GALLERY_QUALITIES = [75, 65, 55, 45];
+
+async function encodeWebpToTarget(
+  input: Buffer,
+  kind: UploadKind,
+): Promise<Buffer> {
+  const maxDim = kind === "cover" ? COVER_MAX_DIMENSION : GALLERY_MAX_DIMENSION;
+  const base = sharp(input).resize(maxDim, maxDim, {
+    fit: "inside",
+    withoutEnlargement: true,
+  });
+  if (kind === "cover") {
+    return base.webp({ quality: COVER_QUALITY }).toBuffer();
+  }
+  for (const q of GALLERY_QUALITIES) {
+    const out = await base.clone().webp({ quality: q }).toBuffer();
+    if (out.length <= MAX_GALLERY_SIZE_BYTES) return out;
+  }
+  return base.webp({ quality: 40 }).toBuffer();
+}
+
+export async function compressImageBuffer(
+  input: Buffer,
+  kind: UploadKind,
+): Promise<Buffer> {
+  return encodeWebpToTarget(input, kind);
+}
 
 const BUCKET_NAME = "images";
 
@@ -22,22 +56,22 @@ type UploadResult = {
 export async function uploadImage(
   file: File,
   folder: string,
+  kind: UploadKind,
 ): Promise<UploadResult> {
   // Generate unique filename
   const timestamp = Date.now();
-  const extension = file.name.split(".").pop();
-  const fileName = `${timestamp}-${Math.random()
-    .toString(36)
-    .substring(7)}.${extension}`;
+  const fileName = `${timestamp}-${Math.random().toString(36).substring(7)}.webp`;
   const filePath = `${folder}/${fileName}`;
 
   const arrayBuffer = await file.arrayBuffer();
+  const input = Buffer.from(arrayBuffer);
+  const output = await encodeWebpToTarget(input, kind);
 
   // Upload to Supabase Storage
   const { data, error } = await supabaseStorageAdmin.storage
     .from(BUCKET_NAME)
-    .upload(filePath, arrayBuffer, {
-      contentType: file.type,
+    .upload(filePath, output, {
+      contentType: "image/webp",
       upsert: false,
     });
 
@@ -110,7 +144,9 @@ export async function uploadImages(
 ): Promise<void> {
   if (imageFiles.length > 0) {
     const uploadResults = await Promise.all(
-      imageFiles.map((file) => uploadImage(file, `books/${newBookId}/gallery`)),
+      imageFiles.map((file) =>
+        uploadImage(file, `books/${newBookId}/gallery`, "gallery"),
+      ),
     );
 
     // Save to database
@@ -156,7 +192,7 @@ export async function uploadCoverImage(
     throw new Error("Cover image is required");
   }
 
-  const result = await uploadImage(file as File, folder);
+  const result = await uploadImage(file as File, folder, "cover");
   return result.url;
 }
 
