@@ -8,18 +8,17 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { routes } from "./routes";
 import NotFoundPage from "./pages/NotFoundPage";
 import { getUser } from "./utils";
+import { enableEndpointSizeProfiler } from "./middleware/endpointSizeProfiler";
 
 const app = new Hono();
 
 // Global middleware
 app.use("*", logger());
 
-// Static assets (optional, only for Node runtime deployments)
-// app.use("/styles/*", serveStatic({ root: "./src" }));
+if (process.env.NODE_ENV !== "production") {
+  app.use("*", enableEndpointSizeProfiler(60_000));
+}
 
-// In dev, serve from src/client, in prod serve from dist/client
-// For now, let Vite handle /assets/* in dev mode via its dev server
-// Only serve static in production
 app.get("/favicon.svg", serveStatic({ path: "./public/favicon.svg" }));
 if (process.env.NODE_ENV === "production") {
   // Serve built CSS and JS at root level

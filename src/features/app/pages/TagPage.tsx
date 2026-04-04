@@ -38,10 +38,12 @@ const TagPage = async ({
           currentPath={currentPath}
           result={result}
         />
-        <Intersector
-          id="related-books-fragment"
-          endpoint={`/fragments/related-books/${result.books[0].slug}`}
-        />
+        {result.books.length > 0 && (
+          <Intersector
+            id="related-books-fragment"
+            endpoint={`/fragments/related-books/${result.books[0].slug}`}
+          />
+        )}
       </Page>
     </AppLayout>
   );

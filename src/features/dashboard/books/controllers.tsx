@@ -75,9 +75,7 @@ export const createBookAsArtist = async (c: BookFormContext) => {
   const user = await getUser(c);
   const formData = c.req.valid("form");
 
-  if (!user.creator) {
-    return showErrorAlert(c, "No Creator Profile Found");
-  }
+  if (!user.creator) return showErrorAlert(c, "No Creator Profile Found");
 
   const [publisherError, publisher] = await resolvePublisher(formData, user);
 

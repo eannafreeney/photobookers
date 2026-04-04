@@ -9,3 +9,5 @@ output/
 .env.development
 .env.test
 .env.production
+scripts/cover-url-backup-*.csv
+scripts/cover-recompress-suspect-review-*.csv
