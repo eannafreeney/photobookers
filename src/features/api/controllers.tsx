@@ -1,475 +1,408 @@
-import { Context } from "hono";
-import { capitalize, getUser } from "../../utils";
-import AuthModal from "../../components/app/AuthModal";
-import {
-  deleteBookCommentById,
-  deleteFollow,
-  deleteLike,
-  deleteWishlist,
-  getBookCommentById,
-  getBookPermissionData,
-  getCreatorPermissionData,
-  insertBookComment,
-  insertFollow,
-  insertLike,
-  insertWishlist,
-  searchBooks,
-} from "./services";
-import { showErrorAlert } from "../../lib/alertHelpers";
-import Alert from "../../components/app/Alert";
-import FollowButton from "./components/FollowButton";
-import WishlistButton from "./components/WishlistButton";
-import NavSearchResults from "../../components/app/NavSearchResults";
-import NavSearch from "../../components/layouts/NavSearch";
-import { DISCOVER_TAGS } from "../../constants/discover";
-import Link from "../../components/app/Link";
-import Badge from "../../components/app/Badge";
-import { closeIcon } from "../../lib/icons";
-import { dispatchEvents } from "../../lib/disatchEvents";
-import { searchCreators, updateCommentById } from "../app/services";
-import NewsletterCard from "../app/components/NewsletterCard";
-import { deleteCollectionItem, insertCollectionItem } from "../../db/queries";
-import CollectButton from "./components/CollectButton";
-import {
-  AddCommentFormContext,
-  CreateCommentModalContext,
-  DeleteCommentGuardedContext,
-  NewsletterFormContext,
-  UpdateCommentFormContext,
-  UpdateCommentGuardedContext,
-} from "./types";
-import EditCommentModal from "./modals/EditCommentModal";
-import CommentModal from "./modals/CommentModal";
-import { sendEmail } from "../../lib/sendEmail";
-import LikeButton from "./components/LikeButton";
-import { subscribeToActivityEvents } from "../../lib/activityEvents";
-import { streamSSE } from "hono/streaming";
-import {
-  publishCollectActivity,
-  publishCommentActivity,
-  publishFollowActivity,
-  publishLikeActivity,
-  publishWishlistActivity,
-} from "./utils";
-import Modal from "../../components/app/Modal";
-import NewsletterForm from "../app/components/NewsletterForm";
-import {
-  createBookCollectedNotification,
-  createBookLikedNotification,
-  createBookWishlistedNotification,
-  createCommentCreatedNotification,
-  createCommentUpdatedNotification,
-  createCreatorFollowedNotification,
-} from "../dashboard/admin/notifications/utils";
+// import { Context } from "hono";
+// import { capitalize, getUser } from "../../utils";
+// import AuthModal from "../../components/app/AuthModal";
+// import {
+//   deleteBookCommentById,
+//   deleteFollow,
+//   deleteLike,
+//   deleteWishlist,
+//   getBookCommentById,
+//   getBookPermissionData,
+//   getCreatorPermissionData,
+//   insertBookComment,
+//   insertFollow,
+//   insertLike,
+//   insertWishlist,
+//   searchBooks,
+// } from "./services";
+// import { showErrorAlert } from "../../lib/alertHelpers";
+// import Alert from "../../components/app/Alert";
+// import FollowButton from "./components/FollowButton";
+// import WishlistButton from "./components/WishlistButton";
+// import NavSearchResults from "../../components/app/NavSearchResults";
+// import NavSearch from "../../components/layouts/NavSearch";
+// import { DISCOVER_TAGS } from "../../constants/discover";
+// import Link from "../../components/app/Link";
+// import Badge from "../../components/app/Badge";
+// import { closeIcon } from "../../lib/icons";
+// import { dispatchEvents } from "../../lib/disatchEvents";
+// import { searchCreators, updateCommentById } from "../app/services";
+// import NewsletterCard from "../app/components/NewsletterCard";
+// import { deleteCollectionItem, insertCollectionItem } from "../../db/queries";
+// import CollectButton from "./components/CollectButton";
+// import {
+//   AddCommentFormContext,
+//   CreateCommentModalContext,
+//   DeleteCommentFormContext,
+//   DeleteCommentGuardedContext,
+//   NewsletterFormContext,
+//   UpdateCommentFormContext,
+//   UpdateCommentGuardedContext,
+// } from "./types";
+// import EditCommentModal from "./modals/EditCommentModal";
+// import CommentModal from "./modals/CommentModal";
+// import { sendAdminEmail } from "../../lib/sendEmail";
+// import LikeButton from "./components/LikeButton";
+// import { log } from "console";
+// import { publishCollectActivity } from "./utils";
+// import { createBookCollectedNotification } from "../dashboard/admin/notifications/utils";
 
-const updateCreatorCard = () => "creator:updated";
-const updateLibraryPage = () => "library:updated";
-const updateComments = () => "comments:updated";
-const updateFollowedCreatorsPage = () => "followed-creators:updated";
+// const updateCreatorCard = () => "creator:updated";
+// const updateLibraryPage = () => "library:updated";
+// const updateComments = () => "comments:updated";
 
-export const followCreator = async (c: Context) => {
-  const creatorId = c.req.param("creatorId");
-  const user = await getUser(c);
-  const userId = user?.id;
+// // export const followCreator = async (c: Context) => {
+// //   const creatorId = c.req.param("creatorId");
+// //   const user = await getUser(c);
+// //   const userId = user?.id;
 
-  if (!userId)
-    return c.html(<AuthModal action="to follow this creator." />, 401);
+// //   if (!userId)
+// //     return c.html(<AuthModal action="to follow this creator." />, 401);
 
-  const body = await c.req.parseBody();
-  const isCurrentlyFollowing = body.isFollowing === "true";
-  const buttonType = body.buttonType;
-  const shouldRefreshFollowedCreators =
-    body.shouldRefreshFollowedCreators === "true";
+// //   const body = await c.req.parseBody();
+// //   const isCurrentlyFollowing = body.isFollowing === "true";
+// //   const buttonType = body.buttonType; // "circle" or "default"
 
-  const creator = await getCreatorPermissionData(creatorId);
-  if (!creator) return showErrorAlert(c, "Book not found");
+// //   try {
+// //     if (isCurrentlyFollowing) {
+// //       await deleteFollow(creatorId, userId);
+// //     } else {
+// //       await insertFollow(userId, creatorId);
+// //     }
+// //   } catch (error) {
+// //     console.error("Failed to add/remove creator from followers", error);
+// //     return showErrorAlert(c);
+// //   }
 
-  try {
-    if (isCurrentlyFollowing) {
-      await deleteFollow(creatorId, userId);
-    } else {
-      await insertFollow(userId, creatorId);
-      publishFollowActivity(user, creator);
-      await createCreatorFollowedNotification(user, creator);
-    }
-  } catch (error) {
-    console.error("Failed to add/remove creator from followers", error);
-    return showErrorAlert(c);
-  }
+// //   const creator = await getCreatorPermissionData(creatorId);
+// //   if (!creator) return showErrorAlert(c, "Book not found");
 
-  const message = isCurrentlyFollowing
-    ? `Unfollowed ${creator.displayName}.`
-    : `Followed ${creator.displayName}.`;
+// //   const message = isCurrentlyFollowing
+// //     ? `No longer following ${creator.displayName}.`
+// //     : `Now following ${creator.displayName}.`;
 
-  return c.html(
-    <>
-      <Alert type="success" message={message} />
-      <FollowButton
-        creator={creator}
-        user={user}
-        isCircleButton={buttonType === "circle"}
-      />
-      <FollowButton
-        creator={creator}
-        user={user}
-        isCircleButton={buttonType === "circle"}
-        variant="mobile"
-      />
-      {shouldRefreshFollowedCreators &&
-        dispatchEvents([updateFollowedCreatorsPage()])}
-    </>,
-  );
-};
+// //   return c.html(
+// //     <>
+// //       <Alert type="success" message={message} />
+// //       <FollowButton
+// //         creator={creator}
+// //         user={user}
+// //         isCircleButton={buttonType === "circle"}
+// //       />
+// //       <FollowButton
+// //         creator={creator}
+// //         user={user}
+// //         isCircleButton={buttonType === "circle"}
+// //         variant="mobile"
+// //       />
+// //     </>,
+// //   );
+// // };
 
-export const likeBook = async (c: Context) => {
-  const bookId = c.req.param("bookId");
-  const user = await getUser(c);
-  const userId = user?.id;
+// // export const likeBook = async (c: Context) => {
+// //   const bookId = c.req.param("bookId");
+// //   const user = await getUser(c);
+// //   const userId = user?.id;
 
-  if (!userId) return c.html(<AuthModal action="to like this book." />, 401);
+// //   if (!userId) return c.html(<AuthModal action="to like this book." />, 401);
 
-  const [err, book] = await getBookPermissionData(bookId);
-  if (err) return showErrorAlert(c, err?.reason ?? "Book not found");
+// //   const body = await c.req.parseBody();
+// //   const isCurrentlyLiked = body.isLiked === "true";
+// //   const buttonType = body.buttonType;
 
-  const body = await c.req.parseBody();
-  const isCurrentlyLiked = body.isLiked === "true";
-  const buttonType = body.buttonType;
+// //   console.log("isCurrentlyLiked", isCurrentlyLiked);
 
-  try {
-    if (isCurrentlyLiked) {
-      await deleteLike(userId, bookId);
-    } else {
-      await insertLike(userId, bookId);
-      publishLikeActivity(user, book);
-      await createBookLikedNotification(user, book);
-    }
-  } catch (error) {
-    console.error("Failed to add/remove book like", error);
-    return showErrorAlert(c);
-  }
+// //   try {
+// //     if (isCurrentlyLiked) {
+// //       await deleteLike(userId, bookId);
+// //     } else {
+// //       await insertLike(userId, bookId);
+// //     }
+// //   } catch (error) {
+// //     console.error("Failed to add/remove book like", error);
+// //     return showErrorAlert(c);
+// //   }
 
-  const message = isCurrentlyLiked
-    ? `${book.title} unliked`
-    : `${book.title} liked`;
+// //   const [err, book] = await getBookPermissionData(bookId);
+// //   if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
-  return c.html(
-    <>
-      <Alert type="success" message={message} />
-      <LikeButton
-        book={book}
-        user={user}
-        isCircleButton={buttonType === "circle"}
-      />
-      {dispatchEvents([updateLibraryPage()])}
-    </>,
-  );
-};
+// //   const message = isCurrentlyLiked
+// //     ? `${book.title} has been unliked`
+// //     : `${book.title} has been liked`;
 
-export const collectBook = async (c: Context) => {
-  const bookId = c.req.param("bookId");
-  const user = await getUser(c);
-  const userId = user?.id;
+// //   return c.html(
+// //     <>
+// //       <Alert type="success" message={message} />
+// //       <LikeButton
+// //         book={book}
+// //         user={user}
+// //         isCircleButton={buttonType === "circle"}
+// //       />
+// //       {dispatchEvents([updateLibraryPage()])}
+// //     </>,
+// //   );
+// // };
 
-  if (!userId) return c.html(<AuthModal action="to collect this book." />, 401);
+// // export const collectBook = async (c: Context) => {
+// //   const bookId = c.req.param("bookId");
+// //   const user = await getUser(c);
+// //   const userId = user?.id;
 
-  const body = await c.req.parseBody();
-  const isCurrentlyCollected = body.isCollected === "true";
-  const buttonType = body.buttonType; // "circle" or "default"
+// //   if (!userId) return c.html(<AuthModal action="to collect this book." />, 401);
 
-  const [err, book] = await getBookPermissionData(bookId);
-  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
+// //   const body = await c.req.parseBody();
+// //   const isCurrentlyCollected = body.isCollected === "true";
+// //   const buttonType = body.buttonType; // "circle" or "default"
 
-  try {
-    if (isCurrentlyCollected) {
-      await deleteCollectionItem(userId, bookId);
-    } else {
-      await insertCollectionItem(userId, bookId);
-      publishCollectActivity(user, book);
-      await createBookCollectedNotification(user, book);
-    }
-  } catch (error) {
-    console.error("Failed to add/remove book to wishlist", error);
-    return showErrorAlert(c);
-  }
+// //   const [err, book] = await getBookPermissionData(bookId);
+// //   if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
-  const message = isCurrentlyCollected
-    ? `${book.title} has been removed from your collection`
-    : `${book.title} has been added to your collection`;
+// //   try {
+// //     if (isCurrentlyCollected) {
+// //       await deleteCollectionItem(userId, bookId);
+// //     } else {
+// //       await insertCollectionItem(userId, bookId);
+// //       publishCollectActivity(user, book);
+// //       await createBookCollectedNotification(user, book);
+// //     }
+// //   } catch (error) {
+// //     console.error("Failed to add/remove book to wishlist", error);
+// //     return showErrorAlert(c);
+// //   }
 
-  return c.html(
-    <>
-      <Alert type="success" message={message} />
-      <CollectButton
-        book={book}
-        user={user}
-        isCircleButton={buttonType === "circle"}
-      />
-      <div id="modal-root"></div>
-      {dispatchEvents([updateLibraryPage()])}
-    </>,
-  );
-};
+// //   const message = isCurrentlyCollected
+// //     ? `${book.title} has been removed from your collection`
+// //     : `${book.title} has been added to your collection`;
 
-export const wishlistBook = async (c: Context) => {
-  const user = await getUser(c);
-  if (!user.id)
-    return c.html(<AuthModal action="to wishlist this book." />, 401);
+// //   return c.html(
+// //     <>
+// //       <Alert type="success" message={message} />
+// //       <CollectButton
+// //         book={book}
+// //         user={user}
+// //         isCircleButton={buttonType === "circle"}
+// //       />
+// //       <div id="modal-root"></div>
+// //       {dispatchEvents([updateLibraryPage()])}
+// //     </>,
+// //   );
+// // };
 
-  const bookId = c.req.param("bookId");
-  const body = await c.req.parseBody();
+// // export const wishlistBook = async (c: Context) => {
+// //   const bookId = c.req.param("bookId");
+// //   const user = await getUser(c);
+// //   const userId = user?.id;
 
-  const isWishlisted = body.isWishlisted === "true";
-  const isCircleButton = body.buttonType === "circle";
-  const shouldRefreshWishlist = body.shouldRefreshWishlist === "true";
-  const isAddingToWishlist = !isWishlisted;
+// //   if (!userId)
+// //     return c.html(<AuthModal action="to wishlist this book." />, 401);
 
-  const [err, book] = await getBookPermissionData(bookId);
-  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
+// //   const body = await c.req.parseBody();
+// //   const isCurrentlyWishlisted = body.isWishlisted === "true";
+// //   const buttonType = body.buttonType; // "circle" or "default"
 
-  try {
-    if (isAddingToWishlist) {
-      await insertWishlist(user.id, bookId);
-      publishWishlistActivity(user, book);
-      await createBookWishlistedNotification(user, book);
-    } else {
-      await deleteWishlist(user.id, bookId);
-    }
-  } catch (error) {
-    console.error("Failed to add/remove book to wishlist", error);
-    return showErrorAlert(c);
-  }
+// //   try {
+// //     if (isCurrentlyWishlisted) {
+// //       await deleteWishlist(userId, bookId);
+// //     } else {
+// //       await insertWishlist(userId, bookId);
+// //     }
+// //   } catch (error) {
+// //     console.error("Failed to add/remove book to wishlist", error);
+// //     return showErrorAlert(c);
+// //   }
 
-  const message = isAddingToWishlist
-    ? `${book.title} has been added to your wishlist`
-    : `${book.title} has been removed from your wishlist`;
+// //   const [err, book] = await getBookPermissionData(bookId);
+// //   if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
-  return c.html(
-    <>
-      <Alert type="success" message={message} />
-      <WishlistButton book={book} user={user} isCircleButton={isCircleButton} />
-      {shouldRefreshWishlist && dispatchEvents([updateLibraryPage()])}
-    </>,
-  );
-};
+// //   const message = isCurrentlyWishlisted
+// //     ? `${book.title} has been removed from your wishlist`
+// //     : `${book.title} has been added to your wishlist`;
 
-export const streamActivity = async (c: Context) => {
-  return streamSSE(c, async (stream) => {
-    const unsubscribe = subscribeToActivityEvents((event) => {
-      stream.writeSSE({
-        event: "activity",
-        data: JSON.stringify(event),
-      });
-    });
+// //   return c.html(
+// //     <>
+// //       <Alert type="success" message={message} />
+// //       <WishlistButton
+// //         book={book}
+// //         user={user}
+// //         isCircleButton={buttonType === "circle"}
+// //       />
+// //       {dispatchEvents([updateLibraryPage()])}
+// //     </>,
+// //   );
+// // };
 
-    // keepalive every 20s so proxies don't close idle stream
-    const keepAlive = setInterval(() => {
-      stream.writeSSE({
-        event: "ping",
-        data: "ok",
-      });
-    }, 20000);
+// export const getSearchResults = async (c: Context) => {
+//   const searchQuery = c.req.query("search");
+//   const isMobile = c.req.query("isMobile") === "true";
 
-    stream.onAbort(() => {
-      clearInterval(keepAlive);
-      unsubscribe();
-    });
+//   if (!searchQuery || searchQuery.length < 3) {
+//     return c.html(
+//       <div id={isMobile ? "search-results-mobile" : "search-results"}></div>,
+//     );
+//   }
 
-    // keep connection open
-    await new Promise(() => {});
-  });
-};
+//   const searchTerm = searchQuery?.trim().toLowerCase();
+//   const [bookResults, creatorResults] = await Promise.all([
+//     searchBooks(searchTerm ?? ""),
+//     searchCreators(searchTerm ?? ""),
+//   ]);
 
-export const getSearchResults = async (c: Context) => {
-  const searchQuery = c.req.query("search");
-  const isMobile = c.req.query("isMobile") === "true";
+//   return c.html(
+//     <NavSearchResults
+//       isMobile={isMobile}
+//       creators={creatorResults ?? []}
+//       books={bookResults ?? []}
+//     />,
+//   );
+// };
 
-  if (!searchQuery || searchQuery.length < 3) {
-    return c.html(
-      <div id={isMobile ? "search-results-mobile" : "search-results"}></div>,
-    );
-  }
+// export const getMobileSearchScreen = async (c: Context) => {
+//   return c.html(
+//     <div
+//       id="search-results-mobile-container"
+//       class="fixed top-0 left-0 right-0 bottom-0 w-full z-10 backdrop-blur-2xl"
+//       x-data="{ isOpen: true }"
+//       x-show="isOpen"
+//     >
+//       <div class="flex flex-col gap-4">
+//         <div class="flex items-center justify-between gap-4 p-4">
+//           <NavSearch isMobile />
+//           <button x-on:click="isOpen = false">{closeIcon}</button>
+//         </div>
+//         <div class="flex flex-wrap items-center justify-center gap-6 p-4">
+//           {DISCOVER_TAGS.map((tag) => (
+//             <Link href={`/books/tags/${tag.toLowerCase()}`} key={tag}>
+//               <Badge variant="default" key={tag}>
+//                 {capitalize(tag)}
+//               </Badge>
+//             </Link>
+//           ))}
+//         </div>
+//       </div>
+//     </div>,
+//   );
+// };
 
-  const searchTerm = searchQuery?.trim().toLowerCase();
-  const [bookResults, creatorResults] = await Promise.all([
-    searchBooks(searchTerm ?? ""),
-    searchCreators(searchTerm ?? ""),
-  ]);
+// export const processNewsletter = async (c: NewsletterFormContext) => {
+//   const form = c.req.valid("form");
+//   const email = form.email;
 
-  return c.html(
-    <NavSearchResults
-      isMobile={isMobile}
-      creators={creatorResults ?? []}
-      books={bookResults ?? []}
-    />,
-  );
-};
+//   const apiKey = process.env.MAILER_LITE_API_KEY;
+//   if (!apiKey) {
+//     console.error("MAILERLITE_API_KEY is not set");
+//     return showErrorAlert(c, "Newsletter signup is not configured.");
+//   }
 
-export const getNewsletterModal = async (c: Context) => {
-  return c.html(
-    <Modal title="Sign up for our newsletter">
-      <NewsletterForm />
-    </Modal>,
-  );
-};
+//   const body: { email: string; groups?: string[] } = { email };
+//   const res = await fetch("https://connect.mailerlite.com/api/subscribers", {
+//     method: "POST",
+//     headers: {
+//       Authorization: `Bearer ${apiKey}`,
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(body),
+//   });
+//   if (!res.ok) {
+//     const err = await res.json().catch(() => ({}));
+//     if (res.status === 422) {
+//       return showErrorAlert(c, "Invalid email or already subscribed.");
+//     }
 
-export const getMobileSearchScreen = async (c: Context) => {
-  return c.html(
-    <div
-      id="search-results-mobile-container"
-      class="fixed top-0 left-0 right-0 bottom-0 w-full z-10 backdrop-blur-2xl"
-      x-data="{ isOpen: true }"
-      x-show="isOpen"
-    >
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center justify-between gap-4 p-4">
-          <NavSearch isMobile />
-          <button x-on:click="isOpen = false">{closeIcon}</button>
-        </div>
-        <div class="flex flex-wrap items-center justify-center gap-6 p-4">
-          {DISCOVER_TAGS.map((tag) => (
-            <Link href={`/books/tags/${tag.toLowerCase()}`} key={tag}>
-              <Badge variant="default" key={tag}>
-                {capitalize(tag)}
-              </Badge>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>,
-  );
-};
+//     return showErrorAlert(c, "Could not sign up. Try again later.");
+//   }
 
-export const processNewsletter = async (c: NewsletterFormContext) => {
-  const form = c.req.valid("form");
-  const email = form.email;
+//   return c.html(
+//     <>
+//       <Alert type="success" message="Newsletter signup successful" />
+//       <NewsletterCard />
+//     </>,
+//   );
+// };
 
-  const apiKey = process.env.MAILER_LITE_API_KEY;
-  if (!apiKey) {
-    console.error("MAILERLITE_API_KEY is not set");
-    return showErrorAlert(c, "Newsletter signup is not configured.");
-  }
+// export const getCreateCommentModal = async (c: CreateCommentModalContext) => {
+//   const bookId = c.req.valid("param").bookId;
+//   const user = await getUser(c);
+//   return c.html(<CommentModal bookId={bookId} user={user} />);
+// };
 
-  const body: { email: string; groups?: string[] } = { email };
-  const res = await fetch("https://connect.mailerlite.com/api/subscribers", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    if (res.status === 422) {
-      return showErrorAlert(c, "Invalid email or already subscribed.");
-    }
+// export const getEditCommentModal = async (c: UpdateCommentFormContext) => {
+//   const user = await getUser(c);
+//   const commentId = c.req.valid("param").commentId;
+//   const bookId = c.req.valid("param").bookId;
 
-    return showErrorAlert(c, "Could not sign up. Try again later.");
-  }
+//   const [err, comment] = await getBookCommentById(commentId);
+//   if (err || !comment)
+//     return showErrorAlert(c, err?.reason ?? "Comment not found");
 
-  return c.html(
-    <>
-      <Alert type="success" message="Newsletter signup successful" />
-      <NewsletterCard />
-    </>,
-  );
-};
+//   return c.html(
+//     <EditCommentModal commentId={commentId} bookId={bookId} user={user} />,
+//   );
+// };
 
-export const getCreateCommentModal = async (c: CreateCommentModalContext) => {
-  const bookId = c.req.valid("param").bookId;
-  const user = await getUser(c);
-  return c.html(<CommentModal bookId={bookId} user={user} />);
-};
+// export const addBookComment = async (c: AddCommentFormContext) => {
+//   const user = await getUser(c);
+//   const userId = user?.id;
+//   if (!userId)
+//     return c.html(<AuthModal action="to comment on this book." />, 401);
 
-export const getEditCommentModal = async (c: UpdateCommentFormContext) => {
-  const user = await getUser(c);
-  const commentId = c.req.valid("param").commentId;
-  const bookId = c.req.valid("param").bookId;
+//   const bookId = c.req.valid("param").bookId;
+//   const form = c.req.valid("form");
 
-  const [err, comment] = await getBookCommentById(commentId);
-  if (err || !comment)
-    return showErrorAlert(c, err?.reason ?? "Comment not found");
+//   const hasProfilePic = !!(user?.creator?.coverUrl || user?.profileImageUrl);
 
-  return c.html(
-    <EditCommentModal commentId={commentId} bookId={bookId} user={user} />,
-  );
-};
+//   if (!hasProfilePic) {
+//     return showErrorAlert(c, "Please add a profile picture before commenting.");
+//   }
 
-export const addBookComment = async (c: AddCommentFormContext) => {
-  const user = await getUser(c);
-  const userId = user?.id;
-  if (!userId)
-    return c.html(<AuthModal action="to comment on this book." />, 401);
+//   const [err, comment] = await insertBookComment(bookId, userId, form.body);
+//   if (err || !comment)
+//     return showErrorAlert(c, err?.reason ?? "Failed to add comment");
 
-  const bookId = c.req.valid("param").bookId;
-  const form = c.req.valid("form");
+//   await sendAdminEmail(
+//     "New comment on a book",
+//     `A new comment has been added to the book ${bookId}. ${comment.body}`,
+//   );
 
-  const [err, book] = await getBookPermissionData(bookId);
-  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
+//   return c.html(
+//     <>
+//       <Alert type="success" message="Comment added successfully" />
+//       {dispatchEvents([updateComments()])}
+//       <div id="modal-root"></div>
+//     </>,
+//   );
+// };
 
-  const hasProfilePic = !!(user?.creator?.coverUrl || user?.profileImageUrl);
+// export const updateBookComment = async (c: UpdateCommentGuardedContext) => {
+//   const comment = c.get("comment");
+//   const body = c.req.valid("form").body;
+//   const [err, updatedComment] = await updateCommentById(comment.id, body);
+//   if (err || !updatedComment) {
+//     return showErrorAlert(c, err?.reason ?? "Failed to update comment");
+//   }
 
-  if (!hasProfilePic)
-    return showErrorAlert(c, "Please add a profile picture before commenting.");
+//   await sendAdminEmail(
+//     "Updated comment on a book",
+//     `A comment has been updated. ${updatedComment.body}`,
+//   );
+//   return c.html(
+//     <>
+//       <Alert type="success" message="Comment updated successfully" />
+//       {dispatchEvents([updateComments()])}
+//       <div id="modal-root"></div>
+//     </>,
+//   );
+// };
 
-  const [insertError, comment] = await insertBookComment(
-    bookId,
-    userId,
-    form.body,
-  );
-  if (insertError)
-    return showErrorAlert(c, insertError.reason ?? "Failed to add comment");
-
-  publishCommentActivity(user, book);
-  await createCommentCreatedNotification(user, book);
-
-  await sendEmail(
-    book.creatorUser?.email ?? "",
-    "New comment on a book",
-    `A new comment has been added to the book ${bookId}. ${comment.body}`,
-  );
-
-  return c.html(
-    <>
-      <Alert type="success" message="Comment added successfully" />
-      {dispatchEvents([updateComments()])}
-      <div id="modal-root"></div>
-    </>,
-  );
-};
-
-export const updateBookComment = async (c: UpdateCommentGuardedContext) => {
-  const comment = c.get("comment");
-  const user = await getUser(c);
-  const body = c.req.valid("form").body;
-  const [err, updatedComment] = await updateCommentById(comment.id, body);
-  if (err || !updatedComment)
-    return showErrorAlert(c, err?.reason ?? "Failed to update comment");
-
-  const [bookErr, book] = await getBookPermissionData(comment.bookId);
-  if (bookErr) return showErrorAlert(c, bookErr?.reason ?? "Book not found");
-
-  await createCommentUpdatedNotification(user, book);
-
-  return c.html(
-    <>
-      <Alert type="success" message="Comment updated successfully" />
-      {dispatchEvents([updateComments()])}
-      <div id="modal-root"></div>
-    </>,
-  );
-};
-
-export const deleteBookComment = async (c: DeleteCommentGuardedContext) => {
-  const comment = c.get("comment");
-  const [err] = await deleteBookCommentById(comment.id);
-  if (err) {
-    return showErrorAlert(c, err.reason);
-  }
-  return c.html(
-    <>
-      <Alert type="success" message="Comment deleted successfully" />
-      {dispatchEvents([updateComments()])}
-    </>,
-  );
-};
+// export const deleteBookComment = async (c: DeleteCommentGuardedContext) => {
+//   const comment = c.get("comment");
+//   const [err] = await deleteBookCommentById(comment.id);
+//   if (err) {
+//     return showErrorAlert(c, err.reason);
+//   }
+//   return c.html(
+//     <>
+//       <Alert type="success" message="Comment deleted successfully" />
+//       {dispatchEvents([updateComments()])}
+//     </>,
+//   );
+// };

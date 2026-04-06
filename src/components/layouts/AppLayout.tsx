@@ -25,7 +25,7 @@ const AppLayout = ({
   user,
   currentPath,
   flash,
-  isPreview,
+  isPreview = false,
   adminEditHref,
 }: LayoutProps) => (
   <html lang="en">

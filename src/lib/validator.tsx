@@ -2,6 +2,8 @@ import z from "zod";
 import { validator } from "hono/validator";
 import ErrorPage from "../pages/error/errorPage";
 import { getUser } from "../utils";
+import InfoPage from "../pages/InfoPage";
+import { HTTPException } from "hono/http-exception";
 
 export const formValidator = <T extends z.ZodSchema>(schema: T) => {
   return validator("form", async (formData, c) => {
@@ -20,7 +22,8 @@ export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
     const result = schema.safeParse(params);
     if (!result.success) {
       const user = await getUser(c);
-      return <ErrorPage errorMessage="Invalid parameters" user={user} />;
+      console.log("Invalid parameters", result.error);
+      return c.html(<InfoPage errorMessage="Invalid parameters" user={user} />);
     }
     return result.data as z.infer<T>;
   });

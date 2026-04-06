@@ -5,6 +5,7 @@ import { formatDate } from "../../../utils";
 import { getDisplayName } from "../services";
 import { getBookComments } from "../services";
 import Button from "../../../components/app/Button";
+import FormDelete from "../../../components/forms/FormDelete";
 
 type CommentsResult = Awaited<ReturnType<typeof getBookComments>>;
 type CommentWithUser = NonNullable<CommentsResult[1]>[number];
@@ -121,7 +122,7 @@ const CommentList = async ({ bookId, user, comments }: CommentListProps) => {
               {user?.id === comment.userId && (
                 <div class="flex items-center gap-2 text-xs text-on-surface cursor-pointer">
                   <Link
-                    href={`/api/books/${bookId}/update/${comment.id}`}
+                    href={`/api/books/${bookId}/comments/${comment.id}`}
                     xTarget="modal-root"
                     hoverUnderline
                   >
@@ -166,14 +167,13 @@ const DeleteCommentButton = async ({
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
   };
   return (
-    <form
-      method="post"
-      action={`/api/books/${bookId}/delete/${commentId}`}
+    <FormDelete
+      action={`/api/books/${bookId}/comments/${commentId}`}
       {...alpineAttrs}
     >
       <button class="cursor-pointer hover:underline" type="submit">
         <span class="text-xs text-on-surface">delete</span>
       </button>
-    </form>
+    </FormDelete>
   );
 };

@@ -2,6 +2,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:fsr": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts -w",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:fsr\"",
     "prebuild": "npm run typecheck",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
@@ -53,6 +55,7 @@
     "@types/alpinejs": "^3.13.11",
     "@types/node": "^20.11.17",
     "@types/sanitize-html": "^2.16.0",
+    "concurrently": "^9.2.1",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.7",
     "patch-package": "^8.0.1",

@@ -1,3 +1,16 @@
+diff --git a/node_modules/hono-fsr/dist/bin/hono-fsr.js b/node_modules/hono-fsr/dist/bin/hono-fsr.js
+index 05d6358..f10c7e8 100755
+--- a/node_modules/hono-fsr/dist/bin/hono-fsr.js
++++ b/node_modules/hono-fsr/dist/bin/hono-fsr.js
+@@ -64,7 +64,7 @@ export const manifest: Manifest = [];
+         let relativePath = path
+             .relative(outputDir, route.filePath)
+             .replace(/\\/g, "/")
+-            .replace(/\.(ts|js|mjs|mts|cjs)$/, "");
++            .replace(/\.(ts|tsx|js|mjs|mts|cjs)$/, "");
+         if (!relativePath.startsWith(".")) {
+             relativePath = `./${relativePath}`;
+         }
 diff --git a/node_modules/hono-fsr/dist/lib/utils.js b/node_modules/hono-fsr/dist/lib/utils.js
 index 99e1e9f..bb5fec9 100644
 --- a/node_modules/hono-fsr/dist/lib/utils.js

@@ -3,6 +3,7 @@ import SectionTitle from "../../../components/app/SectionTitle";
 import FileUploadInput from "../../../components/forms/FileUpload";
 import ImagePreview from "../../../components/forms/ImagePreview";
 import { AuthUser } from "../../../../types";
+import DragAndDropArea from "../../dashboard/images/components/DragAndDropArea";
 
 type Props = {
   initialUrl: string | null;
@@ -33,6 +34,7 @@ const UserCoverForm = ({ initialUrl, user }: Props) => {
       >
         <div class="space-y-4">
           <ImagePreview />
+          <DragAndDropArea />
           <FileUploadInput
             label="Upload Image"
             name="userImageProfile"

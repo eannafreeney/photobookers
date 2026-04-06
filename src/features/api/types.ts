@@ -89,3 +89,20 @@ export type DeleteCommentGuardedContext = Context<
     };
   }
 >;
+
+export type GetCommentModalContext = Context<
+  Env,
+  string,
+  { out: { param: z.infer<typeof bookIdSchema> } }
+>;
+
+export type GetEditCommentModalContext = Context<
+  Env,
+  string,
+  {
+    out: {
+      param: z.infer<typeof editCommentParamSchema> &
+        z.infer<typeof bookIdSchema>;
+    };
+  }
+>;

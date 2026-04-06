@@ -1,6 +1,11 @@
 import { Env } from "hono/types";
 import { Book, Creator } from "../../db/schema";
-import { contactFormSchema, userUpdateFormSchema } from "./schema";
+import {
+  contactFormSchema,
+  slugSchema,
+  tagSchema,
+  userUpdateFormSchema,
+} from "./schema";
 import { Context } from "hono";
 import { z } from "zod";
 import { bookIdSchema } from "../../schemas";
@@ -22,6 +27,24 @@ export type ContactFormContext = Context<
 >;
 
 export type UserUpdateFormContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof userUpdateFormSchema> } }
+>;
+
+export type BookDetailContext = Context<
+  Env,
+  string,
+  { out: { param: z.infer<typeof slugSchema> } }
+>;
+
+export type BookTagContext = Context<
+  Env,
+  string,
+  { out: { param: z.infer<typeof tagSchema> } }
+>;
+
+export type UserUpdateModalContext = Context<
   Env,
   string,
   { out: { form: z.infer<typeof userUpdateFormSchema> } }
