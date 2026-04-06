@@ -1,16 +1,16 @@
 import { PropsWithChildren } from "hono/jsx";
 
-const FormUpdate = ({
+const FormPost = ({
+  id,
   action,
   children,
   ...alpineAttrs
 }: PropsWithChildren<{ action: string } & Record<string, any>>) => {
   return (
-    <form method="post" action={action} {...alpineAttrs}>
-      <input type="hidden" name="_method" value="PATCH" />
+    <form id={id} method="post" action={action} {...alpineAttrs}>
       {children}
     </form>
   );
 };
 
-export default FormUpdate;
+export default FormPost;

@@ -14,6 +14,7 @@ import { getBookBySlug } from "../features/app/services";
 import { getBookById } from "../features/dashboard/books/services";
 import InfoPage from "../pages/InfoPage";
 import { BookWithRelations } from "../../types";
+import { Context, Next } from "hono";
 
 type BookEnv = {
   Variables: {
@@ -105,46 +106,56 @@ export const requireBookDeleteAccess = createMiddleware<BookEnv>(
   },
 );
 
-export const requireBookPublishAccess = createMiddleware<BookEnv>(
-  async (c, next) => {
-    const user = await getUser(c);
-    const bookId = c.req.param("bookId");
+export const requireBookPublishIntentAccess = async (
+  c: Context,
+  next: Next,
+) => {
+  const form = await c.req.parseBody();
+  const intent = form.intent;
+  if (intent === "publish") {
+    return requireBookPublishAccess(c, next);
+  }
+  if (intent === "unpublish") {
+    return requireBookUnpublishAccess(c, next);
+  }
+  return showErrorAlert(c, "Invalid publish action", 400);
+};
 
-    if (!bookId) {
-      return showErrorAlert(c, "Book ID is required");
-    }
+const requireBookPublishAccess = createMiddleware<BookEnv>(async (c, next) => {
+  const user = await getUser(c);
+  const bookId = c.req.param("bookId");
 
-    const [err, book] = await getBookById(bookId);
-    if (err || !book) {
+  if (!bookId) {
+    return showErrorAlert(c, "Book ID is required");
+  }
+
+  const [err, book] = await getBookById(bookId);
+  if (err || !book) {
+    return c.html(<InfoPage errorMessage="Book not found" user={user} />, 404);
+  }
+
+  if (!canPublishBook(user, book)) {
+    if (user?.creator?.status !== "verified") {
       return c.html(
-        <InfoPage errorMessage="Book not found" user={user} />,
-        404,
-      );
-    }
-
-    if (!canPublishBook(user, book)) {
-      if (user?.creator?.status !== "verified") {
-        return c.html(
-          <InfoPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
-          403,
-        );
-      }
-      return c.html(
-        <ErrorPage
-          errorMessage="You are not authorized to publish this book"
-          user={user}
-        />,
+        <InfoPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
         403,
       );
     }
+    return c.html(
+      <ErrorPage
+        errorMessage="You are not authorized to publish this book"
+        user={user}
+      />,
+      403,
+    );
+  }
 
-    // Attach book to context so route doesn't need to fetch again
-    c.set("book", book);
-    await next();
-  },
-);
+  // Attach book to context so route doesn't need to fetch again
+  c.set("book", book);
+  await next();
+});
 
-export const requireBookUnpublishAccess = createMiddleware<BookEnv>(
+const requireBookUnpublishAccess = createMiddleware<BookEnv>(
   async (c, next) => {
     const user = await getUser(c);
     const bookId = c.req.param("bookId");
@@ -201,7 +212,13 @@ export const requireBookPreviewAccess = createMiddleware<BookPreviewEnv>(
       );
     }
 
-    const result = await getBookBySlug(bookSlug, "draft");
+    const [err, result] = await getBookBySlug(bookSlug, "draft");
+    if (err || !result?.book) {
+      return c.html(
+        <ErrorPage errorMessage="Book not found" user={user} />,
+        404,
+      );
+    }
     if (!result?.book) {
       return c.html(
         <ErrorPage errorMessage="Book not found" user={user} />,

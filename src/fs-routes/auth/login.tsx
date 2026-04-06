@@ -55,6 +55,7 @@ export const POST = createRoute(
     if (wasForcedResetPassword) {
       return c.redirect("/auth/force-reset-password");
     }
+
     return c.redirect(safeRedirectUrl ?? "/");
   },
 );

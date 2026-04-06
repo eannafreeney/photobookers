@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "hono/jsx";
 
-const FormDelete = ({
+const FormPatch = ({
   id,
   action,
   children,
@@ -8,10 +8,10 @@ const FormDelete = ({
 }: PropsWithChildren<{ action: string } & Record<string, any>>) => {
   return (
     <form id={id} method="post" action={action} {...alpineAttrs}>
-      <input type="hidden" name="_method" value="DELETE" />
+      <input type="hidden" name="_method" value="PATCH" />
       {children}
     </form>
   );
 };
 
-export default FormDelete;
+export default FormPatch;

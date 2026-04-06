@@ -1,31 +1,30 @@
-import { AuthUser } from "../../../../../types";
-import Breadcrumbs from "../../admin/components/Breadcrumbs";
-import { BooksOverviewTable } from "../tables/BooksOverviewTable";
-import AppLayout from "../../../../components/layouts/AppLayout";
-import Page from "../../../../components/layouts/Page";
-import { getBooksByArtistId, getBooksByPublisherId } from "../services";
-import { CreatorStatus } from "../../../../db/schema";
-import InfoPage from "../../../../pages/InfoPage";
-import Button from "../../../../components/app/Button";
+import { createRoute } from "hono-fsr";
+import { Context } from "hono";
+import {
+  getBooksByArtistId,
+  getBooksByPublisherId,
+} from "../../../features/dashboard/books/services";
+import { getUser } from "../../../utils";
+import { getFlash } from "../../../utils";
+import { getIsMobile } from "../../../lib/device";
+import InfoPage from "../../../pages/InfoPage";
+import AppLayout from "../../../components/layouts/AppLayout";
+import Page from "../../../components/layouts/Page";
+import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumbs";
+import { BooksOverviewTable } from "../../../features/dashboard/books/tables/BooksOverviewTable";
+import Button from "../../../components/app/Button";
+import { CreatorStatus } from "../../../db/schema";
 
-type BooksDashboardProps = {
-  user: AuthUser;
-  flash: any;
-  currentPath: string;
-  searchQuery?: string;
-  isMobile: boolean;
-  currentPage: number;
-};
+export const GET = createRoute(async (c: Context) => {
+  const searchQuery = c.req.query("search");
+  const user = await getUser(c);
+  const flash = await getFlash(c);
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+  const currentPage = parseInt(c.req.query("page") ?? "1");
+  const currentPath = c.req.path;
 
-const BooksOverview = async ({
-  searchQuery,
-  user,
-  flash,
-  currentPath,
-  isMobile,
-  currentPage,
-}: BooksDashboardProps) => {
-  if (!user.creator) return <></>;
+  if (!user.creator)
+    return c.html(<InfoPage errorMessage="Creator not found" />);
 
   const creatorId = user.creator.id;
   const creatorType = user.creator.type;
@@ -35,11 +34,12 @@ const BooksOverview = async ({
       ? await getBooksByArtistId(creatorId, currentPage, searchQuery)
       : await getBooksByPublisherId(creatorId, currentPage, searchQuery);
 
-  if (error) return <InfoPage errorMessage={error.reason} user={user} />;
+  if (error)
+    return c.html(<InfoPage errorMessage={error.reason} user={user} />);
 
   const { books, totalPages, page } = result;
 
-  return (
+  return c.html(
     <AppLayout
       title="Books Overview"
       user={user}
@@ -61,11 +61,9 @@ const BooksOverview = async ({
           />
         </div>
       </Page>
-    </AppLayout>
+    </AppLayout>,
   );
-};
-
-export default BooksOverview;
+});
 
 type VerificationStatusProps = {
   creatorStatus: CreatorStatus;

@@ -18,7 +18,7 @@ import { adminPlannerDashboardRoutes } from "../features/dashboard/admin/planner
 import { adminNotificationsDashboardRoutes } from "../features/dashboard/admin/notifications/routes";
 import { messagesDashboardRoutes } from "../features/dashboard/messages/routes";
 import { jobsRoutes } from "../features/jobs/routes";
-import { interviewRoutes } from "../features/interviews/routes";
+// import { interviewRoutes } from "../features/interviews/routes";
 import { adminInterviewsDashboardRoutes } from "../features/dashboard/admin/interviews/routes";
 import { createRouter } from "hono-fsr";
 import { manifest } from "../fs-routes.manifest";
@@ -55,7 +55,7 @@ await createRouter(routes, {
 
 // Public routes
 // routes.route("/", appRoutes);
-routes.route("/interviews", interviewRoutes);
+// routes.route("/interviews", interviewRoutes);
 
 // Protected routes (MUST be logged in)
 routes.use("/dashboard/*", requireAuth);
