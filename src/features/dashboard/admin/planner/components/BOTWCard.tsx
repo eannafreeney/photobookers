@@ -70,7 +70,6 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
           >
             <input type="hidden" name="creatorId" value={book.artist?.id} />
             <input type="hidden" name="bookId" value={book.id} />
-
             <button
               type="submit"
               class="inline-block text-xs font-medium text-primary hover:underline cursor-pointer"
@@ -78,13 +77,24 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
               Send Artist Email
             </button>
           </form>
-          <form
-            action={`/dashboard/admin/planner/book-of-the-week/send-publisher-email?week=${weekKey}`}
-          >
-            <Button variant="outline" color="primary">
-              <span>Send Publisher Email</span>
-            </Button>
-          </form>
+          {book.publisher && (
+            <form
+              action={`/dashboard/admin/planner/book-of-the-week/send-publisher-email?week=${weekKey}`}
+            >
+              <input
+                type="hidden"
+                name="publisherId"
+                value={book.publisher?.id}
+              />
+              <input type="hidden" name="bookId" value={book.id} />
+              <button
+                type="submit"
+                class="inline-block text-xs font-medium text-primary hover:underline cursor-pointer"
+              >
+                Send Publisher Email
+              </button>
+            </form>
+          )}
         </div>
       </div>
       <div class="flex items-center gap-2">
