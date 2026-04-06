@@ -8,16 +8,16 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { routes } from "./routes";
 import NotFoundPage from "./pages/NotFoundPage";
 import { getUser } from "./utils";
-import { enableEndpointSizeProfiler } from "./middleware/endpointSizeProfiler";
+// import { enableEndpointSizeProfiler } from "./middleware/endpointSizeProfiler";
 
 const app = new Hono();
 
 // Global middleware
 app.use("*", logger());
 
-if (process.env.NODE_ENV !== "production") {
-  app.use("*", enableEndpointSizeProfiler(60_000));
-}
+// if (process.env.NODE_ENV !== "production") {
+//   app.use("*", enableEndpointSizeProfiler(60_000));
+// }
 
 app.get("/favicon.svg", serveStatic({ path: "./public/favicon.svg" }));
 if (process.env.NODE_ENV === "production") {

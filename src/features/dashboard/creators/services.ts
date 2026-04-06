@@ -65,3 +65,20 @@ export const getCreatorById = async (creatorId: string) => {
     return err({ reason: "Failed to get creator by id" });
   }
 };
+
+export const getCreatorEmailById = async (creatorId: string) => {
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.id, creatorId),
+      columns: {
+        email: true,
+        displayName: true,
+      },
+    });
+    if (!creator) return err({ reason: "Creator not found" });
+    return ok(creator);
+  } catch (error) {
+    console.error("Failed to get creator by id", error);
+    return err({ reason: "Failed to get creator by id" });
+  }
+};

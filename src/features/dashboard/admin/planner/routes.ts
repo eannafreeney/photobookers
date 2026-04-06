@@ -20,6 +20,8 @@ import {
   deletePublisherOfTheWeek,
   deleteArtistOfTheWeek,
   updateFeaturedBooksAdmin,
+  sendArtistEmail,
+  setCreatorEmailSendArtistEmail,
 } from "./controllers";
 import { formValidator, queryValidator } from "../../../../lib/validator";
 import {
@@ -27,8 +29,11 @@ import {
   bookOfTheWeekFormSchema,
   featuredBooksFormSchema,
   publisherOfTheWeekFormSchema,
+  sendArtistEmailFormSchema,
+  setCreatorEmailSendArtistEmailFormSchema,
   weekQuerySchema,
 } from "./schema";
+import { creatorIdSchema } from "../../../../schemas";
 
 export const adminPlannerDashboardRoutes = new Hono();
 
@@ -63,6 +68,24 @@ adminPlannerDashboardRoutes.post(
   queryValidator(weekQuerySchema),
   deleteBOTWAdmin,
 );
+// ---------- Send Artist Email ----------
+adminPlannerDashboardRoutes.post(
+  "/book-of-the-week/send-artist-email",
+  formValidator(sendArtistEmailFormSchema),
+  queryValidator(weekQuerySchema),
+  sendArtistEmail,
+);
+adminPlannerDashboardRoutes.post(
+  "/book-of-the-week/set-creator-email-send-artist-email",
+  formValidator(setCreatorEmailSendArtistEmailFormSchema),
+  setCreatorEmailSendArtistEmail,
+);
+// ---------- Send Publisher Email ----------
+// adminPlannerDashboardRoutes.post(
+//   "/book-of-the-week/send-publisher-email",
+//   queryValidator(weekQuerySchema),
+//   sendPublisherEmail,
+// );
 
 // ---------- Featured (5) ----------
 adminPlannerDashboardRoutes.get(

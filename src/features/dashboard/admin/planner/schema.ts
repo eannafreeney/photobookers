@@ -13,6 +13,17 @@ export const bookOfTheWeekFormSchema = z.object({
   text: optionalText,
 });
 
+export const sendArtistEmailFormSchema = z.object({
+  creatorId: z.string().min(1, "Creator is required"),
+  bookId: z.string().min(1, "Book is required"),
+});
+
+export const setCreatorEmailSendArtistEmailFormSchema = z.object({
+  creatorId: z.string().min(1, "Creator is required"),
+  email: z.string().min(1, "Email is required"),
+  bookId: z.string().min(1, "Book is required"),
+});
+
 export const featuredBooksFormSchema = z
   .object({
     weekStart: z

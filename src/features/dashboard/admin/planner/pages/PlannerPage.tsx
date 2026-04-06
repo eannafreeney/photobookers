@@ -5,12 +5,6 @@ import { AuthUser } from "../../../../../../types";
 import { toWeekString } from "../../../../../lib/utils";
 import { getWeekNumber, isWeekInPast } from "../utils";
 import WeekCard from "../components/WeekCard";
-import {
-  getArtistsOfTheWeekByWeekStart,
-  getBotwByWeekStart,
-  getFeaturedBooksByWeekStart,
-  getPublishersOfTheWeekByWeekStart,
-} from "../services";
 import { loadPlannerYearData } from "../queries";
 import ErrorPage from "../../../../../pages/error/errorPage";
 

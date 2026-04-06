@@ -504,3 +504,17 @@ export const markInterviewEmailSentAdmin = async (creatorId: string) => {
     return err({ reason: "Failed to mark interview email sent", cause: error });
   }
 };
+
+export const updateCreatorEmail = async (creatorId: string, email: string) => {
+  try {
+    const [row] = await db
+      .update(creators)
+      .set({ email })
+      .where(eq(creators.id, creatorId))
+      .returning();
+    if (!row) return err({ reason: "Creator not found" });
+    return ok(row);
+  } catch (error) {
+    return err({ reason: "Failed to update creator email", cause: error });
+  }
+};
