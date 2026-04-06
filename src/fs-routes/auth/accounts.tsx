@@ -1,57 +1,16 @@
-import Button from "../../../components/app/Button";
-import SectionTitle from "../../../components/app/SectionTitle";
-import HeadlessLayout from "../../../components/layouts/HeadlessLayout";
-import Page from "../../../components/layouts/Page";
+import { createRoute } from "hono-fsr";
+import { getUser } from "../../utils";
+import HeadlessLayout from "../../components/layouts/HeadlessLayout";
+import Page from "../../components/layouts/Page";
+import SectionTitle from "../../components/app/SectionTitle";
+import Button from "../../components/app/Button";
+import { Context } from "hono";
 
-const Check = () => (
-  <svg
-    class="w-5 h-5 text-green-500 mx-auto"
-    fill="currentColor"
-    viewBox="0 0 20 20"
-  >
-    <path
-      fill-rule="evenodd"
-      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-      clip-rule="evenodd"
-    />
-  </svg>
-);
+export const GET = createRoute(async (c: Context) => {
+  const user = await getUser(c);
+  if (user) return c.redirect("/");
 
-const features = [
-  {
-    name: "Follow Artists & Publishers",
-    fan: true,
-    artist: true,
-    publisher: true,
-  },
-  { name: "Wishlist Books", fan: true, artist: true, publisher: true },
-  { name: "Add Books to Collection", fan: true, artist: true, publisher: true },
-  { name: "View Your Feed", fan: true, artist: true, publisher: true },
-  { name: "View Your Profile", fan: true, artist: true, publisher: true },
-  { name: "Upload Your Books", fan: false, artist: true, publisher: true },
-  { name: "Manage Your Books", fan: false, artist: true, publisher: true },
-];
-
-const mobileFeatures = [
-  {
-    type: "Fan" as const,
-    slug: "fan",
-    features: features.filter((f) => f.fan),
-  },
-  {
-    type: "Artist / Self-Publisher" as const,
-    slug: "artist",
-    features: features.filter((f) => f.artist),
-  },
-  {
-    type: "Publisher" as const,
-    slug: "publisher",
-    features: features.filter((f) => f.publisher),
-  },
-];
-
-const AccountsPage = () => {
-  return (
+  return c.html(
     <HeadlessLayout title="Accounts">
       <Page>
         <SectionTitle>Accounts</SectionTitle>
@@ -137,8 +96,53 @@ const AccountsPage = () => {
           </table>
         </div>
       </Page>
-    </HeadlessLayout>
+    </HeadlessLayout>,
   );
-};
+});
 
-export default AccountsPage;
+const Check = () => (
+  <svg
+    class="w-5 h-5 text-green-500 mx-auto"
+    fill="currentColor"
+    viewBox="0 0 20 20"
+  >
+    <path
+      fill-rule="evenodd"
+      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+      clip-rule="evenodd"
+    />
+  </svg>
+);
+
+const features = [
+  {
+    name: "Follow Artists & Publishers",
+    fan: true,
+    artist: true,
+    publisher: true,
+  },
+  { name: "Wishlist Books", fan: true, artist: true, publisher: true },
+  { name: "Add Books to Collection", fan: true, artist: true, publisher: true },
+  { name: "View Your Feed", fan: true, artist: true, publisher: true },
+  { name: "View Your Profile", fan: true, artist: true, publisher: true },
+  { name: "Upload Your Books", fan: false, artist: true, publisher: true },
+  { name: "Manage Your Books", fan: false, artist: true, publisher: true },
+];
+
+const mobileFeatures = [
+  {
+    type: "Fan" as const,
+    slug: "fan",
+    features: features.filter((f) => f.fan),
+  },
+  {
+    type: "Artist / Self-Publisher" as const,
+    slug: "artist",
+    features: features.filter((f) => f.artist),
+  },
+  {
+    type: "Publisher" as const,
+    slug: "publisher",
+    features: features.filter((f) => f.publisher),
+  },
+];

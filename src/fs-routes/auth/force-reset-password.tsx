@@ -1,13 +1,12 @@
-import Page from "../../../components/layouts/Page";
-import HeadlessLayout from "../../../components/layouts/HeadlessLayout";
-import ResetPasswordForm from "../forms/SetPasswordForm";
-import { AuthUser } from "../../../../types";
+import { createRoute } from "hono-fsr";
+import { getUser } from "../../utils";
+import { Context } from "hono";
+import HeadlessLayout from "../../components/layouts/HeadlessLayout";
+import Page from "../../components/layouts/Page";
+import SetPasswordForm from "../../features/auth/forms/SetPasswordForm";
 
-type Props = {
-  user: AuthUser;
-};
-
-const SetNewPasswordPage = ({ user }: Props) => {
+export const GET = createRoute(async (c: Context) => {
+  const user = await getUser(c);
   const alpineAttrs = {
     "x-data": "resetPasswordForm()",
     "x-on:submit": "submitForm($event)",
@@ -15,7 +14,7 @@ const SetNewPasswordPage = ({ user }: Props) => {
     "x-target.away": "_top",
     "x-on:ajax:error": "isSubmitting = false",
   };
-  return (
+  return c.html(
     <HeadlessLayout title="Force Reset Password">
       <Page>
         <div class="min-h-screen flex items-center justify-center bg-base-200">
@@ -32,7 +31,7 @@ const SetNewPasswordPage = ({ user }: Props) => {
                 method="post"
                 {...alpineAttrs}
               >
-                <ResetPasswordForm
+                <SetPasswordForm
                   buttonText="Reset Password"
                   loadingText="Resetting..."
                 />
@@ -41,7 +40,6 @@ const SetNewPasswordPage = ({ user }: Props) => {
           </div>
         </div>
       </Page>
-    </HeadlessLayout>
+    </HeadlessLayout>,
   );
-};
-export default SetNewPasswordPage;
+});

@@ -5,7 +5,6 @@ import { optionalAuthMiddleware } from "../middleware/optionalAuthMiddleware";
 import { useSession } from "@hono/session";
 import { requireAdmin } from "../middleware/requireAdmin";
 // import { app as appRoutes } from "../features/app/routes";
-import { authRoutes } from "../features/auth/routes";
 import { booksDashboardRoutes } from "../features/dashboard/books/routes";
 import { creatorDashboardRoutes } from "../features/dashboard/creators/routes";
 import { adminBooksDashboardRoutes } from "../features/dashboard/admin/books/routes";
@@ -56,7 +55,6 @@ await createRouter(routes, {
 
 // Public routes
 // routes.route("/", appRoutes);
-routes.route("/auth", authRoutes);
 routes.route("/interviews", interviewRoutes);
 
 // Protected routes (MUST be logged in)

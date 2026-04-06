@@ -1,18 +1,19 @@
-import RegisterCreatorForm from "../forms/RegisterCreatorForm";
-import RegisterFanForm from "../forms/RegisterFanForm";
-import HeadlessLayout from "../../../components/layouts/HeadlessLayout";
-import { capitalize } from "../../../utils";
-import SuccessScreen from "../../../components/forms/FormSuccessScreen";
+import { createRoute } from "hono-fsr";
+import { capitalize, getUser } from "../../utils";
+import { Context } from "hono";
+import HeadlessLayout from "../../components/layouts/HeadlessLayout";
+import RegisterCreatorForm from "../../features/auth/forms/RegisterCreatorForm";
+import RegisterFanForm from "../../features/auth/forms/RegisterFanForm";
 
-type RegisterPageProps = {
-  type: "fan" | "artist" | "publisher";
-  redirectUrl?: string;
-};
+export const GET = createRoute(async (c: Context) => {
+  const type = c.req.query("type") as "fan" | "artist" | "publisher";
+  const user = await getUser(c);
+  const redirectUrl = c.req.query("redirectUrl") ?? "";
+  if (user) return c.redirect("/");
 
-const RegisterPage = ({ type, redirectUrl }: RegisterPageProps) => {
   const intendedCreatorType = type === "artist" || type === "publisher";
 
-  return (
+  return c.html(
     <HeadlessLayout title="Create Account">
       <div class="min-h-screen flex items-center justify-center bg-base-200">
         <div class="card w-96 bg-base-100 shadow-none border-none my-4">
@@ -30,8 +31,6 @@ const RegisterPage = ({ type, redirectUrl }: RegisterPageProps) => {
           </div>
         </div>
       </div>
-    </HeadlessLayout>
+    </HeadlessLayout>,
   );
-};
-
-export default RegisterPage;
+});

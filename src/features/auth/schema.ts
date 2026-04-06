@@ -62,6 +62,10 @@ export const registerCreatorFormSchema = z.object({
 
 // ============ RESET PASSWORD FORM SCHEMA ============
 export const resetPasswordFormSchema = z.object({
+  isModal: z
+    .union([z.boolean(), z.literal("true"), z.literal("false")])
+    .optional()
+    .transform((v) => v === true || v === "true"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
 });
