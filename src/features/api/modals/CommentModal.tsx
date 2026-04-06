@@ -33,7 +33,6 @@ const CommentModal = ({
     <Modal title="What did you love about this book?">
       <form
         method="post"
-        enctype="multipart/form-data"
         action={
           isEditMode
             ? `/api/books/${bookId}/comments/${commentId}`
