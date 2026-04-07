@@ -9,17 +9,17 @@ import { requireAdmin } from "../middleware/requireAdmin";
 // import { creatorDashboardRoutes } from "../features/dashboard/creators/routes";
 // import { adminBooksDashboardRoutes } from "../features/dashboard/admin/books/routes";
 // import { adminUsersDashboardRoutes } from "../features/dashboard/admin/users/routes";
-import { adminClaimsDashboardRoutes } from "../features/dashboard/admin/claims/routes";
+// import { adminClaimsDashboardRoutes } from "../features/dashboard/admin/claims/routes";
 // import { adminCreatorsDashboardRoutes } from "../features/dashboard/admin/creators/routes";
 // import { apiRoutes } from "../features/api/routes";
 // import { imageRoutes } from "../features/dashboard/images/routes";
 import { claimRoutes } from "../features/claims/routes";
 import { adminPlannerDashboardRoutes } from "../features/dashboard/admin/planner/routes";
-import { adminNotificationsDashboardRoutes } from "../features/dashboard/admin/notifications/routes";
+// import { adminNotificationsDashboardRoutes } from "../features/dashboard/admin/notifications/routes";
 // import { messagesDashboardRoutes } from "../features/dashboard/messages/routes";
 // import { jobsRoutes } from "../features/jobs/routes";
 // import { interviewRoutes } from "../features/interviews/routes";
-import { adminInterviewsDashboardRoutes } from "../features/dashboard/admin/interviews/routes";
+// import { adminInterviewsDashboardRoutes } from "../features/dashboard/admin/interviews/routes";
 import { createRouter } from "hono-fsr";
 import { manifest } from "../fs-routes.manifest";
 import { methodOverride } from "hono/method-override";
@@ -75,11 +75,11 @@ routes.use("/dashboard/*", requireAuth);
 routes.use("/dashboard/admin/*", requireAdmin);
 // routes.route("/dashboard/admin/books", adminBooksDashboardRoutes);
 // routes.route("/dashboard/admin/users", adminUsersDashboardRoutes);
-routes.route("/dashboard/admin/claims", adminClaimsDashboardRoutes);
+// routes.route("/dashboard/admin/claims", adminClaimsDashboardRoutes);
 // routes.route("/dashboard/admin/creators", adminCreatorsDashboardRoutes);
 routes.route("/dashboard/admin/planner", adminPlannerDashboardRoutes);
-routes.route("/dashboard/admin/interviews", adminInterviewsDashboardRoutes);
-routes.route(
-  "/dashboard/admin/notifications",
-  adminNotificationsDashboardRoutes,
-);
+// routes.route("/dashboard/admin/interviews", adminInterviewsDashboardRoutes);
+// routes.route(
+//   "/dashboard/admin/notifications",
+//   adminNotificationsDashboardRoutes,
+// );
