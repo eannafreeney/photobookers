@@ -12,11 +12,11 @@ import { adminUsersDashboardRoutes } from "../features/dashboard/admin/users/rou
 import { adminClaimsDashboardRoutes } from "../features/dashboard/admin/claims/routes";
 import { adminCreatorsDashboardRoutes } from "../features/dashboard/admin/creators/routes";
 // import { apiRoutes } from "../features/api/routes";
-import { imageRoutes } from "../features/dashboard/images/routes";
+// import { imageRoutes } from "../features/dashboard/images/routes";
 import { claimRoutes } from "../features/claims/routes";
 import { adminPlannerDashboardRoutes } from "../features/dashboard/admin/planner/routes";
 import { adminNotificationsDashboardRoutes } from "../features/dashboard/admin/notifications/routes";
-import { messagesDashboardRoutes } from "../features/dashboard/messages/routes";
+// import { messagesDashboardRoutes } from "../features/dashboard/messages/routes";
 import { jobsRoutes } from "../features/jobs/routes";
 // import { interviewRoutes } from "../features/interviews/routes";
 import { adminInterviewsDashboardRoutes } from "../features/dashboard/admin/interviews/routes";
@@ -61,8 +61,8 @@ await createRouter(routes, {
 routes.use("/dashboard/*", requireAuth);
 // routes.route("/dashboard/books", booksDashboardRoutes);
 // routes.route("/dashboard/creators", creatorDashboardRoutes);
-routes.route("/dashboard/messages", messagesDashboardRoutes);
-routes.route("/dashboard/images", imageRoutes);
+// routes.route("/dashboard/messages", messagesDashboardRoutes);
+// routes.route("/dashboard/images", imageRoutes);
 routes.route("/claims", claimRoutes);
 
 // API routes

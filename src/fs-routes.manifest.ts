@@ -58,7 +58,12 @@ import * as m51 from "./fs-routes/api/creators/[creatorId]/follow";
 import * as m52 from "./fs-routes/dashboard/books/[bookId]/publisher";
 import * as m53 from "./fs-routes/dashboard/books/[bookId]";
 import * as m54 from "./fs-routes/dashboard/creators/[creatorId]";
-import * as m55 from "./fs-routes/interviews/[tokenId]";
+import * as m55 from "./fs-routes/dashboard/images/books/[bookId]/cover";
+import * as m56 from "./fs-routes/dashboard/images/books/[bookId]/gallery";
+import * as m57 from "./fs-routes/dashboard/images/creators/[creatorId]/cover";
+import * as m58 from "./fs-routes/dashboard/images/users/[userId]/profile";
+import * as m59 from "./fs-routes/dashboard/messages/[creatorId]";
+import * as m60 from "./fs-routes/interviews/[tokenId]";
 
 export const manifest: Manifest = [
   {
@@ -447,10 +452,45 @@ export const manifest: Manifest = [
     module: m54
   },
   {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/images/books/[bookId]/cover.tsx",
+    urlPath: "/dashboard/images/books/:bookId/cover",
+    type: "handler",
+    precedence: 2,
+    module: m55
+  },
+  {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/images/books/[bookId]/gallery.tsx",
+    urlPath: "/dashboard/images/books/:bookId/gallery",
+    type: "handler",
+    precedence: 2,
+    module: m56
+  },
+  {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/images/creators/[creatorId]/cover.tsx",
+    urlPath: "/dashboard/images/creators/:creatorId/cover",
+    type: "handler",
+    precedence: 2,
+    module: m57
+  },
+  {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/images/users/[userId]/profile.tsx",
+    urlPath: "/dashboard/images/users/:userId/profile",
+    type: "handler",
+    precedence: 2,
+    module: m58
+  },
+  {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/messages/[creatorId].tsx",
+    urlPath: "/dashboard/messages/:creatorId",
+    type: "handler",
+    precedence: 2,
+    module: m59
+  },
+  {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/interviews/[tokenId].tsx",
     urlPath: "/interviews/:tokenId",
     type: "handler",
     precedence: 2,
-    module: m55
+    module: m60
   }
 ];
