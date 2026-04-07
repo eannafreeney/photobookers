@@ -110,7 +110,7 @@ export async function setBookOfTheWeek(params: {
   weekStart: Date;
   bookId: string;
   text: string;
-}): Promise<BookOfTheWeek | null> {
+}) {
   const weekStart = toWeekStart(params.weekStart);
   try {
     const [row] = await db
@@ -121,11 +121,12 @@ export async function setBookOfTheWeek(params: {
         text: params.text,
       })
       .returning();
-    return row ?? null;
+    if (!row) return err({ reason: "Failed to set book of the week" });
+    return ok(row);
   } catch (e) {
     // uniqueDate or uniqueBook violation
     console.error("setBookOfTheWeek", e);
-    return null;
+    return err({ reason: "Failed to set book of the week" });
   }
 }
 
@@ -133,7 +134,7 @@ export async function updateBookOfTheWeek(params: {
   weekStart: Date;
   bookId: string;
   text: string;
-}): Promise<BookOfTheWeek | null> {
+}) {
   const weekStart = toWeekStart(params.weekStart);
   try {
     const [row] = await db
@@ -144,46 +145,53 @@ export async function updateBookOfTheWeek(params: {
         text: params.text,
       })
       .returning();
-    return row ?? null;
+    if (!row) return err({ reason: "Failed to update book of the week" });
+    return ok(row);
   } catch (e) {
     // uniqueDate or uniqueBook violation
     console.error("setBookOfTheWeek", e);
-    return null;
+    return err({ reason: "Failed to update book of the week" });
   }
 }
 
-export async function getBookOfTheWeekForDateQuery(
-  date: Date,
-): Promise<BookOfTheWeek | null> {
+export async function getBookOfTheWeekForDateQuery(date: Date) {
   const weekStart = toWeekStart(date);
-  const row = await db.query.bookOfTheWeek.findFirst({
-    where: eq(bookOfTheWeek.weekStart, weekStart),
-    with: {
-      book: {
-        columns: BOOK_CARD_COLUMNS,
-        with: {
-          artist: { columns: CREATOR_CARD_COLUMNS },
-          publisher: { columns: CREATOR_CARD_COLUMNS },
+  try {
+    const row = await db.query.bookOfTheWeek.findFirst({
+      where: eq(bookOfTheWeek.weekStart, weekStart),
+      with: {
+        book: {
+          columns: BOOK_CARD_COLUMNS,
+          with: {
+            artist: { columns: CREATOR_CARD_COLUMNS },
+            publisher: { columns: CREATOR_CARD_COLUMNS },
+          },
         },
       },
-    },
-  });
-  return row ?? null;
+    });
+    if (!row) return err({ reason: "Book of the week not found" });
+    return ok(row);
+  } catch (e) {
+    console.error("getBookOfTheWeekForDateQuery", e);
+    return err({ reason: "Failed to get book of the week for date" });
+  }
 }
 
-export async function getThisWeeksBookOfTheWeek(): Promise<BookOfTheWeek | null> {
+export async function getThisWeeksBookOfTheWeek() {
   return getBookOfTheWeekForDateQuery(new Date());
 }
 
 export async function deleteBookOfTheWeekByWeekStart(weekStart: Date) {
   try {
-    return db
+    const [row] = await db
       .delete(bookOfTheWeek)
       .where(eq(bookOfTheWeek.weekStart, toWeekStart(weekStart)))
       .returning();
+    if (!row) return err({ reason: "Failed to delete book of the week" });
+    return ok(row);
   } catch (e) {
     console.error("deleteBookOfTheWeekByIdAdmin", e);
-    return null;
+    return err({ reason: "Failed to delete book of the week" });
   }
 }
 
@@ -373,21 +381,24 @@ export async function updateArtistOfTheWeek(params: {
         text: params.text ?? "",
       })
       .returning();
-    return row ?? null;
+    if (!row) return err({ reason: "Failed to update artist of the week" });
+    return ok(row);
   } catch (e) {
     console.error("updateArtistOfTheWeek", e);
-    return null;
+    return err({ reason: "Failed to update artist of the week" });
   }
 }
 export async function deleteArtistOfTheWeekByWeekStart(weekStart: Date) {
   try {
-    return db
+    const [row] = await db
       .delete(artistOfTheWeek)
       .where(eq(artistOfTheWeek.weekStart, toWeekStart(weekStart)))
       .returning();
+    if (!row) return err({ reason: "Failed to delete artist of the week" });
+    return ok(row);
   } catch (e) {
     console.error("deleteArtistOfTheWeekByWeek", e);
-    return null;
+    return err({ reason: "Failed to delete artist of the week" });
   }
 }
 // ----- Publisher of the week -----
@@ -462,10 +473,11 @@ export async function setPublisherOfTheWeek(params: {
         text: params.text ?? "",
       })
       .returning();
-    return row ?? null;
+    if (!row) return err({ reason: "Failed to set publisher of the week" });
+    return ok(row);
   } catch (e) {
     console.error("setPublisherOfTheWeek", e);
-    return null;
+    return err({ reason: "Failed to set publisher of the week" });
   }
 }
 export async function updatePublisherOfTheWeek(params: {
@@ -486,21 +498,24 @@ export async function updatePublisherOfTheWeek(params: {
         text: params.text ?? "",
       })
       .returning();
-    return row ?? null;
+    if (!row) return err({ reason: "Failed to update publisher of the week" });
+    return ok(row);
   } catch (e) {
     console.error("updatePublisherOfTheWeek", e);
-    return null;
+    return err({ reason: "Failed to update publisher of the week" });
   }
 }
 export async function deletePublisherOfTheWeekByWeekStart(weekStart: Date) {
   try {
-    return db
+    const [row] = await db
       .delete(publisherOfTheWeek)
       .where(eq(publisherOfTheWeek.weekStart, toWeekStart(weekStart)))
       .returning();
+    if (!row) return err({ reason: "Failed to delete publisher of the week" });
+    return ok(row);
   } catch (e) {
     console.error("deletePublisherOfTheWeekByWeek", e);
-    return null;
+    return err({ reason: "Failed to delete publisher of the week" });
   }
 }
 

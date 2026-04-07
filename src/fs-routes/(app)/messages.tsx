@@ -1,6 +1,5 @@
 import { createRoute } from "hono-fsr";
 import { getFlash, getUser } from "../../utils";
-import MessagesPage from "../../features/app/pages/MessagesPage";
 import LoggedOutScreen from "../../features/app/components/LoggedOutScreen";
 import { getMessagesForFollower } from "../../features/app/services";
 import AppLayout from "../../components/layouts/AppLayout";

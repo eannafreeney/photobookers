@@ -1,4 +1,10 @@
+import Alert from "../../../../components/app/Alert";
+import { showErrorAlert } from "../../../../lib/alertHelpers";
+import { dispatchEvents } from "../../../../lib/disatchEvents";
+import { sendEmail } from "../../../../lib/sendEmail";
 import { parseWeekString, toWeekString } from "../../../../lib/utils";
+import { getBookById } from "../../books/services";
+import { generateBOTWNotificationEmail } from "./emails";
 
 /** All ISO week-start dates (Mondays) for a given year. Returns 52 or 53 dates. */
 export function getWeekStarts(year: number): Date[] {
@@ -54,3 +60,27 @@ export function isWeekInPast(weekStart: Date): boolean {
   today.setUTCDate(today.getUTCDate() - daysToMonday);
   return weekStart.getTime() < today.getTime();
 }
+
+export const sendBookOfTheWeekArtistEmail = async (
+  c: any,
+  creator: { displayName: string; email: string },
+  bookId: string,
+) => {
+  const [bookError, book] = await getBookById(bookId);
+  if (bookError || !book) return showErrorAlert(c, "Book not found");
+
+  const html = generateBOTWNotificationEmail(creator, book);
+  const [emailError] = await sendEmail(
+    creator.email,
+    `Book of the Week: ${book.title}`,
+    html,
+  );
+  if (emailError) return showErrorAlert(c, emailError.reason);
+
+  return c.html(
+    <>
+      <Alert type="success" message="Email sent to the artist." />
+      {dispatchEvents(["planner:updated"])}
+    </>,
+  );
+};

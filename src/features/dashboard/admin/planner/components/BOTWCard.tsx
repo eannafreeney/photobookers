@@ -17,7 +17,7 @@ const BookOfTheWeek = ({ weekStart, bookOfTheWeek }: BookOfTheWeekProps) => {
     <BOTWCardContent weekKey={weekKey} bookOfTheWeek={bookOfTheWeek} />
   ) : (
     <ScheduleButton
-      href={`/dashboard/admin/planner/book-of-the-week/create?week=${weekKey}`}
+      href={`/dashboard/admin/planner/book-of-the-week/${weekKey}/create`}
       text="Schedule Book of the Week"
     />
   );
@@ -66,7 +66,7 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
           <form
             method="post"
             x-target="toast modal-root"
-            action={`/dashboard/admin/planner/book-of-the-week/send-artist-email?week=${weekKey}`}
+            action={`/dashboard/admin/planner/book-of-the-week/send-artist-email/${weekKey}`}
           >
             <input type="hidden" name="creatorId" value={book.artist?.id} />
             <input type="hidden" name="bookId" value={book.id} />
@@ -79,7 +79,7 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
           </form>
           {book.publisher && (
             <form
-              action={`/dashboard/admin/planner/book-of-the-week/send-publisher-email?week=${weekKey}`}
+              action={`/dashboard/admin/planner/book-of-the-week/send-publisher-email/${weekKey}`}
             >
               <input
                 type="hidden"
@@ -108,7 +108,7 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
           </Button>
         </a>
         <a
-          href={`/dashboard/admin/planner/book-of-the-week/update?week=${weekKey}`}
+          href={`/dashboard/admin/planner/book-of-the-week/${weekKey}`}
           x-target="modal-root"
           {...{ "x-target.error": "toast" }}
           class="inline-block text-sm font-medium text-primary hover:underline"
@@ -118,7 +118,7 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
           </Button>
         </a>
         <DeleteButton
-          action={`/dashboard/admin/planner/book-of-the-week/delete?week=${weekKey}`}
+          action={`/dashboard/admin/planner/book-of-the-week/${weekKey}`}
         />
       </div>
     </>

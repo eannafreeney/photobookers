@@ -1,5 +1,4 @@
 import Card from "../../../../../components/app/Card";
-import { formatWeekRange } from "../utils";
 import { BookOfTheWeekWithBook } from "../../../../app/BOTWServices";
 import {
   ArtistOfTheWeekWithCreator,
@@ -10,6 +9,7 @@ import FeaturedBooksList from "./FeaturedBooksList";
 import BOTWCard from "./BOTWCard";
 import AOTWCard from "./AOTWCard";
 import POTWCard from "./POTWCard";
+import { formatWeekRange } from "../utils";
 
 type Props = {
   weekStart: Date;

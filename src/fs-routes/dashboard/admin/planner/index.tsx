@@ -1,21 +1,24 @@
-import AppLayout from "../../../../../components/layouts/AppLayout";
-import Page from "../../../../../components/layouts/Page";
-import NavTabs from "../../components/NavTabs";
-import { AuthUser } from "../../../../../../types";
-import { toWeekString } from "../../../../../lib/utils";
-import { getWeekNumber, isWeekInPast } from "../utils";
-import WeekCard from "../components/WeekCard";
-import { loadPlannerYearData } from "../queries";
-import ErrorPage from "../../../../../pages/error/errorPage";
+import { createRoute } from "hono-fsr";
+import { getUser } from "../../../../utils";
+import {
+  getWeekNumber,
+  getWeekStarts,
+  isWeekInPast,
+} from "../../../../features/dashboard/admin/planner/utils";
+import AppLayout from "../../../../components/layouts/AppLayout";
+import Page from "../../../../components/layouts/Page";
+import NavTabs from "../../../../features/dashboard/admin/components/NavTabs";
+import { toWeekString } from "../../../../lib/utils";
+import WeekCard from "../../../../features/dashboard/admin/planner/components/WeekCard";
+import InfoPage from "../../../../pages/InfoPage";
+import { loadPlannerYearData } from "../../../../features/dashboard/admin/planner/queries";
 
-type Props = {
-  user: AuthUser | null;
-  year: number;
-  weekStarts: Date[];
-  currentPath: string;
-};
+export const GET = createRoute(async (c) => {
+  const user = await getUser(c);
+  const year = Number(c.req.query("year") ?? new Date().getFullYear());
+  const weekStarts = getWeekStarts(year);
+  const currentPath = c.req.path;
 
-const PlannerPage = async ({ user, year, weekStarts, currentPath }: Props) => {
   const {
     botwByWeekStart,
     featuredByWeekStart,
@@ -26,7 +29,9 @@ const PlannerPage = async ({ user, year, weekStarts, currentPath }: Props) => {
   } = await loadPlannerYearData(year);
 
   if (artistLoadError || publisherLoadError) {
-    return <ErrorPage errorMessage="Failed to load planner year data" />;
+    return c.html(
+      <InfoPage errorMessage="Failed to load planner year data" user={user} />,
+    );
   }
 
   const alpineAttrs = {
@@ -35,7 +40,7 @@ const PlannerPage = async ({ user, year, weekStarts, currentPath }: Props) => {
       "$ajax('/dashboard/admin/planner', { target: 'planner-grid' })",
   };
 
-  return (
+  return c.html(
     <AppLayout title="BOTW Planner" user={user} currentPath={currentPath}>
       <Page>
         <NavTabs currentPath={currentPath} />
@@ -68,11 +73,9 @@ const PlannerPage = async ({ user, year, weekStarts, currentPath }: Props) => {
             })}
         </div>
       </Page>
-    </AppLayout>
+    </AppLayout>,
   );
-};
-
-export default PlannerPage;
+});
 
 const PlannerHeader = ({ year }: { year: number }) => {
   return (

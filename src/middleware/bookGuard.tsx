@@ -23,7 +23,7 @@ type BookEnv = {
 };
 
 type BookFromSlug = NonNullable<
-  Awaited<ReturnType<typeof getBookBySlug>>
+  Awaited<ReturnType<typeof getBookBySlug>>[1]
 >["book"];
 
 type BookPreviewEnv = { Variables: { book: BookFromSlug } };

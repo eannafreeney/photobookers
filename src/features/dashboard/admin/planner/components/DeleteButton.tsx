@@ -1,4 +1,5 @@
 import Button from "../../../../../components/app/Button";
+import FormDelete from "../../../../../components/forms/FormDelete";
 
 const DeleteButton = ({ action }: { action: string }) => {
   const alpineAttrs = {
@@ -9,16 +10,15 @@ const DeleteButton = ({ action }: { action: string }) => {
   };
 
   return (
-    <form
+    <FormDelete
       action={action}
-      method="post"
       {...alpineAttrs}
       class="inline-block text-sm font-medium text-danger hover:underline"
     >
       <Button variant="outline" color="danger">
         Delete
       </Button>
-    </form>
+    </FormDelete>
   );
 };
 

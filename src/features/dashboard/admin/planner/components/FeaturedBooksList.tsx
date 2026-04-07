@@ -14,7 +14,7 @@ const FeaturedBooksList = ({
 }: FeaturedBooksListProps) => {
   const weekKey = toWeekString(weekStart);
   const hasFiveFeatured = featuredBooks.length === 5;
-  const action = hasFiveFeatured ? "update" : "create";
+  const action = hasFiveFeatured ? "" : "create";
 
   return (
     <div class="mt-3 pt-3 border-t border-outline">
@@ -27,7 +27,7 @@ const FeaturedBooksList = ({
         </ul>
       ) : null}
       <ScheduleButton
-        href={`/dashboard/admin/planner/featured/${action}?week=${weekKey}`}
+        href={`/dashboard/admin/planner/featured/${weekKey}/${action}`}
         text={hasFiveFeatured ? "Edit featured" : "Set 5 featured books"}
       />
     </div>
