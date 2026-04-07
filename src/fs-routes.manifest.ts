@@ -57,7 +57,8 @@ import * as m50 from "./fs-routes/api/books/[bookId]/wishlist";
 import * as m51 from "./fs-routes/api/creators/[creatorId]/follow";
 import * as m52 from "./fs-routes/dashboard/books/[bookId]/publisher";
 import * as m53 from "./fs-routes/dashboard/books/[bookId]";
-import * as m54 from "./fs-routes/interviews/[tokenId]";
+import * as m54 from "./fs-routes/dashboard/creators/[creatorId]";
+import * as m55 from "./fs-routes/interviews/[tokenId]";
 
 export const manifest: Manifest = [
   {
@@ -439,10 +440,17 @@ export const manifest: Manifest = [
     module: m53
   },
   {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/creators/[creatorId].tsx",
+    urlPath: "/dashboard/creators/:creatorId",
+    type: "handler",
+    precedence: 2,
+    module: m54
+  },
+  {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/interviews/[tokenId].tsx",
     urlPath: "/interviews/:tokenId",
     type: "handler",
     precedence: 2,
-    module: m54
+    module: m55
   }
 ];

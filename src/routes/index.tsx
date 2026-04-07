@@ -5,8 +5,8 @@ import { optionalAuthMiddleware } from "../middleware/optionalAuthMiddleware";
 import { useSession } from "@hono/session";
 import { requireAdmin } from "../middleware/requireAdmin";
 // import { app as appRoutes } from "../features/app/routes";
-import { booksDashboardRoutes } from "../features/dashboard/books/routes";
-import { creatorDashboardRoutes } from "../features/dashboard/creators/routes";
+// import { booksDashboardRoutes } from "../features/dashboard/books/routes";
+// import { creatorDashboardRoutes } from "../features/dashboard/creators/routes";
 import { adminBooksDashboardRoutes } from "../features/dashboard/admin/books/routes";
 import { adminUsersDashboardRoutes } from "../features/dashboard/admin/users/routes";
 import { adminClaimsDashboardRoutes } from "../features/dashboard/admin/claims/routes";
@@ -59,8 +59,8 @@ await createRouter(routes, {
 
 // Protected routes (MUST be logged in)
 routes.use("/dashboard/*", requireAuth);
-routes.route("/dashboard/books", booksDashboardRoutes);
-routes.route("/dashboard/creators", creatorDashboardRoutes);
+// routes.route("/dashboard/books", booksDashboardRoutes);
+// routes.route("/dashboard/creators", creatorDashboardRoutes);
 routes.route("/dashboard/messages", messagesDashboardRoutes);
 routes.route("/dashboard/images", imageRoutes);
 routes.route("/claims", claimRoutes);

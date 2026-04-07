@@ -21,7 +21,7 @@ const MessagesListPage = ({ user, creator, currentPath, messages }: Props) => {
             { label: "Dashboard", href: "/dashboard/books" },
             {
               label: creator.displayName,
-              href: `/dashboard/creators/${creator.id}/update`,
+              href: `/dashboard/creators/${creator.id}`,
             },
             { label: "Messages" },
           ]}
