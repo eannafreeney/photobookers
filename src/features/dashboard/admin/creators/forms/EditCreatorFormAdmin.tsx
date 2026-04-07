@@ -6,6 +6,7 @@ import SectionTitle from "../../../../../components/app/SectionTitle";
 import { capitalize } from "../../../../../utils";
 import ValidateDisplayName from "../../../../auth/components/ValidateDisplayName";
 import ValidateWebsite from "../../../../auth/components/ValidateWebsite";
+import FormPost from "../../../../../components/forms/FormPost";
 
 type Props = {
   formValues?: string;
@@ -36,9 +37,8 @@ const EditCreatorFormAdmin = ({
       <SectionTitle>{`${isEditPage ? "Edit" : "Create"} ${capitalize(
         type,
       )} Profile`}</SectionTitle>
-      <form
-        action={`/dashboard/admin/creators/${creatorId}/update`}
-        method="post"
+      <FormPost
+        action={`/dashboard/admin/creators/${creatorId}`}
         {...alpineAttrs}
       >
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
@@ -80,7 +80,7 @@ const EditCreatorFormAdmin = ({
           />
         </div>
         <FormButtons />
-      </form>
+      </FormPost>
     </div>
   );
 };

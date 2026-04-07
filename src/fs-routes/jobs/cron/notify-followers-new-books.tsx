@@ -1,11 +1,10 @@
 import { Context } from "hono";
-import { supabaseAdmin } from "../../lib/supabase";
-import {
-  buildFollowerNotificationEmails,
-  markFollowerNotificationsSent,
-} from "./services";
+import { createRoute } from "hono-fsr";
+import { buildFollowerNotificationEmails } from "../../../features/jobs/services";
+import { supabaseAdmin } from "../../../lib/supabase";
+import { markFollowerNotificationsSent } from "../../../features/jobs/services";
 
-export async function cronNotifyFollowersNewBooks(c: Context) {
+export const POST = createRoute(async (c: Context) => {
   const secret =
     c.req.header("Authorization")?.replace(/^Bearer\s+/i, "") ??
     c.req.query("secret");
@@ -33,4 +32,4 @@ export async function cronNotifyFollowersNewBooks(c: Context) {
 
   await markFollowerNotificationsSent(bookIds);
   return c.json({ ok: true, sent: emails.length, books: bookIds.length });
-}
+});

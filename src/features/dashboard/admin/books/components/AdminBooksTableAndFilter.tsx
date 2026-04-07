@@ -4,7 +4,8 @@ import Card from "../../../../../components/app/Card";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import Link from "../../../../../components/app/Link";
 import Table from "../../../../../components/app/Table";
-import { editIcon } from "../../../../../lib/icons";
+import FormDelete from "../../../../../components/forms/FormDelete";
+import { deleteIcon, editIcon } from "../../../../../lib/icons";
 import { formatDate } from "../../../../../utils";
 import PreviewButton from "../../../../api/components/PreviewButton";
 import {
@@ -32,11 +33,14 @@ const AdminBooksTableAndFilter = async ({
   currentPath,
   user,
 }: Props) => {
-  const result = await getAllBooksAdmin(currentPage, searchQuery, status);
+  const [error, result] = await getAllBooksAdmin(
+    currentPage,
+    searchQuery,
+    status,
+  );
 
-  if (!result?.books) {
-    return <div>No featured books found</div>;
-  }
+  if (error) return <div>{error.reason}</div>;
+  if (!result?.books) return <div>No featured books found</div>;
 
   const { books, totalPages, page } = result;
 
@@ -97,6 +101,12 @@ type BooksTableRowProps = {
 const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
   if (!user) return <></>;
 
+  const alpineAttrs = {
+    "x-init": "true",
+    "x-target": "toast",
+    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+  };
+
   return (
     <tr>
       <Table.BodyRow>
@@ -153,7 +163,14 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
         </a>
       </Table.BodyRow>
       <Table.BodyRow>
-        <DeleteFormButton action={`/dashboard/admin/books/${book.id}/delete`} />
+        <FormDelete
+          action={`/dashboard/admin/books/${book.id}`}
+          {...alpineAttrs}
+        >
+          <button type="submit" class="cursor-pointer hover:text-red-500">
+            {deleteIcon}
+          </button>
+        </FormDelete>
       </Table.BodyRow>
     </tr>
   );

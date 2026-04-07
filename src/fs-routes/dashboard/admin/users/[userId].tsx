@@ -1,32 +1,39 @@
-import AppLayout from "../../../../../components/layouts/AppLayout";
-import Page from "../../../../../components/layouts/Page";
-import { getUserByIdAdmin } from "../services";
-import InfoPage from "../../../../../pages/InfoPage";
-import { AuthUser } from "../../../../../../types";
-import PageTitle from "../../../../../components/app/PageTitle";
-import Card from "../../../../../components/app/Card";
-import Link from "../../../../../components/app/Link";
-import SectionTitle from "../../../../../components/app/SectionTitle";
+import { createRoute } from "hono-fsr";
+import { paramValidator } from "../../../../lib/validator";
+import { userIdSchema } from "../../../../schemas";
+import { getUser } from "../../../../utils";
+import AppLayout from "../../../../components/layouts/AppLayout";
+import Page from "../../../../components/layouts/Page";
+import PageTitle from "../../../../components/app/PageTitle";
+import SectionTitle from "../../../../components/app/SectionTitle";
+import Card from "../../../../components/app/Card";
+import Link from "../../../../components/app/Link";
+import {
+  deleteUserByIdAdmin,
+  getUserByIdAdmin,
+} from "../../../../features/dashboard/admin/users/services";
+import InfoPage from "../../../../pages/InfoPage";
+import Alert from "../../../../components/app/Alert";
+import { dispatchEvents } from "../../../../lib/disatchEvents";
+import { showErrorAlert } from "../../../../lib/alertHelpers";
 
-type Props = {
-  userId: string;
-  user: AuthUser;
-};
+export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
+  const userId = c.req.valid("param").userId;
+  const sessionUser = await getUser(c);
 
-const UserPageAdmin = async ({ userId, user: sessionUser }: Props) => {
   const [error, viewedUser] = await getUserByIdAdmin(userId, {
     withActivity: true,
   });
 
   if (error)
-    return <InfoPage errorMessage={error?.reason} user={sessionUser} />;
+    return c.html(<InfoPage errorMessage={error?.reason} user={sessionUser} />);
 
   const likedBooks = viewedUser?.likedBooks ?? [];
   const wishlistedBooks = viewedUser?.wishlistedBooks ?? [];
   const collectedBooks = viewedUser?.collectedBooks ?? [];
   const followedCreators = viewedUser?.followedCreators ?? [];
 
-  return (
+  return c.html(
     <AppLayout title="Admin Dashboard" user={sessionUser}>
       <Page>
         <PageTitle title={viewedUser?.email} user={sessionUser} />
@@ -197,8 +204,19 @@ const UserPageAdmin = async ({ userId, user: sessionUser }: Props) => {
           </div>
         )}
       </Page>
-    </AppLayout>
+    </AppLayout>,
   );
-};
+});
 
-export default UserPageAdmin;
+export const DELETE = createRoute(paramValidator(userIdSchema), async (c) => {
+  const userId = c.req.valid("param").userId;
+  const [err] = await deleteUserByIdAdmin(userId);
+  if (err) return showErrorAlert(c, err.reason);
+
+  return c.html(
+    <>
+      <Alert type="success" message="User deleted!" />
+      {dispatchEvents(["users:updated"])}
+    </>,
+  );
+});

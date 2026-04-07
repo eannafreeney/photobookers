@@ -39,7 +39,7 @@ export const GET = createRoute(
         user={user}
         isPreview
         currentPath={currentPath}
-        adminEditHref={`/dashboard/admin/books/${book.id}/update`}
+        adminEditHref={`/dashboard/admin/books/${book.id}`}
       >
         <Page>
           <BookDetail
