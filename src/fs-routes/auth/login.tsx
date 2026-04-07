@@ -39,16 +39,15 @@ export const POST = createRoute(
     const redirectUrl = c.req.valid("param").redirectUrl;
     const email = formData.email as string;
     const password = formData.password as string;
-    const result = await loginAndSetCookies(c, email, password);
+    const [loginErr, login] = await loginAndSetCookies(c, email, password);
 
     const safeRedirectUrl =
       redirectUrl && redirectUrl !== "undefined" ? redirectUrl : "/";
 
-    if ("error" in result)
-      return showErrorAlert(c, "Invalid email or password", 401);
+    if (loginErr) return showErrorAlert(c, "Invalid email or password", 401);
 
     const [wasForcedResetPasswordError, wasForcedResetPassword] =
-      await checkIfUserWasForcedToResetPassword(result.userId);
+      await checkIfUserWasForcedToResetPassword(login.userId);
     if (wasForcedResetPasswordError)
       return showErrorAlert(c, wasForcedResetPasswordError.reason);
 

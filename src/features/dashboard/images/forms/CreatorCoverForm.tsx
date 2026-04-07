@@ -2,18 +2,15 @@ import Button from "../../../../components/app/Button";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import FileUploadInput from "../../../../components/forms/FileUpload";
 import ImagePreview from "../../../../components/forms/ImagePreview";
-import { AuthUser } from "../../../../../types";
-import { canUploadImage } from "../../../../lib/permissions";
 import { Creator } from "../../../../db/schema";
 import DragAndDropArea from "../components/DragAndDropArea";
 
 type Props = {
   initialUrl: string | null;
   creator: Creator;
-  user: AuthUser;
 };
 
-const CreatorCoverForm = ({ initialUrl, creator, user }: Props) => {
+const CreatorCoverForm = ({ initialUrl, creator }: Props) => {
   const initialUrlString = initialUrl ? JSON.stringify(initialUrl) : null;
 
   const alpineAttrs = {
@@ -21,7 +18,7 @@ const CreatorCoverForm = ({ initialUrl, creator, user }: Props) => {
     "x-target": "toast nav-avatar",
     "x-target.error": "toast",
     "@ajax:before": "onBefore()",
-    "@ajax:success": "onSuccess()",
+    "@ajax:success": "onSuccess(), $dispatch('avatar:updated')",
     "@ajax:error": "onError()",
   };
 

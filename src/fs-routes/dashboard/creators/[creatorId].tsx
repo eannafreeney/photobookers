@@ -48,7 +48,6 @@ export const GET = createRoute(
               <CreatorImageForm
                 initialUrl={creator?.coverUrl ?? null}
                 creator={creator}
-                user={user}
               />
             </div>
             <div class="hidden md:block w-px shrink-0 bg-outline self-stretch" />

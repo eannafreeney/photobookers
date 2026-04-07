@@ -27,7 +27,6 @@ routes.use(
   }),
 );
 
-// Apply optional auth to ALL routes (loads user if logged in)
 routes.use("*", optionalAuthMiddleware);
 routes.use("*", methodOverride({ app: routes, form: "_method" }));
 
@@ -36,34 +35,3 @@ await createRouter(routes, {
   basePath: "/",
   debug: true,
 });
-
-// Public routes
-// routes.route("/", appRoutes);
-// routes.route("/interviews", interviewRoutes);
-
-// Protected routes (MUST be logged in)
-// routes.use("/dashboard/*", requireAuth);
-// routes.route("/dashboard/books", booksDashboardRoutes);
-// routes.route("/dashboard/creators", creatorDashboardRoutes);
-// routes.route("/dashboard/messages", messagesDashboardRoutes);
-// routes.route("/dashboard/images", imageRoutes);
-// routes.route("/claims", claimRoutes);
-
-// API routes
-// routes.route("/api", apiRoutes);
-
-// Jobs routes
-// routes.route("/jobs", jobsRoutes);
-
-// Admin routes
-// routes.use("/dashboard/admin/*", requireAdmin);
-// routes.route("/dashboard/admin/books", adminBooksDashboardRoutes);
-// routes.route("/dashboard/admin/users", adminUsersDashboardRoutes);
-// routes.route("/dashboard/admin/claims", adminClaimsDashboardRoutes);
-// routes.route("/dashboard/admin/creators", adminCreatorsDashboardRoutes);
-// routes.route("/dashboard/admin/planner", adminPlannerDashboardRoutes);
-// routes.route("/dashboard/admin/interviews", adminInterviewsDashboardRoutes);
-// routes.route(
-//   "/dashboard/admin/notifications",
-//   adminNotificationsDashboardRoutes,
-// );
