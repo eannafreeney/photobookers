@@ -56,7 +56,6 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
             <CreatorImageForm
               initialUrl={creator?.coverUrl ?? null}
               creator={creator}
-              user={user}
             />
           </div>
           <div
