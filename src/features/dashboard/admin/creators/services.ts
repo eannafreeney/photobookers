@@ -37,19 +37,23 @@ export const removeCreatorOwnerAdminDB = async (creatorId: string) => {
   }
 };
 
-export const getAllUserProfilesAdmin = async (): Promise<
-  Pick<User, "id" | "email" | "firstName" | "lastName">[]
-> => {
-  return await db
-    .select({
-      id: users.id,
-      email: users.email,
-      firstName: users.firstName,
-      lastName: users.lastName,
-    })
-    .from(users)
-    .leftJoin(creators, eq(creators.ownerUserId, users.id))
-    .where(isNull(creators.id));
+export const getAllUserProfilesAdmin = async () => {
+  try {
+    const rows = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+      })
+      .from(users)
+      .leftJoin(creators, eq(creators.ownerUserId, users.id))
+      .where(isNull(creators.id));
+    return ok(rows ?? []);
+  } catch (error) {
+    console.error("Failed to get all user profiles", error);
+    return err({ reason: "Failed to get all user profiles", cause: error });
+  }
 };
 
 export const getAllCreatorProfilesByTypeAdmin = async (
@@ -177,10 +181,12 @@ export const deleteCreatorByIdAdmin = async (creatorId: string) => {
       .delete(creators)
       .where(eq(creators.id, creatorId))
       .returning();
-    return deletedCreator;
+    if (!deletedCreator)
+      return err({ reason: "Creator not found", cause: undefined });
+    return ok(deletedCreator);
   } catch (error) {
     console.error("Failed to delete creator", error);
-    return null;
+    return err({ reason: "Failed to delete creator", cause: error });
   }
 };
 

@@ -36,7 +36,7 @@ const PageTitle = ({ title, creator, user }: PageTitleProps) => {
         </div>
       </div>
       {canEdit && (
-        <a href={`/dashboard/admin/creators/${creator?.id}/update`}>
+        <a href={`/dashboard/admin/creators/${creator?.id}`}>
           <Button variant="outline" color="secondary" width="sm">
             Edit
           </Button>

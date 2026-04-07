@@ -7,6 +7,8 @@ import DeleteFormButton from "../../components/DeleteFormButton";
 import { getAllUsersAdmin } from "../services";
 import CreatorStatusBadge from "../../components/CreatorStatusBadge";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
+import FormDelete from "../../../../../components/forms/FormDelete";
+import { deleteIcon } from "../../../../../lib/icons";
 
 type Props = {
   searchQuery?: string;
@@ -19,11 +21,8 @@ const UsersTableAdmin = async ({
   currentPage,
   currentPath,
 }: Props) => {
-  const result = await getAllUsersAdmin(searchQuery, currentPage);
-
-  if (!result?.users) {
-    return <div>No users found</div>;
-  }
+  const [error, result] = await getAllUsersAdmin(searchQuery, currentPage);
+  if (error) return <div>{error.reason}</div>;
 
   const { users, totalPages, page } = result;
 
@@ -84,7 +83,9 @@ const UsersTableAdmin = async ({
 
 export default UsersTableAdmin;
 
-type UserRow = Awaited<ReturnType<typeof getAllUsersAdmin>>["users"][number];
+type UserRow = NonNullable<
+  Awaited<ReturnType<typeof getAllUsersAdmin>>[1]
+>["users"][number];
 
 type RowProps = {
   user: UserRow;
@@ -92,6 +93,12 @@ type RowProps = {
 
 const UserTableRow = ({ user }: RowProps) => {
   if (!user) return <></>;
+
+  const alpineAttrs = {
+    "x-init": "true",
+    "x-target": "toast",
+    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+  };
 
   return (
     <tr>
@@ -128,7 +135,14 @@ const UserTableRow = ({ user }: RowProps) => {
         </Link>
       </Table.BodyRow>
       <Table.BodyRow>
-        <DeleteFormButton action={`/dashboard/admin/users/${user.id}/delete`} />
+        <FormDelete
+          action={`/dashboard/admin/users/${user.id}`}
+          {...alpineAttrs}
+        >
+          <button type="submit" class="cursor-pointer hover:text-red-500">
+            {deleteIcon}
+          </button>
+        </FormDelete>
       </Table.BodyRow>
     </tr>
   );

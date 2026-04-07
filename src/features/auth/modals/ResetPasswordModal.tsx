@@ -12,7 +12,13 @@ const ResetPasswordModal = () => {
 
   return (
     <Modal title="Reset Password">
-      <form action="/auth/reset-password" method="post" {...alpineAttrs}>
+      <form
+        action="/auth/reset-password"
+        method="post"
+        {...alpineAttrs}
+        class="flex flex-col gap-4"
+      >
+        <input type="hidden" name="isModal" value="true" />
         <ResetPasswordForm
           buttonText="Reset Password"
           loadingText="Resetting..."

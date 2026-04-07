@@ -26,6 +26,7 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
     )`,
     "x-on:submit": "submitForm($event)",
     "x-target": "toast",
+    "x-target.away": "_top",
     "x-target.error": "toast",
     "x-on:ajax:error": "isSubmitting = false",
     "x-on:ajax:success": "onSuccess()",
@@ -37,7 +38,7 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
       <form
         action={
           isEditPage
-            ? `/dashboard/admin/books/${bookId}/update`
+            ? `/dashboard/admin/books/${bookId}`
             : `/dashboard/admin/books/create`
         }
         method="post"

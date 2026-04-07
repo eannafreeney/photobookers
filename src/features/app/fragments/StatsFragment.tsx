@@ -1,7 +1,9 @@
 import { getHomepageStats } from "../services";
 
 const StatsFragment = async () => {
-  const stats = await getHomepageStats();
+  const [error, stats] = await getHomepageStats();
+  if (error) return <div>Error: {error.reason}</div>;
+
   return (
     <div id="stats-fragment" class="flex items-center gap-4 justify-evenly">
       <a href="/publishers">

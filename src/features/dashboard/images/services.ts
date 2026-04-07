@@ -13,10 +13,15 @@ export const updateCreatorCoverImage = async (
       .set({ coverUrl })
       .where(eq(creators.id, creatorId))
       .returning();
-    return updatedCreator;
+    if (!updatedCreator)
+      return err({
+        reason: "Failed to update artist cover image",
+        cause: undefined,
+      });
+    return ok(updatedCreator);
   } catch (error) {
     console.error("Failed to update artist cover image", error);
-    return null;
+    return err({ reason: "Failed to update artist cover image", cause: error });
   }
 };
 
@@ -52,10 +57,16 @@ export const updateBookCoverImage = async (
       .set({ coverUrl })
       .where(eq(books.id, bookId))
       .returning();
-    return updatedBook;
+
+    if (!updatedBook)
+      return err({
+        reason: "Failed to update book cover image",
+        cause: undefined,
+      });
+    return ok(updatedBook);
   } catch (error) {
     console.error("Failed to update book cover image", error);
-    return null;
+    return err({ reason: "Failed to update book cover image", cause: error });
   }
 };
 

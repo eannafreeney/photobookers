@@ -35,7 +35,7 @@ const CommentModal = ({
         method="post"
         action={
           isEditMode
-            ? `/api/books/${bookId}/update/${commentId}`
+            ? `/api/books/${bookId}/comments/${commentId}`
             : `/api/books/${bookId}/comments`
         }
         class="flex flex-col gap-4"
@@ -45,11 +45,16 @@ const CommentModal = ({
           <textarea
             class="w-full bg-surface-alt px-2.5 py-2 text-base md:text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
             name="body"
-            rows={isEditMode ? 8 : 3}
             x-model="body"
+            x-autosize
             required
           />
         </label>
+        <input
+          type="hidden"
+          name="_method"
+          value={isEditMode ? "PATCH" : "POST"}
+        />
         <Button
           variant="solid"
           color="primary"

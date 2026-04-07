@@ -1,0 +1,103 @@
+import { createRoute } from "hono-fsr";
+import { getUser } from "../../../../utils";
+import {
+  getWeekNumber,
+  getWeekStarts,
+  isWeekInPast,
+} from "../../../../features/dashboard/admin/planner/utils";
+import AppLayout from "../../../../components/layouts/AppLayout";
+import Page from "../../../../components/layouts/Page";
+import NavTabs from "../../../../features/dashboard/admin/components/NavTabs";
+import { toWeekString } from "../../../../lib/utils";
+import WeekCard from "../../../../features/dashboard/admin/planner/components/WeekCard";
+import InfoPage from "../../../../pages/InfoPage";
+import { loadPlannerYearData } from "../../../../features/dashboard/admin/planner/queries";
+
+export const GET = createRoute(async (c) => {
+  const user = await getUser(c);
+  const year = Number(c.req.query("year") ?? new Date().getFullYear());
+  const weekStarts = getWeekStarts(year);
+  const currentPath = c.req.path;
+
+  const {
+    botwByWeekStart,
+    featuredByWeekStart,
+    artistByWeekStart,
+    artistLoadError,
+    publisherByWeekStart,
+    publisherLoadError,
+  } = await loadPlannerYearData(year);
+
+  if (artistLoadError || publisherLoadError) {
+    return c.html(
+      <InfoPage errorMessage="Failed to load planner year data" user={user} />,
+    );
+  }
+
+  const alpineAttrs = {
+    "x-init": true,
+    "x-on:planner:updated.window":
+      "$ajax('/dashboard/admin/planner', { target: 'planner-grid' })",
+  };
+
+  return c.html(
+    <AppLayout title="BOTW Planner" user={user} currentPath={currentPath}>
+      <Page>
+        <NavTabs currentPath={currentPath} />
+        <PlannerHeader year={year} />
+        <div
+          id="planner-grid"
+          class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          {...alpineAttrs}
+        >
+          {weekStarts
+            .filter((weekStart) => !isWeekInPast(weekStart))
+            .map((weekStart) => {
+              const key = toWeekString(weekStart);
+              const botw = botwByWeekStart.get(key) ?? null;
+              const featuredBooks = featuredByWeekStart.get(key) ?? [];
+              const artistOfTheWeek = artistByWeekStart?.get(key) ?? null;
+              const publisherOfTheWeek = publisherByWeekStart?.get(key) ?? null;
+
+              return (
+                <WeekCard
+                  key={key}
+                  weekStart={weekStart}
+                  weekNumber={getWeekNumber(weekStart)}
+                  bookOfTheWeek={botw}
+                  featuredBooks={featuredBooks}
+                  artistOfTheWeek={artistOfTheWeek}
+                  publisherOfTheWeek={publisherOfTheWeek}
+                />
+              );
+            })}
+        </div>
+      </Page>
+    </AppLayout>,
+  );
+});
+
+const PlannerHeader = ({ year }: { year: number }) => {
+  return (
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+      <h1 class="text-xl font-semibold text-on-surface-strong">
+        Book of the Week – {year}
+      </h1>
+      <div class="flex items-center gap-2">
+        <a
+          href={`/dashboard/admin/planner?year=${year - 1}`}
+          class="rounded border border-outline bg-surface-alt px-3 py-1.5 text-sm font-medium text-on-surface hover:bg-surface"
+        >
+          ← {year - 1}
+        </a>
+        <span class="text-sm text-on-surface">{year}</span>
+        <a
+          href={`/dashboard/admin/planner?year=${year + 1}`}
+          class="rounded border border-outline bg-surface-alt px-3 py-1.5 text-sm font-medium text-on-surface hover:bg-surface"
+        >
+          {year + 1} →
+        </a>
+      </div>
+    </div>
+  );
+};

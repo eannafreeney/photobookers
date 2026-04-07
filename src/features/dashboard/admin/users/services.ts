@@ -35,32 +35,32 @@ export const getAllUsersAdmin = async (
   currentPage: number = 1,
   defaultLimit = 30,
 ) => {
-  let userIds: string[] = [];
-  if (searchQuery) {
-    const rows = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(ilike(users.email, `%${searchQuery}%`));
-    userIds = rows.map((r) => r.id);
-  }
-
-  const searchCondition =
-    searchQuery && searchQuery.trim() !== ""
-      ? ilike(users.email, `%${searchQuery}%`)
-      : undefined;
-
-  const [{ value: totalCount = 0 }] = await db
-    .select({ value: count() })
-    .from(users)
-    .where(searchCondition);
-
-  const { page, limit, offset, totalPages } = getPagination(
-    currentPage,
-    totalCount,
-    defaultLimit,
-  );
-
   try {
+    let userIds: string[] = [];
+    if (searchQuery) {
+      const rows = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(ilike(users.email, `%${searchQuery}%`));
+      userIds = rows.map((r) => r.id);
+    }
+
+    const searchCondition =
+      searchQuery && searchQuery.trim() !== ""
+        ? ilike(users.email, `%${searchQuery}%`)
+        : undefined;
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(users)
+      .where(searchCondition);
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
     const usersData = await db.query.users.findMany({
       orderBy: [desc(users.createdAt)],
       columns: {
@@ -78,10 +78,10 @@ export const getAllUsersAdmin = async (
         },
       },
     });
-    return { users: usersData ?? [], totalPages, page };
+    return ok({ users: usersData ?? [], totalPages, page });
   } catch (error) {
     console.error("Failed to get all users", error);
-    return { users: [], totalPages: 0, page: 1 };
+    return err({ reason: "Failed to get all users", cause: error });
   }
 };
 
@@ -128,20 +128,26 @@ export const createUserWithAuthId = async (
   }
 };
 
-export const deleteUserById = async (userId: string) => {
-  return await db.transaction(async (tx) => {
-    await tx
-      .update(creators)
-      .set({ ownerUserId: null })
-      .where(eq(creators.ownerUserId, userId));
-    await tx.delete(creatorClaims).where(eq(creatorClaims.userId, userId));
-    await tx.delete(follows).where(eq(follows.followerUserId, userId));
-    const result = await tx
-      .delete(users)
-      .where(eq(users.id, userId))
-      .returning();
-    return result;
-  });
+export const deleteUserByIdAdmin = async (userId: string) => {
+  try {
+    const result = await db.transaction(async (tx) => {
+      await tx
+        .update(creators)
+        .set({ ownerUserId: null })
+        .where(eq(creators.ownerUserId, userId));
+      await tx.delete(creatorClaims).where(eq(creatorClaims.userId, userId));
+      await tx.delete(follows).where(eq(follows.followerUserId, userId));
+      const result = await tx
+        .delete(users)
+        .where(eq(users.id, userId))
+        .returning();
+      return result;
+    });
+    return ok(result);
+  } catch (error) {
+    console.error("Failed to delete user by id", error);
+    return err({ reason: "Failed to delete user by id", cause: error });
+  }
 };
 
 export const createAuthUser = async (

@@ -7,13 +7,14 @@ import { findFollowersCount } from "../../../../../db/queries";
 import { Creator } from "../../../../../db/schema";
 import { capitalize, formatDate } from "../../../../../utils";
 import CreatorStatusBadge from "../../components/CreatorStatusBadge";
-import DeleteFormButton from "../../components/DeleteFormButton";
 import CreatorTypeForm from "../forms/CreatorTypeForm";
 import { getAllCreatorProfilesByTypeAdmin } from "../services";
 import SendWelcomeEmailButton from "./SendWelcomeEmailButton";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import OwnerCell from "./OwnerCell";
 import SendInterviewButton from "./SendInterviewButton";
+import FormDelete from "../../../../../components/forms/FormDelete";
+import { deleteIcon } from "../../../../../lib/icons";
 
 type Props = {
   type?: "artist" | "publisher" | undefined;
@@ -95,6 +96,12 @@ type CreatorsTableRowProps = {
 };
 
 const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
+  const alpineAttrs = {
+    "x-init": "true",
+    "x-target": "toast",
+    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+  };
+
   return (
     <tr>
       <Table.BodyRow>
@@ -135,16 +142,21 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
         <SendInterviewButton creator={creator} />
       </Table.BodyRow>
       <Table.BodyRow>
-        <a href={`/dashboard/admin/creators/${creator.id}/update`}>
+        <a href={`/dashboard/admin/creators/${creator.id}`}>
           <Button variant="outline" color="inverse">
             <span>Edit</span>
           </Button>
         </a>
       </Table.BodyRow>
       <Table.BodyRow>
-        <DeleteFormButton
-          action={`/dashboard/admin/creators/${creator.id}/delete`}
-        />
+        <FormDelete
+          action={`/dashboard/admin/creators/${creator.id}`}
+          {...alpineAttrs}
+        >
+          <button type="submit" class="cursor-pointer hover:text-red-500">
+            {deleteIcon}
+          </button>
+        </FormDelete>
       </Table.BodyRow>
     </tr>
   );

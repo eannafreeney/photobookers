@@ -131,7 +131,7 @@ const DropDownMenu = ({
           </NavLink>
           {user.creator.status === "verified" && (
             <NavLink
-              href={`/dashboard/creators/${user?.creator?.id}/update`}
+              href={`/dashboard/creators/${user?.creator?.id}`}
               currentPath={currentPath}
             >
               {`Edit ${

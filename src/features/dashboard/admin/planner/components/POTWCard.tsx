@@ -30,7 +30,7 @@ const PublisherOfTheWeek = ({
         />
       ) : (
         <ScheduleButton
-          href={`/dashboard/admin/planner/publisher-of-the-week/create?week=${weekKey}`}
+          href={`/dashboard/admin/planner/publisher-of-the-week/${weekKey}/create`}
           text="Schedule publisher of the week"
         />
       )}
@@ -70,13 +70,6 @@ const POTWCardContent = ({
         <p class="text-sm font-semibold text-on-surface-strong">
           {publisher.displayName}
         </p>
-        {/* {publisherOfTheWeek?.text ? (
-          <p class="text-xs text-on-surface-weak line-clamp-2 mt-1">
-            {publisherOfTheWeek.text}
-          </p>
-        ) : (
-          <p class="text-sm font-medium text-danger">Text missing</p>
-        )} */}
       </div>
     </div>
     <div class="flex items-center gap-2 mt-2">
@@ -86,7 +79,7 @@ const POTWCardContent = ({
         </Button>
       </Link>
       <a
-        href={`/dashboard/admin/planner/publisher-of-the-week/update?week=${weekKey}`}
+        href={`/dashboard/admin/planner/publisher-of-the-week/${weekKey}`}
         x-target="modal-root"
       >
         <Button variant="outline" color="primary">
@@ -94,7 +87,7 @@ const POTWCardContent = ({
         </Button>
       </a>
       <DeleteButton
-        action={`/dashboard/admin/planner/publisher-of-the-week/delete?week=${weekKey}`}
+        action={`/dashboard/admin/planner/publisher-of-the-week/${weekKey}`}
       />
     </div>
   </>

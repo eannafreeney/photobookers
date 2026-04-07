@@ -42,28 +42,6 @@ export function registerBookCoverForm() {
           const file = (e.target as HTMLInputElement).files?.[0];
           if (!file) return;
           await this.processFile(file);
-          // const file = (e.target as HTMLInputElement).files?.[0];
-          // if (!file) return;
-
-          // // Show preview immediately with original
-          // this.previewUrl = URL.createObjectURL(file);
-          // this.error = null;
-          // this.isCompressing = true;
-
-          // try {
-          //   // Compress the image
-          //   const compressed = await compressImage(file, "cover");
-          //   this.selectedFile = compressed;
-
-          //   // Update preview with compressed version
-          //   URL.revokeObjectURL(this.previewUrl);
-          //   this.previewUrl = URL.createObjectURL(compressed);
-          // } catch (err) {
-          //   this.error = "Failed to process image";
-          //   this.selectedFile = file; // Fallback to original
-          // } finally {
-          //   this.isCompressing = false;
-          // }
         },
 
         onDragEnter(e: DragEvent) {

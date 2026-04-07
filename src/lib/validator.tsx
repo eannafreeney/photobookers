@@ -2,13 +2,17 @@ import z from "zod";
 import { validator } from "hono/validator";
 import ErrorPage from "../pages/error/errorPage";
 import { getUser } from "../utils";
+import InfoPage from "../pages/InfoPage";
+import { HTTPException } from "hono/http-exception";
 
 export const formValidator = <T extends z.ZodSchema>(schema: T) => {
   return validator("form", async (formData, c) => {
     const result = schema.safeParse(formData);
     if (!result.success) {
       const user = await getUser(c);
-      return <ErrorPage errorMessage="Schema validation failed" user={user} />;
+      return c.html(
+        <ErrorPage errorMessage="Schema validation failed" user={user} />,
+      );
     }
 
     return result.data as z.infer<T>;
@@ -20,7 +24,8 @@ export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
     const result = schema.safeParse(params);
     if (!result.success) {
       const user = await getUser(c);
-      return <ErrorPage errorMessage="Invalid parameters" user={user} />;
+      console.log("Invalid parameters", result.error);
+      return c.html(<InfoPage errorMessage="Invalid parameters" user={user} />);
     }
     return result.data as z.infer<T>;
   });
@@ -31,7 +36,9 @@ export const queryValidator = <T extends z.ZodSchema>(schema: T) => {
     const result = schema.safeParse(query);
     if (!result.success) {
       const user = await getUser(c);
-      return <ErrorPage errorMessage="Invalid query parameters" user={user} />;
+      return c.html(
+        <ErrorPage errorMessage="Invalid query parameters" user={user} />,
+      );
     }
     return result.data as z.infer<T>;
   });

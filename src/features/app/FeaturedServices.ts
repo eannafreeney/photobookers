@@ -3,6 +3,7 @@ import { featuredBooksOfTheWeek } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { BOOK_CARD_COLUMNS } from "../../constants/queries";
 import { CREATOR_CARD_COLUMNS } from "../../constants/queries";
+import { err, ok } from "../../lib/result";
 
 function toWeekStart(d: Date): Date {
   const date = new Date(
@@ -16,21 +17,28 @@ function toWeekStart(d: Date): Date {
 
 export async function getThisWeeksFeaturedBooks() {
   const weekStart = toWeekStart(new Date());
-  return db.query.featuredBooksOfTheWeek.findMany({
-    where: eq(featuredBooksOfTheWeek.weekStart, weekStart),
-    orderBy: [featuredBooksOfTheWeek.position],
-    with: {
-      book: {
-        columns: BOOK_CARD_COLUMNS,
-        with: {
-          artist: { columns: CREATOR_CARD_COLUMNS },
-          publisher: { columns: CREATOR_CARD_COLUMNS },
-          images: {
-            columns: { id: true, imageUrl: true },
-            orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+  try {
+    const featuredBooks = await db.query.featuredBooksOfTheWeek.findMany({
+      where: eq(featuredBooksOfTheWeek.weekStart, weekStart),
+      orderBy: [featuredBooksOfTheWeek.position],
+      with: {
+        book: {
+          columns: BOOK_CARD_COLUMNS,
+          with: {
+            artist: { columns: CREATOR_CARD_COLUMNS },
+            publisher: { columns: CREATOR_CARD_COLUMNS },
+            images: {
+              columns: { id: true, imageUrl: true },
+              orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+            },
           },
         },
       },
-    },
-  });
+    });
+    if (!featuredBooks) return err({ reason: "Featured books not found" });
+    return ok({ featuredBooks });
+  } catch (error) {
+    console.error("Failed to get this weeks featured books", error);
+    return err({ reason: "Failed to get this weeks featured books", error });
+  }
 }

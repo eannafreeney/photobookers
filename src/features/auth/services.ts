@@ -11,6 +11,22 @@ import z from "zod";
 import { AuthSession } from "@supabase/supabase-js";
 import { registerAndClaimFormSchema } from "../claims/schema";
 
+export const checkIfUserWasForcedToResetPassword = async (userId: string) => {
+  try {
+    const dbUser = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { mustResetPassword: true },
+    });
+    if (!dbUser) return err({ reason: "User not found", cause: undefined });
+    return ok(dbUser?.mustResetPassword === true);
+  } catch (error) {
+    return err({
+      reason: "Failed to check if user was forced to reset password",
+      cause: error,
+    });
+  }
+};
+
 export const setCookiesAndVerifyUser = async (
   c: Context,
   session: AuthSession,
