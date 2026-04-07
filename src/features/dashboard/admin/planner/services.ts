@@ -109,7 +109,6 @@ function toWeekStart(d: Date): Date {
 export async function setBookOfTheWeek(params: {
   weekStart: Date;
   bookId: string;
-  text: string;
 }) {
   const weekStart = toWeekStart(params.weekStart);
   try {
@@ -118,7 +117,6 @@ export async function setBookOfTheWeek(params: {
       .values({
         weekStart,
         bookId: params.bookId,
-        text: params.text,
       })
       .returning();
     if (!row) return err({ reason: "Failed to set book of the week" });
@@ -130,27 +128,109 @@ export async function setBookOfTheWeek(params: {
   }
 }
 
-export async function updateBookOfTheWeek(params: {
-  weekStart: Date;
-  bookId: string;
-  text: string;
-}) {
-  const weekStart = toWeekStart(params.weekStart);
+export async function updateBookOfTheWeekByWeekStart(
+  weekStart: Date,
+  patch: {
+    bookId?: string;
+    artistEmailSentAt?: Date | null;
+    publisherEmailSentAt?: Date | null;
+  },
+) {
+  const normalizedWeekStart = toWeekStart(weekStart);
+  const updateData: {
+    bookId?: string;
+    artistEmailSentAt?: Date | null;
+    publisherEmailSentAt?: Date | null;
+    updatedAt: Date;
+  } = { updatedAt: new Date() };
+
+  if (patch.bookId !== undefined) updateData.bookId = patch.bookId;
+  if (patch.artistEmailSentAt !== undefined)
+    updateData.artistEmailSentAt = patch.artistEmailSentAt;
+  if (patch.publisherEmailSentAt !== undefined)
+    updateData.publisherEmailSentAt = patch.publisherEmailSentAt;
+
   try {
     const [row] = await db
-      .insert(bookOfTheWeek)
-      .values({
-        weekStart,
-        bookId: params.bookId,
-        text: params.text,
-      })
+      .update(bookOfTheWeek)
+      .set(updateData)
+      .where(eq(bookOfTheWeek.weekStart, normalizedWeekStart))
       .returning();
-    if (!row) return err({ reason: "Failed to update book of the week" });
+    if (!row) return err({ reason: "Book of the week not found" });
     return ok(row);
   } catch (e) {
-    // uniqueDate or uniqueBook violation
-    console.error("setBookOfTheWeek", e);
+    console.error("updateBookOfTheWeekByWeekStart", e);
     return err({ reason: "Failed to update book of the week" });
+  }
+}
+
+export async function updateArtistOfTheWeekByWeekStart(weekStart: Date) {
+  const normalizedWeekStart = toWeekStart(weekStart);
+
+  try {
+    const [row] = await db
+      .update(artistOfTheWeek)
+      .set({ emailSentAt: new Date(), updatedAt: new Date() })
+      .where(eq(artistOfTheWeek.weekStart, normalizedWeekStart))
+      .returning();
+    if (!row) return err({ reason: "Artist of the week not found" });
+    return ok(row);
+  } catch (e) {
+    console.error("updateArtistOfTheWeekByWeekStart", e);
+    return err({ reason: "Failed to update artist of the week" });
+  }
+}
+
+export async function updatePublisherOfTheWeekByWeekStart(weekStart: Date) {
+  const normalizedWeekStart = toWeekStart(weekStart);
+
+  try {
+    const [row] = await db
+      .update(publisherOfTheWeek)
+      .set({ emailSentAt: new Date(), updatedAt: new Date() })
+      .where(eq(publisherOfTheWeek.weekStart, normalizedWeekStart))
+      .returning();
+    if (!row) return err({ reason: "Publisher of the week not found" });
+    return ok(row);
+  } catch (e) {
+    console.error("updatePublisherOfTheWeekByWeekStart", e);
+    return err({ reason: "Failed to update publisher of the week" });
+  }
+}
+
+export async function updateFeaturedBookOfTheWeekByWeekStart(
+  weekStart: Date,
+  patch: {
+    bookId?: string;
+    artistEmailSentAt?: Date | null;
+    publisherEmailSentAt?: Date | null;
+  },
+) {
+  const normalizedWeekStart = toWeekStart(weekStart);
+  const updateData: {
+    bookId?: string;
+    artistEmailSentAt?: Date | null;
+    publisherEmailSentAt?: Date | null;
+    updatedAt: Date;
+  } = { updatedAt: new Date() };
+
+  if (patch.bookId !== undefined) updateData.bookId = patch.bookId;
+  if (patch.artistEmailSentAt !== undefined)
+    updateData.artistEmailSentAt = patch.artistEmailSentAt;
+  if (patch.publisherEmailSentAt !== undefined)
+    updateData.publisherEmailSentAt = patch.publisherEmailSentAt;
+
+  try {
+    const [row] = await db
+      .update(featuredBooksOfTheWeek)
+      .set(updateData)
+      .where(eq(featuredBooksOfTheWeek.weekStart, normalizedWeekStart))
+      .returning();
+    if (!row) return err({ reason: "Featured book of the week not found" });
+    return ok(row);
+  } catch (e) {
+    console.error("updateFeaturedBookOfTheWeekByWeekStart", e);
+    return err({ reason: "Failed to update featured book of the week" });
   }
 }
 
@@ -192,6 +272,21 @@ export async function deleteBookOfTheWeekByWeekStart(weekStart: Date) {
   } catch (e) {
     console.error("deleteBookOfTheWeekByIdAdmin", e);
     return err({ reason: "Failed to delete book of the week" });
+  }
+}
+
+export async function deleteFeaturedBooksByWeekStart(weekStart: Date) {
+  try {
+    const [row] = await db
+      .delete(featuredBooksOfTheWeek)
+      .where(eq(featuredBooksOfTheWeek.weekStart, toWeekStart(weekStart)))
+      .returning();
+    if (!row)
+      return err({ reason: "Failed to delete featured books of the week" });
+    return ok(row);
+  } catch (e) {
+    console.error("deleteBookOfTheWeekByIdAdmin", e);
+    return err({ reason: "Failed to delete featured books of the week" });
   }
 }
 
@@ -345,7 +440,6 @@ export async function getArtistsOfTheWeekByWeekStart(year: number) {
 export async function setArtistOfTheWeek(params: {
   weekStart: Date;
   creatorId: string;
-  text: string;
 }) {
   const weekStart = toWeekStart(params.weekStart);
   try {
@@ -354,7 +448,6 @@ export async function setArtistOfTheWeek(params: {
       .values({
         weekStart,
         creatorId: params.creatorId,
-        text: params.text ?? "",
       })
       .returning();
     return row ?? null;
@@ -366,7 +459,6 @@ export async function setArtistOfTheWeek(params: {
 export async function updateArtistOfTheWeek(params: {
   weekStart: Date;
   creatorId: string;
-  text: string;
 }) {
   const weekStart = toWeekStart(params.weekStart);
   try {
@@ -378,7 +470,6 @@ export async function updateArtistOfTheWeek(params: {
       .values({
         weekStart,
         creatorId: params.creatorId,
-        text: params.text ?? "",
       })
       .returning();
     if (!row) return err({ reason: "Failed to update artist of the week" });
@@ -461,7 +552,6 @@ export async function getPublishersOfTheWeekByWeekStart(year: number) {
 export async function setPublisherOfTheWeek(params: {
   weekStart: Date;
   creatorId: string;
-  text: string;
 }) {
   const weekStart = toWeekStart(params.weekStart);
   try {
@@ -470,7 +560,6 @@ export async function setPublisherOfTheWeek(params: {
       .values({
         weekStart,
         creatorId: params.creatorId,
-        text: params.text ?? "",
       })
       .returning();
     if (!row) return err({ reason: "Failed to set publisher of the week" });
@@ -483,7 +572,6 @@ export async function setPublisherOfTheWeek(params: {
 export async function updatePublisherOfTheWeek(params: {
   weekStart: Date;
   creatorId: string;
-  text: string;
 }) {
   const weekStart = toWeekStart(params.weekStart);
   try {
@@ -495,7 +583,6 @@ export async function updatePublisherOfTheWeek(params: {
       .values({
         weekStart,
         creatorId: params.creatorId,
-        text: params.text ?? "",
       })
       .returning();
     if (!row) return err({ reason: "Failed to update publisher of the week" });

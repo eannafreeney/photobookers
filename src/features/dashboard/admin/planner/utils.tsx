@@ -1,10 +1,19 @@
 import Alert from "../../../../components/app/Alert";
+import { Book } from "../../../../db/schema";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { sendEmail } from "../../../../lib/sendEmail";
 import { parseWeekString, toWeekString } from "../../../../lib/utils";
-import { getBookById } from "../../books/services";
-import { generateBOTWNotificationEmail } from "./emails";
+import { getBookById, getBookByIdBasic } from "../../books/services";
+import {
+  generateBOTWNotificationEmail,
+  generateFeaturedBookNotificationEmail,
+} from "./emails";
+import {
+  updateBookOfTheWeekByWeekStart,
+  updateFeaturedBookOfTheWeekByWeekStart,
+} from "./services";
+import { Context } from "hono";
 
 /** All ISO week-start dates (Mondays) for a given year. Returns 52 or 53 dates. */
 export function getWeekStarts(year: number): Date[] {
@@ -61,9 +70,18 @@ export function isWeekInPast(weekStart: Date): boolean {
   return weekStart.getTime() < today.getTime();
 }
 
-export const sendBookOfTheWeekArtistEmail = async (
+export const sendBookOfTheWeekCreatorEmail = async (
   c: any,
-  creator: { displayName: string; email: string },
+  creator: {
+    displayName: string;
+    email: string;
+    id: string;
+    type: "artist" | "publisher";
+    slug: string;
+    ownerUserId: string;
+  },
+  weekStart: string,
+  recipientType: "artist" | "publisher",
   bookId: string,
 ) => {
   const [bookError, book] = await getBookById(bookId);
@@ -77,9 +95,64 @@ export const sendBookOfTheWeekArtistEmail = async (
   );
   if (emailError) return showErrorAlert(c, emailError.reason);
 
+  const updateField =
+    recipientType === "artist" ? "artistEmailSentAt" : "publisherEmailSentAt";
+
+  const [updateError] = await updateBookOfTheWeekByWeekStart(
+    parseWeekString(weekStart),
+    {
+      [updateField]: new Date(),
+    },
+  );
+  if (updateError) return showErrorAlert(c, updateError.reason);
+
   return c.html(
     <>
-      <Alert type="success" message="Email sent to the artist." />
+      <Alert type="success" message="Email Sent" />
+      {dispatchEvents(["planner:updated"])}
+    </>,
+  );
+};
+
+export const sendFeaturedBookCreatorEmail = async (
+  c: Context,
+  weekStart: string,
+  recipientType: "artist" | "publisher",
+  bookId: string,
+  creator: {
+    displayName: string;
+    email: string | null;
+    id: string;
+    type: "artist" | "publisher";
+    slug: string;
+    ownerUserId: string | null;
+  },
+) => {
+  // make smaller query for book
+  const [bookError, book] = await getBookByIdBasic(bookId);
+  if (bookError || !book) return showErrorAlert(c, "Book not found");
+  if (!creator.email) return showErrorAlert(c, "Creator email not found");
+
+  const html = generateFeaturedBookNotificationEmail(creator, book);
+  const [emailError] = await sendEmail(
+    creator.email,
+    `Featured Book: ${book.title}`,
+    html,
+  );
+  if (emailError) return showErrorAlert(c, emailError.reason);
+
+  const updateField =
+    recipientType === "artist" ? "artistEmailSentAt" : "publisherEmailSentAt";
+  const week = parseWeekString(weekStart);
+
+  const [updateError] = await updateFeaturedBookOfTheWeekByWeekStart(week, {
+    [updateField]: new Date(),
+  });
+  if (updateError) return showErrorAlert(c, updateError.reason);
+
+  return c.html(
+    <>
+      <Alert type="success" message="Email Sent" />
       {dispatchEvents(["planner:updated"])}
     </>,
   );

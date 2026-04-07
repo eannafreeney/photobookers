@@ -19,8 +19,7 @@ function toWeekStart(d: Date): Date {
 export async function setBookOfTheWeek(params: {
   weekStart: Date;
   bookId: string;
-  text: string;
-}): Promise<BookOfTheWeek | null> {
+}) {
   const weekStart = toWeekStart(params.weekStart);
   try {
     const [row] = await db
@@ -28,7 +27,6 @@ export async function setBookOfTheWeek(params: {
       .values({
         weekStart,
         bookId: params.bookId,
-        text: params.text,
       })
       .returning();
     return row ?? null;
@@ -51,7 +49,6 @@ export async function updateBookOfTheWeek(params: {
       .values({
         weekStart,
         bookId: params.bookId,
-        text: params.text,
       })
       .returning();
     return row ?? null;

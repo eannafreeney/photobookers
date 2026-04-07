@@ -1,4 +1,4 @@
-import { bookIdSchema, creatorIdSchema } from "../../../../schemas";
+import { bookIdSchema } from "../../../../schemas";
 import { Context } from "hono";
 import { Env } from "hono/types";
 import { z } from "zod";
@@ -7,8 +7,8 @@ import {
   bookOfTheWeekFormSchema,
   featuredBooksFormSchema,
   publisherOfTheWeekFormSchema,
-  sendArtistEmailFormSchema,
-  setCreatorEmailSendArtistEmailFormSchema,
+  sendBOTWCreatorEmailFormSchema,
+  setSendEmailFormSchema,
   weekQuerySchema,
 } from "./schema";
 
@@ -70,7 +70,7 @@ export type SendArtistEmailContext = Context<
   {
     out: {
       query: z.infer<typeof weekQuerySchema>;
-      form: z.infer<typeof sendArtistEmailFormSchema>;
+      form: z.infer<typeof sendBOTWCreatorEmailFormSchema>;
     };
   }
 >;
@@ -80,7 +80,7 @@ export type SetCreatorEmailSendArtistEmailContext = Context<
   string,
   {
     out: {
-      form: z.infer<typeof setCreatorEmailSendArtistEmailFormSchema>;
+      form: z.infer<typeof setSendEmailFormSchema>;
     };
   }
 >;

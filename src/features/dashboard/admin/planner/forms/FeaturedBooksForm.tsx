@@ -28,12 +28,10 @@ const FeaturedBooksForm = ({ week, formValues, options }: Props) => {
     "x-on:form-field-update": "form[$event.detail.field] = $event.detail.value",
   };
 
-  const action = isEditMode ? "update" : "create";
-
   return (
     <form
       {...alpineAttrs}
-      action={`/dashboard/admin/planner/featured/${action}`}
+      action={`/dashboard/admin/planner/featured/${week}/create`}
       method="post"
       class="flex flex-col gap-4"
     >

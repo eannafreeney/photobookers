@@ -32,11 +32,20 @@ export const assignUserAsCreatorOwnerAdmin = async (
   isVerified?: boolean,
 ) => {
   try {
+    const [user] = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    if (!user) {
+      return err({ reason: "User not found", cause: undefined });
+    }
     const [updatedCreator] = await db
       .update(creators)
       .set({
         ownerUserId: userId,
         status: isVerified ? "verified" : "stub",
+        email: user.email,
       })
       .where(eq(creators.id, creatorId))
       .returning();

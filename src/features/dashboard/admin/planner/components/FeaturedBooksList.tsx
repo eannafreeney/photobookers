@@ -2,6 +2,8 @@ import { FeaturedBookOfTheWeekWithBook } from "../services";
 import { toWeekString } from "../../../../../lib/utils";
 import Link from "../../../../../components/app/Link";
 import ScheduleButton from "./ScheduleButton";
+import SendFeaturedBookEmailButton from "./SendFeaturedBookEmailButton";
+import DeleteButton from "./DeleteButton";
 
 type FeaturedBooksListProps = {
   weekStart: Date;
@@ -14,22 +16,29 @@ const FeaturedBooksList = ({
 }: FeaturedBooksListProps) => {
   const weekKey = toWeekString(weekStart);
   const hasFiveFeatured = featuredBooks.length === 5;
-  const action = hasFiveFeatured ? "" : "create";
 
   return (
     <div class="mt-3 pt-3 border-t border-outline">
-      <p class="text-xs font-medium text-on-surface mb-2">Featured</p>
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-xs font-medium text-on-surface mb-2">Featured</p>
+        {hasFiveFeatured && (
+          <DeleteButton
+            action={`/dashboard/admin/planner/featured/${weekKey}`}
+          />
+        )}
+      </div>
       {hasFiveFeatured ? (
         <ul class="text-xs text-on-surface-strong space-y-1">
           {featuredBooks.map((fb) => (
             <FeaturedBooksListItem key={fb.book.id} fb={fb} />
           ))}
         </ul>
-      ) : null}
-      <ScheduleButton
-        href={`/dashboard/admin/planner/featured/${weekKey}/${action}`}
-        text={hasFiveFeatured ? "Edit featured" : "Set 5 featured books"}
-      />
+      ) : (
+        <ScheduleButton
+          href={`/dashboard/admin/planner/featured/${weekKey}/create`}
+          text="Set 5 featured books"
+        />
+      )}
     </div>
   );
 };
@@ -41,36 +50,54 @@ type FeaturedBooksListItemProps = {
 };
 
 const FeaturedBooksListItem = ({ fb }: FeaturedBooksListItemProps) => (
-  <li key={fb.book.id} class="truncate flex items-center gap-3 py-1">
-    {fb.book.coverUrl && (
-      <Link href={`/books/${fb.book.slug}`}>
-        <img
-          src={fb.book.coverUrl}
-          alt={fb.book.title}
-          class="h-16 w-12 rounded object-cover"
-        />
-      </Link>
-    )}
-    <div class="min-w-0 flex-1">
-      <Link href={`/books/${fb.book.slug}`}>
-        <p class="text-sm font-semibold text-on-surface-strong line-clamp-2">
-          {fb.book.title}
-        </p>
-      </Link>
-      {fb.book.artist && (
-        <Link href={`/creators/${fb.book.artist.slug}`}>
-          <p class="text-xs text-on-surface truncate">
-            {fb.book.artist.displayName}
-          </p>
+  <>
+    <div class="flex items-center justify-between gap-2">
+      {fb.book.coverUrl && (
+        <Link href={`/books/${fb.book.slug}`}>
+          <img
+            src={fb.book.coverUrl}
+            alt={fb.book.title}
+            class="h-16 w-12 rounded object-cover"
+          />
         </Link>
       )}
-      {fb.book.publisher && (
-        <Link href={`/creators/${fb.book.publisher.slug}`}>
-          <p class="text-xs text-on-surface truncate">
-            {fb.book.publisher.displayName}
+      <div class="min-w-0 flex-1">
+        <Link href={`/books/${fb.book.slug}`}>
+          <p class="text-sm font-semibold text-on-surface-strong line-clamp-2">
+            {fb.book.title}
           </p>
         </Link>
+        {fb.book.artist && (
+          <Link href={`/creators/${fb.book.artist.slug}`}>
+            <p class="text-xs text-on-surface truncate">
+              {fb.book.artist.displayName}
+            </p>
+          </Link>
+        )}
+        {fb.book.publisher && (
+          <Link href={`/creators/${fb.book.publisher.slug}`}>
+            <p class="text-xs text-on-surface truncate">
+              {fb.book.publisher.displayName}
+            </p>
+          </Link>
+        )}
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <SendFeaturedBookEmailButton
+        featuredBook={fb}
+        creatorId={fb.book.artist?.id}
+        bookId={fb.book.id}
+        recipientType="artist"
+      />
+      {fb.book.publisher && (
+        <SendFeaturedBookEmailButton
+          featuredBook={fb}
+          creatorId={fb.book.artist?.id}
+          bookId={fb.book.id}
+          recipientType="publisher"
+        />
       )}
     </div>
-  </li>
+  </>
 );

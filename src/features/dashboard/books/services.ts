@@ -139,6 +139,24 @@ export const getBookById = async (bookId: string) => {
   }
 };
 
+export const getBookByIdBasic = async (bookId: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+      },
+      where: eq(books.id, bookId),
+    });
+    if (!book) return err({ reason: "Book not found" });
+    return ok(book);
+  } catch (error) {
+    console.error("Failed to get book by id", error);
+    return err({ reason: "Failed to get book by id" });
+  }
+};
+
 export const updateBook = async (input: UpdateBook, bookId: string) => {
   try {
     const [updatedBook] = await db

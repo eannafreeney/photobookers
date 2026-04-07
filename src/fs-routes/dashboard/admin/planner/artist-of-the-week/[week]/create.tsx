@@ -1,16 +1,17 @@
 import { createRoute } from "hono-fsr";
-import { formValidator, queryValidator } from "../../../../../lib/validator";
+import { formValidator, paramValidator } from "../../../../../../lib/validator";
 import {
   artistOfTheWeekFormSchema,
   weekQuerySchema,
-} from "../../../../../features/dashboard/admin/planner/schema";
-import ScheduleAOTWModal from "../../../../../features/dashboard/admin/planner/modals/ScheduleAOTWModal";
-import { setArtistOfTheWeek } from "../../../../../features/dashboard/admin/planner/services";
-import Alert from "../../../../../components/app/Alert";
-import { dispatchEvents } from "../../../../../lib/disatchEvents";
+} from "../../../../../../features/dashboard/admin/planner/schema";
+import ScheduleAOTWModal from "../../../../../../features/dashboard/admin/planner/modals/ScheduleAOTWModal";
+import { setArtistOfTheWeek } from "../../../../../../features/dashboard/admin/planner/services";
+import Alert from "../../../../../../components/app/Alert";
+import { dispatchEvents } from "../../../../../../lib/disatchEvents";
 
-export const GET = createRoute(queryValidator(weekQuerySchema), async (c) => {
-  const week = c.req.valid("query").week;
+export const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
+  const week = c.req.valid("param").week;
+  console.log("week", week);
   return c.html(<ScheduleAOTWModal week={week} />);
 });
 
@@ -21,7 +22,6 @@ export const POST = createRoute(
     const row = await setArtistOfTheWeek({
       weekStart: form.weekStart,
       creatorId: form.creatorId,
-      text: form?.text ?? "",
     });
     if (!row) {
       return c.html(

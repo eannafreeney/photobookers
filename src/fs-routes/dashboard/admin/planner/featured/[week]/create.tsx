@@ -1,17 +1,17 @@
 import { createRoute } from "hono-fsr";
-import { formValidator, queryValidator } from "../../../../../lib/validator";
+import { formValidator, paramValidator } from "../../../../../../lib/validator";
 import {
   featuredBooksFormSchema,
   weekQuerySchema,
-} from "../../../../../features/dashboard/admin/planner/schema";
-import ScheduleFeaturedModal from "../../../../../features/dashboard/admin/planner/modals/ScheduleFeaturedModal";
-import { setFeaturedBooksForWeek } from "../../../../../features/dashboard/admin/planner/services";
-import { showErrorAlert } from "../../../../../lib/alertHelpers";
-import Alert from "../../../../../components/app/Alert";
-import { dispatchEvents } from "../../../../../lib/disatchEvents";
+} from "../../../../../../features/dashboard/admin/planner/schema";
+import ScheduleFeaturedModal from "../../../../../../features/dashboard/admin/planner/modals/ScheduleFeaturedModal";
+import { setFeaturedBooksForWeek } from "../../../../../../features/dashboard/admin/planner/services";
+import { showErrorAlert } from "../../../../../../lib/alertHelpers";
+import Alert from "../../../../../../components/app/Alert";
+import { dispatchEvents } from "../../../../../../lib/disatchEvents";
 
-export const GET = createRoute(queryValidator(weekQuerySchema), async (c) => {
-  const week = c.req.valid("query").week;
+export const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
+  const week = c.req.valid("param").week;
   return c.html(<ScheduleFeaturedModal week={week} />);
 });
 

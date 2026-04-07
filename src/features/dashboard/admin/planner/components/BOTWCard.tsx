@@ -1,9 +1,13 @@
+import Badge from "../../../../../components/app/Badge";
 import Button from "../../../../../components/app/Button";
 import Link from "../../../../../components/app/Link";
+import FormPost from "../../../../../components/forms/FormPost";
+import { BookOfTheWeek } from "../../../../../db/schema";
 import { toWeekString } from "../../../../../lib/utils";
 import { BookOfTheWeekWithBook } from "../../../../app/BOTWServices";
 import DeleteButton from "./DeleteButton";
 import ScheduleButton from "./ScheduleButton";
+import SendBOTWCreatorEmailButton from "./SendBOTWCreatorEmailButton";
 
 type BookOfTheWeekProps = {
   weekStart: Date;
@@ -35,7 +39,7 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
   if (!book) return <></>;
   return (
     <>
-      <div class="flex gap-3">
+      <div class="flex items-start justify-between gap-3">
         {book.coverUrl && (
           <img
             src={book.coverUrl}
@@ -62,64 +66,25 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
             </Link>
           )}
         </div>
-        <div>
-          <form
-            method="post"
-            x-target="toast modal-root"
-            action={`/dashboard/admin/planner/book-of-the-week/send-artist-email/${weekKey}`}
-          >
-            <input type="hidden" name="creatorId" value={book.artist?.id} />
-            <input type="hidden" name="bookId" value={book.id} />
-            <button
-              type="submit"
-              class="inline-block text-xs font-medium text-primary hover:underline cursor-pointer"
-            >
-              Send Artist Email
-            </button>
-          </form>
-          {book.publisher && (
-            <form
-              action={`/dashboard/admin/planner/book-of-the-week/send-publisher-email/${weekKey}`}
-            >
-              <input
-                type="hidden"
-                name="publisherId"
-                value={book.publisher?.id}
-              />
-              <input type="hidden" name="bookId" value={book.id} />
-              <button
-                type="submit"
-                class="inline-block text-xs font-medium text-primary hover:underline cursor-pointer"
-              >
-                Send Publisher Email
-              </button>
-            </form>
-          )}
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <a
-          href={`/books/${book.slug}`}
-          target="_blank"
-          class="inline-block text-sm font-medium text-primary hover:underline"
-        >
-          <Button variant="solid" color="primary">
-            View Book
-          </Button>
-        </a>
-        <a
-          href={`/dashboard/admin/planner/book-of-the-week/${weekKey}`}
-          x-target="modal-root"
-          {...{ "x-target.error": "toast" }}
-          class="inline-block text-sm font-medium text-primary hover:underline"
-        >
-          <Button variant="outline" color="primary">
-            Edit
-          </Button>
-        </a>
         <DeleteButton
           action={`/dashboard/admin/planner/book-of-the-week/${weekKey}`}
         />
+      </div>
+      <div class="mt-2 flex items-center gap-2">
+        <SendBOTWCreatorEmailButton
+          recipientType="artist"
+          bookOfTheWeek={bookOfTheWeek}
+          creatorId={book.artist?.id}
+          bookId={book.id}
+        />
+        {book.publisher && (
+          <SendBOTWCreatorEmailButton
+            recipientType="publisher"
+            bookOfTheWeek={bookOfTheWeek}
+            creatorId={book.publisher?.id}
+            bookId={book.id}
+          />
+        )}
       </div>
     </>
   );

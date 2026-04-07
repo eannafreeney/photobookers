@@ -1,5 +1,5 @@
-import Button from "../../../../../components/app/Button";
 import FormDelete from "../../../../../components/forms/FormDelete";
+import { deleteIcon } from "../../../../../lib/icons";
 
 const DeleteButton = ({ action }: { action: string }) => {
   const alpineAttrs = {
@@ -15,9 +15,7 @@ const DeleteButton = ({ action }: { action: string }) => {
       {...alpineAttrs}
       class="inline-block text-sm font-medium text-danger hover:underline"
     >
-      <Button variant="outline" color="danger">
-        Delete
-      </Button>
+      <button type="submit">{deleteIcon}</button>
     </FormDelete>
   );
 };

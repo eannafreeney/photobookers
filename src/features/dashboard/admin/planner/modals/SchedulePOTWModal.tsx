@@ -7,7 +7,6 @@ type Props = {
   formValues?: {
     weekStart: string;
     creatorId: string;
-    text: string;
   };
 };
 

@@ -22,6 +22,7 @@ export const createStubCreatorProfile = async (session: AuthSession) => {
       status: "stub",
       createdByUserId: id,
       website: website || null,
+      email,
     });
     return ok(newCreator);
   } catch (error) {
@@ -71,8 +72,12 @@ export const getCreatorEmailById = async (creatorId: string) => {
     const creator = await db.query.creators.findFirst({
       where: eq(creators.id, creatorId),
       columns: {
+        id: true,
         email: true,
         displayName: true,
+        type: true,
+        ownerUserId: true,
+        slug: true,
       },
     });
     if (!creator) return err({ reason: "Creator not found" });
