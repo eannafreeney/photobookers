@@ -1,38 +1,30 @@
 import { createRoute } from "hono-fsr";
 import { formValidator } from "../../../../../lib/validator";
-import { updateCreatorEmail } from "../../../../../features/dashboard/admin/creators/services";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
-import { sendBookOfTheWeekCreatorEmail } from "../../../../../features/dashboard/admin/planner/utils";
-import { toWeekString } from "../../../../../lib/utils";
-import { setSendEmailFormSchema } from "../../../../../features/dashboard/admin/planner/schema";
+import {
+  executeBOTWEmail,
+  updateCreatorEmailOrError,
+} from "../../../../../features/dashboard/admin/planner/emailFlow";
+import { setEmailFormSchema } from "../../../../../features/dashboard/admin/planner/schema";
 
 export const POST = createRoute(
-  formValidator(setSendEmailFormSchema),
+  formValidator(setEmailFormSchema),
   async (c) => {
-    const form = c.req.valid("form");
-    const { creatorId, email, bookId, weekStart, recipientType } = form;
-
-    const [updateError, updatedCreator] = await updateCreatorEmail(
+    const { creatorId, email, bookId, weekStart, recipientType } =
+      c.req.valid("form");
+    if (!bookId || !recipientType)
+      return showErrorAlert(c, "Invalid email payload");
+    const { response, creator } = await updateCreatorEmailOrError(c, {
       creatorId,
       email,
-    );
-
-    if (updateError || !updatedCreator)
-      return showErrorAlert(c, "Failed to update creator email");
-    if (!updatedCreator.email)
-      return showErrorAlert(c, "Failed to update creator email");
-
-    return sendBookOfTheWeekCreatorEmail(
+    });
+    if (response || !creator) return response!;
+    return executeBOTWEmail({
       c,
-      {
-        displayName: updatedCreator.displayName,
-        email: updatedCreator.email,
-        id: updatedCreator.id,
-        type: updatedCreator.type,
-      },
-      toWeekString(weekStart),
+      creator,
+      weekStart,
       recipientType,
       bookId,
-    );
+    });
   },
 );

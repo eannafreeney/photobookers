@@ -9,48 +9,28 @@ import { updateArtistOfTheWeekByWeekStart } from "../../../../../features/dashbo
 import Alert from "../../../../../components/app/Alert";
 import SendAOTWCreatorEmailButton from "../../../../../features/dashboard/admin/planner/components/SendAOTWCreatorEmailButton";
 import { dispatchEvents } from "../../../../../lib/disatchEvents";
+import {
+  executeAOTWEmail,
+  plannerEmailSuccessFragment,
+  requireCreatorEmailOrRenderModal,
+} from "../../../../../features/dashboard/admin/planner/emailFlow";
+import { buildAOTWNotificationEmail } from "../../../../../features/dashboard/admin/planner/emails";
+import { sendEmail } from "../../../../../lib/sendEmail";
 
 export const POST = createRoute(
   formValidator(sendAOTWCreatorEmailFormSchema),
   async (c) => {
-    const creatorId = c.req.valid("form").creatorId;
-    const weekStart = c.req.valid("form").weekStart;
+    const { creatorId, weekStart } = c.req.valid("form");
 
-    const [err, creator] = await getCreatorEmailById(creatorId);
-    if (err || !creator) return showErrorAlert(c, "Creator not found");
+    const { response, creator } = await requireCreatorEmailOrRenderModal(c, {
+      creatorId,
+      weekStart,
+      action: `/dashboard/admin/planner/artist-of-the-week/set-send-email`,
+      title: `Send Artist Email`,
+    });
+    if (response) return response;
+    if (!creator) return showErrorAlert(c, "Creator not found");
 
-    if (!creator.email)
-      return c.html(
-        <Modal title={`Send Artist Email`}>
-          <SetCreatorEmailModal
-            creatorId={creatorId}
-            weekStart={weekStart}
-            action={`/dashboard/admin/planner/artist-of-the-week/set-send-email`}
-          />
-        </Modal>,
-      );
-
-    // const html = generateBOTWNotificationEmail(creator, book);
-    // const [emailError] = await sendEmail(
-    //   creator.email,
-    //   `Congrats! You are Artist of the Week at photobookers`,
-    //   html,
-    // );
-    // if (emailError) return showErrorAlert(c, emailError.reason);
-
-    const [updateError, updatedArtistOfTheWeek] =
-      await updateArtistOfTheWeekByWeekStart(weekStart);
-    if (updateError) return showErrorAlert(c, updateError.reason);
-
-    return c.html(
-      <>
-        <Alert type="success" message="Email Sent" />
-        <SendAOTWCreatorEmailButton
-          artistOfTheWeek={updatedArtistOfTheWeek}
-          creatorId={creatorId}
-        />
-        {dispatchEvents(["planner:updated"])}
-      </>,
-    );
+    return executeAOTWEmail({ c, creator, creatorId, weekStart });
   },
 );

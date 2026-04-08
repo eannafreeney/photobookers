@@ -1,35 +1,31 @@
 import { createRoute } from "hono-fsr";
 import { formValidator } from "../../../../../lib/validator";
-import { updateCreatorEmail } from "../../../../../features/dashboard/admin/creators/services";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
-import { sendFeaturedBookCreatorEmail } from "../../../../../features/dashboard/admin/planner/utils";
-import { toWeekString } from "../../../../../lib/utils";
 import { setEmailFormSchema } from "../../../../../features/dashboard/admin/planner/schema";
+import {
+  executeFeaturedEmail,
+  updateCreatorEmailOrError,
+} from "../../../../../features/dashboard/admin/planner/emailFlow";
 
 export const POST = createRoute(
   formValidator(setEmailFormSchema),
   async (c) => {
-    const form = c.req.valid("form");
-    const { creatorId, email, bookId, weekStart, recipientType } = form;
-
+    const { creatorId, email, bookId, weekStart, recipientType } =
+      c.req.valid("form");
     if (!bookId) return showErrorAlert(c, "Book is required");
 
-    const [updateError, updatedCreator] = await updateCreatorEmail(
+    const { response, creator } = await updateCreatorEmailOrError(c, {
       creatorId,
       email,
-    );
+    });
+    if (response || !creator) return response!;
 
-    if (updateError || !updatedCreator)
-      return showErrorAlert(c, "Failed to update creator email");
-    if (!updatedCreator.email)
-      return showErrorAlert(c, "Failed to update creator email");
-
-    return sendFeaturedBookCreatorEmail(
+    return executeFeaturedEmail({
       c,
-      toWeekString(weekStart),
-      recipientType ?? "artist",
+      creator,
+      weekStart,
+      recipientType: recipientType ?? "artist",
       bookId,
-      updatedCreator,
-    );
+    });
   },
 );

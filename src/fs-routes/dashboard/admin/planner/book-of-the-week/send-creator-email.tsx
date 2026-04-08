@@ -1,49 +1,32 @@
 import { createRoute } from "hono-fsr";
 import { formValidator } from "../../../../../lib/validator";
 import { sendBookCreatorEmailFormSchema } from "../../../../../features/dashboard/admin/planner/schema";
-import { toWeekString } from "../../../../../lib/utils";
-import { showErrorAlert } from "../../../../../lib/alertHelpers";
-import { getCreatorEmailById } from "../../../../../features/dashboard/creators/services";
-import Modal from "../../../../../components/app/Modal";
-import { sendBookOfTheWeekCreatorEmail } from "../../../../../features/dashboard/admin/planner/utils";
 import { capitalize } from "../../../../../utils";
-import SetCreatorEmailModal from "../../../../../features/dashboard/admin/planner/modals/SetCreatorEmailModal";
+import {
+  executeBOTWEmail,
+  requireCreatorEmailOrRenderModal,
+} from "../../../../../features/dashboard/admin/planner/emailFlow";
 
 export const POST = createRoute(
   formValidator(sendBookCreatorEmailFormSchema),
   async (c) => {
-    const bookId = c.req.valid("form").bookId;
-    const creatorId = c.req.valid("form").creatorId;
-    const weekStart = c.req.valid("form").weekStart;
-    const recipientType = c.req.valid("form").recipientType;
+    const { bookId, creatorId, weekStart, recipientType } = c.req.valid("form");
+    const { response, creator } = await requireCreatorEmailOrRenderModal(c, {
+      creatorId,
+      bookId,
+      recipientType,
+      weekStart,
+      action: "/dashboard/admin/planner/book-of-the-week/set-send-email",
+      title: `Send ${capitalize(recipientType)} Email`,
+    });
+    if (response || !creator) return response!;
 
-    const [err, creator] = await getCreatorEmailById(creatorId);
-    if (err || !creator) return showErrorAlert(c, "Creator not found");
-
-    if (!creator.email)
-      return c.html(
-        <Modal title={`Send ${capitalize(recipientType)} Email`}>
-          <SetCreatorEmailModal
-            creatorId={creatorId}
-            bookId={bookId}
-            recipientType={recipientType}
-            weekStart={weekStart}
-            action={`/dashboard/admin/planner/book-of-the-week/set-send-email`}
-          />
-        </Modal>,
-      );
-
-    return sendBookOfTheWeekCreatorEmail(
+    return executeBOTWEmail({
       c,
-      {
-        displayName: creator.displayName,
-        email: creator.email,
-        id: creator.id,
-        type: creator.type,
-      },
-      toWeekString(weekStart),
+      creator,
+      weekStart,
       recipientType,
       bookId,
-    );
+    });
   },
 );
