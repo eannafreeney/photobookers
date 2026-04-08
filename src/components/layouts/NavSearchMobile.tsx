@@ -11,7 +11,7 @@ const NavSearchMobile = () => {
   return (
     <div class="md:hidden size-5" {...alpineAttrs}>
       <form
-        action="/api/search/mobile"
+        action="/search/mobile"
         method="get"
         autocomplete="off"
         {...formAttrs}

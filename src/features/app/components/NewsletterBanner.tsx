@@ -5,7 +5,6 @@ const NewsletterBanner = () => {
   return (
     <div
       x-cloak
-      x-init="console.log('banner alpine init')"
       x-data="{ showBanner: $persist(true).as('newsletter-banner'), dismiss() { this.showBanner = false } }"
     >
       <div
@@ -17,7 +16,7 @@ const NewsletterBanner = () => {
           <p class="text-sm text-pretty">
             Discover new books and creators directly in your inbox
           </p>
-          <a href="/api/newsletter" x-target="modal-root" class="inline-block">
+          <a href="/newsletter" x-target="modal-root" class="inline-block">
             <Button variant="solid" color="warning">
               Sign Up
             </Button>
