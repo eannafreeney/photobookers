@@ -25,7 +25,6 @@ export async function getMessagesByCreator(creatorId: string) {
       where: eq(creatorMessages.creatorId, creatorId),
       orderBy: [desc(creatorMessages.createdAt)],
     });
-    if (messages.length === 0) return ok([]);
     return ok({ messages });
   } catch (error) {
     console.error("Failed to get messages by creator", error);

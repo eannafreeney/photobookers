@@ -7,8 +7,6 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumbs";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
-import { requireCreatorEditAccess } from "../../../middleware/creatorGuard";
-import { creatorIdSchema } from "../../../schemas";
 import InfoPage from "../../../pages/InfoPage";
 
 export const GET = createRoute(async (c: Context) => {
@@ -19,7 +17,6 @@ export const GET = createRoute(async (c: Context) => {
     return c.html(<InfoPage errorMessage="Creator not found" />);
 
   //   console.log("creator", creator);
-  console.log("user", user);
 
   const creator = user.creator;
 
