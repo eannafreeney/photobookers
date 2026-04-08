@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { PropsWithChildren } from "hono/jsx";
 import { Book, Creator } from "../../../db/schema";
+import FeatureGuard from "../../../components/layouts/FeatureGuard";
 
 type Props = {
   creator: Creator;
@@ -12,7 +13,7 @@ const CreatorNavTabs = ({ currentPath, creator, showCreatorsTab }: Props) => {
   return (
     <nav
       id="creator-nav-tabs"
-      class="flex items-center justify-center bg-surface-alt gap-4 mb-2 mt-2"
+      class="flex items-center justify-center bg-surface-alt gap-2 mb-2 mt-2"
     >
       <NavLink href={`/creators/${creator.slug}`} currentPath={currentPath}>
         Books
@@ -31,6 +32,14 @@ const CreatorNavTabs = ({ currentPath, creator, showCreatorsTab }: Props) => {
       >
         About
       </NavLink>
+      <FeatureGuard flagName="messages">
+        <NavLink
+          href={`/creators/${creator.slug}/messages`}
+          currentPath={currentPath}
+        >
+          Messages
+        </NavLink>
+      </FeatureGuard>
     </nav>
   );
 };

@@ -2,10 +2,10 @@ import { Context } from "hono";
 import { createRoute } from "hono-fsr";
 import NavSearch from "../../../components/layouts/NavSearch";
 import { DISCOVER_TAGS } from "../../../constants/discover";
-import Badge from "../../../components/app/Badge";
 import Link from "../../../components/app/Link";
 import { capitalize } from "../../../utils";
 import { closeIcon } from "../../../components/layouts/NavSearchMobile";
+import Pill from "../../../components/app/Pill";
 
 export const GET = createRoute(async (c: Context) => {
   return c.html(
@@ -23,9 +23,7 @@ export const GET = createRoute(async (c: Context) => {
         <div class="flex flex-wrap items-center justify-center gap-6 p-4">
           {DISCOVER_TAGS.map((tag) => (
             <Link href={`/books/tags/${tag.toLowerCase()}`} key={tag}>
-              <Badge variant="default" key={tag}>
-                {capitalize(tag)}
-              </Badge>
+              <Pill key={tag}>{capitalize(tag)}</Pill>
             </Link>
           ))}
         </div>

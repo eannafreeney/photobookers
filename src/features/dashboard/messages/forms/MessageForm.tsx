@@ -1,29 +1,52 @@
+import FileUploadInput from "../../../../components/forms/FileUpload";
 import FormButtons from "../../../../components/forms/FormButtons";
-import Input from "../../../../components/forms/Input";
 import TextArea from "../../../../components/forms/TextArea";
+import DragAndDropArea from "../../images/components/DragAndDropArea";
 
 const MessageForm = ({ creatorId }: { creatorId: string }) => {
+  const alpineAttrs = {
+    "x-data": `messageForm()`,
+    "x-on:submit": "submitForm($event)",
+    "x-target": "toast",
+    "x-on:ajax:error": "isSubmitting = false",
+    "x-on:ajax:success": "onSuccess()",
+  };
+
   return (
     <form
+      id="message-form"
       method="post"
-      action={`/dashboard/creators/${creatorId}/create`}
+      enctype="multipart/form-data"
+      action={`/dashboard/messages/${creatorId}`}
       class="flex flex-col gap-4 max-w-xl"
+      {...alpineAttrs}
     >
       <TextArea
         label="Message"
-        name="body"
-        minRows={5}
+        name="form.body"
         required
         maxLength={5000}
         placeholder="Write a message for your followers…"
+        validateInput="validateField('body')"
       />
-      <Input
-        label="Image URLs (optional, comma-separated)"
-        name="imageUrls"
-        placeholder="https://…, https://…"
+      <div x-show="previewUrl" x-cloak>
+        <img
+          x-bind:src="previewUrl"
+          alt="Message image preview"
+          class="w-full max-w-md rounded-radius object-cover border border-outline"
+        />
+      </div>
+      <DragAndDropArea />
+      <FileUploadInput
+        label="Add Images"
+        name="image"
+        x-on:change="onFileChange($event)"
+        x-ref="fileInput"
+        // isDisabled={!canUploadImage(user, book)}
       />
       <FormButtons buttonText="Post message" loadingText="Posting…" />
     </form>
   );
 };
+
 export default MessageForm;

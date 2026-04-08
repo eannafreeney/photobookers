@@ -1,3 +1,3 @@
-import { requireAuth } from "../../middleware/requireAuth";
+// import { requireAuth } from "../../middleware/requireAuth";
 
-export default requireAuth;
+// export default requireAuth;

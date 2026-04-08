@@ -61,6 +61,7 @@ export function registerBookCoverForm() {
             this.isDragOver = false;
           }
         },
+
         async onDrop(e: DragEvent) {
           e.preventDefault();
           this.isDragOver = false;

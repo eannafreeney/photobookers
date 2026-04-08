@@ -939,3 +939,47 @@ export async function getCoverUrlsForHeroCarousel(
     });
   }
 }
+
+export const getMessagesByCreatorSlug = async (creatorSlug: string) => {
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.slug, creatorSlug),
+      columns: {
+        id: true,
+        slug: true,
+        displayName: true,
+        coverUrl: true,
+        type: true,
+      },
+    });
+
+    if (!creator) {
+      return err({ reason: "Creator not found" });
+    }
+
+    const associatedCreators = await getRelatedCreators(
+      creator.id,
+      creator.type,
+    );
+
+    const messages = await db.query.creatorMessages.findMany({
+      where: eq(creatorMessages.creatorId, creator.id),
+      orderBy: [desc(creatorMessages.createdAt)],
+
+      with: {
+        creator: {
+          columns: { id: true, slug: true, displayName: true, coverUrl: true },
+        },
+      },
+    });
+
+    return ok({
+      creator,
+      associatedCreators,
+      messages,
+    });
+  } catch (error) {
+    console.error("Failed to get messages by creator slug", error);
+    return err({ reason: "Failed to get messages by creator slug", error });
+  }
+};

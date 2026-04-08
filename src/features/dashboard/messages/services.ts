@@ -2,6 +2,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { creatorMessages, follows } from "../../../db/schema";
 import { getPagination } from "../../../lib/pagination";
+import { err, ok } from "../../../lib/result";
 
 export async function createMessage(
   creatorId: string,
@@ -19,10 +20,17 @@ export async function createMessage(
 }
 
 export async function getMessagesByCreator(creatorId: string) {
-  return db.query.creatorMessages.findMany({
-    where: eq(creatorMessages.creatorId, creatorId),
-    orderBy: [desc(creatorMessages.createdAt)],
-  });
+  try {
+    const messages = await db.query.creatorMessages.findMany({
+      where: eq(creatorMessages.creatorId, creatorId),
+      orderBy: [desc(creatorMessages.createdAt)],
+    });
+    if (messages.length === 0) return ok([]);
+    return ok({ messages });
+  } catch (error) {
+    console.error("Failed to get messages by creator", error);
+    return err({ reason: "Failed to get messages by creator", cause: error });
+  }
 }
 
 export async function getMessagesForFollower(

@@ -27,14 +27,6 @@ const BookCoverForm = ({ initialUrl, book, user }: Props) => {
     "@ajax:error": "onError()",
   };
 
-  const dragAttrs = {
-    "@dragenter.prevent": "onDragEnter($event)",
-    "@dragover.prevent": "onDragOver($event)",
-    "@dragleave.prevent": "onDragLeave($event)",
-    "@drop.prevent": "onDrop($event)",
-    ":class": "isDragOver ? 'border-success bg-success/5' : 'border-outline'",
-  };
-
   return (
     <div id="book-cover-form" class="space-y-4">
       <SectionTitle>Book Cover</SectionTitle>
