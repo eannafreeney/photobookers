@@ -4,6 +4,7 @@ import FormPost from "../../../../../components/forms/FormPost";
 import { BookOfTheWeek } from "../../../../../db/schema";
 import { toWeekString } from "../../../../../lib/utils";
 import { capitalize } from "../../../../../utils";
+import ToggleButton from "./ToggleButton";
 
 type Props = {
   recipientType: "artist" | "publisher";
@@ -23,15 +24,21 @@ const SendBOTWCreatorEmailButton = ({
       ? bookOfTheWeek.artistEmailSentAt
       : bookOfTheWeek.publisherEmailSentAt;
 
-  if (emailSentAt)
-    return (
-      <Badge variant="success">{`${capitalize(recipientType)} Email Sent`}</Badge>
-    );
+  const isSent = Boolean(emailSentAt);
+  const id = `botw-email-${bookOfTheWeek.id}-${recipientType}`;
+
+  const alpineAttrs = {
+    "x-target": `${id} toast modal-root`,
+    "x-target.error": "toast",
+    "x-on:ajax:error":
+      "($el.querySelector('input[type=checkbox]') as HTMLInputElement).checked = false",
+  };
 
   return (
     <FormPost
+      id={id}
       action={`/dashboard/admin/planner/book-of-the-week/send-creator-email`}
-      x-target="toast modal-root"
+      {...alpineAttrs}
     >
       <input type="hidden" name="creatorId" value={creatorId} />
       <input type="hidden" name="bookId" value={bookId} />
@@ -41,9 +48,7 @@ const SendBOTWCreatorEmailButton = ({
         name="weekStart"
         value={toWeekString(bookOfTheWeek.weekStart)}
       />
-      <Button variant="outline" color="primary" width="fit">
-        Email {capitalize(recipientType)}
-      </Button>
+      <ToggleButton isSent={isSent} recipientType={recipientType} />
     </FormPost>
   );
 };

@@ -70,7 +70,7 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
           action={`/dashboard/admin/planner/book-of-the-week/${weekKey}`}
         />
       </div>
-      <div class="mt-2 flex items-center gap-2">
+      <div class="mt-2 flex items-center gap-4">
         <SendBOTWCreatorEmailButton
           recipientType="artist"
           bookOfTheWeek={bookOfTheWeek}

@@ -10,7 +10,7 @@ import {
 export const POST = createRoute(
   formValidator(setEmailFormSchema),
   async (c) => {
-    const { creatorId, email, bookId, weekStart, recipientType } =
+    const { creatorId, email, bookId, weekStart, recipientType, featuredId } =
       c.req.valid("form");
     if (!bookId) return showErrorAlert(c, "Book is required");
 
@@ -20,12 +20,15 @@ export const POST = createRoute(
     });
     if (response || !creator) return response!;
 
+    if (!featuredId) return showErrorAlert(c, "Featured row is required");
+
     return executeFeaturedEmail({
       c,
       creator,
       weekStart,
       recipientType: recipientType ?? "artist",
       bookId,
+      featuredId,
     });
   },
 );

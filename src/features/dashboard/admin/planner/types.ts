@@ -8,7 +8,7 @@ import {
   featuredBooksFormSchema,
   publisherOfTheWeekFormSchema,
   sendBOTWCreatorEmailFormSchema,
-  setSendEmailFormSchema,
+  setEmailFormSchema,
   weekQuerySchema,
 } from "./schema";
 
@@ -80,7 +80,7 @@ export type SetCreatorEmailSendArtistEmailContext = Context<
   string,
   {
     out: {
-      form: z.infer<typeof setSendEmailFormSchema>;
+      form: z.infer<typeof setEmailFormSchema>;
     };
   }
 >;

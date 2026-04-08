@@ -63,7 +63,7 @@ export function buildHeroCarouselItems(
       title: book.title,
       text: book.artist ? `by ${book.artist.displayName}` : "",
       image: imageUrls[0],
-      link: `/books/${book.slug}`,
+      link: `/book-of-the-week`,
       slideClass: "bg-amber-100",
       weekNumber,
     });
@@ -78,8 +78,10 @@ export function buildHeroCarouselItems(
       title: artist.displayName,
       image: artist.coverUrl ?? undefined,
       coverStack: stack,
-      text: artist.tagline ?? "",
-      link: `/creators/${artist.slug}`,
+      text: artist.country?.trim()
+        ? `Based in ${artist.country.trim()}`
+        : "Discover this week's featured artist.",
+      link: `/artist-of-the-week`,
       slideClass: "bg-sky-100",
       weekNumber,
     });
@@ -95,8 +97,10 @@ export function buildHeroCarouselItems(
       title: publisher.displayName,
       image: stack[0],
       coverStack: stack,
-      link: `/creators/${publisher.slug}`,
-      text: "",
+      link: `/publisher-of-the-week`,
+      text: publisher.country?.trim()
+        ? `Based in ${publisher.country.trim()}`
+        : "Discover this week's featured publisher.",
       slideClass: "bg-red-100",
       weekNumber,
     });

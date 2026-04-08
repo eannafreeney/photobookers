@@ -9,6 +9,7 @@ import { setBookOfTheWeek } from "../../../../../../features/dashboard/admin/pla
 import { showErrorAlert } from "../../../../../../lib/alertHelpers";
 import Alert from "../../../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../../../lib/disatchEvents";
+import { log } from "console";
 
 export const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
   const week = c.req.valid("param").week;

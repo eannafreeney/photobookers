@@ -13,7 +13,19 @@ export const bookOfTheWeekFormSchema = z.object({
   text: optionalText,
 });
 
-export const sendBookCreatorEmailFormSchema = z.object({
+export const sendBOTWCreatorEmailFormSchema = z.object({
+  recipientType: z.enum(["artist", "publisher"]),
+  creatorId: z.string().min(1, "Creator is required"),
+  bookId: z.string().min(1, "Book is required"),
+  weekStart: z
+    .string()
+    .min(1, "Week is required")
+    .transform(parseWeekString)
+    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
+});
+
+export const sendFeaturedCreatorEmailFormSchema = z.object({
+  featuredId: z.string().min(1, "Featured row is required"),
   recipientType: z.enum(["artist", "publisher"]),
   creatorId: z.string().min(1, "Creator is required"),
   bookId: z.string().min(1, "Book is required"),
@@ -43,6 +55,7 @@ export const sendPOTWCreatorEmailFormSchema = z.object({
 });
 
 export const setEmailFormSchema = z.object({
+  featuredId: z.string().optional(),
   recipientType: z.preprocess(
     (val) => (val === "" || val === undefined ? null : val),
     z.enum(["artist", "publisher"]).nullable(),

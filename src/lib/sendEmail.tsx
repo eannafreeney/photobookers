@@ -48,7 +48,6 @@ export async function sendEmail(to: string, subject: string, html: string) {
         cause: data,
       });
     }
-    console.log("Email sent successfully");
     return ok(undefined);
   } catch (e) {
     console.error("Failed to send email", e);

@@ -3,26 +3,28 @@ import Modal from "../../../../components/app/Modal";
 import Alert from "../../../../components/app/Alert";
 import SetCreatorEmailModal from "./modals/SetCreatorEmailModal";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
-import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { getCreatorEmailById } from "../../creators/services";
 import { updateCreatorEmail } from "../creators/services";
 import { Child } from "hono/jsx";
 import SendAOTWCreatorEmailButton from "./components/SendAOTWCreatorEmailButton";
 import {
   updateArtistOfTheWeekByWeekStart,
+  updateBookOfTheWeekByWeekStart,
+  updateFeaturedBookEmailSentById,
   updatePublisherOfTheWeekByWeekStart,
 } from "./services";
 import { sendEmail } from "../../../../lib/sendEmail";
 import {
   buildAOTWNotificationEmail,
   buildPOTWNotificationEmail,
+  generateBOTWNotificationEmail,
+  generateFeaturedBookNotificationEmail,
 } from "./emails";
-import {
-  sendBookOfTheWeekCreatorEmail,
-  sendFeaturedBookCreatorEmail,
-} from "./utils";
-import { toWeekString } from "../../../../lib/utils";
 import SendPOTWCreatorEmailButton from "./components/SendPOTWCreatorEmailButton";
+import { getBookByIdBasic } from "../../books/services";
+import SendFeaturedBookEmailButton from "./components/SendFeaturedBookEmailButton";
+import SendBOTWCreatorEmailButton from "./components/SendBOTWCreatorEmailButton";
+import { capitalize } from "../../../../utils";
 
 type RequireCreatorEmailParams = {
   creatorId: string;
@@ -31,6 +33,9 @@ type RequireCreatorEmailParams = {
   title: string;
   bookId?: string | null;
   recipientType?: "artist" | "publisher" | null;
+  fallbackTargetNode?: Child;
+  targetId: string;
+  featuredId?: string;
 };
 
 type EnsureCreatorEmailParams = {
@@ -89,15 +94,22 @@ export async function requireCreatorEmailOrRenderModal(
   if (!creator.email) {
     return {
       response: c.html(
-        <Modal title={params.title}>
-          <SetCreatorEmailModal
-            creatorId={params.creatorId}
-            weekStart={params.weekStart}
-            action={params.action}
-            bookId={params.bookId ?? undefined}
-            recipientType={params.recipientType ?? undefined}
-          />
-        </Modal>,
+        <>
+          <Modal title={params.title}>
+            <SetCreatorEmailModal
+              creatorId={params.creatorId}
+              weekStart={params.weekStart}
+              action={params.action}
+              bookId={params.bookId ?? undefined}
+              recipientType={params.recipientType ?? undefined}
+              targetId={params.targetId}
+              featuredId={params.featuredId ?? undefined}
+            />
+          </Modal>
+          {params.fallbackTargetNode}
+          <div id="modal-root"></div>
+          <div id="toast"></div>
+        </>,
       ),
       creator: null,
     };
@@ -141,19 +153,6 @@ export async function updateCreatorEmailOrError(
   return { response: null, creator: ready };
 }
 
-/**
- * Shared success fragment used by multiple planner routes.
- */
-export function plannerEmailSuccessFragment(children: Child) {
-  return (
-    <>
-      <Alert type="success" message="Email Sent" />
-      {children}
-      {dispatchEvents(["planner:updated"])}
-    </>
-  );
-}
-
 type AOTWExecuteParams = {
   c: Context;
   creator: CreatorForEmail;
@@ -180,12 +179,16 @@ export async function executeAOTWEmail({
   if (updateError) return showErrorAlert(c, updateError.reason);
 
   return c.html(
-    plannerEmailSuccessFragment(
+    <>
+      <Alert
+        type="success"
+        message={`Email Sent to ${creator.displayName} at ${creator.email}`}
+      />
       <SendAOTWCreatorEmailButton
         artistOfTheWeek={updatedArtistOfTheWeek}
         creatorId={creatorId}
-      />,
-    ),
+      />
+    </>,
   );
 }
 
@@ -215,12 +218,16 @@ export async function executePOTWEmail({
   if (updateError) return showErrorAlert(c, updateError.reason);
 
   return c.html(
-    plannerEmailSuccessFragment(
+    <>
+      <Alert
+        type="success"
+        message={`Email Sent to ${creator.displayName} at ${creator.email}`}
+      />
       <SendPOTWCreatorEmailButton
         publisherOfTheWeek={updatedPublisherOfTheWeek}
         creatorId={creatorId}
-      />,
-    ),
+      />
+    </>,
   );
 }
 
@@ -239,27 +246,89 @@ export async function executeBOTWEmail({
   recipientType,
   bookId,
 }: BookCampaignExecuteParams) {
-  return sendBookOfTheWeekCreatorEmail(
-    c,
-    creator,
-    toWeekString(weekStart),
-    recipientType,
-    bookId,
+  const [bookError, book] = await getBookByIdBasic(bookId);
+  if (bookError || !book) return showErrorAlert(c, "Book not found");
+
+  const html = generateBOTWNotificationEmail(creator, book);
+  const [emailError] = await sendEmail(
+    creator.email,
+    `Book of the Week: ${book.title}`,
+    html,
+  );
+  if (emailError) return showErrorAlert(c, emailError.reason);
+
+  const updateField =
+    recipientType === "artist" ? "artistEmailSentAt" : "publisherEmailSentAt";
+
+  const [updateError, updatedBookOfTheWeek] =
+    await updateBookOfTheWeekByWeekStart(weekStart, {
+      [updateField]: new Date(),
+    });
+  if (updateError) return showErrorAlert(c, updateError.reason);
+
+  return c.html(
+    <>
+      <Alert
+        type="success"
+        message={`Email Sent to ${creator.displayName} at ${creator.email}`}
+      />
+      <SendBOTWCreatorEmailButton
+        recipientType={recipientType}
+        bookOfTheWeek={updatedBookOfTheWeek}
+        creatorId={creator.id}
+        bookId={bookId}
+      />
+    </>,
   );
 }
+
+type FeaturedExecuteParams = {
+  c: Context;
+  creator: CreatorForEmail;
+  weekStart: Date;
+  recipientType: "artist" | "publisher";
+  bookId: string;
+  featuredId: string;
+};
 
 export async function executeFeaturedEmail({
   c,
   creator,
-  weekStart,
   recipientType,
   bookId,
-}: BookCampaignExecuteParams) {
-  return sendFeaturedBookCreatorEmail(
-    c,
-    toWeekString(weekStart),
-    recipientType,
-    bookId,
-    creator,
+  featuredId,
+}: FeaturedExecuteParams) {
+  const [bookError, book] = await getBookByIdBasic(bookId);
+  if (bookError || !book) return showErrorAlert(c, "Book not found");
+  if (!creator.email) return showErrorAlert(c, "Creator email not found");
+
+  const html = generateFeaturedBookNotificationEmail(creator, book);
+  const [emailError] = await sendEmail(
+    creator.email,
+    `Featured Book: ${book.title}`,
+    html,
+  );
+  if (emailError) return showErrorAlert(c, emailError.reason);
+
+  const [updateError, updatedFeaturedRow] =
+    await updateFeaturedBookEmailSentById({
+      featuredId,
+      recipientType,
+    });
+  if (updateError) return showErrorAlert(c, updateError.reason);
+
+  return c.html(
+    <>
+      <Alert
+        type="success"
+        message={`Email Sent to ${creator.displayName} at ${creator.email}`}
+      />
+      <SendFeaturedBookEmailButton
+        featuredBook={updatedFeaturedRow}
+        creatorId={creator.id}
+        bookId={bookId}
+        recipientType={recipientType}
+      />
+    </>,
   );
 }

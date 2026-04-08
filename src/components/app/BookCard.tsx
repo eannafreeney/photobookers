@@ -11,16 +11,22 @@ type BookCardProps = {
   book: BookCardResult;
   user: AuthUser | null;
   currentCreatorId?: string | null;
+  maxDisplayNameLength?: number;
 };
 
-const BookCard = ({ book, user, currentCreatorId }: BookCardProps) => {
+const BookCard = ({
+  book,
+  user,
+  currentCreatorId,
+  maxDisplayNameLength = 16,
+}: BookCardProps) => {
   return (
     <Card className="min-w-[200px] max-w-[24rem]">
       <Show when={currentCreatorId !== book.artist?.id}>
         <div class="p-2 flex items-center justify-between h-10">
           <CardCreatorCard
             creator={book.artist ?? null}
-            maxDisplayNameLength={16}
+            maxDisplayNameLength={maxDisplayNameLength}
           />
           <Card.Text>
             {book.releaseDate && formatDate(book.releaseDate)}

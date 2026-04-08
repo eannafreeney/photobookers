@@ -3,10 +3,17 @@ import Button from "../../../../../components/app/Button";
 import FormPost from "../../../../../components/forms/FormPost";
 import { toWeekString } from "../../../../../lib/utils";
 import { capitalize } from "../../../../../utils";
-import { FeaturedBookOfTheWeekWithBook } from "../services";
+import ToggleButton from "./ToggleButton";
+
+type FeaturedEmailRow = {
+  id: string;
+  weekStart: Date;
+  artistEmailSentAt: Date | null;
+  publisherEmailSentAt: Date | null;
+};
 
 type Props = {
-  featuredBook: FeaturedBookOfTheWeekWithBook;
+  featuredBook: FeaturedEmailRow;
   creatorId?: string;
   bookId: string;
   recipientType: "artist" | "publisher";
@@ -23,27 +30,32 @@ const SendFeaturedBookEmailButton = ({
       ? featuredBook.artistEmailSentAt
       : featuredBook.publisherEmailSentAt;
 
-  if (emailSentAt)
-    return (
-      <Badge variant="success">{`${capitalize(recipientType)} Email Sent`}</Badge>
-    );
+  const isSent = Boolean(emailSentAt);
+  const id = `featured-email-${featuredBook.id}-${recipientType}`;
+
+  const alpineAttrs = {
+    "x-target": `${id} toast modal-root`,
+    "x-target.error": "toast",
+    "x-on:ajax:error":
+      "($el.querySelector('input[type=checkbox]') as HTMLInputElement).checked = false",
+  };
 
   return (
     <FormPost
+      id={id}
       action={`/dashboard/admin/planner/featured/send-creator-email`}
-      x-target="toast modal-root"
+      {...alpineAttrs}
     >
       <input type="hidden" name="creatorId" value={creatorId} />
       <input type="hidden" name="bookId" value={bookId} />
       <input type="hidden" name="recipientType" value={recipientType} />
+      <input type="hidden" name="featuredId" value={featuredBook.id} />
       <input
         type="hidden"
         name="weekStart"
         value={toWeekString(featuredBook.weekStart)}
       />
-      <Button variant="outline" color="primary" width="fit">
-        Email {capitalize(recipientType)}
-      </Button>
+      <ToggleButton isSent={isSent} recipientType={recipientType} />
     </FormPost>
   );
 };

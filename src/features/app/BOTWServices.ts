@@ -2,8 +2,9 @@ import { BOOK_CARD_COLUMNS } from "../../constants/queries";
 import { CREATOR_CARD_COLUMNS } from "../../constants/queries";
 import { db } from "../../db/client";
 import { bookOfTheWeek, BookOfTheWeek } from "../../db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, count, lte } from "drizzle-orm";
 import { err, ok } from "../../lib/result";
+import { getPagination } from "../../lib/pagination";
 
 /** Normalize to start of day UTC for consistent storage/comparison */
 function toWeekStart(d: Date): Date {
@@ -111,12 +112,43 @@ export async function getThisWeeksBookOfTheWeek() {
   return getBookOfTheWeekForDateQuery(new Date());
 }
 
-export async function getRecentBooksOfTheWeek(limit = 20) {
-  return db.query.bookOfTheWeek.findMany({
-    orderBy: [desc(bookOfTheWeek.weekStart)],
-    limit,
-    with: { book: true },
-  });
+export async function getRecentBooksOfTheWeek(currentPage: number = 1) {
+  const todayWeekStart = toWeekStart(new Date());
+
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(bookOfTheWeek);
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      10,
+    );
+
+    const rows = await db.query.bookOfTheWeek.findMany({
+      where: lte(bookOfTheWeek.weekStart, todayWeekStart),
+      orderBy: [desc(bookOfTheWeek.weekStart)],
+      limit,
+      offset,
+      with: {
+        book: {
+          columns: BOOK_CARD_COLUMNS,
+          with: {
+            artist: { columns: CREATOR_CARD_COLUMNS },
+          },
+        },
+      },
+    });
+    if (rows.length === 0) return ok({ botwEntries: [], totalPages, page });
+    return ok({ botwEntries: rows, totalPages, page });
+  } catch (error) {
+    console.error("getRecentBooksOfTheWeek", error);
+    return err({
+      reason: "Failed to get recent books of the week",
+      cause: error,
+    });
+  }
 }
 
 export async function deleteBookOfTheWeekByIdAdmin(bookId: string) {

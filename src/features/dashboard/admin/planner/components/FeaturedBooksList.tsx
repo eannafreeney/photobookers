@@ -83,7 +83,7 @@ const FeaturedBooksListItem = ({ fb }: FeaturedBooksListItemProps) => (
         )}
       </div>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-4">
       <SendFeaturedBookEmailButton
         featuredBook={fb}
         creatorId={fb.book.artist?.id}
@@ -93,7 +93,7 @@ const FeaturedBooksListItem = ({ fb }: FeaturedBooksListItemProps) => (
       {fb.book.publisher && (
         <SendFeaturedBookEmailButton
           featuredBook={fb}
-          creatorId={fb.book.artist?.id}
+          creatorId={fb.book.publisher?.id}
           bookId={fb.book.id}
           recipientType="publisher"
         />

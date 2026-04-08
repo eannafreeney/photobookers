@@ -198,6 +198,28 @@ export async function updatePublisherOfTheWeekByWeekStart(weekStart: Date) {
   }
 }
 
+export async function updateFeaturedBookEmailSentById(params: {
+  featuredId: string;
+  recipientType: "artist" | "publisher";
+}) {
+  const patch =
+    params.recipientType === "artist"
+      ? { artistEmailSentAt: new Date(), updatedAt: new Date() }
+      : { publisherEmailSentAt: new Date(), updatedAt: new Date() };
+  try {
+    const [row] = await db
+      .update(featuredBooksOfTheWeek)
+      .set(patch)
+      .where(eq(featuredBooksOfTheWeek.id, params.featuredId))
+      .returning();
+    if (!row) return err({ reason: "Featured book row not found" });
+    return ok(row);
+  } catch (e) {
+    console.error("updateFeaturedBookEmailSentById", e);
+    return err({ reason: "Failed to update featured email sent status" });
+  }
+}
+
 export async function updateFeaturedBookOfTheWeekByWeekStart(
   weekStart: Date,
   patch: {

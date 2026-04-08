@@ -1,5 +1,3 @@
-import { Book } from "../../../../db/schema";
-
 export const generateBOTWNotificationEmail = (
   creator: {
     displayName: string;
@@ -7,18 +5,28 @@ export const generateBOTWNotificationEmail = (
     slug: string;
     ownerUserId: string | null;
   },
-  book: Book,
+  book: { id: string; title: string; slug: string },
 ) => {
   return `
-  <h2>Dear ${creator.displayName},</h2>
-  <p>We are delighted to announce that your book, <strong>${book.title}</strong>, is <strong>Book of the Week</strong> on Photobookers this week.</p>
-  <p>You can view the book here: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/books/${book.slug}">${book.title}</a></p>
+  <p>Hi ${creator.displayName},</p>
+  <p>Great news - your book, <strong>${book.title}</strong>, has been selected as <strong>Book of the Week</strong> on Photobookers.</p>
+  <p>Your feature is now live here: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/book-of-the-week">View Book of the Week</a>.</p>
+  <p>We will also share your feature on our Instagram later this week to help more people discover your work.</p>
   ${
-    !creator.ownerUserId &&
-    `<p>We would love to have you on Photobookers. You can view and claim your profile <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">here</a>.</p>`
+    !creator.ownerUserId
+      ? `
+    <p>Photobookers is a social network for photobook collectors, artists, and publishers:</p>
+    <ul>
+      <li>Reach a global audience of photobook collectors, curators, and enthusiasts</li>
+      <li>Increase visibility for your book and your wider body of work</li>
+      <li>Build long-term discoverability through a permanent creator profile</li>
+    </ul>
+    <p>We would love to have you on board: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">Claim your profile</a>.</p>
+    `
+      : ""
   }
-  <p>Best regards,</p>
-  <p>Eanna</p>
+  <p>Thanks for being part of Photobookers - we're excited to spotlight your work.</p>
+  <p>Best regards,<br/>Eanna</p>
 `;
 };
 
@@ -33,16 +41,26 @@ export const generateFeaturedBookNotificationEmail = (
   book: { id: string; title: string; slug: string },
 ) => {
   return `
-    <h2>Dear ${creator.displayName},</h2>
-    <p>We are delighted to announce that your book, <strong>${book.title}</strong>, is featured on Photobookers this week.</p>
-    <p>You can view the book here: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/books/${book.slug}">${book.title}</a></p>
-    ${
-      !creator.ownerUserId &&
-      `<p>We would love to have you on Photobookers. You can view and claim your profile <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">here</a>.</p>`
-    }
-    <p>Best regards,</p>
-    <p>Eanna</p>
-  `;
+  <p>Hi ${creator.displayName},</p>
+  <p>Great news - your book, <strong>${book.title}</strong>, has been selected as a <strong>Featured Book</strong> on Photobookers.</p>
+  <p>Your feature is now live here: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/featured">View Featured Books</a>.</p>
+  <p>We will also share your feature on our Instagram later this week to help more people discover your work.</p>
+  ${
+    !creator.ownerUserId
+      ? `
+    <p>Photobookers is a social network for photobook collectors, artists, and publishers:</p>
+    <ul>
+      <li>Reach a global audience of photobook collectors, curators, and enthusiasts</li>
+      <li>Increase visibility for your book and your wider body of work</li>
+      <li>Build long-term discoverability through a permanent creator profile</li>
+    </ul>
+    <p>We would love to have you on board: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">Claim your profile</a>.</p>
+    `
+      : ""
+  }
+  <p>Thanks for being part of Photobookers - we're excited to spotlight your work.</p>
+  <p>Best regards,<br/>Eanna</p>
+`;
 };
 
 export const buildAOTWNotificationEmail = (creator: {
@@ -53,15 +71,26 @@ export const buildAOTWNotificationEmail = (creator: {
   ownerUserId: string | null;
 }) => {
   return `
-    <h2>Dear ${creator.displayName},</h2>
-    <p>We are delighted to announce that you are <strong>Artist of the Week</strong> on Photobookers this week.</p>
-    ${
-      !creator.ownerUserId &&
-      `<p>We would love to have you on Photobookers. You can view and claim your profile <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">here</a>.</p>`
-    }
-    <p>Best regards,</p>
-    <p>Eanna</p>
-  `;
+  <p>Hi ${creator.displayName},</p>
+  <p>Great news - you have been selected as <strong>Artist of the Week</strong> on Photobookers.</p>
+  <p>Your feature is now live here: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/artist-of-the-week">View Artist of the Week</a>.</p>
+  <p>We will also share your feature on our Instagram later this week to help more people discover your work.</p>
+  ${
+    !creator.ownerUserId
+      ? `
+    <p>Photobookers is a social network for photobook collectors, artists, and publishers:</p>
+    <ul>
+      <li>Reach a global audience of photobook collectors, curators, and enthusiasts</li>
+      <li>Increase visibility for your book and your wider body of work</li>
+      <li>Build long-term discoverability through a permanent creator profile</li>
+    </ul>
+    <p>We would love to have you on board: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">Claim your profile</a>.</p>
+    `
+      : ""
+  }
+  <p>Thanks for being part of Photobookers - we're excited to spotlight your work.</p>
+  <p>Best regards,<br/>Eanna</p>
+`;
 };
 
 export const buildPOTWNotificationEmail = (creator: {
@@ -72,13 +101,24 @@ export const buildPOTWNotificationEmail = (creator: {
   ownerUserId: string | null;
 }) => {
   return `
-  <h2>Dear ${creator.displayName},</h2>
-  <p>We are delighted to announce that you are <strong>Publisher of the Week</strong> on Photobookers this week.</p>
+  <p>Hi ${creator.displayName},</p>
+  <p>Great news - you have been selected as <strong>Publisher of the Week</strong> on Photobookers.</p>
+  <p>Your feature is now live here: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/publisher-of-the-week">View Publisher of the Week</a>.</p>
+  <p>We will also share your feature on our Instagram later this week to help more people discover your work.</p>
   ${
-    !creator.ownerUserId &&
-    `<p>We would love to have you on Photobookers. You can view and claim your profile <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">here</a>.</p>`
+    !creator.ownerUserId
+      ? `
+    <p>Photobookers is a social network for photobook collectors, artists, and publishers:</p>
+    <ul>
+      <li>Reach a global audience of photobook collectors, curators, and enthusiasts</li>
+      <li>Increase visibility for your book and your wider body of work</li>
+      <li>Build long-term discoverability through a permanent creator profile</li>
+    </ul>
+    <p>We would love to have you on board: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">Claim your profile</a>.</p>
+    `
+      : ""
   }
-  <p>Best regards,</p>
-  <p>Eanna</p>
+  <p>Thanks for being part of Photobookers - we're excited to spotlight your work.</p>
+  <p>Best regards,<br/>Eanna</p>
 `;
 };

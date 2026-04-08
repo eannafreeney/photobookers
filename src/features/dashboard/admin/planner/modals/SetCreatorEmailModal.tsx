@@ -8,6 +8,8 @@ type Props = {
   recipientType?: string;
   weekStart: Date;
   action: string;
+  targetId: string;
+  featuredId?: string;
 };
 
 const SetCreatorEmailModal = ({
@@ -16,9 +18,11 @@ const SetCreatorEmailModal = ({
   recipientType,
   weekStart,
   action,
+  targetId,
+  featuredId,
 }: Props) => {
   const alpineAttrs = {
-    "x-target": "toast modal-root",
+    "x-target": `${targetId} toast modal-root`,
     "x-target.error": "toast",
     "x-target.401": "modal-root",
     "@ajax:after": "$dispatch('dialog:close')",
@@ -40,6 +44,7 @@ const SetCreatorEmailModal = ({
         <input type="hidden" name="bookId" value={bookId ?? ""} />
         <input type="hidden" name="recipientType" value={recipientType ?? ""} />
         <input type="hidden" name="weekStart" value={toWeekString(weekStart)} />
+        <input type="hidden" name="featuredId" value={featuredId ?? ""} />
         <Button variant="solid" color="primary">
           Submit
         </Button>
