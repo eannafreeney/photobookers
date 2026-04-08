@@ -1,6 +1,8 @@
 import z from "zod";
 import { validator } from "hono/validator";
 import Alert from "../components/app/Alert";
+import InfoPage from "../pages/InfoPage";
+import { getUser } from "../utils";
 
 export const formValidator = <T extends z.ZodSchema>(schema: T) => {
   return validator("form", async (formData, c) => {
@@ -17,9 +19,12 @@ export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
   return validator("param", async (params, c) => {
     const result = schema.safeParse(params);
     if (!result.success) {
-      return c.html(
-        <Alert type="danger" message="Parameter validation failed" />,
-      );
+      const user = await getUser(c);
+      const message = "Parameter validation failed";
+      if (c.req.method === "GET") {
+        return c.html(<InfoPage errorMessage={message} user={user} />, 400);
+      }
+      return c.html(<Alert type="danger" message={message} />);
     }
     return result.data as z.infer<T>;
   });

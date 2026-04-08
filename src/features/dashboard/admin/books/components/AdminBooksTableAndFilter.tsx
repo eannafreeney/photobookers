@@ -158,7 +158,7 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
         <PreviewButton book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
-        <a href={`/dashboard/admin/books/${book.id}/update`}>
+        <a href={`/dashboard/admin/books/${book.id}`}>
           <button class="cursor-pointer">{editIcon()}</button>
         </a>
       </Table.BodyRow>

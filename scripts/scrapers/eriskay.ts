@@ -6,7 +6,7 @@
  *
  * Run: npx tsx scripts/scrapers/eriskayconnection.ts [output-path]
  */
-
+import "../env";
 import * as cheerio from "cheerio";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
