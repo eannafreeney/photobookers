@@ -3,7 +3,7 @@ import { FC, PropsWithChildren } from "hono/jsx";
 const Show = ({ children, when }: PropsWithChildren<{ when: boolean }>) => {
   if (!when) return <></>;
 
-  return children as ReturnType<FC>;
+  return <>{children}</>;
 };
 
 export default Show;
