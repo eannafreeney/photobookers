@@ -26,6 +26,7 @@ export const GET = createRoute(
     const currentPath = c.req.valid("query").currentPath;
     const user = await getUser(c);
     const userId = user?.id;
+
     const [error, creator] = await getCreatorById(creatorId);
     if (error || !creator) {
       return showErrorAlert(c, "Creator not found");

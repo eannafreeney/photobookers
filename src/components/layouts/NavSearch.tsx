@@ -7,8 +7,8 @@ type NavSearchProps = {
 const NavSearch = ({ isMobile = false }: NavSearchProps) => {
   const alpineAttrs = {
     "x-data": "{ hasResults: false, searchValue: '' }",
-    "x-on:click.outside": "hasResults = false",
-    "x-on:keydown.escape.window":
+    "@click.outside": "hasResults = false",
+    "@keydown.escape.window":
       "hasResults = false; searchValue = ''; $refs.searchInput?.blur()",
   };
 
@@ -19,8 +19,8 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
 
   const inputAttrs = {
     "x-model": "searchValue",
-    "x-on:input.debounce.500ms": "$el.form.requestSubmit()",
-    "x-on:focus": "$el.form.requestSubmit()",
+    "@input.debounce.500ms": "$el.form.requestSubmit()",
+    "@focus": "$el.form.requestSubmit()",
   };
 
   return (
