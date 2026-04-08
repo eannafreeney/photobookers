@@ -5,6 +5,7 @@ import { resetPasswordFormSchema } from "../schema";
 import z from "zod";
 
 type ResetPasswordFormShape = z.infer<typeof resetPasswordFormSchema>;
+type ResetPasswordFieldKeys = "password" | "confirmPassword";
 
 export function registerResetPasswordForm() {
   Alpine.data("resetPasswordForm", () => {
@@ -32,10 +33,10 @@ export function registerResetPasswordForm() {
       get isFormValid() {
         const ctx = this as {
           errors: {
-            form: Record<keyof ResetPasswordFormShape, string>;
+            form: Record<ResetPasswordFieldKeys, string>;
             globalError: string;
           };
-          form: ResetPasswordFormShape;
+          form: Pick<ResetPasswordFormShape, ResetPasswordFieldKeys>;
         };
         return (
           Object.values(ctx.errors.form).every((err) => !err) &&

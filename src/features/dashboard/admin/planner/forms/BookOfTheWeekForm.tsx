@@ -16,7 +16,6 @@ type BOTWBook = Book & {
 type Props = {
   formValues?: {
     weekStart: string;
-    text: string;
     bookId: string;
   };
   week: string;
@@ -38,7 +37,7 @@ const BookOfTheWeekForm = ({ formValues, options, week }: Props) => {
     "x-on:form-field-update": "form[$event.detail.field] = $event.detail.value",
   };
 
-  const action = `/dashboard/admin/planner/book-of-the-week/${isEditMode ? "update" : "create"}`;
+  const action = `/dashboard/admin/planner/book-of-the-week/${week}/create`;
 
   return (
     <form
@@ -54,13 +53,6 @@ const BookOfTheWeekForm = ({ formValues, options, week }: Props) => {
         required
         initialSelectedId={formValues?.bookId}
       />
-      {/* <TextArea
-        label="Text"
-        name="form.text"
-        required
-        maxLength={500}
-        minRows={10}
-      /> */}
       <input type="hidden" name="weekStart" value={week} />
       <FormButtons buttonText="Schedule" loadingText="Scheduling..." />
     </form>

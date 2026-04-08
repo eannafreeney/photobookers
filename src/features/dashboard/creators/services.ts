@@ -22,6 +22,7 @@ export const createStubCreatorProfile = async (session: AuthSession) => {
       status: "stub",
       createdByUserId: id,
       website: website || null,
+      email,
     });
     return ok(newCreator);
   } catch (error) {
@@ -56,6 +57,27 @@ export const getCreatorById = async (creatorId: string) => {
       with: {
         booksAsArtist: true,
         booksAsPublisher: true,
+      },
+    });
+    if (!creator) return err({ reason: "Creator not found" });
+    return ok(creator);
+  } catch (error) {
+    console.error("Failed to get creator by id", error);
+    return err({ reason: "Failed to get creator by id" });
+  }
+};
+
+export const getCreatorEmailById = async (creatorId: string) => {
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.id, creatorId),
+      columns: {
+        id: true,
+        email: true,
+        displayName: true,
+        type: true,
+        ownerUserId: true,
+        slug: true,
       },
     });
     if (!creator) return err({ reason: "Creator not found" });

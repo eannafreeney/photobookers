@@ -7,9 +7,12 @@ type Props = {
 };
 
 const FeaturedBooksFragment = async ({ user }: Props) => {
-  const featuredBooks = await getThisWeeksFeaturedBooks();
+  const [error, result] = await getThisWeeksFeaturedBooks();
+  if (error) return <div>Error: {error.reason}</div>;
+  const { featuredBooks } = result;
 
-  if (!featuredBooks || featuredBooks.length === 0) return <></>;
+  if (!featuredBooks || featuredBooks.length === 0)
+    return <div>No featured books found</div>;
 
   return (
     <div id="featured-books-fragment">
@@ -17,4 +20,5 @@ const FeaturedBooksFragment = async ({ user }: Props) => {
     </div>
   );
 };
+
 export default FeaturedBooksFragment;

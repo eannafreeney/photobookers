@@ -124,7 +124,7 @@ const MobileDropDownMenu = ({
             View Profile
           </NavLink>
           <NavLink
-            href={`/dashboard/creators/${user?.creator?.id}/update`}
+            href={`/dashboard/creators/${user?.creator?.id}`}
             currentPath={currentPath}
           >
             {`Edit ${

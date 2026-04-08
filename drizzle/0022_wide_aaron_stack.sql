@@ -1,0 +1,1 @@
+ALTER TABLE "featured_books_of_the_week" ADD COLUMN "email_sent_at" timestamp;

@@ -1,9 +1,13 @@
+import Badge from "../../../../../components/app/Badge";
 import Button from "../../../../../components/app/Button";
 import Link from "../../../../../components/app/Link";
+import FormPost from "../../../../../components/forms/FormPost";
+import { BookOfTheWeek } from "../../../../../db/schema";
 import { toWeekString } from "../../../../../lib/utils";
 import { BookOfTheWeekWithBook } from "../../../../app/BOTWServices";
 import DeleteButton from "./DeleteButton";
 import ScheduleButton from "./ScheduleButton";
+import SendBOTWCreatorEmailButton from "./SendBOTWCreatorEmailButton";
 
 type BookOfTheWeekProps = {
   weekStart: Date;
@@ -17,7 +21,7 @@ const BookOfTheWeek = ({ weekStart, bookOfTheWeek }: BookOfTheWeekProps) => {
     <BOTWCardContent weekKey={weekKey} bookOfTheWeek={bookOfTheWeek} />
   ) : (
     <ScheduleButton
-      href={`/dashboard/admin/planner/book-of-the-week/create?week=${weekKey}`}
+      href={`/dashboard/admin/planner/book-of-the-week/${weekKey}/create`}
       text="Schedule Book of the Week"
     />
   );
@@ -35,7 +39,7 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
   if (!book) return <></>;
   return (
     <>
-      <div class="flex gap-3">
+      <div class="flex items-start justify-between gap-3">
         {book.coverUrl && (
           <img
             src={book.coverUrl}
@@ -61,36 +65,26 @@ const BOTWCardContent = ({ weekKey, bookOfTheWeek }: BOTWCardContentProps) => {
               </p>
             </Link>
           )}
-          {/* <div>
-            {bookOfTheWeek && !bookOfTheWeek?.text && (
-              <p class="text-sm font-medium text-danger">Text Missing</p>
-            )}
-          </div> */}
         </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <a
-          href={`/books/${book.slug}`}
-          target="_blank"
-          class="inline-block text-sm font-medium text-primary hover:underline"
-        >
-          <Button variant="solid" color="primary">
-            View Book
-          </Button>
-        </a>
-        <a
-          href={`/dashboard/admin/planner/book-of-the-week/update?week=${weekKey}`}
-          x-target="modal-root"
-          {...{ "x-target.error": "toast" }}
-          class="inline-block text-sm font-medium text-primary hover:underline"
-        >
-          <Button variant="outline" color="primary">
-            Edit
-          </Button>
-        </a>
         <DeleteButton
-          action={`/dashboard/admin/planner/book-of-the-week/delete?week=${weekKey}`}
+          action={`/dashboard/admin/planner/book-of-the-week/${weekKey}`}
         />
+      </div>
+      <div class="mt-2 flex items-center gap-4">
+        <SendBOTWCreatorEmailButton
+          recipientType="artist"
+          bookOfTheWeek={bookOfTheWeek}
+          creatorId={book.artist?.id}
+          bookId={book.id}
+        />
+        {book.publisher && (
+          <SendBOTWCreatorEmailButton
+            recipientType="publisher"
+            bookOfTheWeek={bookOfTheWeek}
+            creatorId={book.publisher?.id}
+            bookId={book.id}
+          />
+        )}
       </div>
     </>
   );

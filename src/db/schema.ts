@@ -506,7 +506,8 @@ export const bookOfTheWeek = pgTable(
     bookId: uuid("book_id")
       .notNull()
       .references(() => books.id, { onDelete: "cascade" }),
-    text: text("text").notNull(),
+    artistEmailSentAt: timestamp("artist_email_sent_at"),
+    publisherEmailSentAt: timestamp("publisher_email_sent_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -533,6 +534,10 @@ export const featuredBooksOfTheWeek = pgTable(
       .notNull()
       .references(() => books.id, { onDelete: "cascade" }),
     position: integer("position").notNull(), // 1-5
+    artistEmailSentAt: timestamp("artist_email_sent_at", { mode: "date" }), // nullable by default
+    publisherEmailSentAt: timestamp("publisher_email_sent_at", {
+      mode: "date",
+    }), // nullable by default
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -564,7 +569,7 @@ export const artistOfTheWeek = pgTable(
     creatorId: uuid("creator_id")
       .notNull()
       .references(() => creators.id, { onDelete: "cascade" }),
-    text: text("text").notNull().default(""),
+    emailSentAt: timestamp("email_sent_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -592,7 +597,7 @@ export const publisherOfTheWeek = pgTable(
     creatorId: uuid("creator_id")
       .notNull()
       .references(() => creators.id, { onDelete: "cascade" }),
-    text: text("text").notNull().default(""),
+    emailSentAt: timestamp("email_sent_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },

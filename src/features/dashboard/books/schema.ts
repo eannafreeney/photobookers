@@ -4,6 +4,7 @@ import { checkboxField, optionalText } from "../../../schemas";
 // ============ BOOK FORM SCHEMA ============
 export const bookFormSchema = z.object({
   title: z.string().min(3, "Title is required"),
+  intent: z.enum(["publisher", "artist"]),
   artist_id: optionalText,
   new_artist_name: optionalText,
   publisher_id: optionalText,

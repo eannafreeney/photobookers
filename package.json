@@ -2,6 +2,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:fsr": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts -w",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:fsr\"",
     "prebuild": "npm run typecheck",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
@@ -11,7 +13,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@alpinejs/focus": "^3.15.3",
@@ -37,6 +40,7 @@
     "drizzle-orm": "^0.44.7",
     "drizzle-zod": "^0.8.3",
     "hono": "^4.0.9",
+    "hono-fsr": "^1.2.1",
     "nanoid": "^5.1.6",
     "postgres": "^3.4.7",
     "sanitize-html": "^2.17.0",
@@ -51,8 +55,10 @@
     "@types/alpinejs": "^3.13.11",
     "@types/node": "^20.11.17",
     "@types/sanitize-html": "^2.16.0",
+    "concurrently": "^9.2.1",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.7",
+    "patch-package": "^8.0.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^6.4.1",

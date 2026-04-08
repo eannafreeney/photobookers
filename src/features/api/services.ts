@@ -13,6 +13,7 @@ import {
   wishlists,
 } from "../../db/schema";
 import { err, isOk, ok } from "../../lib/result";
+import { Result } from "drizzle-orm/sqlite-core";
 
 export const findLike = async (userId: string, bookId: string) => {
   try {
@@ -97,9 +98,7 @@ export const findCollectionCount = async (bookId: string) => {
   return result[0]?.value ?? 0;
 };
 
-export const getCreatorPermissionData = async (
-  creatorId: string,
-): Promise<Pick<Creator, "id" | "displayName" | "slug"> | null> => {
+export const getCreatorPermissionData = async (creatorId: string) => {
   try {
     const creator = await db.query.creators.findFirst({
       where: eq(creators.id, creatorId),
@@ -110,10 +109,11 @@ export const getCreatorPermissionData = async (
         coverUrl: true,
       },
     });
-    return creator ?? null;
+    if (!creator) return err({ reason: "Creator not found" });
+    return ok(creator);
   } catch (error) {
     console.error("Failed to get creator permission data", error);
-    return null;
+    return err({ reason: "Failed to get creator permission data" });
   }
 };
 

@@ -1,5 +1,4 @@
 import SectionTitle from "../../../../components/app/SectionTitle";
-import FeatureGuard from "../../../../components/layouts/FeatureGuard";
 import ComboBox from "../../../../components/forms/ComboBox";
 import DateInput from "../../../../components/forms/DateInput";
 import FormButtons from "../../../../components/forms/FormButtons";
@@ -8,6 +7,7 @@ import RadioFields from "../../../../components/forms/RadioFields";
 import TextArea from "../../../../components/forms/TextArea";
 import ToggleInput from "../../../../components/forms/ToggleInput";
 import { getAllCreatorOptions } from "../../admin/creators/services";
+import FormPost from "../../../../components/forms/FormPost";
 
 type BookFormProps = {
   formValues?: Record<string, any>;
@@ -26,12 +26,18 @@ export const BookForm = async ({
   const publisherOptions = !isPublisher
     ? await getAllCreatorOptions("publisher")
     : [];
+
   const isEditPage = !!bookId;
   const isArtist = !isPublisher;
 
+  const mergedFormValues = {
+    ...(formValues ?? {}),
+    intent: isPublisher ? "publisher" : "artist",
+  };
+
   const alpineAttrs = {
     "x-data": `bookForm(
-      ${JSON.stringify(formValues)}, 
+      ${JSON.stringify(mergedFormValues)}, 
       ${JSON.stringify(artistOptions)}, 
       ${JSON.stringify(publisherOptions)},
       ${isArtist},
@@ -46,7 +52,7 @@ export const BookForm = async ({
   return (
     <div class="space-y-4 ">
       <SectionTitle>Book Details</SectionTitle>
-      <form action={action} method="post" {...alpineAttrs}>
+      <FormPost action={action} {...alpineAttrs}>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Input
             label="Title"
@@ -128,12 +134,13 @@ export const BookForm = async ({
               label="Send email to followers on release date"
               name="form.send_email_to_followers_on_release"
               isChecked={false}
-              disabledBinding="!form.release_date"
+              disabledBinding="!form.release_date || new Date(form.release_date + 'T23:59:59') < new Date()"
             />
           )}
+          <input type="hidden" name="intent" x-model="form.intent" />
           <FormButtons />
         </div>
-      </form>
+      </FormPost>
     </div>
   );
 };

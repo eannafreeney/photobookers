@@ -7,12 +7,14 @@ import SocialLinks from "./SocialLinks";
 import VerifiedCreator from "./VerifiedCreator";
 import { AuthUser } from "../../../types";
 import { findFollowersCount } from "../../db/queries";
+import Show from "./Show";
 
 type Props = {
   creator: Creator | null;
   currentPath: string;
   title?: string;
   user: AuthUser | null;
+  showFollowAndClaimButtons?: boolean;
 };
 
 const CreatorCard = async ({
@@ -20,6 +22,7 @@ const CreatorCard = async ({
   currentPath,
   title = "About",
   user,
+  showFollowAndClaimButtons = true,
 }: Props) => {
   if (!creator) return <></>;
 
@@ -61,15 +64,17 @@ const CreatorCard = async ({
           {creator.tagline && (
             <Card.Description>{creator.tagline}</Card.Description>
           )}
-          <FollowButton creator={creator} user={user} />
-          {creator.status === "stub" && (
-            <ClaimCreatorBtn
-              creator={creator}
-              user={user}
-              currentPath={currentPath}
-            />
-          )}
-          <SocialLinks creator={creator} />
+          <Show when={showFollowAndClaimButtons}>
+            <FollowButton creator={creator} user={user} />
+            {creator.status === "stub" && (
+              <ClaimCreatorBtn
+                creator={creator}
+                user={user}
+                currentPath={currentPath}
+              />
+            )}
+            <SocialLinks creator={creator} />
+          </Show>
         </Card.Body>
       </Card>
     </>

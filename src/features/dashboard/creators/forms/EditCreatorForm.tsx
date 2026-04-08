@@ -7,6 +7,7 @@ import { capitalize } from "../../../../utils";
 import { AuthUser } from "../../../../../types";
 import { canEditCreator } from "../../../../lib/permissions";
 import { Creator } from "../../../../db/schema";
+import FormPost from "../../../../components/forms/FormPost";
 
 type Props = {
   formValues?: string;
@@ -37,11 +38,8 @@ const EditCreatorForm = ({
       <SectionTitle>{`${isEditPage ? "Edit" : "Create"} ${capitalize(
         type,
       )} Profile`}</SectionTitle>
-      <form
-        action={`/dashboard/creators/${creator.id}/update`}
-        method="post"
-        {...alpineAttrs}
-      >
+
+      <FormPost action={`/dashboard/creators/${creator.id}`} {...alpineAttrs}>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
           <Input
             label="Display Name"
@@ -92,7 +90,7 @@ const EditCreatorForm = ({
           />
         </div>
         <FormButtons isDisabled={!canEditCreator(user, creator)} />
-      </form>
+      </FormPost>
     </div>
   );
 };

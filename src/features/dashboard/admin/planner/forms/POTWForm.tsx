@@ -7,7 +7,6 @@ type Props = {
   formValues?: {
     weekStart: string;
     creatorId: string;
-    text: string;
   };
   options: {
     id: string;
@@ -44,13 +43,6 @@ const POTWForm = ({ formValues, options, week }: Props) => {
         initialSelectedId={formValues?.creatorId}
         required
       />
-      {/* <TextArea
-        label="Text"
-        name="form.text"
-        validateInput="validateField('text')"
-        minRows={6}
-        maxLength={400}
-      /> */}
       <input type="hidden" name="weekStart" value={week} />
       <FormButtons
         buttonText={isEditMode ? "Update" : "Schedule"}

@@ -7,6 +7,8 @@ import {
   bookOfTheWeekFormSchema,
   featuredBooksFormSchema,
   publisherOfTheWeekFormSchema,
+  sendBOTWCreatorEmailFormSchema,
+  setEmailFormSchema,
   weekQuerySchema,
 } from "./schema";
 
@@ -60,4 +62,25 @@ export type PlannerWeekQueryContext = Context<
   Env,
   string,
   { out: { query: z.infer<typeof weekQuerySchema> } }
+>;
+
+export type SendArtistEmailContext = Context<
+  Env,
+  string,
+  {
+    out: {
+      query: z.infer<typeof weekQuerySchema>;
+      form: z.infer<typeof sendBOTWCreatorEmailFormSchema>;
+    };
+  }
+>;
+
+export type SetCreatorEmailSendArtistEmailContext = Context<
+  Env,
+  string,
+  {
+    out: {
+      form: z.infer<typeof setEmailFormSchema>;
+    };
+  }
 >;

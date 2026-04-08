@@ -14,42 +14,39 @@ export type AOTWFormData = z.infer<typeof artistOfTheWeekFormSchema>;
 const AOTW_FIELDS = Object.keys(artistOfTheWeekFormSchema.shape);
 
 export function registerAOTWForm() {
-  Alpine.data(
-    "aotwForm",
-    (formValues: AOTWFormData, isEditMode: boolean = false) => {
-      return {
-        isSubmitting: false,
+  Alpine.data("aotwForm", () => {
+    return {
+      isSubmitting: false,
 
-        ...createFormState(AOTW_FIELDS, formValues),
+      ...createFormState(AOTW_FIELDS),
 
-        init() {
-          initFormValues(this, AOTW_FIELDS, isEditMode);
-        },
+      init() {
+        initFormValues(this, AOTW_FIELDS);
+      },
 
-        get isDirty() {
-          return getIsDirty(this, AOTW_FIELDS);
-        },
+      get isDirty() {
+        return getIsDirty(this, AOTW_FIELDS);
+      },
 
-        validateField(field: string) {
-          return validateField(this, field, artistOfTheWeekFormSchema);
-        },
+      validateField(field: string) {
+        return validateField(this, field, artistOfTheWeekFormSchema);
+      },
 
-        get isFormValid() {
-          const ctx = this as unknown as {
-            errors: { form: Record<keyof AOTWFormData, string> };
-            form: AOTWFormData;
-          };
+      get isFormValid() {
+        const ctx = this as unknown as {
+          errors: { form: Record<keyof AOTWFormData, string> };
+          form: AOTWFormData;
+        };
 
-          return (
-            Object.values(ctx.errors.form).every((err) => !err) &&
-            ctx.form.creatorId
-          );
-        },
+        return (
+          Object.values(ctx.errors.form).every((err) => !err) &&
+          ctx.form.creatorId
+        );
+      },
 
-        submitForm(event: Event) {
-          return handleSubmit(this, event, artistOfTheWeekFormSchema);
-        },
-      };
-    },
-  );
+      submitForm(event: Event) {
+        return handleSubmit(this, event, artistOfTheWeekFormSchema);
+      },
+    };
+  });
 }

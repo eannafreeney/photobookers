@@ -381,7 +381,7 @@ export const getBookBySlug = async (
       },
     });
 
-    if (!book) return null;
+    if (!book) return err({ reason: "Book not found" });
 
     // Handle images - could be relation (bookImages[]) or field (string[])
     const galleryImages =
@@ -391,12 +391,12 @@ export const getBookBySlug = async (
           : book.images.map((img: any) => ({ imageUrl: img.imageUrl }))
         : [];
 
-    return {
+    return ok({
       book: { ...book, images: galleryImages },
-    };
+    });
   } catch (error) {
     console.error("Failed to get book by slug", error);
-    return null;
+    return err({ reason: "Failed to get book by slug", error });
   }
 };
 
@@ -576,10 +576,7 @@ export const getAllCreatorsByType = async (
       .from(creators)
       .where(eq(creators.type, type));
 
-    const { page, limit, offset, totalPages } = getPagination(
-      currentPage,
-      totalCount,
-    );
+    const { page, offset, totalPages } = getPagination(currentPage, totalCount);
 
     const foundCreators = await db.query.creators.findMany({
       where: eq(creators.type, type),
@@ -605,10 +602,10 @@ export const getAllCreatorsByType = async (
         books: creator.booksAsArtist.length + creator.booksAsPublisher.length,
       }));
 
-    return { creators: creatorsWithBooks, totalPages, page };
+    return ok({ creators: creatorsWithBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get all creators by type", error);
-    return { creators: [], totalPages: 0, page: 1 };
+    return err({ reason: "Failed to get all creators by type", error });
   }
 };
 
@@ -813,7 +810,7 @@ export const getMessagesForFollower = async (
       .map((f) => f.targetCreatorId)
       .filter((id): id is string => id != null);
     if (followedCreatorIds.length === 0) {
-      return { messages: [], totalPages: 0, page: 1 };
+      return ok({ messages: [], totalPages: 0, page: 1 });
     }
 
     const [{ value: totalCount = 0 }] = await db
@@ -839,41 +836,46 @@ export const getMessagesForFollower = async (
         },
       },
     });
-    return { messages, totalPages, page };
+    return ok({ messages, totalPages, page });
   } catch (e) {
     console.error("Failed to get messages for follower", e);
-    return { messages: [], totalPages: 0, page: 1 };
+    return err({ reason: "Failed to get messages for follower", error: e });
   }
 };
 
 export const getHomepageStats = async () => {
-  const now = new Date();
-  const [booksCountResult, artistsCountResult, publishersCountResult] =
-    await Promise.all([
-      db
-        .select({ value: count() })
-        .from(books)
-        .where(
-          and(
-            eq(books.publicationStatus, "published"),
-            eq(books.approvalStatus, "approved"),
-            or(isNull(books.releaseDate), lte(books.releaseDate, now)),
+  try {
+    const now = new Date();
+    const [booksCountResult, artistsCountResult, publishersCountResult] =
+      await Promise.all([
+        db
+          .select({ value: count() })
+          .from(books)
+          .where(
+            and(
+              eq(books.publicationStatus, "published"),
+              eq(books.approvalStatus, "approved"),
+              or(isNull(books.releaseDate), lte(books.releaseDate, now)),
+            ),
           ),
-        ),
-      db
-        .select({ value: count() })
-        .from(creators)
-        .where(eq(creators.type, "artist")),
-      db
-        .select({ value: count() })
-        .from(creators)
-        .where(eq(creators.type, "publisher")),
-    ]);
-  return {
-    books: booksCountResult[0]?.value ?? 0,
-    artists: artistsCountResult[0]?.value ?? 0,
-    publishers: publishersCountResult[0]?.value ?? 0,
-  };
+        db
+          .select({ value: count() })
+          .from(creators)
+          .where(eq(creators.type, "artist")),
+        db
+          .select({ value: count() })
+          .from(creators)
+          .where(eq(creators.type, "publisher")),
+      ]);
+    return ok({
+      books: booksCountResult[0]?.value ?? 0,
+      artists: artistsCountResult[0]?.value ?? 0,
+      publishers: publishersCountResult[0]?.value ?? 0,
+    });
+  } catch (error) {
+    console.error("Failed to get homepage stats", error);
+    return err({ reason: "Failed to get homepage stats", error });
+  }
 };
 
 export const getFollowedCreators = async (followerUserId: string) => {

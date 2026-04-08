@@ -1,9 +1,9 @@
 import { PublisherOfTheWeekWithCreator } from "../services";
 import { toWeekString } from "../../../../../lib/utils";
-import Link from "../../../../../components/app/Link";
-import Button from "../../../../../components/app/Button";
 import ScheduleButton from "./ScheduleButton";
 import DeleteButton from "./DeleteButton";
+import SendPOTWCreatorEmailButton from "./SendPOTWCreatorEmailButton";
+import { PublisherOfTheWeek } from "../../../../../db/schema";
 
 type PublisherOfTheWeekProps = {
   weekStart: Date;
@@ -30,7 +30,7 @@ const PublisherOfTheWeek = ({
         />
       ) : (
         <ScheduleButton
-          href={`/dashboard/admin/planner/publisher-of-the-week/create?week=${weekKey}`}
+          href={`/dashboard/admin/planner/publisher-of-the-week/${weekKey}/create`}
           text="Schedule publisher of the week"
         />
       )}
@@ -49,53 +49,38 @@ type POTWCardContentProps = {
     status: "stub" | "verified" | "suspended" | "deleted" | null;
     coverUrl: string | null;
   };
-  publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
+  publisherOfTheWeek: PublisherOfTheWeek | null;
 };
 
 const POTWCardContent = ({
   weekKey,
   publisher,
   publisherOfTheWeek,
-}: POTWCardContentProps) => (
-  <>
-    <div class="flex gap-3">
-      {publisher.coverUrl && (
-        <img
-          src={publisher.coverUrl}
-          alt={publisher.displayName}
-          class="h-16 w-16 rounded object-cover"
-        />
-      )}
-      <div class="min-w-0 flex-1">
-        <p class="text-sm font-semibold text-on-surface-strong">
-          {publisher.displayName}
-        </p>
-        {/* {publisherOfTheWeek?.text ? (
-          <p class="text-xs text-on-surface-weak line-clamp-2 mt-1">
-            {publisherOfTheWeek.text}
+}: POTWCardContentProps) => {
+  if (!publisherOfTheWeek) return <></>;
+  return (
+    <>
+      <div class="flex gap-3">
+        {publisher.coverUrl && (
+          <img
+            src={publisher.coverUrl}
+            alt={publisher.displayName}
+            class="h-16 w-16 rounded object-cover"
+          />
+        )}
+        <div class="min-w-0 flex-1 flex flex-col gap-2">
+          <p class="text-sm font-semibold text-on-surface-strong">
+            {publisher.displayName}
           </p>
-        ) : (
-          <p class="text-sm font-medium text-danger">Text missing</p>
-        )} */}
+          <SendPOTWCreatorEmailButton
+            publisherOfTheWeek={publisherOfTheWeek}
+            creatorId={publisher.id}
+          />
+        </div>
+        <DeleteButton
+          action={`/dashboard/admin/planner/publisher-of-the-week/${weekKey}`}
+        />
       </div>
-    </div>
-    <div class="flex items-center gap-2 mt-2">
-      <Link href={`/creators/${publisher.slug}`} target="_blank">
-        <Button variant="solid" color="primary">
-          View
-        </Button>
-      </Link>
-      <a
-        href={`/dashboard/admin/planner/publisher-of-the-week/update?week=${weekKey}`}
-        x-target="modal-root"
-      >
-        <Button variant="outline" color="primary">
-          Edit
-        </Button>
-      </a>
-      <DeleteButton
-        action={`/dashboard/admin/planner/publisher-of-the-week/delete?week=${weekKey}`}
-      />
-    </div>
-  </>
-);
+    </>
+  );
+};

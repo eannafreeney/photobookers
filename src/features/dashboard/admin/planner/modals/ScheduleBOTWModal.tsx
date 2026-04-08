@@ -10,7 +10,6 @@ type Props = {
   formValues?: {
     weekStart: string;
     bookId: string;
-    text: string;
   };
 };
 
@@ -22,13 +21,6 @@ const ScheduleBOTWModal = async ({ week, formValues }: Props) => {
     img: book?.coverUrl ?? null,
   }));
 
-  // const alpineAttrs = {
-  //   "x-data": `bookOfTheWeekForm(${JSON.stringify(formValues)}, false)`,
-  //   "x-target": "toast",
-  //   "x-on:ajax:after":
-  //     "$dispatch('dialog:close'), $dispatch('planner:updated')",
-  // };
-
   return (
     <Modal title="Schedule Book of the Week">
       <BookOfTheWeekForm
@@ -36,16 +28,6 @@ const ScheduleBOTWModal = async ({ week, formValues }: Props) => {
         week={week}
         formValues={formValues}
       />
-      {/* <form
-        {...alpineAttrs}
-        action="/dashboard/admin/planner/book-of-the-week/create"
-        method="post"
-        class="flex flex-col gap-4"
-      >
-        <OptionsComboBox options={options} name="form.bookId" />
-        <input type="hidden" name="weekStart" value={week} />
-        <FormButtons buttonText="Schedule" loadingText="Scheduling..." />
-      </form> */}
     </Modal>
   );
 };

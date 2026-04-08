@@ -11,6 +11,22 @@ import z from "zod";
 import { AuthSession } from "@supabase/supabase-js";
 import { registerAndClaimFormSchema } from "../claims/schema";
 
+export const checkIfUserWasForcedToResetPassword = async (userId: string) => {
+  try {
+    const dbUser = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { mustResetPassword: true },
+    });
+    if (!dbUser) return err({ reason: "User not found", cause: undefined });
+    return ok(dbUser?.mustResetPassword === true);
+  } catch (error) {
+    return err({
+      reason: "Failed to check if user was forced to reset password",
+      cause: error,
+    });
+  }
+};
+
 export const setCookiesAndVerifyUser = async (
   c: Context,
   session: AuthSession,
@@ -81,17 +97,21 @@ export async function loginAndSetCookies(
   c: Context,
   email: string,
   password: string,
-): Promise<{ userId: string } | { error: string }> {
-  const { data, error } = await supabaseAdmin.auth.signInWithPassword({
-    email,
-    password,
-  });
+) {
+  try {
+    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (error) return { error: error.message };
+    if (error) return err({ reason: error.message, cause: error });
 
-  await setCookiesAndVerifyUser(c, data.session);
+    await setCookiesAndVerifyUser(c, data.session);
 
-  return { userId: data.user.id };
+    return ok({ userId: data.user.id });
+  } catch (error) {
+    return err({ reason: "Failed to login", cause: error });
+  }
 }
 
 export const setAccessToken = (
