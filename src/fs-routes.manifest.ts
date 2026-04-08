@@ -24,13 +24,13 @@ import * as m17 from "./fs-routes/(app)/fragments/stats";
 import * as m18 from "./fs-routes/(app)/index";
 import * as m19 from "./fs-routes/(app)/library";
 import * as m20 from "./fs-routes/(app)/messages";
-import * as m21 from "./fs-routes/(app)/publisher-of-the-week";
-import * as m22 from "./fs-routes/(app)/publishers";
-import * as m23 from "./fs-routes/(app)/terms";
-import * as m24 from "./fs-routes/api/activity/stream";
-import * as m25 from "./fs-routes/api/newsletter";
-import * as m26 from "./fs-routes/api/search/mobile";
-import * as m27 from "./fs-routes/api/search";
+import * as m21 from "./fs-routes/(app)/newsletter";
+import * as m22 from "./fs-routes/(app)/publisher-of-the-week";
+import * as m23 from "./fs-routes/(app)/publishers";
+import * as m24 from "./fs-routes/(app)/search/mobile";
+import * as m25 from "./fs-routes/(app)/search";
+import * as m26 from "./fs-routes/(app)/terms";
+import * as m27 from "./fs-routes/api/activity/stream";
 import * as m28 from "./fs-routes/auth/accounts";
 import * as m29 from "./fs-routes/auth/callback";
 import * as m30 from "./fs-routes/auth/force-reset-password";
@@ -267,50 +267,50 @@ export const manifest: Manifest = [
     module: m20
   },
   {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/newsletter.tsx",
+    urlPath: "/newsletter",
+    type: "handler",
+    precedence: 1,
+    module: m21
+  },
+  {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/publisher-of-the-week.tsx",
     urlPath: "/publisher-of-the-week",
     type: "handler",
     precedence: 1,
-    module: m21
+    module: m22
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/publishers.tsx",
     urlPath: "/publishers",
     type: "handler",
     precedence: 1,
-    module: m22
+    module: m23
+  },
+  {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/search/mobile.tsx",
+    urlPath: "/search/mobile",
+    type: "handler",
+    precedence: 1,
+    module: m24
+  },
+  {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/search.tsx",
+    urlPath: "/search",
+    type: "handler",
+    precedence: 1,
+    module: m25
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/terms.tsx",
     urlPath: "/terms",
     type: "handler",
     precedence: 1,
-    module: m23
+    module: m26
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/activity/stream.tsx",
     urlPath: "/api/activity/stream",
-    type: "handler",
-    precedence: 1,
-    module: m24
-  },
-  {
-    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/newsletter.tsx",
-    urlPath: "/api/newsletter",
-    type: "handler",
-    precedence: 1,
-    module: m25
-  },
-  {
-    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/search/mobile.tsx",
-    urlPath: "/api/search/mobile",
-    type: "handler",
-    precedence: 1,
-    module: m26
-  },
-  {
-    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/search.tsx",
-    urlPath: "/api/search",
     type: "handler",
     precedence: 1,
     module: m27

@@ -6,8 +6,6 @@ import { newsletterFormSchema } from "../../features/api/schema";
 import { formValidator } from "../../lib/validator";
 import { NewsletterFormContext } from "../../features/api/types";
 import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
-import NewsletterCard from "../../features/app/components/NewsletterCard";
-import Alert from "../../components/app/Alert";
 
 export const GET = createRoute(async (c: Context) => {
   return c.html(
@@ -47,6 +45,6 @@ export const POST = createRoute(
       return showErrorAlert(c, "Could not sign up. Try again later.");
     }
 
-    return showSuccessAlert(c, "Newsletter signup successful");
+    return showSuccessAlert(c, "Signed up for newsletter!");
   },
 );

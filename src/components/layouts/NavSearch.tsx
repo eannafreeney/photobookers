@@ -8,6 +8,8 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
   const alpineAttrs = {
     "x-data": "{ hasResults: false, searchValue: '' }",
     "x-on:click.outside": "hasResults = false",
+    "x-on:keydown.escape.window":
+      "hasResults = false; searchValue = ''; $refs.searchInput?.blur()",
   };
 
   const formAttrs = {
@@ -18,6 +20,7 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
   const inputAttrs = {
     "x-model": "searchValue",
     "x-on:input.debounce.500ms": "$el.form.requestSubmit()",
+    "x-on:focus": "$el.form.requestSubmit()",
   };
 
   return (
@@ -28,7 +31,7 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
       )}
       {...alpineAttrs}
     >
-      <form action="/api/search" method="get" autocomplete="off" {...formAttrs}>
+      <form action="/search" method="get" autocomplete="off" {...formAttrs}>
         {searchIcon}
         <input
           type="text"
@@ -46,7 +49,7 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
       </form>
       <div
         class="absolute top-0 left-0 right-0 w-full z-50 "
-        x-show="hasResults && searchValue.length > 0"
+        x-show="hasResults"
       >
         <div id={isMobile ? "search-results-mobile" : "search-results"}></div>
       </div>

@@ -11,7 +11,7 @@ const NewsletterModalForm = () => {
 
   return (
     <form
-      action="/api/newsletter"
+      action="/newsletter"
       method="post"
       class="flex flex-col gap-3"
       {...alpineAttrs}
