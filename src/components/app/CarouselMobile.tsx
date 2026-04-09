@@ -23,6 +23,7 @@ const CarouselMobile = ({
         x-on:touchstart="handleTouchStart($event)"
         x-on:touchmove="handleTouchMove($event)"
         x-on:touchend="handleTouchEnd()"
+        {...fadeTransition}
       >
         <div
           class="absolute inset-0 z-20 bg-surface-variant/30 animate-pulse"
