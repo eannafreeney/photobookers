@@ -26,7 +26,7 @@ const BookCard = ({
         <div class="p-2 flex items-center justify-between h-10">
           <CardCreatorCard
             creator={book.artist ?? null}
-            maxDisplayNameLength={maxDisplayNameLength}
+            maxDisplayNameLength={book.releaseDate ? maxDisplayNameLength : 30}
           />
           <Card.Text>
             {book.releaseDate && formatDate(book.releaseDate)}
