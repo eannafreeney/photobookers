@@ -16,15 +16,22 @@ const FeaturedBooksGrid = ({ featuredBooks, user }: Props) => {
       <div>
         <SectionTitle className="mb-4">Featured Books of the Week</SectionTitle>
       </div>
-      <GridPanel>
-        {featuredBooks?.length > 0 ? (
-          featuredBooks.map((fb) => <BookCard book={fb.book} user={user} />)
-        ) : (
-          <div class="col-span-full text-center text-sm text-on-surface py-4">
-            No featured books found
+      {/* Mobile: horizontal scroll row */}
+      <div class="flex gap-4 overflow-x-auto sm:hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {featuredBooks.map((fb) => (
+          <div class="min-w-[300px]">
+            <BookCard book={fb.book} user={user} />
           </div>
-        )}
-      </GridPanel>
+        ))}
+      </div>
+      {/* sm+: normal grid */}
+      <div class="hidden sm:block">
+        <GridPanel>
+          {featuredBooks.map((fb) => (
+            <BookCard book={fb.book} user={user} />
+          ))}
+        </GridPanel>
+      </div>
     </>
   );
 };
