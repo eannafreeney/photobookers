@@ -3,7 +3,10 @@ import { createRoute } from "hono-fsr";
 import { slugSchema } from "../../../../features/app/schema";
 import { Context } from "hono";
 import { getUser } from "../../../../utils";
-import { getBookAboutBySlug } from "../../../../features/app/services";
+import {
+  getBookAboutBySlug,
+  getBooksByCreatorSlug,
+} from "../../../../features/app/services";
 import InfoPage from "../../../../pages/InfoPage";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
@@ -11,6 +14,11 @@ import MobileCreatorCard from "../../../../components/app/MobileCreatorCard";
 import CreatorCard from "../../../../components/app/CreatorCard";
 import BookNavTabs from "../../../../features/app/components/BookNavTabs";
 import RelatedBooks from "../../../../features/app/components/RelatedBooks";
+import BooksGrid from "../../../../features/app/components/BooksGrid";
+import { books } from "../../../../db/schema";
+import Divider from "../../../../components/Divider";
+import { getBooksByCreatorId } from "../../../../features/dashboard/admin/creators/services";
+import BookGridWrapper from "../../../../features/app/components/BookGridWrapper";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -18,12 +26,12 @@ export const GET = createRoute(
     const slug = c.req.param("slug");
     const user = await getUser(c);
     const currentPath = c.req.path;
+    const currentPage = Number(c.req.query("page") ?? 1);
 
-    const [error, book] = await getBookAboutBySlug(slug);
+    const [bookError, book] = await getBookAboutBySlug(slug);
 
-    if (error) {
-      return c.html(<InfoPage errorMessage={error.reason} user={user} />);
-    }
+    if (bookError)
+      return c.html(<InfoPage errorMessage={bookError.reason} user={user} />);
 
     return c.html(
       <AppLayout
@@ -47,7 +55,14 @@ export const GET = createRoute(
                 user={user}
               />
             </div>
-            <RelatedBooks book={book} user={user} />
+            <Divider />
+            <BookGridWrapper
+              bookSlug={book.slug}
+              currentPage={currentPage}
+              creator={book?.artist ?? null}
+              currentPath={currentPath}
+              user={user}
+            />
           </div>
         </Page>
       </AppLayout>,
