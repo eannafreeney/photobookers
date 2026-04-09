@@ -61,9 +61,8 @@ const HeroCarousel = async () => {
           ></button>
         </template>
       </div>
-
       <section
-        class="relative py-6 text-on-surface transition-colors duration-300 ease-out sm:py-8"
+        class="h-[470px] sm:h-[560px] md:h-[500px] relative py-6 text-on-surface transition-colors duration-300 ease-out sm:py-8"
         x-bind:class="items[active] ? items[active].slideClass : ''"
       >
         {/* <!-- Slides: visual on top (mobile), left (md+) --> */}
@@ -113,7 +112,6 @@ const HeroCarousel = async () => {
                     x-text="item.text"
                   ></p>
                 </template>
-
                 <div class="flex justify-center md:justify-start">
                   <a x-bind:href="item.link">
                     <Button
@@ -130,7 +128,6 @@ const HeroCarousel = async () => {
             </div>
           </template>
         </div>
-
         <button
           x-show="items.length > 1"
           x-on:click="prev()"
@@ -139,7 +136,6 @@ const HeroCarousel = async () => {
         >
           {leftArrowIcon}
         </button>
-
         <button
           x-show="items.length > 1"
           x-on:click="next()"
