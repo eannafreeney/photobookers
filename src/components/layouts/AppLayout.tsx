@@ -38,7 +38,7 @@ const AppLayout = ({
           user={user}
           adminEditHref={adminEditHref}
         />
-        <div class="pb-20 md:pb-0">
+        <div class="pb-0">
           <main class="min-h-60vh lg:mx-4 pt-14 md:pt-0">{children}</main>
           <Footer />
           <Dock currentPath={currentPath} />

@@ -6,6 +6,7 @@ import { RegisterFanFormContext } from "../../features/auth/types";
 import { verifyOtpForFanSignup } from "../../features/auth/services";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import FormSuccessScreen from "../../components/forms/FormSuccessScreen";
+import { createFanSignedUpNotification } from "../../features/dashboard/admin/notifications/utils";
 
 export const POST = createRoute(
   paramValidator(redirectUrlSchema),
@@ -15,6 +16,8 @@ export const POST = createRoute(
 
     const [verifyOtpError] = await verifyOtpForFanSignup(c, formData);
     if (verifyOtpError) return showErrorAlert(c, verifyOtpError.reason);
+
+    await createFanSignedUpNotification(formData);
 
     return c.html(
       <FormSuccessScreen

@@ -5,6 +5,7 @@ import FormSuccessScreen from "../../components/forms/FormSuccessScreen";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import { verifyOtpForCreatorSignup } from "../../features/auth/services";
 import { RegisterCreatorFormContext } from "../../features/auth/types";
+import { createCreatorSignedUpNotification } from "../../features/dashboard/admin/notifications/utils";
 
 export const POST = createRoute(
   formValidator(registerCreatorFormSchema),
@@ -13,6 +14,8 @@ export const POST = createRoute(
 
     const [verifyOtpError] = await verifyOtpForCreatorSignup(c, formData);
     if (verifyOtpError) return showErrorAlert(c, verifyOtpError.reason);
+
+    await createCreatorSignedUpNotification(formData);
 
     return c.html(
       <FormSuccessScreen
