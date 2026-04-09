@@ -66,7 +66,7 @@ const HeroCarousel = async () => {
         x-bind:class="items[active] ? items[active].slideClass : ''"
       >
         {/* <!-- Slides: visual on top (mobile), left (md+) --> */}
-        <div class="relative flex w-full min-h-0 items-center px-4 sm:px-8 md:min-h-[420px]">
+        <div class="relative flex w-full h-full items-center px-4 sm:px-8">
           <template x-for="(item, index) in items">
             <div
               x-show="active === index"
@@ -117,7 +117,7 @@ const HeroCarousel = async () => {
                     <Button
                       variant="solid"
                       color="primary"
-                      width="fit"
+                      width="md"
                       x-bind:href="item.link"
                     >
                       View →
