@@ -3,13 +3,13 @@ import { createRoute } from "hono-fsr";
 import { slugSchema } from "../../../../features/app/schema";
 import { Context } from "hono";
 import { getUser } from "../../../../utils";
-import { getBookCommentsBySlug } from "../../../../features/app/services";
+import { getBookPublisherBySlug } from "../../../../features/app/services";
 import InfoPage from "../../../../pages/InfoPage";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
 import MobileCreatorCard from "../../../../components/app/MobileCreatorCard";
+import CreatorCard from "../../../../components/app/CreatorCard";
 import BookNavTabs from "../../../../features/app/components/BookNavTabs";
-import CommentsSection from "../../../../features/app/components/CommentsSection";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -18,10 +18,11 @@ export const GET = createRoute(
     const user = await getUser(c);
     const currentPath = c.req.path;
 
-    const [error, book] = await getBookCommentsBySlug(slug);
+    const [error, book] = await getBookPublisherBySlug(slug);
 
-    if (error)
+    if (error) {
       return c.html(<InfoPage errorMessage={error.reason} user={user} />);
+    }
 
     return c.html(
       <AppLayout
@@ -38,11 +39,11 @@ export const GET = createRoute(
               currentPath={currentPath}
               hasPublisher={!!book.publisher}
             />
-            <CommentsSection
-              bookId={book.id}
+            <CreatorCard
+              creator={book.publisher}
+              currentPath={currentPath}
               user={user}
-              bookSlug={book.slug}
-              isMobile
+              title=""
             />
           </div>
         </Page>

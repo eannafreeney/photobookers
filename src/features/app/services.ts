@@ -400,6 +400,78 @@ export const getBookBySlug = async (
   }
 };
 
+export const getBookCommentsBySlug = async (bookSlug: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+      },
+      where: and(
+        eq(books.slug, bookSlug),
+        eq(books.publicationStatus, "published"),
+      ),
+      with: {
+        publisher: true,
+        artist: true,
+      },
+    });
+    if (!book) return err({ reason: "Book not found" });
+    return ok(book);
+  } catch (error) {
+    console.error("Failed to get book info by slug", error);
+    return err({ reason: "Failed to get book info by slug", error });
+  }
+};
+
+export const getBookPublisherBySlug = async (bookSlug: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+      },
+      where: and(
+        eq(books.slug, bookSlug),
+        eq(books.publicationStatus, "published"),
+      ),
+      with: {
+        publisher: true,
+        artist: true,
+      },
+    });
+    if (!book) return err({ reason: "Book not found" });
+    return ok(book);
+  } catch (error) {
+    console.error("Failed to get book publisher by slug", error);
+    return err({ reason: "Failed to get book publisher by slug", error });
+  }
+};
+
+export const getBookAboutBySlug = async (bookSlug: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      where: and(
+        eq(books.slug, bookSlug),
+        eq(books.publicationStatus, "published"),
+      ),
+      with: {
+        publisher: true,
+        artist: true,
+      },
+    });
+
+    if (!book) return err({ reason: "Book not found" });
+
+    return ok(book);
+  } catch (error) {
+    console.error("Failed to get book by slug", error);
+    return err({ reason: "Failed to get book by slug", error });
+  }
+};
+
 export const getFirstBookByTag = async (tag: string) => {
   try {
     const [error, result] = await getBooksByTag(tag, 1, "newest", 1);

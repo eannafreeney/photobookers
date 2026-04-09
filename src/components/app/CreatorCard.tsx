@@ -29,7 +29,7 @@ const CreatorCard = async ({
   const followerCount = await findFollowersCount(creator.id);
 
   return (
-    <>
+    <div>
       {title && <SectionTitle className="mb-4">{title}</SectionTitle>}
       <Card>
         <Card.Image
@@ -77,7 +77,7 @@ const CreatorCard = async ({
           </Show>
         </Card.Body>
       </Card>
-    </>
+    </div>
   );
 };
 

@@ -14,12 +14,14 @@ type CommentsSectionProps = {
   bookId: string;
   user: AuthUser | null;
   bookSlug: string;
+  isMobile?: boolean;
 };
 
 const CommentsSection = async ({
   bookId,
   user,
   bookSlug,
+  isMobile = false,
 }: CommentsSectionProps) => {
   const [err, comments] = await getBookComments(bookId);
 
@@ -57,7 +59,12 @@ const CommentsSection = async ({
             name="msg"
             value="Add a profile photo first to comment."
           />
-          <Button type="submit" variant="outline" color="primary" width="fit">
+          <Button
+            type="submit"
+            variant="outline"
+            color="primary"
+            width={isMobile ? "full" : "fit"}
+          >
             Add Comment
           </Button>
         </form>

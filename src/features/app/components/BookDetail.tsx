@@ -17,6 +17,8 @@ import RelatedBooks from "../components/RelatedBooks";
 import CommentsSection from "../components/CommentsSection";
 import LikeButton from "../../api/components/LikeButton";
 import Divider from "../../../components/Divider";
+import BookNavTabs from "./BookNavTabs";
+import BookCredits from "./BookCredits";
 
 type BookDetailProps = {
   galleryImages: string[];
@@ -105,18 +107,21 @@ const DetailDesktop = ({
                 user={user}
                 bookSlug={book.slug}
               />
-              <Credits
-                releaseDate={book.releaseDate}
-                publisher={book.publisher}
-              />
+              <BookCredits releaseDate={book.releaseDate} />
             </div>
           </div>
         </div>
-        <div class="w-1/5">
+        <div class="w-1/5 h-full overflow-y-auto flex flex-col gap-4">
           <CreatorCard
             creator={book.artist}
             currentPath={currentPath}
             title="Artist"
+            user={user}
+          />
+          <CreatorCard
+            creator={book.publisher}
+            currentPath={currentPath}
+            title="Publisher"
             user={user}
           />
         </div>
@@ -132,14 +137,16 @@ const DetailMobile = ({
   book,
   currentPath,
   user,
-  isMobile,
   creator,
 }: BookDetailProps) => {
   return (
     <div class="flex flex-col gap-4">
-      {isMobile && creator && (
-        <MobileCreatorCard creator={creator} user={user} />
-      )}
+      {creator && <MobileCreatorCard creator={creator} user={user} />}
+      <BookNavTabs
+        bookSlug={book.slug}
+        currentPath={currentPath}
+        hasPublisher={!!book.publisher}
+      />
       <CarouselMobile images={galleryImages} />
       <div class="flex flex-col gap-2">
         <div class="text-balance text-lg font-semibold text-on-surface-strong">
@@ -157,43 +164,8 @@ const DetailMobile = ({
       )}
       <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
       <PurchaseLink purchaseLink={book.purchaseLink} />
+      <BookCredits releaseDate={book.releaseDate} />
       <TagList tags={book.tags ?? []} />
-      <CommentsSection bookId={book.id} user={user} bookSlug={book.slug} />
-      <Credits releaseDate={book.releaseDate} publisher={book.publisher} />
-      <div class="flex flex-col sm:items-center gap-2">
-        <CreatorCard
-          creator={book.artist}
-          currentPath={currentPath}
-          user={user}
-        />
-      </div>
-      <RelatedBooks book={book} user={user} />
     </div>
   );
 };
-
-type CreditsProps = {
-  releaseDate: Date | null;
-  publisher: Creator | null;
-};
-
-const Credits = ({ releaseDate, publisher }: CreditsProps) => (
-  <div class="flex flex-col gap-2">
-    {releaseDate && (
-      <>
-        <p class="text-sm font-medium text-on-surface-strong">Release Date:</p>
-        <Card.Text>{formatDate(releaseDate)}</Card.Text>
-      </>
-    )}
-    {publisher && (
-      <>
-        <p class="text-sm font-medium text-on-surface-strong">Publisher:</p>
-        <CardCreatorCard creator={publisher} />
-      </>
-    )}
-    <p class="text-sm font-medium text-on-surface-strong">Credits</p>
-    <p class="text-sm text-on-surface">
-      All images on this page are owned by the respective creator.
-    </p>
-  </div>
-);
