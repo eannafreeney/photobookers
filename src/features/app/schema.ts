@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { uuidField } from "../../schemas";
 
 // ============ VALIDATE PASSWORD SCHEMA ============
 export const contactFormSchema = z.object({
@@ -14,13 +13,25 @@ export const userUpdateFormSchema = z.object({
   msg: z.string().optional(),
 });
 
+const normalizeSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/-+/g, "-") // collapse repeated hyphens
+    .replace(/^-|-$/g, ""); // remove leading/trailing hyphens
+
 export const slugSchema = z.object({
   slug: z
     .string()
-    .min(1, "Slug is required")
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Slug must contain only lowercase letters, numbers, and hyphens",
+    .transform(normalizeSlug)
+    .pipe(
+      z
+        .string()
+        .min(1, "Slug is required")
+        .regex(
+          /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+          "Slug must contain only lowercase letters, numbers, and hyphens",
+        ),
     ),
 });
 

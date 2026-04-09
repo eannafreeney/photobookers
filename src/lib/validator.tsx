@@ -20,7 +20,8 @@ export const paramValidator = <T extends z.ZodSchema>(schema: T) => {
     const result = schema.safeParse(params);
     if (!result.success) {
       const user = await getUser(c);
-      const message = "Parameter validation failed";
+      const message = "Oops! Something went wrong.";
+      console.log("error", result.error);
       if (c.req.method === "GET") {
         return c.html(<InfoPage errorMessage={message} user={user} />, 400);
       }
