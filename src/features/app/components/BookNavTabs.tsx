@@ -25,6 +25,9 @@ const BookNavTabs = ({
       <NavLink href={`/books/${bookSlug}/comments`} currentPath={currentPath}>
         Comments
       </NavLink>
+      <NavLink href={`/books/${bookSlug}/artist`} currentPath={currentPath}>
+        Artist
+      </NavLink>
       <Show when={hasPublisher}>
         <NavLink
           href={`/books/${bookSlug}/publisher`}
@@ -33,9 +36,6 @@ const BookNavTabs = ({
           Publisher
         </NavLink>
       </Show>
-      <NavLink href={`/books/${bookSlug}/about`} currentPath={currentPath}>
-        About
-      </NavLink>
     </nav>
   );
 };

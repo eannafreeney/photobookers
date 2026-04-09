@@ -20,7 +20,7 @@ type Props = {
 const CreatorCard = async ({
   creator,
   currentPath,
-  title = "About",
+  title,
   user,
   showFollowAndClaimButtons = true,
 }: Props) => {

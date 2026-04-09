@@ -42,7 +42,6 @@ export const GET = createRoute(async (c) => {
                       Week: {toWeekString(entry.weekStart)}
                     </p>
                     <CreatorCard
-                      title=""
                       creator={entry.creator}
                       user={user}
                       currentPath={currentPath}

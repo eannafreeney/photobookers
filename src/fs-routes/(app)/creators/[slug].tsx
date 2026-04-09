@@ -139,7 +139,12 @@ export const CreatorDetailDesktop = ({
         <CreatorsGrid creators={relatedCreators} title={title} />
       </div>
       <div class="md:w-1/5">
-        <CreatorCard creator={creator} currentPath={currentPath} user={user} />
+        <CreatorCard
+          creator={creator}
+          currentPath={currentPath}
+          user={user}
+          title="About"
+        />
       </div>
     </div>
   );

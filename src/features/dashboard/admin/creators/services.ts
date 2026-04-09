@@ -356,8 +356,7 @@ export const getBooksByCreatorId = async (
       limit,
       offset,
     });
-    if (foundBooks.length === 0) return err({ reason: "No books found" });
-
+    if (foundBooks.length === 0) return ok({ books: [], totalPages, page });
     return ok({ books: foundBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get books by creator id", error);

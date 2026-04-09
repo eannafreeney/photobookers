@@ -43,7 +43,6 @@ export const GET = createRoute(
               creator={book.publisher}
               currentPath={currentPath}
               user={user}
-              title=""
             />
           </div>
         </Page>

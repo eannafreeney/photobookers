@@ -46,7 +46,6 @@ export const GET = createRoute(
               creator={creator}
               currentPath={currentPath}
               user={user}
-              title=""
             />
             <RelatedCreators
               creators={relatedCreators}
