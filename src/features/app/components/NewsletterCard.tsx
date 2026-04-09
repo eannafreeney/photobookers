@@ -38,7 +38,7 @@ const NewsletterForm = () => (
         required
       />
     </label>
-    <Button variant="outline" color="primary" width="fit">
+    <Button variant="outline" color="primary" width="full">
       Sign up
     </Button>
   </form>

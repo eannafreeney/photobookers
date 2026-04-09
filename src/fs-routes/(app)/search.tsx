@@ -3,7 +3,6 @@ import { createRoute } from "hono-fsr";
 import NavSearchResults from "../../components/app/NavSearchResults";
 import { searchCreators } from "../../features/app/services";
 import { searchBooks } from "../../features/api/services";
-import Badge from "../../components/app/Badge";
 import Link from "../../components/app/Link";
 import { capitalize } from "../../utils";
 import { DISCOVER_TAGS } from "../../constants/discover";

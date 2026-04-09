@@ -9,6 +9,7 @@ import Intersector from "../../features/app/components/Intersector";
 import NewsletterBanner from "../../features/app/components/NewsletterBanner";
 import NewsletterCard from "../../features/app/components/NewsletterCard";
 import DiscoveryTags from "../../features/app/components/DiscoveryTags";
+import { getIsMobile } from "../../lib/device";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
