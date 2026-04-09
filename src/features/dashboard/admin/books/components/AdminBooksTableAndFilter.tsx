@@ -113,7 +113,7 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
         {book.coverUrl ? (
           <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />
         ) : (
-          <a href={`/dashboard/admin/books/${book.id}/update#book-images`}>
+          <a href={`/dashboard/admin/books/${book.id}#book-images`}>
             <Button variant="outline" color="warning">
               <span>Upload Cover</span>
             </Button>

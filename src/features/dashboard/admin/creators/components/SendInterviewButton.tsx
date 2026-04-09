@@ -3,8 +3,8 @@ import Button from "../../../../../components/app/Button";
 import { Creator } from "../../../../../db/schema";
 
 const SendInterviewButton = ({ creator }: { creator: Creator }) => {
-  if (creator.status !== "verified") {
-    return <Badge variant="warning">Not Verified</Badge>;
+  if (creator.email === null) {
+    return <Badge variant="warning">No Email</Badge>;
   }
 
   const id = `send-interview-${creator.id}`;

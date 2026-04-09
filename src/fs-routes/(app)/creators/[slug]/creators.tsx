@@ -32,7 +32,7 @@ export const GET = createRoute(
         title={creator?.displayName ?? ""}
         user={user}
         currentPath={currentPath}
-        adminEditHref={`/dashboard/admin/creators/${creator.id}/update`}
+        adminEditHref={`/dashboard/admin/creators/${creator.id}`}
       >
         <Page>
           <div class="flex flex-col gap-4">

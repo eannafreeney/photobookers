@@ -94,7 +94,12 @@ type CommentListProps = {
 };
 
 const CommentList = async ({ bookId, user, comments }: CommentListProps) => {
-  if (comments.length === 0) return <></>;
+  if (comments.length === 0)
+    return (
+      <p class="text-sm text-center text-on-surface border border-outline rounded-radius p-4 bg-surface-alt my-2">
+        No comments yet. Be the first to comment!
+      </p>
+    );
 
   return (
     <div class="flex flex-col gap-2 w-full my-4">

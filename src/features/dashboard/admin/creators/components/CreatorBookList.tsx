@@ -37,7 +37,7 @@ const CreatorBookList = async ({
       <div class="flex items-center justify-between gap-4">
         <TableSearch
           target="creator-books-table"
-          action={`/dashboard/admin/creators/${creatorId}/update`}
+          action={`/dashboard/admin/creators/${creatorId}`}
           placeholder="Filter books..."
         />
         <Link href="/dashboard/admin/books/create">
@@ -67,7 +67,7 @@ const CreatorBookList = async ({
               <Table.BodyRow>{book.artist?.displayName}</Table.BodyRow>
               <Table.BodyRow>{book.publisher?.displayName}</Table.BodyRow>
               <Table.BodyRow>
-                <a href={`/dashboard/admin/books/${book.id}/update`}>
+                <a href={`/dashboard/admin/books/${book.id}`}>
                   <Button variant="outline" color="inverse">
                     <span>Edit</span>
                   </Button>
@@ -75,7 +75,7 @@ const CreatorBookList = async ({
               </Table.BodyRow>
               <Table.BodyRow>
                 <DeleteFormButton
-                  action={`/dashboard/admin/books/${book.id}/delete`}
+                  action={`/dashboard/admin/books/${book.id}`}
                 />
               </Table.BodyRow>
             </tr>
