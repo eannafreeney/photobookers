@@ -39,7 +39,7 @@ const BookCard = ({
         href={`/books/${book.slug}`}
       />
       <Card.Body>
-        <div class="flex items-center justify-between">
+        <div class="flex items-start justify-between">
           <Link href={`/books/${book.slug}`}>
             <Card.Title>{book.title}</Card.Title>
           </Link>

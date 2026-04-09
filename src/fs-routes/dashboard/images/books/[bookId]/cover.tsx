@@ -38,6 +38,6 @@ export const POST = createRoute(
 
     if (!updatedBook) return showErrorAlert(c, "Failed to update book cover");
 
-    return showSuccessAlert(c, "Image Updated");
+    return showSuccessAlert(c, "Cover Image Updated");
   },
 );

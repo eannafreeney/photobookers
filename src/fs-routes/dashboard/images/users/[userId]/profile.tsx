@@ -37,6 +37,6 @@ export const POST = createRoute(
     const [err] = await updateUserProfileImageDB(userId, profileImageUrl);
     if (err) return showErrorAlert(c, err.reason);
 
-    return showSuccessAlert(c, "Image Updated");
+    return showSuccessAlert(c, "Profile Image Updated");
   },
 );

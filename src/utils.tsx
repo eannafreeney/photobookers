@@ -20,8 +20,11 @@ export const slugify = (title: string, artist?: string) =>
     .normalize("NFD")
     .replace(/\p{Mark}/gu, "")
     .toLowerCase()
+    .trim()
     .replace(/\s+/g, "-")
-    .replace(/[^\w-]/g, "");
+    .replace(/[^\w-]/g, "")
+    .replace(/-+/g, "-") // collapse repeated hyphens
+    .replace(/^-|-$/g, ""); // trim leading/trailing hyphens
 
 export async function generateUniqueBookSlug(
   title: string,

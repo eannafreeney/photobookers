@@ -15,7 +15,9 @@ const PreviewButton = ({ book, user }: Props) => {
   if (book.publicationStatus === "published") {
     return (
       <div id={`preview-button-${bookId}`}>
-        <Link href={`/books/${book.slug}`}>{eyeIcon()}</Link>
+        <Link href={`/books/${book.slug}`} target="_blank">
+          {eyeIcon()}
+        </Link>
       </div>
     );
   }
