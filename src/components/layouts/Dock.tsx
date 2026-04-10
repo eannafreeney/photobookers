@@ -28,7 +28,7 @@ const Dock = ({ currentPath }: DockProps) => {
   return (
     <div
       class={clsx(
-        "md:hidden z-100",
+        "md:hidden z-100 sticky bottom-0 left-0 right-0",
         "flex w-full flex-row items-center justify-around p-2",
         "h-[calc(4rem+env(safe-area-inset-bottom))]",
         "pb-[env(safe-area-inset-bottom)]",
