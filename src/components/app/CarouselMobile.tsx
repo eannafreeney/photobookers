@@ -17,9 +17,8 @@ const CarouselMobile = ({
       x-data={`carouselForm(${JSON.stringify(images)})`}
       class="relative w-full overflow-hidden"
     >
-      {/* slides container: active image controls container height */}
       <div
-        class="relative w-full min-h-[220px]"
+        class="relative w-full aspect-4/3"
         x-on:touchstart="handleTouchStart($event)"
         x-on:touchmove="handleTouchMove($event)"
         x-on:touchend="handleTouchEnd()"
@@ -34,15 +33,36 @@ const CarouselMobile = ({
             {imageSkeletonIcon}
           </div>
         </div>
-        <template x-for="(slide, index) in slides">
+        {/* <template x-for="(slide, index) in slides">
           <div
-            class="w-full flex items-center justify-center min-h-0"
+            class="absolute inset-0 flex items-center justify-center"
             x-show="currentSlideIndex === index + 1"
-            x-bind:class="currentSlideIndex === index + 1 ? 'relative z-10' : 'absolute inset-0 z-0 pointer-events-none'"
+            x-bind:class="currentSlideIndex === index + 1 ? 'z-10' : 'z-0 pointer-events-none'"
             {...fadeTransition}
           >
             <img
-              class="block w-full max-w-full h-auto object-contain"
+              class="block w-full h-full object-contain"
+              x-bind:src="slide.imgSrc"
+              x-bind:alt="slide.imgAlt"
+              x-on:load="if (index === 0) isFirstImageLoaded = true"
+              x-on:error="if (index === 0) isFirstImageLoaded = true"
+            />
+          </div>
+        </template> */}
+        <template x-for="(slide, index) in slides">
+          <div
+            class="absolute inset-0 flex items-center justify-center overflow-hidden"
+            x-show="currentSlideIndex === index + 1"
+            x-bind:class="currentSlideIndex === index + 1 ? 'z-10' : 'z-0 pointer-events-none'"
+            {...fadeTransition}
+          >
+            <img
+              class="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-70"
+              x-bind:src="slide.imgSrc"
+              aria-hidden="true"
+            />
+            <img
+              class="relative z-10 block w-full h-full object-contain"
               x-bind:src="slide.imgSrc"
               x-bind:alt="slide.imgAlt"
               x-on:load="if (index === 0) isFirstImageLoaded = true"
