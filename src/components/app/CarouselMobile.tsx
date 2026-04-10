@@ -18,7 +18,7 @@ const CarouselMobile = ({
       class="relative w-full overflow-hidden"
     >
       <div
-        class="relative w-full aspect-4/3"
+        class="relative w-full min-h-80"
         x-on:touchstart="handleTouchStart($event)"
         x-on:touchmove="handleTouchMove($event)"
         x-on:touchend="handleTouchEnd()"
@@ -57,7 +57,7 @@ const CarouselMobile = ({
             {...fadeTransition}
           >
             <img
-              class="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-70"
+              class="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-70 will-change-transform"
               x-bind:src="slide.imgSrc"
               aria-hidden="true"
             />
