@@ -13,7 +13,7 @@ const CreatorNavTabs = ({ currentPath, creator, showCreatorsTab }: Props) => {
   return (
     <nav
       id="creator-nav-tabs"
-      class="flex items-center justify-center bg-surface-alt gap-2 mb-2 mt-2"
+      class="flex items-center justify-between bg-surface-alt gap-2 mb-2 mt-2"
     >
       <NavLink href={`/creators/${creator.slug}`} currentPath={currentPath}>
         Books

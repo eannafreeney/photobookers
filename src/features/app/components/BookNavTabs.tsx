@@ -17,7 +17,7 @@ const BookNavTabs = ({
   return (
     <nav
       id="creator-nav-tabs"
-      class="flex items-center justify-center bg-surface-alt gap-2 mb-2 mt-2"
+      class="flex items-center justify-between bg-surface-alt gap-2 mb-2 mt-2"
     >
       <NavLink href={`/books/${bookSlug}`} currentPath={currentPath}>
         Book

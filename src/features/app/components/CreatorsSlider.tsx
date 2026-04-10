@@ -8,7 +8,7 @@ type PublishersSliderProps = {
 
 const CreatorsSlider = async ({ creators }: PublishersSliderProps) => {
   return (
-    <div class="mt-2 mb-4">
+    <div class="mt-2 mb-4 pl-4">
       <SectionTitle className="mb-4">Popular Creators</SectionTitle>
       <div class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div class="flex w-max items-center gap-6">

@@ -10,6 +10,7 @@ import NewsletterBanner from "../../features/app/components/NewsletterBanner";
 import NewsletterCard from "../../features/app/components/NewsletterCard";
 import DiscoveryTags from "../../features/app/components/DiscoveryTags";
 import { getIsMobile } from "../../lib/device";
+import PageBleed from "../../components/layouts/PageContent";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -29,12 +30,16 @@ export const GET = createRoute(async (c: Context) => {
           id="featured-books-fragment"
           endpoint="/fragments/featured-books"
         />
-        <Intersector
-          id="creators-slider-fragment"
-          endpoint="/fragments/creators-slider"
-        />
+        <PageBleed>
+          <Intersector
+            id="creators-slider-fragment"
+            endpoint="/fragments/creators-slider"
+          />
+        </PageBleed>
         <NewsletterCard />
-        <DiscoveryTags />
+        <PageBleed>
+          <DiscoveryTags />
+        </PageBleed>
         <Intersector
           id="latest-books-fragment"
           endpoint="/fragments/latest-books"

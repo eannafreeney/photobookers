@@ -19,6 +19,7 @@ import LikeButton from "../../api/components/LikeButton";
 import Divider from "../../../components/Divider";
 import BookNavTabs from "./BookNavTabs";
 import BookCredits from "./BookCredits";
+import PageBleed from "../../../components/layouts/PageContent";
 
 type BookDetailProps = {
   galleryImages: string[];
@@ -147,7 +148,9 @@ const DetailMobile = ({
         currentPath={currentPath}
         hasPublisher={!!book.publisher}
       />
-      <CarouselMobile images={galleryImages} />
+      <PageBleed>
+        <CarouselMobile images={galleryImages} />
+      </PageBleed>
       <div class="flex flex-col gap-2">
         <div class="text-balance text-lg font-semibold text-on-surface-strong">
           {book.title}
