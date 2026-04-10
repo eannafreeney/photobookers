@@ -37,7 +37,7 @@ const Pill = ({ children, variant = "default" }: Props) => {
 
   return (
     <span
-      class={`w-fit inline-flex overflow-hidden rounded-full border bg-surface shadow-sm text-sm font-medium text-on-surface ${badgeVariants[variant]} `}
+      class={`w-fit inline-flex whitespace-nowrap overflow-hidden rounded-full border bg-surface shadow-sm text-sm font-medium text-on-surface ${badgeVariants[variant]} `}
     >
       <span class={`px-4 py-1 ${badgeInnerVariants[variant]} `}>
         {children}
