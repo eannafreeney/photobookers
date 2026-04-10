@@ -109,7 +109,8 @@ const DropdownList = ({
             "x-on:click": "addNewOption()",
             "x-on:keydown.enter.prevent": "addNewOption()",
             "x-ref": "addNewOption",
-            "x-show": "options.length === 0 && searchQuery",
+            "x-show":
+              "searchQuery && !options.some(o => o.label.toLowerCase() === searchQuery.toLowerCase())",
           }}
         >
           Add "<span x-text="searchQuery"></span>" as new {type}

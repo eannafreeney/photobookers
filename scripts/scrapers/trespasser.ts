@@ -3,6 +3,14 @@
  * https://trespasser.co/
  * Homepage lists publications; product pages at /shop/{slug}
  *
+ * HTML structure (Squarespace):
+ *   - Title:        h1.product-title
+ *   - Artist:       first <p> in .product-excerpt — "by {name}" pattern
+ *   - Description:  .product-excerpt paragraphs
+ *   - Cover:        #flowThumbnail img[data-src]
+ *   - Gallery:      #flowItems article.flow-item img[data-src]
+ *   - Availability: meta[property="product:availability"] or "SOLD OUT" in body text
+ *
  * Run: npx tsx scripts/scrapers/trespasser.ts [output-path]
  */
 import "../env";
@@ -18,6 +26,10 @@ import {
 } from "../scraperUtils";
 
 const BASE = "https://trespasser.co";
+
+function cleanWhitespace(s: string): string {
+  return (s ?? "").replace(/\s+/g, " ").trim();
+}
 
 function getProductUrlsFromHtml(html: string): string[] {
   const $ = cheerio.load(html);
@@ -45,6 +57,73 @@ async function getAllProductUrls(): Promise<string[]> {
   return getProductUrlsFromHtml(html);
 }
 
+function extractArtist($: cheerio.CheerioAPI): string {
+  // The first paragraph in .product-excerpt typically reads:
+  //   "{Title}\nby {Artist Name}"
+  // We look for "by " pattern across all text nodes in the excerpt.
+  const excerptText = $(".product-excerpt").first().text();
+  const byMatch = excerptText.match(/\bby\s+([A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ.\s'-]+?)(?:\s*\n|\s{2,}|$)/m);
+  if (byMatch) return cleanWhitespace(byMatch[1]);
+
+  // Fallback: look for a linked artist name in the excerpt
+  const $link = $(".product-excerpt a").first();
+  if ($link.length) return cleanWhitespace($link.text());
+
+  return "";
+}
+
+function extractDescription($: cheerio.CheerioAPI): string {
+  const $excerpt = $(".product-excerpt").first();
+  if (!$excerpt.length) {
+    return cleanWhitespace($('meta[property="og:description"]').attr("content") ?? "");
+  }
+
+  // Collect all paragraph text, skip the very short "by {artist}" opener
+  const paragraphs = $excerpt
+    .find("p")
+    .toArray()
+    .map((el) => {
+      const raw = $(el).html() ?? "";
+      return decodeHtmlEntities(raw)
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    })
+    .filter(Boolean);
+
+  return paragraphs.join("\n\n").trim();
+}
+
+function extractImages($: cheerio.CheerioAPI): string[] {
+  const urls: string[] = [];
+  const seen = new Set<string>();
+
+  const push = (val: string | undefined | null) => {
+    if (!val || val.startsWith("data:")) return;
+    const norm = normalizeUrl(val.trim(), BASE);
+    if (!seen.has(norm)) {
+      seen.add(norm);
+      urls.push(norm);
+    }
+  };
+
+  // 1) Cover image from the main thumbnail panel
+  $("#flowThumbnail img").each((_, el) => {
+    push($(el).attr("data-src") ?? $(el).attr("src"));
+  });
+
+  // 2) Gallery images from the flow items strip
+  $("#flowItems article.flow-item img").each((_, el) => {
+    push($(el).attr("data-src") ?? $(el).attr("src"));
+  });
+
+  // 3) OG image as final fallback
+  push($('meta[property="og:image"]').attr("content"));
+
+  return urls;
+}
+
 async function scrapeProduct(productUrl: string): Promise<{
   title: string;
   artist: string;
@@ -59,71 +138,28 @@ async function scrapeProduct(productUrl: string): Promise<{
   const $ = cheerio.load(html);
 
   const title =
-    $("h1").first().text().trim() ||
-    $('meta[property="og:title"]')
-      .attr("content")
-      ?.replace(/\s*[—–-]\s*TRESPASSER\s*$/i, "")
-      .trim() ||
-    "";
+    cleanWhitespace($("h1.product-title").first().text()) ||
+    cleanWhitespace($("h1").first().text()) ||
+    cleanWhitespace(
+      $('meta[property="og:title"]')
+        .attr("content")
+        ?.replace(/\s*[—–-]\s*TRESPASSER\s*$/i, "") ?? "",
+    );
 
-  let artist = "";
-  const $links = $(
-    'a[href*="bryanschutmaat"], a[href*="schutmaat"], [class*="artist"], [class*="author"]',
-  );
-  if ($links.length) {
-    artist = $links.first().text().trim();
-  }
-  if (!artist) {
-    const byMatch = $.root()
-      .text()
-      .match(/\bby\s+([A-Za-z][A-Za-z\s]+?)(?:\s+·|\s*\.|$|\n)/);
-    if (byMatch) artist = byMatch[1].trim();
-  }
+  const artist = extractArtist($);
+  const description = extractDescription($);
 
-  let description = "";
-  const $desc =
-    $(
-      "[class*='description'], .product__description, .product-description, [class*='product'] p",
-    )
-      .first()
-      .closest("div, section, article") || $("main p").first().closest("div");
-  if ($desc.length) {
-    let descHtml = $desc
-      .find("p")
-      .toArray()
-      .map((el) => $(el).html() ?? "")
-      .join("\n");
-    if (!descHtml) descHtml = $desc.html() ?? "";
-    description = decodeHtmlEntities(descHtml)
-      .replace(/<\/p>\s*/gi, "\n")
-      .replace(/<p[^>]*>/gi, "\n")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .replace(/^\s+|\s+$/g, "")
-      .trim();
-  }
-  if (!description && $('meta[property="og:description"]').length) {
-    description = $('meta[property="og:description"]').attr("content") ?? "";
-  }
+  const imageUrls = extractImages($);
+  const coverUrl = imageUrls[0] ?? "";
+  const images = imageUrls.slice(1).join("|");
 
-  const imageUrls: string[] = [];
-  $("img").each((_, el) => {
-    const src = $(el).attr("data-src") ?? $(el).attr("src");
-    if (src && !src.startsWith("data:") && !imageUrls.includes(src)) {
-      imageUrls.push(normalizeUrl(src, BASE));
-    }
-  });
-  const ogImage = $('meta[property="og:image"]').attr("content");
-  if (ogImage && !imageUrls.includes(ogImage)) {
-    imageUrls.unshift(normalizeUrl(ogImage, BASE));
-  }
-  const uniqueImages = [...new Set(imageUrls)];
-  const coverUrl = uniqueImages[0] ?? "";
-  const images = uniqueImages.slice(1).join("|");
-
-  const bodyText = $.root().text().toLowerCase();
-  const availability = bodyText.includes("sold out") ? "sold out" : "available";
+  // Availability: prefer meta tag, fall back to body text
+  const availMeta = $('meta[property="product:availability"]')
+    .attr("content")
+    ?.toLowerCase();
+  const soldOutByMeta = availMeta === "oos" || availMeta === "outofstock";
+  const soldOutByText = $.root().text().toLowerCase().includes("sold out");
+  const availability = soldOutByMeta || soldOutByText ? "sold out" : "available";
 
   const artistExists = artist ? await artistExistsInDb(artist) : false;
 
