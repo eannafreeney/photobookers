@@ -13,13 +13,15 @@ type NavbarProps = {
 
 const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
   const alpineAttrs = {
-    "x-data": "{ mobileMenuIsOpen: false }",
+    "x-data": "{ mobileMenuIsOpen: false, scrolled: false }",
     "x-on:click.away": "mobileMenuIsOpen = false",
+    "x-on:scroll.window": "scrolled = window.scrollY > 20",
   };
 
   return (
     <nav
-      class="flex items-center justify-between bg-surface border-b border-outline gap-4 px-6 py-4 fixed top-0 left-0 right-0 z-50 md:static md:z-auto"
+      x-bind:class="scrolled ? 'py-2' : 'py-4'"
+      class="flex items-center justify-between bg-surface border-b border-outline gap-4 px-6 transition-all duration-300 sticky top-0 z-50"
       {...alpineAttrs}
     >
       <BrandLogo />
