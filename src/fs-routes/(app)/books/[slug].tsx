@@ -17,6 +17,7 @@ export const GET = createRoute(
     const user = await getUser(c);
     const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
     const currentPath = c.req.path;
+    const currentPage = Number(c.req.query("page") ?? 1);
 
     const [error, result] = await getBookBySlug(bookSlug, "published");
 
@@ -44,6 +45,7 @@ export const GET = createRoute(
             currentPath={currentPath}
             user={user}
             isMobile={isMobile}
+            currentPage={currentPage}
           />
         </Page>
       </AppLayout>,

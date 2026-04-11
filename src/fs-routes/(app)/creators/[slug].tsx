@@ -12,11 +12,12 @@ import { BookCardResult, CreatorCardResult } from "../../../constants/queries";
 import { AuthUser } from "../../../../types";
 import { Creator } from "../../../db/schema";
 import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
-import CreatorNavTabs from "../../../features/app/components/CreatorNavTabs";
 import BooksGrid from "../../../features/app/components/BooksGrid";
 import Divider from "../../../components/Divider";
 import CreatorsGrid from "../../../features/app/components/RelatedCreators";
 import CreatorCard from "../../../components/app/CreatorCard";
+import RelatedCreators from "../../../features/app/components/RelatedCreators";
+import Tabs from "../../../components/app/Tabs";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -49,6 +50,7 @@ export const GET = createRoute(
               user={user}
               currentPath={currentPath}
               showCreatorsTab={relatedCreators.length > 0}
+              relatedCreators={relatedCreators}
               result={result}
             />
           ) : (
@@ -76,6 +78,7 @@ type CreatorDetailMobileProps = {
     page: number;
   };
   showCreatorsTab: boolean;
+  relatedCreators: CreatorCardResult[];
 };
 
 const CreatorDetailMobile = ({
@@ -84,21 +87,40 @@ const CreatorDetailMobile = ({
   currentPath,
   result,
   showCreatorsTab,
+  relatedCreators,
 }: CreatorDetailMobileProps) => (
   <div class="flex flex-col gap-4">
     <MobileCreatorCard creator={creator} user={user} />
-    <CreatorNavTabs
-      showCreatorsTab={showCreatorsTab}
-      creator={creator}
-      currentPath={currentPath}
-    />
-    <BooksGrid
-      user={user}
-      currentPath={currentPath}
-      result={result}
-      currentCreatorId={creator.id}
-      noResultsMessage="No books found"
-    />
+    <Tabs defaultTab="books">
+      <Tabs.LinkContainer>
+        <Tabs.Link tabId="books">Books</Tabs.Link>
+        {showCreatorsTab && (
+          <Tabs.Link tabId="creators">
+            {creator.type === "publisher" ? "Artists" : "Publishers"}
+          </Tabs.Link>
+        )}
+        <Tabs.Link tabId="about">About</Tabs.Link>
+      </Tabs.LinkContainer>
+      <Tabs.Panel tabId="books">
+        <BooksGrid
+          user={user}
+          currentPath={currentPath}
+          result={result}
+          currentCreatorId={creator.id}
+          noResultsMessage="No books found"
+        />
+      </Tabs.Panel>
+      <Tabs.Panel tabId="creators">
+        <CreatorsGrid creators={relatedCreators} />
+      </Tabs.Panel>
+      <Tabs.Panel tabId="about">
+        <CreatorCard creator={creator} currentPath={currentPath} user={user} />
+        <RelatedCreators
+          creators={relatedCreators}
+          title="You may also like..."
+        />
+      </Tabs.Panel>
+    </Tabs>
   </div>
 );
 

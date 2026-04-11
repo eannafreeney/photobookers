@@ -19,6 +19,7 @@ export const GET = createRoute(
     const user = await getUser(c);
     const currentPath = c.req.path;
     const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+    const currentPage = Number(c.req.query("page") ?? 1);
 
     const [error, result] = await getBookBySlug(bookSlug, "draft");
 
@@ -43,6 +44,7 @@ export const GET = createRoute(
       >
         <Page>
           <BookDetail
+            currentPage={currentPage}
             galleryImages={galleryImages}
             book={book}
             currentPath={currentPath}

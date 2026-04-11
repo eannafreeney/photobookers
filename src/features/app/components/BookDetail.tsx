@@ -1,13 +1,11 @@
 import { AuthUser } from "../../../../types";
 import AvailabilityBadge from "../../../components/app/AvailabilityBadge";
 import Card from "../../../components/app/Card";
-import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import CarouselMobile from "../../../components/app/CarouselMobile";
 import CreatorCard from "../../../components/app/CreatorCard";
 import PurchaseLink from "../../../components/app/PurchaseLink";
 import ShareButton from "../../api/components/ShareButton";
 import TagList from "../../../components/app/TagList";
-import { formatDate } from "../../../utils";
 import WishlistButton from "../../api/components/WishlistButton";
 import { BookWithGalleryImages } from "../types";
 import CollectButton from "../../api/components/CollectButton";
@@ -17,11 +15,23 @@ import RelatedBooks from "../components/RelatedBooks";
 import CommentsSection from "../components/CommentsSection";
 import LikeButton from "../../api/components/LikeButton";
 import Divider from "../../../components/Divider";
-import BookNavTabs from "./BookNavTabs";
 import BookCredits from "./BookCredits";
 import PageBleed from "../../../components/layouts/PageContent";
+import Tabs from "../../../components/app/Tabs";
+import Show from "../../../components/app/Show";
+import BookGridWrapper from "./BookGridWrapper";
 
-type BookDetailProps = {
+type BookMobileProps = {
+  galleryImages: string[];
+  book: BookWithGalleryImages;
+  currentPath: string;
+  user: AuthUser | null;
+  isMobile?: boolean;
+  creator?: Creator | null;
+  currentPage: number;
+};
+
+type BookDesktopProps = {
   galleryImages: string[];
   book: BookWithGalleryImages;
   currentPath: string;
@@ -36,7 +46,8 @@ const BookDetail = ({
   book,
   currentPath,
   user,
-}: BookDetailProps) => {
+  currentPage,
+}: BookMobileProps) => {
   return isMobile ? (
     <DetailMobile
       galleryImages={galleryImages}
@@ -45,6 +56,7 @@ const BookDetail = ({
       user={user}
       isMobile={isMobile}
       creator={book.artist}
+      currentPage={currentPage}
     />
   ) : (
     <DetailDesktop
@@ -63,7 +75,7 @@ const DetailDesktop = ({
   book,
   currentPath,
   user,
-}: BookDetailProps) => {
+}: BookDesktopProps) => {
   return (
     <div class="flex flex-col gap-8">
       <div class="flex gap-8 h-[calc(100vh-8rem)]">
@@ -139,36 +151,82 @@ const DetailMobile = ({
   currentPath,
   user,
   creator,
-}: BookDetailProps) => {
+  currentPage,
+}: BookMobileProps) => {
   return (
     <div class="flex flex-col gap-4">
       {creator && <MobileCreatorCard creator={creator} user={user} />}
-      <BookNavTabs
-        bookSlug={book.slug}
-        currentPath={currentPath}
-        hasPublisher={!!book.publisher}
-      />
-      <PageBleed>
-        <CarouselMobile images={galleryImages} />
-      </PageBleed>
-      <div class="flex flex-col gap-2">
-        <div class="text-balance text-lg font-semibold text-on-surface-strong">
-          {book.title}
-        </div>
-      </div>
-      <div class="flex items-center justify-evenly">
-        <LikeButton isCircleButton book={book} user={user} />
-        <CollectButton isCircleButton book={book} user={user} />
-        <WishlistButton isCircleButton book={book} user={user} />
-        <ShareButton isCircleButton />
-      </div>
-      {book.description && (
-        <Card.Description>{book.description}</Card.Description>
-      )}
-      <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
-      <PurchaseLink purchaseLink={book.purchaseLink} />
-      <BookCredits releaseDate={book.releaseDate} />
-      <TagList tags={book.tags ?? []} />
+      <Tabs defaultTab="books">
+        <Tabs.LinkContainer>
+          <Tabs.Link tabId="books">Books</Tabs.Link>
+          <Tabs.Link tabId="comments">Comments</Tabs.Link>
+          <Tabs.Link tabId="artist">Artist</Tabs.Link>
+          <Show when={!!book.publisher}>
+            <Tabs.Link tabId="publisher">Publisher</Tabs.Link>
+          </Show>
+        </Tabs.LinkContainer>
+        <Tabs.Panel tabId="books">
+          <PageBleed>
+            <CarouselMobile images={galleryImages} />
+          </PageBleed>
+          <div class="flex flex-col gap-2">
+            <div class="text-balance text-lg font-semibold text-on-surface-strong">
+              {book.title}
+            </div>
+          </div>
+          <div class="flex items-center justify-evenly">
+            <LikeButton isCircleButton book={book} user={user} />
+            <CollectButton isCircleButton book={book} user={user} />
+            <WishlistButton isCircleButton book={book} user={user} />
+            <ShareButton isCircleButton />
+          </div>
+          {book.description && (
+            <Card.Description>{book.description}</Card.Description>
+          )}
+          <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
+          <PurchaseLink purchaseLink={book.purchaseLink} />
+          <BookCredits releaseDate={book.releaseDate} />
+          <TagList tags={book.tags ?? []} />
+        </Tabs.Panel>
+        <Tabs.Panel tabId="comments">
+          <CommentsSection
+            bookId={book.id}
+            user={user}
+            bookSlug={book.slug}
+            isMobile
+          />
+        </Tabs.Panel>
+        <Tabs.Panel tabId="artist">
+          <CreatorCard
+            creator={book.artist}
+            currentPath={currentPath}
+            user={user}
+          />
+          <Divider />
+          <BookGridWrapper
+            bookSlug={book.slug}
+            currentPage={currentPage}
+            creator={book?.artist ?? null}
+            currentPath={currentPath}
+            user={user}
+          />
+        </Tabs.Panel>
+        <Tabs.Panel tabId="publisher">
+          <CreatorCard
+            creator={book.publisher}
+            currentPath={currentPath}
+            user={user}
+          />
+          <Divider />
+          <BookGridWrapper
+            bookSlug={book.slug}
+            currentPage={currentPage}
+            creator={book?.publisher ?? null}
+            currentPath={currentPath}
+            user={user}
+          />
+        </Tabs.Panel>
+      </Tabs>
     </div>
   );
 };

@@ -8,7 +8,7 @@ type Props = {
   currentPage: number;
   creator: Creator | null;
   currentPath: string;
-  user: AuthUser;
+  user: AuthUser | null;
 };
 
 const BookGridWrapper = async ({
