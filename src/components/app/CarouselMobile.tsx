@@ -33,22 +33,6 @@ const CarouselMobile = ({
             {imageSkeletonIcon}
           </div>
         </div>
-        {/* <template x-for="(slide, index) in slides">
-          <div
-            class="absolute inset-0 flex items-center justify-center"
-            x-show="currentSlideIndex === index + 1"
-            x-bind:class="currentSlideIndex === index + 1 ? 'z-10' : 'z-0 pointer-events-none'"
-            {...fadeTransition}
-          >
-            <img
-              class="block w-full h-full object-contain"
-              x-bind:src="slide.imgSrc"
-              x-bind:alt="slide.imgAlt"
-              x-on:load="if (index === 0) isFirstImageLoaded = true"
-              x-on:error="if (index === 0) isFirstImageLoaded = true"
-            />
-          </div>
-        </template> */}
         <template x-for="(slide, index) in slides">
           <div
             class="absolute inset-0 flex items-center justify-center overflow-hidden"
@@ -56,9 +40,8 @@ const CarouselMobile = ({
             x-bind:class="currentSlideIndex === index + 1 ? 'z-10' : 'z-0 pointer-events-none'"
             {...fadeTransition}
           >
-            <img
-              class="absolute inset-0 w-full h-full object-cover scale-100 blur-xs opacity-70"
-              x-bind:src="slide.imgSrc"
+            <div
+              class="absolute inset-0 bg-surface-variant"
               aria-hidden="true"
             />
             <img
