@@ -12,7 +12,7 @@ const Tabs = ({ defaultTab, children }: TabsProps) => (
 );
 
 const TabLinkContainer = ({ children }: TabLinkContainerProps) => (
-  <div class="flex items-center justify-between bg-surface-alt gap-2 mb-2 mt-2 mx-auto">
+  <div class="flex items-center justify-center bg-surface-alt gap-2 mb-2 mt-2 mx-auto">
     {children}
   </div>
 );
