@@ -112,7 +112,7 @@ const HeroCarousel = async () => {
                     x-text="item.text"
                   ></p>
                 </template>
-                <div class="flex justify-center md:justify-start">
+                <div class="flex justify-center md:justify-start group">
                   <a x-bind:href="item.link">
                     <Button
                       variant="solid"
@@ -120,7 +120,12 @@ const HeroCarousel = async () => {
                       width="md"
                       x-bind:href="item.link"
                     >
-                      View →
+                      <span class="inline-flex items-center">
+                        View
+                        <span class="w-0 overflow-hidden opacity-0 group-hover:w-6 group-hover:opacity-100 transition-all duration-300 ease-in-out whitespace-nowrap">
+                          &nbsp;→
+                        </span>
+                      </span>
                     </Button>
                   </a>
                 </div>

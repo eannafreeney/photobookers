@@ -3,6 +3,7 @@ import BookCard from "../../../components/app/BookCard";
 import GridPanel from "../../../components/app/GridPanel";
 import { InfiniteScroll } from "../../../components/app/InfiniteScroll";
 import { Pagination } from "../../../components/app/Pagination";
+import ScrollReveal from "../../../components/app/ScrollReveal";
 import SectionTitle from "../../../components/app/SectionTitle";
 import { BookCardResult } from "../../../constants/queries";
 import ListNavigation from "./ListNavigation";
@@ -51,11 +52,13 @@ const BooksGrid = async ({
         >
           {books?.length > 0 ? (
             books.map((book) => (
-              <BookCard
-                book={book}
-                user={user}
-                currentCreatorId={currentCreatorId}
-              />
+              <ScrollReveal>
+                <BookCard
+                  book={book}
+                  user={user}
+                  currentCreatorId={currentCreatorId}
+                />
+              </ScrollReveal>
             ))
           ) : (
             <div class="col-span-full text-center text-sm text-on-surface py-4">
