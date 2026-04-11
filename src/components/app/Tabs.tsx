@@ -11,20 +11,8 @@ const Tabs = ({ defaultTab, children }: TabsProps) => (
   <div x-data={`{ currentTab: '${defaultTab}' }`}>{children}</div>
 );
 
-const TabPanel = ({ tabId, children }: TabPanelProps) => (
-  <div
-    x-show={`currentTab === '${tabId}'`}
-    class="flex flex-col gap-4 mt-4"
-    x-transition:enter="transition ease-out duration-600"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-  >
-    {children}
-  </div>
-);
-
 const TabLinkContainer = ({ children }: TabLinkContainerProps) => (
-  <div class="flex items-center justify-between bg-surface-alt gap-2 mb-2 mt-2">
+  <div class="flex items-center justify-between bg-surface-alt gap-2 mb-2 mt-2 mx-auto">
     {children}
   </div>
 );
@@ -41,8 +29,20 @@ const TabLink = ({ tabId, children }: TabLinkProps) => (
   </button>
 );
 
+const TabPanel = ({ tabId, children }: TabPanelProps) => (
+  <div
+    x-show={`currentTab === '${tabId}'`}
+    class="flex flex-col gap-4 mt-4"
+    x-transition:enter="transition ease-out duration-600"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+  >
+    {children}
+  </div>
+);
+
 Tabs.LinkContainer = TabLinkContainer;
-Tabs.Panel = TabPanel;
 Tabs.Link = TabLink;
+Tabs.Panel = TabPanel;
 
 export default Tabs;

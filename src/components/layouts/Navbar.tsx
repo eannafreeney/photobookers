@@ -20,8 +20,8 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
 
   return (
     <nav
-      x-bind:class="scrolled ? 'py-2' : 'py-4'"
-      class="flex items-center justify-between bg-surface border-b border-outline gap-4 px-6 transition-all duration-300 sticky top-0 z-50"
+      x-bind:class="scrolled ? 'py-2 shadow-md' : 'py-4 shadow-none'"
+      class="flex items-center justify-between bg-surface border-b border-outline gap-4 px-6 transition-all duration-200 ease-in-out sticky top-0 z-50"
       {...alpineAttrs}
     >
       <BrandLogo />

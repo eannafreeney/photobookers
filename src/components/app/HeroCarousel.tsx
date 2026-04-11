@@ -50,7 +50,7 @@ const HeroCarousel = async () => {
       x-on:touchmove="handleTouchMove($event)"
       x-on:touchend="handleTouchEnd()"
     >
-      <div class="hidden md:flex flex-wrap gap-3 px-4 py-3 text-sm sm:gap-6 sm:px-8 sm:py-4">
+      <div class="hidden md:flex rounded-radius flex-wrap gap-3 px-4 py-3 text-sm sm:gap-6 sm:px-8 sm:py-4">
         <template x-for="(item, index) in items">
           <button
             x-on:click="go(index)"
