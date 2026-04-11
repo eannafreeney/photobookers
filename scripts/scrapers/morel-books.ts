@@ -31,7 +31,6 @@ import {
   fetchHtml,
   normalizeUrl,
   rowToCsv,
-  decodeHtmlEntities,
 } from "../scraperUtils";
 
 const BASE = "https://morelbooks.com";
@@ -109,19 +108,6 @@ function extractProductJson(
   }
 }
 
-function extractArtistFromLeadStrong(descriptionHtml: string): string {
-  const $d = cheerio.load(descriptionHtml);
-  $d("meta, script, style").remove();
-
-  const leadStrongText = cleanWhitespace(
-    decodeHtmlEntities($d("strong").first().text()),
-  );
-  if (!leadStrongText) return "";
-
-  // Example: "Distracted by Fashion - Piers Hanmer" -> "Distracted by Fashion"
-  const match = leadStrongText.match(/^(.*?)\s+[–—-]\s+.*$/);
-  return cleanWhitespace(match?.[1] ?? "");
-}
 
 function extractDescriptionText(descriptionHtml: string): string {
   const $d = cheerio.load(descriptionHtml);
@@ -160,30 +146,19 @@ async function scrapeProduct(productUrl: string): Promise<{
     cleanWhitespace($("h1.product-title").first().text()) ||
     cleanWhitespace($("meta[property='og:title']").attr("content") ?? "");
 
-  const descriptionHtml = productJson?.description ?? "";
+  // Description: prefer the structured JSON field; fall back to the DOM .rte block.
+  const descriptionHtml =
+    productJson?.description ||
+    $(".product-detail__detail .rte").html() ||
+    "";
   const description = descriptionHtml
     ? extractDescriptionText(descriptionHtml)
     : "";
 
-  // Your example mapping:
-  //   title = Piers Hanmer
-  //   artist = Distracted by Fashion
-  let artist = descriptionHtml
-    ? extractArtistFromLeadStrong(descriptionHtml)
-    : "";
-  if (!artist) {
-    const ogDesc = cleanWhitespace(
-      decodeHtmlEntities(
-        $("meta[property='og:description']").attr("content") ?? "",
-      ),
-    );
-    const match = ogDesc.match(/^(.*?)\s+[–—-]\s+.*$/);
-    artist = cleanWhitespace(match?.[1] ?? "");
-  }
-  if (!artist) {
-    // Last fallback: vendor/brand.
-    artist = cleanWhitespace(productJson?.vendor ?? "");
-  }
+  // Mörel uses the product title as the artist/photographer name with no
+  // separate artist field on the page, so leave this empty and let the
+  // import process match against existing creators.
+  const artist = "";
 
   const imageUrlsRaw = (productJson?.images ?? []).map((u) => String(u));
   const imageUrls = uniqPreserveOrder(
@@ -193,16 +168,27 @@ async function scrapeProduct(productUrl: string): Promise<{
   const coverUrl = imageUrls[0] ?? "";
   const images = imageUrls.slice(1).join("|");
 
-  const pageTextLower = $("body").text().toLowerCase();
-  const soldOutByText =
-    pageTextLower.includes("sold out") ||
-    pageTextLower.includes("out of stock") ||
-    pageTextLower.includes("variant unavailable");
-
+  // Trust the JSON `available` flag first — it's authoritative and avoids
+  // false positives from "Sold out" labels in the recommendations section.
+  // Only fall back to text scanning if the JSON field is absent, and scope
+  // that scan to the product form area rather than the whole body.
   const availableFromJson =
     typeof productJson?.available === "boolean" ? productJson.available : null;
 
-  const soldOut = soldOutByText || availableFromJson === false;
+  let soldOut: boolean;
+  if (availableFromJson !== null) {
+    soldOut = !availableFromJson;
+  } else {
+    const formText = $(".product-detail__form, form#product_form_")
+      .first()
+      .text()
+      .toLowerCase();
+    soldOut =
+      formText.includes("sold out") ||
+      formText.includes("out of stock") ||
+      formText.includes("unavailable");
+  }
+
   const availability = soldOut ? "sold out" : "available";
 
   const canonical = cleanWhitespace(
