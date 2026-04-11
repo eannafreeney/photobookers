@@ -11,6 +11,7 @@ import NewsletterCard from "../../features/app/components/NewsletterCard";
 import DiscoveryTags from "../../features/app/components/DiscoveryTags";
 import { getIsMobile } from "../../lib/device";
 import PageBleed from "../../components/layouts/PageContent";
+import ScrollReveal from "../../components/app/ScrollReveal";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -24,26 +25,40 @@ export const GET = createRoute(async (c: Context) => {
         <div class="text-center text-2xl font-bold">
           The social network for photobook lovers.
         </div>
-        <Intersector id="stats-fragment" endpoint="/fragments/stats" />
-        <SiteFeatures />
-        <Intersector
-          id="featured-books-fragment"
-          endpoint="/fragments/featured-books"
-        />
-        <PageBleed>
+        <ScrollReveal>
+          <Intersector id="stats-fragment" endpoint="/fragments/stats" />
+        </ScrollReveal>
+        <ScrollReveal>
+          <SiteFeatures />
+        </ScrollReveal>
+        <ScrollReveal>
           <Intersector
-            id="creators-slider-fragment"
-            endpoint="/fragments/creators-slider"
+            id="featured-books-fragment"
+            endpoint="/fragments/featured-books"
           />
-        </PageBleed>
-        <NewsletterCard />
-        <PageBleed>
-          <DiscoveryTags />
-        </PageBleed>
-        <Intersector
-          id="latest-books-fragment"
-          endpoint="/fragments/latest-books"
-        />
+        </ScrollReveal>
+        <ScrollReveal>
+          <PageBleed>
+            <Intersector
+              id="creators-slider-fragment"
+              endpoint="/fragments/creators-slider"
+            />
+          </PageBleed>
+        </ScrollReveal>
+        <ScrollReveal>
+          <NewsletterCard />
+        </ScrollReveal>
+        <ScrollReveal>
+          <PageBleed>
+            <DiscoveryTags />
+          </PageBleed>
+        </ScrollReveal>
+        <ScrollReveal>
+          <Intersector
+            id="latest-books-fragment"
+            endpoint="/fragments/latest-books"
+          />
+        </ScrollReveal>
       </Page>
     </AppLayout>,
   );
