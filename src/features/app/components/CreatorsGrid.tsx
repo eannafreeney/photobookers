@@ -40,7 +40,7 @@ const CreatorsGrid = async ({
       <div
         x-ref="creatorsContent"
         id={targetId}
-        xMerge={isMobile ? "append" : "replace"}
+        x-merge={isMobile ? "append" : "replace"}
         class="grid grid-cols-2 md:grid-cols-3 gap-6"
       >
         {creators.map((creator) => (
