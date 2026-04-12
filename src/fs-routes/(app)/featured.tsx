@@ -23,7 +23,27 @@ export const GET = createRoute(async (c: Context) => {
       <Page>
         <HeroCarousel />
         <div class="text-center text-2xl font-bold">
-          The social network for photobook lovers.
+          The{" "}
+          <span
+            x-data={`{
+              words: ['community', 'social network', 'archive',],
+              current: 0,
+              visible: true,
+               init() {
+                setInterval(() => {
+                  this.visible = false
+                  setTimeout(() => {
+                    this.current = (this.current + 1) % this.words.length
+                    this.visible = true
+                  }, 300)
+                }, 2500)
+              }
+            }`}
+            x-text="words[current]"
+            x-bind:class="visible ? 'opacity-100' : 'opacity-0'"
+            class="border-b-2 border-black inline-block transition-opacity duration-300"
+          />{" "}
+          for photobook lovers.
         </div>
         <ScrollReveal>
           <Intersector id="stats-fragment" endpoint="/fragments/stats" />
