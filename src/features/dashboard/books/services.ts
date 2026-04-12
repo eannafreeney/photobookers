@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, inArray, ne, or } from "drizzle-orm";
+import { and, asc, count, eq, ilike, inArray, ne, or } from "drizzle-orm";
 import { db } from "../../../db/client";
 import {
   Book,
@@ -62,7 +62,7 @@ export const getBooksByArtistId = async (
 
     const booksByArtist = await db.query.books.findMany({
       where: inArray(books.id, artistBookIdsSubquery),
-      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      orderBy: [asc(books.sortOrder)],
       with: { artist: true, publisher: true },
       limit,
       offset,
@@ -102,7 +102,7 @@ export const getBooksByPublisherId = async (
 
     const booksByPublisher = await db.query.books.findMany({
       where: whereClause,
-      orderBy: (books, { desc }) => [desc(books.createdAt)],
+      orderBy: [asc(books.sortOrder)],
       with: {
         artist: true,
         publisher: true,

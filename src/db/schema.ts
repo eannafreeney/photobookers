@@ -223,6 +223,7 @@ export const books = pgTable(
     notifyFollowersCreatorId: uuid("notify_followers_creator_id").references(
       () => creators.id,
     ),
+    sortOrder: integer("sort_order"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },

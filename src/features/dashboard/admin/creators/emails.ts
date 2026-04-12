@@ -11,7 +11,7 @@ export const generateWelcomeEmail = (creator: Creator, loginLink: string) => {
         The Velvet Cell (Berlin/Bremen), which I stepped away from in 2025 to focus on new projects.
       </p>
       <p>
-        I am now building Photobookers, a platform for discovering photobooks and following
+        I am writing to invite you to join Photobookers, a platform for discovering photobooks and following
         the artists and publishers behind them — something closer in spirit to Bandcamp, but for photobooks.
       </p>
       <p>The idea is to create a dedicated space where collectors can:</p>
