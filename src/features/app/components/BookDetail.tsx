@@ -93,7 +93,7 @@ const DetailDesktop = ({
 
         <div class="w-2/5 h-full overflow-y-auto pr-2">
           <div class="mb-4 flex flex-col gap-4">
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-0">
               <div class="text-balance text-lg font-semibold text-on-surface-strong">
                 {book.title}
               </div>
