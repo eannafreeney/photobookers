@@ -8,9 +8,11 @@ type Props = {
   creatorType: "artist" | "publisher";
   title?: string;
   currentPath: string;
+  isMobile?: boolean;
 };
 
 const CreatorsGrid = async ({
+  isMobile,
   creatorId,
   creatorType,
   title,
@@ -36,6 +38,7 @@ const CreatorsGrid = async ({
           <CreatorsCircle creator={creator} />
         ))}
         <ListNavigation
+          isInfiniteScroll={isMobile}
           targetId={targetId}
           totalPages={totalPages}
           page={page}
