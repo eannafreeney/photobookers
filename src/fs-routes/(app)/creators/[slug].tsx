@@ -123,6 +123,7 @@ const CreatorDetailMobile = ({
           creatorId={creator.id}
           creatorType={creator.type}
           currentPath={currentPath}
+          pageParam="creatorsPage"
         />
       </Tabs.Panel>
       <Tabs.Panel tabId="about">
@@ -139,6 +140,7 @@ const CreatorDetailMobile = ({
           creatorType={creator.type}
           currentPath={currentPath}
           title="You may also like..."
+          pageParam="creatorsPage"
         />
       </Tabs.Panel>
     </Tabs>
