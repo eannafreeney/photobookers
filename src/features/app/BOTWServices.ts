@@ -1,5 +1,7 @@
-import { BOOK_CARD_COLUMNS } from "../../constants/queries";
-import { CREATOR_CARD_COLUMNS } from "../../constants/queries";
+import {
+  BOOK_CARD_COLUMNS,
+  CREATOR_CARD_COLUMNS,
+} from "../../constants/queries";
 import { db } from "../../db/client";
 import { bookOfTheWeek, BookOfTheWeek } from "../../db/schema";
 import { eq, desc, count, lte } from "drizzle-orm";

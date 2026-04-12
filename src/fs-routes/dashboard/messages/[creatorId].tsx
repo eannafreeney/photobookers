@@ -1,21 +1,16 @@
 import { createRoute } from "hono-fsr";
-import { Context } from "hono";
 import { formValidator, paramValidator } from "../../../lib/validator";
-import { getUser, setFlash } from "../../../utils";
-import {
-  createMessage,
-  getMessagesByCreator,
-} from "../../../features/dashboard/messages/services";
+import { createMessage } from "../../../features/dashboard/messages/services";
 import { requireCreatorEditAccess } from "../../../middleware/creatorGuard";
 import { creatorIdSchema } from "../../../schemas";
-import AppLayout from "../../../components/layouts/AppLayout";
-import Page from "../../../components/layouts/Page";
-import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumbs";
-import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
 import { MessageFormContext } from "../../../features/dashboard/messages/types";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import { createMessageFormSchema } from "../../../features/dashboard/messages/schema";
 import { removeInvalidImages, uploadImage } from "../../../services/storage";
+import Alert from "../../../components/app/Alert";
+import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
+import CreatorMessages from "../../../features/app/components/CreatorMessages";
+import { getUser } from "../../../utils";
 
 export const POST = createRoute(
   paramValidator(creatorIdSchema),
@@ -24,6 +19,10 @@ export const POST = createRoute(
   async (c: MessageFormContext) => {
     const creatorId = c.req.valid("param").creatorId;
     const body = await c.req.parseBody({ all: true });
+    const user = await getUser(c);
+
+    const creator = user.creator;
+    if (!creator) return showErrorAlert(c, "Creator not found");
 
     const messageBody = String(body.body ?? "").trim();
     if (!messageBody) {
@@ -38,7 +37,7 @@ export const POST = createRoute(
 
     let imageUrls: string[] | undefined = undefined;
 
-    if (rawImage) {
+    if (rawImage instanceof File && rawImage.size > 0) {
       const valid = removeInvalidImages(rawImage);
       if (!valid) {
         return showErrorAlert(c, "Please upload a valid image file");
@@ -57,7 +56,6 @@ export const POST = createRoute(
       }
     }
 
-    console.log("imageUrls", imageUrls);
     const message = await createMessage(creatorId, {
       body: messageBody,
       imageUrls,
@@ -65,6 +63,16 @@ export const POST = createRoute(
 
     if (!message) return showErrorAlert(c, "Failed to create message");
 
-    return showSuccessAlert(c, "Message posted! Your followers will see it.");
+    // return showSuccessAlert(c, "Message posted! Your followers will see it.");
+    return c.html(
+      <>
+        <Alert
+          type="success"
+          message="Message posted! Your followers will see it."
+        />
+        <MessageForm creatorId={creatorId} />
+        <CreatorMessages creatorSlug={creator.slug} user={user} />
+      </>,
+    );
   },
 );

@@ -7,45 +7,49 @@ const MessageForm = ({ creatorId }: { creatorId: string }) => {
   const alpineAttrs = {
     "x-data": `messageForm()`,
     "x-on:submit": "submitForm($event)",
-    "x-target": "toast",
+    "x-target": `toast creator-messages creator-messages-${creatorId}`,
     "x-on:ajax:error": "isSubmitting = false",
     "x-on:ajax:success": "onSuccess()",
   };
 
   return (
-    <form
-      id="message-form"
-      method="post"
-      enctype="multipart/form-data"
-      action={`/dashboard/messages/${creatorId}`}
-      class="flex flex-col gap-4 max-w-xl"
-      {...alpineAttrs}
-    >
-      <TextArea
-        label="Message"
-        name="form.body"
-        required
-        maxLength={5000}
-        placeholder="Write a message for your followers…"
-        validateInput="validateField('body')"
-      />
-      <div x-show="previewUrl" x-cloak>
-        <img
-          x-bind:src="previewUrl"
-          alt="Message image preview"
-          class="w-full max-w-md rounded-radius object-cover border border-outline"
+    <div>
+      <h2 class="text-lg font-semibold text-on-surface-strong">
+        Post a message
+      </h2>
+      <form
+        id="message-form"
+        method="post"
+        enctype="multipart/form-data"
+        action={`/dashboard/messages/${creatorId}`}
+        class="flex flex-col gap-4"
+        {...alpineAttrs}
+      >
+        <TextArea
+          name="form.body"
+          required
+          maxLength={5000}
+          placeholder="Write a message for your followers…"
+          validateInput="validateField('body')"
         />
-      </div>
-      <DragAndDropArea />
-      <FileUploadInput
-        label="Add Images"
-        name="image"
-        x-on:change="onFileChange($event)"
-        x-ref="fileInput"
-        // isDisabled={!canUploadImage(user, book)}
-      />
-      <FormButtons buttonText="Post message" loadingText="Posting…" />
-    </form>
+        <div x-show="previewUrl" x-cloak>
+          <img
+            x-bind:src="previewUrl"
+            alt="Message image preview"
+            class="w-full max-w-md rounded-radius object-cover border border-outline"
+          />
+        </div>
+        <DragAndDropArea />
+        <FileUploadInput
+          label="Add Images"
+          name="image"
+          x-on:change="onFileChange($event)"
+          x-ref="fileInput"
+          // isDisabled={!canUploadImage(user, book)}
+        />
+        <FormButtons buttonText="Post message" loadingText="Posting…" />
+      </form>
+    </div>
   );
 };
 

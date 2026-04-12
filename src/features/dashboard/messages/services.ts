@@ -78,3 +78,17 @@ export async function getMessagesForFollower(
 
   return { messages, totalPages, page };
 }
+
+export async function deleteMessageById(messageId: string) {
+  try {
+    const [message] = await db
+      .delete(creatorMessages)
+      .where(eq(creatorMessages.id, messageId))
+      .returning();
+    if (!message) return err({ reason: "Message not found" });
+    return ok(message);
+  } catch (error) {
+    console.error("Failed to delete message", error);
+    return err({ reason: "Failed to delete message", cause: error });
+  }
+}

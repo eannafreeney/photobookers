@@ -98,6 +98,7 @@ const UserTableRow = ({ user }: RowProps) => {
     "x-init": "true",
     "x-target": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+    "@ajax:success": "$el.closest('tr').remove()",
   };
 
   return (
@@ -152,6 +153,7 @@ const DeleteMultipleUsersForm = () => {
   const deleteAttrs = {
     "x-target": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+    "@ajax:success": "$el.closest('form').remove()",
   };
 
   return (

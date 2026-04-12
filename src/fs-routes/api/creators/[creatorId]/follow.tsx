@@ -2,31 +2,15 @@ import { Context } from "hono";
 import { createRoute } from "hono-fsr";
 import { getUser } from "../../../../utils";
 import AuthModal from "../../../../components/app/AuthModal";
-import {
-  getBookPermissionData,
-  getCreatorPermissionData,
-} from "../../../../features/api/services";
+import { getCreatorPermissionData } from "../../../../features/api/services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
-import {
-  publishCollectActivity,
-  publishFollowActivity,
-} from "../../../../features/api/utils";
-import {
-  createBookCollectedNotification,
-  createCreatorFollowedNotification,
-} from "../../../../features/dashboard/admin/notifications/utils";
+import { publishFollowActivity } from "../../../../features/api/utils";
+import { createCreatorFollowedNotification } from "../../../../features/dashboard/admin/notifications/utils";
 import Alert from "../../../../components/app/Alert";
-import { dispatchEvents } from "../../../../lib/disatchEvents";
-import {
-  deleteCollectionItem,
-  deleteFollow,
-  insertCollectionItem,
-  insertFollow,
-} from "../../../../db/queries";
-import CollectButton from "../../../../features/api/components/CollectButton";
+import { deleteFollow, insertFollow } from "../../../../db/queries";
 import FollowButton from "../../../../features/api/components/FollowButton";
-
-const updateLibraryPage = () => "library:updated";
+import { dispatchEvents } from "../../../../lib/disatchEvents";
+import { log } from "console";
 
 export const POST = createRoute(async (c: Context) => {
   const creatorId = c.req.param("creatorId");
@@ -39,6 +23,10 @@ export const POST = createRoute(async (c: Context) => {
   const body = await c.req.parseBody();
   const isCurrentlyFollowing = body.isFollowing === "true";
   const isCircleButton = body.buttonType === "circle";
+  const shouldRefreshCreatorMessages =
+    body.shouldRefreshCreatorMessages === "true";
+
+  console.log("shouldRefreshCreatorMessages", shouldRefreshCreatorMessages);
 
   const [err, creator] = await getCreatorPermissionData(creatorId);
   if (err || !creator)
@@ -68,13 +56,17 @@ export const POST = createRoute(async (c: Context) => {
         creator={creator}
         user={user}
         isCircleButton={isCircleButton}
+        shouldRefreshCreatorMessages={shouldRefreshCreatorMessages}
       />
       <FollowButton
         creator={creator}
         user={user}
         isCircleButton={isCircleButton}
         variant="mobile"
+        shouldRefreshCreatorMessages={shouldRefreshCreatorMessages}
       />
+      {shouldRefreshCreatorMessages &&
+        dispatchEvents(["creator-messages:updated"])}
     </>,
   );
 });

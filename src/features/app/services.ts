@@ -1012,7 +1012,11 @@ export async function getCoverUrlsForHeroCarousel(
   }
 }
 
-export const getMessagesByCreatorSlug = async (creatorSlug: string) => {
+export const getMessagesByCreatorSlug = async (
+  creatorSlug: string,
+  currentPage = 1,
+  limit = 20,
+) => {
   try {
     const creator = await db.query.creators.findFirst({
       where: eq(creators.slug, creatorSlug),
@@ -1024,32 +1028,30 @@ export const getMessagesByCreatorSlug = async (creatorSlug: string) => {
         type: true,
       },
     });
+    if (!creator) return err({ reason: "Creator not found" });
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(creatorMessages)
+      .where(eq(creatorMessages.creatorId, creator.id));
 
-    if (!creator) {
-      return err({ reason: "Creator not found" });
-    }
-
-    const associatedCreators = await getRelatedCreators(
-      creator.id,
-      creator.type,
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      5,
     );
 
-    const messages = await db.query.creatorMessages.findMany({
+    const foundMessages = await db.query.creatorMessages.findMany({
       where: eq(creatorMessages.creatorId, creator.id),
       orderBy: [desc(creatorMessages.createdAt)],
-
+      limit,
+      offset,
       with: {
         creator: {
           columns: { id: true, slug: true, displayName: true, coverUrl: true },
         },
       },
     });
-
-    return ok({
-      creator,
-      associatedCreators,
-      messages,
-    });
+    return ok({ messages: foundMessages ?? [], totalPages, page, creator });
   } catch (error) {
     console.error("Failed to get messages by creator slug", error);
     return err({ reason: "Failed to get messages by creator slug", error });

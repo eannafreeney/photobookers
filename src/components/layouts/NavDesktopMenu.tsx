@@ -139,14 +139,6 @@ const DropDownMenu = ({
               } Profile`}
             </NavLink>
           )}
-          <FeatureGuard flagName="messages">
-            <NavLink
-              href={`/dashboard/messages/${user?.creator?.id}`}
-              currentPath={currentPath}
-            >
-              Messages
-            </NavLink>
-          </FeatureGuard>
         </>
       )}
       {user?.isAdmin && (

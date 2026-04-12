@@ -11,6 +11,7 @@ type FollowButtonProps = {
   isCircleButton?: boolean;
   variant?: "desktop" | "mobile";
   shouldRefreshFollowedCreators?: boolean;
+  shouldRefreshCreatorMessages?: boolean;
 };
 
 const FollowButton = async ({
@@ -19,6 +20,7 @@ const FollowButton = async ({
   isCircleButton = false,
   variant = "desktop",
   shouldRefreshFollowedCreators = false,
+  shouldRefreshCreatorMessages = false,
 }: FollowButtonProps) => {
   // Only query if user is logged in, otherwise default to false
   let isFollowing = false;
@@ -69,6 +71,7 @@ const FollowButton = async ({
         buttonType="circle"
         isDisabled={isDisabled}
         shouldRefreshFollowedCreators={shouldRefreshFollowedCreators}
+        shouldRefreshCreatorMessages={shouldRefreshCreatorMessages}
       />
     );
   }
@@ -78,6 +81,7 @@ const FollowButton = async ({
       {...props}
       isDisabled={isDisabled}
       shouldRefreshFollowedCreators={shouldRefreshFollowedCreators}
+      shouldRefreshCreatorMessages={shouldRefreshCreatorMessages}
     />
   );
 };

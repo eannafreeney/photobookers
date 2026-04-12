@@ -14,6 +14,7 @@ import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumb
 import { BooksOverviewTable } from "../../../features/dashboard/books/tables/BooksOverviewTable";
 import Button from "../../../components/app/Button";
 import { CreatorStatus } from "../../../db/schema";
+import NavTabs from "../../../features/dashboard/books/components/NavTabs";
 
 export const GET = createRoute(async (c: Context) => {
   const searchQuery = c.req.query("search");
@@ -48,7 +49,13 @@ export const GET = createRoute(async (c: Context) => {
     >
       <VerificationStatusBanner creatorStatus={user.creator.status ?? "stub"} />
       <Page>
-        <Breadcrumbs items={[{ label: "Books Overview" }]} />
+        <Breadcrumbs
+          items={[
+            { label: "Dashboard" },
+            { label: "Books", href: "/dashboard/books" },
+          ]}
+        />
+        <NavTabs currentPath={currentPath} />
         <div class="flex flex-col gap-16">
           <BooksOverviewTable
             books={books}

@@ -50,7 +50,7 @@ const Dock = ({ currentPath }: DockProps) => {
       <FeatureGuard flagName="messages">
         <a href="/messages" class={item("/messages")}>
           {updatesIcon}
-          <span class="text-[0.6875rem]">Updates</span>
+          <span class="text-[0.6875rem]">Messages</span>
         </a>
       </FeatureGuard>
     </div>

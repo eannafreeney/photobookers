@@ -105,6 +105,7 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
     "x-init": "true",
     "x-target": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+    "@ajax:success": "$el.closest('tr').remove()",
   };
 
   return (

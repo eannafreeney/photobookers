@@ -91,6 +91,7 @@ const ApproveClaimForm = ({ claim }: { claim: CreatorClaim }) => {
     "x-target": "claims-table toast",
     "x-target.error": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+    "@ajax:success": "$el.closest('tr').remove()",
   };
 
   return (
@@ -111,6 +112,7 @@ const RejectClaimForm = ({ claim }: { claim: CreatorClaim }) => {
     "x-target": "claims-table toast",
     "x-target.error": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+    "@ajax:success": "$el.closest('tr').remove()",
   };
 
   return (

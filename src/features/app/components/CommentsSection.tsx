@@ -177,6 +177,7 @@ const DeleteCommentButton = async ({
     "x-init": "true",
     "x-target": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+    "@ajax:success": "$el.closest('div').remove()",
   };
   return (
     <FormDelete

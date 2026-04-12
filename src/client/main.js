@@ -5,10 +5,12 @@ import morph from "@alpinejs/morph";
 import intersect from "@alpinejs/intersect";
 import persist from "@alpinejs/persist";
 import resize from "@alpinejs/resize";
+import collapse from "@alpinejs/collapse";
 
 import "../styles/styles.css";
 import "./";
 
+Alpine.plugin(collapse);
 Alpine.plugin(morph);
 Alpine.plugin(ajax);
 Alpine.plugin(focus);

@@ -18,6 +18,8 @@ import CreatorsGrid from "../../../features/app/components/RelatedCreators";
 import CreatorCard from "../../../components/app/CreatorCard";
 import RelatedCreators from "../../../features/app/components/RelatedCreators";
 import Tabs from "../../../components/app/Tabs";
+import CreatorMessages from "../../../features/app/components/CreatorMessages";
+import Intersector from "../../../features/app/components/Intersector";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -94,6 +96,7 @@ const CreatorDetailMobile = ({
     <Tabs defaultTab="books">
       <Tabs.LinkContainer>
         <Tabs.Link tabId="books">Books</Tabs.Link>
+        <Tabs.Link tabId="messages">Messages</Tabs.Link>
         {showCreatorsTab && (
           <Tabs.Link tabId="creators">
             {creator.type === "publisher" ? "Artists" : "Publishers"}
@@ -110,11 +113,19 @@ const CreatorDetailMobile = ({
           noResultsMessage="No books found"
         />
       </Tabs.Panel>
+      <Tabs.Panel tabId="messages">
+        <CreatorMessages creatorSlug={creator.slug} user={user} />
+      </Tabs.Panel>
       <Tabs.Panel tabId="creators">
         <CreatorsGrid creators={relatedCreators} />
       </Tabs.Panel>
       <Tabs.Panel tabId="about">
-        <CreatorCard creator={creator} currentPath={currentPath} user={user} />
+        <CreatorCard
+          creator={creator}
+          currentPath={currentPath}
+          user={user}
+          shouldRefreshCreatorMessages
+        />
         <RelatedCreators
           creators={relatedCreators}
           title="You may also like..."
@@ -158,7 +169,14 @@ export const CreatorDetailDesktop = ({
           noResultsMessage="No books found"
         />
         <Divider />
-        <CreatorsGrid creators={relatedCreators} title={title} />
+        <div class="grid grid-cols-2 divide-x divide-outline">
+          <div class="pr-8">
+            <CreatorMessages creatorSlug={creator.slug} user={user} />
+          </div>
+          <div class="pl-8">
+            <CreatorsGrid creators={relatedCreators} title={title} />
+          </div>
+        </div>
       </div>
       <div class="md:w-1/5">
         <CreatorCard
@@ -166,6 +184,7 @@ export const CreatorDetailDesktop = ({
           currentPath={currentPath}
           user={user}
           title="About"
+          shouldRefreshCreatorMessages
         />
       </div>
     </div>

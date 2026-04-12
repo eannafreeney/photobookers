@@ -15,6 +15,7 @@ type Props = {
   title?: string;
   user: AuthUser | null;
   showFollowAndClaimButtons?: boolean;
+  shouldRefreshCreatorMessages?: boolean;
 };
 
 const CreatorCard = async ({
@@ -23,6 +24,7 @@ const CreatorCard = async ({
   title,
   user,
   showFollowAndClaimButtons = true,
+  shouldRefreshCreatorMessages = false,
 }: Props) => {
   if (!creator) return <></>;
 
@@ -65,7 +67,11 @@ const CreatorCard = async ({
             <Card.Description>{creator.tagline}</Card.Description>
           )}
           <Show when={showFollowAndClaimButtons}>
-            <FollowButton creator={creator} user={user} />
+            <FollowButton
+              creator={creator}
+              user={user}
+              shouldRefreshCreatorMessages={shouldRefreshCreatorMessages}
+            />
             {creator.status === "stub" && (
               <ClaimCreatorBtn
                 creator={creator}
