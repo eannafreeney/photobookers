@@ -343,7 +343,7 @@ export const getBooksByCreatorId = async (
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
-      30,
+      12,
     );
 
     const foundBooks = await db.query.books.findMany({

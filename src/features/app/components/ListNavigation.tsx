@@ -24,6 +24,7 @@ const ListNavigation = ({
       page={page}
       totalPages={totalPages}
       targetId={targetId}
+      pageParam={pageParam}
     />
   ) : (
     <Pagination

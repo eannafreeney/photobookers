@@ -4,11 +4,13 @@ import Page from "../../components/layouts/Page";
 import BooksGrid from "../../features/app/components/BooksGrid";
 import AppLayout from "../../components/layouts/AppLayout";
 import { getLatestBooks } from "../../features/app/services";
+import { getIsMobile } from "../../lib/device";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
   const currentPage = Number(c.req.query("page") ?? 1);
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   const [error, result] = await getLatestBooks(currentPage, 30);
 
@@ -22,7 +24,7 @@ export const GET = createRoute(async (c) => {
           user={user}
           currentPath={currentPath}
           result={result}
-          isInfiniteScroll
+          isMobile={isMobile}
         />
       </Page>
     </AppLayout>,

@@ -219,6 +219,7 @@ const DetailMobile = ({
           />
           <Divider />
           <BookGridWrapper
+            isMobile
             bookSlug={book.slug}
             currentPage={currentPage}
             creator={book?.publisher ?? null}

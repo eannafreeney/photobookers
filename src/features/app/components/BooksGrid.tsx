@@ -20,7 +20,7 @@ type Props = {
   noResultsMessage?: string;
   currentCreatorId?: string | null;
   isFullWidth?: boolean;
-  isInfiniteScroll?: boolean;
+  isMobile?: boolean;
   isPaginated?: boolean;
 };
 
@@ -32,7 +32,7 @@ const BooksGrid = async ({
   title,
   noResultsMessage = "No books found",
   currentCreatorId,
-  isInfiniteScroll = false,
+  isMobile = false,
   isPaginated = true,
 }: Props) => {
   const { books, totalPages, page } = result;
@@ -48,7 +48,7 @@ const BooksGrid = async ({
         <GridPanel
           id={targetId}
           isFullWidth={isFullWidth}
-          xMerge={isInfiniteScroll ? "append" : "replace"}
+          xMerge={isMobile ? "append" : "replace"}
         >
           {books?.length > 0 ? (
             books.map((book) => (
@@ -68,7 +68,7 @@ const BooksGrid = async ({
         </GridPanel>
         {isPaginated && (
           <ListNavigation
-            isInfiniteScroll={isInfiniteScroll}
+            isInfiniteScroll={isMobile}
             currentPath={currentPath}
             page={page}
             totalPages={totalPages}

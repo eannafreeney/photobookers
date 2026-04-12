@@ -4,6 +4,7 @@ import { Creator } from "../../../db/schema";
 import { AuthUser } from "../../../../types";
 
 type Props = {
+  isMobile?: boolean;
   bookSlug: string;
   currentPage: number;
   creator: Creator | null;
@@ -12,6 +13,7 @@ type Props = {
 };
 
 const BookGridWrapper = async ({
+  isMobile,
   creator,
   bookSlug,
   currentPage,
@@ -40,6 +42,7 @@ const BookGridWrapper = async ({
       user={user}
       currentPath={currentPath}
       result={result}
+      isMobile={isMobile}
     />
   );
 };

@@ -105,6 +105,7 @@ const CreatorDetailMobile = ({
       </Tabs.LinkContainer>
       <Tabs.Panel tabId="books">
         <BooksGrid
+          isMobile
           user={user}
           currentPath={currentPath}
           result={result}
