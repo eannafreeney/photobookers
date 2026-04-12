@@ -562,7 +562,7 @@ export const getLatestBooks = async (
       ),
       limit: limit,
       offset: offset,
-      orderBy: [desc(books.createdAt)],
+      orderBy: [desc(books.sortOrder)],
       with: {
         artist: {
           columns: CREATOR_CARD_COLUMNS,
