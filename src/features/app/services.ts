@@ -818,6 +818,65 @@ export const getRelatedBooks = async (
   }
 };
 
+export const getCreatorsByCreatorId = async (
+  creatorId: string,
+  creatorType: "artist" | "publisher",
+  currentPage: number = 1,
+  defaultLimit = 30,
+) => {
+  try {
+    const relatedColumn =
+      creatorType === "publisher" ? books.artistId : books.publisherId;
+    const myColumn =
+      creatorType === "publisher" ? books.publisherId : books.artistId;
+
+    const peerColumnFilter =
+      creatorType === "publisher"
+        ? isNotNull(books.artistId)
+        : isNotNull(books.publisherId);
+
+    const publishedBooks = await db
+      .selectDistinct({ relatedId: relatedColumn })
+      .from(books)
+      .where(
+        and(
+          eq(myColumn, creatorId),
+          peerColumnFilter,
+          eq(books.publicationStatus, "published"),
+          eq(books.approvalStatus, "approved"),
+          or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+        ),
+      );
+
+    const relatedIds = publishedBooks
+      .map((r) => r.relatedId)
+      .filter((id): id is string => id != null);
+
+    if (relatedIds.length === 0)
+      return ok({ creators: [], totalPages: 1, page: 1 });
+
+    const totalCount = relatedIds.length;
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundCreators = await db.query.creators.findMany({
+      columns: CREATOR_CARD_COLUMNS,
+      where: inArray(creators.id, relatedIds),
+      orderBy: (c, { asc }) => [asc(c.displayName)],
+      limit,
+      offset,
+    });
+
+    return ok({ creators: foundCreators ?? [], totalPages, page });
+  } catch (error) {
+    console.error("Failed to get related creators", error);
+    return err({ reason: "Failed to get related creators", error });
+  }
+};
+
 export const getRelatedCreators = async (
   creatorId: string,
   creatorType: "artist" | "publisher",

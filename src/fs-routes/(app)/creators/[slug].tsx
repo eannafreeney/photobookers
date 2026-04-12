@@ -14,12 +14,10 @@ import { Creator } from "../../../db/schema";
 import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import BooksGrid from "../../../features/app/components/BooksGrid";
 import Divider from "../../../components/Divider";
-import CreatorsGrid from "../../../features/app/components/RelatedCreators";
 import CreatorCard from "../../../components/app/CreatorCard";
-import RelatedCreators from "../../../features/app/components/RelatedCreators";
+import CreatorsGrid from "../../../features/app/components/CreatorsGrid";
 import Tabs from "../../../components/app/Tabs";
 import CreatorMessages from "../../../features/app/components/CreatorMessages";
-import Intersector from "../../../features/app/components/Intersector";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -117,7 +115,11 @@ const CreatorDetailMobile = ({
         <CreatorMessages creatorSlug={creator.slug} user={user} />
       </Tabs.Panel>
       <Tabs.Panel tabId="creators">
-        <CreatorsGrid creators={relatedCreators} />
+        <CreatorsGrid
+          creatorId={creator.id}
+          creatorType={creator.type}
+          currentPath={currentPath}
+        />
       </Tabs.Panel>
       <Tabs.Panel tabId="about">
         <CreatorCard
@@ -126,8 +128,10 @@ const CreatorDetailMobile = ({
           user={user}
           shouldRefreshCreatorMessages
         />
-        <RelatedCreators
-          creators={relatedCreators}
+        <CreatorsGrid
+          creatorId={creator.id}
+          creatorType={creator.type}
+          currentPath={currentPath}
           title="You may also like..."
         />
       </Tabs.Panel>
@@ -174,7 +178,12 @@ export const CreatorDetailDesktop = ({
             <CreatorMessages creatorSlug={creator.slug} user={user} />
           </div>
           <div class="pl-8">
-            <CreatorsGrid creators={relatedCreators} title={title} />
+            <CreatorsGrid
+              creatorId={creator.id}
+              creatorType={creator.type}
+              title={title}
+              currentPath={currentPath}
+            />
           </div>
         </div>
       </div>
