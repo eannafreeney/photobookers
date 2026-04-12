@@ -641,6 +641,7 @@ export const getFeedBooks = async (
 export const getAllCreatorsByType = async (
   type: "artist" | "publisher",
   currentPage: number = 1,
+  defaultLimit = 30,
 ) => {
   try {
     const [{ value: totalCount = 0 }] = await db
@@ -648,12 +649,17 @@ export const getAllCreatorsByType = async (
       .from(creators)
       .where(eq(creators.type, type));
 
-    const { page, offset, totalPages } = getPagination(currentPage, totalCount);
+    const { page, offset, totalPages, limit } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
 
     const foundCreators = await db.query.creators.findMany({
       where: eq(creators.type, type),
       orderBy: (creators, { asc }) => [asc(creators.displayName)],
       offset,
+      limit,
       with: {
         booksAsArtist: {
           where: eq(books.publicationStatus, "published"),
