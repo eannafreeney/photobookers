@@ -46,15 +46,15 @@ const CreatorsGrid = async ({
         {creators.map((creator) => (
           <CreatorsCircle creator={creator} />
         ))}
-        <ListNavigation
-          isInfiniteScroll={isMobile}
-          targetId={targetId}
-          totalPages={totalPages}
-          page={page}
-          currentPath={currentPath}
-          pageParam={pageParam}
-        />
       </div>
+      <ListNavigation
+        isInfiniteScroll={isMobile}
+        targetId={targetId}
+        totalPages={totalPages}
+        page={page}
+        currentPath={currentPath}
+        pageParam={pageParam}
+      />
     </section>
   );
 };
