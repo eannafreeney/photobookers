@@ -36,8 +36,9 @@ const CreatorsGrid = async ({
     <section>
       {title && <SectionTitle>{title}</SectionTitle>}
       <div
-        x-ref="paginationContent"
+        x-ref="creatorsContent"
         id={targetId}
+        xMerge={isMobile ? "append" : "replace"}
         class="grid grid-cols-2 md:grid-cols-3 gap-6"
       >
         {creators.map((creator) => (

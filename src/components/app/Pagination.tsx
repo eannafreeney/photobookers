@@ -5,11 +5,18 @@ type Props = {
   page: number;
   totalPages: number;
   targetId: string;
+  scrollRef?: string; // e.g. "booksContent", "creatorsContent"
+  navId?: string;
 };
 
-export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
-  console.log("totalPages", totalPages);
-  console.log("page", page);
+export const Pagination = ({
+  baseUrl,
+  page,
+  totalPages,
+  targetId,
+  scrollRef = "paginationContent",
+  navId = "pagination",
+}: Props) => {
   if (totalPages <= 1) return <></>;
 
   const pageUrl = (p: number) =>
@@ -17,20 +24,18 @@ export const Pagination = ({ baseUrl, page, totalPages, targetId }: Props) => {
 
   const prevAttrs = {
     "x-target": `pagination ${targetId}`,
-    "x-on:click":
-      "$refs.paginationContent?.scrollIntoView({ behavior: 'smooth', block: 'start' })",
+    "x-on:click": `$refs.${scrollRef}?.scrollIntoView({ behavior: 'smooth', block: 'start' })`,
     ...(page <= 1 && { "aria-disabled": "true" }),
   };
 
   const nextAttrs = {
     "x-target": `pagination ${targetId}`,
-    "x-on:click":
-      "$refs.paginationContent?.scrollIntoView({ behavior: 'smooth', block: 'start' })",
+    "x-on:click": `$refs.${scrollRef}?.scrollIntoView({ behavior: 'smooth', block: 'start' })`,
     ...(page >= totalPages && { "aria-disabled": "true" }),
   };
 
   return (
-    <nav id="pagination" class="flex items-center justify-center gap-2 mt-4">
+    <nav id={navId} class="flex items-center justify-center gap-2 mt-4">
       <div class="flex items-center gap-1">
         <a
           {...prevAttrs}
