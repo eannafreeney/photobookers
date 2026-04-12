@@ -40,9 +40,18 @@ const BookCard = ({
       />
       <Card.Body>
         <div class="flex items-start justify-between">
-          <Link href={`/books/${book.slug}`}>
-            <Card.Title>{book.title}</Card.Title>
-          </Link>
+          <div class="flex flex-col gap-0">
+            <Link href={`/books/${book.slug}`}>
+              <Card.Title>{book.title}</Card.Title>
+            </Link>
+            <Show
+              when={!!book.publisher && currentCreatorId !== book.publisher?.id}
+            >
+              <p class="text-xs text-on-surface-weak">
+                {book.publisher?.displayName ?? ""}
+              </p>
+            </Show>
+          </div>
           <WishlistButton isCircleButton book={book} user={user} />
         </div>
       </Card.Body>
