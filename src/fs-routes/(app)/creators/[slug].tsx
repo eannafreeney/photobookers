@@ -8,7 +8,7 @@ import { getBooksByCreatorSlug } from "../../../features/app/services";
 import InfoPage from "../../../pages/InfoPage";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
-import { BookCardResult, CreatorCardResult } from "../../../constants/queries";
+import { BookCardResult } from "../../../constants/queries";
 import { AuthUser } from "../../../../types";
 import { Creator } from "../../../db/schema";
 import MobileCreatorCard from "../../../components/app/MobileCreatorCard";

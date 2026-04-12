@@ -7,6 +7,7 @@ type Props = {
   targetId: string;
   scrollRef?: string; // e.g. "booksContent", "creatorsContent"
   navId?: string;
+  pageParam?: string;
 };
 
 export const Pagination = ({
@@ -16,11 +17,12 @@ export const Pagination = ({
   targetId,
   scrollRef = "paginationContent",
   navId = "pagination",
+  pageParam = "page",
 }: Props) => {
   if (totalPages <= 1) return <></>;
 
   const pageUrl = (p: number) =>
-    `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}page=${p}`;
+    `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${pageParam}=${p}`;
 
   const prevAttrs = {
     "x-target": `pagination ${targetId}`,
