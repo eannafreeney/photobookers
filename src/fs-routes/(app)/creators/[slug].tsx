@@ -189,6 +189,7 @@ export const CreatorDetailDesktop = ({
               title={title}
               currentPath={currentPath}
               currentPage={creatorsCurrentPage}
+              pageParam="creatorsPage"
             />
           </div>
         </div>

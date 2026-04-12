@@ -10,6 +10,7 @@ type Props = {
   currentPath: string;
   isMobile?: boolean;
   currentPage: number;
+  pageParam?: string;
 };
 
 const CreatorsGrid = async ({
@@ -19,6 +20,7 @@ const CreatorsGrid = async ({
   title,
   currentPath,
   currentPage,
+  pageParam,
 }: Props) => {
   const [error, result] = await getCreatorsByCreatorId(
     creatorId,
@@ -50,6 +52,7 @@ const CreatorsGrid = async ({
           totalPages={totalPages}
           page={page}
           currentPath={currentPath}
+          pageParam={pageParam}
         />
       </div>
     </section>
