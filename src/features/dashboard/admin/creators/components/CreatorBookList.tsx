@@ -1,10 +1,21 @@
+import { AuthUser } from "../../../../../../types";
 import Button from "../../../../../components/app/Button";
+import Card from "../../../../../components/app/Card";
 import Link from "../../../../../components/app/Link";
 import { Pagination } from "../../../../../components/app/Pagination";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import Table from "../../../../../components/app/Table";
 import TableSearch from "../../../../../components/app/TableSearch";
-import DeleteFormButton from "../../components/DeleteFormButton";
+import { useUser } from "../../../../../contexts/UserContext";
+import { Book, Creator } from "../../../../../db/schema";
+import { canEditBook } from "../../../../../lib/permissions";
+import PreviewButton from "../../../../api/components/PreviewButton";
+import {
+  findCollectionCount,
+  findWishlistCount,
+} from "../../../../api/services";
+import DeleteBookForm from "../../../books/components/BookDeleteForm";
+import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import { getBooksByCreatorId } from "../services";
 
 type CreatorBookListProps = {
@@ -20,6 +31,8 @@ const CreatorBookList = async ({
   currentPage,
   searchQuery,
 }: CreatorBookListProps) => {
+  const user = useUser();
+  if (!user) return <div>Error: User not found</div>;
   const [error, result] = await getBooksByCreatorId(
     creatorId,
     currentPage,
@@ -52,33 +65,15 @@ const CreatorBookList = async ({
           <Table.HeadRow>Title</Table.HeadRow>
           <Table.HeadRow>Artist</Table.HeadRow>
           <Table.HeadRow>Publisher</Table.HeadRow>
+          <Table.HeadRow>Wishlists</Table.HeadRow>
+          <Table.HeadRow>Collections</Table.HeadRow>
+          <Table.HeadRow>Release Date</Table.HeadRow>
+          <Table.HeadRow>Publish</Table.HeadRow>
+          <Table.HeadRow>Actions</Table.HeadRow>
         </Table.Head>
         <Table.Body id={targetId}>
           {books.map((book) => (
-            <tr>
-              <Table.BodyRow>
-                <img
-                  src={book.coverUrl ?? ""}
-                  alt={book.title}
-                  class="w-auto h-12"
-                />
-              </Table.BodyRow>
-              <Table.BodyRow>{book.title}</Table.BodyRow>
-              <Table.BodyRow>{book.artist?.displayName}</Table.BodyRow>
-              <Table.BodyRow>{book.publisher?.displayName}</Table.BodyRow>
-              <Table.BodyRow>
-                <a href={`/dashboard/admin/books/${book.id}`}>
-                  <Button variant="outline" color="inverse">
-                    <span>Edit</span>
-                  </Button>
-                </a>
-              </Table.BodyRow>
-              <Table.BodyRow>
-                <DeleteFormButton
-                  action={`/dashboard/admin/books/${book.id}`}
-                />
-              </Table.BodyRow>
-            </tr>
+            <BookTableRow book={book} user={user} />
           ))}
         </Table.Body>
       </Table>
@@ -93,3 +88,97 @@ const CreatorBookList = async ({
 };
 
 export default CreatorBookList;
+
+type RowProps = {
+  book: Book & { artist: Creator | null; publisher: Creator | null };
+  user: AuthUser;
+};
+
+const BookTableRow = ({ book, user }: RowProps) => {
+  if (!book || !book.id || !book.slug || !book.title) {
+    return <></>;
+  }
+
+  return (
+    <tr>
+      <Table.BodyRow>
+        {book.coverUrl ? (
+          <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />
+        ) : (
+          <a href={`/dashboard/books/${book.id}#book-images`}>
+            <Button variant="outline" color="warning">
+              <span>Upload Cover</span>
+            </Button>
+          </a>
+        )}
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Link
+          href={
+            book.publicationStatus === "published"
+              ? `/books/${book.slug}`
+              : `/books/preview/${book.slug}`
+          }
+        >
+          {book.title}
+        </Link>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Link href={`/creators/${book.artist?.slug}`}>
+          {book.artist?.displayName}
+        </Link>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Link href={`/creators/${book.publisher?.slug}`}>
+          {book.publisher?.displayName ?? ""}
+        </Link>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <WishlistCount bookId={book.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <CollectionCount bookId={book.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        {book.releaseDate
+          ? book.releaseDate
+              .toISOString()
+              .slice(0, 10)
+              .split("-")
+              .reverse()
+              .join("/")
+          : ""}
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <PublishToggleForm book={book} user={user} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <PreviewButton book={book} user={user} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <a href={`/dashboard/books/${book.id}`}>
+          <Button
+            variant="outline"
+            color="inverse"
+            disabled={!canEditBook(user, book)}
+          >
+            <span>Edit</span>
+          </Button>
+        </a>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <DeleteBookForm book={book} user={user} />
+      </Table.BodyRow>
+    </tr>
+  );
+};
+
+const WishlistCount = async ({ bookId }: { bookId: string }) => {
+  const wishlistCount = await findWishlistCount(bookId);
+  return <Card.Text>{wishlistCount.toString() ?? "0"}</Card.Text>;
+};
+
+const CollectionCount = async ({ bookId }: { bookId: string }) => {
+  const collectionCount = await findCollectionCount(bookId);
+  return <Card.Text>{collectionCount.toString() ?? "0"}</Card.Text>;
+};
