@@ -9,6 +9,7 @@ type Props = {
   title?: string;
   currentPath: string;
   isMobile?: boolean;
+  currentPage: number;
 };
 
 const CreatorsGrid = async ({
@@ -17,8 +18,13 @@ const CreatorsGrid = async ({
   creatorType,
   title,
   currentPath,
+  currentPage,
 }: Props) => {
-  const [error, result] = await getCreatorsByCreatorId(creatorId, creatorType);
+  const [error, result] = await getCreatorsByCreatorId(
+    creatorId,
+    creatorType,
+    currentPage,
+  );
   if (error) return <></>;
   const { creators, totalPages, page } = result;
   if (!creators) return <></>;

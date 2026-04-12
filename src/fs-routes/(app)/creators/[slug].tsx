@@ -26,6 +26,7 @@ export const GET = createRoute(
     const user = await getUser(c);
     const currentPath = c.req.path;
     const currentPage = Number(c.req.query("page") ?? 1);
+    const creatorsCurrentPage = Number(c.req.query("creatorsPage") ?? 1);
     const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
     const [error, result] = await getBooksByCreatorSlug(slug, currentPage);
@@ -50,16 +51,16 @@ export const GET = createRoute(
               user={user}
               currentPath={currentPath}
               showCreatorsTab={relatedCreators.length > 0}
-              relatedCreators={relatedCreators}
               result={result}
+              creatorsCurrentPage={creatorsCurrentPage}
             />
           ) : (
             <CreatorDetailDesktop
               creator={creator}
               user={user}
               currentPath={currentPath}
-              relatedCreators={relatedCreators}
               result={result}
+              creatorsCurrentPage={creatorsCurrentPage}
             />
           )}
         </Page>
@@ -78,7 +79,7 @@ type CreatorDetailMobileProps = {
     page: number;
   };
   showCreatorsTab: boolean;
-  relatedCreators: CreatorCardResult[];
+  creatorsCurrentPage: number;
 };
 
 const CreatorDetailMobile = ({
@@ -87,7 +88,7 @@ const CreatorDetailMobile = ({
   currentPath,
   result,
   showCreatorsTab,
-  relatedCreators,
+  creatorsCurrentPage,
 }: CreatorDetailMobileProps) => (
   <div class="flex flex-col gap-4">
     <MobileCreatorCard creator={creator} user={user} />
@@ -116,6 +117,8 @@ const CreatorDetailMobile = ({
       </Tabs.Panel>
       <Tabs.Panel tabId="creators">
         <CreatorsGrid
+          isMobile
+          currentPage={creatorsCurrentPage}
           creatorId={creator.id}
           creatorType={creator.type}
           currentPath={currentPath}
@@ -129,6 +132,8 @@ const CreatorDetailMobile = ({
           shouldRefreshCreatorMessages
         />
         <CreatorsGrid
+          isMobile
+          currentPage={creatorsCurrentPage}
           creatorId={creator.id}
           creatorType={creator.type}
           currentPath={currentPath}
@@ -143,19 +148,19 @@ type CreatorDetailDesktopProps = {
   creator: Creator;
   user: AuthUser | null;
   currentPath: string;
-  relatedCreators: CreatorCardResult[];
   result: {
     books: BookCardResult[];
     totalPages: number;
     page: number;
   };
+  creatorsCurrentPage: number;
 };
 
 export const CreatorDetailDesktop = ({
   creator,
   user,
   currentPath,
-  relatedCreators,
+  creatorsCurrentPage,
   result,
 }: CreatorDetailDesktopProps) => {
   const title = creator.type === "publisher" ? "Artists" : "Publishers";
@@ -183,6 +188,7 @@ export const CreatorDetailDesktop = ({
               creatorType={creator.type}
               title={title}
               currentPath={currentPath}
+              currentPage={creatorsCurrentPage}
             />
           </div>
         </div>
