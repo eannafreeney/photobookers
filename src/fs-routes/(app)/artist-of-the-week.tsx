@@ -8,6 +8,7 @@ import { InfiniteScroll } from "../../components/app/InfiniteScroll";
 import { toWeekString } from "../../lib/utils";
 import CreatorCard from "../../components/app/CreatorCard";
 import { getRecentArtistsOfTheWeek } from "../../features/app/AOTWServices";
+import ScrollReveal from "../../components/app/ScrollReveal";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -37,17 +38,19 @@ export const GET = createRoute(async (c) => {
                 </p>
               ) : (
                 aotwEntries.map((entry) => (
-                  <article class="space-y-2">
-                    <p class="text-xs text-on-surface-strong font-medium">
-                      Week: {toWeekString(entry.weekStart)}
-                    </p>
-                    <CreatorCard
-                      creator={entry.creator}
-                      user={user}
-                      currentPath={currentPath}
-                      showFollowAndClaimButtons={false}
-                    />
-                  </article>
+                  <ScrollReveal>
+                    <article class="space-y-2">
+                      <p class="text-xs text-on-surface-strong font-medium">
+                        Week: {toWeekString(entry.weekStart)}
+                      </p>
+                      <CreatorCard
+                        creator={entry.creator}
+                        user={user}
+                        currentPath={currentPath}
+                        showFollowAndClaimButtons={false}
+                      />
+                    </article>
+                  </ScrollReveal>
                 ))
               )}
             </div>

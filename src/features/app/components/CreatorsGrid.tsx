@@ -1,3 +1,4 @@
+import ScrollReveal from "../../../components/app/ScrollReveal";
 import SectionTitle from "../../../components/app/SectionTitle";
 import { getCreatorsByCreatorId, getRelatedCreators } from "../services";
 import CreatorsCircle from "./CreatorsCircle";
@@ -44,7 +45,9 @@ const CreatorsGrid = async ({
         class="grid grid-cols-2 md:grid-cols-3 gap-6"
       >
         {creators.map((creator) => (
-          <CreatorsCircle creator={creator} />
+          <ScrollReveal>
+            <CreatorsCircle creator={creator} />
+          </ScrollReveal>
         ))}
       </div>
       <ListNavigation

@@ -8,6 +8,7 @@ import { toWeekString } from "../../lib/utils";
 import BookCard from "../../components/app/BookCard";
 import InfoPage from "../../pages/InfoPage";
 import { InfiniteScroll } from "../../components/app/InfiniteScroll";
+import ScrollReveal from "../../components/app/ScrollReveal";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -34,16 +35,18 @@ export const GET = createRoute(async (c) => {
                 <p class="text-sm text-on-surface">No books of the week yet.</p>
               ) : (
                 botwEntries.map((entry) => (
-                  <article class="space-y-2 ">
-                    <p class="text-xs text-on-surface-strong font-medium">
-                      Week: {toWeekString(entry.weekStart)}
-                    </p>
-                    <BookCard
-                      book={entry.book}
-                      user={user}
-                      maxDisplayNameLength={30}
-                    />
-                  </article>
+                  <ScrollReveal>
+                    <article class="space-y-2 ">
+                      <p class="text-xs text-on-surface-strong font-medium">
+                        Week: {toWeekString(entry.weekStart)}
+                      </p>
+                      <BookCard
+                        book={entry.book}
+                        user={user}
+                        maxDisplayNameLength={30}
+                      />
+                    </article>
+                  </ScrollReveal>
                 ))
               )}
             </div>

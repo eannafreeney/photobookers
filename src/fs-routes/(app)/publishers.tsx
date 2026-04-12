@@ -6,6 +6,7 @@ import InfoPage from "../../pages/InfoPage";
 import { getAllCreatorsByType } from "../../features/app/services";
 import PageTitle from "../../components/app/PageTitle";
 import CreatorsCircle from "../../features/app/components/CreatorsCircle";
+import ScrollReveal from "../../components/app/ScrollReveal";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -25,7 +26,9 @@ export const GET = createRoute(async (c) => {
         <PageTitle title="" />
         <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6">
           {creators.map((creator) => (
-            <CreatorsCircle creator={creator} />
+            <ScrollReveal>
+              <CreatorsCircle creator={creator} />
+            </ScrollReveal>
           ))}
         </div>
       </Page>
