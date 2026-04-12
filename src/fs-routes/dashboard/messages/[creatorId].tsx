@@ -11,6 +11,7 @@ import Alert from "../../../components/app/Alert";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
 import CreatorMessages from "../../../features/app/components/CreatorMessages";
 import { getUser } from "../../../utils";
+import { createMessageCreatedNotification } from "../../../features/dashboard/admin/notifications/utils";
 
 export const POST = createRoute(
   paramValidator(creatorIdSchema),
@@ -56,10 +57,13 @@ export const POST = createRoute(
       }
     }
 
-    const message = await createMessage(creatorId, {
+    const [err, message] = await createMessage(creatorId, {
       body: messageBody,
       imageUrls,
     });
+    if (err) return showErrorAlert(c, err.reason);
+
+    createMessageCreatedNotification(user, creator, message);
 
     if (!message) return showErrorAlert(c, "Failed to create message");
 

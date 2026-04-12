@@ -8,15 +8,21 @@ export async function createMessage(
   creatorId: string,
   input: { body: string; imageUrls?: string[] },
 ) {
-  const [msg] = await db
-    .insert(creatorMessages)
-    .values({
-      creatorId,
-      body: input.body.trim(),
-      imageUrls: input.imageUrls?.length ? input.imageUrls : null,
-    })
-    .returning();
-  return msg ?? null;
+  try {
+    const [msg] = await db
+      .insert(creatorMessages)
+      .values({
+        creatorId,
+        body: input.body.trim(),
+        imageUrls: input.imageUrls?.length ? input.imageUrls : null,
+      })
+      .returning();
+    if (!msg) return err({ reason: "Failed to create message" });
+    return ok(msg);
+  } catch (error) {
+    console.error("Failed to create message", error);
+    return err({ reason: "Failed to create message", cause: error });
+  }
 }
 
 export async function getMessagesByCreator(creatorId: string) {

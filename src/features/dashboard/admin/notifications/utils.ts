@@ -21,6 +21,10 @@ type NotificationUserTarget = {
   lastName?: string | null;
 };
 
+type NotificationMessageTarget = {
+  body: string;
+};
+
 export const createCommentCreatedNotification = async (
   user: NotificationUserTarget,
   book: NotificationBookTarget,
@@ -102,6 +106,19 @@ export const createBookWishlistedNotification = async (
     title: "Book wishlisted",
     body: `${user?.firstName ?? "A user"} wishlisted the book: "${book.title}"`,
     targetUrl: `/books/${book.slug}`,
+    actorUserId: user.id,
+  });
+
+export const createMessageCreatedNotification = async (
+  user: NotificationUserTarget,
+  creator: NotificationCreatorTarget,
+  message: NotificationMessageTarget,
+) =>
+  await createAdminNotification({
+    type: "message_created",
+    title: "Message created",
+    body: `${user?.firstName ?? "A user"} created a message`,
+    targetUrl: `/creators/${creator?.slug}`,
     actorUserId: user.id,
   });
 
