@@ -7,6 +7,7 @@ import { getAllCreatorsByType } from "../../features/app/services";
 import PageTitle from "../../components/app/PageTitle";
 import CreatorsCircle from "../../features/app/components/CreatorsCircle";
 import ScrollReveal from "../../components/app/ScrollReveal";
+import { InfiniteScroll } from "../../components/app/InfiniteScroll";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -18,19 +19,32 @@ export const GET = createRoute(async (c) => {
   if (error) return c.html(<InfoPage errorMessage="Artists not found" />);
 
   const title = "Artists";
-  const { creators } = result;
+  const { creators, totalPages, page } = result;
+
+  const targetId = "artists-grid";
 
   return c.html(
     <AppLayout title={title} user={user} currentPath={currentPath}>
       <Page>
         <PageTitle title="" />
-        <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6">
+        <div
+          x-ref="creatorsContent"
+          id={targetId}
+          x-merge="append"
+          class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6"
+        >
           {creators.map((creator) => (
             <ScrollReveal>
               <CreatorsCircle creator={creator} />
             </ScrollReveal>
           ))}
         </div>
+        <InfiniteScroll
+          baseUrl={currentPath}
+          page={page}
+          totalPages={totalPages}
+          targetId={targetId}
+        />
       </Page>
     </AppLayout>,
   );
