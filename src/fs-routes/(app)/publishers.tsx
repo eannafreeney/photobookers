@@ -26,7 +26,7 @@ export const GET = createRoute(async (c) => {
   return c.html(
     <AppLayout title={title} user={user} currentPath={currentPath}>
       <Page>
-        <PageTitle title="" />
+        <PageTitle />
         <div x-data>
           <div
             id={targetId}
