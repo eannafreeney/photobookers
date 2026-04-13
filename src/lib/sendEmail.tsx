@@ -9,6 +9,15 @@ export async function sendAdminEmail(subject: string, html: string) {
 
 export async function sendEmail(to: string, subject: string, html: string) {
   try {
+    console.log(
+      "Sending email to:",
+      to,
+      "| FUNCTION_SECRET present:",
+      !!process.env.FUNCTION_SECRET,
+      "| length:",
+      process.env.FUNCTION_SECRET?.length,
+    );
+
     const { data, error } = await supabaseAdmin.functions.invoke("send-email", {
       body: {
         to,
@@ -20,6 +29,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
       },
     });
     if (error) {
+      console.error("Failed to send email", error);
       return err({ reason: "Failed to send email", cause: error });
     }
 
