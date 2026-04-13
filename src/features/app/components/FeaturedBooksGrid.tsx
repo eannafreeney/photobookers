@@ -19,7 +19,7 @@ const FeaturedBooksGrid = ({ featuredBooks, user }: Props) => {
       </div>
       {/* Mobile: horizontal scroll row */}
       <PageBleed>
-        <div class="pl-4 flex gap-4 overflow-x-auto sm:hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div class="px-4 flex gap-4 overflow-x-auto sm:hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {featuredBooks.map((fb) => (
             <div class="min-w-[300px]">
               <BookCard book={fb.book} user={user} />

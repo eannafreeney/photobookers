@@ -647,7 +647,16 @@ export const getAllCreatorsByType = async (
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
       .from(creators)
-      .where(eq(creators.type, type));
+      .where(
+        and(
+          eq(creators.type, type),
+          sql`EXISTS (
+            SELECT 1 FROM ${books}
+            WHERE (${books.artistId} = ${creators.id} OR ${books.publisherId} = ${creators.id})
+            AND ${books.publicationStatus} = 'published'
+          )`,
+        ),
+      );
 
     const { page, offset, totalPages, limit } = getPagination(
       currentPage,
