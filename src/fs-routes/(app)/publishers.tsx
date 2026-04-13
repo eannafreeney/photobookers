@@ -27,24 +27,25 @@ export const GET = createRoute(async (c) => {
     <AppLayout title={title} user={user} currentPath={currentPath}>
       <Page>
         <PageTitle title="" />
-        <div
-          x-ref="creatorsContent"
-          id={targetId}
-          x-merge="append"
-          class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6"
-        >
-          {creators.map((creator) => (
-            <ScrollReveal>
-              <CreatorsCircle creator={creator} />
-            </ScrollReveal>
-          ))}
+        <div x-data>
+          <div
+            id={targetId}
+            x-merge="append"
+            class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6"
+          >
+            {creators.map((creator) => (
+              <ScrollReveal>
+                <CreatorsCircle creator={creator} />
+              </ScrollReveal>
+            ))}
+          </div>
+          <InfiniteScroll
+            baseUrl={currentPath}
+            page={page}
+            totalPages={totalPages}
+            targetId={targetId}
+          />
         </div>
-        <InfiniteScroll
-          baseUrl={currentPath}
-          page={page}
-          totalPages={totalPages}
-          targetId={targetId}
-        />
       </Page>
     </AppLayout>,
   );

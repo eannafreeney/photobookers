@@ -19,7 +19,7 @@ export const InfiniteScroll = ({
     <nav
       id="pagination"
       class="flex items-center justify-center gap-2"
-      x-data
+      x-init
       {...(page < totalPages && {
         "x-intersect.margin.500px": `$ajax('${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${pageParam}=${page + 1}', { target: 'pagination ${targetId}' })`,
       })}
