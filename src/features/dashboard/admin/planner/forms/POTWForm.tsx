@@ -27,7 +27,7 @@ const POTWForm = ({ formValues, options, week }: Props) => {
     "x-on:form-field-update": "form[$event.detail.field] = $event.detail.value",
   };
 
-  const action = `/dashboard/admin/planner/publisher-of-the-week/${isEditMode ? "update" : "create"}`;
+  const action = `/dashboard/admin/planner/publisher-of-the-week/${week}/create`;
 
   return (
     <form

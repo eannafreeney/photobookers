@@ -11,7 +11,6 @@ type Props = {
 };
 
 const ScheduleAOTWModal = async ({ week, formValues }: Props) => {
-  console.log("week", week);
   const creators = await getCreatorsByTypeForPlanner("artist");
 
   const options = creators.map((c) => ({
