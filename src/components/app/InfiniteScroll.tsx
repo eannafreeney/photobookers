@@ -24,7 +24,7 @@ export const InfiniteScroll = ({
         "x-intersect.margin.500px": `$ajax('${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${pageParam}=${page + 1}', { target: 'pagination ${targetId}' })`,
       })}
     >
-      {`${page} of ${totalPages}`} {page < totalPages && loadingIcon}
+      {page < totalPages && loadingIcon}
     </nav>
   );
 };

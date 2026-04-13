@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { closeIcon } from "../../lib/icons";
 
 type NavSearchProps = {
   isMobile?: boolean;
@@ -41,6 +42,14 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
           class="w-full rounded-radius border border-outline bg-surface py-2.5 pl-10 pr-2 text-md md:text-sm focus:outline-none "
           {...inputAttrs}
         />
+        <div
+          x-cloak
+          x-show="hasResults"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer opacity-70 hover:opacity-100"
+          x-on:click="hasResults = false"
+        >
+          {closeIcon}
+        </div>
         <input
           type="hidden"
           name="isMobile"
