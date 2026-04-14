@@ -14,7 +14,7 @@ export const GET = createRoute(async (c) => {
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
 
-  const [error, result] = await getAllCreatorsByType("artist", currentPage);
+  const [error, result] = await getAllCreatorsByType("artist", currentPage, 50);
 
   if (error) return c.html(<InfoPage errorMessage="Artists not found" />);
 

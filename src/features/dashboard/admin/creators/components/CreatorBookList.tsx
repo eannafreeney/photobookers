@@ -6,8 +6,10 @@ import { Pagination } from "../../../../../components/app/Pagination";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import Table from "../../../../../components/app/Table";
 import TableSearch from "../../../../../components/app/TableSearch";
+import FormDelete from "../../../../../components/forms/FormDelete";
 import { useUser } from "../../../../../contexts/UserContext";
 import { Book, Creator } from "../../../../../db/schema";
+import { deleteIcon } from "../../../../../lib/icons";
 import { canEditBook } from "../../../../../lib/permissions";
 import PreviewButton from "../../../../api/components/PreviewButton";
 import {
@@ -101,6 +103,13 @@ const BookTableRow = ({ book, user }: RowProps) => {
     return <></>;
   }
 
+  const alpineAttrs = {
+    "x-init": "true",
+    "x-target": "toast",
+    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+    "@ajax:success": "$el.closest('tr').remove()",
+  };
+
   return (
     <tr>
       <Table.BodyRow>
@@ -169,7 +178,14 @@ const BookTableRow = ({ book, user }: RowProps) => {
         </a>
       </Table.BodyRow>
       <Table.BodyRow>
-        <DeleteBookForm book={book} user={user} />
+        <FormDelete
+          action={`/dashboard/admin/books/${book.id}`}
+          {...alpineAttrs}
+        >
+          <button type="submit" class="cursor-pointer hover:text-red-500">
+            {deleteIcon}
+          </button>
+        </FormDelete>
       </Table.BodyRow>
     </tr>
   );

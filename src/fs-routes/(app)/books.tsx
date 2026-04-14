@@ -10,7 +10,6 @@ export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
   const currentPage = Number(c.req.query("page") ?? 1);
-  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   const [error, result] = await getLatestBooks(currentPage, 30);
 
@@ -24,7 +23,7 @@ export const GET = createRoute(async (c) => {
           user={user}
           currentPath={currentPath}
           result={result}
-          isMobile={isMobile}
+          isInfiniteScroll
         />
       </Page>
     </AppLayout>,

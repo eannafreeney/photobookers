@@ -14,7 +14,11 @@ export const GET = createRoute(async (c) => {
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
 
-  const [error, result] = await getAllCreatorsByType("publisher", currentPage);
+  const [error, result] = await getAllCreatorsByType(
+    "publisher",
+    currentPage,
+    50,
+  );
 
   if (error) return c.html(<InfoPage errorMessage="Publishers not found" />);
 
