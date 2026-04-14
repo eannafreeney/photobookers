@@ -18,11 +18,11 @@ export const GET = createRoute(async (c) => {
     <AppLayout title="Books" user={user} currentPath={currentPath}>
       <Page>
         <BooksGrid
+          isInfiniteScroll
           title="All Books"
           user={user}
           currentPath={currentPath}
           result={result}
-          isInfiniteScroll
         />
       </Page>
     </AppLayout>,

@@ -1,20 +1,17 @@
 /**
  * Witty Books scraper
+ * https://witty-books.com/Books
+ * Cargo CMS site — all book thumbnails are server-rendered in the listing page.
  *
- * Source listing:
- * - Primary: https://witty-books.com/Books
- * - Fallback (if Books page is JS-rendered): https://witty-books.com/xxx-Aa-vv
+ * title:        h1
+ * artist:       h2
+ * description:  body text after the <hr> divider on each product page
+ * images:       data-src attrs on gallery images (original resolution)
+ * availability: .tags a text on listing page ("Sold out" → sold_out, else available)
+ * purchaseLink: canonical URL
  *
- * Per book page:
- * - title = first h1
- * - artist = first h2
- * - description = everything after </h2> inside the same parent block,
- *   with <br> / <br/> removed, tags stripped, whitespace normalized.
- *
- * Run:
- *   npx tsx scripts/scrapers/witty.ts [output-path]
+ * Run: npx tsx scripts/scrapers/witty.ts [output-path]
  */
-
 import "../env";
 import * as cheerio from "cheerio";
 import { mkdir, writeFile } from "fs/promises";
@@ -23,122 +20,86 @@ import {
   artistExistsInDb,
   decodeHtmlEntities,
   fetchHtml,
-  normalizeUrl,
   rowToCsv,
 } from "../scraperUtils";
 
 const BASE = "https://witty-books.com";
-const BOOKS_URL = `${BASE}/Books`;
-const FALLBACK_BOOK_URL = `${BASE}/xxx-Aa-vv`;
+const LISTING_URL = `${BASE}/Books`;
+const LIMIT = 30;
 
-const NON_BOOK_HREFS = new Set([
-  // nav / pages
-  "Books",
-  "About",
-  "Info",
-  "Project",
-  "Merch",
-  "Cassettes",
-  "Cassette",
-  "Apparel",
-  "Prints",
-  "Special-edition",
-  // footer / misc
-  "contact-form",
-  "Term-Conditions-Shipping",
-  "shipping",
-  "bookstores",
-  "Education",
-  // tag pages that appear in thumbnail tags
-  "Sale",
-  "sale",
-  "Sold-out",
-  "sold-out",
-  "Last-copies",
-  "last-copies",
-  // not a book
-  "previous-editions",
-]);
+interface ListingEntry {
+  url: string;
+  availability: string;
+}
 
-function getBookUrlsFromHtml(html: string): string[] {
+async function getBookEntries(): Promise<ListingEntry[]> {
+  const html = await fetchHtml(LISTING_URL);
   const $ = cheerio.load(html);
-  const seen = new Set<string>();
-  const urls: string[] = [];
 
-  // The book grid is in the Thumbnail view in Cargo output
-  $('[data-view="Thumbnail"] .thumbnail a.image-link[href]').each((_, el) => {
-    const hrefRaw = $(el).attr("href")?.trim();
-    if (!hrefRaw) return;
+  const entries: ListingEntry[] = [];
 
-    const href = hrefRaw.split("?")[0].trim();
-    if (!href || href.startsWith("#")) return;
-    if (
-      href.startsWith("mailto:") ||
-      href.startsWith("javascript:") ||
-      href.startsWith("http://") ||
-      href.startsWith("https://")
-    ) {
-      // If they ever put absolute links here, only keep internal ones
-      try {
-        const u = new URL(href);
-        if (u.origin !== BASE) return;
-      } catch {
-        return;
-      }
-    }
+  $(".thumbnail").each((_, el) => {
+    const href = $(el).find("a.image-link[href]").first().attr("href") ?? "";
+    if (!href || href === "/") return;
 
-    // Filter known non-book routes
-    const hrefNoLeadingSlash = href.replace(/^\//, "");
-    if (NON_BOOK_HREFS.has(hrefNoLeadingSlash) || NON_BOOK_HREFS.has(href))
-      return;
+    const full = href.startsWith("http") ? href : `${BASE}/${href.replace(/^\//, "")}`;
 
-    const full = normalizeUrl(href, BASE);
+    // Availability from the tags block
+    const tagText = $(el).find(".tags a").first().text().trim().toLowerCase();
+    let availability = "available";
+    if (tagText === "sold out") availability = "sold_out";
+    else if (tagText === "last copies") availability = "available"; // still purchasable
+    else if (tagText === "sale") availability = "available";
 
-    // Book URLs should be single-segment like /xxx-Aa-vv
-    try {
-      const path = new URL(full).pathname;
-      const segments = path.split("/").filter(Boolean);
-      if (segments.length !== 1) return;
-    } catch {
-      return;
-    }
-
-    if (!seen.has(full)) {
-      seen.add(full);
-      urls.push(full);
+    if (!entries.find((e) => e.url === full)) {
+      entries.push({ url: full, availability });
     }
   });
 
-  return urls;
+  return entries.slice(0, LIMIT);
 }
 
-async function getAllBookUrls(): Promise<string[]> {
-  console.log("Fetching books listing:", BOOKS_URL);
-  const listingHtml = await fetchHtml(BOOKS_URL);
-  let urls = getBookUrlsFromHtml(listingHtml);
-
-  if (urls.length === 0) {
-    console.log(
-      "No thumbnail links on Books page; falling back to a book page for list:",
-      FALLBACK_BOOK_URL,
-    );
-    const fallbackHtml = await fetchHtml(FALLBACK_BOOK_URL);
-    urls = getBookUrlsFromHtml(fallbackHtml);
+function extractTextAfterHr($: cheerio.CheerioAPI): string {
+  // The <hr> separates metadata from the book blurb
+  const hr = $("hr").first();
+  if (!hr.length) {
+    // Fallback: grab all body text after the h2
+    return "";
   }
 
-  return urls;
-}
+  // Collect text from all siblings after the <hr>
+  const parts: string[] = [];
 
-function htmlToTextRemoveBr(html: string): string {
-  // remove <br> / <br/> (replace with spaces)
-  const noBr = html.replace(/<br\s*\/?>/gi, " ");
-  return decodeHtmlEntities(noBr)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
+  // hr is inside a grid-col div — walk its next siblings
+  let node = hr[0].next;
+  while (node) {
+    if (node.type === "text") {
+      const t = (node as unknown as { data: string }).data.trim();
+      if (t) parts.push(t);
+    } else if (node.type === "tag") {
+      const tagName = (node as unknown as { name: string }).name;
+      if (tagName === "br") {
+        parts.push("\n");
+      } else {
+        const text = $(node as Parameters<typeof $>[0]).text().trim();
+        if (text) parts.push(text);
+      }
+    }
+    node = (node as { next: typeof node }).next;
+  }
+
+  return parts
+    .join("")
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join("\n")
     .trim();
 }
 
-async function scrapeBook(bookUrl: string): Promise<{
+async function scrapeBookPage(
+  entry: ListingEntry,
+): Promise<{
   title: string;
   artist: string;
   artistExistsInDb: boolean;
@@ -148,93 +109,72 @@ async function scrapeBook(bookUrl: string): Promise<{
   availability: string;
   purchaseLink: string;
 }> {
-  const html = await fetchHtml(bookUrl);
+  const html = await fetchHtml(entry.url);
   const $ = cheerio.load(html);
 
-  const title = $("h1").first().text().trim() || "";
-  const artist = $("h2").first().text().trim() || "";
+  const title = $("h1").first().text().trim();
+  const artist = $("h2").first().text().trim();
 
-  // Description = everything after </h2> in the same parent block
-  let description = "";
-  const h2 = $("h2").first();
-  if (h2.length) {
-    const parent = h2.parent();
-    const parentHtml = parent.html() ?? "";
-    const idx = parentHtml.toLowerCase().indexOf("</h2>");
-    const afterH2 = idx >= 0 ? parentHtml.slice(idx + 5) : parentHtml;
-    description = htmlToTextRemoveBr(afterH2);
-  }
+  const description = decodeHtmlEntities(extractTextAfterHr($));
 
-  // Cover: try og:image; if missing, grab first gallery image
-  let coverUrl = normalizeUrl(
-    $('meta[property="og:image"]').attr("content") ?? "",
-    BASE,
+  // Collect all gallery images from slideshow and columns galleries.
+  // Prefer data-src (original) over src (resized CDN). Skip cloned slides.
+  const imageUrls: string[] = [];
+
+  const addImage = (src: string) => {
+    if (!src || src.startsWith("data:")) return;
+    const full = src.startsWith("//") ? `https:${src}` : src;
+    // Normalise to original quality
+    const original = full.replace(/\/w\/\d+\/q\/\d+\//, "/t/original/");
+    if (!imageUrls.includes(original)) imageUrls.push(original);
+  };
+
+  // Slideshow — skip slick clones (data-exclude-item)
+  $(`.image-gallery[image-gallery="slideshow"] .gallery_card:not([data-exclude-item]) img`).each(
+    (_, el) => {
+      const dataSrc = $(el).attr("data-src") ?? "";
+      const src = $(el).attr("src") ?? "";
+      addImage(dataSrc || src);
+    },
   );
 
-  if (!coverUrl) {
-    const firstImg =
-      $(".image-gallery img[data-src]").first().attr("data-src") ||
-      $(".image-gallery img[src]").first().attr("src") ||
-      "";
-    coverUrl = normalizeUrl(firstImg, BASE);
-  }
-
-  // Images: collect unique gallery images (originals from data-src preferred)
-  const imageUrls: string[] = [];
-  $(".image-gallery img").each((_, el) => {
-    const dataSrc = $(el).attr("data-src")?.trim();
-    const src = $(el).attr("src")?.trim();
-    const pick = (dataSrc || src || "").trim();
-    if (!pick || pick.startsWith("data:")) return;
-    const full = normalizeUrl(pick, BASE);
-    if (!imageUrls.includes(full)) imageUrls.push(full);
+  // Columns / secondary gallery
+  $(`.image-gallery[image-gallery="columns"] img`).each((_, el) => {
+    const dataSrc = $(el).attr("data-src") ?? "";
+    const lazySrc = $(el).attr("data-lazy-src") ?? "";
+    const src = $(el).attr("src") ?? "";
+    addImage(dataSrc || lazySrc || src);
   });
 
-  // Ensure cover is first, remainder into `images` pipe-separated
-  const unique = [...new Set(imageUrls)];
-  if (coverUrl && unique.length && unique[0] !== coverUrl) {
-    const idx = unique.indexOf(coverUrl);
-    if (idx > 0) unique.splice(idx, 1);
-    unique.unshift(coverUrl);
-  } else if (!coverUrl && unique.length) {
-    coverUrl = unique[0] ?? "";
-  }
-  const images = unique.slice(1).join("|");
+  const coverUrl = imageUrls[0] ?? "";
+  const images = imageUrls.slice(1).join("|");
 
-  // Availability: use tags section if present
-  const tagText = $('[data-view="Thumbnail"] .thumbnail.active .tags')
-    .text()
-    .toLowerCase();
-  const pageText = $.root().text().toLowerCase();
-  const availability =
-    tagText.includes("sold out") ||
-    pageText.includes("sold out") ||
-    pageText.includes("out of stock")
-      ? "sold out"
-      : "available";
+  const purchaseLink =
+    $('link[rel="canonical"]').attr("href")?.trim() || entry.url;
 
-  const artistExists = artist ? await artistExistsInDb(artist) : false;
+  const exists = artist ? await artistExistsInDb(artist) : false;
 
   return {
     title,
     artist,
-    artistExistsInDb: artistExists,
+    artistExistsInDb: exists,
     description,
     coverUrl,
     images,
-    availability,
-    purchaseLink: bookUrl,
+    availability: entry.availability,
+    purchaseLink,
   };
 }
 
 async function main() {
-  const outPath = process.argv[2] ?? join(process.cwd(), "output", "witty.csv");
+  const outPath =
+    process.argv[2] ?? join(process.cwd(), "output", "witty.csv");
 
-  console.log("Fetching book URLs...");
-  const bookUrls = await getAllBookUrls();
-  console.log(`Found ${bookUrls.length} book URLs.`);
+  console.log("Fetching book listing...");
+  const entries = await getBookEntries();
+  console.log(`Found ${entries.length} books (capped at ${LIMIT}).`);
 
-  const header: Record<string, string> = {
+  const header = {
     title: "title",
     artist: "artist",
     artistExistsInDb: "artistExistsInDb",
@@ -244,17 +184,17 @@ async function main() {
     availability: "availability",
     purchaseLink: "purchaseLink",
   };
-
   const lines: string[] = [rowToCsv(header)];
 
-  for (let i = 0; i < bookUrls.length; i++) {
-    const url = bookUrls[i];
-    console.log(`[${i + 1}/${bookUrls.length}] ${url}`);
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    console.log(`[${i + 1}/${entries.length}] ${entry.url}`);
     try {
-      const row = await scrapeBook(url);
-      lines.push(rowToCsv({ ...row, artistExistsInDb: row.artistExistsInDb }));
+      const row = await scrapeBookPage(entry);
+      console.log(`  "${row.title}" by ${row.artist} — ${row.availability}`);
+      lines.push(rowToCsv(row));
     } catch (err) {
-      console.error(`Error scraping ${url}:`, err);
+      console.error(`  Error scraping ${entry.url}:`, err);
     }
   }
 
