@@ -47,7 +47,11 @@ const BooksGrid = async ({
           {title && <SectionTitle className="mb-4">{title}</SectionTitle>}
           {/* <SortDropdown sortBy={sortBy} currentPath={currentPath} /> */}
         </div>
-        <GridPanel id={targetId} isFullWidth={isFullWidth} xMerge="append">
+        <GridPanel
+          id={targetId}
+          isFullWidth={isFullWidth}
+          xMerge={isMobile || isInfiniteScroll ? "append" : "replace"}
+        >
           {books?.length > 0 ? (
             books.map((book) => (
               <ScrollReveal>
