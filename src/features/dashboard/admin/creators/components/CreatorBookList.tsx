@@ -14,6 +14,7 @@ import {
   findCollectionCount,
   findWishlistCount,
 } from "../../../../api/services";
+import ListNavigation from "../../../../app/components/ListNavigation";
 import DeleteBookForm from "../../../books/components/BookDeleteForm";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import { getBooksByCreatorId } from "../services";
@@ -71,14 +72,15 @@ const CreatorBookList = async ({
           <Table.HeadRow>Publish</Table.HeadRow>
           <Table.HeadRow>Actions</Table.HeadRow>
         </Table.Head>
-        <Table.Body id={targetId}>
+        <Table.Body id={targetId} xMerge="append">
           {books.map((book) => (
             <BookTableRow book={book} user={user} />
           ))}
         </Table.Body>
       </Table>
-      <Pagination
-        baseUrl={currentPath}
+      <ListNavigation
+        isInfiniteScroll
+        currentPath={currentPath}
         page={page}
         totalPages={totalPages}
         targetId={targetId}
