@@ -16,6 +16,7 @@ import { getPagination } from "../../../../lib/pagination";
 import { err, ok } from "../../../../lib/result";
 import { createNewPublisherNotification } from "../notifications/utils";
 import { AuthUser } from "../../../../../types";
+import { invalidateCreatorCache } from "../../../app/services";
 
 export const removeCreatorOwnerAdminDB = async (creatorId: string) => {
   try {
@@ -181,8 +182,14 @@ export const deleteCreatorByIdAdmin = async (creatorId: string) => {
       .delete(creators)
       .where(eq(creators.id, creatorId))
       .returning();
+
     if (!deletedCreator)
       return err({ reason: "Creator not found", cause: undefined });
+
+    if (deletedCreator?.slug) {
+      invalidateCreatorCache(deletedCreator.slug);
+    }
+
     return ok(deletedCreator);
   } catch (error) {
     console.error("Failed to delete creator", error);
@@ -218,6 +225,10 @@ export const updateCreatorProfileAdmin = async (
       .set(cleanedInput)
       .where(eq(creators.id, creatorId))
       .returning();
+
+    if (updatedCreator?.slug) {
+      invalidateCreatorCache(updatedCreator.slug);
+    }
 
     return updatedCreator;
   } catch (error) {

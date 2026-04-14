@@ -16,6 +16,7 @@ import { processTags } from "./utils";
 import { getPagination } from "../../../lib/pagination";
 import { bookFormAdminSchema } from "../admin/books/schema";
 import { err, ok } from "../../../lib/result";
+import { invalidateBookCache } from "../../app/services";
 
 export const createBook = async (input: NewBook) => {
   try {
@@ -165,10 +166,14 @@ export const updateBook = async (input: UpdateBook, bookId: string) => {
       .where(eq(books.id, bookId))
       .returning();
 
-    return updatedBook;
+    if (updatedBook?.slug) {
+      invalidateBookCache(updatedBook.slug);
+    }
+
+    return ok(updatedBook);
   } catch (error) {
     console.error("Failed to update book", error);
-    return null;
+    return err({ reason: "Failed to update book", cause: error });
   }
 };
 
@@ -283,15 +288,17 @@ export const buildUpdateBookData = (
 export const updateBookPublicationStatus = async (
   bookId: string,
   publicationStatus: "published" | "draft",
-): Promise<
-  { success: true; book: Book } | { success: false; error: string }
-> => {
+) => {
   try {
     const [updatedBook] = await db
       .update(books)
       .set({ publicationStatus })
       .where(eq(books.id, bookId))
       .returning();
+
+    if (updatedBook?.slug) {
+      invalidateBookCache(updatedBook.slug);
+    }
     return { success: true, book: updatedBook };
   } catch (error: unknown) {
     console.error("Failed to update book publication status", error);

@@ -42,6 +42,7 @@
     "drizzle-zod": "^0.8.3",
     "hono": "^4.0.9",
     "hono-fsr": "^1.2.1",
+    "lru-cache": "^11.3.5",
     "nanoid": "^5.1.6",
     "postgres": "^3.4.7",
     "sanitize-html": "^2.17.0",

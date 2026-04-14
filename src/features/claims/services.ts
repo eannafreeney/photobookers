@@ -10,6 +10,7 @@ import { and, eq, gt, inArray, or } from "drizzle-orm";
 import { cleanupOrphanedStubCreator } from "../dashboard/books/services";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 import { err, ok } from "../../lib/result";
+import { invalidateBookCache } from "../app/services";
 
 export const getPendingClaim = async (userId: string, creatorId: string) => {
   if (!userId || !creatorId) return null;
@@ -159,6 +160,10 @@ export const deleteBookById = async (bookId: string) => {
       .delete(books)
       .where(eq(books.id, bookId))
       .returning();
+
+    if (deletedBook?.slug) {
+      invalidateBookCache(deletedBook.slug);
+    }
 
     // Clean up orphaned stub publisher
     if (book.publisherId) {

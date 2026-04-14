@@ -28,8 +28,18 @@ export const GET = createRoute(
 
     const galleryImages = [
       book.coverUrl,
-      ...(book?.images?.map((image) => image.imageUrl) ?? []),
+      ...(book?.images?.map((image: { imageUrl: string }) => image.imageUrl) ??
+        []),
     ];
+
+    if (!user) {
+      c.header(
+        "Cache-Control",
+        "private, max-age=120, stale-while-revalidate=600",
+      );
+    } else {
+      c.header("Cache-Control", "private, no-store");
+    }
 
     return c.html(
       <AppLayout

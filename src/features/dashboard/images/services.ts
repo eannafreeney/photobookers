@@ -2,6 +2,10 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { bookImages, books, creators, users } from "../../../db/schema";
 import { err, ok } from "../../../lib/result";
+import {
+  invalidateBookCache,
+  invalidateCreatorCache,
+} from "../../app/services";
 
 export const updateCreatorCoverImage = async (
   coverUrl: string,
@@ -13,11 +17,17 @@ export const updateCreatorCoverImage = async (
       .set({ coverUrl })
       .where(eq(creators.id, creatorId))
       .returning();
+
     if (!updatedCreator)
       return err({
         reason: "Failed to update artist cover image",
         cause: undefined,
       });
+
+    if (updatedCreator.slug) {
+      invalidateCreatorCache(updatedCreator.slug);
+    }
+
     return ok(updatedCreator);
   } catch (error) {
     console.error("Failed to update artist cover image", error);
@@ -63,6 +73,11 @@ export const updateBookCoverImage = async (
         reason: "Failed to update book cover image",
         cause: undefined,
       });
+
+    if (updatedBook.slug) {
+      invalidateBookCache(updatedBook.slug);
+    }
+
     return ok(updatedBook);
   } catch (error) {
     console.error("Failed to update book cover image", error);

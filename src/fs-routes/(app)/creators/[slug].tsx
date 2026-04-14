@@ -37,6 +37,15 @@ export const GET = createRoute(
 
     const { creator, relatedCreators } = result;
 
+    if (!user) {
+      c.header(
+        "Cache-Control",
+        "private, max-age=120, stale-while-revalidate=600",
+      );
+    } else {
+      c.header("Cache-Control", "private, no-store");
+    }
+
     return c.html(
       <AppLayout
         title={creator?.displayName ?? ""}

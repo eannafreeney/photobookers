@@ -3,6 +3,7 @@ import { db } from "../../../../db/client";
 import { books, creators } from "../../../../db/schema";
 import { getPagination } from "../../../../lib/pagination";
 import { err, ok } from "../../../../lib/result";
+import { invalidateBookCache } from "../../../app/services";
 
 export const deleteBookByIdAdmin = async (bookId: string) => {
   try {
@@ -11,6 +12,11 @@ export const deleteBookByIdAdmin = async (bookId: string) => {
       .where(eq(books.id, bookId))
       .returning();
     if (!deletedBook) return err({ reason: "Book not found" });
+
+    if (deletedBook?.slug) {
+      invalidateBookCache(deletedBook.slug);
+    }
+
     return ok(deletedBook);
   } catch (error) {
     console.error("Failed to delete book", error);

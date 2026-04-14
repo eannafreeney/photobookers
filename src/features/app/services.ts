@@ -31,6 +31,29 @@ import {
 } from "../../constants/queries";
 import { creatorMessages } from "../../db/schema";
 import { err, ok } from "../../lib/result";
+import { LRUCache } from "lru-cache";
+
+const bookCache = new LRUCache<string, any>({
+  max: 200,
+  ttl: 1000 * 60 * 5,
+});
+const creatorCache = new LRUCache<string, any>({
+  max: 200,
+  ttl: 1000 * 60 * 5,
+});
+
+export const invalidateBookCache = (slug: string) => {
+  bookCache.delete(`${slug}:published`);
+  bookCache.delete(`${slug}:draft`);
+};
+export const invalidateCreatorCache = (slug: string) => {
+  // Deletes all paginated entries for this creator
+  for (const key of creatorCache.keys()) {
+    if (key.startsWith(`${slug}:`)) {
+      creatorCache.delete(key);
+    }
+  }
+};
 
 export const getDisplayName = (
   commentUser: {
@@ -247,6 +270,10 @@ export const getBooksByCreatorSlug = async (
   sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
   defaultLimit = 16,
 ) => {
+  const cacheKey = `${slug}:${currentPage}:${sortBy}:${defaultLimit}`;
+  const cached = creatorCache.get(cacheKey);
+  if (cached) return cached;
+
   try {
     // 1. Fetch creator without books
     const creator = await db.query.creators.findFirst({
@@ -302,13 +329,17 @@ export const getBooksByCreatorSlug = async (
 
     const relatedCreators = await getRelatedCreators(creator.id, creator.type);
 
-    return ok({
+    const result = ok({
       creator,
       books: foundBooks,
       totalPages: totalPagesComputed,
       page: pageComputed,
       relatedCreators,
     });
+
+    creatorCache.set(cacheKey, result);
+
+    return result;
   } catch (error) {
     console.warn(error);
     return err({ reason: "Failed to get books by creator slug", error });
@@ -369,6 +400,13 @@ export const getBookBySlug = async (
   bookSlug: string,
   status: "published" | "draft" = "published",
 ) => {
+  // Only cache published books, not drafts (previews should always be fresh)
+  const cacheKey = `${bookSlug}:${status}`;
+  if (status === "published") {
+    const cached = bookCache.get(cacheKey);
+    if (cached) return cached;
+  }
+
   try {
     const book = await db.query.books.findFirst({
       where: and(eq(books.slug, bookSlug), eq(books.publicationStatus, status)),
@@ -391,9 +429,15 @@ export const getBookBySlug = async (
           : book.images.map((img: any) => ({ imageUrl: img.imageUrl }))
         : [];
 
-    return ok({
+    const result = ok({
       book: { ...book, images: galleryImages },
     });
+
+    if (status === "published") {
+      bookCache.set(cacheKey, result);
+    }
+
+    return result;
   } catch (error) {
     console.error("Failed to get book by slug", error);
     return err({ reason: "Failed to get book by slug", error });
