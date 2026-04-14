@@ -9,6 +9,7 @@ import PreviewBanner from "../app/PreviewBanner";
 import Dock from "./Dock";
 import ToastContainer from "../app/ToastContainer";
 import ActivityStream from "../app/ActivityStream";
+import { fadeTransition } from "../../lib/transitions";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
@@ -38,9 +39,20 @@ const AppLayout = ({
           user={user}
           adminEditHref={adminEditHref}
         />
-        <div class="pb-0">
+        <div
+          class="pb-0"
+          x-data="{
+            show: false,
+            init() {
+                window.addEventListener('scroll', () => {
+                    this.show = window.scrollY > 300
+                })
+            }
+        }"
+        >
           <main class="min-h-60vh lg:mx-4">{children}</main>
           <Footer />
+          <ScrollToTopButton />
           <Dock currentPath={currentPath} />
         </div>
       </UserProvider>
@@ -54,3 +66,16 @@ const AppLayout = ({
 );
 
 export default AppLayout;
+
+const ScrollToTopButton = () => {
+  return (
+    <button
+      x-show="show"
+      {...fadeTransition}
+      x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+      class="fixed bottom-20 right-5 bg-black text-white px-4 py-3 rounded shadow-lg opacity-60 cursor-pointer hover:opacity-100 transition-opacity duration-300"
+    >
+      ↑
+    </button>
+  );
+};
