@@ -19,12 +19,9 @@ export const POST = createRoute(
     const book = c.get("book");
 
     const bookData = buildUpdateBookData(formData);
-    const updatedBook = await updateBook(bookData, book.id);
+    const [error, updatedBook] = await updateBook(bookData, book.id);
+    if (error) return showErrorAlert(c, error.reason);
 
-    if (!updatedBook) {
-      return showErrorAlert(c, "Failed to update book");
-    }
-
-    return showSuccessAlert(c, `${updatedBook.title} updated!`);
+    return showSuccessAlert(c, `${updatedBook?.title ?? "Book"} updated!`);
   },
 );

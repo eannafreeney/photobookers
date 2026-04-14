@@ -295,22 +295,19 @@ export const updateBookPublicationStatus = async (
       .set({ publicationStatus })
       .where(eq(books.id, bookId))
       .returning();
-
     if (updatedBook?.slug) {
       invalidateBookCache(updatedBook.slug);
     }
-    return { success: true, book: updatedBook };
+    if (!updatedBook) return err({ reason: "Book not found after update" });
+    return ok(updatedBook);
   } catch (error: unknown) {
     console.error("Failed to update book publication status", error);
-
-    // Check for cover constraint violation
     if (
       (error as any).cause?.constraint_name === "cover_required_for_publish"
     ) {
-      return { success: false, error: "Add a cover image before publishing" };
+      return err({ reason: "Add a cover image before publishing" });
     }
-
-    return { success: false, error: "Failed to update book mode" };
+    return err({ reason: "Failed to update book mode" });
   }
 };
 

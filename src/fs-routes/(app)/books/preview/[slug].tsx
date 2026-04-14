@@ -31,7 +31,8 @@ export const GET = createRoute(
 
     const galleryImages = [
       book.coverUrl,
-      ...(book?.images?.map((image) => image.imageUrl) ?? []),
+      ...(book?.images?.map((image: { imageUrl: string }) => image.imageUrl) ??
+        []),
     ];
 
     return c.html(

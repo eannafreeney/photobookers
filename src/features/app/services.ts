@@ -291,7 +291,7 @@ export const getBooksByCreatorSlug = async (
     const limit = defaultLimit;
     const offset = (currentPage - 1) * defaultLimit;
 
-    const [countResult, foundBooks] = await Promise.all([
+    const [countResult, foundBooks, relatedCreators] = await Promise.all([
       db
         .select({ value: count() })
         .from(books)
@@ -321,13 +321,12 @@ export const getBooksByCreatorSlug = async (
           },
         },
       }),
+      await getRelatedCreators(creator.id, creator.type),
     ]);
 
     const totalCount = countResult[0]?.value ?? 0;
     const { totalPages: totalPagesComputed, page: pageComputed } =
       getPagination(currentPage, totalCount, defaultLimit);
-
-    const relatedCreators = await getRelatedCreators(creator.id, creator.type);
 
     const result = ok({
       creator,
@@ -943,17 +942,30 @@ export const getRelatedCreators = async (
   try {
     const relatedColumn =
       creatorType === "publisher" ? books.artistId : books.publisherId;
+    const joinColumn =
+      creatorType === "publisher" ? books.artistId : books.publisherId;
     const myColumn =
       creatorType === "publisher" ? books.publisherId : books.artistId;
-
     const peerColumnFilter =
       creatorType === "publisher"
         ? isNotNull(books.artistId)
         : isNotNull(books.publisherId);
 
-    const publishedBooks = await db
-      .selectDistinct({ relatedId: relatedColumn })
-      .from(books)
+    const related = await db
+      .selectDistinct({
+        id: creators.id,
+        displayName: creators.displayName,
+        slug: creators.slug,
+        coverUrl: creators.coverUrl,
+        status: creators.status,
+        type: creators.type,
+        city: creators.city,
+        country: creators.country,
+        tagline: creators.tagline,
+        email: creators.email,
+      })
+      .from(creators)
+      .innerJoin(books, eq(joinColumn, creators.id))
       .where(
         and(
           eq(myColumn, creatorId),
@@ -963,19 +975,6 @@ export const getRelatedCreators = async (
           or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
         ),
       );
-
-    const relatedIds = publishedBooks
-      .map((r) => r.relatedId)
-      .filter((id): id is string => id != null);
-
-    if (relatedIds.length === 0) return [];
-
-    const related = await db.query.creators.findMany({
-      columns: CREATOR_CARD_COLUMNS,
-      where: inArray(creators.id, relatedIds),
-      orderBy: (c, { asc }) => [asc(c.displayName)],
-    });
-
     return related;
   } catch (error) {
     console.error("Failed to get related creators", error);

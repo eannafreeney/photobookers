@@ -124,8 +124,8 @@ export const POST = createRoute(
       artist.id,
       publisher?.id ?? null,
     );
-    const updatedBook = await updateBook(bookData, bookId);
-    if (!updatedBook) return showErrorAlert(c, "Failed to update book");
+    const [error, updatedBook] = await updateBook(bookData, bookId);
+    if (error) return showErrorAlert(c, error.reason);
 
     return showSuccessAlert(c, `${updatedBook.title} updated!`);
   },

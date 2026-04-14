@@ -132,13 +132,10 @@ export const POST = createRoute(
     const book = c.get("book");
 
     const bookData = buildUpdateBookData(formData);
-    const updatedBook = await updateBook(bookData, book.id);
+    const [error, updatedBook] = await updateBook(bookData, book.id);
+    if (error) return showErrorAlert(c, error.reason);
 
-    if (!updatedBook) {
-      return showErrorAlert(c, "Failed to update book");
-    }
-
-    return showSuccessAlert(c, `${updatedBook.title} updated!`);
+    return showSuccessAlert(c, `${updatedBook?.title ?? "Book"} updated!`);
   },
 );
 
@@ -154,9 +151,11 @@ export const PATCH = createRoute(
     if (!book.artist) return showErrorAlert(c, "Artist not found");
 
     if (intent === "publish") {
-      const result = await updateBookPublicationStatus(book.id, "published");
-      if (!result.success) return showErrorAlert(c, result.error, 400);
-      const updatedBook = result.book;
+      const [publishError, updatedBook] = await updateBookPublicationStatus(
+        book.id,
+        "published",
+      );
+      if (publishError) return showErrorAlert(c, publishError.reason, 400);
 
       await createBookPublishedNotification(user, book);
 
@@ -173,18 +172,19 @@ export const PATCH = createRoute(
     }
 
     if (intent === "unpublish") {
-      const result = await updateBookPublicationStatus(book.id, "draft");
-      if (!result.success) {
+      const [unpublishError, updatedBook] = await updateBookPublicationStatus(
+        book.id,
+        "draft",
+      );
+      if (unpublishError) {
         return c.html(
           <>
-            <Alert type="danger" message={result.error} />
+            <Alert type="danger" message={unpublishError.reason} />
             <PublishToggleForm book={book} user={user} />
           </>,
           400,
         );
       }
-
-      const updatedBook = result.book;
 
       return c.html(
         <>
