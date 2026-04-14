@@ -51,6 +51,7 @@ const BooksGrid = async ({
           id={targetId}
           isFullWidth={isFullWidth}
           xMerge={isMobile || isInfiniteScroll ? "append" : "replace"}
+          data-nav={isMobile || isInfiniteScroll ? "infinite" : "pagination"}
         >
           {books?.length > 0 ? (
             books.map((book) => (

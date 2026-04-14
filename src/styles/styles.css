@@ -74,61 +74,14 @@ input[type="search"]::-webkit-search-cancel-button {
   cursor: pointer;
 }
 
-.ticker-track {
-  display: flex;
-  width: max-content;
-  animation: ticker-scroll var(--ticker-duration, 20s) linear infinite;
-  will-change: transform;
-}
-.ticker-seq {
-  display: flex;
-  gap: 1.5rem; /* match your gap-6 */
-}
-@keyframes ticker-scroll {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ticker-track {
-    animation: none;
-  }
-}
-
-@keyframes marquee-animation {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0%);
-  }
-}
-
-.marquee {
-  animation: marquee-animation 100s linear infinite;
-  will-change: transform;
-}
-
-.drawer .drawer-side {
-  transform: translateX(100%);
-}
-
-.drawer .drawer-toggle:checked ~ .drawer-content ~ .drawer-side {
-  transform: translateX(0);
-}
-
-#books-grid[aria-busy] {
+#books-grid[data-nav="pagination"][aria-busy] {
   --loading-size: 48px;
   --loading-stroke: 4px;
   --loading-duration: 0.8s;
   position: relative;
 }
 
-#books-grid[aria-busy]:before {
+#books-grid[data-nav="pagination"][aria-busy]:before {
   content: "";
   position: absolute;
   inset: 0;
@@ -136,7 +89,7 @@ input[type="search"]::-webkit-search-cancel-button {
   z-index: 10;
 }
 
-#books-grid[aria-busy]:after {
+#books-grid[data-nav="pagination"][aria-busy]:after {
   content: "";
   position: absolute;
   top: 50%;
