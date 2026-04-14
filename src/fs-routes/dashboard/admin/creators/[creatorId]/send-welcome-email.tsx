@@ -27,11 +27,12 @@ export const POST = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
   const emailHTML = generateWelcomeEmail(creator, loginLink);
 
-  await sendEmail(
+  const [emailError] = await sendEmail(
     creator.email,
     `Hi ${creator.displayName}! Invitation to Photobookers`,
     emailHTML,
   );
+  if (emailError) return showErrorAlert(c, "Failed to send welcome email");
 
   const [markError, updatedCreator] =
     await markWelcomeEmailSentAdmin(creatorId);
