@@ -27,31 +27,31 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
         >
           <TextArea
             label="What inspired you to start publishing books?"
-            name="q1"
+            name="form.q1"
             placeholder="Question 1"
             required
           />
           <TextArea
             label="What draws you to the photobook as a format?"
-            name="q2"
+            name="form.q2"
             placeholder="Question 2"
             required
           />
           <TextArea
             label="How has your practice changed over time?"
-            name="q3"
+            name="form.q3"
             placeholder="Question 3"
             required
           />
           <TextArea
             label="What's a book you've been involved with that surprised you — either in how it came together or how it landed?"
-            name="q4"
+            name="form.q4"
             placeholder="Question 4"
             required
           />
           <TextArea
             label="What's next for you?"
-            name="q5"
+            name="form.q5"
             placeholder="Question 5"
             required
           />
@@ -60,7 +60,6 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
             <p class="text-xs text-base-content/60">
               An image we can use when sharing your interview.
             </p>
-
             <FileUploadInput
               isVisible
               label="Promo image"
