@@ -1,6 +1,7 @@
 import { and, count, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
+  adminNotifications,
   books,
   collectionItems,
   creatorClaims,
@@ -137,6 +138,10 @@ export const deleteUserByIdAdmin = async (userId: string) => {
         .where(eq(creators.ownerUserId, userId));
       await tx.delete(creatorClaims).where(eq(creatorClaims.userId, userId));
       await tx.delete(follows).where(eq(follows.followerUserId, userId));
+      await tx
+        .update(adminNotifications)
+        .set({ actorUserId: null })
+        .where(eq(adminNotifications.actorUserId, userId));
       const result = await tx
         .delete(users)
         .where(eq(users.id, userId))

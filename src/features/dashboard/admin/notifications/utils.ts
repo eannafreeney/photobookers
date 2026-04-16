@@ -156,25 +156,3 @@ export const createUserVerifiedNotification = async (
     targetUrl: `/dashboard/admin/users/${user.id}`,
     actorUserId: user.id,
   });
-
-export const createCreatorSignedUpNotification = async (
-  formData: z.infer<typeof registerCreatorFormSchema>,
-) =>
-  await createAdminNotification({
-    type: "creator_signed_up",
-    title: "New creator signed up",
-    body: `A user signed up as a creator: "${formData.displayName}"`,
-    targetUrl: null,
-    actorUserId: null,
-  });
-
-export const createFanSignedUpNotification = async (
-  formData: z.infer<typeof registerFanFormSchema>,
-) =>
-  await createAdminNotification({
-    type: "fan_signed_up",
-    title: "New fan signed up",
-    body: `A user signed up as a fan: "${formData.firstName} ${formData.lastName}"`,
-    targetUrl: null,
-    actorUserId: null,
-  });
