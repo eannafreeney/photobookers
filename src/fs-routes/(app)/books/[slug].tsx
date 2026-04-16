@@ -33,6 +33,7 @@ export const GET = createRoute(
     ];
 
     if (!user) {
+      c.header("Vary", "Cookie");
       c.header(
         "Cache-Control",
         "private, max-age=120, stale-while-revalidate=600",
