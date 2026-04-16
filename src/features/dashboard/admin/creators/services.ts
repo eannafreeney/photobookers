@@ -138,23 +138,20 @@ export const createStubCreatorProfileAdmin = async (
   website?: string,
   email?: string,
 ) => {
-  try {
-    const newCreator = await createCreatorProfileAdmin({
-      displayName: displayName.trim(),
-      slug: slugify(displayName),
-      coverUrl: getRandomCoverUrl(),
-      ownerUserId: null,
-      type,
-      status: "stub",
-      createdByUserId: userId,
-      website: website || null,
-      email: email || null,
-    });
-    return ok(newCreator);
-  } catch (error) {
-    console.error("Failed to create artist", error);
-    return err({ reason: "Failed to create artist", cause: error });
-  }
+  const [creatorError, newCreator] = await createCreatorProfileAdmin({
+    displayName: displayName.trim(),
+    slug: slugify(displayName),
+    coverUrl: getRandomCoverUrl(),
+    ownerUserId: null,
+    type,
+    status: "stub",
+    createdByUserId: userId,
+    website: website || null,
+    email: email || null,
+  });
+  if (creatorError || !newCreator)
+    return err({ reason: "Failed to create artist" });
+  return ok(newCreator);
 };
 
 export const createCreatorProfileAdmin = async (input: NewCreator) => {
@@ -169,10 +166,11 @@ export const createCreatorProfileAdmin = async (input: NewCreator) => {
         sortName,
       })
       .returning();
-    return newCreator;
+    if (!newCreator) return err({ reason: "Failed to create creator" });
+    return ok(newCreator);
   } catch (error) {
     console.error("Failed to create artist", error);
-    return null;
+    return err({ reason: "Failed to create artist", cause: error });
   }
 };
 

@@ -12,23 +12,21 @@ export const createStubCreatorProfile = async (session: AuthSession) => {
     return err({ reason: "User has no email", cause: undefined });
   }
   const { displayName, type, website } = user_metadata ?? {};
-  try {
-    const newCreator = await createCreatorProfile({
-      displayName: displayName.trim(),
-      slug: slugify(displayName),
-      coverUrl: getRandomCoverUrl(),
-      ownerUserId: id,
-      type,
-      status: "stub",
-      createdByUserId: id,
-      website: website || null,
-      email,
-    });
-    return ok(newCreator);
-  } catch (error) {
-    console.error("Failed to create artist", error);
-    return err({ reason: "Failed to create artist" });
-  }
+
+  const [newCreatorError, newCreator] = await createCreatorProfile({
+    displayName: displayName.trim(),
+    slug: slugify(displayName),
+    coverUrl: getRandomCoverUrl(),
+    ownerUserId: id,
+    type,
+    status: "stub",
+    createdByUserId: id,
+    website: website || null,
+    email,
+  });
+  if (newCreatorError || !newCreator)
+    return err({ reason: "Failed to create creator" });
+  return ok(newCreator);
 };
 
 export const createCreatorProfile = async (input: NewCreator) => {
@@ -43,10 +41,11 @@ export const createCreatorProfile = async (input: NewCreator) => {
         sortName,
       })
       .returning();
-    return newCreator;
+    if (!newCreator) return err({ reason: "Failed to create creator" });
+    return ok(newCreator);
   } catch (error) {
     console.error("Failed to create artist", error);
-    return null;
+    return err({ reason: "Failed to create artist", cause: error });
   }
 };
 
