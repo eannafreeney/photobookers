@@ -95,6 +95,7 @@ async function run() {
     const html = generateInterviewInviteEmail({
       creatorName: creator.displayName,
       interviewLink,
+      profileUrl: `https://photobookers.com/creators/${creator.slug}`,
     });
 
     const [sendErr] = await sendEmail(

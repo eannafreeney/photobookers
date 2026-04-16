@@ -106,16 +106,39 @@ export const generateWelcomeEmailForCreator = (
 
 export const generateInterviewInviteEmail = (params: {
   creatorName: string;
-  profileUrl: string;
   interviewLink: string;
+  profileUrl: string;
 }) => {
   return `
+  
     <p>Hi ${params.creatorName},</p>
     <p>I hope you are well. My name is Eanna de Freine — I am the founder of Photobookers, a platform for discovering photobooks and following the artists and publishers behind them.</p>
     <p>We are publishing short interviews with the creators and publishers featured on the site. I would love to include your voice, and I have put together five questions for you.</p>
     <p>It should take no more than 10 minutes to complete, and your answers will be published on our main page and promoted on our social media channels.</p>
     <p><a href="${params.interviewLink}">Start the interview</a></p>
     <p>If you haven't yet, you can view your profile here: <br/>
+      <a href="${params.profileUrl}">View Profile</a>
+    </p>
+    <p>Please do not hesitate to reply to this email if you have any questions.</p>
+    <p>All the best,<br/>Eanna<br/>Photobookers</p>
+  `;
+};
+
+export const generateInterviewInviteResendEmail = (params: {
+  creatorName: string;
+  profileUrl: string;
+  interviewLink: string;
+}) => {
+  return `
+    <p>Hi ${params.creatorName},</p>
+    <p>Apologies — I sent you an email earlier today about our interview feature, but a link to your profile was missing. Please disregard the previous email.</p>
+    <p>Here is the corrected version:</p>
+    <hr/>
+    <p>My name is Eanna de Freine — I am the founder of Photobookers, a platform for discovering photobooks and following the artists and publishers behind them.</p>
+    <p>We are publishing short interviews with the creators and publishers featured on the site. I would love to include your voice, and I have put together five questions for you.</p>
+    <p>It should take no more than 10 minutes to complete, and your answers will be published on our main page and promoted on our social media channels.</p>
+    <p><a href="${params.interviewLink}">Start the interview</a></p>
+    <p>You can also view your profile here:<br/>
       <a href="${params.profileUrl}">View Profile</a>
     </p>
     <p>Please do not hesitate to reply to this email if you have any questions.</p>
