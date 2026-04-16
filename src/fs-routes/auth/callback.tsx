@@ -18,6 +18,8 @@ import { sendEmail } from "../../lib/sendEmail";
 import { generateVerificationWelcomeEmail } from "../../features/auth/emails";
 import { setFlash } from "../../utils";
 import InfoPage from "../../pages/InfoPage";
+import { nanoid } from "nanoid";
+import { createCreatorInterviewInviteAdmin } from "../../features/dashboard/admin/creators/services";
 
 export const GET = createRoute(
   queryValidator(processRegisterQuerySchema),
@@ -57,10 +59,28 @@ export const GET = createRoute(
     const [dbError, dbUser] = await createUserInDatabase(session);
     if (dbError) return c.html(<InfoPage errorMessage={dbError.reason} />);
 
+    let interviewLink: string | null = null;
+
     if (isCreator) {
-      const [newCreatorError] = await createStubCreatorProfile(session);
+      const [newCreatorError, newCreator] =
+        await createStubCreatorProfile(session);
       if (newCreatorError)
         return c.html(<InfoPage errorMessage={newCreatorError.reason} />);
+
+      const inviteToken = nanoid(32);
+      const [interviewError] = await createCreatorInterviewInviteAdmin({
+        creatorId: newCreator.id,
+        recipientEmail: user.email,
+        invitedByUserId: user.id,
+        inviteToken,
+        interviewType: "introduction",
+      });
+
+      if (interviewError) {
+        console.error("Failed to create interview invite:", interviewError.reason);
+      } else {
+        interviewLink = `${process.env.SITE_URL ?? "https://photobookers.com"}/interviews/${inviteToken}`;
+      }
     }
 
     await createUserVerifiedNotification(dbUser);
@@ -72,7 +92,7 @@ export const GET = createRoute(
     const [emailError] = await sendEmail(
       user.email,
       "You're verified – welcome to Photobookers",
-      generateVerificationWelcomeEmail(welcomeName),
+      generateVerificationWelcomeEmail(welcomeName, interviewLink),
     );
 
     if (emailError)

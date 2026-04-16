@@ -45,7 +45,7 @@ const NavSearch = ({ isMobile = false }: NavSearchProps) => {
         <div
           x-cloak
           x-show="hasResults"
-          class="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer opacity-70 hover:opacity-100"
+          class="hidden md:block absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer opacity-70 hover:opacity-100"
           x-on:click="hasResults = false"
         >
           {closeIcon}
