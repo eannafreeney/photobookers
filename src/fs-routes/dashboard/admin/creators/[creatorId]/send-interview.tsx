@@ -59,7 +59,10 @@ export const POST = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
   return c.html(
     <>
-      <Alert type="success" message="Interview invite sent!" />
+      <Alert
+        type="success"
+        message={`Interview invite sent to ${recipientEmail}!`}
+      />
       <SendInterviewButton creator={updatedCreator} />
     </>,
   );

@@ -4,6 +4,7 @@ import TextArea from "../../../components/forms/TextArea";
 import HeadlessLayout from "../../../components/layouts/HeadlessLayout";
 import Page from "../../../components/layouts/Page";
 import { Creator } from "../../../db/schema";
+import DragAndDropArea from "../../dashboard/images/components/DragAndDropArea";
 
 type IntervewFormProps = {
   inviteToken: string;
@@ -14,7 +15,7 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
   return (
     <HeadlessLayout title="Interview">
       <Page>
-        <h1 className="text-2xl font-bold">{creator.displayName}</h1>
+        <h1 className="text-2xl font-bold">Hi {creator.displayName},</h1>
         <form
           id="interview-form"
           x-data="interviewForm"
@@ -59,6 +60,7 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
             <p class="text-xs text-base-content/60">
               An image we can use when sharing your interview.
             </p>
+            <DragAndDropArea />
             <FileUploadInput
               label="Promo image"
               name="promoImage"

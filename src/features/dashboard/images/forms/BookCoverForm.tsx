@@ -3,7 +3,6 @@ import FileUploadInput from "../../../../components/forms/FileUpload";
 import SectionTitle from "../../../../components/app/SectionTitle";
 import ImagePreview from "../../../../components/forms/ImagePreview";
 import Card from "../../../../components/app/Card";
-import { formatDate } from "../../../../utils";
 import { BookCardResult } from "../../../../constants/queries";
 import CardCreatorCard from "../../../../components/app/CardCreatorCard";
 import { AuthUser } from "../../../../../types";
