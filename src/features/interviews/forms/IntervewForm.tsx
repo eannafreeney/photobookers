@@ -60,8 +60,9 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
             <p class="text-xs text-base-content/60">
               An image we can use when sharing your interview.
             </p>
-            <DragAndDropArea />
+
             <FileUploadInput
+              isVisible
               label="Promo image"
               name="promoImage"
               accept="image/*"
