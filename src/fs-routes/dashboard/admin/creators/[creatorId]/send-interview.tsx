@@ -39,6 +39,7 @@ export const POST = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const interviewLink = `${process.env.SITE_URL}/interviews/${inviteToken}`;
   const html = generateInterviewInviteEmail({
     creatorName: creator.displayName,
+    profileUrl: `https://photobookers.com/creators/${creator.slug}`,
     interviewLink,
   });
 
