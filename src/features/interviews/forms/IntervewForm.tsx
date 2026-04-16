@@ -1,3 +1,4 @@
+import FileUploadInput from "../../../components/forms/FileUpload";
 import FormButtons from "../../../components/forms/FormButtons";
 import TextArea from "../../../components/forms/TextArea";
 import HeadlessLayout from "../../../components/layouts/HeadlessLayout";
@@ -19,39 +20,52 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
           x-data="interviewForm"
           method="post"
           action={`/interviews/${inviteToken}`}
+          enctype="multipart/form-data"
           class="flex flex-col gap-4"
           {...{ "x-target.away": "_top" }}
         >
           <TextArea
-            label="What inspired you to start creating books?"
+            label="What inspired you to start publishing books?"
             name="q1"
             placeholder="Question 1"
             required
           />
           <TextArea
-            label="what was your biggest challenge in bringing books to life?"
+            label="What draws you to the photobook as a format?"
             name="q2"
             placeholder="Question 2"
             required
           />
           <TextArea
-            label="What advice would you give someone starting their first photobook?"
+            label="How has your practice changed over time?"
             name="q3"
             placeholder="Question 3"
             required
           />
           <TextArea
-            label="What does your creative process look like from first idea to finished work?"
+            label="What's a book you've been involved with that surprised you — either in how it came together or how it landed?"
             name="q4"
             placeholder="Question 4"
             required
           />
           <TextArea
-            label="How has your practice changed over time, and what are you trying to explore next?"
+            label="What's next for you?"
             name="q5"
             placeholder="Question 5"
             required
           />
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium">Photo for promotion</label>
+            <p class="text-xs text-base-content/60">
+              An image we can use when sharing your interview.
+            </p>
+            <FileUploadInput
+              label="Promo image"
+              name="promoImage"
+              accept="image/*"
+              required
+            />
+          </div>
           <FormButtons
             buttonText="Submit interview"
             loadingText="Submitting..."

@@ -108,6 +108,7 @@ export const creatorInterviews = pgTable("creator_interviews", {
     q4: string;
     q5: string;
   }>(),
+  promoImageUrl: text("promo_image_url"),
 });
 
 export const creatorInterviewsRelations = relations(

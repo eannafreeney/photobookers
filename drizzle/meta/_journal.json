@@ -169,6 +169,13 @@
       "when": 1776011283366,
       "tag": "0024_dizzy_tarot",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1776333688073,
+      "tag": "0025_naive_northstar",
+      "breakpoints": true
     }
   ]
 }

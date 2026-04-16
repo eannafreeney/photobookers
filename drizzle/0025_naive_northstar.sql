@@ -1,0 +1,1 @@
+ALTER TABLE "creator_interviews" ADD COLUMN "promo_image_url" text;

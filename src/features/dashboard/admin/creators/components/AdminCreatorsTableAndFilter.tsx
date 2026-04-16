@@ -60,6 +60,7 @@ const AdminCreatorsTableAndFilter = async ({
         <Table id="creators-table">
           <Table.Head>
             <tr>
+              <Table.HeadRow>Cover</Table.HeadRow>
               <Table.HeadRow>Display Name</Table.HeadRow>
               <Table.HeadRow>ID</Table.HeadRow>
               <Table.HeadRow>Type</Table.HeadRow>
@@ -106,6 +107,13 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
 
   return (
     <tr>
+      <Table.BodyRow>
+        <img
+          src={creator.coverUrl ?? ""}
+          alt={creator.displayName}
+          class="w-16 h-16 object-cover rounded"
+        />
+      </Table.BodyRow>
       <Table.BodyRow>
         <Link href={`/creators/${creator.slug}`} target="_blank">
           {creator.displayName}

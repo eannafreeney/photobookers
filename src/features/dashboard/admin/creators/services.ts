@@ -451,6 +451,7 @@ export const getInterviewByToken = async (inviteToken: string) => {
 export const completeInterviewByToken = async (
   inviteToken: string,
   answers: { q1: string; q2: string; q3: string; q4: string; q5: string },
+  promoImageUrl: string,
 ) => {
   try {
     const [row] = await db
@@ -459,6 +460,7 @@ export const completeInterviewByToken = async (
         status: "completed",
         completedAt: new Date(),
         answers,
+        promoImageUrl,
       })
       .where(
         and(

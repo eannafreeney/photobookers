@@ -14,6 +14,8 @@ import FormPost from "../../../../../components/forms/FormPost";
 import TextArea from "../../../../../components/forms/TextArea";
 import z from "zod";
 import Button from "../../../../../components/app/Button";
+import PublishToggleForm from "../../../../../features/dashboard/books/components/PublishToggleForm";
+import { getUser } from "../../../../../utils";
 
 const rejectBookFormSchema = z.object({
   feedback: z.string().optional(),
@@ -23,7 +25,7 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const { bookId } = c.req.valid("param");
 
   const alpineAttrs = {
-    "x-target": "toast book-approval-status",
+    "x-target": "toast book-approval-status book-publish-toggle",
     "@ajax:after": "$dispatch('dialog:close')",
   };
 
@@ -57,6 +59,7 @@ export const POST = createRoute(
   paramValidator(bookIdSchema),
   formValidator(rejectBookFormSchema),
   async (c) => {
+    const user = await getUser(c);
     const { bookId } = c.req.valid("param");
     const { feedback } = c.req.valid("form");
 
@@ -69,6 +72,7 @@ export const POST = createRoute(
         <BookApprovalStatusPill
           approvalStatus={book.approvalStatus ?? "rejected"}
         />
+        <PublishToggleForm book={book} user={user} />
       </>,
     );
   },

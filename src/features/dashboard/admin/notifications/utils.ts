@@ -156,3 +156,13 @@ export const createUserVerifiedNotification = async (
     targetUrl: `/dashboard/admin/users/${user.id}`,
     actorUserId: user.id,
   });
+
+export const createInterviewSubmittedNotification = async (
+  creator: NotificationCreatorTarget,
+) =>
+  await createAdminNotification({
+    type: "interview_submitted",
+    title: "Interview submitted",
+    body: `${creator.displayName} submitted their interview`,
+    targetUrl: `/dashboard/admin/interviews`,
+  });

@@ -42,6 +42,7 @@ const InterviewsTableAdmin = async ({ currentPath, currentPage }: Props) => {
             <Table.HeadRow>Status</Table.HeadRow>
             <Table.HeadRow>Sent</Table.HeadRow>
             <Table.HeadRow>Completed</Table.HeadRow>
+            <Table.HeadRow>Promo image</Table.HeadRow>
             <Table.HeadRow>Answers</Table.HeadRow>
           </tr>
         </Table.Head>
@@ -72,6 +73,17 @@ const InterviewsTableAdmin = async ({ currentPath, currentPage }: Props) => {
                 {interview.completedAt
                   ? formatDate(interview.completedAt)
                   : "-"}
+              </Table.BodyRow>
+              <Table.BodyRow>
+                {interview.promoImageUrl ? (
+                  <img
+                    src={interview.promoImageUrl}
+                    alt="Promo"
+                    class="w-16 h-16 object-cover rounded"
+                  />
+                ) : (
+                  "-"
+                )}
               </Table.BodyRow>
               <Table.BodyRow>
                 {interview.answers ? (

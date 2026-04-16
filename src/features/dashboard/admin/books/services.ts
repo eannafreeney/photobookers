@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { books, creators } from "../../../../db/schema";
 import { getPagination } from "../../../../lib/pagination";
@@ -141,9 +141,13 @@ const getBookSubmitterContact = async (bookId: string) => {
 
 export const approveBook = async (bookId: string) => {
   try {
+    const [{ maxOrder }] = await db
+      .select({ maxOrder: sql<number>`COALESCE(MAX(${books.sortOrder}), 0)` })
+      .from(books);
+
     const [updatedBook] = await db
       .update(books)
-      .set({ approvalStatus: "approved" })
+      .set({ approvalStatus: "approved", sortOrder: maxOrder + 1 })
       .where(eq(books.id, bookId))
       .returning();
     if (!updatedBook) return err({ reason: "Book not found" });
