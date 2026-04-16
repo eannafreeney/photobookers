@@ -20,9 +20,6 @@ export const POST = createRoute(paramValidator(creatorIdSchema), async (c) => {
   if (err) return showErrorAlert(c, "Creator not found");
   const { creator, recipientEmail } = resolved;
 
-  if (creator.status !== "verified") {
-    return showErrorAlert(c, "Interview can only be sent to verified creators");
-  }
   if (!recipientEmail) return showErrorAlert(c, "No recipient email found");
 
   const user = await getUser(c);
