@@ -6,6 +6,7 @@ export function registerInterviewForm() {
   Alpine.data("interviewForm", () => {
     return {
       isSubmitting: false,
+      hasPromoImage: false,
       form: {
         q1: "",
         q2: "",
@@ -44,7 +45,8 @@ export function registerInterviewForm() {
           this.form.q2 &&
           this.form.q3 &&
           this.form.q4 &&
-          this.form.q5
+          this.form.q5 &&
+          this.hasPromoImage
         );
       },
 

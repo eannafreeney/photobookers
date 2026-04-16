@@ -4,7 +4,6 @@ import TextArea from "../../../components/forms/TextArea";
 import HeadlessLayout from "../../../components/layouts/HeadlessLayout";
 import Page from "../../../components/layouts/Page";
 import { Creator } from "../../../db/schema";
-import DragAndDropArea from "../../dashboard/images/components/DragAndDropArea";
 
 type IntervewFormProps = {
   inviteToken: string;
@@ -19,11 +18,11 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
         <form
           id="interview-form"
           x-data="interviewForm"
+          x-target="toast interview-form"
           method="post"
           action={`/interviews/${inviteToken}`}
           enctype="multipart/form-data"
           class="flex flex-col gap-4"
-          {...{ "x-target.away": "_top" }}
         >
           <TextArea
             label="What inspired you to start publishing books?"
@@ -65,6 +64,7 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
               label="Promo image"
               name="promoImage"
               accept="image/*"
+              x-on:change="hasPromoImage = true"
               required
             />
           </div>
