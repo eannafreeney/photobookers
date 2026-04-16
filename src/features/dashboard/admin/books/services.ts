@@ -4,6 +4,11 @@ import { books, creators } from "../../../../db/schema";
 import { getPagination } from "../../../../lib/pagination";
 import { err, ok } from "../../../../lib/result";
 import { invalidateBookCache } from "../../../app/services";
+import { sendEmail } from "../../../../lib/sendEmail";
+import {
+  generateBookApprovedEmail,
+  generateBookRejectedEmail,
+} from "../creators/emails";
 
 export const deleteBookByIdAdmin = async (bookId: string) => {
   try {
@@ -98,5 +103,97 @@ export const getAllBooksAdmin = async (
   } catch (error) {
     console.error("Failed to get all books", error);
     return err({ reason: "Failed to get all books", cause: error });
+  }
+};
+
+const getBookSubmitterContact = async (bookId: string) => {
+  const book = await db.query.books.findFirst({
+    where: eq(books.id, bookId),
+    with: {
+      creatorUser: {
+        // this is the createdByUserId relation
+        columns: { email: true, firstName: true, lastName: true },
+      },
+      artist: {
+        columns: { displayName: true, email: true },
+      },
+      publisher: {
+        columns: { displayName: true, email: true },
+      },
+    },
+  });
+  if (!book) return null;
+  // Prefer the creator profile's email if set, fall back to the user account email
+  const submittingCreator =
+    book.notifyFollowersCreatorId === book.artistId
+      ? book.artist
+      : book.publisher;
+  const recipientEmail =
+    submittingCreator?.email ?? book.creatorUser?.email ?? null;
+  const displayName =
+    submittingCreator?.displayName ??
+    [book.creatorUser?.firstName, book.creatorUser?.lastName]
+      .filter(Boolean)
+      .join(" ") ??
+    "there";
+  return { recipientEmail, displayName, book };
+};
+
+export const approveBook = async (bookId: string) => {
+  try {
+    const [updatedBook] = await db
+      .update(books)
+      .set({ approvalStatus: "approved" })
+      .where(eq(books.id, bookId))
+      .returning();
+    if (!updatedBook) return err({ reason: "Book not found" });
+
+    const contact = await getBookSubmitterContact(bookId);
+    if (contact?.recipientEmail) {
+      const bookUrl = `https://photobookers.com/books/${updatedBook.slug}`;
+      const html = generateBookApprovedEmail({
+        creatorName: contact.displayName,
+        bookTitle: updatedBook.title,
+        bookUrl,
+      });
+      await sendEmail(
+        contact.recipientEmail,
+        `Your book "${updatedBook.title}" is now live`,
+        html,
+      );
+    }
+
+    return ok(updatedBook);
+  } catch (error) {
+    return err({ reason: "Failed to approve book", cause: error });
+  }
+};
+
+export const rejectBook = async (bookId: string, feedback?: string) => {
+  try {
+    const [updatedBook] = await db
+      .update(books)
+      .set({ approvalStatus: "rejected", publicationStatus: "draft" })
+      .where(eq(books.id, bookId))
+      .returning();
+    if (!updatedBook) return err({ reason: "Book not found" });
+
+    const contact = await getBookSubmitterContact(bookId);
+    if (contact?.recipientEmail) {
+      const html = generateBookRejectedEmail({
+        creatorName: contact.displayName,
+        bookTitle: updatedBook.title,
+        feedback: feedback ?? "",
+      });
+      await sendEmail(
+        contact.recipientEmail,
+        `Feedback on your book "${updatedBook.title}"`,
+        html,
+      );
+    }
+
+    return ok(updatedBook);
+  } catch (error) {
+    return err({ reason: "Failed to reject book", cause: error });
   }
 };

@@ -12,6 +12,7 @@ import Card from "../../../../components/app/Card";
 import Table from "../../../../components/app/Table";
 import { canEditBook } from "../../../../lib/permissions";
 import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
+import BookApprovalStatusPill from "../../admin/books/components/BookApprovalStatusPill";
 
 type Props = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
@@ -61,6 +62,7 @@ const BooksOverviewDesktop = ({
             <Table.HeadRow>Wishlists</Table.HeadRow>
             <Table.HeadRow>Collections</Table.HeadRow>
             <Table.HeadRow>Release Date</Table.HeadRow>
+            <Table.HeadRow>Approval</Table.HeadRow>
             <Table.HeadRow>Publish</Table.HeadRow>
           </tr>
         </Table.Head>
@@ -141,6 +143,11 @@ const BookTableRow = ({ book, user }: RowProps) => {
               .reverse()
               .join("/")
           : ""}
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <BookApprovalStatusPill
+          approvalStatus={book.approvalStatus ?? "pending"}
+        />
       </Table.BodyRow>
       <Table.BodyRow>
         <PublishToggleForm book={book} user={user} />

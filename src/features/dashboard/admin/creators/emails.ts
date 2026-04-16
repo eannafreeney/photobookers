@@ -116,3 +116,33 @@ export const generateInterviewInviteEmail = (params: {
     <p>Thank you,<br/>Photobookers</p>
   `;
 };
+
+export const generateBookApprovedEmail = (params: {
+  creatorName: string;
+  bookTitle: string;
+  bookUrl: string;
+}) => {
+  return `
+    <p>Hi ${params.creatorName},</p>
+    <p>Great news — your book <strong>${params.bookTitle}</strong> has been approved and is now live on Photobookers.</p>
+    <p><a href="${params.bookUrl}">View your book</a></p>
+    <p>Thank you,<br/>Photobookers</p>
+  `;
+};
+
+export const generateBookRejectedEmail = (params: {
+  creatorName: string;
+  bookTitle: string;
+  feedback: string;
+}) => {
+  return `
+    <p>Hi ${params.creatorName},</p>
+    <p>Thank you for submitting <strong>${params.bookTitle}</strong> to Photobookers.</p>
+    <p>Unfortunately we are unable to approve it at this time. Here is some feedback:</p>
+    <blockquote style="border-left: 3px solid #ccc; padding-left: 1rem; margin: 1rem 0;">
+      ${params.feedback}
+    </blockquote>
+    <p>Please make the necessary updates and resubmit, or reply to this email if you have any questions.</p>
+    <p>Thank you,<br/>Photobookers</p>
+  `;
+};

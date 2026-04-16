@@ -254,7 +254,7 @@ export const buildCreateBookData = async (
     createdByUserId: userId,
     tags: processTags(formData.tags),
     purchaseLink: formData.purchase_link ?? null,
-    approvalStatus: "approved",
+    approvalStatus: "pending",
     publicationStatus: "draft",
     availabilityStatus: formData.availability_status,
     notifyFollowersOnRelease: shouldNotify,
@@ -325,4 +325,19 @@ export const getBooksForStubPublishersByCreatorId = async (
     },
   });
   return stubPublishersWithBooks.flatMap((c) => c.booksAsPublisher);
+};
+
+export const resubmitBook = async (bookId: string) => {
+  try {
+    const [updatedBook] = await db
+      .update(books)
+      .set({ approvalStatus: "pending" })
+      .where(eq(books.id, bookId))
+      .returning();
+    if (!updatedBook) return err({ reason: "Book not found" });
+    return ok(updatedBook);
+  } catch (error) {
+    console.error("Failed to resubmit book", error);
+    return err({ reason: "Failed to resubmit book", cause: error });
+  }
 };

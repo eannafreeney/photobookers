@@ -129,6 +129,8 @@ export function canPublishBook(user: AuthUser | null, book: Book): boolean {
 
   if (user.creator?.status !== "verified") return false;
 
+  if (book.approvalStatus !== "approved") return false;
+
   const coverUrlIsSet = book.coverUrl !== null;
 
   if (coverUrlIsSet) {

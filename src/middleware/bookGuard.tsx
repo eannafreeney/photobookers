@@ -141,6 +141,15 @@ const requireBookPublishAccess = createMiddleware<BookEnv>(async (c, next) => {
         403,
       );
     }
+    if (book.approvalStatus !== "approved") {
+      return c.html(
+        <InfoPage
+          errorMessage="This book is pending approval and cannot be published yet."
+          user={user}
+        />,
+        403,
+      );
+    }
     return c.html(
       <ErrorPage
         errorMessage="You are not authorized to publish this book"

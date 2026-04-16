@@ -33,6 +33,8 @@ import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
 import { dispatchEvents } from "../../../lib/disatchEvents";
 import { createBookPublishedNotification } from "../../../features/dashboard/admin/notifications/utils";
+import Button from "../../../components/app/Button";
+import FormPost from "../../../components/forms/FormPost";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
@@ -86,6 +88,27 @@ export const GET = createRoute(
               <div class="flex items-center gap-4">
                 <PublishToggleForm book={book} user={user} />
                 <PreviewButton book={book} user={user} />
+              </div>
+            </div>
+          )}
+          {book.approvalStatus === "rejected" && (
+            <div
+              id="book-resubmit"
+              class="relative flex border-outline bg-surface-alt p-4 text-on-surface border-b border-t"
+            >
+              <div class="mx-auto flex flex-wrap items-center gap-2 px-6">
+                <p class="sm:text-sm text-pretty text-xs">
+                  This book was not approved. Make your changes then resubmit
+                  for review.
+                </p>
+                <FormPost
+                  action={`/dashboard/books/${book.id}/resubmit`}
+                  x-target="toast book-resubmit"
+                >
+                  <Button variant="solid" color="warning">
+                    Resubmit for review
+                  </Button>
+                </FormPost>
               </div>
             </div>
           )}

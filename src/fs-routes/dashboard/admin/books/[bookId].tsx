@@ -26,6 +26,7 @@ import { deleteBookByIdAdmin } from "../../../../features/dashboard/admin/books/
 import { BookIdContext } from "../../../../features/dashboard/books/types";
 import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
+import BookApprovalForm from "../../../../features/dashboard/admin/books/forms/BookApprovalForm";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
@@ -70,6 +71,7 @@ export const GET = createRoute(
           />
           <div class="flex justify-end">
             <div class="flex items-center gap-4">
+              <BookApprovalForm book={book} />
               <PublishToggleForm book={book} user={user} />
               <PreviewButton book={book} user={user} />
             </div>
