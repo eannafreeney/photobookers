@@ -22,7 +22,7 @@ const Sidebar = ({
       <div {...alpineAttrs}>
         {/* toggle button */}
         <button
-          class="fixed bottom-4 left-4 z-10 rounded-full bg-primary p-4 text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:outline-offset-0 cursor-pointer"
+          class="fixed bottom-24 md:bottom-4 left-4 z-10 rounded-full bg-primary p-4 text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:outline-offset-0 cursor-pointer"
           x-on:click="sidebarIsOpen = !sidebarIsOpen"
         >
           {openIcon}
