@@ -3,6 +3,7 @@ import Button from "../../../../../components/app/Button";
 import { getClaimsPendingAdminReview } from "../services";
 import Table from "../../../../../components/app/Table";
 import Link from "../../../../../components/app/Link";
+import SectionTitle from "../../../../../components/app/SectionTitle";
 
 const ClaimsTableAdmin = async () => {
   const claims = await getClaimsPendingAdminReview();
@@ -16,27 +17,31 @@ const ClaimsTableAdmin = async () => {
   };
 
   return (
-    <Table id="claims-table">
-      <Table.Head>
-        <tr>
-          <Table.HeadRow>User Profile</Table.HeadRow>
-          <Table.HeadRow>User Email</Table.HeadRow>
-          <Table.HeadRow>Creator Profile</Table.HeadRow>
-          <Table.HeadRow>Claimed At</Table.HeadRow>
-          <Table.HeadRow>Verification URL</Table.HeadRow>
-          <Table.HeadRow>Actions</Table.HeadRow>
-        </tr>
-      </Table.Head>
-      <Table.Body id={targetId} {...tableBodyAttrs}>
-        {claims.map((claim) => (
-          <ClaimsTableRow
-            claim={claim.claim}
-            creator={claim.creator}
-            user={claim.user}
-          />
-        ))}
-      </Table.Body>
-    </Table>
+    <div class="flex flex-col gap-4">
+      <SectionTitle>Claims Pending Admin Review</SectionTitle>
+
+      <Table id="claims-table">
+        <Table.Head>
+          <tr>
+            <Table.HeadRow>User Profile</Table.HeadRow>
+            <Table.HeadRow>User Email</Table.HeadRow>
+            <Table.HeadRow>Creator Profile</Table.HeadRow>
+            <Table.HeadRow>Claimed At</Table.HeadRow>
+            <Table.HeadRow>Verification URL</Table.HeadRow>
+            <Table.HeadRow>Actions</Table.HeadRow>
+          </tr>
+        </Table.Head>
+        <Table.Body id={targetId} {...tableBodyAttrs}>
+          {claims.map((claim) => (
+            <ClaimsTableRow
+              claim={claim.claim}
+              creator={claim.creator}
+              user={claim.user}
+            />
+          ))}
+        </Table.Body>
+      </Table>
+    </div>
   );
 };
 

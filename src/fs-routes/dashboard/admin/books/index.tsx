@@ -4,7 +4,7 @@ import { getFlash, getUser } from "../../../../utils";
 import Page from "../../../../components/layouts/Page";
 import AdminBooksTableContainer from "../../../../features/dashboard/admin/books/components/AdminBooksTableContainer";
 import { Context } from "hono";
-import NavTabs from "../../../../features/dashboard/admin/components/NavTabs";
+import Sidebar from "../../../../components/app/Sidebar";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -21,13 +21,14 @@ export const GET = createRoute(async (c: Context) => {
       currentPath={currentPath}
     >
       <Page>
-        <NavTabs currentPath={currentPath} />
-        <AdminBooksTableContainer
-          user={user}
-          currentPath={currentPath}
-          currentPage={currentPage}
-          searchQuery={searchQuery}
-        />
+        <Sidebar currentPath={currentPath}>
+          <AdminBooksTableContainer
+            user={user}
+            currentPath={currentPath}
+            currentPage={currentPage}
+            searchQuery={searchQuery}
+          />
+        </Sidebar>
       </Page>
     </AppLayout>,
   );

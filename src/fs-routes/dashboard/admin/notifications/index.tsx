@@ -4,6 +4,7 @@ import Page from "../../../../components/layouts/Page";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import NavTabs from "../../../../features/dashboard/admin/components/NavTabs";
 import NotificationsTableAdmin from "../../../../features/dashboard/admin/notifications/components/NotificationsTableAdmin";
+import Sidebar from "../../../../components/app/Sidebar";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -17,11 +18,12 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <NavTabs currentPath={currentPath} />
-        <NotificationsTableAdmin
-          currentPath={currentPath}
-          currentPage={currentPage}
-        />
+        <Sidebar currentPath={currentPath}>
+          <NotificationsTableAdmin
+            currentPath={currentPath}
+            currentPage={currentPage}
+          />
+        </Sidebar>
       </Page>
     </AppLayout>,
   );

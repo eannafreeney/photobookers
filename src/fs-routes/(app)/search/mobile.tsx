@@ -14,6 +14,7 @@ export const GET = createRoute(async (c: Context) => {
       class="fixed top-0 left-0 right-0 bottom-0 w-full z-10 backdrop-blur-2xl"
       x-data="{ isOpen: true }"
       x-show="isOpen"
+      x-trap="isOpen"
     >
       <div class="flex flex-col gap-4">
         <div class="flex items-center justify-between gap-4 p-4">

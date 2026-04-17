@@ -5,6 +5,7 @@ import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
 import NavTabs from "../../../../features/dashboard/admin/components/NavTabs";
 import AddCreatorFormAdmin from "../../../../features/dashboard/admin/creators/forms/AddCreatorFormAdmin";
+import Sidebar from "../../../../components/app/Sidebar";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -15,13 +16,14 @@ export const GET = createRoute(async (c) => {
   return c.html(
     <AppLayout title="New Creator" user={user} currentPath={currentPath}>
       <Page>
-        <NavTabs currentPath="/dashboard/admin/creators" />
-        <AddCreatorFormAdmin />
-        <AdminCreatorsTableContainer
-          searchQuery={searchQuery}
-          currentPage={currentPage}
-          currentPath={currentPath}
-        />
+        <Sidebar currentPath={currentPath}>
+          <AddCreatorFormAdmin />
+          <AdminCreatorsTableContainer
+            searchQuery={searchQuery}
+            currentPage={currentPage}
+            currentPath={currentPath}
+          />
+        </Sidebar>
       </Page>
     </AppLayout>,
   );

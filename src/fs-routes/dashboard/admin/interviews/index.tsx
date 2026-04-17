@@ -2,8 +2,8 @@ import { createRoute } from "hono-fsr";
 import { getUser } from "../../../../utils";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
-import NavTabs from "../../../../features/dashboard/admin/components/NavTabs";
 import InterviewsTableAdmin from "../../../../features/dashboard/admin/interviews/components/InterviewsTableAdmin";
+import Sidebar from "../../../../components/app/Sidebar";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -13,11 +13,12 @@ export const GET = createRoute(async (c) => {
   return c.html(
     <AppLayout title="Admin Interviews" user={user} currentPath={currentPath}>
       <Page>
-        <NavTabs currentPath={currentPath} />
-        <InterviewsTableAdmin
-          currentPath={currentPath}
-          currentPage={currentPage}
-        />
+        <Sidebar currentPath={currentPath}>
+          <InterviewsTableAdmin
+            currentPath={currentPath}
+            currentPage={currentPage}
+          />
+        </Sidebar>
       </Page>
     </AppLayout>,
   );

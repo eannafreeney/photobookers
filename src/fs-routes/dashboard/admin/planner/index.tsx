@@ -12,6 +12,7 @@ import { toWeekString } from "../../../../lib/utils";
 import WeekCard from "../../../../features/dashboard/admin/planner/components/WeekCard";
 import InfoPage from "../../../../pages/InfoPage";
 import { loadPlannerYearData } from "../../../../features/dashboard/admin/planner/queries";
+import Sidebar from "../../../../components/app/Sidebar";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -43,35 +44,37 @@ export const GET = createRoute(async (c) => {
   return c.html(
     <AppLayout title="BOTW Planner" user={user} currentPath={currentPath}>
       <Page>
-        <NavTabs currentPath={currentPath} />
-        <PlannerHeader year={year} />
-        <div
-          id="planner-grid"
-          class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-          {...alpineAttrs}
-        >
-          {weekStarts
-            .filter((weekStart) => !isWeekInPast(weekStart))
-            .map((weekStart) => {
-              const key = toWeekString(weekStart);
-              const botw = botwByWeekStart.get(key) ?? null;
-              const featuredBooks = featuredByWeekStart.get(key) ?? [];
-              const artistOfTheWeek = artistByWeekStart?.get(key) ?? null;
-              const publisherOfTheWeek = publisherByWeekStart?.get(key) ?? null;
+        <Sidebar currentPath={currentPath}>
+          <PlannerHeader year={year} />
+          <div
+            id="planner-grid"
+            class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            {...alpineAttrs}
+          >
+            {weekStarts
+              .filter((weekStart) => !isWeekInPast(weekStart))
+              .map((weekStart) => {
+                const key = toWeekString(weekStart);
+                const botw = botwByWeekStart.get(key) ?? null;
+                const featuredBooks = featuredByWeekStart.get(key) ?? [];
+                const artistOfTheWeek = artistByWeekStart?.get(key) ?? null;
+                const publisherOfTheWeek =
+                  publisherByWeekStart?.get(key) ?? null;
 
-              return (
-                <WeekCard
-                  key={key}
-                  weekStart={weekStart}
-                  weekNumber={getWeekNumber(weekStart)}
-                  bookOfTheWeek={botw}
-                  featuredBooks={featuredBooks}
-                  artistOfTheWeek={artistOfTheWeek}
-                  publisherOfTheWeek={publisherOfTheWeek}
-                />
-              );
-            })}
-        </div>
+                return (
+                  <WeekCard
+                    key={key}
+                    weekStart={weekStart}
+                    weekNumber={getWeekNumber(weekStart)}
+                    bookOfTheWeek={botw}
+                    featuredBooks={featuredBooks}
+                    artistOfTheWeek={artistOfTheWeek}
+                    publisherOfTheWeek={publisherOfTheWeek}
+                  />
+                );
+              })}
+          </div>
+        </Sidebar>
       </Page>
     </AppLayout>,
   );

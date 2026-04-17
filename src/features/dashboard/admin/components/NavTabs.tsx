@@ -5,18 +5,14 @@ import {
   booksIcon,
   claimsIcon,
   creatorsIcon,
-  mailIcon,
   plannerIcon,
   usersIcon,
 } from "../../../../lib/icons";
 import AdminBadge from "./AdminBadge";
 
-const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
+const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
   return (
-    <nav
-      id="nav-tabs"
-      class="flex flex-col md:flex-row items-center justify-center bg-surface-alt gap-4 mb-8 mt-4"
-    >
+    <nav id="nav-tabs" class="flex flex-col gap-4">
       <NavLink href="/dashboard/admin/notifications" currentPath={currentPath}>
         {bellIcon(4)}
         Notifications
@@ -60,21 +56,21 @@ const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
   const isActive = currentPath === href;
 
   return (
-    <li class="list-none">
+    <div>
       <a
         href={href}
         prefetch="intent"
         class={clsx(
-          "flex items-center gap-2 border-b-2 border-transparent px-4 py-1 text-sm",
+          "flex items-center gap-2",
           isActive
-            ? "font-bold text-primary border-primary border-b-2 border-b-primary"
+            ? "font-bold text-primary"
             : "text-on-surface font-medium hover:border-b-outline-strong hover:text-on-surface-strong",
         )}
       >
         {children}
       </a>
-    </li>
+    </div>
   );
 };
 
-export default NavTabs;
+export default AdminNavTabs;
