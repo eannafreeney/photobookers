@@ -1,5 +1,5 @@
 import { createRoute } from "hono-fsr";
-import { formValidator, paramValidator } from "../../../../../lib/validator";
+import { paramValidator } from "../../../../../lib/validator";
 import { claimIdSchema } from "../../../../../schemas";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
 import {
@@ -13,30 +13,39 @@ import { sendEmail } from "../../../../../lib/sendEmail";
 import Alert from "../../../../../components/app/Alert";
 import ClaimsTableAdmin from "../../../../../features/dashboard/admin/claims/components/ClaimsTable";
 import { dispatchEvents } from "../../../../../lib/disatchEvents";
+import { getUserByIdBasic } from "../../../../../features/dashboard/admin/users/services";
+import { isErr } from "../../../../../lib/result";
 
 export const POST = createRoute(paramValidator(claimIdSchema), async (c) => {
   const claimId = c.req.valid("param").claimId;
-  if (!claimId) {
-    return showErrorAlert(c, "Claim ID is required");
-  }
+
   const claim = await getClaimById(claimId);
-  if (!claim) {
-    return showErrorAlert(c, "Claim not found");
-  }
-  const user = await getUser(c);
-  const [error, creator] = await getCreatorById(claim.creatorId);
-  if (error || !creator) {
-    return showErrorAlert(c, "Creator not found");
-  }
+  if (!claim) return showErrorAlert(c, "Claim not found");
 
-  await rejectClaim(claimId);
-  const emailHTML = await generateClaimRejectionEmail(user, creator);
+  const [claimUserResult, creatorResult] = await Promise.all([
+    getUserByIdBasic(claim.userId),
+    getCreatorById(claim.creatorId),
+  ]);
 
-  await sendEmail(
-    user.email,
+  if (isErr(claimUserResult))
+    return showErrorAlert(c, claimUserResult[0].reason);
+  if (isErr(creatorResult)) return showErrorAlert(c, creatorResult[0].reason);
+
+  const claimUser = claimUserResult[1];
+  const creator = creatorResult[1];
+
+  const rejectResult = await rejectClaim(claimId);
+  if (isErr(rejectResult)) return showErrorAlert(c, rejectResult[0].reason);
+
+  const emailHTML = await generateClaimRejectionEmail(claimUser, creator);
+
+  const sentEmailResult = await sendEmail(
+    claimUser.email,
     `Your Claim for ${creator.displayName} has been rejected`,
     emailHTML,
   );
+  if (isErr(sentEmailResult))
+    return showErrorAlert(c, sentEmailResult[0].reason);
 
   return c.html(
     <>

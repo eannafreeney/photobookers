@@ -52,7 +52,7 @@ export const assignUserAsCreatorOwnerAdmin = async (
     if (!updatedCreator) {
       return err({ reason: "Creator not found", cause: undefined });
     }
-    return ok(undefined);
+    return ok(updatedCreator);
   } catch (error) {
     console.error("Failed to assign user as creator owner admin:", error);
     return err({
@@ -117,17 +117,20 @@ export const approveClaim = async (claimId: string) => {
 
     const isVerified = claim.status === "approved";
 
-    await assignUserAsCreatorOwnerAdmin(
+    const [creatorError, updatedCreator] = await assignUserAsCreatorOwnerAdmin(
       claim.userId,
       claim.creatorId,
       isVerified,
     );
-    return claim;
+    if (creatorError)
+      return err({ reason: creatorError.reason, cause: creatorError.cause });
+    return ok(updatedCreator);
   } catch (error) {
     console.error("Failed to approve claim:", error);
-    throw error;
+    return err({ reason: "Failed to approve claim", cause: error });
   }
 };
+
 export const rejectClaim = async (claimId: string) => {
   try {
     const [claim] = await db
@@ -136,54 +139,58 @@ export const rejectClaim = async (claimId: string) => {
       .where(eq(creatorClaims.id, claimId))
       .limit(1);
 
+    if (!claim) {
+      return err({ reason: "Claim not found", cause: undefined });
+    }
+
     await db
       .update(creatorClaims)
       .set({ status: "rejected" })
       .where(eq(creatorClaims.id, claimId));
 
-    if (claim) {
-      const [creator] = await db
-        .select()
-        .from(creators)
-        .where(eq(creators.id, claim.creatorId))
-        .limit(1);
-      if (creator?.ownerUserId === claim.userId) {
-        await db
-          .update(creators)
-          .set({ ownerUserId: null, website: null })
-          .where(eq(creators.id, claim.creatorId));
-      }
-
-      try {
-        const creatorBookCondition = or(
-          eq(books.publisherId, claim.creatorId),
-          eq(books.artistId, claim.creatorId),
-        );
-        const createdByClaimant = eq(books.createdByUserId, claim.userId);
-        const createdAfterClaim = claim.verifiedAt
-          ? gt(books.createdAt, claim.verifiedAt)
-          : undefined;
-        const booksToDeleteWhere = createdAfterClaim
-          ? and(creatorBookCondition, createdByClaimant, createdAfterClaim)
-          : and(creatorBookCondition, createdByClaimant);
-
-        const booksToDelete = await db
-          .select({ id: books.id })
-          .from(books)
-          .where(booksToDeleteWhere);
-
-        for (const { id } of booksToDelete) {
-          await deleteBookByIdAdmin(id);
-        }
-      } catch (error) {
-        console.error(
-          "Failed to delete claimant books on claim rejection:",
-          error,
-        );
-      }
+    const [creator] = await db
+      .select()
+      .from(creators)
+      .where(eq(creators.id, claim.creatorId))
+      .limit(1);
+    if (creator?.ownerUserId === claim.userId) {
+      await db
+        .update(creators)
+        .set({ ownerUserId: null, website: null })
+        .where(eq(creators.id, claim.creatorId));
     }
+
+    try {
+      const creatorBookCondition = or(
+        eq(books.publisherId, claim.creatorId),
+        eq(books.artistId, claim.creatorId),
+      );
+      const createdByClaimant = eq(books.createdByUserId, claim.userId);
+      const createdAfterClaim = claim.verifiedAt
+        ? gt(books.createdAt, claim.verifiedAt)
+        : undefined;
+      const booksToDeleteWhere = createdAfterClaim
+        ? and(creatorBookCondition, createdByClaimant, createdAfterClaim)
+        : and(creatorBookCondition, createdByClaimant);
+
+      const booksToDelete = await db
+        .select({ id: books.id })
+        .from(books)
+        .where(booksToDeleteWhere);
+
+      for (const { id } of booksToDelete) {
+        await deleteBookByIdAdmin(id);
+      }
+    } catch (error) {
+      console.error(
+        "Failed to delete claimant books on claim rejection:",
+        error,
+      );
+    }
+
+    return ok(undefined);
   } catch (error) {
     console.error("Failed to reject claim:", error);
-    throw error;
+    return err({ reason: "Failed to reject claim", cause: error });
   }
 };
