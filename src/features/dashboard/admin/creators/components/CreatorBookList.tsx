@@ -167,7 +167,7 @@ const BookTableRow = ({ book, user }: RowProps) => {
         <PreviewButton book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
-        <a href={`/dashboard/books/${book.id}`}>
+        <a href={`/dashboard/admin/books/${book.id}`}>
           <Button
             variant="outline"
             color="inverse"

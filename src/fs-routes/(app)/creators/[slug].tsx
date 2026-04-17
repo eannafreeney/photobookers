@@ -184,7 +184,7 @@ export const CreatorDetailDesktop = ({
         <div class="md:w-4/5 flex flex-col gap-4">
           <BooksGrid
             isFullWidth={false}
-            title="Books"
+            title={creator.displayName}
             user={user}
             currentPath={currentPath}
             result={result}
