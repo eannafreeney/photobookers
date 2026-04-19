@@ -93,13 +93,7 @@ export const processRegisterAndClaim = async (
     return showErrorAlert(c, "This profile is not available to claim.");
 
   const rawUrl = creator.website ?? formData.verificationUrl;
-  if (!rawUrl)
-    return showErrorAlert(
-      c,
-      "A website URL is required to claim this profile.",
-    );
-
-  const verificationUrl = normalizeUrl(rawUrl);
+  const verificationUrl = rawUrl ? normalizeUrl(rawUrl) : null;
 
   const [verifyOtpError] = await verifyOtpForClaimSignup(
     c,
@@ -211,29 +205,35 @@ export const processClaim = async (c: ProcessClaimContext) => {
   }
   // Use creator's existing website, or fall back to user-submitted URL
   const rawUrl = creator.website ?? formData.verificationUrl;
-  if (!rawUrl)
-    return showErrorAlert(
-      c,
-      "A website URL is required to claim this profile.",
-    );
-  const verificationUrl = normalizeUrl(rawUrl);
+  const verificationUrl = rawUrl ? normalizeUrl(rawUrl) : null;
   // If creator has a listed website, enforce it — don't let user swap it
-  if (creator.website && !isSameDomain(verificationUrl, creator.website)) {
+  if (
+    creator.website &&
+    verificationUrl &&
+    !isSameDomain(verificationUrl, creator.website)
+  ) {
     return showErrorAlert(
       c,
       `The URL must match the creator's listed website (${creator.website}).`,
     );
   }
-  const domainMatches = emailMatchesWebsite(user.email, verificationUrl);
+  const domainMatches = verificationUrl
+    ? emailMatchesWebsite(user.email, verificationUrl)
+    : false;
   const status =
     domainMatches && creator.website ? "approved" : "pending_admin_review";
 
-  try {
-    await createClaimWithStatus(user.id, creatorId, verificationUrl, status);
-  } catch (error) {
-    console.error("Error creating claim:", error);
-    return showErrorAlert(c, "Failed to submit claim. Please try again.");
-  }
+  const [createClaimError, creatorClaim] = await createClaimWithStatus(
+    user.id,
+    creatorId,
+    verificationUrl ?? "",
+    status,
+  );
+  if (createClaimError || !creatorClaim)
+    return showErrorAlert(
+      c,
+      createClaimError?.reason ?? "Failed to create claim",
+    );
 
   if (status === "approved") {
     await assignUserAsCreatorOwnerAdmin(user.id, creatorId, true);

@@ -93,20 +93,21 @@ export const POST = createRoute(
     }
     // Use creator's existing website, or fall back to user-submitted URL
     const rawUrl = creator.website ?? formData.verificationUrl;
-    if (!rawUrl)
-      return showErrorAlert(
-        c,
-        "A website URL is required to claim this profile.",
-      );
-    const verificationUrl = normalizeUrl(rawUrl);
+    const verificationUrl = rawUrl ? normalizeUrl(rawUrl) : null;
     // If creator has a listed website, enforce it — don't let user swap it
-    if (creator.website && !isSameDomain(verificationUrl, creator.website)) {
+    if (
+      creator.website &&
+      verificationUrl &&
+      !isSameDomain(verificationUrl, creator.website)
+    ) {
       return showErrorAlert(
         c,
         `The URL must match the creator's listed website (${creator.website}).`,
       );
     }
-    const domainMatches = emailMatchesWebsite(user.email, verificationUrl);
+    const domainMatches = verificationUrl
+      ? emailMatchesWebsite(user.email, verificationUrl)
+      : false;
     const status =
       domainMatches && creator.website ? "approved" : "pending_admin_review";
 
