@@ -43,7 +43,7 @@ export const deleteClaim = async (claimId: string) => {
 export const createClaimWithStatus = async (
   userId: string,
   creatorId: string,
-  verificationUrl: string,
+  verificationUrl: string | null,
   status: "approved" | "pending_admin_review",
 ) => {
   try {
@@ -52,7 +52,7 @@ export const createClaimWithStatus = async (
       .values({
         userId,
         creatorId,
-        verificationUrl,
+        verificationUrl: verificationUrl ?? null,
         status,
         verifiedAt: status === "approved" ? new Date() : null,
       })

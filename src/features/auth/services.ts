@@ -191,7 +191,7 @@ export const verifyOtpForClaimSignup = async (
   c: Context,
   formData: z.infer<typeof registerAndClaimFormSchema>,
   creatorId: string,
-  verificationUrl: string,
+  verificationUrl: string | null,
 ) => {
   try {
     const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
@@ -205,7 +205,7 @@ export const verifyOtpForClaimSignup = async (
         data: {
           firstName: formData?.firstName ?? null,
           lastName: formData?.lastName ?? null,
-          verificationUrl: verificationUrl,
+          verificationUrl: verificationUrl ?? null,
           creatorId,
           claimIntent: true,
         },

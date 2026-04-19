@@ -24,13 +24,7 @@ export const POST = createRoute(
       return showErrorAlert(c, "This profile is not available to claim.");
 
     const rawUrl = creator.website ?? formData.verificationUrl;
-    if (!rawUrl)
-      return showErrorAlert(
-        c,
-        "A website URL is required to claim this profile.",
-      );
-
-    const verificationUrl = normalizeUrl(rawUrl);
+    const verificationUrl = rawUrl ? normalizeUrl(rawUrl) : null;
 
     const [verifyOtpError] = await verifyOtpForClaimSignup(
       c,
