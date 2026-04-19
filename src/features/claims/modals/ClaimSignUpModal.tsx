@@ -76,7 +76,6 @@ const ClaimSignupModal = ({
               name="form.verificationUrl"
               type="url"
               placeholder="https://yourwebsite.com"
-              required
             />
           )}
           <Input

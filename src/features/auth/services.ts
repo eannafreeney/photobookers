@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient, supabaseAdmin } from "../../lib/supabase";
+import { supabaseAdmin, supabaseAnon } from "../../lib/supabase";
 import { setCookie } from "hono/cookie";
 import { db } from "../../db/client";
 import { creators, User, users } from "../../db/schema";
@@ -194,11 +194,10 @@ export const verifyOtpForClaimSignup = async (
   verificationUrl: string,
 ) => {
   try {
-    const supabase = createSupabaseClient(c);
     const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
     const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabaseAnon.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
@@ -224,11 +223,10 @@ export const verifyOtpForFanSignup = async (
   formData: z.infer<typeof registerFanFormSchema>,
 ) => {
   try {
-    const supabase = createSupabaseClient(c);
     const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
     const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabaseAnon.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
@@ -251,11 +249,10 @@ export const verifyOtpForCreatorSignup = async (
   formData: z.infer<typeof registerCreatorFormSchema>,
 ) => {
   try {
-    const supabase = createSupabaseClient(c);
     const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
     const emailRedirectTo = `${baseUrl.replace(/\/$/, "")}/auth/callback`;
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabaseAnon.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
