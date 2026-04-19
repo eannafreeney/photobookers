@@ -176,6 +176,13 @@
       "when": 1776333688073,
       "tag": "0025_naive_northstar",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1777000000000,
+      "tag": "0026_creator_verified_at",
+      "breakpoints": true
     }
   ]
 }

@@ -14,6 +14,7 @@ import {
 import {
   buildCreateBookData,
   createBook,
+  type NewBookModeration,
 } from "../../../../features/dashboard/books/services";
 import Alert from "../../../../components/app/Alert";
 import { BookFormContext } from "../../../../features/dashboard/books/types";
@@ -45,11 +46,19 @@ export const POST = createRoute(
     if (artistError) return showErrorAlert(c, artistError.reason);
     if (publisherError) return showErrorAlert(c, publisherError.reason);
 
+    const adminModeration: NewBookModeration = {
+      isAdminContext: true,
+      creatorVerifiedAt: null,
+      creatorStatus: "stub",
+      booksUploadedSinceVerificationBeforeInsert: 0,
+    };
+
     const bookData = await buildCreateBookData(
       formData,
       artist,
       user.id,
       publisher,
+      adminModeration,
     );
     const newBook = await createBook(bookData);
 

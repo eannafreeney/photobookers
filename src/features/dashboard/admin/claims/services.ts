@@ -9,7 +9,7 @@ import {
   User,
   users,
 } from "../../../../db/schema";
-import { and, count, desc, eq, gt, inArray, or } from "drizzle-orm";
+import { and, count, desc, eq, gt, inArray, or, sql } from "drizzle-orm";
 import { deleteBookByIdAdmin } from "../books/services";
 import { err, ok } from "../../../../lib/result";
 
@@ -46,6 +46,9 @@ export const assignUserAsCreatorOwnerAdmin = async (
         ownerUserId: userId,
         status: isVerified ? "verified" : "stub",
         email: user.email,
+        ...(isVerified
+          ? { verifiedAt: sql`COALESCE(${creators.verifiedAt}, NOW())` }
+          : { verifiedAt: null }),
       })
       .where(eq(creators.id, creatorId))
       .returning();

@@ -1,4 +1,16 @@
-import { and, asc, count, desc, eq, ilike, inArray, ne, or } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  ilike,
+  inArray,
+  ne,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../../db/client";
 import {
   Book,
@@ -17,6 +29,53 @@ import { getPagination } from "../../../lib/pagination";
 import { bookFormAdminSchema } from "../admin/books/schema";
 import { err, ok } from "../../../lib/result";
 import { invalidateBookCache } from "../../app/services";
+import { shouldModerateNewBook } from "../../../lib/bookModeration";
+import type { AuthUser } from "../../../../types";
+
+export type NewBookModeration = {
+  isAdminContext: boolean;
+  creatorVerifiedAt: Date | null;
+  creatorStatus: Creator["status"];
+  booksUploadedSinceVerificationBeforeInsert: number;
+};
+
+export async function assignNextBookSortOrder(): Promise<number> {
+  const [{ maxOrder }] = await db
+    .select({ maxOrder: sql<number>`COALESCE(MAX(${books.sortOrder}), 0)` })
+    .from(books);
+  return Number(maxOrder ?? 0) + 1;
+}
+
+export async function countBooksUploadedSinceCreatorVerification(
+  userId: string,
+  verifiedAt: Date,
+): Promise<number> {
+  const [{ value }] = await db
+    .select({ value: count() })
+    .from(books)
+    .where(
+      and(eq(books.createdByUserId, userId), gte(books.createdAt, verifiedAt)),
+    );
+  return Number(value ?? 0);
+}
+
+/** Moderation inputs for a creator creating a book (not admin context). */
+export async function getNewBookModerationForUser(
+  user: AuthUser,
+): Promise<NewBookModeration> {
+  const verifiedAt = user.creator?.verifiedAt ?? null;
+  const creatorStatus = user.creator?.status ?? "stub";
+  const uploadedSince =
+    verifiedAt && creatorStatus === "verified"
+      ? await countBooksUploadedSinceCreatorVerification(user.id, verifiedAt)
+      : 0;
+  return {
+    isAdminContext: false,
+    creatorVerifiedAt: verifiedAt,
+    creatorStatus,
+    booksUploadedSinceVerificationBeforeInsert: uploadedSince,
+  };
+}
 
 export const createBook = async (input: NewBook) => {
   try {
@@ -236,10 +295,29 @@ export const buildCreateBookData = async (
     | z.infer<typeof bookFormAdminSchema>,
   bookCreator: Creator,
   userId: string,
-  bookPublisher?: Creator | null,
+  bookPublisher: Creator | null | undefined,
+  moderation: NewBookModeration,
 ): Promise<NewBook> => {
   const shouldNotify =
     !!formData.send_email_to_followers_on_release && !!formData.release_date;
+
+  let approvalStatus: "pending" | "approved" = "pending";
+  let sortOrder: number | undefined;
+
+  if (moderation.isAdminContext) {
+    approvalStatus = "approved";
+    sortOrder = await assignNextBookSortOrder();
+  } else if (
+    !shouldModerateNewBook({
+      creatorVerifiedAt: moderation.creatorVerifiedAt,
+      creatorStatus: moderation.creatorStatus,
+      booksUploadedSinceVerificationBeforeInsert:
+        moderation.booksUploadedSinceVerificationBeforeInsert,
+    })
+  ) {
+    approvalStatus = "approved";
+    sortOrder = await assignNextBookSortOrder();
+  }
 
   return {
     title: formData.title,
@@ -254,7 +332,7 @@ export const buildCreateBookData = async (
     createdByUserId: userId,
     tags: processTags(formData.tags),
     purchaseLink: formData.purchase_link ?? null,
-    approvalStatus: "pending",
+    approvalStatus,
     publicationStatus: "draft",
     availabilityStatus: formData.availability_status,
     notifyFollowersOnRelease: shouldNotify,
@@ -263,6 +341,7 @@ export const buildCreateBookData = async (
       : null,
     notifyFollowersSentAt: null,
     notifyFollowersCreatorId: bookCreator?.id ?? null,
+    ...(sortOrder !== undefined ? { sortOrder } : {}),
   };
 };
 

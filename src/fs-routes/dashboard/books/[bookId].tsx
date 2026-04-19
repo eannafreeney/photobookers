@@ -17,6 +17,7 @@ import PreviewButton from "../../../features/api/components/PreviewButton";
 import BookCoverForm from "../../../features/dashboard/images/forms/BookCoverForm";
 import BookGalleryForm from "../../../features/dashboard/images/forms/BookGalleryForm";
 import { BookForm } from "../../../features/dashboard/books/forms/BookForm";
+import BookReviewProcessBanner from "../../../features/dashboard/books/components/BookReviewProcessBanner";
 import {
   BookFormWithBookContext,
   BookIdContext,
@@ -67,6 +68,16 @@ export const GET = createRoute(
 
     const isPublisher = user.creator?.type === "publisher";
 
+    const bannerVariant =
+      book.approvalStatus === "pending"
+        ? "edit_pending"
+        : book.approvalStatus === "rejected"
+          ? "edit_rejected"
+          : "hidden";
+
+    const primaryAction =
+      book.approvalStatus === "rejected" ? "submit_for_review" : "save";
+
     return c.html(
       <AppLayout
         title="Edit Book"
@@ -83,6 +94,9 @@ export const GET = createRoute(
               },
             ]}
           />
+          <div class="mb-4">
+            <BookReviewProcessBanner variant={bannerVariant} />
+          </div>
           {!publisherIsVerified && (
             <div class="flex justify-end">
               <div class="flex items-center gap-4">
@@ -139,6 +153,7 @@ export const GET = createRoute(
             bookId={book.id}
             formValues={formValues}
             isPublisher={isPublisher}
+            primaryAction={primaryAction}
           />
         </Page>
       </AppLayout>,

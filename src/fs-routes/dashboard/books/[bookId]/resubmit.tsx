@@ -6,14 +6,25 @@ import { requireBookEditAccess } from "../../../../middleware/bookGuard";
 import { BookIdContext } from "../../../../features/dashboard/books/types";
 import { resubmitBook } from "../../../../features/dashboard/books/services";
 import Alert from "../../../../components/app/Alert";
+import { getUser } from "../../../../utils";
+import { notifyAdminBookPendingReview } from "../../../../features/dashboard/admin/notifications/services";
 
 export const POST = createRoute(
   paramValidator(bookIdSchema),
   requireBookEditAccess,
   async (c: BookIdContext) => {
     const bookId = c.req.valid("param").bookId;
-    const [error] = await resubmitBook(bookId);
+    const user = await getUser(c);
+    const [error, updatedBook] = await resubmitBook(bookId);
     if (error) return showErrorAlert(c, error.reason);
+
+    if (updatedBook?.approvalStatus === "pending") {
+      await notifyAdminBookPendingReview({
+        bookId: updatedBook.id,
+        title: updatedBook.title,
+        actorUserId: user.id,
+      });
+    }
 
     return c.html(
       <>

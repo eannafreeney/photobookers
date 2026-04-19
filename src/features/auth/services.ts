@@ -45,6 +45,7 @@ const markCreatorsOwnedByUserAsVerified = async (userId: string) => {
       .update(creators)
       .set({
         status: "verified",
+        verifiedAt: sql`COALESCE(${creators.verifiedAt}, NOW())`,
       })
       .where(
         and(eq(creators.ownerUserId, userId), ne(creators.status, "verified")),

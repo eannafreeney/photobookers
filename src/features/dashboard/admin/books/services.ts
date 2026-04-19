@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, or } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { books, creators } from "../../../../db/schema";
 import { getPagination } from "../../../../lib/pagination";
@@ -9,6 +9,7 @@ import {
   generateBookApprovedEmail,
   generateBookRejectedEmail,
 } from "../creators/emails";
+import { assignNextBookSortOrder } from "../../books/services";
 
 export const deleteBookByIdAdmin = async (bookId: string) => {
   try {
@@ -141,28 +142,31 @@ const getBookSubmitterContact = async (bookId: string) => {
 
 export const approveBook = async (bookId: string) => {
   try {
-    const [{ maxOrder }] = await db
-      .select({ maxOrder: sql<number>`COALESCE(MAX(${books.sortOrder}), 0)` })
-      .from(books);
+    const nextSort = await assignNextBookSortOrder();
 
     const [updatedBook] = await db
       .update(books)
-      .set({ approvalStatus: "approved", sortOrder: maxOrder + 1 })
+      .set({ approvalStatus: "approved", sortOrder: nextSort })
       .where(eq(books.id, bookId))
       .returning();
     if (!updatedBook) return err({ reason: "Book not found" });
 
+    const siteUrl = (process.env.SITE_URL ?? "https://photobookers.com").replace(
+      /\/$/,
+      "",
+    );
+    const dashboardBookUrl = `${siteUrl}/dashboard/books/${updatedBook.id}`;
+
     const contact = await getBookSubmitterContact(bookId);
     if (contact?.recipientEmail) {
-      const bookUrl = `https://photobookers.com/books/${updatedBook.slug}`;
       const html = generateBookApprovedEmail({
         creatorName: contact.displayName,
         bookTitle: updatedBook.title,
-        bookUrl,
+        dashboardBookUrl,
       });
       await sendEmail(
         contact.recipientEmail,
-        `Your book "${updatedBook.title}" is now live`,
+        `Your book "${updatedBook.title}" has been approved`,
         html,
       );
     }

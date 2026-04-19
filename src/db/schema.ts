@@ -151,6 +151,7 @@ export const creators = pgTable(
     tagline: text("tagline"),
     bio: text("bio"),
     status: creatorStatusEnum("status").default("stub"),
+    verifiedAt: timestamp("verified_at"),
     coverUrl: text("cover_url"),
     city: varchar("city"),
     country: varchar("country"),

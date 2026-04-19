@@ -14,6 +14,8 @@ type BookFormProps = {
   isPublisher: boolean;
   bookId?: string;
   action: string;
+  /** Primary submit label for review workflow vs normal save */
+  primaryAction?: "save" | "submit_for_review";
 };
 
 export const BookForm = async ({
@@ -21,6 +23,7 @@ export const BookForm = async ({
   isPublisher,
   bookId,
   action,
+  primaryAction = "save",
 }: BookFormProps) => {
   const artistOptions = isPublisher ? await getAllCreatorOptions("artist") : [];
   const publisherOptions = !isPublisher
@@ -138,7 +141,18 @@ export const BookForm = async ({
             />
           )}
           <input type="hidden" name="intent" x-model="form.intent" />
-          <FormButtons />
+          <FormButtons
+            buttonText={
+              primaryAction === "submit_for_review"
+                ? "Submit for review"
+                : "Save"
+            }
+            loadingText={
+              primaryAction === "submit_for_review"
+                ? "Submitting…"
+                : "Saving…"
+            }
+          />
         </div>
       </FormPost>
     </div>

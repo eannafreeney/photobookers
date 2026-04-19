@@ -16,12 +16,24 @@ import {
 import {
   buildCreateBookData,
   createBook,
+  getNewBookModerationForUser,
 } from "../../../features/dashboard/books/services";
+import BookReviewProcessBanner from "../../../features/dashboard/books/components/BookReviewProcessBanner";
+import { shouldModerateNewBook } from "../../../lib/bookModeration";
+import { notifyAdminBookPendingReview } from "../../../features/dashboard/admin/notifications/services";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
   const isPublisher = user.creator?.type === "publisher";
+
+  const moderation = await getNewBookModerationForUser(user);
+  const needsReview = shouldModerateNewBook({
+    creatorVerifiedAt: moderation.creatorVerifiedAt,
+    creatorStatus: moderation.creatorStatus,
+    booksUploadedSinceVerificationBeforeInsert:
+      moderation.booksUploadedSinceVerificationBeforeInsert,
+  });
 
   return c.html(
     <AppLayout title="Add Book" user={user} currentPath={currentPath}>
@@ -34,7 +46,16 @@ export const GET = createRoute(async (c) => {
             },
           ]}
         />
-        <BookForm action="/dashboard/books/new" isPublisher={isPublisher} />
+        <div class="mb-4">
+          <BookReviewProcessBanner
+            variant={needsReview ? "create_moderated" : "create_trusted"}
+          />
+        </div>
+        <BookForm
+          action="/dashboard/books/new"
+          isPublisher={isPublisher}
+          primaryAction={needsReview ? "submit_for_review" : "save"}
+        />
       </Page>
     </AppLayout>,
   );
@@ -71,15 +92,25 @@ export const POST = createRoute(
       publisher = resolvedPublisher;
     }
 
+    const moderation = await getNewBookModerationForUser(user);
     const bookData = await buildCreateBookData(
       formData,
       artist,
       user.id,
       publisher,
+      moderation,
     );
     const newBook = await createBook(bookData);
 
     if (!newBook) return showErrorAlert(c, "Failed to create book");
+
+    if (newBook.approvalStatus === "pending") {
+      await notifyAdminBookPendingReview({
+        bookId: newBook.id,
+        title: newBook.title,
+        actorUserId: user.id,
+      });
+    }
 
     await setFlash(c, "success", `Successfully created "${newBook.title}"!`);
     return c.redirect(`/dashboard/books/${newBook.id}`);

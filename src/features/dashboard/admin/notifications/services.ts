@@ -17,6 +17,28 @@ export const createAdminNotification = async (input: NewAdminNotification) => {
   }
 };
 
+export const notifyAdminBookPendingReview = async (input: {
+  bookId: string;
+  title: string;
+  actorUserId: string;
+}) => {
+  const result = await createAdminNotification({
+    type: "book_pending_review",
+    title: "Book pending review",
+    body: `"${input.title}" is waiting for approval.`,
+    targetUrl: `/dashboard/admin/books/${input.bookId}`,
+    actorUserId: input.actorUserId,
+    isRead: false,
+  });
+  if (result[0]) {
+    console.error(
+      "notifyAdminBookPendingReview failed:",
+      result[0].reason,
+      result[0],
+    );
+  }
+};
+
 export const getAdminNotifications = async (
   currentPage: number,
   defaultLimit = 30,

@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, isNull, not, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, isNull, not, or, sql } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   books,
@@ -25,6 +25,7 @@ export const removeCreatorOwnerAdminDB = async (creatorId: string) => {
       .set({
         ownerUserId: null,
         status: "stub",
+        verifiedAt: null,
       })
       .where(eq(creators.id, creatorId))
       .returning();

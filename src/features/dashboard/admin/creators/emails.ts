@@ -149,12 +149,12 @@ export const generateInterviewInviteResendEmail = (params: {
 export const generateBookApprovedEmail = (params: {
   creatorName: string;
   bookTitle: string;
-  bookUrl: string;
+  dashboardBookUrl: string;
 }) => {
   return `
     <p>Hi ${params.creatorName},</p>
-    <p>Great news — your book <strong>${params.bookTitle}</strong> has been approved and is now live on Photobookers.</p>
-    <p><a href="${params.bookUrl}">View your book</a></p>
+    <p>Great news — your book <strong>${params.bookTitle}</strong> has been approved. You can publish it from your dashboard when you are ready (add a cover first if you have not already).</p>
+    <p><a href="${params.dashboardBookUrl}">Open your book in the dashboard</a></p>
     <p>Thank you,<br/>Photobookers</p>
   `;
 };
