@@ -40,7 +40,6 @@ const AdminBooksTableAndFilter = async ({
   );
 
   if (error) return <div>{error.reason}</div>;
-  if (!result?.books) return <div>No featured books found</div>;
 
   const { books, totalPages, page } = result;
 

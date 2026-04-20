@@ -18,7 +18,7 @@ import {
 } from "../../../../features/dashboard/books/services";
 import Alert from "../../../../components/app/Alert";
 import { BookFormContext } from "../../../../features/dashboard/books/types";
-import NavTabs from "../../../../features/dashboard/admin/components/NavTabs";
+import Sidebar from "../../../../components/app/Sidebar";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -27,8 +27,9 @@ export const GET = createRoute(async (c: Context) => {
   return c.html(
     <AppLayout title="Books" user={user} currentPath={currentPath}>
       <Page>
-        <NavTabs currentPath="/dashboard/admin/books" />
-        <BookFormAdmin />
+        <Sidebar currentPath={currentPath}>
+          <BookFormAdmin />
+        </Sidebar>
       </Page>
     </AppLayout>,
   );

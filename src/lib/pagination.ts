@@ -1,3 +1,17 @@
+/**
+ * Pathname plus query string for load-more / infinite-scroll requests.
+ * Drops `page` so the client can append a fresh `page` param.
+ */
+export function paginationRequestBaseUrl(requestUrl: string): string {
+  const base = "http://_";
+  const u = requestUrl.startsWith("http")
+    ? new URL(requestUrl)
+    : new URL(requestUrl, base);
+  u.searchParams.delete("page");
+  const qs = u.searchParams.toString();
+  return qs ? `${u.pathname}?${qs}` : u.pathname;
+}
+
 export function getPagination(
   rawPage: number,
   totalCount: number,

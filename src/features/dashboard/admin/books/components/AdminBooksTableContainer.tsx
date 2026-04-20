@@ -23,7 +23,7 @@ const AdminBooksTableContainer = async ({
       <SectionTitle>Books</SectionTitle>
       <div class="flex items-center justify-between gap-4">
         <TableSearch
-          target="books-table"
+          target="books-table-container"
           action="/dashboard/admin/books"
           placeholder="Filter books..."
         />

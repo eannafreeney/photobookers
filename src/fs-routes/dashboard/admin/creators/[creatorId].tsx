@@ -1,4 +1,5 @@
 import { createRoute } from "hono-fsr";
+import { paginationRequestBaseUrl } from "../../../../lib/pagination";
 import { formValidator, paramValidator } from "../../../../lib/validator";
 import { creatorIdSchema } from "../../../../schemas";
 import { getUser } from "../../../../utils";
@@ -110,7 +111,7 @@ export const DELETE = createRoute(
   async (c) => {
     const creatorId = c.req.valid("param").creatorId;
     const currentPage = Number(c.req.query("page") ?? 1);
-    const currentPath = c.req.path;
+    const creatorsPaginationBaseUrl = paginationRequestBaseUrl(c.req.url);
     const [error, deletedCreator] = await deleteCreatorByIdAdmin(creatorId);
     if (error) return showErrorAlert(c, error.reason);
 
@@ -120,7 +121,7 @@ export const DELETE = createRoute(
         <AdminCreatorsTableAndFilter
           searchQuery={undefined}
           currentPage={currentPage}
-          currentPath={currentPath}
+          currentPath={creatorsPaginationBaseUrl}
         />
       </>,
     );

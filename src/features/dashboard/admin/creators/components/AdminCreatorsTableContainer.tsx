@@ -18,7 +18,7 @@ const AdminCreatorsTableContainer = async ({
       <SectionTitle>Creators</SectionTitle>
       <div class="flex items-center justify-between gap-4">
         <TableSearch
-          target="creators-table"
+          target="creators-table-container"
           action="/dashboard/admin/creators"
           placeholder="Filter creators..."
         />

@@ -43,7 +43,7 @@ const UsersTableAdmin = async ({
       <SectionTitle>Users</SectionTitle>
       <div class="flex items-center justify-between gap-4">
         <TableSearch
-          target="users-table"
+          target="users-table-container"
           action="/dashboard/admin/users"
           placeholder="Filter users..."
         />

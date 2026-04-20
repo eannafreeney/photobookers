@@ -7,7 +7,6 @@ import {
 } from "../../../../features/dashboard/admin/planner/utils";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
-import NavTabs from "../../../../features/dashboard/admin/components/NavTabs";
 import { toWeekString } from "../../../../lib/utils";
 import WeekCard from "../../../../features/dashboard/admin/planner/components/WeekCard";
 import InfoPage from "../../../../pages/InfoPage";

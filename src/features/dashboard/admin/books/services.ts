@@ -99,7 +99,6 @@ export const getAllBooksAdmin = async (
         },
       },
     });
-    if (foundBooks.length === 0) return err({ reason: "No books found" });
     return ok({ books: foundBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get all books", error);
@@ -151,10 +150,9 @@ export const approveBook = async (bookId: string) => {
       .returning();
     if (!updatedBook) return err({ reason: "Book not found" });
 
-    const siteUrl = (process.env.SITE_URL ?? "https://photobookers.com").replace(
-      /\/$/,
-      "",
-    );
+    const siteUrl = (
+      process.env.SITE_URL ?? "https://photobookers.com"
+    ).replace(/\/$/, "");
     const dashboardBookUrl = `${siteUrl}/dashboard/books/${updatedBook.id}`;
 
     const contact = await getBookSubmitterContact(bookId);

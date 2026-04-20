@@ -5,6 +5,7 @@ import Page from "../../../../components/layouts/Page";
 import AdminBooksTableContainer from "../../../../features/dashboard/admin/books/components/AdminBooksTableContainer";
 import { Context } from "hono";
 import Sidebar from "../../../../components/app/Sidebar";
+import { paginationRequestBaseUrl } from "../../../../lib/pagination";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -12,6 +13,7 @@ export const GET = createRoute(async (c: Context) => {
   const flash = await getFlash(c);
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
+  const booksPaginationBaseUrl = paginationRequestBaseUrl(c.req.url);
 
   return c.html(
     <AppLayout
@@ -24,7 +26,7 @@ export const GET = createRoute(async (c: Context) => {
         <Sidebar currentPath={currentPath}>
           <AdminBooksTableContainer
             user={user}
-            currentPath={currentPath}
+            currentPath={booksPaginationBaseUrl}
             currentPage={currentPage}
             searchQuery={searchQuery}
           />

@@ -2,7 +2,6 @@ import { createRoute } from "hono-fsr";
 import { getUser } from "../../../../utils";
 import Page from "../../../../components/layouts/Page";
 import AppLayout from "../../../../components/layouts/AppLayout";
-import NavTabs from "../../../../features/dashboard/admin/components/NavTabs";
 import NotificationsTableAdmin from "../../../../features/dashboard/admin/notifications/components/NotificationsTableAdmin";
 import Sidebar from "../../../../components/app/Sidebar";
 
