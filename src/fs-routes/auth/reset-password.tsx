@@ -55,8 +55,10 @@ export const POST = createRoute(
     if (setResetPasswordFlagError)
       return showErrorAlert(c, setResetPasswordFlagError.reason);
 
+    const welcomeName = user.creator?.displayName ?? user.firstName ?? "A user";
+
     if (wasForcedResetPassword) {
-      await createUserVerifiedNotification(user);
+      await createUserVerifiedNotification(welcomeName, user);
     }
 
     const { data } = await supabaseAnon.auth.signInWithPassword({
