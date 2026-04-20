@@ -109,7 +109,15 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
   };
 
   return (
-    <tr>
+    <tr
+      class={
+        book.approvalStatus === "pending"
+          ? " bg-warning/10"
+          : book.approvalStatus === "rejected"
+            ? " bg-danger/10"
+            : ""
+      }
+    >
       <Table.BodyRow>
         {book.coverUrl ? (
           <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />

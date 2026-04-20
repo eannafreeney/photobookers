@@ -1,9 +1,4 @@
-import Alert from "../../../../components/app/Alert";
 import Banner from "../../../../components/app/Banner";
-import {
-  TRUST_MIN_BOOKS_SINCE_VERIFY,
-  TRUST_VERIFIED_AGE_DAYS,
-} from "../../../../lib/bookModeration";
 
 type BannerVariant =
   | "create_moderated"
@@ -21,7 +16,7 @@ const BookReviewProcessBanner = ({ variant }: Props) => {
     return (
       <Banner
         type="info"
-        message={`New listings are moderated until your profile has been verified for ${TRUST_VERIFIED_AGE_DAYS} days and you have added ${TRUST_MIN_BOOKS_SINCE_VERIFY} books since verification. We will email you when it is approved; then you can publish from this dashboard (with a cover image).`}
+        message="New books go through review first. That stops once either (1) two books you added since verification have been approved, or (2) you’ve been verified for 30 days and added two books since verification. We’ll email you when this listing is approved.”"
       />
     );
   }
