@@ -87,7 +87,7 @@ export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
                           </p>
                         </div>
                         <Link
-                          href={`/dashboard/admin/creators/${c.id}/update`}
+                          href={`/dashboard/admin/creators/${c.id}`}
                           className="shrink-0 text-sm"
                           hoverUnderline
                         >

@@ -77,17 +77,20 @@ export const GET = createRoute(
       });
 
       if (interviewError) {
-        console.error("Failed to create interview invite:", interviewError.reason);
+        console.error(
+          "Failed to create interview invite:",
+          interviewError.reason,
+        );
       } else {
         interviewLink = `${process.env.SITE_URL ?? "https://photobookers.com"}/interviews/${inviteToken}`;
       }
     }
 
-    await createUserVerifiedNotification(dbUser);
-
     const welcomeName = isCreator
       ? (user.user_metadata?.displayName ?? null)
       : (user.user_metadata?.firstName ?? null);
+
+    await createUserVerifiedNotification(welcomeName, dbUser);
 
     const [emailError] = await sendEmail(
       user.email,

@@ -147,12 +147,13 @@ export const createCreatorFollowedNotification = async (
   });
 
 export const createUserVerifiedNotification = async (
+  welcomeName: string,
   user: NotificationUserTarget,
 ) =>
   await createAdminNotification({
     type: "user_verified",
     title: "User verified",
-    body: `${user?.firstName ? `${user.firstName} ${user.lastName}` : "A user"} verified their account`,
+    body: `${welcomeName} verified their account`,
     targetUrl: `/dashboard/admin/users/${user.id}`,
     actorUserId: user.id,
   });
