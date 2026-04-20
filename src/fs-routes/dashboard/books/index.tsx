@@ -13,8 +13,11 @@ import Page from "../../../components/layouts/Page";
 import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumbs";
 import { BooksOverviewTable } from "../../../features/dashboard/books/tables/BooksOverviewTable";
 import Button from "../../../components/app/Button";
-import { CreatorStatus } from "../../../db/schema";
+import { CreatorClaimStatus, CreatorStatus } from "../../../db/schema";
 import NavTabs from "../../../features/dashboard/books/components/NavTabs";
+import { getPendingClaim } from "../../../features/claims/services";
+import Banner from "../../../components/app/Banner";
+import FormPost from "../../../components/forms/FormPost";
 
 export const GET = createRoute(async (c: Context) => {
   const searchQuery = c.req.query("search");
@@ -30,10 +33,17 @@ export const GET = createRoute(async (c: Context) => {
   const creatorId = user.creator.id;
   const creatorType = user.creator.type;
 
-  const [error, result] =
+  const booksByCreator =
     creatorType === "artist"
-      ? await getBooksByArtistId(creatorId, currentPage, searchQuery)
-      : await getBooksByPublisherId(creatorId, currentPage, searchQuery);
+      ? getBooksByArtistId(creatorId, currentPage, searchQuery)
+      : getBooksByPublisherId(creatorId, currentPage, searchQuery);
+
+  const [[claimError, claim], [error, result]] = await Promise.all([
+    getPendingClaim(user.id, creatorId),
+    booksByCreator,
+  ]);
+  if (claimError)
+    return c.html(<InfoPage errorMessage={claimError.reason} user={user} />);
 
   if (error)
     return c.html(<InfoPage errorMessage={error.reason} user={user} />);
@@ -47,7 +57,10 @@ export const GET = createRoute(async (c: Context) => {
       flash={flash}
       currentPath={currentPath}
     >
-      <VerificationStatusBanner creatorStatus={user.creator.status ?? "stub"} />
+      <VerificationStatusBanner
+        claimStatus={claim?.status}
+        creatorStatus={user.creator.status ?? "stub"}
+      />
       <Page>
         <Breadcrumbs
           items={[
@@ -73,27 +86,35 @@ export const GET = createRoute(async (c: Context) => {
 });
 
 type VerificationStatusProps = {
-  creatorStatus: CreatorStatus;
+  claimStatus: CreatorClaimStatus | null;
+  creatorStatus: CreatorStatus | null;
 };
 
 const VerificationStatusBanner = ({
+  claimStatus,
   creatorStatus,
 }: VerificationStatusProps) => {
   if (creatorStatus === "verified") return <></>;
 
+  if (claimStatus === "pending_admin_review") {
+    return (
+      <Banner
+        type="info"
+        message="Your creator profile is pending admin review. You can edit books, but publishing is disabled until admin review."
+      />
+    );
+  }
+
   return (
-    <div class="relative flex border-outline bg-surface-alt p-4 text-on-surface dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark border-b">
-      <div class="mx-auto flex flex-wrap items-center gap-2 px-6">
-        <p class="sm:text-sm text-pretty text-xs">
-          Your creator profile is pending verification. You can edit books, but
-          publishing is disabled until verification.
-        </p>
-        <form method="post" action="/auth/resend-verification" x-target="toast">
-          <Button variant="solid" color="warning">
-            Resend verification email
-          </Button>
-        </form>
-      </div>
-    </div>
+    <Banner
+      type="info"
+      message="Your creator profile is pending verification. You can edit books, but publishing is disabled until verification."
+    >
+      <FormPost action="/auth/resend-verification" x-target="toast">
+        <Button variant="solid" color="warning">
+          Resend verification email
+        </Button>
+      </FormPost>
+    </Banner>
   );
 };

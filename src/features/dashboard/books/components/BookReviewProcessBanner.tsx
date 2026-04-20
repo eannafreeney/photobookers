@@ -1,4 +1,9 @@
 import Alert from "../../../../components/app/Alert";
+import Banner from "../../../../components/app/Banner";
+import {
+  TRUST_MIN_BOOKS_SINCE_VERIFY,
+  TRUST_VERIFIED_AGE_DAYS,
+} from "../../../../lib/bookModeration";
 
 type BannerVariant =
   | "create_moderated"
@@ -16,19 +21,19 @@ const BookReviewProcessBanner = ({ variant }: Props) => {
     return (
       <Banner
         type="info"
-        message="Your book will be submitted for review. Our team checks new listings; you will receive an email when it is approved, then you can publish it from this dashboard (with a cover image)."
+        message={`New listings are moderated until your profile has been verified for ${TRUST_VERIFIED_AGE_DAYS} days and you have added ${TRUST_MIN_BOOKS_SINCE_VERIFY} books since verification. We will email you when it is approved; then you can publish from this dashboard (with a cover image).`}
       />
     );
   }
 
-  if (variant === "create_trusted") {
-    return (
-      <Banner
-        type="info"
-        message="This book will be saved as approved for listing. Add a cover image, then publish when you are ready."
-      />
-    );
-  }
+  // if (variant === "create_trusted") {
+  //   return (
+  //     <Banner
+  //       type="info"
+  //       message="This book will be saved as approved for listing. Add a cover image, then publish when you are ready."
+  //     />
+  //   );
+  // }
 
   if (variant === "edit_pending") {
     return (
@@ -52,37 +57,3 @@ const BookReviewProcessBanner = ({ variant }: Props) => {
 };
 
 export default BookReviewProcessBanner;
-
-type BannerProps = {
-  type:
-    | "default"
-    | "inverse"
-    | "primary"
-    | "secondary"
-    | "info"
-    | "success"
-    | "warning"
-    | "danger";
-  message: string;
-};
-
-const Banner = ({ type = "default", message }: BannerProps) => {
-  const variantBg = {
-    default: "bg-surface-alt/10",
-    inverse: "bg-surface-dark-alt/10",
-    primary: "bg-primary/10",
-    secondary: "bg-secondary/10",
-    info: "bg-info/10",
-    success: "bg-success/10",
-    warning: "bg-warning/10",
-    danger: "bg-danger/10",
-  };
-
-  return (
-    <div
-      class={`rounded-radius ${variantBg[type as keyof typeof variantBg]} text-on-surface py-2`}
-    >
-      <p class="text-center text-sm text-pretty">{message}</p>
-    </div>
-  );
-};

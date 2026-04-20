@@ -37,6 +37,7 @@ export type NewBookModeration = {
   creatorVerifiedAt: Date | null;
   creatorStatus: Creator["status"];
   booksUploadedSinceVerificationBeforeInsert: number;
+  approvedBooksSinceVerificationBeforeInsert: number;
 };
 
 export async function assignNextBookSortOrder(): Promise<number> {
@@ -69,11 +70,16 @@ export async function getNewBookModerationForUser(
     verifiedAt && creatorStatus === "verified"
       ? await countBooksUploadedSinceCreatorVerification(user.id, verifiedAt)
       : 0;
+  const approvedBooksSinceVerificationBeforeInsert =
+    verifiedAt && creatorStatus === "verified"
+      ? await countApprovedBooksSinceCreatorVerification(user.id, verifiedAt)
+      : 0;
   return {
     isAdminContext: false,
     creatorVerifiedAt: verifiedAt,
     creatorStatus,
     booksUploadedSinceVerificationBeforeInsert: uploadedSince,
+    approvedBooksSinceVerificationBeforeInsert,
   };
 }
 
@@ -313,6 +319,8 @@ export const buildCreateBookData = async (
       creatorStatus: moderation.creatorStatus,
       booksUploadedSinceVerificationBeforeInsert:
         moderation.booksUploadedSinceVerificationBeforeInsert,
+      approvedBooksSinceVerificationBeforeInsert:
+        moderation.approvedBooksSinceVerificationBeforeInsert,
     })
   ) {
     approvalStatus = "approved";
@@ -344,6 +352,23 @@ export const buildCreateBookData = async (
     ...(sortOrder !== undefined ? { sortOrder } : {}),
   };
 };
+
+export async function countApprovedBooksSinceCreatorVerification(
+  userId: string,
+  verifiedAt: Date,
+): Promise<number> {
+  const [{ value }] = await db
+    .select({ value: count() })
+    .from(books)
+    .where(
+      and(
+        eq(books.createdByUserId, userId),
+        gte(books.createdAt, verifiedAt),
+        eq(books.approvalStatus, "approved"),
+      ),
+    );
+  return Number(value ?? 0);
+}
 
 export const buildUpdateBookData = (
   formData:

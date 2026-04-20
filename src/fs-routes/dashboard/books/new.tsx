@@ -33,6 +33,8 @@ export const GET = createRoute(async (c) => {
     creatorStatus: moderation.creatorStatus,
     booksUploadedSinceVerificationBeforeInsert:
       moderation.booksUploadedSinceVerificationBeforeInsert,
+    approvedBooksSinceVerificationBeforeInsert:
+      moderation.approvedBooksSinceVerificationBeforeInsert,
   });
 
   return c.html(

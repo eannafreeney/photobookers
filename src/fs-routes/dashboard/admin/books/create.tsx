@@ -51,6 +51,7 @@ export const POST = createRoute(
       creatorVerifiedAt: null,
       creatorStatus: "stub",
       booksUploadedSinceVerificationBeforeInsert: 0,
+      approvedBooksSinceVerificationBeforeInsert: 0,
     };
 
     const bookData = await buildCreateBookData(

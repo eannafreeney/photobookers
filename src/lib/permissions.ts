@@ -43,7 +43,7 @@ export function canEditBook(
 
   // User claimed this profile (did not create it) → must be verified to edit any book
   if (!isCreatorProfileCreatedByUser && user.creator.status !== "verified") {
-    return false;
+    if (book.createdByUserId !== user.id) return false;
   }
 
   // User created the book for a stub publisher not yet approved

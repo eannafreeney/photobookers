@@ -13,20 +13,26 @@ import { err, ok } from "../../lib/result";
 import { invalidateBookCache } from "../app/services";
 
 export const getPendingClaim = async (userId: string, creatorId: string) => {
-  if (!userId || !creatorId) return null;
+  if (!userId || !creatorId)
+    return err({ reason: "Invalid user or creator ID" });
 
-  const [claim] = await db
-    .select()
-    .from(creatorClaims)
-    .where(
-      and(
-        eq(creatorClaims.userId, userId),
-        eq(creatorClaims.creatorId, creatorId),
-        inArray(creatorClaims.status, ["pending", "pending_admin_review"]),
-      ),
-    )
-    .limit(1);
-  return claim ?? null;
+  try {
+    const [claim] = await db
+      .select()
+      .from(creatorClaims)
+      .where(
+        and(
+          eq(creatorClaims.userId, userId),
+          eq(creatorClaims.creatorId, creatorId),
+          inArray(creatorClaims.status, ["pending", "pending_admin_review"]),
+        ),
+      )
+      .limit(1);
+    return ok(claim ?? null);
+  } catch (error) {
+    console.error("Failed to get pending claim", error);
+    return err({ reason: "Failed to get pending claim", cause: error });
+  }
 };
 
 export const deleteClaim = async (claimId: string) => {
