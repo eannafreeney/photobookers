@@ -74,11 +74,7 @@ const RegisterFanForm = ({ redirectUrl }: Props) => {
           value="fan"
           x-init="form.type = 'fan'"
         />
-        <input
-          type="hidden"
-          name="form.captchaToken"
-          x-model="form.captchaToken"
-        />
+        <input type="hidden" name="captchaToken" x-model="form.captchaToken" />
         <div
           class="cf-turnstile my-4"
           data-theme="light"

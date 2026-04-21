@@ -108,11 +108,7 @@ const ClaimSignupModal = ({
           </div>
         </div>
         <input type="hidden" name="type" value="fan" />
-        <input
-          type="hidden"
-          name="form.captchaToken"
-          x-model="form.captchaToken"
-        />
+        <input type="hidden" name="captchaToken" x-model="form.captchaToken" />
         <div
           class="cf-turnstile my-4"
           data-theme="light"
