@@ -1211,6 +1211,11 @@ export const getInterviewByCreatorSlug = async (slug: string) => {
   try {
     const interview = await db.query.creatorInterviews.findFirst({
       where: eq(creatorInterviews.creatorSlug, slug),
+      with: {
+        creator: {
+          columns: CREATOR_CARD_COLUMNS,
+        },
+      },
     });
     return ok(interview);
   } catch (error) {

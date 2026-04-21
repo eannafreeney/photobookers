@@ -9,13 +9,10 @@ import Intersector from "../../features/app/components/Intersector";
 import NewsletterBanner from "../../features/app/components/NewsletterBanner";
 import NewsletterCard from "../../features/app/components/NewsletterCard";
 import DiscoveryTags from "../../features/app/components/DiscoveryTags";
-import { getIsMobile } from "../../lib/device";
 import PageBleed from "../../components/layouts/PageContent";
 import ScrollReveal from "../../components/app/ScrollReveal";
-import { getInterviews } from "../../features/app/services";
-import { log } from "console";
-import { getCreatorById } from "../../features/dashboard/creators/services";
-import SectionTitle from "../../components/app/SectionTitle";
+import Interviews from "../../features/app/components/Interviews";
+import FeatureGuard from "../../components/layouts/FeatureGuard";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -33,9 +30,11 @@ export const GET = createRoute(async (c: Context) => {
         <ScrollReveal>
           <SiteFeatures />
         </ScrollReveal>
-        <ScrollReveal>
-          <Interviews />
-        </ScrollReveal>
+        <FeatureGuard flagName="interviews">
+          <ScrollReveal>
+            <Interviews />
+          </ScrollReveal>
+        </FeatureGuard>
         <ScrollReveal>
           <Intersector
             id="featured-books-fragment"
@@ -92,42 +91,5 @@ const Slogan = () => (
       class="border-b-2 border-black inline-block transition-opacity duration-300"
     />{" "}
     for photobook lovers.
-  </div>
-);
-
-const Interviews = async () => {
-  const [error, interviews] = await getInterviews();
-
-  if (error) return <div>Error: {error.reason}</div>;
-  if (!interviews) return <div>No interviews found</div>;
-
-  return (
-    <>
-      <SectionTitle>Interviews</SectionTitle>
-      <div class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div class="flex w-5xl sm:w-full items-center gap-6">
-          {interviews.map((interview) => (
-            <InterviewCard interview={interview} />
-          ))}
-        </div>
-      </div>
-    </>
-  );
-};
-
-const InterviewCard = ({ interview }) => (
-  <div class="relative rounded-radius overflow-hidden w-full">
-    <a href={`/interviews/${interview.creator.slug}`} class="cursor-pointer">
-      <img
-        src={interview.promoImageUrl ?? ""}
-        class="w-full h-64 object-cover rounded-radius"
-        alt="Interview"
-      />
-      <div class="absolute inset-0 flex flex-col gap-1 items-center justify-center rounded-radius bg-black/50 p-4 text-white">
-        <h3 class="text-3xl font-medium tracking-wider text-center">
-          {interview.creator.displayName}
-        </h3>
-      </div>
-    </a>
   </div>
 );
