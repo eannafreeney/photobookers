@@ -36,3 +36,18 @@ export const updateInterviewAndPublishById = async (
     });
   }
 };
+
+export const deleteInterviewById = async (interviewId: string) => {
+  try {
+    const [row] = await db
+      .delete(creatorInterviews)
+      .where(eq(creatorInterviews.id, interviewId))
+      .returning();
+    if (!row) {
+      return err({ reason: "Interview not found" });
+    }
+    return ok(row);
+  } catch (error) {
+    return err({ reason: "Failed to delete interview", cause: error });
+  }
+};

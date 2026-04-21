@@ -1,4 +1,15 @@
-import { and, count, desc, eq, ilike, isNull, not, or, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  not,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   books,
@@ -486,23 +497,64 @@ export const completeInterviewByToken = async (
   }
 };
 
-export const getAdminCreatorInterviews = async (currentPage: number) => {
+export const getAdminCreatorInterviews = async (
+  currentPage: number = 1,
+  searchQuery?: string,
+  statusType?: "sent" | "completed" | "expired" | "published",
+) => {
   try {
-    const rows = await db.query.creatorInterviews.findMany({
-      orderBy: [desc(creatorInterviews.invitedAt)],
-      with: { creator: true },
-    });
-    const totalCount = rows.length;
+    const normalizedSearch = searchQuery?.trim();
+    const hasSearch = !!normalizedSearch;
+
+    // Search by creator display name OR recipient email
+    let creatorIds: string[] = [];
+    if (hasSearch) {
+      const rows = await db
+        .select({ id: creators.id })
+        .from(creators)
+        .where(ilike(creators.displayName, `%${normalizedSearch}%`));
+
+      creatorIds = rows.map((r) => r.id);
+    }
+
+    const searchCondition = hasSearch
+      ? or(
+          ilike(creatorInterviews.recipientEmail, `%${normalizedSearch}%`),
+          creatorIds.length > 0
+            ? inArray(creatorInterviews.creatorId, creatorIds)
+            : undefined,
+        )
+      : undefined;
+
+    const statusCondition = statusType
+      ? eq(creatorInterviews.status, statusType)
+      : undefined;
+
+    const whereCondition =
+      searchCondition && statusCondition
+        ? and(searchCondition, statusCondition)
+        : (searchCondition ?? statusCondition ?? undefined);
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(creatorInterviews)
+      .where(whereCondition);
+
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
       30,
     );
-    return ok({
-      interviews: rows.slice(offset, offset + limit),
-      page,
-      totalPages,
+
+    const interviews = await db.query.creatorInterviews.findMany({
+      where: whereCondition,
+      orderBy: [desc(creatorInterviews.invitedAt)],
+      with: { creator: true },
+      limit,
+      offset,
     });
+
+    return ok({ interviews, page, totalPages });
   } catch (error) {
     return err({
       reason: "Failed to get admin creator interviews",

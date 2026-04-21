@@ -11,7 +11,10 @@ import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
 import { getUser } from "../../../../utils";
 import EditInterviewForm from "../../../../features/dashboard/admin/interviews/forms/EditInterviewForm";
-import { updateInterviewAndPublishById } from "../../../../features/dashboard/admin/interviews/services";
+import {
+  deleteInterviewById,
+  updateInterviewAndPublishById,
+} from "../../../../features/dashboard/admin/interviews/services";
 import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers";
 
 export const GET = createRoute(paramValidator(interviewIdSchema), async (c) => {
@@ -45,5 +48,15 @@ export const POST = createRoute(
     const [error] = await updateInterviewAndPublishById(interviewId, form);
     if (error) return showErrorAlert(c, error.reason);
     return showSuccessAlert(c, "Interview published");
+  },
+);
+
+export const DELETE = createRoute(
+  paramValidator(interviewIdSchema),
+  async (c) => {
+    const interviewId = c.req.valid("param").interviewId;
+    const [error] = await deleteInterviewById(interviewId);
+    if (error) return showErrorAlert(c, error.reason);
+    return showSuccessAlert(c, "Interview deleted");
   },
 );
