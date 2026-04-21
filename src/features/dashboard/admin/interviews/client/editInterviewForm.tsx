@@ -5,8 +5,11 @@ import {
   createFormState,
   validateField,
   initFormValues,
-} from "../../../client/forms/formUtils";
-import { InterviewFormSchema, interviewFormSchema } from "../schema";
+} from "../../../../../client/forms/formUtils";
+import {
+  InterviewFormSchema,
+  interviewFormSchema,
+} from "../../../../../features/interviews/schema";
 
 const INTERVIEW_FORM_FIELDS = Object.keys(interviewFormSchema.shape);
 

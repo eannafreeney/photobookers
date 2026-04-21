@@ -1,9 +1,9 @@
-import FormPost from "../../../components/forms/FormPost";
-import TextArea from "../../../components/forms/TextArea";
-import FormButtons from "../../../components/forms/FormButtons";
-import SectionTitle from "../../../components/app/SectionTitle";
-import { Creator, CreatorInterview } from "../../../db/schema";
-import { CreatorCardResult } from "../../../constants/queries";
+import FormPost from "../../../../../components/forms/FormPost";
+import TextArea from "../../../../../components/forms/TextArea";
+import FormButtons from "../../../../../components/forms/FormButtons";
+import SectionTitle from "../../../../../components/app/SectionTitle";
+import { Creator, CreatorInterview } from "../../../../../db/schema";
+import { CreatorCardResult } from "../../../../../constants/queries";
 
 type Props = {
   interview: CreatorInterview & { creator: CreatorCardResult | null };
@@ -26,6 +26,7 @@ const EditInterviewForm = ({ interview }: Props) => {
       <FormPost
         action={`/dashboard/admin/interviews/${interview?.id}`}
         x-data={`editInterviewForm(${JSON.stringify(initialForm)}, true)`}
+        x-target="toast"
       >
         <TextArea
           label="What inspired you to start publishing books?"

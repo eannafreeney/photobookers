@@ -10,7 +10,7 @@ import Sidebar from "../../../../components/app/Sidebar";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
 import { getUser } from "../../../../utils";
-import EditInterviewForm from "../../../../features/interviews/forms/EditInterviewForm";
+import EditInterviewForm from "../../../../features/dashboard/admin/interviews/forms/EditInterviewForm";
 import { updateInterviewAndPublishById } from "../../../../features/dashboard/admin/interviews/services";
 import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers";
 
