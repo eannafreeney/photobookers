@@ -1,0 +1,1 @@
+ALTER TYPE "public"."creator_interview_status" ADD VALUE 'published';

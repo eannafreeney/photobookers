@@ -33,6 +33,7 @@ import { registerAdminNotificationsBadge } from "../features/dashboard/admin/not
 import { registerAdminClaimsBadge } from "../features/dashboard/admin/claims/client/adminClaimsBadge";
 import { registerInterviewForm } from "../features/interviews/client/interviewForm";
 import { registerMessageForm } from "../features/dashboard/messages/client/messageForm";
+import { registerEditInterviewForm } from "../features/interviews/client/editInterviewForm";
 
 // Register all Alpine.js data components
 registerAdminClaimsBadge();
@@ -69,4 +70,5 @@ registerAlert();
 registerActivityFeed();
 registerAdminNotificationsBadge();
 registerInterviewForm();
+registerEditInterviewForm();
 registerMessageForm();

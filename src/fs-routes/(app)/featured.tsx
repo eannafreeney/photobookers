@@ -30,11 +30,9 @@ export const GET = createRoute(async (c: Context) => {
         <ScrollReveal>
           <SiteFeatures />
         </ScrollReveal>
-        <FeatureGuard flagName="interviews">
-          <ScrollReveal>
-            <Interviews />
-          </ScrollReveal>
-        </FeatureGuard>
+        <ScrollReveal>
+          <Interviews />
+        </ScrollReveal>
         <ScrollReveal>
           <Intersector
             id="featured-books-fragment"

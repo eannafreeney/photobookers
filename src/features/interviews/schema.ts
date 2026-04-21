@@ -8,3 +8,10 @@ export const interviewFormSchema = z.object({
   q5: z.string().min(1).max(3000),
   promoImage: z.instanceof(File).optional(),
 });
+
+export const interviewIdSchema = z.object({
+  interviewId: z.string().uuid(),
+});
+
+export type InterviewIdSchema = z.infer<typeof interviewIdSchema>;
+export type InterviewFormSchema = z.infer<typeof interviewFormSchema>;

@@ -35,6 +35,7 @@ export const bookPublicationStatusEnum = pgEnum("book_publication_status", [
   "published",
   "draft",
 ]);
+
 export const followTargetEnum = pgEnum("follow_target", ["user", "creator"]);
 export const creatorTypeEnum = pgEnum("creator_type", ["publisher", "artist"]);
 export const creatorStatusEnum = pgEnum("creator_status", [
@@ -54,6 +55,7 @@ export const creatorInterviewStatusEnum = pgEnum("creator_interview_status", [
   "sent",
   "completed",
   "expired",
+  "published",
 ]);
 
 export const interviewTypeEnum = pgEnum("interview_type", [
