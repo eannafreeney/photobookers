@@ -7,6 +7,7 @@ import { slugSchema } from "../../../features/app/schema";
 import { paramValidator } from "../../../lib/validator";
 import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import { getUser } from "../../../utils";
+import Button from "../../../components/app/Button";
 
 export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const currentPath = c.req.path;
@@ -28,17 +29,19 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
     <AppLayout title="About" currentPath={currentPath} user={user}>
       <Page>
         <div className="flex flex-col items-center gap-8 sm:max-w-3xl mx-auto">
-          <CardCreatorCard
-            creator={{
-              ...interview.creator,
-              email: null,
-              tagline: null,
-              status: null,
-              city: null,
-              country: null,
-            }}
-            avatarSize="md"
-          />
+          <div class="flex justify-start w-full mb-0">
+            <CardCreatorCard
+              creator={{
+                ...interview.creator,
+                email: null,
+                tagline: null,
+                status: null,
+                city: null,
+                country: null,
+              }}
+              avatarSize="md"
+            />
+          </div>
           {interview.answers?.q1 && (
             <AnswerCard
               question="What inspired you to start publishing books?"
@@ -74,14 +77,12 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
             />
           )}
           {book.images[3] && <BookImage image={book.images[3]} />}
-          <div>
-            Follow{" "}
-            <a href={`/creators/${interview.creator.slug}`}>
-              <span className="font-medium">
-                {interview.creator.displayName}
-              </span>
-            </a>
-          </div>
+
+          <a href={`/creators/${interview.creator.slug}`}>
+            <Button variant="outline" color="primary">
+              Visit {interview.creator.displayName}
+            </Button>
+          </a>
         </div>
       </Page>
     </AppLayout>,
@@ -95,9 +96,9 @@ const AnswerCard = ({
   question: string;
   answer: string;
 }) => (
-  <div className="flex flex-col gap-2">
-    <h3 className="text-lg font-medium">{question}</h3>
-    <p>{answer}</p>
+  <div className="flex flex-col gap-2 w-full">
+    <h3 className="text-xl font-bold tracking-wide">{question}</h3>
+    <p className="text-base-content/80 tracking-wide">{answer}</p>
   </div>
 );
 

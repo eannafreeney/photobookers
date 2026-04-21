@@ -13,10 +13,10 @@ import {
   findWishlistCount,
 } from "../../../../api/services";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
-import DeleteFormButton from "../../components/DeleteFormButton";
 import BookStatusForm from "../forms/BookStatusForm";
 import { getAllBooksAdmin } from "../services";
 import { BookWithAdminRelations } from "../types";
+import BookApprovalStatusPill from "./BookApprovalStatusPill";
 
 type Props = {
   status?: "approved" | "pending" | "rejected" | undefined;
@@ -69,6 +69,7 @@ const AdminBooksTableAndFilter = async ({
               <Table.HeadRow>Release Date</Table.HeadRow>
               <Table.HeadRow>Wishlists</Table.HeadRow>
               <Table.HeadRow>Collections</Table.HeadRow>
+              <Table.HeadRow>Status</Table.HeadRow>
               <Table.HeadRow>Publish</Table.HeadRow>
               <Table.HeadRow>Actions</Table.HeadRow>
             </tr>
@@ -108,15 +109,7 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
   };
 
   return (
-    <tr
-      class={
-        book.approvalStatus === "pending"
-          ? " bg-warning/10"
-          : book.approvalStatus === "rejected"
-            ? " bg-danger/10"
-            : ""
-      }
-    >
+    <tr>
       <Table.BodyRow>
         {book.coverUrl ? (
           <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />
@@ -158,6 +151,11 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <CollectionCount bookId={book.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <BookApprovalStatusPill
+          approvalStatus={book.approvalStatus ?? "pending"}
+        />
       </Table.BodyRow>
       <Table.BodyRow>
         <PublishToggleForm book={book} user={user} />
