@@ -4,6 +4,7 @@ import Page from "../../components/layouts/Page";
 import BooksGrid from "../../features/app/components/BooksGrid";
 import AppLayout from "../../components/layouts/AppLayout";
 import { getLatestBooks } from "../../features/app/services";
+import SectionTitle from "../../components/app/SectionTitle";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -17,9 +18,9 @@ export const GET = createRoute(async (c) => {
   return c.html(
     <AppLayout title="Books" user={user} currentPath={currentPath}>
       <Page>
+        <SectionTitle>All Books</SectionTitle>
         <BooksGrid
           isInfiniteScroll
-          title="All Books"
           user={user}
           currentPath={currentPath}
           result={result}

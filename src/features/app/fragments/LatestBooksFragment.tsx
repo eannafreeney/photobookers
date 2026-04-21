@@ -3,6 +3,8 @@ import { getLatestBooks } from "../services";
 import BooksGrid from "../components/BooksGrid";
 import { isErr } from "../../../lib/result";
 import Button from "../../../components/app/Button";
+import SectionTitle from "../../../components/app/SectionTitle";
+import ViewAllLink from "../components/ViewAllLink";
 
 type Props = {
   user: AuthUser;
@@ -21,8 +23,11 @@ const LatestBooksFragment = async ({
 
   return (
     <div id="latest-books-fragment">
+      <div class="flex items-center justify-between">
+        <SectionTitle>Latest Books</SectionTitle>
+        <ViewAllLink href="/books" />
+      </div>
       <BooksGrid
-        title="Latest Books"
         user={user}
         currentPath={currentPath}
         result={result}

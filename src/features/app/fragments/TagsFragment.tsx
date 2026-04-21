@@ -1,4 +1,5 @@
 import { AuthUser } from "../../../../types";
+import SectionTitle from "../../../components/app/SectionTitle";
 import { capitalize } from "../../../utils";
 import BooksGrid from "../components/BooksGrid";
 import { getBooksByTag } from "../services";
@@ -25,12 +26,10 @@ const TagsFragment = async ({ user, currentPage, currentPath, tag }: Props) => {
 
   return (
     <div id="tag-books-fragment">
-      <BooksGrid
-        title={`# ${capitalize(tag)}`}
-        user={user}
-        currentPath={currentPath}
-        result={result}
-      />
+      <div class="flex items-center justify-between">
+        <SectionTitle>{`# ${capitalize(tag)}`}</SectionTitle>
+      </div>
+      <BooksGrid user={user} currentPath={currentPath} result={result} />
     </div>
   );
 };

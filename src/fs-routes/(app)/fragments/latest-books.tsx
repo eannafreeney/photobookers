@@ -4,6 +4,8 @@ import Button from "../../../components/app/Button";
 import { getLatestBooks } from "../../../features/app/services";
 import { getUser } from "../../../utils";
 import { Context } from "hono";
+import SectionTitle from "../../../components/app/SectionTitle";
+import ViewAllLink from "../../../features/app/components/ViewAllLink";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -16,8 +18,11 @@ export const GET = createRoute(async (c: Context) => {
 
   return c.html(
     <div id="latest-books-fragment">
+      <div class="flex items-center justify-between">
+        <SectionTitle>Latest Books</SectionTitle>
+        <ViewAllLink href="/books" />
+      </div>
       <BooksGrid
-        title="Latest Books"
         user={user}
         currentPath={currentPath}
         result={result}

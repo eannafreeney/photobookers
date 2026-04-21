@@ -30,12 +30,11 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
     <AppLayout title="About" currentPath={currentPath} user={user}>
       <Page>
         <div className="flex flex-col items-center justify-center gap-8 sm:max-w-3xl mx-auto">
-          <a
-            href={`/creators/${interview.creator.slug}`}
-            class="cursor-pointer w-full"
-          >
-            <InterviewCard interview={interview} widthClass="w-full" />
-          </a>
+          <InterviewCard
+            interview={interview}
+            widthClass="w-full"
+            link={`/creators/${interview.creator.slug}`}
+          />
           {interview.answers?.q1 && (
             <AnswerCard
               question="What inspired you to start publishing books?"

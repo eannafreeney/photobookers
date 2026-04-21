@@ -9,6 +9,7 @@ import Intersector from "../../../../features/app/components/Intersector";
 import { getBooksByTag } from "../../../../features/app/services";
 import InfoPage from "../../../../pages/InfoPage";
 import { BookTagContext } from "../../../../features/app/types";
+import SectionTitle from "../../../../components/app/SectionTitle";
 
 export const GET = createRoute(
   paramValidator(tagSchema),
@@ -29,12 +30,8 @@ export const GET = createRoute(
         currentPath={currentPath}
       >
         <Page>
-          <BooksGrid
-            title={`# ${capitalize(tag)}`}
-            user={user}
-            currentPath={currentPath}
-            result={result}
-          />
+          <SectionTitle>{`# ${capitalize(tag)}`}</SectionTitle>
+          <BooksGrid user={user} currentPath={currentPath} result={result} />
           {result.books.length > 0 && (
             <Intersector
               id="related-books-fragment"

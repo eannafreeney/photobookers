@@ -10,6 +10,7 @@ import {
   getBooksInWishlist,
 } from "../../features/app/services";
 import InfoPage from "../../pages/InfoPage";
+import SectionTitle from "../../components/app/SectionTitle";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -62,16 +63,16 @@ export const GET = createRoute(async (c) => {
           class="flex flex-col gap-4"
           {...alpineAttrs}
         >
+          <SectionTitle>Wishlisted Books</SectionTitle>
           <BooksGrid
-            title="Wishlisted Books"
             user={user}
             currentPath={currentPath}
             result={wishlistResult}
             noResultsMessage="Add books to your wishlist to see them here."
           />
           <Divider />
+          <SectionTitle>Your Collection</SectionTitle>
           <BooksGrid
-            title="Your Collection"
             user={user}
             currentPath={currentPath}
             result={collectionResult}

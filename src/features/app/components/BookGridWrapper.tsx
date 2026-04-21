@@ -2,6 +2,8 @@ import BooksGrid from "./BooksGrid";
 import { getBooksByCreatorId } from "../../dashboard/admin/creators/services";
 import { Creator } from "../../../db/schema";
 import { AuthUser } from "../../../../types";
+import SectionTitle from "../../../components/app/SectionTitle";
+import ViewAllLink from "./ViewAllLink";
 
 type Props = {
   isMobile?: boolean;
@@ -37,13 +39,16 @@ const BookGridWrapper = async ({
   if (result.books.length === 0) return <></>;
 
   return (
-    <BooksGrid
-      title={`Other Books by ${creator?.displayName}`}
-      user={user}
-      currentPath={currentPath}
-      result={result}
-      isMobile={isMobile}
-    />
+    <>
+      <SectionTitle>Other Books by {creator?.displayName}</SectionTitle>
+      <ViewAllLink href={`/creators/${creator?.slug}`} />
+      <BooksGrid
+        user={user}
+        currentPath={currentPath}
+        result={result}
+        isMobile={isMobile}
+      />
+    </>
   );
 };
 

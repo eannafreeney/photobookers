@@ -7,6 +7,7 @@ import InfoPage from "../../pages/InfoPage";
 import LoggedOutScreen from "../../features/app/components/LoggedOutScreen";
 import { Context } from "hono";
 import BooksGrid from "../../features/app/components/BooksGrid";
+import SectionTitle from "../../components/app/SectionTitle";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -44,8 +45,8 @@ export const GET = createRoute(async (c: Context) => {
       currentPath={currentPath}
     >
       <Page>
+        <SectionTitle>Books from Creators You Follow</SectionTitle>
         <BooksGrid
-          title="Books from Creators You Follow"
           user={user}
           currentPath={currentPath}
           result={result}

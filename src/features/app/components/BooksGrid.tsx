@@ -1,10 +1,7 @@
 import { AuthUser } from "../../../../types";
 import BookCard from "../../../components/app/BookCard";
 import GridPanel from "../../../components/app/GridPanel";
-import { InfiniteScroll } from "../../../components/app/InfiniteScroll";
-import { Pagination } from "../../../components/app/Pagination";
 import ScrollReveal from "../../../components/app/ScrollReveal";
-import SectionTitle from "../../../components/app/SectionTitle";
 import { BookCardResult } from "../../../constants/queries";
 import ListNavigation from "./ListNavigation";
 
@@ -16,7 +13,6 @@ type Props = {
     totalPages: number;
     page: number;
   };
-  title?: string;
   noResultsMessage?: string;
   currentCreatorId?: string | null;
   isFullWidth?: boolean;
@@ -30,7 +26,6 @@ const BooksGrid = async ({
   currentPath,
   result,
   user,
-  title,
   noResultsMessage = "No books found",
   currentCreatorId,
   isMobile = false,
@@ -44,40 +39,38 @@ const BooksGrid = async ({
     <>
       <div x-data>
         <div x-ref="paginationContent">
-          {title && <SectionTitle className="mb-4">{title}</SectionTitle>}
-          {/* <SortDropdown sortBy={sortBy} currentPath={currentPath} /> */}
-        </div>
-        <GridPanel
-          id={targetId}
-          isFullWidth={isFullWidth}
-          xMerge={isMobile || isInfiniteScroll ? "append" : "replace"}
-          data-nav={isMobile || isInfiniteScroll ? "infinite" : "pagination"}
-        >
-          {books?.length > 0 ? (
-            books.map((book) => (
-              <ScrollReveal>
-                <BookCard
-                  book={book}
-                  user={user}
-                  currentCreatorId={currentCreatorId}
-                />
-              </ScrollReveal>
-            ))
-          ) : (
-            <div class="col-span-full text-center text-sm text-on-surface py-4">
-              {noResultsMessage}
-            </div>
+          <GridPanel
+            id={targetId}
+            isFullWidth={isFullWidth}
+            xMerge={isMobile || isInfiniteScroll ? "append" : "replace"}
+            data-nav={isMobile || isInfiniteScroll ? "infinite" : "pagination"}
+          >
+            {books?.length > 0 ? (
+              books.map((book) => (
+                <ScrollReveal>
+                  <BookCard
+                    book={book}
+                    user={user}
+                    currentCreatorId={currentCreatorId}
+                  />
+                </ScrollReveal>
+              ))
+            ) : (
+              <div class="col-span-full text-center text-sm text-on-surface py-4">
+                {noResultsMessage}
+              </div>
+            )}
+          </GridPanel>
+          {isPaginated && (
+            <ListNavigation
+              isInfiniteScroll={isMobile || isInfiniteScroll}
+              currentPath={currentPath}
+              page={page}
+              totalPages={totalPages}
+              targetId={targetId}
+            />
           )}
-        </GridPanel>
-        {isPaginated && (
-          <ListNavigation
-            isInfiniteScroll={isMobile || isInfiniteScroll}
-            currentPath={currentPath}
-            page={page}
-            totalPages={totalPages}
-            targetId={targetId}
-          />
-        )}
+        </div>
       </div>
     </>
   );

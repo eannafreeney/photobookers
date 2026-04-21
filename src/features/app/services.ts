@@ -1187,7 +1187,7 @@ export const getPublishedInterviews = async () => {
         promoImageUrl: true,
         answers: true,
       },
-      orderBy: [desc(creatorInterviews.invitedAt)],
+      orderBy: [desc(creatorInterviews.completedAt)],
       where: and(
         eq(creatorInterviews.status, "published"),
         isNotNull(creatorInterviews.promoImageUrl),
