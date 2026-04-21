@@ -18,7 +18,7 @@ export const GET = createRoute(async (c: Context) => {
 
   return c.html(
     <div id="latest-books-fragment">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between mb-2">
         <SectionTitle>Latest Books</SectionTitle>
         <ViewAllLink href="/books" />
       </div>

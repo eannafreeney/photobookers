@@ -11,7 +11,7 @@ export const GET = createRoute(async (c) => {
 
   return c.html(
     <div id="creators-slider-fragment" class="mt-2 mb-4 px-4">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between mb-2">
         <SectionTitle>Popular Creators</SectionTitle>
         <div class="flex items-center gap-2 ">
           <ViewAllLink href="/artists" text="Artists" />
