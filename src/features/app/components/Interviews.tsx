@@ -1,5 +1,4 @@
 import SectionTitle from "../../../components/app/SectionTitle";
-import { CreatorInterview } from "../../../db/schema";
 import { formatDate } from "../../../utils";
 import { getInterviews } from "../services";
 
