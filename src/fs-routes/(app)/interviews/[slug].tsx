@@ -105,7 +105,7 @@ const BookImage = ({ image }: { image: { imageUrl: string } }) => (
   <img
     src={image.imageUrl}
     loading="lazy"
-    class="w-3/4 h-full object-cover"
+    class=" w-full md:w-3/4 h-full object-cover"
     alt={image.imageUrl}
   />
 );
