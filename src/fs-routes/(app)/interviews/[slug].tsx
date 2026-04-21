@@ -8,6 +8,7 @@ import { paramValidator } from "../../../lib/validator";
 import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import { getUser } from "../../../utils";
 import Button from "../../../components/app/Button";
+import InterviewCard from "../../../features/app/components/InterviewCard";
 
 export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const currentPath = c.req.path;
@@ -28,59 +29,59 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   return c.html(
     <AppLayout title="About" currentPath={currentPath} user={user}>
       <Page>
-        <div className="flex flex-col items-center gap-8 sm:max-w-3xl mx-auto">
-          <div class="flex justify-start w-full mb-0">
-            <CardCreatorCard
-              creator={{
-                ...interview.creator,
-                email: null,
-                tagline: null,
-                status: null,
-                city: null,
-                country: null,
-              }}
-              avatarSize="md"
-            />
-          </div>
+        <div className="flex flex-col items-center justify-center gap-8 sm:max-w-3xl mx-auto">
+          <a
+            href={`/creators/${interview.creator.slug}`}
+            class="cursor-pointer w-full"
+          >
+            <InterviewCard interview={interview} widthClass="w-full" />
+          </a>
           {interview.answers?.q1 && (
             <AnswerCard
               question="What inspired you to start publishing books?"
               answer={interview.answers.q1}
             />
           )}
-          <BookImage image={{ imageUrl: book.coverUrl ?? "" }} />
+          <BookImage
+            image={{ imageUrl: book.coverUrl ?? "" }}
+            slug={book.slug}
+          />
           {interview.answers?.q2 && (
             <AnswerCard
               question="What draws you to the photobook as a format?"
               answer={interview.answers.q2}
             />
           )}
-          {book.images[0] && <BookImage image={book.images[0]} />}
+          {book.images[0] && (
+            <BookImage image={book.images[0]} slug={book.slug} />
+          )}
           {interview.answers?.q3 && (
             <AnswerCard
               question="How has your practice changed over time?"
               answer={interview.answers.q3}
             />
           )}
-          {book.images[1] && <BookImage image={book.images[1]} />}
+          {book.images[1] && (
+            <BookImage image={book.images[1]} slug={book.slug} />
+          )}
           {interview.answers?.q4 && (
             <AnswerCard
               question="What's a book you've been involved with that surprised you — either in how it came together or how it landed?"
               answer={interview.answers.q4}
             />
           )}
-          {book.images[2] && <BookImage image={book.images[2]} />}
+          {book.images[2] && (
+            <BookImage image={book.images[2]} slug={book.slug} />
+          )}
           {interview.answers?.q5 && (
             <AnswerCard
               question="What's next for you?"
               answer={interview.answers.q5}
             />
           )}
-          {book.images[3] && <BookImage image={book.images[3]} />}
-
           <a href={`/creators/${interview.creator.slug}`}>
             <Button variant="outline" color="primary">
-              Visit {interview.creator.displayName}
+              Visit {interview.creator.displayName}'s profile
             </Button>
           </a>
         </div>
@@ -102,11 +103,22 @@ const AnswerCard = ({
   </div>
 );
 
-const BookImage = ({ image }: { image: { imageUrl: string } }) => (
-  <img
-    src={image.imageUrl}
-    loading="lazy"
-    class=" w-full md:w-3/4 h-full object-cover"
-    alt={image.imageUrl}
-  />
+const BookImage = ({
+  image,
+  slug,
+}: {
+  image: { imageUrl: string };
+  slug: string;
+}) => (
+  <div class="w-full flex justify-center">
+    <a href={`/books/${slug}`} class="w-full flex justify-center">
+      <img
+        src={image.imageUrl}
+        loading="lazy"
+        class="w-full md:w-3/4 object-cover"
+        alt={slug}
+        title={slug}
+      />
+    </a>
+  </div>
 );
