@@ -12,7 +12,6 @@ import DiscoveryTags from "../../features/app/components/DiscoveryTags";
 import PageBleed from "../../components/layouts/PageContent";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import Interviews from "../../features/app/components/Interviews";
-import FeatureGuard from "../../components/layouts/FeatureGuard";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
