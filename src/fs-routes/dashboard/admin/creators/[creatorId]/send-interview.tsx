@@ -28,6 +28,7 @@ export const POST = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const inviteToken = nanoid(32);
   const [createError] = await createCreatorInterviewInviteAdmin({
     creatorId,
+    creatorSlug: creator.slug,
     recipientEmail,
     invitedByUserId: user.id,
     inviteToken,

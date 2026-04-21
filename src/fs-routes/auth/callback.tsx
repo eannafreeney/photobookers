@@ -70,6 +70,7 @@ export const GET = createRoute(
       const inviteToken = nanoid(32);
       const [interviewError] = await createCreatorInterviewInviteAdmin({
         creatorId: newCreator.id,
+        creatorSlug: newCreator.slug,
         recipientEmail: user.email,
         invitedByUserId: user.id,
         inviteToken,

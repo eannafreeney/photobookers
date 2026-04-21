@@ -131,6 +131,13 @@ export const createUserWithAuthId = async (
 
 export const deleteUserByIdAdmin = async (userId: string) => {
   try {
+    const { error: authError } =
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (authError && authError.code !== "user_not_found") {
+      console.error("Failed to delete auth user", authError);
+      return err({ reason: "Failed to delete Supabase Auth user", cause: authError });
+    }
+
     const result = await db.transaction(async (tx) => {
       await tx
         .update(creators)

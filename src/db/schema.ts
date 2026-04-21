@@ -90,6 +90,7 @@ export const creatorInterviews = pgTable("creator_interviews", {
   creatorId: uuid("creator_id")
     .notNull()
     .references(() => creators.id, { onDelete: "cascade" }),
+  creatorSlug: varchar("creator_slug", { length: 255 }).notNull(),
   interviewType: interviewTypeEnum("interview_type")
     .notNull()
     .default("introduction"),

@@ -75,6 +75,7 @@ async function run() {
     try {
       await db.insert(creatorInterviews).values({
         creatorId: creator.id,
+        creatorSlug: creator.slug,
         recipientEmail,
         inviteToken,
         interviewType: "introduction",

@@ -17,6 +17,7 @@ import {
   bookComments,
   books,
   collectionItems,
+  creatorInterviews,
   creators,
   follows,
   wishlists,
@@ -1172,5 +1173,60 @@ export const getMessagesByCreatorSlug = async (
   } catch (error) {
     console.error("Failed to get messages by creator slug", error);
     return err({ reason: "Failed to get messages by creator slug", error });
+  }
+};
+
+export const getInterviews = async () => {
+  try {
+    const interviews = await db.query.creatorInterviews.findMany({
+      columns: {
+        id: true,
+        creatorId: true,
+        status: true,
+        completedAt: true,
+        promoImageUrl: true,
+        answers: true,
+      },
+      orderBy: [desc(creatorInterviews.invitedAt)],
+      limit: 3,
+      where: and(
+        eq(creatorInterviews.status, "completed"),
+        isNotNull(creatorInterviews.promoImageUrl),
+      ),
+      with: {
+        creator: {
+          columns: { id: true, displayName: true, slug: true, coverUrl: true },
+        },
+      },
+    });
+
+    return ok(interviews);
+  } catch (error) {
+    console.error("Failed to get interviews", error);
+    return err({ reason: "Failed to get interviews", error });
+  }
+};
+
+export const getInterviewByCreatorSlug = async (slug: string) => {
+  try {
+    const interview = await db.query.creatorInterviews.findFirst({
+      where: eq(creatorInterviews.creatorSlug, slug),
+    });
+    return ok(interview);
+  } catch (error) {
+    console.error("Failed to get interview by creator slug", error);
+    return err({ reason: "Failed to get interview by creator slug", error });
+  }
+};
+
+export const getInterviewByCreatorId = async (creatorId: string) => {
+  try {
+    const interview = await db.query.creatorInterviews.findFirst({
+      where: eq(creatorInterviews.creatorId, creatorId),
+    });
+    return ok(interview);
+  } catch (error) {
+    console.error("Failed to get interview by creator slug", error);
+    return err({ reason: "Failed to get interview by creator slug", error });
   }
 };

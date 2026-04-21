@@ -411,6 +411,7 @@ export const getCreatorRecipientEmailAdmin = async (creatorId: string) => {
 
 export const createCreatorInterviewInviteAdmin = async (input: {
   creatorId: string;
+  creatorSlug: string;
   recipientEmail: string;
   invitedByUserId: string;
   inviteToken: string;
@@ -422,6 +423,7 @@ export const createCreatorInterviewInviteAdmin = async (input: {
       .insert(creatorInterviews)
       .values({
         creatorId: input.creatorId,
+        creatorSlug: input.creatorSlug,
         recipientEmail: input.recipientEmail,
         invitedByUserId: input.invitedByUserId,
         inviteToken: input.inviteToken,
