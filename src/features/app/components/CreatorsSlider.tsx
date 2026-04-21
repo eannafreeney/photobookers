@@ -1,4 +1,3 @@
-import SectionTitle from "../../../components/app/SectionTitle";
 import { CreatorCardResult } from "../../../constants/queries";
 import CreatorsCircle from "./CreatorsCircle";
 
