@@ -11,7 +11,7 @@ const Interviews = async () => {
 
   return (
     <>
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between mb-2">
         <SectionTitle>Interviews</SectionTitle>
         <ViewAllLink href="/interviews" />
       </div>
