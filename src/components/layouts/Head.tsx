@@ -32,6 +32,11 @@ const Head = ({ title }: HeadProps) => {
         type="module"
         src={isDev ? "/src/client/main.js" : "/main.js"}
       ></script>
+      <script
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        async
+        defer
+      ></script>
       {gaId && !isDev && (
         <>
           <script

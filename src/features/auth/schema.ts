@@ -35,6 +35,7 @@ export const registerFanFormSchema = z.object({
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
   agreeToTerms: checkboxField,
   redirectUrl: z.string().optional(),
+  captchaToken: z.string().min(1, "Please complete the CAPTCHA"),
 });
 
 // ============ REGISTER CREATOR FORM SCHEMA ============
@@ -58,6 +59,7 @@ export const registerCreatorFormSchema = z.object({
     .min(8, "Password must be at least 8 characters")
     .max(64, "Password must be less than 64 characters"),
   agreeToTerms: checkboxField,
+  captchaToken: z.string().min(1, "Please complete the CAPTCHA"),
 });
 
 // ============ RESET PASSWORD FORM SCHEMA ============

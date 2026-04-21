@@ -25,6 +25,8 @@ const ClaimSignupModal = ({
     "x-on:ajax:after": "$dispatch('dialog:close')",
     "x-on:email-availability.window":
       "emailIsTaken = !$event.detail.emailIsAvailable",
+    "x-on:turnstile:success.window": "setCaptchaToken($event.detail.token)",
+    "x-on:turnstile:expired.window": "clearCaptchaToken()",
   };
 
   const loginHref = currentPath
@@ -97,13 +99,28 @@ const ClaimSignupModal = ({
             validationTrigger="blur"
             required
           />
-          <Checkbox
-            label="I agree to the terms and conditions"
-            name="form.agreeToTerms"
-            required
-          />
+          <div class="my-4">
+            <Checkbox
+              label="I agree to the terms and conditions"
+              name="form.agreeToTerms"
+              required
+            />
+          </div>
         </div>
         <input type="hidden" name="type" value="fan" />
+        <input
+          type="hidden"
+          name="form.captchaToken"
+          x-model="form.captchaToken"
+        />
+        <div
+          class="cf-turnstile my-4"
+          data-theme="light"
+          data-size="flexible"
+          data-sitekey={process.env.TURNSTILE_SITE_KEY}
+          data-callback="onTurnstileSuccess"
+          data-expired-callback="onTurnstileExpired"
+        ></div>
         <FormButton
           buttonText="Create account & submit claim"
           loadingText="Submitting..."

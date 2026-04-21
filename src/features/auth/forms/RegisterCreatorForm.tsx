@@ -22,6 +22,8 @@ const RegisterCreatorForm = ({ type }: RegisterCreatorFormProps) => {
       "displayNameIsTaken = !$event.detail.displayNameIsAvailable",
     "x-on:website-availability.window":
       "websiteIsTaken = !$event.detail.websiteIsAvailable",
+    "x-on:turnstile:success.window": "setCaptchaToken($event.detail.token)",
+    "x-on:turnstile:expired.window": "clearCaptchaToken()",
   };
 
   return (
@@ -51,17 +53,32 @@ const RegisterCreatorForm = ({ type }: RegisterCreatorFormProps) => {
           placeholder="••••••••"
           required
         />
-        <Checkbox
-          label="I agree to the terms and conditions"
-          name="form.agreeToTerms"
-          required
-        />
+        <div class="my-4">
+          <Checkbox
+            label="I agree to the terms and conditions"
+            name="form.agreeToTerms"
+            required
+          />
+        </div>
         <input
           type="hidden"
           name="type"
           value={type}
           x-init={`form.type = '${type}'`}
         />
+        <input
+          type="hidden"
+          name="form.captchaToken"
+          x-model="form.captchaToken"
+        />
+        <div
+          class="cf-turnstile my-4"
+          data-theme="light"
+          data-size="flexible"
+          data-sitekey={process.env.TURNSTILE_SITE_KEY}
+          data-callback="onTurnstileSuccess"
+          data-expired-callback="onTurnstileExpired"
+        ></div>
         <FormButton buttonText="Create Account" loadingText="Submitting..." />
       </form>
       <p class="text-center text-sm mt-4">

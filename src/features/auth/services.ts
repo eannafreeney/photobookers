@@ -202,6 +202,7 @@ export const verifyOtpForClaimSignup = async (
       password: formData.password,
       options: {
         emailRedirectTo,
+        captchaToken: formData.captchaToken,
         data: {
           firstName: formData?.firstName ?? null,
           lastName: formData?.lastName ?? null,
@@ -231,6 +232,7 @@ export const verifyOtpForFanSignup = async (
       password: formData.password,
       options: {
         emailRedirectTo,
+        captchaToken: formData.captchaToken,
         data: {
           firstName: formData?.firstName ?? null,
           lastName: formData?.lastName ?? null,
@@ -257,6 +259,7 @@ export const verifyOtpForCreatorSignup = async (
       password: formData.password,
       options: {
         emailRedirectTo,
+        captchaToken: formData.captchaToken,
         data: {
           type: formData?.type ?? "artist",
           website: normalizeUrl(formData?.website ?? ""),

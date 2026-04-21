@@ -7,6 +7,28 @@ import z from "zod";
 type RegisterFanFormShape = z.infer<typeof registerFanFormSchema>;
 
 export function registerRegisterFanForm() {
+  if (
+    !(window as typeof window & { __turnstileHandlersRegistered?: boolean })
+      .__turnstileHandlersRegistered
+  ) {
+    (
+      window as typeof window & { __turnstileHandlersRegistered?: boolean }
+    ).__turnstileHandlersRegistered = true;
+
+    (
+      window as typeof window & { onTurnstileSuccess?: (token: string) => void }
+    ).onTurnstileSuccess = (token: string) => {
+      window.dispatchEvent(
+        new CustomEvent("turnstile:success", { detail: { token } }),
+      );
+    };
+
+    (
+      window as typeof window & { onTurnstileExpired?: () => void }
+    ).onTurnstileExpired = () => {
+      window.dispatchEvent(new CustomEvent("turnstile:expired"));
+    };
+  }
   Alpine.data("registerFanForm", () => {
     return {
       isSubmitting: false,
@@ -19,6 +41,7 @@ export function registerRegisterFanForm() {
         confirmPassword: "",
         type: "fan",
         agreeToTerms: false,
+        captchaToken: "",
       },
 
       errors: {
@@ -29,6 +52,7 @@ export function registerRegisterFanForm() {
           password: "",
           confirmPassword: "",
           agreeToTerms: false,
+          captchaToken: "",
         },
         globalError: "",
       },
@@ -38,6 +62,14 @@ export function registerRegisterFanForm() {
       },
       // Use common utilities
       ...createRegisterFormUtils(),
+
+      setCaptchaToken(token: string) {
+        this.form.captchaToken = token;
+      },
+
+      clearCaptchaToken() {
+        this.form.captchaToken = "";
+      },
 
       get isFormValid() {
         const ctx = this as unknown as {
@@ -54,6 +86,7 @@ export function registerRegisterFanForm() {
           ctx.form.confirmPassword &&
           ctx.form.confirmPassword === ctx.form.password &&
           ctx.form.agreeToTerms &&
+          !!ctx.form.captchaToken &&
           !ctx.emailIsTaken
         );
       },

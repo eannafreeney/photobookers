@@ -29,6 +29,7 @@ export const registerAndClaimFormSchema = z.object({
     .url("Please enter a valid URL (e.g., https://example.com)")
     .optional()
     .or(z.literal("")),
+  captchaToken: z.string().min(1, "Please complete the CAPTCHA"),
 });
 
 export const claimCompleteQuerySchema = z.object({

@@ -21,13 +21,20 @@ import Tabs from "../../../components/app/Tabs";
 import Show from "../../../components/app/Show";
 import BookGridWrapper from "./BookGridWrapper";
 
+type BookDetailProps = {
+  isMobile: boolean;
+  galleryImages: string[];
+  book: BookWithGalleryImages;
+  currentPath: string;
+  user: AuthUser | null;
+  currentPage: number;
+};
+
 type BookMobileProps = {
   galleryImages: string[];
   book: BookWithGalleryImages;
   currentPath: string;
   user: AuthUser | null;
-  isMobile?: boolean;
-  creator?: Creator | null;
   currentPage: number;
 };
 
@@ -47,15 +54,13 @@ const BookDetail = ({
   currentPath,
   user,
   currentPage,
-}: BookMobileProps) => {
+}: BookDetailProps) => {
   return isMobile ? (
     <DetailMobile
       galleryImages={galleryImages}
       book={book}
       currentPath={currentPath}
       user={user}
-      isMobile={isMobile}
-      creator={book.artist}
       currentPage={currentPage}
     />
   ) : (
@@ -150,12 +155,10 @@ const DetailMobile = ({
   book,
   currentPath,
   user,
-  creator,
   currentPage,
 }: BookMobileProps) => {
   return (
     <div class="flex flex-col gap-4">
-      {creator && <MobileCreatorCard creator={creator} user={user} />}
       <Tabs defaultTab="books">
         <Tabs.LinkContainer>
           <Tabs.Link tabId="books">Books</Tabs.Link>
@@ -169,9 +172,12 @@ const DetailMobile = ({
           <PageBleed>
             <CarouselMobile images={galleryImages} />
           </PageBleed>
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-0">
             <div class="text-balance text-lg font-semibold text-on-surface-strong">
               {book.title}
+            </div>
+            <div class="text-balance text-md font-normal text-on-surface-strong">
+              {book.artist?.displayName}
             </div>
           </div>
           <div class="flex items-center justify-evenly">

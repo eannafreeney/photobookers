@@ -17,6 +17,8 @@ const RegisterFanForm = ({ redirectUrl }: Props) => {
     "x-on:ajax:error": "isSubmitting = false",
     "x-on:email-availability.window":
       "emailIsTaken = !$event.detail.emailIsAvailable",
+    "x-on:turnstile:success.window": "setCaptchaToken($event.detail.token)",
+    "x-on:turnstile:expired.window": "clearCaptchaToken()",
   };
 
   const action = redirectUrl
@@ -59,17 +61,32 @@ const RegisterFanForm = ({ redirectUrl }: Props) => {
           validationTrigger="blur"
           required
         />
-        <Checkbox
-          label="I agree to the terms and conditions"
-          name="form.agreeToTerms"
-          required
-        />
+        <div class="my-4">
+          <Checkbox
+            label="I agree to the terms and conditions"
+            name="form.agreeToTerms"
+            required
+          />
+        </div>
         <input
           type="hidden"
           name="type"
           value="fan"
           x-init="form.type = 'fan'"
         />
+        <input
+          type="hidden"
+          name="form.captchaToken"
+          x-model="form.captchaToken"
+        />
+        <div
+          class="cf-turnstile my-4"
+          data-theme="light"
+          data-size="flexible"
+          data-sitekey={process.env.TURNSTILE_SITE_KEY}
+          data-callback="onTurnstileSuccess"
+          data-expired-callback="onTurnstileExpired"
+        ></div>
         <FormButton buttonText="Create Account" loadingText="Submitting..." />
         <p
           x-show="errors.globalError"

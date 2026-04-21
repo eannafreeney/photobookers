@@ -7,6 +7,28 @@ import z from "zod";
 type RegisterCreatorFormShape = z.infer<typeof registerCreatorFormSchema>;
 
 export function registerRegisterCreatorForm() {
+  if (
+    !(window as typeof window & { __turnstileHandlersRegistered?: boolean })
+      .__turnstileHandlersRegistered
+  ) {
+    (
+      window as typeof window & { __turnstileHandlersRegistered?: boolean }
+    ).__turnstileHandlersRegistered = true;
+
+    (
+      window as typeof window & { onTurnstileSuccess?: (token: string) => void }
+    ).onTurnstileSuccess = (token: string) => {
+      window.dispatchEvent(
+        new CustomEvent("turnstile:success", { detail: { token } }),
+      );
+    };
+
+    (
+      window as typeof window & { onTurnstileExpired?: () => void }
+    ).onTurnstileExpired = () => {
+      window.dispatchEvent(new CustomEvent("turnstile:expired"));
+    };
+  }
   Alpine.data("registerCreatorForm", () => {
     return {
       isSubmitting: false,
@@ -22,6 +44,7 @@ export function registerRegisterCreatorForm() {
         confirmPassword: "",
         type: "",
         agreeToTerms: false,
+        captchaToken: "",
       },
 
       errors: {
@@ -33,10 +56,19 @@ export function registerRegisterCreatorForm() {
           confirmPassword: "",
           type: "",
           agreeToTerms: false,
+          captchaToken: "",
         },
       },
       // Use common utilities
       ...createRegisterFormUtils(),
+
+      setCaptchaToken(token: string) {
+        this.form.captchaToken = token;
+      },
+
+      clearCaptchaToken() {
+        this.form.captchaToken = "";
+      },
 
       get isFormValid() {
         const ctx = this as unknown as {
@@ -65,7 +97,8 @@ export function registerRegisterCreatorForm() {
           fieldsFilled &&
           passwordsMatch &&
           termsChecked &&
-          nothingTaken
+          nothingTaken &&
+          !!ctx.form.captchaToken
         );
       },
 

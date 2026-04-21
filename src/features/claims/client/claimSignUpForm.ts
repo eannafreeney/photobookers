@@ -8,6 +8,17 @@ import type { z } from "zod";
 type FormShape = z.infer<typeof registerAndClaimFormSchema>;
 
 export function registerClaimSignupForm() {
+  if (!(window as any).__turnstileHandlersRegistered) {
+    (window as any).__turnstileHandlersRegistered = true;
+    (window as any).onTurnstileSuccess = (token: string) => {
+      window.dispatchEvent(
+        new CustomEvent("turnstile:success", { detail: { token } }),
+      );
+    };
+    (window as any).onTurnstileExpired = () => {
+      window.dispatchEvent(new CustomEvent("turnstile:expired"));
+    };
+  }
   Alpine.data("claimSignupForm", () => ({
     isSubmitting: false,
     emailIsTaken: false,
@@ -20,6 +31,7 @@ export function registerClaimSignupForm() {
       type: "fan" as const,
       agreeToTerms: false,
       verificationUrl: "",
+      captchaToken: "",
     },
     errors: {
       form: {
@@ -30,13 +42,25 @@ export function registerClaimSignupForm() {
         confirmPassword: "",
         agreeToTerms: false,
         verificationUrl: "",
+        captchaToken: "",
       },
       globalError: "",
     },
+
     validateField(field: string) {
       return validateField(this, field, registerAndClaimFormSchema);
     },
+
     ...createRegisterFormUtils(),
+
+    setCaptchaToken(token: string) {
+      this.form.captchaToken = token;
+    },
+
+    clearCaptchaToken() {
+      this.form.captchaToken = "";
+    },
+
     get isFormValid() {
       const ctx = this as unknown as {
         errors: { form: Record<keyof FormShape, string> };
@@ -51,9 +75,11 @@ export function registerClaimSignupForm() {
         ctx.form.password &&
         ctx.form.confirmPassword === ctx.form.password &&
         ctx.form.agreeToTerms &&
+        !!ctx.form.captchaToken &&
         !ctx.emailIsTaken
       );
     },
+
     submitForm(event: Event) {
       return handleSubmit(this, event, registerAndClaimFormSchema);
     },
