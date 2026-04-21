@@ -1176,7 +1176,7 @@ export const getMessagesByCreatorSlug = async (
   }
 };
 
-export const getInterviews = async () => {
+export const getPublishedInterviews = async () => {
   try {
     const interviews = await db.query.creatorInterviews.findMany({
       columns: {
@@ -1188,9 +1188,8 @@ export const getInterviews = async () => {
         answers: true,
       },
       orderBy: [desc(creatorInterviews.invitedAt)],
-      limit: 3,
       where: and(
-        eq(creatorInterviews.status, "completed"),
+        eq(creatorInterviews.status, "published"),
         isNotNull(creatorInterviews.promoImageUrl),
       ),
       with: {
@@ -1213,7 +1212,51 @@ export const getInterviewByCreatorSlug = async (slug: string) => {
       where: eq(creatorInterviews.creatorSlug, slug),
       with: {
         creator: {
-          columns: CREATOR_CARD_COLUMNS,
+          columns: {
+            id: true,
+            displayName: true,
+            slug: true,
+            coverUrl: true,
+            type: true,
+          },
+          with: {
+            booksAsArtist: {
+              columns: { id: true, title: true, slug: true, coverUrl: true },
+              where: and(
+                eq(books.publicationStatus, "published"),
+                eq(books.approvalStatus, "approved"),
+              ),
+              orderBy: (b, { desc }) => [
+                desc(b.releaseDate),
+                desc(b.createdAt),
+              ],
+              limit: 1,
+              with: {
+                images: {
+                  columns: { id: true, imageUrl: true },
+                  orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+                },
+              },
+            },
+            booksAsPublisher: {
+              columns: { id: true, title: true, slug: true, coverUrl: true },
+              where: and(
+                eq(books.publicationStatus, "published"),
+                eq(books.approvalStatus, "approved"),
+              ),
+              orderBy: (b, { desc }) => [
+                desc(b.releaseDate),
+                desc(b.createdAt),
+              ],
+              limit: 1,
+              with: {
+                images: {
+                  columns: { id: true, imageUrl: true },
+                  orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+                },
+              },
+            },
+          },
         },
       },
     });
@@ -1224,10 +1267,15 @@ export const getInterviewByCreatorSlug = async (slug: string) => {
   }
 };
 
-export const getInterviewByCreatorId = async (creatorId: string) => {
+export const getInterviewById = async (interviewId: string) => {
   try {
     const interview = await db.query.creatorInterviews.findFirst({
-      where: eq(creatorInterviews.creatorId, creatorId),
+      where: eq(creatorInterviews.id, interviewId),
+      with: {
+        creator: {
+          columns: CREATOR_CARD_COLUMNS,
+        },
+      },
     });
     return ok(interview);
   } catch (error) {

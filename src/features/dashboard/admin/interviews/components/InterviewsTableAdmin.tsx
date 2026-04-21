@@ -4,14 +4,19 @@ import Table from "../../../../../components/app/Table";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import { formatDate } from "../../../../../utils";
 import { getAdminCreatorInterviews } from "../../creators/services";
+import Button from "../../../../../components/app/Button";
 
 type Props = {
   currentPath: string;
   currentPage: number;
 };
 
-const interviewStatusLabel = (status: "sent" | "completed" | "expired") => {
+const interviewStatusLabel = (
+  status: "published" | "sent" | "completed" | "expired",
+) => {
   switch (status) {
+    case "published":
+      return "Published";
     case "completed":
       return "Completed";
     case "expired":
@@ -43,7 +48,8 @@ const InterviewsTableAdmin = async ({ currentPath, currentPage }: Props) => {
             <Table.HeadRow>Sent</Table.HeadRow>
             <Table.HeadRow>Completed</Table.HeadRow>
             <Table.HeadRow>Promo image</Table.HeadRow>
-            <Table.HeadRow>Answers</Table.HeadRow>
+
+            <Table.HeadRow>Actions</Table.HeadRow>
           </tr>
         </Table.Head>
 
@@ -51,16 +57,9 @@ const InterviewsTableAdmin = async ({ currentPath, currentPage }: Props) => {
           {interviews.map((interview) => (
             <tr key={interview.id}>
               <Table.BodyRow>
-                {interview.creator ? (
-                  <Link
-                    href={`/creators/${interview.creator.slug}`}
-                    target="_blank"
-                  >
-                    {interview.creator.displayName}
-                  </Link>
-                ) : (
-                  "-"
-                )}
+                <Link href={`/interviews/${interview.id}`} target="_blank">
+                  {interview.creator.displayName}
+                </Link>
               </Table.BodyRow>
               <Table.BodyRow>{interview.recipientEmail}</Table.BodyRow>
               <Table.BodyRow>
@@ -86,30 +85,14 @@ const InterviewsTableAdmin = async ({ currentPath, currentPage }: Props) => {
                 )}
               </Table.BodyRow>
               <Table.BodyRow>
-                {interview.answers ? (
-                  <details>
-                    <summary>View</summary>
-                    <div class="mt-2 whitespace-pre-wrap text-sm">
-                      <p>
-                        <strong>Q1:</strong> {interview.answers.q1}
-                      </p>
-                      <p>
-                        <strong>Q2:</strong> {interview.answers.q2}
-                      </p>
-                      <p>
-                        <strong>Q3:</strong> {interview.answers.q3}
-                      </p>
-                      <p>
-                        <strong>Q4:</strong> {interview.answers.q4}
-                      </p>
-                      <p>
-                        <strong>Q5:</strong> {interview.answers.q5}
-                      </p>
-                    </div>
-                  </details>
-                ) : (
-                  "-"
-                )}
+                <a
+                  href={`/dashboard/admin/interviews/${interview.id}`}
+                  target="_blank"
+                >
+                  <Button variant="outline" color="inverse">
+                    <span>Edit</span>
+                  </Button>
+                </a>
               </Table.BodyRow>
             </tr>
           ))}
