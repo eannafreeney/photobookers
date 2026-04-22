@@ -37,8 +37,6 @@ export function registerClaimSignupForm() {
       firstName: "",
       lastName: "",
       email: "",
-      password: "",
-      confirmPassword: "",
       type: "fan" as const,
       agreeToTerms: false,
       verificationUrl: "",
@@ -49,8 +47,6 @@ export function registerClaimSignupForm() {
         firstName: "",
         lastName: "",
         email: "",
-        password: "",
-        confirmPassword: "",
         agreeToTerms: false,
         verificationUrl: "",
         captchaToken: "",
@@ -83,8 +79,6 @@ export function registerClaimSignupForm() {
         ctx.form.firstName &&
         ctx.form.lastName &&
         ctx.form.email &&
-        ctx.form.password &&
-        ctx.form.confirmPassword === ctx.form.password &&
         ctx.form.agreeToTerms &&
         !!ctx.form.captchaToken &&
         !ctx.emailIsTaken

@@ -7,17 +7,18 @@ import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 import LoginForm from "../../features/auth/forms/LoginForm";
 import { getFlash, getUser } from "../../utils";
 import {
-  checkIfUserWasForcedToResetPassword,
+  getMustResetPasswordState,
   loginAndSetCookies,
 } from "../../features/auth/services";
 import { LoginFormContext } from "../../features/auth/types";
 import { showErrorAlert } from "../../lib/alertHelpers";
+import { safeAppRedirect } from "../../lib/safeAppRedirect";
 
 export const GET = createRoute(async (c: Context) => {
   const redirectUrl = c.req.query("redirectUrl") ?? null;
   const user = await getUser(c);
   const flash = await getFlash(c);
-  if (user) return c.redirect("/");
+  if (user) return c.redirect(safeAppRedirect(redirectUrl, "/"));
 
   return c.html(
     <HeadlessLayout title="Sign In" flash={flash}>
@@ -41,20 +42,20 @@ export const POST = createRoute(
     const password = formData.password as string;
     const [loginErr, login] = await loginAndSetCookies(c, email, password);
 
-    const safeRedirectUrl =
-      redirectUrl && redirectUrl !== "undefined" ? redirectUrl : "/";
-
+    const afterLoginUrl = safeAppRedirect(redirectUrl, "/");
     if (loginErr) return showErrorAlert(c, "Invalid email or password", 401);
 
     const [wasForcedResetPasswordError, wasForcedResetPassword] =
-      await checkIfUserWasForcedToResetPassword(login.userId);
+      await getMustResetPasswordState(login.userId);
     if (wasForcedResetPasswordError)
       return showErrorAlert(c, wasForcedResetPasswordError.reason);
 
     if (wasForcedResetPassword) {
-      return c.redirect("/auth/force-reset-password");
+      return c.redirect(
+        `/auth/force-reset-password?redirectUrl=${encodeURIComponent(afterLoginUrl)}`,
+      );
     }
 
-    return c.redirect(safeRedirectUrl ?? "/");
+    return c.redirect(afterLoginUrl);
   },
 );

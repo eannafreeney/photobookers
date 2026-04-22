@@ -4,6 +4,22 @@ import { refreshAccessToken } from "./refreshAccessToken";
 import { getUserFromToken } from "./getUserFromToken";
 import { getAuthCookieOptions } from "../features/auth/services";
 
+const LOGIN_PATH = "/auth/login";
+function redirectToLogin(c: Context) {
+  const u = new URL(c.req.url);
+  const path =
+    u.pathname.endsWith("/") && u.pathname !== "/"
+      ? u.pathname.replace(/\/$/, "")
+      : u.pathname;
+  if (path === LOGIN_PATH) {
+    return c.redirect(LOGIN_PATH);
+  }
+  const returnTo = u.pathname + u.search;
+  return c.redirect(
+    `${LOGIN_PATH}?redirectUrl=${encodeURIComponent(returnTo)}`,
+  );
+}
+
 export const requireAuth = async (c: Context, next: Next) => {
   let token = getCookie(c, "token");
   let refreshToken = getCookie(c, "refresh_token");
@@ -26,7 +42,7 @@ export const requireAuth = async (c: Context, next: Next) => {
   }
 
   if (!token) {
-    return c.redirect("/auth/login");
+    return redirectToLogin(c);
   }
 
   let user = await getUserFromToken(token);
@@ -55,7 +71,7 @@ export const requireAuth = async (c: Context, next: Next) => {
     // Clear invalid cookies
     deleteCookie(c, "token");
     deleteCookie(c, "refresh_token");
-    return c.redirect("/auth/login");
+    return redirectToLogin(c);
   }
 
   // Attach user to context
@@ -67,7 +83,10 @@ export const requireAuth = async (c: Context, next: Next) => {
       path !== "/auth/force-reset-password" &&
       path !== "/auth/reset-password"
     ) {
-      return c.redirect("/auth/force-reset-password");
+      const returnTo = new URL(c.req.url).pathname + new URL(c.req.url).search;
+      return c.redirect(
+        `/auth/force-reset-password?redirectUrl=${encodeURIComponent(returnTo)}`,
+      );
     }
   }
 

@@ -4,11 +4,13 @@ import Input from "../../../components/forms/Input";
 type SetPasswordFormProps = {
   buttonText?: string;
   loadingText?: string;
+  redirectUrl?: string | null;
 };
 
 const SetPasswordForm = ({
   buttonText = "Set Password",
   loadingText = "Setting...",
+  redirectUrl = null,
 }: SetPasswordFormProps) => {
   return (
     <>
@@ -30,6 +32,9 @@ const SetPasswordForm = ({
         validationTrigger="blur"
         required
       />
+      {redirectUrl && redirectUrl !== "/" ? (
+        <input type="hidden" name="redirectUrl" value={redirectUrl} />
+      ) : null}
       <FormButtons buttonText={buttonText} loadingText={loadingText} />
       <div class="h-4">
         <p

@@ -1,6 +1,5 @@
 // src/features/claims/modals/ClaimSignupModal.tsx
 import Link from "../../../components/app/Link";
-import Button from "../../../components/app/Button";
 import Checkbox from "../../../components/forms/Checkbox";
 import FormButton from "../../../components/forms/FormButtons";
 import Input from "../../../components/forms/Input";
@@ -81,24 +80,6 @@ const ClaimSignupModal = ({
               required
             />
           )}
-          <Input
-            type="password"
-            label="Password"
-            name="form.password"
-            validateInput="validatePassword()"
-            placeholder="••••••••"
-            validationTrigger="blur"
-            required
-          />
-          <Input
-            type="password"
-            label="Confirm Password"
-            name="form.confirmPassword"
-            validateInput="validateConfirmPassword()"
-            placeholder="••••••••"
-            validationTrigger="blur"
-            required
-          />
           <div class="my-4">
             <Checkbox
               label="I agree to the terms and conditions"

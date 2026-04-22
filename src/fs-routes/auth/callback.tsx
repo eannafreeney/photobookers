@@ -56,7 +56,11 @@ export const GET = createRoute(
         <InfoPage errorMessage="Failed to create account. Please try again." />,
       );
 
-    const [dbError, dbUser] = await createUserInDatabase(session);
+    const mustResetPassword = user.user_metadata?.claimIntent ?? false;
+
+    const [dbError, dbUser] = await createUserInDatabase(session, {
+      mustResetPassword,
+    });
     if (dbError) return c.html(<InfoPage errorMessage={dbError.reason} />);
 
     let interviewLink: string | null = null;
@@ -87,30 +91,42 @@ export const GET = createRoute(
       }
     }
 
-    const welcomeName = isCreator
-      ? (user.user_metadata?.displayName ?? null)
-      : (user.user_metadata?.firstName ?? null);
+    if (!user.user_metadata?.claimIntent) {
+      const welcomeName = isCreator
+        ? (user.user_metadata?.displayName ?? null)
+        : (user.user_metadata?.firstName ?? null);
 
-    await createUserVerifiedNotification(welcomeName, dbUser);
+      await createUserVerifiedNotification(welcomeName, dbUser);
 
-    const [emailError] = await sendEmail(
-      user.email,
-      "You're verified – welcome to Photobookers",
-      generateVerificationWelcomeEmail(welcomeName, interviewLink),
-    );
-
-    if (emailError)
-      console.error("Verification welcome email failed:", emailError.reason);
+      const [emailError] = await sendEmail(
+        user.email,
+        "You're verified – welcome to Photobookers",
+        generateVerificationWelcomeEmail(welcomeName, interviewLink),
+      );
+      if (emailError)
+        console.error("Verification welcome email failed:", emailError.reason);
+    }
 
     if (user.user_metadata?.claimIntent) {
       const pendingCreatorId = getPendingCreatorId(user.user_metadata);
       const pendingVerificationUrl = getPendingVerificationUrl(
         user.user_metadata,
       );
+      let afterResetUrl = "/";
       if (pendingCreatorId && pendingVerificationUrl) {
-        const target = `/claims/complete?creatorId=${pendingCreatorId}&verificationUrl=${encodeURIComponent(pendingVerificationUrl)}`;
-        return c.redirect(target);
+        afterResetUrl = `/claims/complete?creatorId=${pendingCreatorId}&verificationUrl=${encodeURIComponent(pendingVerificationUrl)}`;
+      } else if (pendingCreatorId) {
+        // Partial metadata: at least return them to the claim flow for that profile
+        afterResetUrl = `/claims/${pendingCreatorId}`;
+      } else {
+        console.error(
+          "claimIntent set but missing creatorId in user_metadata",
+          { userId: user.id },
+        );
       }
+      return c.redirect(
+        `/auth/force-reset-password?redirectUrl=${encodeURIComponent(afterResetUrl)}`,
+      );
     }
 
     await setFlash(c, "success", "Account Verified. Welcome to Photobookers!");

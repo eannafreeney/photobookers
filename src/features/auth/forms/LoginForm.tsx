@@ -12,7 +12,7 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
   };
 
   const action = redirectUrl
-    ? `/auth/login?redirectUrl=${redirectUrl}`
+    ? `/auth/login?redirectUrl=${encodeURIComponent(redirectUrl)}`
     : `/auth/login`;
 
   return (

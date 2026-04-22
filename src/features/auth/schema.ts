@@ -70,6 +70,7 @@ export const resetPasswordFormSchema = z.object({
     .transform((v) => v === true || v === "true"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
+  redirectUrl: z.string().optional(),
 });
 
 export const processRegisterQuerySchema = z.object({

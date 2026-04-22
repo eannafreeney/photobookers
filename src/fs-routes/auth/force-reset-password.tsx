@@ -4,9 +4,13 @@ import { Context } from "hono";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 import Page from "../../components/layouts/Page";
 import SetPasswordForm from "../../features/auth/forms/SetPasswordForm";
+import { safeAppRedirect } from "../../lib/safeAppRedirect";
 
 export const GET = createRoute(async (c: Context) => {
+  const q = c.req.query("redirectUrl");
+  const safeRedirectUrl = safeAppRedirect(q ?? null, "/");
   const user = await getUser(c);
+
   const alpineAttrs = {
     "x-data": "resetPasswordForm()",
     "x-on:submit": "submitForm($event)",
@@ -34,6 +38,7 @@ export const GET = createRoute(async (c: Context) => {
                 <SetPasswordForm
                   buttonText="Reset Password"
                   loadingText="Resetting..."
+                  redirectUrl={safeRedirectUrl}
                 />
               </form>
             </div>

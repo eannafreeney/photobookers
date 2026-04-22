@@ -21,8 +21,6 @@ export const registerAndClaimFormSchema = z.object({
     .max(255, "Last name must be less than 255 characters"),
   type: z.literal("fan"),
   email: z.string().email("Email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
   agreeToTerms: checkboxField,
   verificationUrl: z
     .string()

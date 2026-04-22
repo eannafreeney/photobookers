@@ -10,8 +10,9 @@ import { registerCreatorFormSchema, registerFanFormSchema } from "./schema";
 import z from "zod";
 import { AuthSession } from "@supabase/supabase-js";
 import { registerAndClaimFormSchema } from "../claims/schema";
+import { randomBytes } from "node:crypto";
 
-export const checkIfUserWasForcedToResetPassword = async (userId: string) => {
+export const getMustResetPasswordState = async (userId: string) => {
   try {
     const dbUser = await db.query.users.findFirst({
       where: eq(users.id, userId),
@@ -153,7 +154,10 @@ export const getCreatorByWebsite = (website: string) =>
     where: eq(creators.website, normalizeUrl(website)),
   });
 
-export const createUserInDatabase = async (session: AuthSession) => {
+export const createUserInDatabase = async (
+  session: AuthSession,
+  options?: { mustResetPassword?: boolean },
+) => {
   const { user } = session;
   const { id, email, user_metadata } = user;
   if (!email) {
@@ -170,6 +174,7 @@ export const createUserInDatabase = async (session: AuthSession) => {
         lastName,
         acceptsTerms: new Date(),
         createdAt: new Date(),
+        mustResetPassword: options?.mustResetPassword ?? false,
       })
       .onConflictDoUpdate({
         target: users.id,
@@ -178,6 +183,7 @@ export const createUserInDatabase = async (session: AuthSession) => {
           ...(lastName != null && { lastName }),
           createdAt: sql`COALESCE(${users.createdAt}, now())`,
           updatedAt: new Date(),
+          ...(options?.mustResetPassword && { mustResetPassword: true }),
         },
       })
       .returning();
@@ -186,6 +192,11 @@ export const createUserInDatabase = async (session: AuthSession) => {
     return err({ reason: "Failed to create account", cause: e });
   }
 };
+
+function generateOtpSignupPassword() {
+  // 32+ bytes, URL-safe, satisfies typical min-length policies
+  return randomBytes(32).toString("base64url");
+}
 
 export const verifyOtpForClaimSignup = async (
   c: Context,
@@ -199,7 +210,7 @@ export const verifyOtpForClaimSignup = async (
 
     const { error } = await supabaseAnon.auth.signUp({
       email: formData.email,
-      password: formData.password,
+      password: generateOtpSignupPassword(),
       options: {
         emailRedirectTo,
         captchaToken: formData.captchaToken,
@@ -271,21 +282,6 @@ export const verifyOtpForCreatorSignup = async (
     return ok(undefined);
   } catch (error) {
     return err({ reason: "Failed to verify OTP", cause: error });
-  }
-};
-
-export const checkWasForcedResetPassword = async (userId: string) => {
-  try {
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.id, userId),
-      columns: { mustResetPassword: true },
-    });
-    return ok(dbUser?.mustResetPassword === true);
-  } catch (error) {
-    return err({
-      reason: "Failed to check if user was forced to reset password",
-      cause: error,
-    });
   }
 };
 
