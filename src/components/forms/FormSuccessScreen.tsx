@@ -15,7 +15,7 @@ const FormSuccessScreen = ({
     >
       <div>{thumbsUpIcon()}</div>
       <h2 class="text-2xl font-bold">Success</h2>
-      <p class="text-sm text-center">{message}</p>
+      <p class="text-sm text-center grow-0">{message}</p>
       <a href="/">
         <Button variant="solid" color="primary">
           Go to Homepage

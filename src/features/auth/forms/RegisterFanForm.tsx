@@ -27,7 +27,12 @@ const RegisterFanForm = ({ redirectUrl }: Props) => {
 
   return (
     <>
-      <form action={action} method="post" {...alpineAttrs}>
+      <form
+        action={action}
+        method="post"
+        {...alpineAttrs}
+        class="flex flex-col gap-2"
+      >
         <Input
           label="First Name"
           name="form.firstName"
