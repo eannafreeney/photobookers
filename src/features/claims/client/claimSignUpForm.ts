@@ -8,14 +8,25 @@ import type { z } from "zod";
 type FormShape = z.infer<typeof registerAndClaimFormSchema>;
 
 export function registerClaimSignupForm() {
-  if (!(window as any).__turnstileHandlersRegistered) {
-    (window as any).__turnstileHandlersRegistered = true;
-    (window as any).onTurnstileSuccess = (token: string) => {
+  if (
+    !(window as typeof window & { __turnstileHandlersRegistered?: boolean })
+      .__turnstileHandlersRegistered
+  ) {
+    (
+      window as typeof window & { __turnstileHandlersRegistered?: boolean }
+    ).__turnstileHandlersRegistered = true;
+
+    (
+      window as typeof window & { onTurnstileSuccess?: (token: string) => void }
+    ).onTurnstileSuccess = (token: string) => {
       window.dispatchEvent(
         new CustomEvent("turnstile:success", { detail: { token } }),
       );
     };
-    (window as any).onTurnstileExpired = () => {
+
+    (
+      window as typeof window & { onTurnstileExpired?: () => void }
+    ).onTurnstileExpired = () => {
       window.dispatchEvent(new CustomEvent("turnstile:expired"));
     };
   }
