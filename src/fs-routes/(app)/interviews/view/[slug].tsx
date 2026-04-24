@@ -1,14 +1,13 @@
 import { createRoute } from "hono-fsr";
-import Page from "../../../components/layouts/Page";
-import AppLayout from "../../../components/layouts/AppLayout";
-import InfoPage from "../../../pages/InfoPage";
-import { getInterviewByCreatorSlug } from "../../../features/app/services";
-import { slugSchema } from "../../../features/app/schema";
-import { paramValidator } from "../../../lib/validator";
-import CardCreatorCard from "../../../components/app/CardCreatorCard";
-import { getUser } from "../../../utils";
-import Button from "../../../components/app/Button";
-import InterviewCard from "../../../features/app/components/InterviewCard";
+import Page from "../../../../components/layouts/Page";
+import AppLayout from "../../../../components/layouts/AppLayout";
+import InfoPage from "../../../../pages/InfoPage";
+import { getInterviewByCreatorSlug } from "../../../../features/app/services";
+import { slugSchema } from "../../../../features/app/schema";
+import { paramValidator } from "../../../../lib/validator";
+import { getUser } from "../../../../utils";
+import Button from "../../../../components/app/Button";
+import InterviewCard from "../../../../features/app/components/InterviewCard";
 
 export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const currentPath = c.req.path;
