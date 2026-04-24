@@ -104,7 +104,7 @@ const InterviewTableRow = ({
   return (
     <tr key={interview.id}>
       <Table.BodyRow>
-        <Link href={`/interviews/${interview.id}`} target="_blank">
+        <Link href={`/interviews/view/${interview.id}`} target="_blank">
           {interview.creator.displayName}
         </Link>
       </Table.BodyRow>
