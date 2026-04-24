@@ -2,18 +2,18 @@ import { Context } from "hono";
 import {
   completeInterviewByToken,
   getInterviewByToken,
-} from "../../features/dashboard/admin/creators/services";
-import { getCreatorById } from "../../features/dashboard/creators/services";
-import IntervewForm from "../../features/interviews/forms/IntervewForm";
-import InfoPage from "../../pages/InfoPage";
+} from "../../../features/dashboard/admin/creators/services";
+import { getCreatorById } from "../../../features/dashboard/creators/services";
+import IntervewForm from "../../../features/interviews/forms/IntervewForm";
+import InfoPage from "../../../pages/InfoPage";
 import { createRoute } from "hono-fsr";
-import { showErrorAlert } from "../../lib/alertHelpers";
-import { interviewFormSchema } from "../../features/interviews/schema";
-import { formValidator, validateImageFile } from "../../lib/validator";
-import { InterviewFormContext } from "../../features/interviews/types";
-import FormSuccessScreen from "../../components/forms/FormSuccessScreen";
-import { createInterviewSubmittedNotification } from "../../features/dashboard/admin/notifications/utils";
-import { uploadImage } from "../../services/storage";
+import { showErrorAlert } from "../../../lib/alertHelpers";
+import { interviewFormSchema } from "../../../features/interviews/schema";
+import { formValidator, validateImageFile } from "../../../lib/validator";
+import { InterviewFormContext } from "../../../features/interviews/types";
+import FormSuccessScreen from "../../../components/forms/FormSuccessScreen";
+import { createInterviewSubmittedNotification } from "../../../features/dashboard/admin/notifications/utils";
+import { uploadImage } from "../../../services/storage";
 
 export const GET = createRoute(async (c: Context) => {
   const tokenId = c.req.param("tokenId");
