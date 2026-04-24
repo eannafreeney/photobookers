@@ -102,7 +102,7 @@ import * as m95 from "./fs-routes/dashboard/admin/creators/[creatorId]/update";
 import * as m96 from "./fs-routes/dashboard/admin/creators/[creatorId]";
 import * as m97 from "./fs-routes/dashboard/admin/creators/assign-owner/[creatorId]";
 import * as m98 from "./fs-routes/dashboard/admin/creators/assign-owner-content/[creatorId]";
-import * as m99 from "./fs-routes/dashboard/admin/interviews/view/[interviewId]";
+import * as m99 from "./fs-routes/dashboard/admin/interviews/[interviewId]";
 import * as m100 from "./fs-routes/dashboard/admin/notifications/[notificationId]/read";
 import * as m101 from "./fs-routes/dashboard/admin/planner/artist-of-the-week/[week]/create";
 import * as m102 from "./fs-routes/dashboard/admin/planner/artist-of-the-week/[week]";
