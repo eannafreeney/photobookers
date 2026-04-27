@@ -47,6 +47,7 @@ export const invalidateBookCache = (slug: string) => {
   bookCache.delete(`${slug}:published`);
   bookCache.delete(`${slug}:draft`);
 };
+
 export const invalidateCreatorCache = (slug: string) => {
   // Deletes all paginated entries for this creator
   for (const key of creatorCache.keys()) {
@@ -210,10 +211,12 @@ export const getBooksInWishlist = async (
       limit: limit,
       offset: offset,
     });
-    return { books: wishlistedBooks, totalPages, page };
+    if (wishlistedBooks.length === 0)
+      return ok({ books: [], totalPages, page });
+    return ok({ books: wishlistedBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get books in wishlist", error);
-    return null;
+    return err({ reason: "Failed to get books in wishlist", error });
   }
 };
 
@@ -258,10 +261,12 @@ export const getBooksInCollection = async (
       offset: offset,
     });
 
-    return { books: collectionBooks, totalPages, page };
+    if (collectionBooks.length === 0)
+      return ok({ books: [], totalPages, page });
+    return ok({ books: collectionBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get books in collection", error);
-    return null;
+    return err({ reason: "Failed to get books in collection", error });
   }
 };
 
@@ -675,10 +680,11 @@ export const getFeedBooks = async (
       limit: limit,
       offset: offset,
     });
-    return { books: feedBooks, totalPages, page };
+    if (feedBooks.length === 0) return ok({ books: [], totalPages, page });
+    return ok({ books: feedBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get feed books", error);
-    return null;
+    return err({ reason: "Failed to get feed books", error });
   }
 };
 
@@ -768,13 +774,15 @@ export const searchCreators = async (searchQuery: string) => {
       limit: 5,
     });
 
-    return foundCreators.filter(
+    const result = foundCreators.filter(
       (creator) =>
         creator.booksAsArtist.length > 0 || creator.booksAsPublisher.length > 0,
     );
+    if (result.length === 0) return ok([]);
+    return ok(result);
   } catch (error) {
     console.error("Failed to search creators", error);
-    return [];
+    return err({ reason: "Failed to search creators", error });
   }
 };
 
@@ -786,7 +794,7 @@ export const getRelatedBooks = async (
     tags: string[] | null;
   },
   limit = 10,
-): Promise<BookCardResult[]> => {
+) => {
   try {
     const seenIds = new Set<string>([currentBookId]);
     const result: BookCardResult[] = [];
@@ -816,7 +824,7 @@ export const getRelatedBooks = async (
       }
     }
 
-    if (result.length >= limit) return result.slice(0, limit);
+    if (result.length >= limit) return ok({ books: result.slice(0, limit) });
 
     // 2. By tag overlap — only when book has tags; exclude already-seen in JS
     const tagsNormalized =
@@ -848,7 +856,7 @@ export const getRelatedBooks = async (
       }
     }
 
-    if (result.length >= limit) return result.slice(0, limit);
+    if (result.length >= limit) return ok({ books: result.slice(0, limit) });
 
     // 3. Same publisher — exclude already-seen in JS (no NOT IN array in SQL)
     if (options.publisherId) {
@@ -870,10 +878,11 @@ export const getRelatedBooks = async (
       }
     }
 
-    return result.slice(0, limit);
+    if (result.length >= limit) return ok({ books: result.slice(0, limit) });
+    return ok({ books: result });
   } catch (error) {
     console.error("Failed to get related books", error);
-    return [];
+    return err({ reason: "Failed to get related books", error });
   }
 };
 
@@ -939,7 +948,7 @@ export const getCreatorsByCreatorId = async (
 export const getRelatedCreators = async (
   creatorId: string,
   creatorType: "artist" | "publisher",
-): Promise<CreatorCardResult[]> => {
+) => {
   try {
     const relatedColumn =
       creatorType === "publisher" ? books.artistId : books.publisherId;
@@ -976,7 +985,8 @@ export const getRelatedCreators = async (
           or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
         ),
       );
-    return related;
+    if (related.length === 0) return ok({ creators: [] });
+    return ok({ creators: related });
   } catch (error) {
     console.error("Failed to get related creators", error);
     return [];

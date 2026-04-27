@@ -186,7 +186,7 @@ export const searchBooks = async (searchQuery: string) => {
       .from(creators)
       .where(ilike(creators.displayName, searchPattern));
 
-    return await db.query.books.findMany({
+    const foundBooks = await db.query.books.findMany({
       columns: {
         id: true,
         title: true,
@@ -222,9 +222,11 @@ export const searchBooks = async (searchQuery: string) => {
       orderBy: (books, { asc }) => [asc(books.title)],
       limit: 5,
     });
+    if (foundBooks.length === 0) return ok([]);
+    return ok(foundBooks);
   } catch (error) {
     console.error("Failed to search books", error);
-    return [];
+    return err({ reason: "Failed to search books", error });
   }
 };
 

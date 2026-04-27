@@ -12,15 +12,18 @@ type Props = {
 };
 
 const CollectedBooks = async ({ user, currentPage, currentPath }: Props) => {
-  const result = await getBooksInCollection(user.id, currentPage);
+  const [error, result] = await getBooksInCollection(user.id, currentPage);
 
-  if (!result?.books) {
-    return <ErrorPage errorMessage="No collected books found" user={user} />;
+  if (error) {
+    return <ErrorPage errorMessage={error.reason} user={user} />;
   }
 
   const targetId = "collection-books-grid";
 
   const { books, totalPages, page } = result;
+  if (!books) {
+    return <ErrorPage errorMessage="No collected books found" user={user} />;
+  }
 
   const attrs = {
     "x-init": true,
@@ -59,4 +62,5 @@ const CollectedBooks = async ({ user, currentPage, currentPath }: Props) => {
     </div>
   );
 };
+
 export default CollectedBooks;

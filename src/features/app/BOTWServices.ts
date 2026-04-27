@@ -19,48 +19,48 @@ function toWeekStart(d: Date): Date {
   return date;
 }
 
-export async function setBookOfTheWeek(params: {
-  weekStart: Date;
-  bookId: string;
-}) {
-  const weekStart = toWeekStart(params.weekStart);
-  try {
-    const [row] = await db
-      .insert(bookOfTheWeek)
-      .values({
-        weekStart,
-        bookId: params.bookId,
-      })
-      .returning();
-    return row ?? null;
-  } catch (e) {
-    // uniqueDate or uniqueBook violation
-    console.error("setBookOfTheWeek", e);
-    return null;
-  }
-}
+// export async function setBookOfTheWeek(params: {
+//   weekStart: Date;
+//   bookId: string;
+// }) {
+//   const weekStart = toWeekStart(params.weekStart);
+//   try {
+//     const [row] = await db
+//       .insert(bookOfTheWeek)
+//       .values({
+//         weekStart,
+//         bookId: params.bookId,
+//       })
+//       .returning();
+//     return row ?? null;
+//   } catch (e) {
+//     // uniqueDate or uniqueBook violation
+//     console.error("setBookOfTheWeek", e);
+//     return null;
+//   }
+// }
 
-export async function updateBookOfTheWeek(params: {
-  weekStart: Date;
-  bookId: string;
-  text: string;
-}): Promise<BookOfTheWeek | null> {
-  const weekStart = toWeekStart(params.weekStart);
-  try {
-    const [row] = await db
-      .insert(bookOfTheWeek)
-      .values({
-        weekStart,
-        bookId: params.bookId,
-      })
-      .returning();
-    return row ?? null;
-  } catch (e) {
-    // uniqueDate or uniqueBook violation
-    console.error("setBookOfTheWeek", e);
-    return null;
-  }
-}
+// export async function updateBookOfTheWeek(params: {
+//   weekStart: Date;
+//   bookId: string;
+//   text: string;
+// }): Promise<BookOfTheWeek | null> {
+//   const weekStart = toWeekStart(params.weekStart);
+//   try {
+//     const [row] = await db
+//       .insert(bookOfTheWeek)
+//       .values({
+//         weekStart,
+//         bookId: params.bookId,
+//       })
+//       .returning();
+//     return row ?? null;
+//   } catch (e) {
+//     // uniqueDate or uniqueBook violation
+//     console.error("setBookOfTheWeek", e);
+//     return null;
+//   }
+// }
 
 // export type BookOfTheWeekWithBook = Awaited<
 //   ReturnType<typeof getBookOfTheWeekForDateQuery>
@@ -153,40 +153,51 @@ export async function getRecentBooksOfTheWeek(currentPage: number = 1) {
   }
 }
 
-export async function deleteBookOfTheWeekByIdAdmin(bookId: string) {
-  try {
-    return db
-      .delete(bookOfTheWeek)
-      .where(eq(bookOfTheWeek.bookId, bookId))
-      .returning();
-  } catch (e) {
-    console.error("deleteBookOfTheWeekByIdAdmin", e);
-    return null;
-  }
-}
+// export async function deleteBookOfTheWeekByIdAdmin(bookId: string) {
+//   try {
+//     return db
+//       .delete(bookOfTheWeek)
+//       .where(eq(bookOfTheWeek.bookId, bookId))
+//       .returning();
+//   } catch (e) {
+//     console.error("deleteBookOfTheWeekByIdAdmin", e);
+//     return null;
+//   }
+// }
 
 export async function getBooksOfTheWeekInRange(start: Date, end: Date) {
   const weekStartMin = toWeekStart(start);
   const weekStartMax = toWeekStart(end);
-  return db.query.bookOfTheWeek.findMany({
-    where: (table, { and, gte: gteOp, lte: lteOp }) =>
-      and(
-        gteOp(table.weekStart, weekStartMin),
-        lteOp(table.weekStart, weekStartMax),
-      ),
-    orderBy: [bookOfTheWeek.weekStart],
-    with: {
-      book: {
-        columns: BOOK_CARD_COLUMNS,
-        with: {
-          artist: { columns: CREATOR_CARD_COLUMNS },
-          publisher: { columns: CREATOR_CARD_COLUMNS },
-          images: {
-            columns: { id: true, imageUrl: true },
-            orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+
+  try {
+    const rows = await db.query.bookOfTheWeek.findMany({
+      where: (table, { and, gte: gteOp, lte: lteOp }) =>
+        and(
+          gteOp(table.weekStart, weekStartMin),
+          lteOp(table.weekStart, weekStartMax),
+        ),
+      orderBy: [bookOfTheWeek.weekStart],
+      with: {
+        book: {
+          columns: BOOK_CARD_COLUMNS,
+          with: {
+            artist: { columns: CREATOR_CARD_COLUMNS },
+            publisher: { columns: CREATOR_CARD_COLUMNS },
+            images: {
+              columns: { id: true, imageUrl: true },
+              orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+            },
           },
         },
       },
-    },
-  });
+    });
+    if (rows.length === 0) return ok({ botwEntries: [] });
+    return ok({ botwEntries: rows });
+  } catch (error) {
+    console.error("getBooksOfTheWeekInRange", error);
+    return err({
+      reason: "Failed to get books of the week in range",
+      cause: error,
+    });
+  }
 }

@@ -4,11 +4,13 @@ import NavSearchResults from "../../components/app/NavSearchResults";
 import { searchCreators } from "../../features/app/services";
 import { searchBooks } from "../../features/api/services";
 import Link from "../../components/app/Link";
-import { capitalize } from "../../utils";
+import { capitalize, getUser } from "../../utils";
 import { DISCOVER_TAGS } from "../../constants/discover";
 import Pill from "../../components/app/Pill";
+import InfoPage from "../../pages/InfoPage";
 
 export const GET = createRoute(async (c: Context) => {
+  const user = await getUser(c);
   const searchQuery = c.req.query("search");
   const isMobile = c.req.query("isMobile") === "true";
 
@@ -34,16 +36,20 @@ export const GET = createRoute(async (c: Context) => {
   }
 
   const searchTerm = searchQuery?.trim().toLowerCase();
-  const [bookResults, creatorResults] = await Promise.all([
+  const [[bookError, books], [creatorError, creators]] = await Promise.all([
     searchBooks(searchTerm ?? ""),
     searchCreators(searchTerm ?? ""),
   ]);
 
+  if (bookError || creatorError) {
+    return c.html(<></>);
+  }
+
   return c.html(
     <NavSearchResults
       isMobile={isMobile}
-      creators={creatorResults ?? []}
-      books={bookResults ?? []}
+      creators={creators ?? []}
+      books={books ?? []}
     />,
   );
 });
