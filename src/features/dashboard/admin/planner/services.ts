@@ -90,9 +90,11 @@ export async function getBotwByWeekStart(
   if (weekStarts.length === 0) return new Map();
 
   const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
-  const entries = await getBooksOfTheWeekInRange(first, last);
+  const [error, result] = await getBooksOfTheWeekInRange(first, last);
+  if (error) return new Map();
+  const { botwEntries } = result;
 
-  return new Map(entries.map((b) => [toWeekString(b.weekStart), b]));
+  return new Map(botwEntries.map((b) => [toWeekString(b.weekStart), b]));
 }
 
 /** Normalize to start of day UTC for consistent storage/comparison */

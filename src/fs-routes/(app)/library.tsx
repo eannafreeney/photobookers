@@ -32,10 +32,23 @@ export const GET = createRoute(async (c) => {
     );
   }
 
-  const [wishlistResult, collectionResult] = await Promise.all([
-    getBooksInWishlist(user.id, currentPage),
-    getBooksInCollection(user.id, currentPage),
-  ]);
+  const [[wishlistError, wishlistResult], [collectionError, collectionResult]] =
+    await Promise.all([
+      getBooksInWishlist(user.id, currentPage),
+      getBooksInCollection(user.id, currentPage),
+    ]);
+
+  if (wishlistError) {
+    return c.html(
+      <InfoPage errorMessage={wishlistError?.reason} user={user} />,
+    );
+  }
+
+  if (collectionError) {
+    return c.html(
+      <InfoPage errorMessage={collectionError?.reason} user={user} />,
+    );
+  }
 
   if (!wishlistResult?.books || !collectionResult?.books) {
     return c.html(

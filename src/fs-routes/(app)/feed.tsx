@@ -29,7 +29,10 @@ export const GET = createRoute(async (c: Context) => {
     );
   }
 
-  const result = await getFeedBooks(user.id, currentPage);
+  const [error, result] = await getFeedBooks(user.id, currentPage);
+  if (error) {
+    return c.html(<InfoPage errorMessage={error.reason} user={user} />);
+  }
 
   if (!result?.books) {
     return c.html(
