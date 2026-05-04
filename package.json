@@ -4,7 +4,7 @@
     "dev": "vite",
     "dev:fsr": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts -w",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:fsr\"",
-    "prebuild": "npm run typecheck",
+    "prebuild": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts && npm run typecheck",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "start": "NODE_ENV=production dotenv -e .env.production -- node --import tsx src/server.ts",
@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "export-social-week": "ENV=production npx tsx scripts/export-social-week.ts",
     "test": "vitest",
     "test:run": "vitest run",
     "postinstall": "patch-package"

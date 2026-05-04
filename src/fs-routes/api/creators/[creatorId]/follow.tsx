@@ -26,8 +26,6 @@ export const POST = createRoute(async (c: Context) => {
   const shouldRefreshCreatorMessages =
     body.shouldRefreshCreatorMessages === "true";
 
-  console.log("shouldRefreshCreatorMessages", shouldRefreshCreatorMessages);
-
   const [err, creator] = await getCreatorPermissionData(creatorId);
   if (err || !creator)
     return showErrorAlert(c, err?.reason ?? "Creator not found");

@@ -1,24 +1,21 @@
-import { getInterviewById } from "../../../../../features/app/services";
-import InfoPage from "../../../../../pages/InfoPage";
+import { getInterviewById } from "../../../../features/app/services";
+import InfoPage from "../../../../pages/InfoPage";
 import { createRoute } from "hono-fsr";
-import { formValidator, paramValidator } from "../../../../../lib/validator";
+import { formValidator, paramValidator } from "../../../../lib/validator";
 import {
   interviewFormSchema,
   interviewIdSchema,
-} from "../../../../../features/interviews/schema";
-import Sidebar from "../../../../../components/app/Sidebar";
-import AppLayout from "../../../../../components/layouts/AppLayout";
-import Page from "../../../../../components/layouts/Page";
-import { getUser } from "../../../../../utils";
-import EditInterviewForm from "../../../../../features/dashboard/admin/interviews/forms/EditInterviewForm";
+} from "../../../../features/interviews/schema";
+import Sidebar from "../../../../components/app/Sidebar";
+import AppLayout from "../../../../components/layouts/AppLayout";
+import Page from "../../../../components/layouts/Page";
+import { getUser } from "../../../../utils";
+import EditInterviewForm from "../../../../features/dashboard/admin/interviews/forms/EditInterviewForm";
 import {
   deleteInterviewById,
   updateInterviewAndPublishById,
-} from "../../../../../features/dashboard/admin/interviews/services";
-import {
-  showErrorAlert,
-  showSuccessAlert,
-} from "../../../../../lib/alertHelpers";
+} from "../../../../features/dashboard/admin/interviews/services";
+import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers";
 
 export const GET = createRoute(paramValidator(interviewIdSchema), async (c) => {
   const interviewId = c.req.valid("param").interviewId;
