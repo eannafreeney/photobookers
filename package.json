@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "export-social-week": "ENV=production npx tsx scripts/export-social-week.ts",
     "test": "vitest",
     "test:run": "vitest run",
     "postinstall": "patch-package"

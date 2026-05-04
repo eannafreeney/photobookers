@@ -6,6 +6,7 @@ import Link from "./Link";
 import { AuthUser } from "../../../types";
 import { BookCardResult } from "../../constants/queries";
 import Show from "./Show";
+import LikeButton from "../../features/api/components/LikeButton";
 
 type BookCardProps = {
   book: BookCardResult;
@@ -52,7 +53,7 @@ const BookCard = ({
               </p>
             </Show>
           </div>
-          <WishlistButton isCircleButton book={book} user={user} />
+          <LikeButton isCircleButton book={book} user={user} />
         </div>
       </Card.Body>
     </Card>

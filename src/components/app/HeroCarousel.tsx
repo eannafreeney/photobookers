@@ -82,19 +82,23 @@ const HeroCarousel = async () => {
                     x-bind:class="item.coverStack.length === 2 ? 'min-[480px]:grid-cols-2' : item.coverStack.length === 3 ? 'min-[480px]:grid-cols-3' : 'min-[480px]:grid-cols-4'"
                   >
                     <template x-for="(url, i) in item.coverStack">
-                      <img
-                        x-bind:src="url"
-                        x-bind:class="i >= 2 ? 'hidden min-[480px]:block' : ''"
-                        class="w-full aspect-3/4 rounded-md shadow-md object-cover"
-                      />
+                      <a x-bind:href="item.link">
+                        <img
+                          x-bind:src="url"
+                          x-bind:class="i >= 2 ? 'hidden min-[480px]:block' : ''"
+                          class="w-full aspect-3/4 rounded-md shadow-md object-cover"
+                        />
+                      </a>
                     </template>
                   </div>
                 </template>
                 <template x-if="!item.coverStack || item.coverStack.length < 2">
-                  <img
-                    x-bind:src="item.image"
-                    class="max-h-[220px] rounded-lg shadow-xl transition duration-500 hover:scale-102 sm:max-h-[300px] md:max-h-[340px]"
-                  />
+                  <a x-bind:href="item.link">
+                    <img
+                      x-bind:src="item.image"
+                      class="max-h-[220px] rounded-lg shadow-xl transition duration-500 hover:scale-102 sm:max-h-[300px] md:max-h-[340px]"
+                    />
+                  </a>
                 </template>
               </div>
               <div class="order-2 flex w-full max-w-md flex-col gap-2 md:order-0">
