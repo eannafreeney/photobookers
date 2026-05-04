@@ -82,7 +82,7 @@ const HeroCarousel = async () => {
                     x-bind:class="item.coverStack.length === 2 ? 'min-[480px]:grid-cols-2' : item.coverStack.length === 3 ? 'min-[480px]:grid-cols-3' : 'min-[480px]:grid-cols-4'"
                   >
                     <template x-for="(url, i) in item.coverStack">
-                      <a x-bind:href="item.link">
+                      <a x-bind:href="item.link" class="cursor-pointer">
                         <img
                           x-bind:src="url"
                           x-bind:class="i >= 2 ? 'hidden min-[480px]:block' : ''"
@@ -93,7 +93,7 @@ const HeroCarousel = async () => {
                   </div>
                 </template>
                 <template x-if="!item.coverStack || item.coverStack.length < 2">
-                  <a x-bind:href="item.link">
+                  <a x-bind:href="item.link" class="cursor-pointer">
                     <img
                       x-bind:src="item.image"
                       class="max-h-[220px] rounded-lg shadow-xl transition duration-500 hover:scale-102 sm:max-h-[300px] md:max-h-[340px]"
@@ -117,7 +117,7 @@ const HeroCarousel = async () => {
                   ></p>
                 </template>
                 <div class="flex justify-center md:justify-start group">
-                  <a x-bind:href="item.link">
+                  <a x-bind:href="item.link" class="cursor-pointer">
                     <Button
                       variant="solid"
                       color="primary"
