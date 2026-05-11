@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import { randomInt } from "node:crypto";
 import { Context } from "hono";
 import { AuthUser } from "../types";
 import { books } from "./db/schema";
@@ -183,6 +183,6 @@ export const getInputIcon = (type: string = "text") => {
 };
 
 export const getRandomCoverUrl = () => {
-  const n = crypto.randomInt(1, 10_000_000);
-  return `https://static.photos/abstract/1024x576/${n}`;
+  const randomNumber = randomInt(1, 10_000_000);
+  return `https://static.photos/abstract/1024x576/${randomNumber}`;
 };
