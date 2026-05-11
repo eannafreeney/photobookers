@@ -20,7 +20,7 @@ const Interviews = async () => {
           {interviews.map((interview) => (
             <InterviewCard
               interview={interview}
-              link={`/interviews/view/${interview.id}`}
+              link={`/interviews/view/${interview.creator.slug}`}
             />
           ))}
         </div>
