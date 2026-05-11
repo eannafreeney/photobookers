@@ -34,7 +34,6 @@
     "browser-image-compression": "^2.0.2",
     "cheerio": "^1.1.0",
     "clsx": "^2.1.1",
-    "crypto": "^1.0.1",
     "csv": "^6.4.1",
     "daisyui": "^5.5.14",
     "dotenv": "^17.2.3",
