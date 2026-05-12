@@ -30,7 +30,7 @@ export const GET = createRoute(
       book.coverUrl,
       ...(book?.images?.map((image: { imageUrl: string }) => image.imageUrl) ??
         []),
-    ];
+    ].filter((url): url is string => url !== null);
 
     if (!user) {
       c.header("Vary", "Cookie");

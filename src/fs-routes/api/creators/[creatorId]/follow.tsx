@@ -10,15 +10,29 @@ import Alert from "../../../../components/app/Alert";
 import { deleteFollow, insertFollow } from "../../../../db/queries";
 import FollowButton from "../../../../features/api/components/FollowButton";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
-import { log } from "console";
+import { hyperview } from "../../../../lib/hxml";
 
 export const POST = createRoute(async (c: Context) => {
   const creatorId = c.req.param("creatorId");
   const user = await getUser(c);
+  const hv = hyperview(c);
   const userId = user?.id;
 
-  if (!userId)
+  const isHyperview = c.req
+    .header("accept")
+    ?.includes("application/vnd.hyperview");
+
+  if (!userId) {
+    if (isHyperview) {
+      return hv(
+        <text xmlns="https://hyperview.org/hyperview" style="follow-label">
+          Sign in to follow
+        </text>,
+        401,
+      );
+    }
     return c.html(<AuthModal action="to follow this creator." />, 401);
+  }
 
   const body = await c.req.parseBody();
   const isCurrentlyFollowing = body.isFollowing === "true";
@@ -27,8 +41,16 @@ export const POST = createRoute(async (c: Context) => {
     body.shouldRefreshCreatorMessages === "true";
 
   const [err, creator] = await getCreatorPermissionData(creatorId);
-  if (err || !creator)
+  if (err || !creator) {
+    if (isHyperview) {
+      return hv(
+        <text xmlns="https://hyperview.org/hyperview" style="follow-label">
+          Creator not found
+        </text>,
+      );
+    }
     return showErrorAlert(c, err?.reason ?? "Creator not found");
+  }
 
   try {
     if (isCurrentlyFollowing) {
@@ -40,7 +62,25 @@ export const POST = createRoute(async (c: Context) => {
     }
   } catch (error) {
     console.error("Failed to add/remove creator from followers", error);
+    if (isHyperview) {
+      return hv(
+        <text xmlns="https://hyperview.org/hyperview" style="follow-label">
+          Something went wrong
+        </text>,
+      );
+    }
     return showErrorAlert(c);
+  }
+
+  if (isHyperview) {
+    const label = isCurrentlyFollowing
+      ? `Follow ${creator.displayName}`
+      : `Following ✓`;
+    return hv(
+      <text xmlns="https://hyperview.org/hyperview" style="follow-label">
+        {label}
+      </text>,
+    );
   }
 
   const message = isCurrentlyFollowing

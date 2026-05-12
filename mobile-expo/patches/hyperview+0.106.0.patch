@@ -1,0 +1,13 @@
+diff --git a/node_modules/hyperview/src/elements/hv-navigator/types.ts b/node_modules/hyperview/src/elements/hv-navigator/types.ts
+index a130e5c..5e3469e 100644
+--- a/node_modules/hyperview/src/elements/hv-navigator/types.ts
++++ b/node_modules/hyperview/src/elements/hv-navigator/types.ts
+@@ -7,7 +7,7 @@ import type { Props as HvRouteProps } from 'hyperview/src/elements/hv-route';
+  * Example: tab bar
+  * NOTE: This will only be used if no footer element is provided for a tabbar
+  */
+-export const SHOW_DEFAULT_FOOTER_UI = false;
++export const SHOW_DEFAULT_FOOTER_UI = true;
+ 
+ /**
+  * Flag to show the header UIs

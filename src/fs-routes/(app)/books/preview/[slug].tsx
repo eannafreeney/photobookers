@@ -33,7 +33,7 @@ export const GET = createRoute(
       book.coverUrl,
       ...(book?.images?.map((image: { imageUrl: string }) => image.imageUrl) ??
         []),
-    ];
+    ].filter((url): url is string => url !== null);
 
     return c.html(
       <AppLayout

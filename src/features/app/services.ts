@@ -5,6 +5,7 @@ import {
   eq,
   ilike,
   inArray,
+  InferSelectModel,
   isNotNull,
   isNull,
   lte,
@@ -28,16 +29,25 @@ import {
   BOOK_CARD_COLUMNS,
   BookCardResult,
   CREATOR_CARD_COLUMNS,
-  CreatorCardResult,
 } from "../../constants/queries";
-import { creatorMessages } from "../../db/schema";
+import { Creator, creatorMessages } from "../../db/schema";
 import { err, ok } from "../../lib/result";
 import { LRUCache } from "lru-cache";
 
-const bookCache = new LRUCache<string, any>({
+type CachedBook = Omit<InferSelectModel<typeof books>, "images"> & {
+  publisher: Creator | null;
+  artist: Creator | null;
+  images: { imageUrl: string }[];
+};
+
+const bookCache = new LRUCache<
+  string,
+  ReturnType<typeof ok<{ book: CachedBook }>>
+>({
   max: 200,
   ttl: 1000 * 60 * 5,
 });
+
 const creatorCache = new LRUCache<string, any>({
   max: 200,
   ttl: 1000 * 60 * 5,
