@@ -3,6 +3,7 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { refreshAccessToken } from "./refreshAccessToken";
 import { getUserFromToken } from "./getUserFromToken";
 import { getAuthCookieOptions } from "../features/auth/services";
+import { getAccessTokenFromRequest } from "../lib/getAccessTokenFromRequest";
 
 const LOGIN_PATH = "/auth/login";
 function redirectToLogin(c: Context) {
@@ -21,7 +22,7 @@ function redirectToLogin(c: Context) {
 }
 
 export const requireAuth = async (c: Context, next: Next) => {
-  let token = getCookie(c, "token");
+  let token = getAccessTokenFromRequest(c);
   let refreshToken = getCookie(c, "refresh_token");
 
   // If no token but we have a refresh token, try to refresh

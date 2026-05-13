@@ -1,10 +1,10 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { slugSchema } from "../../../../../../features/app/schema";
-import { getBookBySlug } from "../../../../../../features/app/services";
+import { getBooksByCreatorSlug } from "../../../../../../features/app/services";
 import { hyperview } from "../../../../../../lib/hxml";
 import { Text } from "../../../../../../lib/hxml-comps";
-import CreatorCard from "../../../../../../features/hyperview/components/CreatorCard";
+import CreatorsGrid from "../../../../../../features/hyperview/components/CreatorsGrid";
 
 export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const slug = c.req.valid("param").slug;
@@ -14,7 +14,9 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const host = c.req.header("host") ?? "localhost:5173";
   const baseUrl = `${proto}://${host}`;
 
-  const [error, result] = await getBookBySlug(slug);
+  const currentPage = Number(c.req.query("page") ?? 1);
+
+  const [error, result] = await getBooksByCreatorSlug(slug, currentPage);
 
   if (error || !result) {
     return hv(
@@ -25,11 +27,16 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
     );
   }
 
-  const { book } = result;
+  const { creator } = result;
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
-      <CreatorCard creator={book.artist} baseUrl={baseUrl} />
+      <CreatorsGrid
+        creatorId={creator.id}
+        creatorType={creator.type}
+        baseUrl={baseUrl}
+        title="Publishers"
+      />
     </view>,
   );
 });

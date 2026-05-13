@@ -1,7 +1,6 @@
 import Card from "./Card";
 import { formatDate } from "../../utils";
 import CardCreatorCard from "./CardCreatorCard";
-import WishlistButton from "../../features/api/components/WishlistButton";
 import Link from "./Link";
 import { AuthUser } from "../../../types";
 import { BookCardResult } from "../../constants/queries";

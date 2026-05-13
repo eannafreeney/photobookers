@@ -1,55 +1,116 @@
-import { Behavior } from "../../../lib/hxml-comps";
-import { View, Text } from "../../../lib/hxml-comps";
+import {
+  Modifier,
+  Option,
+  SelectSingle,
+  Style,
+  Spinner,
+  View,
+} from "../../../lib/hxml-comps";
+import { Text } from "../../../lib/hxml-comps";
+
+export type BookTab = "book" | "comments" | "artist" | "publisher";
 
 type BookTabsProps = {
   baseUrl: string;
   slug: string;
   hasPublisher: boolean;
+  activeTab?: BookTab;
 };
 
-const BookTabs = ({ baseUrl, slug, hasPublisher }: BookTabsProps) => {
+const BookTabs = ({
+  baseUrl,
+  slug,
+  hasPublisher,
+  activeTab = "book",
+}: BookTabsProps) => {
   return (
-    <View style="tab-bar">
-      <View style="tab-btn">
-        <Text style="tab-label">Book</Text>
-        <Behavior
-          trigger="press"
-          action="replace-inner"
+    <>
+      <SelectSingle style="tab-bar" name="tab">
+        <Option
+          value="book"
+          style="tab-btn"
+          selected={activeTab === "book" ? "true" : undefined}
+          trigger="select"
           href={`${baseUrl}/hyperview/books/${slug}/tab/book-content`}
-          target="tab-area"
-        />
-      </View>
-      <View style="tab-btn">
-        <Text style="tab-label">Comments</Text>
-        <Behavior
-          trigger="press"
           action="replace-inner"
+          target="tab-area"
+          hide-during-load="tab-area"
+          show-during-load="tab-spinner"
+        >
+          <Text style="tab-label">Book</Text>
+        </Option>
+        <Option
+          value="comments"
+          style="tab-btn"
+          selected={activeTab === "comments" ? "true" : undefined}
+          trigger="select"
           href={`${baseUrl}/hyperview/books/${slug}/tab/comments`}
-          target="tab-area"
-        />
-      </View>
-      <View style="tab-btn">
-        <Text style="tab-label">Artist</Text>
-        <Behavior
-          trigger="press"
           action="replace-inner"
-          href={`${baseUrl}/hyperview/books/${slug}/tab/artist`}
           target="tab-area"
-        />
-      </View>
-      {hasPublisher && (
-        <View style="tab-btn">
-          <Text style="tab-label">Publisher</Text>
-          <Behavior
-            trigger="press"
-            action="replace-inner"
+          hide-during-load="tab-area"
+          show-during-load="tab-spinner"
+        >
+          <Text style="tab-label">Comments</Text>
+        </Option>
+        <Option
+          value="artist"
+          style="tab-btn"
+          selected={activeTab === "artist" ? "true" : undefined}
+          trigger="select"
+          href={`${baseUrl}/hyperview/books/${slug}/tab/artist`}
+          action="replace-inner"
+          target="tab-area"
+          hide-during-load="tab-area"
+          show-during-load="tab-spinner"
+        >
+          <Text style="tab-label">Artist</Text>
+        </Option>
+        {hasPublisher && (
+          <Option
+            value="publisher"
+            style="tab-btn"
+            selected={activeTab === "publisher" ? "true" : undefined}
+            trigger="select"
             href={`${baseUrl}/hyperview/books/${slug}/tab/publisher`}
+            action="replace-inner"
             target="tab-area"
-          />
-        </View>
-      )}
-    </View>
+            hide-during-load="tab-area"
+            show-during-load="tab-spinner"
+          >
+            <Text style="tab-label">Publisher</Text>
+          </Option>
+        )}
+      </SelectSingle>
+    </>
   );
 };
 
 export default BookTabs;
+
+export const bookTabStyles = () => (
+  <>
+    <Style
+      id="tab-btn"
+      flex={1}
+      paddingTop={10}
+      paddingBottom={10}
+      alignItems="center"
+    >
+      <Modifier selected="true">
+        <Style borderBottomWidth={2} borderBottomColor="#111111" />
+      </Modifier>
+    </Style>
+    <Style id="tab-label" fontSize={13} fontWeight="600" color="#999999">
+      <Modifier selected="true">
+        <Style color="#111111" />
+      </Modifier>
+    </Style>
+    <Style
+      id="tab-spinner"
+      flex={1}
+      alignItems="center"
+      justifyContent="center"
+      paddingTop={40}
+    />
+  </>
+);

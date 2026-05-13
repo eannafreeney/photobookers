@@ -28,6 +28,11 @@ const CreatorCard: FC<Props> = ({ creator, baseUrl = "" }) => {
 
   return (
     <View style="creator-card">
+      <Behavior
+        action="push"
+        trigger="press"
+        href={`${baseUrl}/hyperview/creators/${creator.slug}/tab/books`}
+      />
       {creator.coverUrl && (
         <Image
           source={creator.coverUrl}

@@ -30,6 +30,9 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.photobookers.app"
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

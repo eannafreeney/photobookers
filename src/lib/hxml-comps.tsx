@@ -30,7 +30,22 @@ export const ScrollView: FC<
     "content-container-style"?: string;
     horizontal?: "true";
   }>
-> = (props) => <scroll-view {...props} />;
+> = ({
+  horizontal,
+  "content-container-style": _cts,
+  children,
+  style,
+  ...rest
+}) => (
+  <view
+    scroll="true"
+    scroll-orientation={horizontal ? "horizontal" : "vertical"}
+    style={style}
+    {...rest}
+  >
+    {children}
+  </view>
+);
 
 type DocProps = PropsWithChildren<{ xmlns: string }>;
 
@@ -42,7 +57,7 @@ export const Screen: FC<BaseProps> = ({ style, children }) => (
   <screen style={style}>{children}</screen>
 );
 
-export const Body: FC<BaseProps & { scroll?: "true" }> = ({
+export const Body: FC<BaseProps & { scroll?: "true" | "false" }> = ({
   id,
   scroll = "true",
   style,
@@ -116,9 +131,10 @@ export const Styles: FC<PropsWithChildren> = ({ children }) => (
   <styles>{children}</styles>
 );
 
-// Style props are open-ended (all RN layout/typography props)
-export const Style: FC<Record<string, string | number>> = (props) => (
-  <style {...props} />
+// Style props are open-ended (all RN layout/typography props), children allowed for <modifier>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const Style = ({ children, ...props }: any) => (
+  <style {...props}>{children}</style>
 );
 
 // ---------------------------------------------------------------------------
@@ -129,6 +145,33 @@ export const Form: FC<PropsWithChildren<{ id?: string }>> = ({
   id,
   children,
 }) => <form id={id}>{children}</form>;
+
+export const SelectSingle: FC<
+  PropsWithChildren<{ style?: string; id?: string; name?: string }>
+> = ({ style, id, name, children }) => (
+  <select-single style={style} id={id} name={name}>
+    {children}
+  </select-single>
+);
+
+export const Option: FC<
+  PropsWithChildren<{
+    style?: string;
+    value: string;
+    selected?: "true";
+    trigger?: string;
+    href?: string;
+    action?: string;
+    target?: string;
+    "show-during-load"?: string;
+    "hide-during-load"?: string;
+  }>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+> = (props) => <option {...(props as any)} />;
+
+export const Modifier: FC<
+  PropsWithChildren<{ selected?: "true"; focused?: "true"; pressed?: "true" }>
+> = (props) => <modifier {...props} />;
 
 export const TextField: FC<{
   style?: string;
