@@ -1,47 +1,64 @@
 import { createRoute } from "hono-fsr";
 import { hyperview } from "../../../../../../lib/hxml";
-import { Style, View } from "../../../../../../lib/hxml-comps";
-import { getBooksByCreatorSlug } from "../../../../../../features/app/services";
+import {
+  Image,
+  ScrollView,
+  Style,
+  Text,
+  View,
+} from "../../../../../../lib/hxml-comps";
+import { getBookBySlug } from "../../../../../../features/app/services";
 import { paramValidator } from "../../../../../../lib/validator";
 import { slugSchema } from "../../../../../../features/app/schema";
 import { notFoundScreen } from "../../../../../../lib/hxml-components";
-import type { BookCardResult } from "../../../../../../constants/queries";
 import { AppLayout } from "../../../../+layout";
+import BookTabs, {
+  bookTabStyles,
+} from "../../../../../../features/hyperview/components/BookTabs";
 import { creatorCardStyles } from "../../../../../../features/hyperview/components/CreatorCard";
-import BookCard, {
-  bookCardStyles,
-} from "../../../../../../features/hyperview/components/BookCard";
-import CreatorTabs, { creatorTabStyles } from "../../../../../../features/hyperview/components/CreatorTabs";
-import { creatorsGridStyles } from "../../../../../../features/hyperview/components/CreatorsGrid";
+import BookPage, {
+  bookPageStyles,
+} from "../../../../../../features/hyperview/components/BookPage";
+import { bookIdSchema } from "../../../../../../schemas";
+import { getBookById } from "../../../../../../features/dashboard/books/services";
+import { getBaseUrl } from "../../../../../../lib/hyperview";
+import { getUser } from "../../../../../../utils";
 
-export const GET = createRoute(paramValidator(slugSchema), async (c) => {
-  const slug = c.req.valid("param").slug;
-
-  const proto = c.req.header("x-forwarded-proto") ?? "http";
-  const host = c.req.header("host") ?? "localhost:5173";
-  const baseUrl = `${proto}://${host}`;
-
-  const [error, result] = await getBooksByCreatorSlug(slug);
+export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
+  const bookId = c.req.valid("param").bookId;
   const hv = hyperview(c);
+  const baseUrl = getBaseUrl(c);
+  const user = await getUser(c);
 
-  if (error || !result?.creator) {
+  const [error, book] = await getBookById(bookId);
+
+  if (error || !book) {
     return hv(notFoundScreen("Book not found."), 404);
   }
 
-  const { creator, books } = result;
+  const galleryImages = [
+    book.coverUrl,
+    ...(book.images?.map((image) => image.imageUrl) ?? []),
+  ];
 
   return hv(
-    <AppLayout title={creator.displayName} extraStyles={pageStyles()}>
-      <CreatorTabs baseUrl={baseUrl} slug={slug} activeTab="books" />
-      <View id="tab-area" style="tab-fragment">
-        {books.map((book: BookCardResult) => (
-          <BookCard
-            key={book.id}
-            book={book}
-            baseUrl={baseUrl}
-            currentCreatorId={creator.id}
-          />
-        ))}
+    <AppLayout title={book.title} extraStyles={pageStyles()}>
+      <BookTabs
+        baseUrl={baseUrl}
+        bookId={book.id}
+        hasPublisher={!!book.publisher}
+        activeTab="book"
+      />
+      <View id="tab-area" style="page-content">
+        <BookPage
+          galleryImages={galleryImages}
+          book={book}
+          baseUrl={baseUrl}
+          user={user}
+          isLiked={false}
+          isWishlisted={false}
+          isCollected={false}
+        />
       </View>
     </AppLayout>,
   );
@@ -49,14 +66,17 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
 
 const pageStyles = () => (
   <>
-    <Style id="page-content" padding={4} />
+    <Style id="page-content" paddingRight={16} paddingLeft={16} />
     <Style
-      id="cover"
-      width="100%"
-      height={240}
-      borderRadius={8}
+      id="gallery"
+      height={360}
+      marginLeft={-16}
+      marginRight={-16}
       marginBottom={20}
+      flexDirection="row"
     />
+    <Style id="gallery-slide" width="90%" marginRight={12} />
+    <Style id="gallery-slide-image" width="100%" height={360} />
     <Style
       id="title"
       fontSize={22}
@@ -142,8 +162,7 @@ const pageStyles = () => (
     <Style id="comment-date" fontSize={11} color="#999999" marginTop={2} />
     <Style id="comment-body" fontSize={14} color="#444444" lineHeight={20} />
     {creatorCardStyles()}
-    {bookCardStyles()}
-    {creatorsGridStyles()}
-    {creatorTabStyles()}
+    {bookTabStyles()}
+    {bookPageStyles()}
   </>
 );

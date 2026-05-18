@@ -1,38 +1,33 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { slugSchema } from "../../../../../../features/app/schema";
-import { getBookBySlug, getBookComments, getDisplayName } from "../../../../../../features/app/services";
+import {
+  getBookBySlug,
+  getBookComments,
+  getDisplayName,
+} from "../../../../../../features/app/services";
 import { hyperview } from "../../../../../../lib/hxml";
 import { Image, Text, View } from "../../../../../../lib/hxml-comps";
 import { formatDate } from "../../../../../../utils";
+import { bookIdSchema } from "../../../../../../schemas";
 
-export const GET = createRoute(paramValidator(slugSchema), async (c) => {
-  const slug = c.req.valid("param").slug;
+export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
+  const bookId = c.req.valid("param").bookId;
   const hv = hyperview(c);
 
-  const [bookErr, bookResult] = await getBookBySlug(slug);
-  if (bookErr || !bookResult?.book) {
-    return hv(
-      <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
-        <Text style="comments-placeholder">Could not load comments.</Text>
-      </view>,
-      404,
-    );
-  }
+  const [commentsErr, comments] = await getBookComments(bookId);
 
-  const [commentsErr, comments] = await getBookComments(bookResult.book.id);
   if (commentsErr || !comments) {
     return hv(
-      <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
+      <view xmlns="https://hyperview.org/hyperview">
         <Text style="comments-placeholder">Could not load comments.</Text>
       </view>,
     );
   }
 
   return hv(
-    <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
+    <view xmlns="https://hyperview.org/hyperview">
       <Text style="comments-heading">What did you love about this book?</Text>
-
       {comments.length === 0 ? (
         <Text style="comments-empty">
           No comments yet. Be the first to comment!
@@ -44,7 +39,8 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
             const authorName = creator
               ? creator.displayName
               : getDisplayName(comment.user);
-            const authorImage = creator?.coverUrl ?? comment.user?.profileImageUrl;
+            const authorImage =
+              creator?.coverUrl ?? comment.user?.profileImageUrl;
 
             return (
               <View key={comment.id} style="comment-item">

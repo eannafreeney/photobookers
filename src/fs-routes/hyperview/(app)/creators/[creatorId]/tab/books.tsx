@@ -1,68 +1,53 @@
 import { createRoute } from "hono-fsr";
 import { hyperview } from "../../../../../../lib/hxml";
-import {
-  Image,
-  ScrollView,
-  Style,
-  Text,
-  View,
-} from "../../../../../../lib/hxml-comps";
-import { getBookBySlug } from "../../../../../../features/app/services";
+import { Style, View } from "../../../../../../lib/hxml-comps";
+import { getBooksByCreatorSlug } from "../../../../../../features/app/services";
 import { paramValidator } from "../../../../../../lib/validator";
-import { slugSchema } from "../../../../../../features/app/schema";
 import { notFoundScreen } from "../../../../../../lib/hxml-components";
 import { AppLayout } from "../../../../+layout";
-import BookTabs, {
-  bookTabStyles,
-} from "../../../../../../features/hyperview/components/BookTabs";
-import { creatorCardStyles } from "../../../../../../features/hyperview/components/CreatorCard";
+import CreatorCard, {
+  creatorCardStyles,
+} from "../../../../../../features/hyperview/components/CreatorCard";
+import { bookCardStyles } from "../../../../../../features/hyperview/components/BookCard";
+import CreatorTabs, {
+  creatorTabStyles,
+} from "../../../../../../features/hyperview/components/CreatorTabs";
+import { getUser } from "../../../../../../utils";
+import { likeFlagsForBooks } from "../../../../../../features/hyperview/likeFlags";
+import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
+import { getBaseUrl } from "../../../../../../lib/hyperview";
+import { creatorIdSchema } from "../../../../../../schemas";
+import { getBooksByCreatorId } from "../../../../../../features/dashboard/admin/creators/services";
+import CreatorBanner from "../../../../../../features/hyperview/components/CreatorBanner";
 
-export const GET = createRoute(paramValidator(slugSchema), async (c) => {
-  const slug = c.req.valid("param").slug;
+export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
+  const creatorId = c.req.valid("param").creatorId;
+  const baseUrl = getBaseUrl(c);
+  const currentPage = parseInt(c.req.query("page") ?? "1");
 
-  const proto = c.req.header("x-forwarded-proto") ?? "http";
-  const host = c.req.header("host") ?? "localhost:5173";
-  const baseUrl = `${proto}://${host}`;
-
-  const [error, result] = await getBookBySlug(slug);
+  const [error, result] = await getBooksByCreatorId(creatorId, currentPage);
   const hv = hyperview(c);
 
-  if (error || !result?.book) {
+  if (error || !result?.books || !result?.creator) {
     return hv(notFoundScreen("Book not found."), 404);
   }
 
-  const { book } = result;
-
-  const galleryImages = [
-    book.coverUrl,
-    ...(book.images?.map((image) => image.imageUrl) ?? []),
-  ];
+  const { creator, books } = result;
+  const user = await getUser(c);
+  const likesByBookId = await likeFlagsForBooks(user, books);
 
   return hv(
-    <AppLayout title={book.title} extraStyles={pageStyles()}>
-      <BookTabs
-        baseUrl={baseUrl}
-        slug={slug}
-        hasPublisher={!!book.publisher}
-        activeTab="book"
-      />
+    <AppLayout title={creator.displayName} extraStyles={pageStyles()}>
+      <CreatorBanner creator={creator} baseUrl={baseUrl} />
+      <CreatorTabs baseUrl={baseUrl} creatorId={creator.id} activeTab="books" />
       <View id="tab-area" style="page-content">
-        <ScrollView style="gallery" horizontal="true">
-          {galleryImages
-            .filter((url): url is string => Boolean(url))
-            .map((url, i) => (
-              <View key={String(i)} style="gallery-slide">
-                <Image
-                  source={url}
-                  style="gallery-slide-image"
-                  resize-mode="cover"
-                />
-              </View>
-            ))}
-        </ScrollView>
-        <Text style="title">{book.title}</Text>
-        <Text style="subtitle">{book.artist?.displayName}</Text>
-        <Text style="description">{book.description}</Text>
+        <CreatorPage
+          books={books}
+          creator={creator}
+          baseUrl={baseUrl}
+          user={user}
+          likesByBookId={likesByBookId}
+        />
       </View>
     </AppLayout>,
   );
@@ -70,17 +55,14 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
 
 const pageStyles = () => (
   <>
-    <Style id="page-content" padding={16} />
+    <Style id="page-content" margin={16} />
     <Style
-      id="gallery"
-      height={360}
-      marginLeft={-16}
-      marginRight={-16}
+      id="cover"
+      width="100%"
+      height={240}
+      borderRadius={8}
       marginBottom={20}
-      flexDirection="row"
     />
-    <Style id="gallery-slide" width="90%" marginRight={12} />
-    <Style id="gallery-slide-image" width="100%" height={360} />
     <Style
       id="title"
       fontSize={22}
@@ -96,7 +78,7 @@ const pageStyles = () => (
       lineHeight={22}
       marginBottom={20}
     />
-    <Style id="tab-fragment" flex={1} padding={16} />
+    <Style id="tab-fragment" flex={1} />
     <Style
       id="artist-name"
       fontSize={18}
@@ -166,6 +148,7 @@ const pageStyles = () => (
     <Style id="comment-date" fontSize={11} color="#999999" marginTop={2} />
     <Style id="comment-body" fontSize={14} color="#444444" lineHeight={20} />
     {creatorCardStyles()}
-    {bookTabStyles()}
+    {bookCardStyles()}
+    {creatorTabStyles()}
   </>
 );

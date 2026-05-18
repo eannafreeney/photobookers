@@ -12,14 +12,14 @@ export type BookTab = "book" | "comments" | "artist" | "publisher";
 
 type BookTabsProps = {
   baseUrl: string;
-  slug: string;
+  bookId: string;
   hasPublisher: boolean;
   activeTab?: BookTab;
 };
 
 const BookTabs = ({
   baseUrl,
-  slug,
+  bookId,
   hasPublisher,
   activeTab = "book",
 }: BookTabsProps) => {
@@ -31,7 +31,7 @@ const BookTabs = ({
           style="tab-btn"
           selected={activeTab === "book" ? "true" : undefined}
           trigger="select"
-          href={`${baseUrl}/hyperview/books/${slug}/tab/book-content`}
+          href={`${baseUrl}/hyperview/books/${bookId}/tab/book-content`}
           action="replace-inner"
           target="tab-area"
           hide-during-load="tab-area"
@@ -44,7 +44,7 @@ const BookTabs = ({
           style="tab-btn"
           selected={activeTab === "comments" ? "true" : undefined}
           trigger="select"
-          href={`${baseUrl}/hyperview/books/${slug}/tab/comments`}
+          href={`${baseUrl}/hyperview/books/${bookId}/tab/comments`}
           action="replace-inner"
           target="tab-area"
           hide-during-load="tab-area"
@@ -57,7 +57,7 @@ const BookTabs = ({
           style="tab-btn"
           selected={activeTab === "artist" ? "true" : undefined}
           trigger="select"
-          href={`${baseUrl}/hyperview/books/${slug}/tab/artist`}
+          href={`${baseUrl}/hyperview/books/${bookId}/tab/artist`}
           action="replace-inner"
           target="tab-area"
           hide-during-load="tab-area"
@@ -71,7 +71,7 @@ const BookTabs = ({
             style="tab-btn"
             selected={activeTab === "publisher" ? "true" : undefined}
             trigger="select"
-            href={`${baseUrl}/hyperview/books/${slug}/tab/publisher`}
+            href={`${baseUrl}/hyperview/books/${bookId}/tab/publisher`}
             action="replace-inner"
             target="tab-area"
             hide-during-load="tab-area"
@@ -97,12 +97,12 @@ export const bookTabStyles = () => (
       alignItems="center"
     >
       <Modifier selected="true">
-        <Style borderBottomWidth={2} borderBottomColor="#111111" />
+        <Style borderBottomWidth={2} borderBottomColor="#0099cc" />
       </Modifier>
     </Style>
     <Style id="tab-label" fontSize={13} fontWeight="600" color="#999999">
       <Modifier selected="true">
-        <Style color="#111111" />
+        <Style color="#0099cc" />
       </Modifier>
     </Style>
     <Style

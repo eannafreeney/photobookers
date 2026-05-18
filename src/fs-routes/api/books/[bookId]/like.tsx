@@ -18,7 +18,7 @@ import { hyperview } from "../../../../lib/hxml";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { canLikeBook } from "../../../../lib/permissions";
 import { isOk } from "../../../../lib/result";
-import { hyperviewBookLikeInner } from "../../../../features/hyperview/components/BookCard";
+import { HyperviewBookLikeInner } from "../../../../features/hyperview/components/BookCard";
 
 const updateLibraryPage = () => "library:updated";
 
@@ -30,6 +30,8 @@ export const POST = createRoute(async (c: Context) => {
   const isHyperview = (c.req.header("accept") ?? "").includes(
     "application/vnd.hyperview",
   );
+
+  console.log("hitting like book", isHyperview);
 
   if (!userId) {
     if (isHyperview) {
@@ -83,7 +85,13 @@ export const POST = createRoute(async (c: Context) => {
   if (isHyperview) {
     const nowLiked = isOk(await findLike(userId, bookId));
     const baseUrl = getBaseUrl(c);
-    return hv(hyperviewBookLikeInner(bookId, baseUrl, nowLiked));
+    return hv(
+      <HyperviewBookLikeInner
+        bookId={bookId}
+        baseUrl={baseUrl}
+        isLiked={nowLiked}
+      />,
+    );
   }
 
   const message = isCurrentlyLiked

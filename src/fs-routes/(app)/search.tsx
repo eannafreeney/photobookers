@@ -1,6 +1,5 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import NavSearchResults from "../../components/app/NavSearchResults";
 import { searchCreators } from "../../features/app/services";
 import { searchBooks } from "../../features/api/services";
 import Link from "../../components/app/Link";
@@ -8,6 +7,7 @@ import { capitalize, getUser } from "../../utils";
 import { DISCOVER_TAGS } from "../../constants/discover";
 import Pill from "../../components/app/Pill";
 import InfoPage from "../../pages/InfoPage";
+import NavSearchResults from "../../components/app/NavSearchResults";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);

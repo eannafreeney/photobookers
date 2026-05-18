@@ -20,19 +20,13 @@ type Props = {
   baseUrl?: string;
 };
 
-const CreatorCard: FC<Props> = ({ creator, baseUrl = "" }) => {
+const CreatorBanner: FC<Props> = ({ creator, baseUrl = "" }) => {
   if (!creator) return <></>;
 
   const location = [creator.city, creator.country].filter(Boolean).join(", ");
-  const hasSocials = creator.website || creator.instagram || creator.twitter;
 
   return (
     <View style="creator-card">
-      <Behavior
-        action="push"
-        trigger="press"
-        href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
-      />
       {creator.coverUrl && (
         <Image
           source={creator.coverUrl}
@@ -45,12 +39,13 @@ const CreatorCard: FC<Props> = ({ creator, baseUrl = "" }) => {
           <View style="creator-body-left">
             <Text style="creator-name">{creator.displayName}</Text>
             {location && <Text style="creator-location">{location}</Text>}
-            {/* {creator.tagline && (
+            {creator.tagline && (
               <Text style="creator-tagline">{creator.tagline}</Text>
-            )} */}
+            )}
           </View>
 
           <View style="creator-body-right">
+            {/* Follow button */}
             {creator.id && (
               <View style="follow-btn" id={`follow-btn-${creator.id}`}>
                 <Text style="follow-label">Follow</Text>
@@ -65,48 +60,12 @@ const CreatorCard: FC<Props> = ({ creator, baseUrl = "" }) => {
             )}
           </View>
         </View>
-        {/* <View style="creator-body-footer">
-          {hasSocials && (
-            <View style="creator-socials">
-              {creator.website && (
-                <View style="social-btn">
-                  <Text style="social-label">🌐 Website</Text>
-                  <Behavior
-                    trigger="press"
-                    action="deep-link"
-                    href={creator.website}
-                  />
-                </View>
-              )}
-              {creator.instagram && (
-                <View style="social-btn">
-                  <Text style="social-label">Instagram</Text>
-                  <Behavior
-                    trigger="press"
-                    action="deep-link"
-                    href={`https://instagram.com/${creator.instagram.replace(/^@/, "")}`}
-                  />
-                </View>
-              )}
-              {creator.twitter && (
-                <View style="social-btn">
-                  <Text style="social-label">𝕏 Twitter</Text>
-                  <Behavior
-                    trigger="press"
-                    action="deep-link"
-                    href={`https://x.com/${creator.twitter.replace(/^@/, "")}`}
-                  />
-                </View>
-              )}
-            </View>
-          )}
-        </View> */}
       </View>
     </View>
   );
 };
 
-export default CreatorCard;
+export default CreatorBanner;
 
 export const creatorCardStyles = () => (
   <>
@@ -125,14 +84,7 @@ export const creatorCardStyles = () => (
       justifyContent="space-between"
       gap={4}
     />
-    <Style id="creator-body-left" width="60%" />
-    <Style id="creator-body-right" width="40%" />
-    <Style
-      id="creator-body-footer"
-      flexDirection="row"
-      justifyContent="space-between"
-      gap={4}
-    />
+
     <Style
       id="creator-name"
       fontSize={16}
@@ -153,24 +105,6 @@ export const creatorCardStyles = () => (
       lineHeight={18}
       marginBottom={12}
     />
-    <Style
-      id="creator-socials"
-      flexDirection="row"
-      flexWrap="wrap"
-      marginBottom={12}
-      gap={8}
-    />
-    <Style
-      id="social-btn"
-      paddingTop={6}
-      paddingBottom={6}
-      paddingLeft={12}
-      paddingRight={12}
-      borderRadius={6}
-      borderWidth={1}
-      borderColor="#e5e5e5"
-    />
-    <Style id="social-label" fontSize={13} color="#333333" />
     <Style
       id="follow-btn"
       paddingTop={10}

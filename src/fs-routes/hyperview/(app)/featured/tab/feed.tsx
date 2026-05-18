@@ -5,6 +5,7 @@ import { hyperview } from "../../../../../lib/hxml";
 import { getBaseUrl } from "../../../../../lib/hyperview";
 import { Text } from "../../../../../lib/hxml-comps";
 import { getUser } from "../../../../../utils";
+import { likeFlagsForBooks } from "../../../../../features/hyperview/likeFlags";
 
 export const GET = createRoute(async (c) => {
   const hv = hyperview(c);
@@ -13,8 +14,9 @@ export const GET = createRoute(async (c) => {
   if (!user) {
     return hv(
       <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
-        <Text style="featured-signin-hint">
-          Sign in to see updates from creators you follow.
+        <Text style="featured-empty-hint">
+          This is your books feed, where we'll show you new releases from the
+          artists and publishers you follow.
         </Text>
       </view>,
     );
@@ -34,11 +36,18 @@ export const GET = createRoute(async (c) => {
   }
 
   const baseUrl = getBaseUrl(c);
+  const likesByBookId = await likeFlagsForBooks(user, books);
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
       {books.map((book) => (
-        <BookCard key={book.id} book={book} baseUrl={baseUrl} />
+        <BookCard
+          key={book.id}
+          book={book}
+          baseUrl={baseUrl}
+          user={user}
+          isLiked={likesByBookId[book.id] ?? false}
+        />
       ))}
     </view>,
   );

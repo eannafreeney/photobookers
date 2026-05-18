@@ -93,6 +93,34 @@ export const createBook = async (input: NewBook) => {
   }
 };
 
+export const getArtistByBookId = async (bookId: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      with: { artist: true },
+    });
+    if (!book) return err({ reason: "Book not found" });
+    return ok(book.artist);
+  } catch (error) {
+    console.error("Failed to get creator by book id", error);
+    return err({ reason: "Failed to get creator by book id" });
+  }
+};
+
+export const getPublisherByBookId = async (bookId: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      with: { publisher: true },
+    });
+    if (!book) return err({ reason: "Book not found" });
+    return ok(book.publisher);
+  } catch (error) {
+    console.error("Failed to get publisher by book id", error);
+    return err({ reason: "Failed to get publisher by book id" });
+  }
+};
+
 export const getBooksByArtistId = async (
   artistId: string,
   currentPage: number,

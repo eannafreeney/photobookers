@@ -356,6 +356,11 @@ export const getBooksByCreatorId = async (
   const whereClause = titleFilter ? and(baseFilter, titleFilter) : baseFilter;
 
   try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.id, creatorId),
+    });
+    if (!creator) return err({ reason: "Creator not found" });
+
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
       .from(books)
@@ -377,8 +382,11 @@ export const getBooksByCreatorId = async (
       limit,
       offset,
     });
-    if (foundBooks.length === 0) return ok({ books: [], totalPages, page });
-    return ok({ books: foundBooks, totalPages, page });
+
+    if (foundBooks.length === 0)
+      return ok({ books: [], totalPages, page, creator });
+
+    return ok({ books: foundBooks, totalPages, page, creator });
   } catch (error) {
     console.error("Failed to get books by creator id", error);
     return err({ reason: "Failed to get books by creator id", cause: error });

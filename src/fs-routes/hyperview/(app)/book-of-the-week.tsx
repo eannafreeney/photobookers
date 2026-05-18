@@ -8,24 +8,36 @@ import { getBaseUrl } from "../../../lib/hyperview";
 import BookCard, {
   bookCardStyles,
 } from "../../../features/hyperview/components/BookCard";
+import { getUser } from "../../../utils";
+import { likeFlagsForBooks } from "../../../features/hyperview/likeFlags";
 
 export const GET = createRoute(async (c) => {
   const currentPage = Number(c.req.query("page") ?? 1);
 
   const baseUrl = getBaseUrl(c);
+  const user = await getUser(c);
 
   const [error, result] = await getRecentBooksOfTheWeek(currentPage);
 
   const hv = hyperview(c);
+  const entries = result?.botwEntries ?? [];
+  const books = entries.map((e) => e.book);
+  const likesByBookId = await likeFlagsForBooks(user, books);
+
   return hv(
     <AppLayout title="Book of the Week" extraStyles={bookOfTheWeekStyles()}>
       <View id="page-content" style="page-content">
-        {result?.botwEntries.map((entry) => (
+        {entries.map((entry) => (
           <View key={entry.book.id} style="botw-entry">
             <Text style="botw-week-label">
               Week: {toWeekString(entry.weekStart)}
             </Text>
-            <BookCard book={entry.book} baseUrl={baseUrl} />
+            <BookCard
+              book={entry.book}
+              baseUrl={baseUrl}
+              user={user}
+              isLiked={likesByBookId[entry.book.id] ?? false}
+            />
           </View>
         ))}
       </View>

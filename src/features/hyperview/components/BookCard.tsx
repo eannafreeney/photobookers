@@ -16,12 +16,17 @@ type Props = {
 
 const likeTargetId = (bookId: string) => `book-like-${bookId}`;
 
-/** Inner XML returned by POST `/api/books/:id/like` for Hyperview `replace-inner`. */
-export const hyperviewBookLikeInner = (
-  bookId: string,
-  baseUrl: string,
-  isLiked: boolean,
-) => (
+type HyperviewBookLikeInnerProps = {
+  bookId: string;
+  baseUrl: string;
+  isLiked: boolean;
+};
+
+export const HyperviewBookLikeInner = ({
+  bookId,
+  baseUrl,
+  isLiked,
+}: HyperviewBookLikeInnerProps) => (
   <>
     <Text style={isLiked ? "book-like-icon-on" : "book-like-icon-off"}>
       {isLiked ? "♥" : "♡"}
@@ -43,7 +48,7 @@ const BookCard: FC<Props> = ({
   user = null,
   isLiked = false,
 }) => {
-  const detailUrl = `${baseUrl}/hyperview/books/${book.slug}/tab/book`;
+  const detailUrl = `${baseUrl}/hyperview/books/${book.id}/tab/book`;
   const artist = book.artist?.displayName;
   const publisher = book.publisher?.displayName;
   const showHeader = currentCreatorId !== book.artist?.id;
@@ -57,7 +62,7 @@ const BookCard: FC<Props> = ({
           <Behavior
             trigger="press"
             action="push"
-            href={`${baseUrl}/hyperview/creators/${book.artist?.slug}/tab/books`}
+            href={`${baseUrl}/hyperview/creators/${book.artist?.id}/tab/books`}
           />
           <View style="book-card-header-creator">
             {book.artist?.coverUrl && (
@@ -90,22 +95,32 @@ const BookCard: FC<Props> = ({
       <View style="book-card-body">
         <View style="book-card-body-row">
           <View style="book-card-title-block">
-            <Behavior trigger="press" action="push" href={detailUrl} />
-            <Text style="book-card-title">{book.title}</Text>
+            <View>
+              <Behavior trigger="press" action="push" href={detailUrl} />
+              <Text style="book-card-title">{book.title}</Text>
+            </View>
+            <View>
+              {publisher && publisher !== artist && (
+                <Text style="book-card-publisher">{publisher}</Text>
+              )}
+            </View>
           </View>
           <View id={lid} style="book-like-btn">
-            {!user ? (
-              <Text style="book-like-icon-off">♡</Text>
-            ) : !canLike ? (
-              <Text style="book-like-muted">—</Text>
-            ) : (
-              hyperviewBookLikeInner(book.id, baseUrl, isLiked)
-            )}
+            {
+              // !user ? (
+              //   <Text style="book-like-icon-off">♡</Text>
+              // ) : !canLike ? (
+              //   <Text style="book-like-muted">—</Text>
+              // ) : (
+              <HyperviewBookLikeInner
+                bookId={book.id}
+                baseUrl={baseUrl}
+                isLiked={isLiked}
+              />
+              // )
+            }
           </View>
         </View>
-        {publisher && publisher !== artist && (
-          <Text style="book-card-publisher">{publisher}</Text>
-        )}
       </View>
     </View>
   );
@@ -118,7 +133,7 @@ export const bookCardStyles = () => (
     <Style
       id="book-card"
       backgroundColor="#ffffff"
-      borderRadius={10}
+      borderRadius={4}
       overflow="hidden"
       marginBottom={16}
       borderWidth={1}

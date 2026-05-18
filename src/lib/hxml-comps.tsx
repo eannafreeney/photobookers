@@ -12,8 +12,10 @@ type BaseProps = PropsWithChildren<StyleProp & IdProp>;
 // Layout
 // ---------------------------------------------------------------------------
 
-export const View: FC<BaseProps> = ({ style, id, children }) => (
-  <view style={style} id={id}>
+export const View: FC<
+  BaseProps & { xmlns?: string; hide?: "true" | "false" }
+> = ({ style, id, children, hide, xmlns }) => (
+  <view xmlns={xmlns} style={style} id={id} hide={hide}>
     {children}
   </view>
 );
@@ -28,19 +30,25 @@ export const ScrollView: FC<
   PropsWithChildren<{
     style?: string;
     "content-container-style"?: string;
+    "hide-scroll-indicator"?: "true" | "false";
     horizontal?: "true";
+    hide?: "true" | "false";
   }>
 > = ({
   horizontal,
   "content-container-style": _cts,
+  "hide-scroll-indicator": hideScrollIndicator = "true",
   children,
   style,
+  hide,
   ...rest
 }) => (
   <view
     scroll="true"
     scroll-orientation={horizontal ? "horizontal" : "vertical"}
     style={style}
+    hide={hide}
+    shows-scroll-indicator={!hideScrollIndicator}
     {...rest}
   >
     {children}
@@ -173,14 +181,16 @@ export const Modifier: FC<
   PropsWithChildren<{ selected?: "true"; focused?: "true"; pressed?: "true" }>
 > = (props) => <modifier {...props} />;
 
-export const TextField: FC<{
-  style?: string;
-  name?: string;
-  placeholder?: string;
-  value?: string;
-  "keyboard-type"?: string;
-  "secure-text-entry"?: "true";
-}> = (props) => <text-field {...props} />;
+export const TextField: FC<
+  PropsWithChildren<{
+    style?: string;
+    name?: string;
+    placeholder?: string;
+    value?: string;
+    "keyboard-type"?: string;
+    "secure-text-entry"?: "true";
+  }>
+> = ({ children, ...props }) => <text-field {...props}>{children}</text-field>;
 
 // ---------------------------------------------------------------------------
 // Misc

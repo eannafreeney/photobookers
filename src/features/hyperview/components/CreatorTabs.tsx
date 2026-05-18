@@ -5,13 +5,13 @@ export type CreatorTab = "books" | "messages" | "publishers" | "about";
 
 type CreatorTabsProps = {
   baseUrl: string;
-  slug: string;
+  creatorId: string;
   activeTab?: CreatorTab;
 };
 
 const CreatorTabs = ({
   baseUrl,
-  slug,
+  creatorId,
   activeTab = "books",
 }: CreatorTabsProps) => {
   return (
@@ -22,7 +22,7 @@ const CreatorTabs = ({
           style="tab-btn"
           selected={activeTab === "books" ? "true" : undefined}
           trigger="select"
-          href={`${baseUrl}/hyperview/creators/${slug}/tab/books-content`}
+          href={`${baseUrl}/hyperview/creators/${creatorId}/tab/books-content`}
           action="replace-inner"
           target="tab-area"
           hide-during-load="tab-area"
@@ -35,7 +35,7 @@ const CreatorTabs = ({
           style="tab-btn"
           selected={activeTab === "messages" ? "true" : undefined}
           trigger="select"
-          href={`${baseUrl}/hyperview/creators/${slug}/tab/messages`}
+          href={`${baseUrl}/hyperview/creators/${creatorId}/tab/messages`}
           action="replace-inner"
           target="tab-area"
           hide-during-load="tab-area"
@@ -48,7 +48,7 @@ const CreatorTabs = ({
           style="tab-btn"
           selected={activeTab === "publishers" ? "true" : undefined}
           trigger="select"
-          href={`${baseUrl}/hyperview/creators/${slug}/tab/publishers`}
+          href={`${baseUrl}/hyperview/creators/${creatorId}/tab/publishers`}
           action="replace-inner"
           target="tab-area"
           hide-during-load="tab-area"
@@ -61,7 +61,7 @@ const CreatorTabs = ({
           style="tab-btn"
           selected={activeTab === "about" ? "true" : undefined}
           trigger="select"
-          href={`${baseUrl}/hyperview/creators/${slug}/tab/about`}
+          href={`${baseUrl}/hyperview/creators/${creatorId}/tab/about`}
           action="replace-inner"
           target="tab-area"
           hide-during-load="tab-area"
@@ -81,17 +81,17 @@ export const creatorTabStyles = () => (
     <Style
       id="tab-btn"
       flex={1}
-      paddingTop={10}
+      paddingTop={5}
       paddingBottom={10}
       alignItems="center"
     >
       <Modifier selected="true">
-        <Style borderBottomWidth={2} borderBottomColor="#111111" />
+        <Style borderBottomWidth={2} borderBottomColor="#0099cc" />
       </Modifier>
     </Style>
     <Style id="tab-label" fontSize={13} fontWeight="600" color="#999999">
       <Modifier selected="true">
-        <Style color="#111111" />
+        <Style color="#0099cc" />
       </Modifier>
     </Style>
   </>
