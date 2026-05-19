@@ -5,10 +5,22 @@ import { paramValidator } from "../../../../../../lib/validator";
 import BookPage from "../../../../../../features/hyperview/components/BookPage";
 import { getBookById } from "../../../../../../features/dashboard/books/services";
 import { bookIdSchema } from "../../../../../../schemas";
+import { getBaseUrl } from "../../../../../../lib/hyperview";
+
+function galleryUrlsFromBook(book: {
+  coverUrl: string | null;
+  images?: { imageUrl: string }[] | null;
+}): string[] {
+  const fromRows = (book.images ?? []).map((row) => row.imageUrl);
+  return [book.coverUrl, ...fromRows].filter((url): url is string =>
+    Boolean(url),
+  );
+}
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
   const hv = hyperview(c);
+  const baseUrl = getBaseUrl(c);
 
   const [error, book] = await getBookById(bookId);
 
@@ -21,10 +33,16 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
     );
   }
 
-  const galleryImages = [
-    book.coverUrl,
-    ...(book.images?.map((image) => image.imageUrl) ?? []),
-  ];
+  const galleryImages = galleryUrlsFromBook(book);
 
-  return hv(<BookPage galleryImages={galleryImages} book={book} />);
+  return hv(
+    <BookPage
+      galleryImages={galleryImages}
+      book={book}
+      baseUrl={baseUrl}
+      isLiked={false}
+      isWishlisted={false}
+      isCollected={false}
+    />,
+  );
 });

@@ -18,9 +18,16 @@ type CreatorCardCreator = {
 type Props = {
   creator: CreatorCardCreator | null | undefined;
   baseUrl?: string;
+  title?: string | null;
+  showHeader?: boolean;
 };
 
-const CreatorCard: FC<Props> = ({ creator, baseUrl = "" }) => {
+const CreatorCard: FC<Props> = ({
+  creator,
+  baseUrl = "",
+  title,
+  showHeader = true,
+}) => {
   if (!creator) return <></>;
 
   const location = [creator.city, creator.country].filter(Boolean).join(", ");
@@ -28,6 +35,29 @@ const CreatorCard: FC<Props> = ({ creator, baseUrl = "" }) => {
 
   return (
     <View style="creator-card">
+      {showHeader && (
+        <View style="creator-card-header">
+          <Behavior
+            trigger="press"
+            action="push"
+            href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
+          />
+          <View style="creator-card-header-creator">
+            {creator.coverUrl && (
+              <Image
+                source={creator.coverUrl}
+                style="creator-card-header-avatar"
+              />
+            )}
+            {creator.displayName && (
+              <Text style="creator-card-header-artist">
+                {creator.displayName}
+              </Text>
+            )}
+          </View>
+          {title && <Text style="creator-card-header-title">{title}</Text>}
+        </View>
+      )}
       <Behavior
         action="push"
         trigger="press"
@@ -45,9 +75,6 @@ const CreatorCard: FC<Props> = ({ creator, baseUrl = "" }) => {
           <View style="creator-body-left">
             <Text style="creator-name">{creator.displayName}</Text>
             {location && <Text style="creator-location">{location}</Text>}
-            {/* {creator.tagline && (
-              <Text style="creator-tagline">{creator.tagline}</Text>
-            )} */}
           </View>
 
           <View style="creator-body-right">
@@ -182,5 +209,32 @@ export const creatorCardStyles = () => (
       alignItems="center"
     />
     <Style id="follow-label" fontSize={14} fontWeight="600" color="#ffffff" />
+    <Style
+      id="creator-card-header"
+      paddingTop={8}
+      paddingBottom={8}
+      paddingLeft={12}
+      paddingRight={12}
+      flexDirection="row"
+      justifyContent="space-between"
+      alignItems="center"
+      height={40}
+    />
+    <Style
+      id="creator-card-header-creator"
+      flexDirection="row"
+      alignItems="center"
+      gap={8}
+      flex={1}
+    />
+    <Style
+      id="creator-card-header-avatar"
+      width={24}
+      height={24}
+      borderRadius={12}
+      overflow="hidden"
+    />
+    <Style id="creator-card-header-artist" fontSize={13} color="#555555" />
+    <Style id="creator-card-header-title" fontSize={12} color="#999999" />
   </>
 );

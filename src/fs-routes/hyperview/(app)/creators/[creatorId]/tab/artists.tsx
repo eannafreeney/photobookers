@@ -1,6 +1,5 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
-import { slugSchema } from "../../../../../../features/app/schema";
 import { getCreatorsByCreatorId } from "../../../../../../features/app/services";
 import { hyperview } from "../../../../../../lib/hxml";
 import { Text } from "../../../../../../lib/hxml-comps";
@@ -14,18 +13,16 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
 
-  console.log(creatorId);
-
   const [error, result] = await getCreatorsByCreatorId(
     creatorId,
-    "artist",
+    "publisher",
     currentPage,
   );
 
   if (error || !result) {
     return hv(
       <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
-        <Text style="comments-placeholder">Artist not found.</Text>
+        <Text style="comments-placeholder">Publisher not found.</Text>
       </view>,
       404,
     );
@@ -35,10 +32,10 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview">
-      {creators?.map((publisher) => (
+      {creators?.map((creator) => (
         <CreatorCard
-          key={publisher.id}
-          creator={publisher}
+          key={creator.id}
+          creator={creator}
           baseUrl={baseUrl}
           showHeader={false}
         />

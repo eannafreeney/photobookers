@@ -1,3 +1,4 @@
+import { err, ok } from "../lib/result";
 import { db } from "./client";
 import {
   collectionItems,
@@ -50,9 +51,16 @@ export const findFollowersCount = async (creatorId: string) => {
 };
 
 export const findWishlist = async (userId: string, bookId: string) => {
-  return await db.query.wishlists.findFirst({
-    where: and(eq(wishlists.userId, userId), eq(wishlists.bookId, bookId)),
-  });
+  try {
+    const wishlist = await db.query.wishlists.findFirst({
+      where: and(eq(wishlists.userId, userId), eq(wishlists.bookId, bookId)),
+    });
+    if (!wishlist) return err({ reason: "Wishlist not found" });
+    return ok(wishlist);
+  } catch (error) {
+    console.error("Failed to find wishlist", error);
+    return err({ reason: "Failed to find wishlist" });
+  }
 };
 
 export const insertWishlist = async (userId: string, bookId: string) => {

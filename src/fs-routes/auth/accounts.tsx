@@ -5,6 +5,10 @@ import Page from "../../components/layouts/Page";
 import SectionTitle from "../../components/app/SectionTitle";
 import Button from "../../components/app/Button";
 import { Context } from "hono";
+import {
+  accountFeatures,
+  accountMobileCards,
+} from "../../features/auth/accountsContent";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -16,7 +20,7 @@ export const GET = createRoute(async (c: Context) => {
         <SectionTitle>Accounts</SectionTitle>
         {/* Mobile: cards */}
         <div class="md:hidden space-y-4">
-          {mobileFeatures.map((account) => (
+          {accountMobileCards.map((account) => (
             <div
               key={account.slug}
               class="rounded-radius border border-outline bg-surface-alt p-4 flex flex-col gap-4"
@@ -57,7 +61,7 @@ export const GET = createRoute(async (c: Context) => {
               </tr>
             </thead>
             <tbody class="divide-y divide-outline dark:divide-outline-dark">
-              {features.map((feature) => (
+              {accountFeatures.map((feature) => (
                 <tr>
                   <td class="p-4 font-medium">{feature.name}</td>
                   <td class="p-4 text-center">{feature.fan && <Check />}</td>
@@ -113,36 +117,3 @@ const Check = () => (
     />
   </svg>
 );
-
-const features = [
-  {
-    name: "Follow Artists & Publishers",
-    fan: true,
-    artist: true,
-    publisher: true,
-  },
-  { name: "Wishlist Books", fan: true, artist: true, publisher: true },
-  { name: "Add Books to Collection", fan: true, artist: true, publisher: true },
-  { name: "View Your Feed", fan: true, artist: true, publisher: true },
-  { name: "View Your Profile", fan: true, artist: true, publisher: true },
-  { name: "Upload Your Books", fan: false, artist: true, publisher: true },
-  { name: "Manage Your Books", fan: false, artist: true, publisher: true },
-];
-
-const mobileFeatures = [
-  {
-    type: "Fan" as const,
-    slug: "fan",
-    features: features.filter((f) => f.fan),
-  },
-  {
-    type: "Artist / Self-Publisher" as const,
-    slug: "artist",
-    features: features.filter((f) => f.artist),
-  },
-  {
-    type: "Publisher" as const,
-    slug: "publisher",
-    features: features.filter((f) => f.publisher),
-  },
-];

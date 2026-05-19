@@ -13,9 +13,13 @@ type BaseProps = PropsWithChildren<StyleProp & IdProp>;
 // ---------------------------------------------------------------------------
 
 export const View: FC<
-  BaseProps & { xmlns?: string; hide?: "true" | "false" }
-> = ({ style, id, children, hide, xmlns }) => (
-  <view xmlns={xmlns} style={style} id={id} hide={hide}>
+  BaseProps & {
+    xmlns?: string;
+    hide?: "true" | "false";
+    sticky?: "true" | "false";
+  }
+> = ({ style, id, children, hide, xmlns, sticky = false }) => (
+  <view xmlns={xmlns} style={style} id={id} hide={hide} sticky={sticky}>
     {children}
   </view>
 );
@@ -129,6 +133,7 @@ export const Behavior: FC<{
   verb?: "get" | "post" | "put" | "delete";
   target?: string;
   once?: "true";
+  delay?: number;
 }> = (props) => <behavior {...props} />;
 
 // ---------------------------------------------------------------------------

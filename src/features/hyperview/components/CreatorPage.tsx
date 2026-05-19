@@ -1,12 +1,10 @@
 import { BookCardResult } from "../../../constants/queries";
-import { BookWithGalleryImages } from "../../app/types";
 import { Creator } from "../../../db/schema";
-import { User } from "../../../db/schema";
 import BookCard from "./BookCard";
 import { AuthUser } from "../../../../types";
 
 type Props = {
-  books: BookWithGalleryImages[];
+  books: BookCardResult[];
   creator: Creator | null;
   baseUrl: string;
   user: AuthUser;
@@ -22,7 +20,7 @@ const CreatorPage = ({
 }: Props) => {
   return (
     <view xmlns="https://hyperview.org/hyperview">
-      {books.map((book: BookCardResult) => (
+      {books.map((book) => (
         <BookCard
           key={book.id}
           book={book}

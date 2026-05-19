@@ -26,8 +26,6 @@ export const GET = createRoute(
     const bookId = c.req.valid("param").bookId;
     const user = await getUser(c);
 
-    console.log("comments GET", user);
-
     return c.html(<CommentModal bookId={bookId} user={user} />);
   },
 );

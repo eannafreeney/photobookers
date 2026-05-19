@@ -10,13 +10,75 @@ import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import {
   deleteCollectionItem,
+  findCollectionItem,
   insertCollectionItem,
 } from "../../../../db/queries";
 import CollectButton from "../../../../features/api/components/CollectButton";
+import { hyperview } from "../../../../lib/hxml";
+import { getBaseUrl } from "../../../../lib/hyperview";
+import { getIsHyperview } from "../../../../features/hyperview/lib";
+import { HyperviewBookCollectInner } from "../../../../features/hyperview/components/BookActions";
 
 const updateLibraryPage = () => "library:updated";
 
 export const POST = createRoute(async (c: Context) => {
+  const isHyperview = getIsHyperview(c);
+  return isHyperview ? postCollectHyperview(c) : postCollectWeb(c);
+});
+
+const postCollectHyperview = async (c: Context) => {
+  const user = await getUser(c);
+  const userId = user?.id;
+  const baseUrl = getBaseUrl(c);
+  const hv = hyperview(c);
+
+  if (!userId) {
+    const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to collect this book.")}`;
+    return hv(
+      <view xmlns="https://hyperview.org/hyperview">
+        <behavior trigger="load" action="new" verb="get" href={modalHref} />
+        <text style="book-action-label">+</text>
+      </view>,
+      401,
+    );
+  }
+
+  const bookId = c.req.param("bookId");
+
+  const [err, book] = await getBookPermissionData(bookId);
+  if (err || !book) {
+    return hv(<text style="book-action-label">?</text>, err ? 400 : 404);
+  }
+
+  const isCurrentlyCollected = Boolean(
+    await findCollectionItem(userId, bookId),
+  );
+
+  try {
+    if (isCurrentlyCollected) {
+      await deleteCollectionItem(userId, bookId);
+    } else {
+      await insertCollectionItem(userId, bookId);
+      publishCollectActivity(user, book);
+      await createBookCollectedNotification(user, book);
+    }
+  } catch (error) {
+    console.error("Failed to add/remove book from collection", error);
+    return hv(<text style="book-action-label">!</text>);
+  }
+
+  const nowCollected = Boolean(await findCollectionItem(userId, bookId));
+
+  return hv(
+    <HyperviewBookCollectInner
+      bookId={bookId}
+      baseUrl={baseUrl}
+      isCollected={nowCollected}
+    />,
+  );
+};
+
+const postCollectWeb = async (c: Context) => {
   const bookId = c.req.param("bookId");
   const user = await getUser(c);
   const userId = user?.id;
@@ -39,7 +101,7 @@ export const POST = createRoute(async (c: Context) => {
       await createBookCollectedNotification(user, book);
     }
   } catch (error) {
-    console.error("Failed to add/remove book to wishlist", error);
+    console.error("Failed to add/remove book from collection", error);
     return showErrorAlert(c);
   }
 
@@ -55,4 +117,4 @@ export const POST = createRoute(async (c: Context) => {
       {dispatchEvents([updateLibraryPage()])}
     </>,
   );
-});
+};

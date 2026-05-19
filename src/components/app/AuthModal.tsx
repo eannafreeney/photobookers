@@ -37,4 +37,5 @@ const AuthModal = ({
     </Modal>
   );
 };
+
 export default AuthModal;

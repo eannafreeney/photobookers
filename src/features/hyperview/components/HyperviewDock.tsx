@@ -22,15 +22,6 @@ const HyperviewDock: FC<HyperviewDockProps> = ({ baseUrl, active }) => {
         />
         <Text style={item(active === "home")}>Home</Text>
       </View>
-
-      <View style="dock-item">
-        <Behavior
-          trigger="press"
-          action="push"
-          href={`${baseUrl}/hyperview/search`}
-        />
-        <Text style={item(active === "search")}>Search</Text>
-      </View>
     </View>
   );
 };

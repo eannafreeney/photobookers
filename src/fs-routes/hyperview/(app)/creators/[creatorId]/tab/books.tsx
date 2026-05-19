@@ -39,7 +39,12 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   return hv(
     <AppLayout title={creator.displayName} extraStyles={pageStyles()}>
       <CreatorBanner creator={creator} baseUrl={baseUrl} />
-      <CreatorTabs baseUrl={baseUrl} creatorId={creator.id} activeTab="books" />
+      <CreatorTabs
+        baseUrl={baseUrl}
+        creatorId={creator.id}
+        activeTab="books"
+        creatorType={creator.type}
+      />
       <View id="tab-area" style="page-content">
         <CreatorPage
           books={books}
@@ -55,7 +60,6 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
 const pageStyles = () => (
   <>
-    <Style id="page-content" margin={16} />
     <Style
       id="cover"
       width="100%"

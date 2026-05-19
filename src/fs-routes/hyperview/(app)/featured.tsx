@@ -12,11 +12,11 @@ import {
 import { Style, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getUser } from "../../../utils";
+import { creatorCardStyles } from "../../../features/hyperview/components/CreatorCard";
 
 export const GET = createRoute(async (c) => {
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
-
   const hv = hyperview(c);
 
   return hv(
@@ -46,5 +46,6 @@ const pageStyles = () => (
     {messageListStyles()}
     {bookCardStyles()}
     {bookTabStyles()}
+    {creatorCardStyles()}
   </>
 );

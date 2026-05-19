@@ -19,52 +19,42 @@ import { getBaseUrl } from "../../../../lib/hyperview";
 import { canLikeBook } from "../../../../lib/permissions";
 import { isOk } from "../../../../lib/result";
 import { HyperviewBookLikeInner } from "../../../../features/hyperview/components/BookCard";
+import { getIsHyperview } from "../../../../features/hyperview/lib";
 
 const updateLibraryPage = () => "library:updated";
 
 export const POST = createRoute(async (c: Context) => {
+  const isHyperview = getIsHyperview(c);
+  return isHyperview ? postLikeHyperview(c) : postLikeWeb(c);
+});
+
+const postLikeHyperview = async (c: Context) => {
   const bookId = c.req.param("bookId");
   const user = await getUser(c);
+  const baseUrl = getBaseUrl(c);
   const userId = user?.id;
   const hv = hyperview(c);
-  const isHyperview = (c.req.header("accept") ?? "").includes(
-    "application/vnd.hyperview",
-  );
-
-  console.log("hitting like book", isHyperview);
 
   if (!userId) {
-    if (isHyperview) {
-      return hv(<text style="book-like-icon-off">♡</text>, 401);
-    }
-    return c.html(<AuthModal action="to like this book." />, 401);
+    const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to like this book.")}`;
+    return hv(
+      <view xmlns="https://hyperview.org/hyperview">
+        <behavior trigger="load" action="new" verb="get" href={modalHref} />
+        <text style="book-like-icon-off">♡</text>{" "}
+      </view>,
+      401,
+    );
   }
+  if (!userId) return hv(<text style="book-like-icon-off">♡</text>, 401);
 
   const [err, book] = await getBookPermissionData(bookId);
-  if (err || !book) {
-    if (isHyperview) {
-      return hv(<text style="book-like-muted">?</text>, err ? 400 : 404);
-    }
-    return showErrorAlert(c, err?.reason ?? "Book not found");
-  }
+  if (err || !book)
+    return hv(<text style="book-like-muted">?</text>, err ? 400 : 404);
 
-  if (!canLikeBook(user, book)) {
-    if (isHyperview) {
-      return hv(<text style="book-like-muted">—</text>);
-    }
-    return showErrorAlert(c, "You cannot like this book.");
-  }
+  if (!canLikeBook(user, book))
+    return hv(<text style="book-like-muted">—</text>);
 
-  let isCurrentlyLiked: boolean;
-  let isCircleButton = true;
-
-  if (isHyperview) {
-    isCurrentlyLiked = isOk(await findLike(userId, bookId));
-  } else {
-    const body = await c.req.parseBody();
-    isCurrentlyLiked = body.isLiked === "true";
-    isCircleButton = body.buttonType === "circle";
-  }
+  const isCurrentlyLiked = isOk(await findLike(userId, bookId));
 
   try {
     if (isCurrentlyLiked) {
@@ -76,22 +66,49 @@ export const POST = createRoute(async (c: Context) => {
     }
   } catch (error) {
     console.error("Failed to add/remove book like", error);
-    if (isHyperview) {
-      return hv(<text style="book-like-muted">!</text>);
-    }
-    return showErrorAlert(c);
+    return hv(<text style="book-like-muted">!</text>);
   }
 
-  if (isHyperview) {
-    const nowLiked = isOk(await findLike(userId, bookId));
-    const baseUrl = getBaseUrl(c);
-    return hv(
-      <HyperviewBookLikeInner
-        bookId={bookId}
-        baseUrl={baseUrl}
-        isLiked={nowLiked}
-      />,
-    );
+  const nowLiked = isOk(await findLike(userId, bookId));
+
+  return hv(
+    <HyperviewBookLikeInner
+      bookId={bookId}
+      baseUrl={baseUrl}
+      isLiked={nowLiked}
+    />,
+  );
+};
+
+const postLikeWeb = async (c: Context) => {
+  const bookId = c.req.param("bookId");
+  const user = await getUser(c);
+  const userId = user?.id;
+
+  if (!userId) return c.html(<AuthModal action="to like this book." />, 401);
+
+  const [err, book] = await getBookPermissionData(bookId);
+  if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
+
+  if (!canLikeBook(user, book))
+    return showErrorAlert(c, "You cannot like this book.");
+
+  const body = await c.req.parseBody();
+  const isCurrentlyLiked = body.isLiked === "true";
+  const isCircleButton = body.buttonType === "circle";
+
+  try {
+    if (isCurrentlyLiked) {
+      await deleteLike(userId, bookId);
+    } else {
+      await insertLike(userId, bookId);
+      publishLikeActivity(user, book);
+      createBookLikedNotification(user, book);
+    }
+  } catch (error) {
+    console.error("Failed to add/remove book like", error);
+
+    return showErrorAlert(c);
   }
 
   const message = isCurrentlyLiked
@@ -105,4 +122,4 @@ export const POST = createRoute(async (c: Context) => {
       {dispatchEvents([updateLibraryPage()])}
     </>,
   );
-});
+};

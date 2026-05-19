@@ -1,15 +1,7 @@
 import { createRoute } from "hono-fsr";
 import { hyperview } from "../../../../../../lib/hxml";
-import {
-  Image,
-  ScrollView,
-  Style,
-  Text,
-  View,
-} from "../../../../../../lib/hxml-comps";
-import { getBookBySlug } from "../../../../../../features/app/services";
+import { Style, View } from "../../../../../../lib/hxml-comps";
 import { paramValidator } from "../../../../../../lib/validator";
-import { slugSchema } from "../../../../../../features/app/schema";
 import { notFoundScreen } from "../../../../../../lib/hxml-components";
 import { AppLayout } from "../../../../+layout";
 import BookTabs, {
@@ -22,13 +14,11 @@ import BookPage, {
 import { bookIdSchema } from "../../../../../../schemas";
 import { getBookById } from "../../../../../../features/dashboard/books/services";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
-import { getUser } from "../../../../../../utils";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
-  const user = await getUser(c);
 
   const [error, book] = await getBookById(bookId);
 
@@ -38,11 +28,17 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
 
   const galleryImages = [
     book.coverUrl,
-    ...(book.images?.map((image) => image.imageUrl) ?? []),
-  ];
+    ...((book.images ?? []) as { imageUrl: string }[]).map(
+      (row) => row.imageUrl,
+    ),
+  ].filter((url): url is string => Boolean(url));
 
   return hv(
-    <AppLayout title={book.title} extraStyles={pageStyles()}>
+    <AppLayout
+      title={book.title}
+      artist={book.artist?.displayName}
+      extraStyles={pageStyles()}
+    >
       <BookTabs
         baseUrl={baseUrl}
         bookId={book.id}
@@ -54,7 +50,6 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
           galleryImages={galleryImages}
           book={book}
           baseUrl={baseUrl}
-          user={user}
           isLiked={false}
           isWishlisted={false}
           isCollected={false}
@@ -66,7 +61,6 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
 
 const pageStyles = () => (
   <>
-    <Style id="page-content" paddingRight={16} paddingLeft={16} />
     <Style
       id="gallery"
       height={360}

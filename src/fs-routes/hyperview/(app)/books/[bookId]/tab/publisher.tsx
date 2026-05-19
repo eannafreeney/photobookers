@@ -25,7 +25,7 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview">
-      <CreatorCard creator={publisher} baseUrl={baseUrl} />,
+      <CreatorCard creator={publisher} baseUrl={baseUrl} showHeader={false} />
     </view>,
   );
 });

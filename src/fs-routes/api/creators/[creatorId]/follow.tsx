@@ -11,26 +11,77 @@ import { deleteFollow, insertFollow } from "../../../../db/queries";
 import FollowButton from "../../../../features/api/components/FollowButton";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { hyperview } from "../../../../lib/hxml";
+import { getIsHyperview } from "../../../../features/hyperview/lib";
+import { getBaseUrl } from "../../../../lib/hyperview";
 
 export const POST = createRoute(async (c: Context) => {
+  const isHyperview = getIsHyperview(c);
+  return isHyperview ? postFollowHyperview(c) : postFollowWeb(c);
+});
+
+const postFollowHyperview = async (c: Context) => {
   const creatorId = c.req.param("creatorId");
   const user = await getUser(c);
   const hv = hyperview(c);
+  const baseUrl = getBaseUrl(c);
   const userId = user?.id;
 
-  const isHyperview = c.req
-    .header("accept")
-    ?.includes("application/vnd.hyperview");
+  if (!userId) {
+    const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to follow this creator.")}`;
+    return hv(
+      <view xmlns="https://hyperview.org/hyperview">
+        <behavior trigger="load" action="new" verb="get" href={modalHref} />
+        <text style="follow-label">Follow</text>
+      </view>,
+      401,
+    );
+  }
+
+  const body = await c.req.parseBody();
+  const isCurrentlyFollowing = body.isFollowing === "true";
+
+  const [err, creator] = await getCreatorPermissionData(creatorId);
+  if (err || !creator) {
+    return hv(
+      <text xmlns="https://hyperview.org/hyperview" style="follow-label">
+        Creator not found
+      </text>,
+    );
+  }
+
+  try {
+    if (isCurrentlyFollowing) {
+      await deleteFollow(creatorId, userId);
+    } else {
+      await insertFollow(userId, creatorId);
+      publishFollowActivity(user, creator);
+      createCreatorFollowedNotification(user, creator);
+    }
+  } catch (error) {
+    console.error("Failed to add/remove creator from followers", error);
+    hv(
+      <text xmlns="https://hyperview.org/hyperview" style="follow-label">
+        Something went wrong
+      </text>,
+    );
+  }
+
+  const label = isCurrentlyFollowing
+    ? `Follow ${creator.displayName}`
+    : `Following ✓`;
+  return hv(
+    <text xmlns="https://hyperview.org/hyperview" style="follow-label">
+      {label}
+    </text>,
+  );
+};
+
+const postFollowWeb = async (c: Context) => {
+  const creatorId = c.req.param("creatorId");
+  const user = await getUser(c);
+  const userId = user?.id;
 
   if (!userId) {
-    if (isHyperview) {
-      return hv(
-        <text xmlns="https://hyperview.org/hyperview" style="follow-label">
-          Sign in to follow
-        </text>,
-        401,
-      );
-    }
     return c.html(<AuthModal action="to follow this creator." />, 401);
   }
 
@@ -42,13 +93,6 @@ export const POST = createRoute(async (c: Context) => {
 
   const [err, creator] = await getCreatorPermissionData(creatorId);
   if (err || !creator) {
-    if (isHyperview) {
-      return hv(
-        <text xmlns="https://hyperview.org/hyperview" style="follow-label">
-          Creator not found
-        </text>,
-      );
-    }
     return showErrorAlert(c, err?.reason ?? "Creator not found");
   }
 
@@ -62,25 +106,7 @@ export const POST = createRoute(async (c: Context) => {
     }
   } catch (error) {
     console.error("Failed to add/remove creator from followers", error);
-    if (isHyperview) {
-      return hv(
-        <text xmlns="https://hyperview.org/hyperview" style="follow-label">
-          Something went wrong
-        </text>,
-      );
-    }
     return showErrorAlert(c);
-  }
-
-  if (isHyperview) {
-    const label = isCurrentlyFollowing
-      ? `Follow ${creator.displayName}`
-      : `Following ✓`;
-    return hv(
-      <text xmlns="https://hyperview.org/hyperview" style="follow-label">
-        {label}
-      </text>,
-    );
   }
 
   const message = isCurrentlyFollowing
@@ -107,4 +133,4 @@ export const POST = createRoute(async (c: Context) => {
         dispatchEvents(["creator-messages:updated"])}
     </>,
   );
-});
+};

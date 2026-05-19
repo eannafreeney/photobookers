@@ -12,6 +12,7 @@ type Props = {
   user?: AuthUser | null;
   /** Same as web LikeButton: from `findLike` when logged in. */
   isLiked?: boolean;
+  title?: string | null;
 };
 
 const likeTargetId = (bookId: string) => `book-like-${bookId}`;
@@ -28,9 +29,7 @@ export const HyperviewBookLikeInner = ({
   isLiked,
 }: HyperviewBookLikeInnerProps) => (
   <>
-    <Text style={isLiked ? "book-like-icon-on" : "book-like-icon-off"}>
-      {isLiked ? "♥" : "♡"}
-    </Text>
+    <Text style={isLiked ? "book-like-icon-on" : "book-like-icon-off"}>👍</Text>
     <Behavior
       trigger="press"
       verb="post"
@@ -47,6 +46,7 @@ const BookCard: FC<Props> = ({
   currentCreatorId,
   user = null,
   isLiked = false,
+  title,
 }) => {
   const detailUrl = `${baseUrl}/hyperview/books/${book.id}/tab/book`;
   const artist = book.artist?.displayName;
@@ -54,6 +54,8 @@ const BookCard: FC<Props> = ({
   const showHeader = currentCreatorId !== book.artist?.id;
   const canLike = canLikeBook(user, book);
   const lid = likeTargetId(book.id);
+
+  const authModalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to like this book.")}`;
 
   return (
     <View style="book-card">
@@ -73,11 +75,13 @@ const BookCard: FC<Props> = ({
             )}
             {artist && <Text style="book-card-header-artist">{artist}</Text>}
           </View>
-          {book.releaseDate && (
+          {title ? (
+            <Text style="book-card-header-title">{title}</Text>
+          ) : book.releaseDate ? (
             <Text style="book-card-header-date">
               {formatDate(book.releaseDate)}
             </Text>
-          )}
+          ) : null}
         </View>
       )}
 
@@ -106,19 +110,25 @@ const BookCard: FC<Props> = ({
             </View>
           </View>
           <View id={lid} style="book-like-btn">
-            {
-              // !user ? (
-              //   <Text style="book-like-icon-off">♡</Text>
-              // ) : !canLike ? (
-              //   <Text style="book-like-muted">—</Text>
-              // ) : (
+            {!user ? (
+              <>
+                <Text style="book-like-icon-off">♡</Text>
+                <Behavior
+                  trigger="press"
+                  verb="get"
+                  action="new"
+                  href={authModalHref}
+                />
+              </>
+            ) : !canLike ? (
+              <Text style="book-like-muted">—</Text>
+            ) : (
               <HyperviewBookLikeInner
                 bookId={book.id}
                 baseUrl={baseUrl}
                 isLiked={isLiked}
               />
-              // )
-            }
+            )}
           </View>
         </View>
       </View>
@@ -172,6 +182,7 @@ export const bookCardStyles = () => (
       borderRadius={12}
       overflow="hidden"
     />
+    <Style id="book-card-header-title" fontSize={12} color="#999999" />
     <Style id="book-card-header-artist" fontSize={13} color="#555555" />
     <Style id="book-card-header-date" fontSize={12} color="#999999" />
     <Style id="book-card-body" padding={12} flexDirection="column" gap={2} />

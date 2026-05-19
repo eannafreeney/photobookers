@@ -10,7 +10,6 @@ import { getArtistByBookId } from "../../../../../../features/dashboard/books/se
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
   const hv = hyperview(c);
-
   const baseUrl = getBaseUrl(c);
 
   const [error, artist] = await getArtistByBookId(bookId);
@@ -26,7 +25,7 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview">
-      <CreatorCard creator={artist} baseUrl={baseUrl} />
+      <CreatorCard creator={artist} baseUrl={baseUrl} showHeader={false} />
     </view>,
   );
 });

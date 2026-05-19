@@ -32,7 +32,10 @@ const HVSearchResults: FC<Props> = ({ books, creators, baseUrl }) => {
 
   if (!hasResults) {
     return (
-      <View xmlns="https://hyperview.org/hyperview" style="search-results-stack">
+      <View
+        xmlns="https://hyperview.org/hyperview"
+        style="search-results-stack"
+      >
         <Text style="featured-empty-hint">No results found</Text>
       </View>
     );
@@ -113,7 +116,7 @@ const HVSearchResults: FC<Props> = ({ books, creators, baseUrl }) => {
 
 export default HVSearchResults;
 
-export const navSearchResultsStyles = () => (
+export const hvSearchResultsStyles = () => (
   <>
     <Style id="search-results-stack" flexDirection="column" />
     <Style id="search-block" flexDirection="column" />

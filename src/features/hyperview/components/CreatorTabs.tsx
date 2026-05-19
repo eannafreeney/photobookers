@@ -6,14 +6,17 @@ export type CreatorTab = "books" | "messages" | "publishers" | "about";
 type CreatorTabsProps = {
   baseUrl: string;
   creatorId: string;
+  creatorType: "artist" | "publisher";
   activeTab?: CreatorTab;
 };
 
 const CreatorTabs = ({
   baseUrl,
   creatorId,
+  creatorType,
   activeTab = "books",
 }: CreatorTabsProps) => {
+  console.log(creatorType, "creatorType");
   return (
     <>
       <SelectSingle style="tab-bar" name="tab">
@@ -44,17 +47,24 @@ const CreatorTabs = ({
           <Text style="tab-label">Messages</Text>
         </Option>
         <Option
-          value="publishers"
+          value={creatorType === "publisher" ? "publishers" : "artists"}
           style="tab-btn"
-          selected={activeTab === "publishers" ? "true" : undefined}
+          selected={
+            activeTab ===
+            (creatorType === "publisher" ? "publishers" : "artists")
+              ? "true"
+              : undefined
+          }
           trigger="select"
-          href={`${baseUrl}/hyperview/creators/${creatorId}/tab/publishers`}
+          href={`${baseUrl}/hyperview/creators/${creatorId}/tab/${creatorType === "publisher" ? "artists" : "publishers"}`}
           action="replace-inner"
           target="tab-area"
           hide-during-load="tab-area"
           show-during-load="tab-spinner"
         >
-          <Text style="tab-label">Publishers</Text>
+          <Text style="tab-label">
+            {creatorType === "publisher" ? "Artists" : "Publishers"}
+          </Text>
         </Option>
         <Option
           value="about"

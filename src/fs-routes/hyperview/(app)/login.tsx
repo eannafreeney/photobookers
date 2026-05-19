@@ -58,7 +58,7 @@ export const POST = createRoute(formValidator(loginFormSchema), async (c) => {
     );
   }
 
-  const [mustErr] = await getMustResetPasswordState(login.userId);
+  const [mustErr, mustReset] = await getMustResetPasswordState(login.userId);
   if (mustErr) {
     return hv(
       <AppLayout title="Sign in" showBackButton extraStyles={pageStyles()}>
@@ -71,7 +71,6 @@ export const POST = createRoute(formValidator(loginFormSchema), async (c) => {
     );
   }
 
-  const [, mustReset] = await getMustResetPasswordState(login.userId);
   if (mustReset) {
     const resetUrl = `${baseUrl}/auth/force-reset-password?redirectUrl=${encodeURIComponent(`${baseUrl}/hyperview/featured`)}`;
     return hv(
@@ -102,21 +101,6 @@ export const POST = createRoute(formValidator(loginFormSchema), async (c) => {
       />
     </view>,
   );
-
-  return c.redirect(`${baseUrl}/hyperview/featured`, 303);
-
-  return hv(
-    <AppLayout title="Signed in" showBackButton extraStyles={pageStyles()}>
-      <View style="login-page">
-        <Text style="login-success">You are signed in.</Text>
-        <Behavior
-          trigger="load"
-          action="push"
-          href={`${baseUrl}/hyperview/featured`}
-        />
-      </View>
-    </AppLayout>,
-  );
 });
 
 const LoginFormBody = ({
@@ -141,7 +125,8 @@ const LoginFormBody = ({
         style="login-field"
         name="password"
         placeholder="Password"
-        secure-text-entry="true"
+        secure-text="true"
+        text-content-type="password"
       />
       <View style="login-submit-wrap">
         <Text style="login-submit-label">Sign in</Text>

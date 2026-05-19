@@ -22,7 +22,6 @@ export const GET = createRoute(async (c) => {
         showBackButton={false}
         showDock
         baseUrl={baseUrl}
-        dockActive="messages"
         extraStyles={pageStyles()}
       >
         <View style="page-content">
@@ -43,7 +42,6 @@ export const GET = createRoute(async (c) => {
       showBackButton={false}
       showDock
       baseUrl={baseUrl}
-      dockActive="messages"
       extraStyles={pageStyles()}
     >
       <View style="page-content">
@@ -75,7 +73,12 @@ export const GET = createRoute(async (c) => {
 
 const pageStyles = () => (
   <>
-    <Style id="page-content" marginRight={16} marginLeft={16} paddingBottom={8} />
+    <Style
+      id="page-content"
+      marginRight={16}
+      marginLeft={16}
+      paddingBottom={8}
+    />
     {signInEmptyHintStyles()}
     {messageListStyles()}
   </>

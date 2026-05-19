@@ -3,9 +3,7 @@ import "dotenv/config";
 import { Hono } from "hono";
 import { logger } from "hono/logger";
 import { serveStatic } from "@hono/node-server/serve-static";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { createRouter } from "hono-fsr";
+import "dotenv/config";
 
 // Import your grouped routes
 import { routes } from "./routes";
