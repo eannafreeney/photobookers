@@ -105,12 +105,31 @@ export const SectionTitle: FC<BaseProps> = ({ style, children }) => (
 );
 
 export const Item: FC<
-  PropsWithChildren<StyleProp & { key?: string | number }>
-> = ({ style, key, children }) => (
-  <item style={style} key={key}>
+  PropsWithChildren<
+    StyleProp &
+      IdProp & {
+        /** Hyperview list row id (XML `key` attr). Not React's `key` prop. */
+        itemKey?: string;
+        trigger?: string;
+        once?: "true";
+        href?: string;
+        action?: string;
+        verb?: "get" | "post" | "put" | "delete" | "patch";
+        target?: string;
+        "show-during-load"?: string;
+        "hide-during-load"?: string;
+      }
+  >
+> = ({ itemKey, style, id, children, ...rest }) => (
+  <item style={style} id={id} list-key={itemKey} {...rest}>
     {children}
   </item>
 );
+
+export const Items: FC<PropsWithChildren<{ xmlns?: string }>> = ({
+  xmlns = "https://hyperview.org/hyperview",
+  children,
+}) => <items xmlns={xmlns}>{children}</items>;
 
 // ---------------------------------------------------------------------------
 // Media
@@ -135,6 +154,8 @@ export const Behavior: FC<{
   once?: "true";
   delay?: number;
   "event-name"?: string;
+  "show-during-load"?: string;
+  "hide-during-load"?: string;
 }> = (props) => <behavior {...props} />;
 
 // ---------------------------------------------------------------------------
@@ -202,9 +223,7 @@ export const TextField: FC<
 // Misc
 // ---------------------------------------------------------------------------
 
-export const Spinner: FC<StyleProp> = ({ style }) => (
-  <spinner style="#0099cc" />
-);
+export const Spinner: FC<StyleProp> = () => <spinner color="#0099cc" />;
 
 export const Text = ({ style, id, children }: BaseProps) => (
   <text style={style} id={id}>

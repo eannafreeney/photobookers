@@ -2,13 +2,13 @@ import { FC } from "hono/jsx";
 import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
 import type { BookCardResult } from "../../../constants/queries";
 import { formatDate } from "../../../utils";
-import { bookActionsStyles, HyperviewBookLikeInner } from "./BookActions";
+import { bookActionsStyles, HyperviewBookWishlistInner } from "./BookActions";
 
 type Props = {
   book: BookCardResult;
   baseUrl?: string;
   currentCreatorId?: string | null;
-  isLiked?: boolean;
+  isWishlisted?: boolean;
   title?: string | null;
 };
 
@@ -16,7 +16,7 @@ const BookCard: FC<Props> = ({
   book,
   baseUrl = "",
   currentCreatorId,
-  isLiked = false,
+  isWishlisted = false,
   title,
 }) => {
   const detailUrl = `${baseUrl}/hyperview/books/${book.id}/tab/book`;
@@ -77,10 +77,10 @@ const BookCard: FC<Props> = ({
             </View>
           </View>
           <View id={`book-like-${book.id}`} style="book-btn">
-            <HyperviewBookLikeInner
+            <HyperviewBookWishlistInner
               bookId={book.id}
               baseUrl={baseUrl}
-              isActive={isLiked}
+              isActive={isWishlisted}
             />
           </View>
         </View>

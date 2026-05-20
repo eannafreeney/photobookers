@@ -6,46 +6,19 @@ import { xmlText } from "../../../lib/hxml";
 type Props = {
   book: BookWithGalleryImages;
   baseUrl: string;
-  isLiked: boolean;
   isWishlisted: boolean;
-  isCollected: boolean;
 };
 
-const BookActions = ({
-  book,
-  baseUrl,
-  isLiked,
-  isWishlisted,
-  isCollected,
-}: Props) => {
-  console.log(isLiked, "isLiked");
+const BookActions = ({ book, baseUrl, isWishlisted }: Props) => {
   return (
     <view xmlns="https://hyperview.org/hyperview">
       <View style="book-actions-row">
-        <View style="book-action-cell">
-          <View id={`book-like-${book.id}`} style="book-btn">
-            <HyperviewBookLikeInner
-              bookId={book.id}
-              baseUrl={baseUrl}
-              isActive={isLiked}
-            />
-          </View>
-        </View>
         <View style="book-action-cell">
           <View id={`book-wishlist-${book.id}`} style="book-btn">
             <HyperviewBookWishlistInner
               bookId={book.id}
               baseUrl={baseUrl}
               isActive={isWishlisted}
-            />
-          </View>
-        </View>
-        <View style="book-action-cell">
-          <View id={`book-collect-${book.id}`} style="book-btn">
-            <HyperviewBookCollectInner
-              bookId={book.id}
-              baseUrl={baseUrl}
-              isActive={isCollected}
             />
           </View>
         </View>
@@ -94,44 +67,6 @@ export const HyperviewBookWishlistInner = ({
       action="replace-inner"
       target={`book-wishlist-${bookId}`}
       href={`${baseUrl}/api/books/${bookId}/wishlist`}
-    />
-  </View>
-);
-
-export const HyperviewBookCollectInner = ({
-  bookId,
-  baseUrl,
-  isActive,
-}: InnerProps) => (
-  <View xmlns="https://hyperview.org/hyperview">
-    <Text style={isActive ? "label-on" : "label-off"}>
-      {isActive ? "✓" : "+"}
-    </Text>
-    <Behavior
-      trigger="press"
-      verb="post"
-      action="replace-inner"
-      target={`book-collect-${bookId}`}
-      href={`${baseUrl}/api/books/${bookId}/collect`}
-    />
-  </View>
-);
-
-export const HyperviewBookLikeInner = ({
-  bookId,
-  baseUrl,
-  isActive,
-}: InnerProps) => (
-  <View xmlns="https://hyperview.org/hyperview">
-    <Text style={isActive ? "label-on" : "label-off"}>
-      {isActive ? "★" : "☆"}
-    </Text>
-    <Behavior
-      trigger="press"
-      verb="post"
-      action="replace-inner"
-      target={`book-like-${bookId}`}
-      href={`${baseUrl}/api/books/${bookId}/like`}
     />
   </View>
 );

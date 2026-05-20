@@ -21,29 +21,14 @@ type Props = {
   galleryImages: string[];
   book: BookWithGalleryImages;
   baseUrl: string;
-  isLiked: boolean;
   isWishlisted: boolean;
-  isCollected: boolean;
 };
 
-const BookPage = ({
-  galleryImages,
-  book,
-  baseUrl,
-  isLiked,
-  isWishlisted,
-  isCollected,
-}: Props) => {
+const BookPage = ({ galleryImages, book, baseUrl, isWishlisted }: Props) => {
   return (
     <view xmlns="https://hyperview.org/hyperview">
       <BookGallery galleryImages={galleryImages} />
-      <BookActions
-        book={book}
-        baseUrl={baseUrl}
-        isLiked={isLiked}
-        isWishlisted={isWishlisted}
-        isCollected={isCollected}
-      />
+      <BookActions book={book} baseUrl={baseUrl} isWishlisted={isWishlisted} />
       <Text style="title">{book.title}</Text>
       <Text style="subtitle">{book.artist?.displayName}</Text>
       <Text style="description">{book.description}</Text>

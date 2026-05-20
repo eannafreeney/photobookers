@@ -1,13 +1,13 @@
 import { FC } from "hono/jsx";
 import type { AuthUser } from "../../../../types";
 import BookCard from "./BookCard";
-import { likeFlagsForBooks } from "../findFlags";
-import { Behavior, View } from "../../../lib/hxml-comps";
+import { View } from "../../../lib/hxml-comps";
 import { getThisWeeksBookOfTheWeek } from "../../app/BOTWServices";
 import { getThisWeeksFeaturedBooks } from "../../app/FeaturedServices";
 import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
 import CreatorCard from "./CreatorCard";
+import { wishlistFlagsForBooks } from "../findFlags";
 
 type Props = {
   baseUrl: string;
@@ -37,7 +37,7 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
     [];
 
   const books = [botwBook, ...featuredBooksOnly].filter(Boolean);
-  const likesByBookId = await likeFlagsForBooks(user, books);
+  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
 
   return (
     <View>
@@ -46,7 +46,7 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
           title="Book of The Week"
           book={botwBook}
           baseUrl={baseUrl}
-          isLiked={likesByBookId[botwBook.id] ?? false}
+          isWishlisted={wishlistsByBookId[botwBook.id] ?? false}
         />
       )}
       {artistResult?.creator && (
@@ -71,7 +71,7 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
             title="Featured"
             book={book}
             baseUrl={baseUrl}
-            isLiked={likesByBookId[book.id] ?? false}
+            isWishlisted={wishlistsByBookId[book.id] ?? false}
           />
         ))}
     </View>

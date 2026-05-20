@@ -1,13 +1,9 @@
 import { createRoute } from "hono-fsr";
 import { hyperview } from "../../../../../../lib/hxml";
 import { Text } from "../../../../../../lib/hxml-comps";
-import { getBooksByCreatorSlug } from "../../../../../../features/app/services";
 import { paramValidator } from "../../../../../../lib/validator";
-import { slugSchema } from "../../../../../../features/app/schema";
-import type { BookCardResult } from "../../../../../../constants/queries";
-import BookCard from "../../../../../../features/hyperview/components/BookCard";
 import { getUser } from "../../../../../../utils";
-import { likeFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
 import { creatorIdSchema } from "../../../../../../schemas";
 import { getBooksByCreatorId } from "../../../../../../features/dashboard/admin/creators/services";
@@ -32,15 +28,14 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
   const { creator, books } = result;
   const user = await getUser(c);
-  const likesByBookId = await likeFlagsForBooks(user, books);
+  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
 
   return hv(
     <CreatorPage
       books={books}
       creator={creator}
       baseUrl={baseUrl}
-      user={user}
-      likesByBookId={likesByBookId}
+      wishlistsByBookId={wishlistsByBookId}
     />,
   );
 });

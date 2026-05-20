@@ -18,7 +18,7 @@ import { hyperview } from "../../../../lib/hxml";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { canLikeBook } from "../../../../lib/permissions";
 import { isOk } from "../../../../lib/result";
-import { HyperviewBookLikeInner } from "../../../../features/hyperview/components/BookActions";
+// import { HyperviewBookLikeInner } from "../../../../features/hyperview/components/BookActions";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 
@@ -49,6 +49,7 @@ const postLikeHyperview = async (c: Context) => {
   }
 
   const [err, book] = await getBookLikeContext(bookId);
+
   if (err || !book)
     return hv(
       <View xmlns="https://hyperview.org/hyperview">
@@ -91,11 +92,11 @@ const postLikeHyperview = async (c: Context) => {
         action="dispatch-event"
         event-name="books:updated"
       />
-      <HyperviewBookLikeInner
+      {/* <HyperviewBookLikeInner
         bookId={bookId}
         baseUrl={baseUrl}
         isActive={nowLiked}
-      />
+      /> */}
     </View>,
   );
 };

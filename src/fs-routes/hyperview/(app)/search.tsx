@@ -89,15 +89,7 @@ export const POST = createRoute(async (c) => {
 
 const pageStyles = () => (
   <>
-    <Style
-      id="page-content"
-      marginRight={16}
-      marginLeft={16}
-      paddingTop={4}
-      paddingBottom={16}
-    />
-
-    {signInEmptyHintStyles()}
+    {/* {signInEmptyHintStyles()} */}
     {discoveryTagStyles()}
     {searchFormStyles()}
     {hvSearchResultsStyles()}

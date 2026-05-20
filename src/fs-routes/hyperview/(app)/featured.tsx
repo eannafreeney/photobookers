@@ -1,5 +1,4 @@
 import { createRoute } from "hono-fsr";
-import FeaturedHomeBody from "../../../features/hyperview/components/FeaturedHomeBody";
 import FeaturedTabs from "../../../features/hyperview/components/FeaturedTabs";
 import { AppLayout } from "../+layout";
 import { hyperview } from "../../../lib/hxml";
@@ -9,7 +8,7 @@ import {
   messageListStyles,
   signInEmptyHintStyles,
 } from "../../../features/hyperview/hyperviewCommonScreenStyles";
-import { Spinner, Style, View } from "../../../lib/hxml-comps";
+import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getUser } from "../../../utils";
 import { creatorCardStyles } from "../../../features/hyperview/components/CreatorCard";
@@ -32,14 +31,22 @@ export const GET = createRoute(async (c) => {
       extraStyles={pageStyles()}
     >
       <FeaturedTabs baseUrl={baseUrl} activeTab="home" />
-      <View id="tab-spinner-feed" style="tab-spinner-featured" hide="true">
+      <View id="tab-spinner" style="tab-spinner-featured" hide="true">
         <Spinner />
       </View>
       <BooksUpdatedListener
         refreshHref={`${baseUrl}/hyperview/featured/tab/home-content`}
       />
       <View id="tab-area" style="page-content">
-        <FeaturedHomeBody baseUrl={baseUrl} user={user} />
+        <Behavior
+          trigger="load"
+          verb="get"
+          action="replace-inner"
+          target="tab-area"
+          href={`${baseUrl}/hyperview/featured/tab/home-content`}
+          hide-during-load="tab-area"
+          show-during-load="tab-spinner"
+        />
       </View>
     </AppLayout>,
   );
@@ -51,6 +58,7 @@ const pageStyles = () => (
     <Style id="tab-fragment" flex={1} />
     <Style
       id="tab-spinner-featured"
+      flex={1}
       minHeight={320}
       alignItems="center"
       justifyContent="center"

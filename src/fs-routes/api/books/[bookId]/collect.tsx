@@ -17,7 +17,6 @@ import CollectButton from "../../../../features/api/components/CollectButton";
 import { hyperview } from "../../../../lib/hxml";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
-import { HyperviewBookCollectInner } from "../../../../features/hyperview/components/BookActions";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 
 const updateLibraryPage = () => "library:updated";
@@ -71,13 +70,13 @@ const postCollectHyperview = async (c: Context) => {
 
   const nowCollected = Boolean(await findCollectionItem(userId, bookId));
 
-  return hv(
-    <HyperviewBookCollectInner
-      bookId={bookId}
-      baseUrl={baseUrl}
-      isActive={nowCollected}
-    />,
-  );
+  // return hv(
+  //   <HyperviewBookCollectInner
+  //     bookId={bookId}
+  //     baseUrl={baseUrl}
+  //     isActive={nowCollected}
+  //   />,
+  // );
 };
 
 const postCollectWeb = async (c: Context) => {

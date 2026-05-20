@@ -1,5 +1,4 @@
-import { Option, SelectSingle } from "../../../lib/hxml-comps";
-import { Text } from "../../../lib/hxml-comps";
+import { Behavior, Option, SelectSingle, Text } from "../../../lib/hxml-comps";
 
 export type FeaturedTab = "home" | "feed" | "messages";
 
@@ -8,6 +7,16 @@ type FeaturedTabsProps = {
   activeTab?: FeaturedTab;
 };
 
+const tabLoadBehavior = (baseUrl: string, path: string) => ({
+  trigger: "select" as const,
+  verb: "get" as const,
+  href: `${baseUrl}/hyperview/featured/tab/${path}`,
+  action: "replace-inner" as const,
+  target: "tab-area",
+  "hide-during-load": "tab-area",
+  "show-during-load": "tab-spinner",
+});
+
 const FeaturedTabs = ({ baseUrl, activeTab = "home" }: FeaturedTabsProps) => {
   return (
     <SelectSingle style="tab-bar" name="tab">
@@ -15,39 +24,24 @@ const FeaturedTabs = ({ baseUrl, activeTab = "home" }: FeaturedTabsProps) => {
         value="home"
         style="tab-btn"
         selected={activeTab === "home" ? "true" : undefined}
-        trigger="select"
-        href={`${baseUrl}/hyperview/featured/tab/home-content`}
-        action="replace-inner"
-        target="tab-area"
-        hide-during-load="tab-area"
-        show-during-load="tab-spinner"
       >
+        <Behavior {...tabLoadBehavior(baseUrl, "home-content")} />
         <Text style="tab-label">Home</Text>
       </Option>
       <Option
         value="feed"
         style="tab-btn"
         selected={activeTab === "feed" ? "true" : undefined}
-        trigger="select"
-        href={`${baseUrl}/hyperview/featured/tab/feed`}
-        action="replace-inner"
-        target="tab-area"
-        hide-during-load="tab-area"
-        show-during-load="tab-spinner"
       >
+        <Behavior {...tabLoadBehavior(baseUrl, "feed")} />
         <Text style="tab-label">Feed</Text>
       </Option>
       <Option
         value="messages"
         style="tab-btn"
         selected={activeTab === "messages" ? "true" : undefined}
-        trigger="select"
-        href={`${baseUrl}/hyperview/featured/tab/messages`}
-        action="replace-inner"
-        target="tab-area"
-        hide-during-load="tab-area"
-        show-during-load="tab-spinner"
       >
+        <Behavior {...tabLoadBehavior(baseUrl, "messages")} />
         <Text style="tab-label">Messages</Text>
       </Option>
     </SelectSingle>

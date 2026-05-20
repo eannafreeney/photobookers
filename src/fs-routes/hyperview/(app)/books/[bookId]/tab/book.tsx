@@ -15,11 +15,7 @@ import { bookIdSchema } from "../../../../../../schemas";
 import { getBookById } from "../../../../../../features/dashboard/books/services";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { getUser } from "../../../../../../utils";
-import {
-  likeFlagsForBooks,
-  collectionFlagsForBooks,
-  wishlistFlagsForBooks,
-} from "../../../../../../features/hyperview/findFlags";
+import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
@@ -40,9 +36,7 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
     ),
   ].filter((url): url is string => Boolean(url));
 
-  const likesByBookId = await likeFlagsForBooks(user, [book]);
   const wishlistsByBookId = await wishlistFlagsForBooks(user, [book]);
-  const collectionsByBookId = await collectionFlagsForBooks(user, [book]);
 
   return hv(
     <AppLayout
@@ -61,9 +55,7 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
           galleryImages={galleryImages}
           book={book}
           baseUrl={baseUrl}
-          isLiked={likesByBookId[book.id] ?? false}
           isWishlisted={wishlistsByBookId[book.id] ?? false}
-          isCollected={collectionsByBookId[book.id] ?? false}
         />
       </View>
     </AppLayout>,

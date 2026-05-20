@@ -6,10 +6,10 @@ type Props = {
   books: BookCardResult[];
   creator: Creator | null;
   baseUrl: string;
-  likesByBookId: Record<string, boolean>;
+  wishlistsByBookId: Record<string, boolean>;
 };
 
-const CreatorPage = ({ books, creator, baseUrl, likesByBookId }: Props) => {
+const CreatorPage = ({ books, creator, baseUrl, wishlistsByBookId }: Props) => {
   return (
     <view xmlns="https://hyperview.org/hyperview">
       {books.map((book) => (
@@ -18,7 +18,7 @@ const CreatorPage = ({ books, creator, baseUrl, likesByBookId }: Props) => {
           book={book}
           baseUrl={baseUrl}
           currentCreatorId={creator?.id}
-          isLiked={likesByBookId[book.id] ?? false}
+          isWishlisted={wishlistsByBookId[book.id] ?? false}
         />
       ))}
     </view>

@@ -46,18 +46,16 @@ const WishlistButton = async ({
       buttonIcon
     ) : (
       <>
-        <span x-show="!isSubmitting">
-          {isWishlisted ? "Wishlisted" : "Wishlist"}
-        </span>
+        <span x-show="!isSubmitting">{isWishlisted ? "Liked" : "Like"}</span>
         <span x-show="isSubmitting" x-cloak>
-          {isWishlisted ? "Wishlist" : "Wishlisted"}
+          {isWishlisted ? "Like" : "Liked"}
         </span>
         {buttonIcon}
       </>
     ),
   };
 
-  const tooltipText = isWishlisted ? "Remove from Wishlist" : "Add to Wishlist";
+  const tooltipText = isWishlisted ? "Unlike this book" : "Like this book";
 
   if (isCircleButton) {
     return (

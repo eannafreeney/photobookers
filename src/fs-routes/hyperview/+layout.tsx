@@ -9,7 +9,7 @@ import {
   View,
 } from "../../lib/hxml-comps";
 import { Child } from "hono/jsx";
-import {
+import HyperviewDock, {
   dockShellStyles,
   type HyperviewDockActive,
 } from "../../features/hyperview/components/HyperviewDock";
@@ -34,6 +34,7 @@ type Props = PropsWithChildren<{
   dockActive?: HyperviewDockActive;
   user?: AuthUser;
   verified?: boolean;
+  nativeList?: boolean;
 }>;
 
 export const AppLayout = ({
@@ -48,6 +49,7 @@ export const AppLayout = ({
   dockActive,
   artist,
   user,
+  nativeList = false,
 }: Props) => {
   const docked = Boolean(showDock && baseUrl);
 
@@ -71,10 +73,17 @@ export const AppLayout = ({
             />
           )}
           {docked && baseUrl ? (
-            <View style="shell-column">
-              <ScrollView style="shell-scroll">{children}</ScrollView>
-              {/* <HyperviewDock baseUrl={baseUrl} active={dockActive} /> */}
-            </View>
+            nativeList ? (
+              <View style="shell-column">
+                {children}
+                <HyperviewDock baseUrl={baseUrl} active={dockActive} />
+              </View>
+            ) : (
+              <View style="shell-column">
+                <ScrollView style="shell-scroll">{children}</ScrollView>
+                <HyperviewDock baseUrl={baseUrl} active={dockActive} />
+              </View>
+            )
           ) : (
             children
           )}

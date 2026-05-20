@@ -5,7 +5,7 @@ import { hyperview } from "../../../../../lib/hxml";
 import { getBaseUrl } from "../../../../../lib/hyperview";
 import { Text } from "../../../../../lib/hxml-comps";
 import { getUser } from "../../../../../utils";
-import { likeFlagsForBooks } from "../../../../../features/hyperview/findFlags";
+import { wishlistFlagsForBooks } from "../../../../../features/hyperview/findFlags";
 import BooksUpdatedListener from "../../../../../features/hyperview/components/BooksUpdatedListener";
 
 export const GET = createRoute(async (c) => {
@@ -38,7 +38,7 @@ export const GET = createRoute(async (c) => {
   }
 
   const baseUrl = getBaseUrl(c);
-  const likesByBookId = await likeFlagsForBooks(user, books);
+  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
@@ -50,7 +50,7 @@ export const GET = createRoute(async (c) => {
           key={book.id}
           book={book}
           baseUrl={baseUrl}
-          isLiked={likesByBookId[book.id] ?? false}
+          isWishlisted={wishlistsByBookId[book.id] ?? false}
         />
       ))}
     </view>,

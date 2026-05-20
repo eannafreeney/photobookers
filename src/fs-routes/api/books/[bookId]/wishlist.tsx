@@ -20,6 +20,7 @@ import { getBaseUrl } from "../../../../lib/hyperview";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { HyperviewBookWishlistInner } from "../../../../features/hyperview/components/BookActions";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
+import { canWishlistBook } from "../../../../lib/permissions";
 
 const updateLibraryPage = () => "library:updated";
 
@@ -29,13 +30,14 @@ export const POST = createRoute(async (c: Context) => {
 });
 
 const postWishlistHyperview = async (c: Context) => {
+  const bookId = c.req.param("bookId");
   const user = await getUser(c);
   const baseUrl = getBaseUrl(c);
   const userId = user?.id;
   const hv = hyperview(c);
 
   if (!userId) {
-    const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to wishlist this book.")}`;
+    const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to like this book.")}`;
     return hv(
       <View xmlns="https://hyperview.org/hyperview">
         <Behavior trigger="load" action="new" verb="get" href={modalHref} />
@@ -46,56 +48,74 @@ const postWishlistHyperview = async (c: Context) => {
     );
   }
 
-  const bookId = c.req.param("bookId");
-
   const [err, book] = await getBookPermissionData(bookId);
+
   if (err || !book) {
-    return hv(<text style="book-wishlist-muted">?</text>, err ? 400 : 404);
+    return hv(
+      <View xmlns="https://hyperview.org/hyperview">
+        <Text style="book-like-muted">?</Text>
+      </View>,
+      err ? 400 : 404,
+    );
   }
 
-  const isCurrentlyWishlisted = isOk(await findWishlist(userId, bookId));
+  if (!canWishlistBook(user, book))
+    return hv(
+      <View xmlns="https://hyperview.org/hyperview">
+        <Text style="book-like-muted">—</Text>
+      </View>,
+    );
+
+  const isCurrentlyLiked = isOk(await findWishlist(userId, bookId));
 
   try {
-    if (isCurrentlyWishlisted) {
+    if (isCurrentlyLiked) {
       await deleteWishlist(user.id, bookId);
     } else {
       await insertWishlist(user.id, bookId);
       publishWishlistActivity(user, book);
-      await createBookWishlistedNotification(user, book);
+      void createBookWishlistedNotification(user, book);
     }
   } catch (error) {
-    console.error("Failed to add/remove book to wishlist", error);
+    console.error("Failed to like/unlike book", error);
     return hv(<text style="book-wishlist-muted">!</text>);
   }
 
-  const nowWishlisted = isOk(await findWishlist(userId, bookId));
+  const nowLiked = !isCurrentlyLiked;
 
   return hv(
-    <HyperviewBookWishlistInner
-      bookId={bookId}
-      baseUrl={baseUrl}
-      isActive={nowWishlisted}
-    />,
+    <View xmlns="https://hyperview.org/hyperview">
+      <Behavior
+        trigger="load"
+        action="dispatch-event"
+        event-name="books:updated"
+      />
+      <HyperviewBookWishlistInner
+        bookId={bookId}
+        baseUrl={baseUrl}
+        isActive={nowLiked}
+      />
+    </View>,
   );
 };
 
 const postWishlistWeb = async (c: Context) => {
+  const bookId = c.req.param("bookId");
   const user = await getUser(c);
   const userId = user?.id;
 
-  if (!userId)
-    return c.html(<AuthModal action="to wishlist this book." />, 401);
-
-  const bookId = c.req.param("bookId");
-  const body = await c.req.parseBody();
-
-  const shouldRefreshWishlist = body.shouldRefreshWishlist === "true";
+  if (!userId) return c.html(<AuthModal action="to like this book." />, 401);
 
   const [err, book] = await getBookPermissionData(bookId);
   if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
+  if (!canWishlistBook(user, book))
+    return showErrorAlert(c, "You cannot like this book.");
+
+  const body = await c.req.parseBody();
   const isCurrentlyWishlisted = body.isWishlisted === "true";
   const isCircleButton = body.buttonType === "circle";
+  const shouldRefreshWishlist = body.shouldRefreshWishlist === "true";
 
   const isAddingToWishlist = !isCurrentlyWishlisted;
 
@@ -105,7 +125,7 @@ const postWishlistWeb = async (c: Context) => {
     } else {
       await insertWishlist(user.id, bookId);
       publishWishlistActivity(user, book);
-      await createBookWishlistedNotification(user, book);
+      void createBookWishlistedNotification(user, book);
     }
   } catch (error) {
     console.error("Failed to add/remove book to wishlist", error);
@@ -114,8 +134,8 @@ const postWishlistWeb = async (c: Context) => {
   }
 
   const message = isAddingToWishlist
-    ? `${book.title} has been added to your wishlist`
-    : `${book.title} has been removed from your wishlist`;
+    ? `${book.title} liked`
+    : `${book.title} unliked`;
 
   return c.html(
     <>

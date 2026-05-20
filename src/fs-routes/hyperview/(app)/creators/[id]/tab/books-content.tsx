@@ -4,19 +4,16 @@ import { Text } from "../../../../../../lib/hxml-comps";
 import { getBooksByCreatorSlug } from "../../../../../../features/app/services";
 import { paramValidator } from "../../../../../../lib/validator";
 import { slugSchema } from "../../../../../../features/app/schema";
-import type { BookCardResult } from "../../../../../../constants/queries";
-import BookCard from "../../../../../../features/hyperview/components/BookCard";
 import { getUser } from "../../../../../../utils";
-import { likeFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
+import { getBaseUrl } from "../../../../../../lib/hyperview";
 
 export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const slug = c.req.valid("param").slug;
   const hv = hyperview(c);
-
-  const proto = c.req.header("x-forwarded-proto") ?? "http";
-  const host = c.req.header("host") ?? "localhost:5173";
-  const baseUrl = `${proto}://${host}`;
+  const baseUrl = getBaseUrl(c);
+  const user = await getUser(c);
 
   const [error, result] = await getBooksByCreatorSlug(slug);
 
@@ -30,16 +27,15 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   }
 
   const { creator, books } = result;
-  const user = await getUser(c);
-  const likesByBookId = await likeFlagsForBooks(user, books);
+
+  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
 
   return hv(
     <CreatorPage
       books={books}
       creator={creator}
       baseUrl={baseUrl}
-      user={user}
-      likesByBookId={likesByBookId}
+      wishlistsByBookId={wishlistsByBookId}
     />,
   );
 });

@@ -33,7 +33,7 @@ export const customHeaderStyles = () => (
     <Style
       id="custom-header"
       backgroundColor="#ffffff"
-      paddingTop={64}
+      paddingTop={32}
       paddingBottom={12}
       paddingLeft={16}
       paddingRight={16}

@@ -1,19 +1,16 @@
 import { createRoute } from "hono-fsr";
 import { hyperview } from "../../../../../../lib/hxml";
 import { Style, View } from "../../../../../../lib/hxml-comps";
-import { getBooksByCreatorSlug } from "../../../../../../features/app/services";
 import { paramValidator } from "../../../../../../lib/validator";
 import { notFoundScreen } from "../../../../../../lib/hxml-components";
 import { AppLayout } from "../../../../+layout";
-import CreatorCard, {
-  creatorCardStyles,
-} from "../../../../../../features/hyperview/components/CreatorCard";
+import { creatorCardStyles } from "../../../../../../features/hyperview/components/CreatorCard";
 import { bookCardStyles } from "../../../../../../features/hyperview/components/BookCard";
 import CreatorTabs, {
   creatorTabStyles,
 } from "../../../../../../features/hyperview/components/CreatorTabs";
 import { getUser } from "../../../../../../utils";
-import { likeFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { creatorIdSchema } from "../../../../../../schemas";
@@ -34,7 +31,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
   const { creator, books } = result;
   const user = await getUser(c);
-  const likesByBookId = await likeFlagsForBooks(user, books);
+  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
 
   return hv(
     <AppLayout
@@ -54,8 +51,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
           books={books}
           creator={creator}
           baseUrl={baseUrl}
-          user={user}
-          likesByBookId={likesByBookId}
+          wishlistsByBookId={wishlistsByBookId}
         />
       </View>
     </AppLayout>,

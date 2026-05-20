@@ -68,15 +68,15 @@ export const bookGalleryStyles = () => (
       id="gallery-thumbs"
       flexDirection="row"
       height={56}
-      marginTop={0}
-      paddingLeft={0}
-      paddingRight={0}
+      marginTop={4}
+      paddingLeft={4}
+      paddingRight={4}
     />
     <Style
       id="gallery-thumb-cell"
       width={56}
       height={56}
-      marginRight={0}
+      marginRight={4}
       alignItems="center"
       justifyContent="center"
     />

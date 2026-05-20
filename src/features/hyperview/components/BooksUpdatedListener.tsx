@@ -18,6 +18,8 @@ const BooksUpdatedListener = ({ refreshHref }: Props) => (
       action="replace-inner"
       target="tab-area"
       href={refreshHref}
+      hide-during-load="tab-area"
+      show-during-load="tab-spinner"
     />
   </View>
 );

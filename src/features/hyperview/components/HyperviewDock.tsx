@@ -1,7 +1,7 @@
 import { FC } from "hono/jsx";
 import { Behavior, Style, Text, View } from "../../../lib/hxml-comps";
 
-export type HyperviewDockActive = "home" | "search";
+export type HyperviewDockActive = "home" | "search" | "books" | "settings";
 
 type HyperviewDockProps = {
   baseUrl: string;
@@ -21,6 +21,30 @@ const HyperviewDock: FC<HyperviewDockProps> = ({ baseUrl, active }) => {
           href={`${baseUrl}/hyperview/featured`}
         />
         <Text style={item(active === "home")}>Home</Text>
+      </View>
+      <View style="dock-item">
+        <Behavior
+          trigger="press"
+          action="push"
+          href={`${baseUrl}/hyperview/search`}
+        />
+        <Text style={item(active === "search")}>Search</Text>
+      </View>
+      <View style="dock-item">
+        <Behavior
+          trigger="press"
+          action="push"
+          href={`${baseUrl}/hyperview/books`}
+        />
+        <Text style={item(active === "books")}>Books</Text>
+      </View>
+      <View style="dock-item">
+        <Behavior
+          trigger="press"
+          action="push"
+          href={`${baseUrl}/hyperview/settings`}
+        />
+        <Text style={item(active === "settings")}>Settings</Text>
       </View>
     </View>
   );
@@ -43,14 +67,14 @@ export const dockShellStyles = () => (
       flexDirection="row"
       alignItems="center"
       justifyContent="space-around"
-      paddingTop={10}
-      paddingBottom={14}
+      paddingTop={8}
+      paddingBottom={8}
       paddingLeft={8}
       paddingRight={8}
       borderTopWidth={1}
       borderTopColor="#e5e5e5"
       backgroundColor="#ffffff"
-      height={50}
+      height={48}
     />
     <Style id="dock-item" flex={1} alignItems="center" paddingTop={4} />
     <Style id="dock-label" fontSize={11} fontWeight="600" color="#999999" />

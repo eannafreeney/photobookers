@@ -60,7 +60,7 @@ export const homeNavbarStyles = () => (
       id="featured-header"
       width="100%"
       backgroundColor="#0099cc"
-      paddingTop={56}
+      paddingTop={32}
       paddingBottom={12}
       paddingLeft={12}
       paddingRight={12}

@@ -6,6 +6,8 @@ import BookPage from "../../../../../../features/hyperview/components/BookPage";
 import { getBookById } from "../../../../../../features/dashboard/books/services";
 import { bookIdSchema } from "../../../../../../schemas";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
+import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import { getUser } from "../../../../../../utils";
 
 function galleryUrlsFromBook(book: {
   coverUrl: string | null;
@@ -21,6 +23,7 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
+  const user = await getUser(c);
 
   const [error, book] = await getBookById(bookId);
 
@@ -35,14 +38,14 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
 
   const galleryImages = galleryUrlsFromBook(book);
 
+  const wishlistsByBookId = await wishlistFlagsForBooks(user, [book]);
+
   return hv(
     <BookPage
       galleryImages={galleryImages}
       book={book}
       baseUrl={baseUrl}
-      isLiked={false}
-      isWishlisted={false}
-      isCollected={false}
+      isWishlisted={wishlistsByBookId[book.id] ?? false}
     />,
   );
 });

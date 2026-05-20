@@ -10,7 +10,6 @@ import WishlistButton from "../../api/components/WishlistButton";
 import { BookWithGalleryImages } from "../types";
 import CollectButton from "../../api/components/CollectButton";
 import { Creator } from "../../../db/schema";
-import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
 import RelatedBooks from "../components/RelatedBooks";
 import CommentsSection from "../components/CommentsSection";
 import LikeButton from "../../api/components/LikeButton";
@@ -108,8 +107,6 @@ const DetailDesktop = ({
             </div>
 
             <div class="flex items-center gap-2">
-              <LikeButton isCircleButton book={book} user={user} />
-              <CollectButton isCircleButton book={book} user={user} />
               <WishlistButton isCircleButton book={book} user={user} />
               <ShareButton isCircleButton />
             </div>
@@ -181,8 +178,6 @@ const DetailMobile = ({
             </div>
           </div>
           <div class="flex items-center justify-evenly">
-            <LikeButton isCircleButton book={book} user={user} />
-            <CollectButton isCircleButton book={book} user={user} />
             <WishlistButton isCircleButton book={book} user={user} />
             <ShareButton isCircleButton />
           </div>

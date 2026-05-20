@@ -1,13 +1,12 @@
 import { createRoute } from "hono-fsr";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { paramValidator } from "../../../../lib/validator";
-import { creatorIdSchema } from "../../../../schemas";
 import { getBooksByTag } from "../../../../features/app/services";
 import { tagSchema } from "../../../../features/app/schema";
 import { hyperview } from "../../../../lib/hxml";
 import { notFoundScreen } from "../../../../lib/hxml-components";
 import { capitalize, getUser } from "../../../../utils";
-import { likeFlagsForBooks } from "../../../../features/hyperview/findFlags";
+import { wishlistFlagsForBooks } from "../../../../features/hyperview/findFlags";
 import { AppLayout } from "../../+layout";
 import { BookCardResult } from "../../../../constants/queries";
 import BookCard, {
@@ -29,7 +28,8 @@ export const GET = createRoute(paramValidator(tagSchema), async (c) => {
   }
 
   const { books } = result;
-  const likesByBookId = await likeFlagsForBooks(user, books);
+
+  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
 
   return hv(
     <AppLayout title={`# ${capitalize(tag)}`} extraStyles={pageStyles()}>
@@ -39,8 +39,7 @@ export const GET = createRoute(paramValidator(tagSchema), async (c) => {
             key={book.id}
             book={book}
             baseUrl={baseUrl}
-            user={user}
-            isLiked={likesByBookId[book.id] ?? false}
+            isWishlisted={wishlistsByBookId[book.id] ?? false}
           />
         ))}
       </View>
