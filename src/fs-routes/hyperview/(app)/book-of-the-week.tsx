@@ -9,7 +9,7 @@ import BookCard, {
   bookCardStyles,
 } from "../../../features/hyperview/components/BookCard";
 import { getUser } from "../../../utils";
-import { likeFlagsForBooks } from "../../../features/hyperview/likeFlags";
+import { likeFlagsForBooks } from "../../../features/hyperview/findFlags";
 
 export const GET = createRoute(async (c) => {
   const currentPage = Number(c.req.query("page") ?? 1);

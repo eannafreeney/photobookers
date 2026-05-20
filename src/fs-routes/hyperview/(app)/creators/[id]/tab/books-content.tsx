@@ -9,19 +9,18 @@ import BookCard from "../../../../../../features/hyperview/components/BookCard";
 import { getUser } from "../../../../../../utils";
 import { likeFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
-import { creatorIdSchema } from "../../../../../../schemas";
-import { getBooksByCreatorId } from "../../../../../../features/dashboard/admin/creators/services";
-import { getBaseUrl } from "../../../../../../lib/hyperview";
 
-export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
-  const creatorId = c.req.valid("param").creatorId;
-  const currentPage = parseInt(c.req.query("page") ?? "1");
-  const baseUrl = getBaseUrl(c);
+export const GET = createRoute(paramValidator(slugSchema), async (c) => {
+  const slug = c.req.valid("param").slug;
   const hv = hyperview(c);
 
-  const [error, result] = await getBooksByCreatorId(creatorId, currentPage);
+  const proto = c.req.header("x-forwarded-proto") ?? "http";
+  const host = c.req.header("host") ?? "localhost:5173";
+  const baseUrl = `${proto}://${host}`;
 
-  if (error || !result?.books || !result?.creator) {
+  const [error, result] = await getBooksByCreatorSlug(slug);
+
+  if (error || !result?.creator) {
     return hv(
       <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
         <Text style="comments-placeholder">No books found.</Text>

@@ -13,7 +13,7 @@ import CreatorTabs, {
   creatorTabStyles,
 } from "../../../../../../features/hyperview/components/CreatorTabs";
 import { getUser } from "../../../../../../utils";
-import { likeFlagsForBooks } from "../../../../../../features/hyperview/likeFlags";
+import { likeFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { creatorIdSchema } from "../../../../../../schemas";

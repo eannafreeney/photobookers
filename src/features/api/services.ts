@@ -29,9 +29,7 @@ export const findLike = async (userId: string, bookId: string) => {
 };
 export const insertLike = async (userId: string, bookId: string) => {
   try {
-    const existingResult = await findLike(userId, bookId);
-    if (isOk(existingResult)) return;
-    await db.insert(likes).values({ userId, bookId });
+    await db.insert(likes).values({ userId, bookId }).onConflictDoNothing();
     return ok(undefined);
   } catch (error) {
     console.error("Failed to insert like", error);
@@ -117,6 +115,34 @@ export const getCreatorPermissionData = async (creatorId: string) => {
   }
 };
 
+/** Minimal book row for like/wishlist APIs (no creatorUser join). */
+export const getBookLikeContext = async (bookId: string) => {
+  try {
+    const book = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      columns: {
+        id: true,
+        artistId: true,
+        publisherId: true,
+        title: true,
+        slug: true,
+        coverUrl: true,
+      },
+      with: {
+        artist: {
+          columns: {
+            displayName: true,
+          },
+        },
+      },
+    });
+    return book ? ok(book) : err({ reason: "Book not found" });
+  } catch (error) {
+    console.error("Failed to get book like context", error);
+    return err({ reason: "Failed to get book like context", error });
+  }
+};
+
 export const getBookPermissionData = async (bookId: string) => {
   try {
     const book = await db.query.books.findFirst({
@@ -152,9 +178,16 @@ export const getBookPermissionData = async (bookId: string) => {
 };
 
 export const findWishlist = async (userId: string, bookId: string) => {
-  return await db.query.wishlists.findFirst({
-    where: and(eq(wishlists.userId, userId), eq(wishlists.bookId, bookId)),
-  });
+  try {
+    const wishlist = await db.query.wishlists.findFirst({
+      where: and(eq(wishlists.userId, userId), eq(wishlists.bookId, bookId)),
+    });
+    if (!wishlist) return err({ reason: "Wishlist not found" });
+    return ok(wishlist);
+  } catch (error) {
+    console.error("Failed to find wishlist", error);
+    return err({ reason: "Failed to find wishlist" });
+  }
 };
 
 export const insertWishlist = async (userId: string, bookId: string) => {

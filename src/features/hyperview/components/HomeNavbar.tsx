@@ -126,7 +126,7 @@ export const homeNavbarStyles = () => (
     </Style>
     <Style
       id="featured-header-side-btn"
-      fontSize={14}
+      fontSize={12}
       fontWeight="500"
       color="#ffffff"
     />

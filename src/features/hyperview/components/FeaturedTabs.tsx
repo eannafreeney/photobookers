@@ -8,10 +8,7 @@ type FeaturedTabsProps = {
   activeTab?: FeaturedTab;
 };
 
-const FeaturedTabs = ({
-  baseUrl,
-  activeTab = "home",
-}: FeaturedTabsProps) => {
+const FeaturedTabs = ({ baseUrl, activeTab = "home" }: FeaturedTabsProps) => {
   return (
     <SelectSingle style="tab-bar" name="tab">
       <Option

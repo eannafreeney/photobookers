@@ -134,6 +134,7 @@ export const Behavior: FC<{
   target?: string;
   once?: "true";
   delay?: number;
+  "event-name"?: string;
 }> = (props) => <behavior {...props} />;
 
 // ---------------------------------------------------------------------------
@@ -201,7 +202,9 @@ export const TextField: FC<
 // Misc
 // ---------------------------------------------------------------------------
 
-export const Spinner: FC<StyleProp> = ({ style }) => <spinner style={style} />;
+export const Spinner: FC<StyleProp> = ({ style }) => (
+  <spinner style="#0099cc" />
+);
 
 export const Text = ({ style, id, children }: BaseProps) => (
   <text style={style} id={id}>

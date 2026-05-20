@@ -8,7 +8,7 @@ import BookCard, {
 import { Style, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getUser } from "../../../utils";
-import { likeFlagsForBooks } from "../../../features/hyperview/likeFlags";
+import { likeFlagsForBooks } from "../../../features/hyperview/findFlags";
 
 export const GET = createRoute(async (c) => {
   const [error, result] = await getLatestBooks(1, 30);

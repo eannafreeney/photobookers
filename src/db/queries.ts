@@ -83,12 +83,19 @@ export const deleteWishlist = async (userId: string, bookId: string) => {
 };
 
 export const findCollectionItem = async (userId: string, bookId: string) => {
-  return await db.query.collectionItems.findFirst({
-    where: and(
-      eq(collectionItems.userId, userId),
-      eq(collectionItems.bookId, bookId),
-    ),
-  });
+  try {
+    const collectionItem = await db.query.collectionItems.findFirst({
+      where: and(
+        eq(collectionItems.userId, userId),
+        eq(collectionItems.bookId, bookId),
+      ),
+    });
+    if (!collectionItem) return err({ reason: "Collection item not found" });
+    return ok(collectionItem);
+  } catch (error) {
+    console.error("Failed to find collection item", error);
+    return err({ reason: "Failed to find collection item" });
+  }
 };
 
 export const insertCollectionItem = async (userId: string, bookId: string) => {

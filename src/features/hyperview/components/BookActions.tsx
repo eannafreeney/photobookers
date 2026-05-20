@@ -18,11 +18,12 @@ const BookActions = ({
   isWishlisted,
   isCollected,
 }: Props) => {
+  console.log(isLiked, "isLiked");
   return (
     <view xmlns="https://hyperview.org/hyperview">
       <View style="book-actions-row">
         <View style="book-action-cell">
-          <View id={`book-like-${book.id}`} style="book-action-inner">
+          <View id={`book-like-${book.id}`} style="book-btn">
             <HyperviewBookLikeInner
               bookId={book.id}
               baseUrl={baseUrl}
@@ -31,7 +32,7 @@ const BookActions = ({
           </View>
         </View>
         <View style="book-action-cell">
-          <View id={`book-wishlist-${book.id}`} style="book-action-inner">
+          <View id={`book-wishlist-${book.id}`} style="book-btn">
             <HyperviewBookWishlistInner
               bookId={book.id}
               baseUrl={baseUrl}
@@ -40,7 +41,7 @@ const BookActions = ({
           </View>
         </View>
         <View style="book-action-cell">
-          <View id={`book-collect-${book.id}`} style="book-action-inner">
+          <View id={`book-collect-${book.id}`} style="book-btn">
             <HyperviewBookCollectInner
               bookId={book.id}
               baseUrl={baseUrl}
@@ -49,7 +50,7 @@ const BookActions = ({
           </View>
         </View>
         <View style="book-action-cell">
-          <View style="book-action-inner">
+          <View style="book-btn">
             <Behavior
               trigger="press"
               action="share"
@@ -83,8 +84,10 @@ export const HyperviewBookWishlistInner = ({
   baseUrl,
   isActive,
 }: InnerProps) => (
-  <>
-    <Text style="book-action-label">{isActive ? "♥" : "♡"}</Text>
+  <View xmlns="https://hyperview.org/hyperview">
+    <Text style={isActive ? "label-on" : "label-off"}>
+      {isActive ? "♥" : "♡"}
+    </Text>
     <Behavior
       trigger="press"
       verb="post"
@@ -92,7 +95,7 @@ export const HyperviewBookWishlistInner = ({
       target={`book-wishlist-${bookId}`}
       href={`${baseUrl}/api/books/${bookId}/wishlist`}
     />
-  </>
+  </View>
 );
 
 export const HyperviewBookCollectInner = ({
@@ -100,8 +103,10 @@ export const HyperviewBookCollectInner = ({
   baseUrl,
   isActive,
 }: InnerProps) => (
-  <>
-    <Text style="book-action-label">{isActive ? "✓" : "+"}</Text>
+  <View xmlns="https://hyperview.org/hyperview">
+    <Text style={isActive ? "label-on" : "label-off"}>
+      {isActive ? "✓" : "+"}
+    </Text>
     <Behavior
       trigger="press"
       verb="post"
@@ -109,7 +114,7 @@ export const HyperviewBookCollectInner = ({
       target={`book-collect-${bookId}`}
       href={`${baseUrl}/api/books/${bookId}/collect`}
     />
-  </>
+  </View>
 );
 
 export const HyperviewBookLikeInner = ({
@@ -117,8 +122,10 @@ export const HyperviewBookLikeInner = ({
   baseUrl,
   isActive,
 }: InnerProps) => (
-  <>
-    <Text style="book-action-label">{isActive ? "★" : "☆"}</Text>
+  <View xmlns="https://hyperview.org/hyperview">
+    <Text style={isActive ? "label-on" : "label-off"}>
+      {isActive ? "★" : "☆"}
+    </Text>
     <Behavior
       trigger="press"
       verb="post"
@@ -126,7 +133,7 @@ export const HyperviewBookLikeInner = ({
       target={`book-like-${bookId}`}
       href={`${baseUrl}/api/books/${bookId}/like`}
     />
-  </>
+  </View>
 );
 
 export const bookActionsStyles = () => (
@@ -162,6 +169,18 @@ export const bookActionsStyles = () => (
       fontWeight="600"
       color="#111111"
     />
+    <Style
+      id="book-btn"
+      width={32}
+      height={32}
+      borderRadius={16}
+      backgroundColor="#e5e7eb"
+      alignItems="center"
+      justifyContent="center"
+      flexShrink={0}
+    />
+    <Style id="label-on" fontSize={18} fontWeight="600" color="#0099cc" />
+    <Style id="label-off" fontSize={18} fontWeight="600" color="#6b7280" />
     <Style
       id="book-action-inner"
       height={32}

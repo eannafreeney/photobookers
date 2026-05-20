@@ -5,7 +5,7 @@ import AuthModal from "../../../../components/app/AuthModal";
 import {
   deleteLike,
   findLike,
-  getBookPermissionData,
+  getBookLikeContext,
   insertLike,
 } from "../../../../features/api/services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
@@ -48,12 +48,21 @@ const postLikeHyperview = async (c: Context) => {
     );
   }
 
-  const [err, book] = await getBookPermissionData(bookId);
+  const [err, book] = await getBookLikeContext(bookId);
   if (err || !book)
-    return hv(<text style="book-like-muted">?</text>, err ? 400 : 404);
+    return hv(
+      <View xmlns="https://hyperview.org/hyperview">
+        <Text style="book-like-muted">?</Text>
+      </View>,
+      err ? 400 : 404,
+    );
 
   if (!canLikeBook(user, book))
-    return hv(<text style="book-like-muted">—</text>);
+    return hv(
+      <View xmlns="https://hyperview.org/hyperview">
+        <Text style="book-like-muted">—</Text>
+      </View>,
+    );
 
   const isCurrentlyLiked = isOk(await findLike(userId, bookId));
 
@@ -63,21 +72,31 @@ const postLikeHyperview = async (c: Context) => {
     } else {
       await insertLike(userId, bookId);
       publishLikeActivity(user, book);
-      createBookLikedNotification(user, book);
+      void createBookLikedNotification(user, book);
     }
   } catch (error) {
     console.error("Failed to add/remove book like", error);
-    return hv(<text style="book-like-muted">!</text>);
+    return hv(
+      <View xmlns="https://hyperview.org/hyperview">
+        <Text style="book-like-muted">!</Text>
+      </View>,
+    );
   }
 
-  const nowLiked = isOk(await findLike(userId, bookId));
-
+  const nowLiked = !isCurrentlyLiked;
   return hv(
-    <HyperviewBookLikeInner
-      bookId={bookId}
-      baseUrl={baseUrl}
-      isActive={nowLiked}
-    />,
+    <View xmlns="https://hyperview.org/hyperview">
+      <Behavior
+        trigger="load"
+        action="dispatch-event"
+        event-name="books:updated"
+      />
+      <HyperviewBookLikeInner
+        bookId={bookId}
+        baseUrl={baseUrl}
+        isActive={nowLiked}
+      />
+    </View>,
   );
 };
 
@@ -88,7 +107,7 @@ const postLikeWeb = async (c: Context) => {
 
   if (!userId) return c.html(<AuthModal action="to like this book." />, 401);
 
-  const [err, book] = await getBookPermissionData(bookId);
+  const [err, book] = await getBookLikeContext(bookId);
   if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
   if (!canLikeBook(user, book))
@@ -104,7 +123,7 @@ const postLikeWeb = async (c: Context) => {
     } else {
       await insertLike(userId, bookId);
       publishLikeActivity(user, book);
-      createBookLikedNotification(user, book);
+      void createBookLikedNotification(user, book);
     }
   } catch (error) {
     console.error("Failed to add/remove book like", error);

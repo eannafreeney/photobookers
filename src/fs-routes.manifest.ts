@@ -152,7 +152,8 @@ import * as m145 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/book
 import * as m146 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/books";
 import * as m147 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/messages";
 import * as m148 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/publishers";
-import * as m149 from "./fs-routes/hyperview/(app)/tags/[tag]";
+import * as m149 from "./fs-routes/hyperview/(app)/creators/[id]/tab/books-content";
+import * as m150 from "./fs-routes/hyperview/(app)/tags/[tag]";
 
 export const manifest: Manifest = [
   {
@@ -1199,10 +1200,17 @@ export const manifest: Manifest = [
     module: m148
   },
   {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/creators/[id]/tab/books-content.tsx",
+    urlPath: "/hyperview/creators/:id/tab/books-content",
+    type: "handler",
+    precedence: 2,
+    module: m149
+  },
+  {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/tags/[tag].tsx",
     urlPath: "/hyperview/tags/:tag",
     type: "handler",
     precedence: 2,
-    module: m149
+    module: m150
   }
 ];

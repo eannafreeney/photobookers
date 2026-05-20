@@ -7,7 +7,7 @@ import { tagSchema } from "../../../../features/app/schema";
 import { hyperview } from "../../../../lib/hxml";
 import { notFoundScreen } from "../../../../lib/hxml-components";
 import { capitalize, getUser } from "../../../../utils";
-import { likeFlagsForBooks } from "../../../../features/hyperview/likeFlags";
+import { likeFlagsForBooks } from "../../../../features/hyperview/findFlags";
 import { AppLayout } from "../../+layout";
 import { BookCardResult } from "../../../../constants/queries";
 import BookCard, {

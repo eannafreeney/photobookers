@@ -9,10 +9,11 @@ import {
   messageListStyles,
   signInEmptyHintStyles,
 } from "../../../features/hyperview/hyperviewCommonScreenStyles";
-import { Style, View } from "../../../lib/hxml-comps";
+import { Spinner, Style, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getUser } from "../../../utils";
 import { creatorCardStyles } from "../../../features/hyperview/components/CreatorCard";
+import BooksUpdatedListener from "../../../features/hyperview/components/BooksUpdatedListener";
 
 export const GET = createRoute(async (c) => {
   const baseUrl = getBaseUrl(c);
@@ -31,6 +32,12 @@ export const GET = createRoute(async (c) => {
       extraStyles={pageStyles()}
     >
       <FeaturedTabs baseUrl={baseUrl} activeTab="home" />
+      <View id="tab-spinner-feed" style="tab-spinner-featured" hide="true">
+        <Spinner />
+      </View>
+      <BooksUpdatedListener
+        refreshHref={`${baseUrl}/hyperview/featured/tab/home-content`}
+      />
       <View id="tab-area" style="page-content">
         <FeaturedHomeBody baseUrl={baseUrl} user={user} />
       </View>
@@ -42,6 +49,13 @@ const pageStyles = () => (
   <>
     <Style id="page-content" margin={16} />
     <Style id="tab-fragment" flex={1} />
+    <Style
+      id="tab-spinner-featured"
+      minHeight={320}
+      alignItems="center"
+      justifyContent="center"
+      paddingTop={48}
+    />
     {signInEmptyHintStyles()}
     {messageListStyles()}
     {bookCardStyles()}

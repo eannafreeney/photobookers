@@ -1,8 +1,8 @@
 import { FC } from "hono/jsx";
 import type { AuthUser } from "../../../../types";
 import BookCard from "./BookCard";
-import { likeFlagsForBooks } from "../likeFlags";
-import { View } from "../../../lib/hxml-comps";
+import { likeFlagsForBooks } from "../findFlags";
+import { Behavior, View } from "../../../lib/hxml-comps";
 import { getThisWeeksBookOfTheWeek } from "../../app/BOTWServices";
 import { getThisWeeksFeaturedBooks } from "../../app/FeaturedServices";
 import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";

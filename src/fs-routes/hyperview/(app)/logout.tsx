@@ -1,15 +1,14 @@
+import { hyperview } from "../../../lib/hxml";
+import { getIsHyperview } from "../../../features/hyperview/lib";
+import { hyperviewSignOutAndNavigate } from "../../../features/hyperview/sessionSync";
+import { getBaseUrl } from "../../../lib/hyperview";
+import { getAuthCookieOptions } from "../../../features/auth/services";
+import { deleteCookie, getCookie } from "hono/cookie";
+import { supabaseAdmin } from "../../../lib/supabase";
 import { createRoute } from "hono-fsr";
 import type { Context } from "hono";
-import { deleteCookie, getCookie } from "hono/cookie";
-import { getAuthCookieOptions } from "../../../features/auth/services";
-import { getBaseUrl } from "../../../lib/hyperview";
-import { supabaseAdmin } from "../../../lib/supabase";
 
-/**
- * Clears auth cookies and revokes the Supabase session (aligned with POST /auth/logout).
- * Featured header uses GET push → this route must handle GET.
- */
-async function clearSessionAndRedirect(c: Context) {
+async function clearSession(c: Context) {
   const baseUrl = getBaseUrl(c);
   const cookieOpts = getAuthCookieOptions();
   const jwt = getCookie(c, "token");
@@ -28,13 +27,12 @@ async function clearSessionAndRedirect(c: Context) {
     if (error) console.error("Failed to revoke session:", error);
   }
 
+  if (getIsHyperview(c)) {
+    return hyperview(c)(hyperviewSignOutAndNavigate(baseUrl), 200);
+  }
+
   return c.redirect(`${baseUrl}/hyperview/featured`, 303);
 }
 
-export const GET = createRoute(async (c: Context) =>
-  clearSessionAndRedirect(c),
-);
-
-export const POST = createRoute(async (c: Context) =>
-  clearSessionAndRedirect(c),
-);
+export const GET = createRoute(async (c) => clearSession(c));
+export const POST = createRoute(async (c) => clearSession(c));

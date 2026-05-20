@@ -2,7 +2,7 @@ import { FC } from "hono/jsx";
 import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
 import type { BookCardResult } from "../../../constants/queries";
 import { formatDate } from "../../../utils";
-import { HyperviewBookLikeInner } from "./BookActions";
+import { bookActionsStyles, HyperviewBookLikeInner } from "./BookActions";
 
 type Props = {
   book: BookCardResult;
@@ -76,7 +76,7 @@ const BookCard: FC<Props> = ({
               )}
             </View>
           </View>
-          <View id={`book-like-${book.id}`} style="book-like-btn">
+          <View id={`book-like-${book.id}`} style="book-btn">
             <HyperviewBookLikeInner
               bookId={book.id}
               baseUrl={baseUrl}
@@ -156,19 +156,8 @@ export const bookCardStyles = () => (
     />
     <Style id="book-card-artist" fontSize={13} color="#555555" />
     <Style id="book-card-publisher" fontSize={12} color="#999999" />
-    <Style
-      id="book-like-btn"
-      width={32}
-      height={32}
-      borderRadius={16}
-      backgroundColor="#e5e7eb"
-      alignItems="center"
-      justifyContent="center"
-      flexShrink={0}
-    />
-    <Style id="book-like-icon-off" fontSize={18} color="#6b7280" />
-    <Style id="book-like-icon-on" fontSize={18} color="#16a34a" />
     <Style id="book-like-icon-img" width={24} height={24} />
     <Style id="book-like-muted" fontSize={14} color="#d1d5db" />
+    {bookActionsStyles()}
   </>
 );

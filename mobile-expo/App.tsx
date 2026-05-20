@@ -6,6 +6,8 @@ import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { supabase } from "./lib/supabase";
 import { createAuthedFetch } from "./lib/authedFetch";
+import { createSignOutSupabaseBehavior } from "./behaviors/signOutSupabase";
+import { createSetSupabaseSessionBehavior } from "./behaviors/setSupabaseSessions";
 
 const BASE_URL = process.env.EXPO_PUBLIC_SERVER_URL ?? "http://localhost:3000";
 const ENTRYPOINT_URL = `${BASE_URL}/hyperview`;
@@ -38,6 +40,14 @@ export default function App() {
 
   const authedFetch = useMemo(() => createAuthedFetch(supabase), []);
 
+  const hyperviewBehaviors = useMemo(
+    () => [
+      createSetSupabaseSessionBehavior(() => supabase),
+      createSignOutSupabaseBehavior(() => supabase),
+    ],
+    [],
+  );
+
   if (!fontsLoaded && !fontError) {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
@@ -62,6 +72,7 @@ export default function App() {
           entrypointUrl={ENTRYPOINT_URL}
           fetch={authedFetch}
           formatDate={formatDate as never}
+          behaviors={hyperviewBehaviors}
         />
       </NavigationContainer>
     </GestureHandlerRootView>

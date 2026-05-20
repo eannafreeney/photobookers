@@ -5,11 +5,13 @@ import { hyperview } from "../../../../../lib/hxml";
 import { getBaseUrl } from "../../../../../lib/hyperview";
 import { Text } from "../../../../../lib/hxml-comps";
 import { getUser } from "../../../../../utils";
-import { likeFlagsForBooks } from "../../../../../features/hyperview/likeFlags";
+import { likeFlagsForBooks } from "../../../../../features/hyperview/findFlags";
+import BooksUpdatedListener from "../../../../../features/hyperview/components/BooksUpdatedListener";
 
 export const GET = createRoute(async (c) => {
   const hv = hyperview(c);
   const user = await getUser(c);
+  const currentPage = parseInt(c.req.query("page") ?? "1");
 
   if (!user) {
     return hv(
@@ -22,7 +24,7 @@ export const GET = createRoute(async (c) => {
     );
   }
 
-  const [, feedResult] = await getFeedBooks(user.id, 1, "newest", 30);
+  const [, feedResult] = await getFeedBooks(user.id, currentPage, "newest", 10);
   const books = feedResult?.books ?? [];
 
   if (books.length === 0) {
@@ -40,12 +42,14 @@ export const GET = createRoute(async (c) => {
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
+      <BooksUpdatedListener
+        refreshHref={`${baseUrl}/hyperview/featured/tab/feed?page=${currentPage}`}
+      />
       {books.map((book) => (
         <BookCard
           key={book.id}
           book={book}
           baseUrl={baseUrl}
-          user={user}
           isLiked={likesByBookId[book.id] ?? false}
         />
       ))}

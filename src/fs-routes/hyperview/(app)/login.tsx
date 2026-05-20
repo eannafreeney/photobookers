@@ -6,6 +6,8 @@ import {
   getMustResetPasswordState,
   loginAndSetCookies,
 } from "../../../features/auth/services";
+import { getIsHyperview } from "../../../features/hyperview/lib";
+import { hyperviewSessionSyncAndNavigate } from "../../../features/hyperview/sessionSync";
 import { getUser } from "../../../utils";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { hyperview } from "../../../lib/hxml";
@@ -40,11 +42,7 @@ export const POST = createRoute(formValidator(loginFormSchema), async (c) => {
   const email = form.email as string;
   const password = form.password as string;
 
-  console.log(email, password, "email, password");
-
   const [loginErr, login] = await loginAndSetCookies(c, email, password);
-
-  console.log(loginErr, login, "loginErr, login");
 
   if (loginErr || !login) {
     return hv(
@@ -90,6 +88,10 @@ export const POST = createRoute(formValidator(loginFormSchema), async (c) => {
         </View>
       </AppLayout>,
     );
+  }
+
+  if (getIsHyperview(c)) {
+    return hv(hyperviewSessionSyncAndNavigate(baseUrl, login.session));
   }
 
   return hv(

@@ -107,10 +107,14 @@ export async function loginAndSetCookies(
     });
 
     if (error) return err({ reason: error.message, cause: error });
+    if (!data.session) return err({ reason: "No session", cause: undefined });
 
     await setCookiesAndVerifyUser(c, data.session);
 
-    return ok({ userId: data.user.id });
+    return ok({
+      userId: data.user.id,
+      session: data.session,
+    });
   } catch (error) {
     return err({ reason: "Failed to login", cause: error });
   }
