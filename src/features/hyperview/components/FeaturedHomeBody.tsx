@@ -46,7 +46,6 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
           title="Book of The Week"
           book={botwBook}
           baseUrl={baseUrl}
-          user={user}
           isLiked={likesByBookId[botwBook.id] ?? false}
         />
       )}
@@ -72,7 +71,6 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
             title="Featured"
             book={book}
             baseUrl={baseUrl}
-            user={user}
             isLiked={likesByBookId[book.id] ?? false}
           />
         ))}

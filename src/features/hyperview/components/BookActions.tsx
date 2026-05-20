@@ -1,9 +1,6 @@
-import { Behavior, Image, Style, View } from "../../../lib/hxml-comps";
-import { ScrollView } from "../../../lib/hxml-comps";
+import { Behavior, Style, View } from "../../../lib/hxml-comps";
 import { Text } from "../../../lib/hxml-comps";
 import { BookWithGalleryImages } from "../../app/types";
-import { AuthUser } from "../../../../types";
-import { HyperviewBookLikeInner } from "./BookCard";
 import { xmlText } from "../../../lib/hxml";
 
 type Props = {
@@ -29,32 +26,26 @@ const BookActions = ({
             <HyperviewBookLikeInner
               bookId={book.id}
               baseUrl={baseUrl}
-              isLiked={isLiked}
+              isActive={isLiked}
             />
           </View>
         </View>
         <View style="book-action-cell">
           <View id={`book-wishlist-${book.id}`} style="book-action-inner">
-            <Behavior
-              trigger="press"
-              verb="post"
-              action="replace-inner"
-              target={`book-wishlist-${book.id}`}
-              href={`${baseUrl}/api/books/${book.id}/wishlist`}
+            <HyperviewBookWishlistInner
+              bookId={book.id}
+              baseUrl={baseUrl}
+              isActive={isWishlisted}
             />
-            <Text style="book-action-label">{isWishlisted ? "♥" : "♡"}</Text>
           </View>
         </View>
         <View style="book-action-cell">
           <View id={`book-collect-${book.id}`} style="book-action-inner">
-            <Behavior
-              trigger="press"
-              verb="post"
-              action="replace-inner"
-              target={`book-collect-${book.id}`}
-              href={`${baseUrl}/api/books/${book.id}/collect`}
+            <HyperviewBookCollectInner
+              bookId={book.id}
+              baseUrl={baseUrl}
+              isActive={isCollected}
             />
-            <Text style="book-action-label">{isCollected ? "✓" : "+"}</Text>
           </View>
         </View>
         <View style="book-action-cell">
@@ -81,23 +72,19 @@ const BookActions = ({
 
 export default BookActions;
 
-type HyperviewBookWishlistInnerProps = {
+type InnerProps = {
   bookId: string;
   baseUrl: string;
-  isWishlisted: boolean;
+  isActive: boolean;
 };
 
 export const HyperviewBookWishlistInner = ({
   bookId,
   baseUrl,
-  isWishlisted,
-}: HyperviewBookWishlistInnerProps) => (
+  isActive,
+}: InnerProps) => (
   <>
-    <Text
-      style={isWishlisted ? "book-wishlist-icon-on" : "book-wishlist-icon-off"}
-    >
-      👍
-    </Text>
+    <Text style="book-action-label">{isActive ? "♥" : "♡"}</Text>
     <Behavior
       trigger="press"
       verb="post"
@@ -108,25 +95,36 @@ export const HyperviewBookWishlistInner = ({
   </>
 );
 
-type HyperviewBookCollectInnerProps = {
-  bookId: string;
-  baseUrl: string;
-  isCollected: boolean;
-};
-
 export const HyperviewBookCollectInner = ({
   bookId,
   baseUrl,
-  isCollected,
-}: HyperviewBookCollectInnerProps) => (
+  isActive,
+}: InnerProps) => (
   <>
-    <Text style="book-action-label">{isCollected ? "✓" : "+"}</Text>
+    <Text style="book-action-label">{isActive ? "✓" : "+"}</Text>
     <Behavior
       trigger="press"
       verb="post"
       action="replace-inner"
       target={`book-collect-${bookId}`}
       href={`${baseUrl}/api/books/${bookId}/collect`}
+    />
+  </>
+);
+
+export const HyperviewBookLikeInner = ({
+  bookId,
+  baseUrl,
+  isActive,
+}: InnerProps) => (
+  <>
+    <Text style="book-action-label">{isActive ? "★" : "☆"}</Text>
+    <Behavior
+      trigger="press"
+      verb="post"
+      action="replace-inner"
+      target={`book-like-${bookId}`}
+      href={`${baseUrl}/api/books/${bookId}/like`}
     />
   </>
 );

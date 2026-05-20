@@ -79,14 +79,14 @@ export const creatorBannerStyles = () => (
       overflow="hidden"
     />
     <Style id="creator-cover" width="100%" height={300} />
-    <Style id="creator-body" padding={12} flexDirection="column" gap={6} />
+    <Style id="creator-body" padding={12} flexDirection="column" gap={16} />
+
     <Style
-      id="creator-body-top"
+      id="creator-body-top-wrap"
       flexDirection="row"
       justifyContent="space-between"
       gap={4}
     />
-    <Style id="creator-body-bottom" flexDirection="column" gap={4} />
     <Style
       id="creator-name"
       fontSize={16}

@@ -18,6 +18,7 @@ import { hyperview } from "../../../../lib/hxml";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { HyperviewBookCollectInner } from "../../../../features/hyperview/components/BookActions";
+import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 
 const updateLibraryPage = () => "library:updated";
 
@@ -35,10 +36,11 @@ const postCollectHyperview = async (c: Context) => {
   if (!userId) {
     const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to collect this book.")}`;
     return hv(
-      <view xmlns="https://hyperview.org/hyperview">
-        <behavior trigger="load" action="new" verb="get" href={modalHref} />
-        <text style="book-action-label">+</text>
-      </view>,
+      <View xmlns="https://hyperview.org/hyperview">
+        <Behavior trigger="load" action="new" verb="get" href={modalHref} />
+        <Text style="book-action-label">+</Text>
+        <Behavior trigger="press" verb="get" action="new" href={modalHref} />
+      </View>,
       401,
     );
   }
@@ -73,7 +75,7 @@ const postCollectHyperview = async (c: Context) => {
     <HyperviewBookCollectInner
       bookId={bookId}
       baseUrl={baseUrl}
-      isCollected={nowCollected}
+      isActive={nowCollected}
     />,
   );
 };

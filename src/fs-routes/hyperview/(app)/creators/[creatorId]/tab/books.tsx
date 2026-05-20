@@ -37,7 +37,11 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const likesByBookId = await likeFlagsForBooks(user, books);
 
   return hv(
-    <AppLayout title={creator.displayName} extraStyles={pageStyles()}>
+    <AppLayout
+      title={creator.displayName}
+      verified={creator.status === "verified"}
+      extraStyles={pageStyles()}
+    >
       <CreatorBanner creator={creator} baseUrl={baseUrl} />
       <CreatorTabs
         baseUrl={baseUrl}

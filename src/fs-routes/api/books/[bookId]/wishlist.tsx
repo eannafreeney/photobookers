@@ -19,6 +19,7 @@ import { isOk } from "../../../../lib/result";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { HyperviewBookWishlistInner } from "../../../../features/hyperview/components/BookActions";
+import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 
 const updateLibraryPage = () => "library:updated";
 
@@ -36,10 +37,11 @@ const postWishlistHyperview = async (c: Context) => {
   if (!userId) {
     const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to wishlist this book.")}`;
     return hv(
-      <view xmlns="https://hyperview.org/hyperview">
-        <behavior trigger="load" action="new" verb="get" href={modalHref} />
-        <text style="book-wishlist-icon-off">♡</text>
-      </view>,
+      <View xmlns="https://hyperview.org/hyperview">
+        <Behavior trigger="load" action="new" verb="get" href={modalHref} />
+        <Text style="book-wishlist-icon-off">♡</Text>
+        <Behavior trigger="press" verb="get" action="new" href={modalHref} />
+      </View>,
       401,
     );
   }
@@ -72,7 +74,7 @@ const postWishlistHyperview = async (c: Context) => {
     <HyperviewBookWishlistInner
       bookId={bookId}
       baseUrl={baseUrl}
-      isWishlisted={nowWishlisted}
+      isActive={nowWishlisted}
     />,
   );
 };

@@ -26,8 +26,9 @@ if (process.env.NODE_ENV === "production") {
   // Serve built CSS and JS at root level
   app.get("/styles.css", serveStatic({ path: "./dist/client/styles.css" }));
   app.get("/main.js", serveStatic({ path: "./dist/client/main.js" }));
-  // Serve other assets
+  // Serve other assets (Vite `public/` → dist root, e.g. /icons for Hyperview PNGs)
   app.use("/assets/*", serveStatic({ root: "./dist/client" }));
+  app.use("/icons/*", serveStatic({ root: "./dist/client" }));
 }
 
 // Mount your routes

@@ -5,31 +5,18 @@ type Props = {
   title: string;
   artist?: string | null;
   showBackButton: boolean;
-  showHeaderCover?: boolean;
-  headerCoverUrl?: string | null;
+  verified?: boolean;
 };
 
-const CustomHeader = ({
-  title,
-  artist,
-  showBackButton,
-  showHeaderCover,
-  headerCoverUrl,
-}: Props) => {
+const CustomHeader = ({ title, artist, showBackButton, verified }: Props) => {
   return (
     <View style="custom-header" sticky="true">
       <Behavior trigger="press" action="back" />
       {showBackButton ? <Text style="back-btn">←</Text> : null}
       <View style="header-title-container">
-        {showHeaderCover && headerCoverUrl ? (
-          <Image
-            source={headerCoverUrl}
-            style="header-cover"
-            resize-mode="cover"
-          />
-        ) : null}
         <Text style={artist ? "header-title-artist" : "header-title"}>
-          {xmlText(title)}
+          {xmlText(title)}{" "}
+          {verified ? <Text style="verified-badge">✔</Text> : null}
         </Text>
         {artist ? (
           <Text style="header-artist">{`by ${xmlText(artist)}`}</Text>
@@ -72,6 +59,7 @@ export const customHeaderStyles = () => (
       flex={1}
     />
     <Style id="header-artist" fontSize={12} color="#555555" />
+    <Style id="verified-badge" fontSize={10} marginLeft={12} />
     <Style id="back-btn" fontSize={16} color="#3366cc" marginRight={12} />
     <Style
       id="header-cover"

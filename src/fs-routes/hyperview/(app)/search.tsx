@@ -35,13 +35,14 @@ export const GET = createRoute(async (c) => {
       <View style="page-content">
         <View style="search-section">
           <SearchForm baseUrl={baseUrl} />
-          <DiscoveryTags baseUrl={baseUrl} tags={DISCOVER_TAGS} />
         </View>
         <View
           id={SEARCH_RESULTS_TARGET_ID}
           xmlns="https://hyperview.org/hyperview"
           style="search-results-stack"
-        ></View>
+        >
+          <DiscoveryTags baseUrl={baseUrl} tags={DISCOVER_TAGS} />
+        </View>
       </View>
     </AppLayout>,
   );
@@ -59,7 +60,9 @@ export const POST = createRoute(async (c) => {
       <View
         xmlns="https://hyperview.org/hyperview"
         style="search-results-stack"
-      ></View>,
+      >
+        <DiscoveryTags baseUrl={baseUrl} tags={DISCOVER_TAGS} />
+      </View>,
     );
   }
 

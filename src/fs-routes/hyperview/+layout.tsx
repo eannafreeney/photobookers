@@ -33,12 +33,14 @@ type Props = PropsWithChildren<{
   baseUrl?: string;
   dockActive?: HyperviewDockActive;
   user?: AuthUser;
+  verified?: boolean;
 }>;
 
 export const AppLayout = ({
   title,
   children,
   extraStyles,
+  verified = false,
   showBackButton = true,
   headerVariant = "default",
   showDock = false,
@@ -65,6 +67,7 @@ export const AppLayout = ({
               title={title}
               artist={artist}
               showBackButton={showBackButton}
+              verified={verified}
             />
           )}
           {docked && baseUrl ? (

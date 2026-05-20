@@ -13,6 +13,7 @@ import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { hyperview } from "../../../../lib/hxml";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { getBaseUrl } from "../../../../lib/hyperview";
+import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 
 export const POST = createRoute(async (c: Context) => {
   const isHyperview = getIsHyperview(c);
@@ -29,10 +30,11 @@ const postFollowHyperview = async (c: Context) => {
   if (!userId) {
     const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to follow this creator.")}`;
     return hv(
-      <view xmlns="https://hyperview.org/hyperview">
-        <behavior trigger="load" action="new" verb="get" href={modalHref} />
-        <text style="follow-label">Follow</text>
-      </view>,
+      <View xmlns="https://hyperview.org/hyperview">
+        <Behavior trigger="load" action="new" verb="get" href={modalHref} />
+        <Text style="follow-label">Follow</Text>
+        <Behavior trigger="press" verb="get" action="new" href={modalHref} />
+      </View>,
       401,
     );
   }

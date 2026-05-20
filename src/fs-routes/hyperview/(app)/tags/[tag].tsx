@@ -6,7 +6,7 @@ import { getBooksByTag } from "../../../../features/app/services";
 import { tagSchema } from "../../../../features/app/schema";
 import { hyperview } from "../../../../lib/hxml";
 import { notFoundScreen } from "../../../../lib/hxml-components";
-import { getUser } from "../../../../utils";
+import { capitalize, getUser } from "../../../../utils";
 import { likeFlagsForBooks } from "../../../../features/hyperview/likeFlags";
 import { AppLayout } from "../../+layout";
 import { BookCardResult } from "../../../../constants/queries";
@@ -32,7 +32,7 @@ export const GET = createRoute(paramValidator(tagSchema), async (c) => {
   const likesByBookId = await likeFlagsForBooks(user, books);
 
   return hv(
-    <AppLayout title={`# ${tag}`} extraStyles={pageStyles()}>
+    <AppLayout title={`# ${capitalize(tag)}`} extraStyles={pageStyles()}>
       <View id="page-content" style="page-content">
         {books.map((book: BookCardResult) => (
           <BookCard

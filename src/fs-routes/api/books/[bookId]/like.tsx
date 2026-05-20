@@ -18,8 +18,9 @@ import { hyperview } from "../../../../lib/hxml";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { canLikeBook } from "../../../../lib/permissions";
 import { isOk } from "../../../../lib/result";
-import { HyperviewBookLikeInner } from "../../../../features/hyperview/components/BookCard";
+import { HyperviewBookLikeInner } from "../../../../features/hyperview/components/BookActions";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
+import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 
 const updateLibraryPage = () => "library:updated";
 
@@ -38,14 +39,14 @@ const postLikeHyperview = async (c: Context) => {
   if (!userId) {
     const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to like this book.")}`;
     return hv(
-      <view xmlns="https://hyperview.org/hyperview">
-        <behavior trigger="load" action="new" verb="get" href={modalHref} />
-        <text style="book-like-icon-off">♡</text>{" "}
-      </view>,
+      <View xmlns="https://hyperview.org/hyperview">
+        <Behavior trigger="load" action="new" verb="get" href={modalHref} />
+        <Text style="book-like-icon-off">☆</Text>
+        <Behavior trigger="press" verb="get" action="new" href={modalHref} />
+      </View>,
       401,
     );
   }
-  if (!userId) return hv(<text style="book-like-icon-off">♡</text>, 401);
 
   const [err, book] = await getBookPermissionData(bookId);
   if (err || !book)
@@ -75,7 +76,7 @@ const postLikeHyperview = async (c: Context) => {
     <HyperviewBookLikeInner
       bookId={bookId}
       baseUrl={baseUrl}
-      isLiked={nowLiked}
+      isActive={nowLiked}
     />,
   );
 };

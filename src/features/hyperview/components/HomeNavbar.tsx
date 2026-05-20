@@ -11,7 +11,7 @@ const HomeNavbar = ({ baseUrl, user }: Props) => {
   return (
     <View xmlns="https://hyperview.org/hyperview" style="featured-header">
       <View style="featured-header-inner">
-        <View style="featured-header-side">
+        <View style="featured-header-side-left">
           {baseUrl && !user ? (
             <View style="featured-header-btn-wrap">
               <Behavior
@@ -35,7 +35,7 @@ const HomeNavbar = ({ baseUrl, user }: Props) => {
         <View style="featured-header-center">
           <Text style="featured-header-logo">{xmlText("photobookers")}</Text>
         </View>
-        <View style="featured-header-side">
+        <View style="featured-header-side-right">
           {baseUrl ? (
             <View style="featured-header-btn-wrap">
               <Behavior
@@ -58,9 +58,10 @@ export const homeNavbarStyles = () => (
   <>
     <Style
       id="featured-header"
+      width="100%"
       backgroundColor="#0099cc"
       paddingTop={56}
-      paddingBottom={20}
+      paddingBottom={12}
       paddingLeft={12}
       paddingRight={12}
       flexDirection="row"
@@ -70,31 +71,49 @@ export const homeNavbarStyles = () => (
     />
     <Style
       id="featured-header-inner"
-      flexDirection="row"
-      alignItems="end"
-      justifyContent="space-between"
-      flexWrap="nowrap"
-      gap={16}
-    />
-    <Style
-      id="featured-header-side"
+      position="relative"
+      flex={1}
+      width="100%"
+      minHeight={44}
       flexDirection="row"
       alignItems="center"
       justifyContent="center"
+      paddingLeft={72}
+      paddingRight={72}
+    />
+    <Style
+      id="featured-header-side-left"
+      position="absolute"
+      left={0}
+      top={0}
+      bottom={0}
+      flexDirection="row"
+      alignItems="center"
+      justifyContent="flex-start"
+    />
+    <Style
+      id="featured-header-side-right"
+      position="absolute"
+      right={0}
+      top={0}
+      bottom={0}
+      flexDirection="row"
+      alignItems="center"
+      justifyContent="flex-end"
     />
     <Style
       id="featured-header-center"
+      flexShrink={0}
       alignItems="center"
       justifyContent="center"
     />
     <Style
       id="featured-header-logo"
-      fontFamily="Caveat, ui-sans-serif, system-ui, sans-serif"
+      fontFamily="Caveat-Medium"
       fontSize={24}
-      fontWeight="500"
+      fontWeight={400}
       color="#ffffff"
       letterSpacing={0.5}
-      paddingTop={4}
     />
     <Style
       id="featured-header-btn-wrap"
@@ -107,7 +126,6 @@ export const homeNavbarStyles = () => (
     </Style>
     <Style
       id="featured-header-side-btn"
-      fontFamily="Instrument Sans, ui-sans-serif, system-ui, sans-serif"
       fontSize={14}
       fontWeight="500"
       color="#ffffff"
