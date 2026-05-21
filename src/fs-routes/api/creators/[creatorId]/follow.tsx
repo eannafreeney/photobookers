@@ -2,18 +2,19 @@ import { Context } from "hono";
 import { createRoute } from "hono-fsr";
 import { getUser } from "../../../../utils";
 import AuthModal from "../../../../components/app/AuthModal";
-import { getCreatorPermissionData } from "../../../../features/api/services";
+import { getCreatorPermissionData, findFollow } from "../../../../features/api/services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { publishFollowActivity } from "../../../../features/api/utils";
 import { createCreatorFollowedNotification } from "../../../../features/dashboard/admin/notifications/utils";
 import Alert from "../../../../components/app/Alert";
 import { deleteFollow, insertFollow } from "../../../../db/queries";
-import FollowButton from "../../../../features/api/components/FollowButton";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { hyperview } from "../../../../lib/hxml";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
+import { HyperviewFollowInner } from "../../../../features/hyperview/components/FollowButton";
+import FollowButton from "../../../../features/api/components/FollowButton";
 
 export const POST = createRoute(async (c: Context) => {
   const isHyperview = getIsHyperview(c);
@@ -39,10 +40,10 @@ const postFollowHyperview = async (c: Context) => {
     );
   }
 
-  const body = await c.req.parseBody();
-  const isCurrentlyFollowing = body.isFollowing === "true";
+  const isCurrentlyFollowing = !!(await findFollow(creatorId, userId));
 
   const [err, creator] = await getCreatorPermissionData(creatorId);
+
   if (err || !creator) {
     return hv(
       <text xmlns="https://hyperview.org/hyperview" style="follow-label">
@@ -68,13 +69,14 @@ const postFollowHyperview = async (c: Context) => {
     );
   }
 
-  const label = isCurrentlyFollowing
-    ? `Follow ${creator.displayName}`
-    : `Following ✓`;
   return hv(
-    <text xmlns="https://hyperview.org/hyperview" style="follow-label">
-      {label}
-    </text>,
+    <View xmlns="https://hyperview.org/hyperview">
+      <HyperviewFollowInner
+        creatorId={creator.id}
+        baseUrl={baseUrl}
+        isActive={!isCurrentlyFollowing}
+      />
+    </View>,
   );
 };
 

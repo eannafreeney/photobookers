@@ -3,6 +3,8 @@ import { paramValidator } from "../../../../../../lib/validator";
 import { getCreatorsByCreatorId } from "../../../../../../features/app/services";
 import { hyperview } from "../../../../../../lib/hxml";
 import { Text } from "../../../../../../lib/hxml-comps";
+import { getUser } from "../../../../../../utils";
+import { followFlagsForCreators } from "../../../../../../features/hyperview/findFlags";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import RelatedCreatorsList from "../../../../../../features/hyperview/components/RelatedCreatorsList";
 import { creatorIdSchema } from "../../../../../../schemas";
@@ -12,6 +14,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const currentPage = Number(c.req.query("page") ?? 1);
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
+  const user = await getUser(c);
   const loadMoreHref = `${baseUrl}/hyperview/creators/${creatorId}/tab/artists`;
 
   const [error, result] = await getCreatorsByCreatorId(
@@ -32,6 +35,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
   const { creators, totalPages = 1 } = result;
   const hasMore = currentPage < totalPages;
+  const followingByCreatorId = await followFlagsForCreators(user, creators);
 
   if (currentPage === 1 && creators.length === 0) {
     return hv(
@@ -48,6 +52,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
       page={currentPage}
       hasMore={hasMore}
       loadMoreHref={loadMoreHref}
+      followingByCreatorId={followingByCreatorId}
     />
   );
 

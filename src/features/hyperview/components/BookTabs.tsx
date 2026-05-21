@@ -39,7 +39,7 @@ const BookTabs = ({
         >
           <Text style="tab-label">Book</Text>
         </Option>
-        {/* <Option
+        <Option
           value="comments"
           style="tab-btn"
           selected={activeTab === "comments" ? "true" : undefined}
@@ -51,7 +51,7 @@ const BookTabs = ({
           show-during-load="tab-spinner"
         >
           <Text style="tab-label">Comments</Text>
-        </Option> */}
+        </Option>
         <Option
           value="artist"
           style="tab-btn"

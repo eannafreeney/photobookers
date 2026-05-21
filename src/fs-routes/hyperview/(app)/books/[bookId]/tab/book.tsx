@@ -11,6 +11,7 @@ import { creatorCardStyles } from "../../../../../../features/hyperview/componen
 import BookPage, {
   bookPageStyles,
 } from "../../../../../../features/hyperview/components/BookPage";
+import { bookCommentsPanelStyles } from "../../../../../../features/hyperview/components/BookCommentsPanel";
 import { bookIdSchema } from "../../../../../../schemas";
 import { getBookById } from "../../../../../../features/dashboard/books/services";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
@@ -165,5 +166,6 @@ const pageStyles = () => (
     {creatorCardStyles()}
     {bookTabStyles()}
     {bookPageStyles()}
+    {bookCommentsPanelStyles()}
   </>
 );

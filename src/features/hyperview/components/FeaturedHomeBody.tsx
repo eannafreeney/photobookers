@@ -7,7 +7,7 @@ import { getThisWeeksFeaturedBooks } from "../../app/FeaturedServices";
 import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
 import CreatorCard from "./CreatorCard";
-import { favoriteFlagsForBooks } from "../findFlags";
+import { favoriteFlagsForBooks, followFlagsForCreators } from "../findFlags";
 
 type Props = {
   baseUrl: string;
@@ -37,7 +37,15 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
     [];
 
   const books = [botwBook, ...featuredBooksOnly].filter(Boolean);
-  const favoritesByBookId = await favoriteFlagsForBooks(user, books);
+  const featuredCreators = [
+    artistResult?.creator,
+    publisherResult?.creator,
+  ].filter(Boolean);
+
+  const [favoritesByBookId, followingByCreatorId] = await Promise.all([
+    favoriteFlagsForBooks(user, books),
+    followFlagsForCreators(user, featuredCreators),
+  ]);
 
   return (
     <View>
@@ -55,6 +63,7 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
           title="Artist of The Week"
           creator={artistResult.creator}
           baseUrl={baseUrl}
+          isFollowing={followingByCreatorId[artistResult.creator.id] ?? false}
         />
       )}
       {publisherResult?.creator && (
@@ -63,6 +72,9 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
           title="Publisher of The Week"
           creator={publisherResult.creator}
           baseUrl={baseUrl}
+          isFollowing={
+            followingByCreatorId[publisherResult.creator.id] ?? false
+          }
         />
       )}
       {featuredBooksOnly.length > 0 &&

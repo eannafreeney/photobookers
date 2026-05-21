@@ -1,5 +1,6 @@
 import { FC } from "hono/jsx";
-import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
+import { Image, Style, Text, View } from "../../../lib/hxml-comps";
+import FollowButton from "./FollowButton";
 
 type CreatorCardCreator = {
   id?: string | null;
@@ -18,9 +19,14 @@ type CreatorCardCreator = {
 type Props = {
   creator: CreatorCardCreator | null | undefined;
   baseUrl?: string;
+  isFollowing?: boolean;
 };
 
-const CreatorBanner: FC<Props> = ({ creator, baseUrl = "" }) => {
+const CreatorBanner: FC<Props> = ({
+  creator,
+  baseUrl = "",
+  isFollowing = false,
+}) => {
   if (!creator) return <></>;
 
   const location = [creator.city, creator.country].filter(Boolean).join(", ");
@@ -44,16 +50,11 @@ const CreatorBanner: FC<Props> = ({ creator, baseUrl = "" }) => {
           <View style="creator-body-right">
             {/* Follow button */}
             {creator.id && (
-              <View style="follow-btn" id={`follow-btn-${creator.id}`}>
-                <Text style="follow-label">Follow</Text>
-                <Behavior
-                  trigger="press"
-                  action="replace-inner"
-                  verb="post"
-                  href={`${baseUrl}/api/creators/${creator.id}/follow`}
-                  target={`follow-btn-${creator.id}`}
-                />
-              </View>
+              <FollowButton
+                creatorId={creator.id}
+                baseUrl={baseUrl}
+                isActive={isFollowing}
+              />
             )}
           </View>
         </View>

@@ -8,9 +8,8 @@ import { supabase } from "./lib/supabase";
 import { createAuthedFetch } from "./lib/authedFetch";
 import { createSignOutSupabaseBehavior } from "./behaviors/signOutSupabase";
 import { createSetSupabaseSessionBehavior } from "./behaviors/setSupabaseSessions";
-
-const BASE_URL = process.env.EXPO_PUBLIC_SERVER_URL ?? "http://localhost:3000";
-const ENTRYPOINT_URL = `${BASE_URL}/hyperview`;
+import { createPickProfilePhotoBehavior } from "./behaviors/pickProfilePhoto";
+import { entrypointUrl } from "./lib/env";
 
 function formatDate(date: Date | null | undefined, format: string): string {
   if (!date) return "";
@@ -44,8 +43,9 @@ export default function App() {
     () => [
       createSetSupabaseSessionBehavior(() => supabase),
       createSignOutSupabaseBehavior(() => supabase),
+      createPickProfilePhotoBehavior(() => authedFetch),
     ],
-    [],
+    [authedFetch],
   );
 
   if (!fontsLoaded && !fontError) {
@@ -69,7 +69,7 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <Hyperview
-          entrypointUrl={ENTRYPOINT_URL}
+          entrypointUrl={entrypointUrl}
           fetch={authedFetch}
           formatDate={formatDate as never}
           behaviors={hyperviewBehaviors}

@@ -11,6 +11,7 @@ type Props = {
   hasMore?: boolean;
   loadMoreHref?: string;
   showHeader?: boolean;
+  followingByCreatorId?: Record<string, boolean>;
 };
 
 const RelatedCreatorsList = ({
@@ -20,6 +21,7 @@ const RelatedCreatorsList = ({
   hasMore = false,
   loadMoreHref,
   showHeader = false,
+  followingByCreatorId = {},
 }: Props) => {
   return (
     <view xmlns="https://hyperview.org/hyperview">
@@ -29,6 +31,7 @@ const RelatedCreatorsList = ({
           creator={creator}
           baseUrl={baseUrl}
           showHeader={showHeader}
+          isFollowing={followingByCreatorId[creator.id] ?? false}
         />
       ))}
       {hasMore && loadMoreHref ? (

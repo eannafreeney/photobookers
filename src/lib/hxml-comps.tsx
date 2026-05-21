@@ -179,6 +179,7 @@ export const Behavior: FC<{
   "event-name"?: string;
   "show-during-load"?: string;
   "hide-during-load"?: string;
+  "new-value"?: string;
 }> = (props) => <behavior {...props} />;
 
 // ---------------------------------------------------------------------------
@@ -234,6 +235,7 @@ export const Modifier: FC<
 export const TextField: FC<
   PropsWithChildren<{
     style?: string;
+    id?: string;
     name?: string;
     placeholder?: string;
     value?: string;

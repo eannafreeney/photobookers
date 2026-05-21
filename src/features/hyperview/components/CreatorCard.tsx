@@ -1,6 +1,7 @@
 import { FC } from "hono/jsx";
 import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
 import { creatorSocialStyles } from "./CreatorSocialLinks";
+import FollowButton from "./FollowButton";
 
 type CreatorCardCreator = {
   id?: string | null;
@@ -21,6 +22,7 @@ type Props = {
   baseUrl?: string;
   title?: string | null;
   showHeader?: boolean;
+  isFollowing?: boolean;
 };
 
 const CreatorCard: FC<Props> = ({
@@ -28,11 +30,11 @@ const CreatorCard: FC<Props> = ({
   baseUrl = "",
   title,
   showHeader = true,
+  isFollowing = false,
 }) => {
   if (!creator) return <></>;
 
   const location = [creator.city, creator.country].filter(Boolean).join(", ");
-  const hasSocials = creator.website || creator.instagram || creator.twitter;
 
   return (
     <View style="creator-card">
@@ -80,55 +82,14 @@ const CreatorCard: FC<Props> = ({
 
           <View style="creator-body-right">
             {creator.id && (
-              <View style="follow-btn" id={`follow-btn-${creator.id}`}>
-                <Text style="follow-label">Follow</Text>
-                <Behavior
-                  trigger="press"
-                  action="replace-inner"
-                  verb="post"
-                  href={`${baseUrl}/api/creators/${creator.id}/follow`}
-                  target={`follow-btn-${creator.id}`}
-                />
-              </View>
+              <FollowButton
+                creatorId={creator.id}
+                baseUrl={baseUrl}
+                isActive={isFollowing}
+              />
             )}
           </View>
         </View>
-        {/* <View style="creator-body-footer">
-          {hasSocials && (
-            <View style="creator-socials">
-              {creator.website && (
-                <View style="social-btn">
-                  <Text style="social-label">🌐 Website</Text>
-                  <Behavior
-                    trigger="press"
-                    action="deep-link"
-                    href={creator.website}
-                  />
-                </View>
-              )}
-              {creator.instagram && (
-                <View style="social-btn">
-                  <Text style="social-label">Instagram</Text>
-                  <Behavior
-                    trigger="press"
-                    action="deep-link"
-                    href={`https://instagram.com/${creator.instagram.replace(/^@/, "")}`}
-                  />
-                </View>
-              )}
-              {creator.twitter && (
-                <View style="social-btn">
-                  <Text style="social-label">𝕏 Twitter</Text>
-                  <Behavior
-                    trigger="press"
-                    action="deep-link"
-                    href={`https://x.com/${creator.twitter.replace(/^@/, "")}`}
-                  />
-                </View>
-              )}
-            </View>
-          )}
-        </View> */}
       </View>
     </View>
   );

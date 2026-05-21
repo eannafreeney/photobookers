@@ -1,10 +1,11 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
-import { slugSchema } from "../../../../../../features/app/schema";
 import { getCreatorsByCreatorId } from "../../../../../../features/app/services";
 import { hyperview } from "../../../../../../lib/hxml";
 import { Text } from "../../../../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
+import { getUser } from "../../../../../../utils";
+import { followFlagsForCreators } from "../../../../../../features/hyperview/findFlags";
 import CreatorCard from "../../../../../../features/hyperview/components/CreatorCard";
 import { creatorIdSchema } from "../../../../../../schemas";
 
@@ -13,6 +14,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const currentPage = Number(c.req.query("page") ?? 1);
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
+  const user = await getUser(c);
 
   const [error, result] = await getCreatorsByCreatorId(
     creatorId,
@@ -31,6 +33,10 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   }
 
   const { creators } = result;
+  const followingByCreatorId = await followFlagsForCreators(
+    user,
+    creators ?? [],
+  );
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview">
@@ -40,6 +46,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
           creator={publisher}
           baseUrl={baseUrl}
           showHeader={false}
+          isFollowing={followingByCreatorId[publisher.id] ?? false}
         />
       ))}
     </view>,

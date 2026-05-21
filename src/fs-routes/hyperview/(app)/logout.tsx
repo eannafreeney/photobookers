@@ -7,13 +7,13 @@ import { getAccessTokenFromRequest } from "../../../lib/getAccessTokenFromReques
 import { supabaseAdmin } from "../../../lib/supabase";
 import { createRoute } from "hono-fsr";
 import type { Context } from "hono";
-import { AppLayout } from "../+layout";
-import { Behavior } from "../../../lib/hxml-comps";
+import { hyperviewSignOutAndNavigate } from "../../../features/hyperview/sessionSync";
 
 async function clearSession(c: Context) {
   const baseUrl = getBaseUrl(c);
   const cookieOpts = getAuthCookieOptions();
   const jwt = getAccessTokenFromRequest(c);
+  const isHyperview = getIsHyperview(c);
   const hv = hyperview(c);
 
   deleteCookie(c, "token", {
@@ -32,21 +32,8 @@ async function clearSession(c: Context) {
     }
   }
 
-  if (getIsHyperview(c)) {
-    const featured = `${baseUrl}/hyperview/featured`;
-    return hv(
-      <AppLayout
-        title="Home"
-        showBackButton={false}
-        baseUrl={baseUrl}
-        showDock
-        dockActive="home"
-      >
-        <Behavior trigger="load" action="sign-out-supabase" />
-        <Behavior trigger="load" action="navigate" href={featured} />
-      </AppLayout>,
-      200,
-    );
+  if (isHyperview) {
+    return hv(hyperviewSignOutAndNavigate(baseUrl), 200);
   }
 
   return c.redirect(`${baseUrl}/hyperview/featured`, 303);
