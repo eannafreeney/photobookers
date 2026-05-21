@@ -1,5 +1,6 @@
 import { FC } from "hono/jsx";
 import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
+import { creatorSocialStyles } from "./CreatorSocialLinks";
 
 type CreatorCardCreator = {
   id?: string | null;
@@ -180,24 +181,7 @@ export const creatorCardStyles = () => (
       lineHeight={18}
       marginBottom={12}
     />
-    <Style
-      id="creator-socials"
-      flexDirection="row"
-      flexWrap="wrap"
-      marginBottom={12}
-      gap={8}
-    />
-    <Style
-      id="social-btn"
-      paddingTop={6}
-      paddingBottom={6}
-      paddingLeft={12}
-      paddingRight={12}
-      borderRadius={6}
-      borderWidth={1}
-      borderColor="#e5e5e5"
-    />
-    <Style id="social-label" fontSize={13} color="#333333" />
+    {creatorSocialStyles()}
     <Style
       id="follow-btn"
       paddingTop={10}

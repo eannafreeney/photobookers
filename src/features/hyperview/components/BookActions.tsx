@@ -1,29 +1,43 @@
-import { Behavior, Style, View } from "../../../lib/hxml-comps";
-import { Text } from "../../../lib/hxml-comps";
+import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
 import { BookWithGalleryImages } from "../../app/types";
 import { xmlText } from "../../../lib/hxml";
 
 type Props = {
   book: BookWithGalleryImages;
   baseUrl: string;
-  isWishlisted: boolean;
+  isFavorited: boolean;
 };
 
-const BookActions = ({ book, baseUrl, isWishlisted }: Props) => {
+export const BookWishlistIcon = ({
+  baseUrl,
+  isActive,
+}: {
+  baseUrl: string;
+  isActive: boolean;
+}) => (
+  <Image
+    source={`${baseUrl}/icons/wishlist-${isActive ? "on" : "off"}.png`}
+    style="book-action-icon"
+    resize-mode="contain"
+  />
+);
+
+const BookActions = ({ book, baseUrl, isFavorited }: Props) => {
   return (
     <view xmlns="https://hyperview.org/hyperview">
       <View style="book-actions-row">
         <View style="book-action-cell">
-          <View id={`book-wishlist-${book.id}`} style="book-btn">
-            <HyperviewBookWishlistInner
+          <View id={`book-favorite-${book.id}`}>
+            <HyperviewFavoriteInner
               bookId={book.id}
               baseUrl={baseUrl}
-              isActive={isWishlisted}
+              isActive={isFavorited}
+              variant="block"
             />
           </View>
         </View>
         <View style="book-action-cell">
-          <View style="book-btn">
+          <View style="book-action-block">
             <Behavior
               trigger="press"
               action="share"
@@ -36,7 +50,12 @@ const BookActions = ({ book, baseUrl, isWishlisted }: Props) => {
                 "share:title": xmlText(book.title),
               }}
             />
-            <Text style="book-action-label">↗</Text>
+            <Image
+              source={`${baseUrl}/icons/share.png`}
+              style="book-action-icon"
+              resize-mode="contain"
+            />
+            <Text style="book-action-label">Share</Text>
           </View>
         </View>
       </View>
@@ -50,59 +69,75 @@ type InnerProps = {
   bookId: string;
   baseUrl: string;
   isActive: boolean;
+  variant?: "compact" | "block";
 };
 
-export const HyperviewBookWishlistInner = ({
+export const HyperviewFavoriteInner = ({
   bookId,
   baseUrl,
   isActive,
-}: InnerProps) => (
-  <View xmlns="https://hyperview.org/hyperview">
-    <Text style={isActive ? "label-on" : "label-off"}>
-      {isActive ? "♥" : "♡"}
-    </Text>
-    <Behavior
-      trigger="press"
-      verb="post"
-      action="replace-inner"
-      target={`book-wishlist-${bookId}`}
-      href={`${baseUrl}/api/books/${bookId}/wishlist`}
-    />
-  </View>
-);
+  variant = "compact",
+}: InnerProps) => {
+  const label = isActive ? "Wishlisted" : "Wishlist";
+  const layoutParam = variant === "block" ? "?layout=block" : "";
+  const href = `${baseUrl}/api/books/${bookId}/wishlist${layoutParam}`;
+
+  if (variant === "block") {
+    return (
+      <View xmlns="https://hyperview.org/hyperview" style="book-action-block">
+        <BookWishlistIcon baseUrl={baseUrl} isActive={isActive} />
+        <Text style="book-action-label">{label}</Text>
+        <Behavior
+          trigger="press"
+          verb="post"
+          action="replace-inner"
+          target={`book-favorite-${bookId}`}
+          href={href}
+        />
+      </View>
+    );
+  }
+
+  return (
+    <View xmlns="https://hyperview.org/hyperview" style="book-btn">
+      <BookWishlistIcon baseUrl={baseUrl} isActive={isActive} />
+      <Behavior
+        trigger="press"
+        verb="post"
+        action="replace-inner"
+        target={`book-favorite-${bookId}`}
+        href={href}
+      />
+    </View>
+  );
+};
 
 export const bookActionsStyles = () => (
   <>
     <Style
       id="book-actions-row"
       flexDirection="row"
-      justifyContent="space-between"
-      alignItems="center"
+      alignItems="stretch"
+      gap={8}
       marginTop={24}
       marginBottom={24}
-      paddingLeft={4}
-      paddingRight={4}
     />
-    <Style id="book-action-cell" flex={1} alignItems="center" />
+    <Style id="book-action-cell" flex={1} />
     <Style
-      id="book-action-inner"
-      paddingTop={10}
-      paddingBottom={10}
+      id="book-action-block"
+      flexDirection="row"
       alignItems="center"
       justifyContent="center"
-      borderRadius={8}
+      gap={8}
+      paddingTop={12}
+      paddingBottom={12}
+      paddingLeft={16}
+      paddingRight={16}
+      borderRadius={10}
       backgroundColor="#ffffff"
       borderWidth={1}
       borderColor="#e8e8e6"
       width="100%"
-      marginLeft={4}
-      marginRight={4}
-    />
-    <Style
-      id="book-action-label"
-      fontSize={13}
-      fontWeight="600"
-      color="#111111"
     />
     <Style
       id="book-btn"
@@ -114,19 +149,12 @@ export const bookActionsStyles = () => (
       justifyContent="center"
       flexShrink={0}
     />
-    <Style id="label-on" fontSize={18} fontWeight="600" color="#0099cc" />
-    <Style id="label-off" fontSize={18} fontWeight="600" color="#6b7280" />
+    <Style id="book-action-icon" width={18} height={18} />
     <Style
-      id="book-action-inner"
-      height={32}
-      width="100%"
-      paddingLeft={24}
-      paddingRight={24}
-      borderRadius={16}
-      backgroundColor="#e5e7eb"
-      alignItems="center"
-      justifyContent="center"
-      flexShrink={0}
+      id="book-action-label"
+      fontSize={14}
+      fontWeight="600"
+      color="#111111"
     />
   </>
 );

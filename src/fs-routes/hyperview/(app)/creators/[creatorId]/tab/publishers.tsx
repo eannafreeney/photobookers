@@ -14,12 +14,11 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
 
-  console.log(creatorId);
-
   const [error, result] = await getCreatorsByCreatorId(
     creatorId,
     "artist",
     currentPage,
+    3,
   );
 
   if (error || !result) {

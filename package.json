@@ -4,6 +4,7 @@
     "dev": "vite",
     "dev:fsr": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts -w",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:fsr\"",
+    "dev:all:production": "dotenv -e .env.production -- concurrently \"npm run dev\" \"npm run dev:fsr\"",
     "prebuild": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts && npm run typecheck",
     "build": "vite build",
     "typecheck": "tsc --noEmit",

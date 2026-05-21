@@ -1,6 +1,7 @@
-import { Behavior, Style, Text, View } from "../../../lib/hxml-comps";
+import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
 import { AuthUser } from "../../../../types";
 import { xmlText } from "../../../lib/hxml";
+import HeaderIconButton, { headerIconButtonStyles } from "./HeaderIconButton";
 
 type Props = {
   baseUrl?: string;
@@ -9,43 +10,38 @@ type Props = {
 
 const HomeNavbar = ({ baseUrl, user }: Props) => {
   return (
-    <View xmlns="https://hyperview.org/hyperview" style="featured-header">
-      <View style="featured-header-inner">
-        <View style="featured-header-side-left">
-          {baseUrl && !user ? (
-            <View style="featured-header-btn-wrap">
-              <Behavior
-                trigger="press"
-                action="push"
+    <View
+      xmlns="https://hyperview.org/hyperview"
+      style="featured-header-safe"
+      safe-area="true"
+    >
+      <View style="featured-header">
+        <View style="featured-header-inner">
+          <View style="featured-header-side-left">
+            {baseUrl && !user ? (
+              <HeaderIconButton
                 href={`${baseUrl}/hyperview/login`}
+                icon={`${baseUrl}/icons/header/login.png`}
               />
-              <Text style="featured-header-side-btn">Log in</Text>
-            </View>
-          ) : (
-            <View style="featured-header-btn-wrap">
-              <Behavior
-                trigger="press"
-                action="push"
+            ) : baseUrl ? (
+              <HeaderIconButton
                 href={`${baseUrl}/hyperview/logout`}
+                icon={`${baseUrl}/icons/header/logout.png`}
+                action="replace"
               />
-              <Text style="featured-header-side-btn">Log out</Text>
-            </View>
-          )}
-        </View>
-        <View style="featured-header-center">
-          <Text style="featured-header-logo">{xmlText("photobookers")}</Text>
-        </View>
-        <View style="featured-header-side-right">
-          {baseUrl ? (
-            <View style="featured-header-btn-wrap">
-              <Behavior
-                trigger="press"
-                action="push"
+            ) : null}
+          </View>
+          <View style="featured-header-center">
+            <Text style="featured-header-logo">{xmlText("photobookers")}</Text>
+          </View>
+          <View style="featured-header-side-right">
+            {baseUrl ? (
+              <HeaderIconButton
                 href={`${baseUrl}/hyperview/search`}
+                icon={`${baseUrl}/icons/header/search.png`}
               />
-              <Text style="featured-header-side-btn">Search</Text>
-            </View>
-          ) : null}
+            ) : null}
+          </View>
         </View>
       </View>
     </View>
@@ -56,18 +52,16 @@ export default HomeNavbar;
 
 export const homeNavbarStyles = () => (
   <>
+    <Style id="featured-header-safe" width="100%" backgroundColor="#0099cc" />
     <Style
       id="featured-header"
       width="100%"
-      backgroundColor="#0099cc"
-      paddingTop={32}
       paddingBottom={12}
       paddingLeft={12}
       paddingRight={12}
       flexDirection="row"
       alignItems="center"
       justifyContent="center"
-      borderBottomWidth={0}
     />
     <Style
       id="featured-header-inner"
@@ -115,20 +109,6 @@ export const homeNavbarStyles = () => (
       color="#ffffff"
       letterSpacing={0.5}
     />
-    <Style
-      id="featured-header-btn-wrap"
-      paddingTop={8}
-      paddingBottom={8}
-      paddingLeft={8}
-      paddingRight={8}
-    >
-      <modifier />
-    </Style>
-    <Style
-      id="featured-header-side-btn"
-      fontSize={12}
-      fontWeight="500"
-      color="#ffffff"
-    />
+    {headerIconButtonStyles()}
   </>
 );

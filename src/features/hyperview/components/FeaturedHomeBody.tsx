@@ -7,7 +7,7 @@ import { getThisWeeksFeaturedBooks } from "../../app/FeaturedServices";
 import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
 import CreatorCard from "./CreatorCard";
-import { wishlistFlagsForBooks } from "../findFlags";
+import { favoriteFlagsForBooks } from "../findFlags";
 
 type Props = {
   baseUrl: string;
@@ -37,7 +37,7 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
     [];
 
   const books = [botwBook, ...featuredBooksOnly].filter(Boolean);
-  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
+  const favoritesByBookId = await favoriteFlagsForBooks(user, books);
 
   return (
     <View>
@@ -46,7 +46,7 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
           title="Book of The Week"
           book={botwBook}
           baseUrl={baseUrl}
-          isWishlisted={wishlistsByBookId[botwBook.id] ?? false}
+          isFavorited={favoritesByBookId[botwBook.id] ?? false}
         />
       )}
       {artistResult?.creator && (
@@ -71,7 +71,7 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
             title="Featured"
             book={book}
             baseUrl={baseUrl}
-            isWishlisted={wishlistsByBookId[book.id] ?? false}
+            isFavorited={favoritesByBookId[book.id] ?? false}
           />
         ))}
     </View>

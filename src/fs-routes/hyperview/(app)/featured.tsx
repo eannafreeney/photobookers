@@ -1,9 +1,15 @@
 import { createRoute } from "hono-fsr";
-import FeaturedTabs from "../../../features/hyperview/components/FeaturedTabs";
+import FeaturedTabs, {
+  featuredTabStyles,
+} from "../../../features/hyperview/components/FeaturedTabs";
+import {
+  FEATURED_TAB_BODY_ID,
+  FEATURED_TAB_HOST_ID,
+  FEATURED_TAB_SPINNER_ID,
+} from "../../../features/hyperview/components/featuredTabIds";
 import { AppLayout } from "../+layout";
 import { hyperview } from "../../../lib/hxml";
 import { bookCardStyles } from "../../../features/hyperview/components/BookCard";
-import { bookTabStyles } from "../../../features/hyperview/components/BookTabs";
 import {
   messageListStyles,
   signInEmptyHintStyles,
@@ -12,7 +18,8 @@ import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getUser } from "../../../utils";
 import { creatorCardStyles } from "../../../features/hyperview/components/CreatorCard";
-import BooksUpdatedListener from "../../../features/hyperview/components/BooksUpdatedListener";
+import { feedListStyles } from "../../../features/hyperview/components/FeedList";
+import { signInPromptStyles } from "../../../features/hyperview/components/SignInPrompt";
 
 export const GET = createRoute(async (c) => {
   const baseUrl = getBaseUrl(c);
@@ -31,22 +38,25 @@ export const GET = createRoute(async (c) => {
       extraStyles={pageStyles()}
     >
       <FeaturedTabs baseUrl={baseUrl} activeTab="home" />
-      <View id="tab-spinner" style="tab-spinner-featured" hide="true">
-        <Spinner />
-      </View>
-      <BooksUpdatedListener
-        refreshHref={`${baseUrl}/hyperview/featured/tab/home-content`}
-      />
-      <View id="tab-area" style="page-content">
-        <Behavior
-          trigger="load"
-          verb="get"
-          action="replace-inner"
-          target="tab-area"
-          href={`${baseUrl}/hyperview/featured/tab/home-content`}
-          hide-during-load="tab-area"
-          show-during-load="tab-spinner"
-        />
+      <View id={FEATURED_TAB_HOST_ID} style="featured-tab-panel">
+        <View
+          id={FEATURED_TAB_SPINNER_ID}
+          style="featured-tab-spinner"
+          hide="true"
+        >
+          <Spinner />
+        </View>
+        <View id={FEATURED_TAB_BODY_ID} style="featured-tab-body">
+          <Behavior
+            trigger="load"
+            verb="get"
+            action="replace-inner"
+            target={FEATURED_TAB_BODY_ID}
+            href={`${baseUrl}/hyperview/featured/tab/home-content`}
+            hide-during-load={FEATURED_TAB_BODY_ID}
+            show-during-load={FEATURED_TAB_SPINNER_ID}
+          />
+        </View>
       </View>
     </AppLayout>,
   );
@@ -54,20 +64,13 @@ export const GET = createRoute(async (c) => {
 
 const pageStyles = () => (
   <>
-    <Style id="page-content" margin={16} />
     <Style id="tab-fragment" flex={1} />
-    <Style
-      id="tab-spinner-featured"
-      flex={1}
-      minHeight={320}
-      alignItems="center"
-      justifyContent="center"
-      paddingTop={48}
-    />
     {signInEmptyHintStyles()}
+    {signInPromptStyles()}
+    {featuredTabStyles()}
     {messageListStyles()}
     {bookCardStyles()}
-    {bookTabStyles()}
     {creatorCardStyles()}
+    {feedListStyles()}
   </>
 );

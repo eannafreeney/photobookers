@@ -344,6 +344,7 @@ export const getBooksByCreatorId = async (
   creatorId: string,
   currentPage: number,
   searchQuery?: string,
+  defaultLimit = 3,
 ) => {
   const baseFilter = or(
     eq(books.artistId, creatorId),
@@ -369,7 +370,7 @@ export const getBooksByCreatorId = async (
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
-      12,
+      defaultLimit,
     );
 
     const foundBooks = await db.query.books.findMany({

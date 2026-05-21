@@ -1,17 +1,20 @@
 import { hyperview } from "../../../lib/hxml";
 import { getIsHyperview } from "../../../features/hyperview/lib";
-import { hyperviewSignOutAndNavigate } from "../../../features/hyperview/sessionSync";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getAuthCookieOptions } from "../../../features/auth/services";
-import { deleteCookie, getCookie } from "hono/cookie";
+import { deleteCookie } from "hono/cookie";
+import { getAccessTokenFromRequest } from "../../../lib/getAccessTokenFromRequest";
 import { supabaseAdmin } from "../../../lib/supabase";
 import { createRoute } from "hono-fsr";
 import type { Context } from "hono";
+import { AppLayout } from "../+layout";
+import { Behavior } from "../../../lib/hxml-comps";
 
 async function clearSession(c: Context) {
   const baseUrl = getBaseUrl(c);
   const cookieOpts = getAuthCookieOptions();
-  const jwt = getCookie(c, "token");
+  const jwt = getAccessTokenFromRequest(c);
+  const hv = hyperview(c);
 
   deleteCookie(c, "token", {
     path: cookieOpts.path,
@@ -24,11 +27,26 @@ async function clearSession(c: Context) {
 
   if (jwt) {
     const { error } = await supabaseAdmin.auth.admin.signOut(jwt);
-    if (error) console.error("Failed to revoke session:", error);
+    if (error && error.code !== "bad_jwt") {
+      console.error("Failed to revoke session:", error);
+    }
   }
 
   if (getIsHyperview(c)) {
-    return hyperview(c)(hyperviewSignOutAndNavigate(baseUrl), 200);
+    const featured = `${baseUrl}/hyperview/featured`;
+    return hv(
+      <AppLayout
+        title="Home"
+        showBackButton={false}
+        baseUrl={baseUrl}
+        showDock
+        dockActive="home"
+      >
+        <Behavior trigger="load" action="sign-out-supabase" />
+        <Behavior trigger="load" action="navigate" href={featured} />
+      </AppLayout>,
+      200,
+    );
   }
 
   return c.redirect(`${baseUrl}/hyperview/featured`, 303);

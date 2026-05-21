@@ -7,6 +7,9 @@ import {
   signInEmptyHintStyles,
 } from "../../../features/hyperview/hyperviewCommonScreenStyles";
 import { Style, Text, View } from "../../../lib/hxml-comps";
+import SignInPrompt, {
+  signInPromptStyles,
+} from "../../../features/hyperview/components/SignInPrompt";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { formatDate, getUser } from "../../../utils";
 
@@ -24,11 +27,10 @@ export const GET = createRoute(async (c) => {
         baseUrl={baseUrl}
         extraStyles={pageStyles()}
       >
-        <View style="page-content">
-          <Text style="featured-signin-hint">
-            Sign in to see messages from creators you follow.
-          </Text>
-        </View>
+        <SignInPrompt
+          baseUrl={baseUrl}
+          hint="Sign in to see messages from creators you follow."
+        />
       </AppLayout>,
     );
   }
@@ -80,6 +82,7 @@ const pageStyles = () => (
       paddingBottom={8}
     />
     {signInEmptyHintStyles()}
+    {signInPromptStyles()}
     {messageListStyles()}
   </>
 );

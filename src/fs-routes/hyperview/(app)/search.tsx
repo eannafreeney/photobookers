@@ -27,9 +27,7 @@ export const GET = createRoute(async (c) => {
   return hv(
     <AppLayout
       title="Search"
-      showDock
       baseUrl={baseUrl}
-      dockActive="search"
       extraStyles={pageStyles()}
     >
       <View style="page-content">

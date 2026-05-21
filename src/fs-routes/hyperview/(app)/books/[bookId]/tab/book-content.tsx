@@ -6,7 +6,7 @@ import BookPage from "../../../../../../features/hyperview/components/BookPage";
 import { getBookById } from "../../../../../../features/dashboard/books/services";
 import { bookIdSchema } from "../../../../../../schemas";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
-import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import { getUser } from "../../../../../../utils";
 
 function galleryUrlsFromBook(book: {
@@ -38,14 +38,14 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
 
   const galleryImages = galleryUrlsFromBook(book);
 
-  const wishlistsByBookId = await wishlistFlagsForBooks(user, [book]);
+  const favoritesByBookId = await favoriteFlagsForBooks(user, [book]);
 
   return hv(
     <BookPage
       galleryImages={galleryImages}
       book={book}
       baseUrl={baseUrl}
-      isWishlisted={wishlistsByBookId[book.id] ?? false}
+      isFavorited={favoritesByBookId[book.id] ?? false}
     />,
   );
 });

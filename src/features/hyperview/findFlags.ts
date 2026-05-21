@@ -2,7 +2,7 @@ import type { AuthUser } from "../../../types";
 import { findWishlist } from "../api/services";
 import { isOk } from "../../lib/result";
 
-export async function wishlistFlagsForBooks(
+export async function favoriteFlagsForBooks(
   user: AuthUser | null,
   books: readonly { id: string }[],
 ): Promise<Record<string, boolean>> {

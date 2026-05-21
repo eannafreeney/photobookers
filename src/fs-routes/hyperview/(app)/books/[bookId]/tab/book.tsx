@@ -15,7 +15,7 @@ import { bookIdSchema } from "../../../../../../schemas";
 import { getBookById } from "../../../../../../features/dashboard/books/services";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { getUser } from "../../../../../../utils";
-import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
@@ -36,13 +36,17 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
     ),
   ].filter((url): url is string => Boolean(url));
 
-  const wishlistsByBookId = await wishlistFlagsForBooks(user, [book]);
+  const favoritesByBookId = await favoriteFlagsForBooks(user, [book]);
 
   return hv(
     <AppLayout
+      showDock
+      baseUrl={baseUrl}
       title={book.title}
       artist={book.artist?.displayName}
+      publisher={book.publisher?.displayName}
       extraStyles={pageStyles()}
+      coverUrl={book.coverUrl}
     >
       <BookTabs
         baseUrl={baseUrl}
@@ -55,7 +59,7 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
           galleryImages={galleryImages}
           book={book}
           baseUrl={baseUrl}
-          isWishlisted={wishlistsByBookId[book.id] ?? false}
+          isFavorited={favoritesByBookId[book.id] ?? false}
         />
       </View>
     </AppLayout>,

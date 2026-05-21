@@ -5,17 +5,18 @@ import { getBooksByCreatorSlug } from "../../../../../../features/app/services";
 import { paramValidator } from "../../../../../../lib/validator";
 import { slugSchema } from "../../../../../../features/app/schema";
 import { getUser } from "../../../../../../utils";
-import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 
 export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const slug = c.req.valid("param").slug;
+  const currentPage = parseInt(c.req.query("page") ?? "1");
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
 
-  const [error, result] = await getBooksByCreatorSlug(slug);
+  const [error, result] = await getBooksByCreatorSlug(slug, currentPage);
 
   if (error || !result?.creator) {
     return hv(
@@ -26,16 +27,28 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
     );
   }
 
-  const { creator, books } = result;
+  const { creator, books, totalPages = 1 } = result;
+  const favoritesByBookId = await favoriteFlagsForBooks(user, books);
+  const hasMore = currentPage < totalPages;
+  const loadMoreHref = `${baseUrl}/hyperview/creators/${creator.id}/tab/books-content`;
 
-  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
+  const pageProps = {
+    books,
+    creator,
+    baseUrl,
+    favoritesByBookId,
+    page: currentPage,
+    hasMore,
+    loadMoreHref,
+  };
 
-  return hv(
-    <CreatorPage
-      books={books}
-      creator={creator}
-      baseUrl={baseUrl}
-      wishlistsByBookId={wishlistsByBookId}
-    />,
-  );
+  if (currentPage > 1) {
+    return hv(
+      <view xmlns="https://hyperview.org/hyperview">
+        <CreatorPage {...pageProps} />
+      </view>,
+    );
+  }
+
+  return hv(<CreatorPage {...pageProps} />);
 });

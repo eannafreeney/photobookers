@@ -1,4 +1,4 @@
-import { Modifier, Option, SelectSingle, Style } from "../../../lib/hxml-comps";
+import { Modifier, Option, SelectSingle, Style, View } from "../../../lib/hxml-comps";
 import { Text } from "../../../lib/hxml-comps";
 
 export type CreatorTab = "books" | "messages" | "publishers" | "about";
@@ -16,9 +16,8 @@ const CreatorTabs = ({
   creatorType,
   activeTab = "books",
 }: CreatorTabsProps) => {
-  console.log(creatorType, "creatorType");
   return (
-    <>
+    <View style="creator-tabs-sticky" sticky="true">
       <SelectSingle style="tab-bar" name="tab">
         <Option
           value="books"
@@ -80,7 +79,7 @@ const CreatorTabs = ({
           <Text style="tab-label">About</Text>
         </Option>
       </SelectSingle>
-    </>
+    </View>
   );
 };
 
@@ -88,6 +87,12 @@ export default CreatorTabs;
 
 export const creatorTabStyles = () => (
   <>
+    <Style
+      id="creator-tabs-sticky"
+      backgroundColor="#f8f7f5"
+      borderBottomWidth={1}
+      borderBottomColor="#e5e5e5"
+    />
     <Style
       id="tab-btn"
       flex={1}

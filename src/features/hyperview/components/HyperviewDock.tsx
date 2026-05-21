@@ -1,51 +1,61 @@
 import { FC } from "hono/jsx";
-import { Behavior, Style, Text, View } from "../../../lib/hxml-comps";
+import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
 
-export type HyperviewDockActive = "home" | "search" | "books" | "settings";
+export type HyperviewDockActive =
+  | "home"
+  | "books"
+  | "creators"
+  | "favorites"
+  | "settings";
 
 type HyperviewDockProps = {
   baseUrl: string;
   active?: HyperviewDockActive;
 };
 
-const item = (isActive: boolean) =>
+type DockItem = {
+  id: HyperviewDockActive;
+  label: string;
+  path: string;
+  icon: string;
+};
+
+const DOCK_ITEMS: DockItem[] = [
+  { id: "home", label: "Home", path: "featured", icon: "home" },
+  { id: "creators", label: "Creators", path: "creators", icon: "creators" },
+  { id: "books", label: "Books", path: "books", icon: "books" },
+  // { id: "search", label: "search", path: "search", icon: "search" },
+  { id: "favorites", label: "Favorites", path: "favorites", icon: "favorites" },
+  { id: "settings", label: "Settings", path: "settings", icon: "settings" },
+];
+
+const labelStyle = (isActive: boolean) =>
   isActive ? "dock-label-active" : "dock-label";
+
+const iconStyle = (isActive: boolean) =>
+  isActive ? "dock-icon-active" : "dock-icon";
 
 const HyperviewDock: FC<HyperviewDockProps> = ({ baseUrl, active }) => {
   return (
     <View style="dock">
-      <View style="dock-item">
-        <Behavior
-          trigger="press"
-          action="push"
-          href={`${baseUrl}/hyperview/featured`}
-        />
-        <Text style={item(active === "home")}>Home</Text>
-      </View>
-      <View style="dock-item">
-        <Behavior
-          trigger="press"
-          action="push"
-          href={`${baseUrl}/hyperview/search`}
-        />
-        <Text style={item(active === "search")}>Search</Text>
-      </View>
-      <View style="dock-item">
-        <Behavior
-          trigger="press"
-          action="push"
-          href={`${baseUrl}/hyperview/books`}
-        />
-        <Text style={item(active === "books")}>Books</Text>
-      </View>
-      <View style="dock-item">
-        <Behavior
-          trigger="press"
-          action="push"
-          href={`${baseUrl}/hyperview/settings`}
-        />
-        <Text style={item(active === "settings")}>Settings</Text>
-      </View>
+      {DOCK_ITEMS.map(({ id, label, path, icon }) => {
+        const isActive = active === id;
+        return (
+          <View style="dock-item">
+            <Behavior
+              trigger="press"
+              action="push"
+              href={`${baseUrl}/hyperview/${path}`}
+            />
+            <Image
+              source={`${baseUrl}/icons/dock/${icon}.png`}
+              style={iconStyle(isActive)}
+              resize-mode="contain"
+            />
+            <Text style={labelStyle(isActive)}>{label}</Text>
+          </View>
+        );
+      })}
     </View>
   );
 };
@@ -67,22 +77,37 @@ export const dockShellStyles = () => (
       flexDirection="row"
       alignItems="center"
       justifyContent="space-around"
-      paddingTop={8}
-      paddingBottom={8}
+      paddingTop={12}
+      paddingBottom={20}
+      marginBottom={24}
       paddingLeft={8}
       paddingRight={8}
       borderTopWidth={1}
       borderTopColor="#e5e5e5"
       backgroundColor="#ffffff"
-      height={48}
+      height={56}
     />
-    <Style id="dock-item" flex={1} alignItems="center" paddingTop={4} />
-    <Style id="dock-label" fontSize={11} fontWeight="600" color="#999999" />
+    <Style id="dock-item" flex={1} alignItems="center" paddingTop={2} />
+    <Style
+      id="dock-icon"
+      width={22}
+      height={22}
+      opacity={0.45}
+      marginBottom={2}
+    />
+    <Style
+      id="dock-icon-active"
+      width={22}
+      height={22}
+      marginBottom={2}
+      color="#0099cc"
+    />
+    <Style id="dock-label" fontSize={10} fontWeight="600" color="#999999" />
     <Style
       id="dock-label-active"
-      fontSize={11}
+      fontSize={10}
       fontWeight="700"
-      color="#111111"
+      color="#0099cc"
     />
   </>
 );

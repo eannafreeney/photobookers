@@ -8,7 +8,6 @@ import {
 } from "../../../../features/api/services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import Alert from "../../../../components/app/Alert";
-import WishlistButton from "../../../../features/api/components/WishlistButton";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { publishWishlistActivity } from "../../../../features/api/utils";
 import { createBookWishlistedNotification } from "../../../../features/dashboard/admin/notifications/utils";
@@ -18,9 +17,13 @@ import { findWishlist } from "../../../../db/queries";
 import { isOk } from "../../../../lib/result";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
-import { HyperviewBookWishlistInner } from "../../../../features/hyperview/components/BookActions";
+import {
+  BookWishlistIcon,
+  HyperviewFavoriteInner,
+} from "../../../../features/hyperview/components/BookActions";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 import { canWishlistBook } from "../../../../lib/permissions";
+import FavoriteButton from "../../../../features/api/components/WishlistButton";
 
 const updateLibraryPage = () => "library:updated";
 
@@ -35,15 +38,28 @@ const postWishlistHyperview = async (c: Context) => {
   const baseUrl = getBaseUrl(c);
   const userId = user?.id;
   const hv = hyperview(c);
+  const variant =
+    c.req.query("layout") === "block"
+      ? ("block" as const)
+      : ("compact" as const);
 
   if (!userId) {
-    const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to like this book.")}`;
+    const modalHref = `${baseUrl}/hyperview/auth-modal?action=${encodeURIComponent("to favorite this book.")}`;
     return hv(
-      <View xmlns="https://hyperview.org/hyperview">
-        <Behavior trigger="load" action="new" verb="get" href={modalHref} />
-        <Text style="book-wishlist-icon-off">♡</Text>
-        <Behavior trigger="press" verb="get" action="new" href={modalHref} />
-      </View>,
+      variant === "block" ? (
+        <View xmlns="https://hyperview.org/hyperview" style="book-action-block">
+          <Behavior trigger="load" action="new" verb="get" href={modalHref} />
+          <BookWishlistIcon baseUrl={baseUrl} isActive={false} />
+          <Text style="book-action-label">Wishlist</Text>
+          <Behavior trigger="press" verb="get" action="new" href={modalHref} />
+        </View>
+      ) : (
+        <View xmlns="https://hyperview.org/hyperview">
+          <Behavior trigger="load" action="new" verb="get" href={modalHref} />
+          <BookWishlistIcon baseUrl={baseUrl} isActive={false} />
+          <Behavior trigger="press" verb="get" action="new" href={modalHref} />
+        </View>
+      ),
       401,
     );
   }
@@ -77,7 +93,7 @@ const postWishlistHyperview = async (c: Context) => {
       void createBookWishlistedNotification(user, book);
     }
   } catch (error) {
-    console.error("Failed to like/unlike book", error);
+    console.error("Failed to favorite/unfavorite book", error);
     return hv(<text style="book-wishlist-muted">!</text>);
   }
 
@@ -90,10 +106,11 @@ const postWishlistHyperview = async (c: Context) => {
         action="dispatch-event"
         event-name="books:updated"
       />
-      <HyperviewBookWishlistInner
+      <HyperviewFavoriteInner
         bookId={bookId}
         baseUrl={baseUrl}
         isActive={nowLiked}
+        variant={variant}
       />
     </View>,
   );
@@ -104,23 +121,24 @@ const postWishlistWeb = async (c: Context) => {
   const user = await getUser(c);
   const userId = user?.id;
 
-  if (!userId) return c.html(<AuthModal action="to like this book." />, 401);
+  if (!userId)
+    return c.html(<AuthModal action="to favorite this book." />, 401);
 
   const [err, book] = await getBookPermissionData(bookId);
   if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");
 
   if (!canWishlistBook(user, book))
-    return showErrorAlert(c, "You cannot like this book.");
+    return showErrorAlert(c, "You cannot favorite this book.");
 
   const body = await c.req.parseBody();
-  const isCurrentlyWishlisted = body.isWishlisted === "true";
+  const isCurrentlyFavorited = body.isFavorited === "true";
   const isCircleButton = body.buttonType === "circle";
   const shouldRefreshWishlist = body.shouldRefreshWishlist === "true";
 
-  const isAddingToWishlist = !isCurrentlyWishlisted;
+  const isAddingToWishlist = !isCurrentlyFavorited;
 
   try {
-    if (isCurrentlyWishlisted) {
+    if (isCurrentlyFavorited) {
       await deleteWishlist(user.id, bookId);
     } else {
       await insertWishlist(user.id, bookId);
@@ -128,19 +146,19 @@ const postWishlistWeb = async (c: Context) => {
       void createBookWishlistedNotification(user, book);
     }
   } catch (error) {
-    console.error("Failed to add/remove book to wishlist", error);
+    console.error("Failed to favorite/unfavorite book", error);
 
     return showErrorAlert(c);
   }
 
   const message = isAddingToWishlist
-    ? `${book.title} liked`
-    : `${book.title} unliked`;
+    ? `${book.title} favorited`
+    : `${book.title} unfavorited`;
 
   return c.html(
     <>
       <Alert type="success" message={message} />
-      <WishlistButton book={book} user={user} isCircleButton={isCircleButton} />
+      <FavoriteButton book={book} user={user} isCircleButton={isCircleButton} />
       {shouldRefreshWishlist && dispatchEvents([updateLibraryPage()])}
     </>,
   );

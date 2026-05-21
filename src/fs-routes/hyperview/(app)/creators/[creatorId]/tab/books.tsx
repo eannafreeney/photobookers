@@ -10,8 +10,11 @@ import CreatorTabs, {
   creatorTabStyles,
 } from "../../../../../../features/hyperview/components/CreatorTabs";
 import { getUser } from "../../../../../../utils";
-import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
-import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
+import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import CreatorPage, {
+  creatorPageStyles,
+} from "../../../../../../features/hyperview/components/CreatorPage";
+import { relatedCreatorsListStyles } from "../../../../../../features/hyperview/components/RelatedCreatorsList";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { creatorIdSchema } from "../../../../../../schemas";
 import { getBooksByCreatorId } from "../../../../../../features/dashboard/admin/creators/services";
@@ -29,12 +32,16 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
     return hv(notFoundScreen("Book not found."), 404);
   }
 
-  const { creator, books } = result;
+  const { creator, books, totalPages = 1 } = result;
   const user = await getUser(c);
-  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
+  const favoritesByBookId = await favoriteFlagsForBooks(user, books);
+  const hasMore = currentPage < totalPages;
+  const loadMoreHref = `${baseUrl}/hyperview/creators/${creatorId}/tab/books-content`;
 
   return hv(
     <AppLayout
+      showDock
+      baseUrl={baseUrl}
       title={creator.displayName}
       verified={creator.status === "verified"}
       extraStyles={pageStyles()}
@@ -51,7 +58,10 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
           books={books}
           creator={creator}
           baseUrl={baseUrl}
-          wishlistsByBookId={wishlistsByBookId}
+          favoritesByBookId={favoritesByBookId}
+          page={currentPage}
+          hasMore={hasMore}
+          loadMoreHref={loadMoreHref}
         />
       </View>
     </AppLayout>,
@@ -154,5 +164,7 @@ const pageStyles = () => (
     {creatorCardStyles()}
     {bookCardStyles()}
     {creatorTabStyles()}
+    {creatorPageStyles()}
+    {relatedCreatorsListStyles()}
   </>
 );

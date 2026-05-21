@@ -3,7 +3,7 @@ import { hyperview } from "../../../../../../lib/hxml";
 import { Text } from "../../../../../../lib/hxml-comps";
 import { paramValidator } from "../../../../../../lib/validator";
 import { getUser } from "../../../../../../utils";
-import { wishlistFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
 import { creatorIdSchema } from "../../../../../../schemas";
 import { getBooksByCreatorId } from "../../../../../../features/dashboard/admin/creators/services";
@@ -14,6 +14,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const currentPage = parseInt(c.req.query("page") ?? "1");
   const baseUrl = getBaseUrl(c);
   const hv = hyperview(c);
+  const loadMoreHref = `${baseUrl}/hyperview/creators/${creatorId}/tab/books-content`;
 
   const [error, result] = await getBooksByCreatorId(creatorId, currentPage);
 
@@ -26,16 +27,28 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
     );
   }
 
-  const { creator, books } = result;
+  const { creator, books, totalPages = 1 } = result;
   const user = await getUser(c);
-  const wishlistsByBookId = await wishlistFlagsForBooks(user, books);
+  const favoritesByBookId = await favoriteFlagsForBooks(user, books);
+  const hasMore = currentPage < totalPages;
 
-  return hv(
-    <CreatorPage
-      books={books}
-      creator={creator}
-      baseUrl={baseUrl}
-      wishlistsByBookId={wishlistsByBookId}
-    />,
-  );
+  const pageProps = {
+    books,
+    creator,
+    baseUrl,
+    favoritesByBookId,
+    page: currentPage,
+    hasMore,
+    loadMoreHref,
+  };
+
+  if (currentPage > 1) {
+    return hv(
+      <view xmlns="https://hyperview.org/hyperview">
+        <CreatorPage {...pageProps} />
+      </view>,
+    );
+  }
+
+  return hv(<CreatorPage {...pageProps} />);
 });

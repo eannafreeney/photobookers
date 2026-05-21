@@ -1,5 +1,5 @@
 import { BookCardResult } from "../../../constants/queries";
-import { Item, Spinner, Style, View } from "../../../lib/hxml-comps";
+import { Item, List, Spinner, Style, View } from "../../../lib/hxml-comps";
 import BookCard from "./BookCard";
 
 /** How far above the spinner to start loading the next page. */
@@ -8,17 +8,20 @@ const PREFETCH_OFFSET = 500;
 type Props = {
   books: BookCardResult[];
   baseUrl: string;
-  wishlistsByBookId: Record<string, boolean>;
+  favoritesByBookId: Record<string, boolean>;
   page: number;
   hasMore: boolean;
+  /** Path for infinite scroll (page appended via ?page=N). */
+  loadMorePath: string;
 };
 
 const BooksListItems = ({
   books,
   baseUrl,
-  wishlistsByBookId,
+  favoritesByBookId,
   page,
   hasMore,
+  loadMorePath,
 }: Props) => (
   <>
     {books.map((book) => (
@@ -31,7 +34,7 @@ const BooksListItems = ({
         <BookCard
           book={book}
           baseUrl={baseUrl}
-          isWishlisted={wishlistsByBookId[book.id] ?? false}
+          isFavorited={favoritesByBookId[book.id] ?? false}
         />
       </Item>
     ))}
@@ -43,7 +46,7 @@ const BooksListItems = ({
         trigger="visible"
         once="true"
         verb="get"
-        href={`${baseUrl}/hyperview/books?page=${page + 1}`}
+        href={`${loadMorePath}?page=${page + 1}`}
         action="replace"
       >
         <View style="books-list-prefetch" />
@@ -54,6 +57,27 @@ const BooksListItems = ({
 );
 
 export default BooksListItems;
+
+type BooksListProps = Props & {
+  listId?: string;
+  refreshHref: string;
+};
+
+export const BooksList = ({
+  listId = "books-list",
+  refreshHref,
+  ...itemsProps
+}: BooksListProps) => (
+  <List
+    id={listId}
+    style="books-list"
+    trigger="refresh"
+    href={refreshHref}
+    action="replace"
+  >
+    <BooksListItems {...itemsProps} />
+  </List>
+);
 
 export const bookListItemsStyles = () => (
   <>

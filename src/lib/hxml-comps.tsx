@@ -17,9 +17,25 @@ export const View: FC<
     xmlns?: string;
     hide?: "true" | "false";
     sticky?: "true" | "false";
+    "safe-area"?: "true" | "false";
   }
-> = ({ style, id, children, hide, xmlns, sticky = false }) => (
-  <view xmlns={xmlns} style={style} id={id} hide={hide} sticky={sticky}>
+> = ({
+  style,
+  id,
+  children,
+  hide,
+  xmlns,
+  sticky = false,
+  "safe-area": safeArea,
+}) => (
+  <view
+    xmlns={xmlns}
+    style={style}
+    id={id}
+    hide={hide}
+    sticky={sticky}
+    safe-area={safeArea}
+  >
     {children}
   </view>
 );
@@ -90,8 +106,15 @@ export const Header: FC<PropsWithChildren<{ style?: string }>> = ({
 // List
 // ---------------------------------------------------------------------------
 
-export const List: FC<BaseProps> = ({ style, id, children }) => (
-  <list style={style} id={id}>
+export const List: FC<
+  BaseProps & {
+    trigger?: string;
+    href?: string;
+    action?: string;
+    verb?: "get" | "post" | "put" | "delete" | "patch";
+  }
+> = ({ style, id, children, ...rest }) => (
+  <list style={style} id={id} {...rest}>
     {children}
   </list>
 );

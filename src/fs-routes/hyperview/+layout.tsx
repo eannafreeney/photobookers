@@ -24,6 +24,7 @@ import CustomHeader, {
 type Props = PropsWithChildren<{
   title: string;
   artist?: string;
+  publisher?: string;
   extraStyles?: Child;
   showBackButton?: boolean;
   /** Featured home: large blue bar with wordmark instead of default title bar */
@@ -35,10 +36,14 @@ type Props = PropsWithChildren<{
   user?: AuthUser;
   verified?: boolean;
   nativeList?: boolean;
+  coverUrl?: string | null;
+  isSearch?: boolean;
+  searchToggleTarget?: string;
 }>;
 
 export const AppLayout = ({
   title,
+  coverUrl,
   children,
   extraStyles,
   verified = false,
@@ -48,8 +53,11 @@ export const AppLayout = ({
   baseUrl,
   dockActive,
   artist,
+  publisher,
   user,
   nativeList = false,
+  isSearch,
+  searchToggleTarget,
 }: Props) => {
   const docked = Boolean(showDock && baseUrl);
 
@@ -68,8 +76,13 @@ export const AppLayout = ({
             <CustomHeader
               title={title}
               artist={artist}
+              publisher={publisher}
               showBackButton={showBackButton}
               verified={verified}
+              coverUrl={coverUrl}
+              isSearch={isSearch}
+              baseUrl={baseUrl}
+              searchToggleTarget={searchToggleTarget}
             />
           )}
           {docked && baseUrl ? (

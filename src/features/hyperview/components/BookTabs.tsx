@@ -24,7 +24,7 @@ const BookTabs = ({
   activeTab = "book",
 }: BookTabsProps) => {
   return (
-    <>
+    <View style="book-tabs-sticky" sticky="true">
       <SelectSingle style="tab-bar" name="tab">
         <Option
           value="book"
@@ -81,7 +81,7 @@ const BookTabs = ({
           </Option>
         )}
       </SelectSingle>
-    </>
+    </View>
   );
 };
 
@@ -89,6 +89,12 @@ export default BookTabs;
 
 export const bookTabStyles = () => (
   <>
+    <Style
+      id="book-tabs-sticky"
+      backgroundColor="#f8f7f5"
+      borderBottomWidth={1}
+      borderBottomColor="#e5e5e5"
+    />
     <Style
       id="tab-btn"
       flex={1}

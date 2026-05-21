@@ -6,33 +6,33 @@ import { findWishlist } from "../services";
 import APIButton from "./APIButton";
 import APIButtonCircle from "./APIButtonCircle";
 
-type WishlistButtonProps = {
+type FavoriteButtonProps = {
   book: Pick<Book, "id" | "artistId" | "publisherId">;
   user: AuthUser | null;
   isCircleButton?: boolean;
 };
 
-const WishlistButton = async ({
+const FavoriteButton = async ({
   book,
   user,
   isCircleButton = false,
-}: WishlistButtonProps) => {
+}: FavoriteButtonProps) => {
   // Only query if user is logged in, otherwise default to false
-  let isWishlisted = false;
+  let isFavorited = false;
   if (user?.id) {
-    isWishlisted = !!(await findWishlist(user.id, book.id));
+    isFavorited = !!(await findWishlist(user.id, book.id));
   }
 
-  const id = `wishlist-${book.id}`;
+  const id = `favorite-${book.id}`;
   const isDisabled = !canWishlistBook(user, book);
   const buttonIcon = (
     <>
       {/* Show empty heart when: not wishlisted OR (wishlisted AND submitting) */}
-      <span x-show={isWishlisted ? "isSubmitting" : "!isSubmitting"} x-cloak>
+      <span x-show={isFavorited ? "isSubmitting" : "!isSubmitting"} x-cloak>
         {emptyHeartIcon()}
       </span>
       {/* Show full heart when: wishlisted OR (!wishlisted AND submitting) */}
-      <span x-show={isWishlisted ? "!isSubmitting" : "isSubmitting"} x-cloak>
+      <span x-show={isFavorited ? "!isSubmitting" : "isSubmitting"} x-cloak>
         {fullHeartIcon()}
       </span>
     </>
@@ -41,21 +41,23 @@ const WishlistButton = async ({
   const props = {
     id,
     action: `/api/books/${book.id}/wishlist`,
-    hiddenInput: { name: "isWishlisted", value: isWishlisted },
+    hiddenInput: { name: "isFavorited", value: isFavorited },
     buttonText: isCircleButton ? (
       buttonIcon
     ) : (
       <>
-        <span x-show="!isSubmitting">{isWishlisted ? "Liked" : "Like"}</span>
+        <span x-show="!isSubmitting">{isFavorited ? "Liked" : "Like"}</span>
         <span x-show="isSubmitting" x-cloak>
-          {isWishlisted ? "Like" : "Liked"}
+          {isFavorited ? "Like" : "Liked"}
         </span>
         {buttonIcon}
       </>
     ),
   };
 
-  const tooltipText = isWishlisted ? "Unlike this book" : "Like this book";
+  const tooltipText = isFavorited
+    ? "Unfavorite this book"
+    : "Favorite this book";
 
   if (isCircleButton) {
     return (
@@ -71,4 +73,4 @@ const WishlistButton = async ({
   return <APIButton {...props} isDisabled={isDisabled} />;
 };
 
-export default WishlistButton;
+export default FavoriteButton;

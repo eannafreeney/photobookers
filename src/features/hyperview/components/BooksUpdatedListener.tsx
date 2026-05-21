@@ -1,7 +1,12 @@
 import { Behavior, View } from "../../../lib/hxml-comps";
 
+import {
+  FEATURED_TAB_BODY_ID,
+  FEATURED_TAB_SPINNER_ID,
+} from "./featuredTabIds";
+
 type Props = {
-  /** URL to refetch into #tab-area (home-content, feed, etc.) */
+  /** URL to refetch into the featured tab body (home-content, feed, etc.) */
   refreshHref: string;
 };
 
@@ -16,10 +21,10 @@ const BooksUpdatedListener = ({ refreshHref }: Props) => (
       event-name="books:updated"
       verb="get"
       action="replace-inner"
-      target="tab-area"
+      target={FEATURED_TAB_BODY_ID}
       href={refreshHref}
-      hide-during-load="tab-area"
-      show-during-load="tab-spinner"
+      hide-during-load={FEATURED_TAB_BODY_ID}
+      show-during-load={FEATURED_TAB_SPINNER_ID}
     />
   </View>
 );

@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -621,7 +622,7 @@ export const getLatestBooks = async (
       ),
       limit: limit,
       offset: offset,
-      orderBy: [desc(books.sortOrder)],
+      orderBy: [desc(books.sortOrder), desc(books.id)],
       with: {
         artist: {
           columns: CREATOR_CARD_COLUMNS,
@@ -635,6 +636,55 @@ export const getLatestBooks = async (
   } catch (error) {
     console.error("Failed to get books", error);
     return err({ reason: "Failed to get books" });
+  }
+};
+
+export const filterPublishedBooks = async (searchQuery: string, limit = 50) => {
+  try {
+    const q = searchQuery.trim();
+    if (!q) {
+      return getLatestBooks(1, limit);
+    }
+
+    const searchPattern = `%${q}%`;
+    const matchingCreatorIds = db
+      .select({ id: creators.id })
+      .from(creators)
+      .where(ilike(creators.displayName, searchPattern));
+
+    const foundBooks = await db.query.books.findMany({
+      columns: BOOK_CARD_COLUMNS,
+      where: and(
+        eq(books.publicationStatus, "published"),
+        eq(books.approvalStatus, "approved"),
+        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+        or(
+          ilike(books.title, searchPattern),
+          inArray(books.artistId, matchingCreatorIds),
+          inArray(books.publisherId, matchingCreatorIds),
+          sql`EXISTS (
+            SELECT 1
+            FROM unnest(${books.tags}) AS tag
+            WHERE LOWER(tag) LIKE ${searchPattern.toLowerCase()}
+          )`,
+        ),
+      ),
+      limit,
+      orderBy: [desc(books.sortOrder), desc(books.id)],
+      with: {
+        artist: {
+          columns: CREATOR_CARD_COLUMNS,
+        },
+        publisher: {
+          columns: CREATOR_CARD_COLUMNS,
+        },
+      },
+    });
+
+    return ok({ books: foundBooks, totalPages: 1, page: 1 });
+  } catch (error) {
+    console.error("Failed to filter books", error);
+    return err({ reason: "Failed to filter books" });
   }
 };
 
@@ -753,6 +803,95 @@ export const getAllCreatorsByType = async (
   } catch (error) {
     console.error("Failed to get all creators by type", error);
     return err({ reason: "Failed to get all creators by type", error });
+  }
+};
+
+const creatorsWithPublishedBooks = sql`EXISTS (
+  SELECT 1 FROM ${books}
+  WHERE (${books.artistId} = ${creators.id} OR ${books.publisherId} = ${creators.id})
+  AND ${books.publicationStatus} = 'published'
+)`;
+
+export const getAllCreatorsForBrowse = async (
+  currentPage: number = 1,
+  defaultLimit = 50,
+) => {
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(creators)
+      .where(creatorsWithPublishedBooks);
+
+    const { page, offset, totalPages, limit } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundCreators = await db
+      .select({
+        id: creators.id,
+        displayName: creators.displayName,
+        slug: creators.slug,
+        coverUrl: creators.coverUrl,
+        status: creators.status,
+        type: creators.type,
+        city: creators.city,
+        country: creators.country,
+        tagline: creators.tagline,
+        email: creators.email,
+      })
+      .from(creators)
+      .where(creatorsWithPublishedBooks)
+      .orderBy(asc(creators.displayName))
+      .offset(offset)
+      .limit(limit);
+
+    return ok({ creators: foundCreators, totalPages, page });
+  } catch (error) {
+    console.error("Failed to get all creators", error);
+    return err({ reason: "Failed to get all creators", error });
+  }
+};
+
+export const filterPublishedCreators = async (
+  searchQuery: string,
+  limit = 50,
+) => {
+  try {
+    const q = searchQuery.trim();
+    if (!q) {
+      return getAllCreatorsForBrowse(1, limit);
+    }
+
+    const searchPattern = `%${q}%`;
+    const foundCreators = await db
+      .select({
+        id: creators.id,
+        displayName: creators.displayName,
+        slug: creators.slug,
+        coverUrl: creators.coverUrl,
+        status: creators.status,
+        type: creators.type,
+        city: creators.city,
+        country: creators.country,
+        tagline: creators.tagline,
+        email: creators.email,
+      })
+      .from(creators)
+      .where(
+        and(
+          creatorsWithPublishedBooks,
+          ilike(creators.displayName, searchPattern),
+        ),
+      )
+      .orderBy(asc(creators.displayName))
+      .limit(limit);
+
+    return ok({ creators: foundCreators, totalPages: 1, page: 1 });
+  } catch (error) {
+    console.error("Failed to filter creators", error);
+    return err({ reason: "Failed to filter creators" });
   }
 };
 
@@ -900,7 +1039,7 @@ export const getCreatorsByCreatorId = async (
   creatorId: string,
   creatorType: "artist" | "publisher",
   currentPage: number = 1,
-  defaultLimit = 30,
+  defaultLimit = 10,
 ) => {
   try {
     const relatedColumn =

@@ -1,27 +1,47 @@
 import { createRoute } from "hono-fsr";
 import { getMessagesForFollower } from "../../../../../features/app/services";
+import MessagesList from "../../../../../features/hyperview/components/MessagesList";
 import { hyperview } from "../../../../../lib/hxml";
-import { Text, View } from "../../../../../lib/hxml-comps";
-import { formatDate, getUser } from "../../../../../utils";
+import { Text } from "../../../../../lib/hxml-comps";
+import { getBaseUrl } from "../../../../../lib/hyperview";
+import { getUser } from "../../../../../utils";
+import SignInPrompt from "../../../../../features/hyperview/components/SignInPrompt";
+import ErrorScreen from "../../../../../features/hyperview/components/ErrorScreen";
 
 export const GET = createRoute(async (c) => {
   const hv = hyperview(c);
   const user = await getUser(c);
+  const currentPage = parseInt(c.req.query("page") ?? "1");
+  const baseUrl = getBaseUrl(c);
+  const loadMoreHref = `${baseUrl}/hyperview/featured/tab/messages`;
 
   if (!user) {
     return hv(
-      <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
-        <Text style="featured-signin-hint">
-          Sign in to see messages from creators you follow.
-        </Text>
-      </view>,
+      <SignInPrompt
+        variant="fragment"
+        baseUrl={baseUrl}
+        hint="Sign in to see messages from creators you follow."
+      />,
     );
   }
 
-  const [, msgResult] = await getMessagesForFollower(user.id, 1, 20);
-  const messages = msgResult?.messages ?? [];
+  const [error, msgResult] = await getMessagesForFollower(
+    user.id,
+    currentPage,
+    10,
+  );
 
-  if (messages.length === 0) {
+  if (error) {
+    return hv(
+      <ErrorScreen user={user} baseUrl={baseUrl} message={error.reason} />,
+    );
+  }
+
+  const messages = msgResult?.messages ?? [];
+  const totalPages = msgResult?.totalPages ?? 1;
+  const hasMore = currentPage < totalPages;
+
+  if (currentPage === 1 && messages.length === 0) {
     return hv(
       <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
         <Text style="featured-empty-hint">
@@ -33,21 +53,12 @@ export const GET = createRoute(async (c) => {
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
-      {messages.map((m) => {
-        const preview =
-          m.body.length > 160 ? `${m.body.slice(0, 157)}…` : m.body;
-        return (
-          <View key={m.id} style="message-row">
-            <Text style="message-from">
-              {m.creator?.displayName ?? "Creator"}
-            </Text>
-            {m.createdAt && (
-              <Text style="message-date">{formatDate(m.createdAt)}</Text>
-            )}
-            <Text style="message-preview">{preview}</Text>
-          </View>
-        );
-      })}
+      <MessagesList
+        messages={messages}
+        page={currentPage}
+        hasMore={hasMore}
+        loadMoreHref={loadMoreHref}
+      />
     </view>,
   );
 });
