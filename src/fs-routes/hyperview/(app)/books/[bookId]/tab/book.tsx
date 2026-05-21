@@ -12,11 +12,13 @@ import BookPage, {
   bookPageStyles,
 } from "../../../../../../features/hyperview/components/BookPage";
 import { bookCommentsPanelStyles } from "../../../../../../features/hyperview/components/BookCommentsPanel";
+import { feedListStyles } from "../../../../../../features/hyperview/components/FeedList";
 import { bookIdSchema } from "../../../../../../schemas";
 import { getBookById } from "../../../../../../features/dashboard/books/services";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { getUser } from "../../../../../../utils";
 import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
+import { bookCardStyles } from "../../../../../../features/hyperview/components/BookCard";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
@@ -92,7 +94,7 @@ const pageStyles = () => (
       fontSize={14}
       color="#444444"
       lineHeight={22}
-      marginBottom={20}
+      marginBottom={8}
     />
     <Style id="tab-fragment" flex={1} padding={16} />
     <Style
@@ -167,5 +169,7 @@ const pageStyles = () => (
     {bookTabStyles()}
     {bookPageStyles()}
     {bookCommentsPanelStyles()}
+    {feedListStyles()}
+    {bookCardStyles()}
   </>
 );

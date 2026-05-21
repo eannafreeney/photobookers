@@ -12,6 +12,7 @@ type Props = {
   hasMore?: boolean;
   loadMoreHref?: string;
   loadMoreId?: string;
+  currentCreatorId?: string | null;
 };
 
 const FeedList = ({
@@ -22,6 +23,7 @@ const FeedList = ({
   hasMore = false,
   loadMoreHref,
   loadMoreId = FEATURED_FEED_LOAD_MORE_ID,
+  currentCreatorId,
 }: Props) => (
   <>
     {books.map((book) => (
@@ -29,6 +31,7 @@ const FeedList = ({
         key={book.id}
         book={book}
         baseUrl={baseUrl}
+        currentCreatorId={currentCreatorId}
         isFavorited={favoritesByBookId[book.id] ?? false}
       />
     ))}

@@ -102,7 +102,7 @@ const pageStyles = () => (
       fontSize={14}
       color="#444444"
       lineHeight={22}
-      marginBottom={20}
+      marginBottom={16}
     />
     <Style id="tab-fragment" flex={1} />
     <Style

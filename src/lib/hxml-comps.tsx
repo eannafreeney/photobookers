@@ -85,13 +85,26 @@ export const Screen: FC<BaseProps> = ({ style, children }) => (
   <screen style={style}>{children}</screen>
 );
 
-export const Body: FC<BaseProps & { scroll?: "true" | "false" }> = ({
+export const Body: FC<
+  BaseProps & {
+    scroll?: "true" | "false";
+    "keyboard-should-persist-taps"?: "never" | "always" | "handled";
+  }
+> = ({
   id,
   scroll = "true",
   style,
   children,
+  "keyboard-should-persist-taps": keyboardShouldPersistTaps,
 }) => (
-  <body id={id} scroll={scroll} style={style}>
+  <body
+    id={id}
+    scroll={scroll}
+    style={style}
+    keyboard-should-persist-taps={
+      keyboardShouldPersistTaps ?? (scroll === "true" ? "handled" : undefined)
+    }
+  >
     {children}
   </body>
 );

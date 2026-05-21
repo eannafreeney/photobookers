@@ -9,6 +9,7 @@ import { createAuthedFetch } from "./lib/authedFetch";
 import { createSignOutSupabaseBehavior } from "./behaviors/signOutSupabase";
 import { createSetSupabaseSessionBehavior } from "./behaviors/setSupabaseSessions";
 import { createPickProfilePhotoBehavior } from "./behaviors/pickProfilePhoto";
+import { shareBookBehavior } from "./behaviors/shareBook";
 import { entrypointUrl } from "./lib/env";
 
 function formatDate(date: Date | null | undefined, format: string): string {
@@ -44,6 +45,7 @@ export default function App() {
       createSetSupabaseSessionBehavior(() => supabase),
       createSignOutSupabaseBehavior(() => supabase),
       createPickProfilePhotoBehavior(() => authedFetch),
+      shareBookBehavior,
     ],
     [authedFetch],
   );

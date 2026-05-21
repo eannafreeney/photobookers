@@ -50,7 +50,7 @@ const postWishlistHyperview = async (c: Context) => {
         <View xmlns="https://hyperview.org/hyperview" style="book-action-block">
           <Behavior trigger="load" action="new" verb="get" href={modalHref} />
           <BookWishlistIcon baseUrl={baseUrl} isActive={false} />
-          <Text style="book-action-label">Wishlist</Text>
+          <Text style="book-action-label">Favorite</Text>
           <Behavior trigger="press" verb="get" action="new" href={modalHref} />
         </View>
       ) : (

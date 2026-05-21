@@ -30,6 +30,14 @@ function ensurePublicHttps(origin: string): string {
 export const getBaseUrl = (c: Context) => {
   const siteUrl = process.env.SITE_URL?.replace(/\/$/, "");
   if (siteUrl && process.env.NODE_ENV === "production") {
+    try {
+      const requestHost = new URL(c.req.url).hostname;
+      if (isLocalHostname(requestHost)) {
+        return ensurePublicHttps(new URL(c.req.url).origin);
+      }
+    } catch {
+      // fall through to SITE_URL
+    }
     return siteUrl;
   }
 

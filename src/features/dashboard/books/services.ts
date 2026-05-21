@@ -7,10 +7,16 @@ import {
   gte,
   ilike,
   inArray,
+  isNull,
+  lte,
   ne,
   or,
   sql,
 } from "drizzle-orm";
+import {
+  BOOK_CARD_COLUMNS,
+  CREATOR_CARD_COLUMNS,
+} from "../../../constants/queries";
 import { db } from "../../../db/client";
 import {
   Book,
@@ -93,31 +99,122 @@ export const createBook = async (input: NewBook) => {
   }
 };
 
-export const getArtistByBookId = async (bookId: string) => {
+export const getArtistByBookId = async (
+  bookId: string,
+  currentPage = 1,
+  defaultLimit = 16,
+) => {
   try {
     const book = await db.query.books.findFirst({
       where: eq(books.id, bookId),
       with: { artist: true },
     });
     if (!book) return err({ reason: "Book not found" });
-    return ok(book.artist);
+    if (!book.artist) return err({ reason: "Artist not found" });
+
+    const whereClause = and(
+      eq(books.artistId, book.artist.id),
+      eq(books.publicationStatus, "published"),
+      eq(books.approvalStatus, "approved"),
+      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    );
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(whereClause);
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundBooks = await db.query.books.findMany({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        coverUrl: true,
+        releaseDate: true,
+      },
+      where: whereClause,
+      orderBy: [asc(books.sortOrder), desc(books.createdAt)],
+      with: {
+        artist: {
+          columns: { id: true, displayName: true, slug: true, coverUrl: true },
+        },
+        publisher: { columns: { id: true, displayName: true } },
+      },
+      limit,
+      offset,
+    });
+    return ok({ books: foundBooks, totalPages, page, artist: book.artist });
   } catch (error) {
-    console.error("Failed to get creator by book id", error);
-    return err({ reason: "Failed to get creator by book id" });
+    console.error("Failed to get artist by book id", error);
+    return err({ reason: "Failed to get artist by book id" });
   }
 };
 
-export const getPublisherByBookId = async (bookId: string) => {
+export const getPublisherByBookId = async (
+  bookId: string,
+  currentPage = 1,
+  defaultLimit = 16,
+) => {
   try {
     const book = await db.query.books.findFirst({
       where: eq(books.id, bookId),
       with: { publisher: true },
     });
     if (!book) return err({ reason: "Book not found" });
-    return ok(book.publisher);
+    if (!book.publisher) return err({ reason: "Publisher not found" });
+
+    const whereClause = and(
+      eq(books.publisherId, book.publisher.id),
+      eq(books.publicationStatus, "published"),
+      eq(books.approvalStatus, "approved"),
+      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    );
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(whereClause);
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundBooks = await db.query.books.findMany({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        coverUrl: true,
+        releaseDate: true,
+      },
+      where: whereClause,
+      orderBy: [asc(books.sortOrder), desc(books.createdAt)],
+      with: {
+        artist: {
+          columns: { id: true, displayName: true, slug: true, coverUrl: true },
+        },
+        publisher: { columns: { id: true, displayName: true } },
+      },
+      limit,
+      offset,
+    });
+    return ok({
+      books: foundBooks,
+      totalPages,
+      page,
+      publisher: book.publisher,
+    });
   } catch (error) {
-    console.error("Failed to get publisher by book id", error);
-    return err({ reason: "Failed to get publisher by book id" });
+    console.error("Failed to get artist by book id", error);
+    return err({ reason: "Failed to get artist by book id" });
   }
 };
 

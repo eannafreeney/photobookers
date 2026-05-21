@@ -33,7 +33,7 @@ export const discoveryTagStyles = () => (
     <Style
       id="discover-tags-section"
       flexDirection="column"
-      marginTop={12}
+      marginTop={8}
       marginBottom={8}
     />
     <Style

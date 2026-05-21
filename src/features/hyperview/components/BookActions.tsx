@@ -38,6 +38,12 @@ const BookActions = ({ book, baseUrl, isFavorited }: Props) => {
         </View>
         <View style="book-action-cell">
           <View style="book-action-block">
+            <Image
+              source={`${baseUrl}/icons/share.png`}
+              style="book-action-icon"
+              resize-mode="contain"
+            />
+            <Text style="book-action-label">Share</Text>
             <Behavior
               trigger="press"
               action="share"
@@ -50,12 +56,6 @@ const BookActions = ({ book, baseUrl, isFavorited }: Props) => {
                 "share:title": xmlText(book.title),
               }}
             />
-            <Image
-              source={`${baseUrl}/icons/share.png`}
-              style="book-action-icon"
-              resize-mode="contain"
-            />
-            <Text style="book-action-label">Share</Text>
           </View>
         </View>
       </View>
@@ -78,7 +78,7 @@ export const HyperviewFavoriteInner = ({
   isActive,
   variant = "compact",
 }: InnerProps) => {
-  const label = isActive ? "Wishlisted" : "Wishlist";
+  const label = isActive ? "Favorited" : "Favorite";
   const layoutParam = variant === "block" ? "?layout=block" : "";
   const href = `${baseUrl}/api/books/${bookId}/wishlist${layoutParam}`;
 
