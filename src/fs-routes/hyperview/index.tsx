@@ -1,9 +1,8 @@
 import { createRoute } from "hono-fsr";
+import { getBaseUrl } from "../../lib/hyperview";
 
 export const GET = createRoute(async (c) => {
-  const proto = c.req.header("x-forwarded-proto") ?? "http";
-  const host = c.req.header("host") ?? "localhost:5173";
-  const baseUrl = `${proto}://${host}`;
+  const baseUrl = getBaseUrl(c);
 
   return c.body(
     `<?xml version="1.0" encoding="UTF-8"?>
