@@ -99,11 +99,7 @@ export const createBook = async (input: NewBook) => {
   }
 };
 
-export const getArtistByBookId = async (
-  bookId: string,
-  currentPage = 1,
-  defaultLimit = 16,
-) => {
+export const getArtistByBookId = async (bookId: string) => {
   try {
     const book = await db.query.books.findFirst({
       where: eq(books.id, bookId),
@@ -112,8 +108,27 @@ export const getArtistByBookId = async (
     if (!book) return err({ reason: "Book not found" });
     if (!book.artist) return err({ reason: "Artist not found" });
 
+    return ok({ artist: book.artist, artistId: book.artist.id });
+  } catch (error) {
+    console.error("Failed to get artist by book id", error);
+    return err({ reason: "Failed to get artist by book id" });
+  }
+};
+
+export const getBooksPerArtistId = async (
+  artistId: string,
+  currentPage = 1,
+  defaultLimit = 5,
+) => {
+  try {
+    const artist = await db.query.creators.findFirst({
+      columns: { id: true, displayName: true, slug: true, coverUrl: true },
+      where: eq(creators.id, artistId),
+    });
+    if (!artist) return err({ reason: "Artist not found" });
+
     const whereClause = and(
-      eq(books.artistId, book.artist.id),
+      eq(books.artistId, artistId),
       eq(books.publicationStatus, "published"),
       eq(books.approvalStatus, "approved"),
       or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
@@ -149,18 +164,14 @@ export const getArtistByBookId = async (
       limit,
       offset,
     });
-    return ok({ books: foundBooks, totalPages, page, artist: book.artist });
+    return ok({ books: foundBooks, totalPages, page, artist });
   } catch (error) {
-    console.error("Failed to get artist by book id", error);
-    return err({ reason: "Failed to get artist by book id" });
+    console.error("Failed to get books for artist", error);
+    return err({ reason: "Failed to get books for artist" });
   }
 };
 
-export const getPublisherByBookId = async (
-  bookId: string,
-  currentPage = 1,
-  defaultLimit = 16,
-) => {
+export const getPublisherByBookId = async (bookId: string) => {
   try {
     const book = await db.query.books.findFirst({
       where: eq(books.id, bookId),
@@ -169,49 +180,7 @@ export const getPublisherByBookId = async (
     if (!book) return err({ reason: "Book not found" });
     if (!book.publisher) return err({ reason: "Publisher not found" });
 
-    const whereClause = and(
-      eq(books.publisherId, book.publisher.id),
-      eq(books.publicationStatus, "published"),
-      eq(books.approvalStatus, "approved"),
-      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-    );
-
-    const [{ value: totalCount = 0 }] = await db
-      .select({ value: count() })
-      .from(books)
-      .where(whereClause);
-
-    const { page, limit, offset, totalPages } = getPagination(
-      currentPage,
-      totalCount,
-      defaultLimit,
-    );
-
-    const foundBooks = await db.query.books.findMany({
-      columns: {
-        id: true,
-        title: true,
-        slug: true,
-        coverUrl: true,
-        releaseDate: true,
-      },
-      where: whereClause,
-      orderBy: [asc(books.sortOrder), desc(books.createdAt)],
-      with: {
-        artist: {
-          columns: { id: true, displayName: true, slug: true, coverUrl: true },
-        },
-        publisher: { columns: { id: true, displayName: true } },
-      },
-      limit,
-      offset,
-    });
-    return ok({
-      books: foundBooks,
-      totalPages,
-      page,
-      publisher: book.publisher,
-    });
+    return ok({ publisher: book.publisher, publisherId: book.publisher.id });
   } catch (error) {
     console.error("Failed to get artist by book id", error);
     return err({ reason: "Failed to get artist by book id" });
@@ -263,6 +232,62 @@ export const getBooksByArtistId = async (
   } catch (error) {
     console.error("Failed to get books by artist", error);
     return err({ reason: "Failed to get books by artist" });
+  }
+};
+
+export const getBooksPerPublisherId = async (
+  publisherId: string,
+  currentPage = 1,
+  defaultLimit = 5,
+) => {
+  try {
+    const publisher = await db.query.creators.findFirst({
+      columns: { id: true, displayName: true, slug: true, coverUrl: true },
+      where: eq(creators.id, publisherId),
+    });
+    if (!publisher) return err({ reason: "Publisher not found" });
+
+    const whereClause = and(
+      eq(books.publisherId, publisherId),
+      eq(books.publicationStatus, "published"),
+      eq(books.approvalStatus, "approved"),
+      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    );
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(whereClause);
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundBooks = await db.query.books.findMany({
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        coverUrl: true,
+        releaseDate: true,
+      },
+      where: whereClause,
+      orderBy: [asc(books.sortOrder), desc(books.createdAt)],
+      with: {
+        artist: {
+          columns: { id: true, displayName: true, slug: true, coverUrl: true },
+        },
+        publisher: { columns: { id: true, displayName: true } },
+      },
+      limit,
+      offset,
+    });
+    return ok({ books: foundBooks, totalPages, page, publisher });
+  } catch (error) {
+    console.error("Failed to get books for artist", error);
+    return err({ reason: "Failed to get books for artist" });
   }
 };
 

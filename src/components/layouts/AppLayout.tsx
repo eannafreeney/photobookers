@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "hono/jsx";
-import Head from "./Head";
+import Head, { type ShareOgMeta } from "./Head";
 import { UserProvider } from "../../contexts/UserContext";
 import { AuthUser, Flash } from "../../../types";
 import Navbar from "./Navbar";
@@ -18,6 +18,7 @@ type LayoutProps = PropsWithChildren<{
   flash?: Flash | null;
   isPreview?: boolean;
   adminEditHref?: string;
+  shareOg?: ShareOgMeta;
 }>;
 
 const AppLayout = ({
@@ -28,9 +29,10 @@ const AppLayout = ({
   flash,
   isPreview = false,
   adminEditHref,
+  shareOg,
 }: LayoutProps) => (
   <html lang="en">
-    <Head title={title} />
+    <Head title={title} shareOg={shareOg} />
     <body class="bg-surface-alt">
       <UserProvider user={user}>
         {isPreview && <PreviewBanner />}

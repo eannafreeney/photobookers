@@ -19,6 +19,7 @@ import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { getUser } from "../../../../../../utils";
 import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import { bookCardStyles } from "../../../../../../features/hyperview/components/BookCard";
+import { artistTabStyles } from "./artist";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
@@ -171,5 +172,6 @@ const pageStyles = () => (
     {bookCommentsPanelStyles()}
     {feedListStyles()}
     {bookCardStyles()}
+    {artistTabStyles()}
   </>
 );

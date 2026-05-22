@@ -13,6 +13,18 @@ function getShareAttr(element: Element, name: string): string | null {
   return element.getAttributeNS(SHARE_NS, name);
 }
 
+/** Shared text; book title first so iOS shows it above the link in the sheet. */
+function buildShareBody(
+  title: string | null,
+  message: string | null,
+  url: string | null,
+): string | undefined {
+  const parts = [title, message, url].filter(
+    (part): part is string => Boolean(part?.trim()),
+  );
+  return parts.length ? parts.join("\n") : undefined;
+}
+
 export const shareBookBehavior: HvBehavior = {
   action: "share",
   callback: async (element) => {
@@ -22,6 +34,7 @@ export const shareBookBehavior: HvBehavior = {
       null;
     const message = getShareAttr(element, "message")?.trim() ?? null;
     const title = getShareAttr(element, "title")?.trim() ?? null;
+    const imageUrl = getShareAttr(element, "image")?.trim() ?? null;
 
     if (!url && !message) {
       if (__DEV__) {
@@ -42,14 +55,22 @@ export const shareBookBehavior: HvBehavior = {
         : (message ?? url ?? "");
 
     try {
+      // iOS: share the book page URL so Link Presentation uses og:title + og:image.
+      // RN Share ignores `title` in content on iOS; put the book title first in `message`.
+      const shareBody = buildShareBody(title, message, url);
+
       const content =
         Platform.OS === "ios" && url
-          ? { url, message: message || undefined, title: title || undefined }
-          : { message: shareMessage, title: title || undefined };
+          ? { url, message: shareBody }
+          : imageUrl && url
+            ? { message: shareBody ?? shareMessage, url: imageUrl }
+            : { message: shareBody ?? shareMessage };
 
       const result = await Share.share(
         content,
-        title ? { dialogTitle: title, subject: title } : undefined,
+        title
+          ? { dialogTitle: title, subject: title }
+          : undefined,
       );
 
       if (result.action === Share.dismissedAction && __DEV__) {

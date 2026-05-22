@@ -203,6 +203,7 @@ export const Behavior: FC<{
   "share-url"?: string;
   "share-message"?: string;
   "share-title"?: string;
+  "share-image"?: string;
 }> = (props) => <behavior {...props} />;
 
 // ---------------------------------------------------------------------------

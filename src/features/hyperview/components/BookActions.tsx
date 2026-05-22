@@ -49,10 +49,11 @@ const BookActions = ({ book, baseUrl, isFavorited }: Props) => {
               action="share"
               href={`${baseUrl}/books/${book.slug}`}
               share-url={xmlText(`${baseUrl}/books/${book.slug}`)}
-              share-message={xmlText(
-                `Check out ${book.title} on Photobookers`,
-              )}
+              share-message={xmlText("Check out this book on Photobookers")}
               share-title={xmlText(book.title)}
+              {...(book.coverUrl
+                ? { "share-image": xmlText(book.coverUrl) }
+                : {})}
             />
           </View>
         </View>

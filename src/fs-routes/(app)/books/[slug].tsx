@@ -25,6 +25,7 @@ export const GET = createRoute(
       return c.html(<InfoPage errorMessage={error.reason} user={user} />);
 
     const { book } = result;
+    const canonicalUrl = new URL(`/books/${book.slug}`, c.req.url).href;
 
     const galleryImages = [
       book.coverUrl,
@@ -48,6 +49,16 @@ export const GET = createRoute(
         user={user}
         currentPath={currentPath}
         adminEditHref={`/dashboard/admin/books/${book.id}`}
+        shareOg={
+          book.coverUrl
+            ? {
+                title: book.title,
+                description: book.description?.slice(0, 200) ?? undefined,
+                image: book.coverUrl,
+                url: canonicalUrl,
+              }
+            : undefined
+        }
       >
         <Page>
           <BookDetail

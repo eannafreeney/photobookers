@@ -1,8 +1,16 @@
-type HeadProps = {
-  title: string;
+export type ShareOgMeta = {
+  title?: string;
+  description?: string;
+  image?: string;
+  url?: string;
 };
 
-const Head = ({ title }: HeadProps) => {
+type HeadProps = {
+  title: string;
+  shareOg?: ShareOgMeta;
+};
+
+const Head = ({ title, shareOg }: HeadProps) => {
   const isDev = process.env.NODE_ENV !== "production";
   const gaId =
     process.env.VITE_GA_MEASUREMENT_ID || process.env.GA_MEASUREMENT_ID;
@@ -13,6 +21,25 @@ const Head = ({ title }: HeadProps) => {
       <meta name="viewport" content="width=device-width" />
       <meta name="view-transition" content="same-origin"></meta>
       <title>{title}</title>
+      {shareOg?.image ? (
+        <>
+          <meta
+            property="og:title"
+            content={shareOg.title ?? title}
+          />
+          <meta property="og:type" content="website" />
+          {shareOg.url ? (
+            <meta property="og:url" content={shareOg.url} />
+          ) : null}
+          {shareOg.description ? (
+            <meta property="og:description" content={shareOg.description} />
+          ) : null}
+          <meta property="og:image" content={shareOg.image} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={shareOg.title ?? title} />
+          <meta name="twitter:image" content={shareOg.image} />
+        </>
+      ) : null}
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link

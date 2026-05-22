@@ -42,6 +42,14 @@ export const bookIdSchema = z.object({
   bookId: uuidField,
 });
 
+export const bookArtistIdSchema = bookIdSchema.extend({
+  artistId: uuidField,
+});
+
+export const bookPublisherIdSchema = bookIdSchema.extend({
+  publisherId: uuidField,
+});
+
 export const userIdSchema = z.object({
   userId: uuidField,
 });
