@@ -46,6 +46,18 @@ export const SafeAreaView: FC<BaseProps> = ({ id, children }) => (
   </view>
 );
 
+export const GalleryHero: FC<
+  PropsWithChildren<StyleProp & IdProp>
+> = ({ style, id, children }) => (
+  <gallery-hero
+    xmlns="https://hyperview.org/hyperview"
+    style={style}
+    id={id}
+  >
+    {children}
+  </gallery-hero>
+);
+
 export const ScrollView: FC<
   PropsWithChildren<{
     id?: string;
@@ -62,7 +74,7 @@ export const ScrollView: FC<
   }>
 > = ({
   horizontal,
-  "content-container-style": _cts,
+  "content-container-style": contentContainerStyle,
   "hide-scroll-indicator": hideScrollIndicator = "true",
   children,
   style,
@@ -73,6 +85,7 @@ export const ScrollView: FC<
   <view
     scroll="true"
     scroll-orientation={horizontal ? "horizontal" : "vertical"}
+    content-container-style={contentContainerStyle}
     style={style}
     id={id}
     hide={hide}
@@ -227,7 +240,8 @@ export const Behavior: FC<{
     | "set-value"
     | "set-supabase-session"
     | "sign-out-supabase"
-    | "scroll-to-top";
+    | "scroll-to-top"
+    | "scroll-to-index";
   href?: string;
   verb?: "get" | "post" | "put" | "delete";
   target?: string;

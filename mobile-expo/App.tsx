@@ -10,7 +10,9 @@ import { createSignOutSupabaseBehavior } from "./behaviors/signOutSupabase";
 import { createSetSupabaseSessionBehavior } from "./behaviors/setSupabaseSessions";
 import { createPickProfilePhotoBehavior } from "./behaviors/pickProfilePhoto";
 import { shareBookBehavior } from "./behaviors/shareBook";
+import { scrollToIndexBehavior } from "./behaviors/scrollToIndex";
 import { scrollToTopBehavior } from "./behaviors/scrollToTop";
+import HvGalleryHero from "./components/HvGalleryHero";
 import { entrypointUrl } from "./lib/env";
 
 function formatDate(date: Date | null | undefined, format: string): string {
@@ -48,6 +50,7 @@ export default function App() {
       createPickProfilePhotoBehavior(() => authedFetch),
       shareBookBehavior,
       scrollToTopBehavior,
+      scrollToIndexBehavior,
     ],
     [authedFetch],
   );
@@ -77,6 +80,7 @@ export default function App() {
           fetch={authedFetch}
           formatDate={formatDate as never}
           behaviors={hyperviewBehaviors}
+          components={[HvGalleryHero]}
         />
       </NavigationContainer>
     </GestureHandlerRootView>
