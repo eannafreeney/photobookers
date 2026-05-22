@@ -200,6 +200,9 @@ export const Behavior: FC<{
   "new-value"?: string;
   "access-token"?: string;
   "refresh-token"?: string;
+  "share-url"?: string;
+  "share-message"?: string;
+  "share-title"?: string;
 }> = (props) => <behavior {...props} />;
 
 // ---------------------------------------------------------------------------

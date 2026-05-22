@@ -47,14 +47,12 @@ const BookActions = ({ book, baseUrl, isFavorited }: Props) => {
             <Behavior
               trigger="press"
               action="share"
-              {...{
-                "xmlns:share": "https://hyperview.org/share",
-                "share:url": xmlText(`${baseUrl}/books/${book.slug}`),
-                "share:message": xmlText(
-                  `Check out ${book.title} on Photobookers`,
-                ),
-                "share:title": xmlText(book.title),
-              }}
+              href={`${baseUrl}/books/${book.slug}`}
+              share-url={xmlText(`${baseUrl}/books/${book.slug}`)}
+              share-message={xmlText(
+                `Check out ${book.title} on Photobookers`,
+              )}
+              share-title={xmlText(book.title)}
             />
           </View>
         </View>
@@ -138,7 +136,9 @@ export const bookActionsStyles = () => (
       borderWidth={1}
       borderColor="#e8e8e6"
       width="100%"
-    />
+    >
+      <modifier />
+    </Style>
     <Style
       id="book-btn"
       width={32}
