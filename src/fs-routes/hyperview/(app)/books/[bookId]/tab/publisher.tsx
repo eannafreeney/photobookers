@@ -9,6 +9,7 @@ import { followFlagsForCreators } from "../../../../../../features/hyperview/fin
 import { getPublisherByBookId } from "../../../../../../features/dashboard/books/services";
 import { bookIdSchema } from "../../../../../../schemas";
 import { BOOK_PUBLISHER_FEED_ID } from "./publisher-books/[publisherId]";
+import LazyLoader from "../../../../../../features/hyperview/components/LazyLoader";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
@@ -40,18 +41,11 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
         isFollowing={followingByCreatorId[publisher.id] ?? false}
       />
       <Text style="artist-name">Books</Text>
-      <view
+      <LazyLoader
         id={BOOK_PUBLISHER_FEED_ID}
-        style="artist-books-lazy"
-        trigger="visible"
-        once="true"
-        verb="get"
         href={booksHref}
-        action="replace"
-      >
-        <Spinner />
-        <Text style="comments-placeholder">Loading…</Text>
-      </view>
+        style="publisher-books-lazy"
+      />
     </view>,
   );
 });

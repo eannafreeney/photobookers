@@ -3,12 +3,8 @@ import { getFlash, getUser } from "../../utils";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
 import BooksGrid from "../../features/app/components/BooksGrid";
-import Divider from "../../components/Divider";
 import LoggedOutScreen from "../../features/app/components/LoggedOutScreen";
-import {
-  getBooksInCollection,
-  getBooksInWishlist,
-} from "../../features/app/services";
+import { getBooksInWishlist } from "../../features/app/services";
 import InfoPage from "../../pages/InfoPage";
 import SectionTitle from "../../components/app/SectionTitle";
 
@@ -21,8 +17,8 @@ export const GET = createRoute(async (c) => {
   if (!user) {
     return c.html(
       <LoggedOutScreen
-        title="Wishlisted Books"
-        description="view your wishlisted books"
+        title="Favorited Books"
+        description="view your favorited books"
         user={user}
         flash={flash}
         currentPath={currentPath}
@@ -32,11 +28,10 @@ export const GET = createRoute(async (c) => {
     );
   }
 
-  const [[wishlistError, wishlistResult], [collectionError, collectionResult]] =
-    await Promise.all([
-      getBooksInWishlist(user.id, currentPage),
-      getBooksInCollection(user.id, currentPage),
-    ]);
+  const [wishlistError, wishlistResult] = await getBooksInWishlist(
+    user.id,
+    currentPage,
+  );
 
   if (wishlistError) {
     return c.html(
@@ -44,13 +39,7 @@ export const GET = createRoute(async (c) => {
     );
   }
 
-  if (collectionError) {
-    return c.html(
-      <InfoPage errorMessage={collectionError?.reason} user={user} />,
-    );
-  }
-
-  if (!wishlistResult?.books || !collectionResult?.books) {
+  if (!wishlistResult?.books) {
     return c.html(
       <InfoPage errorMessage="No wishlisted books found" user={user} />,
     );
@@ -76,20 +65,12 @@ export const GET = createRoute(async (c) => {
           class="flex flex-col gap-4"
           {...alpineAttrs}
         >
-          <SectionTitle>Wishlisted Books</SectionTitle>
+          <SectionTitle>Favorited Books</SectionTitle>
           <BooksGrid
             user={user}
             currentPath={currentPath}
             result={wishlistResult}
-            noResultsMessage="Add books to your wishlist to see them here."
-          />
-          <Divider />
-          <SectionTitle>Your Collection</SectionTitle>
-          <BooksGrid
-            user={user}
-            currentPath={currentPath}
-            result={collectionResult}
-            noResultsMessage="Add books to your collection to see them here."
+            noResultsMessage="Add books to your favorites to see them here."
           />
         </div>
       </Page>

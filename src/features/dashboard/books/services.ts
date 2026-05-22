@@ -117,6 +117,7 @@ export const getArtistByBookId = async (bookId: string) => {
 
 export const getBooksPerArtistId = async (
   artistId: string,
+  bookId: string,
   currentPage = 1,
   defaultLimit = 5,
 ) => {
@@ -128,6 +129,7 @@ export const getBooksPerArtistId = async (
     if (!artist) return err({ reason: "Artist not found" });
 
     const whereClause = and(
+      ne(books.id, bookId),
       eq(books.artistId, artistId),
       eq(books.publicationStatus, "published"),
       eq(books.approvalStatus, "approved"),
@@ -237,6 +239,7 @@ export const getBooksByArtistId = async (
 
 export const getBooksPerPublisherId = async (
   publisherId: string,
+  bookId: string,
   currentPage = 1,
   defaultLimit = 5,
 ) => {
@@ -248,6 +251,7 @@ export const getBooksPerPublisherId = async (
     if (!publisher) return err({ reason: "Publisher not found" });
 
     const whereClause = and(
+      ne(books.id, bookId),
       eq(books.publisherId, publisherId),
       eq(books.publicationStatus, "published"),
       eq(books.approvalStatus, "approved"),

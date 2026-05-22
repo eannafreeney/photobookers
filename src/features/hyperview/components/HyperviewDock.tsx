@@ -26,7 +26,7 @@ const DOCK_ITEMS: DockItem[] = [
   { id: "books", label: "Books", path: "books", icon: "books" },
   // { id: "search", label: "search", path: "search", icon: "search" },
   { id: "favorites", label: "Favorites", path: "favorites", icon: "favorites" },
-  { id: "settings", label: "Settings", path: "settings", icon: "settings" },
+  { id: "settings", label: "About", path: "settings", icon: "about" },
 ];
 
 const labelStyle = (isActive: boolean) =>

@@ -4,6 +4,9 @@ import { hyperview } from "../../../lib/hxml";
 import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getUser } from "../../../utils";
+import AboutContent, {
+  aboutContentStyles,
+} from "../../../features/hyperview/components/AboutContent";
 import SettingsTabs, {
   settingsTabStyles,
 } from "../../../features/hyperview/components/SettingsTabs";
@@ -16,13 +19,14 @@ export const GET = createRoute(async (c) => {
 
   return hv(
     <AppLayout
-      title="Settings"
+      title="About"
       user={user}
       showDock
       baseUrl={baseUrl}
       dockActive="settings"
       extraStyles={pageStyles()}
     >
+      <AboutContent />
       <SettingsTabs baseUrl={baseUrl} activeTab="terms" />
       <View id="tab-spinner" style="settings-tab-spinner" hide="true">
         <Spinner />
@@ -54,6 +58,7 @@ const pageStyles = () => (
       justifyContent="center"
       paddingTop={48}
     />
+    {aboutContentStyles()}
     {settingsTabStyles()}
     {legalTextStyles()}
   </>

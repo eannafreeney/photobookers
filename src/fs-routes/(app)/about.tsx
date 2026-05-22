@@ -8,7 +8,6 @@ export const GET = createRoute(async (c) => {
   return c.html(
     <AppLayout title="About" currentPath={currentPath}>
       <Page>
-        <SectionTitle>About</SectionTitle>
         <p>
           Photobookers is a place to discover and explore photobooks. We list
           books, artists, and publishers in one place so you can find what

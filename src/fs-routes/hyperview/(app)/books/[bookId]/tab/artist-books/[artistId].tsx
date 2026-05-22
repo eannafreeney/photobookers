@@ -26,7 +26,11 @@ export const GET = createRoute(
     const user = await getUser(c);
     const loadMoreHref = `${baseUrl}/hyperview/books/${bookId}/tab/artist-books/${artistId}`;
 
-    const [error, result] = await getBooksPerArtistId(artistId, currentPage);
+    const [error, result] = await getBooksPerArtistId(
+      artistId,
+      bookId,
+      currentPage,
+    );
 
     if (error || !result?.artist) {
       return hv(

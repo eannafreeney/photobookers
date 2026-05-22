@@ -28,6 +28,7 @@ export const GET = createRoute(
 
     const [error, result] = await getBooksPerPublisherId(
       publisherId,
+      bookId,
       currentPage,
     );
 

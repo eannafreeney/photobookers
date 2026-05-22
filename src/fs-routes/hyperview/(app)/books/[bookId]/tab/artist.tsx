@@ -12,6 +12,7 @@ import {
   BOOK_ARTIST_FEED_ID,
   artistBooksLazyStyles,
 } from "./artist-books/[artistId]";
+import LazyLoader from "../../../../../../features/hyperview/components/LazyLoader";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
@@ -43,18 +44,11 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
         isFollowing={followingByCreatorId[artist.id] ?? false}
       />
       <Text style="artist-name">Books</Text>
-      <view
+      <LazyLoader
         id={BOOK_ARTIST_FEED_ID}
-        style="artist-books-lazy"
-        trigger="visible"
-        once="true"
-        verb="get"
         href={booksHref}
-        action="replace"
-      >
-        <Spinner />
-        <Text style="comments-placeholder">Loading…</Text>
-      </view>
+        style="artist-books-lazy"
+      />
     </view>,
   );
 });
