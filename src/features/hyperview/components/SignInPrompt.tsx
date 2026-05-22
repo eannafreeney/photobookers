@@ -19,11 +19,7 @@ const SignInPromptBody = ({
     <Text style="featured-signin-hint">{hint}</Text>
     <View style="sign-in-prompt-btn">
       <Text style="sign-in-prompt-btn-label">{buttonLabel}</Text>
-      <Behavior
-        trigger="press"
-        action="push"
-        href={loginHref ?? `${baseUrl}/hyperview/login`}
-      />
+      <Behavior href={loginHref ?? `${baseUrl}/hyperview/login`} />
     </View>
   </View>
 );

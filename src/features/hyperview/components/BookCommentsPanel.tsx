@@ -44,7 +44,6 @@ const ProfilePhotoForm = ({
     <View style="comment-form-submit">
       <Text style="comment-form-submit-label">Choose Photo</Text>
       <Behavior
-        trigger="press"
         action="pick-profile-photo"
         href={`${baseUrl}/api/users/${userId}/profile-image?bookId=${encodeURIComponent(bookId)}`}
         target={BOOK_COMMENTS_PANEL_ID}
@@ -68,7 +67,6 @@ const BookCommentForm = ({ bookId, baseUrl }: BookCommentFormProps) => (
     <View style="comment-form-submit">
       <Text style="comment-form-submit-label">Add Comment</Text>
       <Behavior
-        trigger="press"
         verb="post"
         action="replace"
         target={BOOK_COMMENTS_PANEL_ID}

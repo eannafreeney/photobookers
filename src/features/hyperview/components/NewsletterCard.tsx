@@ -1,5 +1,12 @@
 import { FC } from "hono/jsx";
-import { Behavior, Form, Style, Text, TextField, View } from "../../../lib/hxml-comps";
+import {
+  Behavior,
+  Form,
+  Style,
+  Text,
+  TextField,
+  View,
+} from "../../../lib/hxml-comps";
 
 type NewsletterCardProps = {
   baseUrl?: string;
@@ -18,7 +25,6 @@ const NewsletterCard: FC<NewsletterCardProps> = ({ baseUrl = "" }) => (
       <View style="newsletter-btn" id="newsletter-submit">
         <Text style="newsletter-btn-label">Sign up</Text>
         <Behavior
-          trigger="press"
           action="replace-inner"
           verb="post"
           href={`${baseUrl}/api/newsletter`}
@@ -49,7 +55,8 @@ export const newsletterCardStyles = () => (
       color="#111111"
       textAlign="center"
     />
-    <Style id="newsletter-input"
+    <Style
+      id="newsletter-input"
       borderWidth={1}
       borderColor="#bbb"
       borderRadius={8}
@@ -66,6 +73,11 @@ export const newsletterCardStyles = () => (
       paddingBottom={12}
       alignItems="center"
     />
-    <Style id="newsletter-btn-label" color="#ffffff" fontWeight="600" fontSize={15} />
+    <Style
+      id="newsletter-btn-label"
+      color="#ffffff"
+      fontWeight="600"
+      fontSize={15}
+    />
   </>
 );

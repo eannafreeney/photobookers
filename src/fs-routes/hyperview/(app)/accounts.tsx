@@ -32,8 +32,6 @@ export const GET = createRoute(async (c: Context) => {
             <View style="accounts-signup-wrap">
               <Text style="accounts-signup-label">Sign up</Text>
               <Behavior
-                trigger="press"
-                action="push"
                 href={`${baseUrl}/hyperview/register?type=${card.slug}`}
               />
             </View>

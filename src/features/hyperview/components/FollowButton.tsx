@@ -14,7 +14,6 @@ export const HyperviewFollowInner = ({
   <>
     <Text style="follow-label">{isActive ? "Following ✓" : "Follow +"}</Text>
     <Behavior
-      trigger="press"
       action="replace-inner"
       verb="post"
       href={`${baseUrl}/api/creators/${creatorId}/follow`}

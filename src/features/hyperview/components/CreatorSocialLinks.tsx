@@ -28,7 +28,7 @@ const CreatorSocialLinks = ({
             resize-mode="contain"
           />
           <Text style="social-label">Website</Text>
-          <Behavior trigger="press" action="deep-link" href={website} />
+          <Behavior action="deep-link" href={website} />
         </View>
       )}
       {instagram && (
@@ -40,7 +40,6 @@ const CreatorSocialLinks = ({
           />
           <Text style="social-label">Instagram</Text>
           <Behavior
-            trigger="press"
             action="deep-link"
             href={`https://instagram.com/${instagram.replace(/^@/, "")}`}
           />
@@ -55,7 +54,6 @@ const CreatorSocialLinks = ({
           />
           <Text style="social-label">Facebook</Text>
           <Behavior
-            trigger="press"
             action="deep-link"
             href={`https://facebook.com/${facebook.replace(/^@/, "")}`}
           />
@@ -70,7 +68,6 @@ const CreatorSocialLinks = ({
           />
           <Text style="social-label">X</Text>
           <Behavior
-            trigger="press"
             action="deep-link"
             href={`https://x.com/${twitter.replace(/^@/, "")}`}
           />

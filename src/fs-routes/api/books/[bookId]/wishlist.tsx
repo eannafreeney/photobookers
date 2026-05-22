@@ -51,13 +51,13 @@ const postWishlistHyperview = async (c: Context) => {
           <Behavior trigger="load" action="new" verb="get" href={modalHref} />
           <BookWishlistIcon baseUrl={baseUrl} isActive={false} />
           <Text style="book-action-label">Favorite</Text>
-          <Behavior trigger="press" verb="get" action="new" href={modalHref} />
+          <Behavior verb="get" action="new" href={modalHref} />
         </View>
       ) : (
         <View xmlns="https://hyperview.org/hyperview">
           <Behavior trigger="load" action="new" verb="get" href={modalHref} />
           <BookWishlistIcon baseUrl={baseUrl} isActive={false} />
-          <Behavior trigger="press" verb="get" action="new" href={modalHref} />
+          <Behavior verb="get" action="new" href={modalHref} />
         </View>
       ),
       401,

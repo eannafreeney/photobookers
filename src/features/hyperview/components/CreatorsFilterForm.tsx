@@ -38,13 +38,11 @@ const CreatorsFilterForm = ({ baseUrl }: Props) => (
       <View style="creators-filter-cancel">
         <Text style="creators-filter-cancel-label">Cancel</Text>
         <Behavior
-          trigger="press"
           action="set-value"
           target={CREATORS_FILTER_Q_ID}
           new-value=""
         />
         <Behavior
-          trigger="press"
           delay={50}
           verb="post"
           action="replace"

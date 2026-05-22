@@ -34,7 +34,6 @@ const BookGallery = ({ galleryImages }: Props) => {
           {urls.map((url, i) => (
             <View key={`thumb-${i}`} style="gallery-thumb-cell">
               <Behavior
-                trigger="press"
                 action="replace-inner"
                 target="gallery-hero-slot"
                 href={`#gallery-hero-frag-${i}`}

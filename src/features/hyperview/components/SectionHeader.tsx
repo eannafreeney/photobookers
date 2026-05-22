@@ -13,7 +13,7 @@ const SectionHeader: FC<Props> = ({ title, viewAllHref }) => (
     {viewAllHref && (
       <View style="section-header-view-all">
         <Text style="section-header-view-all-label">View all</Text>
-        <Behavior trigger="press" action="push" href={viewAllHref} />
+        <Behavior href={viewAllHref} />
       </View>
     )}
   </View>

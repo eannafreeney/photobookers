@@ -49,8 +49,6 @@ const HVSearchResults: FC<Props> = ({ books, creators, baseUrl }) => {
           {creators.map((c) => (
             <View key={c.id} style="search-row">
               <Behavior
-                trigger="press"
-                action="push"
                 href={`${baseUrl}/hyperview/creators/${c.id}/tab/books`}
               />
               {c.coverUrl ? (
@@ -81,11 +79,7 @@ const HVSearchResults: FC<Props> = ({ books, creators, baseUrl }) => {
           <Text style="search-section-label">Books</Text>
           {books.map((b) => (
             <View key={b.id} style="search-row">
-              <Behavior
-                trigger="press"
-                action="push"
-                href={`${baseUrl}/hyperview/books/${b.id}/tab/book`}
-              />
+              <Behavior href={`${baseUrl}/hyperview/books/${b.id}/tab/book`} />
               {b.coverUrl ? (
                 <Image
                   source={b.coverUrl}

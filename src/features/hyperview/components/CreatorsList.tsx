@@ -34,8 +34,6 @@ const CreatorsList = ({
       {creators.map((creator) => (
         <View style="creators-list-row">
           <Behavior
-            trigger="press"
-            action="push"
             href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
           />
           {creator.coverUrl ? (

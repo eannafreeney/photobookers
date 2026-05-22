@@ -29,7 +29,7 @@ const CustomHeader = ({
     <View style="custom-header">
       {showBackButton ? (
         <View style="custom-header-back">
-          <Behavior trigger="press" action="back" />
+          <Behavior action="back" />
           <Text style="back-btn">←</Text>
         </View>
       ) : null}

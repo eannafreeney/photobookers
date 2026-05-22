@@ -35,8 +35,6 @@ const Interviews: FC<InterviewsProps> = async ({ baseUrl = "" }) => {
         {interviews.map((interview) => (
           <View key={interview.id} style="interview-card">
             <Behavior
-              trigger="press"
-              action="push"
               href={`${baseUrl}/hyperview/interviews/view/${interview.creator.slug}`}
             />
             {interview.promoImageUrl && (

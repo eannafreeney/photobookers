@@ -2,7 +2,10 @@ import { Context } from "hono";
 import { createRoute } from "hono-fsr";
 import { getUser } from "../../../../utils";
 import AuthModal from "../../../../components/app/AuthModal";
-import { getCreatorPermissionData, findFollow } from "../../../../features/api/services";
+import {
+  getCreatorPermissionData,
+  findFollow,
+} from "../../../../features/api/services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { publishFollowActivity } from "../../../../features/api/utils";
 import { createCreatorFollowedNotification } from "../../../../features/dashboard/admin/notifications/utils";
@@ -34,7 +37,7 @@ const postFollowHyperview = async (c: Context) => {
       <View xmlns="https://hyperview.org/hyperview">
         <Behavior trigger="load" action="new" verb="get" href={modalHref} />
         <Text style="follow-label">Follow</Text>
-        <Behavior trigger="press" verb="get" action="new" href={modalHref} />
+        <Behavior verb="get" action="new" href={modalHref} />
       </View>,
       401,
     );

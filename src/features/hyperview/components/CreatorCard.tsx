@@ -41,8 +41,6 @@ const CreatorCard: FC<Props> = ({
       {showHeader && (
         <View style="creator-card-header">
           <Behavior
-            trigger="press"
-            action="push"
             href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
           />
           <View style="creator-card-header-creator">
@@ -62,8 +60,6 @@ const CreatorCard: FC<Props> = ({
         </View>
       )}
       <Behavior
-        action="push"
-        trigger="press"
         href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
       />
       {creator.coverUrl && (

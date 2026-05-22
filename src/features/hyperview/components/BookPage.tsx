@@ -37,7 +37,6 @@ const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
         <View style="book-purchase-wrap">
           <View style="purchase-btn">
             <Behavior
-              trigger="press"
               action="deep-link"
               href={purchaseDeepLinkHref(baseUrl, book.purchaseLink)!}
             />

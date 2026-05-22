@@ -48,7 +48,9 @@ export const GET = createRoute(
     if (books.length === 0) {
       return hv(
         <view xmlns="https://hyperview.org/hyperview">
-          <Text style="comments-placeholder">No books by this artist yet.</Text>
+          <Text style="comments-placeholder">
+            No other books by this artist found.
+          </Text>
         </view>,
       );
     }

@@ -42,11 +42,7 @@ const HyperviewDock: FC<HyperviewDockProps> = ({ baseUrl, active }) => {
         const isActive = active === id;
         return (
           <View style="dock-item">
-            <Behavior
-              trigger="press"
-              action="push"
-              href={`${baseUrl}/hyperview/${path}`}
-            />
+            <Behavior href={`${baseUrl}/hyperview/${path}`} />
             <Image
               source={`${baseUrl}/icons/dock/${icon}.png`}
               style={iconStyle(isActive)}

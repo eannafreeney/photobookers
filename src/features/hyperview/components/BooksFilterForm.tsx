@@ -1,4 +1,11 @@
-import { Behavior, Form, Style, Text, TextField, View } from "../../../lib/hxml-comps";
+import {
+  Behavior,
+  Form,
+  Style,
+  Text,
+  TextField,
+  View,
+} from "../../../lib/hxml-comps";
 
 /** Element id for `replace-inner` — must not match any `<style id="…">` in the screen. */
 export const BOOKS_LIST_TARGET_ID = "books-list-host";
@@ -32,14 +39,8 @@ const BooksFilterForm = ({ baseUrl }: Props) => (
       </TextField>
       <View style="books-filter-cancel">
         <Text style="books-filter-cancel-label">Cancel</Text>
+        <Behavior action="set-value" target={BOOKS_FILTER_Q_ID} new-value="" />
         <Behavior
-          trigger="press"
-          action="set-value"
-          target={BOOKS_FILTER_Q_ID}
-          new-value=""
-        />
-        <Behavior
-          trigger="press"
           delay={50}
           verb="post"
           action="replace"

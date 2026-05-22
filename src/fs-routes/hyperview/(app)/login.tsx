@@ -95,7 +95,7 @@ export const POST = createRoute(async (c) => {
           You must set a new password before continuing.
         </Text>
         <View style="login-submit-wrap">
-          <Behavior trigger="press" action="deep-link" href={resetUrl} />
+          <Behavior action="deep-link" href={resetUrl} />
           <Text style="login-submit-label">Open reset in browser</Text>
         </View>
       </View>,
@@ -151,7 +151,6 @@ const LoginFormPanel = ({
       />
       <View style="login-submit-wrap">
         <Behavior
-          trigger="press"
           verb="post"
           action="replace"
           target={LOGIN_FORM_PANEL_ID}

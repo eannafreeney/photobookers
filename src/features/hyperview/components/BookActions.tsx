@@ -45,7 +45,6 @@ const BookActions = ({ book, baseUrl, isFavorited }: Props) => {
             />
             <Text style="book-action-label">Share</Text>
             <Behavior
-              trigger="press"
               action="share"
               href={`${baseUrl}/books/${book.slug}`}
               share-url={xmlText(`${baseUrl}/books/${book.slug}`)}
@@ -87,7 +86,6 @@ export const HyperviewFavoriteInner = ({
         <BookWishlistIcon baseUrl={baseUrl} isActive={isActive} />
         <Text style="book-action-label">{label}</Text>
         <Behavior
-          trigger="press"
           verb="post"
           action="replace-inner"
           target={`book-favorite-${bookId}`}
@@ -101,7 +99,6 @@ export const HyperviewFavoriteInner = ({
     <View xmlns="https://hyperview.org/hyperview" style="book-btn">
       <BookWishlistIcon baseUrl={baseUrl} isActive={isActive} />
       <Behavior
-        trigger="press"
         verb="post"
         action="replace-inner"
         target={`book-favorite-${bookId}`}

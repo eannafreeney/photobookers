@@ -14,8 +14,6 @@ const DiscoveryTags = ({ baseUrl, tags }: Props) => {
         {tags.map((tag) => (
           <View key={tag} style="discover-tag-pill">
             <Behavior
-              trigger="press"
-              action="push"
               href={`${baseUrl}/hyperview/tags/${encodeURIComponent(tag.toLowerCase())}`}
             />
             <Text style="discover-tag-label">{xmlText(capitalize(tag))}</Text>

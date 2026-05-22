@@ -23,7 +23,7 @@ const AuthModal = ({ actionPhrase, baseUrl }: Props) => {
         <Body style="auth-modal-body" scroll="false">
           <View style="auth-modal-top">
             <View style="auth-modal-close-hit">
-              <Behavior trigger="press" action="close" href="#" />
+              <Behavior action="close" href="#" />
               <Text style="auth-modal-close-label">Cancel</Text>
             </View>
           </View>
@@ -33,19 +33,11 @@ const AuthModal = ({ actionPhrase, baseUrl }: Props) => {
               {xmlText(`Please log in or register ${actionPhrase}`)}
             </Text>
             <View style="auth-modal-primary-btn">
-              <Behavior
-                trigger="press"
-                action="push"
-                href={`${baseUrl}/hyperview/login`}
-              />
+              <Behavior href={`${baseUrl}/hyperview/login`} />
               <Text style="auth-modal-primary-label">Log in</Text>
             </View>
             <View style="auth-modal-secondary-btn">
-              <Behavior
-                trigger="press"
-                action="push"
-                href={`${baseUrl}/hyperview/accounts`}
-              />
+              <Behavior href={`${baseUrl}/hyperview/accounts`} />
               <Text style="auth-modal-secondary-label">Create account</Text>
             </View>
           </View>

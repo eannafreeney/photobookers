@@ -29,8 +29,6 @@ const BookCard: FC<Props> = ({
       {showHeader && (
         <View style="book-card-header">
           <Behavior
-            trigger="press"
-            action="push"
             href={`${baseUrl}/hyperview/creators/${book.artist?.id}/tab/books`}
           />
           <View style="book-card-header-creator">
@@ -53,7 +51,7 @@ const BookCard: FC<Props> = ({
       )}
 
       <View style="book-card-cover-wrap">
-        <Behavior trigger="press" action="push" href={detailUrl} />
+        <Behavior href={detailUrl} />
         {book.coverUrl && (
           <Image
             source={book.coverUrl}
@@ -67,7 +65,7 @@ const BookCard: FC<Props> = ({
         <View style="book-card-body-row">
           <View style="book-card-title-block">
             <View>
-              <Behavior trigger="press" action="push" href={detailUrl} />
+              <Behavior href={detailUrl} />
               <Text style="book-card-title">{book.title}</Text>
             </View>
             <View>

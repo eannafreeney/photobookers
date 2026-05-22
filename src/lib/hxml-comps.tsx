@@ -187,8 +187,37 @@ export const Image: FC<{
 // ---------------------------------------------------------------------------
 
 export const Behavior: FC<{
-  trigger: string;
-  action: string;
+  trigger?:
+    | "press"
+    | "longPress"
+    | "pressIn"
+    | "pressOut"
+    | "focus"
+    | "blur"
+    | "change"
+    | "load"
+    | "visible"
+    | "refresh";
+  action?:
+    | "push"
+    | "new"
+    | "back"
+    | "close"
+    | "navigate"
+    | "replace"
+    | "replace-inner"
+    | "append"
+    | "prepend"
+    | "reload"
+    | "dispatch-event"
+    | "select-all"
+    | "deselect-all"
+    | "toggle"
+    | "share"
+    | "pick-profile-photo"
+    | "deep-link"
+    | "set-value"
+    | "set-supabase-session";
   href?: string;
   verb?: "get" | "post" | "put" | "delete";
   target?: string;
@@ -204,7 +233,9 @@ export const Behavior: FC<{
   "share-message"?: string;
   "share-title"?: string;
   "share-image"?: string;
-}> = (props) => <behavior {...props} />;
+}> = ({ trigger = "press", action = "push", ...props }) => (
+  <behavior trigger={trigger} action={action} {...props} />
+);
 
 // ---------------------------------------------------------------------------
 // Styles

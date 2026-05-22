@@ -65,15 +65,11 @@ export const GET = createRoute(async (c: Context) => {
         ))}
         <View style="register-primary-wrap">
           <Text style="register-primary-label">Continue in browser</Text>
-          <Behavior trigger="press" action="deep-link" href={webRegisterUrl} />
+          <Behavior action="deep-link" href={webRegisterUrl} />
         </View>
         <View style="register-secondary-wrap">
           <Text style="register-secondary-label">Already have an account?</Text>
-          <Behavior
-            trigger="press"
-            action="push"
-            href={`${baseUrl}/hyperview/login`}
-          />
+          <Behavior href={`${baseUrl}/hyperview/login`} />
         </View>
       </View>
     </AppLayout>,

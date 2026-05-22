@@ -7,15 +7,9 @@ type Props = {
   target?: string;
 };
 
-const HeaderIconButton = ({
-  href,
-  icon,
-  action = "push",
-  target,
-}: Props) => (
+const HeaderIconButton = ({ href, icon, action = "push", target }: Props) => (
   <View style="featured-header-btn-wrap">
     <Behavior
-      trigger="press"
       action={action}
       {...(href ? { href } : {})}
       {...(target ? { target } : {})}
