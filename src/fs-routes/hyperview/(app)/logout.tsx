@@ -7,7 +7,7 @@ import { getAccessTokenFromRequest } from "../../../lib/getAccessTokenFromReques
 import { supabaseAdmin } from "../../../lib/supabase";
 import { createRoute } from "hono-fsr";
 import type { Context } from "hono";
-import { hyperviewSignOutAndNavigate } from "../../../features/hyperview/sessionSync";
+import FeaturedScreen from "../../../features/hyperview/components/FeaturedScreen";
 
 async function clearSession(c: Context) {
   const baseUrl = getBaseUrl(c);
@@ -33,7 +33,14 @@ async function clearSession(c: Context) {
   }
 
   if (isHyperview) {
-    return hv(hyperviewSignOutAndNavigate(baseUrl), 200);
+    return hv(
+      <FeaturedScreen
+        baseUrl={baseUrl}
+        user={null}
+        clearClientSession
+      />,
+      200,
+    );
   }
 
   return c.redirect(`${baseUrl}/hyperview/featured`, 303);

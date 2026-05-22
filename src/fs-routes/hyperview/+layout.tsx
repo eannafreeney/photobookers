@@ -33,7 +33,7 @@ type Props = PropsWithChildren<{
   showDock?: boolean;
   baseUrl?: string;
   dockActive?: HyperviewDockActive;
-  user?: AuthUser;
+  user?: AuthUser | null;
   verified?: boolean;
   nativeList?: boolean;
   /** When set, pull-to-refresh reloads this URL on docked screens (shell scroll). */

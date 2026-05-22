@@ -17,6 +17,9 @@ const HomeNavbar = ({ baseUrl, user }: Props) => {
     >
       <View style="featured-header">
         <View style="featured-header-inner">
+          <View style="featured-header-center">
+            <Text style="featured-header-logo">{xmlText("photobookers")}</Text>
+          </View>
           <View style="featured-header-side-left">
             {baseUrl && !user ? (
               <HeaderIconButton
@@ -27,12 +30,8 @@ const HomeNavbar = ({ baseUrl, user }: Props) => {
               <HeaderIconButton
                 href={`${baseUrl}/hyperview/logout`}
                 icon={`${baseUrl}/icons/header/logout.png`}
-                action="replace"
               />
             ) : null}
-          </View>
-          <View style="featured-header-center">
-            <Text style="featured-header-logo">{xmlText("photobookers")}</Text>
           </View>
           <View style="featured-header-side-right">
             {baseUrl ? (
@@ -81,6 +80,7 @@ export const homeNavbarStyles = () => (
       left={0}
       top={0}
       bottom={0}
+      zIndex={2}
       flexDirection="row"
       alignItems="center"
       justifyContent="flex-start"
@@ -91,6 +91,7 @@ export const homeNavbarStyles = () => (
       right={0}
       top={0}
       bottom={0}
+      zIndex={2}
       flexDirection="row"
       alignItems="center"
       justifyContent="flex-end"
@@ -98,6 +99,7 @@ export const homeNavbarStyles = () => (
     <Style
       id="featured-header-center"
       flexShrink={0}
+      zIndex={1}
       alignItems="center"
       justifyContent="center"
     />

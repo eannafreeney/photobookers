@@ -14,9 +14,10 @@ export function createSetSupabaseSessionBehavior(
 ): HvBehavior {
   return {
     action: "set-supabase-session",
-    callback: async (element) => {
+    callback: async (element, onUpdate) => {
       const accessToken = element.getAttribute("access-token");
       const refreshToken = element.getAttribute("refresh-token");
+      const href = element.getAttribute("href");
       if (!accessToken || !refreshToken) {
         console.warn("set-supabase-session: missing tokens");
         return;
@@ -28,6 +29,12 @@ export function createSetSupabaseSessionBehavior(
       });
       if (error) {
         console.error("set-supabase-session failed", error);
+        return;
+      }
+
+      if (href) {
+        // Full screens include <doc>; only push/new/navigate accept those responses.
+        onUpdate(href, "push", element, {});
       }
     },
   };

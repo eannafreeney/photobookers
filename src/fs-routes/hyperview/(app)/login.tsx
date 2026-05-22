@@ -6,7 +6,6 @@ import {
   loginAndSetCookies,
 } from "../../../features/auth/services";
 import { getIsHyperview } from "../../../features/hyperview/lib";
-import { hyperviewSessionSyncAndNavigate } from "../../../features/hyperview/sessionSync";
 import { getUser } from "../../../utils";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { hyperview } from "../../../lib/hxml";
@@ -25,11 +24,16 @@ import {
 export const LOGIN_FORM_PANEL_ID = "login-form-panel";
 
 export const GET = createRoute(async (c: Context) => {
+  const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
-  if (user) return c.redirect(`${baseUrl}/hyperview/featured`);
+  const featured = `${baseUrl}/hyperview/featured`;
+  // Web only: skip login when already authenticated. Hyperview always shows the
+  // form so a stale client Bearer after logout cannot bounce back to featured.
+  if (user && !getIsHyperview(c)) {
+    return c.redirect(featured);
+  }
 
-  const hv = hyperview(c);
   return hv(
     <AppLayout title="Sign in" showBackButton extraStyles={pageStyles()}>
       <LoginFormPanel baseUrl={baseUrl} />
@@ -38,10 +42,11 @@ export const GET = createRoute(async (c: Context) => {
 });
 
 export const POST = createRoute(async (c) => {
-  const baseUrl = getBaseUrl(c);
   const hv = hyperview(c);
+  const baseUrl = getBaseUrl(c);
   const form = await c.req.parseBody();
   const parsed = loginFormSchema.safeParse(form);
+  const isHyperview = getIsHyperview(c);
 
   if (!parsed.success) {
     return hv(
@@ -97,19 +102,22 @@ export const POST = createRoute(async (c) => {
     );
   }
 
-  if (getIsHyperview(c)) {
-    return hv(hyperviewSessionSyncAndNavigate(baseUrl, login.session));
+  if (isHyperview) {
+    const featured = `${baseUrl}/hyperview/featured`;
+    return hv(
+      <View xmlns="https://hyperview.org/hyperview">
+        <Behavior
+          trigger="load"
+          action="set-supabase-session"
+          href={featured}
+          access-token={xmlText(login.session.access_token)}
+          refresh-token={xmlText(login.session.refresh_token)}
+        />
+      </View>,
+    );
   }
 
-  return hv(
-    <view xmlns="https://hyperview.org/hyperview">
-      <Behavior
-        trigger="load"
-        action="navigate"
-        href={`${baseUrl}/hyperview/featured`}
-      />
-    </view>,
-  );
+  return c.redirect(`${baseUrl}/hyperview/featured`);
 });
 
 const LoginFormPanel = ({
@@ -185,6 +193,7 @@ const pageStyles = () => (
       backgroundColor="#ffffff"
       color="#111111"
       marginBottom={4}
+      textTransform="lowercase"
     />
     <Style
       id="login-submit-wrap"

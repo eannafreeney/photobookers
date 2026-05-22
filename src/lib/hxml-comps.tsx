@@ -198,6 +198,8 @@ export const Behavior: FC<{
   "show-during-load"?: string;
   "hide-during-load"?: string;
   "new-value"?: string;
+  "access-token"?: string;
+  "refresh-token"?: string;
 }> = (props) => <behavior {...props} />;
 
 // ---------------------------------------------------------------------------
