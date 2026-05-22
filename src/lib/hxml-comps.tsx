@@ -48,6 +48,7 @@ export const SafeAreaView: FC<BaseProps> = ({ id, children }) => (
 
 export const ScrollView: FC<
   PropsWithChildren<{
+    id?: string;
     style?: string;
     "content-container-style"?: string;
     "hide-scroll-indicator"?: "true" | "false";
@@ -65,6 +66,7 @@ export const ScrollView: FC<
   "hide-scroll-indicator": hideScrollIndicator = "true",
   children,
   style,
+  id,
   hide,
   ...rest
 }) => (
@@ -72,6 +74,7 @@ export const ScrollView: FC<
     scroll="true"
     scroll-orientation={horizontal ? "horizontal" : "vertical"}
     style={style}
+    id={id}
     hide={hide}
     shows-scroll-indicator={!hideScrollIndicator}
     {...rest}
@@ -179,6 +182,7 @@ export const Items: FC<PropsWithChildren<{ xmlns?: string }>> = ({
 export const Image: FC<{
   style?: string;
   source: string;
+  tintColor?: string;
   "resize-mode"?: "cover" | "contain" | "stretch" | "center";
 }> = (props) => <image {...props} />;
 
@@ -197,7 +201,11 @@ export const Behavior: FC<{
     | "change"
     | "load"
     | "visible"
-    | "refresh";
+    | "refresh"
+    | "select"
+    | "deselect"
+    | "submit"
+    | "on-event";
   action?:
     | "push"
     | "new"
@@ -217,7 +225,9 @@ export const Behavior: FC<{
     | "pick-profile-photo"
     | "deep-link"
     | "set-value"
-    | "set-supabase-session";
+    | "set-supabase-session"
+    | "sign-out-supabase"
+    | "scroll-to-top";
   href?: string;
   verb?: "get" | "post" | "put" | "delete";
   target?: string;

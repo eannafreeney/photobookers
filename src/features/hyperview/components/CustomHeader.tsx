@@ -12,6 +12,7 @@ type Props = {
   isSearch?: boolean;
   baseUrl?: string;
   searchToggleTarget?: string;
+  searchScrollToTopTarget?: string;
 };
 
 const CustomHeader = ({
@@ -24,6 +25,7 @@ const CustomHeader = ({
   isSearch,
   baseUrl,
   searchToggleTarget,
+  searchScrollToTopTarget,
 }: Props) => (
   <View style="custom-header-safe" sticky="true" safe-area="true">
     <View style="custom-header">
@@ -56,6 +58,7 @@ const CustomHeader = ({
             icon={`${baseUrl}/icons/header/search-dark.png`}
             action="toggle"
             target={searchToggleTarget}
+            scrollToTopTarget={searchScrollToTopTarget}
           />
         ) : (
           <HeaderIconButton
@@ -86,6 +89,7 @@ export const customHeaderStyles = () => (
       paddingRight={16}
       flexDirection="row"
       alignItems="center"
+      minHeight={64}
     />
     <Style
       id="header-cover"

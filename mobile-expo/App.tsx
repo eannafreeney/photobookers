@@ -10,6 +10,7 @@ import { createSignOutSupabaseBehavior } from "./behaviors/signOutSupabase";
 import { createSetSupabaseSessionBehavior } from "./behaviors/setSupabaseSessions";
 import { createPickProfilePhotoBehavior } from "./behaviors/pickProfilePhoto";
 import { shareBookBehavior } from "./behaviors/shareBook";
+import { scrollToTopBehavior } from "./behaviors/scrollToTop";
 import { entrypointUrl } from "./lib/env";
 
 function formatDate(date: Date | null | undefined, format: string): string {
@@ -46,6 +47,7 @@ export default function App() {
       createSignOutSupabaseBehavior(() => supabase),
       createPickProfilePhotoBehavior(() => authedFetch),
       shareBookBehavior,
+      scrollToTopBehavior,
     ],
     [authedFetch],
   );

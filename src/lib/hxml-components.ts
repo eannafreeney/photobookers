@@ -154,7 +154,11 @@ export type BehaviorTrigger =
   | "change"
   | "load"
   | "visible"
-  | "refresh";
+  | "refresh"
+  | "select"
+  | "deselect"
+  | "submit"
+  | "on-event";
 
 export type BehaviorAction =
   | "push"

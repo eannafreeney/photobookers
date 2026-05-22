@@ -1,3 +1,49 @@
+diff --git a/node_modules/hyperview/src/components/scroll/index.tsx b/node_modules/hyperview/src/components/scroll/index.tsx
+index 0000000..1111111 100644
+--- a/node_modules/hyperview/src/components/scroll/index.tsx
++++ b/node_modules/hyperview/src/components/scroll/index.tsx
+@@ -6,6 +6,7 @@ import {
+   SectionList as RNSectionList,
+ } from 'react-native';
+ import React, { forwardRef, useCallback, useContext } from 'react';
++import { registerScrollRef } from '../../../../../lib/scrollRefRegistry';
+ import { Context } from './context';
+ // eslint-disable-next-line instawork/import-components
+ import HVKeyboardAwareScrollView from 'hyperview/src/components/keyboard-aware-scroll-view';
+@@ -16,6 +17,7 @@ export function withContext<T, P extends ScrollProps>(
+   return forwardRef<T, P & Props<T>>((props: Props<T>, ref) => {
+     const { updateOffset } = useContext(Context);
+     const { element, onScroll, ...p } = props;
++    const elementId = element.getAttribute('id');
+     const contextKey = element.getAttributeNS(
+       Namespaces.HYPERVIEW_SCROLL,
+       'context-key',
+@@ -39,11 +41,23 @@ export function withContext<T, P extends ScrollProps>(
+       },
+       [updateOffset, onScroll, contextKey],
+     );
++    const setScrollRef = useCallback(
++      (node: T | null) => {
++        if (elementId) {
++          registerScrollRef(elementId, node as RNScrollView | null);
++        }
++        if (typeof ref === 'function') {
++          ref(node);
++        } else if (ref) {
++          ref.current = node;
++        }
++      },
++      [elementId, ref],
++    );
+     return (
+       <Component
+         // eslint-disable-next-line react/jsx-props-no-spreading
+         {...(p as P)}
+-        ref={ref}
++        ref={setScrollRef}
+         onScroll={onScrollWrapper}
+         scrollEventThrottle={scrollEventThrottle}
+       />
 diff --git a/node_modules/hyperview/src/elements/hv-navigator/types.ts b/node_modules/hyperview/src/elements/hv-navigator/types.ts
 index a130e5c..5e3469e 100644
 --- a/node_modules/hyperview/src/elements/hv-navigator/types.ts

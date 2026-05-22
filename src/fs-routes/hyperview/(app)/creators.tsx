@@ -1,6 +1,6 @@
 import { createRoute } from "hono-fsr";
 import { filterPublishedCreators } from "../../../features/app/services";
-import { AppLayout } from "../+layout";
+import { AppLayout, SHELL_SCROLL_ID } from "../+layout";
 import { hyperview } from "../../../lib/hxml";
 import { Behavior, Spinner, Style, Text, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
@@ -79,6 +79,7 @@ export const GET = createRoute(async (c) => {
       extraStyles={pageStyles()}
       isSearch
       searchToggleTarget={CREATORS_SEARCH_BAR_ID}
+      searchScrollToTopTarget={SHELL_SCROLL_ID}
       dockScrollRefreshHref={`${baseUrl}/hyperview/creators`}
     >
       <CreatorsTabs baseUrl={baseUrl} activeTab={DEFAULT_CREATORS_TAB} />

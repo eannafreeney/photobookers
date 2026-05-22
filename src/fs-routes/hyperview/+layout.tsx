@@ -41,7 +41,11 @@ type Props = PropsWithChildren<{
   coverUrl?: string | null;
   isSearch?: boolean;
   searchToggleTarget?: string;
+  /** Scroll container id for `scroll-to-top` when opening header search. */
+  searchScrollToTopTarget?: string;
 }>;
+
+export const SHELL_SCROLL_ID = "shell-scroll";
 
 export const AppLayout = ({
   title,
@@ -61,6 +65,7 @@ export const AppLayout = ({
   dockScrollRefreshHref,
   isSearch,
   searchToggleTarget,
+  searchScrollToTopTarget,
 }: Props) => {
   const docked = Boolean(showDock && baseUrl);
 
@@ -86,6 +91,7 @@ export const AppLayout = ({
               isSearch={isSearch}
               baseUrl={baseUrl}
               searchToggleTarget={searchToggleTarget}
+              searchScrollToTopTarget={searchScrollToTopTarget}
             />
           )}
           {docked && baseUrl ? (
@@ -97,6 +103,7 @@ export const AppLayout = ({
             ) : (
               <View style="shell-column">
                 <ScrollView
+                  id={SHELL_SCROLL_ID}
                   style="shell-scroll"
                   {...(dockScrollRefreshHref
                     ? {
