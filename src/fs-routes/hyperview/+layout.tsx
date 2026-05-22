@@ -36,6 +36,8 @@ type Props = PropsWithChildren<{
   user?: AuthUser;
   verified?: boolean;
   nativeList?: boolean;
+  /** When set, pull-to-refresh reloads this URL on docked screens (shell scroll). */
+  dockScrollRefreshHref?: string;
   coverUrl?: string | null;
   isSearch?: boolean;
   searchToggleTarget?: string;
@@ -56,6 +58,7 @@ export const AppLayout = ({
   publisher,
   user,
   nativeList = false,
+  dockScrollRefreshHref,
   isSearch,
   searchToggleTarget,
 }: Props) => {
@@ -93,7 +96,18 @@ export const AppLayout = ({
               </View>
             ) : (
               <View style="shell-column">
-                <ScrollView style="shell-scroll">{children}</ScrollView>
+                <ScrollView
+                  style="shell-scroll"
+                  {...(dockScrollRefreshHref
+                    ? {
+                        trigger: "refresh",
+                        action: "reload",
+                        href: dockScrollRefreshHref,
+                      }
+                    : {})}
+                >
+                  {children}
+                </ScrollView>
                 <HyperviewDock baseUrl={baseUrl} active={dockActive} />
               </View>
             )

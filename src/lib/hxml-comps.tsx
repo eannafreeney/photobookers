@@ -53,6 +53,11 @@ export const ScrollView: FC<
     "hide-scroll-indicator"?: "true" | "false";
     horizontal?: "true";
     hide?: "true" | "false";
+    trigger?: string;
+    href?: string;
+    action?: string;
+    verb?: "get" | "post" | "put" | "delete" | "patch";
+    target?: string;
   }>
 > = ({
   horizontal,

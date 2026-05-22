@@ -32,6 +32,7 @@ export const GET = createRoute(async (c) => {
         baseUrl={baseUrl}
         dockActive="favorites"
         extraStyles={pageStyles()}
+        dockScrollRefreshHref={`${baseUrl}/hyperview/favorites`}
       >
         <SignInPrompt
           baseUrl={baseUrl}

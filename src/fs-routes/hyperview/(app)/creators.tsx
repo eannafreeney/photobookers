@@ -79,6 +79,7 @@ export const GET = createRoute(async (c) => {
       extraStyles={pageStyles()}
       isSearch
       searchToggleTarget={CREATORS_SEARCH_BAR_ID}
+      dockScrollRefreshHref={`${baseUrl}/hyperview/creators`}
     >
       <CreatorsTabs baseUrl={baseUrl} activeTab={DEFAULT_CREATORS_TAB} />
       <View

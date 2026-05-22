@@ -35,6 +35,7 @@ export const GET = createRoute(async (c) => {
       showDock
       baseUrl={baseUrl}
       dockActive="home"
+      dockScrollRefreshHref={`${baseUrl}/hyperview/featured`}
       extraStyles={pageStyles()}
     >
       <FeaturedTabs baseUrl={baseUrl} activeTab="home" />

@@ -40,7 +40,12 @@ export const GET = createRoute(paramValidator(tagSchema), async (c) => {
 
   if (currentPage === 1 && books.length === 0) {
     return hv(
-      <AppLayout title={pageTitle} extraStyles={pageStyles()}>
+      <AppLayout
+        title={pageTitle}
+        extraStyles={pageStyles()}
+        showDock
+        dockScrollRefreshHref={loadMoreHref}
+      >
         <View id="page-content" style="page-content">
           <Text style="featured-empty-hint">No books found for this tag.</Text>
         </View>
