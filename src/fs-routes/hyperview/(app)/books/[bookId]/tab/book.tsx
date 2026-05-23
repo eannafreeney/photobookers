@@ -20,6 +20,7 @@ import { getUser } from "../../../../../../utils";
 import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import { bookCardStyles } from "../../../../../../features/hyperview/components/BookCard";
 import { artistTabStyles } from "./artist";
+import { signInPromptStyles } from "../../../../../../features/hyperview/components/SignInPrompt";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
@@ -173,5 +174,6 @@ const pageStyles = () => (
     {feedListStyles()}
     {bookCardStyles()}
     {artistTabStyles()}
+    {signInPromptStyles()}
   </>
 );

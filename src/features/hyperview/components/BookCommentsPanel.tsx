@@ -97,7 +97,7 @@ const BookCommentsPanel: FC<Props> = ({
         <SignInPrompt
           variant="fragment"
           baseUrl={baseUrl}
-          hint="to comment on this book."
+          hint="Log into comment on this book."
         />
       ) : !hasProfilePic && user.id ? (
         <ProfilePhotoForm userId={user.id} bookId={bookId} baseUrl={baseUrl} />
