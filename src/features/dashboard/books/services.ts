@@ -345,7 +345,7 @@ export const getBookById = async (bookId: string) => {
       with: {
         publisher: true,
         artist: true,
-        bookOfTheWeekEntry: true,
+        bookOfTheDay: true,
         images: {
           orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
         },

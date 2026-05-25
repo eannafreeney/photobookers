@@ -1,10 +1,11 @@
 import { HeroCarouselItem } from "../../client/components/heroCarousel";
+import { toDateString } from "../../lib/utils";
 import {
   getArtistOfTheWeekForDateQuery,
   getPublisherOfTheWeekForDateQuery,
 } from "../dashboard/admin/planner/services";
 import { getWeekNumber } from "../dashboard/admin/planner/utils";
-import { BookOfTheWeekWithBook } from "./BOTWServices";
+import { BookOfTheDayWithBook } from "./BOTDServices";
 import { getCoverUrlsForHeroCarousel } from "./services";
 
 type ArtistOfTheWeekData = Extract<
@@ -40,18 +41,18 @@ export async function loadHeroCarouselCoverStacks(params: {
 }
 
 export function buildHeroCarouselItems(
-  bookOfTheWeek: BookOfTheWeekWithBook | null,
+  bookOfTheDay: BookOfTheDayWithBook | null,
   artistOfTheWeek: ArtistOfTheWeekData | null,
   publisherOfTheWeek: PublisherOfTheWeekData | null,
   publisherCoverStack: string[],
   artistCoverStack: string[],
 ): HeroCarouselItem[] {
-  const weekNumber = bookOfTheWeek
-    ? getWeekNumber(bookOfTheWeek.weekStart)
+  const weekNumber = bookOfTheDay
+    ? getWeekNumber(bookOfTheDay.date)
     : null;
   const items: HeroCarouselItem[] = [];
 
-  const book = bookOfTheWeek?.book;
+  const book = bookOfTheDay?.book;
   if (book) {
     const imageUrls = [
       book.coverUrl,
@@ -59,13 +60,14 @@ export function buildHeroCarouselItems(
     ].filter((url): url is string => Boolean(url));
 
     items.push({
-      label: "Book of the Week",
+      label: "Book of the Day",
       title: book.title,
       text: book.artist ? `by ${book.artist.displayName}` : "",
       image: imageUrls[0],
-      link: `/book-of-the-week`,
+      link: `/book-of-the-day`,
       slideClass: "bg-amber-100",
       weekNumber,
+      dateLabel: toDateString(bookOfTheDay.date),
     });
   }
 

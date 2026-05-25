@@ -22,8 +22,8 @@ export const generateWelcomeEmail = (creator: Creator, loginLink: string) => {
         <li>Stay informed about new releases</li>
       </ul>
       <p>
-        We also curate the platform weekly with a Book of the Week, featured titles,
-        and artist/publisher spotlights.
+        We also curate the platform daily with a Book of the Day, plus weekly
+        artist and publisher spotlights.
       </p>
       <p>
         I have long admired what you are doing, and I would love to include you as part of the platform.
@@ -87,8 +87,8 @@ export const generateWelcomeEmailForCreator = (
         <li>Stay informed about new releases</li>
       </ul>
       <p>
-        We also curate the platform weekly with a Book of the Week, featured titles,
-        and artist/publisher spotlights.
+        We also curate the platform daily with a Book of the Day, plus weekly
+        artist and publisher spotlights.
       </p>
       <p>
         I would love to include you as part of the platform.

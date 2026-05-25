@@ -20,8 +20,7 @@ export const GET = createRoute(async (c) => {
   const currentPath = c.req.path;
 
   const {
-    botwByWeekStart,
-    featuredByWeekStart,
+    botdByDate,
     artistByWeekStart,
     artistLoadError,
     publisherByWeekStart,
@@ -41,7 +40,7 @@ export const GET = createRoute(async (c) => {
   };
 
   return c.html(
-    <AppLayout title="BOTW Planner" user={user} currentPath={currentPath}>
+    <AppLayout title="BOTD Planner" user={user} currentPath={currentPath}>
       <Page>
         <Sidebar currentPath={currentPath}>
           <PlannerHeader year={year} />
@@ -54,8 +53,6 @@ export const GET = createRoute(async (c) => {
               .filter((weekStart) => !isWeekInPast(weekStart))
               .map((weekStart) => {
                 const key = toWeekString(weekStart);
-                const botw = botwByWeekStart.get(key) ?? null;
-                const featuredBooks = featuredByWeekStart.get(key) ?? [];
                 const artistOfTheWeek = artistByWeekStart?.get(key) ?? null;
                 const publisherOfTheWeek =
                   publisherByWeekStart?.get(key) ?? null;
@@ -65,8 +62,7 @@ export const GET = createRoute(async (c) => {
                     key={key}
                     weekStart={weekStart}
                     weekNumber={getWeekNumber(weekStart)}
-                    bookOfTheWeek={botw}
-                    featuredBooks={featuredBooks}
+                    botdByDate={botdByDate}
                     artistOfTheWeek={artistOfTheWeek}
                     publisherOfTheWeek={publisherOfTheWeek}
                   />
@@ -83,7 +79,7 @@ const PlannerHeader = ({ year }: { year: number }) => {
   return (
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <h1 class="text-xl font-semibold text-on-surface-strong">
-        Book of the Week – {year}
+        Book of the Day – {year}
       </h1>
       <div class="flex items-center gap-2">
         <a

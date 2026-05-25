@@ -1,39 +1,25 @@
 import { z } from "zod";
-import { parseWeekString } from "../../../../lib/utils";
-import { optionalText } from "../../../../schemas";
+import { parseDateString, parseWeekString } from "../../../../lib/utils";
 
-// ============ BOOK OF THE WEEK FORM SCHEMA ============
-export const bookOfTheWeekFormSchema = z.object({
-  weekStart: z
+// ============ BOOK OF THE DAY FORM SCHEMA ============
+export const bookOfTheDayFormSchema = z.object({
+  date: z
     .string()
-    .min(1, "Week is required")
-    .transform(parseWeekString)
-    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
+    .min(1, "Date is required")
+    .transform(parseDateString)
+    .refine((d) => !Number.isNaN(d.getTime()), "Invalid date"),
   bookId: z.string().min(1, "Book is required"),
-  text: optionalText,
 });
 
-export const sendBOTWCreatorEmailFormSchema = z.object({
+export const sendBOTDCreatorEmailFormSchema = z.object({
   recipientType: z.enum(["artist", "publisher"]),
   creatorId: z.string().min(1, "Creator is required"),
   bookId: z.string().min(1, "Book is required"),
-  weekStart: z
+  date: z
     .string()
-    .min(1, "Week is required")
-    .transform(parseWeekString)
-    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
-});
-
-export const sendFeaturedCreatorEmailFormSchema = z.object({
-  featuredId: z.string().min(1, "Featured row is required"),
-  recipientType: z.enum(["artist", "publisher"]),
-  creatorId: z.string().min(1, "Creator is required"),
-  bookId: z.string().min(1, "Book is required"),
-  weekStart: z
-    .string()
-    .min(1, "Week is required")
-    .transform(parseWeekString)
-    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
+    .min(1, "Date is required")
+    .transform(parseDateString)
+    .refine((d) => !Number.isNaN(d.getTime()), "Invalid date"),
 });
 
 export const sendAOTWCreatorEmailFormSchema = z.object({
@@ -55,7 +41,6 @@ export const sendPOTWCreatorEmailFormSchema = z.object({
 });
 
 export const setEmailFormSchema = z.object({
-  featuredId: z.string().optional(),
   recipientType: z.preprocess(
     (val) => (val === "" || val === undefined ? null : val),
     z.enum(["artist", "publisher"]).nullable(),
@@ -66,37 +51,25 @@ export const setEmailFormSchema = z.object({
     (val) => (val === "" || val === undefined ? null : val),
     z.string().nullable(),
   ),
+  /** Present when scheduling a BOTD email flow. */
+  date: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseDateString(val) : null))
+    .refine(
+      (d) => d === null || !Number.isNaN(d.getTime()),
+      "Invalid date",
+    ),
+  /** Present when scheduling an AOTW/POTW email flow. */
   weekStart: z
     .string()
-    .min(1, "Week is required")
-    .transform(parseWeekString)
-    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
+    .optional()
+    .transform((val) => (val ? parseWeekString(val) : null))
+    .refine(
+      (d) => d === null || !Number.isNaN(d.getTime()),
+      "Invalid week",
+    ),
 });
-
-export const featuredBooksFormSchema = z
-  .object({
-    weekStart: z
-      .string()
-      .min(1, "Week is required")
-      .transform(parseWeekString)
-      .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
-    bookId1: z.string().min(1, "Book 1 required"),
-    bookId2: z.string().min(1, "Book 2 required"),
-    bookId3: z.string().min(1, "Book 3 required"),
-    bookId4: z.string().min(1, "Book 4 required"),
-    bookId5: z.string().min(1, "Book 5 required"),
-  })
-  .refine(
-    (data) =>
-      new Set([
-        data.bookId1,
-        data.bookId2,
-        data.bookId3,
-        data.bookId4,
-        data.bookId5,
-      ]).size === 5,
-    { message: "Duplicate books not allowed" },
-  );
 
 export const artistOfTheWeekFormSchema = z.object({
   weekStart: z
@@ -119,3 +92,4 @@ export const publisherOfTheWeekFormSchema = z.object({
 });
 
 export const weekQuerySchema = z.object({ week: z.string() });
+export const dateQuerySchema = z.object({ date: z.string() });

@@ -82,7 +82,7 @@ export const getAllBooksAdmin = async (
       limit: limit,
       offset: offset,
       with: {
-        bookOfTheWeekEntry: true,
+        bookOfTheDay: true,
         artist: {
           columns: {
             id: true,

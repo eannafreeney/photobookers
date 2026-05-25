@@ -17,7 +17,7 @@ export function parseWeekString(str: string): Date {
   );
 }
 
-/** Format a week-start Date (e.g. bookOfTheWeekEntry.weekStart) to "YYYY-Www" for display or input value */
+/** Format a week-start Date to "YYYY-Www" for display or input value */
 export function toWeekString(d: Date): string {
   const mon = new Date(
     Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
@@ -37,6 +37,48 @@ export function toWeekString(d: Date): string {
     );
   const w = Math.max(1, Math.min(53, weekNum));
   return `${year}-W${String(w).padStart(2, "0")}`;
+}
+
+/** Parse "YYYY-MM-DD" to a UTC-midnight Date. Returns Invalid Date on bad input. */
+export function parseDateString(str: string): Date {
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return new Date(NaN);
+  const y = parseInt(match[1], 10);
+  const m = parseInt(match[2], 10);
+  const d = parseInt(match[3], 10);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  if (
+    date.getUTCFullYear() !== y ||
+    date.getUTCMonth() !== m - 1 ||
+    date.getUTCDate() !== d
+  ) {
+    return new Date(NaN);
+  }
+  return date;
+}
+
+/** Format a Date as "YYYY-MM-DD" using UTC components. */
+export function toDateString(d: Date): string {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/** Normalize any Date to UTC midnight (00:00:00.000) of the same Y/M/D. */
+export function toUtcStartOfDay(d: Date): Date {
+  return new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
+  );
+}
+
+/** Normalize any Date to the Monday (UTC) of its ISO week. */
+export function toWeekStart(d: Date): Date {
+  const date = toUtcStartOfDay(d);
+  const day = date.getUTCDay();
+  const daysToMonday = day === 0 ? 6 : day - 1;
+  date.setUTCDate(date.getUTCDate() - daysToMonday);
+  return date;
 }
 
 const VALID_SORT = ["newest", "oldest", "title_asc", "title_desc"] as const;

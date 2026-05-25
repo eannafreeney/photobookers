@@ -1,49 +1,20 @@
-import { bookIdSchema } from "../../../../schemas";
 import { Context } from "hono";
 import { Env } from "hono/types";
 import { z } from "zod";
 import {
   artistOfTheWeekFormSchema,
-  bookOfTheWeekFormSchema,
-  featuredBooksFormSchema,
+  bookOfTheDayFormSchema,
+  dateQuerySchema,
   publisherOfTheWeekFormSchema,
-  sendBOTWCreatorEmailFormSchema,
+  sendBOTDCreatorEmailFormSchema,
   setEmailFormSchema,
   weekQuerySchema,
 } from "./schema";
 
-export type BOTWBookIdContext = Context<
+export type BOTDFormContext = Context<
   Env,
   string,
-  { out: { param: z.infer<typeof bookIdSchema> } }
->;
-
-export type BOTWFormContext = Context<
-  Env,
-  string,
-  { out: { form: z.infer<typeof bookOfTheWeekFormSchema> } }
->;
-
-export type BOTWFormWithBookIdContext = Context<
-  Env,
-  string,
-  {
-    out: {
-      param: z.infer<typeof bookIdSchema>;
-      form: z.infer<typeof bookOfTheWeekFormSchema>;
-    };
-  }
->;
-
-export type FeaturedFormContext = Context<
-  Env,
-  string,
-  {
-    out: {
-      query: z.infer<typeof weekQuerySchema>;
-      form: z.infer<typeof featuredBooksFormSchema>;
-    };
-  }
+  { out: { form: z.infer<typeof bookOfTheDayFormSchema> } }
 >;
 
 export type ArtistOfTheWeekFormContext = Context<
@@ -64,23 +35,20 @@ export type PlannerWeekQueryContext = Context<
   { out: { query: z.infer<typeof weekQuerySchema> } }
 >;
 
-export type SendArtistEmailContext = Context<
+export type PlannerDateQueryContext = Context<
   Env,
   string,
-  {
-    out: {
-      query: z.infer<typeof weekQuerySchema>;
-      form: z.infer<typeof sendBOTWCreatorEmailFormSchema>;
-    };
-  }
+  { out: { query: z.infer<typeof dateQuerySchema> } }
 >;
 
-export type SetCreatorEmailSendArtistEmailContext = Context<
+export type SendBOTDCreatorEmailContext = Context<
   Env,
   string,
-  {
-    out: {
-      form: z.infer<typeof setEmailFormSchema>;
-    };
-  }
+  { out: { form: z.infer<typeof sendBOTDCreatorEmailFormSchema> } }
+>;
+
+export type SetCreatorEmailContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof setEmailFormSchema> } }
 >;

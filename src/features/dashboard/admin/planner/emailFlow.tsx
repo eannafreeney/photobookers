@@ -9,33 +9,31 @@ import { Child } from "hono/jsx";
 import SendAOTWCreatorEmailButton from "./components/SendAOTWCreatorEmailButton";
 import {
   updateArtistOfTheWeekByWeekStart,
-  updateBookOfTheWeekByWeekStart,
-  updateFeaturedBookEmailSentById,
+  updateBookOfTheDayByDate,
   updatePublisherOfTheWeekByWeekStart,
 } from "./services";
 import { sendEmail } from "../../../../lib/sendEmail";
 import {
   buildAOTWNotificationEmail,
   buildPOTWNotificationEmail,
-  generateBOTWNotificationEmail,
-  generateFeaturedBookNotificationEmail,
+  generateBOTDNotificationEmail,
 } from "./emails";
 import SendPOTWCreatorEmailButton from "./components/SendPOTWCreatorEmailButton";
 import { getBookByIdBasic } from "../../books/services";
-import SendFeaturedBookEmailButton from "./components/SendFeaturedBookEmailButton";
-import SendBOTWCreatorEmailButton from "./components/SendBOTWCreatorEmailButton";
-import { capitalize } from "../../../../utils";
+import SendBOTDCreatorEmailButton from "./components/SendBOTDCreatorEmailButton";
 
 type RequireCreatorEmailParams = {
   creatorId: string;
-  weekStart: Date;
+  /** Week-start Monday (UTC) for AOTW/POTW flows. */
+  weekStart?: Date | null;
+  /** Day (UTC midnight) for BOTD flows. */
+  date?: Date | null;
   action: string;
   title: string;
   bookId?: string | null;
   recipientType?: "artist" | "publisher" | null;
   fallbackTargetNode?: Child;
   targetId: string;
-  featuredId?: string;
 };
 
 type EnsureCreatorEmailParams = {
@@ -98,12 +96,12 @@ export async function requireCreatorEmailOrRenderModal(
           <Modal title={params.title}>
             <SetCreatorEmailModal
               creatorId={params.creatorId}
-              weekStart={params.weekStart}
+              weekStart={params.weekStart ?? undefined}
+              date={params.date ?? undefined}
               action={params.action}
               bookId={params.bookId ?? undefined}
               recipientType={params.recipientType ?? undefined}
               targetId={params.targetId}
-              featuredId={params.featuredId ?? undefined}
             />
           </Modal>
           {params.fallbackTargetNode}
@@ -231,28 +229,28 @@ export async function executePOTWEmail({
   );
 }
 
-type BookCampaignExecuteParams = {
+type BOTDExecuteParams = {
   c: Context;
   creator: CreatorForEmail;
-  weekStart: Date;
+  date: Date;
   recipientType: "artist" | "publisher";
   bookId: string;
 };
 
-export async function executeBOTWEmail({
+export async function executeBOTDEmail({
   c,
   creator,
-  weekStart,
+  date,
   recipientType,
   bookId,
-}: BookCampaignExecuteParams) {
+}: BOTDExecuteParams) {
   const [bookError, book] = await getBookByIdBasic(bookId);
   if (bookError || !book) return showErrorAlert(c, "Book not found");
 
-  const html = generateBOTWNotificationEmail(creator, book);
+  const html = generateBOTDNotificationEmail(creator, book);
   const [emailError] = await sendEmail(
     creator.email,
-    `Book of the Week: ${book.title}`,
+    `Book of the Day: ${book.title}`,
     html,
   );
   if (emailError) return showErrorAlert(c, emailError.reason);
@@ -260,10 +258,12 @@ export async function executeBOTWEmail({
   const updateField =
     recipientType === "artist" ? "artistEmailSentAt" : "publisherEmailSentAt";
 
-  const [updateError, updatedBookOfTheWeek] =
-    await updateBookOfTheWeekByWeekStart(weekStart, {
+  const [updateError, updatedBookOfTheDay] = await updateBookOfTheDayByDate(
+    date,
+    {
       [updateField]: new Date(),
-    });
+    },
+  );
   if (updateError) return showErrorAlert(c, updateError.reason);
 
   return c.html(
@@ -272,62 +272,11 @@ export async function executeBOTWEmail({
         type="success"
         message={`Email Sent to ${creator.displayName} at ${creator.email}`}
       />
-      <SendBOTWCreatorEmailButton
+      <SendBOTDCreatorEmailButton
         recipientType={recipientType}
-        bookOfTheWeek={updatedBookOfTheWeek}
+        bookOfTheDay={updatedBookOfTheDay}
         creatorId={creator.id}
         bookId={bookId}
-      />
-    </>,
-  );
-}
-
-type FeaturedExecuteParams = {
-  c: Context;
-  creator: CreatorForEmail;
-  weekStart: Date;
-  recipientType: "artist" | "publisher";
-  bookId: string;
-  featuredId: string;
-};
-
-export async function executeFeaturedEmail({
-  c,
-  creator,
-  recipientType,
-  bookId,
-  featuredId,
-}: FeaturedExecuteParams) {
-  const [bookError, book] = await getBookByIdBasic(bookId);
-  if (bookError || !book) return showErrorAlert(c, "Book not found");
-  if (!creator.email) return showErrorAlert(c, "Creator email not found");
-
-  const html = generateFeaturedBookNotificationEmail(creator, book);
-  const [emailError] = await sendEmail(
-    creator.email,
-    `Featured Book: ${book.title}`,
-    html,
-  );
-  if (emailError) return showErrorAlert(c, emailError.reason);
-
-  const [updateError, updatedFeaturedRow] =
-    await updateFeaturedBookEmailSentById({
-      featuredId,
-      recipientType,
-    });
-  if (updateError) return showErrorAlert(c, updateError.reason);
-
-  return c.html(
-    <>
-      <Alert
-        type="success"
-        message={`Email Sent to ${creator.displayName} at ${creator.email}`}
-      />
-      <SendFeaturedBookEmailButton
-        featuredBook={updatedFeaturedRow}
-        creatorId={creator.id}
-        bookId={bookId}
-        recipientType={recipientType}
       />
     </>,
   );

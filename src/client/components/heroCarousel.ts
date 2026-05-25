@@ -9,6 +9,8 @@ export type HeroCarouselItem = {
   text?: string;
   link: string;
   weekNumber?: number | null;
+  /** Calendar date label for BOTD slides, e.g. "2026-05-25". */
+  dateLabel?: string;
 };
 
 export function registerHeroCarousel() {

@@ -5,7 +5,7 @@ export const tickerItems = [
   "Join the Newsletter",
   "Follow Your Favorite Artists and Publishers",
   "Create a Profile",
-  "Book of The Week",
+  "Book of The Day",
   "Artist of The Week",
   "Publisher of The Week",
   "Follow on Instagram",

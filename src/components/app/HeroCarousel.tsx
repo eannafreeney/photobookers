@@ -1,4 +1,4 @@
-import { getThisWeeksBookOfTheWeek } from "../../features/app/BOTWServices";
+import { getTodaysBookOfTheDay } from "../../features/app/BOTDServices";
 import {
   getThisWeeksArtistOfTheWeek,
   getThisWeeksPublisherOfTheWeek,
@@ -13,16 +13,16 @@ import {
 
 const HeroCarousel = async () => {
   const [bookRes, artistRes, publisherRes] = await Promise.all([
-    getThisWeeksBookOfTheWeek(),
+    getTodaysBookOfTheDay(),
     getThisWeeksArtistOfTheWeek(),
     getThisWeeksPublisherOfTheWeek(),
   ]);
 
-  const [bookErr, bookOfTheWeek] = bookRes;
+  const [bookErr, bookOfTheDay] = bookRes;
   const [artistErr, artistOfTheWeek] = artistRes;
   const [publisherErr, publisherOfTheWeek] = publisherRes;
 
-  if (bookErr || artistErr || publisherErr) {
+  if (artistErr || publisherErr) {
     return <></>;
   }
 
@@ -37,7 +37,7 @@ const HeroCarousel = async () => {
     });
 
   const heroItems = buildHeroCarouselItems(
-    bookErr ? null : bookOfTheWeek,
+    bookErr ? null : bookOfTheDay,
     artistErr ? null : artistOfTheWeek,
     publisherErr ? null : publisherOfTheWeek,
     publisherCoverStack,

@@ -1,15 +1,13 @@
 import {
   ArtistOfTheWeekWithCreator,
   getArtistsOfTheWeekByWeekStart,
-  getBotwByWeekStart,
-  getFeaturedBooksByWeekStart,
+  getBotdByDate,
   getPublishersOfTheWeekByWeekStart,
   PublisherOfTheWeekWithCreator,
 } from "./services";
 
 export type PlannerYearData = {
-  botwByWeekStart: Awaited<ReturnType<typeof getBotwByWeekStart>>;
-  featuredByWeekStart: Awaited<ReturnType<typeof getFeaturedBooksByWeekStart>>;
+  botdByDate: Awaited<ReturnType<typeof getBotdByDate>>;
   artistByWeekStart: Map<string, ArtistOfTheWeekWithCreator | null> | null;
   artistLoadError: string | null;
   publisherByWeekStart: Map<
@@ -22,20 +20,17 @@ export type PlannerYearData = {
 export const loadPlannerYearData = async (
   year: number,
 ): Promise<PlannerYearData> => {
-  const [botwByWeekStart, featuredByWeekStart, artistResult, publisherResult] =
-    await Promise.all([
-      getBotwByWeekStart(year),
-      getFeaturedBooksByWeekStart(year),
-      getArtistsOfTheWeekByWeekStart(year),
-      getPublishersOfTheWeekByWeekStart(year),
-    ]);
+  const [botdByDate, artistResult, publisherResult] = await Promise.all([
+    getBotdByDate(year),
+    getArtistsOfTheWeekByWeekStart(year),
+    getPublishersOfTheWeekByWeekStart(year),
+  ]);
 
   const [artistErr, artistMap] = artistResult;
   const [publisherErr, publisherMap] = publisherResult;
 
   return {
-    botwByWeekStart,
-    featuredByWeekStart,
+    botdByDate,
     artistByWeekStart: artistErr ? null : artistMap,
     artistLoadError: artistErr?.reason ?? null,
     publisherByWeekStart: publisherErr ? null : publisherMap,

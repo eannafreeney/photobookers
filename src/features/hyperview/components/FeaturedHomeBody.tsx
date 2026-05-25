@@ -2,8 +2,10 @@ import { FC } from "hono/jsx";
 import type { AuthUser } from "../../../../types";
 import BookCard from "./BookCard";
 import { View } from "../../../lib/hxml-comps";
-import { getThisWeeksBookOfTheWeek } from "../../app/BOTWServices";
-import { getThisWeeksFeaturedBooks } from "../../app/FeaturedServices";
+import {
+  getRecentBooksOfTheDay,
+  getTodaysBookOfTheDay,
+} from "../../app/BOTDServices";
 import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
 import CreatorCard from "./CreatorCard";
@@ -16,27 +18,33 @@ type Props = {
 
 const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
   const [
-    [botwErr, botwResult],
-    [featuredBooksErr, featuredBooksResult],
+    [botdErr, botdResult],
+    [recentBotdErr, recentBotdResult],
     [artistErr, artistResult],
     [publisherErr, publisherResult],
   ] = await Promise.all([
-    getThisWeeksBookOfTheWeek(),
-    getThisWeeksFeaturedBooks(),
+    getTodaysBookOfTheDay(),
+    getRecentBooksOfTheDay(1),
     getThisWeeksArtistOfTheWeek(),
     getThisWeeksPublisherOfTheWeek(),
   ]);
-  if (botwErr) return <></>;
-  if (featuredBooksErr) return <></>;
   if (artistErr) return <></>;
   if (publisherErr) return <></>;
 
-  const botwBook = botwResult?.book ?? null;
-  const featuredBooksOnly =
-    featuredBooksResult?.featuredBooks.map((fb) => fb.book).filter(Boolean) ??
-    [];
+  const botdBook = botdErr ? null : (botdResult?.book ?? null);
+  const todayBookId = botdBook?.id;
 
-  const books = [botwBook, ...featuredBooksOnly].filter(Boolean);
+  const recentBooks =
+    !recentBotdErr && recentBotdResult
+      ? recentBotdResult.botdEntries
+          .map((entry) => entry.book)
+          .filter((book): book is NonNullable<typeof book> => Boolean(book))
+          .filter((book) => book.id !== todayBookId)
+      : [];
+
+  const books = [botdBook, ...recentBooks].filter(
+    (book): book is NonNullable<typeof book> => Boolean(book),
+  );
   const featuredCreators = [
     artistResult?.creator,
     publisherResult?.creator,
@@ -49,12 +57,12 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
 
   return (
     <View>
-      {botwBook && (
+      {botdBook && (
         <BookCard
-          title="Book of The Week"
-          book={botwBook}
+          title="Book of The Day"
+          book={botdBook}
           baseUrl={baseUrl}
-          isFavorited={favoritesByBookId[botwBook.id] ?? false}
+          isFavorited={favoritesByBookId[botdBook.id] ?? false}
         />
       )}
       {artistResult?.creator && (
@@ -77,10 +85,10 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
           }
         />
       )}
-      {featuredBooksOnly.length > 0 &&
-        featuredBooksOnly.map((book) => (
+      {recentBooks.length > 0 &&
+        recentBooks.map((book) => (
           <BookCard
-            title="Featured"
+            title="Recent Book of The Day"
             book={book}
             baseUrl={baseUrl}
             isFavorited={favoritesByBookId[book.id] ?? false}

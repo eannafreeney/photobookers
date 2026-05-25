@@ -1,15 +1,17 @@
 import Button from "../../../../../components/app/Button";
 import Input from "../../../../../components/forms/Input";
-import { toWeekString } from "../../../../../lib/utils";
+import { toDateString, toWeekString } from "../../../../../lib/utils";
 
 type Props = {
   creatorId: string;
   bookId?: string;
   recipientType?: string;
-  weekStart: Date;
+  /** Week-start Monday (UTC) for AOTW/POTW flows. */
+  weekStart?: Date;
+  /** Calendar day (UTC midnight) for BOTD flows. */
+  date?: Date;
   action: string;
   targetId: string;
-  featuredId?: string;
 };
 
 const SetCreatorEmailModal = ({
@@ -17,9 +19,9 @@ const SetCreatorEmailModal = ({
   bookId,
   recipientType,
   weekStart,
+  date,
   action,
   targetId,
-  featuredId,
 }: Props) => {
   const alpineAttrs = {
     "x-target": `${targetId} toast modal-root`,
@@ -43,8 +45,16 @@ const SetCreatorEmailModal = ({
         <input type="hidden" name="creatorId" value={creatorId} />
         <input type="hidden" name="bookId" value={bookId ?? ""} />
         <input type="hidden" name="recipientType" value={recipientType ?? ""} />
-        <input type="hidden" name="weekStart" value={toWeekString(weekStart)} />
-        <input type="hidden" name="featuredId" value={featuredId ?? ""} />
+        {weekStart && (
+          <input
+            type="hidden"
+            name="weekStart"
+            value={toWeekString(weekStart)}
+          />
+        )}
+        {date && (
+          <input type="hidden" name="date" value={toDateString(date)} />
+        )}
         <Button variant="solid" color="primary">
           Submit
         </Button>

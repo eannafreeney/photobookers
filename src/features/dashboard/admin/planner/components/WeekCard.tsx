@@ -1,21 +1,19 @@
 import Card from "../../../../../components/app/Card";
-import { BookOfTheWeekWithBook } from "../../../../app/BOTWServices";
+import { BookOfTheDayWithBook } from "../../../../app/BOTDServices";
+import { toDateString } from "../../../../../lib/utils";
 import {
   ArtistOfTheWeekWithCreator,
-  FeaturedBookOfTheWeekWithBook,
   PublisherOfTheWeekWithCreator,
 } from "../services";
-import FeaturedBooksList from "./FeaturedBooksList";
-import BOTWCard from "./BOTWCard";
+import BOTDCard from "./BOTDCard";
 import AOTWCard from "./AOTWCard";
 import POTWCard from "./POTWCard";
-import { formatWeekRange } from "../utils";
+import { formatWeekRange, getWeekDays } from "../utils";
 
 type Props = {
   weekStart: Date;
   weekNumber: number;
-  bookOfTheWeek: BookOfTheWeekWithBook | null;
-  featuredBooks: FeaturedBookOfTheWeekWithBook[];
+  botdByDate: Map<string, BookOfTheDayWithBook>;
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
 };
@@ -23,20 +21,21 @@ type Props = {
 const WeekCard = ({
   weekStart,
   weekNumber,
-  bookOfTheWeek,
-  featuredBooks,
+  botdByDate,
   artistOfTheWeek,
   publisherOfTheWeek,
 }: Props) => {
+  const days = getWeekDays(weekStart);
+
   return (
     <Card className="flex flex-col">
       <WeekCardHeader weekStart={weekStart} weekNumber={weekNumber} />
       <Card.Body gap="2">
-        <BOTWCard weekStart={weekStart} bookOfTheWeek={bookOfTheWeek} />
-        <FeaturedBooksList
-          weekStart={weekStart}
-          featuredBooks={featuredBooks}
-        />
+        {days.map((day) => {
+          const key = toDateString(day);
+          const botd = botdByDate.get(key) ?? null;
+          return <BOTDCard key={key} date={day} bookOfTheDay={botd} />;
+        })}
         <AOTWCard weekStart={weekStart} artistOfTheWeek={artistOfTheWeek} />
         <POTWCard
           weekStart={weekStart}

@@ -1,20 +1,23 @@
 import {
-  getBooksOfTheWeekInRange,
-  type BookOfTheWeekWithBook as AppBookOfTheWeekWithBook,
-} from "../../../app/BOTWServices";
-import { toWeekString } from "../../../../lib/utils";
+  getBooksOfTheDayInRange,
+  type BookOfTheDayWithBook as AppBookOfTheDayWithBook,
+} from "../../../app/BOTDServices";
+import {
+  toDateString,
+  toUtcStartOfDay,
+  toWeekStart,
+  toWeekString,
+} from "../../../../lib/utils";
 import { getWeekStarts } from "./utils";
 import {
   artistOfTheWeek,
-  BookOfTheWeek,
-  bookOfTheWeek,
+  bookOfTheDay,
   books,
   creators,
-  featuredBooksOfTheWeek,
   publisherOfTheWeek,
 } from "../../../../db/schema";
 import { db } from "../../../../db/client";
-import { and, desc, eq, gte, isNotNull, lte, notInArray } from "drizzle-orm";
+import { and, eq, gte, lte } from "drizzle-orm";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -49,96 +52,58 @@ export async function getAllBooksPreview() {
   });
 }
 
-export async function getAllBooksPreviewForFeatured() {
-  return db.query.books.findMany({
-    columns: {
-      id: true,
-      title: true,
-      coverUrl: true,
-    },
-    with: {
-      artist: {
-        columns: {
-          id: true,
-          displayName: true,
-        },
-      },
-      publisher: {
-        columns: {
-          id: true,
-          displayName: true,
-        },
-      },
-    },
-    where: and(
-      eq(books.approvalStatus, "approved"),
-      eq(books.publicationStatus, "published"),
-      notInArray(
-        books.id,
-        db
-          .select({ bookId: featuredBooksOfTheWeek.bookId })
-          .from(featuredBooksOfTheWeek),
-      ),
-    ),
-  });
-}
-
-export async function getBotwByWeekStart(
+/**
+ * Map keyed by "YYYY-MM-DD" of every BOTD that falls in any of the weeks of the
+ * given year. We deliberately query by the year's first/last week-start (Mon)
+ * and last week-start + 6 days so every day in every week of the year is
+ * covered.
+ */
+export async function getBotdByDate(
   year: number,
-): Promise<Map<string, AppBookOfTheWeekWithBook>> {
+): Promise<Map<string, AppBookOfTheDayWithBook>> {
   const weekStarts = getWeekStarts(year);
   if (weekStarts.length === 0) return new Map();
 
-  const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
-  const [error, result] = await getBooksOfTheWeekInRange(first, last);
+  const first = weekStarts[0];
+  const lastMon = weekStarts[weekStarts.length - 1];
+  const last = new Date(lastMon);
+  last.setUTCDate(last.getUTCDate() + 6);
+
+  const [error, result] = await getBooksOfTheDayInRange(first, last);
   if (error) return new Map();
-  const { botwEntries } = result;
+  const { botdEntries } = result;
 
-  return new Map(botwEntries.map((b) => [toWeekString(b.weekStart), b]));
+  return new Map(botdEntries.map((b) => [toDateString(b.date), b]));
 }
 
-/** Normalize to start of day UTC for consistent storage/comparison */
-function toWeekStart(d: Date): Date {
-  const date = new Date(
-    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
-  );
-  const day = date.getUTCDay();
-  const daysToMonday = day === 0 ? 6 : day - 1;
-  date.setUTCDate(date.getUTCDate() - daysToMonday);
-  return date;
-}
-
-export async function setBookOfTheWeek(params: {
-  weekStart: Date;
-  bookId: string;
-}) {
-  const weekStart = toWeekStart(params.weekStart);
+export async function setBookOfTheDay(params: { date: Date; bookId: string }) {
+  const day = toUtcStartOfDay(params.date);
   try {
     const [row] = await db
-      .insert(bookOfTheWeek)
+      .insert(bookOfTheDay)
       .values({
-        weekStart,
+        date: day,
         bookId: params.bookId,
       })
       .returning();
-    if (!row) return err({ reason: "Failed to set book of the week" });
+    if (!row) return err({ reason: "Failed to set book of the day" });
     return ok(row);
   } catch (e) {
     // uniqueDate or uniqueBook violation
-    console.error("setBookOfTheWeek", e);
-    return err({ reason: "Failed to set book of the week" });
+    console.error("setBookOfTheDay", e);
+    return err({ reason: "Failed to set book of the day" });
   }
 }
 
-export async function updateBookOfTheWeekByWeekStart(
-  weekStart: Date,
+export async function updateBookOfTheDayByDate(
+  date: Date,
   patch: {
     bookId?: string;
     artistEmailSentAt?: Date | null;
     publisherEmailSentAt?: Date | null;
   },
 ) {
-  const normalizedWeekStart = toWeekStart(weekStart);
+  const day = toUtcStartOfDay(date);
   const updateData: {
     bookId?: string;
     artistEmailSentAt?: Date | null;
@@ -154,16 +119,57 @@ export async function updateBookOfTheWeekByWeekStart(
 
   try {
     const [row] = await db
-      .update(bookOfTheWeek)
+      .update(bookOfTheDay)
       .set(updateData)
-      .where(eq(bookOfTheWeek.weekStart, normalizedWeekStart))
+      .where(eq(bookOfTheDay.date, day))
       .returning();
-    if (!row) return err({ reason: "Book of the week not found" });
+    if (!row) return err({ reason: "Book of the day not found" });
     return ok(row);
   } catch (e) {
-    console.error("updateBookOfTheWeekByWeekStart", e);
-    return err({ reason: "Failed to update book of the week" });
+    console.error("updateBookOfTheDayByDate", e);
+    return err({ reason: "Failed to update book of the day" });
   }
+}
+
+export async function deleteBookOfTheDayByDate(date: Date) {
+  try {
+    const [row] = await db
+      .delete(bookOfTheDay)
+      .where(eq(bookOfTheDay.date, toUtcStartOfDay(date)))
+      .returning();
+    if (!row) return err({ reason: "Failed to delete book of the day" });
+    return ok(row);
+  } catch (e) {
+    console.error("deleteBookOfTheDayByDate", e);
+    return err({ reason: "Failed to delete book of the day" });
+  }
+}
+
+export async function getBookOfTheDayForDateQuery(date: Date) {
+  const day = toUtcStartOfDay(date);
+  try {
+    const row = await db.query.bookOfTheDay.findFirst({
+      where: eq(bookOfTheDay.date, day),
+      with: {
+        book: {
+          columns: BOOK_CARD_COLUMNS,
+          with: {
+            artist: { columns: CREATOR_CARD_COLUMNS },
+            publisher: { columns: CREATOR_CARD_COLUMNS },
+          },
+        },
+      },
+    });
+    if (!row) return err({ reason: "Book of the day not found" });
+    return ok(row);
+  } catch (e) {
+    console.error("getBookOfTheDayForDateQuery", e);
+    return err({ reason: "Failed to get book of the day for date" });
+  }
+}
+
+export async function getTodaysBookOfTheDay() {
+  return getBookOfTheDayForDateQuery(new Date());
 }
 
 export async function updateArtistOfTheWeekByWeekStart(weekStart: Date) {
@@ -197,205 +203,6 @@ export async function updatePublisherOfTheWeekByWeekStart(weekStart: Date) {
   } catch (e) {
     console.error("updatePublisherOfTheWeekByWeekStart", e);
     return err({ reason: "Failed to update publisher of the week" });
-  }
-}
-
-export async function updateFeaturedBookEmailSentById(params: {
-  featuredId: string;
-  recipientType: "artist" | "publisher";
-}) {
-  const patch =
-    params.recipientType === "artist"
-      ? { artistEmailSentAt: new Date(), updatedAt: new Date() }
-      : { publisherEmailSentAt: new Date(), updatedAt: new Date() };
-  try {
-    const [row] = await db
-      .update(featuredBooksOfTheWeek)
-      .set(patch)
-      .where(eq(featuredBooksOfTheWeek.id, params.featuredId))
-      .returning();
-    if (!row) return err({ reason: "Featured book row not found" });
-    return ok(row);
-  } catch (e) {
-    console.error("updateFeaturedBookEmailSentById", e);
-    return err({ reason: "Failed to update featured email sent status" });
-  }
-}
-
-export async function updateFeaturedBookOfTheWeekByWeekStart(
-  weekStart: Date,
-  patch: {
-    bookId?: string;
-    artistEmailSentAt?: Date | null;
-    publisherEmailSentAt?: Date | null;
-  },
-) {
-  const normalizedWeekStart = toWeekStart(weekStart);
-  const updateData: {
-    bookId?: string;
-    artistEmailSentAt?: Date | null;
-    publisherEmailSentAt?: Date | null;
-    updatedAt: Date;
-  } = { updatedAt: new Date() };
-
-  if (patch.bookId !== undefined) updateData.bookId = patch.bookId;
-  if (patch.artistEmailSentAt !== undefined)
-    updateData.artistEmailSentAt = patch.artistEmailSentAt;
-  if (patch.publisherEmailSentAt !== undefined)
-    updateData.publisherEmailSentAt = patch.publisherEmailSentAt;
-
-  try {
-    const [row] = await db
-      .update(featuredBooksOfTheWeek)
-      .set(updateData)
-      .where(eq(featuredBooksOfTheWeek.weekStart, normalizedWeekStart))
-      .returning();
-    if (!row) return err({ reason: "Featured book of the week not found" });
-    return ok(row);
-  } catch (e) {
-    console.error("updateFeaturedBookOfTheWeekByWeekStart", e);
-    return err({ reason: "Failed to update featured book of the week" });
-  }
-}
-
-export async function getBookOfTheWeekForDateQuery(date: Date) {
-  const weekStart = toWeekStart(date);
-  try {
-    const row = await db.query.bookOfTheWeek.findFirst({
-      where: eq(bookOfTheWeek.weekStart, weekStart),
-      with: {
-        book: {
-          columns: BOOK_CARD_COLUMNS,
-          with: {
-            artist: { columns: CREATOR_CARD_COLUMNS },
-            publisher: { columns: CREATOR_CARD_COLUMNS },
-          },
-        },
-      },
-    });
-    if (!row) return err({ reason: "Book of the week not found" });
-    return ok(row);
-  } catch (e) {
-    console.error("getBookOfTheWeekForDateQuery", e);
-    return err({ reason: "Failed to get book of the week for date" });
-  }
-}
-
-export async function getThisWeeksBookOfTheWeek() {
-  return getBookOfTheWeekForDateQuery(new Date());
-}
-
-export async function deleteBookOfTheWeekByWeekStart(weekStart: Date) {
-  try {
-    const [row] = await db
-      .delete(bookOfTheWeek)
-      .where(eq(bookOfTheWeek.weekStart, toWeekStart(weekStart)))
-      .returning();
-    if (!row) return err({ reason: "Failed to delete book of the week" });
-    return ok(row);
-  } catch (e) {
-    console.error("deleteBookOfTheWeekByIdAdmin", e);
-    return err({ reason: "Failed to delete book of the week" });
-  }
-}
-
-export async function deleteFeaturedBooksByWeekStart(weekStart: Date) {
-  try {
-    const [row] = await db
-      .delete(featuredBooksOfTheWeek)
-      .where(eq(featuredBooksOfTheWeek.weekStart, toWeekStart(weekStart)))
-      .returning();
-    if (!row)
-      return err({ reason: "Failed to delete featured books of the week" });
-    return ok(row);
-  } catch (e) {
-    console.error("deleteBookOfTheWeekByIdAdmin", e);
-    return err({ reason: "Failed to delete featured books of the week" });
-  }
-}
-
-export type FeaturedBookOfTheWeekWithBook = Awaited<
-  ReturnType<typeof getFeaturedBooksForWeekQuery>
->[number];
-
-export async function getFeaturedBooksForWeekQuery(weekStart: Date) {
-  const normalized = toWeekStart(weekStart);
-  return db.query.featuredBooksOfTheWeek.findMany({
-    where: eq(featuredBooksOfTheWeek.weekStart, normalized),
-    orderBy: [featuredBooksOfTheWeek.position],
-    with: {
-      book: {
-        columns: BOOK_CARD_COLUMNS,
-        with: {
-          artist: { columns: CREATOR_CARD_COLUMNS },
-          publisher: { columns: CREATOR_CARD_COLUMNS },
-        },
-      },
-    },
-  });
-}
-
-export async function getFeaturedBooksByWeekStart(
-  year: number,
-): Promise<Map<string, FeaturedBookOfTheWeekWithBook[]>> {
-  const weekStarts = getWeekStarts(year);
-  if (weekStarts.length === 0) return new Map();
-  const [first, last] = [weekStarts[0], weekStarts[weekStarts.length - 1]];
-  const entries = await db.query.featuredBooksOfTheWeek.findMany({
-    where: and(
-      gte(featuredBooksOfTheWeek.weekStart, toWeekStart(first)),
-      lte(featuredBooksOfTheWeek.weekStart, toWeekStart(last)),
-    ),
-    orderBy: [
-      featuredBooksOfTheWeek.weekStart,
-      featuredBooksOfTheWeek.position,
-    ],
-    with: {
-      book: {
-        columns: BOOK_CARD_COLUMNS,
-        with: {
-          artist: { columns: CREATOR_CARD_COLUMNS },
-          publisher: { columns: CREATOR_CARD_COLUMNS },
-        },
-      },
-    },
-  });
-  const byWeek = new Map<string, FeaturedBookOfTheWeekWithBook[]>();
-  for (const e of entries) {
-    const key = toWeekString(e.weekStart);
-    if (!byWeek.has(key)) byWeek.set(key, []);
-    byWeek.get(key)!.push(e);
-  }
-  return byWeek;
-}
-
-export async function setFeaturedBooksForWeek(
-  weekStart: Date,
-  bookIds: [string, string, string, string, string],
-): Promise<{ ok: boolean; error?: string }> {
-  const normalized = toWeekStart(weekStart);
-  await db
-    .delete(featuredBooksOfTheWeek)
-    .where(eq(featuredBooksOfTheWeek.weekStart, normalized));
-  const uniqueIds = [...new Set(bookIds)];
-  if (uniqueIds.length !== 5)
-    return { ok: false, error: "Exactly 5 unique books required" };
-  try {
-    await db.insert(featuredBooksOfTheWeek).values(
-      uniqueIds.map((bookId, i) => ({
-        weekStart: normalized,
-        bookId,
-        position: i + 1,
-      })),
-    );
-    return { ok: true };
-  } catch (e) {
-    // unique book_id violation = one of the books was already featured
-    console.error("setFeaturedBooksForWeek", e);
-    return {
-      ok: false,
-      error: "One or more books have already been featured.",
-    };
   }
 }
 
@@ -516,6 +323,7 @@ export async function deleteArtistOfTheWeekByWeekStart(weekStart: Date) {
     return err({ reason: "Failed to delete artist of the week" });
   }
 }
+
 // ----- Publisher of the week -----
 
 export async function getPublisherOfTheWeekForDateQuery(date: Date) {

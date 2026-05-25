@@ -261,8 +261,6 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   wishlists: many(wishlists),
   collections: many(collectionItems),
   bookOfTheDay: one(bookOfTheDay),
-  bookOfTheWeekEntry: one(bookOfTheWeek),
-  featuredBooksOfTheWeekEntry: one(featuredBooksOfTheWeek),
 }));
 
 export const follows = pgTable(
@@ -477,8 +475,6 @@ export const wishlistsRelations = relations(wishlists, ({ one }) => ({
   }),
 }));
 
-// Add to imports at top if not already there - you have timestamp, uuid, text, unique
-
 export const bookOfTheDay = pgTable(
   "book_of_the_day",
   {
@@ -487,7 +483,8 @@ export const bookOfTheDay = pgTable(
     bookId: uuid("book_id")
       .notNull()
       .references(() => books.id, { onDelete: "cascade" }),
-    text: text("text").notNull(),
+    artistEmailSentAt: timestamp("artist_email_sent_at"),
+    publisherEmailSentAt: timestamp("publisher_email_sent_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -503,68 +500,6 @@ export const bookOfTheDayRelations = relations(bookOfTheDay, ({ one }) => ({
     references: [books.id],
   }),
 }));
-
-export const bookOfTheWeek = pgTable(
-  "book_of_the_week",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    weekStart: timestamp("week_start", { mode: "date" }).notNull(),
-    bookId: uuid("book_id")
-      .notNull()
-      .references(() => books.id, { onDelete: "cascade" }),
-    artistEmailSentAt: timestamp("artist_email_sent_at"),
-    publisherEmailSentAt: timestamp("publisher_email_sent_at"),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-  },
-  (table) => ({
-    uniqueWeek: unique("book_of_the_week_week_unique").on(table.weekStart),
-    uniqueBook: unique("book_of_the_week_book_unique").on(table.bookId),
-  }),
-);
-
-export const bookOfTheWeekRelations = relations(bookOfTheWeek, ({ one }) => ({
-  book: one(books, {
-    fields: [bookOfTheWeek.bookId],
-    references: [books.id],
-  }),
-}));
-
-// New table: 5 featured books per week; each book can only be featured once ever
-export const featuredBooksOfTheWeek = pgTable(
-  "featured_books_of_the_week",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    weekStart: timestamp("week_start", { mode: "date" }).notNull(),
-    bookId: uuid("book_id")
-      .notNull()
-      .references(() => books.id, { onDelete: "cascade" }),
-    position: integer("position").notNull(), // 1-5
-    artistEmailSentAt: timestamp("artist_email_sent_at", { mode: "date" }), // nullable by default
-    publisherEmailSentAt: timestamp("publisher_email_sent_at", {
-      mode: "date",
-    }), // nullable by default
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-  },
-  (table) => ({
-    uniqueWeekPosition: unique("featured_books_week_position_unique").on(
-      table.weekStart,
-      table.position,
-    ),
-    uniqueBook: unique("featured_books_book_unique").on(table.bookId), // book only featured once
-  }),
-);
-
-export const featuredBooksOfTheWeekRelations = relations(
-  featuredBooksOfTheWeek,
-  ({ one }) => ({
-    book: one(books, {
-      fields: [featuredBooksOfTheWeek.bookId],
-      references: [books.id],
-    }),
-  }),
-);
 
 // Artist of the week: one per week, optional text
 export const artistOfTheWeek = pgTable(
@@ -669,15 +604,6 @@ export type CreatorStatus = (typeof creatorStatusEnum.enumValues)[number];
 export type BookOfTheDay = InferSelectModel<typeof bookOfTheDay>;
 export type NewBookOfTheDay = InferInsertModel<typeof bookOfTheDay>;
 
-export type BookOfTheWeek = InferSelectModel<typeof bookOfTheWeek>;
-export type NewBookOfTheWeek = InferInsertModel<typeof bookOfTheWeek>;
-
-export type FeaturedBookOfTheWeek = InferSelectModel<
-  typeof featuredBooksOfTheWeek
->;
-export type NewFeaturedBookOfTheWeek = InferInsertModel<
-  typeof featuredBooksOfTheWeek
->;
 export type ArtistOfTheWeek = InferSelectModel<typeof artistOfTheWeek>;
 export type NewArtistOfTheWeek = InferInsertModel<typeof artistOfTheWeek>;
 export type PublisherOfTheWeek = InferSelectModel<typeof publisherOfTheWeek>;

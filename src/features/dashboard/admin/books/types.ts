@@ -3,12 +3,12 @@ import { bookFormAdminSchema } from "./schema";
 import { z } from "zod";
 import { Env } from "hono/types";
 import { Context } from "hono";
-import { Book, BookOfTheWeek, Creator } from "../../../../db/schema";
+import { Book, BookOfTheDay, Creator } from "../../../../db/schema";
 
 export type BookWithAdminRelations = Book & {
   artist: Pick<Creator, "id" | "displayName" | "slug"> | null;
   publisher: Pick<Creator, "id" | "displayName" | "slug"> | null;
-  bookOfTheWeekEntry?: BookOfTheWeek | null;
+  bookOfTheDay?: BookOfTheDay | null;
 };
 
 export type BookFormContext = Context<

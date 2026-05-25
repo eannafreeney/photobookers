@@ -1,6 +1,6 @@
 /**
- * Export this week's (or a given week's) social media data:
- * Book of the Week, Artist of the Week, Publisher of the Week, 5 Featured Books.
+ * Export social media data for a given week:
+ * 7 Book of the Day entries, Artist of the Week, Publisher of the Week.
  * Outputs a Markdown document, downloads cover images to output/social-images-YYYY-MM-DD/,
  * and lists image URLs. Includes Instagram handles derived from creator Instagram URLs.
  *
@@ -14,12 +14,12 @@ import { join } from "path";
 import { db } from "../src/db/client";
 import {
   artistOfTheWeek,
-  bookOfTheWeek,
-  featuredBooksOfTheWeek,
+  bookOfTheDay,
   publisherOfTheWeek,
 } from "../src/db/schema";
 import { BOOK_CARD_COLUMNS } from "../src/constants/queries";
-import { eq } from "drizzle-orm";
+import { toDateString, toWeekStart } from "../src/lib/utils";
+import { and, eq, gte, lte } from "drizzle-orm";
 
 const BOOK_COLUMNS_FOR_EXPORT = {
   ...BOOK_CARD_COLUMNS,
@@ -66,31 +66,6 @@ async function downloadImageToFile(
   }
 }
 
-function toWeekStart(d: Date): Date {
-  const date = new Date(
-    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
-  );
-  const day = date.getUTCDay();
-  const daysToMonday = day === 0 ? 6 : day - 1;
-  date.setUTCDate(date.getUTCDate() - daysToMonday);
-  return date;
-}
-
-function formatWeekLabel(weekStart: Date): string {
-  const end = new Date(weekStart);
-  end.setUTCDate(end.getUTCDate() + 6);
-  return `${weekStart.toISOString().slice(0, 10)} – ${end.toISOString().slice(0, 10)}`;
-}
-
-/** ISO week number (1–53) for the given Monday date */
-function getWeekNumber(weekStart: Date): number {
-  const d = new Date(weekStart);
-  d.setUTCHours(0, 0, 0, 0);
-  d.setUTCDate(d.getUTCDate() + 3 - ((d.getUTCDay() + 6) % 7));
-  const jan1 = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return 1 + Math.round(((d.getTime() - jan1.getTime()) / 86400000 - 3 + ((jan1.getUTCDay() + 6) % 7)) / 7);
-}
-
 function extractInstagramHandle(url: string | null | undefined): string | null {
   if (!url) return null;
   try {
@@ -107,19 +82,12 @@ function extractInstagramHandle(url: string | null | undefined): string | null {
   }
 }
 
-const SITE_URL = "https://photobookers.com";
-
-function bookUrl(slug: string) {
-  return `${SITE_URL}/books/${slug}`;
-}
-function creatorUrl(slug: string) {
-  return `${SITE_URL}/creators/${slug}`;
-}
-
 async function run() {
   const dateArg = process.argv[2];
   const forDate = dateArg ? new Date(dateArg) : new Date();
   const weekStart = toWeekStart(forDate);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
 
   if (isNaN(forDate.getTime())) {
     console.error("Invalid date. Use YYYY-MM-DD.");
@@ -127,13 +95,19 @@ async function run() {
   }
 
   console.log(
-    "Fetching data for week starting",
-    weekStart.toISOString().slice(0, 10),
+    "Fetching data for week",
+    toDateString(weekStart),
+    "to",
+    toDateString(weekEnd),
   );
 
-  const [botwRow, aotwRow, potwRow, featuredRows] = await Promise.all([
-    db.query.bookOfTheWeek.findFirst({
-      where: eq(bookOfTheWeek.weekStart, weekStart),
+  const [botdRows, aotwRow, potwRow] = await Promise.all([
+    db.query.bookOfTheDay.findMany({
+      where: and(
+        gte(bookOfTheDay.date, weekStart),
+        lte(bookOfTheDay.date, weekEnd),
+      ),
+      orderBy: [bookOfTheDay.date],
       with: {
         book: {
           columns: BOOK_COLUMNS_FOR_EXPORT,
@@ -156,133 +130,75 @@ async function run() {
       where: eq(publisherOfTheWeek.weekStart, weekStart),
       with: { creator: { columns: CREATOR_COLUMNS_WITH_INSTAGRAM } },
     }),
-    db.query.featuredBooksOfTheWeek.findMany({
-      where: eq(featuredBooksOfTheWeek.weekStart, weekStart),
-      orderBy: [featuredBooksOfTheWeek.position],
-      with: {
-        book: {
-          columns: BOOK_COLUMNS_FOR_EXPORT,
-          with: {
-            artist: { columns: CREATOR_COLUMNS_WITH_INSTAGRAM },
-            publisher: { columns: CREATOR_COLUMNS_WITH_INSTAGRAM },
-            images: {
-              columns: { id: true, imageUrl: true },
-              orderBy: (img, { asc }) => [asc(img.sortOrder)],
-            },
-          },
-        },
-      },
-    }),
   ]);
 
-  const weekStr = weekStart.toISOString().slice(0, 10);
-  const weekNum = getWeekNumber(weekStart);
+  const weekStr = toDateString(weekStart);
   const imagesDir = join(process.cwd(), "output", `social-images-${weekStr}`);
   const downloadedPaths: string[] = [];
-  const imageUrls: string[] = []; // kept for any leftover refs; not written to file
   const lines: string[] = [];
 
-  // ---- Book of the Week (post-style) ----
-  lines.push("Book of The Week");
-  lines.push("");
-  if (botwRow?.book) {
-    const b = botwRow.book;
-    const artist = b.artist;
-    const publisher = b.publisher;
+  // ---- Book of the Day rows (one per day) ----
+  for (const row of botdRows) {
+    const b = row.book;
+    if (!b) continue;
+    const dayStr = toDateString(row.date);
     const cover = b.coverUrl;
     const gallery = b.images ?? [];
-    const bookPrefix = b.slug;
+    const bookPrefix = `${dayStr}-${b.slug}`;
     if (cover) {
-      const path = await downloadImageToFile(cover, imagesDir, `${bookPrefix}-1`);
+      const path = await downloadImageToFile(
+        cover,
+        imagesDir,
+        `${bookPrefix}-1`,
+      );
       if (path) downloadedPaths.push(path);
     }
     for (let g = 0; g < gallery.length; g++) {
       const url = gallery[g]?.imageUrl;
       if (url) {
-        const path = await downloadImageToFile(url, imagesDir, `${bookPrefix}-${g + 2}`);
+        const path = await downloadImageToFile(
+          url,
+          imagesDir,
+          `${bookPrefix}-${g + 2}`,
+        );
         if (path) downloadedPaths.push(path);
       }
     }
-    const botwPost: string[] = [];
-    botwPost.push("Book of The Week");
-    botwPost.push("");
-    botwPost.push(b.title);
-    if (artist) botwPost.push(artist.displayName);
-    if (publisher) botwPost.push(publisher.displayName);
-    botwPost.push("");
-    // Prefer the book description for BOTW. Fall back to creator bios if needed.
-    const bookDesc = b.description ?? null;
-    if (bookDesc) botwPost.push(bookDesc);
-    else if (artist?.bio) botwPost.push(artist.bio);
-    else if (publisher?.bio) botwPost.push(publisher.bio);
-    botwPost.push("");
-    if (artist) {
-      const h = extractInstagramHandle(artist.instagram);
-      if (h) botwPost.push(h);
+    const post: string[] = [];
+    post.push(`Book of The Day – ${dayStr}`);
+    post.push("");
+    post.push(b.title);
+    if (b.artist) post.push(b.artist.displayName);
+    if (b.publisher) post.push(b.publisher.displayName);
+    post.push("");
+    if (b.description) post.push(b.description);
+    else if (b.artist?.bio) post.push(b.artist.bio);
+    else if (b.publisher?.bio) post.push(b.publisher.bio);
+    post.push("");
+    if (b.artist) {
+      const h = extractInstagramHandle(b.artist.instagram);
+      if (h) post.push(h);
     }
-    if (publisher) {
-      const h = extractInstagramHandle(publisher.instagram);
-      if (h) botwPost.push(h);
+    if (b.publisher) {
+      const h = extractInstagramHandle(b.publisher.instagram);
+      if (h) post.push(h);
     }
+    lines.push(`Book of The Day – ${dayStr}`);
+    lines.push("");
     lines.push("Example post (copy for Instagram):");
     lines.push("```");
-    lines.push(...botwPost);
+    lines.push(...post);
     lines.push("```");
-  } else {
-    lines.push("(Not set for this week)");
+    lines.push("");
+    lines.push("---");
+    lines.push("");
   }
-  lines.push("");
-  lines.push("---");
-  lines.push("");
 
-  // ---- Featured Books (post-style) ----
-  if (featuredRows.length > 0) {
-    for (let i = 0; i < featuredRows.length; i++) {
-      const row = featuredRows[i];
-      const b = row.book;
-      if (!b) continue;
-      const cover = b.coverUrl;
-      const gallery = b.images ?? [];
-      const bookPrefix = b.slug;
-      if (cover) {
-        const path = await downloadImageToFile(cover, imagesDir, `${bookPrefix}-1`);
-        if (path) downloadedPaths.push(path);
-      }
-      for (let g = 0; g < gallery.length; g++) {
-        const url = gallery[g]?.imageUrl;
-        if (url) {
-          const path = await downloadImageToFile(url, imagesDir, `${bookPrefix}-${g + 2}`);
-          if (path) downloadedPaths.push(path);
-        }
-      }
-      const desc = (b as { description?: string | null }).description;
-      const featuredPost: string[] = [];
-      featuredPost.push(`Week ${weekNum}: Featured #${i + 1}`);
-      featuredPost.push("");
-      featuredPost.push(b.title);
-      if (b.artist) featuredPost.push(b.artist.displayName);
-      if (b.publisher) featuredPost.push(b.publisher.displayName);
-      featuredPost.push("");
-      if (desc) featuredPost.push(desc);
-      featuredPost.push("");
-      if (b.publisher) {
-        const h = extractInstagramHandle(b.publisher.instagram);
-        if (h) featuredPost.push(h);
-      }
-      if (b.artist) {
-        const h = extractInstagramHandle(b.artist.instagram);
-        if (h) featuredPost.push(h);
-      }
-      lines.push(`Week ${weekNum}: Featured #${i + 1}`);
-      lines.push("");
-      lines.push("Example post (copy for Instagram):");
-      lines.push("```");
-      lines.push(...featuredPost);
-      lines.push("```");
-      lines.push("");
-      lines.push("---");
-      lines.push("");
-    }
+  if (botdRows.length === 0) {
+    lines.push("(No Book of the Day entries scheduled this week)");
+    lines.push("");
+    lines.push("---");
+    lines.push("");
   }
 
   // ---- Artist of the Week (post-style) ----
@@ -291,7 +207,11 @@ async function run() {
   if (aotwRow?.creator) {
     const c = aotwRow.creator;
     if (c.coverUrl) {
-      const path = await downloadImageToFile(c.coverUrl, imagesDir, "artist-cover");
+      const path = await downloadImageToFile(
+        c.coverUrl,
+        imagesDir,
+        "artist-cover",
+      );
       if (path) downloadedPaths.push(path);
     }
     const artistPost: string[] = [];
@@ -299,9 +219,7 @@ async function run() {
     artistPost.push("");
     artistPost.push(c.displayName);
     artistPost.push("");
-    const bio = c.bio ?? null;
-    if (bio) artistPost.push(bio);
-    else if (aotwRow.text) artistPost.push(aotwRow.text); // legacy fallback
+    if (c.bio) artistPost.push(c.bio);
     artistPost.push("");
     const h = extractInstagramHandle(c.instagram);
     if (h) artistPost.push(h);
@@ -322,7 +240,11 @@ async function run() {
   if (potwRow?.creator) {
     const c = potwRow.creator;
     if (c.coverUrl) {
-      const path = await downloadImageToFile(c.coverUrl, imagesDir, "publisher-cover");
+      const path = await downloadImageToFile(
+        c.coverUrl,
+        imagesDir,
+        "publisher-cover",
+      );
       if (path) downloadedPaths.push(path);
     }
     const publisherPost: string[] = [];
@@ -330,9 +252,7 @@ async function run() {
     publisherPost.push("");
     publisherPost.push(c.displayName);
     publisherPost.push("");
-    const bio = c.bio ?? null;
-    if (bio) publisherPost.push(bio);
-    else if (potwRow.text) publisherPost.push(potwRow.text); // legacy fallback
+    if (c.bio) publisherPost.push(c.bio);
     publisherPost.push("");
     const ph = extractInstagramHandle(c.instagram);
     if (ph) publisherPost.push(ph);
