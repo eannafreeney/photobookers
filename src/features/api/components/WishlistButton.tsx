@@ -2,6 +2,7 @@ import { AuthUser } from "../../../../types";
 import { Book } from "../../../db/schema";
 import { emptyHeartIcon, fullHeartIcon } from "../../../lib/icons";
 import { canWishlistBook } from "../../../lib/permissions";
+import { isOk } from "../../../lib/result";
 import { findWishlist } from "../services";
 import APIButton from "./APIButton";
 import APIButtonCircle from "./APIButtonCircle";
@@ -20,7 +21,7 @@ const FavoriteButton = async ({
   // Only query if user is logged in, otherwise default to false
   let isFavorited = false;
   if (user?.id) {
-    isFavorited = !!(await findWishlist(user.id, book.id));
+    isFavorited = isOk(await findWishlist(user.id, book.id));
   }
 
   const id = `favorite-${book.id}`;

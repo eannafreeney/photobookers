@@ -22,6 +22,10 @@ const HeroCarousel = async () => {
   const [artistErr, artistOfTheWeek] = artistRes;
   const [publisherErr, publisherOfTheWeek] = publisherRes;
 
+  if (bookErr || artistErr || publisherErr) {
+    return <></>;
+  }
+
   const { publisherCoverStack, artistCoverStack } =
     await loadHeroCarouselCoverStacks({
       publisherCreatorId:
