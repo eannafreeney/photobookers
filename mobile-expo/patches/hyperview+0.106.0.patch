@@ -18,7 +18,7 @@ index 0000000..1111111 100644
      const contextKey = element.getAttributeNS(
        Namespaces.HYPERVIEW_SCROLL,
        'context-key',
-@@ -39,11 +41,23 @@ export function withContext<T, P extends ScrollProps>(
+@@ -39,11 +41,24 @@ export function withContext<T, P extends ScrollProps>(
        },
        [updateOffset, onScroll, contextKey],
      );

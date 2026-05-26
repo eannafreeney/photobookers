@@ -1,6 +1,5 @@
 import {
   Behavior,
-  GalleryHero,
   Image,
   ScrollView,
   Style,
@@ -18,23 +17,31 @@ const BookGallery = ({ galleryImages }: Props) => {
   return (
     <view xmlns="https://hyperview.org/hyperview">
       <View style="gallery-stack">
-        <GalleryHero id="gallery-hero-scroll" style="gallery-hero-scroll">
+        <View id="gallery-hero-slot" style="gallery-hero-wrap">
+          <Image
+            source={urls[0]!}
+            style="gallery-hero-image"
+            resize-mode="cover"
+          />
+        </View>
+        <View hide="true">
           {urls.map((url, i) => (
-            <Image
-              key={`slide-${i}`}
-              source={url}
-              style="gallery-hero-image"
-              resize-mode="cover"
-            />
+            <View key={`frag-${i}`} id={`gallery-hero-frag-${i}`}>
+              <Image
+                source={url}
+                style="gallery-hero-image"
+                resize-mode="cover"
+              />
+            </View>
           ))}
-        </GalleryHero>
+        </View>
         <ScrollView style="gallery-thumbs" horizontal="true">
           {urls.map((url, i) => (
             <View key={`thumb-${i}`} style="gallery-thumb-cell">
               <Behavior
-                action="scroll-to-index"
-                target="gallery-hero-scroll"
-                new-value={String(i)}
+                action="replace-inner"
+                target="gallery-hero-slot"
+                href={`#gallery-hero-frag-${i}`}
               />
               <Image
                 source={url}
@@ -55,7 +62,7 @@ export const bookGalleryStyles = () => (
   <>
     <Style id="gallery-stack" marginLeft={-16} marginRight={-16} />
     <Style
-      id="gallery-hero-scroll"
+      id="gallery-hero-wrap"
       width="100%"
       height={320}
       backgroundColor="#f0f0ee"

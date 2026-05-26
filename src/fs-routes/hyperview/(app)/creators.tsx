@@ -71,13 +71,13 @@ export const GET = createRoute(async (c) => {
 
   return hv(
     <AppLayout
+      isSearch
+      showDock
       title="Creators"
       user={user}
-      showDock
       baseUrl={baseUrl}
       dockActive="creators"
       extraStyles={pageStyles()}
-      isSearch
       searchToggleTarget={CREATORS_SEARCH_BAR_ID}
       searchScrollToTopTarget={SHELL_SCROLL_ID}
       dockScrollRefreshHref={`${baseUrl}/hyperview/creators`}
