@@ -73,13 +73,14 @@ export const GET = createRoute(async (c) => {
     <AppLayout
       isSearch
       showDock
+      // nativeList
       title="Creators"
       user={user}
       baseUrl={baseUrl}
       dockActive="creators"
       extraStyles={pageStyles()}
       searchToggleTarget={CREATORS_SEARCH_BAR_ID}
-      searchScrollToTopTarget={SHELL_SCROLL_ID}
+      // searchScrollToTopTarget={SHELL_SCROLL_ID}
       dockScrollRefreshHref={`${baseUrl}/hyperview/creators`}
     >
       <CreatorsTabs baseUrl={baseUrl} activeTab={DEFAULT_CREATORS_TAB} />

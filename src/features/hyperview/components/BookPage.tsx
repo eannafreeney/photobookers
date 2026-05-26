@@ -24,14 +24,29 @@ type Props = {
   isFavorited: boolean;
 };
 
+/** Split description into paragraphs so blank lines render as paragraph breaks. */
+function descriptionParagraphs(description: string | null | undefined): string[] {
+  if (!description) return [];
+  return description
+    .replace(/\r\n/g, "\n")
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
 const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
+  const paragraphs = descriptionParagraphs(book.description);
   return (
     <view xmlns="https://hyperview.org/hyperview">
       <BookGallery galleryImages={galleryImages} />
       <BookActions book={book} baseUrl={baseUrl} isFavorited={isFavorited} />
       <Text style="title">{book.title}</Text>
       <Text style="subtitle">{book.artist?.displayName}</Text>
-      <Text style="description">{book.description}</Text>
+      {paragraphs.map((paragraph, index) => (
+        <Text key={index} style="description-paragraph">
+          {paragraph}
+        </Text>
+      ))}
       <DiscoveryTags baseUrl={baseUrl} tags={book.tags ?? []} />
       {purchaseDeepLinkHref(baseUrl, book.purchaseLink) ? (
         <View style="book-purchase-wrap">

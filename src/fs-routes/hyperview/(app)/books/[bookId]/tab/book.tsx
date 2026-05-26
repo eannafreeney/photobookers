@@ -98,6 +98,13 @@ const pageStyles = () => (
       lineHeight={22}
       marginBottom={8}
     />
+    <Style
+      id="description-paragraph"
+      fontSize={14}
+      color="#444444"
+      lineHeight={22}
+      marginBottom={12}
+    />
     <Style id="tab-fragment" flex={1} padding={16} />
     <Style
       id="artist-name"

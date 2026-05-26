@@ -112,15 +112,16 @@ export const GET = createRoute(async (c) => {
 
   return hv(
     <AppLayout
+      showDock
+      nativeList
+      isSearch
       title="All Books"
       user={user}
-      showDock
       dockActive="books"
       baseUrl={baseUrl}
       extraStyles={pageStyles()}
-      nativeList
-      isSearch
       searchToggleTarget={BOOKS_SEARCH_BAR_ID}
+      dockScrollRefreshHref={`${baseUrl}/hyperview/books`}
     >
       <View
         id={BOOKS_SEARCH_BAR_ID}
