@@ -71,7 +71,12 @@ export const GET = createRoute(paramValidator(tagSchema), async (c) => {
   }
 
   return hv(
-    <AppLayout title={pageTitle} extraStyles={pageStyles()}>
+    <AppLayout
+      title={pageTitle}
+      extraStyles={pageStyles()}
+      showDock
+      baseUrl={baseUrl}
+    >
       <View id="page-content" style="page-content">
         {list}
       </View>
