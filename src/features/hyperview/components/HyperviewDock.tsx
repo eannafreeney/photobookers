@@ -6,7 +6,7 @@ export type HyperviewDockActive =
   | "books"
   | "creators"
   | "favorites"
-  | "settings";
+  | "about";
 
 type HyperviewDockProps = {
   baseUrl: string;
@@ -26,7 +26,7 @@ const DOCK_ITEMS: DockItem[] = [
   { id: "books", label: "Books", path: "books", icon: "books" },
   // { id: "search", label: "search", path: "search", icon: "search" },
   { id: "favorites", label: "Favorites", path: "favorites", icon: "favorites" },
-  { id: "settings", label: "About", path: "settings", icon: "about" },
+  { id: "about", label: "About", path: "about", icon: "about" },
 ];
 
 const labelStyle = (isActive: boolean) =>

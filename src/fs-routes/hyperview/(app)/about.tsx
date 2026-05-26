@@ -1,15 +1,13 @@
 import { createRoute } from "hono-fsr";
 import { AppLayout } from "../+layout";
 import { hyperview } from "../../../lib/hxml";
-import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps";
+import { Behavior, Style, Text, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getUser } from "../../../utils";
 import AboutContent, {
   aboutContentStyles,
 } from "../../../features/hyperview/components/AboutContent";
-import SettingsTabs, {
-  settingsTabStyles,
-} from "../../../features/hyperview/components/SettingsTabs";
+import { settingsTabStyles } from "../../../features/hyperview/components/SettingsTabs";
 import { legalTextStyles } from "../../../features/hyperview/components/LegalText";
 
 export const GET = createRoute(async (c) => {
@@ -23,24 +21,19 @@ export const GET = createRoute(async (c) => {
       user={user}
       showDock
       baseUrl={baseUrl}
-      dockActive="settings"
+      dockActive="about"
       extraStyles={pageStyles()}
     >
       <AboutContent />
-      <SettingsTabs baseUrl={baseUrl} activeTab="terms" />
-      <View id="tab-spinner" style="settings-tab-spinner" hide="true">
-        <Spinner />
-      </View>
-      <View id="tab-area" style="settings-tab-area">
-        <Behavior
-          trigger="load"
-          verb="get"
-          action="replace-inner"
-          target="tab-area"
-          href={`${baseUrl}/hyperview/settings/tab/terms`}
-          hide-during-load="tab-area"
-          show-during-load="tab-spinner"
-        />
+      <View style="settings-links">
+        <View style="settings-link-btn">
+          <Behavior href={`${baseUrl}/hyperview/terms`} />
+          <Text style="settings-link-label">Terms</Text>
+        </View>
+        <View style="settings-link-btn">
+          <Behavior href={`${baseUrl}/hyperview/privacy`} />
+          <Text style="settings-link-label">Privacy</Text>
+        </View>
       </View>
     </AppLayout>,
   );
@@ -57,6 +50,31 @@ const pageStyles = () => (
       alignItems="center"
       justifyContent="center"
       paddingTop={48}
+    />
+    <Style
+      id="settings-links"
+      flexDirection="column"
+      paddingLeft={16}
+      paddingRight={16}
+      paddingTop={8}
+      paddingBottom={16}
+    />
+    <Style
+      id="settings-link-btn"
+      backgroundColor="#ffffff"
+      borderWidth={1}
+      borderColor="#d1d5db"
+      borderRadius={10}
+      paddingTop={16}
+      paddingBottom={16}
+      alignItems="center"
+      marginBottom={12}
+    />
+    <Style
+      id="settings-link-label"
+      color="#111111"
+      fontWeight="600"
+      fontSize={16}
     />
     {aboutContentStyles()}
     {settingsTabStyles()}
