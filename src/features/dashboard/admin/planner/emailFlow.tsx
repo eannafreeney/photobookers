@@ -247,7 +247,7 @@ export async function executeBOTDEmail({
   const [bookError, book] = await getBookByIdBasic(bookId);
   if (bookError || !book) return showErrorAlert(c, "Book not found");
 
-  const html = generateBOTDNotificationEmail(creator, book);
+  const html = generateBOTDNotificationEmail(creator, book, date);
   const [emailError] = await sendEmail(
     creator.email,
     `Book of the Day: ${book.title}`,
