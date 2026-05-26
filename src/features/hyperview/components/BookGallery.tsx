@@ -21,7 +21,7 @@ const BookGallery = ({ galleryImages }: Props) => {
           <Image
             source={urls[0]!}
             style="gallery-hero-image"
-            resize-mode="cover"
+            resize-mode="contain"
           />
         </View>
         <View hide="true">
