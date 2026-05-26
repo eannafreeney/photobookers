@@ -112,8 +112,13 @@ export default HVSearchResults;
 
 export const hvSearchResultsStyles = () => (
   <>
-    <Style id="search-results-host" marginTop="4" />
-    <Style id="search-results-stack" flexDirection="column" />
+    <Style
+      id="search-results-stack"
+      flexDirection="column"
+      paddingTop={8}
+      paddingLeft={4}
+      paddingRight={4}
+    />
     <Style id="search-block" flexDirection="column" />
     <Style id="search-block-spaced" flexDirection="column" marginTop={16} />
     <Style

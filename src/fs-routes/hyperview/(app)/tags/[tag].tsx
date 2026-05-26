@@ -44,6 +44,7 @@ export const GET = createRoute(paramValidator(tagSchema), async (c) => {
         title={pageTitle}
         extraStyles={pageStyles()}
         showDock
+        baseUrl={baseUrl}
         dockScrollRefreshHref={loadMoreHref}
       >
         <View id="page-content" style="page-content">
