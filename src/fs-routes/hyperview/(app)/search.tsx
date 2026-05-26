@@ -2,13 +2,12 @@ import { createRoute } from "hono-fsr";
 import { searchCreators } from "../../../features/app/services";
 import { AppLayout } from "../+layout";
 import { hyperview } from "../../../lib/hxml";
-import { Style, Text, View } from "../../../lib/hxml-comps";
+import { Text, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { searchBooks } from "../../../features/api/services";
 import HVSearchResults, {
   hvSearchResultsStyles,
 } from "../../../features/hyperview/components/SearchResults";
-import { signInEmptyHintStyles } from "../../../features/hyperview/hyperviewCommonScreenStyles";
 import DiscoveryTags, {
   discoveryTagStyles,
 } from "../../../features/hyperview/components/DiscoveryTags";
@@ -25,11 +24,7 @@ export const GET = createRoute(async (c) => {
   const hv = hyperview(c);
 
   return hv(
-    <AppLayout
-      title="Search"
-      baseUrl={baseUrl}
-      extraStyles={pageStyles()}
-    >
+    <AppLayout title="Search" baseUrl={baseUrl} extraStyles={pageStyles()}>
       <View style="page-content">
         <View style="search-section">
           <SearchForm baseUrl={baseUrl} />
@@ -87,7 +82,6 @@ export const POST = createRoute(async (c) => {
 
 const pageStyles = () => (
   <>
-    {/* {signInEmptyHintStyles()} */}
     {discoveryTagStyles()}
     {searchFormStyles()}
     {hvSearchResultsStyles()}

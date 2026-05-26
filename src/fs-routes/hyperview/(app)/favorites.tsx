@@ -34,10 +34,12 @@ export const GET = createRoute(async (c) => {
         extraStyles={pageStyles()}
         dockScrollRefreshHref={`${baseUrl}/hyperview/favorites`}
       >
-        <SignInPrompt
-          baseUrl={baseUrl}
-          hint="Sign in to see books on your wishlist."
-        />
+        <View style="favorites-empty">
+          <SignInPrompt
+            baseUrl={baseUrl}
+            hint="Sign in to see books on your wishlist."
+          />
+        </View>
       </AppLayout>,
     );
   }
