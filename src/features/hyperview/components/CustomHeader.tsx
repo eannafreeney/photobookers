@@ -27,7 +27,7 @@ const CustomHeader = ({
   searchToggleTarget,
   searchScrollToTopTarget,
 }: Props) => (
-  <View style="custom-header-safe" sticky="true" safe-area="true">
+  <View style="custom-header-safe" safe-area="true">
     <View style="custom-header">
       {showBackButton ? (
         <View style="custom-header-back">

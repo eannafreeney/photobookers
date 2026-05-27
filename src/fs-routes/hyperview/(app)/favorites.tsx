@@ -128,12 +128,7 @@ const pageStyles = () => (
   <>
     {signInEmptyHintStyles()}
     {signInPromptStyles()}
-    <Style
-      id="favorites-empty"
-      margin={16}
-      paddingTop={16}
-      flexDirection="column"
-    />
+    <Style id="favorites-empty" margin={16} flexDirection="column" />
     {bookCardStyles()}
     {bookListItemsStyles()}
   </>

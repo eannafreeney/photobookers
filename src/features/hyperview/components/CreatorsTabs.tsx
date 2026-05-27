@@ -30,7 +30,7 @@ const CreatorsTabs = ({
   activeTab = "following",
 }: CreatorsTabsProps) => {
   return (
-    <View style="creator-tabs-sticky" sticky="true">
+    <View style="creator-tabs-sticky">
       <SelectSingle style="tab-bar" name="tab">
         <Option
           value="all"
