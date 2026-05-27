@@ -60,7 +60,12 @@ export default BookGallery;
 
 export const bookGalleryStyles = () => (
   <>
-    <Style id="gallery-stack" marginLeft={-16} marginRight={-16} />
+    <Style
+      id="gallery-stack"
+      marginLeft={-16}
+      marginRight={-16}
+      marginTop={-16}
+    />
     <Style
       id="gallery-hero-wrap"
       width="100%"

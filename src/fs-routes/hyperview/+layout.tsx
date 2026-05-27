@@ -34,7 +34,7 @@ type Props = PropsWithChildren<{
   baseUrl?: string;
   dockActive?: HyperviewDockActive;
   user?: AuthUser | null;
-  verified?: boolean;
+  isVerified?: boolean;
   nativeList?: boolean;
   /** When set, pull-to-refresh reloads this URL on docked screens (shell scroll). */
   dockScrollRefreshHref?: string;
@@ -52,7 +52,7 @@ export const AppLayout = ({
   coverUrl,
   children,
   extraStyles,
-  verified = false,
+  isVerified = false,
   showBackButton = true,
   headerVariant = "default",
   showDock = false,
@@ -86,7 +86,7 @@ export const AppLayout = ({
               artist={artist}
               publisher={publisher}
               showBackButton={showBackButton}
-              verified={verified}
+              isVerified={isVerified}
               coverUrl={coverUrl}
               isSearch={isSearch}
               baseUrl={baseUrl}
@@ -137,6 +137,12 @@ const baseStyles = () => (
     />
     <Style id="list" flex={1} />
     <Style id="page-content" margin={16} />
+    <Style
+      id="page-content-no-margin-top"
+      marginRight={16}
+      marginLeft={16}
+      marginBottom={16}
+    />
     <Style id="content" flex={1} />
     <Style
       id="tab-bar"

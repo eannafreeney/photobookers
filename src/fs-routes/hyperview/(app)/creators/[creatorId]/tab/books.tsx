@@ -2,7 +2,6 @@ import { createRoute } from "hono-fsr";
 import { hyperview } from "../../../../../../lib/hxml";
 import { Style, View } from "../../../../../../lib/hxml-comps";
 import { paramValidator } from "../../../../../../lib/validator";
-import { notFoundScreen } from "../../../../../../lib/hxml-components";
 import { AppLayout } from "../../../../+layout";
 import { creatorCardStyles } from "../../../../../../features/hyperview/components/CreatorCard";
 import { bookCardStyles } from "../../../../../../features/hyperview/components/BookCard";
@@ -22,6 +21,7 @@ import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { creatorIdSchema } from "../../../../../../schemas";
 import { getBooksByCreatorId } from "../../../../../../features/dashboard/admin/creators/services";
 import CreatorBanner from "../../../../../../features/hyperview/components/CreatorBanner";
+import ErrorScreen from "../../../../../../features/hyperview/components/ErrorScreen";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -33,7 +33,9 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const [error, result] = await getBooksByCreatorId(creatorId, currentPage);
 
   if (error || !result?.books || !result?.creator) {
-    return hv(notFoundScreen("Book not found."), 404);
+    return hv(
+      <ErrorScreen user={user} baseUrl={baseUrl} message="Book not found." />,
+    );
   }
 
   const { creator, books, totalPages = 1 } = result;
@@ -51,7 +53,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
       showDock
       baseUrl={baseUrl}
       title={creator.displayName}
-      verified={creator.status === "verified"}
+      isVerified={creator.status === "verified"}
       extraStyles={pageStyles()}
     >
       <CreatorBanner

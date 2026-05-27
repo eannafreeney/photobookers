@@ -88,7 +88,7 @@ export const dockShellStyles = () => (
       id="dock-icon"
       width={22}
       height={22}
-      opacity={0.45}
+      tintColor="#999999"
       marginBottom={2}
     />
     <Style
@@ -96,7 +96,7 @@ export const dockShellStyles = () => (
       width={22}
       height={22}
       marginBottom={2}
-      color="#0099cc"
+      tintColor="#0099cc"
     />
     <Style id="dock-label" fontSize={10} fontWeight="600" color="#999999" />
     <Style

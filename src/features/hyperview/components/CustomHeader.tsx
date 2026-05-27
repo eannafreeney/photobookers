@@ -7,7 +7,7 @@ type Props = {
   artist?: string | null;
   publisher?: string | null;
   showBackButton: boolean;
-  verified?: boolean;
+  isVerified?: boolean;
   coverUrl?: string | null;
   isSearch?: boolean;
   baseUrl?: string;
@@ -20,7 +20,7 @@ const CustomHeader = ({
   artist,
   publisher,
   showBackButton,
-  verified,
+  isVerified,
   coverUrl,
   isSearch,
   baseUrl,
@@ -42,7 +42,7 @@ const CustomHeader = ({
         <View style="header-title-container-inner">
           <Text style={artist ? "header-title-artist" : "header-title"}>
             {xmlText(title)}{" "}
-            {verified ? <Text style="verified-badge">✓</Text> : null}
+            {isVerified ? <Text style="verified-badge">✓</Text> : null}
           </Text>
           {artist ? (
             <Text style="header-artist">
