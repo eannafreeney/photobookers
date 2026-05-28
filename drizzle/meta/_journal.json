@@ -204,6 +204,34 @@
       "when": 1779000000000,
       "tag": "0029_book_of_the_day_consolidation",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1780000000000,
+      "tag": "0030_weekly_botd_newsletters",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1780100000000,
+      "tag": "0031_newsletter_scheduled_send",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1780200000000,
+      "tag": "0032_drop_newsletter_mailerlite_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1780300000000,
+      "tag": "0033_simplify_newsletter_campaign",
+      "breakpoints": true
     }
   ]
 }

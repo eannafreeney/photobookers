@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+
 export type ShareOgMeta = {
   title?: string;
   description?: string;
@@ -11,7 +13,15 @@ type HeadProps = {
 };
 
 const Head = ({ title, shareOg }: HeadProps) => {
-  const isDev = process.env.NODE_ENV !== "production";
+  const hasBuiltAssets =
+    existsSync("./dist/client/main.js") && existsSync("./dist/client/styles.css");
+  const isRunningViaViteDevServer = process.argv.some((arg) =>
+    arg.includes("vite"),
+  );
+  const useBuiltAssets =
+    process.env.NODE_ENV === "production" &&
+    hasBuiltAssets &&
+    !isRunningViaViteDevServer;
   const gaId =
     process.env.VITE_GA_MEASUREMENT_ID || process.env.GA_MEASUREMENT_ID;
 
@@ -53,18 +63,18 @@ const Head = ({ title, shareOg }: HeadProps) => {
       />
       <link
         rel="stylesheet"
-        href={isDev ? "/src/styles/styles.css" : "/styles.css"}
+        href={useBuiltAssets ? "/styles.css" : "/src/styles/styles.css"}
       />
       <script
         type="module"
-        src={isDev ? "/src/client/main.js" : "/main.js"}
+        src={useBuiltAssets ? "/main.js" : "/src/client/main.js"}
       ></script>
       <script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         async
         defer
       ></script>
-      {gaId && !isDev && (
+      {gaId && useBuiltAssets && (
         <>
           <script
             async

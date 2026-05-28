@@ -62,6 +62,13 @@ export const interviewTypeEnum = pgEnum("interview_type", [
   "introduction",
   "book",
 ]);
+export const newsletterCampaignStatusEnum = pgEnum("newsletter_campaign_status", [
+  "draft",
+  "approved",
+  "scheduled",
+  "sent",
+  "failed",
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -557,6 +564,47 @@ export const publisherOfTheWeekRelations = relations(
   }),
 );
 
+export const newsletterCampaigns = pgTable(
+  "newsletter_campaigns",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    weekStart: timestamp("week_start", { mode: "date" }).notNull(),
+    weekEnd: timestamp("week_end", { mode: "date" }).notNull(),
+    status: newsletterCampaignStatusEnum("status").notNull().default("draft"),
+    templateKey: varchar("template_key", { length: 128 })
+      .notNull()
+      .default("weekly_botd_v1"),
+    templateVersion: integer("template_version").notNull().default(1),
+    subject: text("subject").notNull(),
+    introText: text("intro_text").notNull(),
+    outroText: text("outro_text").notNull(),
+    ctaText: text("cta_text").notNull(),
+    generatedContent: jsonb("generated_content").$type<{
+      generatedAt: string;
+      items: Array<{
+        date: string;
+        bookId: string;
+        bookSlug: string;
+        title: string;
+        coverUrl: string | null;
+        artistName: string | null;
+        artistSlug: string | null;
+        publisherName: string | null;
+        publisherSlug: string | null;
+      }>;
+    }>(),
+    sentAt: timestamp("sent_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueWeek: unique("newsletter_campaigns_week_start_unique").on(
+      table.weekStart,
+    ),
+  }),
+);
+
+
 // Infer types from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -608,6 +656,10 @@ export type ArtistOfTheWeek = InferSelectModel<typeof artistOfTheWeek>;
 export type NewArtistOfTheWeek = InferInsertModel<typeof artistOfTheWeek>;
 export type PublisherOfTheWeek = InferSelectModel<typeof publisherOfTheWeek>;
 export type NewPublisherOfTheWeek = InferInsertModel<typeof publisherOfTheWeek>;
+export type NewsletterCampaign = InferSelectModel<typeof newsletterCampaigns>;
+export type NewNewsletterCampaign = InferInsertModel<typeof newsletterCampaigns>;
+export type NewsletterCampaignStatus =
+  (typeof newsletterCampaignStatusEnum.enumValues)[number];
 
 export type CreatorMessage = InferSelectModel<typeof creatorMessages>;
 export type NewCreatorMessage = InferInsertModel<typeof creatorMessages>;

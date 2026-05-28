@@ -93,3 +93,23 @@ export const publisherOfTheWeekFormSchema = z.object({
 
 export const weekQuerySchema = z.object({ week: z.string() });
 export const dateQuerySchema = z.object({ date: z.string() });
+export const newsletterCampaignParamSchema = z.object({
+  campaignId: z.string().uuid("Invalid campaign id"),
+});
+
+export const newsletterCampaignEditSchema = z.object({
+  subject: z.string().min(1, "Subject is required").max(180),
+  introText: z.string().min(1, "Intro text is required").max(5000),
+  outroText: z.string().min(1, "Outro text is required").max(5000),
+  ctaText: z.string().min(1, "CTA text is required").max(120),
+});
+
+export const newsletterMarkSentSchema = z.preprocess(
+  (data) => {
+    if (data instanceof FormData) {
+      return { sent: data.getAll("sent").includes("true") };
+    }
+    return data;
+  },
+  z.object({ sent: z.boolean() }),
+);
