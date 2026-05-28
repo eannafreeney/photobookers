@@ -9,7 +9,7 @@ export const GET = createRoute(async (c) => {
     <AppLayout title="About" currentPath={currentPath}>
       <Page>
         <p>
-          Photobookers! is a place to discover and explore photobooks. We list
+          Photobookers is a place to discover and explore photobooks. We list
           books, artists, and publishers in one place so you can find what
           you’re looking for and see where to get it.
         </p>
