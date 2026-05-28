@@ -2,7 +2,6 @@ import { createRoute } from "hono-fsr";
 import { hyperview } from "../../../../../../lib/hxml";
 import { Style, View } from "../../../../../../lib/hxml-comps";
 import { paramValidator } from "../../../../../../lib/validator";
-import { notFoundScreen } from "../../../../../../lib/hxml-components";
 import { AppLayout } from "../../../../+layout";
 import BookTabs, {
   bookTabStyles,
@@ -21,6 +20,7 @@ import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/find
 import { bookCardStyles } from "../../../../../../features/hyperview/components/BookCard";
 import { artistTabStyles } from "./artist";
 import { signInPromptStyles } from "../../../../../../features/hyperview/components/SignInPrompt";
+import ErrorScreen from "../../../../../../features/hyperview/components/ErrorScreen";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
@@ -31,7 +31,9 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const [error, book] = await getBookById(bookId);
 
   if (error || !book) {
-    return hv(notFoundScreen("Book not found."), 404);
+    return hv(
+      <ErrorScreen user={user} baseUrl={baseUrl} message="Book not found." />,
+    );
   }
 
   const galleryImages = [

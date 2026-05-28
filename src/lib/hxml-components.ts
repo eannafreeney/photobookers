@@ -1,28 +1,3 @@
-/**
- * Typed component helpers for building Hyperview HXML screens.
- *
- * Usage:
- *   import { screen, styles, style, body, view, text, list, section, item, behavior, image } from "./hxml-components";
- *
- *   return hxml(c,
- *     screen(
- *       styles(
- *         style({ id: "root", flex: 1, backgroundColor: "#fff" }),
- *         style({ id: "title", fontSize: 20, fontWeight: "700" }),
- *       ),
- *       body({ style: "root" },
- *         view({ style: "header" },
- *           text({ style: "title" }, "Hello world")
- *         )
- *       )
- *     )
- *   );
- */
-
-// ---------------------------------------------------------------------------
-// Internal primitives
-// ---------------------------------------------------------------------------
-
 type AttrValue = string | number | boolean | undefined | null;
 type Attrs = Record<string, AttrValue>;
 export type Child = string | false | null | undefined;
@@ -253,15 +228,6 @@ export function section(...children: Child[]): string {
   return el("section", {}, ...children);
 }
 
-type SectionTitleProps = { style?: string };
-/** Optional title row for a list <section>. */
-export function sectionTitle(
-  props: SectionTitleProps,
-  ...children: Child[]
-): string {
-  return el("section-title", props as Attrs, ...children);
-}
-
 type ItemProps = {
   key?: string | number;
   style?: string;
@@ -289,66 +255,16 @@ export function behavior(props: BehaviorProps): string {
   return el("behavior", props as Attrs);
 }
 
-type ScrollViewProps = {
-  style?: string;
-  "content-container-style"?: string;
-  horizontal?: "true";
-  "shows-scroll-indicator"?: "false";
-};
-/** A scrollable container. */
-export function scrollView(
-  props: ScrollViewProps,
-  ...children: Child[]
-): string {
-  return el("scroll-view", props as Attrs, ...children);
-}
-
 type SpinnerProps = { style?: string; color?: string };
 /** Loading spinner. */
 export function spinner(props: SpinnerProps = {}): string {
   return el("spinner", props as Attrs);
 }
 
-type TextFieldProps = {
-  style?: string;
-  id?: string;
-  name?: string;
-  placeholder?: string;
-  value?: string;
-  "keyboard-type"?:
-    | "default"
-    | "email-address"
-    | "numeric"
-    | "phone-pad"
-    | "url";
-  "auto-capitalize"?: "none" | "sentences" | "words" | "characters";
-  "auto-correct"?: "true" | "false";
-  "secure-text-entry"?: "true";
-  multiline?: "true";
-  "number-of-lines"?: number;
-};
-/** Text input field. */
-export function textField(props: TextFieldProps): string {
-  return el("text-field", props as Attrs);
-}
-
 type FormProps = { id?: string; action?: string; method?: string };
 /** Form wrapper for POST submissions. */
 export function form(props: FormProps, ...children: Child[]): string {
   return el("form", props as Attrs, ...children);
-}
-
-type SelectSingleProps = {
-  style?: string;
-  id?: string;
-  name?: string;
-  value?: string;
-};
-export function selectSingle(
-  props: SelectSingleProps,
-  ...children: Child[]
-): string {
-  return el("select-single", props as Attrs, ...children);
 }
 
 type OptionProps = { style?: string; value: string; selected?: "true" };
@@ -377,33 +293,4 @@ export function when(condition: unknown, content: string): Child {
 /** Render an array of children to a single string. */
 export function fragment(...children: Child[]): string {
   return children.filter(Boolean).join("");
-}
-
-export function errorScreen(message = "Something went wrong."): string {
-  return screen(
-    styles(
-      style({ id: "body", flex: 1, backgroundColor: "#f8f7f5" }),
-      style({
-        id: "center",
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 24,
-      }),
-      style({
-        id: "error-text",
-        fontSize: 16,
-        color: "#cc0000",
-        textAlign: "center",
-      }),
-    ),
-    body(
-      { style: "body" },
-      view({ style: "center" }, text({ style: "error-text" }, message)),
-    ),
-  );
-}
-
-export function notFoundScreen(message = "Not found."): string {
-  return errorScreen(message);
 }

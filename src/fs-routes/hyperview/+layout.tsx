@@ -43,6 +43,8 @@ type Props = PropsWithChildren<{
   searchToggleTarget?: string;
   /** Scroll container id for `scroll-to-top` when opening header search. */
   searchScrollToTopTarget?: string;
+  showClaimButton?: boolean;
+  claimHref?: string;
 }>;
 
 export const SHELL_SCROLL_ID = "shell-scroll";
@@ -66,6 +68,8 @@ export const AppLayout = ({
   isSearch,
   searchToggleTarget,
   searchScrollToTopTarget,
+  showClaimButton = false,
+  claimHref,
 }: Props) => {
   const docked = Boolean(showDock && baseUrl);
 
@@ -92,6 +96,8 @@ export const AppLayout = ({
               baseUrl={baseUrl}
               searchToggleTarget={searchToggleTarget}
               searchScrollToTopTarget={searchScrollToTopTarget}
+              showClaimButton={showClaimButton}
+              claimHref={claimHref}
             />
           )}
           {docked && baseUrl ? (

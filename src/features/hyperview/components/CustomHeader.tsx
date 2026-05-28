@@ -13,6 +13,8 @@ type Props = {
   baseUrl?: string;
   searchToggleTarget?: string;
   searchScrollToTopTarget?: string;
+  showClaimButton?: boolean;
+  claimHref?: string;
 };
 
 const CustomHeader = ({
@@ -26,6 +28,8 @@ const CustomHeader = ({
   baseUrl,
   searchToggleTarget,
   searchScrollToTopTarget,
+  showClaimButton = false,
+  claimHref,
 }: Props) => (
   <View style="custom-header-safe" safe-area="true">
     <View style="custom-header">
@@ -46,27 +50,35 @@ const CustomHeader = ({
           </Text>
           {artist ? (
             <Text style="header-artist">
-              {`by ${xmlText(artist)}`}
-              {publisher && ` — ${xmlText(publisher)}`}
+              {`by ${artist}`}
+              {publisher && ` — ${publisher}`}
             </Text>
           ) : null}
         </View>
       </View>
-      {isSearch && baseUrl ? (
-        searchToggleTarget ? (
-          <HeaderIconButton
-            icon={`${baseUrl}/icons/header/search-dark.png`}
-            action="toggle"
-            target={searchToggleTarget}
-            scrollToTopTarget={searchScrollToTopTarget}
-          />
-        ) : (
-          <HeaderIconButton
-            href={`${baseUrl}/hyperview/search`}
-            icon={`${baseUrl}/icons/header/search-dark.png`}
-          />
-        )
-      ) : null}
+      <View style="header-actions">
+        {showClaimButton && claimHref ? (
+          <View style="header-claim-btn">
+            <Text style="header-claim-label">Is this you?</Text>
+            <Behavior action="deep-link" href={claimHref} />
+          </View>
+        ) : null}
+        {isSearch && baseUrl ? (
+          searchToggleTarget ? (
+            <HeaderIconButton
+              icon={`${baseUrl}/icons/header/search-dark.png`}
+              action="toggle"
+              target={searchToggleTarget}
+              scrollToTopTarget={searchScrollToTopTarget}
+            />
+          ) : (
+            <HeaderIconButton
+              href={`${baseUrl}/hyperview/search`}
+              icon={`${baseUrl}/icons/header/search-dark.png`}
+            />
+          )
+        ) : null}
+      </View>
     </View>
   </View>
 );
@@ -124,6 +136,31 @@ export const customHeaderStyles = () => (
     <Style id="verified-badge" fontSize={14} fontWeight="700" color="#2563eb" />
     <Style id="custom-header-back" flexDirection="row" alignItems="center" />
     <Style id="back-btn" fontSize={16} color="#3366cc" marginRight={12} />
+    <Style
+      id="header-actions"
+      flexDirection="row"
+      alignItems="center"
+      gap={8}
+    />
+    <Style
+      id="header-claim-btn"
+      paddingTop={8}
+      paddingBottom={8}
+      paddingLeft={10}
+      paddingRight={10}
+      borderRadius={6}
+      borderWidth={1}
+      borderColor="#111111"
+      backgroundColor="#ffffff"
+      alignItems="center"
+      justifyContent="center"
+    />
+    <Style
+      id="header-claim-label"
+      fontSize={12}
+      fontWeight="600"
+      color="#111111"
+    />
     {headerIconButtonStyles()}
   </>
 );

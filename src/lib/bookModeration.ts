@@ -3,7 +3,7 @@ import type { Creator } from "../db/schema";
 export const TRUST_VERIFIED_AGE_DAYS = 30;
 export const TRUST_MIN_BOOKS_SINCE_VERIFY = 2;
 
-export function daysSince(date: Date, now = new Date()): number {
+function daysSince(date: Date, now = new Date()): number {
   return (now.getTime() - date.getTime()) / (24 * 60 * 60 * 1000);
 }
 

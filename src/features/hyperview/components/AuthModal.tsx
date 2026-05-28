@@ -30,7 +30,7 @@ const AuthModal = ({ actionPhrase, baseUrl }: Props) => {
           <View style="auth-modal-card">
             <Text style="auth-modal-title">Sign in</Text>
             <Text style="auth-modal-subtitle">
-              {xmlText(`Please log in or register ${actionPhrase}`)}
+              {`Please log in or register ${actionPhrase}`}
             </Text>
             <View style="auth-modal-primary-btn">
               <Behavior href={`${baseUrl}/hyperview/login`} />

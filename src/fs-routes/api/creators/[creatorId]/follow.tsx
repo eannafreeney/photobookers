@@ -36,7 +36,7 @@ const postFollowHyperview = async (c: Context) => {
     return hv(
       <View xmlns="https://hyperview.org/hyperview">
         <Behavior trigger="load" action="new" verb="get" href={modalHref} />
-        <Text style="follow-label">Follow</Text>
+        <Text style="follow-label">Follow +</Text>
         <Behavior verb="get" action="new" href={modalHref} />
       </View>,
       401,

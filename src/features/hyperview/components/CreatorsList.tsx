@@ -8,7 +8,7 @@ import {
   View,
 } from "../../../lib/hxml-comps";
 import { CreatorCardResult } from "../../../constants/queries";
-import { xmlText } from "../../../lib/hxml";
+import FollowButton from "./FollowButton";
 
 export const CREATORS_LOAD_MORE_ID = "creators-load-more";
 
@@ -46,14 +46,19 @@ const CreatorsList = ({
             <View style="creators-list-avatar-placeholder" />
           )}
           <View style="creators-list-main">
-            <Text style="creators-list-name">
-              {xmlText(creator.displayName)}
-            </Text>
-            <Text style="creators-list-type">{creator.type}</Text>
+            <View style="creators-list-name-container">
+              <Text style="creators-list-name">{creator.displayName}</Text>
+              <Text style="creators-list-type">{creator.type}</Text>
+            </View>
+            {creator.status === "verified" ? (
+              <Text style="creators-list-verified">✓</Text>
+            ) : null}
           </View>
-          {creator.status === "verified" ? (
-            <Text style="creators-list-verified">✓</Text>
-          ) : null}
+          <FollowButton
+            creatorId={creator.id}
+            baseUrl={baseUrl}
+            isActive={false}
+          />
         </View>
       ))}
       {hasMore && loadMoreHref ? (
@@ -99,10 +104,13 @@ export const creatorsListStyles = () => (
     />
     <Style
       id="creators-list-main"
+      flexDirection="row"
+      marginLeft={8}
+      alignItems="center"
       flex={1}
-      flexDirection="column"
-      marginLeft={12}
+      gap={16}
     />
+    <Style id="creators-list-name-container" flexDirection="column" />
     <Style
       id="creators-list-name"
       fontSize={15}
@@ -137,5 +145,16 @@ export const creatorsListStyles = () => (
       paddingTop={16}
       paddingBottom={16}
     />
+    <Style
+      id="follow-btn"
+      paddingTop={10}
+      paddingBottom={10}
+      paddingLeft={20}
+      paddingRight={20}
+      borderRadius={8}
+      backgroundColor="#111111"
+      alignItems="center"
+    />
+    <Style id="follow-label" fontSize={14} fontWeight="600" color="#ffffff" />
   </>
 );

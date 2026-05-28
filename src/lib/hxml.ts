@@ -9,7 +9,7 @@ import { ContentfulStatusCode } from "hono/utils/http-status";
 export const HXML_CONTENT_TYPE = "application/vnd.hyperview+xml";
 
 /** Hono JSX strips `key` from props; Hyperview lists need a `key` attribute on `<item>`. */
-export const hyperviewXmlFixes = (xml: string) =>
+const hyperviewXmlFixes = (xml: string) =>
   xml.replace(/ list-key="/g, ' key="');
 
 export const hyperview =
@@ -21,7 +21,11 @@ export const hyperview =
     const headers = { "Content-Type": HXML_CONTENT_TYPE };
 
     if (typeof node !== "object") {
-      return c.html(hyperviewXmlFixes(node), status as ContentfulStatusCode, headers);
+      return c.html(
+        hyperviewXmlFixes(node),
+        status as ContentfulStatusCode,
+        headers,
+      );
     }
 
     return resolveCallback(
@@ -30,7 +34,11 @@ export const hyperview =
       false,
       {},
     ).then((rendered) =>
-      c.html(hyperviewXmlFixes(rendered), status as ContentfulStatusCode, headers),
+      c.html(
+        hyperviewXmlFixes(rendered),
+        status as ContentfulStatusCode,
+        headers,
+      ),
     );
   };
 

@@ -16,7 +16,7 @@ const DiscoveryTags = ({ baseUrl, tags }: Props) => {
             <Behavior
               href={`${baseUrl}/hyperview/tags/${encodeURIComponent(tag.toLowerCase())}`}
             />
-            <Text style="discover-tag-label">{xmlText(capitalize(tag))}</Text>
+            <Text style="discover-tag-label">{capitalize(tag)}</Text>
           </View>
         ))}
       </View>
