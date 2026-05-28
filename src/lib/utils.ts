@@ -92,3 +92,13 @@ export function truncate(str: string, maxLength: number): string {
   if (!str || str.length <= maxLength) return str;
   return str.slice(0, maxLength).trim() + "…";
 }
+
+export const formatCountry = (country: string) => {
+  if (country === "United States of America") {
+    return "USA";
+  }
+  if (country === "United Kingdom") {
+    return "UK";
+  }
+  return country;
+};

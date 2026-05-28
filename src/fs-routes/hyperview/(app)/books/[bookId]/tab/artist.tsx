@@ -43,7 +43,7 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
         showHeader={false}
         isFollowing={followingByCreatorId[artist.id] ?? false}
       />
-      <Text style="artist-name">Books</Text>
+      {/* <Text style="artist-name">Books by {artist.displayName}</Text> */}
       <LazyLoader
         id={BOOK_ARTIST_FEED_ID}
         href={booksHref}

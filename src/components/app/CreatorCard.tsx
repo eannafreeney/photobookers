@@ -8,6 +8,7 @@ import VerifiedCreator from "./VerifiedCreator";
 import { AuthUser } from "../../../types";
 import { findFollowersCount } from "../../db/queries";
 import Show from "./Show";
+import { formatCountry } from "../../lib/utils";
 
 type Props = {
   creator: Creator | null;
@@ -58,7 +59,7 @@ const CreatorCard = async ({
             <Card.SubTitle>
               <div class="flex items-center gap-2">
                 {creator.city ? `${creator.city}, ` : ""}
-                {creator?.country ?? ""}
+                {formatCountry(creator?.country ?? "")}
               </div>
             </Card.SubTitle>
           </div>

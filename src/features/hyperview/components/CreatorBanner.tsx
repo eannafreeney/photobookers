@@ -1,6 +1,7 @@
 import { FC } from "hono/jsx";
 import { Image, Style, Text, View } from "../../../lib/hxml-comps";
 import FollowButton from "./FollowButton";
+import { formatCountry } from "../../../lib/utils";
 
 type CreatorCardCreator = {
   id?: string | null;
@@ -29,7 +30,9 @@ const CreatorBanner: FC<Props> = ({
 }) => {
   if (!creator) return <></>;
 
-  const location = [creator.city, creator.country].filter(Boolean).join(", ");
+  const location = [creator.city, formatCountry(creator.country ?? "")]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <View style="creator-card">

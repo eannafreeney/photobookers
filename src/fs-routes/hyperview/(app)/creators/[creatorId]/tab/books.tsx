@@ -112,7 +112,7 @@ const pageStyles = () => (
       fontSize={18}
       fontWeight="600"
       color="#111111"
-      marginBottom={8}
+      marginBottom={16}
     />
     <Style id="artist-bio" fontSize={14} color="#444444" lineHeight={22} />
     <Style

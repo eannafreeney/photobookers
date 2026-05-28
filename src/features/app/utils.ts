@@ -1,5 +1,5 @@
 import { HeroCarouselItem } from "../../client/components/heroCarousel";
-import { toDateString } from "../../lib/utils";
+import { formatCountry, toDateString } from "../../lib/utils";
 import {
   getArtistOfTheWeekForDateQuery,
   getPublisherOfTheWeekForDateQuery,
@@ -47,9 +47,7 @@ export function buildHeroCarouselItems(
   publisherCoverStack: string[],
   artistCoverStack: string[],
 ): HeroCarouselItem[] {
-  const weekNumber = bookOfTheDay
-    ? getWeekNumber(bookOfTheDay.date)
-    : null;
+  const weekNumber = bookOfTheDay ? getWeekNumber(bookOfTheDay.date) : null;
   const items: HeroCarouselItem[] = [];
 
   const book = bookOfTheDay?.book;
@@ -81,7 +79,7 @@ export function buildHeroCarouselItems(
       image: artist.coverUrl ?? undefined,
       coverStack: stack,
       text: artist.country?.trim()
-        ? `Based in ${artist.country.trim()}`
+        ? `Based in ${formatCountry(artist.country.trim())}`
         : "Discover this week's featured artist.",
       link: `/artist-of-the-week`,
       slideClass: "bg-sky-100",
@@ -101,7 +99,7 @@ export function buildHeroCarouselItems(
       coverStack: stack,
       link: `/publisher-of-the-week`,
       text: publisher.country?.trim()
-        ? `Based in ${publisher.country.trim()}`
+        ? `Based in ${formatCountry(publisher.country.trim())}`
         : "Discover this week's featured publisher.",
       slideClass: "bg-red-100",
       weekNumber,

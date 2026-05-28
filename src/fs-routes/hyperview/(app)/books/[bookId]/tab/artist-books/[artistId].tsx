@@ -48,8 +48,9 @@ export const GET = createRoute(
     if (books.length === 0) {
       return hv(
         <view xmlns="https://hyperview.org/hyperview">
+          <Text style="artist-name">Books by {artist.displayName}</Text>
           <Text style="comments-placeholder">
-            No other books by this artist found.
+            No other books by {artist.displayName} found.
           </Text>
         </view>,
       );
@@ -74,7 +75,12 @@ export const GET = createRoute(
       );
     }
 
-    return hv(<view xmlns="https://hyperview.org/hyperview">{feedList}</view>);
+    return hv(
+      <view xmlns="https://hyperview.org/hyperview">
+        <Text style="artist-name">Books by {artist.displayName}</Text>
+        {feedList}
+      </view>,
+    );
   },
 );
 
