@@ -6,7 +6,7 @@ import AppLayout from "../../components/layouts/AppLayout";
 export const GET = createRoute(async (c) => {
   const currentPath = c.req.path;
   return c.html(
-    <AppLayout title="About" currentPath={currentPath}>
+    <AppLayout title="About!" currentPath={currentPath}>
       <Page>
         <p>
           Photobookers is a place to discover and explore photobooks. We list
