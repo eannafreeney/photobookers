@@ -11,7 +11,7 @@ export const POST = createRoute(async (c: Context) => {
   const jwt = getCookie(c, "token");
   if (!user) return c.redirect("/auth/login");
 
-  const cookieOpts = getAuthCookieOptions();
+  const cookieOpts = getAuthCookieOptions(c);
   deleteCookie(c, "token", {
     path: cookieOpts.path,
     domain: cookieOpts.domain,

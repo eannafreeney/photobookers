@@ -1,4 +1,5 @@
 import { Context } from "hono";
+import { getSharedCookieOptions } from "../../lib/authCookies";
 import { supabaseAdmin, supabaseAnon } from "../../lib/supabase";
 import { setCookie } from "hono/cookie";
 import { db } from "../../db/client";
@@ -57,7 +58,7 @@ const markCreatorsOwnedByUserAsVerified = async (userId: string) => {
   }
 };
 
-export function getAuthCookieOptions(): {
+export function getAuthCookieOptions(c?: Context): {
   httpOnly: true;
   path: "/";
   maxAge: number;
@@ -65,34 +66,12 @@ export function getAuthCookieOptions(): {
   secure?: boolean;
   sameSite: "lax";
 } {
-  const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
-  let hostname: string;
-  try {
-    hostname = new URL(baseUrl).hostname;
-  } catch {
-    hostname = "";
-  }
-  const isLocal =
-    !hostname || hostname === "localhost" || hostname === "127.0.0.1";
-  const cookieOptions: {
-    httpOnly: true;
-    path: "/";
-    maxAge: number;
-    domain?: string;
-    secure?: boolean;
-    sameSite: "lax";
-  } = {
+  return {
     httpOnly: true,
-    path: "/",
     maxAge: 60 * 60 * 24 * 7,
     sameSite: "lax",
+    ...getSharedCookieOptions(c),
   };
-  if (!isLocal) {
-    const rootDomain = hostname.replace(/^www\./i, "");
-    cookieOptions.domain = `.${rootDomain}`;
-    cookieOptions.secure = true;
-  }
-  return cookieOptions;
 }
 
 export async function loginAndSetCookies(
@@ -126,13 +105,13 @@ export const setAccessToken = (
   maxAge: number,
 ) =>
   setCookie(c, "token", accessToken, {
-    ...getAuthCookieOptions(),
+    ...getAuthCookieOptions(c),
     maxAge,
   });
 
 export const setRefreshToken = (c: Context, refreshToken: string) =>
   setCookie(c, "refresh_token", refreshToken, {
-    ...getAuthCookieOptions(),
+    ...getAuthCookieOptions(c),
     maxAge: 60 * 60 * 24 * 7, // 7 days
   });
 

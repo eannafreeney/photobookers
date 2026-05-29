@@ -43,10 +43,14 @@ const brand = {
 /** Cover column width in card layout (book + creator spotlights). */
 const cardImageWidthPx = 160;
 const cardMediaColWidthPx = 180;
-/** Body column max width beside image on wide viewports (hybrid inline-block layout). */
-const cardBodyColMaxWidthPx = 420;
 /** Fixed square frame so artist/publisher spotlights match regardless of source aspect ratio. */
 const creatorSpotlightSizePx = cardImageWidthPx;
+
+/** Default hidden (mobile block); shown from 601px via media query. */
+const desktopOnlyWrapperStyle =
+  "display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:0;line-height:0;";
+/** Default visible (mobile block); hidden from 601px via media query. */
+const mobileOnlyWrapperStyle = "display:block;width:100%;";
 
 const escapeHtml = (value: string) =>
   value
@@ -98,6 +102,9 @@ const sectionHeadingStyle = `
 /**
  * Responsive email styles. Duplicated in <head> and at the top of <body> because
  * ESPs like MailerLite often strip <head> when pasting custom HTML.
+ *
+ * Mobile-first defaults: .email-mobile visible, .email-desktop hidden.
+ * Desktop swaps in at 601px+ (separate markup blocks, not flex/table hacks).
  */
 const responsiveEmailStyles = `
   .card-img {
@@ -114,40 +121,42 @@ const responsiveEmailStyles = `
     object-fit: cover;
     object-position: center;
   }
+  .email-desktop {
+    display: none !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    mso-hide: all;
+  }
+  .email-mobile {
+    display: block !important;
+    max-height: none !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
   @media only screen and (min-width: 601px) {
-    .card-body-cell { padding: 0 0 0 16px !important; }
+    .email-desktop {
+      display: block !important;
+      max-height: none !important;
+      overflow: visible !important;
+      mso-hide: none;
+      font-size: inherit !important;
+      line-height: inherit !important;
+    }
+    .email-mobile {
+      display: none !important;
+      max-height: 0 !important;
+      overflow: hidden !important;
+      mso-hide: all;
+    }
   }
   @media only screen and (max-width: 600px) {
     .email-shell { width: 100% !important; }
     .email-body-pad { padding: 20px 16px !important; }
     .hero-subject { font-size: 22px !important; line-height: 1.3 !important; }
-    .card-media,
-    .card-body {
-      display: block !important;
-      width: 100% !important;
-      max-width: 100% !important;
-    }
-    .card-media { text-align: center !important; }
-    .card-body-cell { padding: 12px 0 0 !important; }
-    .card-img-creator-wrap,
-    .card-img-creator-wrap td {
-      width: 100% !important;
-      max-width: 100% !important;
-      height: auto !important;
-    }
-    .card-img {
-      width: 100% !important;
-      max-width: ${cardImageWidthPx}px !important;
-      height: auto !important;
+    .email-mobile .card-img {
       margin: 0 auto !important;
     }
-    .card-img-creator {
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      object-position: center;
-    }
-    .email-btn-primary,
-    .cta-button {
+    .email-mobile .email-btn-primary {
       display: block !important;
       width: 100% !important;
       max-width: 100% !important;
@@ -175,28 +184,39 @@ const creatorSpotlightImg = (src: string, alt: string) => {
   `;
 };
 
-/**
- * Hybrid card layout: nested tables as inline-blocks inside one row so columns
- * wrap on narrow viewports without relying on media queries (MailerLite-safe).
- * MSO conditionals keep Outlook desktop side-by-side.
- */
-const buildCardColumns = (mediaHtml: string, bodyHtml: string) => `
-  <table role="presentation" class="card-row" width="100%" cellspacing="0" cellpadding="0">
+const buildCardDesktopLayout = (mediaHtml: string, bodyHtml: string) => `
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
     <tr>
-      <td align="left" valign="top" style="font-size:0;line-height:0;">
-        <!--[if mso]><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td width="${cardMediaColWidthPx}" valign="top"><![endif]-->
-        <table role="presentation" class="card-media" cellspacing="0" cellpadding="0" align="left" style="display:inline-block;vertical-align:top;width:100%;max-width:${cardMediaColWidthPx}px;">
-          <tr>
-            <td style="padding:0;font-size:14px;line-height:1.4;">${mediaHtml}</td>
-          </tr>
-        </table>
-        <!--[if mso]></td><td valign="top"><![endif]-->
-        <table role="presentation" class="card-body" cellspacing="0" cellpadding="0" align="left" style="display:inline-block;vertical-align:top;width:100%;max-width:${cardBodyColMaxWidthPx}px;">
-          <tr>
-            <td class="card-body-cell" style="padding:12px 0 0;font-size:14px;line-height:1.4;">${bodyHtml}</td>
-          </tr>
-        </table>
-        <!--[if mso]></td></tr></table><![endif]-->
+      <td width="${cardMediaColWidthPx}" valign="top" style="width:${cardMediaColWidthPx}px;">${mediaHtml}</td>
+      <td valign="top" style="padding-left:16px;font-size:14px;line-height:1.4;">${bodyHtml}</td>
+    </tr>
+  </table>
+`;
+
+const buildCardMobileLayout = (mediaHtml: string, bodyHtml: string) => `
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+      <td align="center" valign="top" style="padding:0 0 12px;font-size:14px;line-height:1.4;">${mediaHtml}</td>
+    </tr>
+    <tr>
+      <td valign="top" style="font-size:14px;line-height:1.4;">${bodyHtml}</td>
+    </tr>
+  </table>
+`;
+
+/** Separate desktop (side-by-side) and mobile (stacked) markup; toggled via CSS. */
+const buildResponsiveCardColumns = (mediaHtml: string, bodyHtml: string) => `
+  <table role="presentation" class="email-desktop" width="100%" cellspacing="0" cellpadding="0" style="${desktopOnlyWrapperStyle}">
+    <tr>
+      <td style="font-size:14px;line-height:1.4;">
+        ${buildCardDesktopLayout(mediaHtml, bodyHtml)}
+      </td>
+    </tr>
+  </table>
+  <table role="presentation" class="email-mobile" width="100%" cellspacing="0" cellpadding="0" style="${mobileOnlyWrapperStyle}">
+    <tr>
+      <td>
+        ${buildCardMobileLayout(mediaHtml, bodyHtml)}
       </td>
     </tr>
   </table>
@@ -230,7 +250,7 @@ const buildBookCard = (item: WeeklyNewsletterBookItem) => {
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid ${brand.outline};border-radius:${brand.radiusLg};background:${brand.surface};">
           <tr>
             <td style="padding:12px;">
-              ${buildCardColumns(coverBlock, bodyHtml)}
+              ${buildResponsiveCardColumns(coverBlock, bodyHtml)}
             </td>
           </tr>
         </table>
@@ -271,7 +291,7 @@ const buildCreatorSpotlightCard = (
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid ${brand.outline};border-radius:${brand.radiusLg};background:${brand.surfaceAlt};">
           <tr>
             <td style="padding:12px;">
-              ${buildCardColumns(coverBlock, bodyHtml)}
+              ${buildResponsiveCardColumns(coverBlock, bodyHtml)}
             </td>
           </tr>
         </table>

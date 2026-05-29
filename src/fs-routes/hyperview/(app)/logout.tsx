@@ -11,7 +11,7 @@ import FeaturedScreen from "../../../features/hyperview/components/FeaturedScree
 
 async function clearSession(c: Context) {
   const baseUrl = getBaseUrl(c);
-  const cookieOpts = getAuthCookieOptions();
+  const cookieOpts = getAuthCookieOptions(c);
   const jwt = getAccessTokenFromRequest(c);
   const isHyperview = getIsHyperview(c);
   const hv = hyperview(c);

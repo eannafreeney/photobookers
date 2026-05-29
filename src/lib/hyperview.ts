@@ -10,6 +10,22 @@ function isLocalHostname(hostname: string): boolean {
   );
 }
 
+function isInternalHostname(hostname: string): boolean {
+  return isLocalHostname(hostname) || hostname.endsWith(".onrender.com");
+}
+
+function publicOriginFromRequest(c: Context): string | null {
+  const forwardedHost = c.req.header("x-forwarded-host")?.split(",")[0]?.trim();
+  const hostHeader = c.req.header("host")?.split(":")[0]?.trim();
+  const hostname = forwardedHost?.split(":")[0] ?? hostHeader;
+  if (!hostname || isInternalHostname(hostname)) return null;
+
+  const proto = (c.req.header("x-forwarded-proto") ?? "https")
+    .split(",")[0]
+    ?.trim();
+  return ensurePublicHttps(`${proto ?? "https"}://${hostname}`);
+}
+
 function ensurePublicHttps(origin: string): string {
   try {
     const url = new URL(origin);
@@ -39,26 +55,14 @@ export const getBaseUrl = (c: Context) => {
       // fall through to SITE_URL
     }
 
-    // Prefer the host the client actually reached (www vs apex behind Render/Cloudflare).
-    const forwardedHost = c.req.header("x-forwarded-host")?.split(",")[0]?.trim();
-    if (forwardedHost && !isLocalHostname(forwardedHost.split(":")[0] ?? forwardedHost)) {
-      const proto = (c.req.header("x-forwarded-proto") ?? "https")
-        .split(",")[0]
-        ?.trim();
-      return ensurePublicHttps(`${proto ?? "https"}://${forwardedHost}`);
-    }
+    const requestOrigin = publicOriginFromRequest(c);
+    if (requestOrigin) return requestOrigin;
 
     return siteUrl;
   }
 
-  const forwardedHost = c.req.header("x-forwarded-host");
-  if (forwardedHost) {
-    const proto = (c.req.header("x-forwarded-proto") ?? "https")
-      .split(",")[0]
-      ?.trim();
-    const host = forwardedHost.split(",")[0]?.trim();
-    return ensurePublicHttps(`${proto ?? "https"}://${host}`);
-  }
+  const requestOrigin = publicOriginFromRequest(c);
+  if (requestOrigin) return requestOrigin;
 
   try {
     return ensurePublicHttps(new URL(c.req.url).origin);

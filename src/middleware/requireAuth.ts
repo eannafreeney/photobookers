@@ -30,11 +30,11 @@ export const requireAuth = async (c: Context, next: Next) => {
     const refreshedToken = await refreshAccessToken(refreshToken, c);
     if (refreshedToken) {
       setCookie(c, "token", refreshedToken.access_token, {
-        ...getAuthCookieOptions(),
+        ...getAuthCookieOptions(c),
         maxAge: refreshedToken.expires_in,
       });
       setCookie(c, "refresh_token", refreshedToken.refresh_token, {
-        ...getAuthCookieOptions(),
+        ...getAuthCookieOptions(c),
         maxAge: 60 * 60 * 24 * 7, // 7 days
       });
       token = refreshedToken.access_token;
@@ -53,14 +53,12 @@ export const requireAuth = async (c: Context, next: Next) => {
     const refreshed = await refreshAccessToken(refreshToken, c);
     if (refreshed) {
       setCookie(c, "token", refreshed.access_token, {
-        httpOnly: true,
+        ...getAuthCookieOptions(c),
         maxAge: refreshed.expires_in,
-        path: "/",
       });
       setCookie(c, "refresh_token", refreshed.refresh_token, {
-        httpOnly: true,
+        ...getAuthCookieOptions(c),
         maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: "/",
       });
       token = refreshed.access_token;
       refreshToken = refreshed.refresh_token;

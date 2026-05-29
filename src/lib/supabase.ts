@@ -2,22 +2,7 @@ import { createServerClient, serializeCookieHeader } from "@supabase/ssr";
 import { Context } from "hono";
 import { createClient } from "@supabase/supabase-js";
 import { getCookie } from "hono/cookie";
-
-// Cookie options so PKCE code_verifier is sent for both www and non-www
-function getSupabaseCookieOptions(): { domain?: string; path: string } {
-  const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
-  let hostname: string;
-  try {
-    hostname = new URL(baseUrl).hostname;
-  } catch {
-    return { path: "/" };
-  }
-  const isLocal =
-    !hostname || hostname === "localhost" || hostname === "127.0.0.1";
-  if (isLocal) return { path: "/" };
-  const rootDomain = hostname.replace(/^www\./i, "");
-  return { domain: `.${rootDomain}`, path: "/" };
-}
+import { getSharedCookieOptions } from "./authCookies";
 
 // Server-side client (use service role for admin operations)
 export const supabaseAdmin = createClient(
@@ -77,7 +62,7 @@ export function createSupabaseClient(c: Context) {
             "Set-Cookie",
             serializeCookieHeader(name, value, {
               ...options,
-              ...getSupabaseCookieOptions(),
+              ...getSharedCookieOptions(c),
             }),
             {
               append: true,
@@ -89,7 +74,7 @@ export function createSupabaseClient(c: Context) {
             "Set-Cookie",
             serializeCookieHeader(name, "", {
               ...options,
-              ...getSupabaseCookieOptions(),
+              ...getSharedCookieOptions(c),
               maxAge: 0,
             }),
             { append: true },

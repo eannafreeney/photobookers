@@ -14,11 +14,11 @@ export const optionalAuthMiddleware = async (c: Context, next: Next) => {
     const refreshed = await refreshAccessToken(refreshToken, c);
     if (refreshed) {
       setCookie(c, "token", refreshed.access_token, {
-        ...getAuthCookieOptions(),
+        ...getAuthCookieOptions(c),
         maxAge: refreshed.expires_in,
       });
       setCookie(c, "refresh_token", refreshed.refresh_token, {
-        ...getAuthCookieOptions(),
+        ...getAuthCookieOptions(c),
         maxAge: 60 * 60 * 24 * 7, // 7 days
       });
       token = refreshed.access_token;
@@ -33,11 +33,11 @@ export const optionalAuthMiddleware = async (c: Context, next: Next) => {
     const refreshed = await refreshAccessToken(refreshToken, c);
     if (refreshed) {
       setCookie(c, "token", refreshed.access_token, {
-        ...getAuthCookieOptions(),
+        ...getAuthCookieOptions(c),
         maxAge: refreshed.expires_in,
       });
       setCookie(c, "refresh_token", refreshed.refresh_token, {
-        ...getAuthCookieOptions(),
+        ...getAuthCookieOptions(c),
         maxAge: 60 * 60 * 24 * 7, // 7 days
       });
       token = refreshed.access_token;
