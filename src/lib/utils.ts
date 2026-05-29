@@ -65,6 +65,19 @@ export function toDateString(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+/** Format a Date as "YYYY-MM-DD" using local calendar components. */
+export function toLocalDateString(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/** Normalize Postgres DATE / timestamp date-mode values to UTC midnight. */
+export function normalizeStoredDate(d: Date): Date {
+  return parseDateString(toLocalDateString(d));
+}
+
 /** Normalize any Date to UTC midnight (00:00:00.000) of the same Y/M/D. */
 export function toUtcStartOfDay(d: Date): Date {
   return new Date(
@@ -94,4 +107,19 @@ export const formatCountry = (country: string) => {
     return "UK";
   }
   return country;
+};
+
+/** e.g. "London, UK" — matches creator card / profile location display. */
+export const formatCreatorLocation = (
+  city: string | null | undefined,
+  country: string | null | undefined,
+): string | null => {
+  const cityTrim = city?.trim();
+  const countryTrim = country?.trim();
+  if (cityTrim && countryTrim) {
+    return `${cityTrim}, ${formatCountry(countryTrim)}`;
+  }
+  if (cityTrim) return cityTrim;
+  if (countryTrim) return formatCountry(countryTrim);
+  return null;
 };

@@ -7,7 +7,7 @@ import {
   buildCampaignPreviewHtml,
   ensureCurrentWeeklyNewsletterDraft,
   ensureWeeklyNewsletterDraftForRange,
-  listNewsletterCampaigns,
+  getNewsletterCampaignById,
 } from "../../../../../features/dashboard/admin/planner/newsletterServices";
 import { parseDateString, toDateString } from "../../../../../lib/utils";
 import { NewsletterCampaign } from "../../../../../db/schema";
@@ -18,52 +18,37 @@ export const GET = createRoute(async (c) => {
   const flash = await getFlash(c);
   const currentPath = c.req.path;
 
-  const [draftError] = await ensureCurrentWeeklyNewsletterDraft();
-  if (draftError) {
-    console.error("Failed to ensure weekly draft", draftError.reason);
-  }
-
   const weekStartQuery = c.req.query("weekStart");
   const weekStartForSelection =
     weekStartQuery && weekStartQuery.length > 0
       ? parseDateString(weekStartQuery)
       : null;
-  // if (weekStartForSelection && !Number.isNaN(weekStartForSelection.getTime())) {
-  //   const weekEndForSelection = new Date(weekStartForSelection);
-  //   weekEndForSelection.setUTCDate(weekEndForSelection.getUTCDate() + 6);
-  // const [ensureWeekDraftError] = await ensureWeeklyNewsletterDraftForRange(
-  //   weekStartForSelection,
-  //   weekEndForSelection,
-  // );
-  // if (ensureWeekDraftError) {
-  //   console.error(
-  //     "Failed to ensure selected week draft",
-  //     ensureWeekDraftError.reason,
-  //   );
-  // }
-  // }
+  const campaignIdQuery = c.req.query("campaignId");
 
-  const campaigns = await listNewsletterCampaigns(16);
+  let selectedCampaign: NewsletterCampaign | null = null;
 
-  const selectedCampaignIdFromWeek =
-    weekStartForSelection && !Number.isNaN(weekStartForSelection.getTime())
-      ? campaigns.find(
-          (campaign) =>
-            toDateString(campaign.weekStart) ===
-            toDateString(weekStartForSelection),
-        )?.id
-      : null;
-
-  const selectedCampaignId =
-    c.req.query("campaignId") ??
-    selectedCampaignIdFromWeek ??
-    campaigns[0]?.id ??
-    null;
-
-  const selectedCampaign =
-    campaigns.find((campaign) => campaign.id === selectedCampaignId) ??
-    campaigns[0] ??
-    null;
+  if (
+    weekStartForSelection &&
+    !Number.isNaN(weekStartForSelection.getTime())
+  ) {
+    const [ensureWeekDraftError, ensuredCampaign] =
+      await ensureWeeklyNewsletterDraftForRange(weekStartForSelection);
+    if (ensureWeekDraftError) {
+      console.error(
+        "Failed to ensure selected week draft",
+        ensureWeekDraftError.reason,
+      );
+    }
+    selectedCampaign = ensuredCampaign ?? null;
+  } else if (campaignIdQuery) {
+    selectedCampaign = (await getNewsletterCampaignById(campaignIdQuery)) ?? null;
+  } else {
+    const [draftError, draftCampaign] = await ensureCurrentWeeklyNewsletterDraft();
+    if (draftError) {
+      console.error("Failed to ensure weekly draft", draftError.reason);
+    }
+    selectedCampaign = draftCampaign ?? null;
+  }
 
   const previewHtml = selectedCampaign
     ? buildCampaignPreviewHtml(selectedCampaign)
@@ -78,7 +63,15 @@ export const GET = createRoute(async (c) => {
     >
       <Page>
         <Sidebar currentPath={currentPath}>
-          <CampaignHeader selectedCampaign={selectedCampaign} />
+          {selectedCampaign ? (
+            <CampaignHeader selectedCampaign={selectedCampaign} />
+          ) : (
+            <div class="mb-6">
+              <h1 class="text-xl font-semibold text-on-surface-strong">
+                Weekly BOTD newsletter
+              </h1>
+            </div>
+          )}
 
           <div>
             {selectedCampaign ? (
@@ -108,14 +101,14 @@ const CampaignOverview = ({
   previewHtml,
 }: CampaignOverviewProps) => (
   <div class="space-y-4">
+    <CampaignControls selectedCampaign={selectedCampaign} />
+    <CampaignPreview previewHtml={previewHtml} />
     <div class="rounded border border-outline bg-surface p-4">
       <h2 class="text-lg font-semibold text-on-surface-strong">
         Edit draft copy
       </h2>
       <CampaignTextForm selectedCampaign={selectedCampaign} />
     </div>
-    <CampaignControls selectedCampaign={selectedCampaign} />
-    <CampaignPreview previewHtml={previewHtml} />
   </div>
 );
 
@@ -215,6 +208,14 @@ type CampaignControlsProps = {
 };
 
 const CampaignControls = ({ selectedCampaign }: CampaignControlsProps) => {
+  const regenerateAttrs = {
+    "x-target": "toast",
+  };
+
+  const markSentAttrs = {
+    "x-target": "toast",
+  };
+
   const deleteDraftAlpineAttrs = {
     "@ajax:before":
       "confirm('Delete this newsletter draft?') || $event.preventDefault()",
@@ -227,6 +228,7 @@ const CampaignControls = ({ selectedCampaign }: CampaignControlsProps) => {
         <div class="flex flex-wrap gap-2">
           <FormPost
             action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/regenerate`}
+            {...regenerateAttrs}
           >
             <button
               type="submit"
@@ -253,6 +255,7 @@ const CampaignControls = ({ selectedCampaign }: CampaignControlsProps) => {
         <FormPost
           action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/mark-sent`}
           class="flex items-center gap-2"
+          {...markSentAttrs}
         >
           <input type="hidden" name="sent" value="false" />
           <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-on-surface-strong">
@@ -283,21 +286,49 @@ type CampaignPreviewProps = {
 };
 
 const CampaignPreview = ({ previewHtml }: CampaignPreviewProps) => (
-  <div class="rounded border border-outline bg-surface p-4">
+  <div
+    class="rounded border border-outline bg-surface p-4"
+    x-data="{ view: 'desktop', copied: false }"
+  >
     <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
       <h2 class="text-lg font-semibold text-on-surface-strong">Preview</h2>
-      <button
-        type="button"
-        class="rounded border border-outline bg-surface-alt px-3 py-2 text-sm font-medium hover:bg-surface cursor-pointer"
-        x-data="{ copied: false }"
-        x-on:click="
-          const source = document.getElementById('newsletter-html-source');
-          if (source) navigator.clipboard.writeText(source.value);
-          copied = true;
-          setTimeout(() => copied = false, 2000);
-        "
-        x-text="copied ? 'Copied!' : 'Copy HTML'"
-      />
+      <div class="flex flex-wrap items-center gap-2">
+        <div
+          class="inline-flex rounded border border-outline bg-surface-alt p-0.5"
+          role="group"
+          aria-label="Preview viewport"
+        >
+          <button
+            type="button"
+            class="rounded px-3 py-1.5 text-sm font-medium cursor-pointer transition-colors"
+            x-bind:class="view === 'desktop' ? 'bg-surface text-on-surface-strong shadow-sm' : 'text-on-surface hover:bg-surface'"
+            x-on:click="view = 'desktop'"
+            x-bind:aria-pressed="view === 'desktop'"
+          >
+            Desktop
+          </button>
+          <button
+            type="button"
+            class="rounded px-3 py-1.5 text-sm font-medium cursor-pointer transition-colors"
+            x-bind:class="view === 'mobile' ? 'bg-surface text-on-surface-strong shadow-sm' : 'text-on-surface hover:bg-surface'"
+            x-on:click="view = 'mobile'"
+            x-bind:aria-pressed="view === 'mobile'"
+          >
+            Mobile
+          </button>
+        </div>
+        <button
+          type="button"
+          class="rounded border border-outline bg-surface-alt px-3 py-2 text-sm font-medium hover:bg-surface cursor-pointer"
+          x-on:click="
+            const source = document.getElementById('newsletter-html-source');
+            if (source) navigator.clipboard.writeText(source.value);
+            copied = true;
+            setTimeout(() => copied = false, 2000);
+          "
+          x-text="copied ? 'Copied!' : 'Copy HTML'"
+        />
+      </div>
     </div>
     <textarea
       id="newsletter-html-source"
@@ -308,10 +339,16 @@ const CampaignPreview = ({ previewHtml }: CampaignPreviewProps) => (
     >
       {previewHtml}
     </textarea>
-    <iframe
-      title="Weekly newsletter preview"
-      srcdoc={previewHtml}
-      class="h-[620px] w-full rounded border border-outline bg-white"
-    />
+    <div
+      class="overflow-auto rounded border border-outline bg-surface-alt"
+      x-bind:class="view === 'mobile' ? 'flex min-h-[620px] justify-center p-4' : 'p-0'"
+    >
+      <iframe
+        title="Weekly newsletter preview"
+        srcdoc={previewHtml}
+        class="h-[620px] shrink-0 rounded border border-outline bg-white"
+        x-bind:class="view === 'mobile' ? 'w-[375px] max-w-full shadow-md' : 'w-full'"
+      />
+    </div>
   </div>
 );

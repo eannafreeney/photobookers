@@ -30,9 +30,87 @@ describe("newsletter template rendering", () => {
       outroText: "Outro copy",
       ctaText: "Explore",
       items: [],
+      artistOfTheWeek: null,
+      publisherOfTheWeek: null,
     });
 
     expect(html).toContain("No BOTD entries were scheduled for this week.");
     expect(html).toContain("Weekly BOTD");
+    expect(html).toContain("Photobookers");
+    expect(html).toContain("Instrument Sans");
+    expect(html).toContain("card-col");
+    expect(html).toContain("@media only screen and (max-width: 600px)");
+  });
+
+  it("renders artist and publisher of the week spotlights", () => {
+    const html = renderWeeklyBOTDNewsletterHtml({
+      weekStart: new Date(Date.UTC(2026, 4, 18)),
+      weekEnd: new Date(Date.UTC(2026, 4, 24)),
+      subject: "Weekly roundup",
+      introText: "Intro copy",
+      outroText: "Outro copy",
+      ctaText: "Explore",
+      items: [],
+      artistOfTheWeek: {
+        displayName: "Jane Artist",
+        slug: "jane-artist",
+        coverUrl: "https://example.com/artist.jpg",
+        tagline: "Documentary photographer",
+        location: "Berlin, Germany",
+      },
+      publisherOfTheWeek: {
+        displayName: "Acme Press",
+        slug: "acme-press",
+        coverUrl: "https://example.com/publisher.jpg",
+        tagline: null,
+        location: "London, UK",
+      },
+    });
+
+    expect(html).toContain("Artist of the week");
+    expect(html).toContain("Documentary photographer");
+    expect(html).toContain("Berlin, Germany");
+    expect(html).toContain("London, UK");
+    expect(html).toContain('class="email-btn-primary"');
+    expect(html).toContain("View profile");
+    expect(html).toContain("Jane Artist");
+    expect(html).toContain("/creators/jane-artist");
+    expect(html).toContain("Publisher of the week");
+    expect(html).toContain("Acme Press");
+    expect(html).toContain("/creators/acme-press");
+    expect(
+      (html.match(/class="card-img card-img-creator"/g) ?? []).length,
+    ).toBe(2);
+  });
+
+  it("formats BOTD item dates for display", () => {
+    const html = renderWeeklyBOTDNewsletterHtml({
+      weekStart: new Date(Date.UTC(2026, 4, 18)),
+      weekEnd: new Date(Date.UTC(2026, 4, 24)),
+      subject: "Weekly roundup",
+      introText: "Intro",
+      outroText: "Outro",
+      ctaText: "Explore",
+      items: [
+        {
+          date: "2026-05-31",
+          bookId: "id",
+          bookSlug: "some-book",
+          title: "Some Book",
+          coverUrl: null,
+          artistName: null,
+          artistSlug: null,
+          publisherName: null,
+          publisherSlug: null,
+        },
+      ],
+      artistOfTheWeek: null,
+      publisherOfTheWeek: null,
+    });
+
+    expect(html).toContain("May 31, 2026");
+    expect(html).not.toContain("2026-05-31");
+    expect(html).toContain("View book");
+    expect(html).toContain('class="email-btn-primary"');
   });
 });

@@ -9,6 +9,7 @@ import {
   updateNewsletterCampaignDraft,
 } from "../../../../../../features/dashboard/admin/planner/newsletterServices";
 import { setFlash } from "../../../../../../utils";
+import Alert from "../../../../../../components/app/Alert";
 
 export const POST = createRoute(
   paramValidator(newsletterCampaignParamSchema),
@@ -17,24 +18,22 @@ export const POST = createRoute(
     const { campaignId } = c.req.valid("param");
     const { sent } = c.req.valid("form");
     const campaign = await getNewsletterCampaignById(campaignId);
-    if (!campaign) return c.redirect("/dashboard/admin/planner/newsletters");
+    if (!campaign) return c.html(<></>);
 
     if (sent) {
-      await updateNewsletterCampaignDraft(campaign.id, {
+      const [error] = await updateNewsletterCampaignDraft(campaign.id, {
         status: "sent",
         sentAt: new Date(),
       });
-      await setFlash(c, "success", "Marked as sent.");
+      if (error) return c.html(<Alert type="danger" message={error.reason} />);
+      return c.html(<Alert type="success" message="Marked as sent." />);
     } else {
-      await updateNewsletterCampaignDraft(campaign.id, {
+      const [error] = await updateNewsletterCampaignDraft(campaign.id, {
         status: "draft",
         sentAt: null,
       });
-      await setFlash(c, "success", "Marked as not sent.");
+      if (error) return c.html(<Alert type="danger" message={error.reason} />);
+      return c.html(<Alert type="success" message="Marked as not sent." />);
     }
-
-    return c.redirect(
-      `/dashboard/admin/planner/newsletters?campaignId=${campaignId}`,
-    );
   },
 );

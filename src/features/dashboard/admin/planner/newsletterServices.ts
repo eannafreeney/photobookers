@@ -1,22 +1,99 @@
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
+  artistOfTheWeek,
   type NewsletterCampaignStatus,
   newsletterCampaigns,
+  publisherOfTheWeek,
 } from "../../../../db/schema";
 import { getBooksOfTheDayInRange } from "../../../app/BOTDServices";
+import { CREATOR_CARD_COLUMNS } from "../../../../constants/queries";
 import { err, ok } from "../../../../lib/result";
-import { toDateString } from "../../../../lib/utils";
+import {
+  formatCreatorLocation,
+  normalizeStoredDate,
+  parseDateString,
+  toDateString,
+  toWeekStart,
+} from "../../../../lib/utils";
 import {
   renderWeeklyBOTDNewsletterHtml,
   type WeeklyNewsletterBookItem,
+  type WeeklyNewsletterCreatorSpotlight,
 } from "./newsletterTemplate";
 import { formatWeekRangeLabel, getPreviousWeekRange } from "./newsletterUtils";
 
 export type WeeklyNewsletterGeneratedContent = {
   generatedAt: string;
   items: WeeklyNewsletterBookItem[];
+  artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
+  publisherOfTheWeek: WeeklyNewsletterCreatorSpotlight;
 };
+
+/** Normalize any week-start value to UTC midnight (matches planner `YYYY-MM-DD` links). */
+export function normalizeWeekStartDate(weekStart: Date): Date {
+  return parseDateString(toDateString(weekStart));
+}
+
+export function getWeekEndDate(weekStart: Date): Date {
+  const start = normalizeWeekStartDate(weekStart);
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 6);
+  return end;
+}
+
+export async function findNewsletterCampaignByWeekStart(weekStart: Date) {
+  const targetKey = toDateString(normalizeWeekStartDate(weekStart));
+  const rows = await db.query.newsletterCampaigns.findMany({
+    orderBy: [desc(newsletterCampaigns.weekStart)],
+    limit: 64,
+  });
+  return (
+    rows.find(
+      (row) => toDateString(normalizeStoredDate(row.weekStart)) === targetKey,
+    ) ?? null
+  );
+}
+
+const toCreatorSpotlight = (
+  creator: {
+    displayName: string;
+    slug: string;
+    coverUrl: string | null;
+    tagline?: string | null;
+    city?: string | null;
+    country?: string | null;
+  } | null | undefined,
+): WeeklyNewsletterCreatorSpotlight =>
+  creator
+    ? {
+        displayName: creator.displayName,
+        slug: creator.slug,
+        coverUrl: creator.coverUrl ?? null,
+        tagline: creator.tagline?.trim() || null,
+        location: formatCreatorLocation(creator.city, creator.country),
+      }
+    : null;
+
+async function getWeeklyCreatorSpotlights(weekStart: Date) {
+  const normalizedWeekStart = toWeekStart(weekStart);
+
+  const [artistEntry, publisherEntry] = await Promise.all([
+    db.query.artistOfTheWeek.findFirst({
+      where: eq(artistOfTheWeek.weekStart, normalizedWeekStart),
+      with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+    }),
+    db.query.publisherOfTheWeek.findFirst({
+      where: eq(publisherOfTheWeek.weekStart, normalizedWeekStart),
+      with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+    }),
+  ]);
+
+  return {
+    artistOfTheWeek: toCreatorSpotlight(artistEntry?.creator),
+    publisherOfTheWeek: toCreatorSpotlight(publisherEntry?.creator),
+  };
+}
 
 export const DEFAULT_WEEKLY_NEWSLETTER_SUBJECT =
   "This week on photobookers: Book of the Day roundup";
@@ -29,14 +106,25 @@ export const DEFAULT_WEEKLY_NEWSLETTER_CTA = "Explore all books";
 export async function buildWeeklyBOTDGeneratedContent(
   weekStart: Date,
   weekEnd: Date,
+  options?: { fromDatabase?: boolean },
 ): Promise<
   [null, WeeklyNewsletterGeneratedContent] | [{ reason: string }, null]
 > {
+  const normalize = options?.fromDatabase
+    ? normalizeStoredDate
+    : (d: Date) => parseDateString(toDateString(d));
+
+  const rangeStart = normalize(weekStart);
+  const rangeEnd = normalize(weekEnd);
+
   const [rangeError, rangeResult] = await getBooksOfTheDayInRange(
-    weekStart,
-    weekEnd,
+    rangeStart,
+    rangeEnd,
   );
   if (rangeError) return err({ reason: rangeError.reason });
+
+  const { artistOfTheWeek, publisherOfTheWeek } =
+    await getWeeklyCreatorSpotlights(rangeStart);
 
   const items: WeeklyNewsletterBookItem[] = rangeResult.botdEntries.map(
     (entry) => ({
@@ -55,6 +143,8 @@ export async function buildWeeklyBOTDGeneratedContent(
   return ok({
     generatedAt: new Date().toISOString(),
     items,
+    artistOfTheWeek,
+    publisherOfTheWeek,
   });
 }
 
@@ -65,17 +155,17 @@ export async function ensureCurrentWeeklyNewsletterDraft() {
 
 export async function ensureWeeklyNewsletterDraftForRange(
   weekStart: Date,
-  weekEnd: Date,
+  _weekEnd?: Date,
 ) {
-  const existing = await db.query.newsletterCampaigns.findFirst({
-    where: eq(newsletterCampaigns.weekStart, weekStart),
-    orderBy: [desc(newsletterCampaigns.createdAt)],
-  });
+  const normalizedStart = normalizeWeekStartDate(weekStart);
+  const normalizedEnd = getWeekEndDate(normalizedStart);
+
+  const existing = await findNewsletterCampaignByWeekStart(normalizedStart);
   if (existing) return ok(existing);
 
   const [generatedError, generated] = await buildWeeklyBOTDGeneratedContent(
-    weekStart,
-    weekEnd,
+    normalizedStart,
+    normalizedEnd,
   );
   if (generatedError) return err(generatedError);
 
@@ -83,8 +173,8 @@ export async function ensureWeeklyNewsletterDraftForRange(
     const [created] = await db
       .insert(newsletterCampaigns)
       .values({
-        weekStart,
-        weekEnd,
+        weekStart: normalizedStart,
+        weekEnd: normalizedEnd,
         status: "draft",
         subject: DEFAULT_WEEKLY_NEWSLETTER_SUBJECT,
         introText: DEFAULT_WEEKLY_NEWSLETTER_INTRO,
@@ -98,9 +188,7 @@ export async function ensureWeeklyNewsletterDraftForRange(
       .returning();
 
     if (!created) {
-      const campaign = await db.query.newsletterCampaigns.findFirst({
-        where: eq(newsletterCampaigns.weekStart, weekStart),
-      });
+      const campaign = await findNewsletterCampaignByWeekStart(normalizedStart);
       if (!campaign)
         return err({ reason: "Failed to create or load newsletter draft" });
       return ok(campaign);
@@ -195,19 +283,45 @@ export async function regenerateCampaignContent(campaignId: string) {
   const [generatedError, generated] = await buildWeeklyBOTDGeneratedContent(
     campaign.weekStart,
     campaign.weekEnd,
+    { fromDatabase: true },
   );
   if (generatedError) return err(generatedError);
 
-  return updateNewsletterCampaignDraft(campaignId, {
+  const [updateError] = await updateNewsletterCampaignDraft(campaignId, {
     generatedContent: generated,
     status: "draft",
     sentAt: null,
   });
+  if (updateError) return err(updateError);
+  return ok(generated);
 }
+
+const normalizeStoredCreatorSpotlight = (
+  creator:
+    | {
+        displayName: string;
+        slug: string;
+        coverUrl: string | null;
+        tagline?: string | null;
+        location?: string | null;
+      }
+    | null
+    | undefined,
+): WeeklyNewsletterCreatorSpotlight => {
+  if (!creator) return null;
+  return {
+    displayName: creator.displayName,
+    slug: creator.slug,
+    coverUrl: creator.coverUrl ?? null,
+    tagline: creator.tagline?.trim() || null,
+    location: creator.location?.trim() || null,
+  };
+};
 
 export function buildCampaignPreviewHtml(
   campaign: typeof newsletterCampaigns.$inferSelect,
 ) {
+  const generated = campaign.generatedContent;
   return renderWeeklyBOTDNewsletterHtml({
     weekStart: campaign.weekStart,
     weekEnd: campaign.weekEnd,
@@ -215,7 +329,13 @@ export function buildCampaignPreviewHtml(
     introText: campaign.introText,
     outroText: campaign.outroText,
     ctaText: campaign.ctaText,
-    items: campaign.generatedContent?.items ?? [],
+    items: generated?.items ?? [],
+    artistOfTheWeek: normalizeStoredCreatorSpotlight(
+      generated?.artistOfTheWeek,
+    ),
+    publisherOfTheWeek: normalizeStoredCreatorSpotlight(
+      generated?.publisherOfTheWeek,
+    ),
   });
 }
 

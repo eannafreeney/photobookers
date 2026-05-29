@@ -592,6 +592,20 @@ export const newsletterCampaigns = pgTable(
         publisherName: string | null;
         publisherSlug: string | null;
       }>;
+      artistOfTheWeek?: {
+        displayName: string;
+        slug: string;
+        coverUrl: string | null;
+        tagline?: string | null;
+        location?: string | null;
+      } | null;
+      publisherOfTheWeek?: {
+        displayName: string;
+        slug: string;
+        coverUrl: string | null;
+        tagline?: string | null;
+        location?: string | null;
+      } | null;
     }>(),
     sentAt: timestamp("sent_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
