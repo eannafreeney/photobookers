@@ -1,7 +1,7 @@
 import { FC } from "hono/jsx";
 import type { AuthUser } from "../../../../types";
 import BookCard from "./BookCard";
-import { View } from "../../../lib/hxml-comps";
+import { Text, View } from "../../../lib/hxml-comps";
 import { getTodaysBookOfTheDay } from "../../app/BOTDServices";
 import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
@@ -47,7 +47,8 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
 
   return (
     <View>
-      {botdBook && (
+      <Text>Hello</Text>
+      {/* {botdBook && (
         <BookCard
           title="Book of The Day"
           book={botdBook}
@@ -74,8 +75,8 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
             followingByCreatorId[publisherResult.creator.id] ?? false
           }
         />
-      )}
-      <NewsletterCard baseUrl={baseUrl} />
+      )} */}
+      {/* <NewsletterCard baseUrl={baseUrl} /> */}
       {/* <LazyLoader
         id="interviews-fragment"
         href={`${baseUrl}/hyperview/featured/tab/interviews`}
