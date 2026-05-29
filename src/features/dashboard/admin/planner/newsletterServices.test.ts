@@ -38,10 +38,9 @@ describe("newsletter template rendering", () => {
     expect(html).toContain("Weekly BOTD");
     expect(html).toContain("Photobookers");
     expect(html).toContain("Instrument Sans");
-    expect(html).toContain("email-desktop");
-    expect(html).toContain("email-mobile");
+    expect(html).toContain("card-media");
+    expect(html).toContain("card-body");
     expect(html).toContain("@media only screen and (max-width: 600px)");
-    expect(html).toContain("@media only screen and (min-width: 601px)");
   });
 
   it("renders artist and publisher of the week spotlights", () => {
@@ -82,7 +81,7 @@ describe("newsletter template rendering", () => {
     expect(html).toContain("/creators/acme-press");
     expect(
       (html.match(/class="card-img card-img-creator"/g) ?? []).length,
-    ).toBe(4);
+    ).toBe(2);
   });
 
   it("formats BOTD item dates for display", () => {
