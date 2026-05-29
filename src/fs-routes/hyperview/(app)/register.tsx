@@ -1,18 +1,12 @@
 import { createRoute } from "hono-fsr";
 import type { Context } from "hono";
 import { capitalize, getUser } from "../../../utils";
+import { parseRegisterType } from "../../../features/auth/schema";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { hyperview } from "../../../lib/hxml";
 import { xmlText } from "../../../lib/hxml";
 import { AppLayout } from "../+layout";
 import { Behavior, Style, Text, View } from "../../../lib/hxml-comps";
-
-type RegisterType = "fan" | "artist" | "publisher";
-
-function parseRegisterType(raw: string | undefined): RegisterType {
-  if (raw === "fan" || raw === "artist" || raw === "publisher") return raw;
-  return "fan";
-}
 
 export const GET = createRoute(async (c: Context) => {
   const baseUrl = getBaseUrl(c);

@@ -1,6 +1,13 @@
 import z from "zod";
 import { checkboxField } from "../../schemas";
 
+export type RegisterType = "fan" | "artist" | "publisher";
+
+export function parseRegisterType(raw: string | undefined): RegisterType {
+  if (raw === "fan" || raw === "artist" || raw === "publisher") return raw;
+  return "fan";
+}
+
 // Helper: normalize URL for validation (accept www.example.com)
 const urlWithOptionalProtocol = z
   .string()

@@ -76,11 +76,11 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
         />
       )}
       <NewsletterCard baseUrl={baseUrl} />
-      <LazyLoader
+      {/* <LazyLoader
         id="interviews-fragment"
         href={`${baseUrl}/hyperview/featured/tab/interviews`}
         style="interviews-fragment"
-      />
+      /> */}
     </View>
   );
 };

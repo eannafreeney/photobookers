@@ -4,14 +4,16 @@ import { Context } from "hono";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 import RegisterCreatorForm from "../../features/auth/forms/RegisterCreatorForm";
 import RegisterFanForm from "../../features/auth/forms/RegisterFanForm";
+import { parseRegisterType } from "../../features/auth/schema";
 
 export const GET = createRoute(async (c: Context) => {
-  const type = c.req.query("type") as "fan" | "artist" | "publisher";
+  const registerType = parseRegisterType(c.req.query("type"));
   const user = await getUser(c);
   const redirectUrl = c.req.query("redirectUrl") ?? "";
   if (user) return c.redirect("/");
 
-  const intendedCreatorType = type === "artist" || type === "publisher";
+  const intendedCreatorType =
+    registerType === "artist" || registerType === "publisher";
 
   return c.html(
     <HeadlessLayout title="Create Account">
@@ -20,10 +22,11 @@ export const GET = createRoute(async (c: Context) => {
           <div class="card-body">
             <div id="register-form">
               <h2 class="text-2xl font-bold text-center mb-4">
-                Create {type === "fan" ? "" : capitalize(type)} Account
+                Create{" "}
+                {registerType === "fan" ? "" : capitalize(registerType)} Account
               </h2>
               {intendedCreatorType ? (
-                <RegisterCreatorForm type={type} />
+                <RegisterCreatorForm type={registerType} />
               ) : (
                 <RegisterFanForm redirectUrl={redirectUrl} />
               )}
