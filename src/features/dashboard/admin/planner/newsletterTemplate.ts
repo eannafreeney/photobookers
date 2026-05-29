@@ -43,6 +43,8 @@ const brand = {
 /** Cover column width in card layout (book + creator spotlights). */
 const cardImageWidthPx = 160;
 const cardMediaColWidthPx = 180;
+/** Body column max width beside image on wide viewports (hybrid inline-block layout). */
+const cardBodyColMaxWidthPx = 420;
 /** Fixed square frame so artist/publisher spotlights match regardless of source aspect ratio. */
 const creatorSpotlightSizePx = cardImageWidthPx;
 
@@ -93,33 +95,40 @@ const sectionHeadingStyle = `
   color:${brand.onSurfaceWeak};
 `.replace(/\s+/g, " ");
 
-/** Stacks card image above body on narrow viewports (email-safe; flex is unreliable). */
+/**
+ * Responsive email styles. Duplicated in <head> and at the top of <body> because
+ * ESPs like MailerLite often strip <head> when pasting custom HTML.
+ */
 const responsiveEmailStyles = `
-  .card-col { vertical-align: top; }
-  .card-img { display: block; width: ${cardImageWidthPx}px; max-width: 100%; height: auto; border-radius: ${brand.radiusLg}; border: 1px solid ${brand.outline}; }
+  .card-img {
+    display: block;
+    width: ${cardImageWidthPx}px;
+    max-width: 100%;
+    height: auto;
+    border-radius: ${brand.radiusLg};
+    border: 1px solid ${brand.outline};
+  }
   .card-img-creator {
     width: ${creatorSpotlightSizePx}px;
     height: ${creatorSpotlightSizePx}px;
     object-fit: cover;
     object-position: center;
   }
+  @media only screen and (min-width: 601px) {
+    .card-body-cell { padding: 0 0 0 16px !important; }
+  }
   @media only screen and (max-width: 600px) {
     .email-shell { width: 100% !important; }
     .email-body-pad { padding: 20px 16px !important; }
     .hero-subject { font-size: 22px !important; line-height: 1.3 !important; }
-    .card-col {
+    .card-media,
+    .card-body {
       display: block !important;
       width: 100% !important;
       max-width: 100% !important;
-      box-sizing: border-box !important;
     }
-    .card-media {
-      padding: 0 0 12px !important;
-      text-align: center !important;
-    }
-    .card-body {
-      padding: 0 !important;
-    }
+    .card-media { text-align: center !important; }
+    .card-body-cell { padding: 12px 0 0 !important; }
     .card-img-creator-wrap,
     .card-img-creator-wrap td {
       width: 100% !important;
@@ -128,9 +137,9 @@ const responsiveEmailStyles = `
     }
     .card-img {
       width: 100% !important;
-      max-width: 100% !important;
+      max-width: ${cardImageWidthPx}px !important;
       height: auto !important;
-      margin: 0 !important;
+      margin: 0 auto !important;
     }
     .card-img-creator {
       aspect-ratio: 1 / 1;
@@ -148,8 +157,10 @@ const responsiveEmailStyles = `
   }
 `.replace(/\s+/g, " ");
 
-const cardCoverImg = (src: string, alt: string) =>
-  `<img class="card-img" src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" width="${cardImageWidthPx}" />`;
+const cardCoverImg = (src: string, alt: string) => {
+  const imgStyle = `display:block;width:${cardImageWidthPx}px;max-width:100%;height:auto;border-radius:${brand.radiusLg};border:1px solid ${brand.outline};`;
+  return `<img class="card-img" src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" width="${cardImageWidthPx}" style="${imgStyle}" />`;
+};
 
 const creatorSpotlightImg = (src: string, alt: string) => {
   const imgStyle = `display:block;width:${creatorSpotlightSizePx}px;height:${creatorSpotlightSizePx}px;object-fit:cover;object-position:center;border-radius:${brand.radiusLg};border:1px solid ${brand.outline};`;
@@ -164,11 +175,29 @@ const creatorSpotlightImg = (src: string, alt: string) => {
   `;
 };
 
+/**
+ * Hybrid card layout: nested tables as inline-blocks inside one row so columns
+ * wrap on narrow viewports without relying on media queries (MailerLite-safe).
+ * MSO conditionals keep Outlook desktop side-by-side.
+ */
 const buildCardColumns = (mediaHtml: string, bodyHtml: string) => `
   <table role="presentation" class="card-row" width="100%" cellspacing="0" cellpadding="0">
     <tr>
-      <td class="card-col card-media" width="${cardMediaColWidthPx}" valign="top">${mediaHtml}</td>
-      <td class="card-col card-body" valign="top" style="padding-left:16px;">${bodyHtml}</td>
+      <td align="left" valign="top" style="font-size:0;line-height:0;">
+        <!--[if mso]><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td width="${cardMediaColWidthPx}" valign="top"><![endif]-->
+        <table role="presentation" class="card-media" cellspacing="0" cellpadding="0" align="left" style="display:inline-block;vertical-align:top;width:100%;max-width:${cardMediaColWidthPx}px;">
+          <tr>
+            <td style="padding:0;font-size:14px;line-height:1.4;">${mediaHtml}</td>
+          </tr>
+        </table>
+        <!--[if mso]></td><td valign="top"><![endif]-->
+        <table role="presentation" class="card-body" cellspacing="0" cellpadding="0" align="left" style="display:inline-block;vertical-align:top;width:100%;max-width:${cardBodyColMaxWidthPx}px;">
+          <tr>
+            <td class="card-body-cell" style="padding:12px 0 0;font-size:14px;line-height:1.4;">${bodyHtml}</td>
+          </tr>
+        </table>
+        <!--[if mso]></td></tr></table><![endif]-->
+      </td>
     </tr>
   </table>
 `;
@@ -294,6 +323,7 @@ export function renderWeeklyBOTDNewsletterHtml(params: {
       <style type="text/css">${responsiveEmailStyles}</style>
     </head>
     <body style="margin:0;padding:0;background:${brand.surfaceAlt};font-family:${brand.fontSans};color:${brand.onSurface};">
+      <style type="text/css">${responsiveEmailStyles}</style>
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
         <tr>
           <td align="center" style="padding:0 12px;">

@@ -38,6 +38,16 @@ export const getBaseUrl = (c: Context) => {
     } catch {
       // fall through to SITE_URL
     }
+
+    // Prefer the host the client actually reached (www vs apex behind Render/Cloudflare).
+    const forwardedHost = c.req.header("x-forwarded-host")?.split(",")[0]?.trim();
+    if (forwardedHost && !isLocalHostname(forwardedHost.split(":")[0] ?? forwardedHost)) {
+      const proto = (c.req.header("x-forwarded-proto") ?? "https")
+        .split(",")[0]
+        ?.trim();
+      return ensurePublicHttps(`${proto ?? "https"}://${forwardedHost}`);
+    }
+
     return siteUrl;
   }
 

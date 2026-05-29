@@ -47,8 +47,7 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
 
   return (
     <View>
-      <Text>Hello</Text>
-      {/* {botdBook && (
+      {botdBook && (
         <BookCard
           title="Book of The Day"
           book={botdBook}
@@ -75,13 +74,13 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
             followingByCreatorId[publisherResult.creator.id] ?? false
           }
         />
-      )} */}
-      {/* <NewsletterCard baseUrl={baseUrl} /> */}
-      {/* <LazyLoader
+      )}
+      <NewsletterCard baseUrl={baseUrl} />
+      <LazyLoader
         id="interviews-fragment"
         href={`${baseUrl}/hyperview/featured/tab/interviews`}
         style="interviews-fragment"
-      /> */}
+      />
     </View>
   );
 };

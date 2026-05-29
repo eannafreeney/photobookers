@@ -17,7 +17,7 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_SERVER_URL": "https://photobookers.com"
+        "EXPO_PUBLIC_SERVER_URL": "https://www.photobookers.com"
       }
     },
     "production": {
@@ -26,7 +26,7 @@
         "resourceClass": "m-medium"
       },
       "env": {
-        "EXPO_PUBLIC_SERVER_URL": "https://photobookers.com"
+        "EXPO_PUBLIC_SERVER_URL": "https://www.photobookers.com"
       }
     }
   },

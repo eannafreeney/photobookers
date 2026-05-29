@@ -38,7 +38,8 @@ describe("newsletter template rendering", () => {
     expect(html).toContain("Weekly BOTD");
     expect(html).toContain("Photobookers");
     expect(html).toContain("Instrument Sans");
-    expect(html).toContain("card-col");
+    expect(html).toContain("card-media");
+    expect(html).toContain("card-body");
     expect(html).toContain("@media only screen and (max-width: 600px)");
   });
 
