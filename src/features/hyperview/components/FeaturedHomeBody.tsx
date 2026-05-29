@@ -6,7 +6,10 @@ import { getTodaysBookOfTheDay } from "../../app/BOTDServices";
 import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
 import CreatorCard from "./CreatorCard";
+import Interviews from "./Interviews";
+import NewsletterCard from "./NewsletterCard";
 import { favoriteFlagsForBooks, followFlagsForCreators } from "../findFlags";
+import LazyLoader from "./LazyLoader";
 
 type Props = {
   baseUrl: string;
@@ -72,6 +75,12 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
           }
         />
       )}
+      <NewsletterCard baseUrl={baseUrl} />
+      <LazyLoader
+        id="interviews-fragment"
+        href={`${baseUrl}/hyperview/featured/tab/interviews`}
+        style="interviews-fragment"
+      />
     </View>
   );
 };

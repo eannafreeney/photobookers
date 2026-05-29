@@ -17,6 +17,7 @@ export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
+
   const [draftError] = await ensureCurrentWeeklyNewsletterDraft();
   if (draftError) {
     console.error("Failed to ensure weekly draft", draftError.reason);
@@ -27,22 +28,23 @@ export const GET = createRoute(async (c) => {
     weekStartQuery && weekStartQuery.length > 0
       ? parseDateString(weekStartQuery)
       : null;
-  if (weekStartForSelection && !Number.isNaN(weekStartForSelection.getTime())) {
-    const weekEndForSelection = new Date(weekStartForSelection);
-    weekEndForSelection.setUTCDate(weekEndForSelection.getUTCDate() + 6);
-    const [ensureWeekDraftError] = await ensureWeeklyNewsletterDraftForRange(
-      weekStartForSelection,
-      weekEndForSelection,
-    );
-    if (ensureWeekDraftError) {
-      console.error(
-        "Failed to ensure selected week draft",
-        ensureWeekDraftError.reason,
-      );
-    }
-  }
+  // if (weekStartForSelection && !Number.isNaN(weekStartForSelection.getTime())) {
+  //   const weekEndForSelection = new Date(weekStartForSelection);
+  //   weekEndForSelection.setUTCDate(weekEndForSelection.getUTCDate() + 6);
+  // const [ensureWeekDraftError] = await ensureWeeklyNewsletterDraftForRange(
+  //   weekStartForSelection,
+  //   weekEndForSelection,
+  // );
+  // if (ensureWeekDraftError) {
+  //   console.error(
+  //     "Failed to ensure selected week draft",
+  //     ensureWeekDraftError.reason,
+  //   );
+  // }
+  // }
 
   const campaigns = await listNewsletterCampaigns(16);
+
   const selectedCampaignIdFromWeek =
     weekStartForSelection && !Number.isNaN(weekStartForSelection.getTime())
       ? campaigns.find(
@@ -51,15 +53,18 @@ export const GET = createRoute(async (c) => {
             toDateString(weekStartForSelection),
         )?.id
       : null;
+
   const selectedCampaignId =
     c.req.query("campaignId") ??
     selectedCampaignIdFromWeek ??
     campaigns[0]?.id ??
     null;
+
   const selectedCampaign =
     campaigns.find((campaign) => campaign.id === selectedCampaignId) ??
     campaigns[0] ??
     null;
+
   const previewHtml = selectedCampaign
     ? buildCampaignPreviewHtml(selectedCampaign)
     : "";
@@ -140,64 +145,70 @@ type CampaignTextFormProps = {
   selectedCampaign: NewsletterCampaign;
 };
 
-const CampaignTextForm = ({ selectedCampaign }: CampaignTextFormProps) => (
-  <form
-    method="post"
-    action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/save`}
-    class="space-y-3"
-  >
-    <label class="block text-sm">
-      <span class="mb-1 block text-on-surface">Subject</span>
-      <input
-        type="text"
-        name="subject"
-        required
-        value={selectedCampaign.subject}
-        class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
-      />
-    </label>
-    <label class="block text-sm">
-      <span class="mb-1 block text-on-surface">Intro</span>
-      <textarea
-        name="introText"
-        required
-        rows={4}
-        class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
-      >
-        {selectedCampaign.introText}
-      </textarea>
-    </label>
-    <label class="block text-sm">
-      <span class="mb-1 block text-on-surface">Outro</span>
-      <textarea
-        name="outroText"
-        required
-        rows={4}
-        class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
-      >
-        {selectedCampaign.outroText}
-      </textarea>
-    </label>
-    <label class="block text-sm">
-      <span class="mb-1 block text-on-surface">CTA</span>
-      <input
-        type="text"
-        name="ctaText"
-        required
-        value={selectedCampaign.ctaText}
-        class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
-      />
-    </label>
-    <div class="flex flex-wrap gap-2">
-      <button
-        type="submit"
-        class="rounded border border-outline bg-surface-alt px-3 py-2 text-sm font-medium hover:bg-surface"
-      >
-        Save draft
-      </button>
-    </div>
-  </form>
-);
+const CampaignTextForm = ({ selectedCampaign }: CampaignTextFormProps) => {
+  const saveAttrs = {
+    "x-target": "toast",
+  };
+
+  return (
+    <FormPost
+      action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/save`}
+      class="space-y-3"
+      {...saveAttrs}
+    >
+      <label class="block text-sm">
+        <span class="mb-1 block text-on-surface">Subject</span>
+        <input
+          type="text"
+          name="subject"
+          required
+          value={selectedCampaign.subject}
+          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
+        />
+      </label>
+      <label class="block text-sm">
+        <span class="mb-1 block text-on-surface">Intro</span>
+        <textarea
+          name="introText"
+          required
+          rows={4}
+          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
+        >
+          {selectedCampaign.introText}
+        </textarea>
+      </label>
+      <label class="block text-sm">
+        <span class="mb-1 block text-on-surface">Outro</span>
+        <textarea
+          name="outroText"
+          required
+          rows={4}
+          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
+        >
+          {selectedCampaign.outroText}
+        </textarea>
+      </label>
+      <label class="block text-sm">
+        <span class="mb-1 block text-on-surface">CTA</span>
+        <input
+          type="text"
+          name="ctaText"
+          required
+          value={selectedCampaign.ctaText}
+          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
+        />
+      </label>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="submit"
+          class="rounded border border-outline bg-surface-alt px-3 py-2 text-sm font-medium hover:bg-surface cursor-pointer"
+        >
+          Save draft
+        </button>
+      </div>
+    </FormPost>
+  );
+};
 
 type CampaignControlsProps = {
   selectedCampaign: NewsletterCampaign;
@@ -212,7 +223,7 @@ const CampaignControls = ({ selectedCampaign }: CampaignControlsProps) => {
 
   return (
     <div class="rounded border border-outline bg-surface p-4">
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-outline pb-4 mb-4">
+      <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap gap-2">
           <FormPost
             action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/regenerate`}

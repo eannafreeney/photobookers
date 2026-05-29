@@ -31,6 +31,8 @@ type Props = PropsWithChildren<{
   headerVariant?: "default" | "featured";
   /** Bottom dock: static layout below a flex-1 scroll region (no absolute positioning). */
   showDock?: boolean;
+  /** Keep CustomHeader fixed; scroll page content in an inner region (non-docked screens). */
+  fixedHeader?: boolean;
   baseUrl?: string;
   dockActive?: HyperviewDockActive;
   user?: AuthUser | null;
@@ -58,6 +60,7 @@ export const AppLayout = ({
   showBackButton = true,
   headerVariant = "default",
   showDock = false,
+  fixedHeader = false,
   baseUrl,
   dockActive,
   artist,
@@ -72,16 +75,17 @@ export const AppLayout = ({
   claimHref,
 }: Props) => {
   const docked = Boolean(showDock && baseUrl);
+  const shellScroll = docked || fixedHeader;
 
   return (
     <Doc xmlns="https://hyperview.org/hyperview">
       <Screen>
         <Styles>
           {baseStyles()}
-          {docked ? dockShellStyles() : null}
+          {shellScroll ? dockShellStyles() : null}
           {extraStyles}
         </Styles>
-        <Body style="body" scroll={docked ? "false" : "true"}>
+        <Body style="body" scroll={shellScroll ? "false" : "true"}>
           {headerVariant === "featured" ? (
             <HomeNavbar baseUrl={baseUrl} user={user} />
           ) : (
@@ -124,6 +128,12 @@ export const AppLayout = ({
                 <HyperviewDock baseUrl={baseUrl} active={dockActive} />
               </View>
             )
+          ) : fixedHeader ? (
+            <View style="shell-column">
+              <ScrollView id={SHELL_SCROLL_ID} style="shell-scroll">
+                {children}
+              </ScrollView>
+            </View>
           ) : (
             children
           )}

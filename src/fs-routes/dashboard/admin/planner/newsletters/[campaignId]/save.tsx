@@ -8,6 +8,7 @@ import {
   getNewsletterCampaignById,
   updateNewsletterCampaignDraft,
 } from "../../../../../../features/dashboard/admin/planner/newsletterServices";
+import Alert from "../../../../../../components/app/Alert";
 
 export const POST = createRoute(
   paramValidator(newsletterCampaignParamSchema),
@@ -16,10 +17,10 @@ export const POST = createRoute(
     const { campaignId } = c.req.valid("param");
     const form = c.req.valid("form");
     const campaign = await getNewsletterCampaignById(campaignId);
-    if (!campaign) return c.redirect("/dashboard/admin/planner/newsletters");
+    if (!campaign) return c.html(<></>);
 
     const isSent = campaign.status === "sent";
-    await updateNewsletterCampaignDraft(campaignId, {
+    const [error] = await updateNewsletterCampaignDraft(campaignId, {
       subject: form.subject,
       introText: form.introText,
       outroText: form.outroText,
@@ -27,6 +28,9 @@ export const POST = createRoute(
       status: isSent ? "sent" : "draft",
       sentAt: isSent ? campaign.sentAt : null,
     });
-    return c.redirect(`/dashboard/admin/planner/newsletters?campaignId=${campaignId}`);
+
+    if (error) return c.html(<Alert type="danger" message={error.reason} />);
+
+    return c.html(<Alert type="success" message="Draft saved." />);
   },
 );

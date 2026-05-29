@@ -13,6 +13,9 @@ import {
 import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps";
 import { creatorCardStyles } from "./CreatorCard";
 import { feedListStyles } from "./FeedList";
+import { interviewsStyles } from "./Interviews";
+import { newsletterCardStyles } from "./NewsletterCard";
+import { sectionHeaderStyles } from "./SectionHeader";
 import { signInPromptStyles } from "./SignInPrompt";
 import type { AuthUser } from "../../../../types";
 
@@ -76,5 +79,8 @@ const pageStyles = () => (
     {bookCardStyles()}
     {creatorCardStyles()}
     {feedListStyles()}
+    {sectionHeaderStyles()}
+    {interviewsStyles()}
+    {newsletterCardStyles()}
   </>
 );

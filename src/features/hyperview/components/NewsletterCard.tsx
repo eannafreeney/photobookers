@@ -8,6 +8,44 @@ import {
   View,
 } from "../../../lib/hxml-comps";
 
+/** Element id for `replace` after submit — must not match any `<style id="…">`. */
+export const NEWSLETTER_FORM_FIELDS_ID = "newsletter-form-fields";
+
+type NewsletterFormFieldsProps = {
+  baseUrl: string;
+  email?: string;
+  submitLabel?: string;
+  showSubmitBehavior?: boolean;
+};
+
+export const HyperviewNewsletterFormFields: FC<NewsletterFormFieldsProps> = ({
+  baseUrl,
+  email = "",
+  submitLabel = "Sign up",
+  showSubmitBehavior = true,
+}) => (
+  <View id={NEWSLETTER_FORM_FIELDS_ID} xmlns="https://hyperview.org/hyperview">
+    <TextField
+      style="newsletter-input"
+      name="email"
+      placeholder="you@example.com"
+      keyboard-type="email-address"
+      value={email}
+    />
+    <View style="newsletter-btn" id="newsletter-submit">
+      <Text style="newsletter-btn-label">{submitLabel}</Text>
+      {showSubmitBehavior ? (
+        <Behavior
+          action="replace"
+          verb="post"
+          href={`${baseUrl}/newsletter`}
+          target={NEWSLETTER_FORM_FIELDS_ID}
+        />
+      ) : null}
+    </View>
+  </View>
+);
+
 type NewsletterCardProps = {
   baseUrl?: string;
 };
@@ -16,21 +54,7 @@ const NewsletterCard: FC<NewsletterCardProps> = ({ baseUrl = "" }) => (
   <View style="newsletter-card">
     <Text style="newsletter-title">✉ Join the mailing list</Text>
     <Form id="newsletter-form">
-      <TextField
-        style="newsletter-input"
-        name="email"
-        placeholder="you@example.com"
-        keyboard-type="email-address"
-      />
-      <View style="newsletter-btn" id="newsletter-submit">
-        <Text style="newsletter-btn-label">Sign up</Text>
-        <Behavior
-          action="replace-inner"
-          verb="post"
-          href={`${baseUrl}/api/newsletter`}
-          target="newsletter-submit"
-        />
-      </View>
+      <HyperviewNewsletterFormFields baseUrl={baseUrl} />
     </Form>
   </View>
 );

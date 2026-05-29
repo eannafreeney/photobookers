@@ -86,7 +86,7 @@ export async function ensureWeeklyNewsletterDraftForRange(
         weekStart,
         weekEnd,
         status: "draft",
-        subject: `${DEFAULT_WEEKLY_NEWSLETTER_SUBJECT} (${formatWeekRangeLabel(weekStart, weekEnd)})`,
+        subject: DEFAULT_WEEKLY_NEWSLETTER_SUBJECT,
         introText: DEFAULT_WEEKLY_NEWSLETTER_INTRO,
         outroText: DEFAULT_WEEKLY_NEWSLETTER_OUTRO,
         ctaText: DEFAULT_WEEKLY_NEWSLETTER_CTA,
@@ -129,7 +129,9 @@ export async function deleteNewsletterCampaign(campaignId: string) {
   const campaign = await getNewsletterCampaignById(campaignId);
   if (!campaign) return err({ reason: "Newsletter campaign not found" });
   if (campaign.status === "sent") {
-    return err({ reason: "Cannot delete a campaign that has already been sent" });
+    return err({
+      reason: "Cannot delete a campaign that has already been sent",
+    });
   }
 
   try {
