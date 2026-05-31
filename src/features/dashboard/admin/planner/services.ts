@@ -474,6 +474,15 @@ export async function deletePublisherOfTheWeekByWeekStart(weekStart: Date) {
 export async function getCreatorsByTypeForPlanner(
   type: "artist" | "publisher",
 ) {
+  const usedCreatorIds =
+    type === "artist"
+      ? db
+          .select({ creatorId: artistOfTheWeek.creatorId })
+          .from(artistOfTheWeek)
+      : db
+          .select({ creatorId: publisherOfTheWeek.creatorId })
+          .from(publisherOfTheWeek);
+
   return db.query.creators.findMany({
     columns: {
       id: true,
@@ -481,7 +490,10 @@ export async function getCreatorsByTypeForPlanner(
       coverUrl: true,
       slug: true,
     },
-    where: eq(creators.type, type),
+    where: and(
+      eq(creators.type, type),
+      notInArray(creators.id, usedCreatorIds),
+    ),
     orderBy: (c, { asc }) => [asc(c.displayName)],
   });
 }
