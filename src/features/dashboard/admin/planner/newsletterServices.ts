@@ -17,10 +17,10 @@ import {
   toWeekStart,
 } from "../../../../lib/utils";
 import {
-  renderWeeklyBOTDNewsletterHtml,
   type WeeklyNewsletterBookItem,
   type WeeklyNewsletterCreatorSpotlight,
 } from "./newsletterTemplate";
+import { renderWeeklyBOTDNewsletterHtmlMjml } from "./newsletterTemplateMjml";
 import { formatWeekRangeLabel, getPreviousWeekRange } from "./newsletterUtils";
 
 export type WeeklyNewsletterGeneratedContent = {
@@ -318,11 +318,14 @@ const normalizeStoredCreatorSpotlight = (
   };
 };
 
-export function buildCampaignPreviewHtml(
+export async function buildCampaignPreviewHtml(
   campaign: typeof newsletterCampaigns.$inferSelect,
 ) {
   const generated = campaign.generatedContent;
-  return renderWeeklyBOTDNewsletterHtml({
+  const { artistOfTheWeek, publisherOfTheWeek } =
+    await getWeeklyCreatorSpotlights(campaign.weekStart);
+
+  return renderWeeklyBOTDNewsletterHtmlMjml({
     weekStart: campaign.weekStart,
     weekEnd: campaign.weekEnd,
     subject: campaign.subject,
@@ -330,12 +333,12 @@ export function buildCampaignPreviewHtml(
     outroText: campaign.outroText,
     ctaText: campaign.ctaText,
     items: generated?.items ?? [],
-    artistOfTheWeek: normalizeStoredCreatorSpotlight(
-      generated?.artistOfTheWeek,
-    ),
-    publisherOfTheWeek: normalizeStoredCreatorSpotlight(
-      generated?.publisherOfTheWeek,
-    ),
+    artistOfTheWeek:
+      artistOfTheWeek ??
+      normalizeStoredCreatorSpotlight(generated?.artistOfTheWeek),
+    publisherOfTheWeek:
+      publisherOfTheWeek ??
+      normalizeStoredCreatorSpotlight(generated?.publisherOfTheWeek),
   });
 }
 

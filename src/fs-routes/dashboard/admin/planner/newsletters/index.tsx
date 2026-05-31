@@ -51,7 +51,7 @@ export const GET = createRoute(async (c) => {
   }
 
   const previewHtml = selectedCampaign
-    ? buildCampaignPreviewHtml(selectedCampaign)
+    ? await buildCampaignPreviewHtml(selectedCampaign)
     : "";
 
   return c.html(
@@ -127,8 +127,8 @@ const CampaignHeader = ({ selectedCampaign }: CampaignHeaderProps) => (
         {toDateString(selectedCampaign.weekEnd)}
       </p>
       <p class="text-sm text-on-surface">
-        Edit copy, copy the HTML into MailerLite, then check the box when it has
-        been sent.
+        Edit copy, paste the HTML into MailerLite&apos;s Custom HTML editor, then
+        check the box when it has been sent. Use Preview and test before sending.
       </p>
     </div>
   </div>
@@ -321,8 +321,10 @@ const CampaignPreview = ({ previewHtml }: CampaignPreviewProps) => (
           type="button"
           class="rounded border border-outline bg-surface-alt px-3 py-2 text-sm font-medium hover:bg-surface cursor-pointer"
           x-on:click="
+            const iframe = document.querySelector('iframe[title=\'Weekly newsletter preview\']');
             const source = document.getElementById('newsletter-html-source');
-            if (source) navigator.clipboard.writeText(source.value);
+            const html = iframe?.getAttribute('srcdoc') ?? source?.value ?? '';
+            if (html) navigator.clipboard.writeText(html);
             copied = true;
             setTimeout(() => copied = false, 2000);
           "

@@ -285,7 +285,7 @@ const buildCreatorSpotlightSection = (
   creator: WeeklyNewsletterCreatorSpotlight,
 ) => (creator ? buildCreatorSpotlightCard(label, creator) : "");
 
-export function renderWeeklyBOTDNewsletterHtml(params: {
+export type WeeklyNewsletterRenderParams = {
   weekStart: Date;
   weekEnd: Date;
   subject: string;
@@ -295,7 +295,11 @@ export function renderWeeklyBOTDNewsletterHtml(params: {
   items: WeeklyNewsletterBookItem[];
   artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
   publisherOfTheWeek: WeeklyNewsletterCreatorSpotlight;
-}) {
+};
+
+export function renderWeeklyBOTDNewsletterHtml(
+  params: WeeklyNewsletterRenderParams,
+) {
   const spotlightRows = [
     buildCreatorSpotlightSection("Artist of the week", params.artistOfTheWeek),
     buildCreatorSpotlightSection(

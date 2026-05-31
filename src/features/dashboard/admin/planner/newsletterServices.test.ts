@@ -1,6 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { formatWeekRangeLabel, getPreviousWeekRange } from "./newsletterUtils";
 import { renderWeeklyBOTDNewsletterHtml } from "./newsletterTemplate";
+import { renderWeeklyBOTDNewsletterHtmlMjml } from "./newsletterTemplateMjml";
+
+const sampleNewsletterParams = {
+  weekStart: new Date(Date.UTC(2026, 4, 18)),
+  weekEnd: new Date(Date.UTC(2026, 4, 24)),
+  subject: "Weekly BOTD",
+  introText: "Intro copy",
+  outroText: "Outro copy",
+  ctaText: "Explore",
+  items: [] as const,
+  artistOfTheWeek: null,
+  publisherOfTheWeek: null,
+};
 
 describe("weekly newsletter date helpers", () => {
   it("calculates previous full ISO week range", () => {
@@ -113,5 +126,56 @@ describe("newsletter template rendering", () => {
     expect(html).not.toContain("2026-05-31");
     expect(html).toContain("View book");
     expect(html).toContain('class="email-btn-primary"');
+  });
+});
+
+describe("newsletter MJML template rendering", () => {
+  it("renders the same core content as the hand-built HTML template", () => {
+    const html = renderWeeklyBOTDNewsletterHtmlMjml({
+      ...sampleNewsletterParams,
+      items: [],
+    });
+
+    expect(html).toContain("No BOTD entries were scheduled for this week.");
+    expect(html).toContain("Weekly BOTD");
+    expect(html).toContain("Photobookers");
+    expect(html).toContain("Intro copy");
+    expect(html).toContain("Outro copy");
+    expect(html.match(/<!doctype html>/i)).not.toBeNull();
+  });
+
+  it("renders book cards and creator spotlights", () => {
+    const html = renderWeeklyBOTDNewsletterHtmlMjml({
+      ...sampleNewsletterParams,
+      subject: "Weekly roundup",
+      items: [
+        {
+          date: "2026-05-31",
+          bookId: "id",
+          bookSlug: "some-book",
+          title: "Some Book",
+          coverUrl: "https://example.com/cover.jpg",
+          artistName: "Jane Artist",
+          artistSlug: "jane-artist",
+          publisherName: null,
+          publisherSlug: null,
+        },
+      ],
+      artistOfTheWeek: {
+        displayName: "Jane Artist",
+        slug: "jane-artist",
+        coverUrl: "https://example.com/artist.jpg",
+        tagline: "Documentary photographer",
+        location: "Berlin, Germany",
+      },
+      publisherOfTheWeek: null,
+    });
+
+    expect(html).toContain("May 31, 2026");
+    expect(html).toContain("Some Book");
+    expect(html).toContain("View book");
+    expect(html).toContain("Artist of the week");
+    expect(html).toContain("Documentary photographer");
+    expect(html).toContain("/creators/jane-artist");
   });
 });
