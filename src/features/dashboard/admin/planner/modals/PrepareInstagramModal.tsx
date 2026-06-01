@@ -14,8 +14,9 @@ type Props = {
 };
 
 const PrepareInstagramModal = ({ week, entries }: Props) => {
-  const alpineAttrs = {
-    "x-target": "toast modal-root",
+  const saveAlpineAttrs = {
+    "x-target": "toast",
+    "x-target.error": "toast",
     "x-on:ajax:after":
       "$dispatch('dialog:close'), $dispatch('planner:updated')",
   };
@@ -34,7 +35,8 @@ const PrepareInstagramModal = ({ week, entries }: Props) => {
     : "Clear this week's Instagram plan?";
 
   const clearAlpineAttrs = {
-    "x-target": "toast modal-root",
+    "x-target": "toast",
+    "x-target.error": "toast",
     "x-on:ajax:after":
       "$dispatch('dialog:close'), $dispatch('planner:updated')",
     "@ajax:before": `confirm(${JSON.stringify(clearConfirm)}) || $event.preventDefault()`,
@@ -51,11 +53,11 @@ const PrepareInstagramModal = ({ week, entries }: Props) => {
         <div class="max-h-[min(75vh,calc(100dvh-5rem))] overflow-hidden">
         <FormPost
           action={`/dashboard/admin/planner/instagram/${week}/prepare`}
-          class="flex h-full max-h-[min(75vh,calc(100dvh-5rem))] flex-col"
-          {...alpineAttrs}
+          class="flex min-h-0 flex-1 flex-col"
+          {...saveAlpineAttrs}
         >
           <input type="hidden" name="week" value={week} />
-          <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain pr-1">
+          <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain pr-1 pb-4">
           {entries.map((entry) => {
             const dateKey = toDateString(entry.date);
             const book = entry.book;
@@ -131,28 +133,27 @@ const PrepareInstagramModal = ({ week, entries }: Props) => {
             );
           })}
           </div>
-          <div class="mt-4 flex shrink-0 flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            class="mt-4 shrink-0 rounded border border-primary bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 cursor-pointer"
+          >
+            Save
+          </button>
+        </FormPost>
+        {hasInstagramPlan && (
+          <FormPost
+            action={`/dashboard/admin/planner/instagram/${week}/clear`}
+            class="mt-3 shrink-0"
+            {...clearAlpineAttrs}
+          >
             <button
               type="submit"
-              class="rounded border border-primary bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 cursor-pointer"
+              class="rounded border border-danger px-4 py-2 text-sm font-medium text-danger hover:bg-danger/10 cursor-pointer"
             >
-              Save
+              Clear Instagram plan
             </button>
-            {hasInstagramPlan && (
-              <FormPost
-                action={`/dashboard/admin/planner/instagram/${week}/clear`}
-                {...clearAlpineAttrs}
-              >
-                <button
-                  type="submit"
-                  class="rounded border border-danger px-4 py-2 text-sm font-medium text-danger hover:bg-danger/10 cursor-pointer"
-                >
-                  Clear Instagram plan
-                </button>
-              </FormPost>
-            )}
-          </div>
-        </FormPost>
+          </FormPost>
+        )}
         </div>
       )}
     </Modal>

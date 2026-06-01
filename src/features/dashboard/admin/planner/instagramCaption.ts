@@ -39,14 +39,14 @@ export function buildDefaultInstagramCaption(book: BookForCaption): string {
   if (book.artist?.displayName) {
     const artistHandle = formatInstagramHandle(book.artist.instagram);
     lines.push(
-      `${book.artist.displayName} ${artistHandle ? `(${artistHandle})` : ""}`,
+      `– ${book.artist.displayName} ${artistHandle ? `(${artistHandle})` : ""}`,
     );
   }
 
   if (book.publisher?.displayName) {
     const publisherHandle = formatInstagramHandle(book.publisher.instagram);
     lines.push(
-      `Published by ${book.publisher.displayName} ${publisherHandle ? `(${publisherHandle})` : ""}`,
+      `– Published by ${book.publisher.displayName} ${publisherHandle ? `(${publisherHandle})` : ""}`,
     );
   }
 
