@@ -13,6 +13,7 @@ import {
 import { and, gte, lte } from "drizzle-orm";
 import { getWeekStarts } from "./utils";
 import { toWeekString } from "../../../../lib/utils";
+import { getInstagramPreparedByWeekStart } from "./instagramServices";
 
 export type PlannerYearData = {
   botdByDate: Awaited<ReturnType<typeof getBotdByDate>>;
@@ -24,17 +25,24 @@ export type PlannerYearData = {
   > | null;
   publisherLoadError: string | null;
   newsletterStatusByWeekStart: Map<string, NewsletterCampaignStatus | null>;
+  instagramPreparedByWeekStart: Map<string, boolean>;
 };
 
 export const loadPlannerYearData = async (
   year: number,
 ): Promise<PlannerYearData> => {
-  const [botdByDate, artistResult, publisherResult, newsletterStatusByWeekStart] =
-    await Promise.all([
+  const [
+    botdByDate,
+    artistResult,
+    publisherResult,
+    newsletterStatusByWeekStart,
+    instagramPreparedByWeekStart,
+  ] = await Promise.all([
     getBotdByDate(year),
     getArtistsOfTheWeekByWeekStart(year),
     getPublishersOfTheWeekByWeekStart(year),
     getNewsletterStatusesByWeekStart(year),
+    getInstagramPreparedByWeekStart(year),
   ]);
 
   const [artistErr, artistMap] = artistResult;
@@ -47,6 +55,7 @@ export const loadPlannerYearData = async (
     publisherByWeekStart: publisherErr ? null : publisherMap,
     publisherLoadError: publisherErr?.reason ?? null,
     newsletterStatusByWeekStart,
+    instagramPreparedByWeekStart,
   };
 };
 

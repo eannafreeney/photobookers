@@ -1,4 +1,4 @@
-type Result<S, E extends { reason: string }> = [E, null] | [null, S];
+export type Result<S, E extends { reason: string }> = [E, null] | [null, S];
 
 export const ok = <S>(data: S): Result<S, never> => [null, data];
 export const err = <E extends { reason: string }>(

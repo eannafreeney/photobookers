@@ -97,77 +97,79 @@ import * as m90 from "./fs-routes/hyperview/(app)/settings/tab/terms";
 import * as m91 from "./fs-routes/hyperview/(app)/terms";
 import * as m92 from "./fs-routes/hyperview/+layout";
 import * as m93 from "./fs-routes/hyperview/index";
-import * as m94 from "./fs-routes/jobs/cron/notify-followers-new-books";
-import * as m95 from "./fs-routes/jobs/cron/weekly-botd-newsletter";
-import * as m96 from "./fs-routes/(app)/books/[slug]";
-import * as m97 from "./fs-routes/(app)/books/preview/[slug]";
-import * as m98 from "./fs-routes/(app)/books/tags/[tag]";
-import * as m99 from "./fs-routes/(app)/creators/[slug]";
-import * as m100 from "./fs-routes/(app)/fragments/related-books/[slug]";
-import * as m101 from "./fs-routes/(app)/interviews/[tokenId]";
-import * as m102 from "./fs-routes/(app)/interviews/view/[slug]";
-import * as m103 from "./fs-routes/(app)/users/[userId]/update";
-import * as m104 from "./fs-routes/api/books/[bookId]/collect";
-import * as m105 from "./fs-routes/api/books/[bookId]/comments/[commentId]";
-import * as m106 from "./fs-routes/api/books/[bookId]/comments";
-import * as m107 from "./fs-routes/api/books/[bookId]/like";
-import * as m108 from "./fs-routes/api/books/[bookId]/wishlist";
-import * as m109 from "./fs-routes/api/creators/[creatorId]/follow";
-import * as m110 from "./fs-routes/api/users/[userId]/profile-image";
-import * as m111 from "./fs-routes/claims/[creatorId]/register-and-claim";
-import * as m112 from "./fs-routes/claims/[creatorId]";
-import * as m113 from "./fs-routes/dashboard/admin/books/[bookId]/approve";
-import * as m114 from "./fs-routes/dashboard/admin/books/[bookId]/reject";
-import * as m115 from "./fs-routes/dashboard/admin/books/[bookId]";
-import * as m116 from "./fs-routes/dashboard/admin/claims/[claimId]/approve";
-import * as m117 from "./fs-routes/dashboard/admin/claims/[claimId]/reject";
-import * as m118 from "./fs-routes/dashboard/admin/creators/[creatorId]/delete";
-import * as m119 from "./fs-routes/dashboard/admin/creators/[creatorId]/remove-owner";
-import * as m120 from "./fs-routes/dashboard/admin/creators/[creatorId]/send-interview";
-import * as m121 from "./fs-routes/dashboard/admin/creators/[creatorId]/send-welcome-email";
-import * as m122 from "./fs-routes/dashboard/admin/creators/[creatorId]/update";
-import * as m123 from "./fs-routes/dashboard/admin/creators/[creatorId]";
-import * as m124 from "./fs-routes/dashboard/admin/creators/assign-owner/[creatorId]";
-import * as m125 from "./fs-routes/dashboard/admin/creators/assign-owner-content/[creatorId]";
-import * as m126 from "./fs-routes/dashboard/admin/interviews/[interviewId]";
-import * as m127 from "./fs-routes/dashboard/admin/notifications/[notificationId]/read";
-import * as m128 from "./fs-routes/dashboard/admin/planner/artist-of-the-week/[week]/create";
-import * as m129 from "./fs-routes/dashboard/admin/planner/artist-of-the-week/[week]";
-import * as m130 from "./fs-routes/dashboard/admin/planner/book-of-the-day/[date]/create";
-import * as m131 from "./fs-routes/dashboard/admin/planner/book-of-the-day/[date]";
-import * as m132 from "./fs-routes/dashboard/admin/planner/newsletters/[campaignId]/delete";
-import * as m133 from "./fs-routes/dashboard/admin/planner/newsletters/[campaignId]/mark-sent";
-import * as m134 from "./fs-routes/dashboard/admin/planner/newsletters/[campaignId]/regenerate";
-import * as m135 from "./fs-routes/dashboard/admin/planner/newsletters/[campaignId]/save";
-import * as m136 from "./fs-routes/dashboard/admin/planner/publisher-of-the-week/[week]/create";
-import * as m137 from "./fs-routes/dashboard/admin/planner/publisher-of-the-week/[week]";
-import * as m138 from "./fs-routes/dashboard/admin/users/[userId]";
-import * as m139 from "./fs-routes/dashboard/books/[bookId]/publisher";
-import * as m140 from "./fs-routes/dashboard/books/[bookId]/resubmit";
-import * as m141 from "./fs-routes/dashboard/books/[bookId]";
-import * as m142 from "./fs-routes/dashboard/creators/[creatorId]";
-import * as m143 from "./fs-routes/dashboard/images/books/[bookId]/cover";
-import * as m144 from "./fs-routes/dashboard/images/books/[bookId]/gallery";
-import * as m145 from "./fs-routes/dashboard/images/creators/[creatorId]/cover";
-import * as m146 from "./fs-routes/dashboard/images/users/[userId]/profile";
-import * as m147 from "./fs-routes/dashboard/messages/[creatorId]/[messageId]";
-import * as m148 from "./fs-routes/dashboard/messages/[creatorId]";
-import * as m149 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/artist-books/[artistId]";
-import * as m150 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/artist";
-import * as m151 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/book-content";
-import * as m152 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/book";
-import * as m153 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/comments";
-import * as m154 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/publisher-books/[publisherId]";
-import * as m155 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/publisher";
-import * as m156 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/about";
-import * as m157 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/artists";
-import * as m158 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/books-content";
-import * as m159 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/books";
-import * as m160 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/messages";
-import * as m161 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/publishers";
-import * as m162 from "./fs-routes/hyperview/(app)/creators/[id]/tab/books-content";
-import * as m163 from "./fs-routes/hyperview/(app)/interviews/view/[slug]";
-import * as m164 from "./fs-routes/hyperview/(app)/tags/[tag]";
+import * as m94 from "./fs-routes/jobs/cron/daily-botd-instagram";
+import * as m95 from "./fs-routes/jobs/cron/notify-followers-new-books";
+import * as m96 from "./fs-routes/jobs/cron/weekly-botd-newsletter";
+import * as m97 from "./fs-routes/(app)/books/[slug]";
+import * as m98 from "./fs-routes/(app)/books/preview/[slug]";
+import * as m99 from "./fs-routes/(app)/books/tags/[tag]";
+import * as m100 from "./fs-routes/(app)/creators/[slug]";
+import * as m101 from "./fs-routes/(app)/fragments/related-books/[slug]";
+import * as m102 from "./fs-routes/(app)/interviews/[tokenId]";
+import * as m103 from "./fs-routes/(app)/interviews/view/[slug]";
+import * as m104 from "./fs-routes/(app)/users/[userId]/update";
+import * as m105 from "./fs-routes/api/books/[bookId]/collect";
+import * as m106 from "./fs-routes/api/books/[bookId]/comments/[commentId]";
+import * as m107 from "./fs-routes/api/books/[bookId]/comments";
+import * as m108 from "./fs-routes/api/books/[bookId]/like";
+import * as m109 from "./fs-routes/api/books/[bookId]/wishlist";
+import * as m110 from "./fs-routes/api/creators/[creatorId]/follow";
+import * as m111 from "./fs-routes/api/users/[userId]/profile-image";
+import * as m112 from "./fs-routes/claims/[creatorId]/register-and-claim";
+import * as m113 from "./fs-routes/claims/[creatorId]";
+import * as m114 from "./fs-routes/dashboard/admin/books/[bookId]/approve";
+import * as m115 from "./fs-routes/dashboard/admin/books/[bookId]/reject";
+import * as m116 from "./fs-routes/dashboard/admin/books/[bookId]";
+import * as m117 from "./fs-routes/dashboard/admin/claims/[claimId]/approve";
+import * as m118 from "./fs-routes/dashboard/admin/claims/[claimId]/reject";
+import * as m119 from "./fs-routes/dashboard/admin/creators/[creatorId]/delete";
+import * as m120 from "./fs-routes/dashboard/admin/creators/[creatorId]/remove-owner";
+import * as m121 from "./fs-routes/dashboard/admin/creators/[creatorId]/send-interview";
+import * as m122 from "./fs-routes/dashboard/admin/creators/[creatorId]/send-welcome-email";
+import * as m123 from "./fs-routes/dashboard/admin/creators/[creatorId]/update";
+import * as m124 from "./fs-routes/dashboard/admin/creators/[creatorId]";
+import * as m125 from "./fs-routes/dashboard/admin/creators/assign-owner/[creatorId]";
+import * as m126 from "./fs-routes/dashboard/admin/creators/assign-owner-content/[creatorId]";
+import * as m127 from "./fs-routes/dashboard/admin/interviews/[interviewId]";
+import * as m128 from "./fs-routes/dashboard/admin/notifications/[notificationId]/read";
+import * as m129 from "./fs-routes/dashboard/admin/planner/artist-of-the-week/[week]/create";
+import * as m130 from "./fs-routes/dashboard/admin/planner/artist-of-the-week/[week]";
+import * as m131 from "./fs-routes/dashboard/admin/planner/book-of-the-day/[date]/create";
+import * as m132 from "./fs-routes/dashboard/admin/planner/book-of-the-day/[date]";
+import * as m133 from "./fs-routes/dashboard/admin/planner/instagram/[week]/prepare";
+import * as m134 from "./fs-routes/dashboard/admin/planner/newsletters/[campaignId]/delete";
+import * as m135 from "./fs-routes/dashboard/admin/planner/newsletters/[campaignId]/mark-sent";
+import * as m136 from "./fs-routes/dashboard/admin/planner/newsletters/[campaignId]/regenerate";
+import * as m137 from "./fs-routes/dashboard/admin/planner/newsletters/[campaignId]/save";
+import * as m138 from "./fs-routes/dashboard/admin/planner/publisher-of-the-week/[week]/create";
+import * as m139 from "./fs-routes/dashboard/admin/planner/publisher-of-the-week/[week]";
+import * as m140 from "./fs-routes/dashboard/admin/users/[userId]";
+import * as m141 from "./fs-routes/dashboard/books/[bookId]/publisher";
+import * as m142 from "./fs-routes/dashboard/books/[bookId]/resubmit";
+import * as m143 from "./fs-routes/dashboard/books/[bookId]";
+import * as m144 from "./fs-routes/dashboard/creators/[creatorId]";
+import * as m145 from "./fs-routes/dashboard/images/books/[bookId]/cover";
+import * as m146 from "./fs-routes/dashboard/images/books/[bookId]/gallery";
+import * as m147 from "./fs-routes/dashboard/images/creators/[creatorId]/cover";
+import * as m148 from "./fs-routes/dashboard/images/users/[userId]/profile";
+import * as m149 from "./fs-routes/dashboard/messages/[creatorId]/[messageId]";
+import * as m150 from "./fs-routes/dashboard/messages/[creatorId]";
+import * as m151 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/artist-books/[artistId]";
+import * as m152 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/artist";
+import * as m153 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/book-content";
+import * as m154 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/book";
+import * as m155 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/comments";
+import * as m156 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/publisher-books/[publisherId]";
+import * as m157 from "./fs-routes/hyperview/(app)/books/[bookId]/tab/publisher";
+import * as m158 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/about";
+import * as m159 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/artists";
+import * as m160 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/books-content";
+import * as m161 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/books";
+import * as m162 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/messages";
+import * as m163 from "./fs-routes/hyperview/(app)/creators/[creatorId]/tab/publishers";
+import * as m164 from "./fs-routes/hyperview/(app)/creators/[id]/tab/books-content";
+import * as m165 from "./fs-routes/hyperview/(app)/interviews/view/[slug]";
+import * as m166 from "./fs-routes/hyperview/(app)/tags/[tag]";
 
 export const manifest: Manifest = [
   {
@@ -829,500 +831,514 @@ export const manifest: Manifest = [
     module: m93
   },
   {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/jobs/cron/daily-botd-instagram.tsx",
+    urlPath: "/jobs/cron/daily-botd-instagram",
+    type: "handler",
+    precedence: 1,
+    module: m94
+  },
+  {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/jobs/cron/notify-followers-new-books.tsx",
     urlPath: "/jobs/cron/notify-followers-new-books",
     type: "handler",
     precedence: 1,
-    module: m94
+    module: m95
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/jobs/cron/weekly-botd-newsletter.tsx",
     urlPath: "/jobs/cron/weekly-botd-newsletter",
     type: "handler",
     precedence: 1,
-    module: m95
+    module: m96
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/books/[slug].tsx",
     urlPath: "/books/:slug",
     type: "handler",
     precedence: 2,
-    module: m96
+    module: m97
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/books/preview/[slug].tsx",
     urlPath: "/books/preview/:slug",
     type: "handler",
     precedence: 2,
-    module: m97
+    module: m98
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/books/tags/[tag].tsx",
     urlPath: "/books/tags/:tag",
     type: "handler",
     precedence: 2,
-    module: m98
+    module: m99
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/creators/[slug].tsx",
     urlPath: "/creators/:slug",
     type: "handler",
     precedence: 2,
-    module: m99
+    module: m100
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/fragments/related-books/[slug].tsx",
     urlPath: "/fragments/related-books/:slug",
     type: "handler",
     precedence: 2,
-    module: m100
+    module: m101
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/interviews/[tokenId].tsx",
     urlPath: "/interviews/:tokenId",
     type: "handler",
     precedence: 2,
-    module: m101
+    module: m102
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/interviews/view/[slug].tsx",
     urlPath: "/interviews/view/:slug",
     type: "handler",
     precedence: 2,
-    module: m102
+    module: m103
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/(app)/users/[userId]/update.tsx",
     urlPath: "/users/:userId/update",
     type: "handler",
     precedence: 2,
-    module: m103
+    module: m104
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/books/[bookId]/collect.tsx",
     urlPath: "/api/books/:bookId/collect",
     type: "handler",
     precedence: 2,
-    module: m104
+    module: m105
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/books/[bookId]/comments/[commentId].tsx",
     urlPath: "/api/books/:bookId/comments/:commentId",
     type: "handler",
     precedence: 2,
-    module: m105
+    module: m106
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/books/[bookId]/comments.tsx",
     urlPath: "/api/books/:bookId/comments",
     type: "handler",
     precedence: 2,
-    module: m106
+    module: m107
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/books/[bookId]/like.tsx",
     urlPath: "/api/books/:bookId/like",
     type: "handler",
     precedence: 2,
-    module: m107
+    module: m108
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/books/[bookId]/wishlist.tsx",
     urlPath: "/api/books/:bookId/wishlist",
     type: "handler",
     precedence: 2,
-    module: m108
+    module: m109
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/creators/[creatorId]/follow.tsx",
     urlPath: "/api/creators/:creatorId/follow",
     type: "handler",
     precedence: 2,
-    module: m109
+    module: m110
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/users/[userId]/profile-image.tsx",
     urlPath: "/api/users/:userId/profile-image",
     type: "handler",
     precedence: 2,
-    module: m110
+    module: m111
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/claims/[creatorId]/register-and-claim.tsx",
     urlPath: "/claims/:creatorId/register-and-claim",
     type: "handler",
     precedence: 2,
-    module: m111
+    module: m112
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/claims/[creatorId].tsx",
     urlPath: "/claims/:creatorId",
     type: "handler",
     precedence: 2,
-    module: m112
+    module: m113
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/books/[bookId]/approve.tsx",
     urlPath: "/dashboard/admin/books/:bookId/approve",
     type: "handler",
     precedence: 2,
-    module: m113
+    module: m114
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/books/[bookId]/reject.tsx",
     urlPath: "/dashboard/admin/books/:bookId/reject",
     type: "handler",
     precedence: 2,
-    module: m114
+    module: m115
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/books/[bookId].tsx",
     urlPath: "/dashboard/admin/books/:bookId",
     type: "handler",
     precedence: 2,
-    module: m115
+    module: m116
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/claims/[claimId]/approve.tsx",
     urlPath: "/dashboard/admin/claims/:claimId/approve",
     type: "handler",
     precedence: 2,
-    module: m116
+    module: m117
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/claims/[claimId]/reject.tsx",
     urlPath: "/dashboard/admin/claims/:claimId/reject",
     type: "handler",
     precedence: 2,
-    module: m117
+    module: m118
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/creators/[creatorId]/delete.tsx",
     urlPath: "/dashboard/admin/creators/:creatorId/delete",
     type: "handler",
     precedence: 2,
-    module: m118
+    module: m119
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/creators/[creatorId]/remove-owner.tsx",
     urlPath: "/dashboard/admin/creators/:creatorId/remove-owner",
     type: "handler",
     precedence: 2,
-    module: m119
+    module: m120
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/creators/[creatorId]/send-interview.tsx",
     urlPath: "/dashboard/admin/creators/:creatorId/send-interview",
     type: "handler",
     precedence: 2,
-    module: m120
+    module: m121
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/creators/[creatorId]/send-welcome-email.tsx",
     urlPath: "/dashboard/admin/creators/:creatorId/send-welcome-email",
     type: "handler",
     precedence: 2,
-    module: m121
+    module: m122
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/creators/[creatorId]/update.tsx",
     urlPath: "/dashboard/admin/creators/:creatorId/update",
     type: "handler",
     precedence: 2,
-    module: m122
+    module: m123
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/creators/[creatorId].tsx",
     urlPath: "/dashboard/admin/creators/:creatorId",
     type: "handler",
     precedence: 2,
-    module: m123
+    module: m124
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/creators/assign-owner/[creatorId].tsx",
     urlPath: "/dashboard/admin/creators/assign-owner/:creatorId",
     type: "handler",
     precedence: 2,
-    module: m124
+    module: m125
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/creators/assign-owner-content/[creatorId].tsx",
     urlPath: "/dashboard/admin/creators/assign-owner-content/:creatorId",
     type: "handler",
     precedence: 2,
-    module: m125
+    module: m126
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/interviews/[interviewId].tsx",
     urlPath: "/dashboard/admin/interviews/:interviewId",
     type: "handler",
     precedence: 2,
-    module: m126
+    module: m127
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/notifications/[notificationId]/read.tsx",
     urlPath: "/dashboard/admin/notifications/:notificationId/read",
     type: "handler",
     precedence: 2,
-    module: m127
+    module: m128
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/artist-of-the-week/[week]/create.tsx",
     urlPath: "/dashboard/admin/planner/artist-of-the-week/:week/create",
     type: "handler",
     precedence: 2,
-    module: m128
+    module: m129
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/artist-of-the-week/[week].tsx",
     urlPath: "/dashboard/admin/planner/artist-of-the-week/:week",
     type: "handler",
     precedence: 2,
-    module: m129
+    module: m130
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/book-of-the-day/[date]/create.tsx",
     urlPath: "/dashboard/admin/planner/book-of-the-day/:date/create",
     type: "handler",
     precedence: 2,
-    module: m130
+    module: m131
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/book-of-the-day/[date].tsx",
     urlPath: "/dashboard/admin/planner/book-of-the-day/:date",
     type: "handler",
     precedence: 2,
-    module: m131
+    module: m132
+  },
+  {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/instagram/[week]/prepare.tsx",
+    urlPath: "/dashboard/admin/planner/instagram/:week/prepare",
+    type: "handler",
+    precedence: 2,
+    module: m133
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/newsletters/[campaignId]/delete.tsx",
     urlPath: "/dashboard/admin/planner/newsletters/:campaignId/delete",
     type: "handler",
     precedence: 2,
-    module: m132
+    module: m134
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/newsletters/[campaignId]/mark-sent.tsx",
     urlPath: "/dashboard/admin/planner/newsletters/:campaignId/mark-sent",
     type: "handler",
     precedence: 2,
-    module: m133
+    module: m135
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/newsletters/[campaignId]/regenerate.tsx",
     urlPath: "/dashboard/admin/planner/newsletters/:campaignId/regenerate",
     type: "handler",
     precedence: 2,
-    module: m134
+    module: m136
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/newsletters/[campaignId]/save.tsx",
     urlPath: "/dashboard/admin/planner/newsletters/:campaignId/save",
     type: "handler",
     precedence: 2,
-    module: m135
+    module: m137
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/publisher-of-the-week/[week]/create.tsx",
     urlPath: "/dashboard/admin/planner/publisher-of-the-week/:week/create",
     type: "handler",
     precedence: 2,
-    module: m136
+    module: m138
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/planner/publisher-of-the-week/[week].tsx",
     urlPath: "/dashboard/admin/planner/publisher-of-the-week/:week",
     type: "handler",
     precedence: 2,
-    module: m137
+    module: m139
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/admin/users/[userId].tsx",
     urlPath: "/dashboard/admin/users/:userId",
     type: "handler",
     precedence: 2,
-    module: m138
+    module: m140
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/books/[bookId]/publisher.tsx",
     urlPath: "/dashboard/books/:bookId/publisher",
     type: "handler",
     precedence: 2,
-    module: m139
+    module: m141
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/books/[bookId]/resubmit.tsx",
     urlPath: "/dashboard/books/:bookId/resubmit",
     type: "handler",
     precedence: 2,
-    module: m140
+    module: m142
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/books/[bookId].tsx",
     urlPath: "/dashboard/books/:bookId",
     type: "handler",
     precedence: 2,
-    module: m141
+    module: m143
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/creators/[creatorId].tsx",
     urlPath: "/dashboard/creators/:creatorId",
     type: "handler",
     precedence: 2,
-    module: m142
+    module: m144
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/images/books/[bookId]/cover.tsx",
     urlPath: "/dashboard/images/books/:bookId/cover",
     type: "handler",
     precedence: 2,
-    module: m143
+    module: m145
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/images/books/[bookId]/gallery.tsx",
     urlPath: "/dashboard/images/books/:bookId/gallery",
     type: "handler",
     precedence: 2,
-    module: m144
+    module: m146
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/images/creators/[creatorId]/cover.tsx",
     urlPath: "/dashboard/images/creators/:creatorId/cover",
     type: "handler",
     precedence: 2,
-    module: m145
+    module: m147
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/images/users/[userId]/profile.tsx",
     urlPath: "/dashboard/images/users/:userId/profile",
     type: "handler",
     precedence: 2,
-    module: m146
+    module: m148
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/messages/[creatorId]/[messageId].tsx",
     urlPath: "/dashboard/messages/:creatorId/:messageId",
     type: "handler",
     precedence: 2,
-    module: m147
+    module: m149
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/messages/[creatorId].tsx",
     urlPath: "/dashboard/messages/:creatorId",
     type: "handler",
     precedence: 2,
-    module: m148
+    module: m150
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/books/[bookId]/tab/artist-books/[artistId].tsx",
     urlPath: "/hyperview/books/:bookId/tab/artist-books/:artistId",
     type: "handler",
     precedence: 2,
-    module: m149
+    module: m151
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/books/[bookId]/tab/artist.tsx",
     urlPath: "/hyperview/books/:bookId/tab/artist",
     type: "handler",
     precedence: 2,
-    module: m150
+    module: m152
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/books/[bookId]/tab/book-content.tsx",
     urlPath: "/hyperview/books/:bookId/tab/book-content",
     type: "handler",
     precedence: 2,
-    module: m151
+    module: m153
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/books/[bookId]/tab/book.tsx",
     urlPath: "/hyperview/books/:bookId/tab/book",
     type: "handler",
     precedence: 2,
-    module: m152
+    module: m154
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/books/[bookId]/tab/comments.tsx",
     urlPath: "/hyperview/books/:bookId/tab/comments",
     type: "handler",
     precedence: 2,
-    module: m153
+    module: m155
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/books/[bookId]/tab/publisher-books/[publisherId].tsx",
     urlPath: "/hyperview/books/:bookId/tab/publisher-books/:publisherId",
     type: "handler",
     precedence: 2,
-    module: m154
+    module: m156
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/books/[bookId]/tab/publisher.tsx",
     urlPath: "/hyperview/books/:bookId/tab/publisher",
     type: "handler",
     precedence: 2,
-    module: m155
+    module: m157
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/creators/[creatorId]/tab/about.tsx",
     urlPath: "/hyperview/creators/:creatorId/tab/about",
     type: "handler",
     precedence: 2,
-    module: m156
+    module: m158
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/creators/[creatorId]/tab/artists.tsx",
     urlPath: "/hyperview/creators/:creatorId/tab/artists",
     type: "handler",
     precedence: 2,
-    module: m157
+    module: m159
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/creators/[creatorId]/tab/books-content.tsx",
     urlPath: "/hyperview/creators/:creatorId/tab/books-content",
     type: "handler",
     precedence: 2,
-    module: m158
+    module: m160
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/creators/[creatorId]/tab/books.tsx",
     urlPath: "/hyperview/creators/:creatorId/tab/books",
     type: "handler",
     precedence: 2,
-    module: m159
+    module: m161
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/creators/[creatorId]/tab/messages.tsx",
     urlPath: "/hyperview/creators/:creatorId/tab/messages",
     type: "handler",
     precedence: 2,
-    module: m160
+    module: m162
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/creators/[creatorId]/tab/publishers.tsx",
     urlPath: "/hyperview/creators/:creatorId/tab/publishers",
     type: "handler",
     precedence: 2,
-    module: m161
+    module: m163
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/creators/[id]/tab/books-content.tsx",
     urlPath: "/hyperview/creators/:id/tab/books-content",
     type: "handler",
     precedence: 2,
-    module: m162
+    module: m164
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/interviews/view/[slug].tsx",
     urlPath: "/hyperview/interviews/view/:slug",
     type: "handler",
     precedence: 2,
-    module: m163
+    module: m165
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/hyperview/(app)/tags/[tag].tsx",
     urlPath: "/hyperview/tags/:tag",
     type: "handler",
     precedence: 2,
-    module: m164
+    module: m166
   }
 ];

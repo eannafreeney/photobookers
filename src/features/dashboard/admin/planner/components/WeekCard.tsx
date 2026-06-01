@@ -1,6 +1,6 @@
 import Card from "../../../../../components/app/Card";
 import { BookOfTheDayWithBook } from "../../../../app/BOTDServices";
-import { toDateString } from "../../../../../lib/utils";
+import { toDateString, toWeekString } from "../../../../../lib/utils";
 import { NewsletterCampaignStatus } from "../../../../../db/schema";
 import {
   ArtistOfTheWeekWithCreator,
@@ -18,6 +18,7 @@ type Props = {
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
   newsletterStatus: NewsletterCampaignStatus | null;
+  instagramPrepared: boolean;
 };
 
 const WeekCard = ({
@@ -27,6 +28,7 @@ const WeekCard = ({
   artistOfTheWeek,
   publisherOfTheWeek,
   newsletterStatus,
+  instagramPrepared,
 }: Props) => {
   const days = getWeekDays(weekStart);
 
@@ -36,6 +38,7 @@ const WeekCard = ({
         weekStart={weekStart}
         weekNumber={weekNumber}
         newsletterStatus={newsletterStatus}
+        instagramPrepared={instagramPrepared}
       />
       <Card.Body gap="2">
         {days.map((day) => {
@@ -59,6 +62,15 @@ type WeekCardHeaderProps = {
   weekStart: Date;
   weekNumber: number;
   newsletterStatus: NewsletterCampaignStatus | null;
+  instagramPrepared: boolean;
+};
+
+const instagramButtonClasses = (prepared: boolean): string => {
+  const base = "rounded border px-2 py-1 text-xs font-medium opacity-80";
+  if (prepared) {
+    return `${base} border-success bg-success/15 text-on-surface-strong hover:opacity-90`;
+  }
+  return `${base} border-outline bg-surface-alt text-on-surface hover:bg-surface`;
 };
 
 const newsletterButtonClasses = (
@@ -86,11 +98,16 @@ const WeekCardHeader = ({
   weekStart,
   weekNumber,
   newsletterStatus,
+  instagramPrepared,
 }: WeekCardHeaderProps) => {
   const buttonLabel = newsletterButtonLabel(newsletterStatus);
+  const weekKey = toWeekString(weekStart);
+  const instagramLabel = instagramPrepared
+    ? "Edit Instagram"
+    : "Prepare Instagram";
 
   return (
-    <div class="flex items-center justify-between p-3 border-b border-outline">
+    <div class="flex items-center justify-between gap-2 p-3 border-b border-outline">
       <div>
         <span class="text-xs font-medium text-on-surface">
           Week {weekNumber}
@@ -99,12 +116,21 @@ const WeekCardHeader = ({
           {formatWeekRange(weekStart)}
         </p>
       </div>
-      <a
-        href={`/dashboard/admin/planner/newsletters?weekStart=${toDateString(weekStart)}`}
-        class={newsletterButtonClasses(newsletterStatus)}
-      >
-        {buttonLabel}
-      </a>
+      <div class="flex flex-wrap items-center justify-end gap-2">
+        <a
+          href={`/dashboard/admin/planner/instagram/${weekKey}/prepare`}
+          x-target="modal-root"
+          class={instagramButtonClasses(instagramPrepared)}
+        >
+          {instagramLabel}
+        </a>
+        <a
+          href={`/dashboard/admin/planner/newsletters?weekStart=${toDateString(weekStart)}`}
+          class={newsletterButtonClasses(newsletterStatus)}
+        >
+          {buttonLabel}
+        </a>
+      </div>
     </div>
   );
 };

@@ -26,6 +26,7 @@ export const GET = createRoute(async (c) => {
     publisherByWeekStart,
     publisherLoadError,
     newsletterStatusByWeekStart,
+    instagramPreparedByWeekStart,
   } = await loadPlannerYearData(year);
 
   if (artistLoadError || publisherLoadError) {
@@ -59,6 +60,8 @@ export const GET = createRoute(async (c) => {
                   publisherByWeekStart?.get(key) ?? null;
                 const newsletterStatus =
                   newsletterStatusByWeekStart.get(key) ?? null;
+                const instagramPrepared =
+                  instagramPreparedByWeekStart.get(key) ?? false;
 
                 return (
                   <WeekCard
@@ -69,6 +72,7 @@ export const GET = createRoute(async (c) => {
                     artistOfTheWeek={artistOfTheWeek}
                     publisherOfTheWeek={publisherOfTheWeek}
                     newsletterStatus={newsletterStatus}
+                    instagramPrepared={instagramPrepared}
                   />
                 );
               })}
