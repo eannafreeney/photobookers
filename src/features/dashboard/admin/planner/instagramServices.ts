@@ -1,4 +1,4 @@
-import { and, eq, isNotNull, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { bookOfTheDay } from "../../../../db/schema";
 import { err, ok, type Result } from "../../../../lib/result";
@@ -77,6 +77,60 @@ export async function saveWeekInstagramPreparation(
   } catch (e) {
     console.error("saveWeekInstagramPreparation", e);
     return err({ reason: "Failed to save Instagram preparation" });
+  }
+}
+
+const clearInstagramFields = {
+  instagramImageUrl: null,
+  instagramCaption: null,
+  instagramPreparedAt: null,
+  instagramBufferPostId: null,
+  instagramQueuedAt: null,
+  instagramError: null,
+} as const;
+
+export async function clearWeekInstagramPreparation(
+  weekStart: Date,
+): Promise<Result<{ cleared: number }, { reason: string }>> {
+  const normalizedWeekStart = toWeekStart(weekStart);
+  const weekEnd = getWeekDays(normalizedWeekStart)[6];
+
+  const [loadError, weekData] = await getBooksOfTheDayInRange(
+    normalizedWeekStart,
+    weekEnd,
+  );
+  if (loadError) return err({ reason: loadError.reason });
+
+  const dates = weekData.botdEntries.map((entry) =>
+    toUtcStartOfDay(entry.date),
+  );
+  if (dates.length === 0) {
+    return ok({ cleared: 0 });
+  }
+
+  const hasInstagramData = weekData.botdEntries.some(
+    (entry) =>
+      entry.instagramPreparedAt ||
+      entry.instagramQueuedAt ||
+      entry.instagramCaption ||
+      entry.instagramImageUrl ||
+      entry.instagramBufferPostId,
+  );
+  if (!hasInstagramData) {
+    return ok({ cleared: 0 });
+  }
+
+  try {
+    const updated = await db
+      .update(bookOfTheDay)
+      .set({ ...clearInstagramFields, updatedAt: new Date() })
+      .where(inArray(bookOfTheDay.date, dates))
+      .returning({ id: bookOfTheDay.id });
+
+    return ok({ cleared: updated.length });
+  } catch (e) {
+    console.error("clearWeekInstagramPreparation", e);
+    return err({ reason: "Failed to clear Instagram preparation" });
   }
 }
 

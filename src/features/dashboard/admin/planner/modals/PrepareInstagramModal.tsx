@@ -20,6 +20,26 @@ const PrepareInstagramModal = ({ week, entries }: Props) => {
       "$dispatch('dialog:close'), $dispatch('planner:updated')",
   };
 
+  const hasInstagramPlan = entries.some(
+    (entry) =>
+      entry.instagramPreparedAt ||
+      entry.instagramQueuedAt ||
+      entry.instagramCaption ||
+      entry.instagramImageUrl,
+  );
+  const hasQueuedToBuffer = entries.some((entry) => entry.instagramQueuedAt);
+
+  const clearConfirm = hasQueuedToBuffer
+    ? "Clear this week's Instagram plan? Posts already sent to Buffer will not be removed there — delete those in Buffer if needed."
+    : "Clear this week's Instagram plan?";
+
+  const clearAlpineAttrs = {
+    "x-target": "toast modal-root",
+    "x-on:ajax:after":
+      "$dispatch('dialog:close'), $dispatch('planner:updated')",
+    "@ajax:before": `confirm(${JSON.stringify(clearConfirm)}) || $event.preventDefault()`,
+  };
+
   return (
     <Modal title={`Prepare Instagram – week ${week}`}>
       {entries.length === 0 ? (
@@ -111,12 +131,27 @@ const PrepareInstagramModal = ({ week, entries }: Props) => {
             );
           })}
           </div>
-          <button
-            type="submit"
-            class="mt-4 shrink-0 rounded border border-primary bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 cursor-pointer"
-          >
-            Save
-          </button>
+          <div class="mt-4 flex shrink-0 flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              class="rounded border border-primary bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 cursor-pointer"
+            >
+              Save
+            </button>
+            {hasInstagramPlan && (
+              <FormPost
+                action={`/dashboard/admin/planner/instagram/${week}/clear`}
+                {...clearAlpineAttrs}
+              >
+                <button
+                  type="submit"
+                  class="rounded border border-danger px-4 py-2 text-sm font-medium text-danger hover:bg-danger/10 cursor-pointer"
+                >
+                  Clear Instagram plan
+                </button>
+              </FormPost>
+            )}
+          </div>
         </FormPost>
         </div>
       )}
