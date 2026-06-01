@@ -148,11 +148,32 @@ async function markBotdInstagramQueued(
   }
 }
 
+type QueueInstagramBatchResult = {
+  queued: { date: string; postId: string }[];
+  skipped: string[];
+};
+
+/** Queue one prepared BOTD Instagram post for a specific UTC calendar day. */
+export async function queuePreparedBotdInstagramPostsForDate(
+  targetDate: Date,
+): Promise<Result<QueueInstagramBatchResult, { reason: string }>> {
+  const day = toUtcStartOfDay(targetDate);
+  const dateKey = toDateString(day);
+
+  const [error, result] = await queuePreparedBotdInstagramForDate(day);
+  if (error) {
+    return ok({ queued: [], skipped: [`${dateKey}: ${error.reason}`] });
+  }
+
+  return ok({
+    queued: [{ date: dateKey, postId: result.postId }],
+    skipped: [],
+  });
+}
+
+/** Queue all prepared, not-yet-queued posts for today (UTC). */
 export async function queueDuePreparedBotdInstagramPosts(): Promise<
-  Result<
-    { queued: { date: string; postId: string }[]; skipped: string[] },
-    { reason: string }
-  >
+  Result<QueueInstagramBatchResult, { reason: string }>
 > {
   const today = toUtcStartOfDay(new Date());
 

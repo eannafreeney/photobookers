@@ -1,6 +1,10 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { queueDuePreparedBotdInstagramPosts } from "../../../features/dashboard/admin/planner/instagramServices";
+import {
+  queueDuePreparedBotdInstagramPosts,
+  queuePreparedBotdInstagramPostsForDate,
+} from "../../../features/dashboard/admin/planner/instagramServices";
+import { parseDateString } from "../../../lib/utils";
 
 export const POST = createRoute(async (c: Context) => {
   const secret =
@@ -11,7 +15,19 @@ export const POST = createRoute(async (c: Context) => {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
-  const [error, result] = await queueDuePreparedBotdInstagramPosts();
+  const dateParam = c.req.query("date");
+  let resultPromise;
+  if (dateParam) {
+    const targetDate = parseDateString(dateParam);
+    if (Number.isNaN(targetDate.getTime())) {
+      return c.json({ error: "Invalid date (use YYYY-MM-DD)" }, 400);
+    }
+    resultPromise = queuePreparedBotdInstagramPostsForDate(targetDate);
+  } else {
+    resultPromise = queueDuePreparedBotdInstagramPosts();
+  }
+
+  const [error, result] = await resultPromise;
   if (error) {
     return c.json({ error: error.reason }, 500);
   }

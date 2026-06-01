@@ -7,10 +7,10 @@ import SectionTitle from "../../components/app/SectionTitle";
 import { toDateString } from "../../lib/utils";
 import BookCard from "../../components/app/BookCard";
 import InfoPage from "../../pages/InfoPage";
-import { InfiniteScroll } from "../../components/app/InfiniteScroll";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import { getIsMobile } from "../../lib/device";
 import GridPanel from "../../components/app/GridPanel";
+import ListNavigation from "../../features/app/components/ListNavigation";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -47,8 +47,9 @@ export const GET = createRoute(async (c) => {
             </ScrollReveal>
           ))}
         </GridPanel>
-        <InfiniteScroll
-          baseUrl={currentPath}
+        <ListNavigation
+          isInfiniteScroll={isMobile}
+          currentPath={currentPath}
           page={page}
           totalPages={totalPages}
           targetId={targetId}
