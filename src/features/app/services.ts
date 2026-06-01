@@ -30,6 +30,7 @@ import {
   BOOK_CARD_COLUMNS,
   BookCardResult,
   CREATOR_CARD_COLUMNS,
+  CREATOR_CARD_SELECT,
 } from "../../constants/queries";
 import { Creator, creatorMessages } from "../../db/schema";
 import { err, ok } from "../../lib/result";
@@ -829,18 +830,7 @@ export const getAllCreatorsForBrowse = async (
     );
 
     const foundCreators = await db
-      .select({
-        id: creators.id,
-        displayName: creators.displayName,
-        slug: creators.slug,
-        coverUrl: creators.coverUrl,
-        status: creators.status,
-        type: creators.type,
-        city: creators.city,
-        country: creators.country,
-        tagline: creators.tagline,
-        email: creators.email,
-      })
+      .select(CREATOR_CARD_SELECT)
       .from(creators)
       .where(creatorsWithPublishedBooks)
       .orderBy(asc(creators.displayName))
@@ -866,18 +856,7 @@ export const filterPublishedCreators = async (
 
     const searchPattern = `%${q}%`;
     const foundCreators = await db
-      .select({
-        id: creators.id,
-        displayName: creators.displayName,
-        slug: creators.slug,
-        coverUrl: creators.coverUrl,
-        status: creators.status,
-        type: creators.type,
-        city: creators.city,
-        country: creators.country,
-        tagline: creators.tagline,
-        email: creators.email,
-      })
+      .select(CREATOR_CARD_SELECT)
       .from(creators)
       .where(
         and(
@@ -1111,18 +1090,7 @@ export const getRelatedCreators = async (
         : isNotNull(books.publisherId);
 
     const related = await db
-      .selectDistinct({
-        id: creators.id,
-        displayName: creators.displayName,
-        slug: creators.slug,
-        coverUrl: creators.coverUrl,
-        status: creators.status,
-        type: creators.type,
-        city: creators.city,
-        country: creators.country,
-        tagline: creators.tagline,
-        email: creators.email,
-      })
+      .selectDistinct(CREATOR_CARD_SELECT)
       .from(creators)
       .innerJoin(books, eq(joinColumn, creators.id))
       .where(
