@@ -50,14 +50,13 @@ const PrepareInstagramModal = ({ week, entries }: Props) => {
           posts.
         </p>
       ) : (
-        <div class="max-h-[min(75vh,calc(100dvh-5rem))] overflow-hidden">
+        <div>
         <FormPost
           action={`/dashboard/admin/planner/instagram/${week}/prepare`}
-          class="flex min-h-0 flex-1 flex-col"
           {...saveAlpineAttrs}
         >
           <input type="hidden" name="week" value={week} />
-          <div class="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain pr-1 pb-4">
+          <div class="max-h-[min(55vh,calc(100dvh-12rem))] space-y-6 overflow-y-auto overscroll-contain pr-1">
           {entries.map((entry) => {
             const dateKey = toDateString(entry.date);
             const book = entry.book;
@@ -133,17 +132,19 @@ const PrepareInstagramModal = ({ week, entries }: Props) => {
             );
           })}
           </div>
-          <button
-            type="submit"
-            class="mt-4 shrink-0 rounded border border-primary bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 cursor-pointer"
-          >
-            Save
-          </button>
+          <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-outline pt-4">
+            <button
+              type="submit"
+              class="rounded border border-primary bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:opacity-90 cursor-pointer"
+            >
+              Save
+            </button>
+          </div>
         </FormPost>
         {hasInstagramPlan && (
           <FormPost
             action={`/dashboard/admin/planner/instagram/${week}/clear`}
-            class="mt-3 shrink-0"
+            class="mt-3"
             {...clearAlpineAttrs}
           >
             <button
