@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { bookOfTheDay } from "../../../../db/schema";
 import { err, ok, type Result } from "../../../../lib/result";
@@ -256,7 +256,11 @@ export async function queuePreparedBotdInstagramPostsForDate(
   });
 }
 
-/** Queue all prepared, not-yet-queued posts for today (UTC). */
+/**
+ * Queue every prepared, not-yet-queued BOTD Instagram post from today (UTC)
+ * onward. Use this after preparing a week in the planner so each day lands in
+ * Buffer with its own scheduled time.
+ */
 export async function queueDuePreparedBotdInstagramPosts(): Promise<
   Result<QueueInstagramBatchResult, { reason: string }>
 > {
@@ -264,10 +268,11 @@ export async function queueDuePreparedBotdInstagramPosts(): Promise<
 
   const rows = await db.query.bookOfTheDay.findMany({
     where: and(
-      eq(bookOfTheDay.date, today),
+      gte(bookOfTheDay.date, today),
       isNotNull(bookOfTheDay.instagramPreparedAt),
       isNull(bookOfTheDay.instagramQueuedAt),
     ),
+    orderBy: asc(bookOfTheDay.date),
   });
 
   const queued: { date: string; postId: string }[] = [];
