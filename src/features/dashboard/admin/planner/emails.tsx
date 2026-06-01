@@ -1,3 +1,5 @@
+import { formatBotdDateLong } from "./utils";
+
 export const generateBOTDNotificationEmail = (
   creator: {
     displayName: string;
@@ -8,17 +10,11 @@ export const generateBOTDNotificationEmail = (
   book: { id: string; title: string; slug: string },
   date: Date,
 ) => {
-  const formattedDate = date.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  });
+  const formattedDate = formatBotdDateLong(date);
 
   return `
   <p>Hi ${creator.displayName},</p>
-  <p>Great news - your book, <strong>${book.title}</strong>, will be <strong>Book of the Day</strong> on Photobookers on <strong>${formattedDate}</strong>.</p>
+  <p>Great news — your book, <strong>${book.title}</strong>, will be featured as <strong>Book of the Day</strong> on Photobookers on <strong>${formattedDate}</strong>.</p>
   <p>You can view the Book of the Day page here: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/book-of-the-day">View Book of the Day</a>.</p>
   <p>We will also share your feature on our Instagram on the day to help more people discover your work.</p>
   ${

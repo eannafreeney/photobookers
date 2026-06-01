@@ -1,6 +1,7 @@
 import FormPost from "../../../../../components/forms/FormPost";
 import { BookOfTheDay } from "../../../../../db/schema";
-import { toDateString } from "../../../../../lib/utils";
+import { normalizeStoredDate, toDateString } from "../../../../../lib/utils";
+import { formatDayLabel } from "../utils";
 import ToggleButton from "./ToggleButton";
 
 type Props = {
@@ -23,6 +24,8 @@ const SendBOTDCreatorEmailButton = ({
 
   const isSent = Boolean(emailSentAt);
   const id = `botd-email-${bookOfTheDay.id}-${recipientType}`;
+  const botdDay = normalizeStoredDate(bookOfTheDay.date);
+  const botdDateLabel = formatDayLabel(botdDay);
 
   const alpineAttrs = {
     "x-target": `${id} toast modal-root`,
@@ -40,8 +43,12 @@ const SendBOTDCreatorEmailButton = ({
       <input type="hidden" name="creatorId" value={creatorId} />
       <input type="hidden" name="bookId" value={bookId} />
       <input type="hidden" name="recipientType" value={recipientType} />
-      <input type="hidden" name="date" value={toDateString(bookOfTheDay.date)} />
-      <ToggleButton isSent={isSent} recipientType={recipientType} />
+      <input type="hidden" name="date" value={toDateString(botdDay)} />
+      <ToggleButton
+        isSent={isSent}
+        recipientType={recipientType}
+        botdDateLabel={botdDateLabel}
+      />
     </FormPost>
   );
 };

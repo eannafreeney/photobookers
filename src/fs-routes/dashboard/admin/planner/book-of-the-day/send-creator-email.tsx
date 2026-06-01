@@ -7,8 +7,10 @@ import {
   requireCreatorEmailOrRenderModal,
 } from "../../../../../features/dashboard/admin/planner/emailFlow";
 import SendBOTDCreatorEmailButton from "../../../../../features/dashboard/admin/planner/components/SendBOTDCreatorEmailButton";
+import { formatBotdDateLong } from "../../../../../features/dashboard/admin/planner/utils";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
 import { getBookOfTheDayForDateQuery } from "../../../../../features/dashboard/admin/planner/services";
+import { normalizeStoredDate, toUtcStartOfDay } from "../../../../../lib/utils";
 
 export const POST = createRoute(
   formValidator(sendBOTDCreatorEmailFormSchema),
@@ -19,13 +21,16 @@ export const POST = createRoute(
     if (botdErr || !botdRow)
       return showErrorAlert(c, "Book of the day not found");
 
+    const botdDay = toUtcStartOfDay(normalizeStoredDate(date));
+    const botdDateLabel = formatBotdDateLong(botdDay);
+
     const { response, creator } = await requireCreatorEmailOrRenderModal(c, {
       creatorId,
       bookId,
       recipientType,
-      date,
+      date: botdDay,
       action: "/dashboard/admin/planner/book-of-the-day/set-send-email",
-      title: `Send ${capitalize(recipientType)} Email`,
+      title: `Email ${capitalize(recipientType)} — Book of the Day on ${botdDateLabel}`,
       targetId: `botd-email-${botdRow.id}-${recipientType}`,
       fallbackTargetNode: (
         <SendBOTDCreatorEmailButton
@@ -41,7 +46,7 @@ export const POST = createRoute(
     return executeBOTDEmail({
       c,
       creator,
-      date,
+      date: botdDay,
       recipientType,
       bookId,
     });

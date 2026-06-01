@@ -21,6 +21,8 @@ import {
 import SendPOTWCreatorEmailButton from "./components/SendPOTWCreatorEmailButton";
 import { getBookByIdBasic } from "../../books/services";
 import SendBOTDCreatorEmailButton from "./components/SendBOTDCreatorEmailButton";
+import { formatBotdDateLong } from "./utils";
+import { normalizeStoredDate, toUtcStartOfDay } from "../../../../lib/utils";
 
 type RequireCreatorEmailParams = {
   creatorId: string;
@@ -247,10 +249,12 @@ export async function executeBOTDEmail({
   const [bookError, book] = await getBookByIdBasic(bookId);
   if (bookError || !book) return showErrorAlert(c, "Book not found");
 
-  const html = generateBOTDNotificationEmail(creator, book, date);
+  const botdDay = toUtcStartOfDay(normalizeStoredDate(date));
+  const botdDateLabel = formatBotdDateLong(botdDay);
+  const html = generateBOTDNotificationEmail(creator, book, botdDay);
   const [emailError] = await sendEmail(
     creator.email,
-    `Book of the Day: ${book.title}`,
+    `Book of the Day on ${botdDateLabel}: ${book.title}`,
     html,
   );
   if (emailError) return showErrorAlert(c, emailError.reason);
@@ -259,7 +263,7 @@ export async function executeBOTDEmail({
     recipientType === "artist" ? "artistEmailSentAt" : "publisherEmailSentAt";
 
   const [updateError, updatedBookOfTheDay] = await updateBookOfTheDayByDate(
-    date,
+    botdDay,
     {
       [updateField]: new Date(),
     },

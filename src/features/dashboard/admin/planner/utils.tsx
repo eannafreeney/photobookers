@@ -47,6 +47,17 @@ export function formatDayWeekday(d: Date): string {
   return d.toLocaleString("en-US", { weekday: "short", timeZone: "UTC" });
 }
 
+/** Long BOTD date for emails, e.g. "Monday, June 1, 2026". */
+export function formatBotdDateLong(d: Date): string {
+  return d.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 /** True if the given UTC date is strictly before today (UTC). */
 export function isDayInPast(date: Date): boolean {
   const today = toUtcStartOfDay(new Date());
