@@ -49,6 +49,11 @@ export async function bufferCreateScheduledImagePost(params: {
           mode: "customScheduled",
           dueAt: params.dueAt.toISOString(),
           assets: [{ image: { url: params.imageUrl } }],
+          metadata: {
+            instagram: {
+              type: "post",
+            },
+          },
         },
       },
     }),
