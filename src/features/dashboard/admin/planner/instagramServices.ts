@@ -6,7 +6,11 @@ import { toDateString, toUtcStartOfDay, toWeekStart, toWeekString } from "../../
 import { getWeekStarts, getWeekDays } from "./utils";
 import { getBooksOfTheDayInRange } from "../../../app/BOTDServices";
 import { bufferCreateScheduledImagePost } from "./buffer";
-import { buildDefaultInstagramFirstComment } from "./instagramCaption";
+import {
+  appendBookLinkIfMissing,
+  buildBookPageUrl,
+  buildDefaultInstagramFirstComment,
+} from "./instagramCaption";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -169,12 +173,20 @@ export async function queuePreparedBotdInstagramForDate(
     dueAt = new Date(now.getTime() + 5 * 60 * 1000);
   }
 
-  const firstComment = row.book
-    ? buildDefaultInstagramFirstComment(row.book)
-    : undefined;
+  const bookUrl = row.book ? buildBookPageUrl(row.book.slug) : null;
+  const text = bookUrl
+    ? appendBookLinkIfMissing(row.instagramCaption, bookUrl)
+    : row.instagramCaption;
+
+  const useFirstComment =
+    process.env.BUFFER_INSTAGRAM_FIRST_COMMENT === "true";
+  const firstComment =
+    useFirstComment && row.book
+      ? buildDefaultInstagramFirstComment(row.book)
+      : undefined;
 
   const [bufferError, bufferData] = await bufferCreateScheduledImagePost({
-    text: row.instagramCaption,
+    text,
     imageUrl: row.instagramImageUrl,
     dueAt,
     firstComment,
