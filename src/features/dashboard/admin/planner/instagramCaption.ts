@@ -15,7 +15,7 @@ export function buildDefaultInstagramCaption(book: BookForCaption): string {
   if (book.publisher?.displayName) {
     lines.push(`Published by: ${book.publisher.displayName}`);
   }
-  lines.push(`${appBaseUrl}/books/${book.slug}`);
+  lines.push(`${appBaseUrl}/book-of-the-day`);
   return lines.join("\n");
 }
 
