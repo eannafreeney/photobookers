@@ -6,6 +6,11 @@ import { toDateString, toUtcStartOfDay, toWeekStart, toWeekString } from "../../
 import { getWeekStarts, getWeekDays } from "./utils";
 import { getBooksOfTheDayInRange } from "../../../app/BOTDServices";
 import { bufferCreateScheduledImagePost } from "./buffer";
+import { buildDefaultInstagramFirstComment } from "./instagramCaption";
+import {
+  BOOK_CARD_COLUMNS,
+  CREATOR_CARD_COLUMNS,
+} from "../../../../constants/queries";
 import {
   buildInstagramDueAt,
   isWeekInstagramFullyPrepared,
@@ -82,6 +87,15 @@ export async function queuePreparedBotdInstagramForDate(
 
   const row = await db.query.bookOfTheDay.findFirst({
     where: eq(bookOfTheDay.date, day),
+    with: {
+      book: {
+        columns: BOOK_CARD_COLUMNS,
+        with: {
+          artist: { columns: CREATOR_CARD_COLUMNS },
+          publisher: { columns: CREATOR_CARD_COLUMNS },
+        },
+      },
+    },
   });
 
   if (!row) return err({ reason: "No book of the day for this date" });
@@ -101,10 +115,15 @@ export async function queuePreparedBotdInstagramForDate(
     dueAt = new Date(now.getTime() + 5 * 60 * 1000);
   }
 
+  const firstComment = row.book
+    ? buildDefaultInstagramFirstComment(row.book)
+    : undefined;
+
   const [bufferError, bufferData] = await bufferCreateScheduledImagePost({
     text: row.instagramCaption,
     imageUrl: row.instagramImageUrl,
     dueAt,
+    firstComment,
   });
 
   if (bufferError) {

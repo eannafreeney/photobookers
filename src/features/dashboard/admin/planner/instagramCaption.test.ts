@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   buildDefaultInstagramCaption,
+  buildDefaultInstagramFirstComment,
   collectBookImageOptions,
+  formatInstagramHandle,
 } from "./instagramCaption";
 import {
   buildInstagramDueAt,
@@ -13,7 +15,21 @@ import { toDateString } from "../../../../lib/utils";
 import { getWeekDays } from "./utils";
 
 describe("instagram caption helpers", () => {
-  it("builds a default caption with book link", () => {
+  it("builds a default caption with instagram handles when available", () => {
+    const caption = buildDefaultInstagramCaption({
+      title: "Winter Light",
+      slug: "winter-light",
+      artist: { displayName: "Jane Doe", instagram: "https://instagram.com/janedoe" },
+      publisher: { displayName: "Acme Press", instagram: "@acmepress" },
+    });
+
+    expect(caption).toContain("Book of the Day: Winter Light");
+    expect(caption).toContain("@janedoe");
+    expect(caption).toContain("Published by @acmepress");
+    expect(caption).not.toContain("https://");
+  });
+
+  it("falls back to display names without instagram handles", () => {
     const caption = buildDefaultInstagramCaption({
       title: "Winter Light",
       slug: "winter-light",
@@ -21,10 +37,22 @@ describe("instagram caption helpers", () => {
       publisher: { displayName: "Acme Press" },
     });
 
-    expect(caption).toContain("Book of the Day: Winter Light");
     expect(caption).toContain("Jane Doe");
-    expect(caption).toContain("Acme Press");
-    expect(caption).toContain("/books/winter-light");
+    expect(caption).toContain("Published by Acme Press");
+  });
+
+  it("normalizes instagram urls and handles", () => {
+    expect(formatInstagramHandle("https://instagram.com/foo_bar/")).toBe(
+      "@foo_bar",
+    );
+    expect(formatInstagramHandle("@baz")).toBe("@baz");
+    expect(formatInstagramHandle("  ")).toBeNull();
+  });
+
+  it("builds first comment with book page url", () => {
+    expect(buildDefaultInstagramFirstComment({ slug: "winter-light" })).toContain(
+      "/books/winter-light",
+    );
   });
 
   it("collects cover and gallery image urls", () => {

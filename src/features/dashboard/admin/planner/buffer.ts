@@ -13,6 +13,7 @@ export async function bufferCreateScheduledImagePost(params: {
   text: string;
   imageUrl: string;
   dueAt: Date;
+  firstComment?: string;
 }): Promise<Result<{ postId: string }, { reason: string }>> {
   const accessToken = process.env.BUFFER_ACCESS_TOKEN;
   const channelId = process.env.BUFFER_INSTAGRAM_CHANNEL_ID;
@@ -52,6 +53,9 @@ export async function bufferCreateScheduledImagePost(params: {
           metadata: {
             instagram: {
               type: "post",
+              ...(params.firstComment
+                ? { firstComment: params.firstComment }
+                : {}),
             },
           },
         },

@@ -1,22 +1,63 @@
 const appBaseUrl = process.env.PUBLIC_APP_URL ?? "https://www.photobookers.com";
 
+type CreatorForCaption = {
+  displayName: string;
+  instagram?: string | null;
+};
+
 type BookForCaption = {
   title: string;
   slug: string;
-  artist?: { displayName: string } | null;
-  publisher?: { displayName: string } | null;
+  artist?: CreatorForCaption | null;
+  publisher?: CreatorForCaption | null;
 };
+
+export function buildBookPageUrl(slug: string): string {
+  return `${appBaseUrl}/books/${slug}`;
+}
+
+/** Normalizes stored instagram URL or handle to `@username` for captions. */
+export function formatInstagramHandle(
+  instagram: string | null | undefined,
+): string | null {
+  if (!instagram?.trim()) return null;
+
+  const raw = instagram.trim();
+  const urlMatch = raw.match(/instagram\.com\/([^/?#]+)/i);
+  const handle = (urlMatch?.[1] ?? raw)
+    .replace(/^@/, "")
+    .split(/[/?#]/)[0]
+    ?.trim();
+
+  if (!handle) return null;
+  return `@${handle}`;
+}
 
 export function buildDefaultInstagramCaption(book: BookForCaption): string {
   const lines = [`Book of the Day: ${book.title}`];
+
   if (book.artist?.displayName) {
-    lines.push(book.artist.displayName);
+    const artistHandle = formatInstagramHandle(book.artist.instagram);
+    lines.push(
+      `${book.artist.displayName} ${artistHandle ? `(${artistHandle})` : ""}`,
+    );
   }
+
   if (book.publisher?.displayName) {
-    lines.push(`Published by: ${book.publisher.displayName}`);
+    const publisherHandle = formatInstagramHandle(book.publisher.instagram);
+    lines.push(
+      `Published by ${book.publisher.displayName} ${publisherHandle ? `(${publisherHandle})` : ""}`,
+    );
   }
-  lines.push(`${appBaseUrl}/book-of-the-day`);
+
   return lines.join("\n");
+}
+
+/** First comment — Instagram renders URLs here as clickable links. */
+export function buildDefaultInstagramFirstComment(book: {
+  slug: string;
+}): string {
+  return buildBookPageUrl(book.slug);
 }
 
 export function collectBookImageOptions(book: {

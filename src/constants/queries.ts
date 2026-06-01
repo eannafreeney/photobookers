@@ -16,6 +16,7 @@ export const CREATOR_CARD_COLUMNS = {
   country: true,
   tagline: true,
   email: true,
+  instagram: true,
 } as const;
 
 export type BookCardResult = Pick<Book, keyof typeof BOOK_CARD_COLUMNS> & {
