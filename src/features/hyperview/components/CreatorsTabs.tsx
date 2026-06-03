@@ -8,7 +8,7 @@ import {
   View,
 } from "../../../lib/hxml-comps";
 
-export type CreatorsTab = "following" | "all";
+export type CreatorsTab = "following" | "all" | "publishers" | "artists";
 
 type CreatorsTabsProps = {
   baseUrl: string;
@@ -39,6 +39,22 @@ const CreatorsTabs = ({
         >
           <Behavior {...tabLoadBehavior(baseUrl, "all")} />
           <Text style="tab-label">All</Text>
+        </Option>
+        <Option
+          value="publishers"
+          style="tab-btn"
+          selected={activeTab === "publishers" ? "true" : undefined}
+        >
+          <Behavior {...tabLoadBehavior(baseUrl, "publishers")} />
+          <Text style="tab-label">Publishers</Text>
+        </Option>
+        <Option
+          value="artists"
+          style="tab-btn"
+          selected={activeTab === "artists" ? "true" : undefined}
+        >
+          <Behavior {...tabLoadBehavior(baseUrl, "artists")} />
+          <Text style="tab-label">Artists</Text>
         </Option>
         <Option
           value="following"

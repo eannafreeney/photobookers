@@ -42,24 +42,28 @@ const CreatorsList = ({
             <Behavior
               href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
             />
-            {creator.coverUrl ? (
-              <Image
-                source={creator.coverUrl}
-                style="creators-list-avatar"
-                resize-mode="cover"
-              />
-            ) : (
-              <View style="creators-list-avatar-placeholder" />
-            )}
-            <View style="creators-list-main">
-              <View style="creators-list-name-container">
-                <View style="creators-list-name-row">
-                  <Text style="creators-list-name">{creator.displayName}</Text>
+            <View style="creators-list-avatar-wrap">
+              {creator.coverUrl ? (
+                <Image
+                  source={creator.coverUrl}
+                  style="creators-list-avatar"
+                  resize-mode="cover"
+                />
+              ) : (
+                <View style="creators-list-avatar-placeholder" />
+              )}
+              {isVerified ? (
+                <View style="creators-list-avatar-badge">
                   <VerificationBadge
                     isVerified={isVerified}
                     baseUrl={baseUrl}
                   />
                 </View>
+              ) : null}
+            </View>
+            <View style="creators-list-main">
+              <View style="creators-list-info">
+                <Text style="creators-list-name">{creator.displayName}</Text>
                 <Text style="creators-list-type">{creator.type}</Text>
               </View>
             </View>
@@ -119,13 +123,19 @@ export const creatorsListStyles = () => (
       alignItems="center"
       flex={1}
     />
-    <Style id="creators-list-name-container" flexDirection="column" flex={1} />
+    <Style id="creators-list-info" flexDirection="column" flex={1} />
     <Style
-      id="creators-list-name-row"
-      flexDirection="row"
-      alignItems="center"
-      gap={6}
-      flexShrink={1}
+      id="creators-list-avatar-wrap"
+      width={48}
+      height={48}
+      position="relative"
+    />
+    <Style
+      id="creators-list-avatar-badge"
+      position="absolute"
+      top={-4}
+      right={-4}
+      zIndex={1}
     />
     <Style
       id="creators-list-name"

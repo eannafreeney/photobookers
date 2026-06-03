@@ -41,7 +41,7 @@ const BookCard = ({
       />
       <Card.Body>
         <div class="flex items-start justify-between">
-          <div class="flex flex-col gap-0">
+          <div class="flex flex-col gap-0 mr-4">
             <Link href={`/books/${book.slug}`}>
               <Card.Title>{book.title}</Card.Title>
             </Link>
