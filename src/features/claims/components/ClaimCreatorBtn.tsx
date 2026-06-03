@@ -16,9 +16,8 @@ const ClaimCreatorBtn = async ({ creator, user, currentPath }: Props) => {
   const isAdmin = user?.isAdmin;
   if (!isStubAcc || hasCreatorAccount || isAdmin) return <></>;
 
-  const pendingClaim = await getPendingClaim(user?.id ?? "", creator.id);
-
-  const hasPendingClaim = pendingClaim !== null;
+  const [_, pendingClaim] = await getPendingClaim(user?.id ?? "", creator.id);
+  const hasPendingClaim = user != null && pendingClaim !== null;
 
   const id = `claim-${creator.id}`;
   const isDisabled = !canClaimCreator(user, creator) || hasPendingClaim;

@@ -55,7 +55,7 @@ export const GET = createRoute(async (c) => {
           ))}
         </GridPanel>
         <ListNavigation
-          isInfiniteScroll={isMobile}
+          isInfiniteScroll
           currentPath={currentPath}
           page={page}
           totalPages={totalPages}
