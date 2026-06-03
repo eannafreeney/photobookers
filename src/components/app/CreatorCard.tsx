@@ -32,8 +32,8 @@ const CreatorCard = async ({
   const followerCount = await findFollowersCount(creator.id);
 
   return (
-    <div>
-      {title && <SectionTitle className="mb-4">{title}</SectionTitle>}
+    <div className="flex flex-col gap-4">
+      {title && <SectionTitle className="mb-0">{title}</SectionTitle>}
       <Card>
         <Card.Image
           src={creator.coverUrl ?? ""}

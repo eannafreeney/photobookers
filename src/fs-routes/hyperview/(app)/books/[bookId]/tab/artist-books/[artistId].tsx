@@ -77,7 +77,7 @@ export const GET = createRoute(
 
     return hv(
       <view xmlns="https://hyperview.org/hyperview">
-        <Text style="artist-name">Books by {artist.displayName}</Text>
+        <Text style="artist-name">Other Books by {artist.displayName}</Text>
         {feedList}
       </view>,
     );

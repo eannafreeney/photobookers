@@ -3,6 +3,9 @@ import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
 import type { BookCardResult } from "../../../constants/queries";
 import { formatDate } from "../../../utils";
 import { bookActionsStyles, HyperviewFavoriteInner } from "./BookActions";
+import VerificationBadge, {
+  verificationBadgeStyles,
+} from "./VerificationBadge";
 
 type Props = {
   book: BookCardResult;
@@ -39,6 +42,10 @@ const BookCard: FC<Props> = ({
               />
             )}
             {artist && <Text style="book-card-header-artist">{artist}</Text>}
+            <VerificationBadge
+              isVerified={book.artist?.status === "verified"}
+              baseUrl={baseUrl}
+            />
           </View>
           {title ? (
             <Text style="book-card-header-title">{title}</Text>
@@ -157,5 +164,6 @@ export const bookCardStyles = () => (
     <Style id="book-like-icon-img" width={24} height={24} />
     <Style id="book-like-muted" fontSize={14} color="#d1d5db" />
     {bookActionsStyles()}
+    {verificationBadgeStyles()}
   </>
 );

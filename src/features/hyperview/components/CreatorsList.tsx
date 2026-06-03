@@ -9,6 +9,9 @@ import {
 } from "../../../lib/hxml-comps";
 import { CreatorCardResult } from "../../../constants/queries";
 import FollowButton from "./FollowButton";
+import VerificationBadge, {
+  verificationBadgeStyles,
+} from "./VerificationBadge";
 
 export const CREATORS_LOAD_MORE_ID = "creators-load-more";
 
@@ -31,36 +34,43 @@ const CreatorsList = ({
 
   return (
     <>
-      {creators.map((creator) => (
-        <View style="creators-list-row">
-          <Behavior
-            href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
-          />
-          {creator.coverUrl ? (
-            <Image
-              source={creator.coverUrl}
-              style="creators-list-avatar"
-              resize-mode="cover"
+      {creators.map((creator) => {
+        const isVerified = creator.status === "verified";
+
+        return (
+          <View style="creators-list-row">
+            <Behavior
+              href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
             />
-          ) : (
-            <View style="creators-list-avatar-placeholder" />
-          )}
-          <View style="creators-list-main">
-            <View style="creators-list-name-container">
-              <Text style="creators-list-name">{creator.displayName}</Text>
-              <Text style="creators-list-type">{creator.type}</Text>
+            {creator.coverUrl ? (
+              <Image
+                source={creator.coverUrl}
+                style="creators-list-avatar"
+                resize-mode="cover"
+              />
+            ) : (
+              <View style="creators-list-avatar-placeholder" />
+            )}
+            <View style="creators-list-main">
+              <View style="creators-list-name-container">
+                <View style="creators-list-name-row">
+                  <Text style="creators-list-name">{creator.displayName}</Text>
+                  <VerificationBadge
+                    isVerified={isVerified}
+                    baseUrl={baseUrl}
+                  />
+                </View>
+                <Text style="creators-list-type">{creator.type}</Text>
+              </View>
             </View>
-            {creator.status === "verified" ? (
-              <Text style="creators-list-verified">✓</Text>
-            ) : null}
+            <FollowButton
+              creatorId={creator.id}
+              baseUrl={baseUrl}
+              isActive={false}
+            />
           </View>
-          <FollowButton
-            creatorId={creator.id}
-            baseUrl={baseUrl}
-            isActive={false}
-          />
-        </View>
-      ))}
+        );
+      })}
       {hasMore && loadMoreHref ? (
         <view
           id={CREATORS_LOAD_MORE_ID}
@@ -108,9 +118,15 @@ export const creatorsListStyles = () => (
       marginLeft={8}
       alignItems="center"
       flex={1}
-      gap={16}
     />
-    <Style id="creators-list-name-container" flexDirection="column" />
+    <Style id="creators-list-name-container" flexDirection="column" flex={1} />
+    <Style
+      id="creators-list-name-row"
+      flexDirection="row"
+      alignItems="center"
+      gap={6}
+      flexShrink={1}
+    />
     <Style
       id="creators-list-name"
       fontSize={15}
@@ -133,12 +149,6 @@ export const creatorsListStyles = () => (
       backgroundColor="#e5e5e5"
     />
     <Style
-      id="creators-list-verified"
-      fontSize={14}
-      fontWeight="700"
-      color="#2563eb"
-    />
-    <Style
       id="creators-list-spinner"
       alignItems="center"
       justifyContent="center"
@@ -156,5 +166,6 @@ export const creatorsListStyles = () => (
       alignItems="center"
     />
     <Style id="follow-label" fontSize={14} fontWeight="600" color="#ffffff" />
+    {verificationBadgeStyles()}
   </>
 );

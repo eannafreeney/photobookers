@@ -1,6 +1,9 @@
 import { xmlText } from "../../../lib/hxml-components";
 import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
 import HeaderIconButton, { headerIconButtonStyles } from "./HeaderIconButton";
+import VerificationBadge, {
+  verificationBadgeStyles,
+} from "./VerificationBadge";
 
 type Props = {
   title: string;
@@ -44,10 +47,12 @@ const CustomHeader = ({
           <Image source={coverUrl} style="header-cover" resize-mode="cover" />
         ) : null}
         <View style="header-title-container-inner">
-          <Text style={artist ? "header-title-artist" : "header-title"}>
-            {xmlText(title)}{" "}
-            {isVerified ? <Text style="verified-badge">✓</Text> : null}
-          </Text>
+          <View style="header-title-row">
+            <Text style={artist ? "header-title-artist" : "header-title"}>
+              {xmlText(title)}
+            </Text>
+            <VerificationBadge isVerified={isVerified} baseUrl={baseUrl} />
+          </View>
           {artist ? (
             <Text style="header-artist">
               {`by ${artist}`}
@@ -119,6 +124,13 @@ export const customHeaderStyles = () => (
     />
     <Style id="header-title-container-inner" flexDirection="column" gap={2} />
     <Style
+      id="header-title-row"
+      flexDirection="row"
+      alignItems="center"
+      gap={6}
+      flexShrink={1}
+    />
+    <Style
       id="header-title"
       fontSize={18}
       fontWeight="700"
@@ -133,7 +145,6 @@ export const customHeaderStyles = () => (
       lineHeight={18}
     />
     <Style id="header-artist" fontSize={12} color="#555555" lineHeight={14} />
-    <Style id="verified-badge" fontSize={14} fontWeight="700" color="#2563eb" />
     <Style id="custom-header-back" flexDirection="row" alignItems="center" />
     <Style id="back-btn" fontSize={16} color="#3366cc" marginRight={12} />
     <Style
@@ -162,5 +173,6 @@ export const customHeaderStyles = () => (
       color="#111111"
     />
     {headerIconButtonStyles()}
+    {verificationBadgeStyles()}
   </>
 );
