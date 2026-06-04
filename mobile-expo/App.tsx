@@ -13,9 +13,7 @@ import { shareBookBehavior } from "./behaviors/shareBook";
 import { scrollToTopBehavior } from "./behaviors/scrollToTop";
 import { entrypointUrl } from "./lib/env";
 
-if (__DEV__) {
-  console.log("[Photobookers] Hyperview entrypoint:", entrypointUrl);
-}
+console.log("[Photobookers] Hyperview entrypoint:", entrypointUrl);
 
 function formatDate(date: Date | null | undefined, format: string): string {
   if (!date) return "";

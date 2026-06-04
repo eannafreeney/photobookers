@@ -10,16 +10,15 @@ function requireEnv(name: string, value: string | undefined): string {
   );
 }
 
-const isDev = typeof __DEV__ !== "undefined" ? __DEV__ : true;
+const isDev = typeof __DEV__ !== "undefined" && __DEV__;
+
+const PRODUCTION_SERVER_URL = "https://www.photobookers.com";
 
 export const env = {
   /** Hyperview API origin, no trailing slash. */
-  serverUrl: isDev
-    ? (process.env.EXPO_PUBLIC_SERVER_URL ?? "http://localhost:3000")
-    : requireEnv(
-        "EXPO_PUBLIC_SERVER_URL",
-        process.env.EXPO_PUBLIC_SERVER_URL,
-      ),
+  serverUrl:
+    process.env.EXPO_PUBLIC_SERVER_URL ??
+    (isDev ? "http://localhost:5173" : PRODUCTION_SERVER_URL),
   supabaseUrl: requireEnv(
     "EXPO_PUBLIC_SUPABASE_URL",
     process.env.EXPO_PUBLIC_SUPABASE_URL,
