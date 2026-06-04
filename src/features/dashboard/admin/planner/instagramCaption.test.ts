@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  appendBookLinkIfMissing,
   buildDefaultInstagramCaption,
   buildDefaultInstagramFirstComment,
   collectBookImageOptions,
@@ -20,7 +19,10 @@ describe("instagram caption helpers", () => {
     const caption = buildDefaultInstagramCaption({
       title: "Winter Light",
       slug: "winter-light",
-      artist: { displayName: "Jane Doe", instagram: "https://instagram.com/janedoe" },
+      artist: {
+        displayName: "Jane Doe",
+        instagram: "https://instagram.com/janedoe",
+      },
       publisher: { displayName: "Acme Press", instagram: "@acmepress" },
     });
 
@@ -51,15 +53,9 @@ describe("instagram caption helpers", () => {
   });
 
   it("builds first comment with book page url", () => {
-    expect(buildDefaultInstagramFirstComment({ slug: "winter-light" })).toContain(
-      "/books/winter-light",
-    );
-  });
-
-  it("appends book link only when missing from caption", () => {
-    const url = "https://www.photobookers.com/books/winter-light";
-    expect(appendBookLinkIfMissing("Hello", url)).toBe(`Hello\n\n${url}`);
-    expect(appendBookLinkIfMissing(`See ${url}`, url)).toBe(`See ${url}`);
+    expect(
+      buildDefaultInstagramFirstComment({ slug: "winter-light" }),
+    ).toContain("/books/winter-light");
   });
 
   it("collects cover and gallery image urls", () => {

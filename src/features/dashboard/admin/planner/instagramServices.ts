@@ -2,13 +2,18 @@ import { and, asc, eq, gte, inArray, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { bookOfTheDay } from "../../../../db/schema";
 import { err, ok, type Result } from "../../../../lib/result";
-import { toDateString, toUtcStartOfDay, toWeekStart, toWeekString } from "../../../../lib/utils";
+import {
+  toDateString,
+  toUtcStartOfDay,
+  toWeekStart,
+  toWeekString,
+} from "../../../../lib/utils";
 import { getWeekStarts, getWeekDays } from "./utils";
 import { getBooksOfTheDayInRange } from "../../../app/BOTDServices";
 import { bufferCreateScheduledImagePost } from "./buffer";
 import {
-  appendBookLinkIfMissing,
   buildBookPageUrl,
+  buildDefaultInstagramCaption,
   buildDefaultInstagramFirstComment,
 } from "./instagramCaption";
 import {
@@ -175,11 +180,10 @@ export async function queuePreparedBotdInstagramForDate(
 
   const bookUrl = row.book ? buildBookPageUrl(row.book.slug) : null;
   const text = bookUrl
-    ? appendBookLinkIfMissing(row.instagramCaption, bookUrl)
+    ? buildDefaultInstagramCaption(row.book)
     : row.instagramCaption;
 
-  const useFirstComment =
-    process.env.BUFFER_INSTAGRAM_FIRST_COMMENT === "true";
+  const useFirstComment = process.env.BUFFER_INSTAGRAM_FIRST_COMMENT === "true";
   const firstComment =
     useFirstComment && row.book
       ? buildDefaultInstagramFirstComment(row.book)
@@ -203,7 +207,10 @@ export async function queuePreparedBotdInstagramForDate(
     return err({ reason: bufferError.reason });
   }
 
-  const [updateError] = await markBotdInstagramQueued(row.id, bufferData.postId);
+  const [updateError] = await markBotdInstagramQueued(
+    row.id,
+    bufferData.postId,
+  );
   if (updateError) return err(updateError);
 
   return ok({ postId: bufferData.postId, botdId: row.id });

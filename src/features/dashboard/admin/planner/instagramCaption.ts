@@ -10,6 +10,7 @@ type BookForCaption = {
   slug: string;
   artist?: CreatorForCaption | null;
   publisher?: CreatorForCaption | null;
+  tags?: string[] | null;
 };
 
 export function buildBookPageUrl(slug: string): string {
@@ -33,13 +34,6 @@ export function formatInstagramHandle(
   return `@${handle}`;
 }
 
-export function appendBookLinkIfMissing(caption: string, bookUrl: string): string {
-  const trimmed = caption.trim();
-  if (!trimmed) return bookUrl;
-  if (trimmed.includes(bookUrl)) return trimmed;
-  return `${trimmed}\n\n${bookUrl}`;
-}
-
 export function buildDefaultInstagramCaption(book: BookForCaption): string {
   const lines = [`Book of the Day: ${book.title}`];
 
@@ -57,7 +51,13 @@ export function buildDefaultInstagramCaption(book: BookForCaption): string {
     );
   }
 
-  return appendBookLinkIfMissing(lines.join("\n"), buildBookPageUrl(book.slug));
+  if (book.tags?.length) {
+    lines.push(`#${book.tags.join(" #")}`);
+  }
+
+  lines.push("Link in bio →");
+
+  return lines.map((line) => line.trim()).join("\n");
 }
 
 /** First comment — Instagram renders URLs here as clickable links. */
