@@ -1,14 +1,24 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildBotdInstagramCaption,
+  buildDefaultArtistInstagramCaption,
   buildDefaultInstagramCaption,
   buildDefaultInstagramFirstComment,
+  buildDefaultPublisherInstagramCaption,
   collectBookImageOptions,
+  ensureBookTagsInCaption,
   formatInstagramHandle,
+  formatInstagramHashtags,
 } from "./instagramCaption";
 import {
+  buildAotwInstagramDueAt,
   buildInstagramDueAt,
+  buildPotwInstagramDueAt,
   extractBracketedFormFields,
+  INSTAGRAM_SPOTLIGHT_AOTW_KEY,
+  INSTAGRAM_SPOTLIGHT_POTW_KEY,
   isWeekInstagramFullyPrepared,
+  parsePrepareInstagramForm,
   parsePrepareInstagramFormEntries,
 } from "./instagramUtils";
 import { toDateString } from "../../../../lib/utils";
@@ -29,7 +39,60 @@ describe("instagram caption helpers", () => {
     expect(caption).toContain("Book of the Day: Winter Light");
     expect(caption).toContain("@janedoe");
     expect(caption).toContain("@acmepress");
-    expect(caption).toContain("/books/winter-light");
+    expect(caption).toContain("Link in bio");
+  });
+
+  it("formats multi-word tags as single hashtags", () => {
+    expect(formatInstagramHashtags(["still life", "urban"])).toBe(
+      "#stilllife #urban",
+    );
+  });
+
+  it("includes book tags as hashtags", () => {
+    const caption = buildDefaultInstagramCaption({
+      title: "Winter Light",
+      slug: "winter-light",
+      tags: ["urban", "street"],
+    });
+
+    expect(caption).toContain("#urban");
+    expect(caption).toContain("#street");
+  });
+
+  it("adds missing tags to a stored caption", () => {
+    const merged = ensureBookTagsInCaption(
+      "Book of the Day: Winter Light\n\nLink in bio →",
+      ["urban"],
+    );
+    expect(merged).toContain("#urban");
+    expect(merged.indexOf("#urban")).toBeLessThan(merged.indexOf("Link in bio"));
+  });
+
+  it("builds botd caption from stored text with tags merged in", () => {
+    const caption = buildBotdInstagramCaption(
+      { title: "Winter Light", slug: "winter-light", tags: ["urban"] },
+      "Book of the Day: Winter Light",
+    );
+    expect(caption).toContain("#urban");
+  });
+
+  it("builds artist and publisher spotlight captions", () => {
+    const artist = buildDefaultArtistInstagramCaption({
+      displayName: "Jane Doe",
+      slug: "jane-doe",
+      bio: "Photographer based in NYC.",
+      instagram: "@janedoe",
+    });
+    expect(artist).toContain("Artist of the Week");
+    expect(artist).toContain("Jane Doe");
+    expect(artist).toContain("@janedoe");
+
+    const publisher = buildDefaultPublisherInstagramCaption({
+      displayName: "Acme Press",
+      slug: "acme-press",
+    });
+    expect(publisher).toContain("Publisher of the Week");
+    expect(publisher).toContain("Acme Press");
   });
 
   it("falls back to display names without instagram handles", () => {
@@ -108,11 +171,58 @@ describe("instagram planner helpers", () => {
     expect(isWeekInstagramFullyPrepared(weekStart, byDate)).toBe(false);
   });
 
+  it("requires artist and publisher prep when scheduled for the week", () => {
+    const weekStart = new Date(Date.UTC(2026, 4, 18));
+    const days = getWeekDays(weekStart);
+    const byDate = new Map([
+      [toDateString(days[0]), { instagramPreparedAt: new Date() }],
+    ]);
+
+    expect(
+      isWeekInstagramFullyPrepared(weekStart, byDate, {
+        artistOfTheWeek: { instagramPreparedAt: null },
+      }),
+    ).toBe(false);
+
+    expect(
+      isWeekInstagramFullyPrepared(weekStart, byDate, {
+        artistOfTheWeek: { instagramPreparedAt: new Date() },
+        publisherOfTheWeek: { instagramPreparedAt: new Date() },
+      }),
+    ).toBe(true);
+  });
+
+  it("parses spotlight form keys", () => {
+    const [error, payload] = parsePrepareInstagramForm({
+      captions: {
+        [INSTAGRAM_SPOTLIGHT_AOTW_KEY]: "Artist caption",
+        [INSTAGRAM_SPOTLIGHT_POTW_KEY]: "Publisher caption",
+      },
+      imageUrl: {
+        [INSTAGRAM_SPOTLIGHT_AOTW_KEY]: "https://example.com/a.jpg",
+        [INSTAGRAM_SPOTLIGHT_POTW_KEY]: "https://example.com/p.jpg",
+      },
+    });
+
+    expect(error).toBeNull();
+    expect(payload?.botd).toHaveLength(0);
+    expect(payload?.artist?.caption).toBe("Artist caption");
+    expect(payload?.publisher?.caption).toBe("Publisher caption");
+  });
+
   it("builds due at from configured post time", () => {
     const prev = process.env.BOTD_INSTAGRAM_POST_TIME;
     process.env.BOTD_INSTAGRAM_POST_TIME = "14:30";
     const dueAt = buildInstagramDueAt(new Date(Date.UTC(2026, 4, 25)));
     expect(dueAt.toISOString()).toBe("2026-05-25T14:30:00.000Z");
     process.env.BOTD_INSTAGRAM_POST_TIME = prev;
+  });
+
+  it("schedules spotlight posts on saturday and sunday", () => {
+    const weekStart = new Date(Date.UTC(2026, 4, 18));
+    const aotwDue = buildAotwInstagramDueAt(weekStart);
+    const potwDue = buildPotwInstagramDueAt(weekStart);
+    expect(aotwDue.getUTCDay()).toBe(6);
+    expect(potwDue.getUTCDay()).toBe(0);
   });
 });

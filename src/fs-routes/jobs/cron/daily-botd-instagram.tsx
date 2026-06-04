@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
 import {
-  queueDuePreparedBotdInstagramPosts,
+  queueDuePreparedInstagramPosts,
   queuePreparedBotdInstagramPostsForDate,
 } from "../../../features/dashboard/admin/planner/instagramServices";
 import { parseDateString } from "../../../lib/utils";
@@ -24,7 +24,7 @@ export const POST = createRoute(async (c: Context) => {
     }
     resultPromise = queuePreparedBotdInstagramPostsForDate(targetDate);
   } else {
-    resultPromise = queueDuePreparedBotdInstagramPosts();
+    resultPromise = queueDuePreparedInstagramPosts();
   }
 
   const [error, result] = await resultPromise;

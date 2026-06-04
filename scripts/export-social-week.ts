@@ -2,7 +2,7 @@
  * Export social media data for a given week:
  * 7 Book of the Day entries, Artist of the Week, Publisher of the Week.
  * Outputs a Markdown document, downloads cover images to output/social-images-YYYY-MM-DD/,
- * and lists image URLs. Includes Instagram handles derived from creator Instagram URLs.
+ * and lists image URLs. Captions match the admin Instagram planner defaults.
  *
  * Usage: npx tsx scripts/export-social-week.ts [YYYY-MM-DD]
  *   If no date is given, uses the current week (Monday–Sunday).
@@ -20,6 +20,11 @@ import {
 import { BOOK_CARD_COLUMNS } from "../src/constants/queries";
 import { toDateString, toWeekStart } from "../src/lib/utils";
 import { and, eq, gte, lte } from "drizzle-orm";
+import {
+  buildBotdInstagramCaption,
+  buildDefaultArtistInstagramCaption,
+  buildDefaultPublisherInstagramCaption,
+} from "../src/features/dashboard/admin/planner/instagramCaption";
 
 const BOOK_COLUMNS_FOR_EXPORT = {
   ...BOOK_CARD_COLUMNS,
@@ -63,22 +68,6 @@ async function downloadImageToFile(
   } catch (err) {
     console.error("Error downloading", url, err);
     return null;
-  }
-}
-
-function extractInstagramHandle(url: string | null | undefined): string | null {
-  if (!url) return null;
-  try {
-    const u = new URL(url.trim());
-    if (!u.hostname.includes("instagram.com")) return null;
-    const segments = u.pathname.split("/").filter(Boolean);
-    const raw = segments[0];
-    if (!raw) return null;
-    return "@" + raw;
-  } catch {
-    const match = url.match(/instagram\.com\/([^/?#]+)/i);
-    if (!match) return null;
-    return "@" + match[1];
   }
 }
 
@@ -137,7 +126,6 @@ async function run() {
   const downloadedPaths: string[] = [];
   const lines: string[] = [];
 
-  // ---- Book of the Day rows (one per day) ----
   for (const row of botdRows) {
     const b = row.book;
     if (!b) continue;
@@ -164,30 +152,23 @@ async function run() {
         if (path) downloadedPaths.push(path);
       }
     }
-    const post: string[] = [];
-    post.push(`Book of The Day – ${dayStr}`);
-    post.push("");
-    post.push(b.title);
-    if (b.artist) post.push(b.artist.displayName);
-    if (b.publisher) post.push(b.publisher.displayName);
-    post.push("");
-    if (b.description) post.push(b.description);
-    else if (b.artist?.bio) post.push(b.artist.bio);
-    else if (b.publisher?.bio) post.push(b.publisher.bio);
-    post.push("");
-    if (b.artist) {
-      const h = extractInstagramHandle(b.artist.instagram);
-      if (h) post.push(h);
-    }
-    if (b.publisher) {
-      const h = extractInstagramHandle(b.publisher.instagram);
-      if (h) post.push(h);
-    }
+
+    const caption = buildBotdInstagramCaption(
+      {
+        title: b.title,
+        slug: b.slug,
+        artist: b.artist,
+        publisher: b.publisher,
+        tags: b.tags,
+      },
+      row.instagramCaption,
+    );
+
     lines.push(`Book of The Day – ${dayStr}`);
     lines.push("");
     lines.push("Example post (copy for Instagram):");
     lines.push("```");
-    lines.push(...post);
+    lines.push(caption);
     lines.push("```");
     lines.push("");
     lines.push("---");
@@ -201,7 +182,6 @@ async function run() {
     lines.push("");
   }
 
-  // ---- Artist of the Week (post-style) ----
   lines.push("Artist of the Week:");
   lines.push("");
   if (aotwRow?.creator) {
@@ -214,18 +194,11 @@ async function run() {
       );
       if (path) downloadedPaths.push(path);
     }
-    const artistPost: string[] = [];
-    artistPost.push("Artist of the Week:");
-    artistPost.push("");
-    artistPost.push(c.displayName);
-    artistPost.push("");
-    if (c.bio) artistPost.push(c.bio);
-    artistPost.push("");
-    const h = extractInstagramHandle(c.instagram);
-    if (h) artistPost.push(h);
+    const caption =
+      aotwRow.instagramCaption ?? buildDefaultArtistInstagramCaption(c);
     lines.push("Example post (copy for Instagram):");
     lines.push("```");
-    lines.push(...artistPost);
+    lines.push(caption);
     lines.push("```");
   } else {
     lines.push("(Not set for this week)");
@@ -234,7 +207,6 @@ async function run() {
   lines.push("---");
   lines.push("");
 
-  // ---- Publisher of the Week (post-style) ----
   lines.push("Publisher of the Week:");
   lines.push("");
   if (potwRow?.creator) {
@@ -247,18 +219,11 @@ async function run() {
       );
       if (path) downloadedPaths.push(path);
     }
-    const publisherPost: string[] = [];
-    publisherPost.push("Publisher of the Week:");
-    publisherPost.push("");
-    publisherPost.push(c.displayName);
-    publisherPost.push("");
-    if (c.bio) publisherPost.push(c.bio);
-    publisherPost.push("");
-    const ph = extractInstagramHandle(c.instagram);
-    if (ph) publisherPost.push(ph);
+    const caption =
+      potwRow.instagramCaption ?? buildDefaultPublisherInstagramCaption(c);
     lines.push("Example post (copy for Instagram):");
     lines.push("```");
-    lines.push(...publisherPost);
+    lines.push(caption);
     lines.push("```");
   } else {
     lines.push("(Not set for this week)");

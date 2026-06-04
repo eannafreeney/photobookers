@@ -3,12 +3,12 @@ import { paramValidator } from "../../../../../../lib/validator";
 import { weekQuerySchema } from "../../../../../../features/dashboard/admin/planner/schema";
 import PrepareInstagramModal from "../../../../../../features/dashboard/admin/planner/modals/PrepareInstagramModal";
 import {
-  getWeekBotdEntriesForInstagram,
+  getWeekInstagramForPrepare,
   saveWeekInstagramPreparation,
 } from "../../../../../../features/dashboard/admin/planner/instagramServices";
 import {
   extractBracketedFormFields,
-  parsePrepareInstagramFormEntries,
+  parsePrepareInstagramForm,
 } from "../../../../../../features/dashboard/admin/planner/instagramUtils";
 import { parseWeekString } from "../../../../../../lib/utils";
 import { showErrorAlert } from "../../../../../../lib/alertHelpers";
@@ -22,15 +22,20 @@ export const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
     return c.html(<Alert type="danger" message="Invalid week" />);
   }
 
-  const [error, data] = await getWeekBotdEntriesForInstagram(weekStart);
+  const [error, data] = await getWeekInstagramForPrepare(weekStart);
   if (error) {
     return c.html(
-      <Alert type="danger" message="Failed to load books for this week" />,
+      <Alert type="danger" message="Failed to load Instagram plan for this week" />,
     );
   }
 
   return c.html(
-    <PrepareInstagramModal week={week} entries={data.botdEntries} />,
+    <PrepareInstagramModal
+      week={week}
+      entries={data.botdEntries}
+      artistOfTheWeek={data.artistOfTheWeek}
+      publisherOfTheWeek={data.publisherOfTheWeek}
+    />,
   );
 });
 
@@ -48,8 +53,7 @@ export const POST = createRoute(paramValidator(weekQuerySchema), async (c) => {
   const captions = extractBracketedFormFields(body, "captions");
   const imageUrl = extractBracketedFormFields(body, "imageUrl");
 
-  const [parseError, entries] = parsePrepareInstagramFormEntries({
-    week,
+  const [parseError, payload] = parsePrepareInstagramForm({
     captions,
     imageUrl,
   });
@@ -57,7 +61,7 @@ export const POST = createRoute(paramValidator(weekQuerySchema), async (c) => {
 
   const [saveError, result] = await saveWeekInstagramPreparation(
     weekStart,
-    entries,
+    payload,
   );
   if (saveError) return showErrorAlert(c, saveError.reason);
 
@@ -65,7 +69,7 @@ export const POST = createRoute(paramValidator(weekQuerySchema), async (c) => {
     <>
       <Alert
         type="success"
-        message={`Instagram prepared for ${result.saved} day${result.saved === 1 ? "" : "s"}.`}
+        message={`Instagram prepared for ${result.saved} post${result.saved === 1 ? "" : "s"}.`}
       />
       {dispatchEvents(["planner:updated"])}
     </>,

@@ -1,41 +1,99 @@
-import { parseDateString, toDateString, toUtcStartOfDay } from "../../../../lib/utils";
+import {
+  parseDateString,
+  toDateString,
+  toUtcStartOfDay,
+} from "../../../../lib/utils";
 import { err, ok, type Result } from "../../../../lib/result";
 import { getWeekDays } from "./utils";
+
+export const INSTAGRAM_SPOTLIGHT_AOTW_KEY = "aotw";
+export const INSTAGRAM_SPOTLIGHT_POTW_KEY = "potw";
+
+const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
 export type PrepareInstagramEntry = {
   date: Date;
   imageUrl: string;
   caption: string;
 };
 
+export type PrepareInstagramSpotlightEntry = {
+  imageUrl: string;
+  caption: string;
+};
+
+export type PrepareInstagramFormPayload = {
+  botd: PrepareInstagramEntry[];
+  artist: PrepareInstagramSpotlightEntry | null;
+  publisher: PrepareInstagramSpotlightEntry | null;
+};
+
 export function buildInstagramDueAt(botdDate: Date): Date {
   const time = process.env.BOTD_INSTAGRAM_POST_TIME ?? "10:00";
+  return buildInstagramDueAtWithTime(botdDate, time);
+}
+
+/** Saturday of the ISO week (UTC) for Artist of the Week posts. */
+export function buildAotwInstagramDueAt(weekStart: Date): Date {
+  const saturday = getWeekDays(weekStart)[5];
+  const time = process.env.AOTW_INSTAGRAM_POST_TIME ?? "11:00";
+  return buildInstagramDueAtWithTime(saturday, time);
+}
+
+/** Sunday of the ISO week (UTC) for Publisher of the Week posts. */
+export function buildPotwInstagramDueAt(weekStart: Date): Date {
+  const sunday = getWeekDays(weekStart)[6];
+  const time = process.env.POTW_INSTAGRAM_POST_TIME ?? "11:00";
+  return buildInstagramDueAtWithTime(sunday, time);
+}
+
+function buildInstagramDueAtWithTime(day: Date, time: string): Date {
   const match = time.match(/^(\d{1,2}):(\d{2})$/);
   const hour = match ? Number(match[1]) : 10;
   const minute = match ? Number(match[2]) : 0;
   return new Date(
     Date.UTC(
-      botdDate.getUTCFullYear(),
-      botdDate.getUTCMonth(),
-      botdDate.getUTCDate(),
+      day.getUTCFullYear(),
+      day.getUTCMonth(),
+      day.getUTCDate(),
       hour,
       minute,
     ),
   );
 }
 
+type InstagramPreparedRow = {
+  instagramPreparedAt?: Date | null;
+} | null;
+
 export function isWeekInstagramFullyPrepared(
   weekStart: Date,
-  botdByDate: Map<
-    string,
-    { instagramPreparedAt?: Date | null } | null | undefined
-  >,
+  botdByDate: Map<string, InstagramPreparedRow | undefined>,
+  options?: {
+    artistOfTheWeek?: InstagramPreparedRow;
+    publisherOfTheWeek?: InstagramPreparedRow;
+  },
 ): boolean {
   const days = getWeekDays(weekStart);
-  const scheduled = days
+  const scheduledBotd = days
     .map((day) => botdByDate.get(toDateString(day)))
     .filter(Boolean);
-  if (scheduled.length === 0) return false;
-  return scheduled.every((entry) => Boolean(entry?.instagramPreparedAt));
+
+  const artist = options?.artistOfTheWeek ?? null;
+  const publisher = options?.publisherOfTheWeek ?? null;
+
+  const hasAnything =
+    scheduledBotd.length > 0 || Boolean(artist) || Boolean(publisher);
+  if (!hasAnything) return false;
+
+  const botdReady =
+    scheduledBotd.length === 0 ||
+    scheduledBotd.every((entry) => Boolean(entry?.instagramPreparedAt));
+
+  const artistReady = !artist || Boolean(artist.instagramPreparedAt);
+  const publisherReady = !publisher || Boolean(publisher.instagramPreparedAt);
+
+  return botdReady && artistReady && publisherReady;
 }
 
 /** Reads `prefix[date]` fields from nested or flat multipart/form bodies. */
@@ -53,7 +111,9 @@ export function extractBracketedFormFields(
     if (Object.keys(out).length > 0) return out;
   }
 
-  const pattern = new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\[(.+)]$`);
+  const pattern = new RegExp(
+    `^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\[(.+)]$`,
+  );
   const out: Record<string, string> = {};
   for (const [key, raw] of Object.entries(body)) {
     const match = key.match(pattern);
@@ -64,21 +124,38 @@ export function extractBracketedFormFields(
   return out;
 }
 
-export function parsePrepareInstagramFormEntries(formData: {
-  week: string;
+function parseSpotlightEntry(
+  key: string,
+  captions: Record<string, string>,
+  imageUrls: Record<string, string>,
+): Result<PrepareInstagramSpotlightEntry | null, { reason: string }> {
+  const caption = captions[key]?.trim();
+  const imageUrl = imageUrls[key]?.trim();
+  if (!caption && !imageUrl) return ok(null);
+  if (!caption) {
+    return err({ reason: `Caption is required for ${key}` });
+  }
+  if (!imageUrl) {
+    return err({ reason: `Image is required for ${key}` });
+  }
+  return ok({ caption, imageUrl });
+}
+
+export function parsePrepareInstagramForm(formData: {
   captions?: Record<string, string>;
   imageUrl?: Record<string, string>;
-}): Result<PrepareInstagramEntry[], { reason: string }> {
+}): Result<PrepareInstagramFormPayload, { reason: string }> {
   const captions = formData.captions ?? {};
   const imageUrls = formData.imageUrl ?? {};
-  const dates = Object.keys(captions);
 
-  if (dates.length === 0) {
+  if (Object.keys(captions).length === 0) {
     return err({ reason: "No Instagram posts to save" });
   }
 
-  const entries: PrepareInstagramEntry[] = [];
-  for (const dateKey of dates) {
+  const botd: PrepareInstagramEntry[] = [];
+  for (const dateKey of Object.keys(captions)) {
+    if (!DATE_KEY_PATTERN.test(dateKey)) continue;
+
     const date = parseDateString(dateKey);
     if (Number.isNaN(date.getTime())) {
       return err({ reason: `Invalid date: ${dateKey}` });
@@ -93,8 +170,37 @@ export function parsePrepareInstagramFormEntries(formData: {
       return err({ reason: `Image is required for ${dateKey}` });
     }
 
-    entries.push({ date: toUtcStartOfDay(date), imageUrl, caption });
+    botd.push({ date: toUtcStartOfDay(date), imageUrl, caption });
   }
 
-  return ok(entries);
+  const [artistError, artist] = parseSpotlightEntry(
+    INSTAGRAM_SPOTLIGHT_AOTW_KEY,
+    captions,
+    imageUrls,
+  );
+  if (artistError) return err(artistError);
+
+  const [publisherError, publisher] = parseSpotlightEntry(
+    INSTAGRAM_SPOTLIGHT_POTW_KEY,
+    captions,
+    imageUrls,
+  );
+  if (publisherError) return err(publisherError);
+
+  if (botd.length === 0 && !artist && !publisher) {
+    return err({ reason: "No Instagram posts to save" });
+  }
+
+  return ok({ botd, artist, publisher });
+}
+
+/** @deprecated Use parsePrepareInstagramForm */
+export function parsePrepareInstagramFormEntries(formData: {
+  week: string;
+  captions?: Record<string, string>;
+  imageUrl?: Record<string, string>;
+}): Result<PrepareInstagramEntry[], { reason: string }> {
+  const [error, payload] = parsePrepareInstagramForm(formData);
+  if (error) return err(error);
+  return ok(payload.botd);
 }
