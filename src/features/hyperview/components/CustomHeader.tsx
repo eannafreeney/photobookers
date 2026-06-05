@@ -49,7 +49,7 @@ const CustomHeader = ({
         <View style="header-title-container-inner">
           <View style="header-title-row">
             <Text style={artist ? "header-title-artist" : "header-title"}>
-              {xmlText(title)}
+              {title}
             </Text>
             <VerificationBadge isVerified={isVerified} baseUrl={baseUrl} />
           </View>
