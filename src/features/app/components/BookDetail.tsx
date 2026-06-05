@@ -98,12 +98,12 @@ const DetailDesktop = ({
         <div class="w-2/5 h-full overflow-y-auto pr-2">
           <div class="mb-4 flex flex-col gap-4">
             <div class="flex flex-col gap-0">
-              <div class="text-balance text-lg font-semibold text-on-surface-strong">
+              <h1 class="text-balance text-lg font-semibold text-on-surface-strong">
                 {book.title}
-              </div>
-              <div class="text-balance text-lg font-normal text-on-surface-strong">
+              </h1>
+              <p class="text-balance text-lg font-normal text-on-surface-strong">
                 {book.artist?.displayName}
-              </div>
+              </p>
             </div>
 
             <div class="flex items-center gap-2">
@@ -170,12 +170,12 @@ const DetailMobile = ({
             <CarouselMobile images={galleryImages} />
           </PageBleed>
           <div class="flex flex-col gap-0">
-            <div class="text-balance text-lg font-semibold text-on-surface-strong">
+            <h1 class="text-balance text-lg font-semibold text-on-surface-strong">
               {book.title}
-            </div>
-            <div class="text-balance text-md font-normal text-on-surface-strong">
+            </h1>
+            <p class="text-balance text-md font-normal text-on-surface-strong">
               {book.artist?.displayName}
-            </div>
+            </p>
           </div>
           <div class="flex items-center justify-evenly">
             <WishlistButton isCircleButton book={book} user={user} />

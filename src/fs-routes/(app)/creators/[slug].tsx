@@ -18,12 +18,7 @@ import CreatorCard from "../../../components/app/CreatorCard";
 import CreatorsGrid from "../../../features/app/components/CreatorsGrid";
 import Tabs from "../../../components/app/Tabs";
 import CreatorMessages from "../../../features/app/components/CreatorMessages";
-import SectionTitle from "../../../components/app/SectionTitle";
-import {
-  canonicalUrl,
-  creatorDescription,
-  pageTitle,
-} from "../../../lib/seo";
+import { canonicalUrl, creatorDescription, pageTitle } from "../../../lib/seo";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -203,7 +198,9 @@ export const CreatorDetailDesktop = ({
     <div class="flex flex-col gap-4">
       <div class="flex gap-4">
         <div class="md:w-4/5 flex flex-col gap-4">
-          <SectionTitle className="mb-0">{creator.displayName}</SectionTitle>
+          <h1 class="flex items-center gap-2 text-lg font-bold mb-0">
+            {creator.displayName}
+          </h1>
           <BooksGrid
             isFullWidth={false}
             user={user}
