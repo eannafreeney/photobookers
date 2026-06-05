@@ -9,12 +9,22 @@ export type ShareOgMeta = {
 
 type HeadProps = {
   title: string;
+  description?: string;
+  canonicalUrl?: string;
+  noIndex?: boolean;
   shareOg?: ShareOgMeta;
 };
 
-const Head = ({ title, shareOg }: HeadProps) => {
+const Head = ({
+  title,
+  description,
+  canonicalUrl,
+  noIndex = false,
+  shareOg,
+}: HeadProps) => {
   const hasBuiltAssets =
-    existsSync("./dist/client/main.js") && existsSync("./dist/client/styles.css");
+    existsSync("./dist/client/main.js") &&
+    existsSync("./dist/client/styles.css");
   const isRunningViaViteDevServer = process.argv.some((arg) =>
     arg.includes("vite"),
   );
@@ -25,29 +35,39 @@ const Head = ({ title, shareOg }: HeadProps) => {
   const gaId =
     process.env.VITE_GA_MEASUREMENT_ID || process.env.GA_MEASUREMENT_ID;
 
+  const ogTitle = shareOg?.title ?? title;
+  const ogDescription = shareOg?.description ?? description;
+  const ogUrl = shareOg?.url ?? canonicalUrl;
+  const ogImage = shareOg?.image;
+  const showSocialTags = !noIndex;
+
   return (
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width" />
       <meta name="view-transition" content="same-origin"></meta>
       <title>{title}</title>
-      {shareOg?.image ? (
+      {noIndex ? <meta name="robots" content="noindex, nofollow" /> : null}
+      {description ? <meta name="description" content={description} /> : null}
+      {canonicalUrl ? <link rel="canonical" href={canonicalUrl} /> : null}
+      {showSocialTags ? (
         <>
-          <meta
-            property="og:title"
-            content={shareOg.title ?? title}
-          />
+          <meta property="og:title" content={ogTitle} />
           <meta property="og:type" content="website" />
-          {shareOg.url ? (
-            <meta property="og:url" content={shareOg.url} />
+          {ogUrl ? <meta property="og:url" content={ogUrl} /> : null}
+          {ogDescription ? (
+            <meta property="og:description" content={ogDescription} />
           ) : null}
-          {shareOg.description ? (
-            <meta property="og:description" content={shareOg.description} />
+          {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+          <meta
+            name="twitter:card"
+            content={ogImage ? "summary_large_image" : "summary"}
+          />
+          <meta name="twitter:title" content={ogTitle} />
+          {ogDescription ? (
+            <meta name="twitter:description" content={ogDescription} />
           ) : null}
-          <meta property="og:image" content={shareOg.image} />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={shareOg.title ?? title} />
-          <meta name="twitter:image" content={shareOg.image} />
+          {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
         </>
       ) : null}
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

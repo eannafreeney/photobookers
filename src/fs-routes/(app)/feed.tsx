@@ -46,6 +46,7 @@ export const GET = createRoute(async (c: Context) => {
       user={user}
       flash={flash}
       currentPath={currentPath}
+      noIndex
     >
       <Page>
         <SectionTitle>Books from Creators You Follow</SectionTitle>

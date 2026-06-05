@@ -12,6 +12,7 @@ import ScrollReveal from "../../components/app/ScrollReveal";
 import { getIsMobile } from "../../lib/device";
 import GridPanel from "../../components/app/GridPanel";
 import ListNavigation from "../../features/app/components/ListNavigation";
+import { canonicalUrl, pageTitle } from "../../lib/seo";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -32,9 +33,15 @@ export const GET = createRoute(async (c) => {
   const { potwEntries, totalPages, page } = result;
   const targetId = "potw-list";
 
+  const title = pageTitle("Publisher of the Week");
+  const description =
+    "Meet photobookers Publishers of the Week — featured publishers from the photobook community.";
+
   return c.html(
     <AppLayout
-      title="Publisher of the Week"
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, "/publisher-of-the-week")}
       user={user}
       currentPath={currentPath}
     >

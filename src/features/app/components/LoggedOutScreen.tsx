@@ -27,6 +27,7 @@ const LoggedOutScreen = ({
       user={user}
       flash={flash}
       currentPath={currentPath}
+      noIndex
     >
       <Page>
         <NavTabs currentPath={currentPath} />

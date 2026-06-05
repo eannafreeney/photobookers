@@ -26,7 +26,7 @@ export const GET = createRoute(async (c) => {
   };
 
   return c.html(
-    <AppLayout title={title} user={user}>
+    <AppLayout title={title} user={user} noIndex>
       <Page>
         <div id="followed-creators-grid" {...alpineAttrs}>
           <PageTitle title={title} />

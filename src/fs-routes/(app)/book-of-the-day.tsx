@@ -11,6 +11,7 @@ import ScrollReveal from "../../components/app/ScrollReveal";
 import { getIsMobile } from "../../lib/device";
 import GridPanel from "../../components/app/GridPanel";
 import ListNavigation from "../../features/app/components/ListNavigation";
+import { canonicalUrl, pageTitle } from "../../lib/seo";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -27,8 +28,18 @@ export const GET = createRoute(async (c) => {
   const { botdEntries, totalPages, page } = result;
   const targetId = "botd-list";
 
+  const title = pageTitle("Book of the Day");
+  const description =
+    "Explore photobookers Books of the Day — curated photobook highlights from our community.";
+
   return c.html(
-    <AppLayout title="Book of the Day" user={user} currentPath={currentPath}>
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, "/book-of-the-day")}
+      user={user}
+      currentPath={currentPath}
+    >
       <Page>
         <SectionTitle>Books of the Day</SectionTitle>
         <GridPanel

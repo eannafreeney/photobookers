@@ -10,6 +10,7 @@ import { getBookBySlug } from "../../../../features/app/services";
 import BookDetail from "../../../../features/app/components/BookDetail";
 import InfoPage from "../../../../pages/InfoPage";
 import { BookDetailContext } from "../../../../features/app/types";
+import { bookDescription, bookPageTitle } from "../../../../lib/seo";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -37,11 +38,13 @@ export const GET = createRoute(
 
     return c.html(
       <AppLayout
-        title={book.title}
+        title={bookPageTitle(book.title, book.artist?.displayName)}
+        description={bookDescription(book)}
         user={user}
         isPreview
         currentPath={currentPath}
         adminEditHref={`/dashboard/admin/books/${book.id}`}
+        noIndex
       >
         <Page>
           <BookDetail

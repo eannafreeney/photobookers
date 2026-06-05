@@ -10,6 +10,7 @@ import { getBooksByTag } from "../../../../features/app/services";
 import InfoPage from "../../../../pages/InfoPage";
 import { BookTagContext } from "../../../../features/app/types";
 import SectionTitle from "../../../../components/app/SectionTitle";
+import { canonicalUrl, pageTitle } from "../../../../lib/seo";
 
 export const GET = createRoute(
   paramValidator(tagSchema),
@@ -23,9 +24,15 @@ export const GET = createRoute(
     if (error)
       return c.html(<InfoPage errorMessage={error.reason} user={user} />);
 
+    const tagLabel = capitalize(tag);
+    const title = pageTitle(`# ${tagLabel}`);
+    const description = `Browse photobooks tagged ${tagLabel} on photobookers.`;
+
     return c.html(
       <AppLayout
-        title={`# ${capitalize(tag)}`}
+        title={title}
+        description={description}
+        canonicalUrl={canonicalUrl(c.req.url, `/books/tags/${tag}`)}
         user={user}
         currentPath={currentPath}
       >

@@ -9,6 +9,11 @@ import Page from "../../../components/layouts/Page";
 import InfoPage from "../../../pages/InfoPage";
 import BookDetail from "../../../features/app/components/BookDetail";
 import { BookDetailContext } from "../../../features/app/types";
+import {
+  bookDescription,
+  bookPageTitle,
+  canonicalUrl,
+} from "../../../lib/seo";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -25,7 +30,9 @@ export const GET = createRoute(
       return c.html(<InfoPage errorMessage={error.reason} user={user} />);
 
     const { book } = result;
-    const canonicalUrl = new URL(`/books/${book.slug}`, c.req.url).href;
+    const bookCanonicalUrl = canonicalUrl(c.req.url, `/books/${book.slug}`);
+    const description = bookDescription(book);
+    const title = bookPageTitle(book.title, book.artist?.displayName);
 
     const galleryImages = [
       book.coverUrl,
@@ -45,20 +52,18 @@ export const GET = createRoute(
 
     return c.html(
       <AppLayout
-        title={book.title}
+        title={title}
+        description={description}
+        canonicalUrl={bookCanonicalUrl}
         user={user}
         currentPath={currentPath}
         adminEditHref={`/dashboard/admin/books/${book.id}`}
-        shareOg={
-          book.coverUrl
-            ? {
-                title: book.title,
-                description: book.description?.slice(0, 200) ?? undefined,
-                image: book.coverUrl,
-                url: canonicalUrl,
-              }
-            : undefined
-        }
+        shareOg={{
+          title,
+          description,
+          image: book.coverUrl ?? undefined,
+          url: bookCanonicalUrl,
+        }}
       >
         <Page>
           <BookDetail

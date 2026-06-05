@@ -8,6 +8,11 @@ import { paramValidator } from "../../../../lib/validator";
 import { getUser } from "../../../../utils";
 import Button from "../../../../components/app/Button";
 import InterviewCard from "../../../../features/app/components/InterviewCard";
+import {
+  canonicalUrl,
+  pageTitle,
+  truncateDescription,
+} from "../../../../lib/seo";
 
 export const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const currentPath = c.req.path;
@@ -25,8 +30,27 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
       : interview.creator.booksAsPublisher[0];
   if (!book) return c.html(<InfoPage errorMessage="Book not found" />);
 
+  const interviewPath = `/interviews/view/${slug}`;
+  const title = pageTitle(`Interview with ${interview.creator.displayName}`);
+  const description = truncateDescription(
+    `Read our interview with ${interview.creator.displayName} about their photobook practice.`,
+  );
+  const interviewCanonicalUrl = canonicalUrl(c.req.url, interviewPath);
+
   return c.html(
-    <AppLayout title="About" currentPath={currentPath} user={user}>
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={interviewCanonicalUrl}
+      currentPath={currentPath}
+      user={user}
+      shareOg={{
+        title,
+        description,
+        image: book.coverUrl ?? interview.creator.coverUrl ?? undefined,
+        url: interviewCanonicalUrl,
+      }}
+    >
       <Page>
         <div className="flex flex-col items-center justify-center gap-8 sm:max-w-3xl mx-auto">
           <InterviewCard

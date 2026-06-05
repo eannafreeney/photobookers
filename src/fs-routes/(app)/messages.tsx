@@ -44,6 +44,7 @@ export const GET = createRoute(async (c) => {
       user={user}
       flash={flash}
       currentPath={currentPath}
+      noIndex
     >
       <Page>
         <div id={targetId} class="flex flex-col gap-4 md:w-[600px] mx-auto">

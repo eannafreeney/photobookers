@@ -19,6 +19,11 @@ import CreatorsGrid from "../../../features/app/components/CreatorsGrid";
 import Tabs from "../../../components/app/Tabs";
 import CreatorMessages from "../../../features/app/components/CreatorMessages";
 import SectionTitle from "../../../components/app/SectionTitle";
+import {
+  canonicalUrl,
+  creatorDescription,
+  pageTitle,
+} from "../../../lib/seo";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -48,12 +53,27 @@ export const GET = createRoute(
       c.header("Cache-Control", "private, no-store");
     }
 
+    const title = pageTitle(creator.displayName);
+    const description = creatorDescription(creator);
+    const creatorCanonicalUrl = canonicalUrl(
+      c.req.url,
+      `/creators/${creator.slug}`,
+    );
+
     return c.html(
       <AppLayout
-        title={creator?.displayName ?? ""}
+        title={title}
+        description={description}
+        canonicalUrl={creatorCanonicalUrl}
         user={user}
         currentPath={currentPath}
         adminEditHref={`/dashboard/admin/creators/${creator.id}`}
+        shareOg={{
+          title,
+          description,
+          image: creator.coverUrl ?? undefined,
+          url: creatorCanonicalUrl,
+        }}
       >
         <Page>
           {isMobile ? (

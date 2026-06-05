@@ -33,18 +33,18 @@ export function buildInstagramDueAt(botdDate: Date): Date {
   return buildInstagramDueAtWithTime(botdDate, time);
 }
 
-/** Saturday of the ISO week (UTC) for Artist of the Week posts. */
+/** Tuesday of the ISO week (UTC) for Artist of the Week posts. */
 export function buildAotwInstagramDueAt(weekStart: Date): Date {
-  const saturday = getWeekDays(weekStart)[5];
-  const time = process.env.AOTW_INSTAGRAM_POST_TIME ?? "11:00";
-  return buildInstagramDueAtWithTime(saturday, time);
+  const tuesday = getWeekDays(weekStart)[1];
+  const time = process.env.AOTW_INSTAGRAM_POST_TIME ?? "13:00";
+  return buildInstagramDueAtWithTime(tuesday, time);
 }
 
-/** Sunday of the ISO week (UTC) for Publisher of the Week posts. */
+/** Wednesday of the ISO week (UTC) for Publisher of the Week posts. */
 export function buildPotwInstagramDueAt(weekStart: Date): Date {
-  const sunday = getWeekDays(weekStart)[6];
-  const time = process.env.POTW_INSTAGRAM_POST_TIME ?? "11:00";
-  return buildInstagramDueAtWithTime(sunday, time);
+  const monday = getWeekDays(weekStart)[0];
+  const time = process.env.POTW_INSTAGRAM_POST_TIME ?? "13:00";
+  return buildInstagramDueAtWithTime(monday, time);
 }
 
 function buildInstagramDueAtWithTime(day: Date, time: string): Date {

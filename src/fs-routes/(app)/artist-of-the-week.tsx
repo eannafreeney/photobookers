@@ -12,6 +12,7 @@ import ScrollReveal from "../../components/app/ScrollReveal";
 import GridPanel from "../../components/app/GridPanel";
 import { getIsMobile } from "../../lib/device";
 import ListNavigation from "../../features/app/components/ListNavigation";
+import { canonicalUrl, pageTitle } from "../../lib/seo";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -29,8 +30,18 @@ export const GET = createRoute(async (c) => {
   const { aotwEntries, totalPages, page } = result;
   const targetId = "aotw-list";
 
+  const title = pageTitle("Artist of the Week");
+  const description =
+    "Meet photobookers Artists of the Week — featured artists from the photobook community.";
+
   return c.html(
-    <AppLayout title="Artist of the Week" user={user} currentPath={currentPath}>
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, "/artist-of-the-week")}
+      user={user}
+      currentPath={currentPath}
+    >
       <Page>
         <SectionTitle>Artists of the Week</SectionTitle>
         <GridPanel

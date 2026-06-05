@@ -5,6 +5,7 @@ import BooksGrid from "../../features/app/components/BooksGrid";
 import AppLayout from "../../components/layouts/AppLayout";
 import { getLatestBooks } from "../../features/app/services";
 import SectionTitle from "../../components/app/SectionTitle";
+import { canonicalUrl, pageTitle } from "../../lib/seo";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -15,8 +16,18 @@ export const GET = createRoute(async (c) => {
 
   if (error) return c.html(<></>);
 
+  const title = pageTitle("All Books");
+  const description =
+    "Browse the full photobookers catalogue. Discover photobooks from artists and publishers around the world.";
+
   return c.html(
-    <AppLayout title="Books" user={user} currentPath={currentPath}>
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, "/books")}
+      user={user}
+      currentPath={currentPath}
+    >
       <Page>
         <SectionTitle>All Books</SectionTitle>
         <BooksGrid

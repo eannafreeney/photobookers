@@ -7,6 +7,7 @@ import { getPublishedInterviews } from "../../../features/app/services";
 import GridPanel from "../../../components/app/GridPanel";
 import InterviewCard from "../../../features/app/components/InterviewCard";
 import SectionTitle from "../../../components/app/SectionTitle";
+import { canonicalUrl, pageTitle } from "../../../lib/seo";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -17,8 +18,18 @@ export const GET = createRoute(async (c) => {
   if (!interviews?.length)
     return c.html(<InfoPage errorMessage="No interviews found" />);
 
+  const title = pageTitle("Interviews");
+  const description =
+    "Read interviews with photobook artists and publishers on photobookers.";
+
   return c.html(
-    <AppLayout title="Interviews" user={user} currentPath={currentPath}>
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, "/interviews")}
+      user={user}
+      currentPath={currentPath}
+    >
       <Page>
         <SectionTitle>All Interviews</SectionTitle>
         <GridPanel>

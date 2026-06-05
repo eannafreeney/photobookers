@@ -8,12 +8,20 @@ import ToastContainer from "../app/ToastContainer";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
+  description?: string;
   flash?: Flash | null;
+  noIndex?: boolean;
 }>;
 
-const HeadlessLayout = ({ title, children, flash }: LayoutProps) => (
+const HeadlessLayout = ({
+  title,
+  description,
+  children,
+  flash,
+  noIndex = true,
+}: LayoutProps) => (
   <html lang="en">
-    <Head title={title} />
+    <Head title={title} description={description} noIndex={noIndex} />
     <body class="bg-surface">
       {flash && <Alert type={flash.type} message={flash.message} />}
       <ToastContainer />

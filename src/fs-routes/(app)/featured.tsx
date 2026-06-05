@@ -12,13 +12,27 @@ import DiscoveryTags from "../../features/app/components/DiscoveryTags";
 import PageBleed from "../../components/layouts/PageContent";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import Interviews from "../../features/app/components/Interviews";
+import {
+  canonicalUrl,
+  DEFAULT_DESCRIPTION,
+  pageTitle,
+} from "../../lib/seo";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
 
+  const title = pageTitle("Featured");
+  const description = DEFAULT_DESCRIPTION;
+
   return c.html(
-    <AppLayout title="Books" user={user} currentPath={currentPath}>
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, "/featured")}
+      user={user}
+      currentPath={currentPath}
+    >
       <NewsletterBanner />
       <Page>
         <HeroCarousel />

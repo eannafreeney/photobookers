@@ -12,12 +12,21 @@ import { generateContactEmail } from "../../features/app/emails";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import { setFlash } from "../../utils";
 import { ContactFormContext } from "../../features/app/types";
+import { canonicalUrl, pageTitle } from "../../lib/seo";
 
 export const GET = createRoute(async (c: Context) => {
   const currentPath = c.req.path;
 
+  const title = pageTitle("Contact");
+  const description = "Get in touch with the photobookers team.";
+
   return c.html(
-    <AppLayout title="Contact" currentPath={currentPath}>
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, "/contact")}
+      currentPath={currentPath}
+    >
       <Page>
         <SectionTitle>Contact</SectionTitle>
         <p class="mb-6 text-on-surface-weak">

@@ -8,6 +8,7 @@ import PageTitle from "../../components/app/PageTitle";
 import CreatorsCircle from "../../features/app/components/CreatorsCircle";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import { InfiniteScroll } from "../../components/app/InfiniteScroll";
+import { canonicalUrl, pageTitle } from "../../lib/seo";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -18,13 +19,21 @@ export const GET = createRoute(async (c) => {
 
   if (error) return c.html(<InfoPage errorMessage="Artists not found" />);
 
-  const title = "Artists";
+  const title = pageTitle("Artists");
+  const description =
+    "Discover photobook artists on photobookers. Browse profiles and explore their published work.";
   const { creators, totalPages, page } = result;
 
   const targetId = "artists-grid";
 
   return c.html(
-    <AppLayout title={title} user={user} currentPath={currentPath}>
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, "/artists")}
+      user={user}
+      currentPath={currentPath}
+    >
       <Page>
         <PageTitle />
         <div x-data>

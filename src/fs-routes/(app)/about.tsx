@@ -2,11 +2,21 @@ import { createRoute } from "hono-fsr";
 import SectionTitle from "../../components/app/SectionTitle";
 import Page from "../../components/layouts/Page";
 import AppLayout from "../../components/layouts/AppLayout";
+import { canonicalUrl, pageTitle } from "../../lib/seo";
 
 export const GET = createRoute(async (c) => {
   const currentPath = c.req.path;
+  const title = pageTitle("About");
+  const description =
+    "Photobookers is a place to discover and explore photobooks. Browse books, artists, and publishers in one place.";
+
   return c.html(
-    <AppLayout title="About" currentPath={currentPath}>
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, "/about")}
+      currentPath={currentPath}
+    >
       <Page>
         <p>
           Photobookers is a place to discover and explore photobooks. We list

@@ -58,6 +58,7 @@ export const GET = createRoute(async (c) => {
       user={user}
       flash={flash}
       currentPath={currentPath}
+      noIndex
     >
       <Page>
         <div

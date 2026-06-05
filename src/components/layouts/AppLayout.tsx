@@ -13,6 +13,9 @@ import { fadeTransition } from "../../lib/transitions";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
+  description?: string;
+  canonicalUrl?: string;
+  noIndex?: boolean;
   user?: AuthUser | null;
   currentPath?: string;
   flash?: Flash | null;
@@ -23,6 +26,9 @@ type LayoutProps = PropsWithChildren<{
 
 const AppLayout = ({
   title = "photobookers",
+  description,
+  canonicalUrl,
+  noIndex,
   children,
   user,
   currentPath,
@@ -32,7 +38,13 @@ const AppLayout = ({
   shareOg,
 }: LayoutProps) => (
   <html lang="en">
-    <Head title={title} shareOg={shareOg} />
+    <Head
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl}
+      noIndex={noIndex ?? currentPath?.startsWith("/dashboard")}
+      shareOg={shareOg}
+    />
     <body class="bg-surface-alt">
       <UserProvider user={user}>
         {isPreview && <PreviewBanner />}
