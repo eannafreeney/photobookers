@@ -47,7 +47,10 @@ export async function getThisWeeksArtistOfTheWeek() {
   return getArtistOfTheWeekForDateQuery(new Date());
 }
 
-export async function getRecentArtistsOfTheWeek(currentPage: number = 1) {
+export async function getRecentArtistsOfTheWeek(
+  currentPage: number = 1,
+  defaultLimit: number = 12,
+) {
   const todayWeekStart = toWeekStart(new Date());
 
   try {
@@ -59,7 +62,7 @@ export async function getRecentArtistsOfTheWeek(currentPage: number = 1) {
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
-      10,
+      defaultLimit,
     );
 
     const rows = await db.query.artistOfTheWeek.findMany({

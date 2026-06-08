@@ -47,11 +47,7 @@ export const GET = createRoute(async (c) => {
     >
       <Page>
         <SectionTitle>Publishers of the Week</SectionTitle>
-        <GridPanel
-          id={targetId}
-          isFullWidth
-          xMerge={isMobile ? "append" : "replace"}
-        >
+        <GridPanel id={targetId} isFullWidth xMerge="append">
           {potwEntries.map((entry) => (
             <ScrollReveal>
               <article class="space-y-2">

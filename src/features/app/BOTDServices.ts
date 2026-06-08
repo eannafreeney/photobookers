@@ -50,7 +50,10 @@ export async function getTodaysBookOfTheDay() {
   return getBookOfTheDayForDate(new Date());
 }
 
-export async function getRecentBooksOfTheDay(currentPage: number = 1) {
+export async function getRecentBooksOfTheDay(
+  currentPage: number = 1,
+  defaultLimit: number = 12,
+) {
   const today = toUtcStartOfDay(new Date());
 
   try {
@@ -61,7 +64,7 @@ export async function getRecentBooksOfTheDay(currentPage: number = 1) {
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
-      10,
+      defaultLimit,
     );
 
     const rows = await db.query.bookOfTheDay.findMany({
