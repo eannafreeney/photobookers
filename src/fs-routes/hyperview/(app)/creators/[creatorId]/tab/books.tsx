@@ -43,7 +43,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const hasCreatorAccount = Boolean(user?.creator?.id);
   const isAdmin = Boolean(user?.isAdmin);
   const showClaimButton = isStubCreator && !hasCreatorAccount && !isAdmin;
-  const claimHref = `${baseUrl}/claims/${creator.id}?currentPath=${encodeURIComponent(c.req.path)}`;
+  const claimHref = `${baseUrl}/claims/${creator.id}/start`;
 
   const [favoritesByBookId, followingByCreatorId] = await Promise.all([
     favoriteFlagsForBooks(user, books),
