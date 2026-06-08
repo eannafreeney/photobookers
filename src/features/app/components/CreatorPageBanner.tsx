@@ -7,7 +7,7 @@ const CreatorPageBanner = ({ bannerUrl, displayName }: Props) => {
   if (!bannerUrl) return <></>;
 
   return (
-    <div class="w-full overflow-hidden rounded-radius -mx-4 md:mx-0">
+    <div class="w-full overflow-hidden rounded-radius">
       <img
         src={bannerUrl}
         alt={`${displayName} banner`}

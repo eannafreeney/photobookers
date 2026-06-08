@@ -15,6 +15,7 @@ type CreatorCardCreator = {
   website?: string | null;
   instagram?: string | null;
   twitter?: string | null;
+  bannerUrl?: string | null;
 };
 
 type Props = {
@@ -36,9 +37,9 @@ const CreatorBanner: FC<Props> = ({
 
   return (
     <View style="creator-card">
-      {creator.coverUrl && (
+      {(creator.bannerUrl || creator.coverUrl) && (
         <Image
-          source={creator.coverUrl}
+          source={creator.bannerUrl || creator.coverUrl || ""}
           style="creator-cover"
           resize-mode="cover"
         />
