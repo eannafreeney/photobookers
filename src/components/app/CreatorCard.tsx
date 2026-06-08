@@ -33,7 +33,9 @@ const CreatorCard = async ({
 
   return (
     <div className="flex flex-col gap-4">
-      {title && <SectionTitle className="mb-0">{title}</SectionTitle>}
+      {title && (
+        <div class="text-sm py-0 text-on-surface font-bold mb-0">{title}</div>
+      )}
       <Card>
         <Card.Image
           src={creator.coverUrl ?? ""}

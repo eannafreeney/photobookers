@@ -24,7 +24,6 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
 
   return (
     <div id={targetId} class="w-full flex flex-col gap-4">
-      <h2 class="text-lg font-semibold text-on-surface-strong">Messages</h2>
       {messages.length === 0 ? (
         <div class="rounded-radius border border-outline bg-surface-alt p-6 text-sm text-on-surface">
           No messages yet.
