@@ -35,6 +35,30 @@ export const updateCreatorCoverImage = async (
   }
 };
 
+// src/features/dashboard/images/services.ts
+export const updateCreatorBannerImage = async (
+  bannerUrl: string,
+  creatorId: string,
+) => {
+  try {
+    const [updatedCreator] = await db
+      .update(creators)
+      .set({ bannerUrl })
+      .where(eq(creators.id, creatorId))
+      .returning();
+
+    if (!updatedCreator) return err({ reason: "Failed to update banner" });
+
+    if (updatedCreator.slug) invalidateCreatorCache(updatedCreator.slug);
+    return ok(updatedCreator);
+  } catch (error) {
+    console.error("Failed to update creator banner image", error);
+    return err({
+      reason: "Failed to update creator banner image",
+    });
+  }
+};
+
 export const updateUserProfileImageDB = async (
   userId: string,
   profileImageUrl: string,

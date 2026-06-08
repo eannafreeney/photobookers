@@ -62,13 +62,10 @@ export const interviewTypeEnum = pgEnum("interview_type", [
   "introduction",
   "book",
 ]);
-export const newsletterCampaignStatusEnum = pgEnum("newsletter_campaign_status", [
-  "draft",
-  "approved",
-  "scheduled",
-  "sent",
-  "failed",
-]);
+export const newsletterCampaignStatusEnum = pgEnum(
+  "newsletter_campaign_status",
+  ["draft", "approved", "scheduled", "sent", "failed"],
+);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -163,6 +160,7 @@ export const creators = pgTable(
     status: creatorStatusEnum("status").default("stub"),
     verifiedAt: timestamp("verified_at"),
     coverUrl: text("cover_url"),
+    bannerUrl: text("banner_url"),
     city: varchar("city"),
     country: varchar("country"),
     facebook: text("facebook"),
@@ -636,7 +634,6 @@ export const newsletterCampaigns = pgTable(
   }),
 );
 
-
 // Infer types from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -689,7 +686,9 @@ export type NewArtistOfTheWeek = InferInsertModel<typeof artistOfTheWeek>;
 export type PublisherOfTheWeek = InferSelectModel<typeof publisherOfTheWeek>;
 export type NewPublisherOfTheWeek = InferInsertModel<typeof publisherOfTheWeek>;
 export type NewsletterCampaign = InferSelectModel<typeof newsletterCampaigns>;
-export type NewNewsletterCampaign = InferInsertModel<typeof newsletterCampaigns>;
+export type NewNewsletterCampaign = InferInsertModel<
+  typeof newsletterCampaigns
+>;
 export type NewsletterCampaignStatus =
   (typeof newsletterCampaignStatusEnum.enumValues)[number];
 

@@ -14,6 +14,7 @@ import { getFormValues } from "../../../features/dashboard/creators/utils";
 import { CreatorFormWithIdContext } from "../../../features/dashboard/creators/types";
 import { updateCreatorProfileAdmin } from "../../../features/dashboard/admin/creators/services";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
+import CreatorBannerForm from "../../../features/dashboard/images/forms/CreatorBannerForm";
 
 export const GET = createRoute(
   paramValidator(creatorIdSchema),
@@ -47,6 +48,10 @@ export const GET = createRoute(
             <div class="md:w-1/3">
               <CreatorImageForm
                 initialUrl={creator?.coverUrl ?? null}
+                creator={creator}
+              />
+              <CreatorBannerForm
+                initialUrl={creator?.bannerUrl ?? null}
                 creator={creator}
               />
             </div>
