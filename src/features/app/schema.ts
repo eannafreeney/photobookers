@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseWeekString } from "../../lib/utils";
 
 // ============ VALIDATE PASSWORD SCHEMA ============
 export const contactFormSchema = z.object({
@@ -11,6 +12,14 @@ export const contactFormSchema = z.object({
 
 export const userUpdateFormSchema = z.object({
   msg: z.string().optional(),
+});
+
+export const weekParamSchema = z.object({
+  week: z
+    .string()
+    .regex(/^\d{4}-W(0[1-9]|[1-4][0-9]|5[0-3])$/)
+    .transform(parseWeekString)
+    .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
 });
 
 const normalizeSlug = (value: string) =>

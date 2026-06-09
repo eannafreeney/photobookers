@@ -3,16 +3,18 @@ import { toWeekString } from "../../../../../lib/utils";
 import ScheduleButton from "./ScheduleButton";
 import DeleteButton from "./DeleteButton";
 import SendPOTWCreatorEmailButton from "./SendPOTWCreatorEmailButton";
-import { PublisherOfTheWeek } from "../../../../../db/schema";
+import { CreatorInterview, PublisherOfTheWeek } from "../../../../../db/schema";
 
 type PublisherOfTheWeekProps = {
   weekStart: Date;
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
+  interview: CreatorInterview | null;
 };
 
 const PublisherOfTheWeek = ({
   weekStart,
   publisherOfTheWeek,
+  interview,
 }: PublisherOfTheWeekProps) => {
   const weekKey = toWeekString(weekStart);
   const publisher = publisherOfTheWeek?.creator ?? null;
@@ -27,6 +29,7 @@ const PublisherOfTheWeek = ({
           weekKey={weekKey}
           publisher={publisher}
           publisherOfTheWeek={publisherOfTheWeek}
+          interview={interview}
         />
       ) : (
         <ScheduleButton
@@ -50,12 +53,14 @@ type POTWCardContentProps = {
     coverUrl: string | null;
   };
   publisherOfTheWeek: PublisherOfTheWeek | null;
+  interview: CreatorInterview | null;
 };
 
 const POTWCardContent = ({
   weekKey,
   publisher,
   publisherOfTheWeek,
+  interview,
 }: POTWCardContentProps) => {
   if (!publisherOfTheWeek) return <></>;
   return (
@@ -76,6 +81,17 @@ const POTWCardContent = ({
             publisherOfTheWeek={publisherOfTheWeek}
             creatorId={publisher.id}
           />
+          {interview && (
+            <p class="text-xs text-on-surface">
+              Interview status: {interview.status}
+            </p>
+          )}
+          {publisherOfTheWeek.interviewReminderSentAt ? (
+            <p class="text-xs text-on-surface">Interview reminder sent</p>
+          ) : null}
+          {publisherOfTheWeek.featureDayEmailSentAt ? (
+            <p class="text-xs text-on-surface">Feature-day email sent</p>
+          ) : null}
         </div>
         <DeleteButton
           action={`/dashboard/admin/planner/publisher-of-the-week/${weekKey}`}

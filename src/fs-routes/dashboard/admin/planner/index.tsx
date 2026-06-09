@@ -27,6 +27,7 @@ export const GET = createRoute(async (c) => {
     publisherLoadError,
     newsletterStatusByWeekStart,
     instagramPreparedByWeekStart,
+    interviewByCreatorId,
   } = await loadPlannerYearData(year);
 
   if (artistLoadError || publisherLoadError) {
@@ -73,6 +74,7 @@ export const GET = createRoute(async (c) => {
                     publisherOfTheWeek={publisherOfTheWeek}
                     newsletterStatus={newsletterStatus}
                     instagramPrepared={instagramPrepared}
+                    interviewByCreatorId={interviewByCreatorId}
                   />
                 );
               })}

@@ -7,6 +7,7 @@ import {
 import { getWeekNumber } from "../dashboard/admin/planner/utils";
 import { BookOfTheDayWithBook } from "./BOTDServices";
 import { getCoverUrlsForHeroCarousel } from "./services";
+import { aotwPath, botdPath, potwPath } from "./spotlightUrls";
 
 type ArtistOfTheWeekData = Extract<
   Awaited<ReturnType<typeof getArtistOfTheWeekForDateQuery>>,
@@ -62,14 +63,14 @@ export function buildHeroCarouselItems(
       title: book.title,
       text: book.artist ? `by ${book.artist.displayName}` : "",
       image: imageUrls[0],
-      link: `/book-of-the-day`,
+      link: botdPath(bookOfTheDay.date),
       slideClass: "bg-amber-100",
       weekNumber,
       dateLabel: toDateString(bookOfTheDay.date),
     });
   }
 
-  const artist = artistOfTheWeek?.creator ?? null;
+  const artist = artistOfTheWeek?.creator;
 
   if (artist) {
     const stack = artistCoverStack.length >= 2 ? artistCoverStack : [];
@@ -81,7 +82,7 @@ export function buildHeroCarouselItems(
       text: artist.country?.trim()
         ? `Based in ${formatCountry(artist.country.trim())}`
         : "Discover this week's featured artist.",
-      link: `/artist-of-the-week`,
+      link: aotwPath(artistOfTheWeek.weekStart),
       slideClass: "bg-sky-100",
       weekNumber,
     });
@@ -97,7 +98,7 @@ export function buildHeroCarouselItems(
       title: publisher.displayName,
       image: stack[0],
       coverStack: stack,
-      link: `/publisher-of-the-week`,
+      link: potwPath(publisherOfTheWeek.weekStart),
       text: publisher.country?.trim()
         ? `Based in ${formatCountry(publisher.country.trim())}`
         : "Discover this week's featured publisher.",

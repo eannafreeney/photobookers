@@ -14,8 +14,7 @@ import {
 } from "./services";
 import { sendEmail } from "../../../../lib/sendEmail";
 import {
-  buildAOTWNotificationEmail,
-  buildPOTWNotificationEmail,
+  buildCreatorOfTheWeekNotificationEmail,
   generateBOTDNotificationEmail,
 } from "./emails";
 import SendPOTWCreatorEmailButton from "./components/SendPOTWCreatorEmailButton";
@@ -23,6 +22,9 @@ import { getBookByIdBasic } from "../../books/services";
 import SendBOTDCreatorEmailButton from "./components/SendBOTDCreatorEmailButton";
 import { formatBotdDateLong } from "./utils";
 import { normalizeStoredDate, toUtcStartOfDay } from "../../../../lib/utils";
+import { ensureInterviewInviteForSpotlight } from "./interviewFlow";
+import { getUser } from "../../../../utils";
+import { aotwPath } from "../../../app/spotlightUrls";
 
 type RequireCreatorEmailParams = {
   creatorId: string;
@@ -51,6 +53,7 @@ export type CreatorForEmail = {
   slug: string;
   ownerUserId: string | null;
 };
+
 const toCreatorForEmail = (creator: {
   id: string;
   displayName: string;
@@ -166,12 +169,32 @@ export async function executeAOTWEmail({
   creatorId,
   weekStart,
 }: AOTWExecuteParams) {
-  const html = buildAOTWNotificationEmail(creator);
+  const user = await getUser(c);
+  if (!user) return showErrorAlert(c, "Not signed in");
+
+  const [ensureError, ensureResult] = await ensureInterviewInviteForSpotlight({
+    creatorId,
+    creatorSlug: creator.slug,
+    invitedByUserId: user.id,
+    recipientEmail: creator.email,
+  });
+
+  if (ensureError) return showErrorAlert(c, ensureError.reason);
+  const { interview, interviewLink, created } = ensureResult;
+
+  const html = buildCreatorOfTheWeekNotificationEmail({
+    ...creator,
+    weekStart,
+    interviewLink,
+    interviewStatus: interview?.status ?? null,
+  });
+
   const [emailError] = await sendEmail(
     creator.email,
     "Congrats! You are Artist of the Week at photobookers",
     html,
   );
+
   if (emailError) return showErrorAlert(c, emailError.reason);
 
   const [updateError, updatedArtistOfTheWeek] =
@@ -205,7 +228,26 @@ export async function executePOTWEmail({
   creatorId,
   weekStart,
 }: POTWExecuteParams) {
-  const html = buildPOTWNotificationEmail(creator);
+  const user = await getUser(c);
+  if (!user) return showErrorAlert(c, "Not signed in");
+
+  const [ensureError, ensureResult] = await ensureInterviewInviteForSpotlight({
+    creatorId,
+    creatorSlug: creator.slug,
+    invitedByUserId: user.id,
+    recipientEmail: creator.email,
+  });
+
+  if (ensureError) return showErrorAlert(c, ensureError.reason);
+  const { interview, interviewLink, created } = ensureResult;
+
+  const html = buildCreatorOfTheWeekNotificationEmail({
+    ...creator,
+    weekStart,
+    interviewLink,
+    interviewStatus: interview?.status ?? null,
+  });
+
   const [emailError] = await sendEmail(
     creator.email,
     "Congrats! You are Publisher of the Week at photobookers",
