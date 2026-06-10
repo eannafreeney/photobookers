@@ -23,9 +23,6 @@ export const spotlightHeaderStyles = () => (
       id="spotlight-header"
       alignItems="center"
       paddingBottom={16}
-      marginBottom={16}
-      borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
       gap={4}
     />
     <Style

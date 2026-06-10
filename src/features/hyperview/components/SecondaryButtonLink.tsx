@@ -36,6 +36,7 @@ export const secondaryButtonLinkStyles = () => (
   <>
     <Style
       id="secondary-button-link"
+      flex={1}
       borderWidth={1}
       borderColor="#111111"
       borderRadius={8}

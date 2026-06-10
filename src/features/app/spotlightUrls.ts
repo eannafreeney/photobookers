@@ -6,6 +6,10 @@ export function botdIndexPath(): string {
   return "/book-of-the-day";
 }
 
+export function cotwIndexPath(isArtist: boolean): string {
+  return isArtist ? "/artist-of-the-week" : "/publisher-of-the-week";
+}
+
 export function botdPath(date: Date): string {
   return `${botdIndexPath()}/${toDateString(date)}`;
 }

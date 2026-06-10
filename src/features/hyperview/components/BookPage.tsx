@@ -25,7 +25,9 @@ type Props = {
 };
 
 /** Split description into paragraphs so blank lines render as paragraph breaks. */
-function descriptionParagraphs(description: string | null | undefined): string[] {
+function descriptionParagraphs(
+  description: string | null | undefined,
+): string[] {
   if (!description) return [];
   return description
     .replace(/\r\n/g, "\n")
@@ -37,11 +39,13 @@ function descriptionParagraphs(description: string | null | undefined): string[]
 const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
   const paragraphs = descriptionParagraphs(book.description);
   return (
-    <view xmlns="https://hyperview.org/hyperview">
+    <View style="book-page">
       <BookGallery galleryImages={galleryImages} />
       <BookActions book={book} baseUrl={baseUrl} isFavorited={isFavorited} />
-      <Text style="title">{book.title}</Text>
-      <Text style="subtitle">{book.artist?.displayName}</Text>
+      <View>
+        <Text style="title">{book.title}</Text>
+        <Text style="subtitle">{book.artist?.displayName}</Text>
+      </View>
       {paragraphs.map((paragraph, index) => (
         <Text key={index} style="description-paragraph">
           {paragraph}
@@ -59,7 +63,7 @@ const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
           </View>
         </View>
       ) : null}
-    </view>
+    </View>
   );
 };
 
@@ -67,6 +71,7 @@ export default BookPage;
 
 export const bookPageStyles = () => (
   <>
+    <Style id="book-page" flexDirection="column" gap={12} />
     {bookGalleryStyles()}
     {bookActionsStyles()}
     {discoveryTagStyles()}

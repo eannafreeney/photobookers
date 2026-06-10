@@ -125,8 +125,6 @@ export const bookActionsStyles = () => (
       flexDirection="row"
       alignItems="stretch"
       gap={8}
-      marginTop={24}
-      marginBottom={24}
     />
     <Style id="book-action-cell" flex={1} />
     <Style

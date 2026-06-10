@@ -84,7 +84,6 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
         <CreatorOfTheWeekSpotlightBody
           creator={booksResult.creator}
           weekStart={weekStart}
-          editorial={publisherOfTheWeek.instagramCaption?.trim() || null}
           publishedInterview={publishedInterview}
           books={booksResult.books}
           baseUrl={baseUrl}

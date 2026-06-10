@@ -17,6 +17,7 @@ import SpotlightHeader from "./SpotlightHeader";
 import SpotlightCreatorRow from "./SpotlightCreatorRow";
 import { Creator } from "../../../../db/schema";
 import { botdIndexPath, botdPath } from "../../../app/spotlightUrls";
+import DiscoveryTags from "../DiscoveryTags";
 
 type Props = {
   book: BookWithGalleryImages;
@@ -41,12 +42,16 @@ const BookOfTheDaySpotlightBody: FC<Props> = ({
   const description = book.description?.trim() || editorial?.trim() || null;
 
   return (
-    <View>
-      <SpotlightHeader
+    <View style="spotlight-body">
+      {/* <SpotlightHeader
         title={book.title}
         subtitle={book.artist?.displayName ?? ""}
-      />
+      /> */}
       <BookGallery galleryImages={galleryImages} />
+      <View>
+        <Text style="title">{book.title}</Text>
+        <Text style="subtitle">{book.artist?.displayName}</Text>
+      </View>
       <BookActions
         book={book}
         baseUrl={baseUrl}
@@ -75,8 +80,9 @@ const BookOfTheDaySpotlightBody: FC<Props> = ({
           isFollowing={followingByCreatorId[book.publisher.id] ?? false}
         />
       ) : null}
+      <DiscoveryTags baseUrl={baseUrl} tags={book.tags ?? []} />
       <SecondaryButtonLink
-        label="All Books of the Day"
+        label="All Books of the Day →"
         href={`${baseUrl}/hyperview${botdIndexPath()}`}
       />
     </View>
@@ -88,11 +94,19 @@ export default BookOfTheDaySpotlightBody;
 export const bookOfTheDaySpotlightBodyStyles = () => (
   <>
     <Style
+      id="title"
+      fontSize={22}
+      fontWeight="700"
+      color="#111111"
+      marginBottom={6}
+    />
+    <Style id="subtitle" fontSize={15} color="#666666" marginBottom={16} />
+    <Style id="spotlight-body" flexDirection="column" gap={12} />
+    <Style
       id="spotlight-body-text"
       fontSize={14}
       color="#444444"
       lineHeight={22}
-      marginBottom={12}
     />
   </>
 );

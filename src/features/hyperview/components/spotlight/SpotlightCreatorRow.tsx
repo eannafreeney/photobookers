@@ -36,20 +36,6 @@ const SpotlightCreatorRow: FC<Props> = ({
         <Text style="spotlight-creator-name">{creator.displayName}</Text>
       </View>
     </View>
-    {/* {creator.id ? (
-      <FollowButton
-        creatorId={creator.id}
-        baseUrl={baseUrl}
-        isActive={isFollowing}
-      />
-    ) : null}
-    <CreatorSocialLinks
-      baseUrl={baseUrl}
-      website={creator.website}
-      instagram={creator.instagram}
-      twitter={creator.twitter}
-      facebook={creator.facebook}
-    /> */}
   </View>
 );
 
@@ -63,7 +49,6 @@ export const spotlightCreatorRowStyles = () => (
       borderColor="#e5e5e5"
       borderRadius={8}
       padding={12}
-      marginBottom={16}
       gap={12}
     />
     <Style

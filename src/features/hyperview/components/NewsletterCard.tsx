@@ -85,7 +85,6 @@ export const newsletterCardStyles = () => (
       borderColor="#bae6fd"
       padding={16}
       gap={16}
-      marginBottom={24}
     />
     <Style
       id="newsletter-header"

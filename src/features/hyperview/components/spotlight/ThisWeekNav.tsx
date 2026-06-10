@@ -22,7 +22,7 @@ const ThisWeekNav: FC<Props> = ({ baseUrl, weekStart }) => {
     <View style="spotlight-week-nav">
       <SecondaryButtonLink
         label="← Previous week"
-        href={`${baseUrl}/hyperview/this-week?week=${toWeekString(nextWeekStart)}`}
+        href={`${baseUrl}/hyperview/this-week?week=${toWeekString(prevWeekStart)}`}
       />
       {canGoNext ? (
         <SecondaryButtonLink
