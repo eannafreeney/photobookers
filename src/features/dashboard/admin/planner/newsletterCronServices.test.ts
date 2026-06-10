@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { NewsletterCampaign } from "../../../../db/schema";
 import {
   runWeeklyNewsletterCron,
   WEEKLY_NEWSLETTER_REQUIRED_BOOKS,
@@ -28,12 +29,27 @@ import {
   sendNewsletterBrevoToList,
 } from "./newsletterBrevoServices";
 
-const sampleCampaign = {
+const makeSampleCampaign = (
+  overrides: Partial<NewsletterCampaign> = {},
+): NewsletterCampaign => ({
   id: "campaign-1",
   weekStart: new Date(Date.UTC(2026, 4, 26)),
   weekEnd: new Date(Date.UTC(2026, 5, 1)),
-  status: "draft" as const,
-};
+  status: "draft",
+  templateKey: "weekly_botd_v1",
+  templateVersion: 1,
+  subject: "This week on photobookers",
+  introText: "Intro",
+  outroText: "Outro",
+  ctaText: "Visit photobookers",
+  generatedContent: null,
+  sentAt: null,
+  createdAt: new Date(Date.UTC(2026, 4, 20)),
+  updatedAt: null,
+  ...overrides,
+});
+
+const sampleCampaign = makeSampleCampaign();
 
 const sampleGenerated = {
   generatedAt: new Date().toISOString(),
@@ -72,7 +88,7 @@ describe("runWeeklyNewsletterCron", () => {
   it("skips when the campaign was already sent", async () => {
     vi.mocked(ensureCurrentWeeklyNewsletterDraft).mockResolvedValue([
       null,
-      { ...sampleCampaign, status: "sent" },
+      makeSampleCampaign({ status: "sent" }),
     ]);
 
     const [error, result] = await runWeeklyNewsletterCron();
@@ -140,7 +156,7 @@ describe("runWeeklyNewsletterCron", () => {
       {
         brevoCampaignId: 99,
         mode: "send",
-        campaign: { ...sampleCampaign, status: "sent" },
+        campaign: makeSampleCampaign({ status: "sent" }),
       },
     ]);
 
@@ -172,7 +188,7 @@ describe("runWeeklyNewsletterCron", () => {
     ]);
     vi.mocked(updateNewsletterCampaignDraft).mockResolvedValue([
       null,
-      { ...sampleCampaign, status: "failed" },
+      makeSampleCampaign({ status: "failed" }),
     ]);
 
     const [error] = await runWeeklyNewsletterCron();
