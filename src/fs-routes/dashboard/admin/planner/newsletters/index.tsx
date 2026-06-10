@@ -12,6 +12,10 @@ import {
 import { parseDateString, toDateString } from "../../../../../lib/utils";
 import { NewsletterCampaign } from "../../../../../db/schema";
 import FormPost from "../../../../../components/forms/FormPost";
+import {
+  NewsletterBrevoPanel,
+  NewsletterCampaignControls,
+} from "../../../../../features/dashboard/admin/planner/components/NewsletterCampaignSendPanels";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -78,6 +82,7 @@ export const GET = createRoute(async (c) => {
               <CampaignOverview
                 selectedCampaign={selectedCampaign}
                 previewHtml={previewHtml}
+                defaultTestEmail={user?.email ?? ""}
               />
             ) : (
               <div class="rounded border border-outline bg-surface p-4 text-sm text-on-surface">
@@ -94,14 +99,20 @@ export const GET = createRoute(async (c) => {
 type CampaignOverviewProps = {
   selectedCampaign: NewsletterCampaign;
   previewHtml: string;
+  defaultTestEmail: string;
 };
 
 const CampaignOverview = ({
   selectedCampaign,
   previewHtml,
+  defaultTestEmail,
 }: CampaignOverviewProps) => (
   <div class="space-y-4">
-    <CampaignControls selectedCampaign={selectedCampaign} />
+    <NewsletterCampaignControls selectedCampaign={selectedCampaign} />
+    <NewsletterBrevoPanel
+      selectedCampaign={selectedCampaign}
+      defaultTestEmail={defaultTestEmail}
+    />
     <CampaignPreview previewHtml={previewHtml} />
     <div class="rounded border border-outline bg-surface p-4">
       <h2 class="text-lg font-semibold text-on-surface-strong">
@@ -127,8 +138,8 @@ const CampaignHeader = ({ selectedCampaign }: CampaignHeaderProps) => (
         {toDateString(selectedCampaign.weekEnd)}
       </p>
       <p class="text-sm text-on-surface">
-        Edit copy, paste the HTML into MailerLite&apos;s Custom HTML editor, then
-        check the box when it has been sent. Use Preview and test before sending.
+        Edit copy, preview the email, send a Brevo test, then send to your list
+        when ready. You can still copy HTML manually if needed.
       </p>
     </div>
   </div>
@@ -200,84 +211,6 @@ const CampaignTextForm = ({ selectedCampaign }: CampaignTextFormProps) => {
         </button>
       </div>
     </FormPost>
-  );
-};
-
-type CampaignControlsProps = {
-  selectedCampaign: NewsletterCampaign;
-};
-
-const CampaignControls = ({ selectedCampaign }: CampaignControlsProps) => {
-  const regenerateAttrs = {
-    "x-target": "toast",
-  };
-
-  const markSentAttrs = {
-    "x-target": "toast",
-  };
-
-  const deleteDraftAlpineAttrs = {
-    "@ajax:before":
-      "confirm('Delete this newsletter draft?') || $event.preventDefault()",
-  };
-  const isSent = selectedCampaign.status === "sent";
-
-  return (
-    <div class="rounded border border-outline bg-surface p-4">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div class="flex flex-wrap gap-2">
-          <FormPost
-            action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/regenerate`}
-            {...regenerateAttrs}
-          >
-            <button
-              type="submit"
-              class="rounded border border-outline bg-surface-alt px-3 py-2 text-sm font-medium hover:bg-surface cursor-pointer"
-            >
-              Regenerate BOTD items
-            </button>
-          </FormPost>
-          {!isSent && (
-            <FormPost
-              action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/delete`}
-              {...deleteDraftAlpineAttrs}
-            >
-              <button
-                type="submit"
-                class="rounded border border-danger bg-danger px-3 py-2 text-sm font-medium text-on-danger hover:opacity-90 cursor-pointer"
-              >
-                Delete draft
-              </button>
-            </FormPost>
-          )}
-        </div>
-
-        <FormPost
-          action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/mark-sent`}
-          class="flex items-center gap-2"
-          {...markSentAttrs}
-        >
-          <input type="hidden" name="sent" value="false" />
-          <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-on-surface-strong">
-            <input
-              type="checkbox"
-              name="sent"
-              value="true"
-              checked={isSent}
-              class="h-4 w-4 rounded border-outline"
-              onchange="this.form.requestSubmit()"
-            />
-            Sent in MailerLite
-          </label>
-        </FormPost>
-      </div>
-
-      {selectedCampaign.sentAt && (
-        <p class="text-xs text-on-surface">
-          Sent: {selectedCampaign.sentAt.toLocaleString()}
-        </p>
-      )}
-    </div>
   );
 };
 

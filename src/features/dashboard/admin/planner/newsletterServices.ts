@@ -56,14 +56,17 @@ export async function findNewsletterCampaignByWeekStart(weekStart: Date) {
 }
 
 const toCreatorSpotlight = (
-  creator: {
-    displayName: string;
-    slug: string;
-    coverUrl: string | null;
-    tagline?: string | null;
-    city?: string | null;
-    country?: string | null;
-  } | null | undefined,
+  creator:
+    | {
+        displayName: string;
+        slug: string;
+        coverUrl: string | null;
+        tagline?: string | null;
+        city?: string | null;
+        country?: string | null;
+      }
+    | null
+    | undefined,
 ): WeeklyNewsletterCreatorSpotlight =>
   creator
     ? {
@@ -95,13 +98,12 @@ async function getWeeklyCreatorSpotlights(weekStart: Date) {
   };
 }
 
-export const DEFAULT_WEEKLY_NEWSLETTER_SUBJECT =
-  "This week on photobookers: Book of the Day roundup";
+export const DEFAULT_WEEKLY_NEWSLETTER_SUBJECT = "This week on photobookers";
 export const DEFAULT_WEEKLY_NEWSLETTER_INTRO =
-  "Here are this week's Book of the Day picks. Discover new photobooks and the creators behind them.";
+  "We have some new books for you to check out. See below";
 export const DEFAULT_WEEKLY_NEWSLETTER_OUTRO =
   "Thanks for following photobookers. Reply and tell us which book stood out to you most.";
-export const DEFAULT_WEEKLY_NEWSLETTER_CTA = "Explore all books";
+export const DEFAULT_WEEKLY_NEWSLETTER_CTA = "Visit photobookers";
 
 export async function buildWeeklyBOTDGeneratedContent(
   weekStart: Date,

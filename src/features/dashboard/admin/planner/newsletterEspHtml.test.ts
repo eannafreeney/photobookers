@@ -55,7 +55,9 @@ describe("prepareNewsletterHtmlForEsp", () => {
     expect(html).not.toMatch(/font-family:'/);
     expect(html).not.toMatch(/font-family:&quot;/);
     expect(html).toContain("Some Book");
-    expect(html).toContain("Caveat, cursive");
+    expect(html).toContain(
+      "dbmbrwmygpnhjyyccbjp.supabase.co/storage/v1/object/public/newsletter/logo.png",
+    );
     expect(html).toContain("font-family:Instrument Sans");
   });
 });

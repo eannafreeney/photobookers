@@ -136,11 +136,13 @@ describe("newsletter MJML template rendering", () => {
       items: [],
     });
 
-    expect(html).toContain("No BOTD entries were scheduled for this week.");
     expect(html).toContain("Weekly BOTD");
     expect(html).toContain("Photobookers");
+    expect(html).toContain("newsletter/logo.png");
     expect(html).toContain("Intro copy");
     expect(html).toContain("Outro copy");
+    expect(html).toContain("Explore");
+    expect(html).toContain("{$unsubscribe}");
     expect(html.match(/<!doctype html>/i)).not.toBeNull();
   });
 
@@ -174,8 +176,10 @@ describe("newsletter MJML template rendering", () => {
     expect(html).toContain("May 31, 2026");
     expect(html).toContain("Some Book");
     expect(html).toContain("View book");
+    expect(html).toContain("Books of the day");
     expect(html).toContain("Artist of the week");
     expect(html).toContain("Documentary photographer");
     expect(html).toContain("/creators/jane-artist");
+    expect(html).toContain("instagram.com/photobookers");
   });
 });

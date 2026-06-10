@@ -104,6 +104,13 @@ export const newsletterCampaignEditSchema = z.object({
   ctaText: z.string().min(1, "CTA text is required").max(120),
 });
 
+export const newsletterBrevoTestSchema = z.object({
+  email: z.preprocess(
+    (val) => (val === "" || val === undefined ? undefined : val),
+    z.string().email("Enter a valid email address").optional(),
+  ),
+});
+
 export const newsletterMarkSentSchema = z.preprocess(
   (data) => {
     if (data instanceof FormData) {
