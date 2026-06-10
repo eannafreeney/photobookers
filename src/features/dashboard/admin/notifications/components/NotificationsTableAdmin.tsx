@@ -55,7 +55,13 @@ const NotificationsTableAdmin = async ({ currentPath, currentPage }: Props) => {
                 {n.createdAt ? formatDate(n.createdAt) : ""}
               </Table.BodyRow>
               <Table.BodyRow>
-                {n.targetUrl ? <Link href={n.targetUrl}>Open</Link> : "-"}
+                {n.targetUrl ? (
+                  <Link href={n.targetUrl} target="_blank">
+                    Open
+                  </Link>
+                ) : (
+                  "-"
+                )}
               </Table.BodyRow>
             </tr>
           ))}

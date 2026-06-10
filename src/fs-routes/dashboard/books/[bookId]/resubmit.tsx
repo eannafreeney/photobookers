@@ -23,6 +23,7 @@ export const POST = createRoute(
         bookId: updatedBook.id,
         title: updatedBook.title,
         actorUserId: user.id,
+        isResubmit: true,
       });
     }
 

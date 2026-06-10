@@ -21,7 +21,11 @@ import {
   type WeeklyNewsletterCreatorSpotlight,
 } from "./newsletterTemplate";
 import { renderWeeklyBOTDNewsletterHtmlMjml } from "./newsletterTemplateMjml";
-import { formatWeekRangeLabel, getPreviousWeekRange } from "./newsletterUtils";
+import {
+  formatWeekRangeLabel,
+  getCurrentNewsletterRange,
+  resolveNewsletterRangeStart,
+} from "./newsletterUtils";
 
 export type WeeklyNewsletterGeneratedContent = {
   generatedAt: string;
@@ -33,6 +37,16 @@ export type WeeklyNewsletterGeneratedContent = {
 /** Normalize any week-start value to UTC midnight (matches planner `YYYY-MM-DD` links). */
 export function normalizeWeekStartDate(weekStart: Date): Date {
   return parseDateString(toDateString(weekStart));
+}
+
+/** Thu–Wed edition bounds (resolves legacy Mon–Sun stored dates). */
+export function getNewsletterCampaignRange(campaign: {
+  weekStart: Date;
+  weekEnd: Date;
+}) {
+  const weekStart = resolveNewsletterRangeStart(campaign.weekStart);
+  const weekEnd = getWeekEndDate(weekStart);
+  return { weekStart, weekEnd };
 }
 
 export function getWeekEndDate(weekStart: Date): Date {
@@ -151,7 +165,7 @@ export async function buildWeeklyBOTDGeneratedContent(
 }
 
 export async function ensureCurrentWeeklyNewsletterDraft() {
-  const { weekStart, weekEnd } = getPreviousWeekRange();
+  const { weekStart, weekEnd } = getCurrentNewsletterRange();
   return ensureWeeklyNewsletterDraftForRange(weekStart, weekEnd);
 }
 
@@ -159,7 +173,7 @@ export async function ensureWeeklyNewsletterDraftForRange(
   weekStart: Date,
   _weekEnd?: Date,
 ) {
-  const normalizedStart = normalizeWeekStartDate(weekStart);
+  const normalizedStart = resolveNewsletterRangeStart(weekStart);
   const normalizedEnd = getWeekEndDate(normalizedStart);
 
   const existing = await findNewsletterCampaignByWeekStart(normalizedStart);
@@ -247,12 +261,16 @@ export async function updateNewsletterCampaignDraft(
     status?: NewsletterCampaignStatus;
     generatedContent?: WeeklyNewsletterGeneratedContent;
     sentAt?: Date | null;
+    weekStart?: Date;
+    weekEnd?: Date;
   },
 ) {
   const updateData: Partial<typeof newsletterCampaigns.$inferInsert> = {
     updatedAt: new Date(),
   };
 
+  if (patch.weekStart !== undefined) updateData.weekStart = patch.weekStart;
+  if (patch.weekEnd !== undefined) updateData.weekEnd = patch.weekEnd;
   if (patch.subject !== undefined) updateData.subject = patch.subject;
   if (patch.introText !== undefined) updateData.introText = patch.introText;
   if (patch.outroText !== undefined) updateData.outroText = patch.outroText;
@@ -282,14 +300,18 @@ export async function regenerateCampaignContent(campaignId: string) {
   if (campaign.status === "sent")
     return err({ reason: "Cannot regenerate a sent campaign" });
 
+  const { weekStart, weekEnd } = getNewsletterCampaignRange(campaign);
+
   const [generatedError, generated] = await buildWeeklyBOTDGeneratedContent(
-    campaign.weekStart,
-    campaign.weekEnd,
+    weekStart,
+    weekEnd,
     { fromDatabase: true },
   );
   if (generatedError) return err(generatedError);
 
   const [updateError] = await updateNewsletterCampaignDraft(campaignId, {
+    weekStart,
+    weekEnd,
     generatedContent: generated,
     status: "draft",
     sentAt: null,
@@ -323,24 +345,35 @@ const normalizeStoredCreatorSpotlight = (
 export async function buildCampaignPreviewHtml(
   campaign: typeof newsletterCampaigns.$inferSelect,
 ) {
-  const generated = campaign.generatedContent;
+  const stored = campaign.generatedContent;
+  const { weekStart, weekEnd } = getNewsletterCampaignRange(campaign);
+
+  const [generatedError, generated] = await buildWeeklyBOTDGeneratedContent(
+    weekStart,
+    weekEnd,
+    { fromDatabase: true },
+  );
+  if (generatedError) {
+    console.error("buildCampaignPreviewHtml", generatedError.reason);
+  }
+
   const { artistOfTheWeek, publisherOfTheWeek } =
-    await getWeeklyCreatorSpotlights(campaign.weekStart);
+    await getWeeklyCreatorSpotlights(weekStart);
 
   return renderWeeklyBOTDNewsletterHtmlMjml({
-    weekStart: campaign.weekStart,
-    weekEnd: campaign.weekEnd,
+    weekStart,
+    weekEnd,
     subject: campaign.subject,
     introText: campaign.introText,
     outroText: campaign.outroText,
     ctaText: campaign.ctaText,
-    items: generated?.items ?? [],
+    items: generated?.items ?? stored?.items ?? [],
     artistOfTheWeek:
       artistOfTheWeek ??
-      normalizeStoredCreatorSpotlight(generated?.artistOfTheWeek),
+      normalizeStoredCreatorSpotlight(stored?.artistOfTheWeek),
     publisherOfTheWeek:
       publisherOfTheWeek ??
-      normalizeStoredCreatorSpotlight(generated?.publisherOfTheWeek),
+      normalizeStoredCreatorSpotlight(stored?.publisherOfTheWeek),
   });
 }
 

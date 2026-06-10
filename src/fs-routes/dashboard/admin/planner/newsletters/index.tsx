@@ -8,8 +8,10 @@ import {
   ensureCurrentWeeklyNewsletterDraft,
   ensureWeeklyNewsletterDraftForRange,
   getNewsletterCampaignById,
+  getNewsletterCampaignRange,
 } from "../../../../../features/dashboard/admin/planner/newsletterServices";
-import { parseDateString, toDateString } from "../../../../../lib/utils";
+import { formatNewsletterWeekRange } from "../../../../../features/dashboard/admin/planner/newsletterUtils";
+import { parseDateString } from "../../../../../lib/utils";
 import { NewsletterCampaign } from "../../../../../db/schema";
 import FormPost from "../../../../../components/forms/FormPost";
 import {
@@ -127,15 +129,17 @@ type CampaignHeaderProps = {
   selectedCampaign: NewsletterCampaign;
 };
 
-const CampaignHeader = ({ selectedCampaign }: CampaignHeaderProps) => (
+const CampaignHeader = ({ selectedCampaign }: CampaignHeaderProps) => {
+  const { weekStart, weekEnd } = getNewsletterCampaignRange(selectedCampaign);
+
+  return (
   <div class="mb-6 flex items-center justify-between gap-3">
     <div>
       <h1 class="text-xl font-semibold text-on-surface-strong">
         Weekly BOTD newsletter
       </h1>
       <p class="mb-3 text-sm text-on-surface">
-        Week: {toDateString(selectedCampaign.weekStart)} to{" "}
-        {toDateString(selectedCampaign.weekEnd)}
+        Edition: {formatNewsletterWeekRange(weekStart, weekEnd)}
       </p>
       <p class="text-sm text-on-surface">
         Edit copy, preview the email, send a Brevo test, then send to your list
@@ -143,7 +147,8 @@ const CampaignHeader = ({ selectedCampaign }: CampaignHeaderProps) => (
       </p>
     </div>
   </div>
-);
+  );
+};
 
 type CampaignTextFormProps = {
   selectedCampaign: NewsletterCampaign;

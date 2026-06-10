@@ -9,6 +9,7 @@ import {
 import BOTDCard from "./BOTDCard";
 import AOTWCard from "./AOTWCard";
 import POTWCard from "./POTWCard";
+import { getNewsletterRangeStartForPlannerWeek } from "../newsletterUtils";
 import { formatWeekRange, getWeekDays } from "../utils";
 
 type Props = {
@@ -102,6 +103,7 @@ const WeekCardHeader = ({
 }: WeekCardHeaderProps) => {
   const buttonLabel = newsletterButtonLabel(newsletterStatus);
   const weekKey = toWeekString(weekStart);
+  const newsletterWeekStart = getNewsletterRangeStartForPlannerWeek(weekStart);
   const instagramLabel = instagramPrepared
     ? "Edit Instagram"
     : "Prepare Instagram";
@@ -125,7 +127,7 @@ const WeekCardHeader = ({
           {instagramLabel}
         </a>
         <a
-          href={`/dashboard/admin/planner/newsletters?weekStart=${toDateString(weekStart)}`}
+          href={`/dashboard/admin/planner/newsletters?weekStart=${toDateString(newsletterWeekStart)}`}
           class={newsletterButtonClasses(newsletterStatus)}
         >
           {buttonLabel}

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { formatWeekRangeLabel, getPreviousWeekRange } from "./newsletterUtils";
+import {
+  formatNewsletterWeekRange,
+  formatWeekRangeLabel,
+  getCurrentNewsletterRange,
+  getNewsletterRangeForSendWednesday,
+  getNewsletterRangeStartForPlannerWeek,
+  isNewsletterSendDay,
+  resolveNewsletterRangeStart,
+} from "./newsletterUtils";
 import { renderWeeklyBOTDNewsletterHtml } from "./newsletterTemplate";
 import { renderWeeklyBOTDNewsletterHtmlMjml } from "./newsletterTemplateMjml";
 
@@ -16,12 +24,40 @@ const sampleNewsletterParams = {
 };
 
 describe("weekly newsletter date helpers", () => {
-  it("calculates previous full ISO week range", () => {
-    const { weekStart, weekEnd } = getPreviousWeekRange(
-      new Date(Date.UTC(2026, 4, 28)),
+  it("uses Thu–Wed range ending on send Wednesday", () => {
+    const { weekStart, weekEnd } = getCurrentNewsletterRange(
+      new Date(Date.UTC(2026, 5, 3)),
     );
-    expect(weekStart.toISOString().slice(0, 10)).toBe("2026-05-18");
-    expect(weekEnd.toISOString().slice(0, 10)).toBe("2026-05-24");
+    expect(weekStart.toISOString().slice(0, 10)).toBe("2026-05-28");
+    expect(weekEnd.toISOString().slice(0, 10)).toBe("2026-06-03");
+  });
+
+  it("looks ahead to the next Wednesday before send day", () => {
+    const { weekStart, weekEnd } = getCurrentNewsletterRange(
+      new Date(Date.UTC(2026, 5, 2)),
+    );
+    expect(weekStart.toISOString().slice(0, 10)).toBe("2026-05-28");
+    expect(weekEnd.toISOString().slice(0, 10)).toBe("2026-06-03");
+  });
+
+  it("maps planner Monday weeks to the Thursday range start", () => {
+    const rangeStart = getNewsletterRangeStartForPlannerWeek(
+      new Date(Date.UTC(2026, 5, 1)),
+    );
+    expect(rangeStart.toISOString().slice(0, 10)).toBe("2026-05-28");
+  });
+
+  it("detects Wednesday as the newsletter send day", () => {
+    expect(isNewsletterSendDay(new Date(Date.UTC(2026, 5, 3)))).toBe(true);
+    expect(isNewsletterSendDay(new Date(Date.UTC(2026, 5, 4)))).toBe(false);
+  });
+
+  it("builds range from an explicit send Wednesday", () => {
+    const { weekStart, weekEnd } = getNewsletterRangeForSendWednesday(
+      new Date(Date.UTC(2026, 5, 3)),
+    );
+    expect(weekStart.toISOString().slice(0, 10)).toBe("2026-05-28");
+    expect(weekEnd.toISOString().slice(0, 10)).toBe("2026-06-03");
   });
 
   it("formats week range label as date interval", () => {
@@ -30,6 +66,21 @@ describe("weekly newsletter date helpers", () => {
       new Date(Date.UTC(2026, 4, 24)),
     );
     expect(label).toBe("2026-05-18 to 2026-05-24");
+  });
+
+  it("resolves legacy planner Monday links to the Thursday range start", () => {
+    const rangeStart = resolveNewsletterRangeStart(
+      new Date(Date.UTC(2026, 5, 1)),
+    );
+    expect(rangeStart.toISOString().slice(0, 10)).toBe("2026-05-28");
+  });
+
+  it("formats edition as Thu–Wed weekday labels", () => {
+    const label = formatNewsletterWeekRange(
+      new Date(Date.UTC(2026, 4, 28)),
+      new Date(Date.UTC(2026, 5, 3)),
+    );
+    expect(label).toBe("Thu, May 28 – Wed, Jun 3");
   });
 });
 

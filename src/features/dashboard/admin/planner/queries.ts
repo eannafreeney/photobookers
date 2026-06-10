@@ -11,8 +11,9 @@ import {
   newsletterCampaigns,
 } from "../../../../db/schema";
 import { and, gte, lte } from "drizzle-orm";
+import { getNewsletterRangeStartForPlannerWeek } from "./newsletterUtils";
 import { getWeekStarts } from "./utils";
-import { toWeekString } from "../../../../lib/utils";
+import { toDateString, toWeekString } from "../../../../lib/utils";
 import { getInstagramPreparedByWeekStart } from "./instagramServices";
 
 export type PlannerYearData = {
@@ -67,17 +68,23 @@ const getNewsletterStatusesByWeekStart = async (
 
   const first = weekStarts[0];
   const last = weekStarts[weekStarts.length - 1];
+  const lastSunday = new Date(last);
+  lastSunday.setUTCDate(lastSunday.getUTCDate() + 6);
   const rows = await db.query.newsletterCampaigns.findMany({
     where: and(
       gte(newsletterCampaigns.weekStart, first),
-      lte(newsletterCampaigns.weekStart, last),
+      lte(newsletterCampaigns.weekStart, lastSunday),
     ),
   });
 
   const byWeek = new Map<string, NewsletterCampaignStatus | null>();
   for (const weekStart of weekStarts) {
     const weekKey = toWeekString(weekStart);
-    const row = rows.find((entry) => toWeekString(entry.weekStart) === weekKey);
+    const newsletterRangeStart = getNewsletterRangeStartForPlannerWeek(weekStart);
+    const row = rows.find(
+      (entry) =>
+        toDateString(entry.weekStart) === toDateString(newsletterRangeStart),
+    );
     byWeek.set(weekKey, row?.status ?? null);
   }
   return byWeek;

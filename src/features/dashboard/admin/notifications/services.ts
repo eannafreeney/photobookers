@@ -6,6 +6,8 @@ import {
 } from "../../../../db/schema";
 import { getPagination } from "../../../../lib/pagination";
 import { err, ok } from "../../../../lib/result";
+import { sendAdminEmail } from "../../../../lib/sendEmail";
+import { generateBookPendingReviewEmail } from "./emails";
 
 export const createAdminNotification = async (input: NewAdminNotification) => {
   try {
@@ -21,6 +23,7 @@ export const notifyAdminBookPendingReview = async (input: {
   bookId: string;
   title: string;
   actorUserId: string;
+  isResubmit?: boolean;
 }) => {
   const result = await createAdminNotification({
     type: "book_pending_review",
@@ -35,6 +38,27 @@ export const notifyAdminBookPendingReview = async (input: {
       "notifyAdminBookPendingReview failed:",
       result[0].reason,
       result[0],
+    );
+  }
+
+  const siteUrl = process.env.SITE_URL ?? "https://photobookers.com";
+  const reviewUrl = `${siteUrl}/dashboard/admin/books/${input.bookId}`;
+  const subject = input.isResubmit
+    ? `Book resubmitted for review: ${input.title}`
+    : `New book submitted for review: ${input.title}`;
+  const [emailError] = await sendAdminEmail(
+    subject,
+    generateBookPendingReviewEmail({
+      bookTitle: input.title,
+      reviewUrl,
+      isResubmit: input.isResubmit,
+    }),
+  );
+  if (emailError) {
+    console.error(
+      "notifyAdminBookPendingReview email failed:",
+      emailError.reason,
+      emailError,
     );
   }
 };
