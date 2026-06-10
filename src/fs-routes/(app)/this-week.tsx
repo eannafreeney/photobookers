@@ -2,26 +2,32 @@ import { createRoute } from "hono-fsr";
 import { getUser } from "../../utils";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
-import SectionTitle from "../../components/app/SectionTitle";
-import BookCard from "../../components/app/BookCard";
-import CreatorCard from "../../components/app/CreatorCard";
-import NewsletterCard from "../../features/app/components/NewsletterCard";
-import InterviewCard from "../../features/app/components/InterviewCard";
+import ThisWeekDetail from "../../features/app/components/ThisWeekDetail";
 import { getBooksOfTheDayInRange } from "../../features/app/BOTDServices";
-import {
-  getArtistOfTheWeekForDateQuery,
-  getPublisherOfTheWeekForDateQuery,
-} from "../../features/dashboard/admin/planner/services";
+import { getArtistOfTheWeekForDateQuery } from "../../features/app/AOTWServices";
+import { getPublisherOfTheWeekForDateQuery } from "../../features/app/POTWServices";
 import { getInterviewByCreatorSlug } from "../../features/app/services";
 import { formatWeekRangeLabel } from "../../features/dashboard/admin/planner/newsletterUtils";
-import { canonicalUrl, pageTitle } from "../../lib/seo";
+import {
+  canonicalUrl,
+  pageTitle,
+  truncateDescription,
+} from "../../lib/seo";
 import {
   parseWeekString,
-  toDateString,
   toWeekStart,
-  toWeekString,
 } from "../../lib/utils";
-import { botdPath } from "../../features/app/spotlightUrls";
+import { thisWeekPath } from "../../features/app/spotlightUrls";
+import type { InterviewPreview } from "../../features/app/components/InterviewPreviewSection";
+
+async function fetchPublishedInterview(
+  slug: string | undefined,
+): Promise<InterviewPreview | null> {
+  if (!slug) return null;
+  const [error, interview] = await getInterviewByCreatorSlug(slug);
+  if (error || !interview || interview.status !== "published") return null;
+  return interview;
+}
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -36,90 +42,73 @@ export const GET = createRoute(async (c) => {
 
   const [
     [botdErr, botdResult],
-    [artistErr, artist],
-    [publisherErr, publisher],
+    [artistErr, artistOfTheWeek],
+    [publisherErr, publisherOfTheWeek],
   ] = await Promise.all([
     getBooksOfTheDayInRange(weekStart, weekEnd),
     getArtistOfTheWeekForDateQuery(weekStart),
     getPublisherOfTheWeekForDateQuery(weekStart),
   ]);
 
-  const label = formatWeekRangeLabel(weekStart, weekEnd);
-  const title = pageTitle(`This week on Photobookers`);
-  const path = `/this-week?week=${toWeekString(weekStart)}`;
+  const weekRangeLabel = formatWeekRangeLabel(weekStart, weekEnd);
+  const path = thisWeekPath(weekStart);
+  const title = pageTitle("This week on Photobookers");
+  const description = truncateDescription(
+    `Books of the Day, Artist and Publisher of the Week for ${weekRangeLabel}.`,
+  );
 
-  // Optional: fetch interviews for featured creators
-  const artistInterview =
-    !artistErr && artist?.creator
-      ? await getInterviewByCreatorSlug(artist.creator.slug)
-      : null;
+  const botdEntries = !botdErr ? botdResult.botdEntries : [];
+
+  const [artistInterview, publisherInterview] = await Promise.all([
+    fetchPublishedInterview(artistOfTheWeek?.creator.slug),
+    fetchPublishedInterview(publisherOfTheWeek?.creator.slug),
+  ]);
+
+  const shareImage =
+    botdEntries[0]?.book.coverUrl ??
+    artistOfTheWeek?.instagramImageUrl ??
+    publisherOfTheWeek?.instagramImageUrl ??
+    artistOfTheWeek?.creator.coverUrl ??
+    publisherOfTheWeek?.creator.coverUrl ??
+    undefined;
+
+  if (!user) {
+    c.header("Vary", "Cookie");
+    c.header(
+      "Cache-Control",
+      "private, max-age=120, stale-while-revalidate=600",
+    );
+  } else {
+    c.header("Cache-Control", "private, no-store");
+  }
 
   return c.html(
     <AppLayout
       title={title}
-      description={`Books of the Day, Artist and Publisher of the Week for ${label}.`}
+      description={description}
       canonicalUrl={canonicalUrl(c.req.url, path)}
       user={user}
       currentPath={currentPath}
+      shareOg={{
+        title,
+        description,
+        image: shareImage,
+        url: canonicalUrl(c.req.url, path),
+      }}
     >
       <Page>
-        <h1 class="text-3xl font-bold">This week on Photobookers</h1>
-        <p class="text-on-surface mt-2">{label}</p>
-
-        {!botdErr && botdResult.botdEntries.length > 0 ? (
-          <section class="mt-10">
-            <SectionTitle>Books of the Day</SectionTitle>
-            <div class="grid gap-8">
-              {botdResult.botdEntries.map((entry) => (
-                <article>
-                  <a
-                    href={botdPath(entry.date)}
-                    class="text-sm font-medium hover:underline"
-                  >
-                    {toDateString(entry.date)}
-                  </a>
-                  <BookCard book={entry.book} user={user} />
-                </article>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {!artistErr && artist?.creator ? (
-          <section class="mt-10">
-            <SectionTitle>Artist of the Week</SectionTitle>
-            <CreatorCard
-              creator={artist.creator}
-              user={user}
-              currentPath={currentPath}
-            />
-          </section>
-        ) : null}
-
-        {!publisherErr && publisher?.creator ? (
-          <section class="mt-10">
-            <SectionTitle>Publisher of the Week</SectionTitle>
-            <CreatorCard
-              creator={publisher.creator}
-              user={user}
-              currentPath={currentPath}
-            />
-          </section>
-        ) : null}
-
-        {artistInterview?.[1] ? (
-          <section class="mt-10">
-            <SectionTitle>Interview</SectionTitle>
-            <InterviewCard
-              interview={artistInterview[1]}
-              link={`/interviews/view/${artistInterview[1].creator.slug}`}
-            />
-          </section>
-        ) : null}
-
-        <div class="mt-12">
-          <NewsletterCard />
-        </div>
+        <ThisWeekDetail
+          user={user}
+          weekStart={weekStart}
+          weekRangeLabel={weekRangeLabel}
+          botdEntries={botdEntries}
+          artistOfTheWeek={!artistErr && artistOfTheWeek ? artistOfTheWeek : null}
+          publisherOfTheWeek={
+            !publisherErr && publisherOfTheWeek ? publisherOfTheWeek : null
+          }
+          artistInterview={artistInterview}
+          publisherInterview={publisherInterview}
+        />
       </Page>
     </AppLayout>,
   );

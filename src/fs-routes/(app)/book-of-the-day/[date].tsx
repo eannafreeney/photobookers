@@ -1,17 +1,23 @@
 import { createRoute } from "hono-fsr";
+import { z } from "zod";
 import { paramValidator } from "../../../lib/validator";
+import { getIsMobile } from "../../../lib/device";
 import { getUser } from "../../../utils";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import InfoPage from "../../../pages/InfoPage";
-import BookCard from "../../../components/app/BookCard";
-import RelatedBooks from "../../../features/app/components/RelatedBooks";
-import NewsletterCard from "../../../features/app/components/NewsletterCard";
+import BookOfTheDayDetail from "../../../features/app/components/BookOfTheDayDetail";
 import { getBookOfTheDayForDate } from "../../../features/app/BOTDServices";
+import { getBookBySlug } from "../../../features/app/services";
 import { botdPath } from "../../../features/app/spotlightUrls";
-import { canonicalUrl, pageTitle, truncateDescription } from "../../../lib/seo";
-import { parseDateString, toDateString } from "../../../lib/utils";
-import { z } from "zod";
+import {
+  bookDescription,
+  bookPageTitle,
+  canonicalUrl,
+  pageTitle,
+  truncateDescription,
+} from "../../../lib/seo";
+import { parseDateString } from "../../../lib/utils";
 
 const dateParamSchema = z.object({
   date: z
@@ -25,24 +31,45 @@ export const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
   const user = await getUser(c);
   const date = c.req.valid("param").date;
   const currentPath = c.req.path;
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
-  const [error, bookOfTheDay] = await getBookOfTheDayForDate(date);
-  if (error) {
+  const [botdError, bookOfTheDay] = await getBookOfTheDayForDate(date);
+  if (botdError) {
     return c.html(
       <InfoPage errorMessage="Book of the day not found" user={user} />,
       404,
     );
   }
 
-  const { book } = bookOfTheDay;
+  const [bookError, bookResult] = await getBookBySlug(
+    bookOfTheDay.book.slug,
+    "published",
+  );
+  if (bookError || !bookResult) {
+    return c.html(<InfoPage errorMessage="Book not found" user={user} />, 404);
+  }
+
+  const { book } = bookResult;
   const editorial = bookOfTheDay.instagramCaption?.trim() || null;
 
   const path = botdPath(date);
   const title = pageTitle(`Book of the Day — ${book.title}`);
-  const description = truncateDescription(
-    editorial ??
-      `${book.title}${book.artist ? ` by ${book.artist.displayName}` : ""}. Photobookers Book of the Day for ${toDateString(date)}.`,
-  );
+  const description = truncateDescription(editorial ?? bookDescription(book));
+
+  const galleryImages = [
+    book.coverUrl,
+    ...(book.images?.map((image) => image.imageUrl) ?? []),
+  ].filter((url): url is string => url !== null);
+
+  if (!user) {
+    c.header("Vary", "Cookie");
+    c.header(
+      "Cache-Control",
+      "private, max-age=120, stale-while-revalidate=600",
+    );
+  } else {
+    c.header("Cache-Control", "private, no-store");
+  }
 
   return c.html(
     <AppLayout
@@ -51,36 +78,25 @@ export const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
       canonicalUrl={canonicalUrl(c.req.url, path)}
       user={user}
       currentPath={currentPath}
+      adminEditHref={`/dashboard/admin/books/${book.id}`}
       shareOg={{
-        title,
+        title: bookPageTitle(book.title, book.artist?.displayName),
         description,
         image: book.coverUrl ?? undefined,
         url: canonicalUrl(c.req.url, path),
       }}
     >
       <Page>
-        <p class="text-sm text-on-surface-strong font-medium">
-          Book of the Day · {toDateString(date)}
-        </p>
-        <h1 class="text-3xl font-bold mt-2">{book.title}</h1>
-        {book.artist ? (
-          <p class="text-lg text-on-surface mt-1">
-            by {book.artist.displayName}
-          </p>
-        ) : null}
-        {editorial ? (
-          <p class="mt-6 text-on-surface whitespace-pre-line">{editorial}</p>
-        ) : null}
-        <div class="mt-8">
-          <BookCard book={book} user={user} />
-        </div>
-        <div class="mt-10">
-          <RelatedBooks book={book} user={user} />
-        </div>
-        <div class="mt-10">
-          <NewsletterCard />
-        </div>
-        <p class="mt-8 text-sm">
+        <BookOfTheDayDetail
+          book={book}
+          galleryImages={galleryImages}
+          isMobile={isMobile}
+          currentPath={currentPath}
+          user={user}
+          date={date}
+          editorial={editorial}
+        />
+        <p class="mx-auto mt-10 text-sm md:max-w-lg">
           <a href="/book-of-the-day" class="underline">
             ← All Books of the Day
           </a>

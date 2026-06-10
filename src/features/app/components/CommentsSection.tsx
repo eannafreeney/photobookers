@@ -15,6 +15,8 @@ type CommentsSectionProps = {
   user: AuthUser | null;
   bookSlug: string;
   isMobile?: boolean;
+  /** Defaults to `/books/{bookSlug}` for comment list refresh after modal submit. */
+  commentsRefreshPath?: string;
 };
 
 const CommentsSection = async ({
@@ -22,7 +24,9 @@ const CommentsSection = async ({
   user,
   bookSlug,
   isMobile = false,
+  commentsRefreshPath,
 }: CommentsSectionProps) => {
+  const refreshPath = commentsRefreshPath ?? `/books/${bookSlug}`;
   const [err, comments] = await getBookComments(bookId);
 
   if (err) return <p class="text-sm text-on-surface">{err.reason}</p>;
@@ -32,7 +36,7 @@ const CommentsSection = async ({
 
   const alpineAttrs = {
     "x-init": "true",
-    "@comments:updated.window": `$ajax('/books/${bookSlug}', { target: 'comments-list' })`,
+    "@comments:updated.window": `$ajax('${refreshPath}', { target: 'comments-list' })`,
   };
 
   const hasProfilePic = !!(user?.creator?.coverUrl || user?.profileImageUrl);
