@@ -15,6 +15,7 @@ import {
   parseDateString,
   toDateString,
   toWeekStart,
+  toWeekString,
 } from "../../../../lib/utils";
 import {
   type WeeklyNewsletterBookItem,
@@ -81,19 +82,22 @@ const toCreatorSpotlight = (
       }
     | null
     | undefined,
+  weekStart: Date,
 ): WeeklyNewsletterCreatorSpotlight =>
   creator
     ? {
         displayName: creator.displayName,
         slug: creator.slug,
+        weekKey: toWeekString(toWeekStart(weekStart)),
         coverUrl: creator.coverUrl ?? null,
         tagline: creator.tagline?.trim() || null,
         location: formatCreatorLocation(creator.city, creator.country),
       }
     : null;
 
-async function getWeeklyCreatorSpotlights(weekStart: Date) {
-  const normalizedWeekStart = toWeekStart(weekStart);
+/** AOTW/POTW for the ISO week containing the newsletter send Wednesday. */
+async function getWeeklyCreatorSpotlights(sendWednesday: Date) {
+  const normalizedWeekStart = toWeekStart(sendWednesday);
 
   const [artistEntry, publisherEntry] = await Promise.all([
     db.query.artistOfTheWeek.findFirst({
@@ -107,8 +111,14 @@ async function getWeeklyCreatorSpotlights(weekStart: Date) {
   ]);
 
   return {
-    artistOfTheWeek: toCreatorSpotlight(artistEntry?.creator),
-    publisherOfTheWeek: toCreatorSpotlight(publisherEntry?.creator),
+    artistOfTheWeek: toCreatorSpotlight(
+      artistEntry?.creator,
+      normalizedWeekStart,
+    ),
+    publisherOfTheWeek: toCreatorSpotlight(
+      publisherEntry?.creator,
+      normalizedWeekStart,
+    ),
   };
 }
 
@@ -140,7 +150,7 @@ export async function buildWeeklyBOTDGeneratedContent(
   if (rangeError) return err({ reason: rangeError.reason });
 
   const { artistOfTheWeek, publisherOfTheWeek } =
-    await getWeeklyCreatorSpotlights(rangeStart);
+    await getWeeklyCreatorSpotlights(rangeEnd);
 
   const items: WeeklyNewsletterBookItem[] = rangeResult.botdEntries.map(
     (entry) => ({
@@ -325,17 +335,20 @@ const normalizeStoredCreatorSpotlight = (
     | {
         displayName: string;
         slug: string;
+        weekKey?: string;
         coverUrl: string | null;
         tagline?: string | null;
         location?: string | null;
       }
     | null
     | undefined,
+  fallbackWeekKey: string,
 ): WeeklyNewsletterCreatorSpotlight => {
   if (!creator) return null;
   return {
     displayName: creator.displayName,
     slug: creator.slug,
+    weekKey: creator.weekKey ?? fallbackWeekKey,
     coverUrl: creator.coverUrl ?? null,
     tagline: creator.tagline?.trim() || null,
     location: creator.location?.trim() || null,
@@ -357,8 +370,9 @@ export async function buildCampaignPreviewHtml(
     console.error("buildCampaignPreviewHtml", generatedError.reason);
   }
 
+  const spotlightWeekKey = toWeekString(toWeekStart(weekEnd));
   const { artistOfTheWeek, publisherOfTheWeek } =
-    await getWeeklyCreatorSpotlights(weekStart);
+    await getWeeklyCreatorSpotlights(weekEnd);
 
   return renderWeeklyBOTDNewsletterHtmlMjml({
     weekStart,
@@ -370,10 +384,16 @@ export async function buildCampaignPreviewHtml(
     items: generated?.items ?? stored?.items ?? [],
     artistOfTheWeek:
       artistOfTheWeek ??
-      normalizeStoredCreatorSpotlight(stored?.artistOfTheWeek),
+      normalizeStoredCreatorSpotlight(
+        stored?.artistOfTheWeek,
+        spotlightWeekKey,
+      ),
     publisherOfTheWeek:
       publisherOfTheWeek ??
-      normalizeStoredCreatorSpotlight(stored?.publisherOfTheWeek),
+      normalizeStoredCreatorSpotlight(
+        stored?.publisherOfTheWeek,
+        spotlightWeekKey,
+      ),
   });
 }
 

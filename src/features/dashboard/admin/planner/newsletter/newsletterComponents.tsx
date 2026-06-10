@@ -329,7 +329,7 @@ export const BookFeatureCard = ({ book, reversed }: BookFeatureCardProps) => (
     }
     title={book.title}
     body={buildBookBody(book)}
-    linkHref={`${appBaseUrl}/books/${book.bookSlug}`}
+    linkHref={`${appBaseUrl}/book-of-the-day/${book.date}`}
     linkLabel="View book"
   />
 );
@@ -345,9 +345,11 @@ const buildCreatorBody = (
 
 export const CreatorFeatureCard = ({
   creator,
+  profilePath,
   reversed = false,
 }: {
   creator: NonNullable<WeeklyNewsletterCreatorSpotlight>;
+  profilePath: "artist-of-the-week" | "publisher-of-the-week";
   reversed?: boolean;
 }) => (
   <AlternatingFeatureCard
@@ -365,7 +367,7 @@ export const CreatorFeatureCard = ({
     }
     title={creator.displayName}
     body={buildCreatorBody(creator)}
-    linkHref={`${appBaseUrl}/creators/${creator.slug}`}
+    linkHref={`${appBaseUrl}/${profilePath}/${creator.weekKey}`}
     linkLabel="View profile"
   />
 );

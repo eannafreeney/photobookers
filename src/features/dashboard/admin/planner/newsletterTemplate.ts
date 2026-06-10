@@ -15,6 +15,8 @@ export type WeeklyNewsletterBookItem = {
 export type WeeklyNewsletterCreatorSpotlight = {
   displayName: string;
   slug: string;
+  /** ISO week key for `/artist-of-the-week/:week` and `/publisher-of-the-week/:week`. */
+  weekKey: string;
   coverUrl: string | null;
   tagline: string | null;
   location: string | null;
@@ -203,7 +205,7 @@ const buildCardColumns = (mediaHtml: string, bodyHtml: string) => `
 `;
 
 const buildBookCard = (item: WeeklyNewsletterBookItem) => {
-  const bookUrl = `${appBaseUrl}/books/${item.bookSlug}`;
+  const bookUrl = `${appBaseUrl}/book-of-the-day/${item.date}`;
   const coverBlock = item.coverUrl
     ? cardCoverImg(item.coverUrl, item.title)
     : "";
@@ -242,8 +244,9 @@ const buildBookCard = (item: WeeklyNewsletterBookItem) => {
 const buildCreatorSpotlightCard = (
   label: string,
   creator: NonNullable<WeeklyNewsletterCreatorSpotlight>,
+  profilePath: "artist-of-the-week" | "publisher-of-the-week",
 ) => {
-  const creatorUrl = `${appBaseUrl}/creators/${creator.slug}`;
+  const creatorUrl = `${appBaseUrl}/${profilePath}/${creator.weekKey}`;
   const coverBlock = creator.coverUrl
     ? creatorSpotlightImg(creator.coverUrl, creator.displayName)
     : "";
@@ -283,7 +286,8 @@ const buildCreatorSpotlightCard = (
 const buildCreatorSpotlightSection = (
   label: string,
   creator: WeeklyNewsletterCreatorSpotlight,
-) => (creator ? buildCreatorSpotlightCard(label, creator) : "");
+  profilePath: "artist-of-the-week" | "publisher-of-the-week",
+) => (creator ? buildCreatorSpotlightCard(label, creator, profilePath) : "");
 
 export type WeeklyNewsletterRenderParams = {
   weekStart: Date;
@@ -301,10 +305,15 @@ export function renderWeeklyBOTDNewsletterHtml(
   params: WeeklyNewsletterRenderParams,
 ) {
   const spotlightRows = [
-    buildCreatorSpotlightSection("Artist of the week", params.artistOfTheWeek),
+    buildCreatorSpotlightSection(
+      "Artist of the week",
+      params.artistOfTheWeek,
+      "artist-of-the-week",
+    ),
     buildCreatorSpotlightSection(
       "Publisher of the week",
       params.publisherOfTheWeek,
+      "publisher-of-the-week",
     ),
   ].join("");
   const botdHeading = params.items.length

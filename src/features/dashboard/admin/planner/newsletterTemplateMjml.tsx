@@ -129,14 +129,20 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
       {params.artistOfTheWeek ? (
         <>
           <SectionHeading>Artist of the week</SectionHeading>
-          <CreatorFeatureCard creator={params.artistOfTheWeek} />
+          <CreatorFeatureCard
+            creator={params.artistOfTheWeek}
+            profilePath="artist-of-the-week"
+          />
         </>
       ) : null}
 
       {params.publisherOfTheWeek ? (
         <>
           <SectionHeading>Publisher of the week</SectionHeading>
-          <CreatorFeatureCard creator={params.publisherOfTheWeek} />
+          <CreatorFeatureCard
+            creator={params.publisherOfTheWeek}
+            profilePath="publisher-of-the-week"
+          />
         </>
       ) : null}
 

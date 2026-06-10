@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { toWeekStart, toWeekString } from "../../../../lib/utils";
 import {
   formatNewsletterWeekRange,
   formatWeekRangeLabel,
@@ -108,9 +109,11 @@ describe("newsletter template rendering", () => {
   });
 
   it("renders artist and publisher of the week spotlights", () => {
+    const weekEnd = new Date(Date.UTC(2026, 4, 24));
+    const spotlightWeekKey = toWeekString(toWeekStart(weekEnd));
     const html = renderWeeklyBOTDNewsletterHtml({
       weekStart: new Date(Date.UTC(2026, 4, 18)),
-      weekEnd: new Date(Date.UTC(2026, 4, 24)),
+      weekEnd,
       subject: "Weekly roundup",
       introText: "Intro copy",
       outroText: "Outro copy",
@@ -119,6 +122,7 @@ describe("newsletter template rendering", () => {
       artistOfTheWeek: {
         displayName: "Jane Artist",
         slug: "jane-artist",
+        weekKey: spotlightWeekKey,
         coverUrl: "https://example.com/artist.jpg",
         tagline: "Documentary photographer",
         location: "Berlin, Germany",
@@ -126,6 +130,7 @@ describe("newsletter template rendering", () => {
       publisherOfTheWeek: {
         displayName: "Acme Press",
         slug: "acme-press",
+        weekKey: spotlightWeekKey,
         coverUrl: "https://example.com/publisher.jpg",
         tagline: null,
         location: "London, UK",
@@ -139,10 +144,10 @@ describe("newsletter template rendering", () => {
     expect(html).toContain('class="email-btn-primary"');
     expect(html).toContain("View profile");
     expect(html).toContain("Jane Artist");
-    expect(html).toContain("/creators/jane-artist");
+    expect(html).toContain(`/artist-of-the-week/${spotlightWeekKey}`);
     expect(html).toContain("Publisher of the week");
     expect(html).toContain("Acme Press");
-    expect(html).toContain("/creators/acme-press");
+    expect(html).toContain(`/publisher-of-the-week/${spotlightWeekKey}`);
     expect(
       (html.match(/class="card-img card-img-creator"/g) ?? []).length,
     ).toBe(2);
@@ -174,7 +179,7 @@ describe("newsletter template rendering", () => {
     });
 
     expect(html).toContain("May 31, 2026");
-    expect(html).not.toContain("2026-05-31");
+    expect(html).toContain("/book-of-the-day/2026-05-31");
     expect(html).toContain("View book");
     expect(html).toContain('class="email-btn-primary"');
   });
@@ -198,6 +203,9 @@ describe("newsletter MJML template rendering", () => {
   });
 
   it("renders book cards and creator spotlights", () => {
+    const spotlightWeekKey = toWeekString(
+      toWeekStart(sampleNewsletterParams.weekEnd),
+    );
     const html = renderWeeklyBOTDNewsletterHtmlMjml({
       ...sampleNewsletterParams,
       subject: "Weekly roundup",
@@ -217,6 +225,7 @@ describe("newsletter MJML template rendering", () => {
       artistOfTheWeek: {
         displayName: "Jane Artist",
         slug: "jane-artist",
+        weekKey: spotlightWeekKey,
         coverUrl: "https://example.com/artist.jpg",
         tagline: "Documentary photographer",
         location: "Berlin, Germany",
@@ -225,12 +234,13 @@ describe("newsletter MJML template rendering", () => {
     });
 
     expect(html).toContain("May 31, 2026");
+    expect(html).toContain("/book-of-the-day/2026-05-31");
     expect(html).toContain("Some Book");
     expect(html).toContain("View book");
     expect(html).toContain("Books of the day");
     expect(html).toContain("Artist of the week");
     expect(html).toContain("Documentary photographer");
-    expect(html).toContain("/creators/jane-artist");
+    expect(html).toContain(`/artist-of-the-week/${spotlightWeekKey}`);
     expect(html).toContain("instagram.com/photobookers");
   });
 });
