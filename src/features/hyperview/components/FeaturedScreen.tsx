@@ -15,6 +15,7 @@ import { creatorCardStyles } from "./CreatorCard";
 import { feedListStyles } from "./FeedList";
 import { interviewsStyles } from "./Interviews";
 import { newsletterCardStyles } from "./NewsletterCard";
+import { featuredHomeBodyStyles } from "./FeaturedHomeBody";
 import { sectionHeaderStyles } from "./SectionHeader";
 import { signInPromptStyles } from "./SignInPrompt";
 import type { AuthUser } from "../../../../types";
@@ -82,5 +83,6 @@ const pageStyles = () => (
     {sectionHeaderStyles()}
     {interviewsStyles()}
     {newsletterCardStyles()}
+    {featuredHomeBodyStyles()}
   </>
 );

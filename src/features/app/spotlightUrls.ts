@@ -2,8 +2,12 @@ import { toDateString, toWeekString } from "../../lib/utils";
 
 const appBaseUrl = process.env.PUBLIC_APP_URL ?? "https://www.photobookers.com";
 
+export function botdIndexPath(): string {
+  return "/book-of-the-day";
+}
+
 export function botdPath(date: Date): string {
-  return `/book-of-the-day/${toDateString(date)}`;
+  return `${botdIndexPath()}/${toDateString(date)}`;
 }
 
 export function aotwPath(weekStart: Date): string {

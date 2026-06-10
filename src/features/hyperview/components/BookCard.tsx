@@ -13,6 +13,7 @@ type Props = {
   currentCreatorId?: string | null;
   isFavorited?: boolean;
   title?: string | null;
+  detailHref?: string;
 };
 
 const BookCard: FC<Props> = ({
@@ -21,8 +22,10 @@ const BookCard: FC<Props> = ({
   currentCreatorId,
   isFavorited = false,
   title,
+  detailHref,
 }) => {
-  const detailUrl = `${baseUrl}/hyperview/books/${book.id}/tab/book`;
+  const detailUrl =
+    detailHref ?? `${baseUrl}/hyperview/books/${book.id}/tab/book`;
   const artist = book.artist?.displayName;
   const publisher = book.publisher?.displayName;
   const showHeader = currentCreatorId !== book.artist?.id;

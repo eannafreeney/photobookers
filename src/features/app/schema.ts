@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { parseWeekString } from "../../lib/utils";
+import { parseDateString, parseWeekString } from "../../lib/utils";
 
 // ============ VALIDATE PASSWORD SCHEMA ============
 export const contactFormSchema = z.object({
@@ -12,6 +12,14 @@ export const contactFormSchema = z.object({
 
 export const userUpdateFormSchema = z.object({
   msg: z.string().optional(),
+});
+
+export const dateParamSchema = z.object({
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .transform(parseDateString)
+    .refine((d) => !Number.isNaN(d.getTime()), "Invalid date"),
 });
 
 export const weekParamSchema = z.object({

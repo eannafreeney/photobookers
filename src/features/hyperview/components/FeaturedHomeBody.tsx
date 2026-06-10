@@ -1,7 +1,7 @@
 import { FC } from "hono/jsx";
 import type { AuthUser } from "../../../../types";
 import BookCard from "./BookCard";
-import { Text, View } from "../../../lib/hxml-comps";
+import { Behavior, Style, Text, View } from "../../../lib/hxml-comps";
 import { getTodaysBookOfTheDay } from "../../app/BOTDServices";
 import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
@@ -10,6 +10,11 @@ import Interviews from "./Interviews";
 import NewsletterCard from "./NewsletterCard";
 import { favoriteFlagsForBooks, followFlagsForCreators } from "../findFlags";
 import LazyLoader from "./LazyLoader";
+import { botdPath, aotwPath, potwPath } from "../../app/spotlightUrls";
+import { toWeekString, toWeekStart } from "../../../lib/utils";
+import SecondaryButtonLink, {
+  secondaryButtonLinkStyles,
+} from "./SecondaryButtonLink";
 
 type Props = {
   baseUrl: string;
@@ -45,26 +50,33 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
     followFlagsForCreators(user, featuredCreators),
   ]);
 
+  const weekStart = toWeekStart(new Date());
+  const thisWeekHref = `${baseUrl}/hyperview/this-week?week=${toWeekString(weekStart)}`;
+
   return (
     <View>
-      {botdBook && (
+      <SecondaryButtonLink label="View this week →" href={thisWeekHref} />
+
+      {botdBook && botdResult ? (
         <BookCard
           title="Book of The Day"
           book={botdBook}
           baseUrl={baseUrl}
           isFavorited={favoritesByBookId[botdBook.id] ?? false}
+          detailHref={`${baseUrl}/hyperview${botdPath(botdResult.date)}`}
         />
-      )}
-      {artistResult?.creator && (
+      ) : null}
+      {artistResult?.creator ? (
         <CreatorCard
           showHeader
           title="Artist of The Week"
           creator={artistResult.creator}
           baseUrl={baseUrl}
           isFollowing={followingByCreatorId[artistResult.creator.id] ?? false}
+          profileHref={`${baseUrl}/hyperview${aotwPath(artistResult.weekStart)}`}
         />
-      )}
-      {publisherResult?.creator && (
+      ) : null}
+      {publisherResult?.creator ? (
         <CreatorCard
           showHeader
           title="Publisher of The Week"
@@ -73,8 +85,9 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
           isFollowing={
             followingByCreatorId[publisherResult.creator.id] ?? false
           }
+          profileHref={`${baseUrl}/hyperview${potwPath(publisherResult.weekStart)}`}
         />
-      )}
+      ) : null}
       <NewsletterCard baseUrl={baseUrl} />
       <LazyLoader
         id="interviews-fragment"
@@ -86,3 +99,5 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
 };
 
 export default FeaturedHomeBody;
+
+export const featuredHomeBodyStyles = () => <>{secondaryButtonLinkStyles()}</>;

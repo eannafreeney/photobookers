@@ -117,19 +117,12 @@ const ThisWeekBookEntry = ({ entry }: { entry: BookOfTheDayWithBook }) => {
       href={botdPath(entry.date)}
       class="flex gap-4 rounded-radius border border-outline bg-surface p-3 transition-opacity hover:opacity-80"
     >
-      {book.coverUrl ? (
+      {book.coverUrl && (
         <img
           src={book.coverUrl}
           alt={book.title}
-          class="aspect-[3/4] w-24 shrink-0 rounded-radius object-cover"
+          class="aspect-3/4 w-24 shrink-0 rounded-radius object-cover"
         />
-      ) : (
-        <span
-          class="flex aspect-[3/4] w-24 shrink-0 items-center justify-center rounded-radius bg-surface-alt text-sm font-semibold text-on-surface"
-          aria-hidden="true"
-        >
-          {book.title.charAt(0)}
-        </span>
       )}
       <div class="flex min-w-0 flex-1 flex-col gap-1">
         <p class="text-xs font-medium text-on-surface">

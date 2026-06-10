@@ -14,6 +14,7 @@ import {
   truncateDescription,
 } from "../../lib/seo";
 import {
+  capEndOfDayToToday,
   parseWeekString,
   toWeekStart,
 } from "../../lib/utils";
@@ -45,7 +46,7 @@ export const GET = createRoute(async (c) => {
     [artistErr, artistOfTheWeek],
     [publisherErr, publisherOfTheWeek],
   ] = await Promise.all([
-    getBooksOfTheDayInRange(weekStart, weekEnd),
+    getBooksOfTheDayInRange(weekStart, capEndOfDayToToday(weekEnd)),
     getArtistOfTheWeekForDateQuery(weekStart),
     getPublisherOfTheWeekForDateQuery(weekStart),
   ]);

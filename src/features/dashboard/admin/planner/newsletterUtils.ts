@@ -1,4 +1,4 @@
-import { toDateString, toWeekStart } from "../../../../lib/utils";
+import { formatOrdinalDate, toWeekStart } from "../../../../lib/utils";
 
 export function getPreviousWeekRange(referenceDate: Date = new Date()) {
   const currentWeekStart = toWeekStart(referenceDate);
@@ -10,5 +10,5 @@ export function getPreviousWeekRange(referenceDate: Date = new Date()) {
 }
 
 export function formatWeekRangeLabel(weekStart: Date, weekEnd: Date): string {
-  return `${toDateString(weekStart)} to ${toDateString(weekEnd)}`;
+  return `${formatOrdinalDate(weekStart)} to ${formatOrdinalDate(weekEnd)}`;
 }
