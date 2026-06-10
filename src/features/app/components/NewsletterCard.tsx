@@ -1,45 +1,59 @@
+import clsx from "clsx";
 import Button from "../../../components/app/Button";
 import { mailIcon } from "../../../lib/icons";
 import { getInputIcon } from "../../../utils";
 
 const NewsletterCard = () => (
-  <div id="newsletter-card" class="bg-sky-100 rounded-radius p-4">
-    <div class="flex flex-col items-center gap-4 md:flex-row md:items-center md:justify-center">
-      <div class="flex items-center justify-center gap-3">
-        <div>{mailIcon(5)}</div>
-        <div class="min-w-0 text-md font-semibold text-on-surface-strong">
-          Join the mailing list
+  <div
+    id="newsletter-card"
+    class="overflow-hidden rounded-radius border border-sky-200/70 bg-sky-100 p-4 shadow-sm sm:p-5"
+  >
+    <div class="flex flex-col 2xl:flex-row gap-4 md:items-center md:gap-6">
+      <div class="flex min-w-0 items-start gap-3 md:flex-1">
+        <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface text-[#0099cc] shadow-sm ring-1 ring-sky-200/80 sm:size-11">
+          {mailIcon(5)}
+        </div>
+        <div class="min-w-0 flex-1 pt-0.5">
+          <p class="text-sm font-semibold text-on-surface-strong sm:text-md">
+            Join the mailing list
+          </p>
+          <p class="mt-1 text-pretty text-xs leading-relaxed text-on-surface sm:text-sm">
+            Discover new books and creators in your inbox
+          </p>
         </div>
       </div>
-      <NewsletterForm />
+
+      <NewsletterForm className="w-full md:w-auto md:min-w-[17rem] md:max-w-sm" />
     </div>
   </div>
 );
 
 export default NewsletterCard;
 
-const NewsletterForm = () => (
+const NewsletterForm = ({ className }: { className?: string }) => (
   <form
     x-target="toast newsletter-form"
     {...{ "x-target.error": "toast" }}
     id="newsletter-form"
     action="/api/newsletter"
     method="post"
-    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center"
+    class={clsx("flex w-full min-w-0 items-center gap-2", className)}
   >
-    <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt flex items-center gap-2 px-2 py-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary w-full sm:w-auto">
-      {getInputIcon("email")}
+    <label class="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-radius border border-outline bg-surface px-3 font-semibold text-on-surface-alt shadow-sm focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary">
+      <span class="shrink-0">{getInputIcon("email")}</span>
       <input
         type="email"
-        class="w-full bg-surface-alt px-1 py-0.5 text-base md:text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
+        class="min-w-0 flex-1 bg-surface text-sm leading-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
         name="email"
         placeholder="you@example.com"
         autocomplete="email"
         required
       />
     </label>
-    <Button variant="outline" color="primary" width="full">
-      Sign up
-    </Button>
+    <div class="h-10 shrink-0 [&>button]:h-full [&>button]:px-4">
+      <Button variant="solid" color="primary" width="auto">
+        Sign up
+      </Button>
+    </div>
   </form>
 );

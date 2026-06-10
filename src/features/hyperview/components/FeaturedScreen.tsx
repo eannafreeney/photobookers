@@ -5,16 +5,15 @@ import {
   FEATURED_TAB_SPINNER_ID,
 } from "./featuredTabIds";
 import { AppLayout } from "../../../fs-routes/hyperview/+layout";
-import { bookCardStyles } from "./BookCard";
 import {
   messageListStyles,
   signInEmptyHintStyles,
 } from "../hyperviewCommonScreenStyles";
 import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps";
-import { creatorCardStyles } from "./CreatorCard";
 import { feedListStyles } from "./FeedList";
 import { interviewsStyles } from "./Interviews";
 import { newsletterCardStyles } from "./NewsletterCard";
+import { featuredHomeBodyStyles } from "./FeaturedHomeBody";
 import { sectionHeaderStyles } from "./SectionHeader";
 import { signInPromptStyles } from "./SignInPrompt";
 import type { AuthUser } from "../../../../types";
@@ -76,11 +75,10 @@ const pageStyles = () => (
     {signInPromptStyles()}
     {featuredTabStyles()}
     {messageListStyles()}
-    {bookCardStyles()}
-    {creatorCardStyles()}
     {feedListStyles()}
     {sectionHeaderStyles()}
     {interviewsStyles()}
     {newsletterCardStyles()}
+    {featuredHomeBodyStyles()}
   </>
 );

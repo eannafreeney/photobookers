@@ -24,6 +24,7 @@ type Props = {
   title?: string | null;
   showHeader?: boolean;
   isFollowing?: boolean;
+  profileHref?: string;
 };
 
 const CreatorCard: FC<Props> = ({
@@ -32,8 +33,12 @@ const CreatorCard: FC<Props> = ({
   title,
   showHeader = true,
   isFollowing = false,
+  profileHref,
 }) => {
   if (!creator) return <></>;
+
+  const creatorProfileHref =
+    profileHref ?? `${baseUrl}/hyperview/creators/${creator.id}/tab/books`;
 
   const location = [creator.city, formatCountry(creator.country ?? "")]
     .filter(Boolean)
@@ -43,9 +48,7 @@ const CreatorCard: FC<Props> = ({
     <View style="creator-card">
       {showHeader && (
         <View style="creator-card-header">
-          <Behavior
-            href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
-          />
+          <Behavior href={creatorProfileHref} />
           <View style="creator-card-header-creator">
             {creator.coverUrl && (
               <Image
@@ -62,9 +65,7 @@ const CreatorCard: FC<Props> = ({
           {title && <Text style="creator-card-header-title">{title}</Text>}
         </View>
       )}
-      <Behavior
-        href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
-      />
+      <Behavior href={creatorProfileHref} />
       {creator.coverUrl && (
         <Image
           source={creator.coverUrl}

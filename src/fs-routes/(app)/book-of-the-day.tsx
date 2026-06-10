@@ -12,6 +12,7 @@ import { getIsMobile } from "../../lib/device";
 import GridPanel from "../../components/app/GridPanel";
 import ListNavigation from "../../features/app/components/ListNavigation";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
+import { botdPath } from "../../features/app/spotlightUrls";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -46,9 +47,13 @@ export const GET = createRoute(async (c) => {
           {botdEntries.map((entry) => (
             <ScrollReveal>
               <article class="space-y-2 ">
-                <p class="text-xs text-on-surface-strong font-medium">
+                <a
+                  href={botdPath(entry.date)}
+                  class="text-xs text-on-surface-strong font-medium hover:underline"
+                >
                   {toDateString(entry.date)}
-                </p>
+                </a>
+
                 <BookCard book={entry.book} user={user} />
               </article>
             </ScrollReveal>

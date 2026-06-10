@@ -13,6 +13,7 @@ import GridPanel from "../../components/app/GridPanel";
 import { getIsMobile } from "../../lib/device";
 import ListNavigation from "../../features/app/components/ListNavigation";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
+import { aotwPath } from "../../features/app/spotlightUrls";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -48,9 +49,12 @@ export const GET = createRoute(async (c) => {
           {aotwEntries.map((entry) => (
             <ScrollReveal>
               <article class="space-y-2">
-                <p class="text-xs text-on-surface-strong font-medium">
+                <a
+                  href={aotwPath(entry.weekStart)}
+                  class="text-xs text-on-surface-strong font-medium hover:underline"
+                >
                   Week: {toWeekString(entry.weekStart)}
-                </p>
+                </a>
                 <CreatorCard
                   creator={entry.creator}
                   user={user}

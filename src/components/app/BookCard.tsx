@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import Card from "./Card";
 import { formatDate } from "../../utils";
 import CardCreatorCard from "./CardCreatorCard";
@@ -13,6 +14,7 @@ type BookCardProps = {
   user: AuthUser | null;
   currentCreatorId?: string | null;
   maxDisplayNameLength?: number;
+  className?: string;
 };
 
 const BookCard = ({
@@ -20,9 +22,14 @@ const BookCard = ({
   user,
   currentCreatorId,
   maxDisplayNameLength = 16,
+  className,
 }: BookCardProps) => {
   return (
-    <Card className="min-w-[200px] max-w-[24rem]">
+    <Card
+      className={clsx(
+        className ?? "min-w-[200px] max-w-[24rem]",
+      )}
+    >
       <Show when={currentCreatorId !== book.artist?.id}>
         <div class="p-2 flex items-center justify-between h-10">
           <CardCreatorCard

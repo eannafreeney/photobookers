@@ -1,7 +1,10 @@
 import Card from "../../../../../components/app/Card";
 import { BookOfTheDayWithBook } from "../../../../app/BOTDServices";
 import { toDateString, toWeekString } from "../../../../../lib/utils";
-import { NewsletterCampaignStatus } from "../../../../../db/schema";
+import {
+  CreatorInterview,
+  NewsletterCampaignStatus,
+} from "../../../../../db/schema";
 import {
   ArtistOfTheWeekWithCreator,
   PublisherOfTheWeekWithCreator,
@@ -20,6 +23,7 @@ type Props = {
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
   newsletterStatus: NewsletterCampaignStatus | null;
   instagramPrepared: boolean;
+  interviewByCreatorId: Map<string, CreatorInterview> | null;
 };
 
 const WeekCard = ({
@@ -30,6 +34,7 @@ const WeekCard = ({
   publisherOfTheWeek,
   newsletterStatus,
   instagramPrepared,
+  interviewByCreatorId,
 }: Props) => {
   const days = getWeekDays(weekStart);
 
@@ -47,10 +52,24 @@ const WeekCard = ({
           const botd = botdByDate.get(key) ?? null;
           return <BOTDCard key={key} date={day} bookOfTheDay={botd} />;
         })}
-        <AOTWCard weekStart={weekStart} artistOfTheWeek={artistOfTheWeek} />
+        <AOTWCard
+          weekStart={weekStart}
+          artistOfTheWeek={artistOfTheWeek}
+          interview={
+            artistOfTheWeek
+              ? (interviewByCreatorId?.get(artistOfTheWeek.creatorId) ?? null)
+              : null
+          }
+        />
         <POTWCard
           weekStart={weekStart}
           publisherOfTheWeek={publisherOfTheWeek}
+          interview={
+            publisherOfTheWeek
+              ? (interviewByCreatorId?.get(publisherOfTheWeek.creatorId) ??
+                null)
+              : null
+          }
         />
       </Card.Body>
     </Card>

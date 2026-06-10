@@ -1,22 +1,27 @@
 import { FC } from "hono/jsx";
 import type { AuthUser } from "../../../../types";
-import BookCard from "./BookCard";
-import { Text, View } from "../../../lib/hxml-comps";
+import { Style, View } from "../../../lib/hxml-comps";
 import { getTodaysBookOfTheDay } from "../../app/BOTDServices";
 import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
-import CreatorCard from "./CreatorCard";
-import Interviews from "./Interviews";
 import NewsletterCard from "./NewsletterCard";
-import { favoriteFlagsForBooks, followFlagsForCreators } from "../findFlags";
 import LazyLoader from "./LazyLoader";
+import { botdPath, aotwPath, potwPath } from "../../app/spotlightUrls";
+import { toWeekString, toWeekStart } from "../../../lib/utils";
+import SecondaryButtonLink, {
+  secondaryButtonLinkStyles,
+} from "./SecondaryButtonLink";
+import FeaturedSpotlightCarousel, {
+  type FeaturedSpotlightItem,
+  featuredSpotlightCarouselStyles,
+} from "./FeaturedSpotlightCarousel";
 
 type Props = {
   baseUrl: string;
   user?: AuthUser | null;
 };
 
-const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
+const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
   const [
     [botdErr, botdResult],
     [artistErr, artistResult],
@@ -29,52 +34,55 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
   if (artistErr) return <></>;
   if (publisherErr) return <></>;
 
-  const botdBook = botdErr ? null : (botdResult?.book ?? null);
+  const spotlightItems: FeaturedSpotlightItem[] = [];
 
-  const books = [botdBook].filter((book): book is NonNullable<typeof book> =>
-    Boolean(book),
-  );
+  if (!botdErr && botdResult?.book) {
+    spotlightItems.push({
+      id: `botd-${botdResult.id}`,
+      label: "Book of the Day",
+      title: botdResult.book.title,
+      imageUrl: botdResult.book.coverUrl,
+      href: `${baseUrl}/hyperview${botdPath(botdResult.date)}`,
+    });
+  }
 
-  const featuredCreators = [
-    artistResult?.creator,
-    publisherResult?.creator,
-  ].filter(Boolean);
+  if (artistResult?.creator) {
+    const { creator } = artistResult;
+    spotlightItems.push({
+      id: `aotw-${artistResult.id}`,
+      label: "Artist of the Week",
+      title: creator.displayName,
+      imageUrl:
+        artistResult.instagramImageUrl ??
+        creator.coverUrl ??
+        creator.bannerUrl ??
+        null,
+      href: `${baseUrl}/hyperview${aotwPath(artistResult.weekStart)}`,
+    });
+  }
 
-  const [favoritesByBookId, followingByCreatorId] = await Promise.all([
-    favoriteFlagsForBooks(user, books),
-    followFlagsForCreators(user, featuredCreators),
-  ]);
+  if (publisherResult?.creator) {
+    const { creator } = publisherResult;
+    spotlightItems.push({
+      id: `potw-${publisherResult.id}`,
+      label: "Publisher of the Week",
+      title: creator.displayName,
+      imageUrl:
+        publisherResult.instagramImageUrl ??
+        creator.coverUrl ??
+        creator.bannerUrl ??
+        null,
+      href: `${baseUrl}/hyperview${potwPath(publisherResult.weekStart)}`,
+    });
+  }
+
+  const weekStart = toWeekStart(new Date());
+  const thisWeekHref = `${baseUrl}/hyperview/this-week?week=${toWeekString(weekStart)}`;
 
   return (
-    <View>
-      {botdBook && (
-        <BookCard
-          title="Book of The Day"
-          book={botdBook}
-          baseUrl={baseUrl}
-          isFavorited={favoritesByBookId[botdBook.id] ?? false}
-        />
-      )}
-      {artistResult?.creator && (
-        <CreatorCard
-          showHeader
-          title="Artist of The Week"
-          creator={artistResult.creator}
-          baseUrl={baseUrl}
-          isFollowing={followingByCreatorId[artistResult.creator.id] ?? false}
-        />
-      )}
-      {publisherResult?.creator && (
-        <CreatorCard
-          showHeader
-          title="Publisher of The Week"
-          creator={publisherResult.creator}
-          baseUrl={baseUrl}
-          isFollowing={
-            followingByCreatorId[publisherResult.creator.id] ?? false
-          }
-        />
-      )}
+    <View style="featured-home-body">
+      <FeaturedSpotlightCarousel items={spotlightItems} />
+      <SecondaryButtonLink label="View this week →" href={thisWeekHref} />
       <NewsletterCard baseUrl={baseUrl} />
       <LazyLoader
         id="interviews-fragment"
@@ -86,3 +94,11 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
 };
 
 export default FeaturedHomeBody;
+
+export const featuredHomeBodyStyles = () => (
+  <>
+    <Style id="featured-home-body" flexDirection="column" gap={16} />
+    {featuredSpotlightCarouselStyles()}
+    {secondaryButtonLinkStyles()}
+  </>
+);

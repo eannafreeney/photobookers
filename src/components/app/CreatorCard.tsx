@@ -1,8 +1,8 @@
+import { CreatorCardResult } from "../../constants/queries";
 import { Creator } from "../../db/schema";
 import Card from "./Card";
 import ClaimCreatorBtn from "../../features/claims/components/ClaimCreatorBtn";
 import FollowButton from "../../features/api/components/FollowButton";
-import SectionTitle from "./SectionTitle";
 import SocialLinks from "./SocialLinks";
 import VerifiedCreator from "./VerifiedCreator";
 import { AuthUser } from "../../../types";
@@ -11,7 +11,7 @@ import Show from "./Show";
 import { formatCountry } from "../../lib/utils";
 
 type Props = {
-  creator: Creator | null;
+  creator: CreatorCardResult | null;
   currentPath: string;
   title?: string;
   user: AuthUser | null;
@@ -77,12 +77,12 @@ const CreatorCard = async ({
             />
             {creator.status === "stub" && (
               <ClaimCreatorBtn
-                creator={creator}
+                creator={creator as Creator}
                 user={user}
                 currentPath={currentPath}
               />
             )}
-            <SocialLinks creator={creator} />
+            <SocialLinks creator={creator as Creator} />
           </Show>
         </Card.Body>
       </Card>

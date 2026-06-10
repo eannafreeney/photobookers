@@ -1,4 +1,8 @@
-import { toDateString, toUtcStartOfDay } from "../../../../lib/utils";
+import {
+  formatOrdinalDate,
+  toUtcStartOfDay,
+  toWeekStart,
+} from "../../../../lib/utils";
 
 /** Newsletter is sent on Wednesday (UTC). */
 export const NEWSLETTER_SEND_WEEKDAY_UTC = 3;
@@ -33,7 +37,9 @@ export function getCurrentNewsletterRange(referenceDate: Date = new Date()) {
 }
 
 /** Newsletter range-start (Thursday) for the edition sent on this planner week's Wednesday. */
-export function getNewsletterRangeStartForPlannerWeek(plannerMonday: Date): Date {
+export function getNewsletterRangeStartForPlannerWeek(
+  plannerMonday: Date,
+): Date {
   const monday = toUtcStartOfDay(plannerMonday);
   const sendWednesday = new Date(monday);
   sendWednesday.setUTCDate(sendWednesday.getUTCDate() + 2);
@@ -72,10 +78,13 @@ const newsletterWeekdayLabel = (date: Date) =>
   });
 
 /** e.g. "Thu, May 29 – Wed, Jun 4" */
-export function formatNewsletterWeekRange(weekStart: Date, weekEnd: Date): string {
+export function formatNewsletterWeekRange(
+  weekStart: Date,
+  weekEnd: Date,
+): string {
   return `${newsletterWeekdayLabel(weekStart)} – ${newsletterWeekdayLabel(weekEnd)}`;
 }
 
 export function formatWeekRangeLabel(weekStart: Date, weekEnd: Date): string {
-  return `${toDateString(weekStart)} to ${toDateString(weekEnd)}`;
+  return `${formatOrdinalDate(weekStart)} to ${formatOrdinalDate(weekEnd)}`;
 }

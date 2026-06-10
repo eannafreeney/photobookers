@@ -9,15 +9,6 @@ import { err, ok } from "../../lib/result";
 import { getPagination } from "../../lib/pagination";
 import { toUtcStartOfDay } from "../../lib/utils";
 
-type GetBookOfTheDayForDateResult = Awaited<
-  ReturnType<typeof getBookOfTheDayForDate>
->;
-
-export type BookOfTheDayWithBook = Extract<
-  GetBookOfTheDayForDateResult,
-  [null, unknown]
->[1];
-
 export async function getBookOfTheDayForDate(date: Date) {
   const day = toUtcStartOfDay(date);
   try {
@@ -126,3 +117,11 @@ export async function getBooksOfTheDayInRange(start: Date, end: Date) {
     });
   }
 }
+
+type BooksOfTheDayInRangeData = Extract<
+  Awaited<ReturnType<typeof getBooksOfTheDayInRange>>,
+  [null, unknown]
+>[1];
+
+export type BookOfTheDayWithBook =
+  BooksOfTheDayInRangeData["botdEntries"][number];
