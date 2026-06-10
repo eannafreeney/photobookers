@@ -24,7 +24,11 @@ export const HyperviewNewsletterFormFields: FC<NewsletterFormFieldsProps> = ({
   submitLabel = "Sign up",
   showSubmitBehavior = true,
 }) => (
-  <View id={NEWSLETTER_FORM_FIELDS_ID} xmlns="https://hyperview.org/hyperview">
+  <View
+    id={NEWSLETTER_FORM_FIELDS_ID}
+    xmlns="https://hyperview.org/hyperview"
+    style="newsletter-form-row"
+  >
     <TextField
       style="newsletter-input"
       name="email"
@@ -52,7 +56,17 @@ type NewsletterCardProps = {
 
 const NewsletterCard: FC<NewsletterCardProps> = ({ baseUrl = "" }) => (
   <View style="newsletter-card">
-    <Text style="newsletter-title">✉ Join the mailing list</Text>
+    <View style="newsletter-header">
+      <View style="newsletter-icon-wrap">
+        <Text style="newsletter-icon">✉</Text>
+      </View>
+      <View style="newsletter-copy">
+        <Text style="newsletter-heading">Join the mailing list</Text>
+        <Text style="newsletter-subheading">
+          Discover new books and creators.
+        </Text>
+      </View>
+    </View>
     <Form id="newsletter-form">
       <HyperviewNewsletterFormFields baseUrl={baseUrl} />
     </Form>
@@ -67,41 +81,86 @@ export const newsletterCardStyles = () => (
       id="newsletter-card"
       backgroundColor="#e0f2fe"
       borderRadius={12}
-      padding={20}
-      flexDirection="column"
-      gap={14}
-      marginBottom={24}
+      borderWidth={1}
+      borderColor="#bae6fd"
+      padding={16}
+      gap={16}
     />
     <Style
-      id="newsletter-title"
-      fontSize={16}
-      fontWeight="700"
-      color="#111111"
+      id="newsletter-header"
+      flexDirection="row"
+      alignItems="flex-start"
+      gap={12}
+    />
+    <Style
+      id="newsletter-icon-wrap"
+      width={40}
+      height={40}
+      borderRadius={20}
+      backgroundColor="#ffffff"
+      alignItems="center"
+      justifyContent="center"
+      borderWidth={1}
+      borderColor="#bae6fd"
+      flexShrink={0}
+    />
+    <Style
+      id="newsletter-icon"
+      fontSize={18}
+      color="#0099cc"
       textAlign="center"
+    />
+    <Style id="newsletter-copy" flex={1} gap={4} />
+    <Style
+      id="newsletter-heading"
+      fontSize={15}
+      fontWeight="600"
+      color="#111111"
+    />
+    <Style
+      id="newsletter-subheading"
+      fontSize={13}
+      color="#444444"
+      lineHeight={18}
+    />
+    <Style
+      id="newsletter-form-row"
+      flexDirection="row"
+      alignItems="center"
+      gap={8}
     />
     <Style
       id="newsletter-input"
+      flex={1}
       borderWidth={1}
-      borderColor="#bbb"
+      borderColor="#d4d4d4"
       borderRadius={8}
-      padding={10}
-      fontSize={15}
+      paddingTop={10}
+      paddingBottom={10}
+      paddingLeft={12}
+      paddingRight={12}
+      fontSize={14}
       backgroundColor="#ffffff"
-      marginBottom={10}
+      minHeight={40}
     />
     <Style
       id="newsletter-btn"
-      backgroundColor="#111111"
+      backgroundColor="#0099cc"
       borderRadius={8}
-      paddingTop={12}
-      paddingBottom={12}
+      paddingTop={10}
+      paddingBottom={10}
+      paddingLeft={16}
+      paddingRight={16}
       alignItems="center"
+      justifyContent="center"
+      minHeight={40}
+      flexShrink={0}
     />
     <Style
       id="newsletter-btn-label"
       color="#ffffff"
       fontWeight="600"
-      fontSize={15}
+      fontSize={14}
     />
   </>
 );

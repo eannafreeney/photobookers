@@ -25,6 +25,7 @@ import { registerClaimSignupForm } from "../features/claims/client/claimSignUpFo
 import { registerUserProfileImageForm } from "../features/app/client/userProfileImageForm";
 import { registerCommentForm } from "../features/api/client/commentForm";
 import { registerHeroCarousel } from "./components/heroCarousel";
+import { registerHorizontalScrollGallery } from "./components/horizontalScrollGallery";
 import { registerCountUp } from "../features/app/client/countUp";
 import { registerAlert } from "./components/alert";
 import { registerActivityFeed } from "./components/activityFeed";
@@ -63,6 +64,7 @@ registerClaimSignupForm();
 registerUserProfileImageForm();
 registerCommentForm();
 registerHeroCarousel();
+registerHorizontalScrollGallery();
 registerCountUp();
 registerAlert();
 registerActivityFeed();

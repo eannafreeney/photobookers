@@ -3,13 +3,19 @@ import { toWeekString } from "../../../../../lib/utils";
 import ScheduleButton from "./ScheduleButton";
 import DeleteButton from "./DeleteButton";
 import SendAOTWCreatorEmailButton from "./SendAOTWCreatorEmailButton";
+import { CreatorInterview } from "../../../../../db/schema";
 
 type ArtistOfTheWeekProps = {
   weekStart: Date;
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
+  interview: CreatorInterview | null;
 };
 
-const AOTWCard = ({ weekStart, artistOfTheWeek }: ArtistOfTheWeekProps) => {
+const AOTWCard = ({
+  weekStart,
+  artistOfTheWeek,
+  interview,
+}: ArtistOfTheWeekProps) => {
   const weekKey = toWeekString(weekStart);
   const artist = artistOfTheWeek?.creator ?? null;
 
@@ -21,6 +27,7 @@ const AOTWCard = ({ weekStart, artistOfTheWeek }: ArtistOfTheWeekProps) => {
           weekKey={weekKey}
           artist={artist}
           artistOfTheWeek={artistOfTheWeek}
+          interview={interview}
         />
       ) : (
         <ScheduleButton
@@ -44,12 +51,14 @@ type AOTWCardContentProps = {
     coverUrl: string | null;
   };
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
+  interview: CreatorInterview | null;
 };
 
 const AOTWCardContent = ({
   weekKey,
   artist,
   artistOfTheWeek,
+  interview,
 }: AOTWCardContentProps) => {
   if (!artistOfTheWeek) return <></>;
   return (
@@ -70,6 +79,17 @@ const AOTWCardContent = ({
             artistOfTheWeek={artistOfTheWeek}
             creatorId={artist.id}
           />
+          {interview && (
+            <p class="text-xs text-on-surface">
+              Interview status: {interview.status}
+            </p>
+          )}
+          {artistOfTheWeek.interviewReminderSentAt ? (
+            <p class="text-xs text-on-surface">Interview reminder sent</p>
+          ) : null}
+          {artistOfTheWeek.featureDayEmailSentAt ? (
+            <p class="text-xs text-on-surface">Feature-day email sent</p>
+          ) : null}
         </div>
         <DeleteButton
           action={`/dashboard/admin/planner/artist-of-the-week/${weekKey}`}

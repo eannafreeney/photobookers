@@ -253,6 +253,20 @@
       "when": 1780937673181,
       "tag": "0036_small_white_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1781008532106,
+      "tag": "0037_misty_rachel_grey",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1781009677321,
+      "tag": "0038_solid_reavers",
+      "breakpoints": true
     }
   ]
 }

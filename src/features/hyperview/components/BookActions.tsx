@@ -6,6 +6,9 @@ type Props = {
   book: BookWithGalleryImages;
   baseUrl: string;
   isFavorited: boolean;
+  shareUrl?: string;
+  shareTitle?: string;
+  shareMessage?: string;
 };
 
 export const BookWishlistIcon = ({
@@ -22,7 +25,14 @@ export const BookWishlistIcon = ({
   />
 );
 
-const BookActions = ({ book, baseUrl, isFavorited }: Props) => {
+const BookActions = ({
+  book,
+  baseUrl,
+  isFavorited,
+  shareUrl = `${baseUrl}/books/${book.slug}`,
+  shareTitle = book.title,
+  shareMessage = "Check out this book on Photobookers",
+}: Props) => {
   return (
     <view xmlns="https://hyperview.org/hyperview">
       <View style="book-actions-row">
@@ -46,10 +56,10 @@ const BookActions = ({ book, baseUrl, isFavorited }: Props) => {
             <Text style="book-action-label">Share</Text>
             <Behavior
               action="share"
-              href={`${baseUrl}/books/${book.slug}`}
-              share-url={xmlText(`${baseUrl}/books/${book.slug}`)}
-              share-message={xmlText("Check out this book on Photobookers")}
-              share-title={xmlText(book.title)}
+              href={shareUrl}
+              share-url={xmlText(shareUrl)}
+              share-message={xmlText(shareMessage)}
+              share-title={xmlText(shareTitle)}
               {...(book.coverUrl
                 ? { "share-image": xmlText(book.coverUrl) }
                 : {})}
@@ -115,8 +125,6 @@ export const bookActionsStyles = () => (
       flexDirection="row"
       alignItems="stretch"
       gap={8}
-      marginTop={24}
-      marginBottom={24}
     />
     <Style id="book-action-cell" flex={1} />
     <Style

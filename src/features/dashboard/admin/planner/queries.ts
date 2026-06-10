@@ -7,10 +7,12 @@ import {
 } from "./services";
 import { db } from "../../../../db/client";
 import {
+  type CreatorInterview,
   type NewsletterCampaignStatus,
+  creatorInterviews,
   newsletterCampaigns,
 } from "../../../../db/schema";
-import { and, gte, lte } from "drizzle-orm";
+import { and, desc, gte, inArray, lte } from "drizzle-orm";
 import { getWeekStarts } from "./utils";
 import { toWeekString } from "../../../../lib/utils";
 import { getInstagramPreparedByWeekStart } from "./instagramServices";
@@ -26,6 +28,8 @@ export type PlannerYearData = {
   publisherLoadError: string | null;
   newsletterStatusByWeekStart: Map<string, NewsletterCampaignStatus | null>;
   instagramPreparedByWeekStart: Map<string, boolean>;
+  /** Latest interview per creator featured in this year's planner */
+  interviewByCreatorId: Map<string, CreatorInterview>;
 };
 
 export const loadPlannerYearData = async (
@@ -48,6 +52,11 @@ export const loadPlannerYearData = async (
   const [artistErr, artistMap] = artistResult;
   const [publisherErr, publisherMap] = publisherResult;
 
+  const interviewByCreatorId = await getInterviewsByCreatorIdForPlanner(
+    artistErr ? undefined : (artistMap ?? undefined),
+    publisherErr ? undefined : (publisherMap ?? undefined),
+  );
+
   return {
     botdByDate,
     artistByWeekStart: artistErr ? null : artistMap,
@@ -56,8 +65,39 @@ export const loadPlannerYearData = async (
     publisherLoadError: publisherErr?.reason ?? null,
     newsletterStatusByWeekStart,
     instagramPreparedByWeekStart,
+    interviewByCreatorId,
   };
 };
+
+async function getInterviewsByCreatorIdForPlanner(
+  artistMap: Map<string, ArtistOfTheWeekWithCreator | null> | undefined,
+  publisherMap: Map<string, PublisherOfTheWeekWithCreator | null> | undefined,
+): Promise<Map<string, CreatorInterview>> {
+  const creatorIds = new Set<string>();
+
+  for (const entry of artistMap?.values() ?? []) {
+    if (entry?.creatorId) creatorIds.add(entry.creatorId);
+  }
+  for (const entry of publisherMap?.values() ?? []) {
+    if (entry?.creatorId) creatorIds.add(entry.creatorId);
+  }
+
+  if (creatorIds.size === 0) return new Map();
+
+  const rows = await db.query.creatorInterviews.findMany({
+    where: inArray(creatorInterviews.creatorId, [...creatorIds]),
+    orderBy: [desc(creatorInterviews.invitedAt)],
+  });
+
+  const byCreatorId = new Map<string, CreatorInterview>();
+  for (const row of rows) {
+    if (!byCreatorId.has(row.creatorId)) {
+      byCreatorId.set(row.creatorId, row);
+    }
+  }
+
+  return byCreatorId;
+}
 
 const getNewsletterStatusesByWeekStart = async (
   year: number,

@@ -1,7 +1,15 @@
 import { and, eq, isNotNull, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
-import { books, creatorInterviews, creators } from "../../db/schema";
+import {
+  artistOfTheWeek,
+  bookOfTheDay,
+  books,
+  creatorInterviews,
+  creators,
+  publisherOfTheWeek,
+} from "../../db/schema";
 import { DISCOVER_TAGS } from "../../constants/discover";
+import { toDateString, toWeekStart, toWeekString } from "../../lib/utils";
 
 export type SitemapEntry = {
   loc: string;
@@ -25,6 +33,7 @@ const STATIC_PAGES: Array<
   { loc: "/contact", changefreq: "monthly", priority: 0.4 },
   { loc: "/terms", changefreq: "yearly" as never, priority: 0.2 },
   { loc: "/privacy", changefreq: "yearly" as never, priority: 0.2 },
+  { loc: "/this-week", changefreq: "weekly", priority: 0.8 },
 ];
 
 // Same rule used in getAllCreatorsForBrowse
@@ -47,36 +56,49 @@ function formatLastmod(date: Date | null | undefined): string | undefined {
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {
-  const [bookRows, creatorRows, interviewRows] = await Promise.all([
-    db
-      .select({
-        slug: books.slug,
-        updatedAt: books.updatedAt,
-      })
-      .from(books)
-      .where(publishedBookConditions),
+  const [bookRows, creatorRows, interviewRows, botdRows, aotwRows, potwRows] =
+    await Promise.all([
+      db
+        .select({
+          slug: books.slug,
+          updatedAt: books.updatedAt,
+        })
+        .from(books)
+        .where(publishedBookConditions),
 
-    db
-      .select({
-        slug: creators.slug,
-        updatedAt: creators.updatedAt,
-      })
-      .from(creators)
-      .where(creatorsWithPublishedBooks),
+      db
+        .select({
+          slug: creators.slug,
+          updatedAt: creators.updatedAt,
+        })
+        .from(creators)
+        .where(creatorsWithPublishedBooks),
 
-    db
-      .select({
-        slug: creatorInterviews.creatorSlug,
-        completedAt: creatorInterviews.completedAt,
-      })
-      .from(creatorInterviews)
-      .where(
-        and(
-          eq(creatorInterviews.status, "published"),
-          isNotNull(creatorInterviews.promoImageUrl),
+      db
+        .select({
+          slug: creatorInterviews.creatorSlug,
+          completedAt: creatorInterviews.completedAt,
+        })
+        .from(creatorInterviews)
+        .where(
+          and(
+            eq(creatorInterviews.status, "published"),
+            isNotNull(creatorInterviews.promoImageUrl),
+          ),
         ),
-      ),
-  ]);
+      db.query.bookOfTheDay.findMany({
+        columns: { date: true, updatedAt: true },
+        where: lte(bookOfTheDay.date, new Date()),
+      }),
+      db.query.artistOfTheWeek.findMany({
+        columns: { weekStart: true, updatedAt: true },
+        where: lte(artistOfTheWeek.weekStart, toWeekStart(new Date())),
+      }),
+      db.query.publisherOfTheWeek.findMany({
+        columns: { weekStart: true, updatedAt: true },
+        where: lte(publisherOfTheWeek.weekStart, toWeekStart(new Date())),
+      }),
+    ]);
 
   const staticEntries: SitemapEntry[] = STATIC_PAGES.map((page) => ({
     ...page,
@@ -111,11 +133,35 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     priority: 0.5,
   }));
 
+  const botdEntries: SitemapEntry[] = botdRows.map((row) => ({
+    loc: `/book-of-the-day/${toDateString(row.date)}`,
+    lastmod: formatLastmod(row.updatedAt),
+    changefreq: "monthly",
+    priority: 0.65,
+  }));
+
+  const aotwEntries: SitemapEntry[] = aotwRows.map((row) => ({
+    loc: `/artist-of-the-week/${toWeekString(row.weekStart)}`,
+    lastmod: formatLastmod(row.updatedAt),
+    changefreq: "monthly",
+    priority: 0.6,
+  }));
+
+  const potwEntries: SitemapEntry[] = potwRows.map((row) => ({
+    loc: `/publisher-of-the-week/${toWeekString(row.weekStart)}`,
+    lastmod: formatLastmod(row.updatedAt),
+    changefreq: "monthly",
+    priority: 0.6,
+  }));
+
   return [
     ...staticEntries,
     ...bookEntries,
     ...creatorEntries,
     ...interviewEntries,
     ...tagEntries,
+    ...botdEntries,
+    ...aotwEntries,
+    ...potwEntries,
   ];
 }

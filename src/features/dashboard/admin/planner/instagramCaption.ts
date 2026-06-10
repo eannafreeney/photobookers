@@ -156,6 +156,7 @@ export function buildDefaultInstagramCaption(book: BookForCaption): string {
   const tagLine = formatInstagramHashtags(book.tags);
   if (tagLine) lines.push(tagLine);
 
+  lines.push("", "photobookers.com/this-week");
   lines.push("Link in bio →");
 
   return lines.map((line) => line.trim()).join("\n");

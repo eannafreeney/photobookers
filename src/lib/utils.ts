@@ -57,6 +57,32 @@ export function parseDateString(str: string): Date {
   return date;
 }
 
+function ordinalSuffix(day: number): string {
+  const mod100 = day % 100;
+  if (mod100 >= 11 && mod100 <= 13) return "th";
+  switch (day % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+}
+
+/** Format a UTC date as "8th May 2026". */
+export function formatOrdinalDate(d: Date): string {
+  const date = toUtcStartOfDay(d);
+  const day = date.getUTCDate();
+  const month = date.toLocaleString("en-GB", {
+    month: "long",
+    timeZone: "UTC",
+  });
+  return `${day}${ordinalSuffix(day)} ${month} ${date.getUTCFullYear()}`;
+}
+
 /** Format a Date as "YYYY-MM-DD" using UTC components. */
 export function toDateString(d: Date): string {
   const y = d.getUTCFullYear();
@@ -83,6 +109,13 @@ export function toUtcStartOfDay(d: Date): Date {
   return new Date(
     Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
   );
+}
+
+/** Cap a date at today (UTC) — used so public listings don't reveal future picks. */
+export function capEndOfDayToToday(end: Date): Date {
+  const endDay = toUtcStartOfDay(end);
+  const today = toUtcStartOfDay(new Date());
+  return endDay > today ? today : endDay;
 }
 
 /** Normalize any Date to the Monday (UTC) of its ISO week. */
