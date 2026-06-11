@@ -7,7 +7,6 @@ import { BookWithGalleryImages } from "../types";
 import CommentsSection from "./CommentsSection";
 import ExpandableDescription from "./ExpandableDescription";
 import NewsletterCard from "./NewsletterCard";
-import { toDateString } from "../../../lib/utils";
 import ShareButton from "../../api/components/ShareButton";
 import FeaturedPageHeader from "./FeaturedPageHeader";
 
@@ -54,24 +53,15 @@ const BookOfTheDayDetail = async ({
       <div class="flex justify-center">
         <ShareButton isCircleButton />
       </div>
-
       <div class="flex flex-col gap-8 mx-auto md:max-w-lg">
         {book.description?.trim() ? (
           <ExpandableDescription text={book.description.trim()} />
         ) : null}
-
         <NewsletterCard />
-
-        <SpotlightCreatorLink creator={book.artist} role="Artist" user={user} />
-
+        <SpotlightCreatorLink creator={book.artist} role="Artist" />
         {book.publisher && (
-          <SpotlightCreatorLink
-            creator={book.publisher}
-            role="Publisher"
-            user={user}
-          />
+          <SpotlightCreatorLink creator={book.publisher} role="Publisher" />
         )}
-
         <CommentsSection
           bookId={book.id}
           user={user}
