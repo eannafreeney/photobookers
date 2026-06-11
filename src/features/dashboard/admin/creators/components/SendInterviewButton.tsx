@@ -1,10 +1,10 @@
-import Badge from "../../../../../components/app/Badge";
+import Pill from "../../../../../components/app/Pill";
 import Button from "../../../../../components/app/Button";
 import { Creator } from "../../../../../db/schema";
 
 const SendInterviewButton = ({ creator }: { creator: Creator }) => {
   if (creator.email === null) {
-    return <Badge variant="warning">No Email</Badge>;
+    return <Pill variant="warning">No Email</Pill>;
   }
 
   const id = `send-interview-${creator.id}`;
@@ -12,7 +12,7 @@ const SendInterviewButton = ({ creator }: { creator: Creator }) => {
   if (creator.interviewEmailSent) {
     return (
       <div id={id}>
-        <Badge variant="success">Email Sent</Badge>
+        <Pill variant="success">Email Sent</Pill>
       </div>
     );
   }

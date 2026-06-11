@@ -3,7 +3,7 @@
   themes: autumn;
 }
 
-/* Penguin UI Theme Tokens */
+/* Editorial Theme Tokens — paper, ink, oxblood */
 @theme {
   /* custom breakpoints */
   --breakpoint-sm: 640px;
@@ -14,37 +14,59 @@
   --breakpoint-3xl: 1920px;
 
   --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman",
+    serif;
   --font-logo: "Caveat", ui-sans-serif, system-ui, sans-serif;
 
-  /* light theme */
-  --color-surface: var(--color-white);
-  --color-surface-alt: var(--color-neutral-50);
-  --color-on-surface: var(--color-neutral-600);
-  --color-on-surface-strong: var(--color-neutral-900);
-  --color-on-surface-weak: var(--color-neutral-400);
-  --color-primary: var(--color-black);
-  --color-on-primary: var(--color-neutral-100);
-  --color-secondary: var(--color-neutral-800);
-  --color-on-secondary: var(--color-white);
-  --color-outline: var(--color-neutral-300);
-  --color-outline-strong: var(--color-neutral-800);
+  /* light theme — warm paper & ink */
+  --color-surface: #fbfaf7;
+  --color-surface-alt: #f2efe8;
+  --color-on-surface: #45413a;
+  --color-on-surface-strong: #191613;
+  --color-on-surface-weak: #a39d90;
+  --color-primary: #191613;
+  --color-on-primary: #fbfaf7;
+  --color-secondary: #45413a;
+  --color-on-secondary: #fbfaf7;
+  --color-outline: #e4e0d5;
+  --color-outline-strong: #191613;
+
+  /* editorial accent — oxblood */
+  --color-accent: #a22c29;
+  --color-on-accent: #fbfaf7;
 
   /* shared colors */
-  --color-info: var(--color-sky-500);
+  --color-info: var(--color-sky-600);
   --color-on-info: var(--color-white);
-  --color-success: var(--color-green-500);
+  --color-success: var(--color-green-600);
   --color-on-success: var(--color-white);
-  --color-warning: var(--color-amber-500);
+  --color-warning: var(--color-amber-600);
   --color-on-warning: var(--color-white);
-  --color-danger: var(--color-red-500);
+  --color-danger: var(--color-red-600);
   --color-on-danger: var(--color-white);
 
-  /* border radius */
-  --radius-radius: var(--radius-sm);
+  /* border radius — sharp, print-like */
+  --radius-radius: 0px;
+}
+
+/* uppercase letter-spaced editorial label */
+@utility kicker {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 body {
   font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
 }
 
 [x-cloak] {
@@ -85,7 +107,7 @@ input[type="search"]::-webkit-search-cancel-button {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(251, 250, 247, 0.65);
   z-index: 10;
 }
 
@@ -100,7 +122,7 @@ input[type="search"]::-webkit-search-cancel-button {
   margin-left: calc(var(--loading-size) / -2);
   border: var(--loading-stroke) solid var(--color-outline, rgba(0, 0, 0, 0.15));
   border-radius: 50%;
-  border-top-color: var(--color-primary);
+  border-top-color: var(--color-accent);
   animation: rotate var(--loading-duration) linear infinite;
   z-index: 11;
 }

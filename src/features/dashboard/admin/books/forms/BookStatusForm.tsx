@@ -29,7 +29,11 @@ type FilterButtonProps = {
 const FilterButton = ({ status, value }: FilterButtonProps) => {
   return (
     <button
-      class={`cursor-pointer px-2 py-1 rounded-radius border border-outline ${status === value ? "bg-primary text-on-primary" : ""}`}
+      class={`cursor-pointer px-4 py-1.5 rounded-full border-2 kicker transition-colors ${
+        status === value
+          ? "bg-on-surface-strong text-surface border-on-surface-strong"
+          : "bg-surface text-on-surface-strong border-outline-strong hover:bg-on-surface-strong hover:text-surface"
+      }`}
       name="status"
       value={value}
       aria-pressed={status === value}

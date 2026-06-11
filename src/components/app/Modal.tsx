@@ -13,10 +13,14 @@ const Modal = ({
 
   return (
     <dialog id="modal-root" class="modal z-1" {...alpineAttrs}>
-      <div class="modal-box bg-surface-alt rounded-radius overflow-visible">
+      <div class="modal-box bg-surface rounded-none border border-outline shadow-xl overflow-visible">
         <form method="dialog" class="mb-4">
-          <div class="flex items-center justify-between mb-4">
-            {title && <div class="text-lg font-medium">{title}</div>}
+          <div class="flex items-center justify-between mb-4 border-b border-outline pb-3">
+            {title && (
+              <div class="font-display text-xl text-on-surface-strong">
+                {title}
+              </div>
+            )}
             <button class="btn btn-sm btn-circle btn-ghost cursor-pointer ml-auto">
               <CloseButton />
             </button>

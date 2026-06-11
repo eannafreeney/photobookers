@@ -8,40 +8,30 @@ type Props = {
     | "default"
     | "inverse"
     | "primary"
-    | "secondary";
+    | "secondary"
+    | "accent";
 };
 
 const Badge = ({ children, variant = "default" }: Props) => {
   if (!children) return <></>;
   const badgeVariants = {
-    default: "border-outline text-on-surface",
-    inverse: "border-outline-dark text-on-surface",
-    primary: "border-primary text-primary",
-    secondary: "border-secondary text-secondary",
-    info: "border-info text-info",
-    success: "border-success text-success",
-    warning: "border-warning text-warning",
-    danger: "border-danger text-danger",
-  };
-
-  const badgeInnerVariants = {
-    default: "bg-surface-alt/10",
-    inverse: "bg-surface-dark-alt/10",
-    primary: "bg-primary/10",
-    secondary: "bg-secondary/10",
-    info: "bg-info/10",
-    success: "bg-success/10",
-    warning: "bg-warning/10",
-    danger: "bg-danger/10",
+    default:
+      "border-outline-strong text-on-surface-strong bg-surface hover:bg-surface-alt",
+    inverse: "border-outline-strong text-surface bg-on-surface-strong",
+    primary: "border-primary text-primary bg-primary/5",
+    secondary: "border-secondary text-secondary bg-secondary/5",
+    accent: "border-accent text-accent bg-accent/5",
+    info: "border-info text-info bg-info/10",
+    success: "border-success text-success bg-success/10",
+    warning: "border-warning text-warning bg-warning/10",
+    danger: "border-danger text-danger bg-danger/10",
   };
 
   return (
     <span
-      class={`w-fit inline-flex overflow-hidden rounded-radius border bg-surface shadow-sm text-sm font-medium text-on-surface ${badgeVariants[variant]} `}
+      class={`w-fit inline-flex items-center overflow-hidden border px-2.5 py-1 kicker transition-colors ${badgeVariants[variant]} `}
     >
-      <span class={`px-2 py-1 ${badgeInnerVariants[variant]} `}>
-        {children}
-      </span>
+      {children}
     </span>
   );
 };

@@ -46,7 +46,7 @@ export const Pagination = ({
         >
           {leftArrowIcon}
         </a>
-        <span class="text-sm text-on-surfaces">
+        <span class="kicker text-on-surface">
           {page} of {totalPages}
         </span>
         <a

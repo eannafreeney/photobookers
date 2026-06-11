@@ -1,5 +1,5 @@
 import { BookCardResult } from "../../../constants/queries";
-import MobileCreatorCard from "../../../components/app/MobileCreatorCard";
+import FollowButton from "../../api/components/FollowButton";
 import BooksGrid from "./BooksGrid";
 import CreatorCard from "../../../components/app/CreatorCard";
 import CreatorsGrid from "./CreatorsGrid";
@@ -77,7 +77,17 @@ const CreatorDetailMobile = ({
   creatorsCurrentPage,
 }: CreatorDetailMobileProps) => (
   <div class="flex flex-col gap-4">
-    <MobileCreatorCard creator={creator} user={user} />
+    <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-3">
+      <span class="kicker text-accent">
+        {creator.type === "publisher" ? "Publisher" : "Artist"}
+      </span>
+      <div class="flex items-center justify-between gap-3">
+        <h1 class="font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance">
+          {creator.displayName}
+        </h1>
+        <FollowButton creator={creator} variant="mobile" user={user} />
+      </div>
+    </div>
     <CreatorPageBanner
       bannerUrl={creator.bannerUrl}
       displayName={creator.displayName}
@@ -153,6 +163,14 @@ const CreatorDetailDesktop = ({
   result,
 }: CreatorDetailDesktopProps) => (
   <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4">
+      <span class="kicker text-accent">
+        {creator.type === "publisher" ? "Publisher" : "Artist"}
+      </span>
+      <h1 class="font-display text-4xl md:text-6xl font-medium leading-tight text-on-surface-strong text-balance">
+        {creator.displayName}
+      </h1>
+    </div>
     <CreatorPageBanner
       bannerUrl={creator.bannerUrl}
       displayName={creator.displayName}

@@ -37,9 +37,9 @@ export const tickerItems = [
 
 const SiteFeatures = () => {
   return (
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mx-auto">
-      {tickerItems.map((item) => (
-        <FeatureCard key={item.title} item={item} />
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 mx-auto w-full">
+      {tickerItems.map((item, index) => (
+        <FeatureCard key={item.title} item={item} index={index} />
       ))}
     </div>
   );
@@ -49,16 +49,21 @@ export default SiteFeatures;
 
 const FeatureCard = ({
   item,
+  index,
 }: {
   item: { title: string; icon: ChildType };
+  index: number;
 }) => {
   return (
-    <div class="bg-sky-100 rounded-radius p-4 flex items-center justify-start shadow-sm">
-      <div class="w-full flex items-center gap-4 justify-start">
-        <span class="w-6 h-6 flex items-center justify-center shrink-0">
+    <div class="border-t-2 border-on-surface-strong pt-3 flex items-start gap-4">
+      <span class="kicker text-accent shrink-0 pt-1">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="w-5 h-5 flex items-center justify-center shrink-0 text-on-surface-strong">
           {item.icon}
         </span>
-        <div class="text-md font-semibold text-on-surface-strong min-w-0">
+        <div class="text-sm font-medium text-on-surface-strong min-w-0 text-pretty">
           {item.title}
         </div>
       </div>

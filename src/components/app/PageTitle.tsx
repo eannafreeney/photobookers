@@ -14,7 +14,7 @@ type PageTitleProps = {
 const PageTitle = ({ title, creator, user }: PageTitleProps) => {
   const canEdit = user && creator ? canEditCreator(user, creator) : false;
   return (
-    <div class="hidden md:flex items-center gap-4 mb-8">
+    <div class="hidden md:flex items-center gap-4 mb-8 border-b border-outline pb-4">
       {creator?.coverUrl && (
         <div class="relative">
           <Avatar
@@ -31,7 +31,7 @@ const PageTitle = ({ title, creator, user }: PageTitleProps) => {
         </div>
       )}
       <div class="flex flex-col gap-0.5">
-        <div class="text-xl md:text-4xl font-medium -mb-1">
+        <div class="font-display text-3xl md:text-5xl font-medium text-on-surface-strong -mb-1">
           {creator?.displayName ?? title}
         </div>
       </div>

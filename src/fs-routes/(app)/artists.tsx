@@ -4,7 +4,7 @@ import Page from "../../components/layouts/Page";
 import AppLayout from "../../components/layouts/AppLayout";
 import InfoPage from "../../pages/InfoPage";
 import { getAllCreatorsByType } from "../../features/app/services";
-import PageTitle from "../../components/app/PageTitle";
+import PageHeader from "../../components/app/PageHeader";
 import CreatorsCircle from "../../features/app/components/CreatorsCircle";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import { InfiniteScroll } from "../../components/app/InfiniteScroll";
@@ -35,7 +35,11 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <PageTitle />
+        <PageHeader
+          kicker="The People"
+          title="Artists"
+          intro="The photographers and artists behind the books — browse their profiles and explore their published work."
+        />
         <div x-data>
           <div
             id={targetId}

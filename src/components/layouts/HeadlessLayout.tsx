@@ -35,7 +35,7 @@ const HeadlessLayout = ({
 export default HeadlessLayout;
 
 const Navbar = () => (
-  <nav class="flex items-center justify-between bg-surface-alt border-b border-outline gap-4 px-6 py-4">
+  <nav class="flex items-center justify-between bg-surface border-b border-on-surface-strong gap-4 px-6 py-4">
     <BrandLogo />
   </nav>
 );

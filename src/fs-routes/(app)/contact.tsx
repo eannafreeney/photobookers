@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
-import SectionTitle from "../../components/app/SectionTitle";
+import PageHeader from "../../components/app/PageHeader";
 import ContactForm from "../../features/app/forms/ContactForm";
 import { createRoute } from "hono-fsr";
 import { contactFormSchema } from "../../features/app/schema";
@@ -28,11 +28,14 @@ export const GET = createRoute(async (c: Context) => {
       currentPath={currentPath}
     >
       <Page>
-        <SectionTitle>Contact</SectionTitle>
-        <p class="mb-6 text-on-surface-weak">
-          Send us a message and we’ll get back to you as soon as we can.
-        </p>
-        <ContactForm />
+        <PageHeader
+          kicker="Get in Touch"
+          title="Contact"
+          intro="Send us a message and we’ll get back to you as soon as we can."
+        />
+        <div class="mx-auto w-full max-w-2xl">
+          <ContactForm />
+        </div>
       </Page>
     </AppLayout>,
   );

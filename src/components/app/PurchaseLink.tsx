@@ -9,8 +9,8 @@ const PurchaseLink = ({ purchaseLink }: PurchaseLinkProps) => {
   if (!purchaseLink) return <></>;
   return (
     <Link href={purchaseLink} target="_blank">
-      <Button variant="solid" color="primary" width="md">
-        <span>See More</span>
+      <Button variant="solid" color="accent" width="lg">
+        <span>See More →</span>
       </Button>
     </Link>
   );

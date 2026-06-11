@@ -21,8 +21,8 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
 
   return (
     <nav
-      x-bind:class="scrolled ? 'py-2 shadow-md' : 'py-4 shadow-none'"
-      class="flex items-center justify-between bg-surface border-b border-outline gap-4 px-6 transition-all duration-200 ease-in-out sticky top-0 z-50"
+      x-bind:class="scrolled ? 'py-2 shadow-sm' : 'py-4 shadow-none'"
+      class="flex items-center justify-between bg-surface border-b border-on-surface-strong gap-4 px-6 transition-all duration-200 ease-in-out sticky top-0 z-50"
       {...alpineAttrs}
     >
       <BrandLogo />
@@ -30,17 +30,17 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
         <AdminEditButton href={adminEditHref} user={user} />
         {user && (
           <>
-            <NavLink href="/featured" currentPath={currentPath}>
+            <NavLink href="/featured" currentPath={currentPath} variant="nav">
               Discover
             </NavLink>
-            <NavLink href="/feed" currentPath={currentPath}>
+            <NavLink href="/feed" currentPath={currentPath} variant="nav">
               Feed
             </NavLink>
-            <NavLink href="/library" currentPath={currentPath}>
+            <NavLink href="/library" currentPath={currentPath} variant="nav">
               Library
             </NavLink>
             <FeatureGuard flagName="messages">
-              <NavLink href="/messages" currentPath={currentPath}>
+              <NavLink href="/messages" currentPath={currentPath} variant="nav">
                 Messages
               </NavLink>
             </FeatureGuard>

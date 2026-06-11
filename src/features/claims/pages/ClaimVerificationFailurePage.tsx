@@ -18,7 +18,7 @@ const ClaimVerificationFailurePage = ({
     <AppLayout title="Verification Failed" currentPath={currentPath}>
       <Page>
         <div class="flex flex-col gap-4 items-center justify-center min-h-screen">
-          <h2 class="text-2xl font-bold mb-4">❌ Verification Failed</h2>
+          <h2 class="font-display text-3xl font-medium text-on-surface-strong mb-4">❌ Verification Failed</h2>
           <p class="mb-2">{error || "Could not verify your website."}</p>
           <p class="text-sm text-gray-600 mb-4">
             Make sure you've added the code <strong>{verificationCode}</strong>{" "}

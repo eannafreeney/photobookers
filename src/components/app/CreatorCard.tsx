@@ -44,7 +44,7 @@ const CreatorCard = async ({
       )}
       <Card>
         {showHeader && (
-          <div class="p-2 flex items-center justify-between h-10">
+          <div class="px-3 py-2 flex items-center justify-between h-10">
             <CardCreatorCard
               creator={creator ?? null}
               maxDisplayNameLength={30}

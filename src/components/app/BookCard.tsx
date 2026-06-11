@@ -30,13 +30,15 @@ const BookCard = ({
   return (
     <Card className={clsx(className ?? "min-w-[200px] max-w-[24rem]")}>
       <Show when={currentCreatorId !== book.artist?.id}>
-        <div class="p-2 flex items-center justify-between h-10">
+        <div class="px-3 py-2 flex items-center justify-between h-10">
           <CardCreatorCard
             creator={book.artist ?? null}
             maxDisplayNameLength={book.releaseDate ? maxDisplayNameLength : 30}
           />
           {displayDate ? (
-            <Card.Text>{formatDate(displayDate)}</Card.Text>
+            <span class="kicker text-on-surface-weak whitespace-nowrap">
+              {formatDate(displayDate)}
+            </span>
           ) : null}
         </div>
       </Show>
@@ -54,7 +56,7 @@ const BookCard = ({
             <Show
               when={!!book.publisher && currentCreatorId !== book.publisher?.id}
             >
-              <p class="text-xs text-on-surface-weak">
+              <p class="kicker text-on-surface-weak mt-1">
                 {book.publisher?.displayName ?? ""}
               </p>
             </Show>

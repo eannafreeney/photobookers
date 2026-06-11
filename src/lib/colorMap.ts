@@ -1,4 +1,10 @@
 export const colorMap = {
+  accent: {
+    solid:
+      "bg-accent border border-accent text-on-accent focus-visible:outline-accent",
+    outline: "border border-accent text-accent",
+    ghost: "bg-transparent text-accent",
+  },
   primary: {
     solid:
       "bg-primary border border-primary text-on-primary focus-visible:outline-primary",

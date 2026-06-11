@@ -1,5 +1,5 @@
 import { CreatorStatus } from "../../../../db/schema";
-import Badge from "../../../../components/app/Badge";
+import Pill from "../../../../components/app/Pill";
 import { capitalize } from "../../../../utils";
 
 type Props = {
@@ -7,7 +7,7 @@ type Props = {
 };
 
 const CreatorStatusBadge = ({ creatorStatus }: Props) => {
-  const badgeVariants = {
+  const pillVariants = {
     stub: "warning",
     verified: "success",
     suspended: "info",
@@ -15,9 +15,9 @@ const CreatorStatusBadge = ({ creatorStatus }: Props) => {
   } as const;
 
   return (
-    <Badge variant={badgeVariants[creatorStatus]}>
+    <Pill variant={pillVariants[creatorStatus]}>
       {capitalize(creatorStatus)}
-    </Badge>
+    </Pill>
   );
 };
 

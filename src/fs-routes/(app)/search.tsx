@@ -18,7 +18,7 @@ export const GET = createRoute(async (c: Context) => {
     return c.html(
       <div
         id={isMobile ? "search-results-mobile" : "search-results"}
-        class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11  md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border shadow-sm border-outline bg-surface-alt "
+        class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11  md:h-auto md:w-fit md:min-w-64 lg:min-w-96 overflow-hidden border shadow-lg border-outline bg-surface "
         x-data="{ isOpen: true }"
         x-show="isOpen"
       >

@@ -10,9 +10,10 @@ const Sidebar = ({
   return (
     <div class="flex min-h-[calc(100dvh-5.5rem)] w-[calc(100%+2rem)] max-w-[100vw] -mx-4 flex-col items-stretch sm:flex-row">
       <aside
-        class="flex shrink-0 flex-col border-b border-outline bg-surface px-4 py-4 sm:w-56 sm:border-b-0 sm:border-r sm:px-4 sm:py-6 sm:overflow-y-auto"
+        class="flex shrink-0 flex-col border-b border-outline bg-surface-alt px-4 py-4 sm:w-56 sm:border-b-0 sm:border-r sm:px-4 sm:py-6 sm:overflow-y-auto"
         aria-label="Admin navigation"
       >
+        <span class="kicker text-accent mb-4 hidden sm:block">Admin</span>
         <AdminNavTabs currentPath={currentPath} />
       </aside>
       {hasMain ? (

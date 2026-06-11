@@ -9,7 +9,7 @@ type BreadcrumbsProps = {
 
 const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
   return (
-    <nav class="text-sm font-medium text-on-surface">
+    <nav class="kicker text-on-surface">
       <ol class="flex flex-wrap items-center gap-1">
         {items.map((item, index) => {
           if (index >= items.length - 1) {

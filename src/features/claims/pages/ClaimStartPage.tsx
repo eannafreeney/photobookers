@@ -59,7 +59,7 @@ const LoggedInClaimForm = ({
   creatorWebsite: string;
 }) => (
   <div class="flex flex-col gap-4">
-    <h1 class="text-2xl font-bold">Claim creator profile</h1>
+    <h1 class="font-display text-3xl font-medium text-on-surface-strong">Claim creator profile</h1>
     <form
       method="post"
       action={claimStartPath(creatorId)}
@@ -125,7 +125,7 @@ const LoggedOutSignupForm = ({
 
   return (
     <div id="register-form" class="flex flex-col gap-2">
-      <h1 class="text-2xl font-bold mb-2">Claim this creator profile</h1>
+      <h1 class="font-display text-3xl font-medium text-on-surface-strong mb-2">Claim this creator profile</h1>
       <p class="text-sm text-gray-600 mb-2">
         Already have an account?{" "}
         <Link href={loginHref}>

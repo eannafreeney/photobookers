@@ -1,4 +1,4 @@
-import Badge from "../../../../../components/app/Badge";
+import Pill from "../../../../../components/app/Pill";
 import Button from "../../../../../components/app/Button";
 import { Creator } from "../../../../../db/schema";
 
@@ -10,12 +10,12 @@ const SendWelcomeEmailButton = ({ creator }: { creator: Creator }) => {
   if (creator.welcomeEmailSent) {
     return (
       <div id={id}>
-        <Badge variant="success">Email Sent</Badge>
+        <Pill variant="success">Email Sent</Pill>
       </div>
     );
   }
 
-  if (!creator.email) return <Badge variant="danger">No email</Badge>;
+  if (!creator.email) return <Pill variant="danger">No email</Pill>;
 
   const alpineAttrs = {
     "x-target": id,

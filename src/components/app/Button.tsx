@@ -4,8 +4,8 @@ import { PropsWithChildren } from "hono/jsx";
 
 const button = tv({
   base: `
-    whitespace-nowrap rounded-radius px-4 py-2
-    text-sm font-medium tracking-wide text-center shadow-sm
+    whitespace-nowrap rounded-radius px-5 py-2.5
+    text-xs font-semibold uppercase tracking-[0.16em] text-center
     transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2
     active:opacity-100 active:outline-offset-0 disabled:opacity-25 disabled:cursor-not-allowed cursor-pointer
   `,

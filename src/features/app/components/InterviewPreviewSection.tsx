@@ -28,8 +28,10 @@ const InterviewPreviewSection = ({
   const teaser = interview.answers?.q1?.trim();
 
   return (
-    <section class="flex flex-col gap-4">
-      <SectionTitle>Interview</SectionTitle>
+    <section class="flex flex-col gap-4 border-t-2 border-on-surface-strong pt-3 mt-6">
+      <SectionTitle className="mb-0" kicker="In Conversation">
+        Interview
+      </SectionTitle>
       {interview.promoImageUrl ? (
         <InterviewCard
           interview={interview}
@@ -43,7 +45,10 @@ const InterviewPreviewSection = ({
         </p>
       ) : null}
       <p class="text-sm">
-        <a href={interviewUrl} class="underline">
+        <a
+          href={interviewUrl}
+          class="underline decoration-accent underline-offset-4 hover:text-accent transition-colors"
+        >
           Read the full interview with {interview.creator.displayName}
         </a>
       </p>

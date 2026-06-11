@@ -4,7 +4,7 @@ import Page from "../../components/layouts/Page";
 import BooksGrid from "../../features/app/components/BooksGrid";
 import AppLayout from "../../components/layouts/AppLayout";
 import { getLatestBooks } from "../../features/app/services";
-import SectionTitle from "../../components/app/SectionTitle";
+import PageHeader from "../../components/app/PageHeader";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
 
 export const GET = createRoute(async (c) => {
@@ -29,7 +29,11 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <SectionTitle>All Books</SectionTitle>
+        <PageHeader
+          kicker="The Catalogue"
+          title="All Books"
+          intro="Every photobook in the archive, newest first. Artists and publishers from around the world."
+        />
         <BooksGrid
           isInfiniteScroll
           user={user}

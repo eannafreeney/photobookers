@@ -6,7 +6,7 @@ import BooksGrid from "../../features/app/components/BooksGrid";
 import LoggedOutScreen from "../../features/app/components/LoggedOutScreen";
 import { getBooksInWishlist } from "../../features/app/services";
 import InfoPage from "../../pages/InfoPage";
-import SectionTitle from "../../components/app/SectionTitle";
+import PageHeader from "../../components/app/PageHeader";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -66,7 +66,11 @@ export const GET = createRoute(async (c) => {
           class="flex flex-col gap-4"
           {...alpineAttrs}
         >
-          <SectionTitle>Favorited Books</SectionTitle>
+          <PageHeader
+            kicker="Your Library"
+            title="Favorited Books"
+            intro="The books you’ve favorited, all in one place."
+          />
           <BooksGrid
             user={user}
             currentPath={currentPath}

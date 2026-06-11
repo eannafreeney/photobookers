@@ -24,7 +24,12 @@ export const GET = createRoute(async (c: Context) => {
     <HeadlessLayout title="Sign In" flash={flash}>
       <div class="min-h-screen flex items-center justify-center bg-surface px-4">
         <div class="w-96">
-          <h2 class="text-2xl font-bold mb-4">Sign In</h2>
+          <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4 mb-6">
+            <span class="kicker text-accent">Welcome Back</span>
+            <h2 class="font-display text-3xl font-medium text-on-surface-strong">
+              Sign In
+            </h2>
+          </div>
           <LoginForm redirectUrl={redirectUrl} />
         </div>
       </div>

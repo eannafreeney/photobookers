@@ -34,11 +34,11 @@ const TextArea = ({
         required={required}
       />
       <label
-        class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary
+        class="bg-surface rounded-radius border border-outline hover:border-outline-strong transition-colors text-on-surface -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-accent
 "
       >
         <textarea
-          class="w-full bg-surface-alt px-2.5 py-2 text-base md:text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
+          class="w-full bg-surface px-2.5 py-2 text-base md:text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
           name={name.replace("form.", "")}
           placeholder={placeholder}
           rows={minRows}

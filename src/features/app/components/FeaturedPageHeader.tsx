@@ -11,14 +11,12 @@ const FeaturedPageHeader = ({ title, name, weekStart, location }: Props) => {
   const meta = [location, toWeekString(weekStart)].filter(Boolean).join(" · ");
 
   return (
-    <header class="flex flex-col items-center gap-3 text-center">
-      <div class="flex flex-col items-center gap-1">
-        <p class="text-md font-medium text-on-surface-strong">{title}</p>
-        <h1 class="m-0 text-balance text-2xl font-semibold text-on-surface-strong">
-          {name}
-        </h1>
-      </div>
-      {meta ? <p class="text-sm text-on-surface">{meta}</p> : null}
+    <header class="flex flex-col items-center gap-3 text-center border-b-2 border-on-surface-strong pb-6">
+      <p class="kicker text-accent">{title}</p>
+      <h1 class="m-0 text-balance font-display text-3xl md:text-5xl font-medium leading-tight text-on-surface-strong">
+        {name}
+      </h1>
+      {meta ? <p class="kicker text-on-surface-weak">{meta}</p> : null}
     </header>
   );
 };

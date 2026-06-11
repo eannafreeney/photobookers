@@ -6,7 +6,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
   return (
     <nav
       id="nav-tabs"
-      class="flex flex-col md:flex-row items-center justify-center bg-surface-alt gap-4 mb-8 mt-4"
+      class="flex flex-col md:flex-row items-center justify-center border-b border-outline gap-4 mb-8 mt-4"
     >
       <NavLink href="/dashboard/books" currentPath={currentPath}>
         {booksIcon}
@@ -34,10 +34,10 @@ const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
         href={href}
         prefetch="intent"
         class={clsx(
-          "flex items-center gap-2 border-b-2 border-transparent px-4 py-1 text-sm",
+          "flex items-center gap-2 border-b-2 border-transparent md:-mb-px px-4 py-2 kicker transition-colors",
           isActive
-            ? "font-bold text-primary border-primary border-b-2 border-b-primary"
-            : "text-on-surface font-medium hover:border-b-outline-strong hover:text-on-surface-strong",
+            ? "text-on-surface-strong border-b-accent"
+            : "text-on-surface-weak hover:text-on-surface-strong",
         )}
       >
         {children}

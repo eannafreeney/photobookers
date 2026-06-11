@@ -48,9 +48,12 @@ export const GET = createRoute(async (c) => {
     >
       <Page>
         <div id={targetId} class="flex flex-col gap-4 md:w-[600px] mx-auto">
-          <h1 class="text-xl font-semibold">
-            Updates from creators you follow
-          </h1>
+          <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4">
+            <span class="kicker text-accent">Your Messages</span>
+            <h1 class="font-display text-3xl font-medium text-on-surface-strong">
+              Updates from creators you follow
+            </h1>
+          </div>
           {messages.length === 0 ? (
             <p class="text-on-surface">
               Messages from creators you follow will appear here.

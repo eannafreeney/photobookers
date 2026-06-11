@@ -4,7 +4,7 @@ import Page from "../../components/layouts/Page";
 import AppLayout from "../../components/layouts/AppLayout";
 import InfoPage from "../../pages/InfoPage";
 import { getAllCreatorsByType } from "../../features/app/services";
-import PageTitle from "../../components/app/PageTitle";
+import PageHeader from "../../components/app/PageHeader";
 import CreatorsCircle from "../../features/app/components/CreatorsCircle";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import { InfiniteScroll } from "../../components/app/InfiniteScroll";
@@ -39,7 +39,11 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <PageTitle />
+        <PageHeader
+          kicker="The Houses"
+          title="Publishers"
+          intro="Independent presses and publishing houses — browse their catalogues and find where to buy."
+        />
         <div x-data>
           <div
             id={targetId}

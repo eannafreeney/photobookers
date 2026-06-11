@@ -12,7 +12,7 @@ type CardProps = {
 const Card = ({ children, className }: CardProps) => (
   <div
     class={clsx(
-      "group flex flex-col rounded-radius overflow-hidden border border-outline bg-surface text-on-surface shadow-md",
+      "group flex flex-col rounded-radius overflow-hidden border border-outline bg-surface text-on-surface hover:border-outline-strong transition-colors duration-300",
       className,
     )}
   >
@@ -34,7 +34,9 @@ type BodyProps = {
 };
 
 const CardBody = ({ children, gap = "2" }: BodyProps) => (
-  <div class={`flex flex-col gap-${gap} p-4 justify-between`}>{children}</div>
+  <div class={`flex flex-col gap-${gap} px-3 py-3 justify-between`}>
+    {children}
+  </div>
 );
 
 type CardImageProps = {
@@ -58,7 +60,7 @@ const CardImage = ({
   <figure
     x-data="imageOrientation()"
     class={clsx(
-      "relative w-full overflow-hidden bg-white shadow-sm",
+      "relative w-full overflow-hidden bg-surface-alt",
       aspectSquare ? "aspect-square" : "aspect-[1]",
     )}
     {...(coverLandscapeAndSquare && { "data-cover-square": "true" })}
@@ -92,7 +94,7 @@ type TitleProps = {
 };
 
 const CardTitle = ({ children }: TitleProps) => (
-  <h3 class="text-balance text-md font-semibold text-on-surface-strong">
+  <h3 class="text-balance font-display text-lg font-medium leading-snug text-on-surface-strong group-hover:underline decoration-accent decoration-1 underline-offset-4">
     {children}
   </h3>
 );
@@ -147,7 +149,7 @@ const CardTags = ({ tags }: TagsProps) => {
   return (
     <div class="flex items-center flex-wrap gap-2">
       {tags.slice(0, 3).map((tag) => (
-        <span class="w-fit inline-flex overflow-hidden rounded-radius border border-outline bg-surface text-xs font-medium text-on-surface px-2 py-1">
+        <span class="w-fit inline-flex overflow-hidden border border-outline-strong bg-surface kicker text-on-surface-strong px-2.5 py-1">
           {capitalize(tag)}
         </span>
       ))}

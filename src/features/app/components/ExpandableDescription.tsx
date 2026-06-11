@@ -25,7 +25,7 @@ const ExpandableDescription = ({
   return (
     <div x-data="{ expanded: false }" class="flex flex-col gap-2">
       <p
-        class="text-pretty text-sm text-on-surface whitespace-pre-wrap"
+        class="text-pretty text-base leading-relaxed text-on-surface whitespace-pre-wrap first-letter:font-display first-letter:text-5xl first-letter:font-medium first-letter:float-left first-letter:mr-2 first-letter:leading-[0.85] first-letter:text-on-surface-strong"
         x-show="!expanded"
       >
         {preview}
@@ -34,7 +34,7 @@ const ExpandableDescription = ({
         <p
           x-cloak
           x-show="expanded"
-          class="text-pretty text-sm text-on-surface whitespace-pre-wrap"
+          class="text-pretty text-base leading-relaxed text-on-surface whitespace-pre-wrap first-letter:font-display first-letter:text-5xl first-letter:font-medium first-letter:float-left first-letter:mr-2 first-letter:leading-[0.85] first-letter:text-on-surface-strong"
         >
           {text}
         </p>
@@ -42,7 +42,7 @@ const ExpandableDescription = ({
       {needsTruncate ? (
         <button
           type="button"
-          class="self-start text-sm text-on-surface-strong underline cursor-pointer"
+          class="self-start kicker text-accent underline underline-offset-4 cursor-pointer"
           x-on:click="expanded = !expanded"
           x-text="expanded ? 'Show less' : 'See more'"
         />

@@ -6,7 +6,7 @@ import InfoPage from "../../../pages/InfoPage";
 import { getPublishedInterviews } from "../../../features/app/services";
 import GridPanel from "../../../components/app/GridPanel";
 import InterviewCard from "../../../features/app/components/InterviewCard";
-import SectionTitle from "../../../components/app/SectionTitle";
+import PageHeader from "../../../components/app/PageHeader";
 import { canonicalUrl, pageTitle } from "../../../lib/seo";
 
 export const GET = createRoute(async (c) => {
@@ -31,7 +31,11 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <SectionTitle>All Interviews</SectionTitle>
+        <PageHeader
+          kicker="In Conversation"
+          title="Interviews"
+          intro="Conversations with the artists and publishers shaping the photobook world."
+        />
         <GridPanel>
           {interviews.map((interview) => (
             <InterviewCard

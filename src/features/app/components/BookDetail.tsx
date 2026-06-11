@@ -97,11 +97,12 @@ const DetailDesktop = ({
 
         <div class="w-2/5 h-full overflow-y-auto pr-2">
           <div class="mb-4 flex flex-col gap-4">
-            <div class="flex flex-col gap-0">
-              <h1 class="text-balance text-lg font-semibold text-on-surface-strong">
+            <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4">
+              <span class="kicker text-accent">Photobook</span>
+              <h1 class="text-balance font-display text-3xl xl:text-5xl font-medium leading-tight text-on-surface-strong">
                 {book.title}
               </h1>
-              <p class="text-balance text-lg font-normal text-on-surface-strong">
+              <p class="text-balance text-base text-on-surface">
                 {book.artist?.displayName}
               </p>
             </div>
@@ -169,11 +170,12 @@ const DetailMobile = ({
           <PageBleed>
             <CarouselMobile images={galleryImages} />
           </PageBleed>
-          <div class="flex flex-col gap-0">
-            <h1 class="text-balance text-lg font-semibold text-on-surface-strong">
+          <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-3">
+            <span class="kicker text-accent">Photobook</span>
+            <h1 class="text-balance font-display text-3xl font-medium leading-tight text-on-surface-strong">
               {book.title}
             </h1>
-            <p class="text-balance text-md font-normal text-on-surface-strong">
+            <p class="text-balance text-base text-on-surface">
               {book.artist?.displayName}
             </p>
           </div>

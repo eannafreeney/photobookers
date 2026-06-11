@@ -52,6 +52,7 @@ type NavLinkProps = {
   children: string;
   currentPath?: string | null;
   xTarget?: string;
+  variant?: "nav" | "menu";
   [key: string]: any;
 };
 
@@ -60,17 +61,38 @@ export const NavLink = ({
   children,
   currentPath,
   xTarget,
+  variant = "menu",
   ...props
 }: NavLinkProps) => {
   const isActive = currentPath === href;
+
+  if (variant === "nav") {
+    return (
+      <li class="list-none">
+        <a
+          href={href}
+          class={clsx(
+            "block px-1 py-2 kicker transition-colors border-b-2",
+            isActive
+              ? "text-on-surface-strong border-accent"
+              : "text-on-surface border-transparent hover:text-on-surface-strong hover:border-outline",
+          )}
+          x-target={xTarget}
+          {...props}
+        >
+          {children}
+        </a>
+      </li>
+    );
+  }
 
   return (
     <li class="list-none">
       <a
         href={href}
         class={clsx(
-          "block bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-surface-dark-alt/5 hover:text-on-surface-strong focus-visible:bg-surface-dark-alt/10 focus-visible:text-on-surface-strong focus-visible:outline-hidden",
-          isActive ? "text-primary" : "text-on-surface",
+          "block bg-surface px-4 py-2 text-sm hover:bg-surface-alt hover:text-on-surface-strong focus-visible:bg-surface-alt focus-visible:text-on-surface-strong focus-visible:outline-hidden",
+          isActive ? "text-accent" : "text-on-surface",
         )}
         x-target={xTarget}
         {...props}
@@ -97,7 +119,7 @@ const DropDownMenu = ({
   return (
     <ul
       id="userMenu"
-      class="absolute z-20 right-0 top-12 flex w-fit min-w-48 flex-col overflow-hidden rounded-radius border border-outline bg-surface-alt py-1.5"
+      class="absolute z-20 right-0 top-12 flex w-fit min-w-48 flex-col overflow-hidden border border-outline bg-surface shadow-lg py-1.5"
       {...alpineAttrs}
     >
       <li class="border-b border-outline dark:border-outline-dark">
@@ -167,7 +189,7 @@ const DropDownMenu = ({
             method="post"
           >
             <button
-              class="block bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-surface-dark-alt/5 hover:text-on-surface-strong focus-visible:bg-surface-dark-alt/10 focus-visible:text-on-surface-strong focus-visible:outline-hidden cursor-pointer w-full text-left"
+              class="block bg-surface px-4 py-2 text-sm text-on-surface hover:bg-surface-alt hover:text-on-surface-strong focus-visible:bg-surface-alt focus-visible:text-on-surface-strong focus-visible:outline-hidden cursor-pointer w-full text-left"
               type="submit"
             >
               Logout

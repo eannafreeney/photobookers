@@ -19,7 +19,7 @@ const ClaimModal = ({ creatorId, user, creatorWebsite }: Props) => {
 
   return (
     <div class="flex flex-col gap-4 p-2">
-      <h2 class="text-2xl font-bold">Claim Creator Profile</h2>
+      <h2 class="font-display text-3xl font-medium text-on-surface-strong">Claim Creator Profile</h2>
 
       <form method="post" action={`/claims/${creatorId}`} {...alpineAttrs}>
         <div class="flex flex-col gap-3 mb-4">

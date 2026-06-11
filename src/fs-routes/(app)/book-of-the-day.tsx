@@ -3,9 +3,8 @@ import { formatDate, getUser } from "../../utils";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
 import { getRecentBooksOfTheDay } from "../../features/app/BOTDServices";
-import SectionTitle from "../../components/app/SectionTitle";
-import { toDateString } from "../../lib/utils";
-import BookCard from "../../components/app/BookCard";
+import PageHeader from "../../components/app/PageHeader";
+import SpotlightCard from "../../components/app/SpotlightCard";
 import InfoPage from "../../pages/InfoPage";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import { getIsMobile } from "../../lib/device";
@@ -42,14 +41,17 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <SectionTitle className="mb-0">Books of the Day</SectionTitle>
+        <PageHeader kicker="The Archive" title="Books of the Day" intro="One photobook, every day. Browse past selections." />
         <GridPanel id={targetId} isFullWidth xMerge="append">
           {botdEntries.map((entry) => (
             <ScrollReveal>
-              <BookCard
-                book={entry.book}
-                user={user}
-                featureDate={entry.date}
+              <SpotlightCard
+                href={botdPath(entry.date)}
+                imageUrl={entry.book.coverUrl ?? ""}
+                imageAlt={entry.book.title}
+                dateLabel={formatDate(entry.date)}
+                title={entry.book.title}
+                subtitle={entry.book.artist?.displayName}
               />
             </ScrollReveal>
           ))}

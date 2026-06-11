@@ -17,7 +17,7 @@ const Select = ({ label, options, required = false, name }: SelectProps) => {
         id={name}
         name={name.replace("form.", "")}
         x-model={name}
-        class="w-full appearance-none rounded-radius border border-outline bg-surface-alt px-4 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-75"
+        class="w-full appearance-none rounded-radius border border-outline bg-surface px-4 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-75"
       >
         <option value="">Select...</option>
         {options.map((option: any) => (

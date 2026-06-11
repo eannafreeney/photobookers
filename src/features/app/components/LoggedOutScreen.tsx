@@ -31,8 +31,11 @@ const LoggedOutScreen = ({
     >
       <Page>
         <NavTabs currentPath={currentPath} />
-        <div class="flex flex-col gap-4 justify-center items-center mt-8">
-          <span>Login or register to {description}.</span>
+        <div class="flex flex-col gap-4 justify-center items-center mt-8 text-center">
+          <span class="kicker text-accent">Members Only</span>
+          <span class="font-display text-2xl font-medium text-on-surface-strong text-balance">
+            Login or register to {description}.
+          </span>
           {children}
           <div class="flex gap-2 justify-center items-center">
             <a href="/auth/login">

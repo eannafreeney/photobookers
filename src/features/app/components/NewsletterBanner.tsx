@@ -10,14 +10,17 @@ const NewsletterBanner = () => {
       <div
         x-show="showBanner"
         {...fadeTransition}
-        class="relative flex border-outline bg-surface-alt pt-4 md:pt-2 pb-2 text-on-surface border-b"
+        class="relative flex bg-on-surface-strong pt-3 pb-3 text-surface"
       >
         <div class="mx-auto flex items-center justify-center gap-4 px-6">
           <p class="text-sm text-pretty">
+            <span class="kicker text-[#d9a59a] mr-2 hidden sm:inline">
+              Newsletter
+            </span>
             Discover new books and creators directly in your inbox
           </p>
           <a href="/newsletter" x-target="modal-root" class="inline-block">
-            <Button variant="solid" color="warning">
+            <Button variant="solid" color="accent" width="auto">
               Sign Up
             </Button>
           </a>

@@ -7,7 +7,7 @@ import InfoPage from "../../pages/InfoPage";
 import LoggedOutScreen from "../../features/app/components/LoggedOutScreen";
 import { Context } from "hono";
 import BooksGrid from "../../features/app/components/BooksGrid";
-import SectionTitle from "../../components/app/SectionTitle";
+import PageHeader from "../../components/app/PageHeader";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -49,7 +49,11 @@ export const GET = createRoute(async (c: Context) => {
       noIndex
     >
       <Page>
-        <SectionTitle>Books from Creators You Follow</SectionTitle>
+        <PageHeader
+          kicker="Your Feed"
+          title="From Creators You Follow"
+          intro="The latest books from the artists and publishers you follow."
+        />
         <BooksGrid
           user={user}
           currentPath={currentPath}

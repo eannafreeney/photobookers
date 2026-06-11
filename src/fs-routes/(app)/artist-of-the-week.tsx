@@ -1,12 +1,12 @@
 import { createRoute } from "hono-fsr";
-import { getUser } from "../../utils";
+import { formatDate, getUser } from "../../utils";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
-import SectionTitle from "../../components/app/SectionTitle";
+import PageHeader from "../../components/app/PageHeader";
 import InfoPage from "../../pages/InfoPage";
 import { InfiniteScroll } from "../../components/app/InfiniteScroll";
-import { toWeekString } from "../../lib/utils";
-import CreatorCard from "../../components/app/CreatorCard";
+import { formatCountry } from "../../lib/utils";
+import SpotlightCard from "../../components/app/SpotlightCard";
 import { getRecentArtistsOfTheWeek } from "../../features/app/AOTWServices";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import GridPanel from "../../components/app/GridPanel";
@@ -44,25 +44,26 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <SectionTitle className="mb-0">Artists of the Week</SectionTitle>
+        <PageHeader kicker="The Archive" title="Artists of the Week" intro="Every week, one artist in focus. Browse past spotlights." />
         <GridPanel id={targetId} isFullWidth xMerge="append">
           {aotwEntries.map((entry) => (
             <ScrollReveal>
-              {/* <article class="space-y-2">
-                <a
-                  href={aotwPath(entry.weekStart)}
-                  class="text-xs text-on-surface-strong font-medium hover:underline"
-                >
-                  Week: {toWeekString(entry.weekStart)}
-                </a> */}
-              <CreatorCard
-                creator={entry.creator}
-                user={user}
-                currentPath={currentPath}
-                showFollowAndClaimButtons={false}
-                featureDate={entry.weekStart}
+              <SpotlightCard
+                href={aotwPath(entry.weekStart)}
+                imageUrl={entry.creator.coverUrl ?? ""}
+                imageAlt={entry.creator.displayName}
+                dateLabel={`Week of ${formatDate(entry.weekStart)}`}
+                title={entry.creator.displayName}
+                subtitle={
+                  [
+                    entry.creator.city,
+                    formatCountry(entry.creator.country ?? ""),
+                  ]
+                    .filter(Boolean)
+                    .join(", ") || undefined
+                }
+                aspectSquare
               />
-              {/* </article> */}
             </ScrollReveal>
           ))}
         </GridPanel>

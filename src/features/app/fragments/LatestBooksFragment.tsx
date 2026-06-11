@@ -23,8 +23,10 @@ const LatestBooksFragment = async ({
 
   return (
     <div id="latest-books-fragment">
-      <div class="flex items-center justify-between">
-        <SectionTitle>Latest Books</SectionTitle>
+      <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
+        <SectionTitle className="mb-0" kicker="New Arrivals">
+          Latest Books
+        </SectionTitle>
         <ViewAllLink href="/books" />
       </div>
       <BooksGrid

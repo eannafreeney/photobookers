@@ -17,14 +17,18 @@ export const GET = createRoute(async (c: Context) => {
 
   return c.html(
     <HeadlessLayout title="Create Account">
-      <div class="min-h-screen flex items-center justify-center bg-base-200">
-        <div class="card w-96 bg-base-100 shadow-none border-none my-4">
+      <div class="min-h-screen flex items-center justify-center bg-surface">
+        <div class="card w-96 bg-surface shadow-none border-none my-4">
           <div class="card-body">
             <div id="register-form">
-              <h2 class="text-2xl font-bold text-center mb-4">
-                Create{" "}
-                {registerType === "fan" ? "" : capitalize(registerType)} Account
-              </h2>
+              <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4 mb-6 text-center">
+                <span class="kicker text-accent">Join Photobookers</span>
+                <h2 class="font-display text-3xl font-medium text-on-surface-strong">
+                  Create{" "}
+                  {registerType === "fan" ? "" : capitalize(registerType)}{" "}
+                  Account
+                </h2>
+              </div>
               {intendedCreatorType ? (
                 <RegisterCreatorForm type={registerType} />
               ) : (

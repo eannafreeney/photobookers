@@ -3,7 +3,7 @@ import { getUser } from "../../utils";
 import SectionTitle from "../../components/app/SectionTitle";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
-import PageTitle from "../../components/app/PageTitle";
+import PageHeader from "../../components/app/PageHeader";
 import Divider from "../../components/Divider";
 import InfoPage from "../../pages/InfoPage";
 import { getFollowedCreators } from "../../features/app/services";
@@ -28,8 +28,8 @@ export const GET = createRoute(async (c) => {
   return c.html(
     <AppLayout title={title} user={user} noIndex>
       <Page>
-        <div id="followed-creators-grid" {...alpineAttrs}>
-          <PageTitle title={title} />
+        <div id="followed-creators-grid" class="space-y-6" {...alpineAttrs}>
+          <PageHeader kicker="Your People" title={title} />
           <FollowedCreatorsGrid creators={artists} title="Artists" />
           <Divider />
           <FollowedCreatorsGrid creators={publishers} title="Publishers" />

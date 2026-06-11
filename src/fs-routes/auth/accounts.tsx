@@ -2,7 +2,7 @@ import { createRoute } from "hono-fsr";
 import { getUser } from "../../utils";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 import Page from "../../components/layouts/Page";
-import SectionTitle from "../../components/app/SectionTitle";
+import PageHeader from "../../components/app/PageHeader";
 import Button from "../../components/app/Button";
 import { Context } from "hono";
 import {
@@ -17,15 +17,19 @@ export const GET = createRoute(async (c: Context) => {
   return c.html(
     <HeadlessLayout title="Accounts">
       <Page>
-        <SectionTitle>Accounts</SectionTitle>
+        <PageHeader
+          kicker="Join Photobookers"
+          title="Choose your account"
+          intro="Fan, artist, or publisher — pick the account that fits how you live with photobooks."
+        />
         {/* Mobile: cards */}
         <div class="md:hidden space-y-4">
           {accountMobileCards.map((account) => (
             <div
               key={account.slug}
-              class="rounded-radius border border-outline bg-surface-alt p-4 flex flex-col gap-4"
+              class="border-t-2 border-on-surface-strong bg-surface pt-4 pb-6 flex flex-col gap-4"
             >
-              <h3 class="text-lg font-semibold text-on-surface-strong">
+              <h3 class="font-display text-2xl font-medium text-on-surface-strong">
                 {account.type}
               </h3>
               <ul class="list-disc list-inside text-sm text-on-surface space-y-1">
@@ -42,9 +46,9 @@ export const GET = createRoute(async (c: Context) => {
           ))}
         </div>
         {/* Desktop View */}
-        <div class="hidden md:block overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
+        <div class="hidden md:block overflow-hidden w-full overflow-x-auto border-y-2 border-on-surface-strong">
           <table class="w-full table-fixed text-left text-sm text-on-surface">
-            <thead class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong">
+            <thead class="border-b border-outline-strong kicker text-on-surface-strong">
               <tr>
                 <th scope="col" class="p-4">
                   Feature

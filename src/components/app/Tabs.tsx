@@ -18,7 +18,7 @@ const TabLinkContainer = ({
   children,
 }: TabLinkContainerProps) => (
   <div
-    class={`flex items-center bg-surface-alt gap-2 mb-2 mt-2 ${
+    class={`flex items-center border-b border-outline gap-2 mb-2 mt-2 ${
       align === "left" ? "justify-start" : "justify-center mx-auto"
     }`}
   >
@@ -28,10 +28,10 @@ const TabLinkContainer = ({
 
 const TabLink = ({ tabId, children }: TabLinkProps) => (
   <button
-    class="flex items-center gap-2 border-b-2 border-transparent px-4 py-1 text-sm cursor-pointer"
+    class="flex items-center gap-2 border-b-2 border-transparent -mb-px px-4 py-2 kicker cursor-pointer transition-colors"
     x-bind:class={`currentTab === '${tabId}'
-        ? 'font-bold text-primary border-b-2 border-b-primary'
-        : 'text-on-surface font-medium hover:border-b-outline-strong hover:text-on-surface-strong'`}
+        ? 'text-on-surface-strong border-b-accent'
+        : 'text-on-surface-weak hover:text-on-surface-strong'`}
     x-on:click={`currentTab = '${tabId}'`}
   >
     {children}

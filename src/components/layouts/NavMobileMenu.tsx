@@ -41,12 +41,12 @@ type NavLinkProps = {
 const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
   const isActive = currentPath === href;
   return (
-    <li class="p-2">
+    <li class="border-b border-outline">
       <a
         href={href}
         class={clsx(
-          "w-full text-md font-medium focus:underline hover:color-primary",
-          isActive ? "text-primary" : "text-on-surface",
+          "block w-full py-3 font-display text-2xl focus:underline",
+          isActive ? "text-accent" : "text-on-surface-strong",
         )}
       >
         {children}
@@ -71,7 +71,7 @@ const MobileDropDownMenu = ({
       x-cloak
       x-show="mobileMenuIsOpen"
       {...fadeTransition}
-      class="fixed max-h-svh overflow-y-auto inset-x-0 top-0 z-20 flex flex-col rounded-b-radius border-b border-outline bg-surface px-8 pb-6 pt-10 sm:hidden"
+      class="fixed h-svh overflow-y-auto inset-0 z-20 flex flex-col bg-surface px-8 pb-24 pt-10 sm:hidden"
     >
       <li class="mb-4 border-none">
         <div class="flex items-center gap-2 py-2">

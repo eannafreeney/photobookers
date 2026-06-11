@@ -45,7 +45,7 @@ const AppLayout = ({
       noIndex={noIndex ?? currentPath?.startsWith("/dashboard")}
       shareOg={shareOg}
     />
-    <body class="bg-surface-alt">
+    <body class="bg-surface">
       <UserProvider user={user}>
         {isPreview && <PreviewBanner />}
         <Navbar
@@ -64,7 +64,9 @@ const AppLayout = ({
             }
         }"
         >
-          <main class="min-h-60vh lg:mx-4">{children}</main>
+          <main class="min-h-60vh mx-auto w-full max-w-[1680px] lg:px-4">
+            {children}
+          </main>
           <Footer />
           <ScrollToTopButton />
           <Dock currentPath={currentPath} />
@@ -87,7 +89,7 @@ const ScrollToTopButton = () => {
       x-show="show"
       {...fadeTransition}
       x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
-      class="fixed bottom-20 right-5 bg-black text-white px-4 py-3 rounded shadow-lg opacity-60 cursor-pointer hover:opacity-100 transition-opacity duration-300"
+      class="fixed bottom-20 right-5 bg-on-surface-strong text-surface px-4 py-3 shadow-lg opacity-60 cursor-pointer hover:opacity-100 transition-opacity duration-300"
     >
       ↑
     </button>

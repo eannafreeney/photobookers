@@ -16,10 +16,10 @@ const itemBase = clsx(
   "after:bottom-[0.2rem] after:transition-all after:duration-100 after:ease-out",
 );
 
-// Active: widen the pill and fill it with currentColor
-const itemActive = "after:w-10 after:bg-current";
+// Active: widen the pill and fill it with the accent color
+const itemActive = "after:w-10 after:bg-accent text-on-surface-strong";
 // Inactive: narrow transparent pill (keeps layout stable)
-const itemInactive = "after:w-6 after:bg-transparent";
+const itemInactive = "after:w-6 after:bg-transparent text-on-surface-weak";
 
 const Dock = ({ currentPath }: DockProps) => {
   const item = (path: string) =>
@@ -32,25 +32,25 @@ const Dock = ({ currentPath }: DockProps) => {
         "flex w-full flex-row items-center justify-around p-2",
         "h-[calc(4rem+env(safe-area-inset-bottom))]",
         "pb-[env(safe-area-inset-bottom)]",
-        "bg-surface-alt text-neutral-content border-t border-outline",
+        "bg-surface border-t border-on-surface-strong",
       )}
     >
       <a href="/featured" class={item("/featured")}>
         {bookIcon}
-        <span class="text-[0.6875rem]">Discover</span>
+        <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Discover</span>
       </a>
       <a href="/feed" class={item("/feed")}>
         {feedIcon}
-        <span class="text-[0.6875rem]">Feed</span>
+        <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Feed</span>
       </a>
       <a href="/library" class={item("/library")}>
         {libraryIcon(5)}
-        <span class="text-[0.6875rem]">Library</span>
+        <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Library</span>
       </a>
       <FeatureGuard flagName="messages">
         <a href="/messages" class={item("/messages")}>
           {updatesIcon}
-          <span class="text-[0.6875rem]">Messages</span>
+          <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Messages</span>
         </a>
       </FeatureGuard>
     </div>

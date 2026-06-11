@@ -11,14 +11,11 @@ export const GET = createRoute(async (c) => {
 
   return c.html(
     <div id="creators-slider-fragment" class="mt-2 mb-4 px-4">
-      {/* <div class="flex items-center justify-between mb-2"> */}
-      <SectionTitle>Popular Creators</SectionTitle>
-      {/* <div class="flex items-center gap-2 ">
-          <ViewAllLink href="/artists" text="Artists" />
-          <span class="h-4 w-px bg-outline" aria-hidden="true"></span>
-          <ViewAllLink href="/publishers" text="Publishers" />
-        </div> */}
-      {/* </div> */}
+      <div class="border-t-2 border-on-surface-strong pt-3 mb-3 mt-10">
+        <SectionTitle className="mb-0" kicker="The People">
+          Popular Creators
+        </SectionTitle>
+      </div>
       <CreatorsSlider creators={creators} />
     </div>,
   );

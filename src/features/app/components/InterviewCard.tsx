@@ -26,14 +26,12 @@ const InterviewCard = ({
         class="w-full h-64 object-cover rounded-radius"
         alt="Interview"
       />
-      <div class="absolute inset-0 flex flex-col gap-1 items-center justify-center rounded-radius bg-black/50 hover:bg-transparent transition-all duration-300 p-4 text-white">
-        <p class="text-xs text-center text-base-content/60 tracking-wide">
-          Interview
-        </p>
-        <h3 class="text-3xl font-medium tracking-wider text-center">
+      <div class="absolute inset-0 flex flex-col gap-2 items-center justify-center bg-black/55 hover:bg-black/20 transition-all duration-300 p-4 text-white">
+        <p class="kicker text-center text-white/70">Interview</p>
+        <h3 class="font-display text-3xl font-medium text-center text-balance">
           {interview.creator.displayName}
         </h3>
-        <p class="text-xs text-center text-base-content/60 tracking-wide">
+        <p class="kicker text-center text-white/70">
           {interview.completedAt ? formatDate(interview.completedAt) : "-"}
         </p>
       </div>

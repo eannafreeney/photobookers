@@ -9,7 +9,7 @@ import Intersector from "../../../../features/app/components/Intersector";
 import { getBooksByTag } from "../../../../features/app/services";
 import InfoPage from "../../../../pages/InfoPage";
 import { BookTagContext } from "../../../../features/app/types";
-import SectionTitle from "../../../../components/app/SectionTitle";
+import PageHeader from "../../../../components/app/PageHeader";
 import { canonicalUrl, pageTitle } from "../../../../lib/seo";
 
 export const GET = createRoute(
@@ -37,7 +37,11 @@ export const GET = createRoute(
         currentPath={currentPath}
       >
         <Page>
-          <SectionTitle>{`# ${capitalize(tag)}`}</SectionTitle>
+          <PageHeader
+            kicker="Browse by Theme"
+            title={capitalize(tag)}
+            intro={`Photobooks tagged “${capitalize(tag)}” in the archive.`}
+          />
           <BooksGrid user={user} currentPath={currentPath} result={result} />
           {result.books.length > 0 && (
             <Intersector

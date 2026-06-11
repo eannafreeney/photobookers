@@ -51,9 +51,10 @@ const ThisWeekDetail = async ({
 
   return (
     <div class="mx-auto flex w-full flex-col gap-4 md:max-w-lg">
-      <header class="flex flex-col items-center gap-3 border-b border-outline pb-4">
-        <div class="flex flex-col items-center gap-1 text-center">
-          <h1 class="text-balance text-xl font-semibold text-on-surface-strong">
+      <header class="flex flex-col items-center gap-3 border-b-2 border-on-surface-strong pb-6">
+        <div class="flex flex-col items-center gap-2 text-center">
+          <p class="kicker text-accent">This Week</p>
+          <h1 class="text-balance font-display text-3xl md:text-4xl font-medium leading-tight text-on-surface-strong">
             {weekRangeLabel}
           </h1>
         </div>
@@ -124,20 +125,18 @@ const ThisWeekBookEntry = ({ entry }: { entry: BookOfTheDayWithBook }) => {
   return (
     <a
       href={botdPath(entry.date)}
-      class="flex gap-4 rounded-radius border border-outline bg-surface p-3 transition-opacity hover:opacity-80"
+      class="group flex gap-4 border-t border-outline pt-4 transition-opacity hover:opacity-80"
     >
       {book.coverUrl && (
         <img
           src={book.coverUrl}
           alt={book.title}
-          class="aspect-3/4 w-24 shrink-0 rounded-radius object-cover"
+          class="aspect-3/4 w-24 shrink-0 object-cover border border-outline"
         />
       )}
       <div class="flex min-w-0 flex-1 flex-col gap-1">
-        <p class="text-xs font-medium text-on-surface">
-          {toDateString(entry.date)}
-        </p>
-        <p class="text-pretty font-semibold text-on-surface-strong">
+        <p class="kicker text-accent">{toDateString(entry.date)}</p>
+        <p class="text-pretty font-display text-xl font-medium text-on-surface-strong group-hover:underline decoration-accent decoration-1 underline-offset-4">
           {book.title}
         </p>
         {book.artist ? (

@@ -11,8 +11,10 @@ const Interviews = async () => {
 
   return (
     <>
-      <div class="flex items-center justify-between mb-2">
-        <SectionTitle>Interviews</SectionTitle>
+      <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
+        <SectionTitle className="mb-0" kicker="In Conversation">
+          Interviews
+        </SectionTitle>
         <ViewAllLink href="/interviews" />
       </div>
       <div class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

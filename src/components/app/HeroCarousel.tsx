@@ -54,12 +54,12 @@ const HeroCarousel = async () => {
       x-on:touchmove="handleTouchMove($event)"
       x-on:touchend="handleTouchEnd()"
     >
-      <div class="hidden md:flex rounded-radius flex-wrap gap-3 px-4 py-3 text-sm sm:gap-6 sm:px-8 sm:py-4">
+      <div class="hidden md:flex flex-wrap gap-3 px-4 py-3 sm:gap-8 sm:px-8 sm:py-4 border-b border-outline">
         <template x-for="(item, index) in items">
           <button
             x-on:click="go(index)"
-            x-bind:class="active === index ? 'text-on-surface-strong border-b-2 border-outline-strong' : 'text-on-surface-weak'"
-            class="pb-1 transition cursor-pointer"
+            x-bind:class="active === index ? 'text-on-surface-strong border-b-2 border-accent' : 'text-on-surface-weak border-b-2 border-transparent'"
+            class="pb-2 kicker transition cursor-pointer"
             type="button"
             x-text="item.label"
           ></button>
@@ -90,7 +90,7 @@ const HeroCarousel = async () => {
                         <img
                           x-bind:src="url"
                           x-bind:class="i >= 2 ? 'hidden min-[480px]:block' : ''"
-                          class="w-full aspect-3/4 rounded-md shadow-md object-cover"
+                          class="w-full aspect-3/4 shadow-md object-cover"
                         />
                       </a>
                     </template>
@@ -100,18 +100,18 @@ const HeroCarousel = async () => {
                   <a x-bind:href="item.link" class="cursor-pointer">
                     <img
                       x-bind:src="item.image"
-                      class="max-h-[220px] rounded-lg shadow-xl transition duration-500 hover:scale-102 sm:max-h-[300px] md:max-h-[340px]"
+                      class="max-h-[220px] shadow-xl transition duration-500 hover:scale-102 sm:max-h-[300px] md:max-h-[340px]"
                     />
                   </a>
                 </template>
               </div>
               <div class="order-2 flex w-full max-w-md flex-col gap-2 md:order-0">
                 <p
-                  class="text-sm text-center md:text-left"
+                  class="kicker text-accent text-center md:text-left"
                   x-text="item.label"
                 ></p>
                 <p
-                  class="text-2xl font-semibold text-on-surface-strong sm:text-4xl text-center md:text-left"
+                  class="font-display text-3xl font-medium text-on-surface-strong sm:text-5xl leading-tight text-center md:text-left text-balance"
                   x-text="item.title"
                 ></p>
                 <template x-if="item.text">

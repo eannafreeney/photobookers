@@ -19,8 +19,8 @@ const InputLabel = ({
 }: InputLabelProps) => {
   return (
     <div class="flex items-center justify-between text-xs">
-      <legend class="w-fit pl-0.5">
-        {label} {label && required && <span class="text-danger"> *</span>}
+      <legend class="w-fit pl-0.5 kicker text-on-surface">
+        {label} {label && required && <span class="text-accent"> *</span>}
       </legend>
       <div class="flex items-center gap-2">
         {maxLength && (

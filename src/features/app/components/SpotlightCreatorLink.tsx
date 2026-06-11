@@ -13,7 +13,7 @@ const SpotlightCreatorLink = async ({ creator, role }: Props) => {
   if (!creator) return <></>;
 
   return (
-    <div class="flex items-center justify-between gap-3 border border-outline rounded-radius p-4">
+    <div class="flex items-center justify-between gap-3 border-y border-outline py-4">
       <div class="flex items-center gap-3">
         {creator.coverUrl ? (
           <img
@@ -30,8 +30,8 @@ const SpotlightCreatorLink = async ({ creator, role }: Props) => {
           </span>
         )}
         <div class="min-w-0">
-          <p class="text-xs font-medium text-on-surface">{role}</p>
-          <p class="truncate text-sm font-semibold text-on-surface-strong">
+          <p class="kicker text-accent">{role}</p>
+          <p class="truncate font-display text-lg font-medium text-on-surface-strong">
             {creator.displayName}
           </p>
         </div>

@@ -7,7 +7,7 @@ type Props = PropsWithChildren<{
 
 const Table = ({ children, id }: Props) => {
   return (
-    <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline">
+    <div class="overflow-hidden w-full overflow-x-auto border-y-2 border-on-surface-strong bg-surface">
       <table id={id} class="w-full text-left text-sm text-on-surface">
         {children}
       </table>
@@ -20,7 +20,7 @@ type TableHeadProps = {
 };
 
 const TableHead = ({ children }: TableHeadProps) => (
-  <thead class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong">
+  <thead class="border-b border-outline-strong text-on-surface-strong">
     {children}
   </thead>
 );
@@ -30,7 +30,7 @@ type TableHeadRowProps = {
 };
 
 export const TableHeadRow = ({ children }: TableHeadRowProps) => (
-  <th class="p-4">{children}</th>
+  <th class="p-4 kicker">{children}</th>
 );
 
 type TableBodyProps = {

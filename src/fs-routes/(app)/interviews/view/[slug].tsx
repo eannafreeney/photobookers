@@ -119,9 +119,13 @@ const AnswerCard = ({
   question: string;
   answer: string;
 }) => (
-  <div className="flex flex-col gap-2 w-full">
-    <h3 className="text-xl font-bold tracking-wide">{question}</h3>
-    <p className="text-base-content/80 tracking-wide">{answer}</p>
+  <div className="flex flex-col gap-3 w-full border-t border-outline pt-5">
+    <h3 className="font-display text-2xl font-medium italic text-on-surface-strong text-balance">
+      {question}
+    </h3>
+    <p className="text-base leading-relaxed text-on-surface whitespace-pre-wrap">
+      {answer}
+    </p>
   </div>
 );
 

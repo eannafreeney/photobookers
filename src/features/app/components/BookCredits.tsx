@@ -1,4 +1,3 @@
-import Card from "../../../components/app/Card";
 import { formatDate } from "../../../utils";
 
 type CreditsProps = {
@@ -6,17 +5,22 @@ type CreditsProps = {
 };
 
 const Credits = ({ releaseDate }: CreditsProps) => (
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col border-t-2 border-on-surface-strong">
+    <span class="kicker text-accent pt-3 pb-2">Colophon</span>
     {releaseDate && (
-      <>
-        <p class="text-sm font-medium text-on-surface-strong">Release Date:</p>
-        <Card.Text>{formatDate(releaseDate)}</Card.Text>
-      </>
+      <div class="flex items-baseline justify-between gap-4 border-t border-outline py-2">
+        <span class="kicker text-on-surface-weak">Released</span>
+        <span class="text-sm text-on-surface-strong">
+          {formatDate(releaseDate)}
+        </span>
+      </div>
     )}
-    <p class="text-sm font-medium text-on-surface-strong">Credits</p>
-    <p class="text-sm text-on-surface">
-      All images on this page are owned by the respective creator.
-    </p>
+    <div class="flex items-baseline justify-between gap-4 border-t border-outline py-2">
+      <span class="kicker text-on-surface-weak">Credits</span>
+      <span class="text-sm text-on-surface text-right max-w-xs">
+        All images on this page are owned by the respective creator.
+      </span>
+    </div>
   </div>
 );
 
