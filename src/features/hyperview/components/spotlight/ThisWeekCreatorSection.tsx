@@ -39,7 +39,7 @@ export const thisWeekCreatorSectionStyles = () => (
     <Style
       id="spotlight-creator-section"
       borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
+      borderBottomColor="#e4e0d5"
       paddingBottom={16}
       marginBottom={16}
       gap={8}
@@ -48,21 +48,21 @@ export const thisWeekCreatorSectionStyles = () => (
       id="spotlight-cover"
       width="100%"
       height={280}
-      borderRadius={8}
+      borderRadius={0}
       marginBottom={16}
     />
     <Style
       id="spotlight-body-text"
       fontSize={18}
       fontWeight="700"
-      color="#111111"
+      color="#191613"
       lineHeight={20}
     />
     <Style
       id="spotlight-profile-btn"
       borderWidth={1}
-      borderColor="#111111"
-      borderRadius={8}
+      borderColor="#191613"
+      borderRadius={0}
       padding={12}
       alignItems="center"
     />
@@ -70,7 +70,7 @@ export const thisWeekCreatorSectionStyles = () => (
       id="spotlight-profile-btn-label"
       fontSize={14}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
     />
   </>
 );

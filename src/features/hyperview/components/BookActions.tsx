@@ -137,10 +137,10 @@ export const bookActionsStyles = () => (
       paddingBottom={12}
       paddingLeft={16}
       paddingRight={16}
-      borderRadius={10}
-      backgroundColor="#ffffff"
+      borderRadius={0}
+      backgroundColor="#fbfaf7"
       borderWidth={1}
-      borderColor="#e8e8e6"
+      borderColor="#e4e0d5"
       width="100%"
     >
       <modifier />
@@ -150,7 +150,7 @@ export const bookActionsStyles = () => (
       width={32}
       height={32}
       borderRadius={16}
-      backgroundColor="#e5e7eb"
+      backgroundColor="#e4e0d5"
       alignItems="center"
       justifyContent="center"
       flexShrink={0}
@@ -160,7 +160,7 @@ export const bookActionsStyles = () => (
       id="book-action-label"
       fontSize={14}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
     />
   </>
 );

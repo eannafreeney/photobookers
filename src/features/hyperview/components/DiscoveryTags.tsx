@@ -1,6 +1,4 @@
-import { xmlText } from "../../../lib/hxml-components";
 import { Behavior, View, Text, Style } from "../../../lib/hxml-comps";
-import { capitalize } from "../../../utils";
 
 type Props = {
   baseUrl: string;
@@ -16,7 +14,7 @@ const DiscoveryTags = ({ baseUrl, tags }: Props) => {
             <Behavior
               href={`${baseUrl}/hyperview/tags/${encodeURIComponent(tag.toLowerCase())}`}
             />
-            <Text style="discover-tag-label">{capitalize(tag)}</Text>
+            <Text style="discover-tag-label">{tag.toUpperCase()}</Text>
           </View>
         ))}
       </View>
@@ -43,21 +41,22 @@ export const discoveryTagStyles = () => (
     <Style
       id="discover-tag-pill"
       borderWidth={1}
-      borderColor="#e5e5e5"
+      borderColor="#191613"
       borderRadius={999}
       paddingTop={8}
       paddingBottom={8}
       paddingLeft={14}
       paddingRight={14}
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
       marginRight={8}
       marginBottom={8}
     />
     <Style
       id="discover-tag-label"
-      fontSize={14}
-      fontWeight="500"
-      color="#111111"
+      fontSize={11}
+      fontWeight="600"
+      letterSpacing={1}
+      color="#191613"
     />
   </>
 );

@@ -12,7 +12,7 @@ const SectionHeader: FC<Props> = ({ title, viewAllHref }) => (
     <Text style="section-header-title">{title}</Text>
     {viewAllHref && (
       <View style="section-header-view-all">
-        <Text style="section-header-view-all-label">View all</Text>
+        <Text style="section-header-view-all-label">VIEW ALL →</Text>
         <Behavior href={viewAllHref} />
       </View>
     )}
@@ -26,15 +26,19 @@ export const sectionHeaderStyles = () => (
     <Style
       id="section-header"
       flexDirection="row"
-      alignItems="center"
+      alignItems="flex-end"
       justifyContent="space-between"
       marginBottom={12}
+      marginTop={8}
+      paddingTop={10}
+      borderTopWidth={2}
+      borderTopColor="#191613"
     />
     <Style
       id="section-header-title"
-      fontSize={18}
-      fontWeight="700"
-      color="#111111"
+      fontFamily="Fraunces-SemiBold"
+      fontSize={20}
+      color="#191613"
     />
     <Style
       id="section-header-view-all"
@@ -45,8 +49,9 @@ export const sectionHeaderStyles = () => (
     />
     <Style
       id="section-header-view-all-label"
-      fontSize={13}
-      color="#3366cc"
+      fontSize={11}
+      letterSpacing={1}
+      color="#a22c29"
       fontWeight="600"
     />
   </>

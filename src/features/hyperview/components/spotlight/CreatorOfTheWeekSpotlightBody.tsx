@@ -123,18 +123,18 @@ export default CreatorOfTheWeekSpotlightBody;
 export const creatorOfTheWeekSpotlightBodyStyles = () => (
   <>
     <Style id="spotlight-body" flexDirection="column" gap={16} />
-    <Style id="spotlight-cover" width="100%" height={280} borderRadius={8} />
+    <Style id="spotlight-cover" width="100%" height={280} borderRadius={0} />
     <Style
       id="spotlight-body-text"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
     />
     <Style
       id="spotlight-profile-btn"
       borderWidth={1}
-      borderColor="#111111"
-      borderRadius={8}
+      borderColor="#191613"
+      borderRadius={0}
       paddingTop={12}
       paddingBottom={12}
       alignItems="center"
@@ -143,7 +143,7 @@ export const creatorOfTheWeekSpotlightBodyStyles = () => (
       id="spotlight-profile-btn-label"
       fontSize={14}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
     />
     <Style id="spotlight-books-grid" gap={12} />
   </>

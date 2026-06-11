@@ -8,10 +8,10 @@ type Props = {
 
 const SpotlightHeader: FC<Props> = ({ title, subtitle }) => (
   <View style="spotlight-header">
-    <Text style="spotlight-header-title">{title}</Text>
     {subtitle ? (
-      <Text style="spotlight-header-subtitle">{subtitle}</Text>
+      <Text style="spotlight-header-subtitle">{subtitle.toUpperCase()}</Text>
     ) : null}
+    <Text style="spotlight-header-title">{title}</Text>
   </View>
 );
 
@@ -27,15 +27,17 @@ export const spotlightHeaderStyles = () => (
     />
     <Style
       id="spotlight-header-title"
-      fontSize={18}
-      fontWeight="700"
-      color="#111111"
+      fontFamily="Fraunces-SemiBold"
+      fontSize={22}
+      color="#191613"
       textAlign="center"
     />
     <Style
       id="spotlight-header-subtitle"
-      fontSize={14}
-      color="#666666"
+      fontSize={11}
+      fontWeight="600"
+      letterSpacing={1.5}
+      color="#a22c29"
       textAlign="center"
     />
   </>

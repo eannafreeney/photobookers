@@ -82,10 +82,10 @@ export const bookPageStyles = () => (
       paddingBottom={10}
       paddingLeft={20}
       paddingRight={20}
-      borderRadius={8}
-      backgroundColor="#111111"
+      borderRadius={0}
+      backgroundColor="#191613"
       alignItems="center"
     />
-    <Style id="purchase-label" fontSize={14} fontWeight="600" color="#ffffff" />
+    <Style id="purchase-label" fontSize={14} fontWeight="600" color="#fbfaf7" />
   </>
 );

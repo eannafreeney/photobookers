@@ -84,35 +84,35 @@ const pageStyles = () => (
       id="register-headline"
       fontSize={22}
       fontWeight="700"
-      color="#111111"
+      color="#191613"
       marginBottom={12}
     />
     <Style
       id="register-intro"
       fontSize={15}
-      color="#555555"
+      color="#45413a"
       lineHeight={22}
       marginBottom={16}
     />
     <Style
       id="register-bullet"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
       marginBottom={6}
     />
     <Style
       id="register-primary-wrap"
       marginTop={24}
-      backgroundColor="#111111"
-      borderRadius={10}
+      backgroundColor="#191613"
+      borderRadius={0}
       paddingTop={14}
       paddingBottom={14}
       alignItems="center"
     />
     <Style
       id="register-primary-label"
-      color="#ffffff"
+      color="#fbfaf7"
       fontWeight="600"
       fontSize={16}
     />
@@ -120,16 +120,16 @@ const pageStyles = () => (
       id="register-secondary-wrap"
       marginTop={20}
       borderWidth={1}
-      borderColor="#d1d5db"
-      borderRadius={10}
+      borderColor="#a39d90"
+      borderRadius={0}
       paddingTop={14}
       paddingBottom={14}
       alignItems="center"
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
     />
     <Style
       id="register-secondary-label"
-      color="#111111"
+      color="#191613"
       fontWeight="600"
       fontSize={16}
     />

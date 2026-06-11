@@ -45,15 +45,15 @@ export const aboutContentStyles = () => (
     <Style id="about-section" marginBottom={16} />
     <Style
       id="about-section-title"
+      fontFamily="Fraunces-SemiBold"
       fontSize={18}
-      fontWeight="700"
-      color="#111111"
+      color="#191613"
       marginBottom={8}
     />
     <Style
       id="about-section-body"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
     />
   </>

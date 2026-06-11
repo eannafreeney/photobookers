@@ -71,7 +71,7 @@ const pageStyles = () => (
       id="interviews-page-title"
       fontSize={20}
       fontWeight="700"
-      color="#111111"
+      color="#191613"
       marginBottom={16}
     />
   </>

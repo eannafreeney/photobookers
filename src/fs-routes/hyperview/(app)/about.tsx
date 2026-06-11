@@ -61,10 +61,10 @@ const pageStyles = () => (
     />
     <Style
       id="settings-link-btn"
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
       borderWidth={1}
-      borderColor="#d1d5db"
-      borderRadius={10}
+      borderColor="#a39d90"
+      borderRadius={0}
       paddingTop={16}
       paddingBottom={16}
       alignItems="center"
@@ -72,7 +72,7 @@ const pageStyles = () => (
     />
     <Style
       id="settings-link-label"
-      color="#111111"
+      color="#191613"
       fontWeight="600"
       fontSize={16}
     />

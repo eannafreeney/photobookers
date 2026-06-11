@@ -51,7 +51,13 @@ export default HomeNavbar;
 
 export const homeNavbarStyles = () => (
   <>
-    <Style id="featured-header-safe" width="100%" backgroundColor="#0099cc" />
+    <Style
+      id="featured-header-safe"
+      width="100%"
+      backgroundColor="#fbfaf7"
+      borderBottomWidth={2}
+      borderBottomColor="#191613"
+    />
     <Style
       id="featured-header"
       width="100%"
@@ -105,10 +111,10 @@ export const homeNavbarStyles = () => (
     />
     <Style
       id="featured-header-logo"
-      fontFamily="Caveat-Medium"
-      fontSize={24}
+      fontFamily="Caveat-SemiBold"
+      fontSize={28}
       fontWeight={400}
-      color="#ffffff"
+      color="#191613"
       letterSpacing={0.5}
     />
     {headerIconButtonStyles()}

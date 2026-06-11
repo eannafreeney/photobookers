@@ -90,17 +90,17 @@ export const bookOfTheDaySpotlightBodyStyles = () => (
   <>
     <Style
       id="title"
-      fontSize={22}
-      fontWeight="700"
-      color="#111111"
+      fontFamily="Fraunces-SemiBold"
+      fontSize={24}
+      color="#191613"
       marginBottom={6}
     />
-    <Style id="subtitle" fontSize={15} color="#666666" marginBottom={16} />
+    <Style id="subtitle" fontSize={15} color="#45413a" marginBottom={16} />
     <Style id="spotlight-body" flexDirection="column" gap={12} />
     <Style
       id="spotlight-body-text"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
     />
   </>

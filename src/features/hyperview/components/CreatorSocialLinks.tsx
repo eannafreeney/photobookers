@@ -99,9 +99,9 @@ export const creatorSocialStyles = () => (
       paddingBottom={12}
       paddingLeft={8}
       paddingRight={8}
-      borderRadius={10}
+      borderRadius={0}
       borderWidth={1}
-      borderColor="#e5e5e5"
+      borderColor="#e4e0d5"
       gap={6}
     />
     <Style id="social-icon" width={22} height={22} flexShrink={0} />
@@ -110,7 +110,7 @@ export const creatorSocialStyles = () => (
       width="100%"
       fontSize={12}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
       textAlign="center"
     />
   </>

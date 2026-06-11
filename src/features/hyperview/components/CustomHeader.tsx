@@ -94,9 +94,9 @@ export const customHeaderStyles = () => (
   <>
     <Style
       id="custom-header-safe"
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
       borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
+      borderBottomColor="#e4e0d5"
     />
     <Style
       id="custom-header"
@@ -112,7 +112,7 @@ export const customHeaderStyles = () => (
       id="header-cover"
       width={40}
       height={40}
-      borderRadius={4}
+      borderRadius={0}
       overflow="hidden"
     />
     <Style
@@ -132,21 +132,21 @@ export const customHeaderStyles = () => (
     />
     <Style
       id="header-title"
-      fontSize={18}
-      fontWeight="700"
-      color="#111111"
-      lineHeight={20}
+      fontFamily="Fraunces-SemiBold"
+      fontSize={19}
+      color="#191613"
+      lineHeight={24}
     />
     <Style
       id="header-title-artist"
-      fontSize={16}
-      fontWeight="700"
-      color="#111111"
-      lineHeight={18}
+      fontFamily="Fraunces-SemiBold"
+      fontSize={17}
+      color="#191613"
+      lineHeight={22}
     />
-    <Style id="header-artist" fontSize={12} color="#555555" lineHeight={14} />
+    <Style id="header-artist" fontSize={12} color="#45413a" lineHeight={14} />
     <Style id="custom-header-back" flexDirection="row" alignItems="center" />
-    <Style id="back-btn" fontSize={16} color="#3366cc" marginRight={12} />
+    <Style id="back-btn" fontSize={16} color="#a22c29" marginRight={12} />
     <Style
       id="header-actions"
       flexDirection="row"
@@ -159,10 +159,10 @@ export const customHeaderStyles = () => (
       paddingBottom={8}
       paddingLeft={10}
       paddingRight={10}
-      borderRadius={6}
+      borderRadius={0}
       borderWidth={1}
-      borderColor="#111111"
-      backgroundColor="#ffffff"
+      borderColor="#191613"
+      backgroundColor="#fbfaf7"
       alignItems="center"
       justifyContent="center"
     />
@@ -170,7 +170,7 @@ export const customHeaderStyles = () => (
       id="header-claim-label"
       fontSize={12}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
     />
     {headerIconButtonStyles()}
     {verificationBadgeStyles()}

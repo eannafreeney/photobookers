@@ -32,7 +32,7 @@ const SettingsTabs = ({ baseUrl, activeTab = "terms" }: SettingsTabsProps) => (
       selected={activeTab === "terms" ? "true" : undefined}
     >
       <Behavior {...tabLoadBehavior(baseUrl, "terms")} />
-      <Text style="tab-label">Terms</Text>
+      <Text style="tab-label">TERMS</Text>
     </Option>
     <Option
       value="privacy"
@@ -40,7 +40,7 @@ const SettingsTabs = ({ baseUrl, activeTab = "terms" }: SettingsTabsProps) => (
       selected={activeTab === "privacy" ? "true" : undefined}
     >
       <Behavior {...tabLoadBehavior(baseUrl, "privacy")} />
-      <Text style="tab-label">Privacy</Text>
+      <Text style="tab-label">PRIVACY</Text>
     </Option>
   </SelectSingle>
 );
@@ -57,12 +57,18 @@ export const settingsTabStyles = () => (
       alignItems="center"
     >
       <Modifier selected="true">
-        <Style borderBottomWidth={2} borderBottomColor="#0099cc" />
+        <Style borderBottomWidth={2} borderBottomColor="#a22c29" />
       </Modifier>
     </Style>
-    <Style id="tab-label" fontSize={13} fontWeight="600" color="#999999">
+    <Style
+      id="tab-label"
+      fontSize={11}
+      fontWeight="600"
+      letterSpacing={1.5}
+      color="#a39d90"
+    >
       <Modifier selected="true">
-        <Style color="#0099cc" />
+        <Style color="#a22c29" />
       </Modifier>
     </Style>
   </>

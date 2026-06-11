@@ -44,11 +44,11 @@ export const followButtonStyles = () => (
       paddingBottom={12}
       paddingLeft={16}
       paddingRight={16}
-      borderRadius={10}
-      backgroundColor="#111111"
+      borderRadius={0}
+      backgroundColor="#191613"
       alignItems="center"
       width="100%"
     />
-    <Style id="follow-label" fontSize={14} fontWeight="600" color="#ffffff" />
+    <Style id="follow-label" fontSize={14} fontWeight="600" color="#fbfaf7" />
   </>
 );

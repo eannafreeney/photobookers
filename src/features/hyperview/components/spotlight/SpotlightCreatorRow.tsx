@@ -52,8 +52,8 @@ export const spotlightCreatorRowStyles = () => (
       borderWidth={1}
       flexDirection="row"
       alignItems="center"
-      borderColor="#e5e5e5"
-      borderRadius={8}
+      borderColor="#e4e0d5"
+      borderRadius={0}
       padding={12}
       gap={12}
     />
@@ -70,12 +70,12 @@ export const spotlightCreatorRowStyles = () => (
       flex={1}
       gap={2}
     />
-    <Style id="spotlight-creator-role" fontSize={12} color="#666666" />
+    <Style id="spotlight-creator-role" fontSize={12} color="#45413a" />
     <Style
       id="spotlight-creator-name"
       fontSize={15}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
     />
     <Style
       id="follow-btn"
@@ -83,11 +83,11 @@ export const spotlightCreatorRowStyles = () => (
       paddingBottom={10}
       paddingLeft={16}
       paddingRight={16}
-      borderRadius={8}
-      backgroundColor="#111111"
+      borderRadius={0}
+      backgroundColor="#191613"
       alignItems="center"
       flexShrink={0}
     />
-    <Style id="follow-label" fontSize={14} fontWeight="600" color="#ffffff" />
+    <Style id="follow-label" fontSize={14} fontWeight="600" color="#fbfaf7" />
   </>
 );

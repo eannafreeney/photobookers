@@ -30,15 +30,15 @@ export const searchFormStyles = () => (
     <Style
       id="search-input"
       borderWidth={1}
-      borderColor="#e5e5e5"
-      borderRadius={10}
+      borderColor="#e4e0d5"
+      borderRadius={0}
       paddingTop={12}
       paddingBottom={12}
       paddingLeft={14}
       paddingRight={14}
       fontSize={15}
-      backgroundColor="#ffffff"
-      color="#111111"
+      backgroundColor="#fbfaf7"
+      color="#191613"
       marginBottom={4}
     />
   </>

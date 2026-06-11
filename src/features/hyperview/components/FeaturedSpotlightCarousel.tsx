@@ -36,7 +36,7 @@ const FeaturedSpotlightCard: FC<CardProps> = ({
       <View style="featured-spotlight-card-placeholder" />
     )}
     <View style="featured-spotlight-card-overlay">
-      <Text style="featured-spotlight-card-label">{label}</Text>
+      <Text style="featured-spotlight-card-label">{label.toUpperCase()}</Text>
       <Text style="featured-spotlight-card-title">{title}</Text>
     </View>
   </View>
@@ -74,7 +74,7 @@ export const featuredSpotlightCarouselStyles = () => (
       id="featured-spotlight-card"
       width={220}
       height={280}
-      borderRadius={10}
+      borderRadius={0}
       overflow="hidden"
       marginRight={12}
     />
@@ -83,7 +83,7 @@ export const featuredSpotlightCarouselStyles = () => (
       id="featured-spotlight-card-placeholder"
       width={220}
       height={280}
-      backgroundColor="#e5e5e5"
+      backgroundColor="#e4e0d5"
     />
     <Style
       id="featured-spotlight-card-overlay"
@@ -101,16 +101,17 @@ export const featuredSpotlightCarouselStyles = () => (
     />
     <Style
       id="featured-spotlight-card-label"
-      fontSize={14}
+      fontSize={10}
       fontWeight="600"
-      color="rgba(255,255,255,0.85)"
+      letterSpacing={2}
+      color="rgba(255,255,255,0.8)"
       textAlign="center"
     />
     <Style
       id="featured-spotlight-card-title"
-      fontSize={18}
-      fontWeight="700"
-      color="#ffffff"
+      fontFamily="Fraunces-Medium"
+      fontSize={19}
+      color="#fbfaf7"
       textAlign="center"
     />
   </>

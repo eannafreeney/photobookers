@@ -114,7 +114,7 @@ export const creatorsListStyles = () => (
       paddingLeft={16}
       paddingRight={16}
       borderBottomWidth={1}
-      borderBottomColor="#eeeeee"
+      borderBottomColor="#e4e0d5"
     />
     <Style
       id="creators-list-main"
@@ -141,12 +141,12 @@ export const creatorsListStyles = () => (
       id="creators-list-name"
       fontSize={15}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
     />
     <Style
       id="creators-list-type"
       fontSize={12}
-      color="#666666"
+      color="#45413a"
       marginTop={2}
       textTransform="uppercase"
     />
@@ -156,7 +156,7 @@ export const creatorsListStyles = () => (
       width={48}
       height={48}
       borderRadius={24}
-      backgroundColor="#e5e5e5"
+      backgroundColor="#e4e0d5"
     />
     <Style
       id="creators-list-spinner"
@@ -171,11 +171,11 @@ export const creatorsListStyles = () => (
       paddingBottom={10}
       paddingLeft={20}
       paddingRight={20}
-      borderRadius={8}
-      backgroundColor="#111111"
+      borderRadius={0}
+      backgroundColor="#191613"
       alignItems="center"
     />
-    <Style id="follow-label" fontSize={14} fontWeight="600" color="#ffffff" />
+    <Style id="follow-label" fontSize={14} fontWeight="600" color="#fbfaf7" />
     {verificationBadgeStyles()}
   </>
 );

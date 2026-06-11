@@ -135,24 +135,24 @@ export const interviewViewStyles = () => (
     <Style id="interview-answer" flexDirection="column" gap={8} />
     <Style
       id="interview-answer-question"
+      fontFamily="Fraunces-SemiBold"
       fontSize={18}
-      fontWeight="700"
-      color="#111111"
+      color="#191613"
       lineHeight={24}
     />
     <Style
       id="interview-answer-text"
       fontSize={15}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
     />
-    <Style id="interview-book-image-wrap" width="100%" borderRadius={10} overflow="hidden" />
+    <Style id="interview-book-image-wrap" width="100%" borderRadius={0} overflow="hidden" />
     <Style id="interview-book-image" width="100%" height={320} />
     <Style
       id="interview-profile-btn"
       borderWidth={1}
-      borderColor="#111111"
-      borderRadius={10}
+      borderColor="#191613"
+      borderRadius={0}
       paddingTop={14}
       paddingBottom={14}
       alignItems="center"
@@ -162,7 +162,7 @@ export const interviewViewStyles = () => (
       id="interview-profile-btn-label"
       fontSize={15}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
     />
   </>
 );

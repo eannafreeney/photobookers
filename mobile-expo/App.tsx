@@ -32,6 +32,9 @@ export default function App() {
     "Caveat-Medium": require("./assets/fonts/Caveat-Medium.ttf"),
     "Caveat-SemiBold": require("./assets/fonts/Caveat-SemiBold.ttf"),
     "Caveat-Bold": require("./assets/fonts/Caveat-Bold.ttf"),
+    "Fraunces-Regular": require("./assets/fonts/Fraunces-Regular.ttf"),
+    "Fraunces-Medium": require("./assets/fonts/Fraunces-Medium.ttf"),
+    "Fraunces-SemiBold": require("./assets/fonts/Fraunces-SemiBold.ttf"),
   });
 
   useEffect(() => {
@@ -62,10 +65,10 @@ export default function App() {
             flex: 1,
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "#0099cc",
+            backgroundColor: "#fbfaf7",
           }}
         >
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#a22c29" />
         </View>
       </GestureHandlerRootView>
     );

@@ -103,7 +103,9 @@ export const creatorCardStyles = () => (
       id="creator-card"
       flexDirection="column"
       marginBottom={16}
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
+      borderWidth={1}
+      borderColor="#e4e0d5"
       overflow="hidden"
     />
     <Style id="creator-cover" width="100%" height={300} />
@@ -124,21 +126,21 @@ export const creatorCardStyles = () => (
     />
     <Style
       id="creator-name"
-      fontSize={16}
-      fontWeight="700"
-      color="#111111"
+      fontFamily="Fraunces-Medium"
+      fontSize={17}
+      color="#191613"
       marginBottom={4}
     />
     <Style
       id="creator-location"
       fontSize={13}
-      color="#666666"
+      color="#45413a"
       marginBottom={4}
     />
     <Style
       id="creator-tagline"
       fontSize={13}
-      color="#444444"
+      color="#45413a"
       lineHeight={18}
       marginBottom={12}
     />
@@ -149,11 +151,11 @@ export const creatorCardStyles = () => (
       paddingBottom={10}
       paddingLeft={20}
       paddingRight={20}
-      borderRadius={8}
-      backgroundColor="#111111"
+      borderRadius={0}
+      backgroundColor="#191613"
       alignItems="center"
     />
-    <Style id="follow-label" fontSize={14} fontWeight="600" color="#ffffff" />
+    <Style id="follow-label" fontSize={14} fontWeight="600" color="#fbfaf7" />
     <Style
       id="creator-card-header"
       paddingTop={8}
@@ -179,7 +181,7 @@ export const creatorCardStyles = () => (
       borderRadius={12}
       overflow="hidden"
     />
-    <Style id="creator-card-header-artist" fontSize={13} color="#555555" />
-    <Style id="creator-card-header-title" fontSize={12} color="#999999" />
+    <Style id="creator-card-header-artist" fontSize={13} color="#45413a" />
+    <Style id="creator-card-header-title" fontSize={12} color="#a39d90" />
   </>
 );

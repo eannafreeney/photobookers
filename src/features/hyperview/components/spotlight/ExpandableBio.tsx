@@ -63,7 +63,7 @@ export const expandableBioStyles = () => (
       id="spotlight-bio-toggle-label"
       fontSize={14}
       fontWeight="600"
-      color="#3366cc"
+      color="#a22c29"
     />
   </>
 );

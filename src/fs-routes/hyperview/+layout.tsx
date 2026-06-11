@@ -149,7 +149,7 @@ const baseStyles = () => (
       id="body"
       flex={1}
       flexDirection="column"
-      backgroundColor="#f8f7f5"
+      backgroundColor="#fbfaf7"
     />
     <Style id="list" flex={1} />
     <Style id="page-content" margin={16} />
@@ -164,7 +164,7 @@ const baseStyles = () => (
       id="tab-bar"
       flexDirection="row"
       borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
+      borderBottomColor="#e4e0d5"
       alignItems="center"
       justifyContent="center"
       gap={12}
@@ -176,7 +176,13 @@ const baseStyles = () => (
       paddingBottom={10}
       alignItems="center"
     />
-    <Style id="tab-label" fontSize={13} fontWeight="600" color="#666666" />
+    <Style
+      id="tab-label"
+      fontSize={11}
+      fontWeight="600"
+      letterSpacing={1.5}
+      color="#45413a"
+    />
     <Style id="tab-content" flex={1} />
     <Style
       id="header-search-wrap"
@@ -184,9 +190,9 @@ const baseStyles = () => (
       paddingRight={4}
       paddingTop={4}
       paddingBottom={4}
-      backgroundColor="#f8f7f5"
+      backgroundColor="#fbfaf7"
     />
-    <Style id="header-search-btn" fontSize={18} color="#3366cc" />
+    <Style id="header-search-btn" fontSize={18} color="#a22c29" />
     {homeNavbarStyles()}
     {customHeaderStyles()}
   </>

@@ -38,7 +38,7 @@ const CreatorsTabs = ({
           selected={activeTab === "all" ? "true" : undefined}
         >
           <Behavior {...tabLoadBehavior(baseUrl, "all")} />
-          <Text style="tab-label">All</Text>
+          <Text style="tab-label">ALL</Text>
         </Option>
         <Option
           value="publishers"
@@ -46,7 +46,7 @@ const CreatorsTabs = ({
           selected={activeTab === "publishers" ? "true" : undefined}
         >
           <Behavior {...tabLoadBehavior(baseUrl, "publishers")} />
-          <Text style="tab-label">Publishers</Text>
+          <Text style="tab-label">PUBLISHERS</Text>
         </Option>
         <Option
           value="artists"
@@ -54,7 +54,7 @@ const CreatorsTabs = ({
           selected={activeTab === "artists" ? "true" : undefined}
         >
           <Behavior {...tabLoadBehavior(baseUrl, "artists")} />
-          <Text style="tab-label">Artists</Text>
+          <Text style="tab-label">ARTISTS</Text>
         </Option>
         <Option
           value="following"
@@ -62,7 +62,7 @@ const CreatorsTabs = ({
           selected={activeTab === "following" ? "true" : undefined}
         >
           <Behavior {...tabLoadBehavior(baseUrl, "following")} />
-          <Text style="tab-label">Following</Text>
+          <Text style="tab-label">FOLLOWING</Text>
         </Option>
       </SelectSingle>
     </View>
@@ -75,9 +75,9 @@ export const creatorsTabStyles = () => (
   <>
     <Style
       id="creator-tabs-sticky"
-      backgroundColor="#f8f7f5"
+      backgroundColor="#fbfaf7"
       borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
+      borderBottomColor="#e4e0d5"
     />
     <Style
       id="tab-btn"
@@ -87,12 +87,18 @@ export const creatorsTabStyles = () => (
       alignItems="center"
     >
       <Modifier selected="true">
-        <Style borderBottomWidth={2} borderBottomColor="#0099cc" />
+        <Style borderBottomWidth={2} borderBottomColor="#a22c29" />
       </Modifier>
     </Style>
-    <Style id="tab-label" fontSize={13} fontWeight="600" color="#999999">
+    <Style
+      id="tab-label"
+      fontSize={11}
+      fontWeight="600"
+      letterSpacing={1.5}
+      color="#a39d90"
+    >
       <Modifier selected="true">
-        <Style color="#0099cc" />
+        <Style color="#a22c29" />
       </Modifier>
     </Style>
   </>

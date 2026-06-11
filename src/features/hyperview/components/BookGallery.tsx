@@ -70,7 +70,7 @@ export const bookGalleryStyles = () => (
       id="gallery-hero-wrap"
       width="100%"
       height={320}
-      backgroundColor="#f0f0ee"
+      backgroundColor="#f2efe8"
     />
     <Style id="gallery-hero-image" width="100%" height={320} />
     <Style

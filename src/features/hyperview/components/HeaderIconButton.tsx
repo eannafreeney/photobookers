@@ -1,6 +1,6 @@
 import { Behavior, Image, Style, View } from "../../../lib/hxml-comps";
 
-const SEARCH_ACTIVE_COLOR = "#0099cc";
+const SEARCH_ACTIVE_COLOR = "#a22c29";
 
 const searchIconToggleIds = (searchBarTarget: string) => ({
   idle: `${searchBarTarget}-icon-idle`,
@@ -81,7 +81,12 @@ export const headerIconButtonStyles = () => (
     >
       <modifier />
     </Style>
-    <Style id="featured-header-icon" width={22} height={22} />
+    <Style
+      id="featured-header-icon"
+      width={22}
+      height={22}
+      tintColor="#191613"
+    />
     <Style id="header-search-icon-layer" width={22} height={22} />
   </>
 );

@@ -56,22 +56,22 @@ const pageStyles = () => (
       id="accounts-section-title"
       fontSize={22}
       fontWeight="700"
-      color="#111111"
+      color="#191613"
       marginBottom={8}
     />
     <Style
       id="accounts-lead"
       fontSize={15}
-      color="#555555"
+      color="#45413a"
       lineHeight={22}
       marginBottom={20}
     />
     <Style
       id="accounts-card"
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
       borderRadius={12}
       borderWidth={1}
-      borderColor="#e8e8e6"
+      borderColor="#e4e0d5"
       padding={16}
       marginBottom={16}
       flexDirection="column"
@@ -80,28 +80,28 @@ const pageStyles = () => (
       id="accounts-type-title"
       fontSize={18}
       fontWeight="700"
-      color="#111111"
+      color="#191613"
       marginBottom={12}
     />
     <Style
       id="accounts-feature"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
       marginBottom={4}
     />
     <Style
       id="accounts-signup-wrap"
       marginTop={16}
-      backgroundColor="#111111"
-      borderRadius={10}
+      backgroundColor="#191613"
+      borderRadius={0}
       paddingTop={14}
       paddingBottom={14}
       alignItems="center"
     />
     <Style
       id="accounts-signup-label"
-      color="#ffffff"
+      color="#fbfaf7"
       fontWeight="600"
       fontSize={16}
     />

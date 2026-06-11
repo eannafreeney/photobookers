@@ -79,10 +79,10 @@ export const newsletterCardStyles = () => (
   <>
     <Style
       id="newsletter-card"
-      backgroundColor="#e0f2fe"
-      borderRadius={12}
-      borderWidth={1}
-      borderColor="#bae6fd"
+      backgroundColor="#f2efe8"
+      borderTopWidth={2}
+      borderBottomWidth={2}
+      borderColor="#191613"
       padding={16}
       gap={16}
     />
@@ -96,31 +96,30 @@ export const newsletterCardStyles = () => (
       id="newsletter-icon-wrap"
       width={40}
       height={40}
-      borderRadius={20}
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
       alignItems="center"
       justifyContent="center"
       borderWidth={1}
-      borderColor="#bae6fd"
+      borderColor="#e4e0d5"
       flexShrink={0}
     />
     <Style
       id="newsletter-icon"
       fontSize={18}
-      color="#0099cc"
+      color="#a22c29"
       textAlign="center"
     />
     <Style id="newsletter-copy" flex={1} gap={4} />
     <Style
       id="newsletter-heading"
-      fontSize={15}
-      fontWeight="600"
-      color="#111111"
+      fontFamily="Fraunces-Medium"
+      fontSize={17}
+      color="#191613"
     />
     <Style
       id="newsletter-subheading"
       fontSize={13}
-      color="#444444"
+      color="#45413a"
       lineHeight={18}
     />
     <Style
@@ -133,20 +132,20 @@ export const newsletterCardStyles = () => (
       id="newsletter-input"
       flex={1}
       borderWidth={1}
-      borderColor="#d4d4d4"
-      borderRadius={8}
+      borderColor="#e4e0d5"
+      borderRadius={0}
       paddingTop={10}
       paddingBottom={10}
       paddingLeft={12}
       paddingRight={12}
       fontSize={14}
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
       minHeight={40}
     />
     <Style
       id="newsletter-btn"
-      backgroundColor="#0099cc"
-      borderRadius={8}
+      backgroundColor="#a22c29"
+      borderRadius={0}
       paddingTop={10}
       paddingBottom={10}
       paddingLeft={16}
@@ -158,7 +157,7 @@ export const newsletterCardStyles = () => (
     />
     <Style
       id="newsletter-btn-label"
-      color="#ffffff"
+      color="#fbfaf7"
       fontWeight="600"
       fontSize={14}
     />

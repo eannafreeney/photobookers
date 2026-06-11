@@ -74,7 +74,7 @@ export const thisWeekSpotlightPageStyles = () => (
     <Style
       id="spotlight-books-of-the-day"
       borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
+      borderBottomColor="#e4e0d5"
       paddingBottom={16}
       marginBottom={16}
       gap={8}

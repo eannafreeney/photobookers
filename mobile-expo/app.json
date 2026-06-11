@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0099cc"
+      "backgroundColor": "#fbfaf7"
     },
     "ios": {
       "supportsTablet": false,
@@ -19,7 +19,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#0099cc"
+        "backgroundColor": "#fbfaf7"
       },
       "package": "com.photobookers.app"
     },

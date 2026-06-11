@@ -40,7 +40,7 @@ const FeaturedTabs = ({ baseUrl, activeTab = "home" }: FeaturedTabsProps) => {
           selected={activeTab === "home" ? "true" : undefined}
         >
           <Behavior {...tabLoadBehavior(baseUrl, "home-content")} />
-          <Text style="tab-label">Home</Text>
+          <Text style="tab-label">HOME</Text>
         </Option>
         <Option
           value="feed"
@@ -48,7 +48,7 @@ const FeaturedTabs = ({ baseUrl, activeTab = "home" }: FeaturedTabsProps) => {
           selected={activeTab === "feed" ? "true" : undefined}
         >
           <Behavior {...tabLoadBehavior(baseUrl, "feed")} />
-          <Text style="tab-label">Feed</Text>
+          <Text style="tab-label">FEED</Text>
         </Option>
         <Option
           value="messages"
@@ -56,7 +56,7 @@ const FeaturedTabs = ({ baseUrl, activeTab = "home" }: FeaturedTabsProps) => {
           selected={activeTab === "messages" ? "true" : undefined}
         >
           <Behavior {...tabLoadBehavior(baseUrl, "messages")} />
-          <Text style="tab-label">Messages</Text>
+          <Text style="tab-label">MESSAGES</Text>
         </Option>
       </SelectSingle>
     </View>
@@ -69,9 +69,9 @@ export const featuredTabStyles = () => (
   <>
     <Style
       id="featured-tabs-sticky"
-      backgroundColor="#f8f7f5"
+      backgroundColor="#fbfaf7"
       borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
+      borderBottomColor="#e4e0d5"
     />
     <Style
       id="featured-tab-panel"
@@ -99,12 +99,18 @@ export const featuredTabStyles = () => (
       alignItems="center"
     >
       <Modifier selected="true">
-        <Style borderBottomWidth={2} borderBottomColor="#0099cc" />
+        <Style borderBottomWidth={2} borderBottomColor="#a22c29" />
       </Modifier>
     </Style>
-    <Style id="tab-label" fontSize={13} fontWeight="600" color="#999999">
+    <Style
+      id="tab-label"
+      fontSize={11}
+      fontWeight="600"
+      letterSpacing={1.5}
+      color="#a39d90"
+    >
       <Modifier selected="true">
-        <Style color="#0099cc" />
+        <Style color="#a22c29" />
       </Modifier>
     </Style>
   </>

@@ -64,9 +64,9 @@ export const creatorsFilterFormStyles = () => (
       paddingBottom={12}
       paddingLeft={16}
       paddingRight={16}
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
       borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
+      borderBottomColor="#e4e0d5"
     />
     <Style
       id="creators-filter-row"
@@ -78,15 +78,15 @@ export const creatorsFilterFormStyles = () => (
       id="creators-filter-input"
       flex={1}
       borderWidth={1}
-      borderColor="#e5e5e5"
-      borderRadius={10}
+      borderColor="#e4e0d5"
+      borderRadius={0}
       paddingTop={12}
       paddingBottom={12}
       paddingLeft={14}
       paddingRight={14}
       fontSize={15}
-      backgroundColor="#ffffff"
-      color="#111111"
+      backgroundColor="#fbfaf7"
+      color="#191613"
     />
     <Style
       id="creators-filter-cancel"
@@ -100,7 +100,7 @@ export const creatorsFilterFormStyles = () => (
       id="creators-filter-cancel-label"
       fontSize={15}
       fontWeight="600"
-      color="#666666"
+      color="#45413a"
     />
   </>
 );

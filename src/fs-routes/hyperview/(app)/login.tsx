@@ -175,30 +175,30 @@ const pageStyles = () => (
       id="login-label"
       fontSize={13}
       fontWeight="600"
-      color="#444444"
+      color="#45413a"
       marginBottom={6}
       marginTop={12}
     />
     <Style
       id="login-field"
       borderWidth={1}
-      borderColor="#e5e5e5"
-      borderRadius={8}
+      borderColor="#e4e0d5"
+      borderRadius={0}
       paddingTop={12}
       paddingBottom={12}
       paddingLeft={12}
       paddingRight={12}
       fontSize={15}
-      backgroundColor="#ffffff"
-      color="#111111"
+      backgroundColor="#fbfaf7"
+      color="#191613"
       marginBottom={4}
       textTransform="lowercase"
     />
     <Style
       id="login-submit-wrap"
       marginTop={24}
-      backgroundColor="#111111"
-      borderRadius={8}
+      backgroundColor="#191613"
+      borderRadius={0}
       paddingTop={14}
       paddingBottom={14}
       alignItems="center"
@@ -206,7 +206,7 @@ const pageStyles = () => (
     />
     <Style
       id="login-submit-label"
-      color="#ffffff"
+      color="#fbfaf7"
       fontWeight="600"
       fontSize={16}
     />
@@ -214,10 +214,10 @@ const pageStyles = () => (
     <Style
       id="login-hint"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
       marginBottom={16}
     />
-    <Style id="login-success" fontSize={16} fontWeight="600" color="#111111" />
+    <Style id="login-success" fontSize={16} fontWeight="600" color="#191613" />
   </>
 );

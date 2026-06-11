@@ -46,14 +46,14 @@ export const interviewSectionStyles = () => (
     <Style
       id="spotlight-interview-teaser"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={20}
       marginBottom={8}
     />
     <Style
       id="spotlight-interview-link"
       fontSize={14}
-      color="#3366cc"
+      color="#a22c29"
       marginBottom={16}
     />
   </>

@@ -40,7 +40,7 @@ const InterviewCard: FC<Props> = ({
         />
       )}
       <View style={overlayStyle}>
-        <Text style="interview-card-eyebrow">Interview</Text>
+        <Text style="interview-card-eyebrow">INTERVIEW</Text>
         <Text style="interview-card-name">{interview.creator.displayName}</Text>
         {interview.completedAt && (
           <Text style="interview-card-date">
@@ -60,7 +60,7 @@ export const interviewCardStyles = () => (
       id="interview-card"
       width={220}
       height={256}
-      borderRadius={10}
+      borderRadius={0}
       overflow="hidden"
       marginRight={12}
     />
@@ -69,7 +69,7 @@ export const interviewCardStyles = () => (
       id="interview-list-card"
       width="100%"
       height={280}
-      borderRadius={10}
+      borderRadius={0}
       overflow="hidden"
       marginBottom={16}
     />
@@ -104,14 +104,16 @@ export const interviewCardStyles = () => (
     />
     <Style
       id="interview-card-eyebrow"
-      fontSize={11}
-      color="rgba(255,255,255,0.7)"
+      fontSize={10}
+      fontWeight="600"
+      letterSpacing={2}
+      color="rgba(255,255,255,0.75)"
     />
     <Style
       id="interview-card-name"
+      fontFamily="Fraunces-Medium"
       fontSize={22}
-      fontWeight="600"
-      color="#ffffff"
+      color="#fbfaf7"
       textAlign="center"
     />
     <Style

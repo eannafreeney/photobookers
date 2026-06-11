@@ -54,7 +54,7 @@ const modalStyles = () => (
     <Style
       id="auth-modal-body"
       flex={1}
-      backgroundColor="#f8f7f5"
+      backgroundColor="#fbfaf7"
       paddingLeft={20}
       paddingRight={20}
       paddingTop={64}
@@ -71,36 +71,36 @@ const modalStyles = () => (
     <Style
       id="auth-modal-close-label"
       fontSize={16}
-      color="#555555"
+      color="#45413a"
       fontWeight="600"
     />
     <Style
       id="auth-modal-card"
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
       borderRadius={12}
       borderWidth={1}
-      borderColor="#e8e8e6"
+      borderColor="#e4e0d5"
       padding={24}
       marginTop={8}
     />
     <Style
       id="auth-modal-title"
+      fontFamily="Fraunces-SemiBold"
       fontSize={22}
-      fontWeight="700"
-      color="#111111"
+      color="#191613"
       marginBottom={10}
     />
     <Style
       id="auth-modal-subtitle"
       fontSize={15}
-      color="#555555"
+      color="#45413a"
       lineHeight={22}
       marginBottom={28}
     />
     <Style
       id="auth-modal-primary-btn"
-      backgroundColor="#111111"
-      borderRadius={10}
+      backgroundColor="#191613"
+      borderRadius={0}
       paddingTop={16}
       paddingBottom={16}
       alignItems="center"
@@ -108,23 +108,23 @@ const modalStyles = () => (
     />
     <Style
       id="auth-modal-primary-label"
-      color="#ffffff"
+      color="#fbfaf7"
       fontWeight="600"
       fontSize={16}
     />
     <Style
       id="auth-modal-secondary-btn"
       borderWidth={1}
-      borderColor="#d1d5db"
-      borderRadius={10}
+      borderColor="#a39d90"
+      borderRadius={0}
       paddingTop={16}
       paddingBottom={16}
       alignItems="center"
-      backgroundColor="#ffffff"
+      backgroundColor="#fbfaf7"
     />
     <Style
       id="auth-modal-secondary-label"
-      color="#111111"
+      color="#191613"
       fontWeight="600"
       fontSize={16}
     />

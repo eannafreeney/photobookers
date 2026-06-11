@@ -37,7 +37,7 @@ const BookTabs = ({
           hide-during-load="tab-area"
           show-during-load="tab-spinner"
         >
-          <Text style="tab-label">Book</Text>
+          <Text style="tab-label">BOOK</Text>
         </Option>
         <Option
           value="comments"
@@ -50,7 +50,7 @@ const BookTabs = ({
           hide-during-load="tab-area"
           show-during-load="tab-spinner"
         >
-          <Text style="tab-label">Comments</Text>
+          <Text style="tab-label">COMMENTS</Text>
         </Option>
         <Option
           value="artist"
@@ -63,7 +63,7 @@ const BookTabs = ({
           hide-during-load="tab-area"
           show-during-load="tab-spinner"
         >
-          <Text style="tab-label">Artist</Text>
+          <Text style="tab-label">ARTIST</Text>
         </Option>
         {hasPublisher && (
           <Option
@@ -77,7 +77,7 @@ const BookTabs = ({
             hide-during-load="tab-area"
             show-during-load="tab-spinner"
           >
-            <Text style="tab-label">Publisher</Text>
+            <Text style="tab-label">PUBLISHER</Text>
           </Option>
         )}
       </SelectSingle>
@@ -91,9 +91,9 @@ export const bookTabStyles = () => (
   <>
     <Style
       id="book-tabs-sticky"
-      backgroundColor="#f8f7f5"
+      backgroundColor="#fbfaf7"
       borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
+      borderBottomColor="#e4e0d5"
     />
     <Style
       id="tab-btn"
@@ -103,12 +103,18 @@ export const bookTabStyles = () => (
       alignItems="center"
     >
       <Modifier selected="true">
-        <Style borderBottomWidth={2} borderBottomColor="#0099cc" />
+        <Style borderBottomWidth={2} borderBottomColor="#a22c29" />
       </Modifier>
     </Style>
-    <Style id="tab-label" fontSize={13} fontWeight="600" color="#999999">
+    <Style
+      id="tab-label"
+      fontSize={11}
+      fontWeight="600"
+      letterSpacing={1.5}
+      color="#a39d90"
+    >
       <Modifier selected="true">
-        <Style color="#0099cc" />
+        <Style color="#a22c29" />
       </Modifier>
     </Style>
     <Style

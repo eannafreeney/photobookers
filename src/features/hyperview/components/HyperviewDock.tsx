@@ -48,7 +48,7 @@ const HyperviewDock: FC<HyperviewDockProps> = ({ baseUrl, active }) => {
               style={iconStyle(isActive)}
               resize-mode="contain"
             />
-            <Text style={labelStyle(isActive)}>{label}</Text>
+            <Text style={labelStyle(isActive)}>{label.toUpperCase()}</Text>
           </View>
         );
       })}
@@ -65,7 +65,7 @@ export const dockShellStyles = () => (
       id="shell-column"
       flex={1}
       flexDirection="column"
-      backgroundColor="#f8f7f5"
+      backgroundColor="#fbfaf7"
     />
     <Style id="shell-scroll" flex={1} />
     <Style
@@ -78,9 +78,9 @@ export const dockShellStyles = () => (
       marginBottom={24}
       paddingLeft={8}
       paddingRight={8}
-      borderTopWidth={1}
-      borderTopColor="#e5e5e5"
-      backgroundColor="#ffffff"
+      borderTopWidth={2}
+      borderTopColor="#191613"
+      backgroundColor="#fbfaf7"
       height={56}
     />
     <Style id="dock-item" flex={1} alignItems="center" paddingTop={2} />
@@ -88,7 +88,7 @@ export const dockShellStyles = () => (
       id="dock-icon"
       width={22}
       height={22}
-      tintColor="#999999"
+      tintColor="#a39d90"
       marginBottom={2}
     />
     <Style
@@ -96,14 +96,21 @@ export const dockShellStyles = () => (
       width={22}
       height={22}
       marginBottom={2}
-      tintColor="#0099cc"
+      tintColor="#a22c29"
     />
-    <Style id="dock-label" fontSize={10} fontWeight="600" color="#999999" />
+    <Style
+      id="dock-label"
+      fontSize={9}
+      fontWeight="600"
+      letterSpacing={1}
+      color="#a39d90"
+    />
     <Style
       id="dock-label-active"
-      fontSize={10}
+      fontSize={9}
       fontWeight="700"
-      color="#0099cc"
+      letterSpacing={1}
+      color="#a22c29"
     />
   </>
 );

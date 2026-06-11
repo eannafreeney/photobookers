@@ -53,7 +53,7 @@ export const thisWeekNavStyles = () => (
       marginTop={8}
       paddingBottom={16}
       borderTopWidth={1}
-      borderTopColor="#e5e5e5"
+      borderTopColor="#e4e0d5"
     />
     {secondaryButtonLinkStyles()}
   </>

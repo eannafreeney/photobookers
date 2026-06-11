@@ -89,21 +89,21 @@ const pageStyles = () => (
       id="title"
       fontSize={22}
       fontWeight="700"
-      color="#111111"
+      color="#191613"
       marginBottom={6}
     />
-    <Style id="subtitle" fontSize={15} color="#666666" marginBottom={16} />
+    <Style id="subtitle" fontSize={15} color="#45413a" marginBottom={16} />
     <Style
       id="description"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
       marginBottom={8}
     />
     <Style
       id="description-paragraph"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
       marginBottom={12}
     />
@@ -112,30 +112,30 @@ const pageStyles = () => (
       id="artist-name"
       fontSize={18}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
       marginBottom={8}
     />
-    <Style id="artist-bio" fontSize={14} color="#444444" lineHeight={22} />
+    <Style id="artist-bio" fontSize={14} color="#45413a" lineHeight={22} />
     <Style
       id="publisher-name"
       fontSize={18}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
       marginBottom={8}
     />
-    <Style id="publisher-location" fontSize={14} color="#666666" />
-    <Style id="comments-placeholder" fontSize={14} color="#999999" />
+    <Style id="publisher-location" fontSize={14} color="#45413a" />
+    <Style id="comments-placeholder" fontSize={14} color="#a39d90" />
     <Style
       id="comments-heading"
       fontSize={15}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
       marginBottom={12}
     />
     <Style
       id="comments-empty"
       fontSize={13}
-      color="#999999"
+      color="#a39d90"
       textAlign="center"
       padding={16}
     />
@@ -144,7 +144,7 @@ const pageStyles = () => (
       paddingTop={12}
       paddingBottom={12}
       borderBottomWidth={1}
-      borderBottomColor="#e5e5e5"
+      borderBottomColor="#e4e0d5"
     />
     <Style
       id="comment-author-row"
@@ -165,17 +165,17 @@ const pageStyles = () => (
       height={32}
       borderRadius={16}
       marginRight={8}
-      backgroundColor="#e5e5e5"
+      backgroundColor="#e4e0d5"
     />
     <Style id="comment-author-info" flex={1} />
     <Style
       id="comment-username"
       fontSize={13}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
     />
-    <Style id="comment-date" fontSize={11} color="#999999" marginTop={2} />
-    <Style id="comment-body" fontSize={14} color="#444444" lineHeight={20} />
+    <Style id="comment-date" fontSize={11} color="#a39d90" marginTop={2} />
+    <Style id="comment-body" fontSize={14} color="#45413a" lineHeight={20} />
     {creatorCardStyles()}
     {bookTabStyles()}
     {bookPageStyles()}

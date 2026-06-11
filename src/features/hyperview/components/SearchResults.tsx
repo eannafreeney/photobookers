@@ -125,7 +125,7 @@ export const hvSearchResultsStyles = () => (
       id="search-section-label"
       fontSize={11}
       fontWeight="600"
-      color="#666666"
+      color="#45413a"
       marginBottom={8}
     />
     <Style
@@ -135,7 +135,7 @@ export const hvSearchResultsStyles = () => (
       paddingTop={10}
       paddingBottom={10}
       borderBottomWidth={1}
-      borderBottomColor="#eeeeee"
+      borderBottomColor="#e4e0d5"
     />
     <Style
       id="search-row-main"
@@ -147,12 +147,12 @@ export const hvSearchResultsStyles = () => (
       id="search-row-title"
       fontSize={15}
       fontWeight="600"
-      color="#111111"
+      color="#191613"
     />
     <Style
       id="search-row-sub"
       fontSize={12}
-      color="#666666"
+      color="#45413a"
       marginTop={2}
       textTransform="uppercase"
     />
@@ -162,21 +162,21 @@ export const hvSearchResultsStyles = () => (
       width={48}
       height={48}
       borderRadius={24}
-      backgroundColor="#e5e5e5"
+      backgroundColor="#e4e0d5"
     />
-    <Style id="search-book-thumb" width={48} height={48} borderRadius={4} />
+    <Style id="search-book-thumb" width={48} height={48} borderRadius={0} />
     <Style
       id="search-book-thumb-placeholder"
       width={48}
       height={48}
-      borderRadius={4}
-      backgroundColor="#e5e5e5"
+      borderRadius={0}
+      backgroundColor="#e4e0d5"
     />
     <Style
       id="search-verified"
       fontSize={14}
       fontWeight="700"
-      color="#2563eb"
+      color="#a22c29"
     />
   </>
 );

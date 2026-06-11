@@ -27,7 +27,7 @@ export const legalTextStyles = () => (
     <Style
       id="legal-section"
       fontSize={14}
-      color="#444444"
+      color="#45413a"
       lineHeight={22}
       marginBottom={16}
     />

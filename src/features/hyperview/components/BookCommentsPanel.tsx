@@ -157,22 +157,22 @@ export const bookCommentsPanelStyles = () => (
     <Style
       id="comment-form-input"
       borderWidth={1}
-      borderColor="#e5e5e5"
-      borderRadius={8}
+      borderColor="#e4e0d5"
+      borderRadius={0}
       paddingTop={12}
       paddingBottom={12}
       paddingLeft={12}
       paddingRight={12}
       fontSize={15}
-      backgroundColor="#ffffff"
-      color="#111111"
+      backgroundColor="#fbfaf7"
+      color="#191613"
       minHeight={96}
       marginBottom={12}
     />
     <Style
       id="comment-form-submit"
-      backgroundColor="#111111"
-      borderRadius={8}
+      backgroundColor="#191613"
+      borderRadius={0}
       paddingTop={12}
       paddingBottom={12}
       alignItems="center"
@@ -180,14 +180,14 @@ export const bookCommentsPanelStyles = () => (
     />
     <Style
       id="comment-form-submit-label"
-      color="#ffffff"
+      color="#fbfaf7"
       fontWeight="600"
       fontSize={15}
     />
     <Style
       id="comment-form-hint"
       fontSize={14}
-      color="#666666"
+      color="#45413a"
       marginBottom={16}
     />
     <Style
