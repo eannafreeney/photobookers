@@ -17,6 +17,7 @@ import { prepareNewsletterHtmlForEsp } from "./newsletterEspHtml";
 import {
   BookFeatureCard,
   CreatorFeatureCard,
+  NewMemberFeatureCard,
   NewsletterCtaButton,
   NewsletterFooter,
   NewsletterHeader,
@@ -113,6 +114,19 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
       <NewsletterSubject subject={params.subject} />
       <NewsletterIntro introText={params.introText} />
 
+      {(params.newMembers?.length ?? 0) > 0 ? (
+        <>
+          <SectionHeading>New on Photobookers</SectionHeading>
+          {params.newMembers!.map((member, index) => (
+            <NewMemberFeatureCard
+              key={member.slug}
+              member={member}
+              reversed={index % 2 === 1}
+            />
+          ))}
+        </>
+      ) : null}
+
       {params.items.length > 0 ? (
         <SectionHeading>Books of the day</SectionHeading>
       ) : null}
@@ -154,10 +168,7 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
   </Mjml>
 );
 
-/**
- * MJML-React alternative to {@link renderWeeklyBOTDNewsletterHtml}.
- * Renders JSX → MJML → email-safe HTML via the mjml compiler.
- */
+/** Renders the weekly newsletter: JSX → MJML → email-safe HTML. */
 export function renderWeeklyBOTDNewsletterHtmlMjml(
   params: WeeklyNewsletterRenderParams,
 ): string {

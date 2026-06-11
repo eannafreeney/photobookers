@@ -108,7 +108,6 @@ const CreatorDetailMobile = ({
       </Tabs.Panel>
       <Tabs.Panel tabId="creators">
         <CreatorsGrid
-          isMobile
           currentPage={creatorsCurrentPage}
           creatorId={creator.id}
           creatorType={creator.type}
@@ -124,7 +123,6 @@ const CreatorDetailMobile = ({
           shouldRefreshCreatorMessages
         />
         <CreatorsGrid
-          isMobile
           currentPage={creatorsCurrentPage}
           creatorId={creator.id}
           creatorType={creator.type}
@@ -196,13 +194,15 @@ const CreatorDetailDesktop = ({
         </Tabs>
       </div>
       <div class="md:w-1/5">
-        <CreatorCard
-          creator={creator}
-          currentPath={currentPath}
-          user={user}
-          title="About"
-          shouldRefreshCreatorMessages
-        />
+        <div class="mt-5">
+          <CreatorCard
+            creator={creator}
+            currentPath={currentPath}
+            user={user}
+            title="About"
+            shouldRefreshCreatorMessages
+          />
+        </div>
       </div>
     </div>
   </div>

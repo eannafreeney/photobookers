@@ -20,6 +20,7 @@ type Props = {
   featureDate?: Date;
   showFollowAndClaimButtons?: boolean;
   shouldRefreshCreatorMessages?: boolean;
+  showHeader?: boolean;
 };
 
 const CreatorCard = async ({
@@ -30,6 +31,7 @@ const CreatorCard = async ({
   featureDate,
   showFollowAndClaimButtons = true,
   shouldRefreshCreatorMessages = false,
+  showHeader = true,
 }: Props) => {
   if (!creator) return <></>;
 
@@ -41,13 +43,15 @@ const CreatorCard = async ({
         <div class="text-sm py-0 text-on-surface font-bold mb-0">{title}</div>
       )}
       <Card>
-        <div class="p-2 flex items-center justify-between h-10">
-          <CardCreatorCard
-            creator={creator ?? null}
-            maxDisplayNameLength={30}
-          />
-          {featureDate && <Card.Text>{formatDate(featureDate)}</Card.Text>}
-        </div>
+        {showHeader && (
+          <div class="p-2 flex items-center justify-between h-10">
+            <CardCreatorCard
+              creator={creator ?? null}
+              maxDisplayNameLength={30}
+            />
+            {featureDate && <Card.Text>{formatDate(featureDate)}</Card.Text>}
+          </div>
+        )}
         <Card.Image
           src={creator.coverUrl ?? ""}
           alt={creator.displayName}

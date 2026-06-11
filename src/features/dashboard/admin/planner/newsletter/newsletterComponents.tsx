@@ -11,6 +11,7 @@ import { parseDateString } from "../../../../../lib/utils";
 import type {
   WeeklyNewsletterBookItem,
   WeeklyNewsletterCreatorSpotlight,
+  WeeklyNewsletterNewMember,
 } from "../newsletterTemplate";
 import {
   appBaseUrl,
@@ -342,6 +343,42 @@ const buildCreatorBody = (
   if (creator.location) parts.push(creator.location);
   return parts.join(" · ");
 };
+
+const buildNewMemberBody = (member: WeeklyNewsletterNewMember): string => {
+  const parts: string[] = [
+    member.type === "artist" ? "Artist" : "Publisher",
+  ];
+  if (member.tagline) parts.push(member.tagline);
+  if (member.location) parts.push(member.location);
+  return parts.join(" · ");
+};
+
+export const NewMemberFeatureCard = ({
+  member,
+  reversed = false,
+}: {
+  member: WeeklyNewsletterNewMember;
+  reversed?: boolean;
+}) => (
+  <AlternatingFeatureCard
+    reversed={reversed}
+    image={
+      member.coverUrl ? (
+        <MjmlImage
+          {...featureImageProps}
+          src={member.coverUrl}
+          alt={member.displayName}
+          cssClass="feature-card-img feature-card-img-square"
+          height={`${featureImageWidthPx}px`}
+        />
+      ) : null
+    }
+    title={member.displayName}
+    body={buildNewMemberBody(member)}
+    linkHref={`${appBaseUrl}/creators/${member.slug}`}
+    linkLabel="View profile"
+  />
+);
 
 export const CreatorFeatureCard = ({
   creator,

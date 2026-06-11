@@ -632,6 +632,14 @@ export const newsletterCampaigns = pgTable(
         tagline?: string | null;
         location?: string | null;
       } | null;
+      newMembers?: Array<{
+        displayName: string;
+        slug: string;
+        type: "artist" | "publisher";
+        coverUrl: string | null;
+        tagline: string | null;
+        location: string | null;
+      }>;
     }>(),
     sentAt: timestamp("sent_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),

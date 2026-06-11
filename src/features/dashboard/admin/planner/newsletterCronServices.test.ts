@@ -64,6 +64,7 @@ const sampleGenerated = {
     publisherName: null,
     publisherSlug: null,
   })),
+  newMembers: [],
   artistOfTheWeek: null,
   publisherOfTheWeek: null,
 };

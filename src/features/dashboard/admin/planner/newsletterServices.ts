@@ -1,7 +1,8 @@
-import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNotNull, lt, lte } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   artistOfTheWeek,
+  creators,
   type NewsletterCampaignStatus,
   newsletterCampaigns,
   publisherOfTheWeek,
@@ -20,6 +21,7 @@ import {
 import {
   type WeeklyNewsletterBookItem,
   type WeeklyNewsletterCreatorSpotlight,
+  type WeeklyNewsletterNewMember,
 } from "./newsletterTemplate";
 import { renderWeeklyBOTDNewsletterHtmlMjml } from "./newsletterTemplateMjml";
 import {
@@ -31,9 +33,12 @@ import {
 export type WeeklyNewsletterGeneratedContent = {
   generatedAt: string;
   items: WeeklyNewsletterBookItem[];
+  newMembers: WeeklyNewsletterNewMember[];
   artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
   publisherOfTheWeek: WeeklyNewsletterCreatorSpotlight;
 };
+
+const NEW_MEMBERS_LIMIT = 6;
 
 /** Normalize any week-start value to UTC midnight (matches planner `YYYY-MM-DD` links). */
 export function normalizeWeekStartDate(weekStart: Date): Date {
@@ -95,6 +100,44 @@ const toCreatorSpotlight = (
       }
     : null;
 
+/** Verified creators whose `verifiedAt` falls in the newsletter edition (Thu–Wed). */
+async function getNewlyVerifiedCreatorsInRange(
+  rangeStart: Date,
+  rangeEnd: Date,
+): Promise<WeeklyNewsletterNewMember[]> {
+  const rangeEndExclusive = new Date(rangeEnd);
+  rangeEndExclusive.setUTCDate(rangeEndExclusive.getUTCDate() + 1);
+
+  const rows = await db.query.creators.findMany({
+    where: and(
+      eq(creators.status, "verified"),
+      isNotNull(creators.verifiedAt),
+      gte(creators.verifiedAt, rangeStart),
+      lt(creators.verifiedAt, rangeEndExclusive),
+    ),
+    columns: {
+      displayName: true,
+      slug: true,
+      type: true,
+      coverUrl: true,
+      tagline: true,
+      city: true,
+      country: true,
+    },
+    orderBy: [asc(creators.verifiedAt)],
+    limit: NEW_MEMBERS_LIMIT,
+  });
+
+  return rows.map((creator) => ({
+    displayName: creator.displayName,
+    slug: creator.slug,
+    type: creator.type,
+    coverUrl: creator.coverUrl ?? null,
+    tagline: creator.tagline?.trim() || null,
+    location: formatCreatorLocation(creator.city, creator.country),
+  }));
+}
+
 /** AOTW/POTW for the ISO week containing the newsletter send Wednesday. */
 async function getWeeklyCreatorSpotlights(sendWednesday: Date) {
   const normalizedWeekStart = toWeekStart(sendWednesday);
@@ -149,8 +192,11 @@ export async function buildWeeklyBOTDGeneratedContent(
   );
   if (rangeError) return err({ reason: rangeError.reason });
 
-  const { artistOfTheWeek, publisherOfTheWeek } =
-    await getWeeklyCreatorSpotlights(rangeEnd);
+  const [{ artistOfTheWeek, publisherOfTheWeek }, newMembers] =
+    await Promise.all([
+      getWeeklyCreatorSpotlights(rangeEnd),
+      getNewlyVerifiedCreatorsInRange(rangeStart, rangeEnd),
+    ]);
 
   const items: WeeklyNewsletterBookItem[] = rangeResult.botdEntries.map(
     (entry) => ({
@@ -169,6 +215,7 @@ export async function buildWeeklyBOTDGeneratedContent(
   return ok({
     generatedAt: new Date().toISOString(),
     items,
+    newMembers,
     artistOfTheWeek,
     publisherOfTheWeek,
   });
@@ -382,6 +429,7 @@ export async function buildCampaignPreviewHtml(
     outroText: campaign.outroText,
     ctaText: campaign.ctaText,
     items: generated?.items ?? stored?.items ?? [],
+    newMembers: generated?.newMembers ?? stored?.newMembers ?? [],
     artistOfTheWeek:
       artistOfTheWeek ??
       normalizeStoredCreatorSpotlight(

@@ -1,5 +1,7 @@
+import CreatorCard from "../../../components/app/CreatorCard";
 import ScrollReveal from "../../../components/app/ScrollReveal";
 import SectionTitle from "../../../components/app/SectionTitle";
+import { useUser } from "../../../contexts/UserContext";
 import { getCreatorsByCreatorId, getRelatedCreators } from "../services";
 import CreatorsCircle from "./CreatorsCircle";
 import ListNavigation from "./ListNavigation";
@@ -9,13 +11,11 @@ type Props = {
   creatorType: "artist" | "publisher";
   title?: string;
   currentPath: string;
-  isMobile?: boolean;
   currentPage: number;
   pageParam?: string;
 };
 
 const CreatorsGrid = async ({
-  isMobile,
   creatorId,
   creatorType,
   title,
@@ -23,6 +23,7 @@ const CreatorsGrid = async ({
   currentPage,
   pageParam,
 }: Props) => {
+  const user = useUser();
   const [error, result] = await getCreatorsByCreatorId(
     creatorId,
     creatorType,
@@ -41,17 +42,22 @@ const CreatorsGrid = async ({
       <div
         x-ref="creatorsContent"
         id={targetId}
-        x-merge={isMobile ? "append" : "replace"}
-        class="grid grid-cols-2 md:grid-cols-3 gap-6"
+        x-merge="append"
+        class="grid grid-cols-2 md:grid-cols-4 gap-6"
       >
         {creators.map((creator) => (
           <ScrollReveal>
-            <CreatorsCircle creator={creator} />
+            <CreatorCard
+              creator={creator}
+              currentPath={currentPath}
+              user={user}
+              showHeader={false}
+            />
           </ScrollReveal>
         ))}
       </div>
       <ListNavigation
-        isInfiniteScroll={isMobile}
+        isInfiniteScroll
         targetId={targetId}
         totalPages={totalPages}
         page={page}
