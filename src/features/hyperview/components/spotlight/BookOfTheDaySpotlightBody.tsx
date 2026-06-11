@@ -18,6 +18,7 @@ import SpotlightCreatorRow from "./SpotlightCreatorRow";
 import { Creator } from "../../../../db/schema";
 import { botdIndexPath, botdPath } from "../../../app/spotlightUrls";
 import DiscoveryTags from "../DiscoveryTags";
+import ExpandableBio from "./ExpandableBio";
 
 type Props = {
   book: BookWithGalleryImages;
@@ -43,10 +44,6 @@ const BookOfTheDaySpotlightBody: FC<Props> = ({
 
   return (
     <View style="spotlight-body">
-      {/* <SpotlightHeader
-        title={book.title}
-        subtitle={book.artist?.displayName ?? ""}
-      /> */}
       <BookGallery galleryImages={galleryImages} />
       <View>
         <Text style="title">{book.title}</Text>
@@ -60,9 +57,7 @@ const BookOfTheDaySpotlightBody: FC<Props> = ({
         shareTitle={`Book of the Day — ${book.title}`}
         shareMessage={`Check out ${book.title} on Photobookers`}
       />
-      {description ? (
-        <Text style="spotlight-body-text">{description}</Text>
-      ) : null}
+      {description ? <ExpandableBio bio={description} id={book.id} /> : null}
       <NewsletterCard baseUrl={baseUrl} />
       {book.artist ? (
         <SpotlightCreatorRow

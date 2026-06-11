@@ -2,7 +2,6 @@ import { FC } from "hono/jsx";
 import { Behavior, Image, Style, Text, View } from "../../../../lib/hxml-comps";
 import { Creator } from "../../../../db/schema";
 import FollowButton from "../FollowButton";
-import CreatorSocialLinks from "../CreatorSocialLinks";
 
 type Props = {
   creator: Creator;
@@ -16,12 +15,12 @@ const SpotlightCreatorRow: FC<Props> = ({
   role,
   baseUrl,
   isFollowing,
-}) => (
-  <View style="spotlight-creator-row">
-    <View style="spotlight-creator-main">
-      <Behavior
-        href={`${baseUrl}/hyperview/creators/${creator.id}/tab/books`}
-      />
+}) => {
+  const profileHref = `${baseUrl}/hyperview/creators/${creator.id}/tab/books`;
+
+  return (
+    <View style="spotlight-creator-row">
+      <Behavior href={profileHref} />
       {creator.coverUrl ? (
         <Image
           source={creator.coverUrl}
@@ -35,9 +34,14 @@ const SpotlightCreatorRow: FC<Props> = ({
         <Text style="spotlight-creator-role">{role}</Text>
         <Text style="spotlight-creator-name">{creator.displayName}</Text>
       </View>
+      <FollowButton
+        creatorId={creator.id}
+        baseUrl={baseUrl}
+        isActive={isFollowing}
+      />
     </View>
-  </View>
-);
+  );
+};
 
 export default SpotlightCreatorRow;
 
@@ -46,15 +50,11 @@ export const spotlightCreatorRowStyles = () => (
     <Style
       id="spotlight-creator-row"
       borderWidth={1}
+      flexDirection="row"
+      alignItems="center"
       borderColor="#e5e5e5"
       borderRadius={8}
       padding={12}
-      gap={12}
-    />
-    <Style
-      id="spotlight-creator-main"
-      flexDirection="row"
-      alignItems="center"
       gap={12}
     />
     <Style
@@ -62,8 +62,14 @@ export const spotlightCreatorRowStyles = () => (
       width={48}
       height={48}
       borderRadius={24}
+      flexShrink={0}
     />
-    <Style id="spotlight-creator-text" flex={1} gap={2} />
+    <Style
+      id="spotlight-creator-text"
+      flexDirection="column"
+      flex={1}
+      gap={2}
+    />
     <Style id="spotlight-creator-role" fontSize={12} color="#666666" />
     <Style
       id="spotlight-creator-name"
@@ -71,5 +77,17 @@ export const spotlightCreatorRowStyles = () => (
       fontWeight="600"
       color="#111111"
     />
+    <Style
+      id="follow-btn"
+      paddingTop={10}
+      paddingBottom={10}
+      paddingLeft={16}
+      paddingRight={16}
+      borderRadius={8}
+      backgroundColor="#111111"
+      alignItems="center"
+      flexShrink={0}
+    />
+    <Style id="follow-label" fontSize={14} fontWeight="600" color="#ffffff" />
   </>
 );

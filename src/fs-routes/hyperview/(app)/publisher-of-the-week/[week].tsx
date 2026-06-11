@@ -64,7 +64,6 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
   }
 
   const publishedInterview = await fetchPublishedInterview(creator.slug);
-  const title = `${capitalize(creator.type)} of the Week — ${creator.displayName}`;
 
   const [favoritesByBookId, followingByCreatorId] = await Promise.all([
     favoriteFlagsForBooks(user, booksResult.books),
@@ -73,7 +72,7 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
 
   return hv(
     <AppLayout
-      title={title}
+      title={`${capitalize(creator.type)} of the Week`}
       baseUrl={baseUrl}
       user={user}
       showDock

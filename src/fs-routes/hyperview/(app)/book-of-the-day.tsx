@@ -38,7 +38,6 @@ export const GET = createRoute(async (c) => {
       extraStyles={pageStyles()}
     >
       <View style="page-content">
-        <SectionHeader title="Books of the Day" />
         {botdEntries.length > 0 ? (
           botdEntries.map((entry) => (
             <ThisWeekBookEntry key={entry.id} entry={entry} baseUrl={baseUrl} />

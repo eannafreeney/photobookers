@@ -21,7 +21,6 @@ type Props = {
 
 const ThisWeekBookEntry: FC<Props> = ({ entry, baseUrl }) => {
   const { book } = entry;
-  const editorial = entry.instagramCaption?.trim();
   const href = `${baseUrl}/hyperview${botdPath(entry.date)}`;
 
   return (
@@ -40,9 +39,6 @@ const ThisWeekBookEntry: FC<Props> = ({ entry, baseUrl }) => {
         <Text style="spotlight-botd-title">{book.title}</Text>
         {book.artist ? (
           <Text style="spotlight-botd-artist">{book.artist.displayName}</Text>
-        ) : null}
-        {editorial ? (
-          <Text style="spotlight-botd-teaser">{editorial}</Text>
         ) : null}
         <View style="spotlight-botd-btn">
           <Text style="spotlight-botd-btn-label">View</Text>

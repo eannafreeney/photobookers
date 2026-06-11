@@ -18,8 +18,10 @@ import { formatCreatorLocation, toWeekString } from "../../../../lib/utils";
 import type { InterviewPreview } from "../../../app/components/InterviewPreviewSection";
 import CreatorActions, { creatorActionsStyles } from "./CreatorActions";
 import InterviewSection, { interviewSectionStyles } from "./InterviewSection";
-import SecondaryButtonLink from "../SecondaryButtonLink";
-import { cotwIndexPath } from "../../../app/spotlightUrls";
+import SecondaryButtonLink, {
+  secondaryButtonLinkStyles,
+} from "../SecondaryButtonLink";
+import { botdIndexPath, cotwIndexPath } from "../../../app/spotlightUrls";
 
 type Props = {
   creator: Creator;
@@ -120,7 +122,7 @@ export default CreatorOfTheWeekSpotlightBody;
 
 export const creatorOfTheWeekSpotlightBodyStyles = () => (
   <>
-    <Style id="spotlight-body" flexDirection="column" gap={12} />
+    <Style id="spotlight-body" flexDirection="column" gap={16} />
     <Style id="spotlight-cover" width="100%" height={280} borderRadius={8} />
     <Style
       id="spotlight-body-text"
@@ -136,7 +138,6 @@ export const creatorOfTheWeekSpotlightBodyStyles = () => (
       paddingTop={12}
       paddingBottom={12}
       alignItems="center"
-      marginBottom={16}
     />
     <Style
       id="spotlight-profile-btn-label"
@@ -161,5 +162,6 @@ export const creatorOfTheWeekSpotlightPageStyles = () => (
     {sectionHeaderStyles()}
     {signInPromptStyles()}
     {interviewSectionStyles()}
+    {secondaryButtonLinkStyles()}
   </>
 );
