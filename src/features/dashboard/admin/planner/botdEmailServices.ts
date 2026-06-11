@@ -11,10 +11,88 @@ import { sendEmail } from "../../../../lib/sendEmail";
 import { err, ok, type Result } from "../../../../lib/result";
 import { toUtcStartOfDay } from "../../../../lib/utils";
 import { botdUrl } from "../../../app/spotlightUrls";
-import { buildBotdFeatureDayEmail } from "./emails";
+import { provisionCreatorUserAccount } from "../users/provisionCreatorAccount";
+import {
+  buildBotdFeatureDayEmail,
+  generateBOTDNotificationEmail,
+  type BotdNotificationAccountCredentials,
+} from "./emails";
 import { updateBookOfTheDayByDate } from "./services";
+import { formatBotdDateLong } from "./utils";
+
+const CREATOR_BOTD_EMAIL_COLUMNS = {
+  ...CREATOR_CARD_COLUMNS,
+  ownerUserId: true,
+} as const;
 
 type BotdEmailServiceError = { reason: string; cause?: unknown };
+
+export type BotdAdvanceNotificationCreator = {
+  id: string;
+  displayName: string;
+  slug: string;
+  email: string | null;
+  ownerUserId: string | null;
+};
+
+export async function prepareBotdAdvanceNotificationContent(params: {
+  creator: BotdAdvanceNotificationCreator;
+  book: { id: string; title: string; slug: string };
+  date: Date;
+}) {
+  const email = params.creator.email?.trim();
+  let ownerUserId = params.creator.ownerUserId ?? null;
+  let accountCredentials: BotdNotificationAccountCredentials | undefined;
+
+  if (!ownerUserId && email) {
+    const [provisionError, provision] = await provisionCreatorUserAccount({
+      creatorId: params.creator.id,
+      email,
+      displayName: params.creator.displayName,
+    });
+    if (provisionError) {
+      console.error(
+        "prepareBotdAdvanceNotificationContent provision",
+        provisionError,
+      );
+    } else if (provision.status === "created") {
+      ownerUserId = provision.ownerUserId;
+      accountCredentials = {
+        kind: "created",
+        email: provision.email,
+        temporaryPassword: provision.temporaryPassword,
+        loginUrl: provision.loginUrl,
+      };
+    } else if (provision.status === "linked_existing") {
+      ownerUserId = provision.ownerUserId;
+      accountCredentials = {
+        kind: "linked",
+        email: provision.email,
+        loginUrl: provision.loginUrl,
+      };
+    } else if (provision.status === "failed") {
+      console.error(
+        "prepareBotdAdvanceNotificationContent provision failed",
+        provision.reason,
+      );
+    }
+  }
+
+  const html = generateBOTDNotificationEmail(
+    {
+      displayName: params.creator.displayName,
+      email: params.creator.email,
+      slug: params.creator.slug,
+      ownerUserId,
+    },
+    params.book,
+    params.date,
+    accountCredentials,
+  );
+  const subject = `Book of the Day on ${formatBotdDateLong(params.date)}: ${params.book.title}`;
+
+  return { html, subject, ownerUserId };
+}
 
 export type BotdFeatureDayEmailSkipReason = "already_sent" | "no_email" | "no_creator";
 
@@ -42,13 +120,21 @@ export type RunBotdFeatureDayEmailsResult = Result<
 type BotdWithBook = {
   id: string;
   date: Date;
+  artistEmailSentAt: Date | null;
+  publisherEmailSentAt: Date | null;
   artistFeatureDayEmailSentAt: Date | null;
   publisherFeatureDayEmailSentAt: Date | null;
   book: BookCardResult & {
-    artist?: CreatorCardResult | null;
-    publisher?: CreatorCardResult | null;
+    artist?: (CreatorCardResult & { ownerUserId: string | null }) | null;
+    publisher?: (CreatorCardResult & { ownerUserId: string | null }) | null;
   };
 };
+
+function addUtcDays(date: Date, days: number): Date {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d;
+}
 
 async function loadBotdForDate(
   day: Date,
@@ -60,8 +146,8 @@ async function loadBotdForDate(
         book: {
           columns: BOOK_CARD_COLUMNS,
           with: {
-            artist: { columns: CREATOR_CARD_COLUMNS },
-            publisher: { columns: CREATOR_CARD_COLUMNS },
+            artist: { columns: CREATOR_BOTD_EMAIL_COLUMNS },
+            publisher: { columns: CREATOR_BOTD_EMAIL_COLUMNS },
           },
         },
       },
@@ -126,6 +212,128 @@ async function sendBotdFeatureDayEmailForRecipient(
   if (markError) return err(markError);
 
   return ok({ status: "sent" });
+}
+
+export type BotdAdvanceNotificationEmailSkipReason =
+  | "already_sent"
+  | "no_email"
+  | "no_creator";
+
+export type BotdAdvanceNotificationEmailItemOutcome =
+  | { status: "sent" }
+  | { status: "skipped"; reason: BotdAdvanceNotificationEmailSkipReason }
+  | { status: "failed"; reason: string };
+
+export type BotdAdvanceNotificationEmailRunResult = {
+  advanceEmailsSent: number;
+  featureDate: Date | null;
+  items: Array<{
+    recipientType: "artist" | "publisher";
+    creatorId: string;
+    bookId: string;
+    date: Date;
+    outcome: BotdAdvanceNotificationEmailItemOutcome;
+  }>;
+};
+
+export type RunBotdAdvanceNotificationEmailsResult = Result<
+  BotdAdvanceNotificationEmailRunResult,
+  BotdEmailServiceError
+>;
+
+async function sendBotdAdvanceNotificationEmailForRecipient(
+  row: BotdWithBook,
+  recipientType: "artist" | "publisher",
+): Promise<Result<BotdAdvanceNotificationEmailItemOutcome, BotdEmailServiceError>> {
+  const alreadySent =
+    recipientType === "artist"
+      ? row.artistEmailSentAt
+      : row.publisherEmailSentAt;
+  if (alreadySent) {
+    return ok({ status: "skipped", reason: "already_sent" });
+  }
+
+  const creator =
+    recipientType === "artist" ? row.book.artist : row.book.publisher;
+  if (!creator) {
+    return ok({ status: "skipped", reason: "no_creator" });
+  }
+
+  const email = creator.email?.trim();
+  if (!email) {
+    return ok({ status: "skipped", reason: "no_email" });
+  }
+
+  const { html, subject } = await prepareBotdAdvanceNotificationContent({
+    creator,
+    book: row.book,
+    date: row.date,
+  });
+
+  const [emailError] = await sendEmail(email, subject, html);
+  if (emailError) {
+    return ok({ status: "failed", reason: emailError.reason });
+  }
+
+  const markField =
+    recipientType === "artist" ? "artistEmailSentAt" : "publisherEmailSentAt";
+
+  const [markError] = await updateBookOfTheDayByDate(row.date, {
+    [markField]: new Date(),
+  });
+  if (markError) return err(markError);
+
+  return ok({ status: "sent" });
+}
+
+/** Sends advance BOTD notification emails for features exactly one week away. */
+export async function runBotdAdvanceNotificationEmails(
+  asOf: Date = new Date(),
+): Promise<RunBotdAdvanceNotificationEmailsResult> {
+  const featureDate = addUtcDays(toUtcStartOfDay(asOf), 7);
+  const [loadError, row] = await loadBotdForDate(featureDate);
+  if (loadError) return err(loadError);
+
+  const result: BotdAdvanceNotificationEmailRunResult = {
+    advanceEmailsSent: 0,
+    featureDate: row?.date ?? null,
+    items: [],
+  };
+
+  if (!row?.book) {
+    return ok(result);
+  }
+
+  for (const recipientType of ["artist", "publisher"] as const) {
+    const creator =
+      recipientType === "artist" ? row.book.artist : row.book.publisher;
+    if (!creator) continue;
+
+    const [sendError, outcome] = await sendBotdAdvanceNotificationEmailForRecipient(
+      row,
+      recipientType,
+    );
+    if (sendError) return err(sendError);
+
+    result.items.push({
+      recipientType,
+      creatorId: creator.id,
+      bookId: row.book.id,
+      date: row.date,
+      outcome,
+    });
+
+    if (outcome.status === "sent") {
+      result.advanceEmailsSent++;
+      if (recipientType === "artist") {
+        row.artistEmailSentAt = new Date();
+      } else {
+        row.publisherEmailSentAt = new Date();
+      }
+    }
+  }
+
+  return ok(result);
 }
 
 export async function runBotdFeatureDayEmails(

@@ -431,7 +431,7 @@ async function recordSpotlightEmail(
     invitedByUserId: string;
   },
 ): Promise<Result<void, SpotlightServiceError>> {
-  const send =
+  const sendEmail =
     params.kind === "interview_reminder"
       ? () =>
           sendInterviewReminderForSpotlight(
@@ -446,7 +446,7 @@ async function recordSpotlightEmail(
             params.invitedByUserId,
           );
 
-  const [sendError, outcome] = await send();
+  const [sendError, outcome] = await sendEmail();
   if (sendError) return err(sendError);
 
   result.items.push({
@@ -470,14 +470,14 @@ async function recordSpotlightEmail(
 }
 
 export async function runSpotlightCreatorEmails(
-  asOf: Date = new Date(),
+  date: Date = new Date(),
 ): Promise<RunSpotlightCreatorEmailsResult> {
   const invitedByUserId = process.env.ADMIN_USER_ID;
   if (!invitedByUserId) {
     return err({ reason: "ADMIN_USER_ID is not set" });
   }
 
-  const today = toUtcStartOfDay(asOf);
+  const today = toUtcStartOfDay(date);
   const reminderWeekStart = addUtcDays(toWeekStart(today), 7);
   const featureWeekStart = toWeekStart(today);
 

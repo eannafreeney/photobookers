@@ -6,7 +6,7 @@ import {
 } from "./emails";
 
 describe("generateBOTDNotificationEmail", () => {
-  it("includes the BOTD calendar date in the body", () => {
+  it("includes the BOTD date, spotlight url, and one-week notice", () => {
     const html = generateBOTDNotificationEmail(
       {
         displayName: "Jane Doe",
@@ -19,8 +19,74 @@ describe("generateBOTDNotificationEmail", () => {
     );
 
     expect(html).toContain("Monday, June 1, 2026");
+    expect(html).toContain("one week from today");
     expect(html).toContain("Winter Light");
+    expect(html).toContain("/book-of-the-day/2026-06-01");
+    expect(html).toContain("make sure your bio");
     expect(html).not.toContain("Claim your profile");
+  });
+
+  it("prompts unclaimed creators to claim their profile", () => {
+    const html = generateBOTDNotificationEmail(
+      {
+        displayName: "Jane Doe",
+        email: "jane@example.com",
+        slug: "jane-doe",
+        ownerUserId: null,
+      },
+      { id: "book-1", title: "Winter Light", slug: "winter-light" },
+      new Date(Date.UTC(2026, 5, 1)),
+    );
+
+    expect(html).toContain("claim your profile");
+    expect(html).toContain("/dashboard/creators/jane-doe");
+  });
+
+  it("includes login credentials when a new account was provisioned", () => {
+    const html = generateBOTDNotificationEmail(
+      {
+        displayName: "Jane Doe",
+        email: "jane@example.com",
+        slug: "jane-doe",
+        ownerUserId: "user-1",
+      },
+      { id: "book-1", title: "Winter Light", slug: "winter-light" },
+      new Date(Date.UTC(2026, 5, 1)),
+      {
+        kind: "created",
+        email: "jane@example.com",
+        temporaryPassword: "temp-pass-123",
+        loginUrl:
+          "https://www.photobookers.com/auth/login?email=jane%40example.com&password=temp-pass-123",
+      },
+    );
+
+    expect(html).toContain("We created a Photobookers account for you");
+    expect(html).toContain("temp-pass-123");
+    expect(html).toContain("Log in to your profile");
+    expect(html).not.toContain("claim your profile");
+  });
+
+  it("includes a login link when an existing account was linked", () => {
+    const html = generateBOTDNotificationEmail(
+      {
+        displayName: "Jane Doe",
+        email: "jane@example.com",
+        slug: "jane-doe",
+        ownerUserId: "user-1",
+      },
+      { id: "book-1", title: "Winter Light", slug: "winter-light" },
+      new Date(Date.UTC(2026, 5, 1)),
+      {
+        kind: "linked",
+        email: "jane@example.com",
+        loginUrl: "https://www.photobookers.com/auth/login?email=jane%40example.com",
+      },
+    );
+
+    expect(html).toContain("linked your existing Photobookers account");
+    expect(html).toContain("Log in");
+    expect(html).not.toContain("claim your profile");
   });
 });
 

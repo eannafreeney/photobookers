@@ -13,14 +13,11 @@ import {
   updatePublisherOfTheWeekByWeekStart,
 } from "./services";
 import { sendEmail } from "../../../../lib/sendEmail";
-import {
-  buildCreatorOfTheWeekNotificationEmail,
-  generateBOTDNotificationEmail,
-} from "./emails";
+import { prepareBotdAdvanceNotificationContent } from "./botdEmailServices";
+import { buildCreatorOfTheWeekNotificationEmail } from "./emails";
 import SendPOTWCreatorEmailButton from "./components/SendPOTWCreatorEmailButton";
 import { getBookByIdBasic } from "../../books/services";
 import SendBOTDCreatorEmailButton from "./components/SendBOTDCreatorEmailButton";
-import { formatBotdDateLong } from "./utils";
 import { normalizeStoredDate, toUtcStartOfDay } from "../../../../lib/utils";
 import { ensureInterviewInviteForSpotlight } from "./interviewFlow";
 import { getUser } from "../../../../utils";
@@ -292,13 +289,12 @@ export async function executeBOTDEmail({
   if (bookError || !book) return showErrorAlert(c, "Book not found");
 
   const botdDay = toUtcStartOfDay(normalizeStoredDate(date));
-  const botdDateLabel = formatBotdDateLong(botdDay);
-  const html = generateBOTDNotificationEmail(creator, book, botdDay);
-  const [emailError] = await sendEmail(
-    creator.email,
-    `Book of the Day on ${botdDateLabel}: ${book.title}`,
-    html,
-  );
+  const { html, subject } = await prepareBotdAdvanceNotificationContent({
+    creator,
+    book,
+    date: botdDay,
+  });
+  const [emailError] = await sendEmail(creator.email, subject, html);
   if (emailError) return showErrorAlert(c, emailError.reason);
 
   const updateField =

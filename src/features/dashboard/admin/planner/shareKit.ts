@@ -2,7 +2,7 @@ import { formatInstagramHandle } from "./instagramCaption";
 
 const PHOTOBOOKERS_IG = "@photobookers";
 
-function escapeHtml(value: string): string {
+export function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

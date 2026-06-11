@@ -1,9 +1,15 @@
 import { CreatorInterviewStatus } from "../../../../db/schema";
 import { toWeekStart, toWeekString } from "../../../../lib/utils";
-import { aotwUrl, potwUrl, thisWeekPath } from "../../../app/spotlightUrls";
+import {
+  aotwUrl,
+  botdUrl,
+  potwUrl,
+  thisWeekPath,
+} from "../../../app/spotlightUrls";
 import {
   buildBotdShareKitEmailHtml,
   buildCreatorShareKitEmailHtml,
+  escapeHtml,
 } from "./shareKit";
 import { formatBotdDateLong } from "./utils";
 
@@ -46,6 +52,36 @@ function memberSection(creator: {
       `;
 }
 
+export type BotdNotificationAccountCredentials =
+  | {
+      kind: "created";
+      email: string;
+      temporaryPassword: string;
+      loginUrl: string;
+    }
+  | {
+      kind: "linked";
+      email: string;
+      loginUrl: string;
+    };
+
+function buildBotdAccountCredentialsHtml(
+  credentials: BotdNotificationAccountCredentials,
+): string {
+  if (credentials.kind === "created") {
+    return `
+  <p>We created a Photobookers account for you so you can manage your profile before your feature goes live:</p>
+  <p><a href="${escapeHtml(credentials.loginUrl)}">Log in to your profile</a></p>
+  <p>You will be asked to set a new password when you first sign in.</p>
+  `;
+  }
+
+  return `
+  <p>We linked your existing Photobookers account to your creator profile.</p>
+  <p><a href="${escapeHtml(credentials.loginUrl)}">Log in</a> to update your bio, cover image, and links before your feature goes live.</p>
+  `;
+}
+
 export const generateBOTDNotificationEmail = (
   creator: {
     displayName: string;
@@ -55,28 +91,29 @@ export const generateBOTDNotificationEmail = (
   },
   book: { id: string; title: string; slug: string },
   date: Date,
+  accountCredentials?: BotdNotificationAccountCredentials,
 ) => {
   const formattedDate = formatBotdDateLong(date);
+  const spotlightUrl = botdUrl(date);
+  const accountBlock = accountCredentials
+    ? buildBotdAccountCredentialsHtml(accountCredentials)
+    : "";
+  const claimBlock =
+    creator.ownerUserId || accountCredentials ? "" : memberSection(creator);
+  const profilePrompt =
+    creator.ownerUserId || accountCredentials
+      ? `<p>Now is a good time to make sure your bio, cover image, and links are up to date before the feature goes live.</p>`
+      : `<p>We would love you to <strong>claim your profile</strong> before the feature goes live so you can update your bio, cover image, and links.</p>`;
 
   return `
   <p>Hi ${creator.displayName},</p>
-  <p>Great news — your book, <strong>${book.title}</strong>, will be featured as <strong>Book of the Day</strong> on Photobookers on <strong>${formattedDate}</strong>.</p>
-  <p>You can view the Book of the Day page here: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/book-of-the-day">View Book of the Day</a>.</p>
-  <p>We will also share your feature on our Instagram on the day to help more people discover your work.</p>
-  ${
-    !creator.ownerUserId
-      ? `
-    <p>Photobookers is a community for photobook collectors, artists, and publishers:</p>
-    <ul>
-      <li>Reach a global audience of photobook collectors, curators, and enthusiasts</li>
-      <li>Increase visibility for your book and your wider body of work</li>
-      <li>Build long-term discoverability through a permanent creator profile</li>
-    </ul>
-    <p>We would love to have you on board: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">Claim your profile</a>.</p>
-    `
-      : ""
-  }
-  <p>Thanks for being part of Photobookers - we're excited to spotlight your work.</p>
+  <p>Great news — your book, <strong>${book.title}</strong>, is scheduled as <strong>Book of the Day</strong> on Photobookers on <strong>${formattedDate}</strong> (one week from today).</p>
+  <p>Your feature page will be here: <a href="${spotlightUrl}">${spotlightUrl}</a></p>
+  <p>We will share your feature on our Instagram on the day to help more people discover your work.</p>
+  ${accountBlock}
+  ${profilePrompt}
+  ${claimBlock}
+  <p>Thanks for being part of Photobookers — we're excited to spotlight your work.</p>
   <p>Best regards,<br/>Eanna</p>
 `;
 };

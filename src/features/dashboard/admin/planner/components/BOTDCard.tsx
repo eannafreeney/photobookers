@@ -92,6 +92,12 @@ const BOTDCardContent = ({ dateKey, bookOfTheDay }: BOTDCardContentProps) => {
             />
           )}
         </div>
+        {bookOfTheDay.artistEmailSentAt ? (
+          <p class="text-xs text-on-surface">Artist advance email sent</p>
+        ) : null}
+        {bookOfTheDay.publisherEmailSentAt ? (
+          <p class="text-xs text-on-surface">Publisher advance email sent</p>
+        ) : null}
         {bookOfTheDay.artistFeatureDayEmailSentAt ? (
           <p class="text-xs text-on-surface">Artist feature-day email sent</p>
         ) : null}
