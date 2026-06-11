@@ -31,26 +31,27 @@ export type CreatorSpotlightForCaption = {
 export function buildDefaultArtistInstagramCaption(
   creator: CreatorSpotlightForCaption,
 ): string {
-  const lines = ["Artist of the Week:", "", creator.displayName];
-  if (creator.bio?.trim()) {
-    lines.push("", creator.bio.trim());
-  }
-  const handle = formatInstagramHandle(creator.instagram);
-  if (handle) lines.push("", handle);
-  lines.push("", "Link in bio →");
-  return lines.join("\n");
+  return buildDefaultCreatorSpotlightInstagramCaption(creator, "artist");
 }
 
 export function buildDefaultPublisherInstagramCaption(
   creator: CreatorSpotlightForCaption,
 ): string {
-  const lines = ["Publisher of the Week:", "", creator.displayName];
+  return buildDefaultCreatorSpotlightInstagramCaption(creator, "publisher");
+}
+
+function buildDefaultCreatorSpotlightInstagramCaption(
+  creator: CreatorSpotlightForCaption,
+  type: "artist" | "publisher",
+): string {
+  const label = type === "artist" ? "Artist of the Week" : "Publisher of the Week";
+  const lines = [label, "", creator.displayName];
   if (creator.bio?.trim()) {
     lines.push("", creator.bio.trim());
   }
   const handle = formatInstagramHandle(creator.instagram);
   if (handle) lines.push("", handle);
-  lines.push("", "Link in bio →");
+  lines.push("", "#photobook", "", "Link in bio →");
   return lines.join("\n");
 }
 
@@ -137,27 +138,26 @@ export function buildBotdInstagramCaption(
 }
 
 export function buildDefaultInstagramCaption(book: BookForCaption): string {
-  const lines = [`Book of the Day: ${book.title}`];
+  const lines = ["Book of the Day", "", book.title];
 
   if (book.artist?.displayName) {
     const artistHandle = formatInstagramHandle(book.artist.instagram);
     lines.push(
-      `– ${book.artist.displayName} ${artistHandle ? `(${artistHandle})` : ""}`,
+      `by ${book.artist.displayName}${artistHandle ? ` ${artistHandle}` : ""}`,
     );
   }
 
   if (book.publisher?.displayName) {
     const publisherHandle = formatInstagramHandle(book.publisher.instagram);
     lines.push(
-      `– Published by ${book.publisher.displayName} ${publisherHandle ? `(${publisherHandle})` : ""}`,
+      `Published by ${book.publisher.displayName}${publisherHandle ? ` ${publisherHandle}` : ""}`,
     );
   }
 
   const tagLine = formatInstagramHashtags(book.tags);
-  if (tagLine) lines.push(tagLine);
+  if (tagLine) lines.push("", tagLine);
 
-  lines.push("", "photobookers.com/this-week");
-  lines.push("Link in bio →");
+  lines.push("", "#photobook", "", "Link in bio →");
 
   return lines.map((line) => line.trim()).join("\n");
 }

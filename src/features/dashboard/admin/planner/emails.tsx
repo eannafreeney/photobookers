@@ -1,6 +1,10 @@
 import { CreatorInterviewStatus } from "../../../../db/schema";
-import { toWeekString } from "../../../../lib/utils";
+import { toWeekStart, toWeekString } from "../../../../lib/utils";
 import { aotwUrl, potwUrl, thisWeekPath } from "../../../app/spotlightUrls";
+import {
+  buildBotdShareKitEmailHtml,
+  buildCreatorShareKitEmailHtml,
+} from "./shareKit";
 import { formatBotdDateLong } from "./utils";
 
 type SpotlightEmailParams = {
@@ -127,6 +131,35 @@ export function buildInterviewReminderEmail(params: {
 `;
 }
 
+export function buildBotdFeatureDayEmail(params: {
+  displayName: string;
+  recipientType: "artist" | "publisher";
+  bookTitle: string;
+  artistName: string;
+  botdDate: Date;
+  spotlightUrl: string;
+  instagram?: string | null;
+}) {
+  const formattedDate = formatBotdDateLong(params.botdDate);
+  const digestUrl = `${process.env.SITE_URL ?? "https://photobookers.com"}${thisWeekPath(toWeekStart(params.botdDate))}`;
+  const shareKit = buildBotdShareKitEmailHtml({
+    recipientType: params.recipientType,
+    bookTitle: params.bookTitle,
+    artistName: params.artistName,
+    spotlightUrl: params.spotlightUrl,
+    digestUrl,
+    instagram: params.instagram,
+  });
+
+  return `
+  <p>Hi ${params.displayName},</p>
+  <p>Your book, <strong>${params.bookTitle}</strong>, is <strong>Book of the Day</strong> on Photobookers today (${formattedDate}).</p>
+  ${shareKit}
+  <p>We will also share your feature on our Instagram. Thank you for being part of Photobookers.</p>
+  <p>Best regards,<br/>Eanna</p>
+`;
+}
+
 export function buildFeatureDayEmail(params: {
   displayName: string;
   type: "artist" | "publisher";
@@ -134,6 +167,7 @@ export function buildFeatureDayEmail(params: {
   spotlightUrl: string;
   interviewLink: string | null;
   interviewStatus: CreatorInterviewStatus | null;
+  instagram?: string | null;
 }) {
   const role =
     params.type === "artist" ? "Artist of the Week" : "Publisher of the Week";
@@ -144,12 +178,16 @@ export function buildFeatureDayEmail(params: {
     params.interviewLink
       ? `<p>If you have a moment, you can still <a href="${params.interviewLink}">complete the interview</a>.</p>`
       : "";
+  const shareKit = buildCreatorShareKitEmailHtml({
+    type: params.type,
+    spotlightUrl: params.spotlightUrl,
+    digestUrl,
+    instagram: params.instagram,
+  });
   return `
   <p>Hi ${params.displayName},</p>
   <p>Your <strong>${role}</strong> feature is live today on Photobookers.</p>
-  <p>Share your spotlight page:</p>
-  <p><a href="${params.spotlightUrl}">${params.spotlightUrl}</a></p>
-  <p>Or share the full week roundup: <a href="${digestUrl}">${digestUrl}</a></p>
+  ${shareKit}
   ${interviewBlock}
   <p>We will also share your feature on Instagram. Thank you for being part of Photobookers.</p>
   <p>Best regards,<br/>Eanna</p>

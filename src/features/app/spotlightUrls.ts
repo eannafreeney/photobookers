@@ -38,3 +38,7 @@ export function thisWeekPath(weekStart?: Date): string {
   const qs = weekStart ? `?week=${toWeekString(weekStart)}` : "";
   return `/this-week${qs}`;
 }
+
+export function thisWeekUrl(weekStart?: Date): string {
+  return `${appBaseUrl}${thisWeekPath(weekStart)}`;
+}

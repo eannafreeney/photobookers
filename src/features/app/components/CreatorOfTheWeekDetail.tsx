@@ -14,6 +14,7 @@ import { formatCreatorLocation } from "../../../lib/utils";
 import { BookCardResult } from "../../../constants/queries";
 import FeaturedPageHeader from "./FeaturedPageHeader";
 import { capitalize } from "../../../utils";
+import { aotwUrl, potwUrl } from "../spotlightUrls";
 import FollowButton from "../../api/components/FollowButton";
 
 type Props = {
@@ -36,6 +37,8 @@ const CreatorOfTheWeekDetail = async ({
   const bio = creator.bio?.trim() || null;
   const isSingleBook = books.length === 1;
   const location = formatCreatorLocation(creator.city, creator.country);
+  const spotlightUrl =
+    creator.type === "artist" ? aotwUrl(weekStart) : potwUrl(weekStart);
 
   return (
     <div class="mx-auto flex w-full flex-col gap-8 pt-4 md:max-w-lg">
@@ -54,7 +57,11 @@ const CreatorOfTheWeekDetail = async ({
       ) : null}
       <div class="flex gap-2 justify-center">
         <FollowButton creator={creator} user={user} />
-        <ShareButton />
+        <ShareButton
+          title={`${role} of the Week — ${creator.displayName}`}
+          text={`${creator.displayName} is ${role} of the Week on Photobookers`}
+          url={spotlightUrl}
+        />
       </div>
       {bio ? <ExpandableDescription text={bio} /> : null}
       <NewsletterCard />

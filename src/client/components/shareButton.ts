@@ -1,25 +1,27 @@
 import Alpine from "alpinejs";
 
+type ShareConfig = {
+  title?: string;
+  text?: string;
+  url?: string;
+};
+
 export function registerShareButton() {
-  Alpine.data("shareButton", () => ({
+  Alpine.data("shareButton", (config: ShareConfig = {}) => ({
     async share() {
-      const url = window.location.href;
-      const title = document.title;
-      const text = `Check out ${title}`;
+      const url = config.url?.trim() || window.location.href;
+      const title = config.title?.trim() || document.title;
+      const text = config.text?.trim() || `Check out ${title}`;
 
       if (navigator.share) {
         try {
           await navigator.share({ title, text, url });
-        } catch (err) {
+        } catch {
           // User cancelled or error occurred
-          console.log("Share cancelled");
         }
       } else {
-        // Fallback: copy to clipboard
-        await navigator.clipboard.writeText(url);
-        // Show toast notification
-        console.log("Link copied to clipboard!");
-        //   this.showToast("Link copied to clipboard!");
+        const clipboardText = text === `Check out ${title}` ? url : `${text}\n${url}`;
+        await navigator.clipboard.writeText(clipboardText);
       }
     },
   }));

@@ -337,6 +337,7 @@ async function sendFeatureDayEmailForSpotlight(
     spotlightUrl: spotlightUrlForType(type, row.weekStart),
     interviewLink,
     interviewStatus: interview?.status ?? null,
+    instagram: row.creator.instagram,
   });
 
   const subject =

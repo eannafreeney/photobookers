@@ -267,6 +267,13 @@
       "when": 1781009677321,
       "tag": "0038_solid_reavers",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1781100000000,
+      "tag": "0039_botd_feature_day_emails",
+      "breakpoints": true
     }
   ]
 }

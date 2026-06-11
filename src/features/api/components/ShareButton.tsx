@@ -2,14 +2,23 @@ import Button from "../../../components/app/Button";
 
 type ShareButtonProps = {
   isCircleButton?: boolean;
+  title?: string;
+  text?: string;
+  url?: string;
 };
 
-const ShareButton = ({ isCircleButton = false }: ShareButtonProps) => {
+const ShareButton = ({
+  isCircleButton = false,
+  title,
+  text,
+  url,
+}: ShareButtonProps) => {
   const tooltipText = "Share";
+  const shareConfig = JSON.stringify({ title, text, url });
 
   if (isCircleButton) {
     return (
-      <div x-data="shareButton()">
+      <div x-data={`shareButton(${shareConfig})`}>
         <button
           class="inline-flex justify-center items-center aspect-square whitespace-nowrap rounded-full bg-gray-200 size-8 p-1 text-sm font-medium tracking-wide text-on-surface-dark transition hover:opacity-75 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface-dark active:opacity-100 active:outline-offset-0 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
           title={tooltipText}
@@ -22,7 +31,7 @@ const ShareButton = ({ isCircleButton = false }: ShareButtonProps) => {
   }
 
   return (
-    <div x-data="shareButton()" class="w-full hover:opacity-75">
+    <div x-data={`shareButton(${shareConfig})`} class="w-full hover:opacity-75">
       <Button
         type="button"
         variant="outline"

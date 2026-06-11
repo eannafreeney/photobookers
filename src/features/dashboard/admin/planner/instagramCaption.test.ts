@@ -36,7 +36,9 @@ describe("instagram caption helpers", () => {
       publisher: { displayName: "Acme Press", instagram: "@acmepress" },
     });
 
-    expect(caption).toContain("Book of the Day: Winter Light");
+    expect(caption).toContain("Book of the Day");
+    expect(caption).toContain("Winter Light");
+    expect(caption).toContain("by Jane Doe");
     expect(caption).toContain("@janedoe");
     expect(caption).toContain("@acmepress");
     expect(caption).toContain("Link in bio");
@@ -105,6 +107,7 @@ describe("instagram caption helpers", () => {
 
     expect(caption).toContain("Jane Doe");
     expect(caption).toContain("Published by Acme Press");
+    expect(caption).toContain("#photobook");
   });
 
   it("normalizes instagram urls and handles", () => {

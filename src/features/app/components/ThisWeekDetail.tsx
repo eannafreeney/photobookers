@@ -11,7 +11,13 @@ import { Creator } from "../../../db/schema";
 import { BookOfTheDayWithBook } from "../BOTDServices";
 import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
 import { PublisherOfTheWeekWithCreator } from "../POTWServices";
-import { aotwPath, botdPath, potwPath, thisWeekPath } from "../spotlightUrls";
+import {
+  aotwPath,
+  botdPath,
+  potwPath,
+  thisWeekPath,
+  thisWeekUrl,
+} from "../spotlightUrls";
 import { toDateString, toWeekStart } from "../../../lib/utils";
 import { capitalize } from "../../../utils";
 
@@ -44,20 +50,24 @@ const ThisWeekDetail = async ({
     nextWeekStart.getTime() <= toWeekStart(new Date()).getTime();
 
   return (
-    <div class="mx-auto flex w-full flex-col gap-8 md:max-w-lg">
+    <div class="mx-auto flex w-full flex-col gap-4 md:max-w-lg">
       <header class="flex flex-col items-center gap-3 border-b border-outline pb-4">
         <div class="flex flex-col items-center gap-1 text-center">
           <h1 class="text-balance text-xl font-semibold text-on-surface-strong">
             {weekRangeLabel}
           </h1>
         </div>
-        <ShareButton />
+        <ShareButton
+          title={`This week on Photobookers — ${weekRangeLabel}`}
+          text={`This week on Photobookers: ${weekRangeLabel}`}
+          url={thisWeekUrl(weekStart)}
+        />
       </header>
 
       {botdEntries.length > 0 ? (
-        <section class="flex flex-col gap-4">
+        <section class="flex flex-col gap-8">
           <SectionTitle>Books of the Day</SectionTitle>
-          <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-8">
             {botdEntries.map((entry) => (
               <ThisWeekBookEntry key={entry.id} entry={entry} />
             ))}
@@ -163,7 +173,7 @@ const ThisWeekCreatorSpotlight = async ({
     spotlight.instagramImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
 
   return (
-    <section class="flex flex-col gap-4">
+    <section class="flex flex-col gap-8">
       <SectionTitle>{title}</SectionTitle>
 
       {image ? (

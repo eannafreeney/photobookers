@@ -75,21 +75,31 @@ const BOTDCardContent = ({ dateKey, bookOfTheDay }: BOTDCardContentProps) => {
           action={`/dashboard/admin/planner/book-of-the-day/${dateKey}`}
         />
       </div>
-      <div class="mt-2 flex items-center gap-4">
-        <SendBOTDCreatorEmailButton
-          recipientType="artist"
-          bookOfTheDay={bookOfTheDay}
-          creatorId={book.artist?.id}
-          bookId={book.id}
-        />
-        {book.publisher && (
+      <div class="mt-2 flex flex-col gap-2">
+        <div class="flex items-center gap-4">
           <SendBOTDCreatorEmailButton
-            recipientType="publisher"
+            recipientType="artist"
             bookOfTheDay={bookOfTheDay}
-            creatorId={book.publisher?.id}
+            creatorId={book.artist?.id}
             bookId={book.id}
           />
-        )}
+          {book.publisher && (
+            <SendBOTDCreatorEmailButton
+              recipientType="publisher"
+              bookOfTheDay={bookOfTheDay}
+              creatorId={book.publisher?.id}
+              bookId={book.id}
+            />
+          )}
+        </div>
+        {bookOfTheDay.artistFeatureDayEmailSentAt ? (
+          <p class="text-xs text-on-surface">Artist feature-day email sent</p>
+        ) : null}
+        {bookOfTheDay.publisherFeatureDayEmailSentAt ? (
+          <p class="text-xs text-on-surface">
+            Publisher feature-day email sent
+          </p>
+        ) : null}
       </div>
     </>
   );

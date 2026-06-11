@@ -490,6 +490,10 @@ export const bookOfTheDay = pgTable(
       .references(() => books.id, { onDelete: "cascade" }),
     artistEmailSentAt: timestamp("artist_email_sent_at"),
     publisherEmailSentAt: timestamp("publisher_email_sent_at"),
+    artistFeatureDayEmailSentAt: timestamp("artist_feature_day_email_sent_at"),
+    publisherFeatureDayEmailSentAt: timestamp(
+      "publisher_feature_day_email_sent_at",
+    ),
     instagramImageUrl: text("instagram_image_url"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
