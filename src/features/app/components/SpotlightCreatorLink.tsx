@@ -2,22 +2,19 @@ import SocialLinks from "../../../components/app/SocialLinks";
 import FollowButton from "../../api/components/FollowButton";
 import { Creator } from "../../../db/schema";
 import { AuthUser } from "../../../../types";
+import Button from "../../../components/app/Button";
 
 type Props = {
   creator: Creator | null | undefined;
   role: string;
-  user: AuthUser | null;
 };
 
-const SpotlightCreatorLink = async ({ creator, role, user }: Props) => {
+const SpotlightCreatorLink = async ({ creator, role }: Props) => {
   if (!creator) return <></>;
 
   return (
     <div class="flex items-center justify-between gap-3 border border-outline rounded-radius p-4">
-      <a
-        href={`/creators/${creator.slug}`}
-        class="flex min-w-0 flex-1 items-center gap-3 transition-colors hover:opacity-80"
-      >
+      <div class="flex items-center gap-3">
         {creator.coverUrl ? (
           <img
             src={creator.coverUrl}
@@ -38,15 +35,13 @@ const SpotlightCreatorLink = async ({ creator, role, user }: Props) => {
             {creator.displayName}
           </p>
         </div>
-      </a>
-
-      <div class="flex shrink-0 items-center gap-2">
-        <SocialLinks
-          creator={creator}
-          className="flex items-center gap-2 text-xs"
-        />
-        <FollowButton creator={creator} user={user} isCircleButton />
       </div>
+
+      <a href={`/creators/${creator.slug}`}>
+        <Button variant="outline" color="primary" width="full">
+          Visit
+        </Button>
+      </a>
     </div>
   );
 };

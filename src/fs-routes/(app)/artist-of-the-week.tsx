@@ -44,24 +44,25 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <SectionTitle>Artists of the Week</SectionTitle>
+        <SectionTitle className="mb-0">Artists of the Week</SectionTitle>
         <GridPanel id={targetId} isFullWidth xMerge="append">
           {aotwEntries.map((entry) => (
             <ScrollReveal>
-              <article class="space-y-2">
+              {/* <article class="space-y-2">
                 <a
                   href={aotwPath(entry.weekStart)}
                   class="text-xs text-on-surface-strong font-medium hover:underline"
                 >
                   Week: {toWeekString(entry.weekStart)}
-                </a>
-                <CreatorCard
-                  creator={entry.creator}
-                  user={user}
-                  currentPath={currentPath}
-                  showFollowAndClaimButtons={false}
-                />
-              </article>
+                </a> */}
+              <CreatorCard
+                creator={entry.creator}
+                user={user}
+                currentPath={currentPath}
+                showFollowAndClaimButtons={false}
+                featureDate={entry.weekStart}
+              />
+              {/* </article> */}
             </ScrollReveal>
           ))}
         </GridPanel>

@@ -15,6 +15,7 @@ type BookCardProps = {
   currentCreatorId?: string | null;
   maxDisplayNameLength?: number;
   className?: string;
+  featureDate?: Date;
 };
 
 const BookCard = ({
@@ -23,22 +24,20 @@ const BookCard = ({
   currentCreatorId,
   maxDisplayNameLength = 16,
   className,
+  featureDate,
 }: BookCardProps) => {
+  const displayDate = featureDate ?? book.releaseDate;
   return (
-    <Card
-      className={clsx(
-        className ?? "min-w-[200px] max-w-[24rem]",
-      )}
-    >
+    <Card className={clsx(className ?? "min-w-[200px] max-w-[24rem]")}>
       <Show when={currentCreatorId !== book.artist?.id}>
         <div class="p-2 flex items-center justify-between h-10">
           <CardCreatorCard
             creator={book.artist ?? null}
             maxDisplayNameLength={book.releaseDate ? maxDisplayNameLength : 30}
           />
-          <Card.Text>
-            {book.releaseDate && formatDate(book.releaseDate)}
-          </Card.Text>
+          {displayDate ? (
+            <Card.Text>{formatDate(displayDate)}</Card.Text>
+          ) : null}
         </div>
       </Show>
       <Card.Image

@@ -8,11 +8,7 @@ import { getArtistOfTheWeekForDateQuery } from "../../features/app/AOTWServices"
 import { getPublisherOfTheWeekForDateQuery } from "../../features/app/POTWServices";
 import { getInterviewByCreatorSlug } from "../../features/app/services";
 import { formatWeekRangeLabel } from "../../features/dashboard/admin/planner/newsletterUtils";
-import {
-  canonicalUrl,
-  pageTitle,
-  truncateDescription,
-} from "../../lib/seo";
+import { canonicalUrl, pageTitle, truncateDescription } from "../../lib/seo";
 import {
   capEndOfDayToToday,
   parseWeekString,
@@ -99,11 +95,12 @@ export const GET = createRoute(async (c) => {
     >
       <Page>
         <ThisWeekDetail
-          user={user}
           weekStart={weekStart}
           weekRangeLabel={weekRangeLabel}
           botdEntries={botdEntries}
-          artistOfTheWeek={!artistErr && artistOfTheWeek ? artistOfTheWeek : null}
+          artistOfTheWeek={
+            !artistErr && artistOfTheWeek ? artistOfTheWeek : null
+          }
           publisherOfTheWeek={
             !publisherErr && publisherOfTheWeek ? publisherOfTheWeek : null
           }

@@ -18,6 +18,7 @@ import {
   pageTitle,
   truncateDescription,
 } from "../../../lib/seo";
+import Button from "../../../components/app/Button";
 
 const SPOTLIGHT_BOOKS_LIMIT = 500;
 
@@ -58,12 +59,11 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
       ? interview
       : null;
 
-  const editorial = publisherOfTheWeek.instagramCaption?.trim() || null;
   const path = potwPath(weekStart);
   const title = pageTitle(`Publisher of the Week — ${creator.displayName}`);
   const interviewTeaser = publishedInterview?.answers?.q1?.trim();
   const description = truncateDescription(
-    editorial ?? interviewTeaser ?? creatorDescription(creator),
+    interviewTeaser ?? creatorDescription(creator),
   );
   const shareImage =
     publisherOfTheWeek.instagramImageUrl ??
@@ -103,15 +103,15 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
           creator={booksResult.creator}
           user={user}
           weekStart={weekStart}
-          editorial={editorial}
           publishedInterview={publishedInterview}
           books={booksResult.books}
         />
-        <p class="mx-auto mt-10 text-sm md:max-w-lg">
-          <a href="/publisher-of-the-week" class="underline">
+
+        <a href={`/publisher-of-the-week`}>
+          <Button variant="outline" color="primary" width="full">
             ← All Publishers of the Week
-          </a>
-        </p>
+          </Button>
+        </a>
       </Page>
     </AppLayout>,
   );

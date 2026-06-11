@@ -18,6 +18,7 @@ import {
   truncateDescription,
 } from "../../../lib/seo";
 import { parseDateString } from "../../../lib/utils";
+import Button from "../../../components/app/Button";
 
 const dateParamSchema = z.object({
   date: z
@@ -96,11 +97,11 @@ export const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
           date={date}
           editorial={editorial}
         />
-        <p class="mx-auto mt-10 text-sm md:max-w-lg">
-          <a href="/book-of-the-day" class="underline">
+        <a href="/book-of-the-day">
+          <Button variant="outline" color="primary" width="full">
             ← All Books of the Day
-          </a>
-        </p>
+          </Button>
+        </a>
       </Page>
     </AppLayout>,
   );

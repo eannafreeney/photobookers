@@ -18,6 +18,7 @@ import {
   pageTitle,
   truncateDescription,
 } from "../../../lib/seo";
+import Button from "../../../components/app/Button";
 
 const SPOTLIGHT_BOOKS_LIMIT = 500;
 
@@ -58,12 +59,11 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
       ? interview
       : null;
 
-  const editorial = artistOfTheWeek.instagramCaption?.trim() || null;
   const path = aotwPath(weekStart);
   const title = pageTitle(`Artist of the Week — ${creator.displayName}`);
   const interviewTeaser = publishedInterview?.answers?.q1?.trim();
   const description = truncateDescription(
-    editorial ?? interviewTeaser ?? creatorDescription(creator),
+    interviewTeaser ?? creatorDescription(creator),
   );
   const shareImage =
     artistOfTheWeek.instagramImageUrl ??
@@ -103,15 +103,14 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
           creator={booksResult.creator}
           user={user}
           weekStart={weekStart}
-          editorial={editorial}
           publishedInterview={publishedInterview}
           books={booksResult.books}
         />
-        <p class="mx-auto mt-10 text-sm md:max-w-lg">
-          <a href="/artist-of-the-week" class="underline">
+        <a href={`/artist-of-the-week`}>
+          <Button variant="outline" color="primary" width="full">
             ← All Artists of the Week
-          </a>
-        </p>
+          </Button>
+        </a>
       </Page>
     </AppLayout>,
   );

@@ -16,7 +16,6 @@ import { toDateString, toWeekStart } from "../../../lib/utils";
 import { capitalize } from "../../../utils";
 
 type Props = {
-  user: AuthUser | null;
   weekStart: Date;
   weekRangeLabel: string;
   botdEntries: BookOfTheDayWithBook[];
@@ -27,7 +26,6 @@ type Props = {
 };
 
 const ThisWeekDetail = async ({
-  user,
   weekStart,
   weekRangeLabel,
   botdEntries,
@@ -49,14 +47,11 @@ const ThisWeekDetail = async ({
     <div class="mx-auto flex w-full flex-col gap-8 md:max-w-lg">
       <header class="flex flex-col items-center gap-3 border-b border-outline pb-4">
         <div class="flex flex-col items-center gap-1 text-center">
-          <p class="text-md font-medium text-on-surface-strong">
-            This week on Photobookers
-          </p>
-          <h1 class="text-balance text-2xl font-semibold text-on-surface-strong">
+          <h1 class="text-balance text-xl font-semibold text-on-surface-strong">
             {weekRangeLabel}
           </h1>
         </div>
-        <ShareButton isCircleButton />
+        <ShareButton />
       </header>
 
       {botdEntries.length > 0 ? (
@@ -73,7 +68,6 @@ const ThisWeekDetail = async ({
       {artistOfTheWeek ? (
         <ThisWeekCreatorSpotlight
           spotlight={artistOfTheWeek}
-          user={user}
           spotlightHref={aotwPath(weekStart)}
           publishedInterview={artistInterview}
         />
@@ -82,7 +76,6 @@ const ThisWeekDetail = async ({
       {publisherOfTheWeek ? (
         <ThisWeekCreatorSpotlight
           spotlight={publisherOfTheWeek}
-          user={user}
           spotlightHref={potwPath(weekStart)}
           publishedInterview={publisherInterview}
         />
@@ -90,16 +83,22 @@ const ThisWeekDetail = async ({
 
       <NewsletterCard />
 
-      <nav class="flex items-center justify-between gap-4 border-t border-outline pt-4 text-sm">
-        <a href={thisWeekPath(prevWeekStart)} class="underline">
-          ← Previous week
+      <nav class="flex items-center justify-between gap-4 border-outline pt-4">
+        <a href={thisWeekPath(prevWeekStart)}>
+          <Button variant="outline" color="primary" width="full">
+            ← Previous week
+          </Button>
         </a>
         {canGoNext ? (
-          <a href={thisWeekPath(nextWeekStart)} class="underline">
-            Next week →
+          <a href={thisWeekPath(nextWeekStart)}>
+            <Button variant="outline" color="primary" width="full">
+              Next week →
+            </Button>
           </a>
         ) : (
-          <span class="text-on-surface-weak">Next week →</span>
+          <Button variant="outline" color="primary" width="full" isDisabled>
+            Next week →
+          </Button>
         )}
       </nav>
     </div>
@@ -146,21 +145,20 @@ const ThisWeekBookEntry = ({ entry }: { entry: BookOfTheDayWithBook }) => {
   );
 };
 
-const ThisWeekCreatorSpotlight = async ({
-  spotlight,
-  user,
-  spotlightHref,
-  publishedInterview,
-}: {
+type ThisWeekCreatorSpotlightProps = {
   spotlight: ArtistOfTheWeekWithCreator | PublisherOfTheWeekWithCreator;
-  user: AuthUser | null;
   spotlightHref: string;
   publishedInterview: InterviewPreview | null;
-}) => {
+};
+
+const ThisWeekCreatorSpotlight = async ({
+  spotlight,
+  spotlightHref,
+  publishedInterview,
+}: ThisWeekCreatorSpotlightProps) => {
   const { creator } = spotlight;
   const role = capitalize(creator.type);
   const title = `${role} of the Week`;
-  const editorial = spotlight.instagramCaption?.trim() || null;
   const image =
     spotlight.instagramImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
 
@@ -176,21 +174,13 @@ const ThisWeekCreatorSpotlight = async ({
         />
       ) : null}
 
-      {editorial ? (
-        <p class="text-pretty text-sm text-on-surface whitespace-pre-wrap line-clamp-4">
-          {editorial}
-        </p>
-      ) : creator.tagline?.trim() ? (
+      {creator.tagline?.trim() ? (
         <p class="text-pretty text-sm font-medium text-on-surface-strong">
           {creator.tagline.trim()}
         </p>
       ) : null}
 
-      <SpotlightCreatorLink
-        creator={creator as Creator}
-        role={role}
-        user={user}
-      />
+      <SpotlightCreatorLink creator={creator as Creator} role={role} />
 
       {publishedInterview ? (
         <InterviewPreviewSection

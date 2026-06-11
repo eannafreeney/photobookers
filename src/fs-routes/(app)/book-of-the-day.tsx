@@ -1,5 +1,5 @@
 import { createRoute } from "hono-fsr";
-import { getUser } from "../../utils";
+import { formatDate, getUser } from "../../utils";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
 import { getRecentBooksOfTheDay } from "../../features/app/BOTDServices";
@@ -42,20 +42,15 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <SectionTitle>Books of the Day</SectionTitle>
+        <SectionTitle className="mb-0">Books of the Day</SectionTitle>
         <GridPanel id={targetId} isFullWidth xMerge="append">
           {botdEntries.map((entry) => (
             <ScrollReveal>
-              <article class="space-y-2 ">
-                <a
-                  href={botdPath(entry.date)}
-                  class="text-xs text-on-surface-strong font-medium hover:underline"
-                >
-                  {toDateString(entry.date)}
-                </a>
-
-                <BookCard book={entry.book} user={user} />
-              </article>
+              <BookCard
+                book={entry.book}
+                user={user}
+                featureDate={entry.date}
+              />
             </ScrollReveal>
           ))}
         </GridPanel>
