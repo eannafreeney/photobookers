@@ -71,7 +71,9 @@ const FavoriteButton = async ({
     );
   }
 
-  return <APIButton {...props} isDisabled={isDisabled} />;
+  return (
+    <APIButton {...props} isDisabled={isDisabled} isActive={isFavorited} />
+  );
 };
 
 export default FavoriteButton;

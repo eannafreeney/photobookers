@@ -106,8 +106,12 @@ const DetailDesktop = ({
             </div>
 
             <div class="flex items-center gap-2">
-              <WishlistButton isCircleButton book={book} user={user} />
-              <ShareButton isCircleButton />
+              <WishlistButton book={book} user={user} />
+              <ShareButton
+                title={book.title}
+                text={`${book.title} on Photobookers`}
+                url={`/books/${book.slug}`}
+              />
             </div>
             <div class="flex flex-col gap-4">
               {book.description && (
