@@ -14,6 +14,7 @@ import { feedListStyles } from "./FeedList";
 import { interviewsStyles } from "./Interviews";
 import { newsletterCardStyles } from "./NewsletterCard";
 import { featuredHomeBodyStyles } from "./FeaturedHomeBody";
+import { bookGridWithFiltersStyles } from "./BookGridWithFilters";
 import { sectionHeaderStyles } from "./SectionHeader";
 import { signInPromptStyles } from "./SignInPrompt";
 import type { AuthUser } from "../../../../types";
@@ -80,5 +81,6 @@ const pageStyles = () => (
     {interviewsStyles()}
     {newsletterCardStyles()}
     {featuredHomeBodyStyles()}
+    {bookGridWithFiltersStyles()}
   </>
 );

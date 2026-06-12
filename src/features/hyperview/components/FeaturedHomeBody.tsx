@@ -6,6 +6,16 @@ import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
 import NewsletterCard from "./NewsletterCard";
 import LazyLoader from "./LazyLoader";
+import BookFiltersPanel, {
+  BOOKS_CATALOG_TARGET_ID,
+} from "./BookFiltersPanel";
+import SectionHeader from "./SectionHeader";
+import {
+  BookGridCatalog,
+  featuredLatestBooksFilterPath,
+  loadFeaturedLatestBooksCatalog,
+} from "./BookGridWithFilters";
+import { hyperviewBooksFilterUrl } from "../../../lib/tags";
 import { botdPath, aotwPath, potwPath } from "../../app/spotlightUrls";
 import { toWeekString, toWeekStart } from "../../../lib/utils";
 import SecondaryButtonLink, {
@@ -21,15 +31,17 @@ type Props = {
   user?: AuthUser | null;
 };
 
-const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
+const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
   const [
     [botdErr, botdResult],
     [artistErr, artistResult],
     [publisherErr, publisherResult],
+    latestBooksCatalog,
   ] = await Promise.all([
     getTodaysBookOfTheDay(),
     getThisWeeksArtistOfTheWeek(),
     getThisWeeksPublisherOfTheWeek(),
+    loadFeaturedLatestBooksCatalog(user, baseUrl),
   ]);
   if (artistErr) return <></>;
   if (publisherErr) return <></>;
@@ -89,6 +101,21 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
         href={`${baseUrl}/hyperview/featured/tab/interviews`}
         style="interviews-fragment"
       />
+      {latestBooksCatalog ? (
+        <View style="latest-books-section">
+          <SectionHeader
+            title="Latest Books"
+            viewAllHref={hyperviewBooksFilterUrl(baseUrl, {})}
+          />
+          <BookFiltersPanel
+            baseUrl={baseUrl}
+            filterPath={featuredLatestBooksFilterPath(baseUrl)}
+          />
+          <View id={BOOKS_CATALOG_TARGET_ID} style="latest-books-catalog">
+            <BookGridCatalog {...latestBooksCatalog} />
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 };

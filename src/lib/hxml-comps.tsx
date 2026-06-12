@@ -315,7 +315,7 @@ export const TextField: FC<
 // Misc
 // ---------------------------------------------------------------------------
 
-export const Spinner: FC<StyleProp> = () => <spinner color="#0099cc" />;
+export const Spinner: FC<StyleProp> = () => <spinner color="#a22c29" />;
 
 export const Text = ({ style, id, children }: BaseProps) => (
   <text style={style} id={id}>

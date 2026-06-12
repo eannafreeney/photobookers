@@ -8,11 +8,7 @@ import {
   View,
 } from "../../../lib/hxml-comps";
 import { DISCOVER_TAGS } from "../../../constants/discover";
-import {
-  hyperviewBooksFilterUrl,
-  slugToTag,
-  tagToSlug,
-} from "../../../lib/tags";
+import { booksFilterUrl, slugToTag, tagToSlug } from "../../../lib/tags";
 import { capitalize } from "../../../utils";
 
 export const BOOKS_CATALOG_TARGET_ID = "books-catalog";
@@ -29,6 +25,8 @@ type Props = {
   baseUrl: string;
   activeTag?: string | null;
   q?: string | null;
+  /** Full hyperview URL used for filter behaviors (default: `{baseUrl}/hyperview/books`). */
+  filterPath?: string;
 };
 
 const filterSummary = (activeSlug: string | null, trimmedQ: string) => {
@@ -38,24 +36,31 @@ const filterSummary = (activeSlug: string | null, trimmedQ: string) => {
   return parts.length > 0 ? ` · ${parts.join(" · ")}` : "";
 };
 
+const defaultFilterPath = (baseUrl: string) => `${baseUrl}/hyperview/books`;
+
 const catalogHref = (
-  baseUrl: string,
+  filterPath: string,
   { tag, q }: { tag?: string | null; q?: string | null },
 ) => {
-  const path = hyperviewBooksFilterUrl(baseUrl, { tag, q });
+  const path = booksFilterUrl(filterPath, { tag, q });
   return `${path}${path.includes("?") ? "&" : "?"}fragment=catalog`;
 };
 
-const BookFiltersPanel = ({ baseUrl, activeTag = null, q = null }: Props) => {
+const BookFiltersPanel = ({
+  baseUrl,
+  activeTag = null,
+  q = null,
+  filterPath: filterPathProp,
+}: Props) => {
+  const filterPath = filterPathProp ?? defaultFilterPath(baseUrl);
   const trimmedQ = q?.trim() ?? "";
   const activeSlug = activeTag?.trim() || null;
   const summary = filterSummary(activeSlug, trimmedQ);
   const hasActiveFilters =
     Boolean(activeSlug) || trimmedQ.length >= MIN_SEARCH_LENGTH;
-  const booksPostHref = `${baseUrl}/hyperview/books`;
   const searchPostHref = activeSlug
-    ? `${booksPostHref}?tag=${encodeURIComponent(activeSlug)}`
-    : booksPostHref;
+    ? `${filterPath}?tag=${encodeURIComponent(activeSlug)}`
+    : filterPath;
 
   return (
     <View style="book-filters">
@@ -81,7 +86,7 @@ const BookFiltersPanel = ({ baseUrl, activeTag = null, q = null }: Props) => {
               verb="get"
               action="replace"
               target={BOOKS_CATALOG_TARGET_ID}
-              href={catalogHref(baseUrl, {})}
+              href={catalogHref(filterPath, {})}
             />
           </View>
         ) : null}
@@ -98,7 +103,7 @@ const BookFiltersPanel = ({ baseUrl, activeTag = null, q = null }: Props) => {
                 verb="get"
                 action="replace"
                 target={BOOKS_CATALOG_TARGET_ID}
-                href={catalogHref(baseUrl, {})}
+                href={catalogHref(filterPath, {})}
               />
               <Text
                 style={
@@ -124,7 +129,7 @@ const BookFiltersPanel = ({ baseUrl, activeTag = null, q = null }: Props) => {
                     verb="get"
                     action="replace"
                     target={BOOKS_CATALOG_TARGET_ID}
-                    href={catalogHref(baseUrl, { tag: slug })}
+                    href={catalogHref(filterPath, { tag: slug })}
                   />
                   <Text
                     style={
@@ -163,7 +168,7 @@ const BookFiltersPanel = ({ baseUrl, activeTag = null, q = null }: Props) => {
                   verb="get"
                   action="replace"
                   target={BOOKS_CATALOG_TARGET_ID}
-                  href={catalogHref(baseUrl, {})}
+                  href={catalogHref(filterPath, {})}
                 />
               </View>
             </View>
