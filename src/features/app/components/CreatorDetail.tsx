@@ -1,5 +1,6 @@
 import { BookCardResult } from "../../../constants/queries";
 import FollowButton from "../../api/components/FollowButton";
+import ShareButton from "../../api/components/ShareButton";
 import BooksGrid from "./BooksGrid";
 import CreatorCard from "../../../components/app/CreatorCard";
 import CreatorsGrid from "./CreatorsGrid";
@@ -109,6 +110,11 @@ const CreatorDetailMobile = ({
           result={result}
           currentCreatorId={creator.id}
           noResultsMessage="No books found"
+        />
+        <ShareButton
+          title={creator.displayName}
+          text={`${creator.displayName} on Photobookers`}
+          url={`/creators/${creator.slug}`}
         />
       </Tabs.Panel>
       <Tabs.Panel tabId="messages">

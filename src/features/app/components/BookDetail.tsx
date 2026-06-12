@@ -8,11 +8,9 @@ import ShareButton from "../../api/components/ShareButton";
 import TagList from "../../../components/app/TagList";
 import WishlistButton from "../../api/components/WishlistButton";
 import { BookWithGalleryImages } from "../types";
-import CollectButton from "../../api/components/CollectButton";
 import { Creator } from "../../../db/schema";
 import RelatedBooks from "../components/RelatedBooks";
 import CommentsSection from "../components/CommentsSection";
-import LikeButton from "../../api/components/LikeButton";
 import Divider from "../../../components/Divider";
 import BookCredits from "./BookCredits";
 import PageBleed from "../../../components/layouts/PageContent";
@@ -179,9 +177,13 @@ const DetailMobile = ({
               {book.artist?.displayName}
             </p>
           </div>
-          <div class="flex items-center justify-evenly">
-            <WishlistButton isCircleButton book={book} user={user} />
-            <ShareButton isCircleButton />
+          <div class="flex items-center justify-evenly gap-4">
+            <WishlistButton book={book} user={user} />
+            <ShareButton
+              title={book.title}
+              text={`${book.title} on Photobookers`}
+              url={`/books/${book.slug}`}
+            />
           </div>
           {book.description && (
             <Card.Description>{book.description}</Card.Description>

@@ -9,6 +9,8 @@ type APIButtonProps = {
   buttonText: ChildType;
   hiddenInput?: { name: string; value: boolean };
   isDisabled?: boolean;
+  /** Filled primary style (e.g. follow button when already following). */
+  isActive?: boolean;
   shouldRefreshFollowedCreators?: boolean;
   shouldRefreshCreatorMessages?: boolean;
 };
@@ -20,6 +22,7 @@ const APIButton = ({
   buttonText,
   hiddenInput,
   isDisabled = false,
+  isActive = false,
   shouldRefreshFollowedCreators = false,
   shouldRefreshCreatorMessages = false,
 }: APIButtonProps) => {
@@ -40,8 +43,15 @@ const APIButton = ({
       method={method}
       action={action}
       class={clsx(
-        "whitespace-nowrap w-full rounded-radius border px-4 py-2 text-sm font-medium tracking-wide transition hover:opacity-75 text-center bg-transparent text-secondary",
-        isDisabled ? "border-secondary/50" : "border-secondary",
+        "whitespace-nowrap w-full rounded-radius border px-4 py-2 text-sm font-medium tracking-wide transition hover:opacity-75 text-center",
+        isActive
+          ? "bg-on-surface-strong text-on-primary border-on-surface-strong"
+          : "bg-transparent text-secondary",
+        isDisabled
+          ? isActive
+            ? "border-on-surface-strong/50 opacity-50"
+            : "border-secondary/50"
+          : !isActive && "border-secondary",
       )}
       {...alpineAttrs}
     >

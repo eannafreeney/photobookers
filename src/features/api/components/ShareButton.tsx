@@ -1,11 +1,12 @@
-import Button from "../../../components/app/Button";
-
 type ShareButtonProps = {
   isCircleButton?: boolean;
   title?: string;
   text?: string;
   url?: string;
 };
+
+const shareButtonClass =
+  "whitespace-nowrap w-full rounded-radius border border-secondary bg-transparent px-4 py-2 text-sm font-medium tracking-wide text-secondary transition hover:opacity-75 text-center cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2";
 
 const ShareButton = ({
   isCircleButton = false,
@@ -31,20 +32,15 @@ const ShareButton = ({
   }
 
   return (
-    <div x-data={`shareButton(${shareConfig})`} class="w-full hover:opacity-75">
-      <Button
+    <div x-data={`shareButton(${shareConfig})`} class="w-full">
+      <button
         type="button"
-        variant="outline"
-        color="secondary"
-        width="full"
-        tooltipText={tooltipText}
-        onClick="share()"
-        {...({ "x-on:click": "share()" } as any)}
+        title={tooltipText}
+        class={`${shareButtonClass} flex items-center justify-center gap-2`}
+        x-on:click="share()"
       >
-        <span class="flex items-center justify-center gap-2 text-sm font-medium tracking-wide">
-          Share {shareIcon(4)}
-        </span>
-      </Button>
+        Share {shareIcon(4)}
+      </button>
     </div>
   );
 };
