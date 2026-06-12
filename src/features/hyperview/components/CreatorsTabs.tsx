@@ -92,7 +92,7 @@ export const creatorsTabStyles = () => (
     </Style>
     <Style
       id="tab-label"
-      fontSize={11}
+      fontSize={10}
       fontWeight="600"
       letterSpacing={1.5}
       color="#a39d90"

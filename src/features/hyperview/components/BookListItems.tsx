@@ -1,4 +1,4 @@
-import { Child } from "hono/jsx";
+import { Child, PropsWithChildren } from "hono/jsx";
 import { BookCardResult } from "../../../constants/queries";
 import {
   Item,
@@ -66,17 +66,16 @@ const BooksListItems = ({
 
 export default BooksListItems;
 
-type BooksListProps = Props & {
+type BooksListProps = PropsWithChildren<Props> & {
   listId?: string;
   refreshHref: string;
-  listHeader?: Child;
   emptyMessage?: string;
 };
 
 export const BooksList = ({
   listId = "books-list",
   refreshHref,
-  listHeader,
+  children,
   emptyMessage,
   ...itemsProps
 }: BooksListProps) => (
@@ -87,9 +86,13 @@ export const BooksList = ({
     href={refreshHref}
     action="replace"
   >
-    {listHeader ? (
-      <Item itemKey="book-filters-header" style="books-list-filters-header">
-        {listHeader}
+    {children ? (
+      <Item
+        itemKey="book-filters-header"
+        style="books-list-filters-header"
+        sticky="true"
+      >
+        {children}
       </Item>
     ) : null}
     {emptyMessage ? (
@@ -105,7 +108,12 @@ export const BooksList = ({
 export const bookListItemsStyles = () => (
   <>
     <Style id="books-list" flex={1} />
-    <Style id="books-list-filters-header" flexShrink={0} width="100%" />
+    <Style
+      id="books-list-filters-header"
+      flexShrink={0}
+      width="100%"
+      backgroundColor="#FFFFFF"
+    />
     <Style
       id="books-list-empty-item"
       paddingTop={24}

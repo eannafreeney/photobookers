@@ -163,6 +163,7 @@ export const Item: FC<
         target?: string;
         "show-during-load"?: string;
         "hide-during-load"?: string;
+        sticky?: "true" | "false";
       }
   >
 > = ({ itemKey, style, id, children, ...rest }) => (

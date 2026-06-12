@@ -72,7 +72,11 @@ export const GET = createRoute(async (c) => {
   if (isListFragment) {
     return hv(
       <Items>
-        <Item itemKey="book-filters-header" style="books-list-filters-header">
+        <Item
+          itemKey="book-filters-header"
+          style="books-list-filters-header"
+          sticky="true"
+        >
           <BookFiltersPanel baseUrl={baseUrl} activeTag={tag} q={q} />
         </Item>
         <BooksListItems {...listProps} />
@@ -187,10 +191,6 @@ const renderBooksListHost = (
   listProps: Awaited<ReturnType<typeof buildListProps>>,
   isFiltered: boolean,
 ) => {
-  const listHeader = (
-    <BookFiltersPanel baseUrl={baseUrl} activeTag={tag} q={q} />
-  );
-
   return (
     <View
       id={BOOKS_LIST_TARGET_ID}
@@ -199,13 +199,14 @@ const renderBooksListHost = (
     >
       <BooksList
         {...listProps}
-        listHeader={listHeader}
         emptyMessage={
           isFiltered && listProps.books.length === 0
             ? "No books match your filters."
             : undefined
         }
-      />
+      >
+        <BookFiltersPanel baseUrl={baseUrl} activeTag={tag} q={q} />
+      </BooksList>
     </View>
   );
 };

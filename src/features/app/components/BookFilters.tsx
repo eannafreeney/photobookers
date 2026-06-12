@@ -105,7 +105,7 @@ const FilterForm = () => {
         x-model="q"
         {...searchInputAttrs}
         placeholder="Search by title, artist, publisher, or tag…"
-        class="min-w-0 flex-1 rounded-full border border-outline bg-surface-alt px-4 py-2 text-sm text-on-surface-strong placeholder:text-on-surface-weak focus:outline-none focus:ring-1 focus:ring-primary"
+        class="min-w-0 flex-1 rounded-full border border-outline bg-surface-alt px-4 py-2 text-base md:text-sm text-on-surface-strong placeholder:text-on-surface-weak focus:outline-none focus:ring-1 focus:ring-primary"
       />
       <button
         type="button"

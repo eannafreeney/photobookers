@@ -46,7 +46,7 @@ const BooksGridWithFilters = ({
       result={result}
       noResultsMessage={isFiltered ? "No books match your filters." : undefined}
     />
-    {hasMore && viewAllHref ? (
+    {hasMore || viewAllHref ? (
       <div class="mt-8 flex justify-center">
         <a href={viewAllHref}>
           <Button variant="solid" color="primary" width="xl">

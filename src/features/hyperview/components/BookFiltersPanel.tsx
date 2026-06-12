@@ -19,6 +19,8 @@ export const BOOKS_CATALOG_TARGET_ID = "books-catalog";
 export const BOOKS_LIST_TARGET_ID = "books-list-host";
 /** Element id for `toggle` — must not match any `<style id="…">`. */
 export const BOOKS_FILTERS_DRAWER_ID = "book-filters-drawer";
+const BOOKS_FILTERS_CHEVRON_CLOSED_ID = "book-filters-chevron-closed";
+const BOOKS_FILTERS_CHEVRON_OPEN_ID = "book-filters-chevron-open";
 export const BOOKS_FILTER_Q_ID = "books-filter-q";
 
 const MIN_SEARCH_LENGTH = 3;
@@ -62,8 +64,15 @@ const BookFiltersPanel = ({ baseUrl, activeTag = null, q = null }: Props) => {
           <Text style="book-filters-toggle-label" number-of-lines={1}>
             Filters{summary}
           </Text>
-          <Text style="book-filters-toggle-chevron">▾</Text>
+          <View id={BOOKS_FILTERS_CHEVRON_CLOSED_ID}>
+            <Text style="book-filters-toggle-chevron">▶</Text>
+          </View>
+          <View id={BOOKS_FILTERS_CHEVRON_OPEN_ID} hide="true">
+            <Text style="book-filters-toggle-chevron">▼</Text>
+          </View>
           <Behavior action="toggle" target={BOOKS_FILTERS_DRAWER_ID} />
+          <Behavior action="toggle" target={BOOKS_FILTERS_CHEVRON_CLOSED_ID} />
+          <Behavior action="toggle" target={BOOKS_FILTERS_CHEVRON_OPEN_ID} />
         </View>
         {hasActiveFilters ? (
           <View style="book-filters-toggle-clear">

@@ -81,12 +81,10 @@ const CreatorDetailMobile = ({
       <span class="kicker text-accent">
         {creator.type === "publisher" ? "Publisher" : "Artist"}
       </span>
-      <div class="flex items-center justify-between gap-3">
-        <h1 class="font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance">
-          {creator.displayName}
-        </h1>
-        <FollowButton creator={creator} variant="mobile" user={user} />
-      </div>
+      <h1 class="font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance pb-1">
+        {creator.displayName}
+      </h1>
+      <FollowButton creator={creator} variant="mobile" user={user} />
     </div>
     <CreatorPageBanner
       bannerUrl={creator.bannerUrl}
@@ -161,67 +159,69 @@ const CreatorDetailDesktop = ({
   creatorsCurrentPage,
   showCreatorsTab,
   result,
-}: CreatorDetailDesktopProps) => (
-  <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4">
-      <span class="kicker text-accent">
-        {creator.type === "publisher" ? "Publisher" : "Artist"}
-      </span>
-      <h1 class="font-display text-4xl md:text-6xl font-medium leading-tight text-on-surface-strong text-balance">
-        {creator.displayName}
-      </h1>
-    </div>
-    <CreatorPageBanner
-      bannerUrl={creator.bannerUrl}
-      displayName={creator.displayName}
-    />
-    <div class="flex gap-4">
-      <div class="md:w-4/5 flex flex-col gap-4">
-        <Tabs defaultTab="books">
-          <Tabs.LinkContainer align="left">
-            <Tabs.Link tabId="books">Books</Tabs.Link>
-            <Tabs.Link tabId="messages">Messages</Tabs.Link>
-            {showCreatorsTab && (
-              <Tabs.Link tabId="creators">
-                {creator.type === "publisher" ? "Artists" : "Publishers"}
-              </Tabs.Link>
-            )}
-          </Tabs.LinkContainer>
-          <Tabs.Panel tabId="books">
-            <BooksGrid
-              isFullWidth={false}
-              user={user}
-              currentPath={currentPath}
-              result={result}
-              currentCreatorId={creator.id}
-              noResultsMessage="No books found"
-            />
-          </Tabs.Panel>
-          <Tabs.Panel tabId="messages">
-            <CreatorMessages creatorSlug={creator.slug} user={user} />
-          </Tabs.Panel>
-          <Tabs.Panel tabId="creators">
-            <CreatorsGrid
-              creatorId={creator.id}
-              creatorType={creator.type}
-              currentPath={currentPath}
-              currentPage={creatorsCurrentPage}
-              pageParam="creatorsPage"
-            />
-          </Tabs.Panel>
-        </Tabs>
+}: CreatorDetailDesktopProps) => {
+  return (
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4">
+        <span class="kicker text-accent">
+          {creator.type === "publisher" ? "Publisher" : "Artist"}
+        </span>
+        <h1 class="font-display text-4xl md:text-6xl font-medium leading-tight text-on-surface-strong text-balance">
+          {creator.displayName}
+        </h1>
       </div>
-      <div class="md:w-1/5">
-        <div class="mt-5">
-          <CreatorCard
-            creator={creator}
-            currentPath={currentPath}
-            user={user}
-            title="About"
-            shouldRefreshCreatorMessages
-          />
+      <CreatorPageBanner
+        bannerUrl={creator.bannerUrl}
+        displayName={creator.displayName}
+      />
+      <div class="flex gap-4">
+        <div class="md:w-4/5 flex flex-col gap-4">
+          <Tabs defaultTab="books">
+            <Tabs.LinkContainer align="left">
+              <Tabs.Link tabId="books">Books</Tabs.Link>
+              <Tabs.Link tabId="messages">Messages</Tabs.Link>
+              {showCreatorsTab && (
+                <Tabs.Link tabId="creators">
+                  {creator.type === "publisher" ? "Artists" : "Publishers"}
+                </Tabs.Link>
+              )}
+            </Tabs.LinkContainer>
+            <Tabs.Panel tabId="books">
+              <BooksGrid
+                isFullWidth={false}
+                user={user}
+                currentPath={currentPath}
+                result={result}
+                currentCreatorId={creator.id}
+                noResultsMessage="No books found"
+              />
+            </Tabs.Panel>
+            <Tabs.Panel tabId="messages">
+              <CreatorMessages creatorSlug={creator.slug} user={user} />
+            </Tabs.Panel>
+            <Tabs.Panel tabId="creators">
+              <CreatorsGrid
+                creatorId={creator.id}
+                creatorType={creator.type}
+                currentPath={currentPath}
+                currentPage={creatorsCurrentPage}
+                pageParam="creatorsPage"
+              />
+            </Tabs.Panel>
+          </Tabs>
+        </div>
+        <div class="md:w-1/5">
+          <div class="mt-5">
+            <CreatorCard
+              creator={creator}
+              currentPath={currentPath}
+              user={user}
+              title="About"
+              shouldRefreshCreatorMessages
+            />
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
