@@ -138,16 +138,16 @@ const BookFiltersPanel = ({ baseUrl, activeTag = null, q = null }: Props) => {
                 name="q"
                 value={trimmedQ}
                 placeholder="Search by title, artist, publisher, or tag…"
-              >
+              />
+              <View style="book-filters-search-btn">
+                <Text style="book-filters-search-label">Search</Text>
                 <Behavior
-                  trigger="change"
-                  delay={400}
                   verb="post"
                   action="replace"
                   target={BOOKS_CATALOG_TARGET_ID}
                   href={searchPostHref}
                 />
-              </TextField>
+              </View>
               <View style="book-filters-clear">
                 <Text style="book-filters-clear-label">Clear</Text>
                 <Behavior
@@ -286,6 +286,22 @@ export const bookFiltersStyles = () => (
       fontSize={15}
       backgroundColor="#F4F4F3"
       color="#1C1C1E"
+    />
+    <Style
+      id="book-filters-search-btn"
+      paddingTop={10}
+      paddingBottom={10}
+      paddingLeft={14}
+      paddingRight={14}
+      flexShrink={0}
+      backgroundColor="#1C1C1E"
+      borderRadius={999}
+    />
+    <Style
+      id="book-filters-search-label"
+      fontSize={14}
+      fontWeight="600"
+      color="#FFFFFF"
     />
     <Style
       id="book-filters-clear"

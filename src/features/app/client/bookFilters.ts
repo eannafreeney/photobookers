@@ -7,6 +7,9 @@ const MIN_SEARCH_LENGTH = 3;
 type BookFiltersInitial = {
   q?: string;
   tag?: string | null;
+  ajaxPath?: string;
+  /** When omitted, URL is not updated after filter changes. */
+  historyPath?: string | null;
 };
 
 type BookFiltersCtx = {
@@ -18,6 +21,15 @@ type BookFiltersCtx = {
 
 export function registerBookFilters() {
   Alpine.data("bookFilters", (initial: BookFiltersInitial = {}) => {
+    const ajaxPath = initial.ajaxPath ?? "/books";
+    const historyPath = initial.historyPath ?? "/books";
+
+    const replaceHistory = (params: URLSearchParams) => {
+      if (historyPath === null) return;
+      const qs = params.toString();
+      history.replaceState({}, "", historyPath + (qs ? "?" + qs : ""));
+    };
+
     return {
       q: initial.q ?? "",
       tag: initial.tag ?? null,
@@ -30,13 +42,12 @@ export function registerBookFilters() {
         const params = new URLSearchParams();
         if (nextTag) params.set("tag", nextTag);
         params.set("fragment", "grid");
-        ctx.$ajax("/books?" + params.toString(), {
+        ctx.$ajax(ajaxPath + "?" + params.toString(), {
           target: BOOKS_CATALOG_TARGET_ID,
         });
         const display = new URLSearchParams();
         if (nextTag) display.set("tag", nextTag);
-        const qs = display.toString();
-        history.replaceState({}, "", "/books" + (qs ? "?" + qs : ""));
+        replaceHistory(display);
       },
 
       runSearch() {
@@ -49,13 +60,13 @@ export function registerBookFilters() {
           if (ctx.tag) params.set("tag", ctx.tag);
           params.set("q", trimmed);
           params.set("fragment", "grid");
-          ctx.$ajax("/books?" + params.toString(), {
+          ctx.$ajax(ajaxPath + "?" + params.toString(), {
             target: BOOKS_CATALOG_TARGET_ID,
           });
           const display = new URLSearchParams();
           if (ctx.tag) display.set("tag", ctx.tag);
           display.set("q", trimmed);
-          history.replaceState({}, "", "/books?" + display.toString());
+          replaceHistory(display);
         } else if (trimmed.length === 0) {
           ctx.applyFilter(null);
         }

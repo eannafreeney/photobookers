@@ -25,7 +25,10 @@ const Footer = () => (
   <footer class="border-t-2 border-on-surface-strong bg-surface mt-16">
     <div class="mx-auto grid w-full max-w-[1680px] gap-10 px-4 py-12 md:grid-cols-[2fr_1fr_1fr_1fr] md:px-6">
       <div class="flex flex-col gap-3">
-        <a href="/" class="font-logo text-3xl font-semibold text-on-surface-strong w-fit">
+        <a
+          href="/"
+          class="font-logo text-3xl font-semibold text-on-surface-strong w-fit"
+        >
           Photobookers
         </a>
         <p class="max-w-xs text-sm text-on-surface text-pretty">
@@ -39,7 +42,6 @@ const Footer = () => (
           { href: "/books", label: "All Books" },
           { href: "/artists", label: "Artists" },
           { href: "/publishers", label: "Publishers" },
-          { href: "/search", label: "Search" },
         ]}
       />
       <FooterColumn

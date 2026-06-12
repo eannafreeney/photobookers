@@ -1,39 +1,62 @@
 import { createRoute } from "hono-fsr";
-import BooksGrid from "../../../features/app/components/BooksGrid";
-import Button from "../../../components/app/Button";
-import { getLatestBooks } from "../../../features/app/services";
-import { getUser } from "../../../utils";
-import { Context } from "hono";
 import SectionTitle from "../../../components/app/SectionTitle";
+import { BOOKS_CATALOG_TARGET_ID } from "../../../features/app/components/BookFilters";
+import BooksGridWithFilters from "../../../features/app/components/BookGridWithFilters";
 import ViewAllLink from "../../../features/app/components/ViewAllLink";
+import { getFilteredBooks } from "../../../features/app/services";
+import { booksFilterUrl } from "../../../lib/tags";
+import { getUser } from "../../../utils";
 
-export const GET = createRoute(async (c: Context) => {
+const FEATURED_BOOKS_LIMIT = 10;
+const FRAGMENT_PATH = "/fragments/latest-books";
+
+export const GET = createRoute(async (c) => {
   const user = await getUser(c);
-  const currentPath = c.req.path;
-  const page = Number(c.req.query("page") ?? 1);
+  const tag = c.req.query("tag") ?? null;
+  const q = c.req.query("q") ?? null;
+  const isFiltered = Boolean(tag?.trim() || (q?.trim()?.length ?? 0) >= 3);
+  const viewAllHref = booksFilterUrl("/books", { tag, q });
 
-  const [error, result] = await getLatestBooks(page, 10);
+  const [error, result] = await getFilteredBooks({
+    tag,
+    q,
+    page: 1,
+    limit: FEATURED_BOOKS_LIMIT,
+  });
 
-  if (error) return c.html(<></>);
+  if (error || !result) return c.html(<></>);
+
+  const hasMore = result.totalPages > 1;
+  const gridProps = {
+    user,
+    tag,
+    q,
+    currentPath: viewAllHref,
+    result,
+    isFiltered,
+    isInfiniteScroll: false,
+    ajaxPath: FRAGMENT_PATH,
+    historyPath: null,
+    hasMore,
+    viewAllHref,
+  };
+
+  if (c.req.query("fragment") === "grid") {
+    return c.html(
+      <div id={BOOKS_CATALOG_TARGET_ID} x-merge="replace">
+        <BooksGridWithFilters {...gridProps} />
+      </div>,
+    );
+  }
 
   return c.html(
     <div id="latest-books-fragment">
-      <div class="flex items-center justify-between mb-2">
+      <div class="mb-2 flex items-center justify-between">
         <SectionTitle>Latest Books</SectionTitle>
-        <ViewAllLink href="/books" />
+        <ViewAllLink href={viewAllHref} />
       </div>
-      <BooksGrid
-        user={user}
-        currentPath={currentPath}
-        result={result}
-        isPaginated={false}
-      />
-      <div class="flex justify-center mt-8">
-        <a href="/books">
-          <Button variant="solid" color="primary" width="xl">
-            View All Books →
-          </Button>
-        </a>
+      <div id={BOOKS_CATALOG_TARGET_ID}>
+        <BooksGridWithFilters {...gridProps} />
       </div>
     </div>,
   );

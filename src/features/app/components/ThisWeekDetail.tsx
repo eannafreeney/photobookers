@@ -172,7 +172,7 @@ const ThisWeekCreatorSpotlight = async ({
     spotlight.instagramImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
 
   return (
-    <section class="flex flex-col gap-8">
+    <section class="flex flex-col gap-6">
       <SectionTitle>{title}</SectionTitle>
 
       {image ? (
@@ -197,12 +197,6 @@ const ThisWeekCreatorSpotlight = async ({
           widthClass="w-full"
         />
       ) : null}
-
-      <a href={spotlightHref}>
-        <Button variant="outline" color="primary" width="full">
-          View {title.toLowerCase()}
-        </Button>
-      </a>
     </section>
   );
 };

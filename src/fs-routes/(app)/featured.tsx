@@ -51,9 +51,6 @@ export const GET = createRoute(async (c: Context) => {
           <NewsletterCard />
         </ScrollReveal>
         <ScrollReveal>
-          <DiscoveryTags />
-        </ScrollReveal>
-        <ScrollReveal>
           <Intersector
             id="latest-books-fragment"
             endpoint="/fragments/latest-books"

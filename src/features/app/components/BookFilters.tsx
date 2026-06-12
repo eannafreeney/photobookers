@@ -9,14 +9,26 @@ export const BOOKS_CATALOG_TARGET_ID = "books-catalog";
 type Props = {
   activeTag?: string | null;
   q?: string | null;
+  ajaxPath?: string;
+  historyPath?: string | null;
 };
 
-const BookFilters = ({ activeTag = null, q = null }: Props) => {
+const BookFilters = ({
+  activeTag = null,
+  q = null,
+  ajaxPath = "/books",
+  historyPath = "/books",
+}: Props) => {
   const trimmedQ = q?.trim() ?? "";
   const activeSlug = activeTag?.trim() || null;
 
   const alpineAttrs = {
-    "x-data": `bookFilters(${JSON.stringify({ q: trimmedQ, tag: activeSlug })})`,
+    "x-data": `bookFilters(${JSON.stringify({
+      q: trimmedQ,
+      tag: activeSlug,
+      ajaxPath,
+      historyPath,
+    })})`,
   };
 
   const pillButtonClass =

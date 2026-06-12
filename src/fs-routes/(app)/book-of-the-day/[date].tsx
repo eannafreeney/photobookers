@@ -97,8 +97,8 @@ export const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
           date={date}
           editorial={editorial}
         />
-        <a href="/book-of-the-day">
-          <Button variant="outline" color="primary" width="full">
+        <a href="/book-of-the-day" class="mx-auto">
+          <Button variant="outline" color="primary" width="auto">
             ← All Books of the Day
           </Button>
         </a>

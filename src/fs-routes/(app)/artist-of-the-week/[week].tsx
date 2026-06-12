@@ -106,8 +106,8 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
           publishedInterview={publishedInterview}
           books={booksResult.books}
         />
-        <a href={`/artist-of-the-week`}>
-          <Button variant="outline" color="primary" width="full">
+        <a href={`/artist-of-the-week`} class="mx-auto">
+          <Button variant="outline" color="primary" width="auto">
             ← All Artists of the Week
           </Button>
         </a>

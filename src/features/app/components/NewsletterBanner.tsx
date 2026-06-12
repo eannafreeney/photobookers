@@ -19,7 +19,7 @@ const NewsletterBanner = () => {
             </span>
             Discover new books and creators directly in your inbox
           </p>
-          <a href="/newsletter" x-target="modal-root" class="inline-block">
+          <a href="/newsletter" class="inline-block">
             <Button variant="solid" color="accent" width="auto">
               Sign Up
             </Button>

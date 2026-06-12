@@ -103,26 +103,31 @@ export type CreateBrevoEmailCampaignInput = {
 export async function createBrevoEmailCampaign(
   input: CreateBrevoEmailCampaignInput,
 ): Promise<Result<number, { reason: string; status?: number }>> {
-  const [error, data] = await brevoFetch<{ id: number }>(
-    input.apiKey,
-    "/emailCampaigns",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        name: input.name,
-        subject: input.subject,
-        sender: input.sender,
-        recipients: { listIds: input.listIds },
-        htmlContent: input.htmlContent,
-      }),
-    },
-  );
+  try {
+    const [error, data] = await brevoFetch<{ id: number }>(
+      input.apiKey,
+      "/emailCampaigns",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          name: input.name,
+          subject: input.subject,
+          sender: input.sender,
+          recipients: { listIds: input.listIds },
+          htmlContent: input.htmlContent,
+        }),
+      },
+    );
 
-  if (error) return err(error);
-  if (!data?.id) {
-    return err({ reason: "Brevo did not return a campaign id" });
+    if (error) return err(error);
+    if (!data?.id) {
+      return err({ reason: "Brevo did not return a campaign id" });
+    }
+    return ok(data.id);
+  } catch (e) {
+    console.error("createBrevoEmailCampaign", input, e);
+    return err({ reason: "Failed to create Brevo campaign" });
   }
-  return ok(data.id);
 }
 
 /**
@@ -134,16 +139,21 @@ export async function ensureBrevoContact(
   email: string,
   listIds: number[],
 ): Promise<Result<void, { reason: string; status?: number }>> {
-  const [error] = await brevoFetch<{ id?: number }>(apiKey, "/contacts", {
-    method: "POST",
-    body: JSON.stringify({
-      email: email.trim().toLowerCase(),
-      listIds,
-      updateEnabled: true,
-    }),
-  });
-  if (error) return err(error);
-  return ok(undefined);
+  try {
+    const [error] = await brevoFetch<{ id?: number }>(apiKey, "/contacts", {
+      method: "POST",
+      body: JSON.stringify({
+        email: email.trim().toLowerCase(),
+        listIds,
+        updateEnabled: true,
+      }),
+    });
+    if (error) return err(error);
+    return ok(undefined);
+  } catch (e) {
+    console.error("ensureBrevoContact", email, listIds, e);
+    return err({ reason: "Failed to ensure Brevo contact" });
+  }
 }
 
 export async function sendBrevoCampaignTest(
@@ -151,31 +161,41 @@ export async function sendBrevoCampaignTest(
   campaignId: number,
   emailTo: string[],
 ): Promise<Result<void, { reason: string; status?: number }>> {
-  const [error] = await brevoFetch<void>(
-    apiKey,
-    `/emailCampaigns/${campaignId}/sendTest`,
-    {
-      method: "POST",
-      body: JSON.stringify({ emailTo }),
-    },
-  );
-  if (error) return err(error);
-  return ok(undefined);
+  try {
+    const [error] = await brevoFetch<void>(
+      apiKey,
+      `/emailCampaigns/${campaignId}/sendTest`,
+      {
+        method: "POST",
+        body: JSON.stringify({ emailTo }),
+      },
+    );
+    if (error) return err(error);
+    return ok(undefined);
+  } catch (e) {
+    console.error("sendBrevoCampaignTest", campaignId, emailTo, e);
+    return err({ reason: "Failed to send Brevo campaign test" });
+  }
 }
 
 export async function sendBrevoCampaignNow(
   apiKey: string,
   campaignId: number,
 ): Promise<Result<void, { reason: string; status?: number }>> {
-  const [error] = await brevoFetch<void>(
-    apiKey,
-    `/emailCampaigns/${campaignId}/sendNow`,
-    {
-      method: "POST",
-    },
-  );
-  if (error) return err(error);
-  return ok(undefined);
+  try {
+    const [error] = await brevoFetch<void>(
+      apiKey,
+      `/emailCampaigns/${campaignId}/sendNow`,
+      {
+        method: "POST",
+      },
+    );
+    if (error) return err(error);
+    return ok(undefined);
+  } catch (e) {
+    console.error("sendBrevoCampaignNow", campaignId, e);
+    return err({ reason: "Failed to send Brevo campaign" });
+  }
 }
 
 /** MailerLite-style placeholder → Brevo campaign merge tag. */
