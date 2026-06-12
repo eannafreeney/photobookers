@@ -6,6 +6,7 @@ import {
   MjmlText,
   MjmlButton,
   MjmlImage,
+  MjmlDivider,
 } from "mjml-react";
 import { parseDateString } from "../../../../../lib/utils";
 import type {
@@ -16,11 +17,11 @@ import type {
 import {
   appBaseUrl,
   brand,
-  featureImageWidthPx,
   newsletterAssets,
   newsletterLogoWidthPx,
+  newsletterNavLinks,
   newsletterSocial,
-  newsletterWidthPx,
+  featureCardContentWidthPx,
 } from "./newsletterTokens";
 
 const NewsletterLogo = ({ padding }: { padding: string }) => (
@@ -47,39 +48,55 @@ const formatNewsletterDate = (dateStr: string): string => {
   });
 };
 
-const sectionHeadingProps = {
-  cssClass: "section-heading",
+const kickerTextProps = {
   fontSize: "11px",
   fontWeight: 600,
-  letterSpacing: "0.08em",
+  letterSpacing: "0.18em",
   textTransform: "uppercase" as const,
-  color: brand.onSurfaceWeak,
-  padding: "16px 25px 8px",
-  align: "left" as const,
-};
-
-const whiteSectionProps = {
-  backgroundColor: brand.surface,
-  padding: "0",
-} as const;
-
-const featureImageProps = {
-  width: `${featureImageWidthPx}px`,
-  fluidOnMobile: "true" as const,
+  lineHeight: "1.2",
   align: "center" as const,
-  padding: "10px 30px 20px",
 };
 
-const textLinkStyle = {
-  color: brand.onSurface,
-  textDecoration: "underline",
-  fontSize: "14px",
-};
+const sectionPadding = "0 25px";
 
-export const SectionHeading = ({ children }: { children: ReactNode }) => (
-  <MjmlSection {...whiteSectionProps} padding="0">
+export const SectionHeading = ({
+  kicker,
+  children,
+}: {
+  kicker?: string;
+  children: ReactNode;
+}) => (
+  <MjmlSection backgroundColor={brand.surface} padding="28px">
     <MjmlColumn>
-      <MjmlText {...sectionHeadingProps}>{children}</MjmlText>
+      {kicker ? (
+        <MjmlText
+          {...kickerTextProps}
+          color={brand.accent}
+          padding="0 0 6px"
+          align="left"
+          cssClass="section-kicker"
+        >
+          {kicker}
+        </MjmlText>
+      ) : null}
+      <MjmlText
+        fontSize="24px"
+        fontWeight={500}
+        lineHeight="1.2"
+        color={brand.onSurfaceStrong}
+        padding="0 0 12px"
+        align="left"
+        fontFamily={brand.fontDisplay}
+        cssClass="section-title"
+      >
+        {children}
+      </MjmlText>
+      <MjmlDivider
+        borderWidth="2px"
+        borderColor={brand.outlineStrong}
+        padding="0"
+        cssClass="section-heading-rule"
+      />
     </MjmlColumn>
   </MjmlSection>
 );
@@ -87,46 +104,60 @@ export const SectionHeading = ({ children }: { children: ReactNode }) => (
 export const NewsletterHeader = () => (
   <MjmlSection
     backgroundColor={brand.surface}
-    padding="0"
+    padding="24px 25px 0"
     cssClass="newsletter-header"
   >
     <MjmlColumn>
-      <NewsletterLogo padding="18px 25px" />
-    </MjmlColumn>
-  </MjmlSection>
-);
-
-export const NewsletterHero = () => (
-  <MjmlSection padding="0" backgroundColor={brand.surfaceAlt}>
-    <MjmlColumn>
-      <MjmlImage
-        src={newsletterAssets.hero}
-        alt="Photobookers weekly newsletter"
-        width={`${newsletterWidthPx}px`}
-        fluidOnMobile="true"
+      <NewsletterLogo padding="0 0 20px" />
+      <MjmlDivider
+        borderWidth="2px"
+        borderColor={brand.outlineStrong}
         padding="0"
-        align="center"
+        cssClass="newsletter-header-rule"
       />
     </MjmlColumn>
   </MjmlSection>
 );
 
-export const NewsletterSubject = ({ subject }: { subject: string }) => (
+export const NewsletterSubject = ({
+  subject,
+  weekLabel,
+}: {
+  subject: string;
+  weekLabel?: string;
+}) => (
   <MjmlSection
     backgroundColor={brand.surface}
     padding="0"
-    paddingTop="0"
     cssClass="newsletter-subject"
   >
-    <MjmlColumn padding="0" paddingTop="0">
+    <MjmlColumn padding="0">
+      <MjmlText
+        {...kickerTextProps}
+        color={brand.accent}
+        padding="20px 25px 8px"
+        cssClass="newsletter-kicker"
+      >
+        Photobookers Weekly
+      </MjmlText>
+      {weekLabel ? (
+        <MjmlText
+          {...kickerTextProps}
+          color={brand.onSurfaceWeak}
+          padding="0 25px 12px"
+          cssClass="newsletter-week"
+        >
+          {weekLabel}
+        </MjmlText>
+      ) : null}
       <MjmlText
         align="center"
-        fontSize="28px"
-        fontWeight={600}
-        lineHeight="1.2"
+        fontSize="32px"
+        fontWeight={500}
+        lineHeight="1.15"
         color={brand.onSurfaceStrong}
-        padding="0 25px 12px"
-        paddingTop="0"
+        padding="0 25px 20px"
+        fontFamily={brand.fontDisplay}
         cssClass="newsletter-subject-text"
       >
         {subject}
@@ -143,7 +174,7 @@ export const NewsletterIntro = ({ introText }: { introText: string }) => (
         fontSize="15px"
         lineHeight="1.65"
         color={brand.onSurface}
-        padding="0 25px 20px"
+        padding="0 25px 24px"
       >
         {introText}
       </MjmlText>
@@ -152,13 +183,13 @@ export const NewsletterIntro = ({ introText }: { introText: string }) => (
 );
 
 export const NewsletterOutro = ({ outroText }: { outroText: string }) => (
-  <MjmlSection backgroundColor={brand.surface} padding="0">
+  <MjmlSection backgroundColor={brand.surface} padding="8px 0 0">
     <MjmlColumn>
       <MjmlText
         fontSize="15px"
         lineHeight="1.65"
         color={brand.onSurface}
-        padding="20px 25px 0"
+        padding="0 25px 0"
       >
         {outroText}
       </MjmlText>
@@ -173,16 +204,18 @@ export const NewsletterCtaButton = ({
   label: string;
   href: string;
 }) => (
-  <MjmlSection backgroundColor={brand.surface} padding="20px 0">
+  <MjmlSection backgroundColor={brand.surface} padding="24px 25px 8px">
     <MjmlColumn>
       <MjmlButton
         href={href}
         backgroundColor={brand.primary}
         color={brand.onPrimary}
-        fontSize="14px"
+        fontSize="11px"
         fontWeight={600}
-        borderRadius="4px"
-        innerPadding="10px 25px"
+        letterSpacing="0.16em"
+        textTransform="uppercase"
+        borderRadius="0"
+        innerPadding="14px 28px"
         align="center"
         cssClass="newsletter-cta-button"
       >
@@ -192,40 +225,71 @@ export const NewsletterCtaButton = ({
   </MjmlSection>
 );
 
-export const NewsletterFooterBanner = () => (
-  <MjmlSection padding="0" backgroundColor={brand.surface}>
-    <MjmlColumn>
-      <MjmlImage
-        src={newsletterAssets.footerBanner}
-        alt=""
-        fluidOnMobile="true"
-        padding="0"
-        align="center"
-      />
-    </MjmlColumn>
-  </MjmlSection>
-);
-
 export const NewsletterFooter = () => (
-  <MjmlSection backgroundColor={brand.surface} padding="20px 0">
+  <MjmlSection backgroundColor={brand.surfaceAlt} padding="0">
     <MjmlColumn>
-      <NewsletterLogo padding="10px 25px" />
-      <MjmlText align="center" padding="10px 25px">
+      <MjmlDivider
+        borderWidth="2px"
+        borderColor={brand.outlineStrong}
+        padding="24px 25px 0"
+      />
+      <NewsletterLogo padding="20px 25px 12px" />
+      <MjmlText
+        align="center"
+        fontSize="14px"
+        lineHeight="1.6"
+        color={brand.onSurface}
+        padding="0 25px 16px"
+      >
+        The home for photobook lovers. Discover books, follow artists and
+        publishers, and keep up with the photobook world.
+      </MjmlText>
+      <MjmlText
+        align="center"
+        padding="0 25px 16px"
+        cssClass="newsletter-nav-link"
+      >
+        {newsletterNavLinks.map((link, index) => (
+          <span key={link.href}>
+            {index > 0 ? (
+              <span style={{ color: brand.onSurfaceWeak }}> · </span>
+            ) : null}
+            <a
+              href={link.href}
+              style={{ color: brand.onSurface, textDecoration: "none" }}
+            >
+              {link.label}
+            </a>
+          </span>
+        ))}
+      </MjmlText>
+      <MjmlText align="center" padding="0 25px 8px">
         <a href={newsletterSocial.instagramUrl}>
           <img
             src={newsletterSocial.instagramIconUrl}
             alt="Instagram"
             width="20"
             height="20"
-            style={{ display: "inline-block", borderRadius: "3px" }}
+            style={{ display: "inline-block" }}
           />
         </a>
       </MjmlText>
       <MjmlText
         align="center"
+        fontSize="11px"
+        color={brand.onSurfaceWeak}
+        padding="8px 25px 0"
+        cssClass="footer-kicker"
+        letterSpacing="0.18em"
+        textTransform="uppercase"
+      >
+        © {new Date().getFullYear()} Photobookers
+      </MjmlText>
+      <MjmlText
+        align="center"
         fontSize="12px"
         color={brand.onSurfaceWeak}
-        padding="10px 25px 0"
+        padding="12px 25px 24px"
       >
         <a
           href="{$unsubscribe}"
@@ -241,70 +305,96 @@ export const NewsletterFooter = () => (
   </MjmlSection>
 );
 
-type AlternatingFeatureCardProps = {
-  reversed: boolean;
-  image: ReactNode | null;
+type FeatureCardProps = {
+  kicker: string;
   title: string;
   body: string;
   linkHref: string;
   linkLabel: string;
+  image: ReactNode | null;
 };
 
-const AlternatingFeatureCard = ({
-  reversed,
-  image,
+const FeatureCard = ({
+  kicker,
   title,
   body,
   linkHref,
   linkLabel,
-}: AlternatingFeatureCardProps) => (
+  image,
+}: FeatureCardProps) => (
   <MjmlSection
     backgroundColor={brand.surface}
-    padding="0"
-    direction={reversed ? "rtl" : "ltr"}
-    cssClass="feature-card-row"
+    padding={`0 ${sectionPadding} 16px`}
+    cssClass="feature-card-section"
   >
-    {image ? (
-      <MjmlColumn
-        width="50%"
-        verticalAlign="middle"
-        cssClass="feature-media-col"
-      >
-        {image}
-      </MjmlColumn>
-    ) : null}
-    <MjmlColumn width="50%" verticalAlign="middle" cssClass="feature-body-col">
+    <MjmlColumn
+      backgroundColor={brand.surface}
+      border={`1px solid ${brand.outline}`}
+      padding="0"
+      cssClass="feature-card"
+    >
+      {image}
       <MjmlText
-        fontSize="16px"
-        fontWeight={700}
-        lineHeight="1.35"
-        color={brand.onSurfaceStrong}
-        padding="10px 40px 0"
+        {...kickerTextProps}
+        color={brand.onSurfaceWeak}
+        padding="16px 16px 0"
         align="left"
+        cssClass="feature-kicker"
+      >
+        {kicker}
+      </MjmlText>
+      <MjmlText
+        fontSize="22px"
+        fontWeight={500}
+        lineHeight="1.25"
+        color={brand.onSurfaceStrong}
+        padding="8px 16px 0"
+        align="left"
+        fontFamily={brand.fontDisplay}
+        cssClass="feature-title"
       >
         {title}
       </MjmlText>
+      {body ? (
+        <MjmlText
+          fontSize="14px"
+          lineHeight="1.55"
+          color={brand.onSurface}
+          padding="8px 16px 0"
+          align="left"
+        >
+          {body}
+        </MjmlText>
+      ) : null}
       <MjmlText
-        fontSize="14px"
-        lineHeight="1.5"
-        color={brand.onSurface}
-        padding="10px 40px 0"
+        padding="12px 16px 18px"
         align="left"
+        cssClass="newsletter-accent-link"
       >
-        {body}
-      </MjmlText>
-      <MjmlText padding="10px 40px 20px" align="left">
-        <a href={linkHref} style={textLinkStyle}>
-          <u>{linkLabel}</u>
+        <a
+          href={linkHref}
+          style={{
+            color: brand.accent,
+            textDecoration: "underline",
+            fontWeight: 600,
+          }}
+        >
+          {linkLabel} →
         </a>
-        {" >"}
       </MjmlText>
     </MjmlColumn>
   </MjmlSection>
 );
 
+const featureCardImageProps = {
+  width: `${featureCardContentWidthPx}px`,
+  fluidOnMobile: "true" as const,
+  align: "center" as const,
+  padding: "0",
+};
+
 const buildBookBody = (item: WeeklyNewsletterBookItem): string => {
-  const parts = [formatNewsletterDate(item.date)];
+  const parts: string[] = [];
   if (item.artistName) parts.push(item.artistName);
   if (item.publisherName) parts.push(item.publisherName);
   return parts.join(" · ");
@@ -312,19 +402,19 @@ const buildBookBody = (item: WeeklyNewsletterBookItem): string => {
 
 type BookFeatureCardProps = {
   book: WeeklyNewsletterBookItem;
-  reversed: boolean;
+  reversed?: boolean;
 };
 
-export const BookFeatureCard = ({ book, reversed }: BookFeatureCardProps) => (
-  <AlternatingFeatureCard
-    reversed={reversed}
+export const BookFeatureCard = ({ book }: BookFeatureCardProps) => (
+  <FeatureCard
+    kicker={formatNewsletterDate(book.date)}
     image={
       book.coverUrl ? (
         <MjmlImage
-          {...featureImageProps}
+          {...featureCardImageProps}
           src={book.coverUrl}
           alt={book.title}
-          cssClass="feature-card-img"
+          cssClass="feature-card-img feature-card-img-book"
         />
       ) : null
     }
@@ -345,9 +435,7 @@ const buildCreatorBody = (
 };
 
 const buildNewMemberBody = (member: WeeklyNewsletterNewMember): string => {
-  const parts: string[] = [
-    member.type === "artist" ? "Artist" : "Publisher",
-  ];
+  const parts: string[] = [];
   if (member.tagline) parts.push(member.tagline);
   if (member.location) parts.push(member.location);
   return parts.join(" · ");
@@ -355,21 +443,19 @@ const buildNewMemberBody = (member: WeeklyNewsletterNewMember): string => {
 
 export const NewMemberFeatureCard = ({
   member,
-  reversed = false,
 }: {
   member: WeeklyNewsletterNewMember;
   reversed?: boolean;
 }) => (
-  <AlternatingFeatureCard
-    reversed={reversed}
+  <FeatureCard
+    kicker={member.type === "artist" ? "Artist" : "Publisher"}
     image={
       member.coverUrl ? (
         <MjmlImage
-          {...featureImageProps}
+          {...featureCardImageProps}
           src={member.coverUrl}
           alt={member.displayName}
           cssClass="feature-card-img feature-card-img-square"
-          height={`${featureImageWidthPx}px`}
         />
       ) : null
     }
@@ -383,22 +469,20 @@ export const NewMemberFeatureCard = ({
 export const CreatorFeatureCard = ({
   creator,
   profilePath,
-  reversed = false,
 }: {
   creator: NonNullable<WeeklyNewsletterCreatorSpotlight>;
   profilePath: "artist-of-the-week" | "publisher-of-the-week";
   reversed?: boolean;
 }) => (
-  <AlternatingFeatureCard
-    reversed={reversed}
+  <FeatureCard
+    kicker={profilePath === "artist-of-the-week" ? "Artist" : "Publisher"}
     image={
       creator.coverUrl ? (
         <MjmlImage
-          {...featureImageProps}
+          {...featureCardImageProps}
           src={creator.coverUrl}
           alt={creator.displayName}
           cssClass="feature-card-img feature-card-img-square"
-          height={`${featureImageWidthPx}px`}
         />
       ) : null
     }
