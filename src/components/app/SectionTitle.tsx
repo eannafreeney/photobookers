@@ -20,7 +20,7 @@ const SectionTitle = ({
   }
 
   return (
-    <div class={clsx("flex flex-col gap-1", className)}>
+    <div class={clsx("flex flex-col gap-1 mt-4", className)}>
       <span class="kicker text-accent">{kicker}</span>
       <h2 class={headingClass}>{children}</h2>
     </div>

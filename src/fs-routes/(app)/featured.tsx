@@ -9,14 +9,9 @@ import Intersector from "../../features/app/components/Intersector";
 import NewsletterBanner from "../../features/app/components/NewsletterBanner";
 import NewsletterCard from "../../features/app/components/NewsletterCard";
 import DiscoveryTags from "../../features/app/components/DiscoveryTags";
-import PageBleed from "../../components/layouts/PageContent";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import Interviews from "../../features/app/components/Interviews";
-import {
-  canonicalUrl,
-  DEFAULT_DESCRIPTION,
-  pageTitle,
-} from "../../lib/seo";
+import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -47,20 +42,16 @@ export const GET = createRoute(async (c: Context) => {
           <Interviews />
         </ScrollReveal>
         <ScrollReveal>
-          <PageBleed>
-            <Intersector
-              id="creators-slider-fragment"
-              endpoint="/fragments/creators-slider"
-            />
-          </PageBleed>
+          <Intersector
+            id="creators-slider-fragment"
+            endpoint="/fragments/creators-slider"
+          />
         </ScrollReveal>
         <ScrollReveal>
           <NewsletterCard />
         </ScrollReveal>
         <ScrollReveal>
-          <PageBleed>
-            <DiscoveryTags />
-          </PageBleed>
+          <DiscoveryTags />
         </ScrollReveal>
         <ScrollReveal>
           <Intersector
@@ -100,8 +91,8 @@ const Slogan = () => (
       for photobook lovers.
     </div>
     <p class="max-w-xl text-sm md:text-base text-on-surface text-pretty">
-      Browse a growing archive of photobooks, follow the artists and
-      publishers behind them, and never miss a new release.
+      Browse a growing archive of photobooks, follow the artists and publishers
+      behind them, and never miss a new release.
     </p>
   </div>
 );

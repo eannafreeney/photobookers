@@ -23,7 +23,7 @@ const FooterColumn = ({ title, links }: FooterColumnProps) => (
 
 const Footer = () => (
   <footer class="border-t-2 border-on-surface-strong bg-surface mt-16">
-    <div class="mx-auto grid w-full gap-10 px-6 py-12 md:grid-cols-[2fr_1fr_1fr_1fr] md:px-8">
+    <div class="mx-auto grid w-full max-w-[1680px] gap-10 px-4 py-12 md:grid-cols-[2fr_1fr_1fr_1fr] md:px-6">
       <div class="flex flex-col gap-3">
         <a href="/" class="font-logo text-3xl font-semibold text-on-surface-strong w-fit">
           Photobookers
@@ -63,8 +63,8 @@ const Footer = () => (
         ]}
       />
     </div>
-    <div class="border-t border-outline px-6 py-4 md:px-8">
-      <div class="flex flex-col items-center justify-between gap-2 md:flex-row">
+    <div class="border-t border-outline px-4 py-4 md:px-6">
+      <div class="mx-auto flex w-full max-w-[1680px] flex-col items-center justify-between gap-2 md:flex-row">
         <p class="kicker text-on-surface-weak">
           © {new Date().getFullYear()} Photobookers
         </p>

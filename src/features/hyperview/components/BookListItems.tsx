@@ -1,5 +1,13 @@
+import { Child } from "hono/jsx";
 import { BookCardResult } from "../../../constants/queries";
-import { Item, List, Spinner, Style, View } from "../../../lib/hxml-comps";
+import {
+  Item,
+  List,
+  Spinner,
+  Style,
+  Text,
+  View,
+} from "../../../lib/hxml-comps";
 import BookCard from "./BookCard";
 
 /** How far above the spinner to start loading the next page. */
@@ -46,7 +54,7 @@ const BooksListItems = ({
         trigger="visible"
         once="true"
         verb="get"
-        href={`${loadMorePath}?page=${page + 1}`}
+        href={`${loadMorePath}${loadMorePath.includes("?") ? "&" : "?"}page=${page + 1}`}
         action="replace"
       >
         <View style="books-list-prefetch" />
@@ -61,11 +69,15 @@ export default BooksListItems;
 type BooksListProps = Props & {
   listId?: string;
   refreshHref: string;
+  listHeader?: Child;
+  emptyMessage?: string;
 };
 
 export const BooksList = ({
   listId = "books-list",
   refreshHref,
+  listHeader,
+  emptyMessage,
   ...itemsProps
 }: BooksListProps) => (
   <List
@@ -75,13 +87,31 @@ export const BooksList = ({
     href={refreshHref}
     action="replace"
   >
-    <BooksListItems {...itemsProps} />
+    {listHeader ? (
+      <Item itemKey="book-filters-header" style="books-list-filters-header">
+        {listHeader}
+      </Item>
+    ) : null}
+    {emptyMessage ? (
+      <Item itemKey="books-list-empty" style="books-list-empty-item">
+        <Text style="featured-empty-hint">{emptyMessage}</Text>
+      </Item>
+    ) : (
+      <BooksListItems {...itemsProps} />
+    )}
   </List>
 );
 
 export const bookListItemsStyles = () => (
   <>
-    <Style id="books-list" flex={1} paddingTop={16} />
+    <Style id="books-list" flex={1} />
+    <Style id="books-list-filters-header" flexShrink={0} width="100%" />
+    <Style
+      id="books-list-empty-item"
+      paddingTop={24}
+      paddingLeft={16}
+      paddingRight={16}
+    />
     <Style id="books-list-item" paddingLeft={16} paddingRight={16} />
     <Style
       id="books-list-spinner"

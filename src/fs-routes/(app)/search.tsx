@@ -5,8 +5,8 @@ import { searchBooks } from "../../features/api/services";
 import Link from "../../components/app/Link";
 import { capitalize, getUser } from "../../utils";
 import { DISCOVER_TAGS } from "../../constants/discover";
+import { tagBooksUrl } from "../../lib/tags";
 import Pill from "../../components/app/Pill";
-import InfoPage from "../../pages/InfoPage";
 import NavSearchResults from "../../components/app/NavSearchResults";
 
 export const GET = createRoute(async (c: Context) => {
@@ -24,7 +24,7 @@ export const GET = createRoute(async (c: Context) => {
       >
         <div class="flex flex-wrap items-center justify-center gap-6 p-4">
           {DISCOVER_TAGS.map((tag) => (
-            <Link href={`/books/tags/${tag.toLowerCase()}`} key={tag}>
+            <Link href={tagBooksUrl(tag)} key={tag}>
               <Pill variant="default" key={tag}>
                 {capitalize(tag)}
               </Pill>

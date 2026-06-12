@@ -42,7 +42,7 @@ const FeedList = ({
         trigger="visible"
         once="true"
         verb="get"
-        href={`${loadMoreHref}?page=${page + 1}`}
+        href={`${loadMoreHref}${loadMoreHref.includes("?") ? "&" : "?"}page=${page + 1}`}
         action="replace"
       >
         <Spinner />

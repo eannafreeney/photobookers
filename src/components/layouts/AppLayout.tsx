@@ -64,7 +64,7 @@ const AppLayout = ({
             }
         }"
         >
-          <main class="min-h-60vh mx-auto w-full max-w-[1680px] lg:px-4">
+          <main class="min-h-60vh mx-auto w-full max-w-[1680px] px-4 md:px-8">
             {children}
           </main>
           <Footer />

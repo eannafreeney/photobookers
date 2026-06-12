@@ -32,13 +32,13 @@ const StatsCard = ({ entity, count, href }: StatsCardProps) => (
     class="group mx-auto flex w-full flex-col gap-1 border-t-2 border-on-surface-strong pt-3 md:min-w-50"
   >
     <span class="kicker text-accent">{capitalize(entity)}</span>
-    <div class="flex items-baseline justify-between gap-4">
+    <div class="flex items-center justify-between gap-4">
       <div
         x-data={`countUp(${count})`}
         x-init="start()"
         x-text="display"
         class="font-display text-5xl font-medium text-on-surface-strong"
-      ></div>
+      />
       <span class="kicker text-on-surface-weak group-hover:text-on-surface-strong transition-colors">
         <span class="inline-flex items-center">
           View All

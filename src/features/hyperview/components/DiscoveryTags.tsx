@@ -1,4 +1,5 @@
 import { Behavior, View, Text, Style } from "../../../lib/hxml-comps";
+import { hyperviewTagBooksUrl } from "../../../lib/tags";
 
 type Props = {
   baseUrl: string;
@@ -11,9 +12,7 @@ const DiscoveryTags = ({ baseUrl, tags }: Props) => {
       <View style="discover-tags-wrap">
         {tags.map((tag) => (
           <View key={tag} style="discover-tag-pill">
-            <Behavior
-              href={`${baseUrl}/hyperview/tags/${encodeURIComponent(tag.toLowerCase())}`}
-            />
+            <Behavior href={hyperviewTagBooksUrl(baseUrl, tag)} />
             <Text style="discover-tag-label">{tag.toUpperCase()}</Text>
           </View>
         ))}

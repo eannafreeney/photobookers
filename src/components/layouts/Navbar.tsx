@@ -22,34 +22,40 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
   return (
     <nav
       x-bind:class="scrolled ? 'py-2 shadow-sm' : 'py-4 shadow-none'"
-      class="flex items-center justify-between bg-surface border-b border-on-surface-strong gap-4 px-6 transition-all duration-200 ease-in-out sticky top-0 z-50"
+      class="sticky top-0 z-50 border-b border-on-surface-strong bg-surface transition-all duration-200 ease-in-out"
       {...alpineAttrs}
     >
-      <BrandLogo />
-      <div class="hidden md:flex items-center gap-4">
-        <AdminEditButton href={adminEditHref} user={user} />
-        {user && (
-          <>
-            <NavLink href="/featured" currentPath={currentPath} variant="nav">
-              Discover
-            </NavLink>
-            <NavLink href="/feed" currentPath={currentPath} variant="nav">
-              Feed
-            </NavLink>
-            <NavLink href="/library" currentPath={currentPath} variant="nav">
-              Library
-            </NavLink>
-            <FeatureGuard flagName="messages">
-              <NavLink href="/messages" currentPath={currentPath} variant="nav">
-                Messages
+      <div class="mx-auto flex w-full max-w-[1680px] items-center justify-between gap-4 px-4 md:px-8">
+        <BrandLogo />
+        <div class="hidden md:flex items-center gap-4">
+          <AdminEditButton href={adminEditHref} user={user} />
+          {user && (
+            <>
+              <NavLink href="/featured" currentPath={currentPath} variant="nav">
+                Discover
               </NavLink>
-            </FeatureGuard>
-          </>
-        )}
-        <NavSearch />
-        <NavDesktopMenu currentPath={currentPath} />
+              <NavLink href="/feed" currentPath={currentPath} variant="nav">
+                Feed
+              </NavLink>
+              <NavLink href="/library" currentPath={currentPath} variant="nav">
+                Library
+              </NavLink>
+              <FeatureGuard flagName="messages">
+                <NavLink
+                  href="/messages"
+                  currentPath={currentPath}
+                  variant="nav"
+                >
+                  Messages
+                </NavLink>
+              </FeatureGuard>
+            </>
+          )}
+          <NavSearch />
+          <NavDesktopMenu currentPath={currentPath} />
+        </div>
+        <NavMobileMenu currentPath={currentPath} />
       </div>
-      <NavMobileMenu currentPath={currentPath} />
     </nav>
   );
 };

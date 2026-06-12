@@ -19,6 +19,7 @@ import { registerNewUserForm } from "../features/dashboard/admin/users/client/ne
 import { registerResetPasswordForm } from "../features/auth/client/resetPasswordForm";
 import { registerImageOrientation } from "./utils/imageOrientation";
 import { registerContactForm } from "../features/app/client/contactForm";
+import { registerBookFilters } from "../features/app/client/bookFilters";
 import { registerAOTWForm } from "../features/dashboard/admin/planner/client/aotwForm";
 import { registerPOTWForm } from "../features/dashboard/admin/planner/client/potwForm";
 import { registerClaimSignupForm } from "../features/claims/client/claimSignUpForm";
@@ -58,6 +59,7 @@ registerNewUserForm();
 registerResetPasswordForm();
 registerImageOrientation();
 registerContactForm();
+registerBookFilters();
 registerAOTWForm();
 registerPOTWForm();
 registerClaimSignupForm();

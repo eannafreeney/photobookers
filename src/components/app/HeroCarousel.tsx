@@ -54,7 +54,7 @@ const HeroCarousel = async () => {
       x-on:touchmove="handleTouchMove($event)"
       x-on:touchend="handleTouchEnd()"
     >
-      <div class="hidden md:flex flex-wrap gap-3 px-4 py-3 sm:gap-8 sm:px-8 sm:py-4 border-b border-outline">
+      <div class="hidden md:flex flex-wrap gap-3 py-3 sm:gap-8 sm:py-4 border-b border-outline">
         <template x-for="(item, index) in items">
           <button
             x-on:click="go(index)"
@@ -70,7 +70,7 @@ const HeroCarousel = async () => {
         x-bind:class="items[active] ? items[active].slideClass : ''"
       >
         {/* <!-- Slides: visual on top (mobile), left (md+) --> */}
-        <div class="relative flex w-full h-full items-center px-4 sm:px-8">
+        <div class="relative flex w-full h-full items-center">
           <template x-for="(item, index) in items">
             <div
               x-show="active === index"

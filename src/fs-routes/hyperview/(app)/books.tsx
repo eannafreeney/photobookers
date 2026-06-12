@@ -1,12 +1,9 @@
 import { createRoute } from "hono-fsr";
-import {
-  filterPublishedBooks,
-  getLatestBooks,
-} from "../../../features/app/services";
+import { getFilteredBooks } from "../../../features/app/services";
 import { AppLayout } from "../+layout";
 import { hyperview } from "../../../lib/hxml";
 import { bookCardStyles } from "../../../features/hyperview/components/BookCard";
-import { Items, Style, Text, View } from "../../../lib/hxml-comps";
+import { Items, Text, View, Item } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getUser } from "../../../utils";
 import { favoriteFlagsForBooks } from "../../../features/hyperview/findFlags";
@@ -15,67 +12,41 @@ import BooksListItems, {
   bookListItemsStyles,
 } from "../../../features/hyperview/components/BookListItems";
 import ErrorScreen from "../../../features/hyperview/components/ErrorScreen";
-import BooksFilterForm, {
+import BookFilters, {
+  BOOKS_CATALOG_TARGET_ID,
   BOOKS_LIST_TARGET_ID,
-  BOOKS_SEARCH_BAR_ID,
-  booksFilterFormStyles,
-} from "../../../features/hyperview/components/BooksFilterForm";
+  bookFiltersStyles,
+} from "../../../features/hyperview/components/BookFiltersPanel";
 import { signInEmptyHintStyles } from "../../../features/hyperview/hyperviewCommonScreenStyles";
+import { hyperviewBooksFilterUrl } from "../../../lib/tags";
 import { AuthUser } from "../../../../types";
 import { BookCardResult } from "../../../constants/queries";
+import BookFiltersPanel from "../../../features/hyperview/components/BookFiltersPanel";
 
 const PAGE_SIZE = 3;
 
-const buildListProps = async (
-  user: AuthUser | null,
-  baseUrl: string,
-  books: BookCardResult[],
-  page: number,
-  totalPages: number,
-  filtering: boolean,
-) => {
-  const hasMore = !filtering && page < totalPages;
-  const loadMorePath = `${baseUrl}/hyperview/books`;
-  const favoritesByBookId = await favoriteFlagsForBooks(user, books);
-
-  return {
-    books,
-    baseUrl,
-    favoritesByBookId,
-    page,
-    hasMore,
-    loadMorePath,
-    refreshHref: `${loadMorePath}?fragment=list`,
-  };
+type FilterQuery = {
+  tag?: string | null;
+  q?: string | null;
 };
-
-const renderBooksListHost = (
-  listProps: Awaited<ReturnType<typeof buildListProps>>,
-  filtering: boolean,
-) => (
-  <View
-    id={BOOKS_LIST_TARGET_ID}
-    xmlns="https://hyperview.org/hyperview"
-    style="books-list-panel"
-  >
-    {filtering && listProps.books.length === 0 ? (
-      <View style="books-list-empty">
-        <Text style="featured-empty-hint">No books found.</Text>
-      </View>
-    ) : (
-      <BooksList {...listProps} />
-    )}
-  </View>
-);
 
 export const GET = createRoute(async (c) => {
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
+  const tag = c.req.query("tag") ?? null;
+  const q = c.req.query("q") ?? null;
   const isListFragment = c.req.query("fragment") === "list";
+  const isCatalogFragment = c.req.query("fragment") === "catalog";
   const currentPage = isListFragment ? 1 : parseInt(c.req.query("page") ?? "1");
+  const isFiltered = Boolean(tag?.trim() || (q?.trim()?.length ?? 0) >= 3);
 
-  const [error, result] = await getLatestBooks(currentPage, PAGE_SIZE);
+  const [error, result] = await getFilteredBooks({
+    tag,
+    q,
+    page: currentPage,
+    limit: PAGE_SIZE,
+  });
 
   if (error) {
     return hv(
@@ -91,12 +62,19 @@ export const GET = createRoute(async (c) => {
     books,
     currentPage,
     totalPages,
-    false,
+    { tag, q },
   );
+
+  if (isCatalogFragment) {
+    return hv(renderBooksCatalog(baseUrl, tag, q, listProps, isFiltered));
+  }
 
   if (isListFragment) {
     return hv(
       <Items>
+        <Item itemKey="book-filters-header" style="books-list-filters-header">
+          <BookFiltersPanel baseUrl={baseUrl} activeTag={tag} q={q} />
+        </Item>
         <BooksListItems {...listProps} />
       </Items>,
     );
@@ -114,24 +92,14 @@ export const GET = createRoute(async (c) => {
     <AppLayout
       showDock
       nativeList
-      isSearch
       title="All Books"
       user={user}
       dockActive="books"
       baseUrl={baseUrl}
       extraStyles={pageStyles()}
-      searchToggleTarget={BOOKS_SEARCH_BAR_ID}
-      dockScrollRefreshHref={`${baseUrl}/hyperview/books`}
+      dockScrollRefreshHref={hyperviewBooksFilterUrl(baseUrl, { tag, q })}
     >
-      <View
-        id={BOOKS_SEARCH_BAR_ID}
-        style="books-search-bar"
-        hide="true"
-        sticky="true"
-      >
-        <BooksFilterForm baseUrl={baseUrl} />
-      </View>
-      {renderBooksListHost(listProps, false)}
+      {renderBooksCatalog(baseUrl, tag, q, listProps, isFiltered)}
     </AppLayout>,
   );
 });
@@ -140,19 +108,26 @@ export const POST = createRoute(async (c) => {
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
-  const q = String((await c.req.formData()).get("q") ?? "").trim();
-  const filtering = q.length > 0;
+  const formData = await c.req.formData();
+  const q = String(formData.get("q") ?? "").trim();
+  const tagFromRequest =
+    (c.req.query("tag") ?? String(formData.get("tag") ?? "").trim()) || null;
+  const tag = q.length >= 3 ? tagFromRequest : null;
+  const isFiltered = Boolean(tag || q.length >= 3);
 
-  const [error, result] = filtering
-    ? await filterPublishedBooks(q, 50)
-    : await getLatestBooks(1, PAGE_SIZE);
+  const [error, result] = await getFilteredBooks({
+    tag,
+    q,
+    page: 1,
+    limit: PAGE_SIZE,
+  });
 
   if (error || !result) {
     return hv(
       <View
-        id={BOOKS_LIST_TARGET_ID}
+        id={BOOKS_CATALOG_TARGET_ID}
+        style="books-catalog-shell"
         xmlns="https://hyperview.org/hyperview"
-        style="books-list-panel"
       >
         <Text style="featured-empty-hint">Could not filter books.</Text>
       </View>,
@@ -166,23 +141,87 @@ export const POST = createRoute(async (c) => {
     books,
     result.page ?? 1,
     result.totalPages ?? 1,
-    filtering,
+    { tag, q },
   );
 
-  return hv(renderBooksListHost(listProps, filtering));
+  return hv(renderBooksCatalog(baseUrl, tag, q, listProps, isFiltered));
 });
 
 const pageStyles = () => (
   <>
     {signInEmptyHintStyles()}
-    {booksFilterFormStyles()}
+    {bookFiltersStyles()}
     {bookCardStyles()}
     {bookListItemsStyles()}
-    <Style
-      id="books-list-empty"
-      paddingTop={24}
-      paddingLeft={16}
-      paddingRight={16}
-    />
   </>
+);
+
+const buildListProps = async (
+  user: AuthUser | null,
+  baseUrl: string,
+  books: BookCardResult[],
+  page: number,
+  totalPages: number,
+  filters: FilterQuery,
+) => {
+  const loadMorePath = hyperviewBooksFilterUrl(baseUrl, filters);
+  const hasMore = page < totalPages;
+  const favoritesByBookId = await favoriteFlagsForBooks(user, books);
+  const refreshHref = `${loadMorePath}${loadMorePath.includes("?") ? "&" : "?"}fragment=list`;
+
+  return {
+    books,
+    baseUrl,
+    favoritesByBookId,
+    page,
+    hasMore,
+    loadMorePath,
+    refreshHref,
+  };
+};
+
+const renderBooksListHost = (
+  baseUrl: string,
+  tag: string | null,
+  q: string | null,
+  listProps: Awaited<ReturnType<typeof buildListProps>>,
+  isFiltered: boolean,
+) => {
+  const listHeader = (
+    <BookFiltersPanel baseUrl={baseUrl} activeTag={tag} q={q} />
+  );
+
+  return (
+    <View
+      id={BOOKS_LIST_TARGET_ID}
+      xmlns="https://hyperview.org/hyperview"
+      style="books-list-panel"
+    >
+      <BooksList
+        {...listProps}
+        listHeader={listHeader}
+        emptyMessage={
+          isFiltered && listProps.books.length === 0
+            ? "No books match your filters."
+            : undefined
+        }
+      />
+    </View>
+  );
+};
+
+const renderBooksCatalog = (
+  baseUrl: string,
+  tag: string | null,
+  q: string | null,
+  listProps: Awaited<ReturnType<typeof buildListProps>>,
+  isFiltered: boolean,
+) => (
+  <View
+    id={BOOKS_CATALOG_TARGET_ID}
+    style="books-catalog-shell"
+    xmlns="https://hyperview.org/hyperview"
+  >
+    {renderBooksListHost(baseUrl, tag, q, listProps, isFiltered)}
+  </View>
 );

@@ -26,6 +26,7 @@ import {
 } from "../../db/schema";
 import { getPagination } from "../../lib/pagination";
 import { getBooksOrderBy } from "../../lib/booksOrderBy";
+import { slugToTag } from "../../lib/tags";
 import {
   BOOK_CARD_COLUMNS,
   BookCardResult,
@@ -640,25 +641,55 @@ export const getLatestBooks = async (
   }
 };
 
-export const filterPublishedBooks = async (searchQuery: string, limit = 50) => {
+export const getFilteredBooks = async ({
+  tag,
+  q,
+  page: currentPage,
+  limit: defaultLimit = 30,
+}: {
+  tag?: string | null;
+  q?: string | null;
+  page: number;
+  limit?: number;
+}) => {
   try {
-    const q = searchQuery.trim();
-    if (!q) {
-      return getLatestBooks(1, limit);
+    const normalizedTag = tag?.trim() ? slugToTag(tag.trim()) : null;
+    const rawQ = q?.trim() ?? "";
+    const searchQ = rawQ.length >= 3 ? rawQ : "";
+
+    if (!normalizedTag && !searchQ) {
+      return getLatestBooks(currentPage, defaultLimit);
     }
 
-    const searchPattern = `%${q}%`;
-    const matchingCreatorIds = db
-      .select({ id: creators.id })
-      .from(creators)
-      .where(ilike(creators.displayName, searchPattern));
+    if (normalizedTag && !searchQ) {
+      return getBooksByTag(normalizedTag, currentPage, "newest", defaultLimit);
+    }
 
-    const foundBooks = await db.query.books.findMany({
-      columns: BOOK_CARD_COLUMNS,
-      where: and(
-        eq(books.publicationStatus, "published"),
-        eq(books.approvalStatus, "approved"),
-        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    const publishedConditions = and(
+      eq(books.publicationStatus, "published"),
+      eq(books.approvalStatus, "approved"),
+      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    );
+
+    const conditions = [publishedConditions];
+
+    if (normalizedTag) {
+      conditions.push(
+        sql`EXISTS (
+          SELECT 1 FROM unnest(${books.tags}) AS t
+          WHERE LOWER(t) = LOWER(${normalizedTag})
+        )`,
+      );
+    }
+
+    if (searchQ) {
+      const searchPattern = `%${searchQ}%`;
+      const matchingCreatorIds = db
+        .select({ id: creators.id })
+        .from(creators)
+        .where(ilike(creators.displayName, searchPattern));
+
+      conditions.push(
         or(
           ilike(books.title, searchPattern),
           inArray(books.artistId, matchingCreatorIds),
@@ -669,8 +700,27 @@ export const filterPublishedBooks = async (searchQuery: string, limit = 50) => {
             WHERE LOWER(tag) LIKE ${searchPattern.toLowerCase()}
           )`,
         ),
-      ),
+      );
+    }
+
+    const whereClause = and(...conditions);
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(whereClause);
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundBooks = await db.query.books.findMany({
+      columns: BOOK_CARD_COLUMNS,
+      where: whereClause,
       limit,
+      offset,
       orderBy: [desc(books.sortOrder), desc(books.id)],
       with: {
         artist: {
@@ -682,7 +732,20 @@ export const filterPublishedBooks = async (searchQuery: string, limit = 50) => {
       },
     });
 
-    return ok({ books: foundBooks, totalPages: 1, page: 1 });
+    return ok({ books: foundBooks, totalPages, page });
+  } catch (error) {
+    console.error("Failed to get filtered books", error);
+    return err({ reason: "Failed to get filtered books", error });
+  }
+};
+
+export const filterPublishedBooks = async (searchQuery: string, limit = 50) => {
+  try {
+    const q = searchQuery.trim();
+    if (!q) {
+      return getLatestBooks(1, limit);
+    }
+    return getFilteredBooks({ q, page: 1, limit });
   } catch (error) {
     console.error("Failed to filter books", error);
     return err({ reason: "Failed to filter books" });

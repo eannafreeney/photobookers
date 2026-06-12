@@ -9,6 +9,7 @@ import {
   publisherOfTheWeek,
 } from "../../db/schema";
 import { DISCOVER_TAGS } from "../../constants/discover";
+import { tagBooksUrl } from "../../lib/tags";
 import { toDateString, toWeekStart, toWeekString } from "../../lib/utils";
 
 export type SitemapEntry = {
@@ -127,8 +128,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
   }));
 
   const tagEntries: SitemapEntry[] = DISCOVER_TAGS.map((tag) => ({
-    // matches links like /books/tags/still%20life
-    loc: `/books/tags/${encodeURIComponent(tag.toLowerCase())}`,
+    loc: tagBooksUrl(tag),
     changefreq: "weekly",
     priority: 0.5,
   }));
