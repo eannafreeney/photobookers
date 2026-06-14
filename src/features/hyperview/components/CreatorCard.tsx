@@ -42,7 +42,7 @@ const CreatorCard: FC<Props> = ({
 
   const location = [creator.city, formatCountry(creator.country ?? "")]
     .filter(Boolean)
-    .join(" ");
+    .join(", ");
 
   return (
     <View style="creator-card">
