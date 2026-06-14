@@ -17,7 +17,7 @@ import {
   publisherOfTheWeek,
 } from "../../../../db/schema";
 import { db } from "../../../../db/client";
-import { and, eq, gte, lte, notInArray } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, notInArray, sql } from "drizzle-orm";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -498,11 +498,12 @@ export async function getCreatorsByTypeForPlanner(
       displayName: true,
       coverUrl: true,
       slug: true,
+      status: true,
     },
     where: and(
       eq(creators.type, type),
       notInArray(creators.id, usedCreatorIds),
     ),
-    orderBy: (c, { asc }) => [asc(c.displayName)],
+    orderBy: (c) => [desc(sql`(${c.status} = 'verified')`), asc(c.displayName)],
   });
 }

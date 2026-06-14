@@ -12,6 +12,7 @@ type Props = {
     id: string;
     label: string;
     img?: string | null;
+    verified?: boolean;
   }[];
   week: string;
 };

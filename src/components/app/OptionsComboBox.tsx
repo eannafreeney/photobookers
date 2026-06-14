@@ -5,6 +5,7 @@ type Props = {
     id: string;
     label: string;
     img?: string | null;
+    verified?: boolean;
   }[];
   name: string;
   label?: string;
@@ -64,8 +65,28 @@ const OptionsComboBox = ({
               type="button"
               x-on:click="isOpen = !isOpen"
               class="w-full bg-surface-alt px-2 py-2 text-base md:text-sm font-normal text-left focus:outline-none"
-              x-text="selectedOption ? selectedOption.label : 'Please Select'"
-            ></button>
+            >
+              <span
+                class="inline-flex items-center gap-1.5"
+                x-show="!selectedOption"
+              >
+                Please Select
+              </span>
+              <span
+                class="inline-flex items-center gap-1.5"
+                x-show="selectedOption"
+                x-cloak
+              >
+                <span x-text="selectedOption?.label"></span>
+                <span
+                  x-show="selectedOption?.verified"
+                  title="Verified Creator"
+                  class="inline-flex"
+                >
+                  {verifiedBadgeIcon}
+                </span>
+              </span>
+            </button>
             <button
               type="button"
               {...{
@@ -138,10 +159,19 @@ const OptionsComboBox = ({
                     alt="Creator avatar"
                   />
                   <div class="flex flex-col">
-                    <span
-                      x-bind:class="selectedOption == item ? 'font-bold' : null"
-                      x-text="item.label"
-                    ></span>
+                    <span class="inline-flex items-center gap-1.5">
+                      <span
+                        x-bind:class="selectedOption == item ? 'font-bold' : null"
+                        x-text="item.label"
+                      ></span>
+                      <span
+                        x-show="item.verified"
+                        title="Verified Creator"
+                        class="inline-flex"
+                      >
+                        {verifiedBadgeIcon}
+                      </span>
+                    </span>
                   </div>
                 </div>
                 {iconCheck}
@@ -164,6 +194,25 @@ const clearIcon = (
     class="size-4"
   >
     <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+  </svg>
+);
+
+const verifiedBadgeIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    class="size-4"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="10" fill="#3b82f6" />
+    <path
+      fill="none"
+      stroke="white"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M7.5 12l3 3 6-6"
+    />
   </svg>
 );
 
