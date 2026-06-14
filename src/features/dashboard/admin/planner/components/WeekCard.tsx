@@ -141,7 +141,7 @@ const WeekCardHeader = ({
           {formatWeekRange(weekStart)}
         </p>
       </div>
-      <div class="flex flex-wrap items-center justify-end gap-2">
+      <div class="flex flex-col items-center justify-end gap-2">
         <RandomizeBOTDButton weekStart={weekStart} botdByDate={botdByDate} />
         <a
           href={`/dashboard/admin/planner/instagram/${weekKey}/prepare`}

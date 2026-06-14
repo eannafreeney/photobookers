@@ -1,8 +1,5 @@
 import { createRoute } from "hono-fsr";
-import {
-  formValidator,
-  paramValidator,
-} from "../../../../../../lib/validator";
+import { formValidator, paramValidator } from "../../../../../../lib/validator";
 import { creatorIdSchema } from "../../../../../../schemas";
 import { updateCreatorEmailFormSchema } from "../../../../../../features/dashboard/admin/planner/schema";
 import { getCreatorEmailById } from "../../../../../../features/dashboard/creators/services";
@@ -51,6 +48,7 @@ export const POST = createRoute(
         />
         <CreatorEmailBadge creatorId={creator.id} email={creator.email} />
         {dispatchEvents(["planner:updated"])}
+        <div id="modal-root"></div>
       </>,
     );
   },

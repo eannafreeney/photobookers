@@ -20,6 +20,7 @@ export const sendBOTDCreatorEmailFormSchema = z.object({
     .min(1, "Date is required")
     .transform(parseDateString)
     .refine((d) => !Number.isNaN(d.getTime()), "Invalid date"),
+  emailKind: z.enum(["advance", "feature_day"]).default("advance"),
 });
 
 export const sendAOTWCreatorEmailFormSchema = z.object({
@@ -29,6 +30,9 @@ export const sendAOTWCreatorEmailFormSchema = z.object({
     .min(1, "Week is required")
     .transform(parseWeekString)
     .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
+  emailKind: z
+    .enum(["advance", "interview_reminder", "feature_day"])
+    .default("advance"),
 });
 
 export const sendPOTWCreatorEmailFormSchema = z.object({
@@ -38,6 +42,9 @@ export const sendPOTWCreatorEmailFormSchema = z.object({
     .min(1, "Week is required")
     .transform(parseWeekString)
     .refine((d) => !Number.isNaN(d.getTime()), "Invalid week"),
+  emailKind: z
+    .enum(["advance", "interview_reminder", "feature_day"])
+    .default("advance"),
 });
 
 export const setEmailFormSchema = z.object({

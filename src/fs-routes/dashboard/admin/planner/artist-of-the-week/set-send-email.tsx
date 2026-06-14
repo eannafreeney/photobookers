@@ -6,6 +6,8 @@ import {
   updateCreatorEmailOrError,
 } from "../../../../../features/dashboard/admin/planner/emailFlow";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
+import { buildSpotlightEmailBadgeProps } from "../../../../../features/dashboard/admin/planner/emailBadgeBuilders";
+import { getArtistOfTheWeekForDateQuery } from "../../../../../features/dashboard/admin/planner/services";
 
 export const POST = createRoute(
   formValidator(setEmailFormSchema),
@@ -19,6 +21,18 @@ export const POST = createRoute(
     });
     if (response || !creator) return response!;
 
-    return executeAOTWEmail({ c, creator, creatorId, weekStart });
+    const [aotwErr, aotwRow] = await getArtistOfTheWeekForDateQuery(weekStart);
+    if (aotwErr || !aotwRow)
+      return showErrorAlert(c, "Artist of the week not found");
+
+    const badge = buildSpotlightEmailBadgeProps({
+      spotlight: "artist",
+      row: aotwRow,
+      creatorId,
+      email: creator.email,
+      emailKind: "advance",
+    });
+
+    return executeAOTWEmail({ c, creator, creatorId, weekStart, badge });
   },
 );

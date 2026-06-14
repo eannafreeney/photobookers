@@ -65,7 +65,7 @@ const AOTWCardContent = ({
   if (!artistOfTheWeek) return <></>;
   return (
     <>
-      <div class="flex gap-3">
+      <div class="flex items-start justify-between gap-3">
         {artist.coverUrl && (
           <img
             src={artist.coverUrl}
@@ -73,27 +73,30 @@ const AOTWCardContent = ({
             class="h-16 w-16 rounded object-cover"
           />
         )}
-        <div class="min-w-0 flex-1 flex flex-col gap-2">
+        <div class="min-w-0 flex-1">
           <div class="flex items-center gap-1.5 flex-wrap">
             <p class="text-sm font-semibold text-on-surface-strong">
               {artist.displayName}
             </p>
             <CreatorEmailBadge creatorId={artist.id} email={artist.email} />
           </div>
-          <SpotlightEmailStatusBadges
-            spotlight="artist"
-            row={artistOfTheWeek}
-            email={artist.email}
-          />
-          {interview && (
-            <p class="text-xs text-on-surface">
-              Interview status: {interview.status}
-            </p>
-          )}
         </div>
         <DeleteButton
           action={`/dashboard/admin/planner/artist-of-the-week/${weekKey}`}
         />
+      </div>
+      <div class="mt-2 border-t border-outline pt-2 flex flex-col gap-2">
+        <SpotlightEmailStatusBadges
+          spotlight="artist"
+          row={artistOfTheWeek}
+          creatorId={artist.id}
+          email={artist.email}
+        />
+        {interview && (
+          <p class="text-xs text-on-surface">
+            Interview status: {interview.status}
+          </p>
+        )}
       </div>
     </>
   );

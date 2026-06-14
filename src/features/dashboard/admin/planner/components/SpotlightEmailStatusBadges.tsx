@@ -1,13 +1,10 @@
 import { ArtistOfTheWeek, PublisherOfTheWeek } from "../../../../../db/schema";
-import { normalizeStoredDate } from "../../../../../lib/utils";
-import {
-  getSpotlightAdvanceEmailScheduledDate,
-  getSpotlightFeatureDayEmailScheduledDate,
-} from "../utils";
+import { buildSpotlightEmailBadgeProps } from "../emailBadgeBuilders";
 import EmailStatusBadge from "./EmailStatusBadge";
 
 type SpotlightRow = Pick<
   ArtistOfTheWeek | PublisherOfTheWeek,
+  | "id"
   | "weekStart"
   | "emailSentAt"
   | "interviewReminderSentAt"
@@ -17,40 +14,44 @@ type SpotlightRow = Pick<
 type Props = {
   spotlight: "artist" | "publisher";
   row: SpotlightRow;
+  creatorId: string;
   email: string | null;
 };
 
 const SpotlightEmailStatusBadges = ({
   spotlight,
   row,
+  creatorId,
   email,
 }: Props) => {
-  const weekStart = normalizeStoredDate(row.weekStart);
-  const advanceScheduledDate = getSpotlightAdvanceEmailScheduledDate(weekStart);
-  const featureDayScheduledDate =
-    getSpotlightFeatureDayEmailScheduledDate(weekStart);
-  const hasEmail = Boolean(email?.trim());
-  const labelPrefix = spotlight === "artist" ? "Artist" : "Publisher";
-
   return (
     <div class="flex flex-col gap-1.5">
       <EmailStatusBadge
-        label={`${labelPrefix} advance`}
-        sentAt={row.emailSentAt}
-        scheduledDate={advanceScheduledDate}
-        hasEmail={hasEmail}
+        {...buildSpotlightEmailBadgeProps({
+          spotlight,
+          row,
+          creatorId,
+          email,
+          emailKind: "advance",
+        })}
       />
       <EmailStatusBadge
-        label={`${labelPrefix} interview reminder`}
-        sentAt={row.interviewReminderSentAt}
-        scheduledDate={advanceScheduledDate}
-        hasEmail={hasEmail}
+        {...buildSpotlightEmailBadgeProps({
+          spotlight,
+          row,
+          creatorId,
+          email,
+          emailKind: "interview_reminder",
+        })}
       />
       <EmailStatusBadge
-        label={`${labelPrefix} feature day`}
-        sentAt={row.featureDayEmailSentAt}
-        scheduledDate={featureDayScheduledDate}
-        hasEmail={hasEmail}
+        {...buildSpotlightEmailBadgeProps({
+          spotlight,
+          row,
+          creatorId,
+          email,
+          emailKind: "feature_day",
+        })}
       />
     </div>
   );

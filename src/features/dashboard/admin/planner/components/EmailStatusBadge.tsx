@@ -1,16 +1,27 @@
 import type { Child } from "hono/jsx";
+import FormPost from "../../../../../components/forms/FormPost";
 import { normalizeStoredDate } from "../../../../../lib/utils";
+import ToggleButton from "./ToggleButton";
 import {
   formatDayLabel,
   getEmailSendStatus,
   type EmailSendStatus,
 } from "../utils";
 
-type Props = {
+export type ManualSendConfig = {
+  action: string;
+  fields: Record<string, string>;
+  requiresAdvanceSent?: boolean;
+  advanceSent?: boolean;
+};
+
+export type EmailStatusBadgeProps = {
   label: string;
   sentAt: Date | null;
   scheduledDate: Date;
   hasEmail: boolean;
+  targetId: string;
+  manualSend?: ManualSendConfig;
 };
 
 const EmailStatusBadge = ({
@@ -18,7 +29,9 @@ const EmailStatusBadge = ({
   sentAt,
   scheduledDate,
   hasEmail,
-}: Props) => {
+  targetId,
+  manualSend,
+}: EmailStatusBadgeProps) => {
   const normalizedSentAt = sentAt ? normalizeStoredDate(sentAt) : null;
   const status = getEmailSendStatus({
     sentAt: normalizedSentAt,
@@ -26,8 +39,13 @@ const EmailStatusBadge = ({
     hasEmail,
   });
   const detail = getDetail(status, normalizedSentAt, scheduledDate);
+  const showManualSend =
+    status === "overdue" &&
+    manualSend &&
+    hasEmail &&
+    (!manualSend.requiresAdvanceSent || manualSend.advanceSent);
 
-  return (
+  const badge = (
     <span
       title={detail}
       class={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${statusClasses[status]}`}
@@ -37,6 +55,30 @@ const EmailStatusBadge = ({
       <span class="opacity-80">·</span>
       <span class="opacity-90">{detail}</span>
     </span>
+  );
+
+  if (!showManualSend) {
+    return <div id={targetId}>{badge}</div>;
+  }
+
+  const alpineAttrs = {
+    "x-target": `${targetId} toast modal-root`,
+    "x-target.error": "toast",
+    "x-on:ajax:success": "$dispatch('planner:updated')",
+    "x-on:ajax:error":
+      "($el.querySelector('input[type=checkbox]') as HTMLInputElement).checked = false",
+  };
+
+  return (
+    <div id={targetId} class="flex items-center justify-between">
+      {badge}
+      <FormPost action={manualSend.action} {...alpineAttrs} className="inline">
+        {Object.entries(manualSend.fields).map(([name, value]) => (
+          <input key={name} type="hidden" name={name} value={value} />
+        ))}
+        <ToggleButton isSent={false} compact title="Send overdue email now" />
+      </FormPost>
+    </div>
   );
 };
 

@@ -96,7 +96,7 @@ const BOTDCardContent = ({ dateKey, bookOfTheDay }: BOTDCardContentProps) => {
           action={`/dashboard/admin/planner/book-of-the-day/${dateKey}`}
         />
       </div>
-      <div class="mt-2">
+      <div class="mt-2 border-t border-outline pt-2 flex flex-col gap-2">
         <BotdEmailStatusBadges bookOfTheDay={bookOfTheDay} />
       </div>
     </>

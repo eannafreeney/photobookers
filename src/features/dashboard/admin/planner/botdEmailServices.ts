@@ -383,3 +383,47 @@ export async function runBotdFeatureDayEmails(
 
   return ok(result);
 }
+
+function manualSendOutcomeToReason(
+  outcome:
+    | { status: "skipped"; reason: string }
+    | { status: "failed"; reason: string },
+): string {
+  switch (outcome.reason) {
+    case "already_sent":
+      return "Email already sent";
+    case "no_email":
+      return "Creator has no email";
+    case "no_creator":
+      return "Creator not found";
+    default:
+      return outcome.status === "failed"
+        ? outcome.reason
+        : "Email was not sent";
+  }
+}
+
+export async function sendManualBotdEmail(
+  date: Date,
+  recipientType: "artist" | "publisher",
+  emailKind: "advance" | "feature_day",
+) {
+  const day = toUtcStartOfDay(date);
+  const [loadError, row] = await loadBotdForDate(day);
+  if (loadError) return err(loadError);
+  if (!row?.book) return err({ reason: "Book of the day not found" });
+
+  const send =
+    emailKind === "advance"
+      ? sendBotdAdvanceNotificationEmailForRecipient
+      : sendBotdFeatureDayEmailForRecipient;
+
+  const [sendError, outcome] = await send(row, recipientType);
+  if (sendError) return err(sendError);
+  if (outcome.status !== "sent") {
+    return err({ reason: manualSendOutcomeToReason(outcome) });
+  }
+
+  const { getBookOfTheDayForDateQuery } = await import("./services");
+  return getBookOfTheDayForDateQuery(day);
+}

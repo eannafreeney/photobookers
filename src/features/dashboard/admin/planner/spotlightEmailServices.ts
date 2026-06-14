@@ -553,3 +553,65 @@ export async function runSpotlightCreatorEmails(
 
   return ok(result);
 }
+
+function manualSpotlightOutcomeToReason(
+  outcome:
+    | { status: "skipped"; reason: string }
+    | { status: "failed"; reason: string },
+): string {
+  switch (outcome.reason) {
+    case "already_sent":
+      return "Email already sent";
+    case "no_email":
+      return "Creator has no email";
+    case "already_sent_or_no_initial_email":
+      return "Send the advance email first";
+    case "interview_complete":
+      return "Interview is already complete";
+    default:
+      return outcome.status === "failed"
+        ? outcome.reason
+        : "Email was not sent";
+  }
+}
+
+export async function sendManualSpotlightEmail(
+  type: SpotlightType,
+  weekStart: Date,
+  kind: "interview_reminder" | "feature_day",
+  invitedByUserId: string,
+) {
+  const normalizedWeekStart = toWeekStart(weekStart);
+  const [loadError, rows] =
+    type === "artist"
+      ? await loadArtistSpotlightsForWeek(normalizedWeekStart)
+      : await loadPublisherSpotlightsForWeek(normalizedWeekStart);
+  if (loadError) return err(loadError);
+
+  const row = rows[0];
+  if (!row) {
+    return err({
+      reason:
+        type === "artist"
+          ? "Artist of the week not found"
+          : "Publisher of the week not found",
+    });
+  }
+
+  const [sendError, outcome] =
+    kind === "interview_reminder"
+      ? await sendInterviewReminderForSpotlight(type, row, invitedByUserId)
+      : await sendFeatureDayEmailForSpotlight(type, row, invitedByUserId);
+  if (sendError) return err(sendError);
+  if (outcome.status !== "sent") {
+    return err({ reason: manualSpotlightOutcomeToReason(outcome) });
+  }
+
+  const {
+    getArtistOfTheWeekForDateQuery,
+    getPublisherOfTheWeekForDateQuery,
+  } = await import("./services");
+  return type === "artist"
+    ? getArtistOfTheWeekForDateQuery(normalizedWeekStart)
+    : getPublisherOfTheWeekForDateQuery(normalizedWeekStart);
+}

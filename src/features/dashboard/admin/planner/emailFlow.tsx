@@ -6,7 +6,6 @@ import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { getCreatorEmailById } from "../../creators/services";
 import { updateCreatorEmail } from "../creators/services";
 import { Child } from "hono/jsx";
-import SendAOTWCreatorEmailButton from "./components/SendAOTWCreatorEmailButton";
 import {
   updateArtistOfTheWeekByWeekStart,
   updateBookOfTheDayByDate,
@@ -15,12 +14,12 @@ import {
 import { sendEmail } from "../../../../lib/sendEmail";
 import { prepareBotdAdvanceNotificationContent } from "./botdEmailServices";
 import { buildCreatorOfTheWeekNotificationEmail } from "./emails";
-import SendPOTWCreatorEmailButton from "./components/SendPOTWCreatorEmailButton";
 import { getBookByIdBasic } from "../../books/services";
-import SendBOTDCreatorEmailButton from "./components/SendBOTDCreatorEmailButton";
 import { normalizeStoredDate, toUtcStartOfDay } from "../../../../lib/utils";
 import { ensureInterviewInviteForSpotlight } from "./interviewFlow";
 import { getUser } from "../../../../utils";
+import { renderPlannerEmailSuccess } from "./renderPlannerEmailSuccess";
+import type { EmailStatusBadgeProps } from "./components/EmailStatusBadge";
 import { aotwPath } from "../../../app/spotlightUrls";
 
 type RequireCreatorEmailParams = {
@@ -158,6 +157,7 @@ type AOTWExecuteParams = {
   creator: CreatorForEmail;
   creatorId: string;
   weekStart: Date;
+  badge: EmailStatusBadgeProps;
 };
 
 export async function executeAOTWEmail({
@@ -165,6 +165,7 @@ export async function executeAOTWEmail({
   creator,
   creatorId,
   weekStart,
+  badge,
 }: AOTWExecuteParams) {
   const user = await getUser(c);
   if (!user) return showErrorAlert(c, "Not signed in");
@@ -198,18 +199,14 @@ export async function executeAOTWEmail({
     await updateArtistOfTheWeekByWeekStart(weekStart);
   if (updateError) return showErrorAlert(c, updateError.reason);
 
-  return c.html(
-    <>
-      <Alert
-        type="success"
-        message={`Email Sent to ${creator.displayName} at ${creator.email}`}
-      />
-      <SendAOTWCreatorEmailButton
-        artistOfTheWeek={updatedArtistOfTheWeek}
-        creatorId={creatorId}
-      />
-    </>,
-  );
+  return renderPlannerEmailSuccess(c, creator, {
+    ...badge,
+    sentAt: updatedArtistOfTheWeek.emailSentAt,
+    hasEmail: true,
+    manualSend: badge.manualSend
+      ? { ...badge.manualSend, advanceSent: true }
+      : undefined,
+  });
 }
 
 type POTWExecuteParams = {
@@ -217,6 +214,7 @@ type POTWExecuteParams = {
   creator: CreatorForEmail;
   creatorId: string;
   weekStart: Date;
+  badge: EmailStatusBadgeProps;
 };
 
 export async function executePOTWEmail({
@@ -224,6 +222,7 @@ export async function executePOTWEmail({
   creator,
   creatorId,
   weekStart,
+  badge,
 }: POTWExecuteParams) {
   const user = await getUser(c);
   if (!user) return showErrorAlert(c, "Not signed in");
@@ -256,18 +255,14 @@ export async function executePOTWEmail({
     await updatePublisherOfTheWeekByWeekStart(weekStart);
   if (updateError) return showErrorAlert(c, updateError.reason);
 
-  return c.html(
-    <>
-      <Alert
-        type="success"
-        message={`Email Sent to ${creator.displayName} at ${creator.email}`}
-      />
-      <SendPOTWCreatorEmailButton
-        publisherOfTheWeek={updatedPublisherOfTheWeek}
-        creatorId={creatorId}
-      />
-    </>,
-  );
+  return renderPlannerEmailSuccess(c, creator, {
+    ...badge,
+    sentAt: updatedPublisherOfTheWeek.emailSentAt,
+    hasEmail: true,
+    manualSend: badge.manualSend
+      ? { ...badge.manualSend, advanceSent: true }
+      : undefined,
+  });
 }
 
 type BOTDExecuteParams = {
@@ -276,6 +271,7 @@ type BOTDExecuteParams = {
   date: Date;
   recipientType: "artist" | "publisher";
   bookId: string;
+  badge: EmailStatusBadgeProps;
 };
 
 export async function executeBOTDEmail({
@@ -284,6 +280,7 @@ export async function executeBOTDEmail({
   date,
   recipientType,
   bookId,
+  badge,
 }: BOTDExecuteParams) {
   const [bookError, book] = await getBookByIdBasic(bookId);
   if (bookError || !book) return showErrorAlert(c, "Book not found");
@@ -308,18 +305,14 @@ export async function executeBOTDEmail({
   );
   if (updateError) return showErrorAlert(c, updateError.reason);
 
-  return c.html(
-    <>
-      <Alert
-        type="success"
-        message={`Email Sent to ${creator.displayName} at ${creator.email}`}
-      />
-      <SendBOTDCreatorEmailButton
-        recipientType={recipientType}
-        bookOfTheDay={updatedBookOfTheDay}
-        creatorId={creator.id}
-        bookId={bookId}
-      />
-    </>,
-  );
+  const sentAt =
+    recipientType === "artist"
+      ? updatedBookOfTheDay.artistEmailSentAt
+      : updatedBookOfTheDay.publisherEmailSentAt;
+
+  return renderPlannerEmailSuccess(c, creator, {
+    ...badge,
+    sentAt,
+    hasEmail: true,
+  });
 }

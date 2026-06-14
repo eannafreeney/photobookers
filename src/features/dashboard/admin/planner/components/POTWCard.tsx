@@ -67,7 +67,7 @@ const POTWCardContent = ({
   if (!publisherOfTheWeek) return <></>;
   return (
     <>
-      <div class="flex gap-3">
+      <div class="flex items-start justify-between gap-3">
         {publisher.coverUrl && (
           <img
             src={publisher.coverUrl}
@@ -75,7 +75,7 @@ const POTWCardContent = ({
             class="h-16 w-16 rounded object-cover"
           />
         )}
-        <div class="min-w-0 flex-1 flex flex-col gap-2">
+        <div class="min-w-0 flex-1">
           <div class="flex items-center gap-1.5 flex-wrap">
             <p class="text-sm font-semibold text-on-surface-strong">
               {publisher.displayName}
@@ -85,20 +85,23 @@ const POTWCardContent = ({
               email={publisher.email}
             />
           </div>
-          <SpotlightEmailStatusBadges
-            spotlight="publisher"
-            row={publisherOfTheWeek}
-            email={publisher.email}
-          />
-          {interview && (
-            <p class="text-xs text-on-surface">
-              Interview status: {interview.status}
-            </p>
-          )}
         </div>
         <DeleteButton
           action={`/dashboard/admin/planner/publisher-of-the-week/${weekKey}`}
         />
+      </div>
+      <div class="mt-2 border-t border-outline pt-2 flex flex-col gap-2">
+        <SpotlightEmailStatusBadges
+          spotlight="publisher"
+          row={publisherOfTheWeek}
+          creatorId={publisher.id}
+          email={publisher.email}
+        />
+        {interview && (
+          <p class="text-xs text-on-surface">
+            Interview status: {interview.status}
+          </p>
+        )}
       </div>
     </>
   );
