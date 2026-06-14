@@ -78,7 +78,11 @@ const AOTWCardContent = ({
             <p class="text-sm font-semibold text-on-surface-strong">
               {artist.displayName}
             </p>
-            <CreatorEmailBadge creatorId={artist.id} email={artist.email} />
+            <CreatorEmailBadge
+              creatorId={artist.id}
+              email={artist.email}
+              name={artist.displayName}
+            />
           </div>
         </div>
         <DeleteButton

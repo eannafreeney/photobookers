@@ -1,9 +1,10 @@
 type Props = {
   creatorId: string;
   email: string | null;
+  name: string;
 };
 
-const CreatorEmailBadge = ({ creatorId, email }: Props) => {
+const CreatorEmailBadge = ({ creatorId, email, name }: Props) => {
   const hasEmail = Boolean(email?.trim());
 
   const classes = hasEmail
@@ -11,16 +12,27 @@ const CreatorEmailBadge = ({ creatorId, email }: Props) => {
     : "border-danger bg-danger/10 text-danger hover:bg-danger/15";
 
   return (
-    <a
-      id={`creator-email-${creatorId}`}
-      href={`/dashboard/admin/planner/creators/${creatorId}/edit-email`}
-      x-target="modal-root"
-      title={hasEmail ? `Edit ${email}` : "Add email"}
-      class={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors ${classes}`}
-    >
-      <span>Email</span>
-      {hasEmail ? checkIcon : crossIcon}
-    </a>
+    <>
+      <a
+        id={`creator-email-${creatorId}`}
+        href={`/dashboard/admin/planner/creators/${creatorId}/edit-email`}
+        x-target="modal-root"
+        title={hasEmail ? `Edit ${email}` : "Add email"}
+        class={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors ${classes}`}
+      >
+        <span>Email</span>
+        {hasEmail ? checkIcon : crossIcon}
+      </a>
+      {!hasEmail && (
+        <a
+          href={`https://google.com/search?q=${name}+photographer`}
+          target="_blank"
+          class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors border-outline bg-surface-alt text-on-surface hover:bg-surface"
+        >
+          <span>Search</span>
+        </a>
+      )}
+    </>
   );
 };
 

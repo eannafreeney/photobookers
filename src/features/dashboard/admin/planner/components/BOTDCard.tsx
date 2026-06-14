@@ -69,6 +69,7 @@ const BOTDCardContent = ({ dateKey, bookOfTheDay }: BOTDCardContentProps) => {
                   </p>
                 </Link>
                 <CreatorEmailBadge
+                  name={book.artist.displayName}
                   creatorId={book.artist.id}
                   email={book.artist.email}
                 />
@@ -85,6 +86,7 @@ const BOTDCardContent = ({ dateKey, bookOfTheDay }: BOTDCardContentProps) => {
                   </p>
                 </Link>
                 <CreatorEmailBadge
+                  name={book.publisher.displayName}
                   creatorId={book.publisher.id}
                   email={book.publisher.email}
                 />

@@ -81,6 +81,7 @@ const POTWCardContent = ({
               {publisher.displayName}
             </p>
             <CreatorEmailBadge
+              name={publisher.displayName}
               creatorId={publisher.id}
               email={publisher.email}
             />
