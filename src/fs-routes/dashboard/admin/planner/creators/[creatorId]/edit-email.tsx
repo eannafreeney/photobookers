@@ -46,7 +46,11 @@ export const POST = createRoute(
           type="success"
           message={`Email saved for ${creator.displayName}`}
         />
-        <CreatorEmailBadge creatorId={creator.id} email={creator.email} />
+        <CreatorEmailBadge
+          creatorId={creator.id}
+          email={creator.email}
+          name={creator.displayName}
+        />
         {dispatchEvents(["planner:updated"])}
         <div id="modal-root"></div>
       </>,
