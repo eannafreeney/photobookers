@@ -1,6 +1,7 @@
 import {
   parseWeekString,
   toUtcStartOfDay,
+  toWeekStart,
   toWeekString,
 } from "../../../../lib/utils";
 
@@ -103,4 +104,54 @@ export function isWeekInPast(weekStart: Date): boolean {
   const daysToMonday = day === 0 ? 6 : day - 1;
   today.setUTCDate(today.getUTCDate() - daysToMonday);
   return weekStart.getTime() < today.getTime();
+}
+
+export function addUtcDays(date: Date, days: number): Date {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d;
+}
+
+/** BOTD advance emails send on the day that is 7 days before feature day. */
+export function getBotdAdvanceEmailScheduledDate(featureDate: Date): Date {
+  return addUtcDays(toUtcStartOfDay(featureDate), -7);
+}
+
+/** BOTD feature-day emails send on the feature day. */
+export function getBotdFeatureDayEmailScheduledDate(featureDate: Date): Date {
+  return toUtcStartOfDay(featureDate);
+}
+
+/** Spotlight advance / interview-reminder emails send 7 days before week start. */
+export function getSpotlightAdvanceEmailScheduledDate(weekStart: Date): Date {
+  return addUtcDays(toWeekStart(weekStart), -7);
+}
+
+/** Spotlight feature-day emails send on the Monday that starts the feature week. */
+export function getSpotlightFeatureDayEmailScheduledDate(weekStart: Date): Date {
+  return toWeekStart(weekStart);
+}
+
+export type EmailSendStatus =
+  | "sent"
+  | "pending"
+  | "today"
+  | "overdue"
+  | "blocked";
+
+export function getEmailSendStatus(params: {
+  sentAt: Date | null;
+  scheduledDate: Date;
+  hasEmail: boolean;
+  now?: Date;
+}): EmailSendStatus {
+  if (params.sentAt) return "sent";
+  if (!params.hasEmail) return "blocked";
+
+  const today = toUtcStartOfDay(params.now ?? new Date());
+  const scheduled = toUtcStartOfDay(params.scheduledDate);
+
+  if (scheduled.getTime() < today.getTime()) return "overdue";
+  if (scheduled.getTime() === today.getTime()) return "today";
+  return "pending";
 }

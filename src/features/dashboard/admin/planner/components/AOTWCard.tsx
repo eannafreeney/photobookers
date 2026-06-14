@@ -2,7 +2,8 @@ import { ArtistOfTheWeekWithCreator } from "../services";
 import { toWeekString } from "../../../../../lib/utils";
 import ScheduleButton from "./ScheduleButton";
 import DeleteButton from "./DeleteButton";
-import SendAOTWCreatorEmailButton from "./SendAOTWCreatorEmailButton";
+import CreatorEmailBadge from "./CreatorEmailBadge";
+import SpotlightEmailStatusBadges from "./SpotlightEmailStatusBadges";
 import { CreatorInterview } from "../../../../../db/schema";
 
 type ArtistOfTheWeekProps = {
@@ -47,6 +48,7 @@ type AOTWCardContentProps = {
     id: string;
     slug: string;
     displayName: string;
+    email: string | null;
     status: "stub" | "verified" | "suspended" | "deleted" | null;
     coverUrl: string | null;
   };
@@ -72,24 +74,22 @@ const AOTWCardContent = ({
           />
         )}
         <div class="min-w-0 flex-1 flex flex-col gap-2">
-          <p class="text-sm font-semibold text-on-surface-strong">
-            {artist.displayName}
-          </p>
-          <SendAOTWCreatorEmailButton
-            artistOfTheWeek={artistOfTheWeek}
-            creatorId={artist.id}
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <p class="text-sm font-semibold text-on-surface-strong">
+              {artist.displayName}
+            </p>
+            <CreatorEmailBadge creatorId={artist.id} email={artist.email} />
+          </div>
+          <SpotlightEmailStatusBadges
+            spotlight="artist"
+            row={artistOfTheWeek}
+            email={artist.email}
           />
           {interview && (
             <p class="text-xs text-on-surface">
               Interview status: {interview.status}
             </p>
           )}
-          {artistOfTheWeek.interviewReminderSentAt ? (
-            <p class="text-xs text-on-surface">Interview reminder sent</p>
-          ) : null}
-          {artistOfTheWeek.featureDayEmailSentAt ? (
-            <p class="text-xs text-on-surface">Feature-day email sent</p>
-          ) : null}
         </div>
         <DeleteButton
           action={`/dashboard/admin/planner/artist-of-the-week/${weekKey}`}

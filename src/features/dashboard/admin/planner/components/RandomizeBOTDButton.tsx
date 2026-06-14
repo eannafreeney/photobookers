@@ -31,7 +31,7 @@ const RandomizeBOTDButton = ({ weekStart, botdByDate }: Props) => {
     >
       <button
         type="submit"
-        class="rounded border border-outline bg-surface-alt px-2 py-1 text-xs font-medium text-on-surface opacity-80 hover:bg-surface"
+        class="rounded border border-outline bg-surface-alt px-2 py-1 text-xs font-medium text-on-surface opacity-80 hover:bg-surface cursor-pointer"
       >
         Random BOTDs
       </button>

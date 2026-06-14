@@ -93,6 +93,13 @@ export const publisherOfTheWeekFormSchema = z.object({
 
 export const weekQuerySchema = z.object({ week: z.string() });
 export const dateQuerySchema = z.object({ date: z.string() });
+
+export const updateCreatorEmailFormSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email"),
+});
 export const newsletterCampaignParamSchema = z.object({
   campaignId: z.string().uuid("Invalid campaign id"),
 });

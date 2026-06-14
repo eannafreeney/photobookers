@@ -4,7 +4,8 @@ import { BookOfTheDayWithBook } from "../../../../app/BOTDServices";
 import { formatDayWeekday } from "../utils";
 import DeleteButton from "./DeleteButton";
 import ScheduleButton from "./ScheduleButton";
-import SendBOTDCreatorEmailButton from "./SendBOTDCreatorEmailButton";
+import CreatorEmailBadge from "./CreatorEmailBadge";
+import BotdEmailStatusBadges from "./BotdEmailStatusBadges";
 
 type BOTDCardProps = {
   date: Date;
@@ -56,56 +57,47 @@ const BOTDCardContent = ({ dateKey, bookOfTheDay }: BOTDCardContentProps) => {
           <p class="text-sm font-semibold text-on-surface-strong line-clamp-2">
             {book.title}
           </p>
-          {book.artist && (
-            <Link href={`/creators/${book.artist.slug}`}>
-              <p class="text-xs text-on-surface truncate">
-                {book.artist.displayName}
-              </p>
-            </Link>
-          )}
-          {book.publisher && (
-            <Link href={`/creators/${book.publisher.slug}`}>
-              <p class="text-xs text-on-surface truncate">
-                {book.publisher.displayName}
-              </p>
-            </Link>
-          )}
+          <div class="flex flex-col gap-1">
+            {book.artist && (
+              <div class="flex items-center gap-1.5 min-w-0">
+                <Link
+                  href={`/creators/${book.artist.slug}`}
+                  className="min-w-0"
+                >
+                  <p class="text-xs text-on-surface truncate">
+                    {book.artist.displayName}
+                  </p>
+                </Link>
+                <CreatorEmailBadge
+                  creatorId={book.artist.id}
+                  email={book.artist.email}
+                />
+              </div>
+            )}
+            {book.publisher && (
+              <div class="flex items-center gap-1.5 min-w-0">
+                <Link
+                  href={`/creators/${book.publisher.slug}`}
+                  className="min-w-0"
+                >
+                  <p class="text-xs text-on-surface truncate">
+                    {book.publisher.displayName}
+                  </p>
+                </Link>
+                <CreatorEmailBadge
+                  creatorId={book.publisher.id}
+                  email={book.publisher.email}
+                />
+              </div>
+            )}
+          </div>
         </div>
         <DeleteButton
           action={`/dashboard/admin/planner/book-of-the-day/${dateKey}`}
         />
       </div>
-      <div class="mt-2 flex flex-col gap-2">
-        <div class="flex items-center gap-4">
-          <SendBOTDCreatorEmailButton
-            recipientType="artist"
-            bookOfTheDay={bookOfTheDay}
-            creatorId={book.artist?.id}
-            bookId={book.id}
-          />
-          {book.publisher && (
-            <SendBOTDCreatorEmailButton
-              recipientType="publisher"
-              bookOfTheDay={bookOfTheDay}
-              creatorId={book.publisher?.id}
-              bookId={book.id}
-            />
-          )}
-        </div>
-        {bookOfTheDay.artistEmailSentAt ? (
-          <p class="text-xs text-on-surface">Artist advance email sent</p>
-        ) : null}
-        {bookOfTheDay.publisherEmailSentAt ? (
-          <p class="text-xs text-on-surface">Publisher advance email sent</p>
-        ) : null}
-        {bookOfTheDay.artistFeatureDayEmailSentAt ? (
-          <p class="text-xs text-on-surface">Artist feature-day email sent</p>
-        ) : null}
-        {bookOfTheDay.publisherFeatureDayEmailSentAt ? (
-          <p class="text-xs text-on-surface">
-            Publisher feature-day email sent
-          </p>
-        ) : null}
+      <div class="mt-2">
+        <BotdEmailStatusBadges bookOfTheDay={bookOfTheDay} />
       </div>
     </>
   );

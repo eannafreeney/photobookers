@@ -2,7 +2,8 @@ import { PublisherOfTheWeekWithCreator } from "../services";
 import { toWeekString } from "../../../../../lib/utils";
 import ScheduleButton from "./ScheduleButton";
 import DeleteButton from "./DeleteButton";
-import SendPOTWCreatorEmailButton from "./SendPOTWCreatorEmailButton";
+import CreatorEmailBadge from "./CreatorEmailBadge";
+import SpotlightEmailStatusBadges from "./SpotlightEmailStatusBadges";
 import { CreatorInterview, PublisherOfTheWeek } from "../../../../../db/schema";
 
 type PublisherOfTheWeekProps = {
@@ -49,6 +50,7 @@ type POTWCardContentProps = {
     id: string;
     slug: string;
     displayName: string;
+    email: string | null;
     status: "stub" | "verified" | "suspended" | "deleted" | null;
     coverUrl: string | null;
   };
@@ -74,24 +76,25 @@ const POTWCardContent = ({
           />
         )}
         <div class="min-w-0 flex-1 flex flex-col gap-2">
-          <p class="text-sm font-semibold text-on-surface-strong">
-            {publisher.displayName}
-          </p>
-          <SendPOTWCreatorEmailButton
-            publisherOfTheWeek={publisherOfTheWeek}
-            creatorId={publisher.id}
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <p class="text-sm font-semibold text-on-surface-strong">
+              {publisher.displayName}
+            </p>
+            <CreatorEmailBadge
+              creatorId={publisher.id}
+              email={publisher.email}
+            />
+          </div>
+          <SpotlightEmailStatusBadges
+            spotlight="publisher"
+            row={publisherOfTheWeek}
+            email={publisher.email}
           />
           {interview && (
             <p class="text-xs text-on-surface">
               Interview status: {interview.status}
             </p>
           )}
-          {publisherOfTheWeek.interviewReminderSentAt ? (
-            <p class="text-xs text-on-surface">Interview reminder sent</p>
-          ) : null}
-          {publisherOfTheWeek.featureDayEmailSentAt ? (
-            <p class="text-xs text-on-surface">Feature-day email sent</p>
-          ) : null}
         </div>
         <DeleteButton
           action={`/dashboard/admin/planner/publisher-of-the-week/${weekKey}`}
