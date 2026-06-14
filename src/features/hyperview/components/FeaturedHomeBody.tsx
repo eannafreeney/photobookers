@@ -6,13 +6,9 @@ import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
 import NewsletterCard from "./NewsletterCard";
 import LazyLoader from "./LazyLoader";
-import BookFiltersPanel, {
-  BOOKS_CATALOG_TARGET_ID,
-} from "./BookFiltersPanel";
 import SectionHeader from "./SectionHeader";
 import {
-  BookGridCatalog,
-  featuredLatestBooksFilterPath,
+  FeaturedLatestBooksCatalogShell,
   loadFeaturedLatestBooksCatalog,
 } from "./BookGridWithFilters";
 import { hyperviewBooksFilterUrl } from "../../../lib/tags";
@@ -107,13 +103,11 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl, user = null }) => {
             title="Latest Books"
             viewAllHref={hyperviewBooksFilterUrl(baseUrl, {})}
           />
-          <BookFiltersPanel
-            baseUrl={baseUrl}
-            filterPath={featuredLatestBooksFilterPath(baseUrl)}
+          <FeaturedLatestBooksCatalogShell
+            {...latestBooksCatalog}
+            tag={null}
+            q={null}
           />
-          <View id={BOOKS_CATALOG_TARGET_ID} style="latest-books-catalog">
-            <BookGridCatalog {...latestBooksCatalog} />
-          </View>
         </View>
       ) : null}
     </View>

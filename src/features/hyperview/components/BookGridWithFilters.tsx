@@ -30,6 +30,34 @@ export type FeaturedLatestBooksCatalogProps = {
   viewAllHref: string;
 };
 
+type CatalogShellProps = FeaturedLatestBooksCatalogProps & {
+  tag: string | null;
+  q: string | null;
+};
+
+export const FeaturedLatestBooksCatalogShell: FC<CatalogShellProps> = ({
+  baseUrl,
+  tag,
+  q,
+  ...catalogProps
+}) => (
+  <View
+    id={BOOKS_CATALOG_TARGET_ID}
+    style="books-catalog-shell"
+    xmlns="https://hyperview.org/hyperview"
+  >
+    <BookFiltersPanel
+      baseUrl={baseUrl}
+      activeTag={tag}
+      q={q}
+      filterPath={featuredLatestBooksFilterPath(baseUrl)}
+    />
+    <View style="latest-books-catalog">
+      <BookGridCatalog baseUrl={baseUrl} {...catalogProps} />
+    </View>
+  </View>
+);
+
 export const loadFeaturedLatestBooksCatalog = async (
   user: AuthUser | null | undefined,
   baseUrl: string,
@@ -98,15 +126,12 @@ const BookGridWithFilters: FC<Props> = ({ baseUrl, tag, q, ...catalogProps }) =>
       title="Latest Books"
       viewAllHref={catalogProps.viewAllHref}
     />
-    <BookFiltersPanel
+    <FeaturedLatestBooksCatalogShell
       baseUrl={baseUrl}
-      activeTag={tag}
+      tag={tag}
       q={q}
-      filterPath={featuredLatestBooksFilterPath(baseUrl)}
+      {...catalogProps}
     />
-    <View id={BOOKS_CATALOG_TARGET_ID} style="latest-books-catalog">
-      <BookGridCatalog baseUrl={baseUrl} {...catalogProps} />
-    </View>
   </View>
 );
 

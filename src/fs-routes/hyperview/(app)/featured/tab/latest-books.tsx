@@ -1,6 +1,6 @@
 import { createRoute } from "hono-fsr";
 import {
-  BookGridCatalog,
+  FeaturedLatestBooksCatalogShell,
   loadFeaturedLatestBooksCatalog,
 } from "../../../../../features/hyperview/components/BookGridWithFilters";
 import { BOOKS_CATALOG_TARGET_ID } from "../../../../../features/hyperview/components/BookFiltersPanel";
@@ -10,17 +10,17 @@ import { getBaseUrl } from "../../../../../lib/hyperview";
 import { getUser } from "../../../../../utils";
 
 const renderCatalog = (
+  tag: string | null,
+  q: string | null,
   catalogProps: NonNullable<
     Awaited<ReturnType<typeof loadFeaturedLatestBooksCatalog>>
   >,
 ) => (
-  <View
-    id={BOOKS_CATALOG_TARGET_ID}
-    style="latest-books-catalog"
-    xmlns="https://hyperview.org/hyperview"
-  >
-    <BookGridCatalog {...catalogProps} />
-  </View>
+  <FeaturedLatestBooksCatalogShell
+    {...catalogProps}
+    tag={tag}
+    q={q}
+  />
 );
 
 export const GET = createRoute(async (c) => {
@@ -40,7 +40,7 @@ export const GET = createRoute(async (c) => {
     return hv(<></>);
   }
 
-  return hv(renderCatalog(catalogProps));
+  return hv(renderCatalog(tag, q, catalogProps));
 });
 
 export const POST = createRoute(async (c) => {
@@ -64,7 +64,7 @@ export const POST = createRoute(async (c) => {
     return hv(
       <View
         id={BOOKS_CATALOG_TARGET_ID}
-        style="latest-books-catalog"
+        style="books-catalog-shell"
         xmlns="https://hyperview.org/hyperview"
       >
         <Text style="featured-empty-hint">Could not filter books.</Text>
@@ -72,5 +72,5 @@ export const POST = createRoute(async (c) => {
     );
   }
 
-  return hv(renderCatalog(catalogProps));
+  return hv(renderCatalog(tag, q, catalogProps));
 });

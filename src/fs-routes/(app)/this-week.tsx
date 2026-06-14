@@ -56,11 +56,6 @@ export const GET = createRoute(async (c) => {
 
   const botdEntries = !botdErr ? botdResult.botdEntries : [];
 
-  const [artistInterview, publisherInterview] = await Promise.all([
-    fetchPublishedInterview(artistOfTheWeek?.creator.slug),
-    fetchPublishedInterview(publisherOfTheWeek?.creator.slug),
-  ]);
-
   const shareImage =
     botdEntries[0]?.book.coverUrl ??
     artistOfTheWeek?.instagramImageUrl ??
@@ -104,8 +99,6 @@ export const GET = createRoute(async (c) => {
           publisherOfTheWeek={
             !publisherErr && publisherOfTheWeek ? publisherOfTheWeek : null
           }
-          artistInterview={artistInterview}
-          publisherInterview={publisherInterview}
         />
       </Page>
     </AppLayout>,

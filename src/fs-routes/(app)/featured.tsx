@@ -12,6 +12,7 @@ import DiscoveryTags from "../../features/app/components/DiscoveryTags";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import Interviews from "../../features/app/components/Interviews";
 import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
+import ThisWeekOnPhotobookersLink from "../../features/app/components/ThisWeekOnPhotobookersLink";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -31,6 +32,7 @@ export const GET = createRoute(async (c: Context) => {
       <NewsletterBanner />
       <Page>
         <HeroCarousel />
+        <ThisWeekOnPhotobookersLink />
         <Slogan />
         <ScrollReveal>
           <Intersector id="stats-fragment" endpoint="/fragments/stats" />

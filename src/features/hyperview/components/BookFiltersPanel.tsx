@@ -15,11 +15,22 @@ export const BOOKS_CATALOG_TARGET_ID = "books-catalog";
 export const BOOKS_LIST_TARGET_ID = "books-list-host";
 /** Element id for `toggle` — must not match any `<style id="…">`. */
 export const BOOKS_FILTERS_DRAWER_ID = "book-filters-drawer";
-const BOOKS_FILTERS_CHEVRON_CLOSED_ID = "book-filters-chevron-closed";
-const BOOKS_FILTERS_CHEVRON_OPEN_ID = "book-filters-chevron-open";
 export const BOOKS_FILTER_Q_ID = "books-filter-q";
 
 const MIN_SEARCH_LENGTH = 3;
+
+const filterStateKey = (activeSlug: string | null, trimmedQ: string) =>
+  `${activeSlug ?? "all"}:${trimmedQ.length >= MIN_SEARCH_LENGTH ? trimmedQ : ""}`;
+
+const filterElementIds = (activeSlug: string | null, trimmedQ: string) => {
+  const stateKey = filterStateKey(activeSlug, trimmedQ);
+  return {
+    drawerId: `book-filters-drawer-${stateKey}`,
+    chevronClosedId: `book-filters-chevron-closed-${stateKey}`,
+    chevronOpenId: `book-filters-chevron-open-${stateKey}`,
+    filterQId: `books-filter-q-${stateKey}`,
+  };
+};
 
 type Props = {
   baseUrl: string;
@@ -61,6 +72,8 @@ const BookFiltersPanel = ({
   const searchPostHref = activeSlug
     ? `${filterPath}?tag=${encodeURIComponent(activeSlug)}`
     : filterPath;
+  const { drawerId, chevronClosedId, chevronOpenId, filterQId } =
+    filterElementIds(activeSlug, trimmedQ);
 
   return (
     <View style="book-filters">
@@ -69,15 +82,15 @@ const BookFiltersPanel = ({
           <Text style="book-filters-toggle-label" number-of-lines={1}>
             Filters{summary}
           </Text>
-          <View id={BOOKS_FILTERS_CHEVRON_CLOSED_ID}>
+          <View id={chevronClosedId}>
             <Text style="book-filters-toggle-chevron">▶</Text>
           </View>
-          <View id={BOOKS_FILTERS_CHEVRON_OPEN_ID} hide="true">
+          <View id={chevronOpenId} hide="true">
             <Text style="book-filters-toggle-chevron">▼</Text>
           </View>
-          <Behavior action="toggle" target={BOOKS_FILTERS_DRAWER_ID} />
-          <Behavior action="toggle" target={BOOKS_FILTERS_CHEVRON_CLOSED_ID} />
-          <Behavior action="toggle" target={BOOKS_FILTERS_CHEVRON_OPEN_ID} />
+          <Behavior action="toggle" target={drawerId} />
+          <Behavior action="toggle" target={chevronClosedId} />
+          <Behavior action="toggle" target={chevronOpenId} />
         </View>
         {hasActiveFilters ? (
           <View style="book-filters-toggle-clear">
@@ -91,7 +104,7 @@ const BookFiltersPanel = ({
           </View>
         ) : null}
       </View>
-      <View id={BOOKS_FILTERS_DRAWER_ID} hide="true">
+      <View id={drawerId} hide="true">
         <View style="book-filters-panel">
           <View style="book-filters-tags">
             <View
@@ -147,7 +160,7 @@ const BookFiltersPanel = ({
           <Form id="books-filter-form">
             <View style="book-filters-search-row">
               <TextField
-                id={BOOKS_FILTER_Q_ID}
+                id={filterQId}
                 style="book-filters-search-input"
                 name="q"
                 value={trimmedQ}

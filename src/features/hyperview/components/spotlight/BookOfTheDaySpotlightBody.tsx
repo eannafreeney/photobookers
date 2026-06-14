@@ -44,11 +44,11 @@ const BookOfTheDaySpotlightBody: FC<Props> = ({
 
   return (
     <View style="spotlight-body">
+      <SpotlightHeader
+        title={book.title}
+        subtitle={book.artist?.displayName ?? ""}
+      />
       <BookGallery galleryImages={galleryImages} />
-      <View>
-        <Text style="title">{book.title}</Text>
-        <Text style="subtitle">{book.artist?.displayName}</Text>
-      </View>
       <BookActions
         book={book}
         baseUrl={baseUrl}
