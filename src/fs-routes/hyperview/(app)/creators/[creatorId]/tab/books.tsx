@@ -20,7 +20,9 @@ import { relatedCreatorsListStyles } from "../../../../../../features/hyperview/
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { creatorIdSchema } from "../../../../../../schemas";
 import { getBooksByCreatorId } from "../../../../../../features/dashboard/admin/creators/services";
-import CreatorBanner from "../../../../../../features/hyperview/components/CreatorBanner";
+import CreatorBanner, {
+  creatorBannerStyles,
+} from "../../../../../../features/hyperview/components/CreatorBanner";
 import ErrorScreen from "../../../../../../features/hyperview/components/ErrorScreen";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
@@ -187,5 +189,6 @@ const pageStyles = () => (
     {creatorTabStyles()}
     {creatorPageStyles()}
     {relatedCreatorsListStyles()}
+    {creatorBannerStyles()}
   </>
 );

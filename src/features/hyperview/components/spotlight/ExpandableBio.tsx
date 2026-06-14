@@ -17,21 +17,26 @@ function truncateWords(text: string, maxWords: number) {
 type Props = {
   bio: string;
   id: string;
+  textStyle?: string;
 };
 
-const ExpandableBio: FC<Props> = ({ bio, id }) => {
+const ExpandableBio: FC<Props> = ({
+  bio,
+  id,
+  textStyle = "spotlight-body-text",
+}) => {
   const collapsedId = `spotlight-bio-collapsed-${id}`;
   const expandedId = `spotlight-bio-expanded-${id}`;
   const { preview, needsToggle } = truncateWords(bio, PREVIEW_WORD_COUNT);
 
   if (!needsToggle) {
-    return <Text style="spotlight-body-text">{bio}</Text>;
+    return <Text style={textStyle}>{bio}</Text>;
   }
 
   return (
     <View>
       <View id={collapsedId}>
-        <Text style="spotlight-body-text">{preview}</Text>
+        <Text style={textStyle}>{preview}</Text>
         <View style="spotlight-bio-toggle">
           <Text style="spotlight-bio-toggle-label">See more</Text>
           <Behavior action="toggle" target={collapsedId} />
@@ -39,7 +44,7 @@ const ExpandableBio: FC<Props> = ({ bio, id }) => {
         </View>
       </View>
       <View id={expandedId} hide="true">
-        <Text style="spotlight-body-text">{bio}</Text>
+        <Text style={textStyle}>{bio}</Text>
         <View style="spotlight-bio-toggle">
           <Text style="spotlight-bio-toggle-label">Show less</Text>
           <Behavior action="toggle" target={collapsedId} />

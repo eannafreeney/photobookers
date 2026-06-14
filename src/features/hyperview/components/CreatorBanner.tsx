@@ -2,6 +2,9 @@ import { FC } from "hono/jsx";
 import { Image, Style, Text, View } from "../../../lib/hxml-comps";
 import FollowButton from "./FollowButton";
 import { formatCountry } from "../../../lib/utils";
+import ExpandableBio, {
+  expandableBioStyles,
+} from "./spotlight/ExpandableBio";
 
 type CreatorCardCreator = {
   id?: string | null;
@@ -16,6 +19,7 @@ type CreatorCardCreator = {
   instagram?: string | null;
   twitter?: string | null;
   bannerUrl?: string | null;
+  bio?: string | null;
 };
 
 type Props = {
@@ -68,6 +72,15 @@ const CreatorBanner: FC<Props> = ({
           )}
         </View>
       </View>
+      {creator.bio && (
+        <View style="creator-bio">
+          <ExpandableBio
+            bio={creator.bio}
+            id={creator.id ?? creator.slug ?? creator.displayName}
+            textStyle="creator-bio-text"
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -123,5 +136,13 @@ export const creatorBannerStyles = () => (
       alignItems="center"
     />
     <Style id="follow-label" fontSize={14} fontWeight="600" color="#fbfaf7" />
+    <Style id="creator-bio" padding={12} flexDirection="column" gap={16} />
+    <Style
+      id="creator-bio-text"
+      fontSize={13}
+      color="#45413a"
+      lineHeight={20}
+    />
+    {expandableBioStyles()}
   </>
 );
