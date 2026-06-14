@@ -1,4 +1,10 @@
-import { Modifier, Option, SelectSingle, Style, View } from "../../../lib/hxml-comps";
+import {
+  Modifier,
+  Option,
+  SelectSingle,
+  Style,
+  View,
+} from "../../../lib/hxml-comps";
 import { Text } from "../../../lib/hxml-comps";
 
 export type CreatorTab = "books" | "messages" | "publishers" | "about";
@@ -106,7 +112,7 @@ export const creatorTabStyles = () => (
     </Style>
     <Style
       id="tab-label"
-      fontSize={11}
+      fontSize={10}
       fontWeight="600"
       letterSpacing={1.5}
       color="#a39d90"
