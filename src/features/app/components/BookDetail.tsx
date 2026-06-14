@@ -17,6 +17,8 @@ import PageBleed from "../../../components/layouts/PageContent";
 import Tabs from "../../../components/app/Tabs";
 import Show from "../../../components/app/Show";
 import BookGridWrapper from "./BookGridWrapper";
+import { bookShareText, bookShareTitle } from "../../../lib/share";
+import { bookUrl } from "../spotlightUrls";
 
 type BookDetailProps = {
   isMobile: boolean;
@@ -108,9 +110,9 @@ const DetailDesktop = ({
             <div class="flex items-center gap-2">
               <WishlistButton book={book} user={user} />
               <ShareButton
-                title={book.title}
-                text={`${book.title} on Photobookers`}
-                url={`/books/${book.slug}`}
+                title={bookShareTitle(book)}
+                text={bookShareText(book)}
+                url={bookUrl(book.slug)}
               />
             </div>
             <div class="flex flex-col gap-4">
@@ -184,9 +186,9 @@ const DetailMobile = ({
           <div class="flex items-center justify-evenly gap-4">
             <WishlistButton book={book} user={user} />
             <ShareButton
-              title={book.title}
-              text={`${book.title} on Photobookers`}
-              url={`/books/${book.slug}`}
+              title={bookShareTitle(book)}
+              text={bookShareText(book)}
+              url={bookUrl(book.slug)}
             />
           </div>
           {book.description && (

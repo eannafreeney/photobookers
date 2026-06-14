@@ -16,6 +16,10 @@ import FeaturedPageHeader from "./FeaturedPageHeader";
 import { capitalize } from "../../../utils";
 import { aotwUrl, potwUrl } from "../spotlightUrls";
 import FollowButton from "../../api/components/FollowButton";
+import {
+  creatorOfTheWeekShareText,
+  creatorOfTheWeekShareTitle,
+} from "../../../lib/share";
 
 type Props = {
   creator: Creator;
@@ -58,8 +62,8 @@ const CreatorOfTheWeekDetail = async ({
       <div class="flex gap-2 justify-center">
         <FollowButton creator={creator} user={user} />
         <ShareButton
-          title={`${role} of the Week — ${creator.displayName}`}
-          text={`${creator.displayName} is ${role} of the Week on Photobookers`}
+          title={creatorOfTheWeekShareTitle(creator, role)}
+          text={creatorOfTheWeekShareText(creator, role)}
           url={spotlightUrl}
         />
       </div>

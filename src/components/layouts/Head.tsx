@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { SITE_APP } from "../../constants/siteSocial";
 
 export type ShareOgMeta = {
   title?: string;
@@ -46,6 +47,10 @@ const Head = ({
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width" />
       <meta name="view-transition" content="same-origin"></meta>
+      <meta
+        name="apple-itunes-app"
+        content={`app-id=${SITE_APP.ios.appStoreId}`}
+      />
       <title>{title}</title>
       {noIndex ? <meta name="robots" content="noindex, nofollow" /> : null}
       {description ? <meta name="description" content={description} /> : null}

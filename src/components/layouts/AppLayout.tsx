@@ -10,6 +10,7 @@ import Dock from "./Dock";
 import ToastContainer from "../app/ToastContainer";
 import ActivityStream from "../app/ActivityStream";
 import { fadeTransition } from "../../lib/transitions";
+import AppStoreBanner from "../../features/app/components/AppStoreBanner";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
@@ -53,6 +54,7 @@ const AppLayout = ({
           user={user}
           adminEditHref={adminEditHref}
         />
+        <AppStoreBanner />
         <div
           class="pb-0"
           x-data="{

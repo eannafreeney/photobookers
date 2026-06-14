@@ -11,6 +11,10 @@ import ShareButton from "../../api/components/ShareButton";
 import { botdUrl } from "../spotlightUrls";
 import FeaturedPageHeader from "./FeaturedPageHeader";
 import FavoriteButton from "../../api/components/WishlistButton";
+import {
+  bookOfTheDayShareText,
+  bookOfTheDayShareTitle,
+} from "../../../lib/share";
 
 type Props = {
   book: BookWithGalleryImages;
@@ -55,8 +59,8 @@ const BookOfTheDayDetail = async ({
       <div class="mx-auto grid w-full grid-cols-2 gap-4 md:max-w-xl">
         <FavoriteButton book={book} user={user} />
         <ShareButton
-          title={`Book of the Day — ${book.title}`}
-          text={`${book.title}${book.artist?.displayName ? ` by ${book.artist.displayName}` : ""} — featured on Photobookers`}
+          title={bookOfTheDayShareTitle(book)}
+          text={bookOfTheDayShareText(book)}
           url={botdUrl(date)}
         />
       </div>

@@ -2,6 +2,22 @@ import { toDateString, toWeekString } from "../../lib/utils";
 
 const appBaseUrl = process.env.PUBLIC_APP_URL ?? "https://www.photobookers.com";
 
+export function bookPath(slug: string): string {
+  return `/books/${slug}`;
+}
+
+export function creatorPath(slug: string): string {
+  return `/creators/${slug}`;
+}
+
+export function bookUrl(slug: string): string {
+  return `${appBaseUrl}${bookPath(slug)}`;
+}
+
+export function creatorUrl(slug: string): string {
+  return `${appBaseUrl}${creatorPath(slug)}`;
+}
+
 export function botdIndexPath(): string {
   return "/book-of-the-day";
 }

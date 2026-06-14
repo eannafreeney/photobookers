@@ -9,6 +9,8 @@ import CreatorMessages from "./CreatorMessages";
 import CreatorPageBanner from "./CreatorPageBanner";
 import { Creator } from "../../../db/schema";
 import { AuthUser } from "../../../../types";
+import { creatorUrl } from "../spotlightUrls";
+import { creatorShareText } from "../../../lib/share";
 
 export type CreatorBooksResult = {
   creator: Creator;
@@ -113,8 +115,8 @@ const CreatorDetailMobile = ({
         />
         <ShareButton
           title={creator.displayName}
-          text={`${creator.displayName} on Photobookers`}
-          url={`/creators/${creator.slug}`}
+          text={creatorShareText(creator)}
+          url={creatorUrl(creator.slug)}
         />
       </Tabs.Panel>
       <Tabs.Panel tabId="messages">
@@ -217,13 +219,18 @@ const CreatorDetailDesktop = ({
           </Tabs>
         </div>
         <div class="md:w-1/5">
-          <div class="mt-5">
+          <div class="mt-5 flex flex-col gap-3">
             <CreatorCard
               creator={creator}
               currentPath={currentPath}
               user={user}
               title="About"
               shouldRefreshCreatorMessages
+            />
+            <ShareButton
+              title={creator.displayName}
+              text={creatorShareText(creator)}
+              url={creatorUrl(creator.slug)}
             />
           </div>
         </div>
