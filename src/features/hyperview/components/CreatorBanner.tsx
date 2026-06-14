@@ -2,9 +2,7 @@ import { FC } from "hono/jsx";
 import { Image, Style, Text, View } from "../../../lib/hxml-comps";
 import FollowButton from "./FollowButton";
 import { formatCountry } from "../../../lib/utils";
-import ExpandableBio, {
-  expandableBioStyles,
-} from "./spotlight/ExpandableBio";
+import ExpandableBio, { expandableBioStyles } from "./spotlight/ExpandableBio";
 
 type CreatorCardCreator = {
   id?: string | null;
@@ -66,21 +64,23 @@ const CreatorBanner: FC<Props> = ({
             )}
           </View>
         </View>
-        <View style="creator-body-bottom">
-          {creator.tagline && (
-            <Text style="creator-tagline">{creator.tagline}</Text>
-          )}
-        </View>
+        {creator.bio ? (
+          <View style="creator-bio">
+            <ExpandableBio
+              bio={creator.bio}
+              id={creator.id ?? creator.slug ?? creator.displayName}
+              textStyle="creator-bio-text"
+              maxWords={25}
+            />
+          </View>
+        ) : (
+          <View style="creator-body-bottom">
+            {creator.tagline && (
+              <Text style="creator-tagline">{creator.tagline}</Text>
+            )}
+          </View>
+        )}
       </View>
-      {creator.bio && (
-        <View style="creator-bio">
-          <ExpandableBio
-            bio={creator.bio}
-            id={creator.id ?? creator.slug ?? creator.displayName}
-            textStyle="creator-bio-text"
-          />
-        </View>
-      )}
     </View>
   );
 };

@@ -1,8 +1,6 @@
 import { FC } from "hono/jsx";
 import { Behavior, Style, Text, View } from "../../../../lib/hxml-comps";
 
-const PREVIEW_WORD_COUNT = 40;
-
 function truncateWords(text: string, maxWords: number) {
   const words = text.trim().split(/\s+/).filter(Boolean);
   if (words.length <= maxWords) {
@@ -18,16 +16,18 @@ type Props = {
   bio: string;
   id: string;
   textStyle?: string;
+  maxWords?: number;
 };
 
 const ExpandableBio: FC<Props> = ({
   bio,
   id,
   textStyle = "spotlight-body-text",
+  maxWords = 40,
 }) => {
   const collapsedId = `spotlight-bio-collapsed-${id}`;
   const expandedId = `spotlight-bio-expanded-${id}`;
-  const { preview, needsToggle } = truncateWords(bio, PREVIEW_WORD_COUNT);
+  const { preview, needsToggle } = truncateWords(bio, maxWords);
 
   if (!needsToggle) {
     return <Text style={textStyle}>{bio}</Text>;
@@ -59,11 +59,7 @@ export default ExpandableBio;
 
 export const expandableBioStyles = () => (
   <>
-    <Style
-      id="spotlight-bio-toggle"
-      paddingTop={4}
-      paddingBottom={4}
-    />
+    <Style id="spotlight-bio-toggle" paddingTop={4} paddingBottom={4} />
     <Style
       id="spotlight-bio-toggle-label"
       fontSize={14}
