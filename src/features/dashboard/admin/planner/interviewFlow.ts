@@ -14,8 +14,7 @@ export async function getLatestInterviewForCreator(creatorId: string) {
       where: eq(creatorInterviews.creatorId, creatorId),
       orderBy: [desc(creatorInterviews.invitedAt)],
     });
-    if (!interview) return err({ reason: "Interview not found" });
-    return ok(interview);
+    return ok(interview ?? null);
   } catch (error) {
     return err({ reason: "Failed to get latest interview", cause: error });
   }
