@@ -14,6 +14,7 @@ import AOTWCard from "./AOTWCard";
 import POTWCard from "./POTWCard";
 import { getNewsletterRangeStartForPlannerWeek } from "../newsletterUtils";
 import { formatWeekRange, getWeekDays } from "../utils";
+import RandomizeBOTDButton from "./RandomizeBOTDButton";
 
 type Props = {
   weekStart: Date;
@@ -45,6 +46,7 @@ const WeekCard = ({
         weekNumber={weekNumber}
         newsletterStatus={newsletterStatus}
         instagramPrepared={instagramPrepared}
+        botdByDate={botdByDate}
       />
       <Card.Body gap="2">
         {days.map((day) => {
@@ -83,6 +85,7 @@ type WeekCardHeaderProps = {
   weekNumber: number;
   newsletterStatus: NewsletterCampaignStatus | null;
   instagramPrepared: boolean;
+  botdByDate: Map<string, BookOfTheDayWithBook>;
 };
 
 const instagramButtonClasses = (prepared: boolean): string => {
@@ -119,6 +122,7 @@ const WeekCardHeader = ({
   weekNumber,
   newsletterStatus,
   instagramPrepared,
+  botdByDate,
 }: WeekCardHeaderProps) => {
   const buttonLabel = newsletterButtonLabel(newsletterStatus);
   const weekKey = toWeekString(weekStart);
@@ -138,6 +142,7 @@ const WeekCardHeader = ({
         </p>
       </div>
       <div class="flex flex-wrap items-center justify-end gap-2">
+        <RandomizeBOTDButton weekStart={weekStart} botdByDate={botdByDate} />
         <a
           href={`/dashboard/admin/planner/instagram/${weekKey}/prepare`}
           x-target="modal-root"

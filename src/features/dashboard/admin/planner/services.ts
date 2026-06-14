@@ -8,7 +8,7 @@ import {
   toWeekStart,
   toWeekString,
 } from "../../../../lib/utils";
-import { getWeekStarts } from "./utils";
+import { getWeekDays, getWeekStarts } from "./utils";
 import {
   artistOfTheWeek,
   bookOfTheDay,
@@ -17,7 +17,7 @@ import {
   publisherOfTheWeek,
 } from "../../../../db/schema";
 import { db } from "../../../../db/client";
-import { and, asc, desc, eq, gte, lte, notInArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lte, notInArray, sql } from "drizzle-orm";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -477,6 +477,70 @@ export async function deletePublisherOfTheWeekByWeekStart(weekStart: Date) {
   } catch (e) {
     console.error("deletePublisherOfTheWeekByWeek", e);
     return err({ reason: "Failed to delete publisher of the week" });
+  }
+}
+
+function shuffle<T>(items: T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+export async function randomizeBooksOfTheDayForWeek(weekStart: Date) {
+  const days = getWeekDays(weekStart);
+  const existing = await db.query.bookOfTheDay.findMany({
+    columns: { date: true },
+    where: inArray(
+      bookOfTheDay.date,
+      days.map((day) => toUtcStartOfDay(day)),
+    ),
+  });
+  const scheduledDates = new Set(
+    existing.map((entry) => toDateString(entry.date)),
+  );
+  const emptyDays = days.filter(
+    (day) => !scheduledDates.has(toDateString(day)),
+  );
+
+  if (emptyDays.length === 0) {
+    return err({
+      reason: "This week already has Books of the Day scheduled for every day",
+    });
+  }
+
+  const availableBooks = await getAllBooksForBOTD();
+  if (availableBooks.length < emptyDays.length) {
+    return err({
+      reason: `Not enough books available (${availableBooks.length} available, ${emptyDays.length} days to fill)`,
+    });
+  }
+
+  const pickedBooks = shuffle(availableBooks).slice(0, emptyDays.length);
+  const assignments = emptyDays.map((day, index) => ({
+    date: toUtcStartOfDay(day),
+    bookId: pickedBooks[index].id,
+  }));
+
+  try {
+    const rows = await db.transaction(async (tx) => {
+      const inserted = [];
+      for (const assignment of assignments) {
+        const [row] = await tx
+          .insert(bookOfTheDay)
+          .values(assignment)
+          .returning();
+        if (!row) throw new Error("Failed to insert book of the day");
+        inserted.push(row);
+      }
+      return inserted;
+    });
+    return ok({ scheduled: rows.length });
+  } catch (e) {
+    console.error("randomizeBooksOfTheDayForWeek", e);
+    return err({ reason: "Failed to schedule random Books of the Day" });
   }
 }
 
