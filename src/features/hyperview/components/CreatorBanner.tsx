@@ -136,7 +136,7 @@ export const creatorBannerStyles = () => (
       alignItems="center"
     />
     <Style id="follow-label" fontSize={14} fontWeight="600" color="#fbfaf7" />
-    <Style id="creator-bio" padding={12} flexDirection="column" gap={16} />
+    <Style id="creator-bio" flexDirection="column" gap={16} />
     <Style
       id="creator-bio-text"
       fontSize={13}
