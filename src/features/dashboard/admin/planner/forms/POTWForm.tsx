@@ -12,6 +12,7 @@ type Props = {
     id: string;
     label: string;
     img?: string | null;
+    verified?: boolean;
   }[];
   week: string;
 };
@@ -40,7 +41,6 @@ const POTWForm = ({ formValues, options, week }: Props) => {
         options={options}
         name="form.creatorId"
         label="Publisher"
-        initialSelectedId={formValues?.creatorId}
         required
       />
       <input type="hidden" name="weekStart" value={week} />

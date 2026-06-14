@@ -17,6 +17,7 @@ const SchedulePublisherOfTheWeekModal = async ({ week, formValues }: Props) => {
     id: c.id,
     label: c.displayName,
     img: c.coverUrl ?? null,
+    verified: c.status === "verified",
   }));
 
   return (
