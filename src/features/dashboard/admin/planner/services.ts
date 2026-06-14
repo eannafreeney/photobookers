@@ -497,6 +497,15 @@ export async function randomizeBooksOfTheDayForWeek(weekStart: Date) {
       bookOfTheDay.date,
       days.map((day) => toUtcStartOfDay(day)),
     ),
+    with: {
+      book: {
+        columns: { id: true },
+        with: {
+          artist: { columns: { id: true } },
+          publisher: { columns: { id: true } },
+        },
+      },
+    },
   });
   const scheduledDates = new Set(
     existing.map((entry) => toDateString(entry.date)),
@@ -511,14 +520,40 @@ export async function randomizeBooksOfTheDayForWeek(weekStart: Date) {
     });
   }
 
-  const availableBooks = await getAllBooksForBOTD();
-  if (availableBooks.length < emptyDays.length) {
-    return err({
-      reason: `Not enough books available (${availableBooks.length} available, ${emptyDays.length} days to fill)`,
-    });
+  const usedArtistIds = new Set<string>();
+  const usedPublisherIds = new Set<string>();
+  for (const entry of existing) {
+    const artistId = entry.book?.artist?.id;
+    const publisherId = entry.book?.publisher?.id;
+    if (artistId) usedArtistIds.add(artistId);
+    if (publisherId) usedPublisherIds.add(publisherId);
   }
 
-  const pickedBooks = shuffle(availableBooks).slice(0, emptyDays.length);
+  const availableBooks = await getAllBooksForBOTD();
+  const remaining = shuffle(availableBooks);
+  const pickedBooks: (typeof availableBooks)[number][] = [];
+
+  for (const _day of emptyDays) {
+    const index = remaining.findIndex((book) => {
+      const artistId = book.artist?.id;
+      const publisherId = book.publisher?.id;
+      return (
+        (!artistId || !usedArtistIds.has(artistId)) &&
+        (!publisherId || !usedPublisherIds.has(publisherId))
+      );
+    });
+    if (index === -1) {
+      const remainingCount = emptyDays.length - pickedBooks.length;
+      return err({
+        reason: `Not enough books with unique artists and publishers to fill ${remainingCount} open day${remainingCount === 1 ? "" : "s"} in this week`,
+      });
+    }
+    const [book] = remaining.splice(index, 1);
+    pickedBooks.push(book);
+    if (book.artist?.id) usedArtistIds.add(book.artist.id);
+    if (book.publisher?.id) usedPublisherIds.add(book.publisher.id);
+  }
+
   const assignments = emptyDays.map((day, index) => ({
     date: toUtcStartOfDay(day),
     bookId: pickedBooks[index].id,
