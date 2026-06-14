@@ -11,6 +11,7 @@ import { Creator } from "../../../db/schema";
 import { AuthUser } from "../../../../types";
 import { creatorUrl } from "../spotlightUrls";
 import { creatorShareText } from "../../../lib/share";
+import ExpandableDescription from "./ExpandableDescription";
 
 export type CreatorBooksResult = {
   creator: Creator;
@@ -62,6 +63,18 @@ const CreatorDetail = ({
 
 export default CreatorDetail;
 
+const CreatorBio = ({
+  creator,
+  maxWords = 75,
+}: {
+  creator: Creator;
+  maxWords?: number;
+}) => {
+  const bio = creator.bio?.trim() || null;
+  if (!bio) return null;
+  return <ExpandableDescription text={bio} maxWords={maxWords} />;
+};
+
 type CreatorDetailMobileProps = {
   creator: Creator;
   user: AuthUser | null;
@@ -93,6 +106,7 @@ const CreatorDetailMobile = ({
       bannerUrl={creator.bannerUrl}
       displayName={creator.displayName}
     />
+    <CreatorBio creator={creator} maxWords={25} />
     <Tabs defaultTab="books">
       <Tabs.LinkContainer>
         <Tabs.Link tabId="books">Books</Tabs.Link>
@@ -184,6 +198,7 @@ const CreatorDetailDesktop = ({
       />
       <div class="flex gap-4">
         <div class="md:w-4/5 flex flex-col gap-4">
+          <CreatorBio creator={creator} />
           <Tabs defaultTab="books">
             <Tabs.LinkContainer align="left">
               <Tabs.Link tabId="books">Books</Tabs.Link>
