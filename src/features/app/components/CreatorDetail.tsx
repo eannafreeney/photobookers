@@ -185,12 +185,21 @@ const CreatorDetailDesktop = ({
   return (
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4">
-        <span class="kicker text-accent">
-          {creator.type === "publisher" ? "Publisher" : "Artist"}
-        </span>
-        <h1 class="font-display text-4xl md:text-6xl font-medium leading-tight text-on-surface-strong text-balance">
-          {creator.displayName}
-        </h1>
+        <div class="flex items-end justify-between">
+          <span class="kicker text-accent">
+            {creator.type === "publisher" ? "Publisher" : "Artist"}
+          </span>
+          <h1 class="font-display text-4xl md:text-6xl font-medium leading-tight text-on-surface-strong text-balance">
+            {creator.displayName}
+          </h1>
+        </div>
+        <div>
+          <ShareButton
+            title={creator.displayName}
+            text={creatorShareText(creator)}
+            url={creatorUrl(creator.slug)}
+          />
+        </div>
       </div>
       <CreatorPageBanner
         bannerUrl={creator.bannerUrl}
@@ -241,11 +250,6 @@ const CreatorDetailDesktop = ({
               user={user}
               title="About"
               shouldRefreshCreatorMessages
-            />
-            <ShareButton
-              title={creator.displayName}
-              text={creatorShareText(creator)}
-              url={creatorUrl(creator.slug)}
             />
           </div>
         </div>

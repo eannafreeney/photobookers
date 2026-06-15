@@ -1,10 +1,7 @@
 import { createRoute } from "hono-fsr";
 import { getUser } from "../../utils";
 import Page from "../../components/layouts/Page";
-import BooksGrid from "../../features/app/components/BooksGrid";
-import BookFilters, {
-  BOOKS_CATALOG_TARGET_ID,
-} from "../../features/app/components/BookFilters";
+import { BOOKS_CATALOG_TARGET_ID } from "../../features/app/components/BookFilters";
 import AppLayout from "../../components/layouts/AppLayout";
 import { getFilteredBooks } from "../../features/app/services";
 import PageHeader from "../../components/app/PageHeader";
