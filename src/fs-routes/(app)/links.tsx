@@ -7,6 +7,7 @@ import { getTodaysBookOfTheDay } from "../../features/app/BOTDServices";
 import { getThisWeeksArtistOfTheWeek } from "../../features/app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../features/app/POTWServices";
 import { canonicalUrl, pageTitle, truncateDescription } from "../../lib/seo";
+import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -63,13 +64,16 @@ export const GET = createRoute(async (c) => {
     //     url: canonicalUrl(c.req.url, "/links"),
     //   }}
     // >
-    <Page>
-      <LinksPage
-        bookOfTheDay={botd}
-        artistOfTheWeek={artist}
-        publisherOfTheWeek={publisher}
-      />
-    </Page>,
+    <HeadlessLayout title={title} description={description}>
+      <Page>
+        <LinksPage
+          bookOfTheDay={botd}
+          artistOfTheWeek={artist}
+          publisherOfTheWeek={publisher}
+        />
+      </Page>
+      ,
+    </HeadlessLayout>,
     // </AppLayout>,
   );
 });
