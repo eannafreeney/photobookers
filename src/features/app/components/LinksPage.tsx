@@ -1,5 +1,6 @@
 import SpotlightCard from "../../../components/app/SpotlightCard";
 import SectionTitle from "../../../components/app/SectionTitle";
+import Button from "../../../components/app/Button";
 import { formatCountry } from "../../../lib/utils";
 import { BookOfTheDayWithBook } from "../BOTDServices";
 import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
@@ -119,6 +120,14 @@ const LinksPage = ({
           />
         </section>
       ) : null}
+
+      <div class="flex justify-center pt-2">
+        <a href="/featured">
+          <Button variant="solid" color="primary" width="md">
+            Visit Photobookers
+          </Button>
+        </a>
+      </div>
     </div>
   );
 };

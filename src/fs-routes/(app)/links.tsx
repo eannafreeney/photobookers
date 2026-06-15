@@ -51,19 +51,6 @@ export const GET = createRoute(async (c) => {
   }
 
   return c.html(
-    // <AppLayout
-    //   title={title}
-    //   description={description}
-    //   canonicalUrl={canonicalUrl(c.req.url, "/links")}
-    //   user={user}
-    //   currentPath={currentPath}
-    //   shareOg={{
-    //     title,
-    //     description,
-    //     image: shareImage,
-    //     url: canonicalUrl(c.req.url, "/links"),
-    //   }}
-    // >
     <HeadlessLayout
       title={title}
       description={description}
@@ -79,6 +66,5 @@ export const GET = createRoute(async (c) => {
       </Page>
       ,
     </HeadlessLayout>,
-    // </AppLayout>,
   );
 });
