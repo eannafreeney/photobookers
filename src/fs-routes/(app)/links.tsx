@@ -64,7 +64,12 @@ export const GET = createRoute(async (c) => {
     //     url: canonicalUrl(c.req.url, "/links"),
     //   }}
     // >
-    <HeadlessLayout title={title} description={description}>
+    <HeadlessLayout
+      title={title}
+      description={description}
+      showNavbar={false}
+      showFooter={false}
+    >
       <Page>
         <LinksPage
           bookOfTheDay={botd}

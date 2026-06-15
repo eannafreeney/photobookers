@@ -11,6 +11,8 @@ type LayoutProps = PropsWithChildren<{
   description?: string;
   flash?: Flash | null;
   noIndex?: boolean;
+  showNavbar?: boolean;
+  showFooter?: boolean;
 }>;
 
 const HeadlessLayout = ({
@@ -19,15 +21,17 @@ const HeadlessLayout = ({
   children,
   flash,
   noIndex = true,
+  showNavbar = true,
+  showFooter = true,
 }: LayoutProps) => (
   <html lang="en">
     <Head title={title} description={description} noIndex={noIndex} />
     <body class="bg-surface">
       {flash && <Alert type={flash.type} message={flash.message} />}
       <ToastContainer />
-      <Navbar />
+      {showNavbar && <Navbar />}
       <main class="container mx-auto min-h-screen px-4">{children}</main>
-      <Footer />
+      {showFooter && <Footer />}
     </body>
   </html>
 );
