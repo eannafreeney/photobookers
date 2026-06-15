@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { bufferCreateScheduledImagePost } from "./buffer";
+import {
+  bufferCreateScheduledImagePost,
+  bufferCreateScheduledStory,
+} from "./buffer";
 
 describe("bufferCreateScheduledImagePost", () => {
   const originalFetch = globalThis.fetch;
@@ -89,5 +92,66 @@ describe("bufferCreateScheduledImagePost", () => {
 
     expect(error?.reason).toContain("Buffer API error (400)");
     expect(error?.reason).toContain("Bad Request");
+  });
+});
+
+describe("bufferCreateScheduledStory", () => {
+  const originalFetch = globalThis.fetch;
+
+  beforeEach(() => {
+    process.env.BUFFER_ACCESS_TOKEN = "test-token";
+    process.env.BUFFER_INSTAGRAM_CHANNEL_ID = "channel-123";
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    delete process.env.BUFFER_ACCESS_TOKEN;
+    delete process.env.BUFFER_INSTAGRAM_CHANNEL_ID;
+  });
+
+  it("schedules notification-based Instagram stories with sticker text", async () => {
+    const fetchMock = vi.fn(async (_url, init) => {
+      const body = JSON.parse(String(init?.body));
+      expect(body.variables.input).toMatchObject({
+        text: "Book of the Day\n\nLink in bio →",
+        schedulingType: "notification",
+        mode: "customScheduled",
+        dueAt: "2026-06-01T10:00:00.000Z",
+        assets: [{ image: { url: "https://cdn.example.com/cover.jpg" } }],
+        metadata: {
+          instagram: {
+            type: "story",
+            stickerFields: {
+              text: "Book of the Day\n\nLink in bio →",
+              other: "Link sticker: https://www.photobookers.com/links",
+            },
+          },
+        },
+      });
+
+      return new Response(
+        JSON.stringify({
+          data: {
+            createPost: {
+              __typename: "PostActionSuccess",
+              post: { id: "story-abc" },
+            },
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    const [error, result] = await bufferCreateScheduledStory({
+      stickerText: "Book of the Day\n\nLink in bio →",
+      imageUrl: "https://cdn.example.com/cover.jpg",
+      dueAt: new Date("2026-06-01T10:00:00.000Z"),
+      linkReminder: "Link sticker: https://www.photobookers.com/links",
+    });
+
+    expect(error).toBeNull();
+    expect(result).toEqual({ postId: "story-abc" });
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 });

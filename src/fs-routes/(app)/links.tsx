@@ -50,26 +50,26 @@ export const GET = createRoute(async (c) => {
   }
 
   return c.html(
-    <AppLayout
-      title={title}
-      description={description}
-      canonicalUrl={canonicalUrl(c.req.url, "/links")}
-      user={user}
-      currentPath={currentPath}
-      shareOg={{
-        title,
-        description,
-        image: shareImage,
-        url: canonicalUrl(c.req.url, "/links"),
-      }}
-    >
-      <Page>
-        <LinksPage
-          bookOfTheDay={botd}
-          artistOfTheWeek={artist}
-          publisherOfTheWeek={publisher}
-        />
-      </Page>
-    </AppLayout>,
+    // <AppLayout
+    //   title={title}
+    //   description={description}
+    //   canonicalUrl={canonicalUrl(c.req.url, "/links")}
+    //   user={user}
+    //   currentPath={currentPath}
+    //   shareOg={{
+    //     title,
+    //     description,
+    //     image: shareImage,
+    //     url: canonicalUrl(c.req.url, "/links"),
+    //   }}
+    // >
+    <Page>
+      <LinksPage
+        bookOfTheDay={botd}
+        artistOfTheWeek={artist}
+        publisherOfTheWeek={publisher}
+      />
+    </Page>,
+    // </AppLayout>,
   );
 });

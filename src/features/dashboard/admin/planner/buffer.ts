@@ -34,20 +34,26 @@ function summarizeBufferResponseBody(
   return `Buffer API error (${status})`;
 }
 
-export async function bufferCreateScheduledImagePost(params: {
-  text: string;
-  imageUrl: string;
-  dueAt: Date;
-  firstComment?: string;
-}): Promise<Result<{ postId: string }, { reason: string }>> {
+function getBufferConfig(): Result<
+  { accessToken: string; channelId: string },
+  { reason: string }
+> {
   const accessToken = process.env.BUFFER_ACCESS_TOKEN?.trim();
   const channelId = process.env.BUFFER_INSTAGRAM_CHANNEL_ID?.trim();
   if (!accessToken || !channelId) {
     return err({ reason: "Buffer is not configured" });
   }
+  return ok({ accessToken, channelId });
+}
+
+async function bufferCreatePost(
+  input: Record<string, unknown>,
+): Promise<Result<{ postId: string }, { reason: string }>> {
+  const [configError, config] = getBufferConfig();
+  if (configError) return err(configError);
 
   const mutation = `
-    mutation CreateBotdInstagramPost($input: CreatePostInput!) {
+    mutation CreateInstagramPost($input: CreatePostInput!) {
       createPost(input: $input) {
         __typename
         ... on PostActionSuccess {
@@ -67,27 +73,14 @@ export async function bufferCreateScheduledImagePost(params: {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${config.accessToken}`,
     },
     body: JSON.stringify({
       query: mutation,
       variables: {
         input: {
-          text: params.text,
-          channelId,
-          schedulingType: "automatic",
-          mode: "customScheduled",
-          dueAt: params.dueAt.toISOString(),
-          assets: [{ image: { url: params.imageUrl } }],
-          metadata: {
-            instagram: {
-              type: "post",
-              shouldShareToFeed: true,
-              ...(params.firstComment
-                ? { firstComment: params.firstComment }
-                : {}),
-            },
-          },
+          channelId: config.channelId,
+          ...input,
         },
       },
     }),
@@ -130,4 +123,52 @@ export async function bufferCreateScheduledImagePost(params: {
   }
 
   return ok({ postId });
+}
+
+export async function bufferCreateScheduledImagePost(params: {
+  text: string;
+  imageUrl: string;
+  dueAt: Date;
+  firstComment?: string;
+}): Promise<Result<{ postId: string }, { reason: string }>> {
+  return bufferCreatePost({
+    text: params.text,
+    schedulingType: "automatic",
+    mode: "customScheduled",
+    dueAt: params.dueAt.toISOString(),
+    assets: [{ image: { url: params.imageUrl } }],
+    metadata: {
+      instagram: {
+        type: "post",
+        shouldShareToFeed: true,
+        ...(params.firstComment
+          ? { firstComment: params.firstComment }
+          : {}),
+      },
+    },
+  });
+}
+
+export async function bufferCreateScheduledStory(params: {
+  stickerText: string;
+  imageUrl: string;
+  dueAt: Date;
+  linkReminder?: string;
+}): Promise<Result<{ postId: string }, { reason: string }>> {
+  return bufferCreatePost({
+    text: params.stickerText,
+    schedulingType: "notification",
+    mode: "customScheduled",
+    dueAt: params.dueAt.toISOString(),
+    assets: [{ image: { url: params.imageUrl } }],
+    metadata: {
+      instagram: {
+        type: "story",
+        stickerFields: {
+          text: params.stickerText,
+          ...(params.linkReminder ? { other: params.linkReminder } : {}),
+        },
+      },
+    },
+  });
 }

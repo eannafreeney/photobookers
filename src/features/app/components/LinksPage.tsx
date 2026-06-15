@@ -20,13 +20,15 @@ const LinksPage = ({
   artistOfTheWeek,
   publisherOfTheWeek,
 }: Props) => {
-  const hasContent =
-    bookOfTheDay || artistOfTheWeek || publisherOfTheWeek;
+  const hasContent = bookOfTheDay || artistOfTheWeek || publisherOfTheWeek;
 
   return (
     <div class="mx-auto flex w-full max-w-md flex-col gap-8">
-      <header class="flex flex-col items-center gap-2 border-b-2 border-on-surface-strong pb-6 text-center">
-        <a href="/featured" class="kicker text-accent transition-opacity hover:opacity-80">
+      <header class="flex flex-col items-center gap-2 border-b-2 border-t-2 border-on-surface-strong py-6 text-center">
+        <a
+          href="/featured"
+          class="kicker text-accent transition-opacity hover:opacity-80"
+        >
           Photobookers
         </a>
         <h1 class="text-balance font-display text-2xl font-medium leading-tight text-on-surface-strong">

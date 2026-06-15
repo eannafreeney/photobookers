@@ -5,6 +5,7 @@ import {
   buildDefaultInstagramCaption,
   buildDefaultInstagramFirstComment,
   buildDefaultPublisherInstagramCaption,
+  buildStoryStickerText,
   collectBookImageOptions,
   ensureBookTagsInCaption,
   formatInstagramHandle,
@@ -134,6 +135,38 @@ describe("instagram caption helpers", () => {
       "https://example.com/cover.jpg",
       "https://example.com/page1.jpg",
     ]);
+  });
+
+  it("adds a mention block before link in bio for story stickers", () => {
+    const stickerText = buildStoryStickerText(
+      "Book of the Day\n\nWinter Light\n\nLink in bio →",
+      [
+        {
+          displayName: "Jane Doe",
+          instagram: "@janedoe",
+          role: "artist",
+        },
+        {
+          displayName: "Acme Press",
+          instagram: "acmepress",
+          role: "publisher",
+        },
+      ],
+    );
+
+    expect(stickerText).toContain("Mention:");
+    expect(stickerText).toContain("@janedoe (artist) — Jane Doe");
+    expect(stickerText).toContain("@acmepress (publisher) — Acme Press");
+    expect(stickerText.indexOf("Mention:")).toBeLessThan(
+      stickerText.indexOf("Link in bio"),
+    );
+  });
+
+  it("omits mention block when no handles are available", () => {
+    const caption = "Artist of the Week\n\nLink in bio →";
+    expect(
+      buildStoryStickerText(caption, [{ displayName: "Jane Doe" }]),
+    ).toBe(caption);
   });
 });
 

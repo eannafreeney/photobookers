@@ -25,7 +25,7 @@ export const POST = createRoute(paramValidator(weekQuerySchema), async (c) => {
     <>
       <Alert
         type="success"
-        message={`Cleared Instagram plan for ${result.cleared} post${result.cleared === 1 ? "" : "s"}. Remove any posts already in Buffer manually if needed.`}
+        message={`Cleared Instagram plan for ${result.cleared} item${result.cleared === 1 ? "" : "s"}. Remove any feed posts or stories already in Buffer manually if needed.`}
       />
       {dispatchEvents(["planner:updated"])}
     </>,

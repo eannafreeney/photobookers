@@ -128,6 +128,52 @@ export function ensureBookTagsInCaption(
   return `${trimmed}\n\n${tagLine}`;
 }
 
+export type InstagramMention = {
+  displayName: string;
+  instagram?: string | null;
+  role?: string;
+};
+
+/** Story sticker text with a dedicated mention block for manual @ tagging in Instagram. */
+export function buildStoryStickerText(
+  caption: string,
+  mentions: InstagramMention[],
+): string {
+  const trimmed = caption.trim();
+  const mentionLines = mentions
+    .map((mention) => {
+      const handle = formatInstagramHandle(mention.instagram);
+      if (!handle) return null;
+      const roleLabel = mention.role ? ` (${mention.role})` : "";
+      return `${handle}${roleLabel} — ${mention.displayName}`;
+    })
+    .filter((line): line is string => Boolean(line));
+
+  if (mentionLines.length === 0) return trimmed;
+
+  const mentionBlock = ["", "Mention:", ...mentionLines].join("\n");
+  const linkMarker = "Link in bio";
+  const linkIdx = trimmed.indexOf(linkMarker);
+  if (linkIdx >= 0) {
+    const before = trimmed.slice(0, linkIdx).trimEnd();
+    const after = trimmed.slice(linkIdx).trim();
+    return `${before}${mentionBlock}\n\n${after}`;
+  }
+
+  return `${trimmed}${mentionBlock}`;
+}
+
+export function buildBotdStoryMentions(book: BookForCaption): InstagramMention[] {
+  const mentions: InstagramMention[] = [];
+  if (book.artist) {
+    mentions.push({ ...book.artist, role: "artist" });
+  }
+  if (book.publisher) {
+    mentions.push({ ...book.publisher, role: "publisher" });
+  }
+  return mentions;
+}
+
 export function buildBotdInstagramCaption(
   book: BookForCaption,
   storedCaption?: string | null,
