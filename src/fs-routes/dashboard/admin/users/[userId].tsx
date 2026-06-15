@@ -16,6 +16,7 @@ import InfoPage from "../../../../pages/InfoPage";
 import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
+import ResetUserPasswordButton from "../../../../features/dashboard/admin/users/components/ResetUserPasswordButton";
 
 export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
   const userId = c.req.valid("param").userId;
@@ -37,6 +38,9 @@ export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
     <AppLayout title="Admin Dashboard" user={sessionUser}>
       <Page>
         <PageTitle title={viewedUser?.email} user={sessionUser} />
+        <div class="mb-6 flex flex-wrap items-center gap-3">
+          <ResetUserPasswordButton userId={userId} />
+        </div>
         <div>
           <div>
             <span>Email:</span>

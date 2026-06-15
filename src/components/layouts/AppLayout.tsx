@@ -54,7 +54,7 @@ const AppLayout = ({
           user={user}
           adminEditHref={adminEditHref}
         />
-        <AppStoreBanner />
+        {/* <AppStoreBanner /> */}
         <div
           class="pb-0"
           x-data="{

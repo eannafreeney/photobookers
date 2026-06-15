@@ -186,6 +186,39 @@ export const createAuthUser = async (
   }
 };
 
+export const resetUserPasswordAdmin = async (userId: string) => {
+  try {
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { id: true, email: true },
+    });
+    if (!user) return err({ reason: "User not found" });
+
+    const temporaryPassword = crypto.randomUUID();
+
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      { password: temporaryPassword },
+    );
+    if (authError) {
+      return err({
+        reason: "Failed to reset auth password",
+        cause: authError,
+      });
+    }
+
+    await db
+      .update(users)
+      .set({ mustResetPassword: true, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+
+    return ok({ email: user.email, temporaryPassword });
+  } catch (error) {
+    console.error("Failed to reset user password", error);
+    return err({ reason: "Failed to reset user password", cause: error });
+  }
+};
+
 export const getUserByIdBasic = async (id: string) => {
   try {
     const user = await db.query.users.findFirst({

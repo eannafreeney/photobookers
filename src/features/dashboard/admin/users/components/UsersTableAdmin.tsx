@@ -9,6 +9,7 @@ import CreatorStatusBadge from "../../components/CreatorStatusBadge";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import FormDelete from "../../../../../components/forms/FormDelete";
 import { deleteIcon } from "../../../../../lib/icons";
+import ResetUserPasswordButton from "./ResetUserPasswordButton";
 
 type Props = {
   searchQuery?: string;
@@ -129,11 +130,14 @@ const UserTableRow = ({ user }: RowProps) => {
         </Link>
       </Table.BodyRow>
       <Table.BodyRow>
-        <Link href={`/dashboard/admin/users/${user.id}`}>
-          <Button variant="outline" color="inverse">
-            <span>View</span>
-          </Button>
-        </Link>
+        <div class="flex flex-wrap items-center gap-2">
+          <Link href={`/dashboard/admin/users/${user.id}`}>
+            <Button variant="outline" color="inverse">
+              <span>View</span>
+            </Button>
+          </Link>
+          <ResetUserPasswordButton userId={user.id} />
+        </div>
       </Table.BodyRow>
       <Table.BodyRow>
         <FormDelete
