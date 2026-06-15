@@ -182,7 +182,7 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
         subject={params.subject}
         weekLabel={formatNewsletterWeekRange(params.weekStart, params.weekEnd)}
       />
-      <NewsletterIntro introText={params.introText} />
+      {/* <NewsletterIntro introText={params.introText} /> */}
 
       {params.items.length > 0 ? (
         <SectionHeading kicker="Daily picks">Books of the day</SectionHeading>

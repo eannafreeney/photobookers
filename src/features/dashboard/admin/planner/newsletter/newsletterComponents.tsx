@@ -233,7 +233,7 @@ export const NewsletterFooter = () => (
         borderColor={brand.outlineStrong}
         padding="24px 25px 0"
       />
-      <NewsletterLogo padding="20px 25px 12px" />
+      {/* <NewsletterLogo padding="20px 25px 12px" /> */}
       <MjmlText
         align="center"
         fontSize="14px"
