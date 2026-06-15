@@ -66,29 +66,9 @@ export const GET = createRoute(async (c: Context) => {
 const Slogan = () => (
   <div class="flex flex-col items-center gap-4 py-8 text-center border-y border-outline">
     <span class="kicker text-accent">Photobookers</span>
-    <div class="font-display text-3xl md:text-5xl font-medium text-on-surface-strong text-balance leading-tight">
-      The{" "}
-      <span
-        x-data={`{
-              words: ['community', 'social network', 'archive', 'home'],
-              current: 0,
-              visible: true,
-               init() {
-                setInterval(() => {
-                  this.visible = false
-                  setTimeout(() => {
-                    this.current = (this.current + 1) % this.words.length
-                    this.visible = true
-                  }, 300)
-                }, 2500)
-              }
-            }`}
-        x-text="words[current]"
-        x-bind:class="visible ? 'opacity-100' : 'opacity-0'"
-        class="border-b-2 border-accent inline-block transition-opacity duration-300 italic"
-      />{" "}
-      for photobook lovers.
-    </div>
+    <h1 class="font-display text-3xl md:text-5xl font-medium text-on-surface-strong text-balance leading-tight max-w-3xl">
+      Every photobook, artist, and publisher — in one place.
+    </h1>
     <p class="max-w-xl text-sm md:text-base text-on-surface text-pretty">
       Browse a growing archive of photobooks, follow the artists and publishers
       behind them, and never miss a new release.

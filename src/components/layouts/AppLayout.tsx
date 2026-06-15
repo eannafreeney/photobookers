@@ -23,6 +23,7 @@ type LayoutProps = PropsWithChildren<{
   isPreview?: boolean;
   adminEditHref?: string;
   shareOg?: ShareOgMeta;
+  jsonLd?: Record<string, unknown>;
 }>;
 
 const AppLayout = ({
@@ -37,6 +38,7 @@ const AppLayout = ({
   isPreview = false,
   adminEditHref,
   shareOg,
+  jsonLd,
 }: LayoutProps) => (
   <html lang="en">
     <Head
@@ -45,6 +47,7 @@ const AppLayout = ({
       canonicalUrl={canonicalUrl}
       noIndex={noIndex ?? currentPath?.startsWith("/dashboard")}
       shareOg={shareOg}
+      jsonLd={jsonLd}
     />
     <body class="bg-surface">
       <UserProvider user={user}>

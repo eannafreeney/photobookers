@@ -130,7 +130,7 @@ const UserTableRow = ({ user }: RowProps) => {
         </Link>
       </Table.BodyRow>
       <Table.BodyRow>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center gap-2">
           <Link href={`/dashboard/admin/users/${user.id}`}>
             <Button variant="outline" color="inverse">
               <span>View</span>

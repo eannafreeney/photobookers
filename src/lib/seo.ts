@@ -1,3 +1,5 @@
+import { BookWithGalleryImages } from "../features/app/types";
+
 export const SITE_NAME = "photobookers";
 
 export const DEFAULT_DESCRIPTION =
@@ -53,4 +55,56 @@ export function creatorDescription(creator: {
   return truncateDescription(
     `Explore photobooks by ${creator.displayName}, a ${label} on photobookers.`,
   );
+}
+
+export function tagDescription(tagLabel: string): string {
+  return truncateDescription(
+    `Browse ${tagLabel.toLowerCase()} photobooks on Photobookers — discover titles, artists, and publishers in one place.`,
+  );
+}
+
+type BookJsonLdInput = {
+  title: string;
+  description?: string | null;
+  slug: string;
+  coverUrl?: string | null;
+  canonicalUrl: string;
+  artist?: { displayName: string } | null;
+  publisher?: { displayName: string } | null;
+};
+
+export function buildBookJsonLd(
+  book: BookWithGalleryImages,
+  canonicalUrl: string,
+) {
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    name: book.title,
+    url: canonicalUrl,
+  };
+
+  if (book.description) {
+    jsonLd.description = truncateDescription(book.description, 500);
+  }
+
+  if (book.coverUrl) {
+    jsonLd.image = book.coverUrl;
+  }
+
+  if (book.artist?.displayName) {
+    jsonLd.author = {
+      "@type": "Person",
+      name: book.artist.displayName,
+    };
+  }
+
+  if (book.publisher?.displayName) {
+    jsonLd.publisher = {
+      "@type": "Organization",
+      name: book.publisher.displayName,
+    };
+  }
+
+  return jsonLd;
 }

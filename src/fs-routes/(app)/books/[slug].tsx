@@ -12,6 +12,7 @@ import { BookDetailContext } from "../../../features/app/types";
 import {
   bookDescription,
   bookPageTitle,
+  buildBookJsonLd,
   canonicalUrl,
 } from "../../../lib/seo";
 
@@ -64,6 +65,7 @@ export const GET = createRoute(
           image: book.coverUrl ?? undefined,
           url: bookCanonicalUrl,
         }}
+        jsonLd={buildBookJsonLd(book, bookCanonicalUrl)}
       >
         <Page>
           <BookDetail

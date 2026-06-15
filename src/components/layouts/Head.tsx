@@ -14,6 +14,7 @@ type HeadProps = {
   canonicalUrl?: string;
   noIndex?: boolean;
   shareOg?: ShareOgMeta;
+  jsonLd?: Record<string, unknown>;
 };
 
 const Head = ({
@@ -22,6 +23,7 @@ const Head = ({
   canonicalUrl,
   noIndex = false,
   shareOg,
+  jsonLd,
 }: HeadProps) => {
   const hasBuiltAssets =
     existsSync("./dist/client/main.js") &&
@@ -55,6 +57,12 @@ const Head = ({
       {noIndex ? <meta name="robots" content="noindex, nofollow" /> : null}
       {description ? <meta name="description" content={description} /> : null}
       {canonicalUrl ? <link rel="canonical" href={canonicalUrl} /> : null}
+      {jsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      ) : null}
       {showSocialTags ? (
         <>
           <meta property="og:title" content={ogTitle} />

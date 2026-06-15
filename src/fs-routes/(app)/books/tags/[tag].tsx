@@ -11,7 +11,7 @@ import { getFilteredBooks } from "../../../../features/app/services";
 import InfoPage from "../../../../pages/InfoPage";
 import { BookTagContext } from "../../../../features/app/types";
 import PageHeader from "../../../../components/app/PageHeader";
-import { canonicalUrl, pageTitle } from "../../../../lib/seo";
+import { canonicalUrl, pageTitle, tagDescription } from "../../../../lib/seo";
 import { booksFilterUrl, slugToTag } from "../../../../lib/tags";
 
 export const GET = createRoute(
@@ -36,7 +36,7 @@ export const GET = createRoute(
 
     const tagLabel = capitalize(tag);
     const title = pageTitle(`# ${tagLabel}`);
-    const description = `Browse photobooks tagged ${tagLabel} on photobookers.`;
+    const description = tagDescription(tagLabel);
 
     return c.html(
       <AppLayout

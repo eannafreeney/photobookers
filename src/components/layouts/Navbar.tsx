@@ -29,28 +29,18 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
         <BrandLogo />
         <div class="hidden md:flex items-center gap-4">
           <AdminEditButton href={adminEditHref} user={user} />
-          {user && (
-            <>
-              <NavLink href="/featured" currentPath={currentPath} variant="nav">
-                Discover
-              </NavLink>
-              <NavLink href="/feed" currentPath={currentPath} variant="nav">
-                Feed
-              </NavLink>
-              <NavLink href="/library" currentPath={currentPath} variant="nav">
-                Library
-              </NavLink>
-              <FeatureGuard flagName="messages">
-                <NavLink
-                  href="/messages"
-                  currentPath={currentPath}
-                  variant="nav"
-                >
-                  Messages
-                </NavLink>
-              </FeatureGuard>
-            </>
-          )}
+          <NavLink href="/books" currentPath={currentPath} variant="nav">
+            Books
+          </NavLink>
+          <NavLink href="/feed" currentPath={currentPath} variant="nav">
+            Feed
+          </NavLink>
+          <NavLink href="/library" currentPath={currentPath} variant="nav">
+            Library
+          </NavLink>
+          <NavLink href="/messages" currentPath={currentPath} variant="nav">
+            Messages
+          </NavLink>
           <NavSearch />
           <NavDesktopMenu currentPath={currentPath} />
         </div>
