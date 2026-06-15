@@ -1,3 +1,9 @@
+import { creatorUrl } from "../features/app/spotlightUrls";
+
+type CreatorProfileShareFields = CreatorShareFields & {
+  slug: string;
+};
+
 type BookShareFields = {
   title: string;
   artist?: { displayName: string } | null;
@@ -7,6 +13,27 @@ type CreatorShareFields = {
   displayName: string;
   type?: string | null;
 };
+
+export function creatorProfileUrl(slug: string): string {
+  return creatorUrl(slug);
+}
+
+export function creatorVerifiedSharePost(
+  creator: CreatorProfileShareFields,
+): string {
+  const label = creator.type === "publisher" ? "publisher" : "artist";
+  const profileUrl = creatorProfileUrl(creator.slug);
+  return `I'm on Photobookers — a place to discover photobooks and follow the artists and publishers behind them.
+Find my ${label} profile and books here:
+${profileUrl}`;
+}
+
+export function creatorVerifiedSharePostHtml(
+  creator: CreatorProfileShareFields,
+): string {
+  const post = creatorVerifiedSharePost(creator);
+  return `<pre style="white-space:pre-wrap;font-family:inherit;background:#f5f5f5;padding:12px;border-radius:4px">${post.replace(/</g, "&lt;")}</pre>`;
+}
 
 export function bookShareTitle(book: BookShareFields): string {
   if (book.artist?.displayName) {

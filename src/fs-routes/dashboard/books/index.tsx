@@ -18,6 +18,7 @@ import NavTabs from "../../../features/dashboard/books/components/NavTabs";
 import { getPendingClaim } from "../../../features/claims/services";
 import Banner from "../../../components/app/Banner";
 import FormPost from "../../../components/forms/FormPost";
+import VerifiedCreatorShareBanner from "../../../features/dashboard/books/components/VerifiedCreatorShareBanner";
 
 export const GET = createRoute(async (c: Context) => {
   const searchQuery = c.req.query("search");
@@ -61,6 +62,9 @@ export const GET = createRoute(async (c: Context) => {
         claimStatus={claim?.status}
         creatorStatus={user.creator.status ?? "stub"}
       />
+      {user.creator.status === "verified" && (
+        <VerifiedCreatorShareBanner creator={user.creator} />
+      )}
       <Page>
         <Breadcrumbs
           items={[

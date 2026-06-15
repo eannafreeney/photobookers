@@ -4,12 +4,20 @@ import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/service
 import { verifyOtpForClaimSignup } from "../auth/services";
 import { isSameDomain, normalizeUrl } from "../../services/verification";
 import { createClaimWithStatus } from "./services";
-import { emailMatchesWebsite } from "./utils";
+import {
+  type ClaimApprovalEmailUser,
+  emailMatchesWebsite,
+  sendCreatorVerifiedEmail,
+} from "./utils";
 import type { registerAndClaimFormSchema } from "./schema";
 import type z from "zod";
 
 type ClaimFormData = {
   verificationUrl?: string;
+};
+
+export type ClaimSubmitUser = ClaimApprovalEmailUser & {
+  id: string;
 };
 
 export type ClaimSubmissionResult =
@@ -18,7 +26,7 @@ export type ClaimSubmissionResult =
   | { type: "error"; message: string };
 
 export async function submitClaimForUser(
-  user: { id: string; email: string },
+  user: ClaimSubmitUser,
   creatorId: string,
   formData: ClaimFormData,
 ): Promise<ClaimSubmissionResult> {
@@ -62,6 +70,7 @@ export async function submitClaimForUser(
 
   if (status === "approved") {
     await assignUserAsCreatorOwnerAdmin(user.id, creatorId, true);
+    await sendCreatorVerifiedEmail(user, creator);
     return { type: "approved" };
   }
 

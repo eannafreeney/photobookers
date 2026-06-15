@@ -12,7 +12,10 @@ import ClaimModal from "../../features/claims/modals/ClaimModal";
 import { ProcessClaimContext } from "../../features/claims/types";
 import { normalizeUrl } from "../../services/verification";
 import { isSameDomain } from "../../services/verification";
-import { emailMatchesWebsite } from "../../features/claims/utils";
+import {
+  emailMatchesWebsite,
+  sendCreatorVerifiedEmail,
+} from "../../features/claims/utils";
 import { createClaimWithStatus } from "../../features/claims/services";
 import { assignUserAsCreatorOwnerAdmin } from "../../features/dashboard/admin/claims/services";
 import { showSuccessAlert } from "../../lib/alertHelpers";
@@ -125,7 +128,7 @@ export const POST = createRoute(
 
     if (status === "approved") {
       await assignUserAsCreatorOwnerAdmin(user.id, creatorId, true);
-      // Optionally send a welcome email here
+      await sendCreatorVerifiedEmail(user, creator);
       return showSuccessAlert(
         c,
         "Your claim has been approved! Head to your dashboard to manage your profile.",

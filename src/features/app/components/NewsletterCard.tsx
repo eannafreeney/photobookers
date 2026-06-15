@@ -1,5 +1,6 @@
 import { mailIcon } from "../../../lib/icons";
 import NewsletterForm from "./NewsletterForm";
+import { NEWSLETTER_COPY } from "../../../constants/newsletter";
 
 const NewsletterCard = () => (
   <div
@@ -12,17 +13,16 @@ const NewsletterCard = () => (
           {mailIcon(5)}
         </div>
         <div class="min-w-0 flex-1 pt-0.5">
-          <span class="kicker text-accent">Newsletter</span>
+          <span class="kicker text-accent">{NEWSLETTER_COPY.kicker}</span>
           <p class="mt-1 font-display text-xl text-on-surface-strong">
-            Join the mailing list
+            {NEWSLETTER_COPY.title}
           </p>
           <p class="mt-1 text-pretty text-xs leading-relaxed text-on-surface sm:text-sm">
-            Discover new books and creators in your inbox
+            {NEWSLETTER_COPY.short}
           </p>
         </div>
       </div>
-
-      <NewsletterForm className="w-full md:w-auto md:min-w-68 md:max-w-sm" />
+      <NewsletterForm className="w-full max-w-md" />
     </div>
   </div>
 );

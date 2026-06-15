@@ -4,6 +4,7 @@ import Page from "../../components/layouts/Page";
 import AppLayout from "../../components/layouts/AppLayout";
 import NewsletterForm from "../../features/app/components/NewsletterForm";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
+import { NEWSLETTER_COPY } from "../../constants/newsletter";
 
 export { POST } from "../api/newsletter";
 
@@ -11,7 +12,7 @@ export const GET = createRoute(async (c) => {
   const currentPath = c.req.path;
   const title = pageTitle("Newsletter");
   const description =
-    "Sign up for the Photobookers newsletter and discover new books and creators in your inbox.";
+    "Get a daily Book of the Day pick and weekly photobook highlights from Photobookers.";
 
   return c.html(
     <AppLayout
@@ -22,11 +23,16 @@ export const GET = createRoute(async (c) => {
     >
       <Page>
         <PageHeader
-          kicker="Newsletter"
-          title="Join the mailing list"
-          intro="Discover new books and creators in your inbox — including our weekly Book of the Day picks."
+          kicker={NEWSLETTER_COPY.kicker}
+          title={NEWSLETTER_COPY.title}
+          intro={NEWSLETTER_COPY.pageIntro}
         />
-        <div class="mx-auto w-full max-w-md">
+        <div class="mx-auto w-full max-w-md flex flex-col gap-8">
+          <ul class="list-disc list-inside space-y-2 text-sm text-on-surface">
+            {NEWSLETTER_COPY.bullets.map((bullet) => (
+              <li key={bullet}>{bullet}</li>
+            ))}
+          </ul>
           <NewsletterForm />
         </div>
       </Page>

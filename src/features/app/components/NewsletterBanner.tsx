@@ -1,4 +1,5 @@
 import Button from "../../../components/app/Button";
+import { NEWSLETTER_COPY } from "../../../constants/newsletter";
 import { fadeTransition } from "../../../lib/transitions";
 
 const NewsletterBanner = () => {
@@ -15,20 +16,18 @@ const NewsletterBanner = () => {
         <div class="mx-auto flex items-center justify-center gap-4 px-6">
           <p class="text-sm text-pretty">
             <span class="kicker text-[#d9a59a] mr-2 hidden sm:inline">
-              Newsletter
+              {NEWSLETTER_COPY.kicker}
             </span>
-            Discover new books and creators directly in your inbox
+            {NEWSLETTER_COPY.banner}
           </p>
           <a href="/newsletter" class="inline-block">
             <Button variant="solid" color="accent" width="auto">
-              Sign Up
+              {NEWSLETTER_COPY.cta}
             </Button>
           </a>
           <button
             type="button"
-            {...{
-              "x-on:click": "dismiss()",
-            }}
+            x-on:click="dismiss()"
             class="cursor-pointer hover:opacity-75"
           >
             ✕

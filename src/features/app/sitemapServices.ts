@@ -35,6 +35,7 @@ const STATIC_PAGES: Array<
   { loc: "/terms", changefreq: "yearly" as never, priority: 0.2 },
   { loc: "/privacy", changefreq: "yearly" as never, priority: 0.2 },
   { loc: "/this-week", changefreq: "weekly", priority: 0.8 },
+  { loc: "/newsletter", changefreq: "weekly", priority: 0.6 },
 ];
 
 // Same rule used in getAllCreatorsForBrowse
