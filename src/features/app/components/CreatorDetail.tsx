@@ -184,8 +184,8 @@ const CreatorDetailDesktop = ({
 }: CreatorDetailDesktopProps) => {
   return (
     <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4">
-        <div class="flex items-end justify-between">
+      <div class="flex justify-between border-b-2 border-on-surface-strong pb-4">
+        <div class="flex flex-col gap-1 ">
           <span class="kicker text-accent">
             {creator.type === "publisher" ? "Publisher" : "Artist"}
           </span>
@@ -193,7 +193,7 @@ const CreatorDetailDesktop = ({
             {creator.displayName}
           </h1>
         </div>
-        <div>
+        <div class="flex justify-end items-end">
           <ShareButton
             title={creator.displayName}
             text={creatorShareText(creator)}
