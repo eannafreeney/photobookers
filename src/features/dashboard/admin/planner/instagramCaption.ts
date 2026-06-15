@@ -44,14 +44,15 @@ function buildDefaultCreatorSpotlightInstagramCaption(
   creator: CreatorSpotlightForCaption,
   type: "artist" | "publisher",
 ): string {
-  const label = type === "artist" ? "Artist of the Week" : "Publisher of the Week";
+  const label =
+    type === "artist" ? "Artist of the Week" : "Publisher of the Week";
   const lines = [label, "", creator.displayName];
   if (creator.bio?.trim()) {
     lines.push("", creator.bio.trim());
   }
   const handle = formatInstagramHandle(creator.instagram);
   if (handle) lines.push("", handle);
-  lines.push("", "#photobook", "", "Link in bio →");
+  lines.push("", "#photobook #photobookjousting", "", "Link in bio →");
   return lines.join("\n");
 }
 
@@ -157,7 +158,7 @@ export function buildDefaultInstagramCaption(book: BookForCaption): string {
   const tagLine = formatInstagramHashtags(book.tags);
   if (tagLine) lines.push("", tagLine);
 
-  lines.push("", "#photobook", "", "Link in bio →");
+  lines.push("", "#photobook #photobookjousting", "", "Link in bio →");
 
   return lines.map((line) => line.trim()).join("\n");
 }

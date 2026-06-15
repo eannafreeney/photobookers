@@ -27,7 +27,7 @@ export function buildCreatorShareKitInstagramCaption(params: {
   ];
   const handle = formatInstagramHandle(params.instagram);
   if (handle) lines.push("", handle);
-  lines.push("", "#photobook");
+  lines.push("", "#photobook #photobookjousting");
   return lines.join("\n");
 }
 
@@ -72,7 +72,7 @@ export function buildBotdShareKitInstagramCaption(params: {
   const lines = [intro, "", "See the feature:", params.spotlightUrl];
   const handle = formatInstagramHandle(params.instagram);
   if (handle) lines.push("", handle);
-  lines.push("", "#photobook");
+  lines.push("", "#photobook #photobookjousting");
   return lines.join("\n");
 }
 
