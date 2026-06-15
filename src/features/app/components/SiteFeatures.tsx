@@ -1,9 +1,9 @@
 import {
-  editIcon,
-  emptyHeartIcon,
+  bookIcon,
+  booksIcon,
   libraryIcon,
   mailIcon,
-  thumbsUpIcon,
+  updatesIcon,
   usersIcon,
 } from "../../../lib/icons";
 import type { ChildType } from "../../../../types";
@@ -13,17 +13,30 @@ const REGISTER_HREF = "/auth/accounts";
 
 export const tickerItems = [
   {
+    title: "Browse photobooks by artist, publisher, and tag",
+    icon: booksIcon,
+    href: "/books",
+  },
+  {
+    title: "Explore our Book of the Day and weekly picks",
+    icon: bookIcon,
+    href: "/this-week",
+  },
+  {
+    title: "Get updates from artists and publishers you follow",
+    icon: updatesIcon,
+    href: "/messages",
+  },
+  {
     title: "Follow your favorite artists and publishers",
     icon: usersIcon(5),
     href: REGISTER_HREF,
   },
-
   {
     title: "Add your favorite books to your collection",
     icon: libraryIcon(5),
     href: REGISTER_HREF,
   },
-
   {
     title: "Join the Newsletter and be updated about new books",
     icon: mailIcon(5),

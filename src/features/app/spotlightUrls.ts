@@ -58,3 +58,11 @@ export function thisWeekPath(weekStart?: Date): string {
 export function thisWeekUrl(weekStart?: Date): string {
   return `${appBaseUrl}${thisWeekPath(weekStart)}`;
 }
+
+export function linksPath(): string {
+  return "/links";
+}
+
+export function linksUrl(): string {
+  return `${appBaseUrl}${linksPath()}`;
+}
