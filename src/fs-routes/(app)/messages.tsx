@@ -9,6 +9,7 @@ import Page from "../../components/layouts/Page";
 import InfoPage from "../../pages/InfoPage";
 import CreatorMessage from "../../features/app/components/CreatorMessage";
 import ListNavigation from "../../features/app/components/ListNavigation";
+import PageHeader from "../../components/app/PageHeader";
 
 const MessagesHeader = () => (
   <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4">
@@ -35,13 +36,15 @@ export const GET = createRoute(async (c) => {
         noIndex
       >
         <Page>
-          <div class="mx-auto flex w-full max-w-[600px] flex-col gap-6">
-            <MessagesHeader />
-            <MemberSignInPrompt
-              prompt={memberSignInPrompts.messages}
-              currentPath={currentPath}
-            />
-          </div>
+          <PageHeader
+            kicker="Your Messages"
+            title="Updates from creators you follow"
+            intro="Notes and announcements from artists and publishers appear here. Sign up to follow creators and stay in the loop."
+          />
+          <MemberSignInPrompt
+            prompt={memberSignInPrompts.messages}
+            currentPath={currentPath}
+          />
         </Page>
       </AppLayout>,
     );
@@ -66,8 +69,12 @@ export const GET = createRoute(async (c) => {
       noIndex
     >
       <Page>
-        <div id={targetId} class="mx-auto flex w-full max-w-[600px] flex-col gap-4">
-          <MessagesHeader />
+        <div id={targetId} class="flex w-full flex-col gap-4">
+          <PageHeader
+            kicker="Your Messages"
+            title="Updates from creators you follow"
+            intro="Notes and announcements from artists and publishers appear here. Sign up to follow creators and stay in the loop."
+          />
           {messages.length === 0 ? (
             <p class="text-on-surface">
               Messages from creators you follow will appear here.
