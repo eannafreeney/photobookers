@@ -46,11 +46,11 @@ const FollowersCount = ({ count, className }: Props) => {
       >
         {followersIcon}
       </span>
-      <span class="inline-flex min-w-0 flex-col leading-none">
+      <span class="inline-flex min-w-0 items-center leading-none">
         <span class="font-display text-base font-medium tabular-nums text-on-surface-strong">
           {formatFollowerCount(count)}
         </span>
-        <span class="kicker mt-0.5 text-on-surface-weak">{label}</span>
+        <span class="kicker mt-0.5 text-on-surface-weak">{` ${label}`}</span>
       </span>
     </span>
   );
