@@ -1,6 +1,3 @@
-import clsx from "clsx";
-import { followersIcon } from "../../lib/icons";
-
 const followerLabel = (count: number) =>
   count === 1 ? "follower" : "followers";
 
@@ -35,9 +32,6 @@ const FollowersCount = ({ count }: Props) => {
 
   return (
     <section class="flex items-center gap-2">
-      <div class="size-7 shrink-0 items-center justify-center rounded-full bg-surface-alt text-on-surface-weak">
-        {followersIcon}
-      </div>
       <div class="font-display text-base font-medium tabular-nums text-on-surface-strong">
         {formatFollowerCount(count)}
       </div>
