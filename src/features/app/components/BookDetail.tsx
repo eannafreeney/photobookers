@@ -137,12 +137,14 @@ const DetailDesktop = ({
             currentPath={currentPath}
             title="Artist"
             user={user}
+            showHeader={false}
           />
           <CreatorCard
             creator={book.publisher}
             currentPath={currentPath}
             title="Publisher"
             user={user}
+            showHeader={false}
           />
         </div>
       </div>
@@ -163,7 +165,7 @@ const DetailMobile = ({
     <div class="flex flex-col gap-4">
       <Tabs defaultTab="books">
         <Tabs.LinkContainer>
-          <Tabs.Link tabId="books">Books</Tabs.Link>
+          <Tabs.Link tabId="books">Book</Tabs.Link>
           <Tabs.Link tabId="comments">Comments</Tabs.Link>
           <Tabs.Link tabId="artist">Artist</Tabs.Link>
           <Show when={!!book.publisher}>
@@ -212,6 +214,7 @@ const DetailMobile = ({
             creator={book.artist}
             currentPath={currentPath}
             user={user}
+            showHeader={false}
           />
           <Divider />
           <BookGridWrapper

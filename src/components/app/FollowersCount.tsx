@@ -36,17 +36,22 @@ const FollowersCount = ({ count, className }: Props) => {
 
   return (
     <span
-      class={clsx(
-        "inline-flex items-center gap-1.5 border border-outline bg-surface-alt px-2 py-0.5 kicker text-on-surface",
-        className,
-      )}
+      class={clsx("mt-1.5 inline-flex items-center gap-2", className)}
       title={`${count.toLocaleString()} ${label}`}
+      aria-label={`${count.toLocaleString()} ${label}`}
     >
-      <span class="text-on-surface-weak">{followersIcon}</span>
-      <span class="tabular-nums text-on-surface-strong">
-        {formatFollowerCount(count)}
+      <span
+        class="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-alt text-on-surface-weak"
+        aria-hidden="true"
+      >
+        {followersIcon}
       </span>
-      <span class="text-on-surface-weak">{label}</span>
+      <span class="inline-flex min-w-0 flex-col leading-none">
+        <span class="font-display text-base font-medium tabular-nums text-on-surface-strong">
+          {formatFollowerCount(count)}
+        </span>
+        <span class="kicker mt-0.5 text-on-surface-weak">{label}</span>
+      </span>
     </span>
   );
 };

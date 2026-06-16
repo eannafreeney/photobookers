@@ -82,9 +82,9 @@ const CreatorCard = async ({
                     {formatCountry(creator?.country ?? "")}
                   </span>
                 )}
-                <FollowersCount count={followerCount} />
               </div>
             </Card.SubTitle>
+            <FollowersCount count={followerCount} />
           </div>
           {creator.tagline && (
             <Card.Description>{creator.tagline}</Card.Description>

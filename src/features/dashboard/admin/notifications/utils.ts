@@ -12,12 +12,29 @@ type NotificationCreatorTarget = {
 
 type NotificationUserTarget = {
   id: string;
+  email?: string | null;
   firstName?: string | null;
   lastName?: string | null;
   creator?: {
     displayName: string;
   } | null;
 };
+
+function formatNotificationActorName(user: NotificationUserTarget): string {
+  const creatorName = user.creator?.displayName?.trim();
+  if (creatorName) return creatorName;
+
+  const fullName = [user.firstName, user.lastName]
+    .filter((part) => part?.trim())
+    .join(" ")
+    .trim();
+  if (fullName) return fullName;
+
+  const email = user.email?.trim();
+  if (email) return email;
+
+  return "A user";
+}
 
 type NotificationMessageTarget = {
   body: string;
@@ -30,7 +47,7 @@ export const createCommentCreatedNotification = async (
   await createAdminNotification({
     type: "book_commented",
     title: "New comment",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} commented on "${book.title}"`,
+    body: `${formatNotificationActorName(user)} commented on "${book.title}"`,
     targetUrl: `/books/${book.slug}`,
     actorUserId: user.id,
   });
@@ -42,7 +59,7 @@ export const createCommentUpdatedNotification = async (
   await createAdminNotification({
     type: "book_comment_updated",
     title: "Updated comment",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} updated a comment on "${book.title}"`,
+    body: `${formatNotificationActorName(user)} updated a comment on "${book.title}"`,
     targetUrl: `/books/${book.slug}`,
     actorUserId: user.id,
   });
@@ -54,7 +71,7 @@ export const createBookPublishedNotification = async (
   await createAdminNotification({
     type: "book_published",
     title: "New book published",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} published a new book: "${book.title}"`,
+    body: `${formatNotificationActorName(user)} published a new book: "${book.title}"`,
     targetUrl: `/books/${book.slug}`,
     actorUserId: user.id,
   });
@@ -66,7 +83,7 @@ export const createNewPublisherNotification = async (
   await createAdminNotification({
     type: "new_publisher",
     title: "New publisher",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} is a new publisher`,
+    body: `${formatNotificationActorName(user)} is a new publisher`,
     targetUrl: `/creators/${creator.slug}`,
     actorUserId: user.id,
   });
@@ -78,7 +95,7 @@ export const createCreatorClaimedNotification = async (
   await createAdminNotification({
     type: "creator_claimed",
     title: "Creator claimed",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} claimed the creator: "${creator.displayName}"`,
+    body: `${formatNotificationActorName(user)} claimed the creator: "${creator.displayName}"`,
     targetUrl: `/creators/${creator.slug}`,
     actorUserId: user.id,
   });
@@ -90,7 +107,7 @@ export const createBookCollectedNotification = async (
   await createAdminNotification({
     type: "book_collected",
     title: "Book collected",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} collected the book: "${book.title}"`,
+    body: `${formatNotificationActorName(user)} collected the book: "${book.title}"`,
     targetUrl: `/books/${book.slug}`,
     actorUserId: user.id,
   });
@@ -102,7 +119,7 @@ export const createBookWishlistedNotification = async (
   await createAdminNotification({
     type: "book_wishlisted",
     title: "Book wishlisted",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} wishlisted the book: "${book.title}"`,
+    body: `${formatNotificationActorName(user)} wishlisted the book: "${book.title}"`,
     targetUrl: `/books/${book.slug}`,
     actorUserId: user.id,
   });
@@ -115,7 +132,7 @@ export const createMessageCreatedNotification = async (
   await createAdminNotification({
     type: "message_created",
     title: "Message created",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} created a message`,
+    body: `${formatNotificationActorName(user)} created a message`,
     targetUrl: `/creators/${creator?.slug}`,
     actorUserId: user.id,
   });
@@ -127,7 +144,7 @@ export const createBookLikedNotification = async (
   await createAdminNotification({
     type: "book_liked",
     title: "Book liked",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} liked the book: "${book.title}"`,
+    body: `${formatNotificationActorName(user)} liked the book: "${book.title}"`,
     targetUrl: `/books/${book.slug}`,
     actorUserId: user.id,
   });
@@ -139,7 +156,7 @@ export const createCreatorFollowedNotification = async (
   await createAdminNotification({
     type: "creator_followed",
     title: "Creator followed",
-    body: `${user?.creator?.displayName ?? user?.firstName ?? "A user"} followed the creator: "${creator.displayName}"`,
+    body: `${formatNotificationActorName(user)} followed the creator: "${creator.displayName}"`,
     targetUrl: `/creators/${creator.slug}`,
     actorUserId: user.id,
   });
