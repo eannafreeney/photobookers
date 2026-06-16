@@ -174,6 +174,28 @@ export function buildBotdStoryMentions(book: BookForCaption): InstagramMention[]
   return mentions;
 }
 
+/** Instagram handles for BOTD story sticker copy (artist, then publisher). */
+export function buildBotdStoryHandles(book: BookForCaption): string {
+  const handles = [book.artist, book.publisher]
+    .map((creator) => formatInstagramHandle(creator?.instagram))
+    .filter((handle): handle is string => Boolean(handle));
+
+  return handles.join("\n");
+}
+
+/** Buffer sticker fields for BOTD stories (see Buffer InstagramStickerFieldsInput). */
+export function buildBotdStoryStickerFields(book: BookForCaption): {
+  text: string;
+  music: string;
+  products: string;
+} {
+  return {
+    text: "Book of the Day",
+    music: book.title,
+    products: buildBotdStoryHandles(book),
+  };
+}
+
 export function buildBotdInstagramCaption(
   book: BookForCaption,
   storedCaption?: string | null,

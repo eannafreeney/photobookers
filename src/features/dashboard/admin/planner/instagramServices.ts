@@ -37,7 +37,7 @@ import {
 import {
   buildDefaultCreatorInstagramFirstComment,
   buildDefaultInstagramFirstComment,
-  buildBotdStoryMentions,
+  buildBotdStoryStickerFields,
   buildStoryStickerText,
   ensureBookTagsInCaption,
 } from "./instagramCaption";
@@ -442,15 +442,15 @@ export async function queuePreparedBotdInstagramStoryForDate(
   const baseCaption = row.book
     ? ensureBookTagsInCaption(row.instagramCaption, row.book.tags)
     : row.instagramCaption;
-  const stickerText = row.book
-    ? buildStoryStickerText(baseCaption, buildBotdStoryMentions(row.book))
-    : baseCaption;
 
   const [bufferError, bufferData] = await bufferCreateScheduledStory({
-    stickerText,
+    caption: baseCaption,
     imageUrl: row.instagramImageUrl,
     dueAt,
-    linkReminder: `Link sticker: ${linksUrl()}`,
+    stickerFields: row.book
+      ? buildBotdStoryStickerFields(row.book)
+      : { text: baseCaption },
+    link: linksUrl(),
   });
 
   if (bufferError) {
@@ -586,10 +586,11 @@ async function queueSpotlightStoryRow(params: {
   );
 
   const [bufferError, bufferData] = await bufferCreateScheduledStory({
-    stickerText,
+    caption: params.row.instagramCaption,
     imageUrl: params.row.instagramImageUrl,
     dueAt,
-    linkReminder: `Link sticker: ${linksUrl()}`,
+    stickerFields: { text: stickerText },
+    link: linksUrl(),
   });
 
   if (bufferError) {

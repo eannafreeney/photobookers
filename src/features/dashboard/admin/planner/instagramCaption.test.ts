@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   buildBotdInstagramCaption,
+  buildBotdStoryHandles,
+  buildBotdStoryStickerFields,
   buildDefaultArtistInstagramCaption,
   buildDefaultInstagramCaption,
   buildDefaultInstagramFirstComment,
@@ -167,6 +169,28 @@ describe("instagram caption helpers", () => {
     expect(
       buildStoryStickerText(caption, [{ displayName: "Jane Doe" }]),
     ).toBe(caption);
+  });
+
+  it("builds BOTD story sticker fields for Buffer copy boxes", () => {
+    const book = {
+      title: "Winter Light",
+      slug: "winter-light",
+      artist: {
+        displayName: "Jane Doe",
+        instagram: "@janedoe",
+      },
+      publisher: {
+        displayName: "Acme Press",
+        instagram: "acmepress",
+      },
+    };
+
+    expect(buildBotdStoryHandles(book)).toBe("@janedoe\n@acmepress");
+    expect(buildBotdStoryStickerFields(book)).toEqual({
+      text: "Book of the Day",
+      music: "Winter Light",
+      products: "@janedoe\n@acmepress",
+    });
   });
 });
 

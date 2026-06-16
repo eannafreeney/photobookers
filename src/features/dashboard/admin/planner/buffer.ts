@@ -149,14 +149,25 @@ export async function bufferCreateScheduledImagePost(params: {
   });
 }
 
+export type BufferStoryStickerFields = {
+  text?: string;
+  music?: string;
+  products?: string;
+  topics?: string;
+  other?: string;
+};
+
 export async function bufferCreateScheduledStory(params: {
-  stickerText: string;
+  caption: string;
   imageUrl: string;
   dueAt: Date;
-  linkReminder?: string;
+  stickerFields?: BufferStoryStickerFields;
+  link?: string;
 }): Promise<Result<{ postId: string }, { reason: string }>> {
+  const stickerFields = params.stickerFields ?? { text: params.caption };
+
   return bufferCreatePost({
-    text: params.stickerText,
+    text: params.caption,
     schedulingType: "notification",
     mode: "customScheduled",
     dueAt: params.dueAt.toISOString(),
@@ -165,10 +176,8 @@ export async function bufferCreateScheduledStory(params: {
       instagram: {
         type: "story",
         shouldShareToFeed: false,
-        stickerFields: {
-          text: params.stickerText,
-          ...(params.linkReminder ? { other: params.linkReminder } : {}),
-        },
+        ...(params.link ? { link: params.link } : {}),
+        stickerFields,
       },
     },
   });

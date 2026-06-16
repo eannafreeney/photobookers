@@ -113,7 +113,7 @@ describe("bufferCreateScheduledStory", () => {
     const fetchMock = vi.fn(async (_url, init) => {
       const body = JSON.parse(String(init?.body));
       expect(body.variables.input).toMatchObject({
-        text: "Book of the Day\n\nLink in bio →",
+        text: "Book of the Day\n\nWinter Light\n\nLink in bio →",
         schedulingType: "notification",
         mode: "customScheduled",
         dueAt: "2026-06-01T10:00:00.000Z",
@@ -121,9 +121,11 @@ describe("bufferCreateScheduledStory", () => {
         metadata: {
           instagram: {
             type: "story",
+            link: "https://www.photobookers.com/links",
             stickerFields: {
-              text: "Book of the Day\n\nLink in bio →",
-              other: "Link sticker: https://www.photobookers.com/links",
+              text: "Book of the Day",
+              music: "Winter Light",
+              products: "@janedoe\n@acmepress",
             },
           },
         },
@@ -144,10 +146,15 @@ describe("bufferCreateScheduledStory", () => {
     globalThis.fetch = fetchMock as typeof fetch;
 
     const [error, result] = await bufferCreateScheduledStory({
-      stickerText: "Book of the Day\n\nLink in bio →",
+      caption: "Book of the Day\n\nWinter Light\n\nLink in bio →",
       imageUrl: "https://cdn.example.com/cover.jpg",
       dueAt: new Date("2026-06-01T10:00:00.000Z"),
-      linkReminder: "Link sticker: https://www.photobookers.com/links",
+      stickerFields: {
+        text: "Book of the Day",
+        music: "Winter Light",
+        products: "@janedoe\n@acmepress",
+      },
+      link: "https://www.photobookers.com/links",
     });
 
     expect(error).toBeNull();
