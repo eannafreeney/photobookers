@@ -83,7 +83,9 @@ const CreatorOfTheWeekDetail = async ({
           <SectionTitle>Books by {creator.displayName}</SectionTitle>
           <div
             class={
-              isSingleBook ? "grid grid-cols-1 gap-4" : "grid grid-cols-2 gap-4"
+              isSingleBook
+                ? "grid grid-cols-1 gap-4"
+                : "grid grid-cols-1 md:grid-cols-2 gap-4"
             }
           >
             {books.map((book) => (

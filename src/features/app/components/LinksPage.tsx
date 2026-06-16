@@ -7,6 +7,7 @@ import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
 import { PublisherOfTheWeekWithCreator } from "../POTWServices";
 import { aotwPath, botdPath, potwPath } from "../spotlightUrls";
 import { formatDate } from "../../../utils";
+import SecondaryButtonLink from "../../hyperview/components/SecondaryButtonLink";
 
 type Props = {
   bookOfTheDay: BookOfTheDayWithBook | null;
@@ -120,14 +121,11 @@ const LinksPage = ({
           />
         </section>
       ) : null}
-
-      <div class="flex justify-center pt-2">
-        <a href="/featured">
-          <Button variant="solid" color="primary" width="md">
-            Visit Photobookers
-          </Button>
-        </a>
-      </div>
+      <a href={`/featured`} class="mx-auto">
+        <Button variant="outline" color="primary" width="auto">
+          Visit Photobookers
+        </Button>
+      </a>
     </div>
   );
 };
