@@ -339,6 +339,10 @@ function scheduleDueAt(dueAt: Date): Date {
   return dueAt;
 }
 
+function isBufferScheduleLimitError(reason: string): boolean {
+  return reason.toLowerCase().includes("scheduled posts limit reached");
+}
+
 export async function queuePreparedBotdInstagramForDate(
   date: Date,
 ): Promise<Result<{ postId: string; botdId: string }, { reason: string }>> {
@@ -832,6 +836,7 @@ export async function queueDuePreparedInstagramPosts(): Promise<
 
   const queued: QueueInstagramBatchResult["queued"] = [];
   const skipped: string[] = [];
+  let stopDueToBufferLimit = false;
 
   const botdRows = await db.query.bookOfTheDay.findMany({
     where: and(
@@ -842,11 +847,16 @@ export async function queueDuePreparedInstagramPosts(): Promise<
   });
 
   for (const row of botdRows) {
+    if (stopDueToBufferLimit) break;
     const dateKey = toDateString(row.date);
     if (!row.instagramQueuedAt) {
       const [error, result] = await queuePreparedBotdInstagramForDate(row.date);
       if (error) {
         skipped.push(`${dateKey} post: ${error.reason}`);
+        if (isBufferScheduleLimitError(error.reason)) {
+          stopDueToBufferLimit = true;
+          break;
+        }
       } else {
         queued.push({ key: dateKey, postId: result.postId, kind: "post" });
       }
@@ -858,6 +868,10 @@ export async function queueDuePreparedInstagramPosts(): Promise<
       );
       if (error) {
         skipped.push(`${dateKey} story: ${error.reason}`);
+        if (isBufferScheduleLimitError(error.reason)) {
+          stopDueToBufferLimit = true;
+          break;
+        }
       } else {
         queued.push({
           key: `${dateKey}-story`,
@@ -873,6 +887,7 @@ export async function queueDuePreparedInstagramPosts(): Promise<
   });
 
   for (const row of artistRows) {
+    if (stopDueToBufferLimit) break;
     const spotlightDay = toDateString(getWeekDays(row.weekStart)[5]);
     if (spotlightDay < todayKey) continue;
     const weekKey = toWeekString(row.weekStart);
@@ -883,6 +898,10 @@ export async function queueDuePreparedInstagramPosts(): Promise<
       );
       if (error) {
         skipped.push(`aotw-${weekKey} post: ${error.reason}`);
+        if (isBufferScheduleLimitError(error.reason)) {
+          stopDueToBufferLimit = true;
+          break;
+        }
       } else {
         queued.push({ key: `aotw-${weekKey}`, postId: result.postId, kind: "post" });
       }
@@ -894,6 +913,10 @@ export async function queueDuePreparedInstagramPosts(): Promise<
       );
       if (error) {
         skipped.push(`aotw-${weekKey} story: ${error.reason}`);
+        if (isBufferScheduleLimitError(error.reason)) {
+          stopDueToBufferLimit = true;
+          break;
+        }
       } else {
         queued.push({
           key: `aotw-${weekKey}-story`,
@@ -909,6 +932,7 @@ export async function queueDuePreparedInstagramPosts(): Promise<
   });
 
   for (const row of publisherRows) {
+    if (stopDueToBufferLimit) break;
     const spotlightDay = toDateString(getWeekDays(row.weekStart)[6]);
     if (spotlightDay < todayKey) continue;
     const weekKey = toWeekString(row.weekStart);
@@ -919,6 +943,10 @@ export async function queueDuePreparedInstagramPosts(): Promise<
       );
       if (error) {
         skipped.push(`potw-${weekKey} post: ${error.reason}`);
+        if (isBufferScheduleLimitError(error.reason)) {
+          stopDueToBufferLimit = true;
+          break;
+        }
       } else {
         queued.push({
           key: `potw-${weekKey}`,
@@ -934,6 +962,10 @@ export async function queueDuePreparedInstagramPosts(): Promise<
       );
       if (error) {
         skipped.push(`potw-${weekKey} story: ${error.reason}`);
+        if (isBufferScheduleLimitError(error.reason)) {
+          stopDueToBufferLimit = true;
+          break;
+        }
       } else {
         queued.push({
           key: `potw-${weekKey}-story`,
@@ -942,6 +974,12 @@ export async function queueDuePreparedInstagramPosts(): Promise<
         });
       }
     }
+  }
+
+  if (stopDueToBufferLimit) {
+    skipped.push(
+      "Stopped early after Buffer reported scheduled-post limit reached.",
+    );
   }
 
   return ok({ queued, skipped });

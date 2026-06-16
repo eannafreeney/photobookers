@@ -164,6 +164,7 @@ export async function bufferCreateScheduledStory(params: {
     metadata: {
       instagram: {
         type: "story",
+        shouldShareToFeed: false,
         stickerFields: {
           text: params.stickerText,
           ...(params.linkReminder ? { other: params.linkReminder } : {}),
