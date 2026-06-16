@@ -21,7 +21,8 @@ import InterviewSection, { interviewSectionStyles } from "./InterviewSection";
 import SecondaryButtonLink, {
   secondaryButtonLinkStyles,
 } from "../SecondaryButtonLink";
-import { botdIndexPath, cotwIndexPath } from "../../../app/spotlightUrls";
+import { capitalize } from "../../../../utils";
+import { aotwPath, potwPath } from "../../../app/spotlightUrls";
 
 type Props = {
   creator: Creator;
@@ -34,7 +35,7 @@ type Props = {
   spotlightImage?: string | null;
 };
 
-const CreatorOfTheWeekSpotlightBody: FC<Props> = ({
+const CreatorOfTheWeekSpotlightBody = ({
   creator,
   weekStart,
   publishedInterview,
@@ -43,7 +44,7 @@ const CreatorOfTheWeekSpotlightBody: FC<Props> = ({
   isFollowing,
   favoritesByBookId,
   spotlightImage,
-}) => {
+}: Props) => {
   const isArtist = creator.type === "artist";
   const bio = creator.bio?.trim() || null;
   const location = formatCreatorLocation(creator.city, creator.country);
@@ -111,8 +112,8 @@ const CreatorOfTheWeekSpotlightBody: FC<Props> = ({
         </View>
       ) : null}
       <SecondaryButtonLink
-        label="All Artist of the Weeks →"
-        href={`${baseUrl}/hyperview${cotwIndexPath(isArtist)}`}
+        label={`All ${capitalize(creator.type)}s of the Week →`}
+        href={`${baseUrl}/hyperview${isArtist ? aotwPath(weekStart) : potwPath(weekStart)}`}
       />
     </View>
   );
