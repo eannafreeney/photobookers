@@ -22,7 +22,7 @@ import SecondaryButtonLink, {
   secondaryButtonLinkStyles,
 } from "../SecondaryButtonLink";
 import { capitalize } from "../../../../utils";
-import { aotwPath, potwPath } from "../../../app/spotlightUrls";
+import { cotwIndexPath } from "../../../app/spotlightUrls";
 
 type Props = {
   creator: Creator;
@@ -113,7 +113,7 @@ const CreatorOfTheWeekSpotlightBody = ({
       ) : null}
       <SecondaryButtonLink
         label={`All ${capitalize(creator.type)}s of the Week →`}
-        href={`${baseUrl}/hyperview${isArtist ? aotwPath(weekStart) : potwPath(weekStart)}`}
+        href={`${baseUrl}/hyperview${cotwIndexPath(isArtist)}`}
       />
     </View>
   );
