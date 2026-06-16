@@ -1,5 +1,7 @@
 import { toDateString, toWeekString } from "../../lib/utils";
 
+// app
+
 const appBaseUrl = process.env.PUBLIC_APP_URL ?? "https://www.photobookers.com";
 
 export function bookPath(slug: string): string {
