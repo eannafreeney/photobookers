@@ -7,6 +7,7 @@ import SectionTitle from "../../../../components/app/SectionTitle";
 import { getFlash, getUser } from "../../../../utils";
 import AnalyticsOverview from "../../../../features/dashboard/admin/analytics/components/AnalyticsOverview";
 import TopBooksTable from "../../../../features/dashboard/admin/analytics/components/TopBooksTable";
+import TopBooksByViewsTable from "../../../../features/dashboard/admin/analytics/components/TopBooksByViewsTable";
 import TopCreatorsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsTable";
 
 export const GET = createRoute(async (c: Context) => {
@@ -24,8 +25,9 @@ export const GET = createRoute(async (c: Context) => {
       <Page>
         <Sidebar currentPath={currentPath}>
           <div class="flex flex-col gap-12">
-            <SectionTitle>Outbound click analytics</SectionTitle>
+            <SectionTitle>Book analytics</SectionTitle>
             <AnalyticsOverview />
+            <TopBooksByViewsTable />
             <TopBooksTable />
             <TopCreatorsTable role="publisher" title="Top publishers" />
             <TopCreatorsTable role="artist" title="Top artists" />

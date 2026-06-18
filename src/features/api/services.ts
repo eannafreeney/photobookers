@@ -88,12 +88,48 @@ export const findWishlistCount = async (bookId: string) => {
   return result[0]?.value ?? 0;
 };
 
+export const findWishlistCounts = async (bookIds: string[]) => {
+  if (bookIds.length === 0) return new Map<string, number>();
+
+  const rows = await db
+    .select({
+      bookId: wishlists.bookId,
+      value: count(),
+    })
+    .from(wishlists)
+    .where(inArray(wishlists.bookId, bookIds))
+    .groupBy(wishlists.bookId);
+
+  const counts = new Map<string, number>();
+  for (const id of bookIds) counts.set(id, 0);
+  for (const row of rows) counts.set(row.bookId, row.value);
+  return counts;
+};
+
 export const findCollectionCount = async (bookId: string) => {
   const result = await db
     .select({ value: count() })
     .from(collectionItems)
     .where(eq(collectionItems.bookId, bookId));
   return result[0]?.value ?? 0;
+};
+
+export const findCollectionCounts = async (bookIds: string[]) => {
+  if (bookIds.length === 0) return new Map<string, number>();
+
+  const rows = await db
+    .select({
+      bookId: collectionItems.bookId,
+      value: count(),
+    })
+    .from(collectionItems)
+    .where(inArray(collectionItems.bookId, bookIds))
+    .groupBy(collectionItems.bookId);
+
+  const counts = new Map<string, number>();
+  for (const id of bookIds) counts.set(id, 0);
+  for (const row of rows) counts.set(row.bookId, row.value);
+  return counts;
 };
 
 export const getCreatorPermissionData = async (creatorId: string) => {

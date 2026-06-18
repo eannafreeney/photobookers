@@ -1,0 +1,166 @@
+import { count, eq, or } from "drizzle-orm";
+import { db } from "../../db/client";
+import {
+  books,
+  collectionItems,
+  wishlists,
+  type CreatorType,
+} from "../../db/schema";
+import {
+  findCollectionCounts,
+  findWishlistCounts,
+} from "../api/services";
+import {
+  findBookViewCounts,
+  getCreatorBookViewTotal,
+  getCreatorCatalogueBookViewTotal,
+  getBookViewTotals,
+} from "../book-views/services";
+import {
+  findPurchaseClickCounts,
+  getCreatorCataloguePurchaseClickTotal,
+  getCreatorPurchaseClickTotal,
+  getPurchaseClickTotals,
+} from "../purchase-clicks/services";
+
+export type BookFunnelCounts = {
+  views: number;
+  wishlists: number;
+  collections: number;
+  outboundClicks: number;
+};
+
+export type CatalogueFunnelTotals = BookFunnelCounts & {
+  clickRate: number | null;
+};
+
+export function formatClickRate(views: number, clicks: number): string | null {
+  if (views <= 0) return null;
+  const rate = (clicks / views) * 100;
+  if (rate > 0 && rate < 0.1) return "<0.1%";
+  return `${rate.toFixed(1)}%`;
+}
+
+export async function getBookFunnelCounts(
+  bookIds: string[],
+): Promise<Map<string, BookFunnelCounts>> {
+  if (bookIds.length === 0) return new Map();
+
+  const [views, wishlistMap, collectionMap, outboundClicks] = await Promise.all(
+    [
+      findBookViewCounts(bookIds),
+      findWishlistCounts(bookIds),
+      findCollectionCounts(bookIds),
+      findPurchaseClickCounts(bookIds),
+    ],
+  );
+
+  const result = new Map<string, BookFunnelCounts>();
+  for (const bookId of bookIds) {
+    result.set(bookId, {
+      views: views.get(bookId) ?? 0,
+      wishlists: wishlistMap.get(bookId) ?? 0,
+      collections: collectionMap.get(bookId) ?? 0,
+      outboundClicks: outboundClicks.get(bookId) ?? 0,
+    });
+  }
+  return result;
+}
+
+async function getCreatorEngagementTotal(
+  creatorId: string,
+  role: CreatorType,
+  table: typeof wishlists | typeof collectionItems,
+) {
+  const creatorColumn =
+    role === "publisher" ? books.publisherId : books.artistId;
+
+  const result = await db
+    .select({ value: count() })
+    .from(table)
+    .innerJoin(books, eq(table.bookId, books.id))
+    .where(eq(creatorColumn, creatorId));
+
+  return result[0]?.value ?? 0;
+}
+
+async function getCreatorCatalogueEngagementTotal(
+  creatorId: string,
+  table: typeof wishlists | typeof collectionItems,
+) {
+  const result = await db
+    .select({ value: count() })
+    .from(table)
+    .innerJoin(books, eq(table.bookId, books.id))
+    .where(
+      or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)),
+    );
+
+  return result[0]?.value ?? 0;
+}
+
+function withClickRate(totals: BookFunnelCounts): CatalogueFunnelTotals {
+  return {
+    ...totals,
+    clickRate:
+      totals.views > 0
+        ? Math.round((totals.outboundClicks / totals.views) * 1000) / 10
+        : null,
+  };
+}
+
+export async function getCreatorCatalogueFunnelTotals(
+  creatorId: string,
+  role: CreatorType,
+): Promise<CatalogueFunnelTotals> {
+  const [views, wishlistTotal, collectionTotal, outboundClicks] =
+    await Promise.all([
+      getCreatorBookViewTotal(creatorId, role),
+      getCreatorEngagementTotal(creatorId, role, wishlists),
+      getCreatorEngagementTotal(creatorId, role, collectionItems),
+      getCreatorPurchaseClickTotal(creatorId, role),
+    ]);
+
+  return withClickRate({
+    views,
+    wishlists: wishlistTotal,
+    collections: collectionTotal,
+    outboundClicks,
+  });
+}
+
+export async function getCreatorCatalogueFunnelTotalsAdmin(
+  creatorId: string,
+): Promise<CatalogueFunnelTotals> {
+  const [views, wishlistTotal, collectionTotal, outboundClicks] =
+    await Promise.all([
+      getCreatorCatalogueBookViewTotal(creatorId),
+      getCreatorCatalogueEngagementTotal(creatorId, wishlists),
+      getCreatorCatalogueEngagementTotal(creatorId, collectionItems),
+      getCreatorCataloguePurchaseClickTotal(creatorId),
+    ]);
+
+  return withClickRate({
+    views,
+    wishlists: wishlistTotal,
+    collections: collectionTotal,
+    outboundClicks,
+  });
+}
+
+export async function getOverallFunnelTotals(): Promise<CatalogueFunnelTotals> {
+  const [viewTotals, clickTotals, wishlistTotal, collectionTotal] =
+    await Promise.all([
+      getBookViewTotals(),
+      getPurchaseClickTotals(),
+      db.select({ value: count() }).from(wishlists),
+      db.select({ value: count() }).from(collectionItems),
+    ]);
+
+  return withClickRate({
+    views: viewTotals.totalViews,
+    wishlists: wishlistTotal[0]?.value ?? 0,
+    collections: collectionTotal[0]?.value ?? 0,
+    outboundClicks: clickTotals.totalClicks,
+  });
+}

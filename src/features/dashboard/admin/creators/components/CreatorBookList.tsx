@@ -2,7 +2,6 @@ import { AuthUser } from "../../../../../../types";
 import Button from "../../../../../components/app/Button";
 import Card from "../../../../../components/app/Card";
 import Link from "../../../../../components/app/Link";
-import { Pagination } from "../../../../../components/app/Pagination";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import Table from "../../../../../components/app/Table";
 import TableSearch from "../../../../../components/app/TableSearch";
@@ -13,15 +12,12 @@ import { deleteIcon } from "../../../../../lib/icons";
 import { canEditBook } from "../../../../../lib/permissions";
 import PreviewButton from "../../../../api/components/PreviewButton";
 import {
-  findCollectionCount,
-  findWishlistCount,
-} from "../../../../api/services";
-import {
-  findPurchaseClickCounts,
-  getCreatorCataloguePurchaseClickTotal,
-} from "../../../../purchase-clicks/services";
+  formatClickRate,
+  getBookFunnelCounts,
+  getCreatorCatalogueFunnelTotalsAdmin,
+  type BookFunnelCounts,
+} from "../../../../book-analytics/funnel";
 import ListNavigation from "../../../../app/components/ListNavigation";
-import DeleteBookForm from "../../../books/components/BookDeleteForm";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import { getBooksByCreatorId } from "../services";
 
@@ -50,17 +46,32 @@ const CreatorBookList = async ({
   const targetId = "creator-books-table-body";
 
   const { books, totalPages, page, creator } = result;
-  const clickCounts = await findPurchaseClickCounts(books.map((book) => book.id));
-  const catalogueClicks = await getCreatorCataloguePurchaseClickTotal(creatorId);
+  const [funnelCounts, catalogueTotals] = await Promise.all([
+    getBookFunnelCounts(books.map((book) => book.id)),
+    getCreatorCatalogueFunnelTotalsAdmin(creatorId),
+  ]);
+  const emptyFunnel: BookFunnelCounts = {
+    views: 0,
+    wishlists: 0,
+    collections: 0,
+    outboundClicks: 0,
+  };
+  const clickRateLabel = formatClickRate(
+    catalogueTotals.views,
+    catalogueTotals.outboundClicks,
+  );
 
   return (
     <div class="flex flex-col gap-4">
       <SectionTitle>Books</SectionTitle>
       <div class="rounded-radius border border-outline bg-surface px-4 py-3 text-sm text-on-surface">
-        <span class="font-semibold text-on-surface-strong">
-          Outbound clicks (all time):
-        </span>{" "}
-        {catalogueClicks} for {creator.displayName}&apos;s catalogue
+        <span class="font-semibold text-on-surface-strong">All time:</span>{" "}
+        {catalogueTotals.views.toLocaleString()} views ·{" "}
+        {catalogueTotals.wishlists.toLocaleString()} wishlists ·{" "}
+        {catalogueTotals.collections.toLocaleString()} collections ·{" "}
+        {catalogueTotals.outboundClicks.toLocaleString()} outbound clicks
+        {clickRateLabel ? ` (${clickRateLabel} click rate)` : null} for{" "}
+        {creator.displayName}&apos;s catalogue
       </div>
       <div class="flex items-center justify-between gap-4">
         <TableSearch
@@ -80,6 +91,7 @@ const CreatorBookList = async ({
           <Table.HeadRow>Title</Table.HeadRow>
           <Table.HeadRow>Artist</Table.HeadRow>
           <Table.HeadRow>Publisher</Table.HeadRow>
+          <Table.HeadRow>Views</Table.HeadRow>
           <Table.HeadRow>Wishlists</Table.HeadRow>
           <Table.HeadRow>Collections</Table.HeadRow>
           <Table.HeadRow>Outbound clicks</Table.HeadRow>
@@ -92,7 +104,7 @@ const CreatorBookList = async ({
             <BookTableRow
               book={book}
               user={user}
-              clickCount={clickCounts.get(book.id) ?? 0}
+              funnel={funnelCounts.get(book.id) ?? emptyFunnel}
             />
           ))}
         </Table.Body>
@@ -113,10 +125,10 @@ export default CreatorBookList;
 type RowProps = {
   book: Book & { artist: Creator | null; publisher: Creator | null };
   user: AuthUser;
-  clickCount: number;
+  funnel: BookFunnelCounts;
 };
 
-const BookTableRow = ({ book, user, clickCount }: RowProps) => {
+const BookTableRow = ({ book, user, funnel }: RowProps) => {
   if (!book || !book.id || !book.slug || !book.title) {
     return <></>;
   }
@@ -163,13 +175,16 @@ const BookTableRow = ({ book, user, clickCount }: RowProps) => {
         </Link>
       </Table.BodyRow>
       <Table.BodyRow>
-        <WishlistCount bookId={book.id} />
+        <Card.Text>{funnel.views}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
-        <CollectionCount bookId={book.id} />
+        <Card.Text>{funnel.wishlists}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
-        <Card.Text>{clickCount}</Card.Text>
+        <Card.Text>{funnel.collections}</Card.Text>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Card.Text>{funnel.outboundClicks}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
         {book.releaseDate
@@ -210,14 +225,4 @@ const BookTableRow = ({ book, user, clickCount }: RowProps) => {
       </Table.BodyRow>
     </tr>
   );
-};
-
-const WishlistCount = async ({ bookId }: { bookId: string }) => {
-  const wishlistCount = await findWishlistCount(bookId);
-  return <Card.Text>{wishlistCount.toString() ?? "0"}</Card.Text>;
-};
-
-const CollectionCount = async ({ bookId }: { bookId: string }) => {
-  const collectionCount = await findCollectionCount(bookId);
-  return <Card.Text>{collectionCount.toString() ?? "0"}</Card.Text>;
 };

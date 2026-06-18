@@ -288,6 +288,13 @@
       "when": 1781786844582,
       "tag": "0041_mushy_squadron_sinister",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1781788207879,
+      "tag": "0042_daffy_nextwave",
+      "breakpoints": true
     }
   ]
 }

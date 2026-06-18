@@ -15,6 +15,16 @@ import {
   buildBookJsonLd,
   canonicalUrl,
 } from "../../../lib/seo";
+import { maybeRecordBookView } from "../../../features/book-views/record";
+
+function isTrackablePublicBook(book: {
+  publicationStatus: string | null;
+  approvalStatus: string | null;
+}) {
+  return (
+    book.publicationStatus === "published" && book.approvalStatus === "approved"
+  );
+}
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -49,6 +59,10 @@ export const GET = createRoute(
       );
     } else {
       c.header("Cache-Control", "private, no-store");
+    }
+
+    if (isTrackablePublicBook(book)) {
+      await maybeRecordBookView(c, book, "web");
     }
 
     return c.html(

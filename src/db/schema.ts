@@ -73,6 +73,11 @@ export const purchaseClickSourceEnum = pgEnum("purchase_click_source", [
   "hyperview",
 ]);
 
+export const bookViewSourceEnum = pgEnum("book_view_source", [
+  "web",
+  "hyperview",
+]);
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: varchar("email", { length: 255 }).notNull(),
@@ -273,6 +278,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   collections: many(collectionItems),
   bookOfTheDay: one(bookOfTheDay),
   purchaseClicks: many(purchaseClicks),
+  bookViews: many(bookViews),
 }));
 
 export const follows = pgTable(
@@ -697,6 +703,35 @@ export const purchaseClicksRelations = relations(purchaseClicks, ({ one }) => ({
   }),
 }));
 
+export const bookViews = pgTable(
+  "book_views",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bookId: uuid("book_id")
+      .references(() => books.id)
+      .notNull(),
+    userId: uuid("user_id").references(() => users.id),
+    source: bookViewSourceEnum("source").notNull().default("web"),
+    referer: text("referer"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    bookIdIdx: index("book_views_book_id_idx").on(table.bookId),
+    createdAtIdx: index("book_views_created_at_idx").on(table.createdAt),
+  }),
+);
+
+export const bookViewsRelations = relations(bookViews, ({ one }) => ({
+  book: one(books, {
+    fields: [bookViews.bookId],
+    references: [books.id],
+  }),
+  user: one(users, {
+    fields: [bookViews.userId],
+    references: [users.id],
+  }),
+}));
+
 // Infer types from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -775,3 +810,7 @@ export type PurchaseClick = InferSelectModel<typeof purchaseClicks>;
 export type NewPurchaseClick = InferInsertModel<typeof purchaseClicks>;
 export type PurchaseClickSource =
   (typeof purchaseClickSourceEnum.enumValues)[number];
+
+export type BookView = InferSelectModel<typeof bookViews>;
+export type NewBookView = InferInsertModel<typeof bookViews>;
+export type BookViewSource = (typeof bookViewSourceEnum.enumValues)[number];

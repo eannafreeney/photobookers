@@ -9,10 +9,9 @@ import { deleteIcon, editIcon } from "../../../../../lib/icons";
 import { formatDate } from "../../../../../utils";
 import PreviewButton from "../../../../api/components/PreviewButton";
 import {
-  findCollectionCount,
-  findWishlistCount,
-} from "../../../../api/services";
-import { findPurchaseClickCounts } from "../../../../purchase-clicks/services";
+  getBookFunnelCounts,
+  type BookFunnelCounts,
+} from "../../../../book-analytics/funnel";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import BookStatusForm from "../forms/BookStatusForm";
 import { getAllBooksAdmin } from "../services";
@@ -43,7 +42,13 @@ const AdminBooksTableAndFilter = async ({
   if (error) return <div>{error.reason}</div>;
 
   const { books, totalPages, page } = result;
-  const clickCounts = await findPurchaseClickCounts(books.map((book) => book.id));
+  const funnelCounts = await getBookFunnelCounts(books.map((book) => book.id));
+  const emptyFunnel: BookFunnelCounts = {
+    views: 0,
+    wishlists: 0,
+    collections: 0,
+    outboundClicks: 0,
+  };
 
   const targetId = "books-table-body";
 
@@ -69,6 +74,7 @@ const AdminBooksTableAndFilter = async ({
               <Table.HeadRow>Artist</Table.HeadRow>
               <Table.HeadRow>Publisher</Table.HeadRow>
               <Table.HeadRow>Release Date</Table.HeadRow>
+              <Table.HeadRow>Views</Table.HeadRow>
               <Table.HeadRow>Wishlists</Table.HeadRow>
               <Table.HeadRow>Collections</Table.HeadRow>
               <Table.HeadRow>Outbound clicks</Table.HeadRow>
@@ -83,7 +89,7 @@ const AdminBooksTableAndFilter = async ({
                 key={book.id}
                 book={book}
                 user={user}
-                clickCount={clickCounts.get(book.id) ?? 0}
+                funnel={funnelCounts.get(book.id) ?? emptyFunnel}
               />
             ))}
           </Table.Body>
@@ -104,10 +110,10 @@ export default AdminBooksTableAndFilter;
 type BooksTableRowProps = {
   book: BookWithAdminRelations;
   user: AuthUser | null;
-  clickCount: number;
+  funnel: BookFunnelCounts;
 };
 
-const BooksTableRow = ({ book, user, clickCount }: BooksTableRowProps) => {
+const BooksTableRow = ({ book, user, funnel }: BooksTableRowProps) => {
   if (!user) return <></>;
 
   const alpineAttrs = {
@@ -156,13 +162,16 @@ const BooksTableRow = ({ book, user, clickCount }: BooksTableRowProps) => {
         {book.releaseDate ? formatDate(book.releaseDate) : ""}
       </Table.BodyRow>
       <Table.BodyRow>
-        <WishlistCount bookId={book.id} />
+        <Card.Text>{funnel.views}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
-        <CollectionCount bookId={book.id} />
+        <Card.Text>{funnel.wishlists}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
-        <Card.Text>{clickCount}</Card.Text>
+        <Card.Text>{funnel.collections}</Card.Text>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Card.Text>{funnel.outboundClicks}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
         <BookApprovalStatusPill
@@ -192,14 +201,4 @@ const BooksTableRow = ({ book, user, clickCount }: BooksTableRowProps) => {
       </Table.BodyRow>
     </tr>
   );
-};
-
-const WishlistCount = async ({ bookId }: { bookId: string }) => {
-  const wishlistCount = await findWishlistCount(bookId);
-  return <Card.Text>{wishlistCount.toString() ?? "0"}</Card.Text>;
-};
-
-const CollectionCount = async ({ bookId }: { bookId: string }) => {
-  const collectionCount = await findCollectionCount(bookId);
-  return <Card.Text>{collectionCount.toString() ?? "0"}</Card.Text>;
 };

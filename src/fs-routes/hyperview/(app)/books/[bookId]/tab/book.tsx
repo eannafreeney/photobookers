@@ -21,6 +21,7 @@ import { bookCardStyles } from "../../../../../../features/hyperview/components/
 import { artistTabStyles } from "./artist";
 import { signInPromptStyles } from "../../../../../../features/hyperview/components/SignInPrompt";
 import ErrorScreen from "../../../../../../features/hyperview/components/ErrorScreen";
+import { maybeRecordBookView } from "../../../../../../features/book-views/record";
 
 export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   const bookId = c.req.valid("param").bookId;
@@ -44,6 +45,13 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
   ].filter((url): url is string => Boolean(url));
 
   const favoritesByBookId = await favoriteFlagsForBooks(user, [book]);
+
+  if (
+    book.publicationStatus === "published" &&
+    book.approvalStatus === "approved"
+  ) {
+    await maybeRecordBookView(c, book, "hyperview");
+  }
 
   return hv(
     <AppLayout
