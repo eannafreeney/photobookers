@@ -12,6 +12,7 @@ import {
   findCollectionCount,
   findWishlistCount,
 } from "../../../../api/services";
+import { findPurchaseClickCounts } from "../../../../purchase-clicks/services";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import BookStatusForm from "../forms/BookStatusForm";
 import { getAllBooksAdmin } from "../services";
@@ -42,6 +43,7 @@ const AdminBooksTableAndFilter = async ({
   if (error) return <div>{error.reason}</div>;
 
   const { books, totalPages, page } = result;
+  const clickCounts = await findPurchaseClickCounts(books.map((book) => book.id));
 
   const targetId = "books-table-body";
 
@@ -69,6 +71,7 @@ const AdminBooksTableAndFilter = async ({
               <Table.HeadRow>Release Date</Table.HeadRow>
               <Table.HeadRow>Wishlists</Table.HeadRow>
               <Table.HeadRow>Collections</Table.HeadRow>
+              <Table.HeadRow>Outbound clicks</Table.HeadRow>
               <Table.HeadRow>Status</Table.HeadRow>
               <Table.HeadRow>Publish</Table.HeadRow>
               <Table.HeadRow>Actions</Table.HeadRow>
@@ -76,7 +79,12 @@ const AdminBooksTableAndFilter = async ({
           </Table.Head>
           <Table.Body id={targetId} {...tableBodyAttrs} xMerge="append">
             {books.map((book) => (
-              <BooksTableRow key={book.id} book={book} user={user} />
+              <BooksTableRow
+                key={book.id}
+                book={book}
+                user={user}
+                clickCount={clickCounts.get(book.id) ?? 0}
+              />
             ))}
           </Table.Body>
         </Table>
@@ -96,9 +104,10 @@ export default AdminBooksTableAndFilter;
 type BooksTableRowProps = {
   book: BookWithAdminRelations;
   user: AuthUser | null;
+  clickCount: number;
 };
 
-const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
+const BooksTableRow = ({ book, user, clickCount }: BooksTableRowProps) => {
   if (!user) return <></>;
 
   const alpineAttrs = {
@@ -151,6 +160,9 @@ const BooksTableRow = ({ book, user }: BooksTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <CollectionCount bookId={book.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Card.Text>{clickCount}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
         <BookApprovalStatusPill

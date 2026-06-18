@@ -8,6 +8,7 @@ import PreviewButton from "../../../api/components/PreviewButton";
 import PublishToggleForm from "./PublishToggleForm";
 import DeleteBookForm from "./BookDeleteForm";
 import { findCollectionCount, findWishlistCount } from "../../../api/services";
+import { findPurchaseClickCounts } from "../../../purchase-clicks/services";
 import Card from "../../../../components/app/Card";
 import Table from "../../../../components/app/Table";
 import { canEditBook } from "../../../../lib/permissions";
@@ -22,7 +23,7 @@ type Props = {
   totalPages: number;
 };
 
-const BooksOverviewDesktop = ({
+const BooksOverviewDesktop = async ({
   books,
   user,
   currentPath,
@@ -30,6 +31,7 @@ const BooksOverviewDesktop = ({
   totalPages,
 }: Props) => {
   const targetId = "books-table-body";
+  const clickCounts = await findPurchaseClickCounts(books.map((book) => book.id));
 
   const alpineAttrs = {
     "x-init": "true",
@@ -61,6 +63,7 @@ const BooksOverviewDesktop = ({
             <Table.HeadRow>Publisher</Table.HeadRow>
             <Table.HeadRow>Wishlists</Table.HeadRow>
             <Table.HeadRow>Collections</Table.HeadRow>
+            <Table.HeadRow>Outbound clicks</Table.HeadRow>
             <Table.HeadRow>Release Date</Table.HeadRow>
             <Table.HeadRow>Approval</Table.HeadRow>
             <Table.HeadRow>Publish</Table.HeadRow>
@@ -68,7 +71,11 @@ const BooksOverviewDesktop = ({
         </Table.Head>
         <Table.Body id={targetId} {...alpineAttrs}>
           {books.map((book) => (
-            <BookTableRow book={book} user={user} />
+            <BookTableRow
+              book={book}
+              user={user}
+              clickCount={clickCounts.get(book.id) ?? 0}
+            />
           ))}
         </Table.Body>
       </Table>
@@ -87,9 +94,10 @@ export default BooksOverviewDesktop;
 type RowProps = {
   book: Book & { artist: Creator | null; publisher: Creator | null };
   user: AuthUser;
+  clickCount: number;
 };
 
-const BookTableRow = ({ book, user }: RowProps) => {
+const BookTableRow = ({ book, user, clickCount }: RowProps) => {
   if (!book || !book.id || !book.slug || !book.title) {
     return <></>;
   }
@@ -133,6 +141,9 @@ const BookTableRow = ({ book, user }: RowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <CollectionCount bookId={book.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Card.Text>{clickCount}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
         {book.releaseDate

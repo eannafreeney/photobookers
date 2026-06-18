@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { PropsWithChildren } from "hono/jsx";
 import {
+  analyticsIcon,
   bellIcon,
   booksIcon,
   claimsIcon,
@@ -21,6 +22,10 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
         {plannerIcon}
         Planner
+      </NavLink>
+      <NavLink href="/dashboard/admin/analytics" currentPath={currentPath}>
+        {analyticsIcon}
+        Analytics
       </NavLink>
       <NavLink href="/dashboard/admin/books" currentPath={currentPath}>
         {booksIcon}

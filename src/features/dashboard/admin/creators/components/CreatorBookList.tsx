@@ -16,6 +16,10 @@ import {
   findCollectionCount,
   findWishlistCount,
 } from "../../../../api/services";
+import {
+  findPurchaseClickCounts,
+  getCreatorCataloguePurchaseClickTotal,
+} from "../../../../purchase-clicks/services";
 import ListNavigation from "../../../../app/components/ListNavigation";
 import DeleteBookForm from "../../../books/components/BookDeleteForm";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
@@ -45,11 +49,19 @@ const CreatorBookList = async ({
 
   const targetId = "creator-books-table-body";
 
-  const { books, totalPages, page } = result;
+  const { books, totalPages, page, creator } = result;
+  const clickCounts = await findPurchaseClickCounts(books.map((book) => book.id));
+  const catalogueClicks = await getCreatorCataloguePurchaseClickTotal(creatorId);
 
   return (
     <div class="flex flex-col gap-4">
       <SectionTitle>Books</SectionTitle>
+      <div class="rounded-radius border border-outline bg-surface px-4 py-3 text-sm text-on-surface">
+        <span class="font-semibold text-on-surface-strong">
+          Outbound clicks (all time):
+        </span>{" "}
+        {catalogueClicks} for {creator.displayName}&apos;s catalogue
+      </div>
       <div class="flex items-center justify-between gap-4">
         <TableSearch
           target="creator-books-table"
@@ -70,13 +82,18 @@ const CreatorBookList = async ({
           <Table.HeadRow>Publisher</Table.HeadRow>
           <Table.HeadRow>Wishlists</Table.HeadRow>
           <Table.HeadRow>Collections</Table.HeadRow>
+          <Table.HeadRow>Outbound clicks</Table.HeadRow>
           <Table.HeadRow>Release Date</Table.HeadRow>
           <Table.HeadRow>Publish</Table.HeadRow>
           <Table.HeadRow>Actions</Table.HeadRow>
         </Table.Head>
         <Table.Body id={targetId} xMerge="append">
           {books.map((book) => (
-            <BookTableRow book={book} user={user} />
+            <BookTableRow
+              book={book}
+              user={user}
+              clickCount={clickCounts.get(book.id) ?? 0}
+            />
           ))}
         </Table.Body>
       </Table>
@@ -96,9 +113,10 @@ export default CreatorBookList;
 type RowProps = {
   book: Book & { artist: Creator | null; publisher: Creator | null };
   user: AuthUser;
+  clickCount: number;
 };
 
-const BookTableRow = ({ book, user }: RowProps) => {
+const BookTableRow = ({ book, user, clickCount }: RowProps) => {
   if (!book || !book.id || !book.slug || !book.title) {
     return <></>;
   }
@@ -149,6 +167,9 @@ const BookTableRow = ({ book, user }: RowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <CollectionCount bookId={book.id} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <Card.Text>{clickCount}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
         {book.releaseDate

@@ -11,6 +11,7 @@ import {
   check,
   boolean,
   jsonb,
+  index,
 } from "drizzle-orm/pg-core";
 import {
   InferSelectModel,
@@ -66,6 +67,11 @@ export const newsletterCampaignStatusEnum = pgEnum(
   "newsletter_campaign_status",
   ["draft", "approved", "scheduled", "sent", "failed"],
 );
+
+export const purchaseClickSourceEnum = pgEnum("purchase_click_source", [
+  "web",
+  "hyperview",
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -266,6 +272,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   wishlists: many(wishlists),
   collections: many(collectionItems),
   bookOfTheDay: one(bookOfTheDay),
+  purchaseClicks: many(purchaseClicks),
 }));
 
 export const follows = pgTable(
@@ -661,6 +668,35 @@ export const newsletterCampaigns = pgTable(
   }),
 );
 
+export const purchaseClicks = pgTable(
+  "purchase_clicks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bookId: uuid("book_id")
+      .references(() => books.id)
+      .notNull(),
+    userId: uuid("user_id").references(() => users.id),
+    source: purchaseClickSourceEnum("source").notNull().default("web"),
+    referer: text("referer"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    bookIdIdx: index("purchase_clicks_book_id_idx").on(table.bookId),
+    createdAtIdx: index("purchase_clicks_created_at_idx").on(table.createdAt),
+  }),
+);
+
+export const purchaseClicksRelations = relations(purchaseClicks, ({ one }) => ({
+  book: one(books, {
+    fields: [purchaseClicks.bookId],
+    references: [books.id],
+  }),
+  user: one(users, {
+    fields: [purchaseClicks.userId],
+    references: [users.id],
+  }),
+}));
+
 // Infer types from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -734,3 +770,8 @@ export type CreatorInterviewStatus =
   (typeof creatorInterviewStatusEnum.enumValues)[number];
 
 export type InterviewType = (typeof interviewTypeEnum.enumValues)[number];
+
+export type PurchaseClick = InferSelectModel<typeof purchaseClicks>;
+export type NewPurchaseClick = InferInsertModel<typeof purchaseClicks>;
+export type PurchaseClickSource =
+  (typeof purchaseClickSourceEnum.enumValues)[number];

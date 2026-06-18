@@ -13,7 +13,7 @@ import { createStubCreatorProfileAdmin } from "../src/features/dashboard/admin/c
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "libraryman.csv";
+const SOURCE_CSV_FILE = "four-eyes-editions.csv";
 const AMOUNT_OF_BOOKS = 100;
 
 function sleep(ms: number) {

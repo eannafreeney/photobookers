@@ -19,6 +19,7 @@ import { getPendingClaim } from "../../../features/claims/services";
 import Banner from "../../../components/app/Banner";
 import FormPost from "../../../components/forms/FormPost";
 import VerifiedCreatorShareBanner from "../../../features/dashboard/books/components/VerifiedCreatorShareBanner";
+import CreatorPurchaseClickSummary from "../../../features/dashboard/books/components/CreatorPurchaseClickSummary";
 
 export const GET = createRoute(async (c: Context) => {
   const searchQuery = c.req.query("search");
@@ -74,6 +75,10 @@ export const GET = createRoute(async (c: Context) => {
         />
         <NavTabs currentPath={currentPath} />
         <div class="flex flex-col gap-16">
+          <CreatorPurchaseClickSummary
+            creatorId={creatorId}
+            creatorType={creatorType}
+          />
           <BooksOverviewTable
             books={books}
             isMobile={isMobile}

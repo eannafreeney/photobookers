@@ -20,6 +20,9 @@ import BookGridWrapper from "./BookGridWrapper";
 import { bookShareText, bookShareTitle } from "../../../lib/share";
 import { bookUrl } from "../spotlightUrls";
 
+const shouldTrackOutboundPurchase = (book: BookWithGalleryImages) =>
+  book.publicationStatus === "published" && book.approvalStatus === "approved";
+
 type BookDetailProps = {
   isMobile: boolean;
   galleryImages: string[];
@@ -121,7 +124,11 @@ const DetailDesktop = ({
               )}
               <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
               <TagList tags={book.tags ?? []} />
-              <PurchaseLink purchaseLink={book.purchaseLink} />
+              <PurchaseLink
+                bookSlug={book.slug}
+                purchaseLink={book.purchaseLink}
+                trackOutbound={shouldTrackOutboundPurchase(book)}
+              />
               <CommentsSection
                 bookId={book.id}
                 user={user}
@@ -197,7 +204,11 @@ const DetailMobile = ({
             <Card.Description>{book.description}</Card.Description>
           )}
           <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
-          <PurchaseLink purchaseLink={book.purchaseLink} />
+          <PurchaseLink
+            bookSlug={book.slug}
+            purchaseLink={book.purchaseLink}
+            trackOutbound={shouldTrackOutboundPurchase(book)}
+          />
           <BookCredits releaseDate={book.releaseDate} />
           <TagList tags={book.tags ?? []} />
         </Tabs.Panel>

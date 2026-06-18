@@ -1,19 +1,28 @@
 import { Behavior, Style, View } from "../../../lib/hxml-comps";
 import { Text } from "../../../lib/hxml-comps";
 import { BookWithGalleryImages } from "../../app/types";
+import { outboundPurchasePath } from "../../purchase-clicks/urls";
 import BookActions, { bookActionsStyles } from "./BookActions";
 import BookGallery, { bookGalleryStyles } from "./BookGallery";
 import DiscoveryTags, { discoveryTagStyles } from "./DiscoveryTags";
 
-/** Absolute URL for Hyperview `deep-link` (handles relative purchase links). */
 function purchaseDeepLinkHref(
   baseUrl: string,
-  purchaseLink: string | null | undefined,
+  book: BookWithGalleryImages,
 ): string | null {
-  const raw = purchaseLink?.trim();
+  const raw = book.purchaseLink?.trim();
   if (!raw) return null;
-  if (/^https?:\/\//i.test(raw)) return raw;
+
   const base = baseUrl.replace(/\/$/, "");
+  const trackOutbound =
+    book.publicationStatus === "published" &&
+    book.approvalStatus === "approved";
+
+  if (trackOutbound) {
+    return `${base}${outboundPurchasePath(book.slug, "hyperview")}`;
+  }
+
+  if (/^https?:\/\//i.test(raw)) return raw;
   return raw.startsWith("/") ? `${base}${raw}` : `${base}/${raw}`;
 }
 
@@ -38,6 +47,8 @@ function descriptionParagraphs(
 
 const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
   const paragraphs = descriptionParagraphs(book.description);
+  const purchaseHref = purchaseDeepLinkHref(baseUrl, book);
+
   return (
     <View style="book-page">
       <BookGallery galleryImages={galleryImages} />
@@ -52,13 +63,10 @@ const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
         </Text>
       ))}
       <DiscoveryTags baseUrl={baseUrl} tags={book.tags ?? []} />
-      {purchaseDeepLinkHref(baseUrl, book.purchaseLink) ? (
+      {purchaseHref ? (
         <View style="book-purchase-wrap">
           <View style="purchase-btn">
-            <Behavior
-              action="deep-link"
-              href={purchaseDeepLinkHref(baseUrl, book.purchaseLink)!}
-            />
+            <Behavior action="deep-link" href={purchaseHref} />
             <Text style="purchase-label">See more</Text>
           </View>
         </View>
