@@ -9,7 +9,7 @@ const TopBooksTable = async () => {
 
   return (
     <div class="flex flex-col gap-4">
-      <SectionTitle>Top books</SectionTitle>
+      <SectionTitle>Top books by outbound clicks</SectionTitle>
       <Table id="analytics-top-books">
         <Table.Head>
           <tr>

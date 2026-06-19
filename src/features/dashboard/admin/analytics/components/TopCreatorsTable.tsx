@@ -15,7 +15,7 @@ const TopCreatorsTable = async ({ role, title }: Props) => {
 
   return (
     <div class="flex flex-col gap-4">
-      <SectionTitle>{title}</SectionTitle>
+      <SectionTitle>{title} by outbound clicks</SectionTitle>
       <Table id={`analytics-top-${role}s`}>
         <Table.Head>
           <tr>
