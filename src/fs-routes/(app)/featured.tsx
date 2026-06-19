@@ -45,20 +45,13 @@ export const GET = createRoute(async (c: Context) => {
           <Interviews />
         </ScrollReveal>
         <ScrollReveal>
-          <PageBleed>
-            <Intersector
-              id="creators-slider-fragment"
-              endpoint="/fragments/creators-slider"
-            />
-          </PageBleed>
+          <Intersector
+            id="creators-slider-fragment"
+            endpoint="/fragments/creators-slider"
+          />
         </ScrollReveal>
         <ScrollReveal>
           <NewsletterCard />
-        </ScrollReveal>
-        <ScrollReveal>
-          <PageBleed>
-            <DiscoveryTags />
-          </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
           <Intersector
