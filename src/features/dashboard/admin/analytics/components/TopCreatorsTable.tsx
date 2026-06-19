@@ -2,6 +2,7 @@ import Link from "../../../../../components/app/Link";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import Table from "../../../../../components/app/Table";
 import { CreatorType } from "../../../../../db/schema";
+import ListNavigation from "../../../../app/components/ListNavigation";
 import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
 import { getTopCreatorsByClicks } from "../../../../purchase-clicks/services";
 
@@ -9,16 +10,26 @@ type Props = {
   role: Extract<CreatorType, "artist" | "publisher">;
   title: string;
   dateRange: AnalyticsDateRange | null;
+  currentPath: string;
 };
 
-const TopCreatorsTable = async ({ role, title, dateRange }: Props) => {
-  const [error, rows] = await getTopCreatorsByClicks(role, 25, dateRange);
+const TopCreatorsTable = async ({
+  role,
+  title,
+  dateRange,
+  currentPath,
+}: Props) => {
+  const [error, result] = await getTopCreatorsByClicks(role, dateRange);
   if (error) return <div>{error.reason}</div>;
+
+  const targetId = `analytics-top-${role}s`;
+
+  const { creators, totalPages, page } = result;
 
   return (
     <div class="flex flex-col gap-4">
       <SectionTitle>{title} by outbound clicks</SectionTitle>
-      <Table id={`analytics-top-${role}s`}>
+      <Table id={targetId}>
         <Table.Head>
           <tr>
             <Table.HeadRow>Cover</Table.HeadRow>
@@ -27,12 +38,12 @@ const TopCreatorsTable = async ({ role, title, dateRange }: Props) => {
           </tr>
         </Table.Head>
         <Table.Body>
-          {rows.length === 0 ? (
+          {creators.length === 0 ? (
             <tr>
               <Table.BodyRow>No outbound clicks yet.</Table.BodyRow>
             </tr>
           ) : (
-            rows.map((row) => (
+            creators.map((row) => (
               <tr key={row.creatorId}>
                 <Table.BodyRow>
                   {row.coverUrl ? (
@@ -54,6 +65,12 @@ const TopCreatorsTable = async ({ role, title, dateRange }: Props) => {
           )}
         </Table.Body>
       </Table>
+      <ListNavigation
+        currentPath={currentPath}
+        page={page}
+        totalPages={totalPages}
+        targetId={targetId}
+      />
     </div>
   );
 };

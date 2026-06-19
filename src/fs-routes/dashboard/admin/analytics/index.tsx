@@ -16,10 +16,13 @@ import AnalyticsTrendCharts from "../../../../features/dashboard/admin/analytics
 import TopBooksTable from "../../../../features/dashboard/admin/analytics/components/TopBooksTable";
 import TopBooksByViewsTable from "../../../../features/dashboard/admin/analytics/components/TopBooksByViewsTable";
 import TopCreatorsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsTable";
+import { paginationRequestBaseUrl } from "../../../../lib/pagination";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const booksPaginationBaseUrl = paginationRequestBaseUrl(c.req.url);
   const currentPath = c.req.path;
   const dateRange = parseAnalyticsDateRange(
     c.req.query("from"),
@@ -53,11 +56,15 @@ export const GET = createRoute(async (c: Context) => {
               role="publisher"
               title="Top publishers"
               dateRange={dateRange}
+              currentPath={booksPaginationBaseUrl}
+              page={currentPage}
             />
             <TopCreatorsTable
               role="artist"
               title="Top artists"
               dateRange={dateRange}
+              currentPath={booksPaginationBaseUrl}
+              page={currentPage}
             />
           </div>
         </Sidebar>

@@ -12,6 +12,7 @@ import {
   type AnalyticsDateRange,
 } from "../book-analytics/dateRange";
 import { err, ok } from "../../lib/result";
+import { getPagination } from "../../lib/pagination";
 
 const MAX_REFERER_LENGTH = 512;
 
@@ -100,9 +101,7 @@ export const getCreatorCataloguePurchaseClickTotal = async (
     .select({ value: count() })
     .from(purchaseClicks)
     .innerJoin(books, eq(purchaseClicks.bookId, books.id))
-    .where(
-      or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)),
-    );
+    .where(or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)));
 
   return result[0]?.value ?? 0;
 };
@@ -116,11 +115,15 @@ export const getPurchaseClickTotals = async (
     : db.select({ value: count() }).from(purchaseClicks);
   const distinctBooks = dateFilter
     ? db
-        .select({ value: sql<number>`count(distinct ${purchaseClicks.bookId})` })
+        .select({
+          value: sql<number>`count(distinct ${purchaseClicks.bookId})`,
+        })
         .from(purchaseClicks)
         .where(dateFilter)
     : db
-        .select({ value: sql<number>`count(distinct ${purchaseClicks.bookId})` })
+        .select({
+          value: sql<number>`count(distinct ${purchaseClicks.bookId})`,
+        })
         .from(purchaseClicks);
   const distinctPublishers = dateFilter
     ? db
@@ -247,8 +250,9 @@ export const getTopBooksByClicks = async (
 
 export const getTopCreatorsByClicks = async (
   role: Extract<CreatorType, "artist" | "publisher">,
-  limit = 25,
   range?: AnalyticsDateRange | null,
+  currentPage: number = 1,
+  defaultLimit = 10,
 ) => {
   try {
     const creatorColumn =
@@ -273,13 +277,24 @@ export const getTopCreatorsByClicks = async (
         creators.coverUrl,
       )
       .orderBy(desc(count(purchaseClicks.id)))
-      .limit(limit);
+      .limit(defaultLimit);
 
     const rows = dateFilter ? await query.where(dateFilter) : await query;
 
-    return ok(rows);
+    if (rows.length === 0) return ok({ creators: [], totalPages: 1, page: 1 });
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      rows.length,
+      defaultLimit,
+    );
+
+    return ok({ creators: rows, totalPages, page });
   } catch (error) {
     console.error("Failed to get top creators by clicks", error);
-    return err({ reason: "Failed to get top creators by clicks", cause: error });
+    return err({
+      reason: "Failed to get top creators by clicks",
+      cause: error,
+    });
   }
 };
