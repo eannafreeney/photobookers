@@ -13,6 +13,7 @@ import ScrollReveal from "../../components/app/ScrollReveal";
 import Interviews from "../../features/app/components/Interviews";
 import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
 import ThisWeekOnPhotobookersLink from "../../features/app/components/ThisWeekOnPhotobookersLink";
+import PageBleed from "../../components/layouts/PageContent";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -44,13 +45,20 @@ export const GET = createRoute(async (c: Context) => {
           <Interviews />
         </ScrollReveal>
         <ScrollReveal>
-          <Intersector
-            id="creators-slider-fragment"
-            endpoint="/fragments/creators-slider"
-          />
+          <PageBleed>
+            <Intersector
+              id="creators-slider-fragment"
+              endpoint="/fragments/creators-slider"
+            />
+          </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
           <NewsletterCard />
+        </ScrollReveal>
+        <ScrollReveal>
+          <PageBleed>
+            <DiscoveryTags />
+          </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
           <Intersector

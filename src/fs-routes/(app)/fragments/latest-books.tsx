@@ -17,7 +17,12 @@ export const GET = createRoute(async (c) => {
   const q = c.req.query("q") ?? null;
   const sort = resolveBookCatalogSort(c.req.query("sort"), DEFAULT_SORT);
   const isFiltered = Boolean(tag?.trim() || (q?.trim()?.length ?? 0) >= 3);
-  const viewAllHref = booksFilterUrl("/books", { tag, q, sort, defaultSort: DEFAULT_SORT });
+  const viewAllHref = booksFilterUrl("/books", {
+    tag,
+    q,
+    sort,
+    defaultSort: DEFAULT_SORT,
+  });
 
   const [error, result] = await getFilteredBooks({
     tag,

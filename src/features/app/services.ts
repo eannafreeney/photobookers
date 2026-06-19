@@ -13,11 +13,13 @@ import {
   ne,
   or,
   sql,
+  type SQL,
 } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   bookComments,
   books,
+  bookViews,
   collectionItems,
   creatorInterviews,
   creators,
@@ -603,6 +605,68 @@ export const getBooksByTag = async (
   }
 };
 
+const catalogBookWith = {
+  artist: {
+    columns: CREATOR_CARD_COLUMNS,
+  },
+  publisher: {
+    columns: CREATOR_CARD_COLUMNS,
+  },
+};
+
+const findCatalogBooks = async ({
+  where,
+  limit,
+  offset,
+  sort,
+}: {
+  where?: SQL;
+  limit: number;
+  offset: number;
+  sort: BookCatalogSort;
+}) => {
+  if (sort === "newest") {
+    return db.query.books.findMany({
+      columns: BOOK_CARD_COLUMNS,
+      where,
+      limit,
+      offset,
+      orderBy: getBookCatalogOrderBy(sort),
+      with: catalogBookWith,
+    });
+  }
+
+  const viewCount = sql<number>`coalesce(count(${bookViews.id}), 0)`;
+  const orderBy =
+    sort === "most_trending"
+      ? [desc(viewCount), desc(books.id)]
+      : [asc(viewCount), asc(books.id)];
+
+  const idRows = await db
+    .select({ id: books.id })
+    .from(books)
+    .leftJoin(bookViews, eq(bookViews.bookId, books.id))
+    .where(where)
+    .groupBy(books.id)
+    .orderBy(...orderBy)
+    .limit(limit)
+    .offset(offset);
+
+  const bookIds = idRows.map((row) => row.id);
+  if (bookIds.length === 0) return [];
+
+  const foundBooks = await db.query.books.findMany({
+    columns: BOOK_CARD_COLUMNS,
+    where: inArray(books.id, bookIds),
+    with: catalogBookWith,
+  });
+
+  const byId = new Map(foundBooks.map((book) => [book.id, book]));
+  return bookIds
+    .map((id) => byId.get(id))
+    .filter((book): book is NonNullable<typeof book> => book !== undefined);
+};
+
 export const getLatestBooks = async (
   currentPage: number,
   defaultLimit = 15,
@@ -620,24 +684,15 @@ export const getLatestBooks = async (
       defaultLimit,
     );
 
-    const foundBooks = await db.query.books.findMany({
-      columns: BOOK_CARD_COLUMNS,
+    const foundBooks = await findCatalogBooks({
       where: and(
         eq(books.publicationStatus, "published"),
         eq(books.approvalStatus, "approved"),
         or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
       ),
-      limit: limit,
-      offset: offset,
-      orderBy: getBookCatalogOrderBy(sort),
-      with: {
-        artist: {
-          columns: CREATOR_CARD_COLUMNS,
-        },
-        publisher: {
-          columns: CREATOR_CARD_COLUMNS,
-        },
-      },
+      limit,
+      offset,
+      sort,
     });
     return ok({ books: foundBooks, totalPages, page });
   } catch (error) {
@@ -728,20 +783,11 @@ export const getFilteredBooks = async ({
       defaultLimit,
     );
 
-    const foundBooks = await db.query.books.findMany({
-      columns: BOOK_CARD_COLUMNS,
+    const foundBooks = await findCatalogBooks({
       where: whereClause,
       limit,
       offset,
-      orderBy: getBookCatalogOrderBy(sort),
-      with: {
-        artist: {
-          columns: CREATOR_CARD_COLUMNS,
-        },
-        publisher: {
-          columns: CREATOR_CARD_COLUMNS,
-        },
-      },
+      sort,
     });
 
     return ok({ books: foundBooks, totalPages, page });
@@ -780,20 +826,11 @@ const getBooksByTagForCatalog = async (
     defaultLimit,
   );
 
-  const foundBooks = await db.query.books.findMany({
-    columns: BOOK_CARD_COLUMNS,
+  const foundBooks = await findCatalogBooks({
     where: publishedConditions,
     limit,
     offset,
-    orderBy: getBookCatalogOrderBy(sort),
-    with: {
-      artist: {
-        columns: CREATOR_CARD_COLUMNS,
-      },
-      publisher: {
-        columns: CREATOR_CARD_COLUMNS,
-      },
-    },
+    sort,
   });
 
   return ok({ books: foundBooks, totalPages, page });

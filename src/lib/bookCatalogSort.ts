@@ -1,5 +1,5 @@
-import { asc, desc, sql } from "drizzle-orm";
-import { bookViews, books } from "../db/schema";
+import { desc } from "drizzle-orm";
+import { books } from "../db/schema";
 
 export type BookCatalogSort = "newest" | "most_trending" | "least_trending";
 
@@ -24,17 +24,12 @@ export const parseBookCatalogSort = (
     : null;
 };
 
-const bookViewCount = sql<number>`(
-  SELECT COUNT(*)::int FROM ${bookViews}
-  WHERE ${bookViews.bookId} = ${books.id}
-)`;
-
 export const getBookCatalogOrderBy = (sort: BookCatalogSort) => {
   switch (sort) {
     case "most_trending":
-      return [desc(bookViewCount), desc(books.id)];
     case "least_trending":
-      return [asc(bookViewCount), asc(books.id)];
+      // View-based sorts use findCatalogBooks() in services.ts (join query).
+      return [desc(books.sortOrder), desc(books.id)];
     case "newest":
     default:
       return [desc(books.sortOrder), desc(books.id)];

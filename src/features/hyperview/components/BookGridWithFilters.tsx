@@ -35,12 +35,12 @@ type CatalogShellProps = FeaturedLatestBooksCatalogProps & {
   q: string | null;
 };
 
-export const FeaturedLatestBooksCatalogShell: FC<CatalogShellProps> = ({
+export const FeaturedLatestBooksCatalogShell = ({
   baseUrl,
   tag,
   q,
   ...catalogProps
-}) => (
+}: CatalogShellProps) => (
   <View
     id={BOOKS_CATALOG_TARGET_ID}
     style="books-catalog-shell"
@@ -74,7 +74,10 @@ export const loadFeaturedLatestBooksCatalog = async (
 
   if (error || !result) return null;
 
-  const favoritesByBookId = await favoriteFlagsForBooks(user ?? null, result.books);
+  const favoritesByBookId = await favoriteFlagsForBooks(
+    user ?? null,
+    result.books,
+  );
 
   return {
     books: result.books,
@@ -120,7 +123,12 @@ type Props = CatalogProps & {
   q: string | null;
 };
 
-const BookGridWithFilters: FC<Props> = ({ baseUrl, tag, q, ...catalogProps }) => (
+const BookGridWithFilters: FC<Props> = ({
+  baseUrl,
+  tag,
+  q,
+  ...catalogProps
+}) => (
   <View style="latest-books-section">
     <SectionHeader
       title="Latest Books"
