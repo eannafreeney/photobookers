@@ -1,8 +1,10 @@
 import CreatorsSlider from "../components/CreatorsSlider";
-import { getVerifiedCreators } from "../services";
+import { getTopCreatorsByViews } from "../../book-views/services";
+
+const TRENDING_CREATORS_LIMIT = 10;
 
 const CreatorsSliderFragment = async () => {
-  const [err, creators] = await getVerifiedCreators();
+  const [err, creators] = await getTopCreatorsByViews(TRENDING_CREATORS_LIMIT);
 
   if (err || !creators || creators.length === 0) return <></>;
 

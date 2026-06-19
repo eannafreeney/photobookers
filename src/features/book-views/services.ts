@@ -1,8 +1,9 @@
-import { and, count, desc, eq, inArray, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   bookViews,
   books,
+  creators,
   type BookViewSource,
   type CreatorType,
 } from "../../db/schema";
@@ -11,6 +12,10 @@ import {
   type AnalyticsDateRange,
 } from "../book-analytics/dateRange";
 import { err, ok } from "../../lib/result";
+import {
+  CREATOR_CARD_COLUMNS,
+  type CreatorCardResult,
+} from "../../constants/queries";
 
 const MAX_REFERER_LENGTH = 512;
 
@@ -193,5 +198,60 @@ export const getTopBooksByViews = async (
   } catch (error) {
     console.error("Failed to get top books by views", error);
     return err({ reason: "Failed to get top books by views", cause: error });
+  }
+};
+
+const publishedBookConditions = and(
+  eq(books.publicationStatus, "published"),
+  eq(books.approvalStatus, "approved"),
+  or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+);
+
+export const getTopCreatorsByViews = async (
+  limit = 10,
+  range?: AnalyticsDateRange | null,
+) => {
+  try {
+    const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
+    const viewQuery = db
+      .select({
+        creatorId: creators.id,
+        viewCount: count(bookViews.id),
+      })
+      .from(bookViews)
+      .innerJoin(books, eq(bookViews.bookId, books.id))
+      .innerJoin(
+        creators,
+        or(eq(creators.id, books.artistId), eq(creators.id, books.publisherId)),
+      )
+      .where(
+        dateFilter
+          ? and(publishedBookConditions, dateFilter)
+          : publishedBookConditions,
+      )
+      .groupBy(creators.id)
+      .orderBy(desc(count(bookViews.id)))
+      .limit(limit);
+
+    const viewRows = await viewQuery;
+
+    if (viewRows.length === 0) return ok([]);
+
+    const creatorIds = viewRows.map((row) => row.creatorId);
+    const creatorRows = await db.query.creators.findMany({
+      where: inArray(creators.id, creatorIds),
+      columns: CREATOR_CARD_COLUMNS,
+    });
+
+    const creatorById = new Map(creatorRows.map((creator) => [creator.id, creator]));
+
+    const rows = viewRows
+      .map((viewRow) => creatorById.get(viewRow.creatorId))
+      .filter((creator): creator is CreatorCardResult => creator !== undefined);
+
+    return ok(rows);
+  } catch (error) {
+    console.error("Failed to get top creators by views", error);
+    return err({ reason: "Failed to get top creators by views", cause: error });
   }
 };
