@@ -16,7 +16,7 @@ const NewUserCredentialsModal = ({
   creator,
   title = "User created – send these credentials",
 }: Props) => {
-  const credentialsText = `https://photobookers.com/auth/login?email=${email}&password=${temporaryPassword}`;
+  const credentialsText = `https://photobookers.com/auth/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(temporaryPassword)}`;
   return (
     <Modal title={title}>
       <div class="flex flex-col gap-2">

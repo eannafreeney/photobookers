@@ -11,6 +11,13 @@ export const GET = createRoute(async (c: Context) => {
   const safeRedirectUrl = safeAppRedirect(q ?? null, "/");
   const user = await getUser(c);
 
+  if (!user) {
+    const returnTo = `/auth/force-reset-password?redirectUrl=${encodeURIComponent(safeRedirectUrl)}`;
+    return c.redirect(
+      `/auth/login?redirectUrl=${encodeURIComponent(returnTo)}`,
+    );
+  }
+
   const alpineAttrs = {
     "x-data": "resetPasswordForm()",
     "x-on:submit": "submitForm($event)",
@@ -25,7 +32,7 @@ export const GET = createRoute(async (c: Context) => {
           <div class="card w-96 bg-base-100 shadow-none border-none my-4">
             <div class="card-body">
               <div class="text-2xl font-bold text-center mb-4">
-                Hi {user?.firstName ?? "there"}!
+                Hi {user.firstName ?? "there"}!
               </div>
               <div class="text-sm text-center mb-4">
                 Please reset your password below.

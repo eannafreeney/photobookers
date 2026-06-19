@@ -9,12 +9,11 @@ import { ResetPasswordFormContext } from "../../features/auth/types";
 import {
   getMustResetPasswordState,
   clearMustResetPassword,
-  setCookiesAndVerifyUser,
+  loginAndSetCookies,
 } from "../../features/auth/services";
 import { safeAppRedirect } from "../../lib/safeAppRedirect";
 import { supabaseAdmin } from "../../lib/supabase";
 import { createUserVerifiedNotification } from "../../features/dashboard/admin/notifications/utils";
-import { supabaseAnon } from "../../lib/supabase";
 import { generateVerificationWelcomeEmail } from "../../features/auth/emails";
 import { sendEmail } from "../../lib/sendEmail";
 
@@ -48,26 +47,28 @@ export const POST = createRoute(
     if (wasForcedResetPasswordError)
       return showErrorAlert(c, wasForcedResetPasswordError.reason);
 
+    const { data: authUserData, error: authUserLookupError } =
+      await supabaseAdmin.auth.admin.getUserById(user.id);
+    if (authUserLookupError)
+      return showErrorAlert(c, authUserLookupError.message);
+
+    const authEmail = authUserData.user?.email ?? user.email;
+
     const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
       password,
     });
 
     if (error) return showErrorAlert(c, error.message);
 
+    const [loginErr] = await loginAndSetCookies(c, authEmail, password);
+    if (loginErr) return showErrorAlert(c, loginErr.reason);
+
     const [setResetPasswordFlagError] = await clearMustResetPassword(user.id);
     if (setResetPasswordFlagError)
       return showErrorAlert(c, setResetPasswordFlagError.reason);
 
-    // generate verification welcome email if user was forced to reset password and is not in modal
     if (wasForcedResetPassword && !isModal) {
-      const { data: authUser, error: authUserError } =
-        await supabaseAdmin.auth.admin.getUserById(user.id);
-      if (authUserError) {
-        console.error(
-          "Deferred welcome email: getUserById failed:",
-          authUserError,
-        );
-      } else if (authUser.user?.user_metadata.claimIntent === true) {
+      if (authUserData.user?.user_metadata.claimIntent === true) {
         const emailWelcomeName = user.firstName ?? "there";
         const [emailError] = await sendEmail(
           user.email,
@@ -83,20 +84,11 @@ export const POST = createRoute(
       }
     }
 
-    const welcomeName = user.creator?.displayName ?? user.firstName ?? "A user";
-
     if (wasForcedResetPassword) {
+      const welcomeName =
+        user.creator?.displayName ?? user.firstName ?? "A user";
       await createUserVerifiedNotification(welcomeName, user);
     }
-
-    const { data } = await supabaseAnon.auth.signInWithPassword({
-      email: user.email,
-      password,
-    });
-
-    if (!data.session) return showErrorAlert(c, "Failed to sign in");
-
-    await setCookiesAndVerifyUser(c, data.session);
 
     if (isModal) {
       return showSuccessAlert(

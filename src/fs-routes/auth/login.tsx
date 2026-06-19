@@ -43,7 +43,7 @@ export const POST = createRoute(
   async (c: LoginFormContext) => {
     const formData = c.req.valid("form");
     const redirectUrl = c.req.valid("param").redirectUrl;
-    const email = formData.email as string;
+    const email = (formData.email as string).trim().toLowerCase();
     const password = formData.password as string;
     const [loginErr, login] = await loginAndSetCookies(c, email, password);
 
