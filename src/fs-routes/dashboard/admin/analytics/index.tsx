@@ -57,14 +57,12 @@ export const GET = createRoute(async (c: Context) => {
               title="Top publishers"
               dateRange={dateRange}
               currentPath={booksPaginationBaseUrl}
-              page={currentPage}
             />
             <TopCreatorsTable
               role="artist"
               title="Top artists"
               dateRange={dateRange}
               currentPath={booksPaginationBaseUrl}
-              page={currentPage}
             />
           </div>
         </Sidebar>
