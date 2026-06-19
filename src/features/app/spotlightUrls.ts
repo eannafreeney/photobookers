@@ -2,7 +2,12 @@ import { toDateString, toWeekString } from "../../lib/utils";
 
 // app
 
-const appBaseUrl = process.env.PUBLIC_APP_URL ?? "https://www.photobookers.com";
+function appBaseUrl(): string {
+  if (typeof process !== "undefined" && process.env.PUBLIC_APP_URL) {
+    return process.env.PUBLIC_APP_URL;
+  }
+  return "https://www.photobookers.com";
+}
 
 export function bookPath(slug: string): string {
   return `/books/${slug}`;
@@ -13,11 +18,11 @@ export function creatorPath(slug: string): string {
 }
 
 export function bookUrl(slug: string): string {
-  return `${appBaseUrl}${bookPath(slug)}`;
+  return `${appBaseUrl()}${bookPath(slug)}`;
 }
 
 export function creatorUrl(slug: string): string {
-  return `${appBaseUrl}${creatorPath(slug)}`;
+  return `${appBaseUrl()}${creatorPath(slug)}`;
 }
 
 export function botdIndexPath(): string {
@@ -41,15 +46,15 @@ export function potwPath(weekStart: Date): string {
 }
 
 export function botdUrl(date: Date): string {
-  return `${appBaseUrl}${botdPath(date)}`;
+  return `${appBaseUrl()}${botdPath(date)}`;
 }
 
 export function aotwUrl(weekStart: Date): string {
-  return `${appBaseUrl}${aotwPath(weekStart)}`;
+  return `${appBaseUrl()}${aotwPath(weekStart)}`;
 }
 
 export function potwUrl(weekStart: Date): string {
-  return `${appBaseUrl}${potwPath(weekStart)}`;
+  return `${appBaseUrl()}${potwPath(weekStart)}`;
 }
 
 export function thisWeekPath(weekStart?: Date): string {
@@ -58,7 +63,7 @@ export function thisWeekPath(weekStart?: Date): string {
 }
 
 export function thisWeekUrl(weekStart?: Date): string {
-  return `${appBaseUrl}${thisWeekPath(weekStart)}`;
+  return `${appBaseUrl()}${thisWeekPath(weekStart)}`;
 }
 
 export function linksPath(): string {
@@ -66,5 +71,5 @@ export function linksPath(): string {
 }
 
 export function linksUrl(): string {
-  return `${appBaseUrl}${linksPath()}`;
+  return `${appBaseUrl()}${linksPath()}`;
 }

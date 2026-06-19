@@ -1,7 +1,7 @@
 import CreatorsSlider from "../components/CreatorsSlider";
 import { getTopCreatorsByViews } from "../../book-views/services";
 
-const TRENDING_CREATORS_LIMIT = 10;
+const TRENDING_CREATORS_LIMIT = 20;
 
 const CreatorsSliderFragment = async () => {
   const [err, creators] = await getTopCreatorsByViews(TRENDING_CREATORS_LIMIT);
