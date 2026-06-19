@@ -81,7 +81,7 @@ const AnalyticsDateRangeFilter = ({ dateRange }: Props) => {
             required
           />
         </label>
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary text-white">
           Apply
         </button>
       </form>

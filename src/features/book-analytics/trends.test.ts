@@ -19,12 +19,34 @@ describe("mergeDailyFunnelTrends", () => {
       [{ day: "2026-03-02", value: 2 }],
       [{ day: "2026-03-03", value: 1 }],
       [],
+      [{ day: "2026-03-01", value: 3 }],
     );
 
     expect(result).toEqual([
-      { date: "2026-03-01", views: 10, clicks: 0, wishlists: 0, collections: 0 },
-      { date: "2026-03-02", views: 0, clicks: 2, wishlists: 0, collections: 0 },
-      { date: "2026-03-03", views: 0, clicks: 0, wishlists: 1, collections: 0 },
+      {
+        date: "2026-03-01",
+        views: 10,
+        clicks: 0,
+        wishlists: 0,
+        collections: 0,
+        follows: 3,
+      },
+      {
+        date: "2026-03-02",
+        views: 0,
+        clicks: 2,
+        wishlists: 0,
+        collections: 0,
+        follows: 0,
+      },
+      {
+        date: "2026-03-03",
+        views: 0,
+        clicks: 0,
+        wishlists: 1,
+        collections: 0,
+        follows: 0,
+      },
     ]);
   });
 });

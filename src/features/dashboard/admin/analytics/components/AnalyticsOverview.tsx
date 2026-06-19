@@ -5,17 +5,21 @@ import {
   formatAnalyticsDateRangeLabel,
   type AnalyticsDateRange,
 } from "../../../../book-analytics/dateRange";
+import { getFollowTotal } from "../../../../book-analytics/trends";
 
 type Props = {
   dateRange: AnalyticsDateRange | null;
 };
 
 const AnalyticsOverview = async ({ dateRange }: Props) => {
-  const [viewTotals, clickTotals, funnelTotals] = await Promise.all([
-    getBookViewTotals(dateRange),
-    getPurchaseClickTotals(dateRange),
-    getOverallFunnelTotals(dateRange),
-  ]);
+  const [viewTotals, clickTotals, funnelTotals, followTotal] = await Promise.all(
+    [
+      getBookViewTotals(dateRange),
+      getPurchaseClickTotals(dateRange),
+      getOverallFunnelTotals(dateRange),
+      getFollowTotal(dateRange),
+    ],
+  );
 
   const clickRateLabel =
     funnelTotals.clickRate !== null ? `${funnelTotals.clickRate}%` : "—";
@@ -33,6 +37,7 @@ const AnalyticsOverview = async ({ dateRange }: Props) => {
         <StatCard label="Overall click rate" value={clickRateLabel} />
         <StatCard label="Total wishlists" value={funnelTotals.wishlists} />
         <StatCard label="Total collections" value={funnelTotals.collections} />
+        <StatCard label="Total follows" value={followTotal} />
       </div>
     </div>
   );

@@ -18,25 +18,18 @@ const CHART_HEIGHT = 240;
 const PADDING = { top: 16, right: 16, bottom: 32, left: 48 };
 
 const FUNNEL_SERIES = [
-  { key: "views" as const, label: "Views", color: "#2563eb" },
-  { key: "clicks" as const, label: "Outbound clicks", color: "#dc2626" },
-  { key: "wishlists" as const, label: "Wishlists", color: "#7c3aed" },
-  { key: "collections" as const, label: "Collections", color: "#059669" },
+  { key: "views" as const, label: "Views", color: "#1d4ed8" },
+  { key: "clicks" as const, label: "Outbound clicks", color: "#b91c1c" },
+  { key: "wishlists" as const, label: "Wishlists", color: "#c026d3" },
+  { key: "collections" as const, label: "Collections", color: "#047857" },
+  { key: "follows" as const, label: "Follows", color: "#d97706" },
 ];
 
 const SOURCE_SERIES = [
-  { key: "viewsWeb" as const, label: "Web views", color: "#2563eb" },
-  {
-    key: "viewsHyperview" as const,
-    label: "Hyperview views",
-    color: "#60a5fa",
-  },
-  { key: "clicksWeb" as const, label: "Web clicks", color: "#dc2626" },
-  {
-    key: "clicksHyperview" as const,
-    label: "Hyperview clicks",
-    color: "#f87171",
-  },
+  { key: "viewsWeb" as const, label: "Web views", color: "#1e3a8a" },
+  { key: "viewsHyperview" as const, label: "iOS views", color: "#ea580c" },
+  { key: "clicksWeb" as const, label: "Web clicks", color: "#991b1b" },
+  { key: "clicksHyperview" as const, label: "iOS clicks", color: "#6d28d9" },
 ];
 
 const AnalyticsTrendCharts = async ({ chartRange, dateRange }: Props) => {
@@ -153,7 +146,7 @@ const ChartBlock = <T extends { date: string }>({
                 key={item.key}
                 fill="none"
                 stroke={item.color}
-                stroke-width="2"
+                stroke-width="2.5"
                 points={polyline}
               />
             );
@@ -176,7 +169,7 @@ const ChartBlock = <T extends { date: string }>({
           {series.map((item) => (
             <div key={item.key} class="flex items-center gap-2">
               <span
-                class="inline-block h-2 w-2 rounded-full"
+                class="inline-block h-2.5 w-2.5 rounded-full"
                 style={{ backgroundColor: item.color }}
               />
               <span>{item.label}</span>

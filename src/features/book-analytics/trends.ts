@@ -3,6 +3,7 @@ import { db } from "../../db/client";
 import {
   bookViews,
   collectionItems,
+  follows,
   purchaseClicks,
   wishlists,
   type BookViewSource,
@@ -21,6 +22,7 @@ export type DailyTrendPoint = {
   clicks: number;
   wishlists: number;
   collections: number;
+  follows: number;
 };
 
 export type DailySourceTrendPoint = {
@@ -57,6 +59,7 @@ export function mergeDailyFunnelTrends(
   clicks: DailyCountRow[],
   wishlistRows: DailyCountRow[],
   collectionRows: DailyCountRow[],
+  followRows: DailyCountRow[],
 ): DailyTrendPoint[] {
   const viewsByDay = new Map(views.map((row) => [normalizeDay(row.day), row.value]));
   const clicksByDay = new Map(
@@ -68,6 +71,9 @@ export function mergeDailyFunnelTrends(
   const collectionsByDay = new Map(
     collectionRows.map((row) => [normalizeDay(row.day), row.value]),
   );
+  const followsByDay = new Map(
+    followRows.map((row) => [normalizeDay(row.day), row.value]),
+  );
 
   return eachDayInRange(range).map((date) => ({
     date,
@@ -75,6 +81,7 @@ export function mergeDailyFunnelTrends(
     clicks: clicksByDay.get(date) ?? 0,
     wishlists: wishlistsByDay.get(date) ?? 0,
     collections: collectionsByDay.get(date) ?? 0,
+    follows: followsByDay.get(date) ?? 0,
   }));
 }
 
@@ -122,12 +129,14 @@ async function getDailyCounts(
     | typeof bookViews
     | typeof purchaseClicks
     | typeof wishlists
-    | typeof collectionItems,
+    | typeof collectionItems
+    | typeof follows,
   createdAtColumn:
     | typeof bookViews.createdAt
     | typeof purchaseClicks.createdAt
     | typeof wishlists.createdAt
-    | typeof collectionItems.createdAt,
+    | typeof collectionItems.createdAt
+    | typeof follows.createdAt,
   range: AnalyticsDateRange,
 ): Promise<DailyCountRow[]> {
   const dateFilter = buildCreatedAtFilter(createdAtColumn, range);
@@ -183,14 +192,33 @@ async function getDailySourceCounts(
 export async function getDailyFunnelTrends(
   range: AnalyticsDateRange,
 ): Promise<DailyTrendPoint[]> {
-  const [views, clicks, wishlistRows, collectionRows] = await Promise.all([
-    getDailyCounts(bookViews, bookViews.createdAt, range),
-    getDailyCounts(purchaseClicks, purchaseClicks.createdAt, range),
-    getDailyCounts(wishlists, wishlists.createdAt, range),
-    getDailyCounts(collectionItems, collectionItems.createdAt, range),
-  ]);
+  const [views, clicks, wishlistRows, collectionRows, followRows] =
+    await Promise.all([
+      getDailyCounts(bookViews, bookViews.createdAt, range),
+      getDailyCounts(purchaseClicks, purchaseClicks.createdAt, range),
+      getDailyCounts(wishlists, wishlists.createdAt, range),
+      getDailyCounts(collectionItems, collectionItems.createdAt, range),
+      getDailyCounts(follows, follows.createdAt, range),
+    ]);
 
-  return mergeDailyFunnelTrends(range, views, clicks, wishlistRows, collectionRows);
+  return mergeDailyFunnelTrends(
+    range,
+    views,
+    clicks,
+    wishlistRows,
+    collectionRows,
+    followRows,
+  );
+}
+
+export async function getFollowTotal(
+  range?: AnalyticsDateRange | null,
+): Promise<number> {
+  const dateFilter = buildCreatedAtFilter(follows.createdAt, range);
+  const result = dateFilter
+    ? await db.select({ value: count() }).from(follows).where(dateFilter)
+    : await db.select({ value: count() }).from(follows);
+  return result[0]?.value ?? 0;
 }
 
 export async function getDailySourceTrends(
