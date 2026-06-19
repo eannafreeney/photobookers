@@ -2,15 +2,17 @@ import Link from "../../../../../components/app/Link";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import Table from "../../../../../components/app/Table";
 import { CreatorType } from "../../../../../db/schema";
+import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
 import { getTopCreatorsByClicks } from "../../../../purchase-clicks/services";
 
 type Props = {
   role: Extract<CreatorType, "artist" | "publisher">;
   title: string;
+  dateRange: AnalyticsDateRange | null;
 };
 
-const TopCreatorsTable = async ({ role, title }: Props) => {
-  const [error, rows] = await getTopCreatorsByClicks(role, 25);
+const TopCreatorsTable = async ({ role, title, dateRange }: Props) => {
+  const [error, rows] = await getTopCreatorsByClicks(role, 25, dateRange);
   if (error) return <div>{error.reason}</div>;
 
   return (

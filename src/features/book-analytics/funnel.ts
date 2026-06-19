@@ -1,4 +1,4 @@
-import { count, eq, or } from "drizzle-orm";
+import { and, count, eq, or } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   books,
@@ -22,6 +22,10 @@ import {
   getCreatorPurchaseClickTotal,
   getPurchaseClickTotals,
 } from "../purchase-clicks/services";
+import {
+  buildCreatedAtFilter,
+  type AnalyticsDateRange,
+} from "./dateRange";
 
 export type BookFunnelCounts = {
   views: number;
@@ -148,13 +152,28 @@ export async function getCreatorCatalogueFunnelTotalsAdmin(
   });
 }
 
-export async function getOverallFunnelTotals(): Promise<CatalogueFunnelTotals> {
+export async function getOverallFunnelTotals(
+  range?: AnalyticsDateRange | null,
+): Promise<CatalogueFunnelTotals> {
+  const wishlistFilter = buildCreatedAtFilter(wishlists.createdAt, range);
+  const collectionFilter = buildCreatedAtFilter(
+    collectionItems.createdAt,
+    range,
+  );
+
   const [viewTotals, clickTotals, wishlistTotal, collectionTotal] =
     await Promise.all([
-      getBookViewTotals(),
-      getPurchaseClickTotals(),
-      db.select({ value: count() }).from(wishlists),
-      db.select({ value: count() }).from(collectionItems),
+      getBookViewTotals(range),
+      getPurchaseClickTotals(range),
+      wishlistFilter
+        ? db.select({ value: count() }).from(wishlists).where(wishlistFilter)
+        : db.select({ value: count() }).from(wishlists),
+      collectionFilter
+        ? db
+            .select({ value: count() })
+            .from(collectionItems)
+            .where(collectionFilter)
+        : db.select({ value: count() }).from(collectionItems),
     ]);
 
   return withClickRate({

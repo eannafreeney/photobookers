@@ -1,4 +1,4 @@
-import { count, desc, eq, inArray, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   books,
@@ -7,6 +7,10 @@ import {
   type CreatorType,
   type PurchaseClickSource,
 } from "../../db/schema";
+import {
+  buildCreatedAtFilter,
+  type AnalyticsDateRange,
+} from "../book-analytics/dateRange";
 import { err, ok } from "../../lib/result";
 
 const MAX_REFERER_LENGTH = 512;
@@ -47,16 +51,24 @@ export const findPurchaseClickCount = async (bookId: string) => {
   return result[0]?.value ?? 0;
 };
 
-export const findPurchaseClickCounts = async (bookIds: string[]) => {
+export const findPurchaseClickCounts = async (
+  bookIds: string[],
+  range?: AnalyticsDateRange | null,
+) => {
   if (bookIds.length === 0) return new Map<string, number>();
 
+  const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
   const rows = await db
     .select({
       bookId: purchaseClicks.bookId,
       value: count(),
     })
     .from(purchaseClicks)
-    .where(inArray(purchaseClicks.bookId, bookIds))
+    .where(
+      dateFilter
+        ? and(inArray(purchaseClicks.bookId, bookIds), dateFilter)
+        : inArray(purchaseClicks.bookId, bookIds),
+    )
     .groupBy(purchaseClicks.bookId);
 
   const counts = new Map<string, number>();
@@ -95,29 +107,55 @@ export const getCreatorCataloguePurchaseClickTotal = async (
   return result[0]?.value ?? 0;
 };
 
-export const getPurchaseClickTotals = async () => {
-  const [totalClicksResult, booksWithClicksResult, publishersWithClicksResult] =
-    await Promise.all([
-      db.select({ value: count() }).from(purchaseClicks),
-      db
+export const getPurchaseClickTotals = async (
+  range?: AnalyticsDateRange | null,
+) => {
+  const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
+  const countFrom = dateFilter
+    ? db.select({ value: count() }).from(purchaseClicks).where(dateFilter)
+    : db.select({ value: count() }).from(purchaseClicks);
+  const distinctBooks = dateFilter
+    ? db
         .select({ value: sql<number>`count(distinct ${purchaseClicks.bookId})` })
-        .from(purchaseClicks),
-      db
+        .from(purchaseClicks)
+        .where(dateFilter)
+    : db
+        .select({ value: sql<number>`count(distinct ${purchaseClicks.bookId})` })
+        .from(purchaseClicks);
+  const distinctPublishers = dateFilter
+    ? db
         .select({
           value: sql<number>`count(distinct ${books.publisherId})`,
         })
         .from(purchaseClicks)
         .innerJoin(books, eq(purchaseClicks.bookId, books.id))
-        .where(isNotNullPublisher()),
-    ]);
+        .where(and(isNotNullPublisher(), dateFilter))
+    : db
+        .select({
+          value: sql<number>`count(distinct ${books.publisherId})`,
+        })
+        .from(purchaseClicks)
+        .innerJoin(books, eq(purchaseClicks.bookId, books.id))
+        .where(isNotNullPublisher());
 
-  const artistsWithClicksResult = await db
-    .select({
-      value: sql<number>`count(distinct ${books.artistId})`,
-    })
-    .from(purchaseClicks)
-    .innerJoin(books, eq(purchaseClicks.bookId, books.id))
-    .where(isNotNullArtist());
+  const [totalClicksResult, booksWithClicksResult, publishersWithClicksResult] =
+    await Promise.all([countFrom, distinctBooks, distinctPublishers]);
+
+  const artistsWithClicksResult = dateFilter
+    ? await db
+        .select({
+          value: sql<number>`count(distinct ${books.artistId})`,
+        })
+        .from(purchaseClicks)
+        .innerJoin(books, eq(purchaseClicks.bookId, books.id))
+        .where(and(isNotNullArtist(), dateFilter))
+    : await db
+        .select({
+          value: sql<number>`count(distinct ${books.artistId})`,
+        })
+        .from(purchaseClicks)
+        .innerJoin(books, eq(purchaseClicks.bookId, books.id))
+        .where(isNotNullArtist());
 
   const publishersWithClicks = publishersWithClicksResult[0]?.value ?? 0;
   const artistsWithClicks = artistsWithClicksResult[0]?.value ?? 0;
@@ -137,9 +175,13 @@ function isNotNullArtist() {
   return sql`${books.artistId} IS NOT NULL`;
 }
 
-export const getTopBooksByClicks = async (limit = 25) => {
+export const getTopBooksByClicks = async (
+  limit = 25,
+  range?: AnalyticsDateRange | null,
+) => {
   try {
-    const clickRows = await db
+    const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
+    const clickQuery = db
       .select({
         bookId: purchaseClicks.bookId,
         clickCount: count(),
@@ -148,6 +190,10 @@ export const getTopBooksByClicks = async (limit = 25) => {
       .groupBy(purchaseClicks.bookId)
       .orderBy(desc(count()))
       .limit(limit);
+
+    const clickRows = dateFilter
+      ? await clickQuery.where(dateFilter)
+      : await clickQuery;
 
     if (clickRows.length === 0) return ok([]);
 
@@ -202,12 +248,14 @@ export const getTopBooksByClicks = async (limit = 25) => {
 export const getTopCreatorsByClicks = async (
   role: Extract<CreatorType, "artist" | "publisher">,
   limit = 25,
+  range?: AnalyticsDateRange | null,
 ) => {
   try {
     const creatorColumn =
       role === "publisher" ? books.publisherId : books.artistId;
+    const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
 
-    const rows = await db
+    const query = db
       .select({
         creatorId: creators.id,
         displayName: creators.displayName,
@@ -226,6 +274,8 @@ export const getTopCreatorsByClicks = async (
       )
       .orderBy(desc(count(purchaseClicks.id)))
       .limit(limit);
+
+    const rows = dateFilter ? await query.where(dateFilter) : await query;
 
     return ok(rows);
   } catch (error) {

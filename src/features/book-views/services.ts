@@ -1,4 +1,4 @@
-import { count, desc, eq, inArray, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   bookViews,
@@ -6,6 +6,10 @@ import {
   type BookViewSource,
   type CreatorType,
 } from "../../db/schema";
+import {
+  buildCreatedAtFilter,
+  type AnalyticsDateRange,
+} from "../book-analytics/dateRange";
 import { err, ok } from "../../lib/result";
 
 const MAX_REFERER_LENGTH = 512;
@@ -46,16 +50,24 @@ export const findBookViewCount = async (bookId: string) => {
   return result[0]?.value ?? 0;
 };
 
-export const findBookViewCounts = async (bookIds: string[]) => {
+export const findBookViewCounts = async (
+  bookIds: string[],
+  range?: AnalyticsDateRange | null,
+) => {
   if (bookIds.length === 0) return new Map<string, number>();
 
+  const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
   const rows = await db
     .select({
       bookId: bookViews.bookId,
       value: count(),
     })
     .from(bookViews)
-    .where(inArray(bookViews.bookId, bookIds))
+    .where(
+      dateFilter
+        ? and(inArray(bookViews.bookId, bookIds), dateFilter)
+        : inArray(bookViews.bookId, bookIds),
+    )
     .groupBy(bookViews.bookId);
 
   const counts = new Map<string, number>();
@@ -92,12 +104,20 @@ export const getCreatorCatalogueBookViewTotal = async (creatorId: string) => {
   return result[0]?.value ?? 0;
 };
 
-export const getBookViewTotals = async () => {
+export const getBookViewTotals = async (range?: AnalyticsDateRange | null) => {
+  const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
   const [totalViewsResult, booksWithViewsResult] = await Promise.all([
-    db.select({ value: count() }).from(bookViews),
-    db
-      .select({ value: sql<number>`count(distinct ${bookViews.bookId})` })
-      .from(bookViews),
+    dateFilter
+      ? db.select({ value: count() }).from(bookViews).where(dateFilter)
+      : db.select({ value: count() }).from(bookViews),
+    dateFilter
+      ? db
+          .select({ value: sql<number>`count(distinct ${bookViews.bookId})` })
+          .from(bookViews)
+          .where(dateFilter)
+      : db
+          .select({ value: sql<number>`count(distinct ${bookViews.bookId})` })
+          .from(bookViews),
   ]);
 
   return {
@@ -106,9 +126,13 @@ export const getBookViewTotals = async () => {
   };
 };
 
-export const getTopBooksByViews = async (limit = 25) => {
+export const getTopBooksByViews = async (
+  limit = 25,
+  range?: AnalyticsDateRange | null,
+) => {
   try {
-    const viewRows = await db
+    const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
+    const viewQuery = db
       .select({
         bookId: bookViews.bookId,
         viewCount: count(),
@@ -117,6 +141,10 @@ export const getTopBooksByViews = async (limit = 25) => {
       .groupBy(bookViews.bookId)
       .orderBy(desc(count()))
       .limit(limit);
+
+    const viewRows = dateFilter
+      ? await viewQuery.where(dateFilter)
+      : await viewQuery;
 
     if (viewRows.length === 0) return ok([]);
 

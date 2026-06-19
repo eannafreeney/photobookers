@@ -4,6 +4,9 @@ import { BookWithGalleryImages } from "../../app/types";
 import { outboundPurchasePath } from "../../purchase-clicks/urls";
 import BookActions, { bookActionsStyles } from "./BookActions";
 import BookGallery, { bookGalleryStyles } from "./BookGallery";
+import BookPurchaseButton, {
+  bookPurchaseButtonStyles,
+} from "./BookPurchaseButton";
 import DiscoveryTags, { discoveryTagStyles } from "./DiscoveryTags";
 
 function purchaseDeepLinkHref(
@@ -63,14 +66,7 @@ const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
         </Text>
       ))}
       <DiscoveryTags baseUrl={baseUrl} tags={book.tags ?? []} />
-      {purchaseHref ? (
-        <View style="book-purchase-wrap">
-          <View style="purchase-btn">
-            <Behavior action="deep-link" href={purchaseHref} />
-            <Text style="purchase-label">See more</Text>
-          </View>
-        </View>
-      ) : null}
+      {purchaseHref ? <BookPurchaseButton purchaseHref={purchaseHref} /> : null}
     </View>
   );
 };
@@ -83,17 +79,6 @@ export const bookPageStyles = () => (
     {bookGalleryStyles()}
     {bookActionsStyles()}
     {discoveryTagStyles()}
-    <Style id="book-purchase-wrap" marginTop={4} marginBottom={16} />
-    <Style
-      id="purchase-btn"
-      paddingTop={10}
-      paddingBottom={10}
-      paddingLeft={20}
-      paddingRight={20}
-      borderRadius={0}
-      backgroundColor="#191613"
-      alignItems="center"
-    />
-    <Style id="purchase-label" fontSize={14} fontWeight="600" color="#fbfaf7" />
+    {bookPurchaseButtonStyles()}
   </>
 );

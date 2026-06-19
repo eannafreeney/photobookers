@@ -12,6 +12,10 @@ import {
   likes,
   wishlists,
 } from "../../db/schema";
+import {
+  buildCreatedAtFilter,
+  type AnalyticsDateRange,
+} from "../book-analytics/dateRange";
 import { err, isOk, ok } from "../../lib/result";
 import { Result } from "drizzle-orm/sqlite-core";
 
@@ -88,16 +92,24 @@ export const findWishlistCount = async (bookId: string) => {
   return result[0]?.value ?? 0;
 };
 
-export const findWishlistCounts = async (bookIds: string[]) => {
+export const findWishlistCounts = async (
+  bookIds: string[],
+  range?: AnalyticsDateRange | null,
+) => {
   if (bookIds.length === 0) return new Map<string, number>();
 
+  const dateFilter = buildCreatedAtFilter(wishlists.createdAt, range);
   const rows = await db
     .select({
       bookId: wishlists.bookId,
       value: count(),
     })
     .from(wishlists)
-    .where(inArray(wishlists.bookId, bookIds))
+    .where(
+      dateFilter
+        ? and(inArray(wishlists.bookId, bookIds), dateFilter)
+        : inArray(wishlists.bookId, bookIds),
+    )
     .groupBy(wishlists.bookId);
 
   const counts = new Map<string, number>();
@@ -114,16 +126,24 @@ export const findCollectionCount = async (bookId: string) => {
   return result[0]?.value ?? 0;
 };
 
-export const findCollectionCounts = async (bookIds: string[]) => {
+export const findCollectionCounts = async (
+  bookIds: string[],
+  range?: AnalyticsDateRange | null,
+) => {
   if (bookIds.length === 0) return new Map<string, number>();
 
+  const dateFilter = buildCreatedAtFilter(collectionItems.createdAt, range);
   const rows = await db
     .select({
       bookId: collectionItems.bookId,
       value: count(),
     })
     .from(collectionItems)
-    .where(inArray(collectionItems.bookId, bookIds))
+    .where(
+      dateFilter
+        ? and(inArray(collectionItems.bookId, bookIds), dateFilter)
+        : inArray(collectionItems.bookId, bookIds),
+    )
     .groupBy(collectionItems.bookId);
 
   const counts = new Map<string, number>();

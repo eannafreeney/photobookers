@@ -2,15 +2,21 @@ import Link from "../../../../../components/app/Link";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import Table from "../../../../../components/app/Table";
 import { formatClickRate } from "../../../../book-analytics/funnel";
+import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
 import { getTopBooksByViews } from "../../../../book-views/services";
 import { findPurchaseClickCounts } from "../../../../purchase-clicks/services";
 
-const TopBooksByViewsTable = async () => {
-  const [error, rows] = await getTopBooksByViews(25);
+type Props = {
+  dateRange: AnalyticsDateRange | null;
+};
+
+const TopBooksByViewsTable = async ({ dateRange }: Props) => {
+  const [error, rows] = await getTopBooksByViews(25, dateRange);
   if (error) return <div>{error.reason}</div>;
 
   const clickCounts = await findPurchaseClickCounts(
     rows.map((row) => row.bookId),
+    dateRange,
   );
 
   return (

@@ -1,10 +1,15 @@
 import Link from "../../../../../components/app/Link";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import Table from "../../../../../components/app/Table";
+import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
 import { getTopBooksByClicks } from "../../../../purchase-clicks/services";
 
-const TopBooksTable = async () => {
-  const [error, rows] = await getTopBooksByClicks(25);
+type Props = {
+  dateRange: AnalyticsDateRange | null;
+};
+
+const TopBooksTable = async ({ dateRange }: Props) => {
+  const [error, rows] = await getTopBooksByClicks(25, dateRange);
   if (error) return <div>{error.reason}</div>;
 
   return (
