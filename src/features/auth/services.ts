@@ -268,6 +268,26 @@ export const verifyOtpForCreatorSignup = async (
   }
 };
 
+export async function sendPasswordResetEmail(email: string) {
+  try {
+    const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
+    const redirectTo = `${baseUrl.replace(/\/$/, "")}/auth/update-password`;
+
+    const { error } = await supabaseAnon.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+
+    if (error) {
+      console.error("Password reset email error:", error.message);
+    }
+
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to send password reset email:", error);
+    return ok(undefined);
+  }
+}
+
 export const clearMustResetPassword = async (userId: string) => {
   try {
     await db

@@ -43,6 +43,11 @@ const LoginForm = ({ redirectUrl }: { redirectUrl?: string | null }) => {
           showPasswordToggle
           {...{ "x-bind:type": "inputType" }}
         />
+        <div class="flex justify-end">
+          <Link href="/auth/forgot-password">
+            <span class="text-sm font-semibold">Forgot password?</span>
+          </Link>
+        </div>
         <FormButton buttonText="Log In" loadingText="Logging in..." />
       </form>
       <p class="text-center text-sm mt-4">

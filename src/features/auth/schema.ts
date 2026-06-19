@@ -26,6 +26,11 @@ export const loginFormSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
+// ============ FORGOT PASSWORD FORM SCHEMA ============
+export const forgotPasswordFormSchema = z.object({
+  email: z.email().min(1, "Email is required"),
+});
+
 // ============ REGISTER FAN FORM SCHEMA ============
 export const registerFanFormSchema = z.object({
   firstName: z
@@ -85,4 +90,12 @@ export const processRegisterQuerySchema = z.object({
   error: z.string().optional(),
   error_code: z.string().optional(),
   error_description: z.string().optional(),
+});
+
+export const recoveryQuerySchema = z.object({
+  token_hash: z.string().optional(),
+  error: z.string().optional(),
+  error_code: z.string().optional(),
+  error_description: z.string().optional(),
+  redirectUrl: z.string().optional(),
 });

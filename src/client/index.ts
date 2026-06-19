@@ -1,4 +1,5 @@
 import { registerLoginForm } from "../features/auth/client/loginForm";
+import { registerForgotPasswordForm } from "../features/auth/client/forgotPasswordForm";
 import { registerEditCreatorForm } from "../features/dashboard/creators/client/editCreatorForm";
 import { registerBookForm } from "../features/dashboard/books/client/bookForm";
 import { registerCarouselForm } from "../features/dashboard/images/client/carouselForm";
@@ -39,6 +40,7 @@ import { registerEditInterviewForm } from "../features/dashboard/admin/interview
 // Register all Alpine.js data components
 registerAdminClaimsBadge();
 registerLoginForm();
+registerForgotPasswordForm();
 registerRegisterFanForm();
 registerRegisterCreatorForm();
 registerEditCreatorForm();

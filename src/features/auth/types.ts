@@ -3,8 +3,10 @@ import { Env } from "hono/types";
 import { Context } from "hono";
 import { redirectUrlSchema } from "../../schemas";
 import {
+  forgotPasswordFormSchema,
   loginFormSchema,
   processRegisterQuerySchema,
+  recoveryQuerySchema,
   registerCreatorFormSchema,
   registerFanFormSchema,
   resetPasswordFormSchema,
@@ -19,6 +21,12 @@ export type LoginFormContext = Context<
       param: z.infer<typeof redirectUrlSchema>;
     };
   }
+>;
+
+export type ForgotPasswordFormContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof forgotPasswordFormSchema> } }
 >;
 
 export type RegisterFanFormContext = Context<
@@ -48,6 +56,12 @@ export type ProcessRegisterQueryContext = Context<
   Env,
   string,
   { out: { query: z.infer<typeof processRegisterQuerySchema> } }
+>;
+
+export type RecoveryQueryContext = Context<
+  Env,
+  string,
+  { out: { query: z.infer<typeof recoveryQuerySchema> } }
 >;
 
 //
