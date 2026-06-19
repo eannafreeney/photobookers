@@ -6,15 +6,23 @@ import AppLayout from "../../components/layouts/AppLayout";
 import { getFilteredBooks } from "../../features/app/services";
 import PageHeader from "../../components/app/PageHeader";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
-import { booksFilterUrl } from "../../lib/tags";
+import { booksFilterUrl, resolveBookCatalogSort } from "../../lib/tags";
 import BooksGridWithFilters from "../../features/app/components/BookGridWithFilters";
+
+const DEFAULT_SORT = "newest" as const;
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const tag = c.req.query("tag") ?? null;
   const q = c.req.query("q") ?? null;
+  const sort = resolveBookCatalogSort(c.req.query("sort"), DEFAULT_SORT);
   const currentPage = Number(c.req.query("page") ?? 1);
-  const currentPath = booksFilterUrl("/books", { tag, q });
+  const currentPath = booksFilterUrl("/books", {
+    tag,
+    q,
+    sort,
+    defaultSort: DEFAULT_SORT,
+  });
   const isFiltered = Boolean(tag?.trim() || (q?.trim()?.length ?? 0) >= 3);
 
   const [error, result] = await getFilteredBooks({
@@ -22,6 +30,7 @@ export const GET = createRoute(async (c) => {
     q,
     page: currentPage,
     limit: 30,
+    sort,
   });
 
   if (error || !result) return c.html(<></>);
@@ -33,6 +42,8 @@ export const GET = createRoute(async (c) => {
           user={user}
           tag={tag}
           q={q}
+          sort={sort}
+          defaultSort={DEFAULT_SORT}
           currentPath={currentPath}
           result={result}
           isFiltered={isFiltered}
@@ -64,6 +75,8 @@ export const GET = createRoute(async (c) => {
             user={user}
             tag={tag}
             q={q}
+            sort={sort}
+            defaultSort={DEFAULT_SORT}
             currentPath={currentPath}
             result={result}
             isFiltered={isFiltered}

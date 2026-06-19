@@ -1,13 +1,16 @@
 /**
  * Pathname plus query string for load-more / infinite-scroll requests.
- * Drops `page` so the client can append a fresh `page` param.
+ * Drops the page query param so the client can append a fresh value.
  */
-export function paginationRequestBaseUrl(requestUrl: string): string {
+export function paginationRequestBaseUrl(
+  requestUrl: string,
+  pageParam = "page",
+): string {
   const base = "http://_";
   const u = requestUrl.startsWith("http")
     ? new URL(requestUrl)
     : new URL(requestUrl, base);
-  u.searchParams.delete("page");
+  u.searchParams.delete(pageParam);
   const qs = u.searchParams.toString();
   return qs ? `${u.pathname}?${qs}` : u.pathname;
 }

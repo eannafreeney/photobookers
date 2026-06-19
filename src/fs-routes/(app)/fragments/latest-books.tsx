@@ -4,24 +4,27 @@ import { BOOKS_CATALOG_TARGET_ID } from "../../../features/app/components/BookFi
 import BooksGridWithFilters from "../../../features/app/components/BookGridWithFilters";
 import ViewAllLink from "../../../features/app/components/ViewAllLink";
 import { getFilteredBooks } from "../../../features/app/services";
-import { booksFilterUrl } from "../../../lib/tags";
+import { booksFilterUrl, resolveBookCatalogSort } from "../../../lib/tags";
 import { getUser } from "../../../utils";
 
 const FEATURED_BOOKS_LIMIT = 10;
 const FRAGMENT_PATH = "/fragments/latest-books";
+const DEFAULT_SORT = "newest" as const;
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const tag = c.req.query("tag") ?? null;
   const q = c.req.query("q") ?? null;
+  const sort = resolveBookCatalogSort(c.req.query("sort"), DEFAULT_SORT);
   const isFiltered = Boolean(tag?.trim() || (q?.trim()?.length ?? 0) >= 3);
-  const viewAllHref = booksFilterUrl("/books", { tag, q });
+  const viewAllHref = booksFilterUrl("/books", { tag, q, sort, defaultSort: DEFAULT_SORT });
 
   const [error, result] = await getFilteredBooks({
     tag,
     q,
     page: 1,
     limit: FEATURED_BOOKS_LIMIT,
+    sort,
   });
 
   if (error || !result) return c.html(<></>);
@@ -31,6 +34,8 @@ export const GET = createRoute(async (c) => {
     user,
     tag,
     q,
+    sort,
+    defaultSort: DEFAULT_SORT,
     currentPath: viewAllHref,
     result,
     isFiltered,

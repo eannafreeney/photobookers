@@ -1,5 +1,6 @@
 import { AuthUser } from "../../../../types";
 import Button from "../../../components/app/Button";
+import { type BookCatalogSort } from "../../../lib/bookCatalogSort";
 import { getFilteredBooks } from "../services";
 import BookFilters from "./BookFilters";
 import BooksGrid from "./BooksGrid";
@@ -8,6 +9,8 @@ type Props = {
   user: AuthUser | null;
   tag: string | null;
   q: string | null;
+  sort: BookCatalogSort;
+  defaultSort?: BookCatalogSort;
   currentPath: string;
   result: NonNullable<Awaited<ReturnType<typeof getFilteredBooks>>[1]>;
   isFiltered: boolean;
@@ -22,6 +25,8 @@ const BooksGridWithFilters = ({
   user,
   tag,
   q,
+  sort,
+  defaultSort = "newest",
   currentPath,
   result,
   isFiltered,
@@ -35,6 +40,8 @@ const BooksGridWithFilters = ({
     <BookFilters
       activeTag={tag}
       q={q}
+      sort={sort}
+      defaultSort={defaultSort}
       ajaxPath={ajaxPath}
       historyPath={historyPath}
     />

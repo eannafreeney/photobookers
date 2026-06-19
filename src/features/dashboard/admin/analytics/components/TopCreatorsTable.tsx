@@ -11,6 +11,8 @@ type Props = {
   title: string;
   dateRange: AnalyticsDateRange | null;
   currentPath: string;
+  currentPage: number;
+  pageParam: string;
 };
 
 const TopCreatorsTable = async ({
@@ -18,8 +20,14 @@ const TopCreatorsTable = async ({
   title,
   dateRange,
   currentPath,
+  currentPage,
+  pageParam,
 }: Props) => {
-  const [error, result] = await getTopCreatorsByClicks(role, dateRange);
+  const [error, result] = await getTopCreatorsByClicks(
+    role,
+    dateRange,
+    currentPage,
+  );
   if (error) return <div>{error.reason}</div>;
 
   const targetId = `analytics-top-${role}s`;
@@ -70,6 +78,7 @@ const TopCreatorsTable = async ({
         page={page}
         totalPages={totalPages}
         targetId={targetId}
+        pageParam={pageParam}
       />
     </div>
   );

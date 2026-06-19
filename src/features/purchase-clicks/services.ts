@@ -259,7 +259,29 @@ export const getTopCreatorsByClicks = async (
       role === "publisher" ? books.publisherId : books.artistId;
     const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
 
-    const query = db
+    const countQuery = db
+      .select({
+        value: sql<number>`count(distinct ${creators.id})`,
+      })
+      .from(purchaseClicks)
+      .innerJoin(books, eq(purchaseClicks.bookId, books.id))
+      .innerJoin(creators, eq(creatorColumn, creators.id));
+
+    const [{ value: totalCount = 0 }] = dateFilter
+      ? await countQuery.where(dateFilter)
+      : await countQuery;
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    if (totalCount === 0) {
+      return ok({ creators: [], totalPages: 1, page: 1 });
+    }
+
+    const groupedQuery = db
       .select({
         creatorId: creators.id,
         displayName: creators.displayName,
@@ -269,7 +291,13 @@ export const getTopCreatorsByClicks = async (
       })
       .from(purchaseClicks)
       .innerJoin(books, eq(purchaseClicks.bookId, books.id))
-      .innerJoin(creators, eq(creatorColumn, creators.id))
+      .innerJoin(creators, eq(creatorColumn, creators.id));
+
+    const filteredQuery = dateFilter
+      ? groupedQuery.where(dateFilter)
+      : groupedQuery;
+
+    const rows = await filteredQuery
       .groupBy(
         creators.id,
         creators.displayName,
@@ -277,17 +305,8 @@ export const getTopCreatorsByClicks = async (
         creators.coverUrl,
       )
       .orderBy(desc(count(purchaseClicks.id)))
-      .limit(defaultLimit);
-
-    const rows = dateFilter ? await query.where(dateFilter) : await query;
-
-    if (rows.length === 0) return ok({ creators: [], totalPages: 1, page: 1 });
-
-    const { page, limit, offset, totalPages } = getPagination(
-      currentPage,
-      rows.length,
-      defaultLimit,
-    );
+      .limit(limit)
+      .offset(offset);
 
     return ok({ creators: rows, totalPages, page });
   } catch (error) {

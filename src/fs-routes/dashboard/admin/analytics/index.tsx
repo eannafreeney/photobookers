@@ -21,8 +21,16 @@ import { paginationRequestBaseUrl } from "../../../../lib/pagination";
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
-  const currentPage = Number(c.req.query("page") ?? 1);
-  const booksPaginationBaseUrl = paginationRequestBaseUrl(c.req.url);
+  const publisherPage = Number(c.req.query("publisherPage") ?? 1);
+  const artistPage = Number(c.req.query("artistPage") ?? 1);
+  const publisherPaginationBaseUrl = paginationRequestBaseUrl(
+    c.req.url,
+    "publisherPage",
+  );
+  const artistPaginationBaseUrl = paginationRequestBaseUrl(
+    c.req.url,
+    "artistPage",
+  );
   const currentPath = c.req.path;
   const dateRange = parseAnalyticsDateRange(
     c.req.query("from"),
@@ -56,13 +64,17 @@ export const GET = createRoute(async (c: Context) => {
               role="publisher"
               title="Top publishers"
               dateRange={dateRange}
-              currentPath={booksPaginationBaseUrl}
+              currentPath={publisherPaginationBaseUrl}
+              currentPage={publisherPage}
+              pageParam="publisherPage"
             />
             <TopCreatorsTable
               role="artist"
               title="Top artists"
               dateRange={dateRange}
-              currentPath={booksPaginationBaseUrl}
+              currentPath={artistPaginationBaseUrl}
+              currentPage={artistPage}
+              pageParam="artistPage"
             />
           </div>
         </Sidebar>

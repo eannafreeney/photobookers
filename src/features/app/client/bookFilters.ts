@@ -1,4 +1,5 @@
 import Alpine from "alpinejs";
+import type { BookCatalogSort } from "../../../lib/bookCatalogSort";
 
 export const BOOKS_CATALOG_TARGET_ID = "books-catalog";
 
@@ -7,6 +8,8 @@ const MIN_SEARCH_LENGTH = 3;
 type BookFiltersInitial = {
   q?: string;
   tag?: string | null;
+  sort?: BookCatalogSort;
+  defaultSort?: BookCatalogSort;
   ajaxPath?: string;
   /** When omitted, URL is not updated after filter changes. */
   historyPath?: string | null;
@@ -15,14 +18,31 @@ type BookFiltersInitial = {
 type BookFiltersCtx = {
   q: string;
   tag: string | null;
+  sort: BookCatalogSort;
+  defaultSort: BookCatalogSort;
   minLen: number;
   $ajax: (url: string, options?: { target?: string }) => void;
+  refreshGrid(): void;
+};
+
+const buildFilterParams = (
+  ctx: BookFiltersCtx,
+  options?: { includeFragment?: boolean },
+) => {
+  const params = new URLSearchParams();
+  if (ctx.tag) params.set("tag", ctx.tag);
+  const trimmed = ctx.q.trim();
+  if (trimmed.length >= ctx.minLen) params.set("q", trimmed);
+  if (ctx.sort !== ctx.defaultSort) params.set("sort", ctx.sort);
+  if (options?.includeFragment) params.set("fragment", "grid");
+  return params;
 };
 
 export function registerBookFilters() {
   Alpine.data("bookFilters", (initial: BookFiltersInitial = {}) => {
     const ajaxPath = initial.ajaxPath ?? "/books";
     const historyPath = initial.historyPath ?? "/books";
+    const defaultSort = initial.defaultSort ?? "newest";
 
     const replaceHistory = (params: URLSearchParams) => {
       if (historyPath === null) return;
@@ -33,21 +53,29 @@ export function registerBookFilters() {
     return {
       q: initial.q ?? "",
       tag: initial.tag ?? null,
+      sort: initial.sort ?? defaultSort,
+      defaultSort,
       minLen: MIN_SEARCH_LENGTH,
+
+      refreshGrid() {
+        const ctx = this as unknown as BookFiltersCtx;
+        const params = buildFilterParams(ctx, { includeFragment: true });
+        ctx.$ajax(ajaxPath + "?" + params.toString(), {
+          target: BOOKS_CATALOG_TARGET_ID,
+        });
+        replaceHistory(buildFilterParams(ctx));
+      },
 
       applyFilter(nextTag: string | null) {
         const ctx = this as unknown as BookFiltersCtx;
         ctx.tag = nextTag;
         ctx.q = "";
-        const params = new URLSearchParams();
-        if (nextTag) params.set("tag", nextTag);
-        params.set("fragment", "grid");
-        ctx.$ajax(ajaxPath + "?" + params.toString(), {
-          target: BOOKS_CATALOG_TARGET_ID,
-        });
-        const display = new URLSearchParams();
-        if (nextTag) display.set("tag", nextTag);
-        replaceHistory(display);
+        ctx.refreshGrid();
+      },
+
+      applySort() {
+        const ctx = this as unknown as BookFiltersCtx;
+        ctx.refreshGrid();
       },
 
       runSearch() {
@@ -56,25 +84,18 @@ export function registerBookFilters() {
         };
         const trimmed = ctx.q.trim();
         if (trimmed.length >= ctx.minLen) {
-          const params = new URLSearchParams();
-          if (ctx.tag) params.set("tag", ctx.tag);
-          params.set("q", trimmed);
-          params.set("fragment", "grid");
-          ctx.$ajax(ajaxPath + "?" + params.toString(), {
-            target: BOOKS_CATALOG_TARGET_ID,
-          });
-          const display = new URLSearchParams();
-          if (ctx.tag) display.set("tag", ctx.tag);
-          display.set("q", trimmed);
-          replaceHistory(display);
+          ctx.refreshGrid();
         } else if (trimmed.length === 0) {
-          ctx.applyFilter(null);
+          ctx.applyFilter(ctx.tag);
         }
       },
 
       clearFilters() {
-        const ctx = this as unknown as { applyFilter(nextTag: string | null): void };
-        ctx.applyFilter(null);
+        const ctx = this as unknown as BookFiltersCtx;
+        ctx.tag = null;
+        ctx.q = "";
+        ctx.sort = ctx.defaultSort;
+        ctx.refreshGrid();
       },
     };
   });

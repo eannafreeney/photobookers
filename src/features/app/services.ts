@@ -25,6 +25,10 @@ import {
   wishlists,
 } from "../../db/schema";
 import { getPagination } from "../../lib/pagination";
+import {
+  type BookCatalogSort,
+  getBookCatalogOrderBy,
+} from "../../lib/bookCatalogSort";
 import { getBooksOrderBy } from "../../lib/booksOrderBy";
 import { slugToTag } from "../../lib/tags";
 import {
@@ -602,6 +606,7 @@ export const getBooksByTag = async (
 export const getLatestBooks = async (
   currentPage: number,
   defaultLimit = 15,
+  sort: BookCatalogSort = "newest",
 ) => {
   try {
     const [{ value: totalCount = 0 }] = await db
@@ -624,7 +629,7 @@ export const getLatestBooks = async (
       ),
       limit: limit,
       offset: offset,
-      orderBy: [desc(books.sortOrder), desc(books.id)],
+      orderBy: getBookCatalogOrderBy(sort),
       with: {
         artist: {
           columns: CREATOR_CARD_COLUMNS,
@@ -646,11 +651,13 @@ export const getFilteredBooks = async ({
   q,
   page: currentPage,
   limit: defaultLimit = 30,
+  sort = "newest",
 }: {
   tag?: string | null;
   q?: string | null;
   page: number;
   limit?: number;
+  sort?: BookCatalogSort;
 }) => {
   try {
     const normalizedTag = tag?.trim() ? slugToTag(tag.trim()) : null;
@@ -658,11 +665,16 @@ export const getFilteredBooks = async ({
     const searchQ = rawQ.length >= 3 ? rawQ : "";
 
     if (!normalizedTag && !searchQ) {
-      return getLatestBooks(currentPage, defaultLimit);
+      return getLatestBooks(currentPage, defaultLimit, sort);
     }
 
     if (normalizedTag && !searchQ) {
-      return getBooksByTag(normalizedTag, currentPage, "newest", defaultLimit);
+      return getBooksByTagForCatalog(
+        normalizedTag,
+        currentPage,
+        defaultLimit,
+        sort,
+      );
     }
 
     const publishedConditions = and(
@@ -721,7 +733,7 @@ export const getFilteredBooks = async ({
       where: whereClause,
       limit,
       offset,
-      orderBy: [desc(books.sortOrder), desc(books.id)],
+      orderBy: getBookCatalogOrderBy(sort),
       with: {
         artist: {
           columns: CREATOR_CARD_COLUMNS,
@@ -737,6 +749,54 @@ export const getFilteredBooks = async ({
     console.error("Failed to get filtered books", error);
     return err({ reason: "Failed to get filtered books", error });
   }
+};
+
+const getBooksByTagForCatalog = async (
+  tag: string,
+  currentPage: number,
+  defaultLimit: number,
+  sort: BookCatalogSort,
+) => {
+  const tagCondition = sql`EXISTS (
+    SELECT 1 FROM unnest(${books.tags}) AS t
+    WHERE LOWER(t) = LOWER(${tag})
+  )`;
+
+  const publishedConditions = and(
+    eq(books.publicationStatus, "published"),
+    eq(books.approvalStatus, "approved"),
+    or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    tagCondition,
+  );
+
+  const [{ value: totalCount = 0 }] = await db
+    .select({ value: count() })
+    .from(books)
+    .where(publishedConditions);
+
+  const { page, limit, offset, totalPages } = getPagination(
+    currentPage,
+    totalCount,
+    defaultLimit,
+  );
+
+  const foundBooks = await db.query.books.findMany({
+    columns: BOOK_CARD_COLUMNS,
+    where: publishedConditions,
+    limit,
+    offset,
+    orderBy: getBookCatalogOrderBy(sort),
+    with: {
+      artist: {
+        columns: CREATOR_CARD_COLUMNS,
+      },
+      publisher: {
+        columns: CREATOR_CARD_COLUMNS,
+      },
+    },
+  });
+
+  return ok({ books: foundBooks, totalPages, page });
 };
 
 export const filterPublishedBooks = async (searchQuery: string, limit = 50) => {

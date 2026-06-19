@@ -1,6 +1,11 @@
 import Pill from "../../../components/app/Pill";
 import { DISCOVER_TAGS } from "../../../constants/discover";
-import { booksFilterUrl, tagToSlug } from "../../../lib/tags";
+import {
+  BOOK_CATALOG_SORT_LABELS,
+  BOOK_CATALOG_SORT_VALUES,
+  type BookCatalogSort,
+} from "../../../lib/bookCatalogSort";
+import { tagToSlug } from "../../../lib/tags";
 import { capitalize } from "../../../utils";
 
 export const BOOKS_LIST_TARGET_ID = "books-list";
@@ -9,6 +14,8 @@ export const BOOKS_CATALOG_TARGET_ID = "books-catalog";
 type Props = {
   activeTag?: string | null;
   q?: string | null;
+  sort?: BookCatalogSort;
+  defaultSort?: BookCatalogSort;
   ajaxPath?: string;
   historyPath?: string | null;
 };
@@ -16,6 +23,8 @@ type Props = {
 const BookFilters = ({
   activeTag = null,
   q = null,
+  sort = "newest",
+  defaultSort = "newest",
   ajaxPath = "/books",
   historyPath = "/books",
 }: Props) => {
@@ -26,6 +35,8 @@ const BookFilters = ({
     "x-data": `bookFilters(${JSON.stringify({
       q: trimmedQ,
       tag: activeSlug,
+      sort,
+      defaultSort,
       ajaxPath,
       historyPath,
     })})`,
@@ -49,7 +60,10 @@ const BookFilters = ({
           />
         ))}
       </div>
-      <FilterForm />
+      <div class="flex flex-wrap items-center gap-2">
+        <FilterForm />
+        <TrendingSortSelect />
+      </div>
     </div>
   );
 };
@@ -98,7 +112,7 @@ const FilterForm = () => {
   };
 
   return (
-    <div class="flex flex-wrap items-center gap-2">
+    <>
       <input
         type="search"
         name="q"
@@ -114,6 +128,23 @@ const FilterForm = () => {
       >
         Clear
       </button>
-    </div>
+    </>
   );
 };
+
+const TrendingSortSelect = () => (
+  <label class="flex items-center gap-2 text-sm text-on-surface">
+    <span class="sr-only">Sort by</span>
+    <select
+      x-model="sort"
+      x-on:change="applySort()"
+      class="cursor-pointer rounded-full border border-outline bg-surface-alt px-4 py-2 text-sm text-on-surface-strong focus:outline-none focus:ring-1 focus:ring-primary"
+    >
+      {BOOK_CATALOG_SORT_VALUES.map((value) => (
+        <option key={value} value={value}>
+          {BOOK_CATALOG_SORT_LABELS[value]}
+        </option>
+      ))}
+    </select>
+  </label>
+);
