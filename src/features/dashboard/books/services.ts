@@ -599,3 +599,39 @@ export const resubmitBook = async (bookId: string) => {
     return err({ reason: "Failed to resubmit book", cause: error });
   }
 };
+
+export const getBooksForBulkBookImagesUpload = async (
+  bookIds: string[],
+  user: AuthUser,
+) => {
+  if (!user.creator) {
+    return err({ reason: "Creator not found" });
+  }
+
+  try {
+    const creatorBooks = await db
+      .select({
+        id: books.id,
+        title: books.title,
+        slug: books.slug,
+        coverUrl: books.coverUrl,
+      })
+      .from(books)
+      .where(
+        and(
+          inArray(books.id, bookIds),
+          user.creator.type === "artist"
+            ? eq(books.artistId, user.creator.id)
+            : eq(books.publisherId, user.creator.id),
+        ),
+      );
+
+    return ok(creatorBooks);
+  } catch (error) {
+    console.error("Failed to get books for bulk cover upload", error);
+    return err({
+      reason: "Failed to get books for bulk cover upload",
+      cause: error,
+    });
+  }
+};

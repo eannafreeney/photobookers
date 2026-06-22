@@ -14,6 +14,11 @@ export function bulkCoverUpload(books: BookForMatching[]) {
     filePreviews: {} as Record<string, string>,
     uploading: false,
 
+    openFilePicker(bookId: string) {
+      const input = document.getElementById(`fileInput-${bookId}`) as HTMLInputElement;
+      if (input) input.click();
+    },
+
     handleDrop(event: DragEvent, bookId: string) {
       const files = Array.from(event.dataTransfer?.files || []);
       this.addFiles(bookId, files);
@@ -100,7 +105,7 @@ export function bulkCoverUpload(books: BookForMatching[]) {
       formData.append("book_ids", JSON.stringify(booksWithImages));
 
       try {
-        const response = await fetch("/dashboard/books/import/covers/upload", {
+        const response = await fetch("/dashboard/books/import/images/upload", {
           method: "POST",
           body: formData,
         });

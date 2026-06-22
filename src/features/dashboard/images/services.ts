@@ -138,3 +138,22 @@ export const reorderBookImages = async (
     return err({ reason: "Failed to reorder book images", cause: error });
   }
 };
+
+export const addBookGalleryImages = async (
+  bookId: string,
+  imageUrls: string[],
+) => {
+  try {
+    const insertData = imageUrls.map((url, index) => ({
+      bookId,
+      imageUrl: url,
+      sortOrder: index,
+    }));
+
+    const inserted = await db.insert(bookImages).values(insertData).returning();
+    return ok(inserted);
+  } catch (error) {
+    console.error("Failed to add book gallery images", error);
+    return err({ reason: "Failed to add gallery images", cause: error });
+  }
+};

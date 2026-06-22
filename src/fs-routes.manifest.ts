@@ -75,8 +75,8 @@ import * as m68 from "./fs-routes/dashboard/admin/planner/publisher-of-the-week/
 import * as m69 from "./fs-routes/dashboard/admin/users/create";
 import * as m70 from "./fs-routes/dashboard/admin/users/delete-multiple";
 import * as m71 from "./fs-routes/dashboard/admin/users/index";
-import * as m72 from "./fs-routes/dashboard/books/import/covers/upload";
-import * as m73 from "./fs-routes/dashboard/books/import/covers";
+import * as m72 from "./fs-routes/dashboard/books/import/images/upload";
+import * as m73 from "./fs-routes/dashboard/books/import/images";
 import * as m74 from "./fs-routes/dashboard/books/import/template";
 import * as m75 from "./fs-routes/dashboard/books/import";
 import * as m76 from "./fs-routes/dashboard/books/index";
@@ -717,15 +717,15 @@ export const manifest: Manifest = [
     module: m71
   },
   {
-    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/books/import/covers/upload.tsx",
-    urlPath: "/dashboard/books/import/covers/upload",
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/books/import/images/upload.tsx",
+    urlPath: "/dashboard/books/import/images/upload",
     type: "handler",
     precedence: 1,
     module: m72
   },
   {
-    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/books/import/covers.tsx",
-    urlPath: "/dashboard/books/import/covers",
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/dashboard/books/import/images.tsx",
+    urlPath: "/dashboard/books/import/images",
     type: "handler",
     precedence: 1,
     module: m73

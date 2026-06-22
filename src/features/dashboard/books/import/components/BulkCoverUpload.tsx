@@ -13,7 +13,7 @@ const BulkCoverUpload = ({ books }: Props) => {
     "x-data": `bulkCoverUpload(${JSON.stringify(books)})`,
   };
 
-  const attrs = {
+  const dropzoneAttrs = {
     "x-on:drop.prevent": "(e) => handleDrop(e, book.id)",
     "x-on:dragover.prevent": "",
   };
@@ -45,9 +45,9 @@ const BulkCoverUpload = ({ books }: Props) => {
                 </div>
 
                 <div
-                  {...attrs}
                   class="border-2 border-dashed border-outline rounded-radius p-8 text-center cursor-pointer hover:border-primary hover:bg-surface-alt/50 transition-colors"
-                  x-on:click="() => $refs[`fileInput_${book.id}`].click()"
+                  x-on:click="openFilePicker(book.id)"
+                  {...dropzoneAttrs}
                   x-show="!bookImages[book.id] || bookImages[book.id].length === 0"
                 >
                   <p class="text-on-surface-strong mb-1">
@@ -63,8 +63,8 @@ const BulkCoverUpload = ({ books }: Props) => {
                   multiple
                   accept="image/*"
                   class="hidden"
-                  x-bind:ref="`fileInput_${book.id}`"
-                  x-on:change="(e) => handleFileInput(e, book.id)"
+                  x-bind:id="'fileInput-' + book.id"
+                  x-on:change="handleFileInput($event, book.id)"
                 />
 
                 <div
@@ -103,7 +103,7 @@ const BulkCoverUpload = ({ books }: Props) => {
                       variant="outline"
                       color="inverse"
                       size="sm"
-                      x-on:click="() => $refs[`fileInput_${book.id}`].click()"
+                      x-on:click="openFilePicker(book.id)"
                     >
                       Add more images
                     </Button>

@@ -19,15 +19,15 @@ export const GET = createRoute(
   async (c: BookTagContext) => {
     const tagSlug = c.req.valid("param").tag;
     const tag = slugToTag(tagSlug);
-    const q = c.req.query("q") ?? null;
+    const query = c.req.query("q") ?? null;
     const user = await getUser(c);
     const currentPage = Number(c.req.query("page") ?? 1);
-    const currentPath = booksFilterUrl("/books", { tag: tagSlug, q });
-    const isFiltered = Boolean(q?.trim() && q.trim().length >= 3);
+    const currentPath = booksFilterUrl("/books", { tag: tagSlug, query });
+    const isFiltered = Boolean(query?.trim() && query.trim().length >= 3);
 
     const [error, result] = await getFilteredBooks({
       tag: tagSlug,
-      q,
+      query,
       page: currentPage,
       limit: 30,
     });
@@ -52,7 +52,7 @@ export const GET = createRoute(
             title={capitalize(tag)}
             intro={`Photobooks tagged “${capitalize(tag)}” in the archive.`}
           />
-          <BookFilters activeTag={tagSlug} q={q} />
+          <BookFilters activeTag={tagSlug} query={query} />
           <BooksGrid
             isInfiniteScroll
             user={user}

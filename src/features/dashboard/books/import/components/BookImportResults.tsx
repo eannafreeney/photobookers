@@ -25,7 +25,7 @@ const BookImportResults = ({ results }: Props) => {
       {createdBookIds.length > 0 && (
         <div class="flex gap-4">
           <Link
-            href={`/dashboard/books/import/covers?books=${createdBookIds.join(",")}`}
+            href={`/dashboard/books/import/images?books=${createdBookIds.join(",")}`}
           >
             <Button variant="solid" color="primary">
               Upload images for these books

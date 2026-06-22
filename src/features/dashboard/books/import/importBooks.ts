@@ -1,10 +1,10 @@
-import { ilike } from "drizzle-orm";
-import { db } from "../../../../db/client";
-import { Book, Creator, creators } from "../../../../db/schema";
+import { sql } from "drizzle-orm";
+import { Book, Creator } from "../../../../db/schema";
 import { AuthUser } from "../../../../../types";
 import {
   createStubCreatorProfileAdmin,
   resolvePublisher,
+  findCreatorByDisplayName,
 } from "../../admin/creators/services";
 import {
   buildCreateBookData,
@@ -23,36 +23,21 @@ export type ImportBookResult = {
   error?: string;
 };
 
-async function findCreatorByDisplayName(
-  displayName: string,
-  type: "artist" | "publisher",
-): Promise<Creator | null> {
-  const trimmed = displayName.trim();
-  if (!trimmed) return null;
-
-  const existing = await db
-    .select()
-    .from(creators)
-    .where(ilike(creators.displayName, trimmed))
-    .limit(10);
-
-  return existing.find((c) => c.type === type) ?? null;
-}
-
 async function resolveArtistByName(
   artistName: string,
   userId: string,
 ): Promise<[string | null, Creator | null]> {
-  const existing = await findCreatorByDisplayName(artistName, "artist");
+  const [err, existing] = await findCreatorByDisplayName(artistName, "artist");
+  if (err) return [err.reason, null];
   if (existing) return [null, existing];
 
-  const [err, created] = await createStubCreatorProfileAdmin(
+  const [createErr, created] = await createStubCreatorProfileAdmin(
     artistName,
     userId,
     "artist",
   );
-  if (err || !created) {
-    return [err?.reason ?? "Failed to resolve artist", null];
+  if (createErr || !created) {
+    return [createErr?.reason ?? "Failed to resolve artist", null];
   }
   return [null, created];
 }
@@ -61,16 +46,17 @@ async function resolvePublisherByName(
   publisherName: string,
   user: AuthUser,
 ): Promise<[string | null, Creator | null]> {
-  const existing = await findCreatorByDisplayName(publisherName, "publisher");
+  const [err, existing] = await findCreatorByDisplayName(publisherName, "publisher");
+  if (err) return [err.reason, null];
   if (existing) return [null, existing];
 
-  const [err, created] = await createStubCreatorProfileAdmin(
+  const [createErr, created] = await createStubCreatorProfileAdmin(
     publisherName,
     user.id,
     "publisher",
   );
-  if (err || !created) {
-    return [err?.reason ?? "Failed to resolve publisher", null];
+  if (createErr || !created) {
+    return [createErr?.reason ?? "Failed to resolve publisher", null];
   }
   return [null, created];
 }

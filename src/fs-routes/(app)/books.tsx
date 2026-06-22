@@ -14,20 +14,20 @@ const DEFAULT_SORT = "newest" as const;
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const tag = c.req.query("tag") ?? null;
-  const q = c.req.query("q") ?? null;
+  const query = c.req.query("q") ?? null;
   const sort = resolveBookCatalogSort(c.req.query("sort"), DEFAULT_SORT);
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = booksFilterUrl("/books", {
     tag,
-    q,
+    query,
     sort,
     defaultSort: DEFAULT_SORT,
   });
-  const isFiltered = Boolean(tag?.trim() || (q?.trim()?.length ?? 0) >= 3);
+  const isFiltered = Boolean(tag?.trim() || (query?.trim()?.length ?? 0) >= 3);
 
   const [error, result] = await getFilteredBooks({
     tag,
-    q,
+    query,
     page: currentPage,
     limit: 30,
     sort,
@@ -41,7 +41,7 @@ export const GET = createRoute(async (c) => {
         <BooksGridWithFilters
           user={user}
           tag={tag}
-          q={q}
+          query={query}
           sort={sort}
           defaultSort={DEFAULT_SORT}
           currentPath={currentPath}
@@ -74,7 +74,7 @@ export const GET = createRoute(async (c) => {
           <BooksGridWithFilters
             user={user}
             tag={tag}
-            q={q}
+            query={query}
             sort={sort}
             defaultSort={DEFAULT_SORT}
             currentPath={currentPath}

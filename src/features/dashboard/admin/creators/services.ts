@@ -166,6 +166,31 @@ export const createStubCreatorProfileAdmin = async (
   return ok(newCreator);
 };
 
+export const findCreatorByDisplayName = async (
+  displayName: string,
+  type: "artist" | "publisher",
+) => {
+  const trimmed = displayName.trim();
+  if (!trimmed) {
+    return ok(null);
+  }
+
+  try {
+    // Use case-insensitive exact match to avoid SQL injection via ILIKE wildcards
+    const existing = await db
+      .select()
+      .from(creators)
+      .where(sql`LOWER(${creators.displayName}) = LOWER(${trimmed})`)
+      .limit(10);
+
+    const match = existing.find((c) => c.type === type) ?? null;
+    return ok(match);
+  } catch (error) {
+    console.error("Failed to find creator by display name", error);
+    return err({ reason: "Failed to find creator", cause: error });
+  }
+};
+
 export const createCreatorProfileAdmin = async (input: NewCreator) => {
   try {
     const parts = input.displayName.trim().split(/\s+/);

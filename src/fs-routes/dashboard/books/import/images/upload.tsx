@@ -1,15 +1,10 @@
 import { createRoute } from "hono-fsr";
 import { Context } from "hono";
-import AppLayout from "../../../../../components/layouts/AppLayout";
-import Page from "../../../../../components/layouts/Page";
-import Breadcrumbs from "../../../../../features/dashboard/admin/components/Breadcrumbs";
 import InfoPage from "../../../../../pages/InfoPage";
 import { getUser, setFlash } from "../../../../../utils";
-import { db } from "../../../../../db/client";
-import { books, bookImages } from "../../../../../db/schema";
-import { and, eq, inArray } from "drizzle-orm";
 import { removeInvalidImages, uploadImage } from "../../../../../services/storage";
-import { updateBookCoverImage } from "../../../../../features/dashboard/images/services";
+import { updateBookCoverImage, addBookGalleryImages } from "../../../../../features/dashboard/images/services";
+import { getBooksForBulkBookImagesUpload } from "../../../../../features/dashboard/books/services";
 
 export const POST = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -35,17 +30,11 @@ export const POST = createRoute(async (c: Context) => {
   }
 
   // Verify books belong to creator
-  const creatorBooks = await db
-    .select({ id: books.id, title: books.title })
-    .from(books)
-    .where(
-      and(
-        inArray(books.id, bookIds),
-        user.creator.type === "artist"
-          ? eq(books.artistId, user.creator.id)
-          : eq(books.publisherId, user.creator.id),
-      ),
-    );
+  const [booksError, creatorBooks] = await getBooksForBulkBookImagesUpload(bookIds, user);
+  if (booksError || !creatorBooks) {
+    await setFlash(c, "danger", "Failed to verify book ownership");
+    return c.redirect("/dashboard/books");
+  }
 
   const validBookIds = new Set(creatorBooks.map((b) => b.id));
   
@@ -104,16 +93,14 @@ export const POST = createRoute(async (c: Context) => {
           ),
         );
 
-        await Promise.all(
-          galleryResults.map((result, index) =>
-            db.insert(bookImages).values({
-              bookId,
-              imageUrl: result.url,
-              sortOrder: index,
-            }),
-          ),
-        );
-        totalUploaded += galleryFiles.length;
+        const imageUrls = galleryResults.map((r) => r.url);
+        const [galleryErr] = await addBookGalleryImages(bookId, imageUrls);
+        if (galleryErr) {
+          console.error(`Failed to save gallery images for book ${bookId}:`, galleryErr);
+          // Don't fail the whole book, cover was uploaded successfully
+        } else {
+          totalUploaded += galleryFiles.length;
+        }
       }
     } catch (error) {
       console.error(`Failed to upload images for book ${bookId}:`, error);
