@@ -179,11 +179,33 @@ function isNotNullArtist() {
 }
 
 export const getTopBooksByClicks = async (
-  limit = 25,
   range?: AnalyticsDateRange | null,
+  currentPage: number = 1,
+  defaultLimit = 10,
 ) => {
   try {
     const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
+
+    const countQuery = db
+      .select({
+        value: sql<number>`count(distinct ${purchaseClicks.bookId})`,
+      })
+      .from(purchaseClicks);
+
+    const [{ value: totalCount = 0 }] = dateFilter
+      ? await countQuery.where(dateFilter)
+      : await countQuery;
+
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    if (totalCount === 0) {
+      return ok({ books: [], totalPages: 1, page: 1 });
+    }
+
     const clickQuery = db
       .select({
         bookId: purchaseClicks.bookId,
@@ -192,13 +214,16 @@ export const getTopBooksByClicks = async (
       .from(purchaseClicks)
       .groupBy(purchaseClicks.bookId)
       .orderBy(desc(count()))
-      .limit(limit);
+      .limit(limit)
+      .offset(offset);
 
     const clickRows = dateFilter
       ? await clickQuery.where(dateFilter)
       : await clickQuery;
 
-    if (clickRows.length === 0) return ok([]);
+    if (clickRows.length === 0) {
+      return ok({ books: [], totalPages, page });
+    }
 
     const bookIds = clickRows.map((row) => row.bookId);
     const clickCountByBookId = new Map(
@@ -225,7 +250,7 @@ export const getTopBooksByClicks = async (
 
     const bookById = new Map(bookRows.map((book) => [book.id, book]));
 
-    const rows = clickRows
+    const topBooks = clickRows
       .map((clickRow) => {
         const book = bookById.get(clickRow.bookId);
         if (!book) return null;
@@ -241,7 +266,7 @@ export const getTopBooksByClicks = async (
       })
       .filter((row): row is NonNullable<typeof row> => row !== null);
 
-    return ok(rows);
+    return ok({ books: topBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get top books by clicks", error);
     return err({ reason: "Failed to get top books by clicks", cause: error });

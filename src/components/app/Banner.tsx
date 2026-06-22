@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "hono/jsx";
-import PageBleed from "../layouts/PageContent";
+import PageBleed from "../layouts/PageBleed";
 
 type BannerProps = {
   type:

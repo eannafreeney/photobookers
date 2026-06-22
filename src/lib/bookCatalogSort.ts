@@ -1,18 +1,16 @@
 import { desc } from "drizzle-orm";
 import { books } from "../db/schema";
 
-export type BookCatalogSort = "newest" | "most_trending" | "least_trending";
+export type BookCatalogSort = "newest" | "trending";
 
 export const BOOK_CATALOG_SORT_VALUES: BookCatalogSort[] = [
   "newest",
-  "most_trending",
-  "least_trending",
+  "trending",
 ];
 
 export const BOOK_CATALOG_SORT_LABELS: Record<BookCatalogSort, string> = {
   newest: "Newest",
-  most_trending: "Most trending",
-  least_trending: "Least trending",
+  trending: "Trending",
 };
 
 export const parseBookCatalogSort = (
@@ -26,9 +24,7 @@ export const parseBookCatalogSort = (
 
 export const getBookCatalogOrderBy = (sort: BookCatalogSort) => {
   switch (sort) {
-    case "most_trending":
-    case "least_trending":
-      // View-based sorts use findCatalogBooks() in services.ts (join query).
+    case "trending":
       return [desc(books.sortOrder), desc(books.id)];
     case "newest":
     default:

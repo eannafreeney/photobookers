@@ -16,13 +16,26 @@ import AnalyticsTrendCharts from "../../../../features/dashboard/admin/analytics
 import TopBooksTable from "../../../../features/dashboard/admin/analytics/components/TopBooksTable";
 import TopBooksByViewsTable from "../../../../features/dashboard/admin/analytics/components/TopBooksByViewsTable";
 import TopCreatorsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsTable";
+import TopBooksByFavoritesTable from "../../../../features/dashboard/admin/analytics/components/TopBooksByFavoritesTable";
+import TopCreatorsByFollowsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsByFollowsTable";
 import { paginationRequestBaseUrl } from "../../../../lib/pagination";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const publisherPage = Number(c.req.query("publisherPage") ?? 1);
+  const viewsPage = Number(c.req.query("viewsPage") ?? 1);
+
+  const bookPage = Number(c.req.query("bookPage") ?? 1);
   const artistPage = Number(c.req.query("artistPage") ?? 1);
+  const favoritesPage = Number(c.req.query("favoritesPage") ?? 1);
+  const followsPage = Number(c.req.query("followsPage") ?? 1);
+
+  const viewsPaginationBaseUrl = paginationRequestBaseUrl(
+    c.req.url,
+    "viewsPage",
+  );
+  const bookPaginationBaseUrl = paginationRequestBaseUrl(c.req.url, "bookPage");
   const publisherPaginationBaseUrl = paginationRequestBaseUrl(
     c.req.url,
     "publisherPage",
@@ -31,12 +44,20 @@ export const GET = createRoute(async (c: Context) => {
     c.req.url,
     "artistPage",
   );
+  const favoritesPaginationBaseUrl = paginationRequestBaseUrl(
+    c.req.url,
+    "favoritesPage",
+  );
+  const followsPaginationBaseUrl = paginationRequestBaseUrl(
+    c.req.url,
+    "followsPage",
+  );
   const currentPath = c.req.path;
   const dateRange = parseAnalyticsDateRange(
     c.req.query("from"),
     c.req.query("to"),
   );
-  const chartRange = dateRange ?? presetAnalyticsDateRange(90);
+  const chartRange = dateRange ?? presetAnalyticsDateRange(30);
 
   return c.html(
     <AppLayout
@@ -58,8 +79,18 @@ export const GET = createRoute(async (c: Context) => {
               dateRange={dateRange}
             />
             <AnalyticsSourceBreakdown dateRange={dateRange} />
-            <TopBooksByViewsTable dateRange={dateRange} />
-            <TopBooksTable dateRange={dateRange} />
+            <TopBooksByViewsTable
+              dateRange={dateRange}
+              currentPath={viewsPaginationBaseUrl}
+              currentPage={viewsPage}
+              pageParam="viewsPage"
+            />
+            <TopBooksTable
+              dateRange={dateRange}
+              currentPath={bookPaginationBaseUrl}
+              currentPage={bookPage}
+              pageParam="bookPage"
+            />
             <TopCreatorsTable
               role="publisher"
               title="Top publishers"
@@ -75,6 +106,18 @@ export const GET = createRoute(async (c: Context) => {
               currentPath={artistPaginationBaseUrl}
               currentPage={artistPage}
               pageParam="artistPage"
+            />
+            <TopBooksByFavoritesTable
+              dateRange={dateRange}
+              currentPath={favoritesPaginationBaseUrl}
+              currentPage={favoritesPage}
+              pageParam="favoritesPage"
+            />
+            <TopCreatorsByFollowsTable
+              dateRange={dateRange}
+              currentPath={followsPaginationBaseUrl}
+              currentPage={followsPage}
+              pageParam="followsPage"
             />
           </div>
         </Sidebar>

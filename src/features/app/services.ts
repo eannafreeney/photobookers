@@ -638,7 +638,7 @@ const findCatalogBooks = async ({
 
   const viewCount = sql<number>`coalesce(count(${bookViews.id}), 0)`;
   const orderBy =
-    sort === "most_trending"
+    sort === "trending"
       ? [desc(viewCount), desc(books.id)]
       : [asc(viewCount), asc(books.id)];
 
@@ -701,22 +701,24 @@ export const getLatestBooks = async (
   }
 };
 
-export const getFilteredBooks = async ({
-  tag,
-  q,
-  page: currentPage,
-  limit: defaultLimit = 30,
-  sort = "newest",
-}: {
+type GetFilteredBooksParams = {
   tag?: string | null;
-  q?: string | null;
+  query?: string | null;
   page: number;
   limit?: number;
   sort?: BookCatalogSort;
-}) => {
+};
+
+export const getFilteredBooks = async ({
+  tag,
+  query,
+  page: currentPage,
+  limit: defaultLimit = 30,
+  sort = "newest",
+}: GetFilteredBooksParams) => {
   try {
     const normalizedTag = tag?.trim() ? slugToTag(tag.trim()) : null;
-    const rawQ = q?.trim() ?? "";
+    const rawQ = query?.trim() ?? "";
     const searchQ = rawQ.length >= 3 ? rawQ : "";
 
     if (!normalizedTag && !searchQ) {
@@ -838,11 +840,11 @@ const getBooksByTagForCatalog = async (
 
 export const filterPublishedBooks = async (searchQuery: string, limit = 50) => {
   try {
-    const q = searchQuery.trim();
-    if (!q) {
+    const query = searchQuery.trim();
+    if (!query) {
       return getLatestBooks(1, limit);
     }
-    return getFilteredBooks({ q, page: 1, limit });
+    return getFilteredBooks({ query, page: 1, limit });
   } catch (error) {
     console.error("Failed to filter books", error);
     return err({ reason: "Failed to filter books" });

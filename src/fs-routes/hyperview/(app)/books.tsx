@@ -18,16 +18,19 @@ import BookFilters, {
   bookFiltersStyles,
 } from "../../../features/hyperview/components/BookFiltersPanel";
 import { signInEmptyHintStyles } from "../../../features/hyperview/hyperviewCommonScreenStyles";
-import { hyperviewBooksFilterUrl } from "../../../lib/tags";
+import { hyperviewBooksFilterUrl, resolveBookCatalogSort } from "../../../lib/tags";
 import { AuthUser } from "../../../../types";
 import { BookCardResult } from "../../../constants/queries";
 import BookFiltersPanel from "../../../features/hyperview/components/BookFiltersPanel";
+import type { BookCatalogSort } from "../../../lib/bookCatalogSort";
 
 const PAGE_SIZE = 3;
+const DEFAULT_SORT = "newest" as const;
 
 type FilterQuery = {
   tag?: string | null;
   q?: string | null;
+  sort?: BookCatalogSort;
 };
 
 export const GET = createRoute(async (c) => {
@@ -36,6 +39,7 @@ export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const tag = c.req.query("tag") ?? null;
   const q = c.req.query("q") ?? null;
+  const sort = resolveBookCatalogSort(c.req.query("sort"), DEFAULT_SORT);
   const isListFragment = c.req.query("fragment") === "list";
   const isCatalogFragment = c.req.query("fragment") === "catalog";
   const currentPage = isListFragment ? 1 : parseInt(c.req.query("page") ?? "1");
@@ -43,9 +47,10 @@ export const GET = createRoute(async (c) => {
 
   const [error, result] = await getFilteredBooks({
     tag,
-    q,
+    query: q,
     page: currentPage,
     limit: PAGE_SIZE,
+    sort,
   });
 
   if (error) {
@@ -62,11 +67,13 @@ export const GET = createRoute(async (c) => {
     books,
     currentPage,
     totalPages,
-    { tag, q },
+    { tag, q, sort },
   );
 
   if (isCatalogFragment) {
-    return hv(renderBooksCatalog(baseUrl, tag, q, listProps, isFiltered));
+    return hv(
+      renderBooksCatalog(baseUrl, tag, q, sort, listProps, isFiltered),
+    );
   }
 
   if (isListFragment) {
@@ -77,7 +84,13 @@ export const GET = createRoute(async (c) => {
           style="books-list-filters-header"
           sticky="true"
         >
-          <BookFiltersPanel baseUrl={baseUrl} activeTag={tag} q={q} />
+          <BookFiltersPanel
+            baseUrl={baseUrl}
+            activeTag={tag}
+            q={q}
+            sort={sort}
+            defaultSort={DEFAULT_SORT}
+          />
         </Item>
         <BooksListItems {...listProps} />
       </Items>,
@@ -101,9 +114,14 @@ export const GET = createRoute(async (c) => {
       dockActive="books"
       baseUrl={baseUrl}
       extraStyles={pageStyles()}
-      dockScrollRefreshHref={hyperviewBooksFilterUrl(baseUrl, { tag, q })}
+      dockScrollRefreshHref={hyperviewBooksFilterUrl(baseUrl, {
+        tag,
+        query: q,
+        sort,
+        defaultSort: DEFAULT_SORT,
+      })}
     >
-      {renderBooksCatalog(baseUrl, tag, q, listProps, isFiltered)}
+      {renderBooksCatalog(baseUrl, tag, q, sort, listProps, isFiltered)}
     </AppLayout>,
   );
 });
@@ -117,13 +135,15 @@ export const POST = createRoute(async (c) => {
   const tagFromRequest =
     (c.req.query("tag") ?? String(formData.get("tag") ?? "").trim()) || null;
   const tag = q.length >= 3 ? tagFromRequest : null;
+  const sort = resolveBookCatalogSort(c.req.query("sort"), DEFAULT_SORT);
   const isFiltered = Boolean(tag || q.length >= 3);
 
   const [error, result] = await getFilteredBooks({
     tag,
-    q,
+    query: q,
     page: 1,
     limit: PAGE_SIZE,
+    sort,
   });
 
   if (error || !result) {
@@ -145,10 +165,10 @@ export const POST = createRoute(async (c) => {
     books,
     result.page ?? 1,
     result.totalPages ?? 1,
-    { tag, q },
+    { tag, q, sort },
   );
 
-  return hv(renderBooksCatalog(baseUrl, tag, q, listProps, isFiltered));
+  return hv(renderBooksCatalog(baseUrl, tag, q, sort, listProps, isFiltered));
 });
 
 const pageStyles = () => (
@@ -168,7 +188,12 @@ const buildListProps = async (
   totalPages: number,
   filters: FilterQuery,
 ) => {
-  const loadMorePath = hyperviewBooksFilterUrl(baseUrl, filters);
+  const loadMorePath = hyperviewBooksFilterUrl(baseUrl, {
+    tag: filters.tag,
+    query: filters.q,
+    sort: filters.sort,
+    defaultSort: DEFAULT_SORT,
+  });
   const hasMore = page < totalPages;
   const favoritesByBookId = await favoriteFlagsForBooks(user, books);
   const refreshHref = `${loadMorePath}${loadMorePath.includes("?") ? "&" : "?"}fragment=list`;
@@ -188,6 +213,7 @@ const renderBooksListHost = (
   baseUrl: string,
   tag: string | null,
   q: string | null,
+  sort: BookCatalogSort,
   listProps: Awaited<ReturnType<typeof buildListProps>>,
   isFiltered: boolean,
 ) => {
@@ -205,7 +231,13 @@ const renderBooksListHost = (
             : undefined
         }
       >
-        <BookFiltersPanel baseUrl={baseUrl} activeTag={tag} q={q} />
+        <BookFiltersPanel
+          baseUrl={baseUrl}
+          activeTag={tag}
+          q={q}
+          sort={sort}
+          defaultSort={DEFAULT_SORT}
+        />
       </BooksList>
     </View>
   );
@@ -215,6 +247,7 @@ const renderBooksCatalog = (
   baseUrl: string,
   tag: string | null,
   q: string | null,
+  sort: BookCatalogSort,
   listProps: Awaited<ReturnType<typeof buildListProps>>,
   isFiltered: boolean,
 ) => (
@@ -223,6 +256,6 @@ const renderBooksCatalog = (
     style="books-catalog-shell"
     xmlns="https://hyperview.org/hyperview"
   >
-    {renderBooksListHost(baseUrl, tag, q, listProps, isFiltered)}
+    {renderBooksListHost(baseUrl, tag, q, sort, listProps, isFiltered)}
   </View>
 );

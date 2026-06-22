@@ -1,7 +1,7 @@
 import CarouselMobile from "../../../components/app/CarouselMobile";
 import HorizontalScrollGallery from "../../../components/app/HorizontalScrollGallery";
 import SpotlightCreatorLink from "./SpotlightCreatorLink";
-import PageBleed from "../../../components/layouts/PageContent";
+import PageBleed from "../../../components/layouts/PageBleed";
 import { AuthUser } from "../../../../types";
 import { BookWithGalleryImages } from "../types";
 import CommentsSection from "./CommentsSection";

@@ -1,9 +1,10 @@
 import { FC } from "hono/jsx";
 import type { AuthUser } from "../../../../types";
 import type { BookCardResult } from "../../../constants/queries";
+import { type BookCatalogSort } from "../../../lib/bookCatalogSort";
 import { getFilteredBooks } from "../../app/services";
 import { favoriteFlagsForBooks } from "../findFlags";
-import { hyperviewBooksFilterUrl } from "../../../lib/tags";
+import { hyperviewBooksFilterUrl, resolveBookCatalogSort } from "../../../lib/tags";
 import { Style, Text, View } from "../../../lib/hxml-comps";
 import BookCard, { bookCardStyles } from "./BookCard";
 import BookFiltersPanel, {
@@ -17,6 +18,7 @@ import SectionHeader from "./SectionHeader";
 
 export const FEATURED_LATEST_BOOKS_TAB = "/hyperview/featured/tab/latest-books";
 export const FEATURED_LATEST_BOOKS_LIMIT = 10;
+export const FEATURED_LATEST_BOOKS_DEFAULT_SORT = "trending" as const;
 
 export const featuredLatestBooksFilterPath = (baseUrl: string) =>
   `${baseUrl}${FEATURED_LATEST_BOOKS_TAB}`;
@@ -33,12 +35,16 @@ export type FeaturedLatestBooksCatalogProps = {
 type CatalogShellProps = FeaturedLatestBooksCatalogProps & {
   tag: string | null;
   q: string | null;
+  sort: BookCatalogSort;
+  defaultSort: BookCatalogSort;
 };
 
 export const FeaturedLatestBooksCatalogShell = ({
   baseUrl,
   tag,
   q,
+  sort,
+  defaultSort,
   ...catalogProps
 }: CatalogShellProps) => (
   <View
@@ -50,6 +56,8 @@ export const FeaturedLatestBooksCatalogShell = ({
       baseUrl={baseUrl}
       activeTag={tag}
       q={q}
+      sort={sort}
+      defaultSort={defaultSort}
       filterPath={featuredLatestBooksFilterPath(baseUrl)}
     />
     <View style="latest-books-catalog">
@@ -63,13 +71,17 @@ export const loadFeaturedLatestBooksCatalog = async (
   baseUrl: string,
   tag: string | null = null,
   q: string | null = null,
+  sortParam: string | null = null,
 ): Promise<FeaturedLatestBooksCatalogProps | null> => {
+  const defaultSort = FEATURED_LATEST_BOOKS_DEFAULT_SORT;
+  const sort = resolveBookCatalogSort(sortParam, defaultSort);
   const isFiltered = Boolean(tag?.trim() || (q?.trim()?.length ?? 0) >= 3);
   const [error, result] = await getFilteredBooks({
     tag,
-    q,
+    query: q,
     page: 1,
     limit: FEATURED_LATEST_BOOKS_LIMIT,
+    sort,
   });
 
   if (error || !result) return null;
@@ -85,7 +97,12 @@ export const loadFeaturedLatestBooksCatalog = async (
     favoritesByBookId,
     isFiltered,
     hasMore: result.totalPages > 1,
-    viewAllHref: hyperviewBooksFilterUrl(baseUrl, { tag, q }),
+    viewAllHref: hyperviewBooksFilterUrl(baseUrl, {
+      tag,
+      query: q,
+      sort,
+      defaultSort,
+    }),
   };
 };
 
@@ -121,12 +138,16 @@ export const BookGridCatalog: FC<CatalogProps> = ({
 type Props = CatalogProps & {
   tag: string | null;
   q: string | null;
+  sort: BookCatalogSort;
+  defaultSort: BookCatalogSort;
 };
 
 const BookGridWithFilters: FC<Props> = ({
   baseUrl,
   tag,
   q,
+  sort,
+  defaultSort,
   ...catalogProps
 }) => (
   <View style="latest-books-section">
@@ -138,10 +159,35 @@ const BookGridWithFilters: FC<Props> = ({
       baseUrl={baseUrl}
       tag={tag}
       q={q}
+      sort={sort}
+      defaultSort={defaultSort}
       {...catalogProps}
     />
   </View>
 );
+
+type FeaturedLatestBooksSectionProps = {
+  baseUrl: string;
+  user?: AuthUser | null;
+};
+
+export const FeaturedLatestBooksSection: FC<
+  FeaturedLatestBooksSectionProps
+> = async ({ baseUrl, user = null }) => {
+  const catalogProps = await loadFeaturedLatestBooksCatalog(user, baseUrl);
+
+  if (!catalogProps) return <></>;
+
+  return (
+    <BookGridWithFilters
+      {...catalogProps}
+      tag={null}
+      q={null}
+      sort={FEATURED_LATEST_BOOKS_DEFAULT_SORT}
+      defaultSort={FEATURED_LATEST_BOOKS_DEFAULT_SORT}
+    />
+  );
+};
 
 export default BookGridWithFilters;
 
@@ -154,15 +200,6 @@ export const bookGridWithFiltersStyles = () => (
       marginBottom={24}
     />
     <Style id="latest-books-catalog" flexDirection="column" gap={0} />
-    <Style
-      id="latest-books-fragment"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      paddingTop={24}
-      paddingBottom={24}
-      minHeight={120}
-    />
     {bookFiltersStyles()}
     {bookCardStyles()}
     {secondaryButtonLinkStyles()}

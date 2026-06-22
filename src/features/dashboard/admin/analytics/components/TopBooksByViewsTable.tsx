@@ -5,74 +5,98 @@ import { formatClickRate } from "../../../../book-analytics/funnel";
 import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
 import { getTopBooksByViews } from "../../../../book-views/services";
 import { findPurchaseClickCounts } from "../../../../purchase-clicks/services";
+import WindowTable from "./WindowTable";
+import ListNavigation from "../../../../app/components/ListNavigation";
 
 type Props = {
   dateRange: AnalyticsDateRange | null;
+  currentPath: string;
+  currentPage: number;
+  pageParam: string;
 };
 
-const TopBooksByViewsTable = async ({ dateRange }: Props) => {
-  const [error, rows] = await getTopBooksByViews(25, dateRange);
+const TopBooksByViewsTable = async ({
+  dateRange,
+  currentPath,
+  currentPage,
+  pageParam,
+}: Props) => {
+  const [error, result] = await getTopBooksByViews(dateRange, currentPage);
   if (error) return <div>{error.reason}</div>;
 
+  const targetId = `analytics-top-books-by-views`;
+
+  const { books, totalPages, page } = result;
+
   const clickCounts = await findPurchaseClickCounts(
-    rows.map((row) => row.bookId),
+    books.map((row) => row.bookId),
     dateRange,
   );
 
   return (
-    <div class="flex flex-col gap-4">
+    <>
       <SectionTitle>Top books by views</SectionTitle>
-      <Table id="analytics-top-books-by-views">
-        <Table.Head>
-          <tr>
-            <Table.HeadRow>Cover</Table.HeadRow>
-            <Table.HeadRow>Title</Table.HeadRow>
-            <Table.HeadRow>Artist</Table.HeadRow>
-            <Table.HeadRow>Publisher</Table.HeadRow>
-            <Table.HeadRow>Views</Table.HeadRow>
-            <Table.HeadRow>Outbound clicks</Table.HeadRow>
-            <Table.HeadRow>Click rate</Table.HeadRow>
-          </tr>
-        </Table.Head>
-        <Table.Body>
-          {rows.length === 0 ? (
+      <WindowTable>
+        <Table>
+          <Table.Head>
             <tr>
-              <Table.BodyRow>No book views yet.</Table.BodyRow>
+              <Table.HeadRow>Cover</Table.HeadRow>
+              <Table.HeadRow>Title</Table.HeadRow>
+              <Table.HeadRow>Artist</Table.HeadRow>
+              <Table.HeadRow>Publisher</Table.HeadRow>
+              <Table.HeadRow>Views</Table.HeadRow>
+              <Table.HeadRow>Outbound clicks</Table.HeadRow>
+              <Table.HeadRow>Click rate</Table.HeadRow>
             </tr>
-          ) : (
-            rows.map((row) => {
-              const clicks = clickCounts.get(row.bookId) ?? 0;
-              const clickRate =
-                formatClickRate(row.viewCount, clicks) ?? "—";
+          </Table.Head>
+          <Table.Body id={targetId} xMerge="append">
+            {books.length === 0 ? (
+              <tr>
+                <Table.BodyRow>No book views yet.</Table.BodyRow>
+              </tr>
+            ) : (
+              books.map((row) => {
+                const clicks = clickCounts.get(row.bookId) ?? 0;
+                const clickRate = formatClickRate(row.viewCount, clicks) ?? "—";
 
-              return (
-                <tr key={row.bookId}>
-                  <Table.BodyRow>
-                    {row.coverUrl ? (
-                      <img
-                        src={row.coverUrl}
-                        alt={row.title}
-                        class="h-12 w-auto"
-                      />
-                    ) : null}
-                  </Table.BodyRow>
-                  <Table.BodyRow>
-                    <Link href={`/books/${row.slug}`} target="_blank">
-                      {row.title}
-                    </Link>
-                  </Table.BodyRow>
-                  <Table.BodyRow>{row.artistName ?? ""}</Table.BodyRow>
-                  <Table.BodyRow>{row.publisherName ?? ""}</Table.BodyRow>
-                  <Table.BodyRow>{row.viewCount}</Table.BodyRow>
-                  <Table.BodyRow>{clicks}</Table.BodyRow>
-                  <Table.BodyRow>{clickRate}</Table.BodyRow>
-                </tr>
-              );
-            })
-          )}
-        </Table.Body>
-      </Table>
-    </div>
+                return (
+                  <tr key={row.bookId}>
+                    <Table.BodyRow>
+                      {row.coverUrl ? (
+                        <img
+                          src={row.coverUrl}
+                          alt={row.title}
+                          class="h-12 w-auto"
+                        />
+                      ) : null}
+                    </Table.BodyRow>
+                    <Table.BodyRow>
+                      <Link href={`/books/${row.slug}`} target="_blank">
+                        {row.title}
+                      </Link>
+                    </Table.BodyRow>
+                    <Table.BodyRow>{row.artistName ?? ""}</Table.BodyRow>
+                    <Table.BodyRow>{row.publisherName ?? ""}</Table.BodyRow>
+                    <Table.BodyRow>{row.viewCount}</Table.BodyRow>
+                    <Table.BodyRow>{clicks}</Table.BodyRow>
+                    <Table.BodyRow>{clickRate}</Table.BodyRow>
+                  </tr>
+                );
+              })
+            )}
+          </Table.Body>
+        </Table>
+        <ListNavigation
+          isInfiniteScroll
+          currentPath={currentPath}
+          page={page}
+          totalPages={totalPages}
+          targetId={targetId}
+          pageParam={pageParam}
+          navId={`pagination-top-books-by-views-table`}
+        />
+      </WindowTable>
+    </>
   );
 };
 

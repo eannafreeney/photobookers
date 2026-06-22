@@ -8,6 +8,7 @@ type Props = {
   totalPages: number;
   targetId: string;
   pageParam?: string;
+  navId?: string;
 };
 
 const ListNavigation = ({
@@ -17,6 +18,7 @@ const ListNavigation = ({
   totalPages,
   targetId,
   pageParam = "page",
+  navId = "pagination",
 }: Props) => {
   return isInfiniteScroll ? (
     <InfiniteScroll
@@ -25,6 +27,7 @@ const ListNavigation = ({
       totalPages={totalPages}
       targetId={targetId}
       pageParam={pageParam}
+      navId={navId}
     />
   ) : (
     <Pagination
@@ -33,6 +36,7 @@ const ListNavigation = ({
       totalPages={totalPages}
       targetId={targetId}
       pageParam={pageParam}
+      navId={navId}
     />
   );
 };

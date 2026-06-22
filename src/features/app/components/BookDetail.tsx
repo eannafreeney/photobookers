@@ -13,12 +13,13 @@ import RelatedBooks from "../components/RelatedBooks";
 import CommentsSection from "../components/CommentsSection";
 import Divider from "../../../components/Divider";
 import BookCredits from "./BookCredits";
-import PageBleed from "../../../components/layouts/PageContent";
+import PageBleed from "../../../components/layouts/PageBleed";
 import Tabs from "../../../components/app/Tabs";
 import Show from "../../../components/app/Show";
 import BookGridWrapper from "./BookGridWrapper";
 import { bookShareText, bookShareTitle } from "../../../lib/share";
 import { bookUrl } from "../spotlightUrls";
+import MobileHeader from "./MobileHeader";
 
 const shouldTrackOutboundPurchase = (book: BookWithGalleryImages) =>
   book.publicationStatus === "published" && book.approvalStatus === "approved";
@@ -170,6 +171,9 @@ const DetailMobile = ({
 }: BookMobileProps) => {
   return (
     <div class="flex flex-col gap-4">
+      <MobileHeader kicker={book.artist?.displayName ?? ""} title={book.title}>
+        <WishlistButton book={book} user={user} />
+      </MobileHeader>
       <Tabs defaultTab="books">
         <Tabs.LinkContainer>
           <Tabs.Link tabId="books">Book</Tabs.Link>
@@ -183,27 +187,15 @@ const DetailMobile = ({
           <PageBleed>
             <CarouselMobile images={galleryImages} />
           </PageBleed>
-          <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-3">
-            <span class="kicker text-accent">Photobook</span>
-            <h1 class="text-balance font-display text-3xl font-medium leading-tight text-on-surface-strong">
-              {book.title}
-            </h1>
-            <p class="text-balance text-base text-on-surface">
-              {book.artist?.displayName}
-            </p>
-          </div>
-          <div class="flex items-center justify-evenly gap-4">
-            <WishlistButton book={book} user={user} />
-            <ShareButton
-              title={bookShareTitle(book)}
-              text={bookShareText(book)}
-              url={bookUrl(book.slug)}
-            />
-          </div>
           {book.description && (
             <Card.Description>{book.description}</Card.Description>
           )}
           <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
+          <ShareButton
+            title={bookShareTitle(book)}
+            text={bookShareText(book)}
+            url={bookUrl(book.slug)}
+          />
           <PurchaseLink
             bookSlug={book.slug}
             purchaseLink={book.purchaseLink}

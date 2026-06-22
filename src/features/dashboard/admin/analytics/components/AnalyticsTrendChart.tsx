@@ -39,8 +39,7 @@ const AnalyticsTrendCharts = async ({ chartRange, dateRange }: Props) => {
   ]);
 
   const periodLabel = formatAnalyticsDateRangeLabel(dateRange ?? chartRange);
-  const chartNote =
-    dateRange === null ? " (last 90 days)" : "";
+  const chartNote = dateRange === null ? " (last 90 days)" : "";
 
   return (
     <div class="flex flex-col gap-8">
@@ -199,7 +198,10 @@ function pickXLabels<T extends { date: string }>(
   }
   const lastIndex = points.length - 1;
   if (labels[labels.length - 1]?.index !== lastIndex) {
-    labels.push({ index: lastIndex, label: formatShortDate(points[lastIndex].date) });
+    labels.push({
+      index: lastIndex,
+      label: formatShortDate(points[lastIndex].date),
+    });
   }
   return labels;
 }

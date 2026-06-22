@@ -6,7 +6,7 @@ export const BOOKS_CATALOG_TARGET_ID = "books-catalog";
 const MIN_SEARCH_LENGTH = 3;
 
 type BookFiltersInitial = {
-  q?: string;
+  query?: string;
   tag?: string | null;
   sort?: BookCatalogSort;
   defaultSort?: BookCatalogSort;
@@ -16,7 +16,7 @@ type BookFiltersInitial = {
 };
 
 type BookFiltersCtx = {
-  q: string;
+  query: string;
   tag: string | null;
   sort: BookCatalogSort;
   defaultSort: BookCatalogSort;
@@ -31,7 +31,7 @@ const buildFilterParams = (
 ) => {
   const params = new URLSearchParams();
   if (ctx.tag) params.set("tag", ctx.tag);
-  const trimmed = ctx.q.trim();
+  const trimmed = ctx.query.trim();
   if (trimmed.length >= ctx.minLen) params.set("q", trimmed);
   if (ctx.sort !== ctx.defaultSort) params.set("sort", ctx.sort);
   if (options?.includeFragment) params.set("fragment", "grid");
@@ -51,7 +51,7 @@ export function registerBookFilters() {
     };
 
     return {
-      q: initial.q ?? "",
+      query: initial.query ?? "",
       tag: initial.tag ?? null,
       sort: initial.sort ?? defaultSort,
       defaultSort,
@@ -69,7 +69,7 @@ export function registerBookFilters() {
       applyFilter(nextTag: string | null) {
         const ctx = this as unknown as BookFiltersCtx;
         ctx.tag = nextTag;
-        ctx.q = "";
+        ctx.query = "";
         ctx.refreshGrid();
       },
 
@@ -82,7 +82,7 @@ export function registerBookFilters() {
         const ctx = this as unknown as BookFiltersCtx & {
           applyFilter(nextTag: string | null): void;
         };
-        const trimmed = ctx.q.trim();
+        const trimmed = ctx.query.trim();
         if (trimmed.length >= ctx.minLen) {
           ctx.refreshGrid();
         } else if (trimmed.length === 0) {
@@ -93,7 +93,7 @@ export function registerBookFilters() {
       clearFilters() {
         const ctx = this as unknown as BookFiltersCtx;
         ctx.tag = null;
-        ctx.q = "";
+        ctx.query = "";
         ctx.sort = ctx.defaultSort;
         ctx.refreshGrid();
       },

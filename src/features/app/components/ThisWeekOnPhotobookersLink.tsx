@@ -8,7 +8,11 @@ const ThisWeekOnPhotobookersLink = () => {
     >
       <span class="inline-flex items-center font-display text-lg font-medium text-on-surface-strong sm:text-xl">
         This week on Photobookers
-        <span class="w-0 overflow-hidden opacity-0 group-hover:w-6 group-hover:opacity-100 transition-all duration-300 ease-in-out whitespace-nowrap">
+        <span
+          class="inline-block whitespace-nowrap transition-all duration-300 ease-in-out
+         md:w-0 md:overflow-hidden md:opacity-0
+         md:group-hover:w-6 md:group-hover:opacity-100"
+        >
           &nbsp;→
         </span>
       </span>

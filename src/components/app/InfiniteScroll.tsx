@@ -4,6 +4,7 @@ type Props = {
   totalPages: number;
   targetId: string;
   pageParam?: string;
+  navId?: string;
 };
 
 export const InfiniteScroll = ({
@@ -12,12 +13,13 @@ export const InfiniteScroll = ({
   totalPages,
   targetId,
   pageParam = "page",
+  navId = "pagination",
 }: Props) => {
   if (totalPages <= 1) return null;
 
   return (
     <nav
-      id="pagination"
+      id={navId}
       class="flex items-center justify-center gap-2"
       x-init
       {...(page < totalPages && {

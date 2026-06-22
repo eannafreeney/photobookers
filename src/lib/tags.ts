@@ -3,30 +3,27 @@ export const tagToSlug = (tag: string) =>
 
 export const slugToTag = (slug: string) => slug.replace(/-/g, " ");
 
-import {
-  type BookCatalogSort,
-  parseBookCatalogSort,
-} from "./bookCatalogSort";
+import { type BookCatalogSort, parseBookCatalogSort } from "./bookCatalogSort";
 
 type BooksFilterParams = {
   tag?: string | null;
-  q?: string | null;
+  query?: string | null;
   sort?: BookCatalogSort | null;
   defaultSort?: BookCatalogSort;
 };
 
 export const booksFilterUrl = (
   base: string,
-  { tag, q, sort, defaultSort = "newest" }: BooksFilterParams,
+  { tag, query, sort, defaultSort = "newest" }: BooksFilterParams,
 ): string => {
   const params = new URLSearchParams();
   const trimmedTag = tag?.trim();
-  const trimmedQ = q?.trim();
+  const trimmedQ = query?.trim();
   if (trimmedTag) params.set("tag", trimmedTag);
   if (trimmedQ) params.set("q", trimmedQ);
   if (sort && sort !== defaultSort) params.set("sort", sort);
-  const query = params.toString();
-  return query ? `${base}?${query}` : base;
+  const queryString = params.toString();
+  return queryString ? `${base}?${queryString}` : base;
 };
 
 export const resolveBookCatalogSort = (
@@ -36,8 +33,8 @@ export const resolveBookCatalogSort = (
 
 export const hyperviewBooksFilterUrl = (
   baseUrl: string,
-  { tag, q }: BooksFilterParams,
-): string => booksFilterUrl(`${baseUrl}/hyperview/books`, { tag, q });
+  params: BooksFilterParams,
+): string => booksFilterUrl(`${baseUrl}/hyperview/books`, params);
 
 export const tagBooksUrl = (tag: string) => `/books/tags/${tagToSlug(tag)}`;
 

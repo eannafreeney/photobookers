@@ -3,7 +3,7 @@ import SectionTitle from "../../../../../components/app/SectionTitle";
 import Table from "../../../../../components/app/Table";
 import ListNavigation from "../../../../app/components/ListNavigation";
 import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
-import { getTopBooksByClicks } from "../../../../purchase-clicks/services";
+import { getTopBooksByFavorites } from "../../../../book-analytics/engagement";
 import WindowTable from "./WindowTable";
 
 type Props = {
@@ -13,37 +13,36 @@ type Props = {
   pageParam: string;
 };
 
-const TopBooksTable = async ({
+const TopBooksByFavoritesTable = async ({
   dateRange,
   currentPath,
   currentPage,
   pageParam,
 }: Props) => {
-  const [error, result] = await getTopBooksByClicks(dateRange, currentPage);
+  const [error, result] = await getTopBooksByFavorites(dateRange, currentPage);
   if (error) return <div>{error.reason}</div>;
 
-  const targetId = `analytics-top-books`;
-
+  const targetId = "analytics-top-books-by-favorites";
   const { books, totalPages, page } = result;
 
   return (
     <>
-      <SectionTitle>Top books by outbound clicks</SectionTitle>
+      <SectionTitle>Top books by favorites</SectionTitle>
       <WindowTable>
-        <Table id="analytics-top-books">
+        <Table>
           <Table.Head>
             <tr>
               <Table.HeadRow>Cover</Table.HeadRow>
               <Table.HeadRow>Title</Table.HeadRow>
               <Table.HeadRow>Artist</Table.HeadRow>
               <Table.HeadRow>Publisher</Table.HeadRow>
-              <Table.HeadRow>Outbound clicks</Table.HeadRow>
+              <Table.HeadRow>Favorites</Table.HeadRow>
             </tr>
           </Table.Head>
-          <Table.Body>
+          <Table.Body id={targetId} xMerge="append">
             {books.length === 0 ? (
               <tr>
-                <Table.BodyRow>No outbound clicks yet.</Table.BodyRow>
+                <Table.BodyRow>No favorites yet.</Table.BodyRow>
               </tr>
             ) : (
               books.map((row) => (
@@ -64,7 +63,7 @@ const TopBooksTable = async ({
                   </Table.BodyRow>
                   <Table.BodyRow>{row.artistName ?? ""}</Table.BodyRow>
                   <Table.BodyRow>{row.publisherName ?? ""}</Table.BodyRow>
-                  <Table.BodyRow>{row.clickCount}</Table.BodyRow>
+                  <Table.BodyRow>{row.favoriteCount}</Table.BodyRow>
                 </tr>
               ))
             )}
@@ -77,11 +76,11 @@ const TopBooksTable = async ({
           totalPages={totalPages}
           targetId={targetId}
           pageParam={pageParam}
-          navId={`pagination-books-table`}
+          navId="pagination-top-books-by-favorites-table"
         />
       </WindowTable>
     </>
   );
 };
 
-export default TopBooksTable;
+export default TopBooksByFavoritesTable;

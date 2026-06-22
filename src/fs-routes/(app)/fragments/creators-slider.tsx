@@ -3,7 +3,7 @@ import { getTopCreatorsByViews } from "../../../features/book-views/services";
 import CreatorsSlider from "../../../features/app/components/CreatorsSlider";
 import SectionTitle from "../../../components/app/SectionTitle";
 
-const TRENDING_CREATORS_LIMIT = 10;
+const TRENDING_CREATORS_LIMIT = 20;
 
 export const GET = createRoute(async (c) => {
   const [err, creators] = await getTopCreatorsByViews(TRENDING_CREATORS_LIMIT);

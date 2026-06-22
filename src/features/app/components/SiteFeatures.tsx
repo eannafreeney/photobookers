@@ -65,16 +65,15 @@ const SiteFeatures = () => {
 
 export default SiteFeatures;
 
-const FeatureCard = ({
-  item,
-  index,
-}: {
+type FeatureCardProps = {
   item: { title: string; icon: ChildType; href: string };
   index: number;
-}) => (
+};
+
+const FeatureCard = ({ item, index }: FeatureCardProps) => (
   <a
     href={item.href}
-    class="border-t-2 border-on-surface-strong pt-3 flex items-start gap-4 transition hover:opacity-80"
+    class="border-t-2 border-on-surface-strong pt-3 flex items-center gap-4 transition hover:opacity-80"
   >
     <span class="kicker text-accent shrink-0 pt-1">
       {String(index + 1).padStart(2, "0")}

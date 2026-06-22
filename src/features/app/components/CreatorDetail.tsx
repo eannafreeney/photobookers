@@ -12,6 +12,7 @@ import { AuthUser } from "../../../../types";
 import { creatorUrl } from "../spotlightUrls";
 import { creatorShareText } from "../../../lib/share";
 import ExpandableDescription from "./ExpandableDescription";
+import MobileHeader from "./MobileHeader";
 
 export type CreatorBooksResult = {
   creator: Creator;
@@ -93,6 +94,12 @@ const CreatorDetailMobile = ({
   creatorsCurrentPage,
 }: CreatorDetailMobileProps) => (
   <div class="flex flex-col gap-4">
+    <MobileHeader
+      kicker={creator.type === "publisher" ? "Publisher" : "Artist"}
+      title={creator.displayName}
+    >
+      <FollowButton creator={creator} variant="mobile" user={user} />
+    </MobileHeader>
     <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-3">
       <span class="kicker text-accent">
         {creator.type === "publisher" ? "Publisher" : "Artist"}

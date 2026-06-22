@@ -1,4 +1,14 @@
-import { and, count, desc, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  inArray,
+  isNull,
+  lte,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   bookViews,
@@ -16,6 +26,7 @@ import {
   CREATOR_CARD_COLUMNS,
   type CreatorCardResult,
 } from "../../constants/queries";
+import { getPagination } from "../../lib/pagination";
 
 const MAX_REFERER_LENGTH = 512;
 
@@ -102,9 +113,7 @@ export const getCreatorCatalogueBookViewTotal = async (creatorId: string) => {
     .select({ value: count() })
     .from(bookViews)
     .innerJoin(books, eq(bookViews.bookId, books.id))
-    .where(
-      or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)),
-    );
+    .where(or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)));
 
   return result[0]?.value ?? 0;
 };
@@ -132,11 +141,28 @@ export const getBookViewTotals = async (range?: AnalyticsDateRange | null) => {
 };
 
 export const getTopBooksByViews = async (
-  limit = 25,
   range?: AnalyticsDateRange | null,
+  currentPage: number = 1,
+  defaultLimit = 10,
 ) => {
   try {
     const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
+    const countQuery = db
+      .select({
+        value: sql<number>`count(distinct ${bookViews.bookId})`,
+      })
+      .from(bookViews);
+    const [{ value: totalCount = 0 }] = dateFilter
+      ? await countQuery.where(dateFilter)
+      : await countQuery;
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+    if (totalCount === 0) {
+      return ok({ books: [], totalPages: 1, page: 1 });
+    }
     const viewQuery = db
       .select({
         bookId: bookViews.bookId,
@@ -145,19 +171,18 @@ export const getTopBooksByViews = async (
       .from(bookViews)
       .groupBy(bookViews.bookId)
       .orderBy(desc(count()))
-      .limit(limit);
-
+      .limit(limit)
+      .offset(offset);
     const viewRows = dateFilter
       ? await viewQuery.where(dateFilter)
       : await viewQuery;
-
-    if (viewRows.length === 0) return ok([]);
-
+    if (viewRows.length === 0) {
+      return ok({ books: [], totalPages, page });
+    }
     const bookIds = viewRows.map((row) => row.bookId);
     const viewCountByBookId = new Map(
       viewRows.map((row) => [row.bookId, row.viewCount]),
     );
-
     const bookRows = await db.query.books.findMany({
       where: inArray(books.id, bookIds),
       columns: {
@@ -175,10 +200,8 @@ export const getTopBooksByViews = async (
         },
       },
     });
-
     const bookById = new Map(bookRows.map((book) => [book.id, book]));
-
-    const rows = viewRows
+    const topBooks = viewRows
       .map((viewRow) => {
         const book = bookById.get(viewRow.bookId);
         if (!book) return null;
@@ -193,8 +216,7 @@ export const getTopBooksByViews = async (
         };
       })
       .filter((row): row is NonNullable<typeof row> => row !== null);
-
-    return ok(rows);
+    return ok({ books: topBooks, totalPages, page });
   } catch (error) {
     console.error("Failed to get top books by views", error);
     return err({ reason: "Failed to get top books by views", cause: error });
@@ -243,7 +265,9 @@ export const getTopCreatorsByViews = async (
       columns: CREATOR_CARD_COLUMNS,
     });
 
-    const creatorById = new Map(creatorRows.map((creator) => [creator.id, creator]));
+    const creatorById = new Map(
+      creatorRows.map((creator) => [creator.id, creator]),
+    );
 
     const rows = viewRows
       .map((viewRow) => creatorById.get(viewRow.creatorId))

@@ -66,23 +66,23 @@ const HeroCarousel = async () => {
         </template>
       </div>
       <section
-        class="h-[470px] sm:h-[560px] md:h-[500px] relative py-6 text-on-surface transition-colors duration-300 ease-out sm:py-8"
+        class="relative h-[470px] overflow-hidden sm:h-[560px] md:h-[500px] py-6 text-on-surface transition-colors duration-300 ease-out sm:py-8"
         x-bind:class="items[active] ? items[active].slideClass : ''"
       >
         {/* <!-- Slides: visual on top (mobile), left (md+) --> */}
-        <div class="relative flex w-full h-full items-center">
+        <div class="relative h-full w-full">
           <template x-for="(item, index) in items">
             <div
               x-show="active === index"
               x-transition:enter="transition ease-out duration-500"
               x-transition:enter-start="opacity-0 translate-x-6"
               x-transition:enter-end="opacity-100 translate-x-0"
-              class="grid w-full grid-cols-1 grid-rows-[auto_auto] gap-6 md:grid-cols-[3fr_2fr] md:grid-rows-1 md:gap-10 md:items-center"
+              class="absolute inset-0 grid w-full grid-cols-1 grid-rows-[auto_auto] content-center gap-6 md:grid-cols-[3fr_2fr] md:grid-rows-1 md:gap-10 md:items-center"
             >
-              <div class="relative order-1 flex w-full justify-center md:order-0 ">
+              <div class="relative order-1 flex w-full justify-center md:order-0">
                 <template x-if="item.coverStack && item.coverStack.length >= 2">
                   <div
-                    class="mx-auto grid w-fit max-w-[700px] grid-cols-2 gap-2 min-[480px]:gap-3"
+                    class="mx-auto grid max-h-[220px] w-fit max-w-[700px] grid-cols-2 gap-2 overflow-hidden min-[480px]:max-h-[300px] min-[480px]:gap-3 md:max-h-[340px]"
                     x-bind:class="item.coverStack.length === 2 ? 'min-[480px]:grid-cols-2' : item.coverStack.length === 3 ? 'min-[480px]:grid-cols-3' : 'min-[480px]:grid-cols-4'"
                   >
                     <template x-for="(url, i) in item.coverStack">
@@ -90,7 +90,7 @@ const HeroCarousel = async () => {
                         <img
                           x-bind:src="url"
                           x-bind:class="i >= 2 ? 'hidden min-[480px]:block' : ''"
-                          class="w-full aspect-3/4 shadow-md object-cover"
+                          class="h-full max-h-[220px] w-full object-cover shadow-md min-[480px]:max-h-[300px] md:max-h-[340px] aspect-3/4"
                         />
                       </a>
                     </template>

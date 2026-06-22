@@ -8,12 +8,11 @@ import SiteFeatures from "../../features/app/components/SiteFeatures";
 import Intersector from "../../features/app/components/Intersector";
 import NewsletterBanner from "../../features/app/components/NewsletterBanner";
 import NewsletterCard from "../../features/app/components/NewsletterCard";
-import DiscoveryTags from "../../features/app/components/DiscoveryTags";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import Interviews from "../../features/app/components/Interviews";
 import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
 import ThisWeekOnPhotobookersLink from "../../features/app/components/ThisWeekOnPhotobookersLink";
-import PageBleed from "../../components/layouts/PageContent";
+import PageBleed from "../../components/layouts/PageBleedRight";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -42,13 +41,17 @@ export const GET = createRoute(async (c: Context) => {
           <SiteFeatures />
         </ScrollReveal>
         <ScrollReveal>
-          <Interviews />
+          <PageBleed>
+            <Interviews />
+          </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
-          <Intersector
-            id="creators-slider-fragment"
-            endpoint="/fragments/creators-slider"
-          />
+          <PageBleed>
+            <Intersector
+              id="creators-slider-fragment"
+              endpoint="/fragments/creators-slider"
+            />
+          </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
           <NewsletterCard />

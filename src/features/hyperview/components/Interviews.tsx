@@ -45,7 +45,7 @@ export const interviewsStyles = () => (
       id="interviews-section"
       flexDirection="column"
       gap={12}
-      marginBottom={24}
+      marginBottom={12}
     />
     <Style id="interviews-scroll" flexDirection="row" />
     {interviewCardStyles()}

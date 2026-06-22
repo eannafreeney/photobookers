@@ -8,7 +8,7 @@ import BooksGrid from "./BooksGrid";
 type Props = {
   user: AuthUser | null;
   tag: string | null;
-  q: string | null;
+  query: string | null;
   sort: BookCatalogSort;
   defaultSort?: BookCatalogSort;
   currentPath: string;
@@ -24,7 +24,7 @@ type Props = {
 const BooksGridWithFilters = ({
   user,
   tag,
-  q,
+  query,
   sort,
   defaultSort = "newest",
   currentPath,
@@ -39,7 +39,7 @@ const BooksGridWithFilters = ({
   <>
     <BookFilters
       activeTag={tag}
-      q={q}
+      query={query}
       sort={sort}
       defaultSort={defaultSort}
       ajaxPath={ajaxPath}

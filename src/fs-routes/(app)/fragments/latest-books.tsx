@@ -9,24 +9,24 @@ import { getUser } from "../../../utils";
 
 const FEATURED_BOOKS_LIMIT = 10;
 const FRAGMENT_PATH = "/fragments/latest-books";
-const DEFAULT_SORT = "most_trending" as const;
+const DEFAULT_SORT = "trending" as const;
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const tag = c.req.query("tag") ?? null;
-  const q = c.req.query("q") ?? null;
+  const query = c.req.query("q") ?? null;
   const sort = resolveBookCatalogSort(c.req.query("sort"), DEFAULT_SORT);
-  const isFiltered = Boolean(tag?.trim() || (q?.trim()?.length ?? 0) >= 3);
+  const isFiltered = Boolean(tag?.trim() || (query?.trim()?.length ?? 0) >= 3);
   const viewAllHref = booksFilterUrl("/books", {
     tag,
-    q,
+    query,
     sort,
     defaultSort: DEFAULT_SORT,
   });
 
   const [error, result] = await getFilteredBooks({
     tag,
-    q,
+    query,
     page: 1,
     limit: FEATURED_BOOKS_LIMIT,
     sort,
@@ -38,7 +38,7 @@ export const GET = createRoute(async (c) => {
   const gridProps = {
     user,
     tag,
-    q,
+    query,
     sort,
     defaultSort: DEFAULT_SORT,
     currentPath: viewAllHref,

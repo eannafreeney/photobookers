@@ -8,6 +8,11 @@ import {
   View,
 } from "../../../lib/hxml-comps";
 import { DISCOVER_TAGS } from "../../../constants/discover";
+import {
+  BOOK_CATALOG_SORT_LABELS,
+  BOOK_CATALOG_SORT_VALUES,
+  type BookCatalogSort,
+} from "../../../lib/bookCatalogSort";
 import { booksFilterUrl, slugToTag, tagToSlug } from "../../../lib/tags";
 import { capitalize } from "../../../utils";
 
@@ -36,14 +41,22 @@ type Props = {
   baseUrl: string;
   activeTag?: string | null;
   q?: string | null;
+  sort?: BookCatalogSort;
+  defaultSort?: BookCatalogSort;
   /** Full hyperview URL used for filter behaviors (default: `{baseUrl}/hyperview/books`). */
   filterPath?: string;
 };
 
-const filterSummary = (activeSlug: string | null, trimmedQ: string) => {
+const filterSummary = (
+  activeSlug: string | null,
+  trimmedQ: string,
+  sort: BookCatalogSort,
+  defaultSort: BookCatalogSort,
+) => {
   const parts: string[] = [];
   if (activeSlug) parts.push(capitalize(slugToTag(activeSlug)));
   if (trimmedQ.length >= MIN_SEARCH_LENGTH) parts.push(`"${trimmedQ}"`);
+  if (sort !== defaultSort) parts.push(BOOK_CATALOG_SORT_LABELS[sort]);
   return parts.length > 0 ? ` · ${parts.join(" · ")}` : "";
 };
 
@@ -51,9 +64,24 @@ const defaultFilterPath = (baseUrl: string) => `${baseUrl}/hyperview/books`;
 
 const catalogHref = (
   filterPath: string,
-  { tag, q }: { tag?: string | null; q?: string | null },
+  {
+    tag,
+    q,
+    sort,
+    defaultSort,
+  }: {
+    tag?: string | null;
+    q?: string | null;
+    sort?: BookCatalogSort | null;
+    defaultSort: BookCatalogSort;
+  },
 ) => {
-  const path = booksFilterUrl(filterPath, { tag, q });
+  const path = booksFilterUrl(filterPath, {
+    tag,
+    query: q,
+    sort,
+    defaultSort,
+  });
   return `${path}${path.includes("?") ? "&" : "?"}fragment=catalog`;
 };
 
@@ -61,17 +89,32 @@ const BookFiltersPanel = ({
   baseUrl,
   activeTag = null,
   q = null,
+  sort = "newest",
+  defaultSort = "newest",
   filterPath: filterPathProp,
 }: Props) => {
   const filterPath = filterPathProp ?? defaultFilterPath(baseUrl);
   const trimmedQ = q?.trim() ?? "";
   const activeSlug = activeTag?.trim() || null;
-  const summary = filterSummary(activeSlug, trimmedQ);
+  const summary = filterSummary(activeSlug, trimmedQ, sort, defaultSort);
   const hasActiveFilters =
-    Boolean(activeSlug) || trimmedQ.length >= MIN_SEARCH_LENGTH;
-  const searchPostHref = activeSlug
-    ? `${filterPath}?tag=${encodeURIComponent(activeSlug)}`
-    : filterPath;
+    Boolean(activeSlug) ||
+    trimmedQ.length >= MIN_SEARCH_LENGTH ||
+    sort !== defaultSort;
+  const filterParams = { sort, defaultSort };
+
+  const searchPostHref = booksFilterUrl(filterPath, {
+    tag: activeSlug,
+    query: trimmedQ,
+    ...filterParams,
+  });
+
+  const hrefFor = (params: {
+    tag?: string | null;
+    q?: string | null;
+    sort?: BookCatalogSort | null;
+  }) => catalogHref(filterPath, { ...filterParams, ...params });
+
   const { drawerId, chevronClosedId, chevronOpenId, filterQId } =
     filterElementIds(activeSlug, trimmedQ);
 
@@ -99,7 +142,7 @@ const BookFiltersPanel = ({
               verb="get"
               action="replace"
               target={BOOKS_CATALOG_TARGET_ID}
-              href={catalogHref(filterPath, {})}
+              href={hrefFor({ tag: null, q: null, sort: defaultSort })}
             />
           </View>
         ) : null}
@@ -116,7 +159,7 @@ const BookFiltersPanel = ({
                 verb="get"
                 action="replace"
                 target={BOOKS_CATALOG_TARGET_ID}
-                href={catalogHref(filterPath, {})}
+                href={hrefFor({ tag: null, q: null })}
               />
               <Text
                 style={
@@ -142,7 +185,7 @@ const BookFiltersPanel = ({
                     verb="get"
                     action="replace"
                     target={BOOKS_CATALOG_TARGET_ID}
-                    href={catalogHref(filterPath, { tag: slug })}
+                    href={hrefFor({ tag: slug })}
                   />
                   <Text
                     style={
@@ -157,35 +200,76 @@ const BookFiltersPanel = ({
               );
             })}
           </View>
-          <Form id="books-filter-form">
-            <View style="book-filters-search-row">
-              <TextField
-                id={filterQId}
-                style="book-filters-search-input"
-                name="q"
-                value={trimmedQ}
-                placeholder="Search by title, artist, publisher, or tag…"
-              />
-              <View style="book-filters-search-btn">
-                <Text style="book-filters-search-label">Search</Text>
-                <Behavior
-                  verb="post"
-                  action="replace"
-                  target={BOOKS_CATALOG_TARGET_ID}
-                  href={searchPostHref}
+          <View style="book-filters-section">
+            <Text style="book-filters-section-label">Search</Text>
+            <Form id="books-filter-form">
+              <View style="book-filters-search">
+                <TextField
+                  id={filterQId}
+                  style="book-filters-search-input"
+                  name="q"
+                  value={trimmedQ}
+                  placeholder="Search by title, artist, publisher, or tag…"
                 />
+                <View style="book-filters-search-actions">
+                  <View style="book-filters-search-btn">
+                    <Text style="book-filters-search-label">Search</Text>
+                    <Behavior
+                      verb="post"
+                      action="replace"
+                      target={BOOKS_CATALOG_TARGET_ID}
+                      href={searchPostHref}
+                    />
+                  </View>
+                  <View style="book-filters-clear">
+                    <Text style="book-filters-clear-label">Clear</Text>
+                    <Behavior
+                      verb="get"
+                      action="replace"
+                      target={BOOKS_CATALOG_TARGET_ID}
+                      href={hrefFor({ tag: null, q: null, sort: defaultSort })}
+                    />
+                  </View>
+                </View>
               </View>
-              <View style="book-filters-clear">
-                <Text style="book-filters-clear-label">Clear</Text>
-                <Behavior
-                  verb="get"
-                  action="replace"
-                  target={BOOKS_CATALOG_TARGET_ID}
-                  href={catalogHref(filterPath, {})}
-                />
-              </View>
+            </Form>
+          </View>
+          <View style="book-filters-section">
+            <Text style="book-filters-section-label">Sort by</Text>
+            <View style="book-filters-sort-row">
+              {BOOK_CATALOG_SORT_VALUES.map((value) => {
+                const isActive = sort === value;
+                return (
+                  <View
+                    key={value}
+                    style={
+                      isActive ? "book-filter-pill-active" : "book-filter-pill"
+                    }
+                  >
+                    <Behavior
+                      verb="get"
+                      action="replace"
+                      target={BOOKS_CATALOG_TARGET_ID}
+                      href={hrefFor({
+                        tag: activeSlug,
+                        q: trimmedQ,
+                        sort: value,
+                      })}
+                    />
+                    <Text
+                      style={
+                        isActive
+                          ? "book-filter-pill-label-active"
+                          : "book-filter-pill-label"
+                      }
+                    >
+                      {BOOK_CATALOG_SORT_LABELS[value]}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
-          </Form>
+          </View>
         </View>
       </View>
     </View>
@@ -294,15 +378,29 @@ export const bookFiltersStyles = () => (
       fontWeight="600"
       color="#FFFFFF"
     />
+    <Style id="book-filters-section" flexDirection="column" marginTop={16} />
     <Style
-      id="book-filters-search-row"
+      id="book-filters-section-label"
+      fontSize={12}
+      fontWeight="600"
+      color="#6B6B6B"
+      marginBottom={8}
+    />
+    <Style
+      id="book-filters-search"
+      flexDirection="column"
+      width="100%"
+      gap={8}
+    />
+    <Style
+      id="book-filters-search-actions"
       flexDirection="row"
       alignItems="center"
       gap={8}
     />
     <Style
       id="book-filters-search-input"
-      flex={1}
+      width="100%"
       borderWidth={1}
       borderColor="#E5E5E4"
       borderRadius={999}
@@ -343,6 +441,13 @@ export const bookFiltersStyles = () => (
       fontSize={14}
       fontWeight="500"
       color="#6B6B6B"
+    />
+    <Style
+      id="book-filters-sort-row"
+      flexDirection="row"
+      flexWrap="wrap"
+      alignItems="flex-start"
+      gap={8}
     />
     <Style id="books-list-panel" flex={1} />
   </>

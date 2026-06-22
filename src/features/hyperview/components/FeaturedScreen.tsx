@@ -12,6 +12,7 @@ import {
 import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps";
 import { feedListStyles } from "./FeedList";
 import { interviewsStyles } from "./Interviews";
+import { trendingCreatorsStyles } from "./TrendingCreatorsSlider";
 import { newsletterCardStyles } from "./NewsletterCard";
 import { featuredHomeBodyStyles } from "./FeaturedHomeBody";
 import { bookGridWithFiltersStyles } from "./BookGridWithFilters";
@@ -79,6 +80,7 @@ const pageStyles = () => (
     {feedListStyles()}
     {sectionHeaderStyles()}
     {interviewsStyles()}
+    {trendingCreatorsStyles()}
     {newsletterCardStyles()}
     {featuredHomeBodyStyles()}
     {bookGridWithFiltersStyles()}
