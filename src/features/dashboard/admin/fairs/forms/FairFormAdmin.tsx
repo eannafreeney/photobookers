@@ -123,3 +123,5 @@ export const FairFormAdmin = ({ formValues, fairId }: FairFormProps) => {
     </div>
   );
 };
+
+export default FairFormAdmin;

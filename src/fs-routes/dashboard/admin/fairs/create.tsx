@@ -3,7 +3,7 @@ import { getUser, setFlash } from "../../../../utils";
 import { Context } from "hono";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
-import { FairFormAdmin } from "../../../../features/dashboard/admin/fairs/forms/FairFormAdmin";
+import FairFormAdmin from "../../../../features/dashboard/admin/fairs/forms/FairFormAdmin";
 import { formValidator } from "../../../../lib/validator";
 import { fairFormAdminSchema } from "../../../../features/dashboard/admin/fairs/schema";
 import { showErrorAlert } from "../../../../lib/alertHelpers";

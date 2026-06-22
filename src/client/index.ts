@@ -82,3 +82,4 @@ registerInterviewForm();
 registerEditInterviewForm();
 registerMessageForm();
 registerCreatorBannerForm();
+registerFairFormAdmin();

@@ -12,7 +12,7 @@ import {
   getFairByIdAdmin,
   updateFairAdmin,
 } from "../../../../features/dashboard/admin/fairs/services";
-import { FairFormAdmin } from "../../../../features/dashboard/admin/fairs/forms/FairFormAdmin";
+import FairFormAdmin from "../../../../features/dashboard/admin/fairs/forms/FairFormAdmin";
 import { fairFormAdminSchema } from "../../../../features/dashboard/admin/fairs/schema";
 import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers";
 import { FairFormWithIdContext, FairIdContext } from "../../../../features/dashboard/admin/fairs/types";
