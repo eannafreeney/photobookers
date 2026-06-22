@@ -11,6 +11,7 @@ type Props = {
 const BulkCoverUpload = ({ books }: Props) => {
   const alpineAttrs = {
     "x-data": `bulkCoverUpload(${JSON.stringify(books)})`,
+    "x-init": "init()",
   };
 
   const dropzoneAttrs = {

@@ -41,6 +41,22 @@ function normalizeAvailability(
   return "available";
 }
 
+/**
+ * Sanitize CSV value to prevent CSV injection attacks.
+ * Values starting with =, +, -, or @ could be executed as formulas in Excel/Sheets.
+ * 
+ * #15: CSV Injection Prevention
+ */
+function sanitizeCsvValue(value: string): string {
+  const trimmed = value.trim();
+  // Check if value starts with formula characters
+  if (trimmed.match(/^[=+@-]/)) {
+    // Prefix with single quote to prevent formula execution
+    return `'${trimmed}`;
+  }
+  return trimmed;
+}
+
 function rowFromRecord(
   record: Record<string, string | undefined>,
   rowNumber: number,
@@ -53,10 +69,13 @@ function rowFromRecord(
     const value = rawValue?.trim() ?? "";
     if (!value) continue;
 
+    // Sanitize value to prevent CSV injection
+    const sanitized = sanitizeCsvValue(value);
+
     if (field === "availability_status") {
-      mapped.availability_status = normalizeAvailability(value);
+      mapped.availability_status = normalizeAvailability(sanitized);
     } else {
-      mapped[field] = value;
+      mapped[field] = sanitized;
     }
   }
 

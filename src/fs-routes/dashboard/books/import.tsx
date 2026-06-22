@@ -1,5 +1,6 @@
 import { createRoute } from "hono-fsr";
 import { Context } from "hono";
+import { and, eq, gte, sql } from "drizzle-orm";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumbs";
@@ -8,7 +9,11 @@ import Alert from "../../../components/app/Alert";
 import { getFlash, getUser, setFlash } from "../../../utils";
 import BookImportForm from "../../../features/dashboard/books/import/components/BookImportForm";
 import BookImportResults from "../../../features/dashboard/books/import/components/BookImportResults";
-import { MAX_IMPORT_FILE_BYTES } from "../../../features/dashboard/books/import/constants";
+import { 
+  MAX_IMPORT_FILE_BYTES,
+  MAX_IMPORTS_PER_HOUR,
+  MAX_BOOKS_CREATED_PER_DAY,
+} from "../../../features/dashboard/books/import/constants";
 import { parseCsvContent } from "../../../features/dashboard/books/import/parseCsv";
 import {
   getValidRows,
@@ -16,6 +21,63 @@ import {
 } from "../../../features/dashboard/books/import/validateRows";
 import { importBooksFromRows } from "../../../features/dashboard/books/import/importBooks";
 import { importConfirmRowsSchema } from "../../../features/dashboard/books/import/schema";
+import { db } from "../../../db/client";
+import { books } from "../../../db/schema";
+
+/**
+ * Check if user has exceeded rate limit for imports
+ */
+async function checkImportRateLimit(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+  try {
+    // Check hourly import limit
+    const oneHourAgo = new Date(Date.now() - 3600000);
+    const hourlyResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(books)
+      .where(
+        and(
+          eq(books.createdByUserId, userId),
+          gte(books.createdAt, oneHourAgo)
+        )
+      );
+    
+    const hourlyCount = hourlyResult[0]?.count ?? 0;
+    
+    if (hourlyCount >= MAX_IMPORTS_PER_HOUR * 100) { // Assuming avg 100 books per import
+      return { 
+        allowed: false, 
+        reason: `Import rate limit exceeded. You've created ${hourlyCount} books in the last hour. Please try again later.` 
+      };
+    }
+
+    // Check daily book creation limit
+    const oneDayAgo = new Date(Date.now() - 86400000);
+    const dailyResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(books)
+      .where(
+        and(
+          eq(books.createdByUserId, userId),
+          gte(books.createdAt, oneDayAgo)
+        )
+      );
+    
+    const dailyCount = dailyResult[0]?.count ?? 0;
+    
+    if (dailyCount >= MAX_BOOKS_CREATED_PER_DAY) {
+      return { 
+        allowed: false, 
+        reason: `Daily book creation limit exceeded. You've created ${dailyCount} books in the last 24 hours (max ${MAX_BOOKS_CREATED_PER_DAY}).` 
+      };
+    }
+
+    return { allowed: true };
+  } catch (error) {
+    console.error("Failed to check import rate limit:", error);
+    // Allow import on rate limit check failure to avoid blocking legitimate users
+    return { allowed: true };
+  }
+}
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -98,12 +160,30 @@ export const POST = createRoute(async (c: Context) => {
       );
     }
 
+    // VALIDATION #7: Rate limiting check
+    const rateLimitCheck = await checkImportRateLimit(user.id);
+    if (!rateLimitCheck.allowed) {
+      return c.html(
+        <AppLayout title="Import Books" user={user} currentPath={currentPath}>
+          <Page>
+            <Alert type="danger" message={rateLimitCheck.reason ?? "Rate limit exceeded"} />
+            <BookImportForm creatorType={user.creator.type} />
+          </Page>
+        </AppLayout>,
+      );
+    }
+
     const { results, createdBooks } = await importBooksFromRows(
       validated.data,
       user,
     );
 
     const createdCount = createdBooks.length;
+    const failedCount = results.filter(r => !r.success).length;
+    
+    // #23: Audit logging - Log import event
+    console.log(`[AUDIT] CSV Import by user ${user.id} (${user.email}): ${createdCount} books created, ${failedCount} failed, ${validated.data.length} total rows`);
+    
     await setFlash(
       c,
       createdCount > 0 ? "success" : "danger",

@@ -3,6 +3,7 @@ import {
   count,
   desc,
   eq,
+  gte,
   ilike,
   inArray,
   isNull,
@@ -163,6 +164,102 @@ export const createStubCreatorProfileAdmin = async (
   });
   if (creatorError || !newCreator)
     return err({ reason: "Failed to create artist" });
+  return ok(newCreator);
+};
+
+/**
+ * Create a stub creator profile for non-admin users (e.g., during CSV import).
+ * This function has stricter validation than the admin version to prevent abuse.
+ * 
+ * Validation rules:
+ * - Display name must be 2-100 characters
+ * - Display name cannot start with special characters
+ * - Checks for reasonable rate limits on stub creation
+ * - Prevents creating stubs for common/suspicious names
+ */
+export const createStubCreatorProfile = async (
+  displayName: string,
+  userId: string,
+  type: "publisher" | "artist",
+) => {
+  const trimmed = displayName.trim();
+  
+  // Validation: Check minimum length
+  if (!trimmed || trimmed.length < 2) {
+    return err({ 
+      reason: `${type === "artist" ? "Artist" : "Publisher"} name must be at least 2 characters` 
+    });
+  }
+  
+  // Validation: Check maximum length
+  if (trimmed.length > 100) {
+    return err({ 
+      reason: `${type === "artist" ? "Artist" : "Publisher"} name must be less than 100 characters` 
+    });
+  }
+  
+  // Validation: Check for suspicious patterns
+  if (trimmed.match(/^[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF]/)) {
+    return err({ 
+      reason: `${type === "artist" ? "Artist" : "Publisher"} name cannot start with special characters` 
+    });
+  }
+  
+  // Validation: Block common placeholder names
+  const suspiciousNames = ['unknown', 'n/a', 'none', 'test', 'tbd', 'pending', 'various', 'multiple'];
+  const lowerName = trimmed.toLowerCase();
+  if (suspiciousNames.includes(lowerName)) {
+    return err({ 
+      reason: `Please provide a specific ${type === "artist" ? "artist" : "publisher"} name` 
+    });
+  }
+  
+  // Rate limiting check: Get recent stub creations by this user
+  try {
+    const oneHourAgo = new Date(Date.now() - 3600000);
+    const recentStubs = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(creators)
+      .where(
+        and(
+          eq(creators.createdByUserId, userId),
+          eq(creators.status, "stub"),
+          gte(creators.createdAt, oneHourAgo)
+        )
+      );
+    
+    const stubCount = recentStubs[0]?.count ?? 0;
+    const MAX_STUBS_PER_HOUR = 50; // Allow up to 50 stub creations per hour (covers 100 book import with unique names)
+    
+    if (stubCount >= MAX_STUBS_PER_HOUR) {
+      return err({ 
+        reason: `Too many ${type}s created recently. Please try again later or contact support.` 
+      });
+    }
+  } catch (error) {
+    console.error("Failed to check stub creation rate limit:", error);
+    // Continue despite rate limit check failure - don't block legitimate imports
+  }
+  
+  // Create the stub creator with same logic as admin version but validated input
+  const [creatorError, newCreator] = await createCreatorProfileAdmin({
+    displayName: trimmed,
+    slug: slugify(trimmed),
+    coverUrl: getRandomCoverUrl(),
+    ownerUserId: null,
+    type,
+    status: "stub",
+    createdByUserId: userId,
+    website: null,
+    email: null,
+  });
+  
+  if (creatorError || !newCreator) {
+    return err({ 
+      reason: `Failed to create ${type === "artist" ? "artist" : "publisher"} profile: ${creatorError?.reason ?? "unknown error"}` 
+    });
+  }
+  
   return ok(newCreator);
 };
 

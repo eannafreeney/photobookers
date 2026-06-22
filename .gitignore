@@ -11,3 +11,8 @@ output/
 .env.production
 scripts/cover-url-backup-*.csv
 scripts/cover-recompress-suspect-review-*.csv
+
+# Weekly audit logs and reports
+logs/
+AUDIT_*.md
+!AUDIT_CSV_IMPORT.md

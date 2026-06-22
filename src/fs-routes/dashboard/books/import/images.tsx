@@ -7,6 +7,7 @@ import InfoPage from "../../../../pages/InfoPage";
 import { getFlash, getUser } from "../../../../utils";
 import BulkCoverUpload from "../../../../features/dashboard/books/import/components/BulkCoverUpload";
 import { getBooksForBulkBookImagesUpload } from "../../../../features/dashboard/books/services";
+import { MAX_BOOKS_FOR_BULK_UPLOAD } from "../../../../features/dashboard/books/import/constants";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -31,6 +32,16 @@ export const GET = createRoute(async (c: Context) => {
   if (bookIds.length === 0) {
     return c.html(
       <InfoPage errorMessage="No valid book IDs provided" user={user} />,
+    );
+  }
+
+  // VALIDATION #8: Array length validation (High priority - DoS prevention)
+  if (bookIds.length > MAX_BOOKS_FOR_BULK_UPLOAD) {
+    return c.html(
+      <InfoPage 
+        errorMessage={`Maximum ${MAX_BOOKS_FOR_BULK_UPLOAD} books for bulk upload. You selected ${bookIds.length}.`}
+        user={user}
+      />,
     );
   }
 

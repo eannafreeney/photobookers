@@ -14,6 +14,38 @@ export function bulkCoverUpload(books: BookForMatching[]) {
     filePreviews: {} as Record<string, string>,
     uploading: false,
 
+    /**
+     * Initialize component and set up cleanup handlers
+     */
+    init() {
+      // Clean up blob URLs when user navigates away
+      window.addEventListener('beforeunload', () => {
+        this.cleanup();
+      });
+    },
+
+    /**
+     * Clean up all blob URLs to prevent memory leaks
+     */
+    cleanup() {
+      Object.values(this.filePreviews).forEach(url => {
+        URL.revokeObjectURL(url);
+      });
+      this.filePreviews = {};
+    },
+
+    /**
+     * Revoke blob URL for a specific file
+     */
+    revokeFilePreview(file: File) {
+      const key = `${file.name}_${file.size}`;
+      const url = this.filePreviews[key];
+      if (url) {
+        URL.revokeObjectURL(url);
+        delete this.filePreviews[key];
+      }
+    },
+
     openFilePicker(bookId: string) {
       const input = document.getElementById(`fileInput-${bookId}`) as HTMLInputElement;
       if (input) input.click();
@@ -38,11 +70,14 @@ export function bulkCoverUpload(books: BookForMatching[]) {
       const combined = [...existing, ...imageFiles];
       const maxImages = 10;
 
-      this.bookImages[bookId] = combined.slice(0, maxImages);
-
+      // Revoke URLs for images that will be dropped due to limit
       if (combined.length > maxImages) {
+        const droppedFiles = combined.slice(maxImages);
+        droppedFiles.forEach(file => this.revokeFilePreview(file));
         alert(`Maximum ${maxImages} images per book. Extra images were ignored.`);
       }
+
+      this.bookImages[bookId] = combined.slice(0, maxImages);
     },
 
     getFilePreview(file: File): string {
@@ -55,12 +90,25 @@ export function bulkCoverUpload(books: BookForMatching[]) {
 
     removeImage(bookId: string, index: number) {
       if (!this.bookImages[bookId]) return;
+      
+      // Revoke the blob URL before removing the image
+      const file = this.bookImages[bookId][index];
+      if (file) {
+        this.revokeFilePreview(file);
+      }
+      
       this.bookImages[bookId] = this.bookImages[bookId].filter(
         (_, i) => i !== index,
       );
     },
 
     clearBook(bookId: string) {
+      // Revoke all blob URLs for this book before clearing
+      const files = this.bookImages[bookId];
+      if (files) {
+        files.forEach(file => this.revokeFilePreview(file));
+      }
+      
       delete this.bookImages[bookId];
     },
 
@@ -111,6 +159,8 @@ export function bulkCoverUpload(books: BookForMatching[]) {
         });
 
         if (response.ok) {
+          // Clean up all blob URLs before navigation
+          this.cleanup();
           window.location.href = "/dashboard/books";
         } else {
           alert("Upload failed. Please try again.");
