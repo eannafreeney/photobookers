@@ -11,20 +11,20 @@ import Button from "../../../components/app/Button";
 const FEATURED_FAIRS_LIMIT = 5;
 
 export const GET = createRoute(async (c) => {
-  // Fetch both upcoming and current fairs
-  const [upcomingError, upcomingResult] = await getUpcomingFairs(
-    1,
-    FEATURED_FAIRS_LIMIT,
-  );
-  const [currentError, currentResult] = await getCurrentFairs(
-    1,
-    FEATURED_FAIRS_LIMIT,
-  );
+  const fairs = Promise.all([
+    await getUpcomingFairs(1, FEATURED_FAIRS_LIMIT),
+    await getCurrentFairs(1, FEATURED_FAIRS_LIMIT),
+  ]);
+
+  const [[upcomingError, upcomingFairs], [currentError, currentFairs]] =
+    await fairs;
+
+  if (upcomingError || currentError) return c.html(<></>);
 
   // Combine fairs, prioritizing current fairs first
   const allFairs = [
-    ...(currentResult?.fairs ?? []),
-    ...(upcomingResult?.fairs ?? []),
+    ...(currentFairs?.fairs ?? []),
+    ...(upcomingFairs?.fairs ?? []),
   ].slice(0, FEATURED_FAIRS_LIMIT);
 
   // If no fairs available, don't render anything
@@ -43,7 +43,6 @@ export const GET = createRoute(async (c) => {
         totalPages={1}
         baseUrl="/fairs"
         targetId="fairs-fragment-grid"
-        isPaginated={false}
       />
       <div class="flex justify-center mt-8">
         <a href="/fairs">

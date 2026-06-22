@@ -2,8 +2,7 @@ import type { BookFair } from "../../../../db/schema";
 import GridPanel from "../../../../components/app/GridPanel";
 import ScrollReveal from "../../../../components/app/ScrollReveal";
 import FairCard from "./FairCard";
-import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
-import { Pagination } from "../../../../components/app/Pagination";
+import ListNavigation from "../../components/ListNavigation";
 
 type FairsGridProps = {
   fairs: BookFair[];
@@ -23,11 +22,7 @@ const FairsGrid = ({
   isPaginated = false,
 }: FairsGridProps) => {
   if (fairs.length === 0) {
-    return (
-      <div class="text-center py-12 text-gray-500">
-        No fairs found.
-      </div>
-    );
+    return <div class="text-center py-12 text-gray-500">No fairs found.</div>;
   }
 
   return (
@@ -39,16 +34,13 @@ const FairsGrid = ({
           </ScrollReveal>
         ))}
       </GridPanel>
-      {isPaginated ? (
-        <Pagination page={page} totalPages={totalPages} baseUrl={baseUrl} targetId={targetId} />
-      ) : (
-        <InfiniteScroll
-          baseUrl={baseUrl}
-          page={page}
-          totalPages={totalPages}
-          targetId={targetId}
-        />
-      )}
+      <ListNavigation
+        isInfiniteScroll
+        currentPath={baseUrl}
+        page={page}
+        totalPages={totalPages}
+        targetId={targetId}
+      />
     </>
   );
 };
