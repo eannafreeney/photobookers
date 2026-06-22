@@ -302,6 +302,13 @@
       "when": 1782121660061,
       "tag": "0043_fearless_spyke",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1782127186446,
+      "tag": "0044_damp_sprite",
+      "breakpoints": true
     }
   ]
 }

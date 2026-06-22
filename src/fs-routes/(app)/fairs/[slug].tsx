@@ -10,6 +10,7 @@ import InfoPage from "../../../pages/InfoPage";
 import { getFairBySlug } from "../../../features/app/fairs/services";
 import FairDetail from "../../../features/app/fairs/components/FairDetail";
 import { pageTitle, canonicalUrl, truncateDescription, buildFairJsonLd } from "../../../lib/seo";
+import { recordFairView } from "../../../features/fair-views/services";
 
 const slugSchema = z.object({
   slug: z.string(),
@@ -36,6 +37,17 @@ export const GET = createRoute(
     
     if (!isPublished && !user?.isAdmin) {
       return c.html(<InfoPage errorMessage="Fair not found" user={user} />, 404);
+    }
+
+    // Track page view
+    if (isPublished) {
+      const referer = c.req.header("referer") || null;
+      await recordFairView({
+        fairId: fair.id,
+        userId: user?.id,
+        source: "web",
+        referer,
+      });
     }
 
     const fairCanonicalUrl = canonicalUrl(c.req.url, `/fairs/${fair.slug}`);

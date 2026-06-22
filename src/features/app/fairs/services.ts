@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { bookFairs, fairAttendees } from "../../../db/schema";
 import { getPagination } from "../../../lib/pagination";
@@ -197,5 +197,118 @@ export const getFairsByCreatorId = async (
   } catch (error) {
     console.error("Failed to get fairs by creator", error);
     return err({ reason: "Failed to get fairs by creator", cause: error });
+  }
+};
+
+export const getFairsByMonth = async (year: number, month: number) => {
+  try {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+
+    const publishedCondition = and(
+      eq(bookFairs.status, "published"),
+      eq(bookFairs.approvalStatus, "approved"),
+      // Fair is in month if it starts before month ends AND ends after month starts
+      lte(bookFairs.startDate, endOfMonth),
+      gte(bookFairs.endDate, startOfMonth),
+    );
+
+    const fairs = await db.query.bookFairs.findMany({
+      where: publishedCondition,
+      orderBy: [bookFairs.startDate],
+    });
+
+    return ok(fairs);
+  } catch (error) {
+    console.error("Failed to get fairs by month", error);
+    return err({ reason: "Failed to get fairs by month", cause: error });
+  }
+};
+
+export type FairSearchParams = {
+  query?: string;
+  city?: string;
+  country?: string;
+  startDate?: Date;
+  endDate?: Date;
+  page?: number;
+  limit?: number;
+};
+
+export const searchFairs = async (params: FairSearchParams) => {
+  try {
+    const {
+      query,
+      city,
+      country,
+      startDate,
+      endDate,
+      page = 1,
+      limit = 30,
+    } = params;
+
+    const conditions = [
+      eq(bookFairs.status, "published"),
+      eq(bookFairs.approvalStatus, "approved"),
+    ];
+
+    // Text search (name, description, venue)
+    if (query && query.trim()) {
+      const searchTerm = `%${query.trim()}%`;
+      conditions.push(
+        or(
+          ilike(bookFairs.name, searchTerm),
+          ilike(bookFairs.description, searchTerm),
+          ilike(bookFairs.venue, searchTerm),
+        )!,
+      );
+    }
+
+    // Location filters
+    if (city && city.trim()) {
+      conditions.push(ilike(bookFairs.city, `%${city.trim()}%`));
+    }
+
+    if (country && country.trim()) {
+      conditions.push(ilike(bookFairs.country, `%${country.trim()}%`));
+    }
+
+    // Date range filters
+    if (startDate) {
+      conditions.push(gte(bookFairs.startDate, startDate));
+    }
+
+    if (endDate) {
+      conditions.push(lte(bookFairs.endDate, endDate));
+    }
+
+    const whereCondition = and(...conditions);
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: sql<number>`count(*)` })
+      .from(bookFairs)
+      .where(whereCondition);
+
+    const { page: currentPage, limit: pageLimit, offset, totalPages } = getPagination(
+      page,
+      totalCount,
+      limit,
+    );
+
+    const fairs = await db.query.bookFairs.findMany({
+      where: whereCondition,
+      orderBy: [
+        desc(bookFairs.listingTier),
+        sql`${bookFairs.sortOrder} ASC NULLS LAST`,
+        bookFairs.startDate,
+      ],
+      limit: pageLimit,
+      offset: offset,
+    });
+
+    return ok({ fairs, totalPages, page: currentPage, totalCount });
+  } catch (error) {
+    console.error("Failed to search fairs", error);
+    return err({ reason: "Failed to search fairs", cause: error });
   }
 };

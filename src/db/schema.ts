@@ -78,6 +78,11 @@ export const bookViewSourceEnum = pgEnum("book_view_source", [
   "hyperview",
 ]);
 
+export const fairViewSourceEnum = pgEnum("fair_view_source", [
+  "web",
+  "hyperview",
+]);
+
 export const bookFairStatusEnum = pgEnum("book_fair_status", [
   "draft",
   "published",
@@ -798,6 +803,7 @@ export const bookFairsRelations = relations(bookFairs, ({ one, many }) => ({
     references: [users.id],
   }),
   attendees: many(fairAttendees),
+  views: many(fairViews),
 }));
 
 export const fairAttendees = pgTable(
@@ -832,6 +838,35 @@ export const fairAttendeesRelations = relations(fairAttendees, ({ one }) => ({
   creator: one(creators, {
     fields: [fairAttendees.creatorId],
     references: [creators.id],
+  }),
+}));
+
+export const fairViews = pgTable(
+  "fair_views",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fairId: uuid("fair_id")
+      .references(() => bookFairs.id)
+      .notNull(),
+    userId: uuid("user_id").references(() => users.id),
+    source: fairViewSourceEnum("source").notNull().default("web"),
+    referer: text("referer"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    fairIdIdx: index("fair_views_fair_id_idx").on(table.fairId),
+    createdAtIdx: index("fair_views_created_at_idx").on(table.createdAt),
+  }),
+);
+
+export const fairViewsRelations = relations(fairViews, ({ one }) => ({
+  fair: one(bookFairs, {
+    fields: [fairViews.fairId],
+    references: [bookFairs.id],
+  }),
+  user: one(users, {
+    fields: [fairViews.userId],
+    references: [users.id],
   }),
 }));
 
@@ -931,3 +966,7 @@ export type FairAttendee = InferSelectModel<typeof fairAttendees>;
 export type NewFairAttendee = InferInsertModel<typeof fairAttendees>;
 export type FairAttendeeStatus =
   (typeof fairAttendeeStatusEnum.enumValues)[number];
+
+export type FairView = InferSelectModel<typeof fairViews>;
+export type NewFairView = InferInsertModel<typeof fairViews>;
+export type FairViewSource = (typeof fairViewSourceEnum.enumValues)[number];
