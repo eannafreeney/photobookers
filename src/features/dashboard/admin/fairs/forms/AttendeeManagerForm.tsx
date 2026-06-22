@@ -3,6 +3,8 @@ import SectionTitle from "../../../../../components/app/SectionTitle";
 import OptionsComboBox from "../../../../../components/app/OptionsComboBox";
 import { getAllCreatorOptionsForFairs } from "../services";
 import AttendeesList from "../components/AttendeesList";
+import Button from "../../../../../components/app/Button";
+import FormPost from "../../../../../components/forms/FormPost";
 
 type AttendeeManagerFormProps = {
   fair: BookFair;
@@ -30,30 +32,30 @@ const AttendeeManagerForm = async ({
   }
 
   return (
-    <div class="space-y-4">
+    <div id="attendees" class="space-y-4">
       <SectionTitle>Attending Publishers & Artists</SectionTitle>
-      <form
-        method="post"
+      <FormPost
         action={`/dashboard/admin/fairs/${fair.id}/attendees`}
         x-target="attendees-list"
       >
         <div class="flex gap-4 items-end mb-4">
           <div class="flex-1">
             <OptionsComboBox
-              label="Add Creator"
+              label="Add Creators"
               name="creatorId"
               options={creatorOptions}
+              multiple
             />
           </div>
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
-            Add Attendee
-          </button>
+          <Button variant="solid" color="primary" width="auto">
+            Add Attendees
+          </Button>
         </div>
-      </form>
-      <div id="attendees-list" {...{ "@attendees:updated.window": "$ajax($el.dataset.refreshUrl)" }}>
+      </FormPost>
+      <div
+        id="attendees-list"
+        {...{ "@attendees:updated.window": "$ajax($el.dataset.refreshUrl)" }}
+      >
         <AttendeesList attendees={attendees} fairId={fair.id} />
       </div>
     </div>

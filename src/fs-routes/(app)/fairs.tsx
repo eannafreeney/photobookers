@@ -6,7 +6,13 @@ import Page from "../../components/layouts/Page";
 import PageHeader from "../../components/app/PageHeader";
 import { isFeatureEnabledForUser } from "../../lib/features";
 import InfoPage from "../../pages/InfoPage";
-import { getUpcomingFairs, getPastFairs, getFairsByMonth, searchFairs } from "../../features/app/fairs/services";
+import {
+  getUpcomingFairs,
+  getCurrentFairs,
+  getPastFairs,
+  getFairsByMonth,
+  searchFairs,
+} from "../../features/app/fairs/services";
 import FairsWithTabs from "../../features/app/fairs/components/FairsWithTabs";
 import FairsCalendar from "../../features/app/fairs/components/FairsCalendar";
 import FairsSearchForm from "../../features/app/fairs/components/FairsSearchForm";
@@ -20,40 +26,42 @@ type ViewSwitcherProps = {
 };
 
 const ViewSwitcher = ({ currentView, baseUrl }: ViewSwitcherProps) => (
-  <div class="flex gap-2 mb-4">
-    <Link
+  <div class="flex gap-2 mb-4" id="fairs-content">
+    <a
       href={`${baseUrl}?view=grid`}
-      className={`px-4 py-2 text-sm rounded border transition-colors ${
+      x-target="fairs-content"
+      class={`px-4 py-2 text-sm rounded border transition-colors ${
         currentView === "grid"
           ? "border-accent bg-accent text-on-accent"
           : "border-outline hover:border-accent"
       }`}
     >
       Grid View
-    </Link>
-    <Link
+    </a>
+    <a
       href={`${baseUrl}?view=calendar`}
-      className={`px-4 py-2 text-sm rounded border transition-colors ${
+      x-target="fairs-content"
+      class={`px-4 py-2 text-sm rounded border transition-colors ${
         currentView === "calendar"
           ? "border-accent bg-accent text-on-accent"
           : "border-outline hover:border-accent"
       }`}
     >
       Calendar View
-    </Link>
+    </a>
   </div>
 );
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
-  
+
   if (!isFeatureEnabledForUser("fairs", user)) {
     return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 
   const view = (c.req.query("view") ?? "grid") as "grid" | "calendar";
-  const tab = (c.req.query("tab") ?? "upcoming") as "upcoming" | "past";
+  const tab = (c.req.query("tab") ?? "upcoming") as "upcoming" | "current" | "past";
   const page = Number(c.req.query("page") ?? 1);
 
   // Search parameters
@@ -81,10 +89,7 @@ export const GET = createRoute(async (c: Context) => {
     });
 
     if (error) {
-      return c.html(
-        <InfoPage errorMessage={error.reason} user={user} />,
-        500,
-      );
+      return c.html(<InfoPage errorMessage={error.reason} user={user} />, 500);
     }
 
     return c.html(
@@ -97,10 +102,11 @@ export const GET = createRoute(async (c: Context) => {
       >
         <Page>
           <PageHeader
+            kicker="Days Out!"
             title="Book Fairs"
             intro="Discover photobook fairs around the world"
           />
-          <FairsSearchForm
+          {/* <FairsSearchForm
             query={query}
             city={city}
             country={country}
@@ -116,7 +122,7 @@ export const GET = createRoute(async (c: Context) => {
             <div class="mb-4 text-sm text-on-surface-muted">
               No fairs found matching your search criteria
             </div>
-          )}
+          )} */}
           <FairsGrid
             fairs={result.fairs}
             page={result.page}
@@ -137,10 +143,24 @@ export const GET = createRoute(async (c: Context) => {
 
     const [error, fairs] = await getFairsByMonth(year, month);
     if (error) {
-      return c.html(
-        <InfoPage errorMessage={error.reason} user={user} />,
-        500,
-      );
+      return c.html(<InfoPage errorMessage={error.reason} user={user} />, 500);
+    }
+
+    const calendarContent = (
+      <>
+        <ViewSwitcher currentView="calendar" baseUrl={currentPath} />
+        <FairsCalendar
+          year={year}
+          month={month}
+          fairs={fairs}
+          baseUrl={currentPath}
+        />
+      </>
+    );
+
+    // If it's an AJAX request, return just the content fragment
+    if (c.req.header("X-Requested-With") === "XMLHttpRequest") {
+      return c.html(calendarContent);
     }
 
     return c.html(
@@ -153,19 +173,13 @@ export const GET = createRoute(async (c: Context) => {
       >
         <Page>
           <PageHeader
+            kicker="Days Out!"
             title="Book Fairs"
             intro="Discover photobook fairs around the world"
           />
-          <FairsSearchForm
-            baseUrl={currentPath}
-          />
-          <ViewSwitcher currentView="calendar" baseUrl={currentPath} />
-          <FairsCalendar
-            year={year}
-            month={month}
-            fairs={fairs}
-            baseUrl={currentPath}
-          />
+          <div id="fairs-content">
+            {calendarContent}
+          </div>
         </Page>
       </AppLayout>,
     );
@@ -173,30 +187,57 @@ export const GET = createRoute(async (c: Context) => {
 
   // Grid view (default)
   let upcomingFairs, upcomingPage, upcomingTotalPages;
+  let currentFairs, currentPage, currentTotalPages;
   let pastFairs, pastPage, pastTotalPages;
 
   if (tab === "upcoming") {
     const [error, result] = await getUpcomingFairs(page, 30);
     if (error) {
-      return c.html(
-        <InfoPage errorMessage={error.reason} user={user} />,
-        500,
-      );
+      return c.html(<InfoPage errorMessage={error.reason} user={user} />, 500);
     }
     upcomingFairs = result.fairs;
     upcomingPage = result.page;
     upcomingTotalPages = result.totalPages;
+  } else if (tab === "current") {
+    const [error, result] = await getCurrentFairs(page, 30);
+    if (error) {
+      return c.html(<InfoPage errorMessage={error.reason} user={user} />, 500);
+    }
+    currentFairs = result.fairs;
+    currentPage = result.page;
+    currentTotalPages = result.totalPages;
   } else {
     const [error, result] = await getPastFairs(page, 30);
     if (error) {
-      return c.html(
-        <InfoPage errorMessage={error.reason} user={user} />,
-        500,
-      );
+      return c.html(<InfoPage errorMessage={error.reason} user={user} />, 500);
     }
     pastFairs = result.fairs;
     pastPage = result.page;
     pastTotalPages = result.totalPages;
+  }
+
+  const gridContent = (
+    <>
+      <ViewSwitcher currentView="grid" baseUrl={currentPath} />
+      <FairsWithTabs
+        tab={tab}
+        upcomingFairs={upcomingFairs}
+        upcomingPage={upcomingPage}
+        upcomingTotalPages={upcomingTotalPages}
+        currentFairs={currentFairs}
+        currentPage={currentPage}
+        currentTotalPages={currentTotalPages}
+        pastFairs={pastFairs}
+        pastPage={pastPage}
+        pastTotalPages={pastTotalPages}
+        baseUrl={currentPath}
+      />
+    </>
+  );
+
+  // If it's an AJAX request, return just the content fragment
+  if (c.req.header("X-Requested-With") === "XMLHttpRequest") {
+    return c.html(gridContent);
   }
 
   return c.html(
@@ -209,23 +250,13 @@ export const GET = createRoute(async (c: Context) => {
     >
       <Page>
         <PageHeader
+          kicker="Days Out!"
           title="Book Fairs"
           intro="Discover photobook fairs around the world"
         />
-        <FairsSearchForm
-          baseUrl={currentPath}
-        />
-        <ViewSwitcher currentView="grid" baseUrl={currentPath} />
-        <FairsWithTabs
-          tab={tab}
-          upcomingFairs={upcomingFairs}
-          upcomingPage={upcomingPage}
-          upcomingTotalPages={upcomingTotalPages}
-          pastFairs={pastFairs}
-          pastPage={pastPage}
-          pastTotalPages={pastTotalPages}
-          baseUrl={currentPath}
-        />
+        <div id="fairs-content">
+          {gridContent}
+        </div>
       </Page>
     </AppLayout>,
   );

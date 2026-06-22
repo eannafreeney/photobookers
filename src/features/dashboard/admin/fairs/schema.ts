@@ -19,6 +19,18 @@ export const fairIdSchema = z.object({
   fairId: z.string().uuid(),
 });
 
-export const attendeeSchema = z.object({
-  creatorId: z.string().uuid(),
+export const attendeeSchema = z
+  .object({
+    creatorId: z.union([
+      z.string().uuid(),
+      z.array(z.string().uuid()).min(1),
+    ]),
+  })
+  .transform(({ creatorId }) => ({
+    creatorIds: Array.isArray(creatorId) ? creatorId : [creatorId],
+  }));
+
+export const attendeeIdSchema = z.object({
+  fairId: z.string().uuid(),
+  attendeeId: z.string().uuid(),
 });

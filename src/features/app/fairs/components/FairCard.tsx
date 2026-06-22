@@ -1,7 +1,7 @@
 import type { BookFair } from "../../../../db/schema";
 import Card from "../../../../components/app/Card";
 import Link from "../../../../components/app/Link";
-import { formatDate } from "../../../../utils";
+import { formatDate, formatDateWithoutYear } from "../../../../utils";
 
 type FairCardProps = {
   fair: BookFair;
@@ -13,22 +13,17 @@ const FairCard = ({ fair }: FairCardProps) => {
   return (
     <Card>
       {fair.coverUrl && (
-        <Card.Image src={fair.coverUrl} alt={fair.name} href={fairPath} />
+        <div class="relative">
+          <Card.Image src={fair.coverUrl} alt={fair.name} href={fairPath} />
+          <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+            {formatDateWithoutYear(fair.startDate)} - {formatDate(fair.endDate)}
+          </div>
+        </div>
       )}
       <Card.Body>
-        {fair.listingTier === "promoted" && (
-          <div class="mb-2">
-            <span class="bg-accent text-white text-xs px-2 py-1 rounded">
-              Featured
-            </span>
-          </div>
-        )}
         <Link href={fairPath}>
           <Card.Title>{fair.name}</Card.Title>
         </Link>
-        <div class="text-sm text-on-surface-weak">
-          {formatDate(fair.startDate)} - {formatDate(fair.endDate)}
-        </div>
         {(fair.city || fair.country) && (
           <div class="text-sm text-on-surface-weak">
             {fair.city && fair.country
@@ -36,7 +31,9 @@ const FairCard = ({ fair }: FairCardProps) => {
               : fair.city || fair.country}
           </div>
         )}
-        {fair.venue && <div class="text-sm text-on-surface-weak">{fair.venue}</div>}
+        {fair.venue && (
+          <div class="text-sm text-on-surface-weak">{fair.venue}</div>
+        )}
       </Card.Body>
     </Card>
   );

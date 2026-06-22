@@ -5,7 +5,7 @@ import {
   attendeeSchema,
 } from "../../../../../features/dashboard/admin/fairs/schema";
 import {
-  addAttendeeToFair,
+  addAttendeesToFair,
   getAttendeesForFair,
   removeAttendeeFromFair,
 } from "../../../../../features/dashboard/admin/fairs/services";
@@ -32,17 +32,22 @@ export const POST = createRoute(
   paramValidator(fairIdSchema),
   async (c: AttendeeFormContext) => {
     const fairId = c.req.valid("param").fairId;
-    const { creatorId } = c.req.valid("form");
+    const { creatorIds } = c.req.valid("form");
 
-    const [error] = await addAttendeeToFair(fairId, creatorId);
+    const [error, result] = await addAttendeesToFair(fairId, creatorIds);
     if (error) return showErrorAlert(c, error.reason);
 
     const [listError, attendees] = await getAttendeesForFair(fairId);
     if (listError) return showErrorAlert(c, listError.reason);
 
+    const successMessage =
+      result.skippedCount > 0
+        ? `${result.addedCount} attendee${result.addedCount === 1 ? "" : "s"} added (${result.skippedCount} already on the list)`
+        : `${result.addedCount} attendee${result.addedCount === 1 ? "" : "s"} added successfully`;
+
     return c.html(
       <>
-        {showSuccessAlert(c, "Attendee added successfully")}
+        {showSuccessAlert(c, successMessage)}
         <div id="attendees-list" x-merge="morph">
           <AttendeesList attendees={attendees} fairId={fairId} />
         </div>

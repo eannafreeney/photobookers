@@ -1,8 +1,9 @@
 //
-import { Book, Creator } from "../../db/schema";
+import { Book, BookFair, Creator } from "../../db/schema";
 import { AuthUser } from "../../../types";
 import VerifiedCreator from "./VerifiedCreator";
 import Avatar from "./Avatar";
+import { formatDate } from "../../utils";
 
 type CreatorSearchResult = Pick<
   Creator,
@@ -14,9 +15,15 @@ type BookSearchResult = Pick<Book, "id" | "slug" | "coverUrl" | "title"> & {
   publisher: Pick<Creator, "id" | "displayName"> | null;
 };
 
+type FairSearchResult = Pick<
+  BookFair,
+  "id" | "slug" | "name" | "coverUrl" | "startDate" | "endDate" | "city" | "country"
+>;
+
 type NavSearchResultsProps = {
   creators: CreatorSearchResult[];
   books: BookSearchResult[];
+  fairs: FairSearchResult[];
   user?: AuthUser | null;
   isMobile?: boolean;
 };
@@ -24,9 +31,10 @@ type NavSearchResultsProps = {
 const NavSearchResults = ({
   creators,
   books,
+  fairs,
   isMobile = false,
 }: NavSearchResultsProps) => {
-  const hasResults = creators.length > 0 || books.length > 0;
+  const hasResults = creators.length > 0 || books.length > 0 || fairs.length > 0;
 
   return (
     <div
@@ -70,6 +78,26 @@ const NavSearchResults = ({
                 <ul class="flex flex-col gap-4">
                   {books.map((book) => (
                     <BookResultItem key={book.id} book={book} />
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {fairs.length > 0 && (
+              <>
+                {(creators.length > 0 || books.length > 0) && (
+                  <li class="text-xs uppercase font-semibold text-on-surface pt-4 pb-1">
+                    Fairs
+                  </li>
+                )}
+                {!creators.length && !books.length && (
+                  <li class="text-xs uppercase font-semibold text-on-surface pt-2 pb-1">
+                    Fairs
+                  </li>
+                )}
+                <ul class="flex flex-col gap-4">
+                  {fairs.map((fair) => (
+                    <FairResultItem key={fair.id} fair={fair} />
                   ))}
                 </ul>
               </>
@@ -145,6 +173,50 @@ const BookResultItem = ({ book }: BookResultItemProps) => {
               {book.artist.displayName}{" "}
               {book.publisher?.displayName &&
                 `- ${book.publisher?.displayName}`}
+            </div>
+          )}
+        </div>
+      </a>
+    </li>
+  );
+};
+
+type FairResultItemProps = {
+  fair: FairSearchResult;
+};
+
+const FairResultItem = ({ fair }: FairResultItemProps) => {
+  return (
+    <li>
+      <a
+        href={`/fairs/${fair.slug}`}
+        class="flex items-center gap-3 rounded-radius transition-colors"
+        aria-label={`View ${fair.name}`}
+      >
+        <div class="shrink-0">
+          {fair.coverUrl ? (
+            <img
+              src={fair.coverUrl}
+              alt={`${fair.name} cover`}
+              class="w-12 h-12 object-cover rounded-sm"
+              loading="lazy"
+            />
+          ) : (
+            <div class="w-12 h-12 bg-surface-alt rounded-sm flex items-center justify-center">
+              <span class="text-xs text-on-surface-weak">Fair</span>
+            </div>
+          )}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-on-surface truncate">{fair.name}</div>
+          <div class="text-xs text-on-surface truncate">
+            {formatDate(fair.startDate)} - {formatDate(fair.endDate)}
+          </div>
+          {(fair.city || fair.country) && (
+            <div class="text-xs text-on-surface-weak truncate">
+              {fair.city && fair.country
+                ? `${fair.city}, ${fair.country}`
+                : fair.city || fair.country}
             </div>
           )}
         </div>

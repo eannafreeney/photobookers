@@ -4,13 +4,19 @@ import { paramValidator } from "../../../lib/validator";
 import { z } from "zod";
 import AppLayout from "../../../components/layouts/AppLayout";
 import { getUser } from "../../../utils";
-import Page from "../../../components/layouts/Page";
 import { isFeatureEnabledForUser } from "../../../lib/features";
 import InfoPage from "../../../pages/InfoPage";
 import { getFairBySlug } from "../../../features/app/fairs/services";
 import FairDetail from "../../../features/app/fairs/components/FairDetail";
-import { pageTitle, canonicalUrl, truncateDescription, buildFairJsonLd } from "../../../lib/seo";
+import {
+  pageTitle,
+  canonicalUrl,
+  truncateDescription,
+  buildFairJsonLd,
+} from "../../../lib/seo";
 import { recordFairView } from "../../../features/fair-views/services";
+import { getAttendanceForCreator } from "../../../features/fair-attendees/services";
+import type { FairAttendeeStatus } from "../../../db/schema";
 
 const slugSchema = z.object({
   slug: z.string(),
@@ -34,9 +40,12 @@ export const GET = createRoute(
 
     const isPublished =
       fair.status === "published" && fair.approvalStatus === "approved";
-    
+
     if (!isPublished && !user?.isAdmin) {
-      return c.html(<InfoPage errorMessage="Fair not found" user={user} />, 404);
+      return c.html(
+        <InfoPage errorMessage="Fair not found" user={user} />,
+        404,
+      );
     }
 
     // Track page view
@@ -50,10 +59,22 @@ export const GET = createRoute(
       });
     }
 
+    let attendanceStatus: FairAttendeeStatus | null = null;
+    if (user?.creator) {
+      const [attendanceError, attendance] = await getAttendanceForCreator(
+        fair.id,
+        user.creator.id,
+      );
+      if (!attendanceError && attendance) {
+        attendanceStatus = attendance.status;
+      }
+    }
+
     const fairCanonicalUrl = canonicalUrl(c.req.url, `/fairs/${fair.slug}`);
     const title = pageTitle(fair.name);
     const description = truncateDescription(
-      fair.description ?? `${fair.name} - Photobook fair in ${fair.city ?? fair.country ?? ""}`,
+      fair.description ??
+        `${fair.name} - Photobook fair in ${fair.city ?? fair.country ?? ""}`,
     );
 
     const fairJsonLd = buildFairJsonLd({
@@ -79,16 +100,18 @@ export const GET = createRoute(
         shareOg={{
           title: fair.name,
           description: description,
-          image: fair.coverUrl ?? undefined,
+          image: fair.bannerUrl ?? fair.coverUrl ?? undefined,
           url: fairCanonicalUrl,
         }}
         jsonLd={fairJsonLd}
         user={user}
         currentPath={currentPath}
       >
-        <Page>
-          <FairDetail fair={fair} />
-        </Page>
+        <FairDetail
+          fair={fair}
+          user={user}
+          attendanceStatus={attendanceStatus}
+        />
       </AppLayout>,
     );
   },

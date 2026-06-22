@@ -15,11 +15,16 @@ import {
 import FairFormAdmin from "../../../../features/dashboard/admin/fairs/forms/FairFormAdmin";
 import { fairFormAdminSchema } from "../../../../features/dashboard/admin/fairs/schema";
 import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers";
-import { FairFormWithIdContext, FairIdContext } from "../../../../features/dashboard/admin/fairs/types";
+import {
+  FairFormWithIdContext,
+  FairIdContext,
+} from "../../../../features/dashboard/admin/fairs/types";
 import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import FairApprovalForm from "../../../../features/dashboard/admin/fairs/forms/FairApprovalForm";
 import AttendeeManagerForm from "../../../../features/dashboard/admin/fairs/forms/AttendeeManagerForm";
+import FairCoverForm from "../../../../features/dashboard/admin/fairs/forms/FairCoverForm";
+import FairBannerForm from "../../../../features/dashboard/admin/fairs/forms/FairBannerForm";
 
 export const GET = createRoute(
   paramValidator(fairIdSchema),
@@ -68,6 +73,11 @@ export const GET = createRoute(
             <FairApprovalForm fair={fair} />
           </div>
           <FairFormAdmin fairId={fair.id} formValues={formValues} />
+          <hr class="my-8" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FairCoverForm initialUrl={fair.coverUrl} fairId={fair.id} />
+            <FairBannerForm initialUrl={fair.bannerUrl} fairId={fair.id} />
+          </div>
           <hr class="my-8" />
           <AttendeeManagerForm fair={fair} attendees={fair.attendees} />
         </Page>

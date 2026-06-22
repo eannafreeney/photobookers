@@ -11,6 +11,7 @@ type Props = {
   label?: string;
   required?: boolean;
   initialSelectedId?: string;
+  multiple?: boolean;
 };
 
 const OptionsComboBox = ({
@@ -19,45 +20,24 @@ const OptionsComboBox = ({
   label = "Creator",
   required,
   initialSelectedId,
+  multiple = false,
 }: Props) => {
+  const fieldName = name.replace("form.", "");
+  const alpineConfig = JSON.stringify({
+    multiple,
+    initialSelectedId: initialSelectedId ?? "",
+  });
+
   return (
     <div
-      x-data={`{
-        fieldName: '${name.replace("form.", "")}',
-        allOptions: ${JSON.stringify(options)},
-        options: [],
-        isOpen: false,
-        openedWithKeyboard: false,
-        selectedOption: null,
-        initialSelectedId: ${JSON.stringify(initialSelectedId ?? "")},
-        setSelectedOption(option) {
-            this.selectedOption = option
-            this.isOpen = false
-            this.$refs.hiddenTextField.value = option.id
-            this.$dispatch('form-field-update', { field: this.fieldName, value: option.id })
-        },
-        getFilteredOptions(query) {
-            this.options = this.allOptions.filter((option) =>
-                option.label.toLowerCase().includes(query.toLowerCase()),
-            )
-            if (this.options.length === 0) {
-                this.$refs.noResultsMessage.classList.remove('hidden')
-            } else {
-                this.$refs.noResultsMessage.classList.add('hidden')
-            }
-        },
-       
-    }`}
+      x-data={`optionsComboBox(${JSON.stringify(options)}, ${JSON.stringify(fieldName)}, ${alpineConfig})`}
       class="w-full flex flex-col gap-1"
       {...{
         "x-on:click.outside": "isOpen = false",
         "x-effect": "isOpen && $nextTick(() => $refs.searchField?.focus())",
-        "x-init":
-          "options = allOptions; if (initialSelectedId) { const opt = allOptions.find(o => o.id === initialSelectedId); if (opt) { selectedOption = opt; if ($refs.hiddenTextField) $refs.hiddenTextField.value = opt.id } }",
       }}
     >
       <div class="relative">
-        {/* trigger button  */}
         <fieldset class="grid gap-1.5 text-xs grid-cols-1 auto-rows-max">
           <InputLabel label={label} name={name} required={required} />
           <label class="bg-surface-alt -mb-1 rounded-radius border border-outline text-on-surface-alt flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
@@ -68,13 +48,13 @@ const OptionsComboBox = ({
             >
               <span
                 class="inline-flex items-center gap-1.5"
-                x-show="!selectedOption"
+                x-show="!hasSelection()"
               >
                 Please Select
               </span>
               <span
                 class="inline-flex items-center gap-1.5"
-                x-show="selectedOption"
+                x-show="!multiple && selectedOption"
                 x-cloak
               >
                 <span x-text="selectedOption?.label"></span>
@@ -86,14 +66,20 @@ const OptionsComboBox = ({
                   {verifiedBadgeIcon}
                 </span>
               </span>
+              <span
+                class="inline-flex items-center gap-1.5"
+                x-show="multiple && hasSelection()"
+                x-cloak
+              >
+                <span x-text="selectedLabel()"></span>
+              </span>
             </button>
             <button
               type="button"
               {...{
                 "x-cloak": "true",
-                "x-show": "selectedOption !== null",
-                "x-on:click.stop":
-                  "selectedOption = null; $refs.hiddenTextField.value = ''; $dispatch('form-field-update', { field: fieldName, value: '' })",
+                "x-show": "hasSelection()",
+                "x-on:click.stop": "clearSelection()",
               }}
               class="text-on-surface-alt hover:text-on-surface focus:outline-none"
             >
@@ -103,15 +89,24 @@ const OptionsComboBox = ({
           </label>
         </fieldset>
 
-        <input
-          id={name}
-          name={name.replace("form.", "")}
-          type="text"
-          x-ref="hiddenTextField"
-          hidden
-        />
+        {multiple ? (
+          <template
+            x-for="option in selectedOptions"
+            x-bind:key="option.id"
+          >
+            <input type="hidden" name={fieldName} x-bind:value="option.id" />
+          </template>
+        ) : (
+          <input
+            id={name}
+            name={fieldName}
+            type="text"
+            x-ref="hiddenTextField"
+            hidden
+          />
+        )}
+
         <div
-          id="list"
           class="absolute left-0 top-16 z-10 w-full overflow-hidden rounded-radius border border-outline bg-surface-alt"
           {...{
             "x-show": "isOpen",
@@ -119,7 +114,6 @@ const OptionsComboBox = ({
             "x-transition": "",
           }}
         >
-          {/* Search  */}
           <div class="relative">
             {searchIcon}
             <input
@@ -131,11 +125,7 @@ const OptionsComboBox = ({
               placeholder="Search"
             />
           </div>
-          {/* Options  */}
-          <ul
-            id="list"
-            class="flex max-h-88 w-full flex-col overflow-hidden overflow-y-auto border-outline bg-surface-alt py-1.5 rounded-radius border"
-          >
+          <ul class="flex max-h-88 w-full flex-col overflow-hidden overflow-y-auto border-outline bg-surface-alt py-1.5 rounded-radius border">
             <li
               class="hidden px-4 py-2 text-sm text-on-surface"
               x-ref="noResultsMessage"
@@ -146,9 +136,9 @@ const OptionsComboBox = ({
               <li
                 class="combobox-option cursor-pointer inline-flex justify-between items-center gap-6 bg-surface-alt px-4 py-2 text-sm text-on-surface hover:bg-primary/10 hover:text-on-surface-strong focus-visible:bg-primary/10 focus-visible:text-on-surface-strong focus-visible:outline-primary focus-visible:outline-offset-1 focus-visible:outline rounded-radius"
                 tabindex={0}
-                x-on:click="setSelectedOption(item)"
+                x-on:click="handleOptionClick(item)"
                 {...{
-                  "x-on:keydown.enter": "setSelectedOption(item)",
+                  "x-on:keydown.enter": "handleOptionClick(item)",
                   "x-bind:id": "'option-' + index",
                 }}
               >
@@ -161,7 +151,7 @@ const OptionsComboBox = ({
                   <div class="flex flex-col">
                     <span class="inline-flex items-center gap-1.5">
                       <span
-                        x-bind:class="selectedOption == item ? 'font-bold' : null"
+                        x-bind:class="isOptionHighlighted(item) ? 'font-bold' : null"
                         x-text="item.label"
                       ></span>
                       <span
@@ -174,7 +164,7 @@ const OptionsComboBox = ({
                     </span>
                   </div>
                 </div>
-                {iconCheck}
+                {multiple ? multiIconCheck : iconCheck}
               </li>
             </template>
           </ul>
@@ -252,7 +242,27 @@ const searchIcon = (
 const iconCheck = (
   <svg
     x-cloak
-    x-show="selectedOption == item"
+    x-show="isOptionHighlighted(item)"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    fill="none"
+    stroke-width="2"
+    class="size-4"
+    aria-hidden="true"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="m4.5 12.75 6 6 9-13.5"
+    />
+  </svg>
+);
+
+const multiIconCheck = (
+  <svg
+    x-cloak
+    x-show="isOptionHighlighted(item)"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     stroke="currentColor"

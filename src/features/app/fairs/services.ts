@@ -82,12 +82,55 @@ export const getPastFairs = async (
   }
 };
 
+export const getCurrentFairs = async (
+  currentPage: number = 1,
+  limit: number = 30,
+) => {
+  try {
+    const now = today();
+    const currentCondition = and(
+      eq(bookFairs.status, "published"),
+      eq(bookFairs.approvalStatus, "approved"),
+      lte(bookFairs.startDate, now),
+      gte(bookFairs.endDate, now),
+    );
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: sql<number>`count(*)` })
+      .from(bookFairs)
+      .where(currentCondition);
+
+    const { page, limit: pageLimit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      limit,
+    );
+
+    const fairs = await db.query.bookFairs.findMany({
+      where: currentCondition,
+      orderBy: [
+        desc(bookFairs.listingTier),
+        sql`${bookFairs.sortOrder} ASC NULLS LAST`,
+        bookFairs.startDate,
+      ],
+      limit: pageLimit,
+      offset: offset,
+    });
+
+    return ok({ fairs, totalPages, page });
+  } catch (error) {
+    console.error("Failed to get current fairs", error);
+    return err({ reason: "Failed to get current fairs", cause: error });
+  }
+};
+
 export const getFairBySlug = async (slug: string) => {
   try {
     const fair = await db.query.bookFairs.findFirst({
       where: eq(bookFairs.slug, slug),
       with: {
         attendees: {
+          where: eq(fairAttendees.status, "approved"),
           with: {
             creator: {
               columns: {
@@ -133,6 +176,7 @@ export const getUpcomingFairsForCreator = async (
     const upcomingFairs = attendances
       .filter(
         (a) =>
+          a.status === "approved" &&
           a.fair.status === "published" &&
           a.fair.approvalStatus === "approved" &&
           new Date(a.fair.startDate) >= today(),
@@ -167,6 +211,7 @@ export const getFairsByCreatorId = async (
     const allFairs = attendances
       .filter(
         (a) =>
+          a.status === "approved" &&
           a.fair.status === "published" &&
           a.fair.approvalStatus === "approved",
       )
@@ -310,5 +355,52 @@ export const searchFairs = async (params: FairSearchParams) => {
   } catch (error) {
     console.error("Failed to search fairs", error);
     return err({ reason: "Failed to search fairs", cause: error });
+  }
+};
+
+export const searchFairsForNav = async (
+  searchTerm: string,
+  limit: number = 5,
+) => {
+  try {
+    if (!searchTerm || searchTerm.trim().length === 0) {
+      return ok([]);
+    }
+
+    const searchPattern = `%${searchTerm.trim()}%`;
+    const conditions = [
+      eq(bookFairs.status, "published"),
+      eq(bookFairs.approvalStatus, "approved"),
+      or(
+        ilike(bookFairs.name, searchPattern),
+        ilike(bookFairs.description, searchPattern),
+        ilike(bookFairs.city, searchPattern),
+        ilike(bookFairs.venue, searchPattern),
+      )!,
+    ];
+
+    const fairs = await db.query.bookFairs.findMany({
+      where: and(...conditions),
+      columns: {
+        id: true,
+        slug: true,
+        name: true,
+        coverUrl: true,
+        startDate: true,
+        endDate: true,
+        city: true,
+        country: true,
+      },
+      orderBy: [
+        desc(bookFairs.listingTier),
+        bookFairs.startDate,
+      ],
+      limit,
+    });
+
+    return ok(fairs);
+  } catch (error) {
+    console.error("Failed to search fairs for nav", error);
+    return err({ reason: "Failed to search fairs for nav", cause: error });
   }
 };

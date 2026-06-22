@@ -2,6 +2,7 @@ import { Context } from "hono";
 import { createRoute } from "hono-fsr";
 import { searchCreators } from "../../features/app/services";
 import { searchBooks } from "../../features/api/services";
+import { searchFairsForNav } from "../../features/app/fairs/services";
 import Link from "../../components/app/Link";
 import { capitalize, getUser } from "../../utils";
 import { DISCOVER_TAGS } from "../../constants/discover";
@@ -36,12 +37,13 @@ export const GET = createRoute(async (c: Context) => {
   }
 
   const searchTerm = searchQuery?.trim().toLowerCase();
-  const [[bookError, books], [creatorError, creators]] = await Promise.all([
+  const [[bookError, books], [creatorError, creators], [fairError, fairs]] = await Promise.all([
     searchBooks(searchTerm ?? ""),
     searchCreators(searchTerm ?? ""),
+    searchFairsForNav(searchTerm ?? ""),
   ]);
 
-  if (bookError || creatorError) {
+  if (bookError || creatorError || fairError) {
     return c.html(<></>);
   }
 
@@ -50,6 +52,7 @@ export const GET = createRoute(async (c: Context) => {
       isMobile={isMobile}
       creators={creators ?? []}
       books={books ?? []}
+      fairs={fairs ?? []}
     />,
   );
 });

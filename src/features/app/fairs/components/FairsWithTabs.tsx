@@ -3,10 +3,13 @@ import Tabs from "../../../../components/app/Tabs";
 import FairsGrid from "./FairsGrid";
 
 type FairsWithTabsProps = {
-  tab: "upcoming" | "past";
+  tab: "upcoming" | "current" | "past";
   upcomingFairs?: BookFair[];
   upcomingPage?: number;
   upcomingTotalPages?: number;
+  currentFairs?: BookFair[];
+  currentPage?: number;
+  currentTotalPages?: number;
   pastFairs?: BookFair[];
   pastPage?: number;
   pastTotalPages?: number;
@@ -18,6 +21,9 @@ const FairsWithTabs = ({
   upcomingFairs = [],
   upcomingPage = 1,
   upcomingTotalPages = 1,
+  currentFairs = [],
+  currentPage = 1,
+  currentTotalPages = 1,
   pastFairs = [],
   pastPage = 1,
   pastTotalPages = 1,
@@ -27,6 +33,7 @@ const FairsWithTabs = ({
     <Tabs defaultTab={tab}>
       <Tabs.LinkContainer>
         <Tabs.Link tabId="upcoming">Upcoming</Tabs.Link>
+        <Tabs.Link tabId="current">Happening Now</Tabs.Link>
         <Tabs.Link tabId="past">Past</Tabs.Link>
       </Tabs.LinkContainer>
       <Tabs.Panel tabId="upcoming">
@@ -36,6 +43,15 @@ const FairsWithTabs = ({
           totalPages={upcomingTotalPages}
           baseUrl={`${baseUrl}?tab=upcoming`}
           targetId="upcoming-fairs-grid"
+        />
+      </Tabs.Panel>
+      <Tabs.Panel tabId="current">
+        <FairsGrid
+          fairs={currentFairs}
+          page={currentPage}
+          totalPages={currentTotalPages}
+          baseUrl={`${baseUrl}?tab=current`}
+          targetId="current-fairs-grid"
         />
       </Tabs.Panel>
       <Tabs.Panel tabId="past">

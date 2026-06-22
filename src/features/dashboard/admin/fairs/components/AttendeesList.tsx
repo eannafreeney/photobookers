@@ -1,5 +1,6 @@
 import type { FairAttendee } from "../../../../../db/schema";
 import FormDelete from "../../../../../components/forms/FormDelete";
+import AttendeeStatusPill from "./AttendeeStatusPill";
 
 type AttendeesListProps = {
   attendees: Array<
@@ -29,29 +30,63 @@ const AttendeesList = ({ attendees, fairId }: AttendeesListProps) => {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {attendees.map((attendee) => (
         <div
-          class="border rounded-lg p-4 flex items-center justify-between"
+          key={attendee.id}
+          class="border rounded-lg p-4 flex flex-col gap-3"
           x-data
         >
-          <div class="flex items-center gap-3">
-            {attendee.creator.coverUrl && (
-              <img
-                src={attendee.creator.coverUrl}
-                alt={attendee.creator.displayName}
-                class="w-12 h-12 rounded-full object-cover"
-              />
-            )}
-            <div>
-              <div class="font-medium">{attendee.creator.displayName}</div>
-              <div class="text-sm text-gray-500 capitalize">
-                {attendee.creator.type}
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3 min-w-0">
+              {attendee.creator.coverUrl && (
+                <img
+                  src={attendee.creator.coverUrl}
+                  alt={attendee.creator.displayName}
+                  class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                />
+              )}
+              <div class="min-w-0">
+                <div class="font-medium truncate">
+                  {attendee.creator.displayName}
+                </div>
+                <div class="text-sm text-gray-500 capitalize">
+                  {attendee.creator.type}
+                </div>
               </div>
             </div>
+            <AttendeeStatusPill status={attendee.status} />
           </div>
-          <FormDelete
-            action={`/dashboard/admin/fairs/${fairId}/attendees?creatorId=${attendee.creatorId}`}
-            confirmMessage={`Remove ${attendee.creator.displayName} from this fair?`}
-            {...{ "@ajax:success": "$el.closest('[x-data]').remove()" }}
-          />
+
+          <div class="flex items-center gap-2">
+            {attendee.status === "pending" && (
+              <>
+                <form
+                  method="post"
+                  action={`/dashboard/admin/fairs/${fairId}/attendees/${attendee.id}/approve`}
+                  x-target="attendees-list"
+                >
+                  <button type="submit" class="btn btn-success btn-sm">
+                    Approve
+                  </button>
+                </form>
+                <form
+                  method="post"
+                  action={`/dashboard/admin/fairs/${fairId}/attendees/${attendee.id}/reject`}
+                  x-target="attendees-list"
+                >
+                  <button type="submit" class="btn btn-danger btn-sm">
+                    Reject
+                  </button>
+                </form>
+              </>
+            )}
+            <FormDelete
+              action={`/dashboard/admin/fairs/${fairId}/attendees?creatorId=${attendee.creatorId}`}
+              {...{ "@ajax:success": "$el.closest('[x-data]').remove()" }}
+            >
+              <button type="submit" class="btn btn-sm btn-outline">
+                Remove
+              </button>
+            </FormDelete>
+          </div>
         </div>
       ))}
     </div>

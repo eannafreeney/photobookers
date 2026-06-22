@@ -25,9 +25,7 @@ export const getAllFairsAdmin = async (
           )
         : undefined;
 
-    const statusCondition = status
-      ? eq(bookFairs.status, status)
-      : undefined;
+    const statusCondition = status ? eq(bookFairs.status, status) : undefined;
 
     const whereCondition =
       searchCondition && statusCondition
@@ -225,10 +223,7 @@ export const getAttendeesForFair = async (fairId: string) => {
   }
 };
 
-export const addAttendeeToFair = async (
-  fairId: string,
-  creatorId: string,
-) => {
+export const addAttendeeToFair = async (fairId: string, creatorId: string) => {
   try {
     const creator = await db.query.creators.findFirst({
       where: eq(creators.id, creatorId),
@@ -264,6 +259,38 @@ export const addAttendeeToFair = async (
   }
 };
 
+export const addAttendeesToFair = async (
+  fairId: string,
+  creatorIds: string[],
+) => {
+  const uniqueCreatorIds = [...new Set(creatorIds)];
+  let addedCount = 0;
+  let skippedCount = 0;
+  let lastError: { reason: string } | null = null;
+
+  for (const creatorId of uniqueCreatorIds) {
+    const [error] = await addAttendeeToFair(fairId, creatorId);
+    if (error) {
+      if (error.reason === "Creator is already an attendee at this fair") {
+        skippedCount += 1;
+      } else {
+        lastError = error;
+      }
+      continue;
+    }
+    addedCount += 1;
+  }
+
+  if (addedCount === 0) {
+    if (skippedCount > 0) {
+      return err({ reason: "Selected creators are already attendees" });
+    }
+    return err(lastError ?? { reason: "Failed to add attendees" });
+  }
+
+  return ok({ addedCount, skippedCount });
+};
+
 export const removeAttendeeFromFair = async (
   fairId: string,
   creatorId: string,
@@ -296,16 +323,18 @@ export const getAllCreatorOptionsForFairs = async () => {
         displayName: true,
         type: true,
         slug: true,
+        coverUrl: true,
       },
       orderBy: (creators, { asc }) => [asc(creators.displayName)],
     });
 
-    return ok(
-      allCreators.map((c) => ({
-        id: c.id,
-        label: `${c.displayName} (${c.type})`,
-      })),
-    );
+    const options = allCreators.map((c) => ({
+      id: c.id,
+      label: `${c.displayName} (${c.type})`,
+      img: c.coverUrl,
+    }));
+
+    return ok(options);
   } catch (error) {
     console.error("Failed to get creator options", error);
     return err({ reason: "Failed to get creator options", cause: error });

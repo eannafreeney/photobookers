@@ -15,6 +15,15 @@ export const formatDate = (date: Date): string => {
   return `${month} ${day}, ${year}`;
 };
 
+export const formatDateWithoutYear = (date: Date): string => {
+  const d = new Date(date);
+
+  const month = d.toLocaleString("en-US", { month: "short" });
+  const day = d.getDate();
+
+  return `${month} ${day}`;
+};
+
 export const slugify = (title: string, artist?: string) =>
   `${title}${artist ? `-${artist}` : ""}`
     .normalize("NFD")

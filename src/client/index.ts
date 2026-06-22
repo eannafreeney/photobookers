@@ -39,6 +39,9 @@ import { registerMessageForm } from "../features/dashboard/messages/client/messa
 import { registerEditInterviewForm } from "../features/dashboard/admin/interviews/client/editInterviewForm";
 import { registerCreatorBannerForm } from "../features/dashboard/images/client/creatorBannerForm";
 import { registerBulkCoverUpload } from "./components/bulkCoverUpload";
+import { registerFairCoverForm } from "../features/dashboard/admin/fairs/client/fairCoverForm";
+import { registerFairBannerForm } from "../features/dashboard/admin/fairs/client/fairBannerForm";
+import { registerOptionsComboBox } from "./components/optionsComboBox";
 
 // Register all Alpine.js data components
 registerAdminClaimsBadge();
@@ -83,3 +86,6 @@ registerEditInterviewForm();
 registerMessageForm();
 registerCreatorBannerForm();
 registerFairFormAdmin();
+registerFairCoverForm();
+registerFairBannerForm();
+registerOptionsComboBox();
