@@ -295,6 +295,13 @@
       "when": 1781788207879,
       "tag": "0042_daffy_nextwave",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1782121660061,
+      "tag": "0043_fearless_spyke",
+      "breakpoints": true
     }
   ]
 }

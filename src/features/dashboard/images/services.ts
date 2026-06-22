@@ -1,6 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client";
-import { bookImages, books, creators, users } from "../../../db/schema";
+import { bookFairs, bookImages, books, creators, users } from "../../../db/schema";
 import { err, ok } from "../../../lib/result";
 import {
   invalidateBookCache,
@@ -155,5 +155,53 @@ export const addBookGalleryImages = async (
   } catch (error) {
     console.error("Failed to add book gallery images", error);
     return err({ reason: "Failed to add gallery images", cause: error });
+  }
+};
+
+export const updateFairCoverImage = async (
+  fairId: string,
+  coverUrl: string,
+) => {
+  try {
+    const [updatedFair] = await db
+      .update(bookFairs)
+      .set({ coverUrl })
+      .where(eq(bookFairs.id, fairId))
+      .returning();
+
+    if (!updatedFair)
+      return err({
+        reason: "Failed to update fair cover image",
+        cause: undefined,
+      });
+
+    return ok(updatedFair);
+  } catch (error) {
+    console.error("Failed to update fair cover image", error);
+    return err({ reason: "Failed to update fair cover image", cause: error });
+  }
+};
+
+export const updateFairBannerImage = async (
+  fairId: string,
+  bannerUrl: string,
+) => {
+  try {
+    const [updatedFair] = await db
+      .update(bookFairs)
+      .set({ bannerUrl })
+      .where(eq(bookFairs.id, fairId))
+      .returning();
+
+    if (!updatedFair)
+      return err({
+        reason: "Failed to update fair banner image",
+        cause: undefined,
+      });
+
+    return ok(updatedFair);
+  } catch (error) {
+    console.error("Failed to update fair banner image", error);
+    return err({ reason: "Failed to update fair banner image", cause: error });
   }
 };

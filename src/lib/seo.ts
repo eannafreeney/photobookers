@@ -108,3 +108,80 @@ export function buildBookJsonLd(
 
   return jsonLd;
 }
+
+type FairJsonLdInput = {
+  name: string;
+  description?: string | null;
+  slug: string;
+  coverUrl?: string | null;
+  bannerUrl?: string | null;
+  canonicalUrl: string;
+  startDate: Date;
+  endDate: Date;
+  city?: string | null;
+  country?: string | null;
+  venue?: string | null;
+  website?: string | null;
+};
+
+export function buildFairJsonLd(fair: FairJsonLdInput) {
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: fair.name,
+    url: fair.canonicalUrl,
+    startDate: fair.startDate.toISOString(),
+    endDate: fair.endDate.toISOString(),
+  };
+
+  if (fair.description) {
+    jsonLd.description = truncateDescription(fair.description, 500);
+  }
+
+  if (fair.coverUrl || fair.bannerUrl) {
+    jsonLd.image = fair.bannerUrl || fair.coverUrl;
+  }
+
+  // Location
+  const hasLocation = fair.venue || fair.city || fair.country;
+  if (hasLocation) {
+    const location: Record<string, unknown> = {
+      "@type": "Place",
+    };
+
+    if (fair.venue) {
+      location.name = fair.venue;
+    }
+
+    const hasAddress = fair.city || fair.country;
+    if (hasAddress) {
+      const address: Record<string, unknown> = {
+        "@type": "PostalAddress",
+      };
+
+      if (fair.city) {
+        address.addressLocality = fair.city;
+      }
+
+      if (fair.country) {
+        address.addressCountry = fair.country;
+      }
+
+      location.address = address;
+    }
+
+    jsonLd.location = location;
+  }
+
+  if (fair.website) {
+    jsonLd.sameAs = fair.website;
+  }
+
+  // Event status - all published fairs are scheduled
+  jsonLd.eventStatus = "https://schema.org/EventScheduled";
+
+  // Event attendance mode - assume offline (physical event)
+  jsonLd.eventAttendanceMode = "https://schema.org/OfflineEventAttendanceMode";
+
+  return jsonLd;
+}

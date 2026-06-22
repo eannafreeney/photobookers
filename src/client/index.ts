@@ -14,6 +14,7 @@ import { registerRegisterFanForm } from "../features/auth/client/registerFanForm
 import { registerRegisterCreatorForm } from "../features/auth/client/registerCreatorForm";
 import { registerAddCreatorFormAdmin } from "../features/dashboard/admin/creators/client/addCreatorFormAdmin";
 import { registerBookFormAdmin } from "../features/dashboard/admin/books/client/bookFormAdmin";
+import { registerFairFormAdmin } from "../features/dashboard/admin/fairs/client/fairFormAdmin";
 import { registerBookOfTheDayForm } from "../features/dashboard/admin/planner/client/bookOfTheDayForm";
 import { registerEditCreatorFormAdmin } from "../features/dashboard/admin/creators/client/editCreatorFormAdmin";
 import { registerNewUserForm } from "../features/dashboard/admin/users/client/newUserForm";
@@ -58,6 +59,7 @@ registerCountryForm();
 registerShareButton();
 registerAddCreatorFormAdmin();
 registerBookFormAdmin();
+registerFairFormAdmin();
 registerBookOfTheDayForm();
 registerEditCreatorFormAdmin();
 registerNewUserForm();
