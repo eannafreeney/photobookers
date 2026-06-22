@@ -32,7 +32,7 @@ export const limitBooksPerDay = createMiddleware(async (c: Context, next) => {
       "danger",
       `You can only create up to ${MAX_BOOKS_PER_DAY} books per day. Try again tomorrow.`,
     );
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   }
 
   await next();

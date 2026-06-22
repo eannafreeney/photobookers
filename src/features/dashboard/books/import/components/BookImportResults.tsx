@@ -31,7 +31,7 @@ const BookImportResults = ({ results }: Props) => {
               Upload images for these books
             </Button>
           </Link>
-          <Link href="/dashboard/books">
+          <Link href="/dashboard">
             <Button variant="outline" color="inverse">
               Skip and upload later
             </Button>
@@ -66,7 +66,7 @@ const BookImportResults = ({ results }: Props) => {
         </div>
       )}
 
-      <Link href="/dashboard/books">
+      <Link href="/dashboard">
         <span class="underline">Back to books overview</span>
       </Link>
     </div>

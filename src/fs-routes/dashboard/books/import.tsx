@@ -98,7 +98,7 @@ export const GET = createRoute(async (c: Context) => {
       <Page>
         <Breadcrumbs
           items={[
-            { label: "Books Overview", href: "/dashboard/books" },
+            { label: "Books Overview", href: "/dashboard" },
             { label: "Import CSV" },
           ]}
         />
@@ -197,7 +197,7 @@ export const POST = createRoute(async (c: Context) => {
         <Page>
           <Breadcrumbs
             items={[
-              { label: "Books Overview", href: "/dashboard/books" },
+              { label: "Books Overview", href: "/dashboard" },
               { label: "Import CSV" },
             ]}
           />
@@ -263,7 +263,7 @@ export const POST = createRoute(async (c: Context) => {
       <Page>
         <Breadcrumbs
           items={[
-            { label: "Books Overview", href: "/dashboard/books" },
+            { label: "Books Overview", href: "/dashboard" },
             { label: "Import CSV" },
           ]}
         />

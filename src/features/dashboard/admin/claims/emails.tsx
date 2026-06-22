@@ -23,7 +23,7 @@ export const generateClaimApprovalEmail = (
       You can now publish books and edit your profile.
     </p>
     <p><a href="${profileUrl}">View your Photobookers profile</a></p>
-    <p><a href="https://www.photobookers.com/dashboard/books">Go to your dashboard</a></p>
+    <p><a href="https://www.photobookers.com/dashboard">Go to your dashboard</a></p>
     <h3>Share your profile</h3>
     <p>
       Help collectors find you — copy this post for Instagram, your newsletter, or your website:

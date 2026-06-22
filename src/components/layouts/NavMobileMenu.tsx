@@ -115,7 +115,7 @@ const MobileDropDownMenu = ({
       )}
       {user?.creator?.id && (
         <>
-          <NavLink href="/dashboard/books" currentPath={currentPath}>
+          <NavLink href="/dashboard" currentPath={currentPath}>
             Dashboard
           </NavLink>
           <NavLink

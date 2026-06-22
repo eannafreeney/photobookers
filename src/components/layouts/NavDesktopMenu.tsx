@@ -141,26 +141,15 @@ const DropDownMenu = ({
       )}
       {user.creator?.id && (
         <>
-          <NavLink href="/dashboard/books" currentPath={currentPath}>
+          <NavLink href="/dashboard" currentPath={currentPath}>
             Dashboard
           </NavLink>
-
           <NavLink
             href={`/creators/${user?.creator?.slug}`}
             currentPath={currentPath}
           >
             {`View ${user?.creator?.displayName}`}
           </NavLink>
-          {user.creator.status === "verified" && (
-            <NavLink
-              href={`/dashboard/creators/${user?.creator?.id}`}
-              currentPath={currentPath}
-            >
-              {`Edit ${
-                user.creator.type === "artist" ? "Artist" : "Publisher"
-              } Profile`}
-            </NavLink>
-          )}
         </>
       )}
       {user?.isAdmin && (

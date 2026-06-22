@@ -61,7 +61,7 @@ export const POST = createRoute(async (c: Context) => {
       "danger", 
       "Upload rate limit exceeded. Please try again in an hour."
     );
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   }
 
   const body = await c.req.parseBody({ all: true });
@@ -72,12 +72,12 @@ export const POST = createRoute(async (c: Context) => {
     bookIds = JSON.parse(bookIdsJson);
   } catch {
     await setFlash(c, "danger", "Invalid upload data");
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   }
 
   if (bookIds.length === 0) {
     await setFlash(c, "danger", "No books to upload images for");
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   }
 
   // VALIDATION #8: Array length validation (High priority - DoS prevention)
@@ -87,14 +87,14 @@ export const POST = createRoute(async (c: Context) => {
       "danger", 
       `Maximum ${MAX_BOOKS_FOR_BULK_UPLOAD} books for bulk upload. You selected ${bookIds.length}.`
     );
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   }
 
   // Verify books belong to creator
   const [booksError, creatorBooks] = await getBooksForBulkBookImagesUpload(bookIds, user);
   if (booksError || !creatorBooks) {
     await setFlash(c, "danger", "Failed to verify book ownership");
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   }
 
   const validBookIds = new Set(creatorBooks.map((b) => b.id));
@@ -167,7 +167,7 @@ export const POST = createRoute(async (c: Context) => {
       "danger",
       `Total upload size (${totalSizeMB}MB) exceeds ${maxSizeMB}MB limit. Please upload in smaller batches.`
     );
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   }
 
   // Show validation errors if any
@@ -177,7 +177,7 @@ export const POST = createRoute(async (c: Context) => {
       "danger",
       `Upload validation failed: ${validationErrors.slice(0, 3).join("; ")}${validationErrors.length > 3 ? ` (and ${validationErrors.length - 3} more)` : ""}`
     );
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   }
 
   // Process validated uploads
@@ -236,5 +236,5 @@ export const POST = createRoute(async (c: Context) => {
       : "Upload failed",
   );
 
-  return c.redirect("/dashboard/books");
+  return c.redirect("/dashboard");
 });

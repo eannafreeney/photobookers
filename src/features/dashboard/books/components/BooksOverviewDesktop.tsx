@@ -36,7 +36,7 @@ const BooksOverviewDesktop = async ({
   const alpineAttrs = {
     "x-init": "true",
     "@books:updated.window":
-      "$ajax('/dashboard/books', { target: 'books-table-body' })",
+      "$ajax('/dashboard', { target: 'books-table-body' })",
   };
 
   const emptyFunnel: BookFunnelCounts = {
@@ -52,7 +52,7 @@ const BooksOverviewDesktop = async ({
       <div class="flex items-center justify-between gap-4">
         <TableSearch
           target="books-table"
-          action="/dashboard/books"
+          action="/dashboard"
           placeholder="Filter books..."
         />
         <div class="flex items-center gap-2">

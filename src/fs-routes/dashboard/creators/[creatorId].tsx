@@ -6,8 +6,6 @@ import { getUser } from "../../../utils";
 import { requireCreatorEditAccess } from "../../../middleware/creatorGuard";
 import { creatorFormSchema } from "../../../features/dashboard/creators/schema";
 import AppLayout from "../../../components/layouts/AppLayout";
-import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumbs";
-import Page from "../../../components/layouts/Page";
 import CreatorForm from "../../../features/dashboard/creators/forms/EditCreatorForm";
 import CreatorImageForm from "../../../features/dashboard/images/forms/CreatorCoverForm";
 import { getFormValues } from "../../../features/dashboard/creators/utils";
@@ -15,6 +13,9 @@ import { CreatorFormWithIdContext } from "../../../features/dashboard/creators/t
 import { updateCreatorProfileAdmin } from "../../../features/dashboard/admin/creators/services";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import CreatorBannerForm from "../../../features/dashboard/images/forms/CreatorBannerForm";
+import CreatorDashboardShell from "../../../features/dashboard/components/CreatorDashboardShell";
+import { getPendingClaim } from "../../../features/claims/services";
+import InfoPage from "../../../pages/InfoPage";
 
 export const GET = createRoute(
   paramValidator(creatorIdSchema),
@@ -24,6 +25,10 @@ export const GET = createRoute(
     const user = await getUser(c);
     const currentPath = c.req.path;
 
+    const [claimError, claim] = await getPendingClaim(user.id, creator.id);
+    if (claimError)
+      return c.html(<InfoPage errorMessage={claimError.reason} user={user} />);
+
     const formValues = getFormValues(creator);
 
     return c.html(
@@ -32,20 +37,13 @@ export const GET = createRoute(
         user={user}
         currentPath={currentPath}
       >
-        <Page>
-          <Breadcrumbs
-            items={[
-              {
-                label: `Dashboard`,
-                href: "/dashboard/books",
-              },
-              {
-                label: `Edit ${creator.displayName}`,
-              },
-            ]}
-          />
-          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
-            <div class="md:w-1/3">
+        <CreatorDashboardShell
+          currentPath={currentPath}
+          user={user}
+          claimStatus={claim?.status ?? null}
+        >
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex flex-col gap-8 w-1/3">
               <CreatorImageForm
                 initialUrl={creator?.coverUrl ?? null}
                 creator={creator}
@@ -66,7 +64,7 @@ export const GET = createRoute(
               />
             </div>
           </div>
-        </Page>
+        </CreatorDashboardShell>
       </AppLayout>,
     );
   },

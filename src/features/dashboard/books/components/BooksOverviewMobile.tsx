@@ -22,7 +22,7 @@ const BooksOverviewMobile = ({
   const alpineAttrs = {
     "x-init": "true",
     "@books:updated.window":
-      "$ajax('/dashboard/books', { target: 'books-table-body' })",
+      "$ajax('/dashboard', { target: 'books-table-body' })",
   };
 
   return (
@@ -37,7 +37,7 @@ const BooksOverviewMobile = ({
         <TableSearch
           isMobile
           target="books-table"
-          action="/dashboard/books"
+          action="/dashboard"
           placeholder="Filter books..."
         />
       </div>

@@ -139,7 +139,7 @@ const BulkCoverUpload = ({ books }: Props) => {
           </span>
           <span x-show="uploading">Uploading...</span>
         </Button>
-        <Link href="/dashboard/books">
+        <Link href="/dashboard">
           <Button variant="outline" color="inverse" x-bind:disabled="uploading">
             Skip for now
           </Button>

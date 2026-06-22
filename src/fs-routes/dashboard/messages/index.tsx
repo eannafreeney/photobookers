@@ -1,14 +1,12 @@
 import { createRoute } from "hono-fsr";
 import { Context } from "hono";
 import { getUser } from "../../../utils";
-import { getMessagesByCreator } from "../../../features/dashboard/messages/services";
 import AppLayout from "../../../components/layouts/AppLayout";
-import Page from "../../../components/layouts/Page";
-import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumbs";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
 import InfoPage from "../../../pages/InfoPage";
 import CreatorMessages from "../../../features/app/components/CreatorMessages";
-import NavTabs from "../../../features/dashboard/books/components/NavTabs";
+import CreatorDashboardShell from "../../../features/dashboard/components/CreatorDashboardShell";
+import { getPendingClaim } from "../../../features/claims/services";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -17,25 +15,24 @@ export const GET = createRoute(async (c: Context) => {
   if (!user.creator)
     return c.html(<InfoPage errorMessage="Creator not found" />);
 
-  //   console.log("creator", creator);
-
   const creator = user.creator;
+
+  const [claimError, claim] = await getPendingClaim(user.id, creator.id);
+  if (claimError)
+    return c.html(<InfoPage errorMessage={claimError.reason} user={user} />);
 
   return c.html(
     <AppLayout title="Messages" user={user} currentPath={currentPath}>
-      <Page>
-        <Breadcrumbs
-          items={[
-            { label: "Dashboard" },
-            { label: "Messages", href: "/dashboard/messages" },
-          ]}
-        />
-        <NavTabs currentPath={currentPath} />
+      <CreatorDashboardShell
+        currentPath={currentPath}
+        user={user}
+        claimStatus={claim?.status ?? null}
+      >
         <div class="grid grid-cols-2 gap-8">
           <MessageForm creatorId={creator.id} />
           <CreatorMessages creatorSlug={creator.slug} user={user} />
         </div>
-      </Page>
+      </CreatorDashboardShell>
     </AppLayout>,
   );
 });

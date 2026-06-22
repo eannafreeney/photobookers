@@ -11,7 +11,7 @@ const ClaimVerificationSuccess = ({ currentPath }: { currentPath: string }) => {
           it from your dashboard.
         </p>
         <a
-          href="/dashboard/books"
+          href="/dashboard"
           class="mt-4 inline-block text-blue-600 underline"
         >
           Go to Dashboard

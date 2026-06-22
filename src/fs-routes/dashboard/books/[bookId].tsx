@@ -88,7 +88,7 @@ export const GET = createRoute(
         <Page>
           <Breadcrumbs
             items={[
-              { label: "Books Overview", href: "/dashboard/books" },
+              { label: "Books Overview", href: "/dashboard" },
               {
                 label: `Edit "${book.title}"`,
               },

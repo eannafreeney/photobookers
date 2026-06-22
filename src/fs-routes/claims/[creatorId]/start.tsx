@@ -69,7 +69,7 @@ export const POST = createRoute(
         "success",
         "Your claim has been approved! Head to your dashboard to manage your profile.",
       );
-      return c.redirect("/dashboard/books");
+      return c.redirect("/dashboard");
     }
 
     await setFlash(
@@ -77,6 +77,6 @@ export const POST = createRoute(
       "info",
       "Your claim has been submitted for review. We'll notify you once it's approved.",
     );
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   },
 );

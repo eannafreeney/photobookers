@@ -4,7 +4,7 @@ import { getUser } from "../utils";
 export const requireAdminAccess = createMiddleware(async (c, next) => {
   const user = await getUser(c);
   if (!user || !user.isAdmin) {
-    c.redirect("/dashboard/books");
+    c.redirect("/dashboard");
   }
   await next();
 });

@@ -96,13 +96,13 @@ export const GET = createRoute(
         "success",
         "Your claim has been approved! Head to your dashboard to manage your profile.",
       );
-      return c.redirect("/dashboard/books");
+      return c.redirect("/dashboard");
     }
 
     const [error] = await assignUserAsCreatorOwnerAdmin(user.id, creatorId);
     if (error)
       return c.html(<InfoPage errorMessage={error.reason} user={user} />, 400);
 
-    return c.redirect("/dashboard/books");
+    return c.redirect("/dashboard");
   },
 );

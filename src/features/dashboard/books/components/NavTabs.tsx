@@ -1,14 +1,22 @@
 import clsx from "clsx";
 import { PropsWithChildren } from "hono/jsx";
-import { booksIcon, mailIcon } from "../../../../lib/icons";
+import { booksIcon, mailIcon, usersIcon } from "../../../../lib/icons";
 
-const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
+const NavTabs = ({
+  currentPath,
+  creatorId,
+  showProfile = false,
+}: {
+  currentPath?: string | null;
+  creatorId: string;
+  showProfile?: boolean;
+}) => {
   return (
     <nav
       id="nav-tabs"
-      class="flex flex-col md:flex-row items-center justify-center border-b border-outline gap-4 mb-8 mt-4"
+      class="flex flex-col md:flex-row items-center justify-center border-b border-outline gap-4 mb-8 mt-4 bg-surface"
     >
-      <NavLink href="/dashboard/books" currentPath={currentPath}>
+      <NavLink href="/dashboard" currentPath={currentPath}>
         {booksIcon}
         Books
       </NavLink>
@@ -16,6 +24,15 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         {mailIcon(5)}
         Messages
       </NavLink>
+      {showProfile ? (
+        <NavLink
+          href={`/dashboard/creators/${creatorId}`}
+          currentPath={currentPath}
+        >
+          {usersIcon(5)}
+          Profile
+        </NavLink>
+      ) : null}
     </nav>
   );
 };
@@ -32,6 +49,11 @@ const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
     <li class="list-none">
       <a
         href={href}
+        {...(isActive
+          ? { "aria-current": "page", "x-on:click.prevent": "" }
+          : {
+              "x-target": "creator-dashboard-panel nav-tabs",
+            })}
         prefetch="intent"
         class={clsx(
           "flex items-center gap-2 border-b-2 border-transparent md:-mb-px px-4 py-2 kicker transition-colors",
