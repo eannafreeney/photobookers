@@ -55,11 +55,18 @@ const BooksOverviewDesktop = async ({
           action="/dashboard/books"
           placeholder="Filter books..."
         />
-        <Link href="/dashboard/books/new">
-          <Button variant="solid" color="primary">
-            New Book
-          </Button>
-        </Link>
+        <div class="flex items-center gap-2">
+          <Link href="/dashboard/books/import">
+            <Button variant="outline" color="inverse">
+              Import CSV
+            </Button>
+          </Link>
+          <Link href="/dashboard/books/new">
+            <Button variant="solid" color="primary">
+              New Book
+            </Button>
+          </Link>
+        </div>
       </div>
       <Table id="books-table">
         <Table.Head>
