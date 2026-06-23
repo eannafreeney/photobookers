@@ -2,6 +2,7 @@ import { and, eq, isNotNull, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   artistOfTheWeek,
+  bookFairs,
   bookOfTheDay,
   books,
   creatorInterviews,
@@ -26,6 +27,7 @@ const STATIC_PAGES: Array<
   { loc: "/books", changefreq: "daily", priority: 0.9 },
   { loc: "/artists", changefreq: "weekly", priority: 0.8 },
   { loc: "/publishers", changefreq: "weekly", priority: 0.8 },
+  { loc: "/fairs", changefreq: "weekly", priority: 0.7 },
   { loc: "/interviews", changefreq: "weekly", priority: 0.7 },
   { loc: "/book-of-the-day", changefreq: "daily", priority: 0.7 },
   { loc: "/artist-of-the-week", changefreq: "weekly", priority: 0.6 },
@@ -58,7 +60,7 @@ function formatLastmod(date: Date | null | undefined): string | undefined {
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {
-  const [bookRows, creatorRows, interviewRows, botdRows, aotwRows, potwRows] =
+  const [bookRows, creatorRows, interviewRows, fairRows, botdRows, aotwRows, potwRows] =
     await Promise.all([
       db
         .select({
@@ -86,6 +88,18 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
           and(
             eq(creatorInterviews.status, "published"),
             isNotNull(creatorInterviews.promoImageUrl),
+          ),
+        ),
+      db
+        .select({
+          slug: bookFairs.slug,
+          updatedAt: bookFairs.updatedAt,
+        })
+        .from(bookFairs)
+        .where(
+          and(
+            eq(bookFairs.status, "published"),
+            eq(bookFairs.approvalStatus, "approved"),
           ),
         ),
       db.query.bookOfTheDay.findMany({
@@ -128,6 +142,13 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     priority: 0.6,
   }));
 
+  const fairEntries: SitemapEntry[] = fairRows.map((fair) => ({
+    loc: `/fairs/${fair.slug}`,
+    lastmod: formatLastmod(fair.updatedAt),
+    changefreq: "weekly",
+    priority: 0.65,
+  }));
+
   const tagEntries: SitemapEntry[] = DISCOVER_TAGS.map((tag) => ({
     loc: tagBooksUrl(tag),
     changefreq: "weekly",
@@ -160,6 +181,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     ...bookEntries,
     ...creatorEntries,
     ...interviewEntries,
+    ...fairEntries,
     ...tagEntries,
     ...botdEntries,
     ...aotwEntries,

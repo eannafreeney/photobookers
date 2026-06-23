@@ -63,6 +63,43 @@ export const notifyAdminBookPendingReview = async (input: {
   }
 };
 
+export const notifyAdminFairAttendancePending = async (input: {
+  fairId: string;
+  fairName: string;
+  creatorName: string;
+  actorUserId: string;
+}) => {
+  const result = await createAdminNotification({
+    type: "fair_attendance_pending",
+    title: "Fair attendance pending",
+    body: `${input.creatorName} requested to attend "${input.fairName}".`,
+    targetUrl: `/dashboard/admin/fairs/${input.fairId}#attendees`,
+    actorUserId: input.actorUserId,
+    isRead: false,
+  });
+  if (result[0]) {
+    console.error(
+      "notifyAdminFairAttendancePending failed:",
+      result[0].reason,
+      result[0],
+    );
+  }
+
+  const siteUrl = process.env.SITE_URL ?? "https://photobookers.com";
+  const reviewUrl = `${siteUrl}/dashboard/admin/fairs/${input.fairId}#attendees`;
+  const [emailError] = await sendAdminEmail(
+    `Fair attendance pending: ${input.creatorName} at ${input.fairName}`,
+    `<p>${input.creatorName} requested to attend <strong>${input.fairName}</strong>.</p><p><a href="${reviewUrl}">Review attendance</a></p>`,
+  );
+  if (emailError) {
+    console.error(
+      "notifyAdminFairAttendancePending email failed:",
+      emailError.reason,
+      emailError,
+    );
+  }
+};
+
 export const getAdminNotifications = async (
   currentPage: number,
   defaultLimit = 30,

@@ -6,8 +6,8 @@ import { aotwPath, botdPath, potwPath } from "../../app/spotlightUrls";
 
 export const getSpotlightItems = (
   botdResult: BookOfTheDayWithBook | null,
-  artistResult: ArtistOfTheWeekWithCreator,
-  publisherResult: PublisherOfTheWeekWithCreator,
+  artistResult: ArtistOfTheWeekWithCreator | null,
+  publisherResult: PublisherOfTheWeekWithCreator | null,
   baseUrl: string,
 ) => {
   const spotlightItems: FeaturedSpotlightItem[] = [];

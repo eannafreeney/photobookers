@@ -14,6 +14,7 @@ import { feedListStyles } from "./FeedList";
 import { interviewsStyles } from "./Interviews";
 import { trendingCreatorsStyles } from "./TrendingCreatorsSlider";
 import { newsletterCardStyles } from "./NewsletterCard";
+import { fairsSectionStyles } from "./FairsSection";
 import { featuredHomeBodyStyles } from "./FeaturedHomeBody";
 import { bookGridWithFiltersStyles } from "./BookGridWithFilters";
 import { sectionHeaderStyles } from "./SectionHeader";
@@ -83,6 +84,7 @@ const pageStyles = () => (
     {trendingCreatorsStyles()}
     {newsletterCardStyles()}
     {featuredHomeBodyStyles()}
+    {fairsSectionStyles()}
     {bookGridWithFiltersStyles()}
   </>
 );

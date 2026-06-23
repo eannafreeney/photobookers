@@ -1,5 +1,6 @@
 {
   "messages": true,
   "comments": true,
-  "interviews": false
+  "interviews": false,
+  "fairs": true
 }

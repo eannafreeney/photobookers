@@ -3,7 +3,7 @@
 import { log } from "console";
 import { AuthUser } from "../../types";
 import { BookCardResult } from "../constants/queries";
-import { Book, Creator } from "../db/schema";
+import { Book, BookFair, Creator } from "../db/schema";
 import { BookWithGalleryImages } from "../features/app/types";
 import { BookWithAdminRelations } from "../features/dashboard/admin/books/types";
 
@@ -175,4 +175,32 @@ export function canCollectBook(
     user?.creator?.id !== book.artistId &&
     user?.creator?.id !== book.publisherId
   );
+}
+
+export function canClaimFairAttendance(
+  user: AuthUser | null,
+  fair: Pick<BookFair, "status" | "approvalStatus" | "endDate">,
+): boolean {
+  if (!user?.creator) return false;
+  if (user.creator.status !== "verified") return false;
+
+  const today = new Date(new Date().setHours(0, 0, 0, 0));
+  return (
+    fair.status === "published" &&
+    fair.approvalStatus === "approved" &&
+    new Date(fair.endDate) >= today
+  );
+}
+
+export function canWithdrawFairAttendance(
+  user: AuthUser | null,
+  fair: Pick<BookFair, "endDate">,
+  creatorId: string,
+): boolean {
+  if (!user?.creator) return false;
+  if (user.creator.id !== creatorId) return false;
+  if (user.creator.status !== "verified") return false;
+
+  const today = new Date(new Date().setHours(0, 0, 0, 0));
+  return new Date(fair.endDate) >= today;
 }

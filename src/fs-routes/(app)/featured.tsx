@@ -58,6 +58,12 @@ export const GET = createRoute(async (c: Context) => {
         </ScrollReveal>
         <ScrollReveal>
           <Intersector
+            id="fairs-fragment"
+            endpoint="/fragments/fairs"
+          />
+        </ScrollReveal>
+        <ScrollReveal>
+          <Intersector
             id="latest-books-fragment"
             endpoint="/fragments/latest-books"
           />

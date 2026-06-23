@@ -92,6 +92,7 @@ const Footer = () => (
           { href: "/books", label: "All Books" },
           { href: "/artists", label: "Artists" },
           { href: "/publishers", label: "Publishers" },
+          { href: "/fairs", label: "Book Fairs" },
         ]}
       />
       <FooterColumn

@@ -25,6 +25,14 @@ export function creatorUrl(slug: string): string {
   return `${appBaseUrl()}${creatorPath(slug)}`;
 }
 
+export function fairPath(slug: string): string {
+  return `/fairs/${slug}`;
+}
+
+export function fairUrl(slug: string): string {
+  return `${appBaseUrl()}${fairPath(slug)}`;
+}
+
 export function botdIndexPath(): string {
   return "/book-of-the-day";
 }

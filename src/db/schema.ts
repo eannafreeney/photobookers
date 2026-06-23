@@ -78,6 +78,34 @@ export const bookViewSourceEnum = pgEnum("book_view_source", [
   "hyperview",
 ]);
 
+export const fairViewSourceEnum = pgEnum("fair_view_source", [
+  "web",
+  "hyperview",
+]);
+
+export const bookFairStatusEnum = pgEnum("book_fair_status", [
+  "draft",
+  "published",
+  "cancelled",
+]);
+
+export const bookFairApprovalStatusEnum = pgEnum("book_fair_approval_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
+export const bookFairListingTierEnum = pgEnum("book_fair_listing_tier", [
+  "free",
+  "promoted",
+]);
+
+export const fairAttendeeStatusEnum = pgEnum("fair_attendee_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: varchar("email", { length: 255 }).notNull(),
@@ -100,6 +128,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   wishlists: many(wishlists),
   claims: many(creatorClaims),
   comments: many(bookComments),
+  createdFairs: many(bookFairs),
 }));
 
 export const creatorInterviews = pgTable("creator_interviews", {
@@ -210,6 +239,7 @@ export const creatorsRelations = relations(creators, ({ one, many }) => ({
   artistOfTheWeekEntries: many(artistOfTheWeek),
   publisherOfTheWeekEntries: many(publisherOfTheWeek),
   messages: many(creatorMessages),
+  fairAttendees: many(fairAttendees),
 }));
 
 export const books = pgTable(
@@ -732,6 +762,114 @@ export const bookViewsRelations = relations(bookViews, ({ one }) => ({
   }),
 }));
 
+export const bookFairs = pgTable(
+  "book_fairs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: varchar("slug", { length: 255 }).notNull().unique(),
+    name: text("name").notNull(),
+    description: text("description"),
+    city: varchar("city", { length: 255 }),
+    country: varchar("country", { length: 255 }),
+    venue: text("venue"),
+    website: text("website"),
+    coverUrl: text("cover_url"),
+    bannerUrl: text("banner_url"),
+    startDate: timestamp("start_date", { mode: "date" }).notNull(),
+    endDate: timestamp("end_date", { mode: "date" }).notNull(),
+    status: bookFairStatusEnum("status").notNull().default("draft"),
+    approvalStatus: bookFairApprovalStatusEnum("approval_status")
+      .notNull()
+      .default("pending"),
+    listingTier: bookFairListingTierEnum("listing_tier")
+      .notNull()
+      .default("free"),
+    promotedUntil: timestamp("promoted_until"),
+    sortOrder: integer("sort_order"),
+    createdByUserId: uuid("created_by_user_id")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    startDateIdx: index("book_fairs_start_date_idx").on(table.startDate),
+  }),
+);
+
+export const bookFairsRelations = relations(bookFairs, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [bookFairs.createdByUserId],
+    references: [users.id],
+  }),
+  attendees: many(fairAttendees),
+  views: many(fairViews),
+}));
+
+export const fairAttendees = pgTable(
+  "fair_attendees",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fairId: uuid("fair_id")
+      .notNull()
+      .references(() => bookFairs.id, { onDelete: "cascade" }),
+    creatorId: uuid("creator_id")
+      .notNull()
+      .references(() => creators.id, { onDelete: "cascade" }),
+    status: fairAttendeeStatusEnum("status").notNull().default("approved"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    fairCreatorUnique: unique("fair_attendees_fair_creator_unique").on(
+      table.fairId,
+      table.creatorId,
+    ),
+    fairIdIdx: index("fair_attendees_fair_id_idx").on(table.fairId),
+    creatorIdIdx: index("fair_attendees_creator_id_idx").on(table.creatorId),
+  }),
+);
+
+export const fairAttendeesRelations = relations(fairAttendees, ({ one }) => ({
+  fair: one(bookFairs, {
+    fields: [fairAttendees.fairId],
+    references: [bookFairs.id],
+  }),
+  creator: one(creators, {
+    fields: [fairAttendees.creatorId],
+    references: [creators.id],
+  }),
+}));
+
+export const fairViews = pgTable(
+  "fair_views",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fairId: uuid("fair_id")
+      .references(() => bookFairs.id)
+      .notNull(),
+    userId: uuid("user_id").references(() => users.id),
+    source: fairViewSourceEnum("source").notNull().default("web"),
+    referer: text("referer"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    fairIdIdx: index("fair_views_fair_id_idx").on(table.fairId),
+    createdAtIdx: index("fair_views_created_at_idx").on(table.createdAt),
+  }),
+);
+
+export const fairViewsRelations = relations(fairViews, ({ one }) => ({
+  fair: one(bookFairs, {
+    fields: [fairViews.fairId],
+    references: [bookFairs.id],
+  }),
+  user: one(users, {
+    fields: [fairViews.userId],
+    references: [users.id],
+  }),
+}));
+
 // Infer types from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -814,3 +952,21 @@ export type PurchaseClickSource =
 export type BookView = InferSelectModel<typeof bookViews>;
 export type NewBookView = InferInsertModel<typeof bookViews>;
 export type BookViewSource = (typeof bookViewSourceEnum.enumValues)[number];
+
+export type BookFair = InferSelectModel<typeof bookFairs>;
+export type NewBookFair = InferInsertModel<typeof bookFairs>;
+export type UpdateBookFair = Partial<InferInsertModel<typeof bookFairs>>;
+export type BookFairStatus = (typeof bookFairStatusEnum.enumValues)[number];
+export type BookFairApprovalStatus =
+  (typeof bookFairApprovalStatusEnum.enumValues)[number];
+export type BookFairListingTier =
+  (typeof bookFairListingTierEnum.enumValues)[number];
+
+export type FairAttendee = InferSelectModel<typeof fairAttendees>;
+export type NewFairAttendee = InferInsertModel<typeof fairAttendees>;
+export type FairAttendeeStatus =
+  (typeof fairAttendeeStatusEnum.enumValues)[number];
+
+export type FairView = InferSelectModel<typeof fairViews>;
+export type NewFairView = InferInsertModel<typeof fairViews>;
+export type FairViewSource = (typeof fairViewSourceEnum.enumValues)[number];

@@ -7,12 +7,13 @@ import CreatorsGrid from "./CreatorsGrid";
 import Tabs from "../../../components/app/Tabs";
 import CreatorMessages from "./CreatorMessages";
 import CreatorPageBanner from "./CreatorPageBanner";
-import { Creator } from "../../../db/schema";
+import { BookFair, Creator } from "../../../db/schema";
 import { AuthUser } from "../../../../types";
 import { creatorUrl } from "../spotlightUrls";
 import { creatorShareText } from "../../../lib/share";
 import ExpandableDescription from "./ExpandableDescription";
 import MobileHeader from "./MobileHeader";
+import UpcomingFairsSection from "../fairs/components/UpcomingFairsSection";
 
 export type CreatorBooksResult = {
   creator: Creator;
@@ -29,6 +30,12 @@ type CreatorDetailProps = {
   result: CreatorBooksResult;
   creatorsCurrentPage: number;
   isMobile: boolean;
+  upcomingFairs: Array<
+    Pick<
+      BookFair,
+      "id" | "slug" | "name" | "startDate" | "endDate" | "city" | "country"
+    >
+  >;
 };
 
 const CreatorDetail = ({
@@ -38,8 +45,10 @@ const CreatorDetail = ({
   result,
   creatorsCurrentPage,
   isMobile,
+  upcomingFairs,
 }: CreatorDetailProps) => {
   const showCreatorsTab = result.relatedCreators.length > 0;
+  const showFairsTab = upcomingFairs.length > 0;
 
   return isMobile ? (
     <CreatorDetailMobile
@@ -47,8 +56,10 @@ const CreatorDetail = ({
       user={user}
       currentPath={currentPath}
       showCreatorsTab={showCreatorsTab}
+      showFairsTab={showFairsTab}
       result={result}
       creatorsCurrentPage={creatorsCurrentPage}
+      upcomingFairs={upcomingFairs}
     />
   ) : (
     <CreatorDetailDesktop
@@ -56,8 +67,10 @@ const CreatorDetail = ({
       user={user}
       currentPath={currentPath}
       showCreatorsTab={showCreatorsTab}
+      showFairsTab={showFairsTab}
       result={result}
       creatorsCurrentPage={creatorsCurrentPage}
+      upcomingFairs={upcomingFairs}
     />
   );
 };
@@ -82,7 +95,14 @@ type CreatorDetailMobileProps = {
   currentPath: string;
   result: Pick<CreatorBooksResult, "books" | "totalPages" | "page">;
   showCreatorsTab: boolean;
+  showFairsTab: boolean;
   creatorsCurrentPage: number;
+  upcomingFairs: Array<
+    Pick<
+      BookFair,
+      "id" | "slug" | "name" | "startDate" | "endDate" | "city" | "country"
+    >
+  >;
 };
 
 const CreatorDetailMobile = ({
@@ -91,7 +111,9 @@ const CreatorDetailMobile = ({
   currentPath,
   result,
   showCreatorsTab,
+  showFairsTab,
   creatorsCurrentPage,
+  upcomingFairs,
 }: CreatorDetailMobileProps) => (
   <div class="flex flex-col gap-4">
     <MobileHeader
@@ -123,6 +145,7 @@ const CreatorDetailMobile = ({
             {creator.type === "publisher" ? "Artists" : "Publishers"}
           </Tabs.Link>
         )}
+        {showFairsTab && <Tabs.Link tabId="fairs">Fairs</Tabs.Link>}
         <Tabs.Link tabId="about">About</Tabs.Link>
       </Tabs.LinkContainer>
       <Tabs.Panel tabId="books">
@@ -152,6 +175,9 @@ const CreatorDetailMobile = ({
           pageParam="creatorsPage"
         />
       </Tabs.Panel>
+      <Tabs.Panel tabId="fairs">
+        <UpcomingFairsSection fairs={upcomingFairs} />
+      </Tabs.Panel>
       <Tabs.Panel tabId="about">
         <CreatorCard
           creator={creator}
@@ -178,7 +204,14 @@ type CreatorDetailDesktopProps = {
   currentPath: string;
   result: Pick<CreatorBooksResult, "books" | "totalPages" | "page">;
   showCreatorsTab: boolean;
+  showFairsTab: boolean;
   creatorsCurrentPage: number;
+  upcomingFairs: Array<
+    Pick<
+      BookFair,
+      "id" | "slug" | "name" | "startDate" | "endDate" | "city" | "country"
+    >
+  >;
 };
 
 const CreatorDetailDesktop = ({
@@ -187,7 +220,9 @@ const CreatorDetailDesktop = ({
   currentPath,
   creatorsCurrentPage,
   showCreatorsTab,
+  showFairsTab,
   result,
+  upcomingFairs,
 }: CreatorDetailDesktopProps) => {
   return (
     <div class="flex flex-col gap-4">
@@ -258,6 +293,14 @@ const CreatorDetailDesktop = ({
               title="About"
               shouldRefreshCreatorMessages
             />
+            {showFairsTab && (
+              <div class="flex flex-col gap-2">
+                <h3 class="text-lg font-medium text-on-surface-strong">
+                  Upcoming Fairs
+                </h3>
+                <UpcomingFairsSection fairs={upcomingFairs} />
+              </div>
+            )}
           </div>
         </div>
       </div>

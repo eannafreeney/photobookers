@@ -14,6 +14,7 @@ import { registerRegisterFanForm } from "../features/auth/client/registerFanForm
 import { registerRegisterCreatorForm } from "../features/auth/client/registerCreatorForm";
 import { registerAddCreatorFormAdmin } from "../features/dashboard/admin/creators/client/addCreatorFormAdmin";
 import { registerBookFormAdmin } from "../features/dashboard/admin/books/client/bookFormAdmin";
+import { registerFairFormAdmin } from "../features/dashboard/admin/fairs/client/fairFormAdmin";
 import { registerBookOfTheDayForm } from "../features/dashboard/admin/planner/client/bookOfTheDayForm";
 import { registerEditCreatorFormAdmin } from "../features/dashboard/admin/creators/client/editCreatorFormAdmin";
 import { registerNewUserForm } from "../features/dashboard/admin/users/client/newUserForm";
@@ -38,6 +39,9 @@ import { registerMessageForm } from "../features/dashboard/messages/client/messa
 import { registerEditInterviewForm } from "../features/dashboard/admin/interviews/client/editInterviewForm";
 import { registerCreatorBannerForm } from "../features/dashboard/images/client/creatorBannerForm";
 import { registerBulkCoverUpload } from "./components/bulkCoverUpload";
+import { registerFairCoverForm } from "../features/dashboard/admin/fairs/client/fairCoverForm";
+import { registerFairBannerForm } from "../features/dashboard/admin/fairs/client/fairBannerForm";
+import { registerOptionsComboBox } from "./components/optionsComboBox";
 
 // Register all Alpine.js data components
 registerAdminClaimsBadge();
@@ -58,6 +62,7 @@ registerCountryForm();
 registerShareButton();
 registerAddCreatorFormAdmin();
 registerBookFormAdmin();
+registerFairFormAdmin();
 registerBookOfTheDayForm();
 registerEditCreatorFormAdmin();
 registerNewUserForm();
@@ -80,3 +85,7 @@ registerInterviewForm();
 registerEditInterviewForm();
 registerMessageForm();
 registerCreatorBannerForm();
+registerFairFormAdmin();
+registerFairCoverForm();
+registerFairBannerForm();
+registerOptionsComboBox();
