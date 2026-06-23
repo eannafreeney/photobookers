@@ -48,6 +48,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const list = (
     <RelatedCreatorsList
       creators={creators}
+      role="Artist"
       baseUrl={baseUrl}
       page={currentPage}
       hasMore={hasMore}

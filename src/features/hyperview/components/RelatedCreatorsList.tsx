@@ -1,6 +1,6 @@
 import { CreatorCardResult } from "../../../constants/queries";
 import { Spinner, Style } from "../../../lib/hxml-comps";
-import CreatorCard from "./CreatorCard";
+import SpotlightCreatorRow from "./spotlight/SpotlightCreatorRow";
 
 export const RELATED_CREATORS_LOAD_MORE_ID = "related-creators-load-more";
 
@@ -10,27 +10,27 @@ type Props = {
   page?: number;
   hasMore?: boolean;
   loadMoreHref?: string;
-  showHeader?: boolean;
   followingByCreatorId?: Record<string, boolean>;
+  role: string;
 };
 
 const RelatedCreatorsList = ({
   creators,
-  baseUrl,
   page = 1,
   hasMore = false,
   loadMoreHref,
-  showHeader = false,
   followingByCreatorId = {},
+  baseUrl,
+  role,
 }: Props) => {
   return (
     <view xmlns="https://hyperview.org/hyperview">
       {creators.map((creator) => (
-        <CreatorCard
+        <SpotlightCreatorRow
           key={creator.id}
           creator={creator}
+          role={role}
           baseUrl={baseUrl}
-          showHeader={showHeader}
           isFollowing={followingByCreatorId[creator.id] ?? false}
         />
       ))}

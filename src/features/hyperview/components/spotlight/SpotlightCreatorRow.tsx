@@ -3,8 +3,13 @@ import { Behavior, Image, Style, Text, View } from "../../../../lib/hxml-comps";
 import { Creator } from "../../../../db/schema";
 import FollowButton from "../FollowButton";
 
+export type SpotlightCreatorRowCreator = Pick<
+  Creator,
+  "id" | "displayName" | "coverUrl"
+>;
+
 type Props = {
-  creator: Creator;
+  creator: SpotlightCreatorRowCreator;
   role: string;
   baseUrl: string;
   isFollowing: boolean;

@@ -32,13 +32,11 @@ export const GET = createRoute(async (c) => {
 
   return c.html(
     <div id="fairs-fragment">
-      <div class="border-t-2 border-on-surface-strong pt-3 mb-3 mt-10">
-        <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
-          <SectionTitle className="mb-0" kicker="Days Out!">
-            Book Fairs
-          </SectionTitle>
-          <ViewAllLink href="/fairs" />
-        </div>
+      <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
+        <SectionTitle className="mb-0" kicker="Days Out!">
+          Book Fairs
+        </SectionTitle>
+        <ViewAllLink href="/fairs" />
       </div>
       <FairsGrid
         fairs={allFairs}

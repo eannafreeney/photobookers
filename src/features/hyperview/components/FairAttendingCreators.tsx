@@ -8,7 +8,6 @@ import SpotlightCreatorRow, {
   spotlightCreatorRowStyles,
 } from "./spotlight/SpotlightCreatorRow";
 import { followButtonStyles } from "./FollowButton";
-import type { Creator } from "../../../db/schema";
 
 type Props = {
   fairId: string;
@@ -38,7 +37,7 @@ const FairAttendingCreators: FC<Props> = async ({
         {attendees.map((attendee) => (
           <SpotlightCreatorRow
             key={attendee.creator.id}
-            creator={attendee.creator as Creator}
+            creator={attendee.creator}
             role={capitalize(attendee.creator.type)}
             baseUrl={baseUrl}
             isFollowing={followingByCreatorId[attendee.creator.id] ?? false}

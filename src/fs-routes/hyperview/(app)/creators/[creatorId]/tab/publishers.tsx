@@ -8,6 +8,9 @@ import { getUser } from "../../../../../../utils";
 import { followFlagsForCreators } from "../../../../../../features/hyperview/findFlags";
 import CreatorCard from "../../../../../../features/hyperview/components/CreatorCard";
 import { creatorIdSchema } from "../../../../../../schemas";
+import SpotlightCreatorLink from "../../../../../../features/app/components/SpotlightCreatorLink";
+import SpotlightCreatorRow from "../../../../../../features/hyperview/components/spotlight/SpotlightCreatorRow";
+import { Creator } from "../../../../../../db/schema";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -41,11 +44,10 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   return hv(
     <view xmlns="https://hyperview.org/hyperview">
       {creators?.map((publisher) => (
-        <CreatorCard
-          key={publisher.id}
+        <SpotlightCreatorRow
           creator={publisher}
+          role="Publisher"
           baseUrl={baseUrl}
-          showHeader={false}
           isFollowing={followingByCreatorId[publisher.id] ?? false}
         />
       ))}

@@ -18,7 +18,6 @@ import FairsCalendar from "../../features/app/fairs/components/FairsCalendar";
 import FairsGrid from "../../features/app/fairs/components/FairsGrid";
 import { pageTitle, canonicalUrl } from "../../lib/seo";
 import SectionTitle from "../../components/app/SectionTitle";
-import ViewAllLink from "../../features/app/components/ViewAllLink";
 
 type ViewSwitcherProps = {
   currentView: "grid" | "calendar";
