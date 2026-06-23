@@ -3,11 +3,13 @@ import {
   matchesPreset,
   presetAnalyticsDateRange,
   type AnalyticsDateRange,
-} from "../../../../book-analytics/dateRange";
-import { toDateString } from "../../../../../lib/utils";
+} from "../../book-analytics/dateRange";
+import { toDateString } from "../../../lib/utils";
 
 type Props = {
   dateRange: AnalyticsDateRange | null;
+  basePath: string;
+  partialUpdateTarget?: string;
 };
 
 const PRESETS = [
@@ -24,7 +26,11 @@ const pillClass = (active: boolean) =>
       : "bg-surface text-on-surface-strong border-outline-strong hover:bg-on-surface-strong hover:text-surface"
   }`;
 
-const AnalyticsDateRangeFilter = ({ dateRange }: Props) => {
+const AnalyticsDateRangeFilter = ({
+  dateRange,
+  basePath,
+  partialUpdateTarget,
+}: Props) => {
   const customFrom = dateRange ? toDateString(dateRange.from) : "";
   const customTo = dateRange ? toDateString(dateRange.to) : "";
 
@@ -34,8 +40,8 @@ const AnalyticsDateRangeFilter = ({ dateRange }: Props) => {
         {PRESETS.map((preset) => {
           const href =
             preset.days === null
-              ? "/dashboard/admin/analytics"
-              : `/dashboard/admin/analytics${analyticsSearchParams(
+              ? basePath
+              : `${basePath}${analyticsSearchParams(
                   presetAnalyticsDateRange(preset.days),
                 )}`;
           const active =
@@ -49,6 +55,12 @@ const AnalyticsDateRangeFilter = ({ dateRange }: Props) => {
               href={href}
               class={pillClass(active)}
               aria-current={active ? "page" : undefined}
+              {...(partialUpdateTarget
+                ? {
+                    "x-target": partialUpdateTarget,
+                    prefetch: "intent",
+                  }
+                : {})}
             >
               {preset.label}
             </a>
@@ -58,8 +70,9 @@ const AnalyticsDateRangeFilter = ({ dateRange }: Props) => {
 
       <form
         method="get"
-        action="/dashboard/admin/analytics"
+        action={basePath}
         class="flex flex-wrap items-end justify-center gap-3"
+        {...(partialUpdateTarget ? { "x-target": partialUpdateTarget } : {})}
       >
         <label class="flex flex-col gap-1 text-sm text-on-surface">
           <span>From</span>

@@ -1,33 +1,38 @@
-import Link from "../../../../../components/app/Link";
-import SectionTitle from "../../../../../components/app/SectionTitle";
-import Table from "../../../../../components/app/Table";
-import ListNavigation from "../../../../app/components/ListNavigation";
-import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
-import { getTopBooksByClicks } from "../../../../purchase-clicks/services";
+import Table from "../../../../components/app/Table";
+import Link from "../../../../components/app/Link";
+import ListNavigation from "../../../app/components/ListNavigation";
 import WindowTable from "./WindowTable";
+import SectionTitle from "../../../../components/app/SectionTitle";
 
-type Props = {
-  dateRange: AnalyticsDateRange | null;
-  currentPath: string;
-  currentPage: number;
-  pageParam: string;
+type TopBookByClicksRow = {
+  id: string;
+  title: string;
+  slug: string;
+  coverUrl: string | null;
+  clickCount: number;
+  artistName: string | null;
+  publisherName: string | null;
 };
 
-const TopBooksTable = async ({
-  dateRange,
+type Props = {
+  currentPath: string;
+  pageParam: string;
+  books: TopBookByClicksRow[];
+  totalPages: number;
+  page: number;
+  targetId?: string;
+};
+
+const TopBooksByClickTable = async ({
   currentPath,
-  currentPage,
   pageParam,
+  books,
+  totalPages,
+  page,
+  targetId = "analytics-top-books",
 }: Props) => {
-  const [error, result] = await getTopBooksByClicks(dateRange, currentPage);
-  if (error) return <div>{error.reason}</div>;
-
-  const targetId = `analytics-top-books`;
-
-  const { books, totalPages, page } = result;
-
   return (
-    <>
+    <div>
       <SectionTitle>Top books by outbound clicks</SectionTitle>
       <WindowTable>
         <Table id="analytics-top-books">
@@ -46,25 +51,25 @@ const TopBooksTable = async ({
                 <Table.BodyRow>No outbound clicks yet.</Table.BodyRow>
               </tr>
             ) : (
-              books.map((row) => (
-                <tr key={row.bookId}>
+              books.map((book) => (
+                <tr key={book.id}>
                   <Table.BodyRow>
-                    {row.coverUrl ? (
+                    {book.coverUrl ? (
                       <img
-                        src={row.coverUrl}
-                        alt={row.title}
+                        src={book.coverUrl}
+                        alt={book.title}
                         class="h-12 w-auto"
                       />
                     ) : null}
                   </Table.BodyRow>
                   <Table.BodyRow>
-                    <Link href={`/books/${row.slug}`} target="_blank">
-                      {row.title}
+                    <Link href={`/books/${book.slug}`} target="_blank">
+                      {book.title}
                     </Link>
                   </Table.BodyRow>
-                  <Table.BodyRow>{row.artistName ?? ""}</Table.BodyRow>
-                  <Table.BodyRow>{row.publisherName ?? ""}</Table.BodyRow>
-                  <Table.BodyRow>{row.clickCount}</Table.BodyRow>
+                  <Table.BodyRow>{book.artistName ?? ""}</Table.BodyRow>
+                  <Table.BodyRow>{book.publisherName ?? ""}</Table.BodyRow>
+                  <Table.BodyRow>{book.clickCount}</Table.BodyRow>
                 </tr>
               ))
             )}
@@ -80,8 +85,8 @@ const TopBooksTable = async ({
           navId={`pagination-books-table`}
         />
       </WindowTable>
-    </>
+    </div>
   );
 };
 
-export default TopBooksTable;
+export default TopBooksByClickTable;

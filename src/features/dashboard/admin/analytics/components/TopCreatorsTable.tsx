@@ -5,7 +5,7 @@ import { CreatorType } from "../../../../../db/schema";
 import ListNavigation from "../../../../app/components/ListNavigation";
 import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
 import { getTopCreatorsByClicks } from "../../../../purchase-clicks/services";
-import WindowTable from "./WindowTable";
+import WindowTable from "../../components/WindowTable";
 
 type Props = {
   role: Extract<CreatorType, "artist" | "publisher">;
@@ -36,7 +36,7 @@ const TopCreatorsTable = async ({
   const { creators, totalPages, page } = result;
 
   return (
-    <>
+    <div>
       <SectionTitle>{title} by outbound clicks</SectionTitle>
       <WindowTable>
         <Table>
@@ -85,7 +85,7 @@ const TopCreatorsTable = async ({
           navId={`pagination-${role}-table`}
         />
       </WindowTable>
-    </>
+    </div>
   );
 };
 

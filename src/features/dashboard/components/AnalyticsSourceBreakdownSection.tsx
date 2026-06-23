@@ -1,13 +1,23 @@
-import SectionTitle from "../../../../../components/app/SectionTitle";
-import { getSourceTotals } from "../../../../book-analytics/trends";
-import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
+import SectionTitle from "../../../components/app/SectionTitle";
+import type { AnalyticsDateRange } from "../../book-analytics/dateRange";
+import {
+  getCreatorSourceTotals,
+  type CreatorAnalyticsScope,
+} from "../../book-analytics/creatorAnalytics";
+import { getSourceTotals } from "../../book-analytics/trends";
 
 type Props = {
   dateRange: AnalyticsDateRange | null;
+  scope?: CreatorAnalyticsScope | null;
 };
 
-const AnalyticsSourceBreakdown = async ({ dateRange }: Props) => {
-  const totals = await getSourceTotals(dateRange);
+const AnalyticsSourceBreakdownSection = async ({
+  dateRange,
+  scope = null,
+}: Props) => {
+  const totals = scope
+    ? await getCreatorSourceTotals(scope, dateRange)
+    : await getSourceTotals(dateRange);
 
   return (
     <div class="flex flex-col gap-4">
@@ -37,4 +47,4 @@ const StatCard = ({
   </div>
 );
 
-export default AnalyticsSourceBreakdown;
+export default AnalyticsSourceBreakdownSection;

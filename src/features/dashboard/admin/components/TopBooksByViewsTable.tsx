@@ -1,40 +1,41 @@
-import Link from "../../../../../components/app/Link";
-import SectionTitle from "../../../../../components/app/SectionTitle";
-import Table from "../../../../../components/app/Table";
-import { formatClickRate } from "../../../../book-analytics/funnel";
-import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
-import { getTopBooksByViews } from "../../../../book-views/services";
-import { findPurchaseClickCounts } from "../../../../purchase-clicks/services";
+import Link from "../../../../components/app/Link";
+import SectionTitle from "../../../../components/app/SectionTitle";
+import Table from "../../../../components/app/Table";
+import { formatClickRate } from "../../../book-analytics/funnel";
 import WindowTable from "./WindowTable";
-import ListNavigation from "../../../../app/components/ListNavigation";
+import ListNavigation from "../../../app/components/ListNavigation";
+
+type TopBookByViewsRow = {
+  bookId: string;
+  title: string;
+  slug: string;
+  coverUrl: string | null;
+  viewCount: number;
+  artistName: string | null;
+  publisherName: string | null;
+};
 
 type Props = {
-  dateRange: AnalyticsDateRange | null;
   currentPath: string;
-  currentPage: number;
   pageParam: string;
+  books: TopBookByViewsRow[];
+  totalPages: number;
+  page: number;
+  targetId?: string;
+  clickCounts: Map<string, number>;
 };
 
 const TopBooksByViewsTable = async ({
-  dateRange,
   currentPath,
-  currentPage,
   pageParam,
+  books,
+  totalPages,
+  page,
+  targetId = "analytics-top-books-by-views",
+  clickCounts,
 }: Props) => {
-  const [error, result] = await getTopBooksByViews(dateRange, currentPage);
-  if (error) return <div>{error.reason}</div>;
-
-  const targetId = `analytics-top-books-by-views`;
-
-  const { books, totalPages, page } = result;
-
-  const clickCounts = await findPurchaseClickCounts(
-    books.map((row) => row.bookId),
-    dateRange,
-  );
-
   return (
-    <>
+    <div>
       <SectionTitle>Top books by views</SectionTitle>
       <WindowTable>
         <Table>
@@ -96,7 +97,7 @@ const TopBooksByViewsTable = async ({
           navId={`pagination-top-books-by-views-table`}
         />
       </WindowTable>
-    </>
+    </div>
   );
 };
 

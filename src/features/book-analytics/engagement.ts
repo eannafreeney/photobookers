@@ -1,6 +1,6 @@
-import { and, count, desc, inArray, isNotNull, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "../../db/client";
-import { books, creators, follows, wishlists } from "../../db/schema";
+import { books, creators, follows, wishlists, type CreatorType } from "../../db/schema";
 import { err, ok } from "../../lib/result";
 import { getPagination } from "../../lib/pagination";
 import {
@@ -8,22 +8,48 @@ import {
   type AnalyticsDateRange,
 } from "./dateRange";
 
+export type TopBooksByFavoritesScope = {
+  creatorId: string;
+  creatorType: CreatorType;
+};
+
+function scopeBookFilter(scope: TopBooksByFavoritesScope) {
+  const column =
+    scope.creatorType === "publisher" ? books.publisherId : books.artistId;
+  return eq(column, scope.creatorId);
+}
+
 export const getTopBooksByFavorites = async (
   range?: AnalyticsDateRange | null,
   currentPage: number = 1,
   defaultLimit = 10,
+  scope?: TopBooksByFavoritesScope | null,
 ) => {
   try {
     const dateFilter = buildCreatedAtFilter(wishlists.createdAt, range);
+    const scopeFilter = scope ? scopeBookFilter(scope) : undefined;
+    const where =
+      scopeFilter && dateFilter
+        ? and(scopeFilter, dateFilter)
+        : (scopeFilter ?? dateFilter);
 
-    const countQuery = db
-      .select({
-        value: sql<number>`count(distinct ${wishlists.bookId})`,
-      })
-      .from(wishlists);
+    const countQuery = (
+      scope
+        ? db
+            .select({
+              value: sql<number>`count(distinct ${wishlists.bookId})`,
+            })
+            .from(wishlists)
+            .innerJoin(books, eq(wishlists.bookId, books.id))
+        : db
+            .select({
+              value: sql<number>`count(distinct ${wishlists.bookId})`,
+            })
+            .from(wishlists)
+    );
 
-    const [{ value: totalCount = 0 }] = dateFilter
-      ? await countQuery.where(dateFilter)
+    const [{ value: totalCount = 0 }] = where
+      ? await countQuery.where(where)
       : await countQuery;
 
     const { page, limit, offset, totalPages } = getPagination(
@@ -36,19 +62,29 @@ export const getTopBooksByFavorites = async (
       return ok({ books: [], totalPages: 1, page: 1 });
     }
 
-    const favoriteQuery = db
-      .select({
-        bookId: wishlists.bookId,
-        favoriteCount: count(),
-      })
-      .from(wishlists)
+    const favoriteQuery = (
+      scope
+        ? db
+            .select({
+              bookId: wishlists.bookId,
+              favoriteCount: count(),
+            })
+            .from(wishlists)
+            .innerJoin(books, eq(wishlists.bookId, books.id))
+        : db
+            .select({
+              bookId: wishlists.bookId,
+              favoriteCount: count(),
+            })
+            .from(wishlists)
+    )
       .groupBy(wishlists.bookId)
       .orderBy(desc(count()))
       .limit(limit)
       .offset(offset);
 
-    const favoriteRows = dateFilter
-      ? await favoriteQuery.where(dateFilter)
+    const favoriteRows = where
+      ? await favoriteQuery.where(where)
       : await favoriteQuery;
 
     if (favoriteRows.length === 0) {

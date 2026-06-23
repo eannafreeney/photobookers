@@ -6,10 +6,7 @@ import {
   wishlists,
   type CreatorType,
 } from "../../db/schema";
-import {
-  findCollectionCounts,
-  findWishlistCounts,
-} from "../api/services";
+import { findCollectionCounts, findWishlistCounts } from "../api/services";
 import {
   findBookViewCounts,
   getCreatorBookViewTotal,
@@ -22,10 +19,7 @@ import {
   getCreatorPurchaseClickTotal,
   getPurchaseClickTotals,
 } from "../purchase-clicks/services";
-import {
-  buildCreatedAtFilter,
-  type AnalyticsDateRange,
-} from "./dateRange";
+import { buildCreatedAtFilter, type AnalyticsDateRange } from "./dateRange";
 
 export type BookFunnelCounts = {
   views: number;
@@ -36,6 +30,13 @@ export type BookFunnelCounts = {
 
 export type CatalogueFunnelTotals = BookFunnelCounts & {
   clickRate: number | null;
+};
+
+export type CatalogueFunnelTotalsWithBooks = {
+  totals: CatalogueFunnelTotals & {
+    bookwWithViews: number;
+    bookWithClicks: number;
+  };
 };
 
 export function formatClickRate(views: number, clicks: number): string | null {
@@ -96,14 +97,12 @@ async function getCreatorCatalogueEngagementTotal(
     .select({ value: count() })
     .from(table)
     .innerJoin(books, eq(table.bookId, books.id))
-    .where(
-      or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)),
-    );
+    .where(or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)));
 
   return result[0]?.value ?? 0;
 }
 
-function withClickRate(totals: BookFunnelCounts): CatalogueFunnelTotals {
+export function withClickRate(totals: BookFunnelCounts): CatalogueFunnelTotals {
   return {
     ...totals,
     clickRate:

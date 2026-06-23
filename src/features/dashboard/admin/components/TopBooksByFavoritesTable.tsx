@@ -1,32 +1,40 @@
-import Link from "../../../../../components/app/Link";
-import SectionTitle from "../../../../../components/app/SectionTitle";
-import Table from "../../../../../components/app/Table";
-import ListNavigation from "../../../../app/components/ListNavigation";
-import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
-import { getTopBooksByFavorites } from "../../../../book-analytics/engagement";
+import Link from "../../../../components/app/Link";
+import SectionTitle from "../../../../components/app/SectionTitle";
+import Table from "../../../../components/app/Table";
+import ListNavigation from "../../../app/components/ListNavigation";
 import WindowTable from "./WindowTable";
 
+type TopBookByFavoritesRow = {
+  bookId: string;
+  title: string;
+  slug: string;
+  coverUrl: string | null;
+  favoriteCount: number;
+  artistName: string | null;
+  publisherName: string | null;
+};
+
 type Props = {
-  dateRange: AnalyticsDateRange | null;
   currentPath: string;
-  currentPage: number;
   pageParam: string;
+  books: TopBookByFavoritesRow[];
+  totalPages: number;
+  page: number;
+  targetId: string;
+  navId: string;
 };
 
 const TopBooksByFavoritesTable = async ({
-  dateRange,
   currentPath,
-  currentPage,
   pageParam,
+  books,
+  totalPages,
+  page,
+  targetId,
+  navId,
 }: Props) => {
-  const [error, result] = await getTopBooksByFavorites(dateRange, currentPage);
-  if (error) return <div>{error.reason}</div>;
-
-  const targetId = "analytics-top-books-by-favorites";
-  const { books, totalPages, page } = result;
-
   return (
-    <>
+    <div>
       <SectionTitle>Top books by favorites</SectionTitle>
       <WindowTable>
         <Table>
@@ -76,10 +84,10 @@ const TopBooksByFavoritesTable = async ({
           totalPages={totalPages}
           targetId={targetId}
           pageParam={pageParam}
-          navId="pagination-top-books-by-favorites-table"
+          navId={navId}
         />
       </WindowTable>
-    </>
+    </div>
   );
 };
 

@@ -9,14 +9,14 @@ import {
   parseAnalyticsDateRange,
   presetAnalyticsDateRange,
 } from "../../../../features/book-analytics/dateRange";
-import AnalyticsDateRangeFilter from "../../../../features/dashboard/admin/analytics/components/AnalyticsDateRangeFilter";
-import AnalyticsOverview from "../../../../features/dashboard/admin/analytics/components/AnalyticsOverview";
-import AnalyticsSourceBreakdown from "../../../../features/dashboard/admin/analytics/components/AnalyticsSourceBreakdown";
-import AnalyticsTrendCharts from "../../../../features/dashboard/admin/analytics/components/AnalyticsTrendChart";
-import TopBooksTable from "../../../../features/dashboard/admin/analytics/components/TopBooksTable";
-import TopBooksByViewsTable from "../../../../features/dashboard/admin/analytics/components/TopBooksByViewsTable";
+import AnalyticsDateRangeFilter from "../../../../features/dashboard/components/AnalyticsDateRangeFilter";
+import AnalyticsOverviewSection from "../../../../features/dashboard/components/AnalyticsOverviewSection";
+import AnalyticsSourceBreakdownSection from "../../../../features/dashboard/components/AnalyticsSourceBreakdownSection";
+import AnalyticsTrendChartsSection from "../../../../features/dashboard/components/AnalyticsTrendChartsSection";
+import TopBooksByClicksSection from "../../../../features/dashboard/components/TopBooksByClicksSection";
+import TopBooksByFavoritesSection from "../../../../features/dashboard/components/TopBooksByFavoritesSection";
+import TopBooksByViewsSection from "../../../../features/dashboard/components/TopBooksByViewsSection";
 import TopCreatorsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsTable";
-import TopBooksByFavoritesTable from "../../../../features/dashboard/admin/analytics/components/TopBooksByFavoritesTable";
 import TopCreatorsByFollowsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsByFollowsTable";
 import { paginationRequestBaseUrl } from "../../../../lib/pagination";
 
@@ -71,21 +71,24 @@ export const GET = createRoute(async (c: Context) => {
           <div class="flex flex-col gap-12">
             <div class="flex flex-col gap-6">
               <SectionTitle>Book analytics</SectionTitle>
-              <AnalyticsDateRangeFilter dateRange={dateRange} />
+              <AnalyticsDateRangeFilter
+                dateRange={dateRange}
+                basePath="/dashboard/admin/analytics"
+              />
             </div>
-            <AnalyticsOverview dateRange={dateRange} />
-            <AnalyticsTrendCharts
+            <AnalyticsOverviewSection dateRange={dateRange} />
+            <AnalyticsTrendChartsSection
               chartRange={chartRange}
               dateRange={dateRange}
             />
-            <AnalyticsSourceBreakdown dateRange={dateRange} />
-            <TopBooksByViewsTable
+            <AnalyticsSourceBreakdownSection dateRange={dateRange} />
+            <TopBooksByViewsSection
               dateRange={dateRange}
               currentPath={viewsPaginationBaseUrl}
               currentPage={viewsPage}
               pageParam="viewsPage"
             />
-            <TopBooksTable
+            <TopBooksByClicksSection
               dateRange={dateRange}
               currentPath={bookPaginationBaseUrl}
               currentPage={bookPage}
@@ -107,7 +110,7 @@ export const GET = createRoute(async (c: Context) => {
               currentPage={artistPage}
               pageParam="artistPage"
             />
-            <TopBooksByFavoritesTable
+            <TopBooksByFavoritesSection
               dateRange={dateRange}
               currentPath={favoritesPaginationBaseUrl}
               currentPage={favoritesPage}

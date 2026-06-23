@@ -1,28 +1,41 @@
-import SectionTitle from "../../../../../components/app/SectionTitle";
+import SectionTitle from "../../../components/app/SectionTitle";
 import {
   formatAnalyticsDateRangeLabel,
   type AnalyticsDateRange,
-} from "../../../../book-analytics/dateRange";
+} from "../../book-analytics/dateRange";
+import {
+  getCreatorDailyFunnelTrends,
+  getCreatorDailySourceTrends,
+  type CreatorAnalyticsScope,
+} from "../../book-analytics/creatorAnalytics";
 import {
   getDailyFunnelTrends,
   getDailySourceTrends,
-} from "../../../../book-analytics/trends";
+} from "../../book-analytics/trends";
 
 type Props = {
   chartRange: AnalyticsDateRange;
   dateRange: AnalyticsDateRange | null;
+  scope?: CreatorAnalyticsScope | null;
 };
 
 const CHART_WIDTH = 800;
 const CHART_HEIGHT = 240;
 const PADDING = { top: 16, right: 16, bottom: 32, left: 48 };
 
-const FUNNEL_SERIES = [
+const ADMIN_FUNNEL_SERIES = [
   { key: "views" as const, label: "Views", color: "#1d4ed8" },
   { key: "clicks" as const, label: "Outbound clicks", color: "#b91c1c" },
   { key: "wishlists" as const, label: "Wishlists", color: "#c026d3" },
   { key: "collections" as const, label: "Collections", color: "#047857" },
   { key: "follows" as const, label: "Follows", color: "#d97706" },
+];
+
+const CREATOR_FUNNEL_SERIES = [
+  { key: "views" as const, label: "Views", color: "#1d4ed8" },
+  { key: "clicks" as const, label: "Outbound clicks", color: "#b91c1c" },
+  { key: "wishlists" as const, label: "Wishlists", color: "#c026d3" },
+  { key: "collections" as const, label: "Collections", color: "#047857" },
 ];
 
 const SOURCE_SERIES = [
@@ -32,14 +45,24 @@ const SOURCE_SERIES = [
   { key: "clicksHyperview" as const, label: "iOS clicks", color: "#6d28d9" },
 ];
 
-const AnalyticsTrendCharts = async ({ chartRange, dateRange }: Props) => {
-  const [funnelPoints, sourcePoints] = await Promise.all([
-    getDailyFunnelTrends(chartRange),
-    getDailySourceTrends(chartRange),
-  ]);
+const AnalyticsTrendChartsSection = async ({
+  chartRange,
+  dateRange,
+  scope = null,
+}: Props) => {
+  const [funnelPoints, sourcePoints] = scope
+    ? await Promise.all([
+        getCreatorDailyFunnelTrends(scope, chartRange),
+        getCreatorDailySourceTrends(scope, chartRange),
+      ])
+    : await Promise.all([
+        getDailyFunnelTrends(chartRange),
+        getDailySourceTrends(chartRange),
+      ]);
 
   const periodLabel = formatAnalyticsDateRangeLabel(dateRange ?? chartRange);
-  const chartNote = dateRange === null ? " (last 90 days)" : "";
+  const chartNote = dateRange === null ? (scope ? " (last 30 days)" : " (last 90 days)") : "";
+  const funnelSeries = scope ? CREATOR_FUNNEL_SERIES : ADMIN_FUNNEL_SERIES;
 
   return (
     <div class="flex flex-col gap-8">
@@ -47,7 +70,7 @@ const AnalyticsTrendCharts = async ({ chartRange, dateRange }: Props) => {
         title={`Daily funnel trends${chartNote}`}
         subtitle={periodLabel}
         points={funnelPoints}
-        series={FUNNEL_SERIES}
+        series={funnelSeries}
       />
       <ChartBlock
         title={`Daily source trends${chartNote}`}
@@ -211,4 +234,4 @@ function formatShortDate(date: string): string {
   return `${Number(month)}/${Number(day)}`;
 }
 
-export default AnalyticsTrendCharts;
+export default AnalyticsTrendChartsSection;

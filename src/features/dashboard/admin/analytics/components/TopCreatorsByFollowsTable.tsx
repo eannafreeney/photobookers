@@ -5,7 +5,7 @@ import { capitalize } from "../../../../../utils";
 import ListNavigation from "../../../../app/components/ListNavigation";
 import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
 import { getTopCreatorsByFollows } from "../../../../book-analytics/engagement";
-import WindowTable from "./WindowTable";
+import WindowTable from "../../components/WindowTable";
 
 type Props = {
   dateRange: AnalyticsDateRange | null;
@@ -27,7 +27,7 @@ const TopCreatorsByFollowsTable = async ({
   const { creators, totalPages, page } = result;
 
   return (
-    <>
+    <div>
       <SectionTitle>Top creators by follows</SectionTitle>
       <WindowTable>
         <Table>
@@ -78,7 +78,7 @@ const TopCreatorsByFollowsTable = async ({
           navId="pagination-top-creators-by-follows-table"
         />
       </WindowTable>
-    </>
+    </div>
   );
 };
 

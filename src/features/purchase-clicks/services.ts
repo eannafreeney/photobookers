@@ -178,22 +178,48 @@ function isNotNullArtist() {
   return sql`${books.artistId} IS NOT NULL`;
 }
 
+export type TopBooksByClicksScope = {
+  creatorId: string;
+  creatorType: CreatorType;
+};
+
+function scopeBookFilter(scope: TopBooksByClicksScope) {
+  const column =
+    scope.creatorType === "publisher" ? books.publisherId : books.artistId;
+  return eq(column, scope.creatorId);
+}
+
 export const getTopBooksByClicks = async (
   range?: AnalyticsDateRange | null,
   currentPage: number = 1,
   defaultLimit = 10,
+  scope?: TopBooksByClicksScope | null,
 ) => {
   try {
     const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
+    const scopeFilter = scope ? scopeBookFilter(scope) : undefined;
+    const where =
+      scopeFilter && dateFilter
+        ? and(scopeFilter, dateFilter)
+        : (scopeFilter ?? dateFilter);
 
-    const countQuery = db
-      .select({
-        value: sql<number>`count(distinct ${purchaseClicks.bookId})`,
-      })
-      .from(purchaseClicks);
+    const countQuery = (
+      scope
+        ? db
+            .select({
+              value: sql<number>`count(distinct ${purchaseClicks.bookId})`,
+            })
+            .from(purchaseClicks)
+            .innerJoin(books, eq(purchaseClicks.bookId, books.id))
+        : db
+            .select({
+              value: sql<number>`count(distinct ${purchaseClicks.bookId})`,
+            })
+            .from(purchaseClicks)
+    );
 
-    const [{ value: totalCount = 0 }] = dateFilter
-      ? await countQuery.where(dateFilter)
+    const [{ value: totalCount = 0 }] = where
+      ? await countQuery.where(where)
       : await countQuery;
 
     const { page, limit, offset, totalPages } = getPagination(
@@ -206,20 +232,28 @@ export const getTopBooksByClicks = async (
       return ok({ books: [], totalPages: 1, page: 1 });
     }
 
-    const clickQuery = db
-      .select({
-        bookId: purchaseClicks.bookId,
-        clickCount: count(),
-      })
-      .from(purchaseClicks)
+    const clickQuery = (
+      scope
+        ? db
+            .select({
+              bookId: purchaseClicks.bookId,
+              clickCount: count(),
+            })
+            .from(purchaseClicks)
+            .innerJoin(books, eq(purchaseClicks.bookId, books.id))
+        : db
+            .select({
+              bookId: purchaseClicks.bookId,
+              clickCount: count(),
+            })
+            .from(purchaseClicks)
+    )
       .groupBy(purchaseClicks.bookId)
       .orderBy(desc(count()))
       .limit(limit)
       .offset(offset);
 
-    const clickRows = dateFilter
-      ? await clickQuery.where(dateFilter)
-      : await clickQuery;
+    const clickRows = where ? await clickQuery.where(where) : await clickQuery;
 
     if (clickRows.length === 0) {
       return ok({ books: [], totalPages, page });
@@ -255,7 +289,7 @@ export const getTopBooksByClicks = async (
         const book = bookById.get(clickRow.bookId);
         if (!book) return null;
         return {
-          bookId: book.id,
+          id: book.id,
           title: book.title,
           slug: book.slug,
           coverUrl: book.coverUrl,
