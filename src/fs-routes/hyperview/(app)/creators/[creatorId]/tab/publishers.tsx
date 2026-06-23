@@ -2,14 +2,16 @@ import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { getCreatorsByCreatorId } from "../../../../../../features/app/services";
 import { hyperview } from "../../../../../../lib/hxml";
-import { Text } from "../../../../../../lib/hxml-comps";
+import { Style, Text, View } from "../../../../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { getUser } from "../../../../../../utils";
 import { followFlagsForCreators } from "../../../../../../features/hyperview/findFlags";
 import CreatorCard from "../../../../../../features/hyperview/components/CreatorCard";
 import { creatorIdSchema } from "../../../../../../schemas";
 import SpotlightCreatorLink from "../../../../../../features/app/components/SpotlightCreatorLink";
-import SpotlightCreatorRow from "../../../../../../features/hyperview/components/spotlight/SpotlightCreatorRow";
+import SpotlightCreatorRow, {
+  spotlightCreatorRowStyles,
+} from "../../../../../../features/hyperview/components/spotlight/SpotlightCreatorRow";
 import { Creator } from "../../../../../../db/schema";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
@@ -43,14 +45,23 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
   return hv(
     <view xmlns="https://hyperview.org/hyperview">
-      {creators?.map((publisher) => (
-        <SpotlightCreatorRow
-          creator={publisher}
-          role="Publisher"
-          baseUrl={baseUrl}
-          isFollowing={followingByCreatorId[publisher.id] ?? false}
-        />
-      ))}
+      <View style="related-creators-list">
+        {creators?.map((publisher) => (
+          <SpotlightCreatorRow
+            creator={publisher}
+            role="Publisher"
+            baseUrl={baseUrl}
+            isFollowing={followingByCreatorId[publisher.id] ?? false}
+          />
+        ))}
+      </View>
     </view>,
   );
 });
+
+export const publishersListStyles = () => (
+  <>
+    <Style id="related-creators-list" flexDirection="column" gap={12} />
+    {spotlightCreatorRowStyles()}
+  </>
+);

@@ -2,12 +2,15 @@ import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { getCreatorsByCreatorId } from "../../../../../../features/app/services";
 import { hyperview } from "../../../../../../lib/hxml";
-import { Text } from "../../../../../../lib/hxml-comps";
+import { Style, Text, View } from "../../../../../../lib/hxml-comps";
 import { getUser } from "../../../../../../utils";
 import { followFlagsForCreators } from "../../../../../../features/hyperview/findFlags";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import RelatedCreatorsList from "../../../../../../features/hyperview/components/RelatedCreatorsList";
 import { creatorIdSchema } from "../../../../../../schemas";
+import SpotlightCreatorRow, {
+  spotlightCreatorRowStyles,
+} from "../../../../../../features/hyperview/components/spotlight/SpotlightCreatorRow";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -46,15 +49,16 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   }
 
   const list = (
-    <RelatedCreatorsList
-      creators={creators}
-      role="Artist"
-      baseUrl={baseUrl}
-      page={currentPage}
-      hasMore={hasMore}
-      loadMoreHref={loadMoreHref}
-      followingByCreatorId={followingByCreatorId}
-    />
+    <View style="related-creators-list">
+      {creators?.map((artist) => (
+        <SpotlightCreatorRow
+          creator={artist}
+          role="Artist"
+          baseUrl={baseUrl}
+          isFollowing={followingByCreatorId[artist.id] ?? false}
+        />
+      ))}
+    </View>
   );
 
   if (currentPage > 1) {
@@ -63,3 +67,10 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
   return hv(list);
 });
+
+export const artistsListStyles = () => (
+  <>
+    <Style id="related-creators-list" flexDirection="column" gap={12} />
+    {spotlightCreatorRowStyles()}
+  </>
+);

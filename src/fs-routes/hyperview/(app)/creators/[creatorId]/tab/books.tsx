@@ -25,6 +25,8 @@ import CreatorBanner, {
 } from "../../../../../../features/hyperview/components/CreatorBanner";
 import ErrorScreen from "../../../../../../features/hyperview/components/ErrorScreen";
 import { spotlightCreatorRowStyles } from "../../../../../../features/hyperview/components/spotlight/SpotlightCreatorRow";
+import { publishersListStyles } from "./publishers";
+import { artistsListStyles } from "./artists";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -190,7 +192,8 @@ const pageStyles = () => (
     {creatorTabStyles()}
     {creatorPageStyles()}
     {relatedCreatorsListStyles()}
-    {spotlightCreatorRowStyles()}
+    {publishersListStyles()}
+    {artistsListStyles()}
     {creatorBannerStyles()}
   </>
 );
