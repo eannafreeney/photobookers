@@ -1,6 +1,8 @@
 import { CreatorCardResult } from "../../../constants/queries";
 import { Spinner, Style } from "../../../lib/hxml-comps";
-import SpotlightCreatorRow from "./spotlight/SpotlightCreatorRow";
+import SpotlightCreatorRow, {
+  spotlightCreatorRowStyles,
+} from "./spotlight/SpotlightCreatorRow";
 
 export const RELATED_CREATORS_LOAD_MORE_ID = "related-creators-load-more";
 
@@ -62,5 +64,6 @@ export const relatedCreatorsListStyles = () => (
       paddingTop={16}
       paddingBottom={16}
     />
+    {spotlightCreatorRowStyles()}
   </>
 );
