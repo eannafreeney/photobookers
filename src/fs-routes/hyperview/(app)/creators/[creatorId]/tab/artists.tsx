@@ -24,7 +24,6 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
     creatorId,
     "publisher",
     currentPage,
-    3,
   );
 
   if (error || !result) {

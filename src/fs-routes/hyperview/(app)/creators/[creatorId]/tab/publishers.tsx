@@ -23,7 +23,6 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
     creatorId,
     "artist",
     currentPage,
-    3,
   );
 
   if (error || !result) {
