@@ -1,4 +1,4 @@
-import type { BookFair, FairAttendeeStatus } from "../../../../db/schema";
+import type { BookFair } from "../../../../db/schema";
 import type { AuthUser } from "../../../../../types";
 import Button from "../../../../components/app/Button";
 import Link from "../../../../components/app/Link";
@@ -14,13 +14,13 @@ type FairAttendButtonProps = {
     "id" | "status" | "approvalStatus" | "endDate" | "startDate"
   >;
   user: AuthUser | null;
-  attendanceStatus: FairAttendeeStatus | null;
+  isAttending: boolean;
 };
 
 const FairAttendButton = ({
   fair,
   user,
-  attendanceStatus,
+  isAttending,
 }: FairAttendButtonProps) => {
   const today = new Date(new Date().setHours(0, 0, 0, 0));
   const isPastFair = new Date(fair.endDate) < today;
@@ -35,7 +35,7 @@ const FairAttendButton = ({
     "@ajax:before": "isSubmitting = true",
     "@ajax:after": "isSubmitting = false",
     "@ajax:error": "isSubmitting = false",
-    "x-target": `${buttonId} toast modal-root`,
+    "x-target": `${buttonId} fair-attending-creators toast modal-root`,
     "x-target.error": "toast modal-root",
     "x-target.401": "modal-root",
   };
@@ -74,32 +74,8 @@ const FairAttendButton = ({
     );
   }
 
-  if (attendanceStatus === "pending") {
-    return (
-      <div id={buttonId} class="pt-4 flex justify-center">
-        <span class="px-4 py-2 text-sm font-medium text-on-surface-muted border border-outline rounded-radius">
-          Pending approval
-        </span>
-      </div>
-    );
-  }
-
-  if (attendanceStatus === "rejected") {
-    return (
-      <div id={buttonId} class="pt-4 flex justify-center">
-        <span class="px-4 py-2 text-sm font-medium text-on-surface-muted border border-outline rounded-radius">
-          Attendance not approved
-        </span>
-      </div>
-    );
-  }
-
-  if (attendanceStatus === "approved") {
-    const canWithdraw = canWithdrawFairAttendance(
-      user,
-      fair,
-      user.creator.id,
-    );
+  if (isAttending) {
+    const canWithdraw = canWithdrawFairAttendance(user, fair, user.creator.id);
 
     return (
       <div id={buttonId} class="pt-4 flex flex-col items-center gap-2">
@@ -110,7 +86,7 @@ const FairAttendButton = ({
           <FormDelete action={action} {...alpineAttrs}>
             <button
               type="submit"
-              class="text-sm text-on-surface-muted hover:text-accent underline underline-offset-4"
+              class="text-sm text-on-surface-muted hover:text-accent underline underline-offset-4 cursor-pointer"
             >
               Withdraw
             </button>

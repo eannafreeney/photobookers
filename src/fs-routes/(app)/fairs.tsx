@@ -15,10 +15,10 @@ import {
 } from "../../features/app/fairs/services";
 import FairsWithTabs from "../../features/app/fairs/components/FairsWithTabs";
 import FairsCalendar from "../../features/app/fairs/components/FairsCalendar";
-import FairsSearchForm from "../../features/app/fairs/components/FairsSearchForm";
 import FairsGrid from "../../features/app/fairs/components/FairsGrid";
-import Link from "../../components/app/Link";
 import { pageTitle, canonicalUrl } from "../../lib/seo";
+import SectionTitle from "../../components/app/SectionTitle";
+import ViewAllLink from "../../features/app/components/ViewAllLink";
 
 type ViewSwitcherProps = {
   currentView: "grid" | "calendar";
@@ -61,7 +61,10 @@ export const GET = createRoute(async (c: Context) => {
   }
 
   const view = (c.req.query("view") ?? "grid") as "grid" | "calendar";
-  const tab = (c.req.query("tab") ?? "upcoming") as "upcoming" | "current" | "past";
+  const tab = (c.req.query("tab") ?? "upcoming") as
+    | "upcoming"
+    | "current"
+    | "past";
   const page = Number(c.req.query("page") ?? 1);
 
   // Search parameters
@@ -101,11 +104,11 @@ export const GET = createRoute(async (c: Context) => {
         currentPath={currentPath}
       >
         <Page>
-          <PageHeader
-            kicker="Days Out!"
-            title="Book Fairs"
-            intro="Discover photobook fairs around the world"
-          />
+          <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
+            <SectionTitle className="mb-0" kicker="Days Out!">
+              Book Fairs
+            </SectionTitle>
+          </div>
           {/* <FairsSearchForm
             query={query}
             city={city}
@@ -172,14 +175,12 @@ export const GET = createRoute(async (c: Context) => {
         currentPath={currentPath}
       >
         <Page>
-          <PageHeader
-            kicker="Days Out!"
-            title="Book Fairs"
-            intro="Discover photobook fairs around the world"
-          />
-          <div id="fairs-content">
-            {calendarContent}
+          <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
+            <SectionTitle className="mb-0" kicker="Days Out!">
+              Book Fairs
+            </SectionTitle>
           </div>
+          <div id="fairs-content">{calendarContent}</div>
         </Page>
       </AppLayout>,
     );
@@ -249,14 +250,12 @@ export const GET = createRoute(async (c: Context) => {
       currentPath={currentPath}
     >
       <Page>
-        <PageHeader
-          kicker="Days Out!"
-          title="Book Fairs"
-          intro="Discover photobook fairs around the world"
-        />
-        <div id="fairs-content">
-          {gridContent}
+        <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
+          <SectionTitle className="mb-0" kicker="Days Out!">
+            Book Fairs
+          </SectionTitle>
         </div>
+        <div id="fairs-content">{gridContent}</div>
       </Page>
     </AppLayout>,
   );

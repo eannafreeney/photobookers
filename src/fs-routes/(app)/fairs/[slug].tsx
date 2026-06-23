@@ -15,8 +15,8 @@ import {
   buildFairJsonLd,
 } from "../../../lib/seo";
 import { recordFairView } from "../../../features/fair-views/services";
-import { getAttendanceForCreator } from "../../../features/fair-attendees/services";
-import type { FairAttendeeStatus } from "../../../db/schema";
+import { isCreatorAttendingFair } from "../../../features/fair-attendees/services";
+import { getIsMobile } from "../../../lib/device";
 
 const slugSchema = z.object({
   slug: z.string(),
@@ -28,6 +28,7 @@ export const GET = createRoute(
     const user = await getUser(c);
     const currentPath = c.req.path;
     const slug = c.req.param("slug");
+    const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
     if (!isFeatureEnabledForUser("fairs", user)) {
       return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
@@ -59,14 +60,14 @@ export const GET = createRoute(
       });
     }
 
-    let attendanceStatus: FairAttendeeStatus | null = null;
+    let isAttending = false;
     if (user?.creator) {
-      const [attendanceError, attendance] = await getAttendanceForCreator(
+      const [attendingError, attending] = await isCreatorAttendingFair(
         fair.id,
         user.creator.id,
       );
-      if (!attendanceError && attendance) {
-        attendanceStatus = attendance.status;
+      if (!attendingError) {
+        isAttending = attending;
       }
     }
 
@@ -78,18 +79,8 @@ export const GET = createRoute(
     );
 
     const fairJsonLd = buildFairJsonLd({
-      name: fair.name,
-      description: fair.description,
-      slug: fair.slug,
-      coverUrl: fair.coverUrl,
-      bannerUrl: fair.bannerUrl,
+      ...fair,
       canonicalUrl: fairCanonicalUrl,
-      startDate: fair.startDate,
-      endDate: fair.endDate,
-      city: fair.city,
-      country: fair.country,
-      venue: fair.venue,
-      website: fair.website,
     });
 
     return c.html(
@@ -110,7 +101,8 @@ export const GET = createRoute(
         <FairDetail
           fair={fair}
           user={user}
-          attendanceStatus={attendanceStatus}
+          isAttending={isAttending}
+          isMobile={isMobile}
         />
       </AppLayout>,
     );

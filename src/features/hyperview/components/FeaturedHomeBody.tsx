@@ -32,12 +32,10 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
     getThisWeeksPublisherOfTheWeek(),
   ]);
 
-  if (artistErr || publisherErr) return <></>;
-
   const spotlightItems = getSpotlightItems(
     botdErr ? null : botdData,
-    artistData,
-    publisherData,
+    artistErr ? null : artistData,
+    publisherErr ? null : publisherData,
     baseUrl,
   );
 
@@ -49,6 +47,11 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
       <FeaturedSpotlightCarousel items={spotlightItems} />
       <SecondaryButtonLink label="View this week →" href={thisWeekHref} />
       <NewsletterCard baseUrl={baseUrl} />
+      <LazyLoader
+        id="fairs-loader"
+        href={`${baseUrl}/hyperview/featured/tab/fairs`}
+        style="featured-tab-loader"
+      />
       <LazyLoader
         id="interviews-loader"
         href={`${baseUrl}/hyperview/featured/tab/interviews`}

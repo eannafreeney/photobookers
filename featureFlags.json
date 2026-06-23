@@ -2,5 +2,5 @@
   "messages": true,
   "comments": true,
   "interviews": false,
-  "fairs": false
+  "fairs": true
 }

@@ -128,28 +128,6 @@ export const getFairBySlug = async (slug: string) => {
   try {
     const fair = await db.query.bookFairs.findFirst({
       where: eq(bookFairs.slug, slug),
-      with: {
-        attendees: {
-          where: eq(fairAttendees.status, "approved"),
-          with: {
-            creator: {
-              columns: {
-                id: true,
-                displayName: true,
-                slug: true,
-                type: true,
-                coverUrl: true,
-                city: true,
-                country: true,
-                status: true,
-              },
-            },
-          },
-          orderBy: (fairAttendees, { asc }) => [
-            asc(fairAttendees.createdAt),
-          ],
-        },
-      },
     });
 
     if (!fair) return err({ reason: "Fair not found" });
