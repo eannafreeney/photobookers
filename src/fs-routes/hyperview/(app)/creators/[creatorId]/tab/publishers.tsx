@@ -2,17 +2,15 @@ import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { getCreatorsByCreatorId } from "../../../../../../features/app/services";
 import { hyperview } from "../../../../../../lib/hxml";
-import { Style, Text, View } from "../../../../../../lib/hxml-comps";
+import { Style, Text } from "../../../../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { getUser } from "../../../../../../utils";
 import { followFlagsForCreators } from "../../../../../../features/hyperview/findFlags";
-import CreatorCard from "../../../../../../features/hyperview/components/CreatorCard";
+import RelatedCreatorsList, {
+  relatedCreatorsListStyles,
+} from "../../../../../../features/hyperview/components/RelatedCreatorsList";
 import { creatorIdSchema } from "../../../../../../schemas";
-import SpotlightCreatorLink from "../../../../../../features/app/components/SpotlightCreatorLink";
-import SpotlightCreatorRow, {
-  spotlightCreatorRowStyles,
-} from "../../../../../../features/hyperview/components/spotlight/SpotlightCreatorRow";
-import { Creator } from "../../../../../../db/schema";
+import { followButtonStyles } from "../../../../../../features/hyperview/components/FollowButton";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -37,24 +35,41 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
     );
   }
 
-  const { creators } = result;
+  const { creators, totalPages = 1 } = result;
+  const hasMore = currentPage < totalPages;
+  const loadMoreHref = `${baseUrl}/hyperview/creators/${creatorId}/tab/publishers`;
   const followingByCreatorId = await followFlagsForCreators(
     user,
     creators ?? [],
   );
 
+  if (currentPage === 1 && creators.length === 0) {
+    return hv(
+      <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
+        <Text style="comments-placeholder">No publishers found.</Text>
+      </view>,
+    );
+  }
+
+  const list = (
+    <RelatedCreatorsList
+      creators={creators}
+      role="Publisher"
+      baseUrl={baseUrl}
+      page={currentPage}
+      hasMore={hasMore}
+      loadMoreHref={loadMoreHref}
+      followingByCreatorId={followingByCreatorId}
+    />
+  );
+
+  if (currentPage > 1) {
+    return hv(<view xmlns="https://hyperview.org/hyperview">{list}</view>);
+  }
+
   return hv(
-    <view xmlns="https://hyperview.org/hyperview">
-      <View style="related-creators-list">
-        {creators?.map((publisher) => (
-          <SpotlightCreatorRow
-            creator={publisher}
-            role="Publisher"
-            baseUrl={baseUrl}
-            isFollowing={followingByCreatorId[publisher.id] ?? false}
-          />
-        ))}
-      </View>
+    <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
+      {list}
     </view>,
   );
 });
@@ -62,6 +77,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 export const publishersListStyles = () => (
   <>
     <Style id="related-creators-list" flexDirection="column" gap={12} />
-    {spotlightCreatorRowStyles()}
+    {relatedCreatorsListStyles()}
+    {followButtonStyles()}
   </>
 );
