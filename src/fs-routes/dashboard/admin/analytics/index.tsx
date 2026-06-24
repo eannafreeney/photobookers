@@ -9,16 +9,9 @@ import {
   parseAnalyticsDateRange,
   presetAnalyticsDateRange,
 } from "../../../../features/book-analytics/dateRange";
-import AnalyticsDateRangeFilter from "../../../../features/dashboard/components/AnalyticsDateRangeFilter";
-import AnalyticsOverviewSection from "../../../../features/dashboard/components/AnalyticsOverviewSection";
-import AnalyticsSourceBreakdownSection from "../../../../features/dashboard/components/AnalyticsSourceBreakdownSection";
-import AnalyticsTrendChartsSection from "../../../../features/dashboard/components/AnalyticsTrendChartsSection";
-import TopBooksByClicksSection from "../../../../features/dashboard/components/TopBooksByClicksSection";
-import TopBooksByFavoritesSection from "../../../../features/dashboard/components/TopBooksByFavoritesSection";
-import TopBooksByViewsSection from "../../../../features/dashboard/components/TopBooksByViewsSection";
-import TopCreatorsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsTable";
-import TopCreatorsByFollowsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsByFollowsTable";
-import SiteTrafficBlock from "../../../../features/dashboard/admin/analytics/components/SiteTrafficBlock";
+import AdminAnalyticsPanel from "../../../../features/dashboard/admin/analytics/components/AdminAnalyticsPanel";
+import { parseAnalyticsSectionTab } from "../../../../features/dashboard/admin/analytics/components/AnalyticsSectionTabs";
+import { ADMIN_ANALYTICS_FRAGMENT } from "../../../../features/dashboard/admin/analytics/adminAnalyticsPanel";
 import { paginationRequestBaseUrl } from "../../../../lib/pagination";
 
 export const GET = createRoute(async (c: Context) => {
@@ -26,7 +19,6 @@ export const GET = createRoute(async (c: Context) => {
   const flash = await getFlash(c);
   const publisherPage = Number(c.req.query("publisherPage") ?? 1);
   const viewsPage = Number(c.req.query("viewsPage") ?? 1);
-
   const bookPage = Number(c.req.query("bookPage") ?? 1);
   const artistPage = Number(c.req.query("artistPage") ?? 1);
   const favoritesPage = Number(c.req.query("favoritesPage") ?? 1);
@@ -59,6 +51,31 @@ export const GET = createRoute(async (c: Context) => {
     c.req.query("to"),
   );
   const chartRange = dateRange ?? presetAnalyticsDateRange(30);
+  const tab = parseAnalyticsSectionTab(c.req.query("tab"));
+
+  const panel = (
+    <AdminAnalyticsPanel
+      tab={tab}
+      dateRange={dateRange}
+      chartRange={chartRange}
+      viewsPaginationBaseUrl={viewsPaginationBaseUrl}
+      viewsPage={viewsPage}
+      bookPaginationBaseUrl={bookPaginationBaseUrl}
+      bookPage={bookPage}
+      publisherPaginationBaseUrl={publisherPaginationBaseUrl}
+      publisherPage={publisherPage}
+      artistPaginationBaseUrl={artistPaginationBaseUrl}
+      artistPage={artistPage}
+      favoritesPaginationBaseUrl={favoritesPaginationBaseUrl}
+      favoritesPage={favoritesPage}
+      followsPaginationBaseUrl={followsPaginationBaseUrl}
+      followsPage={followsPage}
+    />
+  );
+
+  if (c.req.query("fragment") === ADMIN_ANALYTICS_FRAGMENT) {
+    return c.html(panel);
+  }
 
   return c.html(
     <AppLayout
@@ -70,60 +87,8 @@ export const GET = createRoute(async (c: Context) => {
       <Page>
         <Sidebar currentPath={currentPath}>
           <div class="flex flex-col gap-12">
-            <div class="flex flex-col gap-6">
-              <SectionTitle>Book analytics</SectionTitle>
-              <AnalyticsDateRangeFilter
-                dateRange={dateRange}
-                basePath="/dashboard/admin/analytics"
-              />
-            </div>
-            <AnalyticsOverviewSection dateRange={dateRange} />
-            <AnalyticsTrendChartsSection
-              chartRange={chartRange}
-              dateRange={dateRange}
-            />
-            <AnalyticsSourceBreakdownSection dateRange={dateRange} />
-            <TopBooksByViewsSection
-              dateRange={dateRange}
-              currentPath={viewsPaginationBaseUrl}
-              currentPage={viewsPage}
-              pageParam="viewsPage"
-            />
-            <TopBooksByClicksSection
-              dateRange={dateRange}
-              currentPath={bookPaginationBaseUrl}
-              currentPage={bookPage}
-              pageParam="bookPage"
-            />
-            <TopCreatorsTable
-              role="publisher"
-              title="Top publishers"
-              dateRange={dateRange}
-              currentPath={publisherPaginationBaseUrl}
-              currentPage={publisherPage}
-              pageParam="publisherPage"
-            />
-            <TopCreatorsTable
-              role="artist"
-              title="Top artists"
-              dateRange={dateRange}
-              currentPath={artistPaginationBaseUrl}
-              currentPage={artistPage}
-              pageParam="artistPage"
-            />
-            <TopBooksByFavoritesSection
-              dateRange={dateRange}
-              currentPath={favoritesPaginationBaseUrl}
-              currentPage={favoritesPage}
-              pageParam="favoritesPage"
-            />
-            <TopCreatorsByFollowsTable
-              dateRange={dateRange}
-              currentPath={followsPaginationBaseUrl}
-              currentPage={followsPage}
-              pageParam="followsPage"
-            />
-            <SiteTrafficBlock dateRange={dateRange} />
+            <SectionTitle>Analytics</SectionTitle>
+            {panel}
           </div>
         </Sidebar>
       </Page>

@@ -10,6 +10,8 @@ type Props = {
   dateRange: AnalyticsDateRange | null;
   basePath: string;
   partialUpdateTarget?: string;
+  tab?: string;
+  fragment?: string;
 };
 
 const PRESETS = [
@@ -30,7 +32,14 @@ const AnalyticsDateRangeFilter = ({
   dateRange,
   basePath,
   partialUpdateTarget,
+  tab,
+  fragment,
 }: Props) => {
+  const searchParams = (range: AnalyticsDateRange | null) =>
+    analyticsSearchParams(range, {
+      ...(tab ? { tab } : {}),
+      ...(fragment ? { fragment } : {}),
+    });
   const customFrom = dateRange ? toDateString(dateRange.from) : "";
   const customTo = dateRange ? toDateString(dateRange.to) : "";
 
@@ -40,8 +49,8 @@ const AnalyticsDateRangeFilter = ({
         {PRESETS.map((preset) => {
           const href =
             preset.days === null
-              ? basePath
-              : `${basePath}${analyticsSearchParams(
+              ? `${basePath}${searchParams(null)}`
+              : `${basePath}${searchParams(
                   presetAnalyticsDateRange(preset.days),
                 )}`;
           const active =
@@ -74,6 +83,10 @@ const AnalyticsDateRangeFilter = ({
         class="flex flex-wrap items-end justify-center gap-3"
         {...(partialUpdateTarget ? { "x-target": partialUpdateTarget } : {})}
       >
+        {tab ? <input type="hidden" name="tab" value={tab} /> : null}
+        {fragment ? (
+          <input type="hidden" name="fragment" value={fragment} />
+        ) : null}
         <label class="flex flex-col gap-1 text-sm text-on-surface">
           <span>From</span>
           <input

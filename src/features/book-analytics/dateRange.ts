@@ -50,13 +50,23 @@ export function formatAnalyticsDateRangeLabel(
   return `${formatOrdinalDate(range.from)} – ${formatOrdinalDate(range.to)}`;
 }
 
-export function analyticsSearchParams(range: AnalyticsDateRange | null): string {
-  if (!range) return "";
-  const params = new URLSearchParams({
-    from: toDateString(range.from),
-    to: toDateString(range.to),
-  });
-  return `?${params.toString()}`;
+export function analyticsSearchParams(
+  range: AnalyticsDateRange | null,
+  options?: { tab?: string; fragment?: string },
+): string {
+  const params = new URLSearchParams();
+  if (range) {
+    params.set("from", toDateString(range.from));
+    params.set("to", toDateString(range.to));
+  }
+  if (options?.tab) {
+    params.set("tab", options.tab);
+  }
+  if (options?.fragment) {
+    params.set("fragment", options.fragment);
+  }
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
 }
 
 export function matchesPreset(

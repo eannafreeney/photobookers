@@ -41,7 +41,7 @@ export const SiteTrafficEmptyTable = ({
 );
 
 export const siteTrafficDisclaimer =
-  "Web traffic from Google Analytics; may undercount due to ad blockers. Book metrics above are first-party.";
+  "Web traffic from Google Analytics; may undercount due to ad blockers.";
 
 export type SiteTrafficDataProps = {
   data: SiteTrafficDashboard;

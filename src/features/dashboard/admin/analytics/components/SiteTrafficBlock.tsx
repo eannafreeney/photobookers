@@ -1,4 +1,3 @@
-import SectionTitle from "../../../../../components/app/SectionTitle";
 import type { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
 import { getSiteTrafficDashboard } from "../../../../site-analytics/siteTraffic";
 import SiteTrafficAcquisitionTable from "./SiteTrafficAcquisitionTable";
@@ -21,10 +20,7 @@ const SiteTrafficBlock = async ({ dateRange }: Props) => {
 
   return (
     <div class="flex flex-col gap-12">
-      <div class="flex flex-col gap-2">
-        <SectionTitle>Site traffic</SectionTitle>
-        <p class="text-sm text-on-surface">{siteTrafficDisclaimer}</p>
-      </div>
+      <p class="text-sm text-on-surface">{siteTrafficDisclaimer}</p>
 
       {error ? (
         <div class="rounded-radius border border-outline bg-surface px-4 py-3 text-sm text-on-surface">
