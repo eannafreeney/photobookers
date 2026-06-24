@@ -18,6 +18,7 @@ import TopBooksByFavoritesSection from "../../../../features/dashboard/component
 import TopBooksByViewsSection from "../../../../features/dashboard/components/TopBooksByViewsSection";
 import TopCreatorsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsTable";
 import TopCreatorsByFollowsTable from "../../../../features/dashboard/admin/analytics/components/TopCreatorsByFollowsTable";
+import SiteTrafficBlock from "../../../../features/dashboard/admin/analytics/components/SiteTrafficBlock";
 import { paginationRequestBaseUrl } from "../../../../lib/pagination";
 
 export const GET = createRoute(async (c: Context) => {
@@ -122,6 +123,7 @@ export const GET = createRoute(async (c: Context) => {
               currentPage={followsPage}
               pageParam="followsPage"
             />
+            <SiteTrafficBlock dateRange={dateRange} />
           </div>
         </Sidebar>
       </Page>
