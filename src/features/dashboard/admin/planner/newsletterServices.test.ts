@@ -1,4 +1,51 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { WeeklyNewsletterBookItem } from "./newsletterTemplate";
+import type { WeeklyNewsletterNewMember } from "./newsletterTemplate";
+
+const {
+  creatorsFindManyMock,
+  artistOfTheWeekFindFirstMock,
+  publisherOfTheWeekFindFirstMock,
+  bookFairsFindFirstMock,
+  getBooksOfTheDayInRangeMock,
+} = vi.hoisted(() => ({
+  creatorsFindManyMock: vi.fn(),
+  artistOfTheWeekFindFirstMock: vi.fn(),
+  publisherOfTheWeekFindFirstMock: vi.fn(),
+  bookFairsFindFirstMock: vi.fn(),
+  getBooksOfTheDayInRangeMock: vi.fn(),
+}));
+
+vi.mock("../../../../db/client", () => ({
+  db: {
+    query: {
+      creators: {
+        findMany: creatorsFindManyMock,
+      },
+      artistOfTheWeek: {
+        findFirst: artistOfTheWeekFindFirstMock,
+      },
+      publisherOfTheWeek: {
+        findFirst: publisherOfTheWeekFindFirstMock,
+      },
+      bookFairs: {
+        findFirst: bookFairsFindFirstMock,
+      },
+      newsletterCampaigns: {
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
+      },
+    },
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+vi.mock("../../../app/BOTDServices", () => ({
+  getBooksOfTheDayInRange: getBooksOfTheDayInRangeMock,
+}));
+
 import { toWeekStart, toWeekString } from "../../../../lib/utils";
 import {
   formatNewsletterWeekRange,
@@ -9,8 +56,8 @@ import {
   isNewsletterSendDay,
   resolveNewsletterRangeStart,
 } from "./newsletterUtils";
-import type { WeeklyNewsletterBookItem } from "./newsletterTemplate";
 import { renderWeeklyBOTDNewsletterHtmlMjml } from "./newsletterTemplateMjml";
+import { buildWeeklyBOTDGeneratedContent as buildGeneratedContent } from "./newsletterServices";
 
 const sampleNewsletterParams = {
   weekStart: new Date(Date.UTC(2026, 4, 18)),
@@ -85,6 +132,120 @@ describe("weekly newsletter date helpers", () => {
   });
 });
 
+describe("buildWeeklyBOTDGeneratedContent", () => {
+  beforeEach(() => {
+    creatorsFindManyMock.mockReset();
+    artistOfTheWeekFindFirstMock.mockReset();
+    publisherOfTheWeekFindFirstMock.mockReset();
+    bookFairsFindFirstMock.mockReset();
+    getBooksOfTheDayInRangeMock.mockReset();
+
+    getBooksOfTheDayInRangeMock.mockResolvedValue([
+      null,
+      {
+        botdEntries: [],
+      },
+    ]);
+    artistOfTheWeekFindFirstMock.mockResolvedValue(null);
+    publisherOfTheWeekFindFirstMock.mockResolvedValue(null);
+    bookFairsFindFirstMock.mockResolvedValue(null);
+  });
+
+  it("only includes newly verified creators with published books", async () => {
+    creatorsFindManyMock.mockResolvedValue([
+      {
+        displayName: "No Books Yet",
+        slug: "no-books-yet",
+        type: "artist",
+        coverUrl: null,
+        tagline: "Soon",
+        city: "Paris",
+        country: "France",
+        booksAsArtist: [],
+        booksAsPublisher: [],
+      },
+      {
+        displayName: "Published Artist",
+        slug: "published-artist",
+        type: "artist",
+        coverUrl: null,
+        tagline: "Documentary",
+        city: "Berlin",
+        country: "Germany",
+        booksAsArtist: [{ id: "book-1" }],
+        booksAsPublisher: [],
+      },
+      {
+        displayName: "Published Publisher",
+        slug: "published-publisher",
+        type: "publisher",
+        coverUrl: null,
+        tagline: "Independent press",
+        city: "London",
+        country: "UK",
+        booksAsArtist: [],
+        booksAsPublisher: [{ id: "book-2" }],
+      },
+    ]);
+
+    const [error, generated] = await buildGeneratedContent(
+      new Date(Date.UTC(2026, 4, 28)),
+      new Date(Date.UTC(2026, 5, 3)),
+    );
+
+    expect(error).toBeNull();
+    expect(generated?.newMembers).toEqual<WeeklyNewsletterNewMember[]>([
+      {
+        displayName: "Published Artist",
+        slug: "published-artist",
+        type: "artist",
+        coverUrl: null,
+        tagline: "Documentary",
+        location: "Berlin, Germany",
+      },
+      {
+        displayName: "Published Publisher",
+        slug: "published-publisher",
+        type: "publisher",
+        coverUrl: null,
+        tagline: "Independent press",
+        location: "London, UK",
+      },
+    ]);
+    expect(creatorsFindManyMock).toHaveBeenCalledOnce();
+  });
+
+  it("includes the next week's upcoming fair when one is scheduled", async () => {
+    creatorsFindManyMock.mockResolvedValue([]);
+    bookFairsFindFirstMock.mockResolvedValue({
+      name: "Tokyo Art Book Fair",
+      slug: "tokyo-art-book-fair",
+      coverUrl: "https://example.com/fair.jpg",
+      venue: "Museum Hall",
+      city: "Tokyo",
+      country: "Japan",
+      startDate: new Date(Date.UTC(2026, 5, 4)),
+      endDate: new Date(Date.UTC(2026, 5, 6)),
+    });
+
+    const [error, generated] = await buildGeneratedContent(
+      new Date(Date.UTC(2026, 4, 28)),
+      new Date(Date.UTC(2026, 5, 3)),
+    );
+
+    expect(error).toBeNull();
+    expect(generated?.upcomingFair).toEqual({
+      name: "Tokyo Art Book Fair",
+      slug: "tokyo-art-book-fair",
+      coverUrl: "https://example.com/fair.jpg",
+      venue: "Museum Hall",
+      location: "Tokyo, Japan",
+      startDate: "2026-06-04",
+      endDate: "2026-06-06",
+    });
+  });
+});
+
 describe("newsletter template rendering", () => {
   it("renders core newsletter content", () => {
     const html = renderWeeklyBOTDNewsletterHtmlMjml({
@@ -123,6 +284,30 @@ describe("newsletter template rendering", () => {
     expect(html).toContain("Street photography");
     expect(html).toContain("/creators/sam-photographer");
     expect(html).toContain("View profile");
+  });
+
+  it("renders the upcoming fair section", () => {
+    const html = renderWeeklyBOTDNewsletterHtmlMjml({
+      ...sampleNewsletterParams,
+      subject: "Weekly roundup",
+      upcomingFair: {
+        name: "Tokyo Art Book Fair",
+        slug: "tokyo-art-book-fair",
+        coverUrl: "https://example.com/fair.jpg",
+        venue: "Museum Hall",
+        location: "Tokyo, Japan",
+        startDate: "2026-06-04",
+        endDate: "2026-06-06",
+      },
+    });
+
+    expect(html).toContain("Next week fair");
+    expect(html).toContain("Tokyo Art Book Fair");
+    expect(html).toContain("Jun 4-6, 2026");
+    expect(html).toContain("Museum Hall");
+    expect(html).toContain("Tokyo, Japan");
+    expect(html).toContain("/fairs/tokyo-art-book-fair");
+    expect(html).toContain("View fair");
   });
 
   it("renders artist and publisher of the week spotlights", () => {

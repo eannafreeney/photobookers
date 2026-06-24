@@ -2,6 +2,8 @@ import { and, asc, desc, eq, gte, isNotNull, lt, lte } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   artistOfTheWeek,
+  bookFairs,
+  books,
   creators,
   type NewsletterCampaignStatus,
   newsletterCampaigns,
@@ -21,6 +23,7 @@ import {
 import {
   type WeeklyNewsletterBookItem,
   type WeeklyNewsletterCreatorSpotlight,
+  type WeeklyNewsletterFairItem,
   type WeeklyNewsletterNewMember,
 } from "./newsletterTemplate";
 import { renderWeeklyBOTDNewsletterHtmlMjml } from "./newsletterTemplateMjml";
@@ -34,6 +37,7 @@ export type WeeklyNewsletterGeneratedContent = {
   generatedAt: string;
   items: WeeklyNewsletterBookItem[];
   newMembers: WeeklyNewsletterNewMember[];
+  upcomingFair: WeeklyNewsletterFairItem | null;
   artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
   publisherOfTheWeek: WeeklyNewsletterCreatorSpotlight;
 };
@@ -124,18 +128,33 @@ async function getNewlyVerifiedCreatorsInRange(
       city: true,
       country: true,
     },
+    with: {
+      booksAsArtist: {
+        columns: { id: true },
+        where: eq(books.publicationStatus, "published"),
+      },
+      booksAsPublisher: {
+        columns: { id: true },
+        where: eq(books.publicationStatus, "published"),
+      },
+    },
     orderBy: [asc(creators.verifiedAt)],
-    limit: NEW_MEMBERS_LIMIT,
   });
 
-  return rows.map((creator) => ({
-    displayName: creator.displayName,
-    slug: creator.slug,
-    type: creator.type,
-    coverUrl: creator.coverUrl ?? null,
-    tagline: creator.tagline?.trim() || null,
-    location: formatCreatorLocation(creator.city, creator.country),
-  }));
+  return rows
+    .filter(
+      (creator) =>
+        creator.booksAsArtist.length > 0 || creator.booksAsPublisher.length > 0,
+    )
+    .slice(0, NEW_MEMBERS_LIMIT)
+    .map(({ booksAsArtist, booksAsPublisher, ...creator }) => ({
+      displayName: creator.displayName,
+      slug: creator.slug,
+      type: creator.type,
+      coverUrl: creator.coverUrl ?? null,
+      tagline: creator.tagline?.trim() || null,
+      location: formatCreatorLocation(creator.city, creator.country),
+    }));
 }
 
 /** AOTW/POTW for the ISO week containing the newsletter send Wednesday. */
@@ -162,6 +181,48 @@ async function getWeeklyCreatorSpotlights(sendWednesday: Date) {
       publisherEntry?.creator,
       normalizedWeekStart,
     ),
+  };
+}
+
+async function getUpcomingFairForNextWeek(
+  sendWednesday: Date,
+): Promise<WeeklyNewsletterFairItem | null> {
+  const nextWeekStart = new Date(sendWednesday);
+  nextWeekStart.setUTCDate(nextWeekStart.getUTCDate() + 1);
+
+  const nextWeekEnd = new Date(sendWednesday);
+  nextWeekEnd.setUTCDate(nextWeekEnd.getUTCDate() + 7);
+
+  const fair = await db.query.bookFairs.findFirst({
+    where: and(
+      eq(bookFairs.status, "published"),
+      eq(bookFairs.approvalStatus, "approved"),
+      gte(bookFairs.startDate, nextWeekStart),
+      lte(bookFairs.startDate, nextWeekEnd),
+    ),
+    columns: {
+      name: true,
+      slug: true,
+      coverUrl: true,
+      venue: true,
+      city: true,
+      country: true,
+      startDate: true,
+      endDate: true,
+    },
+    orderBy: [asc(bookFairs.startDate)],
+  });
+
+  if (!fair) return null;
+
+  return {
+    name: fair.name,
+    slug: fair.slug,
+    coverUrl: fair.coverUrl ?? null,
+    venue: fair.venue?.trim() || null,
+    location: formatCreatorLocation(fair.city, fair.country),
+    startDate: toDateString(fair.startDate),
+    endDate: toDateString(fair.endDate),
   };
 }
 
@@ -192,10 +253,11 @@ export async function buildWeeklyBOTDGeneratedContent(
   );
   if (rangeError) return err({ reason: rangeError.reason });
 
-  const [{ artistOfTheWeek, publisherOfTheWeek }, newMembers] =
+  const [{ artistOfTheWeek, publisherOfTheWeek }, newMembers, upcomingFair] =
     await Promise.all([
       getWeeklyCreatorSpotlights(rangeEnd),
       getNewlyVerifiedCreatorsInRange(rangeStart, rangeEnd),
+      getUpcomingFairForNextWeek(rangeEnd),
     ]);
 
   const items: WeeklyNewsletterBookItem[] = rangeResult.botdEntries.map(
@@ -216,6 +278,7 @@ export async function buildWeeklyBOTDGeneratedContent(
     generatedAt: new Date().toISOString(),
     items,
     newMembers,
+    upcomingFair,
     artistOfTheWeek,
     publisherOfTheWeek,
   });
@@ -430,6 +493,7 @@ export async function buildCampaignPreviewHtml(
     ctaText: campaign.ctaText,
     items: generated?.items ?? stored?.items ?? [],
     newMembers: generated?.newMembers ?? stored?.newMembers ?? [],
+    upcomingFair: generated?.upcomingFair ?? stored?.upcomingFair ?? null,
     artistOfTheWeek:
       artistOfTheWeek ??
       normalizeStoredCreatorSpotlight(

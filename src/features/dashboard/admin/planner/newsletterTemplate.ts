@@ -29,6 +29,16 @@ export type WeeklyNewsletterNewMember = {
   location: string | null;
 };
 
+export type WeeklyNewsletterFairItem = {
+  name: string;
+  slug: string;
+  coverUrl: string | null;
+  venue: string | null;
+  location: string | null;
+  startDate: string;
+  endDate: string;
+};
+
 export type WeeklyNewsletterRenderParams = {
   weekStart: Date;
   weekEnd: Date;
@@ -38,6 +48,7 @@ export type WeeklyNewsletterRenderParams = {
   ctaText: string;
   items: WeeklyNewsletterBookItem[];
   newMembers?: WeeklyNewsletterNewMember[];
+  upcomingFair?: WeeklyNewsletterFairItem | null;
   artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
   publisherOfTheWeek: WeeklyNewsletterCreatorSpotlight;
 };

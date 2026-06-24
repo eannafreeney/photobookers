@@ -12,6 +12,7 @@ import { parseDateString } from "../../../../../lib/utils";
 import type {
   WeeklyNewsletterBookItem,
   WeeklyNewsletterCreatorSpotlight,
+  WeeklyNewsletterFairItem,
   WeeklyNewsletterNewMember,
 } from "../newsletterTemplate";
 import {
@@ -441,6 +442,58 @@ const buildNewMemberBody = (member: WeeklyNewsletterNewMember): string => {
   return parts.join(" · ");
 };
 
+const formatFairDateRange = (
+  startDateStr: string,
+  endDateStr: string,
+): string => {
+  const startDate = parseDateString(startDateStr);
+  const endDate = parseDateString(endDateStr);
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+    return [startDateStr, endDateStr].filter(Boolean).join(" - ");
+  }
+
+  const startMonth = startDate.toLocaleDateString("en-US", {
+    month: "short",
+    timeZone: "UTC",
+  });
+  const endMonth = endDate.toLocaleDateString("en-US", {
+    month: "short",
+    timeZone: "UTC",
+  });
+  const startDay = startDate.toLocaleDateString("en-US", {
+    day: "numeric",
+    timeZone: "UTC",
+  });
+  const endDay = endDate.toLocaleDateString("en-US", {
+    day: "numeric",
+    timeZone: "UTC",
+  });
+  const endYear = endDate.toLocaleDateString("en-US", {
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+  if (startDateStr === endDateStr) {
+    return `${startMonth} ${startDay}, ${endYear}`;
+  }
+
+  if (
+    startDate.getUTCMonth() === endDate.getUTCMonth() &&
+    startDate.getUTCFullYear() === endDate.getUTCFullYear()
+  ) {
+    return `${startMonth} ${startDay}-${endDay}, ${endYear}`;
+  }
+
+  return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${endYear}`;
+};
+
+const buildFairBody = (fair: WeeklyNewsletterFairItem): string => {
+  const parts: string[] = [formatFairDateRange(fair.startDate, fair.endDate)];
+  if (fair.venue) parts.push(fair.venue);
+  if (fair.location) parts.push(fair.location);
+  return parts.join(" · ");
+};
+
 export const NewMemberFeatureCard = ({
   member,
 }: {
@@ -490,6 +543,26 @@ export const CreatorFeatureCard = ({
     body={buildCreatorBody(creator)}
     linkHref={`${appBaseUrl}/${profilePath}/${creator.weekKey}`}
     linkLabel="View profile"
+  />
+);
+
+export const FairFeatureCard = ({ fair }: { fair: WeeklyNewsletterFairItem }) => (
+  <FeatureCard
+    kicker="Book fair"
+    image={
+      fair.coverUrl ? (
+        <MjmlImage
+          {...featureCardImageProps}
+          src={fair.coverUrl}
+          alt={fair.name}
+          cssClass="feature-card-img feature-card-img-book"
+        />
+      ) : null
+    }
+    title={fair.name}
+    body={buildFairBody(fair)}
+    linkHref={`${appBaseUrl}/fairs/${fair.slug}`}
+    linkLabel="View fair"
   />
 );
 

@@ -692,6 +692,15 @@ export const newsletterCampaigns = pgTable(
         tagline: string | null;
         location: string | null;
       }>;
+      upcomingFair?: {
+        name: string;
+        slug: string;
+        coverUrl: string | null;
+        venue: string | null;
+        location: string | null;
+        startDate: string;
+        endDate: string;
+      } | null;
     }>(),
     sentAt: timestamp("sent_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),

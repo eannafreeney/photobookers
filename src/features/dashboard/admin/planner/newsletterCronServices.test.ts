@@ -65,6 +65,7 @@ const sampleGenerated = {
     publisherSlug: null,
   })),
   newMembers: [],
+  upcomingFair: null,
   artistOfTheWeek: null,
   publisherOfTheWeek: null,
 };

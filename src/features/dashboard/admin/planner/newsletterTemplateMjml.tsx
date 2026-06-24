@@ -18,6 +18,7 @@ import { prepareNewsletterHtmlForEsp } from "./newsletterEspHtml";
 import {
   BookFeatureCard,
   CreatorFeatureCard,
+  FairFeatureCard,
   NewMemberFeatureCard,
   NewsletterCtaButton,
   NewsletterFooter,
@@ -221,6 +222,13 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
           {params.newMembers!.map((member) => (
             <NewMemberFeatureCard key={member.slug} member={member} />
           ))}
+        </>
+      ) : null}
+
+      {params.upcomingFair ? (
+        <>
+          <SectionHeading kicker="Coming up">Next week fair</SectionHeading>
+          <FairFeatureCard fair={params.upcomingFair} />
         </>
       ) : null}
 
