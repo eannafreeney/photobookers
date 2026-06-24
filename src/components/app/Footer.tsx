@@ -90,6 +90,7 @@ const Footer = () => (
         title="Discover"
         links={[
           { href: "/books", label: "All Books" },
+          { href: "/creators", label: "Creators" },
           { href: "/artists", label: "Artists" },
           { href: "/publishers", label: "Publishers" },
           { href: "/fairs", label: "Book Fairs" },

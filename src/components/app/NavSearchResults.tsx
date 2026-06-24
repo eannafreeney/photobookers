@@ -17,7 +17,14 @@ type BookSearchResult = Pick<Book, "id" | "slug" | "coverUrl" | "title"> & {
 
 type FairSearchResult = Pick<
   BookFair,
-  "id" | "slug" | "name" | "coverUrl" | "startDate" | "endDate" | "city" | "country"
+  | "id"
+  | "slug"
+  | "name"
+  | "coverUrl"
+  | "startDate"
+  | "endDate"
+  | "city"
+  | "country"
 >;
 
 type NavSearchResultsProps = {
@@ -34,7 +41,8 @@ const NavSearchResults = ({
   fairs,
   isMobile = false,
 }: NavSearchResultsProps) => {
-  const hasResults = creators.length > 0 || books.length > 0 || fairs.length > 0;
+  const hasResults =
+    creators.length > 0 || books.length > 0 || fairs.length > 0;
 
   return (
     <div

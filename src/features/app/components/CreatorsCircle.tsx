@@ -7,9 +7,10 @@ import { getImageSizeClass } from "../utils";
 type Props = {
   creator: CreatorCardResult;
   size?: number;
+  showType?: boolean;
 };
 
-const CreatorsCircle = ({ creator, size = 32 }: Props) => {
+const CreatorsCircle = ({ creator, size = 32, showType = false }: Props) => {
   if (!creator) return <></>;
 
   return (
@@ -31,6 +32,11 @@ const CreatorsCircle = ({ creator, size = 32 }: Props) => {
             {truncate(creator.displayName ?? "", 20)}
           </span>
         </Link>
+        {showType ? (
+          <span class="kicker text-on-surface-weak text-xs capitalize">
+            {creator.type}
+          </span>
+        ) : null}
       </a>
     </div>
   );

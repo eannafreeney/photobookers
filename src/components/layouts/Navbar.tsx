@@ -5,6 +5,7 @@ import BrandLogo from "../app/BrandLogo";
 import Button from "../app/Button";
 import { AuthUser } from "../../../types";
 import FeatureGuard from "./FeatureGuard";
+import { useUser } from "../../contexts/UserContext";
 
 type NavbarProps = {
   currentPath?: string | null;
@@ -32,15 +33,27 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
           <NavLink href="/books" currentPath={currentPath} variant="nav">
             Books
           </NavLink>
-          <NavLink href="/feed" currentPath={currentPath} variant="nav">
-            Feed
+          <NavLink href="/creators" currentPath={currentPath} variant="nav">
+            Creators
           </NavLink>
-          <NavLink href="/library" currentPath={currentPath} variant="nav">
-            Library
-          </NavLink>
-          <NavLink href="/messages" currentPath={currentPath} variant="nav">
-            Messages
-          </NavLink>
+          {user && (
+            <>
+              <NavLink href="/feed" currentPath={currentPath} variant="nav">
+                Feed
+              </NavLink>
+              <NavLink href="/library" currentPath={currentPath} variant="nav">
+                Library
+              </NavLink>
+              <NavLink href="/messages" currentPath={currentPath} variant="nav">
+                Messages
+              </NavLink>
+            </>
+          )}
+          {!user && (
+            <NavLink href="/about" currentPath={currentPath} variant="nav">
+              About
+            </NavLink>
+          )}
           <NavSearch />
           <NavDesktopMenu currentPath={currentPath} />
         </div>

@@ -1357,6 +1357,46 @@ export const getHomepageStats = async () => {
   }
 };
 
+export const getFollowedCreatorsForBrowse = async (
+  followerUserId: string,
+  currentPage = 1,
+  defaultLimit = 48,
+) => {
+  try {
+    const followMatch = and(
+      eq(follows.targetCreatorId, creators.id),
+      eq(follows.followerUserId, followerUserId),
+      eq(follows.targetType, "creator"),
+    );
+
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(creators)
+      .innerJoin(follows, followMatch)
+      .where(creatorsWithPublishedBooks);
+
+    const { page, offset, totalPages, limit } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit,
+    );
+
+    const foundCreators = await db
+      .select(CREATOR_CARD_SELECT)
+      .from(creators)
+      .innerJoin(follows, followMatch)
+      .where(creatorsWithPublishedBooks)
+      .orderBy(asc(creators.displayName))
+      .offset(offset)
+      .limit(limit);
+
+    return ok({ creators: foundCreators, totalPages, page });
+  } catch (error) {
+    console.error("Failed to get followed creators for browse", error);
+    return err({ reason: "Failed to get followed creators for browse", error });
+  }
+};
+
 export const getFollowedCreators = async (followerUserId: string) => {
   try {
     const followRows = await db.query.follows.findMany({
