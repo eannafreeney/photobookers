@@ -3,9 +3,16 @@ import type { BookFair } from "../../../db/schema";
 import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
 import { formatDate, formatDateWithoutYear } from "../../../utils";
 
-export type HyperviewFairCardData = Pick<
+type HyperviewFairCardData = Pick<
   BookFair,
-  "slug" | "name" | "coverUrl" | "startDate" | "endDate" | "city" | "country" | "venue"
+  | "slug"
+  | "name"
+  | "coverUrl"
+  | "startDate"
+  | "endDate"
+  | "city"
+  | "country"
+  | "venue"
 >;
 
 type Props = {
@@ -19,7 +26,7 @@ const formatLocation = (fair: HyperviewFairCardData) => {
   return fair.city || fair.country || null;
 };
 
-const FairCard: FC<Props> = ({ fair, href, variant = "carousel" }) => {
+const FairCard = ({ fair, href, variant = "carousel" }: Props) => {
   const cardStyle = variant === "list" ? "fair-list-card" : "fair-card";
   const imageStyle =
     variant === "list" ? "fair-list-card-image" : "fair-card-image";
@@ -31,11 +38,7 @@ const FairCard: FC<Props> = ({ fair, href, variant = "carousel" }) => {
     <View style={cardStyle}>
       <Behavior href={href} />
       {fair.coverUrl ? (
-        <Image
-          source={fair.coverUrl}
-          style={imageStyle}
-          resize-mode="cover"
-        />
+        <Image source={fair.coverUrl} style={imageStyle} resize-mode="cover" />
       ) : (
         <View style={imageStyle} />
       )}
@@ -45,9 +48,7 @@ const FairCard: FC<Props> = ({ fair, href, variant = "carousel" }) => {
         <Text style="fair-card-date">
           {formatDateWithoutYear(fair.startDate)} – {formatDate(fair.endDate)}
         </Text>
-        {location ? (
-          <Text style="fair-card-location">{location}</Text>
-        ) : null}
+        {location ? <Text style="fair-card-location">{location}</Text> : null}
       </View>
     </View>
   );
@@ -65,7 +66,12 @@ export const fairCardStyles = () => (
       overflow="hidden"
       marginRight={12}
     />
-    <Style id="fair-card-image" width={220} height={256} backgroundColor="#e4e0d5" />
+    <Style
+      id="fair-card-image"
+      width={220}
+      height={256}
+      backgroundColor="#e4e0d5"
+    />
     <Style
       id="fair-list-card"
       width="100%"

@@ -69,13 +69,11 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
         href={`${baseUrl}/hyperview/featured/tab/fairs`}
         style="featured-tab-loader"
       />
-      {isFeatureEnabled("stores") ? (
-        <LazyLoader
-          id="stores-loader"
-          href={`${baseUrl}/hyperview/featured/tab/stores`}
-          style="featured-tab-loader"
-        />
-      ) : null}
+      <LazyLoader
+        id="stores-loader"
+        href={`${baseUrl}/hyperview/featured/tab/stores`}
+        style="featured-tab-loader"
+      />
     </View>
   );
 };

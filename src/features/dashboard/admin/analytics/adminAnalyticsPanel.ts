@@ -12,8 +12,12 @@ export function adminAnalyticsHref(
   dateRange: AnalyticsDateRange | null,
   options?: { tab?: AnalyticsSectionTab; fragment?: boolean },
 ): string {
+  const tab =
+    options?.tab === "site" || options?.tab === "app"
+      ? options.tab
+      : undefined;
   return `${ADMIN_ANALYTICS_BASE_PATH}${analyticsSearchParams(dateRange, {
-    tab: options?.tab === "site" ? "site" : undefined,
+    tab,
     fragment: options?.fragment ? ADMIN_ANALYTICS_FRAGMENT : undefined,
   })}`;
 }

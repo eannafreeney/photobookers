@@ -1,9 +1,6 @@
 import { FC } from "hono/jsx";
 import { ScrollView, Style, View } from "../../../lib/hxml-comps";
-import {
-  getCurrentFairs,
-  getUpcomingFairs,
-} from "../../app/fairs/services";
+import { getCurrentFairs, getUpcomingFairs } from "../../app/fairs/services";
 import FairCard, { fairCardStyles } from "./FairCard";
 import SectionHeader, { sectionHeaderStyles } from "./SectionHeader";
 
@@ -13,7 +10,7 @@ type Props = {
   baseUrl: string;
 };
 
-const FairsSection: FC<Props> = async ({ baseUrl }) => {
+const FairsSection = async ({ baseUrl }: Props) => {
   const [[upcomingError, upcomingResult], [currentError, currentResult]] =
     await Promise.all([
       getUpcomingFairs(1, FEATURED_FAIRS_LIMIT),

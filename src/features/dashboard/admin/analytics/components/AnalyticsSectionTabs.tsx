@@ -5,12 +5,10 @@ import {
   adminAnalyticsHref,
 } from "../adminAnalyticsPanel";
 
-export type AnalyticsSectionTab = "books" | "site";
+export type AnalyticsSectionTab = "books" | "site" | "app";
 
-export function parseAnalyticsSectionTab(
-  raw?: string,
-): AnalyticsSectionTab {
-  return raw === "site" ? "site" : "books";
+export function parseAnalyticsSectionTab(raw?: string): AnalyticsSectionTab {
+  return raw === "site" ? "site" : raw === "app" ? "app" : "books";
 }
 
 type Props = {
@@ -21,6 +19,7 @@ type Props = {
 const TABS: { id: AnalyticsSectionTab; label: string }[] = [
   { id: "books", label: "Book analytics" },
   { id: "site", label: "Site analytics" },
+  { id: "app", label: "App analytics" },
 ];
 
 const pillButtonClass =
