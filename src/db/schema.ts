@@ -12,6 +12,7 @@ import {
   boolean,
   jsonb,
   index,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 import {
   InferSelectModel,
@@ -100,6 +101,17 @@ export const bookFairListingTierEnum = pgEnum("book_fair_listing_tier", [
   "promoted",
 ]);
 
+export const bookStoreStatusEnum = pgEnum("book_store_status", [
+  "draft",
+  "published",
+]);
+
+export const bookStoreApprovalStatusEnum = pgEnum("book_store_approval_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
 export const fairAttendeeStatusEnum = pgEnum("fair_attendee_status", [
   "pending",
   "approved",
@@ -129,6 +141,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   claims: many(creatorClaims),
   comments: many(bookComments),
   createdFairs: many(bookFairs),
+  createdStores: many(bookStores),
 }));
 
 export const creatorInterviews = pgTable("creator_interviews", {
@@ -879,6 +892,44 @@ export const fairViewsRelations = relations(fairViews, ({ one }) => ({
   }),
 }));
 
+export const bookStores = pgTable(
+  "book_stores",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: varchar("slug", { length: 255 }).notNull().unique(),
+    name: text("name").notNull(),
+    description: text("description"),
+    address: text("address").notNull(),
+    city: varchar("city", { length: 255 }).notNull(),
+    country: varchar("country", { length: 255 }).notNull(),
+    latitude: doublePrecision("latitude"),
+    longitude: doublePrecision("longitude"),
+    website: text("website"),
+    coverUrl: text("cover_url"),
+    bannerUrl: text("banner_url"),
+    status: bookStoreStatusEnum("status").notNull().default("draft"),
+    approvalStatus: bookStoreApprovalStatusEnum("approval_status")
+      .notNull()
+      .default("pending"),
+    sortOrder: integer("sort_order"),
+    createdByUserId: uuid("created_by_user_id")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    countryIdx: index("book_stores_country_idx").on(table.country),
+  }),
+);
+
+export const bookStoresRelations = relations(bookStores, ({ one }) => ({
+  createdBy: one(users, {
+    fields: [bookStores.createdByUserId],
+    references: [users.id],
+  }),
+}));
+
 // Infer types from tables
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
@@ -979,3 +1030,10 @@ export type FairAttendeeStatus =
 export type FairView = InferSelectModel<typeof fairViews>;
 export type NewFairView = InferInsertModel<typeof fairViews>;
 export type FairViewSource = (typeof fairViewSourceEnum.enumValues)[number];
+
+export type BookStore = InferSelectModel<typeof bookStores>;
+export type NewBookStore = InferInsertModel<typeof bookStores>;
+export type UpdateBookStore = Partial<InferInsertModel<typeof bookStores>>;
+export type BookStoreStatus = (typeof bookStoreStatusEnum.enumValues)[number];
+export type BookStoreApprovalStatus =
+  (typeof bookStoreApprovalStatusEnum.enumValues)[number];

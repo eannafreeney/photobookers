@@ -39,6 +39,10 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         {plannerIcon}
         Fairs
       </NavLink>
+      <NavLink href="/dashboard/admin/stores" currentPath={currentPath}>
+        {plannerIcon}
+        Stores
+      </NavLink>
       <NavLink href="/dashboard/admin/users" currentPath={currentPath}>
         {usersIcon(5)}
         Users

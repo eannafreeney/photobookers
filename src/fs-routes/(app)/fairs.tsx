@@ -249,11 +249,11 @@ export const GET = createRoute(async (c: Context) => {
       currentPath={currentPath}
     >
       <Page>
-        <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
-          <SectionTitle className="mb-0" kicker="Days Out!">
-            Book Fairs
-          </SectionTitle>
-        </div>
+        <PageHeader
+          kicker="Days Out!"
+          title="Book Fairs"
+          intro="Discover upcoming photobook fairs around the world. Find events where publishers and artists showcase their latest work."
+        />
         <div id="fairs-content">{gridContent}</div>
       </Page>
     </AppLayout>,

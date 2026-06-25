@@ -61,9 +61,11 @@ export const GET = createRoute(async (c) => {
 
   return c.html(
     <div id="latest-books-fragment">
-      <div class="mb-2 flex items-center justify-between">
-        <SectionTitle>Latest Books</SectionTitle>
-        <ViewAllLink href={viewAllHref} />
+      <div class="flex items-end justify-between mb-3 mr-6 mt-10 border-t-2 border-on-surface-strong pt-3">
+        <SectionTitle className="mb-0" kicker="New Arrivals">
+          Latest Books
+        </SectionTitle>
+        <ViewAllLink href="/books" />
       </div>
       <div id={BOOKS_CATALOG_TARGET_ID}>
         <BooksGridWithFilters {...gridProps} />

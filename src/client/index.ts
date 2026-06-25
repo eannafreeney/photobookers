@@ -41,6 +41,9 @@ import { registerCreatorBannerForm } from "../features/dashboard/images/client/c
 import { registerBulkCoverUpload } from "./components/bulkCoverUpload";
 import { registerFairCoverForm } from "../features/dashboard/admin/fairs/client/fairCoverForm";
 import { registerFairBannerForm } from "../features/dashboard/admin/fairs/client/fairBannerForm";
+import { registerStoreFormAdmin } from "../features/dashboard/admin/stores/client/storeFormAdmin";
+import { registerStoreCoverForm } from "../features/dashboard/admin/stores/client/storeCoverForm";
+import { registerStoresMap } from "../features/app/stores/client/storesMap";
 import { registerOptionsComboBox } from "./components/optionsComboBox";
 
 // Register all Alpine.js data components
@@ -88,4 +91,7 @@ registerCreatorBannerForm();
 registerFairFormAdmin();
 registerFairCoverForm();
 registerFairBannerForm();
+registerStoreFormAdmin();
+registerStoreCoverForm();
+registerStoresMap();
 registerOptionsComboBox();

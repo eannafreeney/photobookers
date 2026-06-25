@@ -2,7 +2,7 @@ const ViewAllLink = ({ href, text }: { href: string; text?: string }) => {
   return (
     <a
       href={href}
-      class="kicker group text-on-surface-weak hover:text-accent duration-300 border-b-2 border-transparent hover:border-accent"
+      class="hidden sm:inline-flex kicker group text-on-surface-weak hover:text-accent duration-300 border-b-2 border-transparent hover:border-accent"
     >
       <span class="inline-flex items-center ">
         {`View All ${text ?? ""}`}

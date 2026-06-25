@@ -101,7 +101,9 @@ const AdminFairsTableAndFilter = async ({
                       confirmMessage={`Delete ${fair.name}?`}
                       {...{ "@ajax:success": "$el.closest('tr').remove()" }}
                     >
-                      {deleteIcon}
+                      <button type="submit" class="cursor-pointer hover:text-red-500">
+                        {deleteIcon}
+                      </button>
                     </FormDelete>
                   </div>
                 </Table.BodyRow>

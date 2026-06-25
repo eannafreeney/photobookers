@@ -13,6 +13,7 @@ import Interviews from "../../features/app/components/Interviews";
 import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
 import ThisWeekOnPhotobookersLink from "../../features/app/components/ThisWeekOnPhotobookersLink";
 import PageBleed from "../../components/layouts/PageBleedRight";
+import { isFeatureEnabled } from "../../lib/features";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -58,16 +59,18 @@ export const GET = createRoute(async (c: Context) => {
         </ScrollReveal>
         <ScrollReveal>
           <Intersector
-            id="fairs-fragment"
-            endpoint="/fragments/fairs"
-          />
-        </ScrollReveal>
-        <ScrollReveal>
-          <Intersector
             id="latest-books-fragment"
             endpoint="/fragments/latest-books"
           />
         </ScrollReveal>
+        <ScrollReveal>
+          <Intersector id="fairs-fragment" endpoint="/fragments/fairs" />
+        </ScrollReveal>
+        {isFeatureEnabled("stores") ? (
+          <ScrollReveal>
+            <Intersector id="stores-fragment" endpoint="/fragments/stores" />
+          </ScrollReveal>
+        ) : null}
       </Page>
     </AppLayout>,
   );

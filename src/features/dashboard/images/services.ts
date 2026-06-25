@@ -1,6 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client";
-import { bookFairs, bookImages, books, creators, users } from "../../../db/schema";
+import { bookFairs, bookImages, bookStores, books, creators, users } from "../../../db/schema";
 import { err, ok } from "../../../lib/result";
 import {
   invalidateBookCache,
@@ -203,5 +203,29 @@ export const updateFairBannerImage = async (
   } catch (error) {
     console.error("Failed to update fair banner image", error);
     return err({ reason: "Failed to update fair banner image", cause: error });
+  }
+};
+
+export const updateStoreCoverImage = async (
+  storeId: string,
+  coverUrl: string,
+) => {
+  try {
+    const [updatedStore] = await db
+      .update(bookStores)
+      .set({ coverUrl })
+      .where(eq(bookStores.id, storeId))
+      .returning();
+
+    if (!updatedStore)
+      return err({
+        reason: "Failed to update store cover image",
+        cause: undefined,
+      });
+
+    return ok(updatedStore);
+  } catch (error) {
+    console.error("Failed to update store cover image", error);
+    return err({ reason: "Failed to update store cover image", cause: error });
   }
 };

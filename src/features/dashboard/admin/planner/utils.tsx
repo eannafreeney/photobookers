@@ -132,6 +132,19 @@ export function getSpotlightFeatureDayEmailScheduledDate(weekStart: Date): Date 
   return toWeekStart(weekStart);
 }
 
+/** Admin Instagram prep reminder emails send two days before week start (Saturday). */
+export function getInstagramPrepReminderScheduledDate(weekStart: Date): Date {
+  return addUtcDays(toWeekStart(weekStart), -2);
+}
+
+/** Week start to check when the cron runs on `asOf`, or null if not reminder day. */
+export function getInstagramPrepReminderWeekStart(asOf: Date): Date | null {
+  const today = toUtcStartOfDay(asOf);
+  const weekStart = addUtcDays(today, 2);
+  if (weekStart.getUTCDay() !== 1) return null;
+  return toWeekStart(weekStart);
+}
+
 export type EmailSendStatus =
   | "sent"
   | "pending"

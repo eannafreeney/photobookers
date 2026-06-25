@@ -11,7 +11,8 @@ import {
   buildCreatorShareKitEmailHtml,
   escapeHtml,
 } from "./shareKit";
-import { formatBotdDateLong } from "./utils";
+import { formatBotdDateLong, formatWeekRange } from "./utils";
+import type { InstagramPrepGap } from "./instagramUtils";
 
 type SpotlightEmailParams = {
   creator: { displayName: string; slug: string; ownerUserId: string | null };
@@ -228,6 +229,35 @@ export function buildFeatureDayEmail(params: {
   ${interviewBlock}
   <p>We will also share your feature on Instagram. Thank you for being part of Photobookers.</p>
   <p>Best regards,<br/>Eanna</p>
+`;
+}
+
+function formatInstagramPrepGap(gap: InstagramPrepGap): string {
+  switch (gap.kind) {
+    case "botd":
+      return `Book of the Day (${formatBotdDateLong(gap.date)})`;
+    case "artist":
+      return "Artist of the Week";
+    case "publisher":
+      return "Publisher of the Week";
+  }
+}
+
+export function buildInstagramPrepReminderEmail(params: {
+  weekStart: Date;
+  gaps: InstagramPrepGap[];
+  prepareUrl: string;
+}) {
+  const weekLabel = formatWeekRange(params.weekStart);
+  const items = params.gaps
+    .map((gap) => `<li>${formatInstagramPrepGap(gap)}</li>`)
+    .join("");
+
+  return `
+  <p>Instagram posts are not fully prepared for the week of <strong>${weekLabel}</strong>, which starts in two days.</p>
+  <p>Still to prepare:</p>
+  <ul>${items}</ul>
+  <p><a href="${params.prepareUrl}">Prepare Instagram posts</a></p>
 `;
 }
 

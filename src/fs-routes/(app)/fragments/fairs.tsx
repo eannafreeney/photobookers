@@ -5,6 +5,7 @@ import {
   getUpcomingFairs,
   getCurrentFairs,
 } from "../../../features/app/fairs/services";
+import FairsSlider from "../../../features/app/fairs/components/FairsSlider";
 import FairsGrid from "../../../features/app/fairs/components/FairsGrid";
 import Button from "../../../components/app/Button";
 
@@ -32,20 +33,27 @@ export const GET = createRoute(async (c) => {
 
   return c.html(
     <div id="fairs-fragment">
-      <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
-        <SectionTitle className="mb-0" kicker="Days Out!">
-          Book Fairs
-        </SectionTitle>
-        <ViewAllLink href="/fairs" />
+      <div class="mb-6 mt-12 border-t-2 border-on-surface-strong pt-3">
+        <div class="mr-6 flex items-end justify-between">
+          <SectionTitle className="mb-0" kicker="Days Out!">
+            Book Fairs
+          </SectionTitle>
+          <ViewAllLink href="/fairs" />
+        </div>
       </div>
-      <FairsGrid
-        fairs={allFairs}
-        page={1}
-        totalPages={1}
-        baseUrl="/fairs"
-        targetId="fairs-fragment-grid"
-      />
-      <div class="flex justify-center mt-8">
+      <div class="sm:hidden">
+        <FairsSlider fairs={allFairs} />
+      </div>
+      <div class="hidden sm:block">
+        <FairsGrid
+          fairs={allFairs}
+          page={1}
+          totalPages={1}
+          baseUrl="/fairs"
+          targetId="fairs-fragment-grid"
+        />
+      </div>
+      <div class="mt-8 flex md:hidden justify-center">
         <a href="/fairs">
           <Button variant="solid" color="primary" width="xl">
             View All Fairs →

@@ -92,6 +92,41 @@ type InstagramPreparedRow = {
   instagramPreparedAt?: Date | null;
 } | null;
 
+export type InstagramPrepGap =
+  | { kind: "botd"; date: Date }
+  | { kind: "artist" }
+  | { kind: "publisher" };
+
+export function getWeekInstagramPrepGaps(
+  weekStart: Date,
+  botdByDate: Map<string, InstagramPreparedRow | undefined>,
+  options?: {
+    artistOfTheWeek?: InstagramPreparedRow;
+    publisherOfTheWeek?: InstagramPreparedRow;
+  },
+): InstagramPrepGap[] {
+  const gaps: InstagramPrepGap[] = [];
+
+  for (const day of getWeekDays(weekStart)) {
+    const entry = botdByDate.get(toDateString(day));
+    if (entry && !entry.instagramPreparedAt) {
+      gaps.push({ kind: "botd", date: day });
+    }
+  }
+
+  const artist = options?.artistOfTheWeek ?? null;
+  if (artist && !artist.instagramPreparedAt) {
+    gaps.push({ kind: "artist" });
+  }
+
+  const publisher = options?.publisherOfTheWeek ?? null;
+  if (publisher && !publisher.instagramPreparedAt) {
+    gaps.push({ kind: "publisher" });
+  }
+
+  return gaps;
+}
+
 export function isWeekInstagramFullyPrepared(
   weekStart: Date,
   botdByDate: Map<string, InstagramPreparedRow | undefined>,

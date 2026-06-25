@@ -185,3 +185,43 @@ export function buildFairJsonLd(fair: FairJsonLdInput) {
 
   return jsonLd;
 }
+
+export type StoreJsonLdInput = {
+  name: string;
+  description?: string | null;
+  canonicalUrl: string;
+  imageUrl?: string | null;
+  address: string;
+  city: string;
+  country: string;
+  website?: string | null;
+};
+
+export function buildStoreJsonLd(store: StoreJsonLdInput) {
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "BookStore",
+    name: store.name,
+    url: store.canonicalUrl,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: store.address,
+      addressLocality: store.city,
+      addressCountry: store.country,
+    },
+  };
+
+  if (store.description) {
+    jsonLd.description = truncateDescription(store.description, 500);
+  }
+
+  if (store.imageUrl) {
+    jsonLd.image = store.imageUrl;
+  }
+
+  if (store.website) {
+    jsonLd.sameAs = store.website;
+  }
+
+  return jsonLd;
+}

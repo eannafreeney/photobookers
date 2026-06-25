@@ -2,5 +2,6 @@
   "messages": true,
   "comments": true,
   "interviews": false,
-  "fairs": true
+  "fairs": true,
+  "stores": true
 }

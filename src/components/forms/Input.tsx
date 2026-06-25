@@ -11,6 +11,7 @@ type InputProps = {
   required?: boolean;
   name: string;
   maxLength?: number;
+  step?: number | "any";
   validateInput?: string;
   validationTrigger?: "blur" | "input" | "change";
   isDisabled?: boolean;
@@ -28,6 +29,7 @@ const Input = ({
   required = false,
   name,
   maxLength,
+  step,
   validateInput,
   validationTrigger = "input",
   isDisabled = false,
@@ -70,6 +72,7 @@ const Input = ({
           disabled={isDisabled}
           x-model={name}
           maxLength={maxLength}
+          step={step}
           autocomplete="off"
           {...{
             "x-on:blur": `${name} = ${name}.trim()`,

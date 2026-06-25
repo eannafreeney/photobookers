@@ -1,4 +1,21 @@
 import { SITE_APP, SITE_SOCIAL } from "../../constants/siteSocial";
+import { isFeatureEnabled } from "../../lib/features";
+
+const discoverLinks = () => {
+  const links = [
+    { href: "/books", label: "All Books" },
+    { href: "/creators", label: "Creators" },
+    { href: "/artists", label: "Artists" },
+    { href: "/publishers", label: "Publishers" },
+    { href: "/fairs", label: "Book Fairs" },
+  ];
+
+  if (isFeatureEnabled("stores")) {
+    links.push({ href: "/stores", label: "Bookstores" });
+  }
+
+  return links;
+};
 
 type FooterColumnProps = {
   title: string;
@@ -86,16 +103,7 @@ const Footer = () => (
         <FooterSocialLinks />
         <FooterAppLink />
       </div>
-      <FooterColumn
-        title="Discover"
-        links={[
-          { href: "/books", label: "All Books" },
-          { href: "/creators", label: "Creators" },
-          { href: "/artists", label: "Artists" },
-          { href: "/publishers", label: "Publishers" },
-          { href: "/fairs", label: "Book Fairs" },
-        ]}
-      />
+      <FooterColumn title="Discover" links={discoverLinks()} />
       <FooterColumn
         title="Editorial"
         links={[

@@ -1,29 +1,29 @@
 import { createRoute } from "hono-fsr";
-import { getUser } from "../../../utils";
-import Page from "../../../components/layouts/Page";
-import AppLayout from "../../../components/layouts/AppLayout";
-import InfoPage from "../../../pages/InfoPage";
+import { getUser } from "../../utils";
+import Page from "../../components/layouts/Page";
+import AppLayout from "../../components/layouts/AppLayout";
+import InfoPage from "../../pages/InfoPage";
 import {
   getAllCreatorsByType,
   getAllCreatorsForBrowse,
   getFollowedCreatorsForBrowse,
-} from "../../../features/app/services";
-import PageHeader from "../../../components/app/PageHeader";
-import CreatorsCircle from "../../../features/app/components/CreatorsCircle";
-import CreatorsBrowseFilters from "../../../features/app/components/CreatorsBrowseFilters";
-import ScrollReveal from "../../../components/app/ScrollReveal";
-import ListNavigation from "../../../features/app/components/ListNavigation";
+} from "../../features/app/services";
+import PageHeader from "../../components/app/PageHeader";
+import CreatorsCircle from "../../features/app/components/CreatorsCircle";
+import CreatorsBrowseFilters from "../../features/app/components/CreatorsBrowseFilters";
+import ScrollReveal from "../../components/app/ScrollReveal";
+import ListNavigation from "../../features/app/components/ListNavigation";
 import {
   creatorsBrowseUrl,
   CREATOR_CATALOG_TARGET_ID,
   parseCreatorBrowseFilter,
   type CreatorBrowseFilter,
-} from "../../../features/app/creatorsBrowse";
-import { paginationRequestBaseUrl } from "../../../lib/pagination";
-import { ok } from "../../../lib/result";
-import { canonicalUrl, pageTitle } from "../../../lib/seo";
-import { AuthUser } from "../../../../types";
-import { CreatorCardResult } from "../../../constants/queries";
+} from "../../features/app/creatorsBrowse";
+import { paginationRequestBaseUrl } from "../../lib/pagination";
+import { ok } from "../../lib/result";
+import { canonicalUrl, pageTitle } from "../../lib/seo";
+import { AuthUser } from "../../../types";
+import { CreatorCardResult } from "../../constants/queries";
 
 const PAGE_SIZE = 48;
 const targetId = "creators-grid";

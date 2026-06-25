@@ -4,6 +4,7 @@ import {
   artistOfTheWeek,
   bookFairs,
   bookOfTheDay,
+  bookStores,
   books,
   creatorInterviews,
   creators,
@@ -12,6 +13,7 @@ import {
 import { DISCOVER_TAGS } from "../../constants/discover";
 import { tagBooksUrl } from "../../lib/tags";
 import { toDateString, toWeekStart, toWeekString } from "../../lib/utils";
+import { isFeatureEnabled } from "../../lib/features";
 
 export type SitemapEntry = {
   loc: string;
@@ -61,7 +63,9 @@ function formatLastmod(date: Date | null | undefined): string | undefined {
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {
-  const [bookRows, creatorRows, interviewRows, fairRows, botdRows, aotwRows, potwRows] =
+  const storesEnabled = isFeatureEnabled("stores");
+
+  const [bookRows, creatorRows, interviewRows, fairRows, storeRows, botdRows, aotwRows, potwRows] =
     await Promise.all([
       db
         .select({
@@ -103,6 +107,20 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
             eq(bookFairs.approvalStatus, "approved"),
           ),
         ),
+      storesEnabled
+        ? db
+            .select({
+              slug: bookStores.slug,
+              updatedAt: bookStores.updatedAt,
+            })
+            .from(bookStores)
+            .where(
+              and(
+                eq(bookStores.status, "published"),
+                eq(bookStores.approvalStatus, "approved"),
+              ),
+            )
+        : Promise.resolve([]),
       db.query.bookOfTheDay.findMany({
         columns: { date: true, updatedAt: true },
         where: lte(bookOfTheDay.date, new Date()),
@@ -120,6 +138,14 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
   const staticEntries: SitemapEntry[] = STATIC_PAGES.map((page) => ({
     ...page,
   }));
+
+  if (storesEnabled) {
+    staticEntries.push({
+      loc: "/stores",
+      changefreq: "weekly",
+      priority: 0.7,
+    });
+  }
 
   const bookEntries: SitemapEntry[] = bookRows.map((book) => ({
     loc: `/books/${book.slug}`,
@@ -147,6 +173,13 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     loc: `/fairs/${fair.slug}`,
     lastmod: formatLastmod(fair.updatedAt),
     changefreq: "weekly",
+    priority: 0.65,
+  }));
+
+  const storeEntries: SitemapEntry[] = storeRows.map((store) => ({
+    loc: `/stores/${store.slug}`,
+    lastmod: formatLastmod(store.updatedAt),
+    changefreq: "monthly",
     priority: 0.65,
   }));
 
@@ -183,6 +216,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     ...creatorEntries,
     ...interviewEntries,
     ...fairEntries,
+    ...storeEntries,
     ...tagEntries,
     ...botdEntries,
     ...aotwEntries,
