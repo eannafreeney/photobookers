@@ -1,3 +1,5 @@
+import CollapsibleFilters from "../../components/CollapsibleFilters";
+
 type FairsSearchFormProps = {
   query?: string;
   city?: string;
@@ -15,14 +17,19 @@ const FairsSearchForm = ({
   endDate = "",
   baseUrl,
 }: FairsSearchFormProps) => {
+  const activeFilterCount = [query, city, country, startDate, endDate].filter(
+    (value) => value.trim().length > 0,
+  ).length;
+
   return (
     <form method="get" action={baseUrl} class="mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-4 border-2 border-on-surface-strong rounded bg-surface-container-low">
+      <CollapsibleFilters
+        activeFilterCount={activeFilterCount}
+        controlsId="fairs-search-filters"
+        desktopGridClass="md:grid-cols-2 lg:grid-cols-5"
+      >
         <div class="flex flex-col gap-2">
-          <label
-            for="query"
-            class="text-sm font-medium text-on-surface-strong"
-          >
+          <label for="query" class="text-sm font-medium text-on-surface-strong">
             Search
           </label>
           <input
@@ -112,7 +119,7 @@ const FairsSearchForm = ({
             Clear
           </a>
         </div>
-      </div>
+      </CollapsibleFilters>
     </form>
   );
 };

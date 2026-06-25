@@ -36,9 +36,12 @@ export const sectionHeaderStyles = () => (
     />
     <Style
       id="section-header-title"
-      fontFamily="Fraunces-SemiBold"
+      fontFamily="Fraunces"
+      fontWeight="500"
       fontSize={20}
+      lineHeight={24}
       color="#191613"
+      flexShrink={1}
     />
     <Style
       id="section-header-view-all"

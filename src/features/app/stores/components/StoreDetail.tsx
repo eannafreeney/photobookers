@@ -14,7 +14,7 @@ const StoreDetail = ({ store }: StoreDetailProps) => {
 
   return (
     <div class="min-h-screen">
-      <div class="w-full -mt-8 mb-12">
+      {/* <div class="w-full -mt-8 mb-12">
         <div class="relative w-full h-[300px] md:h-[500px] overflow-hidden">
           <img
             src={coverUrl}
@@ -22,7 +22,7 @@ const StoreDetail = ({ store }: StoreDetailProps) => {
             class="w-full h-full object-cover"
           />
         </div>
-      </div>
+      </div> */}
 
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 flex flex-col gap-12">
         <div class="text-center space-y-6">

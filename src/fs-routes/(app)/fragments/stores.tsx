@@ -5,6 +5,7 @@ import { getPublishedStores } from "../../../features/app/stores/services";
 import StoresGrid from "../../../features/app/stores/components/StoresGrid";
 import Button from "../../../components/app/Button";
 import { isFeatureEnabled } from "../../../lib/features";
+import StoresSlider from "../../../features/app/stores/components/StoresSlider";
 
 const FEATURED_STORES_LIMIT = 5;
 
@@ -29,13 +30,18 @@ export const GET = createRoute(async (c) => {
         </SectionTitle>
         <ViewAllLink href="/stores" />
       </div>
-      <StoresGrid
-        stores={stores}
-        page={1}
-        totalPages={1}
-        baseUrl="/stores"
-        targetId="stores-fragment-grid"
-      />
+      <div class="sm:hidden">
+        <StoresSlider stores={stores} />
+      </div>
+      <div class="hidden sm:block">
+        <StoresGrid
+          stores={stores}
+          page={1}
+          totalPages={1}
+          baseUrl="/stores"
+          targetId="stores-fragment-grid"
+        />
+      </div>
       <div class=" mt-8 flex md:hidden justify-center">
         <a href="/stores">
           <Button variant="solid" color="primary" width="xl">

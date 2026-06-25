@@ -18,6 +18,7 @@ import FairsCalendar from "../../features/app/fairs/components/FairsCalendar";
 import FairsGrid from "../../features/app/fairs/components/FairsGrid";
 import { pageTitle, canonicalUrl } from "../../lib/seo";
 import SectionTitle from "../../components/app/SectionTitle";
+import FairsSearchForm from "../../features/app/fairs/components/FairsSearchForm";
 
 type ViewSwitcherProps = {
   currentView: "grid" | "calendar";
@@ -108,7 +109,7 @@ export const GET = createRoute(async (c: Context) => {
               Book Fairs
             </SectionTitle>
           </div>
-          {/* <FairsSearchForm
+          <FairsSearchForm
             query={query}
             city={city}
             country={country}
@@ -124,7 +125,7 @@ export const GET = createRoute(async (c: Context) => {
             <div class="mb-4 text-sm text-on-surface-muted">
               No fairs found matching your search criteria
             </div>
-          )} */}
+          )}
           <FairsGrid
             fairs={result.fairs}
             page={result.page}
@@ -150,6 +151,14 @@ export const GET = createRoute(async (c: Context) => {
 
     const calendarContent = (
       <>
+      <FairsSearchForm
+        query={query}
+        city={city}
+        country={country}
+        startDate={startDate}
+        endDate={endDate}
+        baseUrl={currentPath}
+      />
         <ViewSwitcher currentView="calendar" baseUrl={currentPath} />
         <FairsCalendar
           year={year}
@@ -218,6 +227,14 @@ export const GET = createRoute(async (c: Context) => {
 
   const gridContent = (
     <>
+      <FairsSearchForm
+        query={query}
+        city={city}
+        country={country}
+        startDate={startDate}
+        endDate={endDate}
+        baseUrl={currentPath}
+      />
       <ViewSwitcher currentView="grid" baseUrl={currentPath} />
       <FairsWithTabs
         tab={tab}

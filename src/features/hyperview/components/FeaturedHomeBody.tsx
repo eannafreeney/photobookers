@@ -15,6 +15,8 @@ import FeaturedSpotlightCarousel, {
 import { trendingCreatorsStyles } from "./TrendingCreatorsSlider";
 import { getSpotlightItems } from "../lib/utils";
 import { toWeekString, toWeekStart } from "../../../lib/utils";
+import { isFeatureEnabled } from "../../../lib/features";
+import { storesSectionStyles } from "./StoresSection";
 
 type Props = {
   baseUrl: string;
@@ -46,12 +48,6 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
     <View style="featured-home-body">
       <FeaturedSpotlightCarousel items={spotlightItems} />
       <SecondaryButtonLink label="View this week →" href={thisWeekHref} />
-      <NewsletterCard baseUrl={baseUrl} />
-      <LazyLoader
-        id="fairs-loader"
-        href={`${baseUrl}/hyperview/featured/tab/fairs`}
-        style="featured-tab-loader"
-      />
       <LazyLoader
         id="interviews-loader"
         href={`${baseUrl}/hyperview/featured/tab/interviews`}
@@ -62,11 +58,24 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
         href={`${baseUrl}/hyperview/featured/tab/trending-creators`}
         style="featured-tab-loader"
       />
+      <NewsletterCard baseUrl={baseUrl} />
       <LazyLoader
         id="latest-books-loader"
         href={`${baseUrl}/hyperview/featured/tab/latest-books`}
         style="featured-tab-loader"
       />
+      <LazyLoader
+        id="fairs-loader"
+        href={`${baseUrl}/hyperview/featured/tab/fairs`}
+        style="featured-tab-loader"
+      />
+      {isFeatureEnabled("stores") ? (
+        <LazyLoader
+          id="stores-loader"
+          href={`${baseUrl}/hyperview/featured/tab/stores`}
+          style="featured-tab-loader"
+        />
+      ) : null}
     </View>
   );
 };
@@ -88,5 +97,6 @@ export const featuredHomeBodyStyles = () => (
     {featuredSpotlightCarouselStyles()}
     {secondaryButtonLinkStyles()}
     {trendingCreatorsStyles()}
+    {storesSectionStyles()}
   </>
 );
