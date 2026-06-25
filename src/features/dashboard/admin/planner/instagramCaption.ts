@@ -188,11 +188,13 @@ export function buildBotdStoryStickerFields(book: BookForCaption): {
   text: string;
   music: string;
   products: string;
+  other: string;
 } {
   return {
     text: "Book of the Day",
     music: book.title,
     products: buildBotdStoryHandles(book),
+    other: "Link In Bio",
   };
 }
 

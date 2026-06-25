@@ -190,6 +190,7 @@ describe("instagram caption helpers", () => {
       text: "Book of the Day",
       music: "Winter Light",
       products: "@janedoe\n@acmepress",
+      other: "Link In Bio",
     });
   });
 });

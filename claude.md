@@ -1,57 +1,122 @@
 # Claude Instructions for photobookers
 
 ## Project Overview
-- `photobookers` is a Vite + React + TypeScript app with a Node server entrypoint (`src/server.ts`).
-- Routing is file-system based via `hono-fsr` with route files under `src/fs-routes`.
-- Data layer uses Drizzle (`drizzle-orm` / `drizzle-kit`) and Postgres.
-- Client-side interactivity uses Alpine.js, and `alpine-ajax` is used to communicate with server endpoints.
-- There is also a separate Expo app in `mobile-expo`; treat it as a separate project unless requested otherwise.
+
+`photobookers` is a full-stack TypeScript app for discovering and managing photobooks.
+
+- **Server**: Hono on Node (`src/server.ts` → `src/index.tsx`)
+- **Web UI**: Server-rendered **Hono JSX** (`hono/jsx`) with Tailwind CSS + PenguinUI
+- **Client interactivity**: Alpine.js (`src/client/`) with `alpine-ajax` for partial updates
+- **Mobile**: Separate Expo app in `mobile-expo/` consuming **Hyperview** XML routes under `src/fs-routes/hyperview/`
+- **Database**: Postgres via Drizzle ORM (`src/db/schema.ts`)
+- **Auth**: Supabase Auth + `@hono/session` middleware
+
+React is used only in a few places (e.g. MJML newsletter templates). Default to Hono JSX for new UI.
 
 ## Development Commands
-- Install dependencies: `npm install`
-- Main web dev server: `npm run dev`
-- Watch + regenerate file-system route manifest: `npm run dev:fsr`
-- Recommended local workflow (both watchers): `npm run dev:all`
-- Production-like local run: `npm run dev:all:production`
-- Typecheck: `npm run typecheck`
-- Test (watch): `npm test`
-- Test (single run): `npm run test:run`
-- Build: `npm run build` (runs `prebuild` first, including route generation + typecheck)
-- Start production server: `npm start`
 
-## Database Commands
-- Generate migrations: `npm run db:generate`
-- Run migrations: `npm run db:migrate`
-- Push schema directly: `npm run db:push`
-- Open Drizzle Studio: `npm run db:studio`
+```bash
+npm install
+npm run dev:all          # recommended: Vite dev server + hono-fsr route watcher
+npm run typecheck
+npm run test:run
+npm run build
+npm start              # production server (uses .env.production)
+```
 
-## Architecture Notes
-- Primary app source: `src/`
-- Feature logic: `src/features/*`
-- Reusable UI: `src/components/*`
-- Route handlers/pages: `src/fs-routes/*`
-- Shared middleware/utilities: `src/middleware/*` and `src/lib/*`
-- Database schema: `src/db/schema.ts`
-- Utility scripts: `scripts/*`
+| Command                      | Purpose                                                 |
+| ---------------------------- | ------------------------------------------------------- |
+| `npm run dev`                | Vite + Hono dev server (port 3000)                      |
+| `npm run dev:fsr`            | Regenerate `src/fs-routes.manifest.ts` on route changes |
+| `npm run dev:all:production` | Local dev with production env vars                      |
+| `npm test`                   | Vitest watch mode                                       |
+| `npm run db:generate`        | Generate Drizzle migrations                             |
+| `npm run db:migrate`         | Run migrations                                          |
+| `npm run db:push`            | Push schema directly (dev)                              |
+| `npm run db:studio`          | Open Drizzle Studio                                     |
 
-## Frontend Patterns
-- Use Alpine.js for progressive, server-rendered UI interactivity.
-- Use `alpine-ajax` for server communication patterns (partial updates, form actions, and endpoint-driven UI updates).
-- Prefer existing Alpine component and attribute patterns in the surrounding code before introducing new approaches.
+## Architecture
+
+```
+src/
+├── index.tsx              # Hono app entry (middleware, static assets, routes)
+├── server.ts              # Node serve wrapper
+├── routes/index.tsx       # Session, auth middleware, hono-fsr router mount
+├── fs-routes/             # File-system routes (pages + API handlers)
+├── fs-routes.manifest.ts  # GENERATED — do not edit manually
+├── features/              # Domain logic, services, feature components
+├── components/            # Shared UI (layouts, forms, app primitives)
+├── client/                # Alpine.js client bundle (main.js entry)
+├── middleware/            # Auth guards, token refresh, etc.
+├── lib/                   # Shared utilities (hxml-comps, supabase, etc.)
+└── db/                    # Drizzle schema and DB helpers
+```
+
+### Feature modules (`src/features/`)
+
+| Module                                                                   | Purpose                                              |
+| ------------------------------------------------------------------------ | ---------------------------------------------------- |
+| `app`                                                                    | Public web pages (books, creators, stores, fairs)    |
+| `hyperview`                                                              | Mobile app UI components and Hyperview route helpers |
+| `dashboard`                                                              | Creator and admin dashboards                         |
+| `auth`                                                                   | Sign-in, registration, email validation              |
+| `claims`                                                                 | Creator account claim flow                           |
+| `jobs`                                                                   | Background/cron job handlers                         |
+| `api`                                                                    | Shared API utilities                                 |
+| `book-analytics`, `book-views`, `site-analytics`, `app-store-analytics`  | Analytics                                            |
+| `interviews`, `fair-attendees`, `fair-views`, `purchase-clicks`, `legal` | Supporting domains                                   |
+
+### Routing
+
+Routes live in `src/fs-routes/` and are registered via `hono-fsr`. After adding or renaming route files, the manifest must be regenerated (`npm run dev:fsr` or `npm run build`).
+
+Top-level route groups: `(app)/` (public web), `dashboard/`, `hyperview/` (mobile), `auth/`, `api/`, `claims/`, `jobs/`.
+
+### Rendering patterns
+
+- **Web pages**: Hono JSX components return HTML via `c.html(...)`. Use Alpine `x-data` attributes for interactivity; register Alpine components in `src/client/`.
+- **Hyperview (mobile)**: Routes return XML using helpers in `src/lib/hxml-comps.tsx` (`View`, `Text`, `Behavior`, etc.) and `hyperview(c)` from `src/lib/hxml`.
+- **Forms**: `methodOverride` is enabled (`_method` field). Prefer `alpine-ajax` patterns already used in surrounding code.
+
+### Auth & middleware
+
+- `optionalAuthMiddleware` runs globally; use `requireAuth`, `requireAdmin`, `creatorGuard` on protected routes.
+- Session secret: `AUTH_SECRET` env var (required at startup).
+- Supabase client helpers: `src/lib/supabase.ts`.
+
+### Path alias
+
+`@/` maps to `src/` (configured in `vite.config.ts` and `vitest.config.ts`).
+
+## Testing
+
+- **Framework**: Vitest (Node environment)
+- **Location**: `src/**/*.test.ts` and `src/**/*.spec.ts`
+- **Run**: `npm run test:run`
+
+Add or update tests for non-trivial behavior changes.
 
 ## Editing Conventions
+
 - Prefer minimal, focused diffs; avoid unrelated refactors.
-- Keep existing naming/style patterns in each folder.
-- Do not edit generated artifacts manually when they are tool-owned (for example route manifests generated by `hono-fsr`).
-- For behavior changes, add or update tests (Vitest) when practical.
-- Avoid adding new dependencies unless necessary.
+- Match existing naming and patterns in each folder.
+- Do not edit generated artifacts (`src/fs-routes.manifest.ts`).
+- Avoid new dependencies unless necessary.
+- Hyperview list rows use `key` as an XML attribute (not React's `key` prop) — see `src/lib/hxml-comps.tsx`.
 
 ## Safety / Sensitive Areas
-- Never commit secrets or raw environment values.
-- Be careful in admin and planner flows, especially newsletter/social planning and Instagram service logic in `src/features/dashboard/admin/planner/*`.
-- Treat auth/session/middleware changes as high-risk and verify impacted routes.
+
+- Never commit secrets or raw `.env` values.
+- Treat auth/session/middleware changes as high-risk; verify impacted routes.
+- Be careful in admin and planner flows, especially `src/features/dashboard/admin/planner/*` (newsletter, social planning, Instagram services).
+- `.env.production` contains real credentials — reference env var **names** only in code and docs.
 
 ## PR Expectations
+
 - Explain why a change was needed, not only what changed.
-- Include a short test plan (`npm run typecheck`, `npm run test:run`, and any relevant manual checks).
+- Include a short test plan (`npm run typecheck`, `npm run test:run`, and relevant manual checks).
 - Keep commits and PRs small and reviewable.
+
+## Mobile (separate project)
+
+The Expo app in `mobile-expo/` is a separate npm project. Only work on it when explicitly requested. It connects to the Hyperview routes and uses `EXPO_PUBLIC_SERVER_URL` to find the backend.
