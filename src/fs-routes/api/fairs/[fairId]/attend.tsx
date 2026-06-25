@@ -23,6 +23,7 @@ import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 import HyperviewFairAttendButton from "../../../../features/hyperview/components/FairAttendButton";
+import { routeParam } from "../../../../lib/routeParam";
 
 const getFairForAttend = async (fairId: string) => {
   return db.query.bookFairs.findFirst({
@@ -132,7 +133,7 @@ export const DELETE = createRoute(async (c: Context) => {
 });
 
 const postAttendWeb = async (c: Context) => {
-  const fairId = c.req.param("fairId");
+  const fairId = routeParam(c, "fairId");
   const user = await getUser(c);
 
   if (!user?.id) {
@@ -181,7 +182,7 @@ const postAttendWeb = async (c: Context) => {
 };
 
 const deleteAttendWeb = async (c: Context) => {
-  const fairId = c.req.param("fairId");
+  const fairId = routeParam(c, "fairId");
   const user = await getUser(c);
 
   if (!user?.id) {
@@ -212,7 +213,7 @@ const deleteAttendWeb = async (c: Context) => {
 };
 
 const postAttendHyperview = async (c: Context) => {
-  const fairId = c.req.param("fairId");
+  const fairId = routeParam(c, "fairId");
   const user = await getUser(c);
 
   if (!user?.id) {
@@ -254,7 +255,7 @@ const postAttendHyperview = async (c: Context) => {
 };
 
 const deleteAttendHyperview = async (c: Context) => {
-  const fairId = c.req.param("fairId");
+  const fairId = routeParam(c, "fairId");
   const user = await getUser(c);
 
   if (!user?.id) {

@@ -25,12 +25,13 @@ import FairApprovalForm from "../../../../features/dashboard/admin/fairs/forms/F
 import AttendeeManagerForm from "../../../../features/dashboard/admin/fairs/forms/AttendeeManagerForm";
 import FairCoverForm from "../../../../features/dashboard/admin/fairs/forms/FairCoverForm";
 import FairBannerForm from "../../../../features/dashboard/admin/fairs/forms/FairBannerForm";
+import { routeParam } from "../../../../lib/routeParam";
 
 export const GET = createRoute(
   paramValidator(fairIdSchema),
   async (c: Context) => {
     const user = await getUser(c);
-    const fairId = c.req.param("fairId");
+    const fairId = routeParam(c, "fairId");
     const flash = await getFlash(c);
     const currentPath = c.req.path;
 

@@ -27,12 +27,13 @@ import { BookIdContext } from "../../../../features/dashboard/books/types";
 import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import BookApprovalForm from "../../../../features/dashboard/admin/books/forms/BookApprovalForm";
+import { routeParam } from "../../../../lib/routeParam";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
   async (c: Context) => {
     const user = await getUser(c);
-    const bookId = c.req.param("bookId");
+    const bookId = routeParam(c, "bookId");
     const flash = await getFlash(c);
     const currentPath = c.req.path;
 

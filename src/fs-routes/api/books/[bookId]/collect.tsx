@@ -18,6 +18,7 @@ import { hyperview } from "../../../../lib/hxml";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
+import { routeParam } from "../../../../lib/routeParam";
 
 const updateLibraryPage = () => "library:updated";
 
@@ -44,7 +45,7 @@ const postCollectHyperview = async (c: Context) => {
     );
   }
 
-  const bookId = c.req.param("bookId");
+  const bookId = routeParam(c, "bookId");
 
   const [err, book] = await getBookPermissionData(bookId);
   if (err || !book) {
@@ -80,7 +81,7 @@ const postCollectHyperview = async (c: Context) => {
 };
 
 const postCollectWeb = async (c: Context) => {
-  const bookId = c.req.param("bookId");
+  const bookId = routeParam(c, "bookId");
   const user = await getUser(c);
   const userId = user?.id;
 

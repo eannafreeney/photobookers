@@ -7,9 +7,10 @@ import {
   isHttpPurchaseUrl,
   parsePurchaseClickSource,
 } from "./urls";
+import { routeParam } from "../../lib/routeParam";
 
 export const handleOutboundPurchaseRedirect = async (c: Context) => {
-  const bookSlug = c.req.param("slug");
+  const bookSlug = routeParam(c, "slug");
   const [error, result] = await getBookBySlug(bookSlug, "published");
 
   if (error) return c.notFound();

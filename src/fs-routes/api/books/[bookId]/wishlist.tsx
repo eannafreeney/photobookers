@@ -24,6 +24,7 @@ import {
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 import { canWishlistBook } from "../../../../lib/permissions";
 import FavoriteButton from "../../../../features/api/components/WishlistButton";
+import { routeParam } from "../../../../lib/routeParam";
 
 const updateLibraryPage = () => "library:updated";
 
@@ -33,7 +34,7 @@ export const POST = createRoute(async (c: Context) => {
 });
 
 const postWishlistHyperview = async (c: Context) => {
-  const bookId = c.req.param("bookId");
+  const bookId = routeParam(c, "bookId");
   const user = await getUser(c);
   const baseUrl = getBaseUrl(c);
   const userId = user?.id;
@@ -117,7 +118,7 @@ const postWishlistHyperview = async (c: Context) => {
 };
 
 const postWishlistWeb = async (c: Context) => {
-  const bookId = c.req.param("bookId");
+  const bookId = routeParam(c, "bookId");
   const user = await getUser(c);
   const userId = user?.id;
 

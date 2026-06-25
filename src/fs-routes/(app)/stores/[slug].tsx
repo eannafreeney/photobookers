@@ -16,13 +16,14 @@ import {
 } from "../../../lib/seo";
 import { resolveStoreCoverUrl } from "../../../features/app/stores/coverUrl";
 import { slugSchema } from "../../../features/app/schema";
+import { routeParam } from "../../../lib/routeParam";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
   async (c: Context) => {
     const user = await getUser(c);
     const currentPath = c.req.path;
-    const slug = c.req.param("slug");
+    const slug = routeParam(c, "slug");
 
     if (!isFeatureEnabledForUser("stores", user)) {
       return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);

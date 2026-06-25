@@ -12,11 +12,12 @@ import CreatorDetail from "../../../features/app/components/CreatorDetail";
 import { canonicalUrl, creatorDescription, pageTitle } from "../../../lib/seo";
 import { getUpcomingFairsForCreator } from "../../../features/app/fairs/services";
 import { isFeatureEnabledForUser } from "../../../lib/features";
+import { routeParam } from "../../../lib/routeParam";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
   async (c: Context) => {
-    const slug = c.req.param("slug");
+    const slug = routeParam(c, "slug");
     const user = await getUser(c);
     const currentPath = c.req.path;
     const currentPage = Number(c.req.query("page") ?? 1);

@@ -14,9 +14,10 @@ import { InterviewFormContext } from "../../../features/interviews/types";
 import FormSuccessScreen from "../../../components/forms/FormSuccessScreen";
 import { createInterviewSubmittedNotification } from "../../../features/dashboard/admin/notifications/utils";
 import { uploadImage } from "../../../services/storage";
+import { routeParam } from "../../../lib/routeParam";
 
 export const GET = createRoute(async (c: Context) => {
-  const tokenId = c.req.param("tokenId");
+  const tokenId = routeParam(c, "tokenId");
   const [err, interview] = await getInterviewByToken(tokenId);
 
   if (err || !interview)
@@ -45,7 +46,7 @@ export const GET = createRoute(async (c: Context) => {
 export const POST = createRoute(
   formValidator(interviewFormSchema),
   async (c: InterviewFormContext) => {
-    const inviteToken = c.req.param("tokenId");
+    const inviteToken = routeParam(c, "tokenId");
     const form = c.req.valid("form");
 
     if (!inviteToken) return showErrorAlert(c, "Invalid interview link");

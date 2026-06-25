@@ -24,12 +24,13 @@ import { dispatchEvents } from "../../../../lib/disatchEvents";
 import StoreApprovalForm from "../../../../features/dashboard/admin/stores/forms/StoreApprovalForm";
 import StoreCoverForm from "../../../../features/dashboard/admin/stores/forms/StoreCoverForm";
 import { parseOptionalCoordinate } from "../../../../features/dashboard/admin/stores/coordinates";
+import { routeParam } from "../../../../lib/routeParam";
 
 export const GET = createRoute(
   paramValidator(storeIdSchema),
   async (c: Context) => {
     const user = await getUser(c);
-    const storeId = c.req.param("storeId");
+    const storeId = routeParam(c, "storeId");
     const flash = await getFlash(c);
     const currentPath = c.req.path;
 

@@ -18,6 +18,7 @@ import { getBaseUrl } from "../../../../lib/hyperview";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 import { HyperviewFollowInner } from "../../../../features/hyperview/components/FollowButton";
 import FollowButton from "../../../../features/api/components/FollowButton";
+import { routeParam } from "../../../../lib/routeParam";
 
 export const POST = createRoute(async (c: Context) => {
   const isHyperview = getIsHyperview(c);
@@ -25,7 +26,7 @@ export const POST = createRoute(async (c: Context) => {
 });
 
 const postFollowHyperview = async (c: Context) => {
-  const creatorId = c.req.param("creatorId");
+  const creatorId = routeParam(c, "creatorId");
   const user = await getUser(c);
   const hv = hyperview(c);
   const baseUrl = getBaseUrl(c);
@@ -84,7 +85,7 @@ const postFollowHyperview = async (c: Context) => {
 };
 
 const postFollowWeb = async (c: Context) => {
-  const creatorId = c.req.param("creatorId");
+  const creatorId = routeParam(c, "creatorId");
   const user = await getUser(c);
   const userId = user?.id;
 

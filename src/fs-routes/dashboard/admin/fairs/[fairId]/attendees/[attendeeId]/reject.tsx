@@ -10,12 +10,13 @@ import {
 import AttendeesList from "../../../../../../../features/dashboard/admin/fairs/components/AttendeesList";
 import { dispatchEvents } from "../../../../../../../lib/disatchEvents";
 import { Context } from "hono";
+import { routeParam } from "../../../../../../../lib/routeParam";
 
 export const POST = createRoute(
   paramValidator(attendeeIdSchema),
   async (c: Context) => {
-    const fairId = c.req.param("fairId");
-    const attendeeId = c.req.param("attendeeId");
+    const fairId = routeParam(c, "fairId");
+    const attendeeId = routeParam(c, "attendeeId");
 
     const [error] = await rejectFairAttendee(attendeeId);
     if (error) return showErrorAlert(c, error.reason);

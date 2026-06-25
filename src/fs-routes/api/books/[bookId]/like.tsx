@@ -21,6 +21,7 @@ import { isOk } from "../../../../lib/result";
 // import { HyperviewBookLikeInner } from "../../../../features/hyperview/components/BookActions";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
+import { routeParam } from "../../../../lib/routeParam";
 
 const updateLibraryPage = () => "library:updated";
 
@@ -30,7 +31,7 @@ export const POST = createRoute(async (c: Context) => {
 });
 
 const postLikeHyperview = async (c: Context) => {
-  const bookId = c.req.param("bookId");
+  const bookId = routeParam(c, "bookId");
   const user = await getUser(c);
   const baseUrl = getBaseUrl(c);
   const userId = user?.id;
@@ -102,7 +103,7 @@ const postLikeHyperview = async (c: Context) => {
 };
 
 const postLikeWeb = async (c: Context) => {
-  const bookId = c.req.param("bookId");
+  const bookId = routeParam(c, "bookId");
   const user = await getUser(c);
   const userId = user?.id;
 

@@ -17,6 +17,7 @@ import {
 import { recordFairView } from "../../../features/fair-views/services";
 import { isCreatorAttendingFair } from "../../../features/fair-attendees/services";
 import { getIsMobile } from "../../../lib/device";
+import { routeParam } from "../../../lib/routeParam";
 
 const slugSchema = z.object({
   slug: z.string(),
@@ -27,7 +28,7 @@ export const GET = createRoute(
   async (c: Context) => {
     const user = await getUser(c);
     const currentPath = c.req.path;
-    const slug = c.req.param("slug");
+    const slug = routeParam(c, "slug");
     const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
     if (!isFeatureEnabledForUser("fairs", user)) {

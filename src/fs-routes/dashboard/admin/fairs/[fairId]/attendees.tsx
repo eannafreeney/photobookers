@@ -14,11 +14,12 @@ import { Context } from "hono";
 import AttendeesList from "../../../../../features/dashboard/admin/fairs/components/AttendeesList";
 import { dispatchEvents } from "../../../../../lib/disatchEvents";
 import { AttendeeFormContext, FairIdContext } from "../../../../../features/dashboard/admin/fairs/types";
+import { routeParam } from "../../../../../lib/routeParam";
 
 export const GET = createRoute(
   paramValidator(fairIdSchema),
   async (c: Context) => {
-    const fairId = c.req.param("fairId");
+    const fairId = routeParam(c, "fairId");
 
     const [error, attendees] = await getAttendeesForFair(fairId);
     if (error) return showErrorAlert(c, error.reason);
@@ -60,7 +61,7 @@ export const POST = createRoute(
 export const DELETE = createRoute(
   paramValidator(fairIdSchema),
   async (c: Context) => {
-    const fairId = c.req.param("fairId");
+    const fairId = routeParam(c, "fairId");
     const creatorId = c.req.query("creatorId");
 
     if (!creatorId) {
