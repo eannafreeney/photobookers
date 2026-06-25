@@ -1,6 +1,7 @@
 import { FC } from "hono/jsx";
 import type { BookStore } from "../../../db/schema";
 import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps";
+import { buildGoogleMapsUrl } from "../../app/stores/googleMaps";
 
 type Props = {
   store: BookStore;
@@ -11,6 +12,9 @@ const formatLocation = (store: BookStore) =>
 
 const StoreDetailBody: FC<Props> = ({ store }) => {
   const location = formatLocation(store);
+  const mapsUrl = store.address
+    ? buildGoogleMapsUrl(store.name, store.address)
+    : null;
 
   return (
     <View style="store-detail">
@@ -43,10 +47,17 @@ const StoreDetailBody: FC<Props> = ({ store }) => {
         </View>
       ) : null}
 
+      {mapsUrl ? (
+        <View style="store-detail-website-btn">
+          <Text style="store-detail-website-label">Open in Google Maps</Text>
+          <Behavior href={mapsUrl} action="deep-link" />
+        </View>
+      ) : null}
+
       {store.website ? (
         <View style="store-detail-website-btn">
           <Text style="store-detail-website-label">Visit Bookstore Website</Text>
-          <Behavior href={store.website} action="new" />
+          <Behavior href={store.website} action="deep-link" />
         </View>
       ) : null}
     </View>

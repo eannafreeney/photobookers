@@ -19,10 +19,10 @@ import SecondaryButtonLink, {
 } from "./SecondaryButtonLink";
 import SectionHeader from "./SectionHeader";
 
-export const FEATURED_LATEST_BOOKS_TAB = "/hyperview/featured/tab/latest-books";
-export const FEATURED_LATEST_BOOKS_LIMIT = 5;
+const FEATURED_LATEST_BOOKS_TAB = "/hyperview/featured/tab/latest-books";
+const FEATURED_LATEST_BOOKS_LIMIT = 5;
 export const FEATURED_LATEST_BOOKS_DEFAULT_SORT = "trending" as const;
-export const FEATURED_LATEST_BOOKS_SCROLL_ID = "featured-latest-books-scroll";
+const FEATURED_LATEST_BOOKS_SCROLL_ID = "featured-latest-books-scroll";
 
 export const featuredLatestBooksFilterPath = (baseUrl: string) =>
   `${baseUrl}${FEATURED_LATEST_BOOKS_TAB}`;

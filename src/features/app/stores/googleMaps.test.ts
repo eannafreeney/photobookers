@@ -9,7 +9,7 @@ describe("buildGoogleMapsUrl", () => {
     );
 
     expect(url).toBe(
-      "https://www.google.com/maps/search/?api=1&query=" +
+      "https://www.google.com/maps/search/" +
         encodeURIComponent("Dashwood Books, 33 Bond St, New York, NY 10012"),
     );
   });
