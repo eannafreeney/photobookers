@@ -16,7 +16,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
         html,
       },
       headers: {
-        "x-function-secret": process.env.FUNCTION_SECRET ?? "",
+        "x-function-secret": process.env.FUNCTION_SECRET as string,
       },
     });
     if (error) {

@@ -80,7 +80,7 @@ const AppLayout = ({
       <div id="modal-root"></div>
       {flash && <Alert type={flash.type} message={flash.message} />}
       <ToastContainer />
-      <ActivityStream currentUserId={user?.id ?? undefined} />
+      {user ? <ActivityStream currentUserId={user.id} /> : null}
       <div x-sync id="server_events"></div>
     </body>
   </html>

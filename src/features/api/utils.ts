@@ -18,7 +18,6 @@ export const publishLikeActivity = (user: AuthUser, book: ActivityBookTarget) =>
   publishActivityEvent({
     type: "book_liked",
     actorId: user.id,
-    actorName: user?.creator?.displayName ?? user?.firstName ?? "Someone",
     targetName: book.title,
     targetImageUrl: book.coverUrl,
     targetCreatorName: book.artist?.displayName ?? "",
@@ -32,7 +31,6 @@ export const publishWishlistActivity = (
   publishActivityEvent({
     type: "book_wishlisted",
     actorId: user.id,
-    actorName: user?.creator?.displayName ?? user?.firstName ?? "Someone",
     targetName: book.title,
     targetImageUrl: book.coverUrl,
     targetCreatorName: book.artist?.displayName ?? "",
@@ -46,7 +44,6 @@ export const publishCollectActivity = (
   publishActivityEvent({
     type: "book_collected",
     actorId: user.id,
-    actorName: user?.creator?.displayName ?? user?.firstName ?? "Someone",
     targetName: book.title,
     targetImageUrl: book.coverUrl,
     targetCreatorName: book.artist?.displayName ?? "",
@@ -60,7 +57,6 @@ export const publishFollowActivity = (
   publishActivityEvent({
     type: "creator_followed",
     actorId: user.id,
-    actorName: user?.creator?.displayName ?? user?.firstName ?? "Someone",
     targetName: creator.displayName,
     targetImageUrl: creator.coverUrl,
     targetUrl: `/creators/${creator.slug}`,
@@ -73,7 +69,6 @@ export const publishCommentActivity = (
   publishActivityEvent({
     type: "book_commented",
     actorId: user.id,
-    actorName: user?.creator?.displayName ?? user?.firstName ?? "Someone",
     targetName: book.title,
     targetImageUrl: book.coverUrl,
     targetCreatorName: book.artist?.displayName ?? "",

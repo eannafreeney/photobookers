@@ -7,9 +7,7 @@ import {
 import { parseDateString } from "../../../lib/utils";
 
 export const POST = createRoute(async (c: Context) => {
-  const secret =
-    c.req.header("Authorization")?.replace(/^Bearer\s+/i, "") ??
-    c.req.query("secret");
+  const secret = c.req.header("Authorization")?.replace(/^Bearer\s+/i, "");
   const expected = process.env.CRON_SECRET;
   if (!expected || secret !== expected) {
     return c.json({ error: "Unauthorized" }, 401);

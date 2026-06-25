@@ -9,7 +9,6 @@ type ActivityEvent = {
     | "creator_followed"
     | "book_commented";
   actorId?: string;
-  actorName: string;
   targetName: string;
   targetImageUrl?: string | null;
   targetUrl?: string;
@@ -28,28 +27,28 @@ const toMessageParts = (
   switch (e.type) {
     case "book_liked":
       return {
-        leadingText: `${e.actorName} just liked `,
-        trailingText: "",
+        leadingText: "",
+        trailingText: " was favourited",
       };
     case "book_wishlisted":
       return {
-        leadingText: `${e.actorName} just wishlisted `,
-        trailingText: "",
+        leadingText: "",
+        trailingText: " was added to a wishlist",
       };
     case "book_collected":
       return {
-        leadingText: `${e.actorName} added `,
-        trailingText: " to their collection",
+        leadingText: "",
+        trailingText: " was added to a collection",
       };
     case "creator_followed":
       return {
-        leadingText: `${e.actorName} just followed `,
-        trailingText: "",
+        leadingText: "",
+        trailingText: " was followed",
       };
     case "book_commented":
       return {
-        leadingText: `${e.actorName} just commented on `,
-        trailingText: "",
+        leadingText: "",
+        trailingText: " was commented on",
       };
   }
 };

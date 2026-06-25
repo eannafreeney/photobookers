@@ -43,34 +43,11 @@ describe("publish* activity helpers", () => {
     expect(publishActivityEvent).toHaveBeenCalledWith({
       type: "book_liked",
       actorId: user.id,
-      actorName: "Pat",
       targetName: book.title,
       targetImageUrl: book.coverUrl,
       targetCreatorName: "Artist Name",
       targetUrl: "/books/my-book",
     });
-  });
-
-  it("uses creator displayName as actorName when present", () => {
-    const creatorUser: AuthUser = {
-      ...user,
-      firstName: "Ignored",
-      creator: { id: "c1", displayName: "Creator Display" } as AuthUser["creator"],
-    };
-    publishLikeActivity(creatorUser, book);
-    expect(publishActivityEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        actorName: "Creator Display",
-      }),
-    );
-  });
-
-  it("uses Someone when no firstName or creator display name", () => {
-    const minimal = { ...user, firstName: null };
-    publishLikeActivity(minimal, book);
-    expect(publishActivityEvent).toHaveBeenCalledWith(
-      expect.objectContaining({ actorName: "Someone" }),
-    );
   });
 
   it("publishWishlistActivity sends book_wishlisted", () => {
@@ -97,7 +74,6 @@ describe("publish* activity helpers", () => {
     expect(publishActivityEvent).toHaveBeenCalledWith({
       type: "creator_followed",
       actorId: user.id,
-      actorName: "Pat",
       targetName: creator.displayName,
       targetImageUrl: creator.coverUrl,
       targetUrl: "/creators/creator-slug",
