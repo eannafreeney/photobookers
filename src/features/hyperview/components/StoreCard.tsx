@@ -13,6 +13,8 @@ const formatLocation = (store: {
 }) => [store.city, store.country].filter(Boolean).join(", ");
 
 const StoreCard = ({ store, href }: Props) => {
+  const location = formatLocation(store);
+
   return (
     <View key={store.id} style="store-card">
       <Behavior href={href} />
@@ -29,7 +31,7 @@ const StoreCard = ({ store, href }: Props) => {
         <Text style="store-card-eyebrow">BOOKSTORE</Text>
         <Text style="store-card-name">{store.name}</Text>
         {location ? (
-          <Text style="store-card-location">{formatLocation(store)}</Text>
+          <Text style="store-card-location">{location}</Text>
         ) : null}
       </View>
     </View>

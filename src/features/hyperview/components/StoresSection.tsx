@@ -24,7 +24,7 @@ const StoresSection = async ({ baseUrl }: Props) => {
     <View style="stores-section">
       <SectionHeader
         title="Bookstores"
-        viewAllHref={`${baseUrl}/hyperview/fairs`}
+        viewAllHref={`${baseUrl}/hyperview/stores`}
       />
       <ScrollView
         style="stores-scroll"
