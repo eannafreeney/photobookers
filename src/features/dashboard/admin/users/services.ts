@@ -15,7 +15,12 @@ import { newUserFormAdminSchema } from "./schema";
 import z from "zod";
 import { getPagination } from "../../../../lib/pagination";
 import { supabaseAdmin } from "../../../../lib/supabase";
+import { sendEmail } from "../../../../lib/sendEmail";
 import { err, ok } from "../../../../lib/result";
+import {
+  generateLoginInstructionsEmail,
+  loginInstructionsEmailSubject,
+} from "./emails";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -135,7 +140,10 @@ export const deleteUserByIdAdmin = async (userId: string) => {
       await supabaseAdmin.auth.admin.deleteUser(userId);
     if (authError && authError.code !== "user_not_found") {
       console.error("Failed to delete auth user", authError);
-      return err({ reason: "Failed to delete Supabase Auth user", cause: authError });
+      return err({
+        reason: "Failed to delete Supabase Auth user",
+        cause: authError,
+      });
     }
 
     const result = await db.transaction(async (tx) => {
@@ -186,11 +194,66 @@ export const createAuthUser = async (
   }
 };
 
+function passwordUpdateRedirectUrl(): string {
+  const baseUrl = process.env.SITE_URL ?? "http://localhost:5173";
+  return `${baseUrl.replace(/\/$/, "")}/auth/update-password`;
+}
+
+export const sendUserLoginInstructionsEmail = async (
+  email: string,
+  options: {
+    firstName?: string | null;
+    creatorDisplayName?: string | null;
+    purpose: "account_created" | "password_reset";
+  },
+) => {
+  try {
+    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+      type: "recovery",
+      email,
+      options: {
+        redirectTo: passwordUpdateRedirectUrl(),
+      },
+    });
+
+    const setPasswordLink = data?.properties?.action_link;
+    if (error || !setPasswordLink) {
+      return err({
+        reason: "Failed to generate login link",
+        cause: error,
+      });
+    }
+
+    const [emailError] = await sendEmail(
+      email,
+      loginInstructionsEmailSubject(options.purpose),
+      generateLoginInstructionsEmail({
+        ...options,
+        setPasswordLink,
+      }),
+    );
+
+    if (emailError)
+      err({
+        reason: "Failed to send login instructions email",
+        cause: emailError,
+      });
+
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to send login instructions email", error);
+    return err({
+      reason: "Failed to send login instructions email",
+      cause: error,
+    });
+  }
+};
+
 export const resetUserPasswordAdmin = async (userId: string) => {
   try {
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),
-      columns: { id: true, email: true },
+      columns: { id: true, email: true, firstName: true },
     });
     if (!user) return err({ reason: "User not found" });
 
@@ -212,7 +275,13 @@ export const resetUserPasswordAdmin = async (userId: string) => {
       .set({ mustResetPassword: true, updatedAt: new Date() })
       .where(eq(users.id, userId));
 
-    return ok({ email: user.email, temporaryPassword });
+    const emailResult = await sendUserLoginInstructionsEmail(user.email, {
+      firstName: user.firstName,
+      purpose: "password_reset",
+    });
+    if (emailResult[0]) return emailResult;
+
+    return ok({ email: user.email });
   } catch (error) {
     console.error("Failed to reset user password", error);
     return err({ reason: "Failed to reset user password", cause: error });

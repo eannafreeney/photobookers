@@ -2,14 +2,15 @@ import { createRoute } from "hono-fsr";
 import { formValidator } from "../../../../lib/validator";
 import { newUserFormAdminSchema } from "../../../../features/dashboard/admin/users/schema";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
+import Alert from "../../../../components/app/Alert";
 import {
   createAuthUser,
   createUserWithAuthId,
+  sendUserLoginInstructionsEmail,
 } from "../../../../features/dashboard/admin/users/services";
 import { getCreatorById } from "../../../../features/dashboard/creators/services";
 import { assignUserAsCreatorOwnerAdmin } from "../../../../features/dashboard/admin/claims/services";
 import CreateUserFormAdmin from "../../../../features/dashboard/admin/users/forms/CreateUserFormAdmin";
-import NewUserCredentialsModal from "../../../../features/dashboard/admin/users/modals/NewUserCredentialsModal";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 
 export const POST = createRoute(
@@ -57,13 +58,24 @@ export const POST = createRoute(
         return showErrorAlert(c, "Failed to assign user as creator owner");
     }
 
+    const [emailError] = await sendUserLoginInstructionsEmail(email, {
+      firstName: formData.firstName,
+      creatorDisplayName: creator?.displayName ?? null,
+      purpose: "account_created",
+    });
+    if (emailError) {
+      return showErrorAlert(
+        c,
+        "User created but failed to send login email. Please reset their password to resend instructions.",
+      );
+    }
+
     return c.html(
       <>
         <CreateUserFormAdmin />
-        <NewUserCredentialsModal
-          email={email}
-          temporaryPassword={temporaryPassword}
-          creator={creator ?? undefined}
+        <Alert
+          type="success"
+          message={`Account created. Login instructions sent to ${email}.`}
         />
         {dispatchEvents(["users:updated"])}
       </>,
