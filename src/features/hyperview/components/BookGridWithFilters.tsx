@@ -4,8 +4,11 @@ import type { BookCardResult } from "../../../constants/queries";
 import { type BookCatalogSort } from "../../../lib/bookCatalogSort";
 import { getFilteredBooks } from "../../app/services";
 import { favoriteFlagsForBooks } from "../findFlags";
-import { hyperviewBooksFilterUrl, resolveBookCatalogSort } from "../../../lib/tags";
-import { Style, Text, View } from "../../../lib/hxml-comps";
+import {
+  hyperviewBooksFilterUrl,
+  resolveBookCatalogSort,
+} from "../../../lib/tags";
+import { ScrollView, Style, Text, View } from "../../../lib/hxml-comps";
 import BookCard, { bookCardStyles } from "./BookCard";
 import BookFiltersPanel, {
   BOOKS_CATALOG_TARGET_ID,
@@ -17,8 +20,9 @@ import SecondaryButtonLink, {
 import SectionHeader from "./SectionHeader";
 
 export const FEATURED_LATEST_BOOKS_TAB = "/hyperview/featured/tab/latest-books";
-export const FEATURED_LATEST_BOOKS_LIMIT = 10;
+export const FEATURED_LATEST_BOOKS_LIMIT = 5;
 export const FEATURED_LATEST_BOOKS_DEFAULT_SORT = "trending" as const;
+export const FEATURED_LATEST_BOOKS_SCROLL_ID = "featured-latest-books-scroll";
 
 export const featuredLatestBooksFilterPath = (baseUrl: string) =>
   `${baseUrl}${FEATURED_LATEST_BOOKS_TAB}`;
@@ -59,10 +63,21 @@ export const FeaturedLatestBooksCatalogShell = ({
       sort={sort}
       defaultSort={defaultSort}
       filterPath={featuredLatestBooksFilterPath(baseUrl)}
+      scrollToTopTarget={FEATURED_LATEST_BOOKS_SCROLL_ID}
     />
-    <View style="latest-books-catalog">
+    <ScrollView
+      id={FEATURED_LATEST_BOOKS_SCROLL_ID}
+      style="books-scroll"
+      horizontal="true"
+      shows-scroll-indicator="false"
+    >
       <BookGridCatalog baseUrl={baseUrl} {...catalogProps} />
-    </View>
+    </ScrollView>
+    {catalogProps.hasMore && catalogProps.books.length > 0 ? (
+      <View style="featured-books-see-all-wrap">
+        <SecondaryButtonLink label="See all" href={catalogProps.viewAllHref} />
+      </View>
+    ) : null}
   </View>
 );
 
@@ -108,30 +123,26 @@ export const loadFeaturedLatestBooksCatalog = async (
 
 type CatalogProps = FeaturedLatestBooksCatalogProps;
 
-export const BookGridCatalog: FC<CatalogProps> = ({
+export const BookGridCatalog = ({
   books,
   baseUrl,
   favoritesByBookId,
   isFiltered,
-  hasMore,
-  viewAllHref,
-}) => (
+}: CatalogProps) => (
   <>
     {isFiltered && books.length === 0 ? (
       <Text style="featured-empty-hint">No books match your filters.</Text>
     ) : (
       books.map((book) => (
-        <BookCard
-          key={book.id}
-          book={book}
-          baseUrl={baseUrl}
-          isFavorited={favoritesByBookId[book.id] ?? false}
-        />
+        <View key={book.id} style="featured-book-card-wrap">
+          <BookCard
+            book={book}
+            baseUrl={baseUrl}
+            isFavorited={favoritesByBookId[book.id] ?? false}
+          />
+        </View>
       ))
     )}
-    {hasMore ? (
-      <SecondaryButtonLink label="View All Books →" href={viewAllHref} />
-    ) : null}
   </>
 );
 
@@ -171,9 +182,10 @@ type FeaturedLatestBooksSectionProps = {
   user?: AuthUser | null;
 };
 
-export const FeaturedLatestBooksSection: FC<
-  FeaturedLatestBooksSectionProps
-> = async ({ baseUrl, user = null }) => {
+export const FeaturedLatestBooksSection = async ({
+  baseUrl,
+  user = null,
+}: FeaturedLatestBooksSectionProps) => {
   const catalogProps = await loadFeaturedLatestBooksCatalog(user, baseUrl);
 
   if (!catalogProps) return <></>;
@@ -199,7 +211,14 @@ export const bookGridWithFiltersStyles = () => (
       gap={0}
       marginBottom={24}
     />
-    <Style id="latest-books-catalog" flexDirection="column" gap={0} />
+    <Style id="books-scroll" flexDirection="row" />
+    <Style
+      id="featured-book-card-wrap"
+      width={320}
+      marginRight={12}
+      flexShrink={0}
+    />
+    <Style id="featured-books-see-all-wrap" width="100%" paddingTop={12} />
     {bookFiltersStyles()}
     {bookCardStyles()}
     {secondaryButtonLinkStyles()}

@@ -12,22 +12,27 @@ const formatLocation = (store: {
   country?: string | null;
 }) => [store.city, store.country].filter(Boolean).join(", ");
 
-const StoreCard = ({ store, href }: Props) => {
+const StoreCard = ({ store, href, variant = "carousel" }: Props) => {
   const location = formatLocation(store);
+  const cardStyle = variant === "list" ? "store-list-card" : "store-card";
+  const imageStyle =
+    variant === "list" ? "store-list-card-image" : "store-card-image";
+  const overlayStyle =
+    variant === "list" ? "store-list-card-overlay" : "store-card-overlay";
 
   return (
-    <View key={store.id} style="store-card">
+    <View key={store.id} style={cardStyle}>
       <Behavior href={href} />
       {store.coverUrl ? (
         <Image
           source={store.coverUrl}
-          style="store-card-image"
+          style={imageStyle}
           resize-mode="cover"
         />
       ) : (
-        <View style="store-card-image" />
+        <View style={imageStyle} />
       )}
-      <View style="store-card-overlay">
+      <View style={overlayStyle}>
         <Text style="store-card-eyebrow">BOOKSTORE</Text>
         <Text style="store-card-name">{store.name}</Text>
         {location ? (
@@ -57,7 +62,35 @@ export const storeCardStyles = () => (
       backgroundColor="#e4e0d5"
     />
     <Style
+      id="store-list-card"
+      width="100%"
+      height={280}
+      overflow="hidden"
+      marginBottom={16}
+      backgroundColor="#e4e0d5"
+    />
+    <Style
+      id="store-list-card-image"
+      width="100%"
+      height={280}
+      backgroundColor="#e4e0d5"
+    />
+    <Style
       id="store-card-overlay"
+      position="absolute"
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      backgroundColor="rgba(0,0,0,0.45)"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      padding={16}
+      gap={4}
+    />
+    <Style
+      id="store-list-card-overlay"
       position="absolute"
       top={0}
       left={0}

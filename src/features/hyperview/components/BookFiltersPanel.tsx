@@ -45,6 +45,7 @@ type Props = {
   defaultSort?: BookCatalogSort;
   /** Full hyperview URL used for filter behaviors (default: `{baseUrl}/hyperview/books`). */
   filterPath?: string;
+  scrollToTopTarget?: string;
 };
 
 const filterSummary = (
@@ -92,6 +93,7 @@ const BookFiltersPanel = ({
   sort = "newest",
   defaultSort = "newest",
   filterPath: filterPathProp,
+  scrollToTopTarget,
 }: Props) => {
   const filterPath = filterPathProp ?? defaultFilterPath(baseUrl);
   const trimmedQ = q?.trim() ?? "";
@@ -138,6 +140,9 @@ const BookFiltersPanel = ({
         {hasActiveFilters ? (
           <View style="book-filters-toggle-clear">
             <Text style="book-filters-clear-label">Clear</Text>
+            {scrollToTopTarget ? (
+              <Behavior action="scroll-to-top" target={scrollToTopTarget} />
+            ) : null}
             <Behavior
               verb="get"
               action="replace"
@@ -155,6 +160,9 @@ const BookFiltersPanel = ({
                 activeSlug ? "book-filter-pill" : "book-filter-pill-active"
               }
             >
+              {scrollToTopTarget ? (
+                <Behavior action="scroll-to-top" target={scrollToTopTarget} />
+              ) : null}
               <Behavior
                 verb="get"
                 action="replace"
@@ -181,6 +189,9 @@ const BookFiltersPanel = ({
                     isActive ? "book-filter-pill-active" : "book-filter-pill"
                   }
                 >
+                  {scrollToTopTarget ? (
+                    <Behavior action="scroll-to-top" target={scrollToTopTarget} />
+                  ) : null}
                   <Behavior
                     verb="get"
                     action="replace"
@@ -214,6 +225,9 @@ const BookFiltersPanel = ({
                 <View style="book-filters-search-actions">
                   <View style="book-filters-search-btn">
                     <Text style="book-filters-search-label">Search</Text>
+                    {scrollToTopTarget ? (
+                      <Behavior action="scroll-to-top" target={scrollToTopTarget} />
+                    ) : null}
                     <Behavior
                       verb="post"
                       action="replace"
@@ -223,6 +237,9 @@ const BookFiltersPanel = ({
                   </View>
                   <View style="book-filters-clear">
                     <Text style="book-filters-clear-label">Clear</Text>
+                    {scrollToTopTarget ? (
+                      <Behavior action="scroll-to-top" target={scrollToTopTarget} />
+                    ) : null}
                     <Behavior
                       verb="get"
                       action="replace"
@@ -246,6 +263,9 @@ const BookFiltersPanel = ({
                       isActive ? "book-filter-pill-active" : "book-filter-pill"
                     }
                   >
+                    {scrollToTopTarget ? (
+                      <Behavior action="scroll-to-top" target={scrollToTopTarget} />
+                    ) : null}
                     <Behavior
                       verb="get"
                       action="replace"
