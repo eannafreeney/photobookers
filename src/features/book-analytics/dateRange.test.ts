@@ -13,6 +13,15 @@ describe("presetAnalyticsDateRange", () => {
     vi.useRealTimers();
   });
 
+  it("returns today only for a 1-day preset", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-19T15:00:00Z"));
+
+    const range = presetAnalyticsDateRange(1);
+    expect(range.from.toISOString()).toBe("2026-06-19T00:00:00.000Z");
+    expect(range.to.toISOString()).toBe("2026-06-19T00:00:00.000Z");
+  });
+
   it("returns an inclusive range ending today", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-19T15:00:00Z"));
@@ -111,6 +120,7 @@ describe("matchesPreset", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-19T12:00:00Z"));
 
+    expect(matchesPreset(presetAnalyticsDateRange(1), 1)).toBe(true);
     expect(matchesPreset(presetAnalyticsDateRange(30), 30)).toBe(true);
     expect(matchesPreset(presetAnalyticsDateRange(7), 30)).toBe(false);
     expect(matchesPreset(null, 7)).toBe(false);

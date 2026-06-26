@@ -16,6 +16,7 @@ type Props = {
 
 const PRESETS = [
   { label: "All time", days: null },
+  { label: "Today", days: 1 },
   { label: "Last 7 days", days: 7 },
   { label: "Last 30 days", days: 30 },
   { label: "Last 90 days", days: 90 },
