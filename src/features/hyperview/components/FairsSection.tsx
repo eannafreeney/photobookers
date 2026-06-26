@@ -19,10 +19,17 @@ const FairsSection = async ({ baseUrl }: Props) => {
 
   if (upcomingError || currentError) return <></>;
 
+  const seen = new Set<string>();
   const allFairs = [
     ...(currentResult?.fairs ?? []),
     ...(upcomingResult?.fairs ?? []),
-  ].slice(0, FEATURED_FAIRS_LIMIT);
+  ]
+    .filter((fair) => {
+      if (seen.has(fair.id)) return false;
+      seen.add(fair.id);
+      return true;
+    })
+    .slice(0, FEATURED_FAIRS_LIMIT);
 
   if (allFairs.length === 0) return <></>;
 

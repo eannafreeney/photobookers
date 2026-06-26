@@ -12,21 +12,26 @@ import Button from "../../../components/app/Button";
 const FEATURED_FAIRS_LIMIT = 5;
 
 export const GET = createRoute(async (c) => {
-  const fairs = Promise.all([
-    await getUpcomingFairs(1, FEATURED_FAIRS_LIMIT),
-    await getCurrentFairs(1, FEATURED_FAIRS_LIMIT),
-  ]);
-
   const [[upcomingError, upcomingFairs], [currentError, currentFairs]] =
-    await fairs;
+    await Promise.all([
+      getUpcomingFairs(1, FEATURED_FAIRS_LIMIT),
+      getCurrentFairs(1, FEATURED_FAIRS_LIMIT),
+    ]);
 
   if (upcomingError || currentError) return c.html(<></>);
 
-  // Combine fairs, prioritizing current fairs first
+  // Combine fairs, prioritizing current fairs first (dedupe in case of overlap)
+  const seen = new Set<string>();
   const allFairs = [
     ...(currentFairs?.fairs ?? []),
     ...(upcomingFairs?.fairs ?? []),
-  ].slice(0, FEATURED_FAIRS_LIMIT);
+  ]
+    .filter((fair) => {
+      if (seen.has(fair.id)) return false;
+      seen.add(fair.id);
+      return true;
+    })
+    .slice(0, FEATURED_FAIRS_LIMIT);
 
   // If no fairs available, don't render anything
   if (allFairs.length === 0) return c.html(<></>);

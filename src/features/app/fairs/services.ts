@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gt, gte, ilike, lte, or, sql } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { bookFairs, fairAttendees } from "../../../db/schema";
 import { getPagination } from "../../../lib/pagination";
@@ -14,7 +14,7 @@ export const getUpcomingFairs = async (
     const publishedCondition = and(
       eq(bookFairs.status, "published"),
       eq(bookFairs.approvalStatus, "approved"),
-      gte(bookFairs.startDate, today()),
+      gt(bookFairs.startDate, today()),
     );
 
     const [{ value: totalCount = 0 }] = await db
