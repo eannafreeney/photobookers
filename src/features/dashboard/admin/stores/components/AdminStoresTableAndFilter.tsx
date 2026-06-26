@@ -1,13 +1,12 @@
 import { AuthUser } from "../../../../../../types";
 import Link from "../../../../../components/app/Link";
 import Table from "../../../../../components/app/Table";
-import FormDelete from "../../../../../components/forms/FormDelete";
-import { deleteIcon, editIcon } from "../../../../../lib/icons";
+import { editIcon } from "../../../../../lib/icons";
 import { getAllStoresAdmin } from "../services";
 import StoreStatusBadge from "./StoreStatusBadge";
-import StoreApprovalStatusPill from "./StoreApprovalStatusPill";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import DeleteStoreButton from "./DeleteStoreButton";
+import StatusPill from "../../components/StatusPill";
 
 type Props = {
   currentPage: number;
@@ -71,9 +70,7 @@ const AdminStoresTableAndFilter = async ({
                   <StoreStatusBadge status={store.status} />
                 </Table.BodyRow>
                 <Table.BodyRow>
-                  <StoreApprovalStatusPill
-                    approvalStatus={store.approvalStatus}
-                  />
+                  <StatusPill status={store.approvalStatus} />
                 </Table.BodyRow>
                 <Table.BodyRow>
                   <div class="flex gap-2">

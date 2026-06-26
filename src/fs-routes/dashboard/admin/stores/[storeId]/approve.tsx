@@ -4,7 +4,7 @@ import { storeIdSchema } from "../../../../../features/dashboard/admin/stores/sc
 import { approveStore } from "../../../../../features/dashboard/admin/stores/services";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
 import { StoreIdContext } from "../../../../../features/dashboard/admin/stores/types";
-import StoreApprovalStatusPill from "../../../../../features/dashboard/admin/stores/components/StoreApprovalStatusPill";
+import StatusPill from "../../../../../features/dashboard/admin/components/StatusPill";
 
 export const POST = createRoute(
   paramValidator(storeIdSchema),
@@ -16,7 +16,7 @@ export const POST = createRoute(
 
     return c.html(
       <div id="store-approval-status" x-merge="morph">
-        <StoreApprovalStatusPill approvalStatus={updatedStore.approvalStatus} />
+        <StatusPill status={updatedStore.approvalStatus} />
       </div>,
     );
   },

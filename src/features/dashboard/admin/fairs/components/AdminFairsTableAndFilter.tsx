@@ -6,8 +6,8 @@ import { deleteIcon, editIcon } from "../../../../../lib/icons";
 import { formatDate } from "../../../../../utils";
 import { getAllFairsAdmin } from "../services";
 import FairStatusBadge from "./FairStatusBadge";
-import FairApprovalStatusPill from "./FairApprovalStatusPill";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
+import StatusPill from "../../components/StatusPill";
 
 type Props = {
   status?: "draft" | "published" | "cancelled" | undefined;
@@ -84,9 +84,7 @@ const AdminFairsTableAndFilter = async ({
                   <FairStatusBadge status={fair.status} />
                 </Table.BodyRow>
                 <Table.BodyRow>
-                  <FairApprovalStatusPill
-                    approvalStatus={fair.approvalStatus}
-                  />
+                  <StatusPill status={fair.approvalStatus} />
                 </Table.BodyRow>
                 <Table.BodyRow>
                   <div class="flex gap-2">
@@ -101,7 +99,10 @@ const AdminFairsTableAndFilter = async ({
                       confirmMessage={`Delete ${fair.name}?`}
                       {...{ "@ajax:success": "$el.closest('tr').remove()" }}
                     >
-                      <button type="submit" class="cursor-pointer hover:text-red-500">
+                      <button
+                        type="submit"
+                        class="cursor-pointer hover:text-red-500"
+                      >
                         {deleteIcon}
                       </button>
                     </FormDelete>

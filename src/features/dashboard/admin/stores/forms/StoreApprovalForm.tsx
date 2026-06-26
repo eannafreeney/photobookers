@@ -1,5 +1,5 @@
 import type { BookStore } from "../../../../../db/schema";
-import StoreApprovalStatusPill from "../components/StoreApprovalStatusPill";
+import StatusPill from "../../components/StatusPill";
 
 type StoreApprovalFormProps = {
   store: BookStore;
@@ -10,7 +10,7 @@ const StoreApprovalForm = ({ store }: StoreApprovalFormProps) => {
 
   return (
     <div class="flex items-center gap-2" id="store-approval-status">
-      <StoreApprovalStatusPill approvalStatus={store.approvalStatus} />
+      <StatusPill status={store.approvalStatus} />
       {isPending && (
         <div class="flex gap-2">
           <form

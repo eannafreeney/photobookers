@@ -4,7 +4,7 @@ import { fairIdSchema } from "../../../../../features/dashboard/admin/fairs/sche
 import { approveFair } from "../../../../../features/dashboard/admin/fairs/services";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
 import { FairIdContext } from "../../../../../features/dashboard/admin/fairs/types";
-import FairApprovalStatusPill from "../../../../../features/dashboard/admin/fairs/components/FairApprovalStatusPill";
+import StatusPill from "../../../../../features/dashboard/admin/components/StatusPill";
 
 export const POST = createRoute(
   paramValidator(fairIdSchema),
@@ -16,7 +16,7 @@ export const POST = createRoute(
 
     return c.html(
       <div id="fair-approval-status" x-merge="morph">
-        <FairApprovalStatusPill approvalStatus={updatedFair.approvalStatus} />
+        <StatusPill status={updatedFair.approvalStatus} />
       </div>,
     );
   },

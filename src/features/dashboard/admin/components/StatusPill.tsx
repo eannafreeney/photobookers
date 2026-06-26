@@ -1,10 +1,8 @@
-import type { FairAttendeeStatus } from "../../../../../db/schema";
-
-type AttendeeStatusPillProps = {
-  status: FairAttendeeStatus;
+type Props = {
+  status: "pending" | "approved" | "rejected";
 };
 
-const AttendeeStatusPill = ({ status }: AttendeeStatusPillProps) => {
+const StatusPill = ({ status }: Props) => {
   const pillClasses = {
     pending: "bg-yellow-200 text-yellow-800",
     approved: "bg-green-200 text-green-800",
@@ -20,4 +18,4 @@ const AttendeeStatusPill = ({ status }: AttendeeStatusPillProps) => {
   );
 };
 
-export default AttendeeStatusPill;
+export default StatusPill;

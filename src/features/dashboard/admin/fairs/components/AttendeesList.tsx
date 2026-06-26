@@ -1,6 +1,6 @@
 import type { FairAttendee } from "../../../../../db/schema";
 import FormDelete from "../../../../../components/forms/FormDelete";
-import AttendeeStatusPill from "./AttendeeStatusPill";
+import StatusPill from "../../components/StatusPill";
 
 type AttendeesListProps = {
   attendees: Array<
@@ -52,7 +52,7 @@ const AttendeesList = ({ attendees, fairId }: AttendeesListProps) => {
                 </div>
               </div>
             </div>
-            <AttendeeStatusPill status={attendee.status} />
+            <StatusPill status={attendee.status} />
           </div>
 
           <div class="flex items-center gap-2">

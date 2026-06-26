@@ -1,5 +1,5 @@
 import type { BookFair } from "../../../../../db/schema";
-import FairApprovalStatusPill from "../components/FairApprovalStatusPill";
+import StatusPill from "../../components/StatusPill";
 
 type FairApprovalFormProps = {
   fair: BookFair;
@@ -10,7 +10,7 @@ const FairApprovalForm = ({ fair }: FairApprovalFormProps) => {
 
   return (
     <div class="flex items-center gap-2" id="fair-approval-status">
-      <FairApprovalStatusPill approvalStatus={fair.approvalStatus} />
+      <StatusPill status={fair.approvalStatus} />
       {isPending && (
         <div class="flex gap-2">
           <form

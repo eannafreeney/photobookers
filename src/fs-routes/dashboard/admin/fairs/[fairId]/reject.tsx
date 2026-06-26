@@ -6,7 +6,7 @@ import { showErrorAlert } from "../../../../../lib/alertHelpers";
 import { z } from "zod";
 import { Context } from "hono";
 import Modal from "../../../../../components/app/Modal";
-import FairApprovalStatusPill from "../../../../../features/dashboard/admin/fairs/components/FairApprovalStatusPill";
+import StatusPill from "../../../../../features/dashboard/admin/components/StatusPill";
 
 const rejectFeedbackSchema = z.object({
   feedback: z.string().optional(),
@@ -77,7 +77,7 @@ export const POST = createRoute(
 
     return c.html(
       <div id="fair-approval-status" x-merge="morph">
-        <FairApprovalStatusPill approvalStatus={updatedFair.approvalStatus} />
+        <StatusPill status={updatedFair.approvalStatus} />
       </div>,
     );
   },
