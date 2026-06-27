@@ -120,17 +120,16 @@ const CreatorDetailMobile = ({
       kicker={creator.type === "publisher" ? "Publisher" : "Artist"}
       title={creator.displayName}
     >
-      <FollowButton creator={creator} variant="mobile" user={user} />
+      <div class="flex justify-between items-center gap-2">
+        <FollowButton creator={creator} variant="mobile" user={user} />
+        <ShareButton
+          title={creator.displayName}
+          text={creatorShareText(creator)}
+          url={creatorUrl(creator.slug)}
+        />
+      </div>
     </MobileHeader>
-    <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-3">
-      <span class="kicker text-accent">
-        {creator.type === "publisher" ? "Publisher" : "Artist"}
-      </span>
-      <h1 class="font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance pb-1">
-        {creator.displayName}
-      </h1>
-      <FollowButton creator={creator} variant="mobile" user={user} />
-    </div>
+
     <CreatorPageBanner
       bannerUrl={creator.bannerUrl}
       displayName={creator.displayName}
@@ -156,11 +155,6 @@ const CreatorDetailMobile = ({
           result={result}
           currentCreatorId={creator.id}
           noResultsMessage="No books found"
-        />
-        <ShareButton
-          title={creator.displayName}
-          text={creatorShareText(creator)}
-          url={creatorUrl(creator.slug)}
         />
       </Tabs.Panel>
       <Tabs.Panel tabId="messages">

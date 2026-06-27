@@ -45,7 +45,7 @@ const CreatorOfTheWeekDetail = async ({
     creator.type === "artist" ? aotwUrl(weekStart) : potwUrl(weekStart);
 
   return (
-    <div class="mx-auto flex w-full flex-col gap-6 pt-4 md:max-w-xl">
+    <div class="mx-auto flex w-full flex-col gap-6  md:max-w-xl">
       <FeaturedPageHeader
         title={title}
         name={creator.displayName}

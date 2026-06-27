@@ -7,7 +7,7 @@ import { AuthUser } from "../../../types";
 import { BookCardResult } from "../../constants/queries";
 import Show from "./Show";
 import LikeButton from "../../features/api/components/LikeButton";
-import WishlistButton from "../../features/api/components/WishlistButton";
+import WishlistButton from "../../features/api/components/FavouriteButton";
 
 type BookCardProps = {
   book: BookCardResult;

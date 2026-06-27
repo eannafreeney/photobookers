@@ -6,7 +6,7 @@ import CreatorCard from "../../../components/app/CreatorCard";
 import PurchaseLink from "../../../components/app/PurchaseLink";
 import ShareButton from "../../api/components/ShareButton";
 import TagList from "../../../components/app/TagList";
-import WishlistButton from "../../api/components/WishlistButton";
+import FavouriteButton from "../../api/components/FavouriteButton";
 import { BookWithGalleryImages } from "../types";
 import { Creator } from "../../../db/schema";
 import RelatedBooks from "../components/RelatedBooks";
@@ -112,7 +112,7 @@ const DetailDesktop = ({
             </div>
 
             <div class="flex items-center gap-2">
-              <WishlistButton book={book} user={user} />
+              <FavouriteButton book={book} user={user} />
               <ShareButton
                 title={bookShareTitle(book)}
                 text={bookShareText(book)}
@@ -172,7 +172,14 @@ const DetailMobile = ({
   return (
     <div class="flex flex-col gap-4">
       <MobileHeader kicker={book.artist?.displayName ?? ""} title={book.title}>
-        <WishlistButton book={book} user={user} />
+        <div class="flex justify-between items-center gap-2">
+          <FavouriteButton book={book} user={user} />
+          <ShareButton
+            title={bookShareTitle(book)}
+            text={bookShareText(book)}
+            url={bookUrl(book.slug)}
+          />
+        </div>
       </MobileHeader>
       <Tabs defaultTab="books">
         <Tabs.LinkContainer>
@@ -191,11 +198,7 @@ const DetailMobile = ({
             <Card.Description>{book.description}</Card.Description>
           )}
           <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
-          <ShareButton
-            title={bookShareTitle(book)}
-            text={bookShareText(book)}
-            url={bookUrl(book.slug)}
-          />
+
           <PurchaseLink
             bookSlug={book.slug}
             purchaseLink={book.purchaseLink}

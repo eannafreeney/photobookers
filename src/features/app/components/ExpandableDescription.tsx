@@ -25,7 +25,7 @@ const ExpandableDescription = ({
   return (
     <div x-data="{ expanded: false }" class="flex flex-col gap-2">
       <p
-        class="text-pretty text-base leading-relaxed text-on-surface whitespace-pre-wrap first-letter:font-display first-letter:text-5xl first-letter:font-medium first-letter:float-left first-letter:mr-2 first-letter:leading-[0.85] first-letter:text-on-surface-strong"
+        class="text-pretty text-base leading-relaxed text-on-surface whitespace-pre-wrap "
         x-show="!expanded"
       >
         {preview}
@@ -34,7 +34,7 @@ const ExpandableDescription = ({
         <p
           x-cloak
           x-show="expanded"
-          class="text-pretty text-base leading-relaxed text-on-surface whitespace-pre-wrap first-letter:font-display first-letter:text-5xl first-letter:font-medium first-letter:float-left first-letter:mr-2 first-letter:leading-[0.85] first-letter:text-on-surface-strong"
+          class="text-pretty text-base leading-relaxed text-on-surface whitespace-pre-wrap "
         >
           {text}
         </p>

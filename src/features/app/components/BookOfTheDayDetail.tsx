@@ -10,7 +10,7 @@ import NewsletterCard from "./NewsletterCard";
 import ShareButton from "../../api/components/ShareButton";
 import { botdUrl } from "../spotlightUrls";
 import FeaturedPageHeader from "./FeaturedPageHeader";
-import FavoriteButton from "../../api/components/WishlistButton";
+import FavoriteButton from "../../api/components/FavouriteButton";
 import {
   bookOfTheDayShareText,
   bookOfTheDayShareTitle,
@@ -35,7 +35,7 @@ const BookOfTheDayDetail = async ({
   date,
 }: Props) => {
   return (
-    <div class="flex flex-col gap-6">
+    <div class="flex w-full min-w-0 flex-col gap-6">
       <FeaturedPageHeader
         title="Book of the Day"
         name={book.title}
@@ -43,28 +43,32 @@ const BookOfTheDayDetail = async ({
       />
       {galleryImages.length > 0 ? (
         isMobile ? (
-          <PageBleed>
-            <CarouselMobile images={galleryImages} />
-          </PageBleed>
+          <div class="min-w-0">
+            <PageBleed>
+              <CarouselMobile images={galleryImages} />
+            </PageBleed>
+          </div>
         ) : (
-          <PageBleed>
-            <HorizontalScrollGallery
-              images={galleryImages}
-              imageAlt={book.title}
-            />
-          </PageBleed>
+          <div class="min-w-0">
+            <PageBleed>
+              <HorizontalScrollGallery
+                images={galleryImages}
+                imageAlt={book.title}
+              />
+            </PageBleed>
+          </div>
         )
       ) : null}
 
-      <div class="mx-auto grid w-full grid-cols-2 gap-4 md:max-w-xl">
-        <FavoriteButton book={book} user={user} />
-        <ShareButton
-          title={bookOfTheDayShareTitle(book)}
-          text={bookOfTheDayShareText(book)}
-          url={botdUrl(date)}
-        />
-      </div>
-      <div class="flex flex-col gap-8 mx-auto md:max-w-xl">
+      <div class="mx-auto flex w-full flex-col gap-8 md:max-w-xl">
+        <div class="grid grid-cols-2 gap-4">
+          <FavoriteButton book={book} user={user} />
+          <ShareButton
+            title={bookOfTheDayShareTitle(book)}
+            text={bookOfTheDayShareText(book)}
+            url={botdUrl(date)}
+          />
+        </div>
         {book.description?.trim() ? (
           <ExpandableDescription text={book.description.trim()} />
         ) : null}

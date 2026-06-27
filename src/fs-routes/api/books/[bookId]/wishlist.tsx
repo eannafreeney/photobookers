@@ -23,7 +23,7 @@ import {
 } from "../../../../features/hyperview/components/BookActions";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 import { canWishlistBook } from "../../../../lib/permissions";
-import FavoriteButton from "../../../../features/api/components/WishlistButton";
+import FavoriteButton from "../../../../features/api/components/FavouriteButton";
 import { routeParam } from "../../../../lib/routeParam";
 
 const updateLibraryPage = () => "library:updated";

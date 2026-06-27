@@ -47,9 +47,11 @@ const FavoriteButton = async ({
       buttonIcon
     ) : (
       <>
-        <span x-show="!isSubmitting">{isFavorited ? "Liked" : "Like"}</span>
+        <span x-show="!isSubmitting">
+          {isFavorited ? "Favorited" : "Favorite"}
+        </span>
         <span x-show="isSubmitting" x-cloak>
-          {isFavorited ? "Like" : "Liked"}
+          {isFavorited ? "Favorite" : "Favorited"}
         </span>
         {buttonIcon}
       </>
