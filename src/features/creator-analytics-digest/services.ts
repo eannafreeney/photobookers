@@ -26,6 +26,7 @@ import {
 } from "../../db/schema";
 import { getCreatorFunnelTotals } from "../book-analytics/creatorAnalytics";
 import {
+  buildCreatedAtFilter,
   formatMonthLabel,
   monthKeyFromRange,
   parseMonthKey,
@@ -146,8 +147,7 @@ export async function getCreatorNewFollowersInRange(
   creatorId: string,
   range: AnalyticsDateRange,
 ): Promise<number> {
-  const dayAfter = new Date(range.to);
-  dayAfter.setUTCDate(dayAfter.getUTCDate() + 1);
+  const dateFilter = buildCreatedAtFilter(follows.createdAt, range);
   const [row] = await db
     .select({ value: count() })
     .from(follows)
@@ -155,8 +155,7 @@ export async function getCreatorNewFollowersInRange(
       and(
         eq(follows.targetCreatorId, creatorId),
         eq(follows.targetType, "creator"),
-        gte(follows.createdAt, range.from),
-        sql`${follows.createdAt} < ${dayAfter}`,
+        dateFilter,
       ),
     );
   return row?.value ?? 0;
@@ -183,8 +182,7 @@ async function getBotdFeatureInRange(
   creatorType: CreatorType,
   range: AnalyticsDateRange,
 ): Promise<{ bookTitle: string; date: Date } | null> {
-  const dayAfter = new Date(range.to);
-  dayAfter.setUTCDate(dayAfter.getUTCDate() + 1);
+  const dateFilter = buildCreatedAtFilter(bookOfTheDay.date, range);
   const roleFilter = creatorBookRoleFilter(creatorId, creatorType);
 
   const rows = await db
@@ -194,13 +192,7 @@ async function getBotdFeatureInRange(
     })
     .from(bookOfTheDay)
     .innerJoin(books, eq(bookOfTheDay.bookId, books.id))
-    .where(
-      and(
-        roleFilter,
-        gte(bookOfTheDay.date, range.from),
-        sql`${bookOfTheDay.date} < ${dayAfter}`,
-      ),
-    )
+    .where(and(roleFilter, dateFilter))
     .orderBy(sql`${bookOfTheDay.date} DESC`)
     .limit(1);
 
