@@ -7,6 +7,7 @@
     "dev:all:production": "dotenv -e .env.production -- concurrently \"npm run dev\" \"npm run dev:fsr\"",
     "prebuild": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts && npm run typecheck",
     "build": "vite build",
+    "build:deploy": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts && vite build",
     "typecheck": "tsc --noEmit",
     "start": "NODE_ENV=production dotenv -e .env.production -- node --import tsx src/server.ts",
     "db:generate": "drizzle-kit generate",
