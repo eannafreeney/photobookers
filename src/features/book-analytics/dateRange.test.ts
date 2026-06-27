@@ -3,9 +3,13 @@ import {
   analyticsSearchParams,
   eachDayInRange,
   formatAnalyticsDateRangeLabel,
+  formatMonthLabel,
   matchesPreset,
+  monthKeyFromRange,
   parseAnalyticsDateRange,
+  parseMonthKey,
   presetAnalyticsDateRange,
+  previousCalendarMonthRange,
 } from "./dateRange";
 
 describe("presetAnalyticsDateRange", () => {
@@ -135,5 +139,51 @@ describe("eachDayInRange", () => {
         to: new Date("2026-03-03T00:00:00.000Z"),
       }),
     ).toEqual(["2026-03-01", "2026-03-02", "2026-03-03"]);
+  });
+});
+
+describe("previousCalendarMonthRange", () => {
+  it("returns the full previous calendar month", () => {
+    const range = previousCalendarMonthRange(
+      new Date("2026-02-03T12:00:00.000Z"),
+    );
+    expect(range.from.toISOString()).toBe("2026-01-01T00:00:00.000Z");
+    expect(range.to.toISOString()).toBe("2026-01-31T00:00:00.000Z");
+  });
+});
+
+describe("formatMonthLabel", () => {
+  it("formats month and year", () => {
+    expect(
+      formatMonthLabel({
+        from: new Date("2026-01-01T00:00:00.000Z"),
+        to: new Date("2026-01-31T00:00:00.000Z"),
+      }),
+    ).toBe("January 2026");
+  });
+});
+
+describe("monthKeyFromRange", () => {
+  it("returns YYYY-MM", () => {
+    expect(
+      monthKeyFromRange({
+        from: new Date("2026-01-01T00:00:00.000Z"),
+        to: new Date("2026-01-31T00:00:00.000Z"),
+      }),
+    ).toBe("2026-01");
+  });
+});
+
+describe("parseMonthKey", () => {
+  it("parses a calendar month", () => {
+    expect(parseMonthKey("2026-03")).toEqual({
+      from: new Date("2026-03-01T00:00:00.000Z"),
+      to: new Date("2026-03-31T00:00:00.000Z"),
+    });
+  });
+
+  it("returns null for invalid keys", () => {
+    expect(parseMonthKey("2026-13")).toBeNull();
+    expect(parseMonthKey("bad")).toBeNull();
   });
 });

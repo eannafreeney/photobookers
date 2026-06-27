@@ -110,3 +110,50 @@ export function eachDayInRange(range: AnalyticsDateRange): string[] {
 
   return days;
 }
+
+/** First and last UTC day of the calendar month before referenceDate. */
+export function previousCalendarMonthRange(
+  referenceDate: Date = new Date(),
+): AnalyticsDateRange {
+  const ref = toUtcStartOfDay(referenceDate);
+  const firstOfCurrentMonth = new Date(
+    Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), 1),
+  );
+  const lastOfPreviousMonth = new Date(firstOfCurrentMonth);
+  lastOfPreviousMonth.setUTCDate(0);
+  const firstOfPreviousMonth = new Date(
+    Date.UTC(
+      lastOfPreviousMonth.getUTCFullYear(),
+      lastOfPreviousMonth.getUTCMonth(),
+      1,
+    ),
+  );
+  return { from: firstOfPreviousMonth, to: lastOfPreviousMonth };
+}
+
+/** e.g. "January 2026" for a calendar-month range. */
+export function formatMonthLabel(range: AnalyticsDateRange): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(range.from);
+}
+
+/** YYYY-MM key for digest idempotency. */
+export function monthKeyFromRange(range: AnalyticsDateRange): string {
+  const year = range.from.getUTCFullYear();
+  const month = String(range.from.getUTCMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
+export function parseMonthKey(month: string): AnalyticsDateRange | null {
+  const match = /^(\d{4})-(\d{2})$/.exec(month.trim());
+  if (!match) return null;
+  const year = Number(match[1]);
+  const monthIndex = Number(match[2]) - 1;
+  if (monthIndex < 0 || monthIndex > 11) return null;
+  const from = new Date(Date.UTC(year, monthIndex, 1));
+  const to = new Date(Date.UTC(year, monthIndex + 1, 0));
+  return { from, to };
+}

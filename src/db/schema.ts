@@ -224,6 +224,9 @@ export const creators = pgTable(
     email: text("email"),
     welcomeEmailSent: timestamp("welcome_email_sent"),
     interviewEmailSent: timestamp("interview_email_sent"),
+    analyticsDigestSentForMonth: varchar("analytics_digest_sent_for_month", {
+      length: 7,
+    }),
     createdByUserId: uuid("created_by_user_id")
       .references(() => users.id)
       .notNull(),
@@ -253,6 +256,7 @@ export const creatorsRelations = relations(creators, ({ one, many }) => ({
   publisherOfTheWeekEntries: many(publisherOfTheWeek),
   messages: many(creatorMessages),
   fairAttendees: many(fairAttendees),
+  milestoneEmails: many(creatorMilestoneEmails),
 }));
 
 export const books = pgTable(
@@ -323,6 +327,39 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   purchaseClicks: many(purchaseClicks),
   bookViews: many(bookViews),
 }));
+
+export const creatorMilestoneEmails = pgTable(
+  "creator_milestone_emails",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    creatorId: uuid("creator_id")
+      .notNull()
+      .references(() => creators.id, { onDelete: "cascade" }),
+    milestone: varchar("milestone", { length: 64 }).notNull(),
+    bookId: uuid("book_id").references(() => books.id, { onDelete: "set null" }),
+    sentAt: timestamp("sent_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueCreatorMilestone: unique("creator_milestone_emails_creator_milestone").on(
+      table.creatorId,
+      table.milestone,
+    ),
+  }),
+);
+
+export const creatorMilestoneEmailsRelations = relations(
+  creatorMilestoneEmails,
+  ({ one }) => ({
+    creator: one(creators, {
+      fields: [creatorMilestoneEmails.creatorId],
+      references: [creators.id],
+    }),
+    book: one(books, {
+      fields: [creatorMilestoneEmails.bookId],
+      references: [books.id],
+    }),
+  }),
+);
 
 export const follows = pgTable(
   "follows",
@@ -959,6 +996,13 @@ export type NewCreatorClaim = InferInsertModel<typeof creatorClaims>;
 
 export type Wishlist = InferSelectModel<typeof wishlists>;
 export type NewWishlist = InferInsertModel<typeof wishlists>;
+
+export type CreatorMilestoneEmail = InferSelectModel<
+  typeof creatorMilestoneEmails
+>;
+export type NewCreatorMilestoneEmail = InferInsertModel<
+  typeof creatorMilestoneEmails
+>;
 
 // Infer enum types
 export type CreatorType = (typeof creatorTypeEnum.enumValues)[number];
