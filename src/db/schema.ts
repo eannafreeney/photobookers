@@ -227,6 +227,7 @@ export const creators = pgTable(
     analyticsDigestSentForMonth: varchar("analytics_digest_sent_for_month", {
       length: 7,
     }),
+    stubOutreachOptOutAt: timestamp("stub_outreach_opt_out_at"),
     createdByUserId: uuid("created_by_user_id")
       .references(() => users.id)
       .notNull(),
@@ -257,7 +258,36 @@ export const creatorsRelations = relations(creators, ({ one, many }) => ({
   messages: many(creatorMessages),
   fairAttendees: many(fairAttendees),
   milestoneEmails: many(creatorMilestoneEmails),
+  stubOutreachEmails: many(creatorStubOutreachEmails),
 }));
+
+export const creatorStubOutreachEmails = pgTable(
+  "creator_stub_outreach_emails",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    creatorId: uuid("creator_id")
+      .notNull()
+      .references(() => creators.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 32 }).notNull(),
+    sentAt: timestamp("sent_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueCreatorKind: unique("creator_stub_outreach_emails_creator_kind").on(
+      table.creatorId,
+      table.kind,
+    ),
+  }),
+);
+
+export const creatorStubOutreachEmailsRelations = relations(
+  creatorStubOutreachEmails,
+  ({ one }) => ({
+    creator: one(creators, {
+      fields: [creatorStubOutreachEmails.creatorId],
+      references: [creators.id],
+    }),
+  }),
+);
 
 export const books = pgTable(
   "books",
@@ -1003,6 +1033,17 @@ export type CreatorMilestoneEmail = InferSelectModel<
 export type NewCreatorMilestoneEmail = InferInsertModel<
   typeof creatorMilestoneEmails
 >;
+export type CreatorStubOutreachEmail = InferSelectModel<
+  typeof creatorStubOutreachEmails
+>;
+export type NewCreatorStubOutreachEmail = InferInsertModel<
+  typeof creatorStubOutreachEmails
+>;
+export type StubOutreachEmailKind =
+  | "welcome"
+  | "views_50"
+  | "views_100"
+  | "views_150";
 
 // Infer enum types
 export type CreatorType = (typeof creatorTypeEnum.enumValues)[number];

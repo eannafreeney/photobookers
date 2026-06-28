@@ -1,14 +1,10 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../lib/validator";
 import { creatorIdSchema } from "../../../../../schemas";
-import {
-  getCreatorByIdAdmin,
-  markWelcomeEmailSentAdmin,
-} from "../../../../../features/dashboard/admin/creators/services";
+import { getCreatorByIdAdmin } from "../../../../../features/dashboard/admin/creators/services";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
 import { getUser } from "../../../../../utils";
-import { generateWelcomeEmail } from "../../../../../features/dashboard/admin/creators/emails";
-import { sendEmail } from "../../../../../lib/sendEmail";
+import { sendStubWelcomeEmail } from "../../../../../features/stub-outreach/welcomeEmail";
 import Alert from "../../../../../components/app/Alert";
 import SendWelcomeEmailButton from "../../../../../features/dashboard/admin/creators/components/SendWelcomeEmailButton";
 
@@ -21,28 +17,19 @@ export const POST = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const user = await getUser(c);
   if (!user) return showErrorAlert(c, "User not found");
 
-  const temporaryPassword = crypto.randomUUID();
+  const [sendError, sent] = await sendStubWelcomeEmail(creator);
+  if (sendError) return showErrorAlert(c, sendError.reason);
 
-  const loginLink = `${process.env.SITE_URL}/auth/login?email=${encodeURIComponent(creator.email)}&password=${encodeURIComponent(temporaryPassword)}`;
-
-  const emailHTML = generateWelcomeEmail(creator, loginLink);
-
-  const [emailError] = await sendEmail(
-    creator.email,
-    `Hi ${creator.displayName}! Invitation to Photobookers`,
-    emailHTML,
-  );
-  if (emailError) return showErrorAlert(c, "Failed to send welcome email");
-
-  const [markError, updatedCreator] =
-    await markWelcomeEmailSentAdmin(creatorId);
-  if (markError) return showErrorAlert(c, "Failed to mark welcome email sent");
+  const [refreshError, updatedCreator] = await getCreatorByIdAdmin(creatorId);
+  if (refreshError || !updatedCreator) {
+    return showErrorAlert(c, "Welcome sent but failed to refresh creator");
+  }
 
   return c.html(
     <>
       <Alert
         type="success"
-        message={`Welcome email sent to ${creator.displayName} at ${creator.email}`}
+        message={`Welcome email sent to ${creator.displayName} at ${sent.to}`}
       />
       <SendWelcomeEmailButton creator={updatedCreator} />
     </>,
