@@ -330,6 +330,13 @@
       "when": 1782499934173,
       "tag": "0047_fat_morph",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1782679423740,
+      "tag": "0048_foamy_sunspot",
+      "breakpoints": true
     }
   ]
 }
