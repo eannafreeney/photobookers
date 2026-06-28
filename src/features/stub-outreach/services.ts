@@ -1,12 +1,4 @@
-import {
-  and,
-  eq,
-  gte,
-  isNotNull,
-  isNull,
-  lte,
-  or,
-} from "drizzle-orm";
+import { and, eq, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   books,
@@ -14,9 +6,7 @@ import {
   creators,
   type CreatorType,
 } from "../../db/schema";
-import {
-  stubViewMilestoneThreshold,
-} from "../../domain/creators/stubOutreachMilestones";
+import { stubViewMilestoneThreshold } from "../../domain/creators/stubOutreachMilestones";
 import {
   allStubViewMilestonesSent,
   getStubOutreachStats,
@@ -31,10 +21,7 @@ import {
   generateStubViewMilestoneEmail,
   stubViewMilestoneEmailSubject,
 } from "./emails";
-import type {
-  StubOutreachCronOptions,
-  StubOutreachCronResult,
-} from "./types";
+import type { StubOutreachCronOptions, StubOutreachCronResult } from "./types";
 import { logStubOutreachEmail, sendStubWelcomeEmail } from "./welcomeEmail";
 import type { StubOutreachEmailKind } from "../../db/schema";
 
@@ -120,9 +107,7 @@ export async function loadEligibleStubs(
   }
 }
 
-async function loadSentOutreachKinds(
-  creatorId: string,
-): Promise<Set<string>> {
+async function loadSentOutreachKinds(creatorId: string): Promise<Set<string>> {
   const rows = await db.query.creatorStubOutreachEmails.findMany({
     where: eq(creatorStubOutreachEmails.creatorId, creatorId),
     columns: { kind: true },
@@ -236,11 +221,7 @@ export async function runStubOutreachCron(
     }
 
     if (
-      await hadSpotlightFeatureEmailRecently(
-        stub.id,
-        stub.type,
-        spotlightSince,
-      )
+      await hadSpotlightFeatureEmailRecently(stub.id, stub.type, spotlightSince)
     ) {
       result.skipped++;
       result.items.push({
@@ -300,7 +281,11 @@ export async function runStubOutreachCron(
     result.sent++;
     result.items.push({
       creatorId: stub.id,
-      outcome: { status: "sent", kind: milestone as StubOutreachEmailKind, to: recipient },
+      outcome: {
+        status: "sent",
+        kind: milestone as StubOutreachEmailKind,
+        to: recipient,
+      },
     });
     await sleep(SEND_DELAY_MS);
   }
