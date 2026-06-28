@@ -19,6 +19,7 @@ React is used only in a few places (e.g. MJML newsletter templates). Default to 
 npm install
 npm run dev:all          # recommended: Vite dev server + hono-fsr route watcher
 npm run typecheck
+npm run lint             # import boundaries on public + hyperview routes
 npm run test:run
 npm run build
 npm start              # production server (uses .env.production)
@@ -44,13 +45,40 @@ src/
 ├── routes/index.tsx       # Session, auth middleware, hono-fsr router mount
 ├── fs-routes/             # File-system routes (pages + API handlers)
 ├── fs-routes.manifest.ts  # GENERATED — do not edit manually
-├── features/              # Domain logic, services, feature components
+├── domain/                # Shared business logic (used by multiple surfaces)
+├── features/              # Surface-specific UI, services, and components
 ├── components/            # Shared UI (layouts, forms, app primitives)
-├── client/                # Alpine.js client bundle (main.js entry)
+├── client/                # Alpine.js bundles (main.js + admin.js)
 ├── middleware/            # Auth guards, token refresh, etc.
 ├── lib/                   # Shared utilities (hxml-comps, supabase, etc.)
 └── db/                    # Drizzle schema and DB helpers
 ```
+
+### Domain layer (`src/domain/`)
+
+Shared **business logic** used by more than one surface (public web, Hyperview, creator dashboard, admin, API, cron, auth). Not UI.
+
+| Goes in `domain/` | Stays in `features/` |
+| ----------------- | -------------------- |
+| DB queries/mutations shared across routes | JSX components, Alpine clients, admin tables/modals |
+| Notification creation, cron runners, claim assignment | Admin-only moderation/planner UI |
+| Pure helpers used by public + admin (e.g. `newsletterUtils`) | Surface-specific page layout and partials |
+
+**Decision test (in order):**
+
+1. Is it UI (components, Alpine, HTML partials)? → **features**, not domain.
+2. Is it imported from outside admin (API, cron, `(app)/`, `hyperview/`, claims, auth)? → **domain** candidate.
+3. Does it describe product behavior both apps would need after a future split? → **domain**, even if only admin uses it today.
+
+**Import rules:**
+
+- `(app)/` and `hyperview/` routes must import shared logic from `src/domain/`, never `features/dashboard/admin/**`. Enforced by `npm run lint`.
+- `domain/` must not import admin UI. It may import `db/`, `lib/`, and other domain modules; calling admin-only planner helpers from domain is a smell — extract the shared part instead.
+- When moving code to domain, leave a re-export in the old admin path if it keeps admin imports stable.
+
+**Current domain modules:** `notifications/`, `claims/owner.ts`, `planner/` (utils + cron services), `creators/books.ts`, `interviews/token.ts`.
+
+**Client bundles:** `main.js` is for public/creator Alpine; `admin.js` loads only on `/dashboard/admin/*` pages.
 
 ### Feature modules (`src/features/`)
 

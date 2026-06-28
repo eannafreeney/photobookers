@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runWeeklyNewsletterCron } from "../../../features/dashboard/admin/planner/newsletterCronServices";
+import { runWeeklyNewsletterCron } from "../../../domain/planner/cron/newsletterCronServices";
 import { parseDateString } from "../../../lib/utils";
 
 /**

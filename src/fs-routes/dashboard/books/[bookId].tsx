@@ -33,7 +33,7 @@ import {
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
 import { dispatchEvents } from "../../../lib/disatchEvents";
-import { createBookPublishedNotification } from "../../../features/dashboard/admin/notifications/utils";
+import { createBookPublishedNotification } from "../../../domain/notifications/utils";
 import Button from "../../../components/app/Button";
 import FormPost from "../../../components/forms/FormPost";
 

@@ -13,7 +13,7 @@ import {
   setCookiesAndVerifyUser,
 } from "../../features/auth/services";
 import { createStubCreatorProfile } from "../../features/dashboard/creators/services";
-import { createUserVerifiedNotification } from "../../features/dashboard/admin/notifications/utils";
+import { createUserVerifiedNotification } from "../../domain/notifications/utils";
 import { sendEmail } from "../../lib/sendEmail";
 import { generateVerificationWelcomeEmail } from "../../features/auth/emails";
 import { setFlash } from "../../utils";

@@ -11,7 +11,7 @@ import Alert from "../../../components/app/Alert";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
 import CreatorMessages from "../../../features/app/components/CreatorMessages";
 import { getUser } from "../../../utils";
-import { createMessageCreatedNotification } from "../../../features/dashboard/admin/notifications/utils";
+import { createMessageCreatedNotification } from "../../../domain/notifications/utils";
 
 export const POST = createRoute(
   paramValidator(creatorIdSchema),

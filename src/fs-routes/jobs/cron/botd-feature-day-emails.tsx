@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runBotdFeatureDayEmails } from "../../../features/dashboard/admin/planner/botdEmailServices";
+import { runBotdFeatureDayEmails } from "../../../domain/planner/cron/botdEmailServices";
 import { parseDateString, toDateString } from "../../../lib/utils";
 
 export const POST = createRoute(async (c: Context) => {

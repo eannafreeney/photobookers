@@ -1,0 +1,43 @@
+---
+description: Where shared business logic lives and import boundaries for domain vs admin
+globs: src/domain/**,src/fs-routes/(app)/**,src/fs-routes/hyperview/**,src/features/dashboard/admin/**
+alwaysApply: false
+---
+
+# Domain layer
+
+`src/domain/` holds **shared business logic** — not UI. Multiple surfaces may import it: public web, Hyperview, creator dashboard, admin, API, cron, auth.
+
+## Put code in domain when
+
+- API, cron, `(app)/`, `hyperview/`, claims, or auth needs it
+- It mutates/queries core entities (books, creators, notifications, planner state)
+- It's a service or pure function with no JSX
+- A second non-admin caller appears — extract on import pressure, don't pre-split everything
+
+## Keep code in features when
+
+- It's a component, Alpine client, admin table, modal, or HTML partial
+- Only admin moderation/planner screens use it
+- Moving it would drag admin UI along (e.g. Brevo send panels, Instagram prep modals)
+
+## Import boundaries
+
+```typescript
+// ✅ public / hyperview route
+import { createBookLikedNotification } from "../../domain/notifications/utils";
+
+// ❌ public / hyperview route — blocked by npm run lint
+import { createBookLikedNotification } from "../../features/dashboard/admin/notifications/utils";
+```
+
+- `domain/` must not import `features/dashboard/admin/**` UI
+- When extracting from admin, leave a re-export in the old path if it reduces churn
+- Split mixed files: move shared runners/queries to domain; keep admin workflow glue in admin
+
+## Client bundles
+
+- `src/client/index.ts` → `main.js` (public + creator Alpine)
+- `src/client/admin.ts` → `admin.js` (admin-only; loaded on `/dashboard/admin/*`)
+
+Register new Alpine components in the bundle that matches who uses them.

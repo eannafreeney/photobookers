@@ -2,7 +2,7 @@ import { Context } from "hono";
 import {
   completeInterviewByToken,
   getInterviewByToken,
-} from "../../../features/dashboard/admin/creators/services";
+} from "../../../domain/interviews/token";
 import { getCreatorById } from "../../../features/dashboard/creators/services";
 import IntervewForm from "../../../features/interviews/forms/IntervewForm";
 import InfoPage from "../../../pages/InfoPage";
@@ -12,7 +12,7 @@ import { interviewFormSchema } from "../../../features/interviews/schema";
 import { formValidator, validateImageFile } from "../../../lib/validator";
 import { InterviewFormContext } from "../../../features/interviews/types";
 import FormSuccessScreen from "../../../components/forms/FormSuccessScreen";
-import { createInterviewSubmittedNotification } from "../../../features/dashboard/admin/notifications/utils";
+import { createInterviewSubmittedNotification } from "../../../domain/notifications/utils";
 import { uploadImage } from "../../../services/storage";
 import { routeParam } from "../../../lib/routeParam";
 

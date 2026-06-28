@@ -19,7 +19,7 @@ import CreatorPage, {
 import { relatedCreatorsListStyles } from "../../../../../../features/hyperview/components/RelatedCreatorsList";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { creatorIdSchema } from "../../../../../../schemas";
-import { getBooksByCreatorId } from "../../../../../../features/dashboard/admin/creators/services";
+import { getBooksByCreatorId } from "../../../../../../domain/creators/books";
 import CreatorBanner, {
   creatorBannerStyles,
 } from "../../../../../../features/hyperview/components/CreatorBanner";

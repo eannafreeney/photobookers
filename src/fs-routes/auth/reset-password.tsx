@@ -13,7 +13,7 @@ import {
 } from "../../features/auth/services";
 import { safeAppRedirect } from "../../lib/safeAppRedirect";
 import { supabaseAdmin } from "../../lib/supabase";
-import { createUserVerifiedNotification } from "../../features/dashboard/admin/notifications/utils";
+import { createUserVerifiedNotification } from "../../domain/notifications/utils";
 import { generateVerificationWelcomeEmail } from "../../features/auth/emails";
 import { sendEmail } from "../../lib/sendEmail";
 

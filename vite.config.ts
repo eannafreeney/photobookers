@@ -22,9 +22,13 @@ export default defineConfig(async ({ command }) => {
       outDir: "dist/client",
       emptyOutDir: true,
       rollupOptions: {
-        input: "src/client/main.js",
+        input: {
+          main: "src/client/main.js",
+          admin: "src/client/admin.js",
+        },
         output: {
-          entryFileNames: "main.js",
+          entryFileNames: (chunk) =>
+            chunk.name === "admin" ? "admin.js" : "main.js",
           assetFileNames: (assetInfo) => {
             // Extract CSS to a predictable filename
             if (assetInfo.name?.endsWith(".css")) {

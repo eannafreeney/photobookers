@@ -14,7 +14,7 @@ import { normalizeUrl } from "../../../services/verification";
 import { isSameDomain } from "../../../services/verification";
 import { emailMatchesWebsite } from "../../../features/claims/utils";
 import { createClaimWithStatus } from "../../../features/claims/services";
-import { assignUserAsCreatorOwnerAdmin } from "../../../features/dashboard/admin/claims/services";
+import { assignUserAsCreatorOwnerAdmin } from "../../../domain/claims/owner";
 import { showSuccessAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
 

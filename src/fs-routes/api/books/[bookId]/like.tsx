@@ -10,7 +10,7 @@ import {
 } from "../../../../features/api/services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { publishLikeActivity } from "../../../../features/api/utils";
-import { createBookLikedNotification } from "../../../../features/dashboard/admin/notifications/utils";
+import { createBookLikedNotification } from "../../../../domain/notifications/utils";
 import Alert from "../../../../components/app/Alert";
 import LikeButton from "../../../../features/api/components/LikeButton";
 import { dispatchEvents } from "../../../../lib/disatchEvents";

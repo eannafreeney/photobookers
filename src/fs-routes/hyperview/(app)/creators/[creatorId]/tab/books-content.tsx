@@ -6,7 +6,7 @@ import { getUser } from "../../../../../../utils";
 import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
 import { creatorIdSchema } from "../../../../../../schemas";
-import { getBooksByCreatorId } from "../../../../../../features/dashboard/admin/creators/services";
+import { getBooksByCreatorId } from "../../../../../../domain/creators/books";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {

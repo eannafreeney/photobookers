@@ -22,7 +22,7 @@ import { requireCommentOwner } from "../../../../../middleware/commentGuard";
 import { updateCommentById } from "../../../../../features/app/services";
 import Alert from "../../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../../lib/disatchEvents";
-import { createCommentUpdatedNotification } from "../../../../../features/dashboard/admin/notifications/utils";
+import { createCommentUpdatedNotification } from "../../../../../domain/notifications/utils";
 import { updateComments } from "../comments";
 
 export const GET = createRoute(

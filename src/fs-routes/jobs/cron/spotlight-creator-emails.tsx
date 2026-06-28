@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runSpotlightCreatorEmails } from "../../../features/dashboard/admin/planner/spotlightEmailServices";
+import { runSpotlightCreatorEmails } from "../../../domain/planner/cron/spotlightEmailServices";
 import { parseDateString, toWeekString } from "../../../lib/utils";
 
 export const POST = createRoute(async (c: Context) => {

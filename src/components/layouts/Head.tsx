@@ -15,6 +15,7 @@ type HeadProps = {
   noIndex?: boolean;
   shareOg?: ShareOgMeta;
   jsonLd?: Record<string, unknown>;
+  loadAdminScripts?: boolean;
 };
 
 const Head = ({
@@ -24,6 +25,7 @@ const Head = ({
   noIndex = false,
   shareOg,
   jsonLd,
+  loadAdminScripts = false,
 }: HeadProps) => {
   const hasBuiltAssets =
     existsSync("./dist/client/main.js") &&
@@ -102,6 +104,12 @@ const Head = ({
         type="module"
         src={useBuiltAssets ? "/main.js" : "/src/client/main.js"}
       ></script>
+      {loadAdminScripts ? (
+        <script
+          type="module"
+          src={useBuiltAssets ? "/admin.js" : "/src/client/admin.js"}
+        ></script>
+      ) : null}
       <script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         async

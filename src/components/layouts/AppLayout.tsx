@@ -39,7 +39,11 @@ const AppLayout = ({
   adminEditHref,
   shareOg,
   jsonLd,
-}: LayoutProps) => (
+}: LayoutProps) => {
+  const loadAdminScripts =
+    currentPath?.startsWith("/dashboard/admin") ?? false;
+
+  return (
   <html lang="en">
     <Head
       title={title}
@@ -48,6 +52,7 @@ const AppLayout = ({
       noIndex={noIndex ?? currentPath?.startsWith("/dashboard")}
       shareOg={shareOg}
       jsonLd={jsonLd}
+      loadAdminScripts={loadAdminScripts}
     />
     <body class="bg-surface">
       <UserProvider user={user}>
@@ -84,7 +89,8 @@ const AppLayout = ({
       <div x-sync id="server_events"></div>
     </body>
   </html>
-);
+  );
+};
 
 export default AppLayout;
 

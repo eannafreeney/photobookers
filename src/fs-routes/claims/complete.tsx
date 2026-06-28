@@ -13,8 +13,8 @@ import {
   sendCreatorVerifiedEmail,
 } from "../../features/claims/utils";
 import { createClaimWithStatus } from "../../features/claims/services";
-import { assignUserAsCreatorOwnerAdmin } from "../../features/dashboard/admin/claims/services";
-import { createCreatorClaimedNotification } from "../../features/dashboard/admin/notifications/utils";
+import { assignUserAsCreatorOwnerAdmin } from "../../domain/claims/owner";
+import { createCreatorClaimedNotification } from "../../domain/notifications/utils";
 
 export const GET = createRoute(
   queryValidator(claimCompleteQuerySchema),

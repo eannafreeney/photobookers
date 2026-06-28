@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runInstagramPrepReminderEmail } from "../../../features/dashboard/admin/planner/instagramReminderEmailServices";
+import { runInstagramPrepReminderEmail } from "../../../domain/planner/cron/instagramReminderEmailServices";
 import { parseDateString, toWeekString } from "../../../lib/utils";
 
 /**

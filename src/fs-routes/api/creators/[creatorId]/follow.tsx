@@ -8,7 +8,7 @@ import {
 } from "../../../../features/api/services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { publishFollowActivity } from "../../../../features/api/utils";
-import { createCreatorFollowedNotification } from "../../../../features/dashboard/admin/notifications/utils";
+import { createCreatorFollowedNotification } from "../../../../domain/notifications/utils";
 import Alert from "../../../../components/app/Alert";
 import { deleteFollow, insertFollow } from "../../../../db/queries";
 import { dispatchEvents } from "../../../../lib/disatchEvents";

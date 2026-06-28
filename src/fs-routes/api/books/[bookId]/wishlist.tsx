@@ -10,7 +10,7 @@ import { showErrorAlert } from "../../../../lib/alertHelpers";
 import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { publishWishlistActivity } from "../../../../features/api/utils";
-import { createBookWishlistedNotification } from "../../../../features/dashboard/admin/notifications/utils";
+import { createBookWishlistedNotification } from "../../../../domain/notifications/utils";
 import { Context } from "hono";
 import { hyperview } from "../../../../lib/hxml";
 import { findWishlist } from "../../../../db/queries";

@@ -5,7 +5,7 @@ import AuthModal from "../../../../components/app/AuthModal";
 import { getBookPermissionData } from "../../../../features/api/services";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { publishCollectActivity } from "../../../../features/api/utils";
-import { createBookCollectedNotification } from "../../../../features/dashboard/admin/notifications/utils";
+import { createBookCollectedNotification } from "../../../../domain/notifications/utils";
 import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import {

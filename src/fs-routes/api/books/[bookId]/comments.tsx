@@ -14,7 +14,7 @@ import {
   getBookPermissionData,
   insertBookComment,
 } from "../../../../features/api/services";
-import { createCommentCreatedNotification } from "../../../../features/dashboard/admin/notifications/utils";
+import { createCommentCreatedNotification } from "../../../../domain/notifications/utils";
 import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
