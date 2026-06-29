@@ -29,3 +29,6 @@ registerFairCoverForm();
 registerFairBannerForm();
 registerStoreFormAdmin();
 registerStoreCoverForm();
+
+// main.js sets window.Alpine and defers start() until this bundle runs.
+(window as unknown as { Alpine: { start: () => void } }).Alpine.start();

@@ -1,6 +1,5 @@
 export const CREATOR_MILESTONE_KINDS = [
   "first_wishlist",
-  "first_outbound_click",
   "first_follower",
   "followers_10",
   "followers_50",
@@ -13,7 +12,6 @@ export type CreatorMilestoneKind = (typeof CREATOR_MILESTONE_KINDS)[number];
 
 export const MILESTONE_PRIORITY: CreatorMilestoneKind[] = [
   "first_wishlist",
-  "first_outbound_click",
   "first_follower",
   "views_100",
   "views_500",
@@ -54,9 +52,6 @@ export function pickNextMilestone(
 
   if (metrics.hasWishlist && !sent.has("first_wishlist")) {
     candidates.push("first_wishlist");
-  }
-  if (metrics.hasOutboundClick && !sent.has("first_outbound_click")) {
-    candidates.push("first_outbound_click");
   }
   if (metrics.followerCount >= 50 && !sent.has("followers_50")) {
     candidates.push("followers_50");

@@ -73,7 +73,6 @@ describe("pickNextMilestone", () => {
   it("returns null when all milestones are sent", () => {
     const sent = new Set([
       "first_wishlist",
-      "first_outbound_click",
       "first_follower",
       "followers_10",
       "followers_50",

@@ -120,16 +120,16 @@ export function buildCreatorAnalyticsNudgeEmail(
 `;
 }
 
-function milestoneBody(kind: CreatorMilestoneKind, bookTitle: string | null): string {
+function milestoneBody(
+  kind: CreatorMilestoneKind,
+  bookTitle: string | null,
+): string {
   switch (kind) {
     case "first_wishlist":
       return bookTitle
         ? `Someone added <strong>${escapeHtml(bookTitle)}</strong> to their wishlist — your first on Photobookers.`
         : "Someone wishlisted one of your books — your first on Photobookers.";
-    case "first_outbound_click":
-      return bookTitle
-        ? `Someone clicked through to buy <strong>${escapeHtml(bookTitle)}</strong> — your first outbound click on Photobookers.`
-        : "Someone clicked through to buy one of your books — your first on Photobookers.";
+
     case "first_follower":
       return "You have your first follower on Photobookers.";
     case "followers_10":
@@ -154,8 +154,6 @@ export function creatorMilestoneEmailSubject(
       return bookTitle
         ? `First wishlist on Photobookers — ${bookTitle}`
         : "First wishlist on Photobookers";
-    case "first_outbound_click":
-      return "First purchase click on Photobookers";
     case "first_follower":
       return "Your first follower on Photobookers";
     case "followers_10":
@@ -171,7 +169,9 @@ export function creatorMilestoneEmailSubject(
   }
 }
 
-export function buildCreatorMilestoneEmail(params: MilestoneEmailParams): string {
+export function buildCreatorMilestoneEmail(
+  params: MilestoneEmailParams,
+): string {
   return `
   <p>Hi ${escapeHtml(params.displayName)},</p>
   <p>${milestoneBody(params.kind, params.bookTitle)}</p>

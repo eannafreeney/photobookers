@@ -19,4 +19,9 @@ Alpine.plugin(persist);
 Alpine.plugin(resize);
 
 window.Alpine = Alpine;
-Alpine.start();
+
+// Admin pages load a second bundle that registers admin-only Alpine components.
+// Don't start until that bundle has run, or bookFormAdmin etc. won't exist yet.
+if (!document.querySelector('script[src*="admin"]')) {
+  Alpine.start();
+}
