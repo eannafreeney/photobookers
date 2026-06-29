@@ -30,104 +30,6 @@ type Props = {
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
 };
 
-type ImageCaptionSectionProps = {
-  title: string;
-  subtitle: string;
-  fieldKey: string;
-  imageOptions: string[];
-  caption: string;
-  selectedImage: string;
-  tagsLine?: string | null;
-  mentions?: InstagramMention[];
-};
-
-const formatMentionsLine = (mentions: InstagramMention[]): string | null => {
-  const handles = mentions
-    .map((mention) => {
-      const handle = formatInstagramHandle(mention.instagram);
-      if (!handle) return null;
-      const roleLabel = mention.role ? ` (${mention.role})` : "";
-      return `${handle}${roleLabel}`;
-    })
-    .filter((handle): handle is string => Boolean(handle));
-
-  if (handles.length === 0) return null;
-  return `Story mentions: ${handles.join(", ")}`;
-};
-
-const ImageCaptionSection = ({
-  title,
-  subtitle,
-  fieldKey,
-  imageOptions,
-  caption,
-  selectedImage,
-  tagsLine,
-  mentions = [],
-}: ImageCaptionSectionProps) => {
-  const mentionsLine = formatMentionsLine(mentions);
-  return (
-    <section class="rounded border border-outline bg-surface-alt/40 p-4">
-      <h3 class="mb-3 text-sm font-semibold text-on-surface-strong">{title}</h3>
-      <p class="mb-1 text-xs text-on-surface line-clamp-2">{subtitle}</p>
-      {tagsLine ? (
-        <p class="mb-3 text-xs text-on-surface-weak">{tagsLine}</p>
-      ) : (
-        <div class="mb-3" />
-      )}
-      {mentionsLine ? (
-        <p class="mb-3 text-xs text-on-surface">{mentionsLine}</p>
-      ) : null}
-
-      <fieldset class="mb-4">
-        <legend class="mb-2 block text-xs font-medium text-on-surface">
-          Image
-        </legend>
-        {imageOptions.length === 0 ? (
-          <p class="text-xs text-danger">No image available.</p>
-        ) : (
-          <div class="max-h-48 overflow-y-auto overscroll-contain rounded border border-outline/60 bg-surface p-2">
-            <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
-              {imageOptions.map((url) => (
-                <label
-                  key={url}
-                  class="cursor-pointer rounded border border-outline p-1 [&:has(input:checked)]:border-primary [&:has(input:checked)]:ring-2 [&:has(input:checked)]:ring-primary"
-                >
-                  <input
-                    type="radio"
-                    name={`imageUrl[${fieldKey}]`}
-                    value={url}
-                    required
-                    checked={url === selectedImage}
-                    class="sr-only"
-                  />
-                  <img
-                    src={url}
-                    alt=""
-                    class="aspect-[3/4] w-full rounded object-cover"
-                  />
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
-      </fieldset>
-
-      <label class="block text-xs font-medium text-on-surface">
-        Caption
-        <textarea
-          name={`captions[${fieldKey}]`}
-          required
-          rows={5}
-          class="mt-1 w-full rounded border border-outline bg-surface px-3 py-2 text-sm"
-        >
-          {caption}
-        </textarea>
-      </label>
-    </section>
-  );
-};
-
 const PrepareInstagramModal = ({
   week,
   entries,
@@ -150,20 +52,19 @@ const PrepareInstagramModal = ({
   );
   const hasArtistPlan = Boolean(
     artistOfTheWeek &&
-      (artistOfTheWeek.instagramPreparedAt ||
-        artistOfTheWeek.instagramQueuedAt ||
-        artistOfTheWeek.instagramCaption ||
-        artistOfTheWeek.instagramImageUrl),
+    (artistOfTheWeek.instagramPreparedAt ||
+      artistOfTheWeek.instagramQueuedAt ||
+      artistOfTheWeek.instagramCaption ||
+      artistOfTheWeek.instagramImageUrl),
   );
   const hasPublisherPlan = Boolean(
     publisherOfTheWeek &&
-      (publisherOfTheWeek.instagramPreparedAt ||
-        publisherOfTheWeek.instagramQueuedAt ||
-        publisherOfTheWeek.instagramCaption ||
-        publisherOfTheWeek.instagramImageUrl),
+    (publisherOfTheWeek.instagramPreparedAt ||
+      publisherOfTheWeek.instagramQueuedAt ||
+      publisherOfTheWeek.instagramCaption ||
+      publisherOfTheWeek.instagramImageUrl),
   );
-  const hasInstagramPlan =
-    hasBotdPlan || hasArtistPlan || hasPublisherPlan;
+  const hasInstagramPlan = hasBotdPlan || hasArtistPlan || hasPublisherPlan;
   const hasQueuedToBuffer =
     entries.some(
       (entry) => entry.instagramQueuedAt || entry.instagramStoryQueuedAt,
@@ -192,11 +93,11 @@ const PrepareInstagramModal = ({
   const publisherCreator = publisherOfTheWeek?.creator ?? null;
 
   return (
-    <Modal title={`Prepare Instagram – week ${week}`}>
+    <Modal title={`Prepare Instagram – week ${week}`} maxWidth="max-w-2xl">
       {!hasContent ? (
         <p class="text-sm text-on-surface">
-          Schedule books of the day, artist of the week, or publisher of the week
-          before preparing Instagram posts.
+          Schedule books of the day, artist of the week, or publisher of the
+          week before preparing Instagram posts.
         </p>
       ) : (
         <div>
@@ -324,3 +225,101 @@ const PrepareInstagramModal = ({
 };
 
 export default PrepareInstagramModal;
+
+type ImageCaptionSectionProps = {
+  title: string;
+  subtitle: string;
+  fieldKey: string;
+  imageOptions: string[];
+  caption: string;
+  selectedImage: string;
+  tagsLine?: string | null;
+  mentions?: InstagramMention[];
+};
+
+const formatMentionsLine = (mentions: InstagramMention[]): string | null => {
+  const handles = mentions
+    .map((mention) => {
+      const handle = formatInstagramHandle(mention.instagram);
+      if (!handle) return null;
+      const roleLabel = mention.role ? ` (${mention.role})` : "";
+      return `${handle}${roleLabel}`;
+    })
+    .filter((handle): handle is string => Boolean(handle));
+
+  if (handles.length === 0) return null;
+  return `Story mentions: ${handles.join(", ")}`;
+};
+
+const ImageCaptionSection = ({
+  title,
+  subtitle,
+  fieldKey,
+  imageOptions,
+  caption,
+  selectedImage,
+  tagsLine,
+  mentions = [],
+}: ImageCaptionSectionProps) => {
+  const mentionsLine = formatMentionsLine(mentions);
+  return (
+    <section class="rounded border border-outline bg-surface-alt/40 p-4">
+      <h3 class="mb-3 text-sm font-semibold text-on-surface-strong">{title}</h3>
+      <p class="mb-1 text-xs text-on-surface line-clamp-2">{subtitle}</p>
+      {tagsLine ? (
+        <p class="mb-3 text-xs text-on-surface-weak">{tagsLine}</p>
+      ) : (
+        <div class="mb-3" />
+      )}
+      {mentionsLine ? (
+        <p class="mb-3 text-xs text-on-surface">{mentionsLine}</p>
+      ) : null}
+
+      <fieldset class="mb-4">
+        <legend class="mb-2 block text-xs font-medium text-on-surface">
+          Image
+        </legend>
+        {imageOptions.length === 0 ? (
+          <p class="text-xs text-danger">No image available.</p>
+        ) : (
+          <div class="max-h-48 overflow-y-auto overscroll-contain rounded border border-outline/60 bg-surface p-2">
+            <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {imageOptions.map((url) => (
+                <label
+                  key={url}
+                  class="cursor-pointer rounded border border-outline p-1 [&:has(input:checked)]:border-primary [&:has(input:checked)]:ring-2 [&:has(input:checked)]:ring-primary"
+                >
+                  <input
+                    type="radio"
+                    name={`imageUrl[${fieldKey}]`}
+                    value={url}
+                    required
+                    checked={url === selectedImage}
+                    class="sr-only"
+                  />
+                  <img
+                    src={url}
+                    alt=""
+                    class="aspect-[3/4] w-full rounded object-cover"
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+      </fieldset>
+
+      <label class="block text-xs font-medium text-on-surface">
+        Caption
+        <textarea
+          name={`captions[${fieldKey}]`}
+          required
+          rows={5}
+          class="mt-1 w-full rounded border border-outline bg-surface px-3 py-2 text-sm"
+        >
+          {caption}
+        </textarea>
+      </label>
+    </section>
+  );
+};
