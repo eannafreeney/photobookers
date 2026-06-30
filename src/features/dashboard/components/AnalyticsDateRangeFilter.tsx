@@ -5,6 +5,7 @@ import {
   type AnalyticsDateRange,
 } from "../../book-analytics/dateRange";
 import { toDateString } from "../../../lib/utils";
+import Button from "../../../components/app/Button";
 
 type Props = {
   dateRange: AnalyticsDateRange | null;
@@ -94,7 +95,7 @@ const AnalyticsDateRangeFilter = ({
             type="date"
             name="from"
             value={customFrom}
-            class="input validator"
+            class="rounded-radius border border-outline bg-surface px-2 py-2 text-sm text-on-surface focus:outline focus:outline-offset-2 focus:outline-primary"
             required
           />
         </label>
@@ -104,13 +105,13 @@ const AnalyticsDateRangeFilter = ({
             type="date"
             name="to"
             value={customTo}
-            class="input validator"
+            class="rounded-radius border border-outline bg-surface px-2 py-2 text-sm text-on-surface focus:outline focus:outline-offset-2 focus:outline-primary"
             required
           />
         </label>
-        <button type="submit" class="btn btn-primary text-white">
+        <Button variant="solid" color="primary">
           Apply
-        </button>
+        </Button>
       </form>
     </div>
   );

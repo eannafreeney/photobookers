@@ -1,6 +1,7 @@
 import type { FairAttendee } from "../../../../../db/schema";
 import FormDelete from "../../../../../components/forms/FormDelete";
 import StatusPill from "../../components/StatusPill";
+import Button from "../../../../../components/app/Button";
 
 type AttendeesListProps = {
   attendees: Array<
@@ -63,18 +64,18 @@ const AttendeesList = ({ attendees, fairId }: AttendeesListProps) => {
                   action={`/dashboard/admin/fairs/${fairId}/attendees/${attendee.id}/approve`}
                   x-target="attendees-list"
                 >
-                  <button type="submit" class="btn btn-success btn-sm">
+                  <Button variant="solid" color="success">
                     Approve
-                  </button>
+                  </Button>
                 </form>
                 <form
                   method="post"
                   action={`/dashboard/admin/fairs/${fairId}/attendees/${attendee.id}/reject`}
                   x-target="attendees-list"
                 >
-                  <button type="submit" class="btn btn-danger btn-sm">
+                  <Button variant="solid" color="danger">
                     Reject
-                  </button>
+                  </Button>
                 </form>
               </>
             )}
@@ -82,9 +83,9 @@ const AttendeesList = ({ attendees, fairId }: AttendeesListProps) => {
               action={`/dashboard/admin/fairs/${fairId}/attendees?creatorId=${attendee.creatorId}`}
               {...{ "@ajax:success": "$el.closest('[x-data]').remove()" }}
             >
-              <button type="submit" class="btn btn-sm btn-outline">
+              <Button variant="outline" color="inverse" width="fit">
                 Remove
-              </button>
+              </Button>
             </FormDelete>
           </div>
         </div>

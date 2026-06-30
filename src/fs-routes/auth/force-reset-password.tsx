@@ -28,10 +28,9 @@ export const GET = createRoute(async (c: Context) => {
   return c.html(
     <HeadlessLayout title="Force Reset Password">
       <Page>
-        <div class="min-h-screen flex items-center justify-center bg-base-200">
-          <div class="card w-96 bg-base-100 shadow-none border-none my-4">
-            <div class="card-body">
-              <div class="text-2xl font-bold text-center mb-4">
+        <div class="min-h-screen flex items-center justify-center bg-surface-alt">
+          <div class="w-96 my-4 p-6 bg-surface">
+            <div class="text-2xl font-bold text-center mb-4">
                 Hi {user.firstName ?? "there"}!
               </div>
               <div class="text-sm text-center mb-4">
@@ -48,7 +47,6 @@ export const GET = createRoute(async (c: Context) => {
                   redirectUrl={safeRedirectUrl}
                 />
               </form>
-            </div>
           </div>
         </div>
       </Page>

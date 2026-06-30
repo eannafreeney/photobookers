@@ -1,7 +1,4 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: autumn;
-}
 
 /* Editorial Theme Tokens — paper, ink, oxblood */
 @theme {

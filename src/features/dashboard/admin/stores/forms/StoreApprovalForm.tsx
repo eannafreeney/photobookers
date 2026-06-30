@@ -1,3 +1,4 @@
+import Button from "../../../../../components/app/Button";
 import type { BookStore } from "../../../../../db/schema";
 import StatusPill from "../../components/StatusPill";
 
@@ -18,17 +19,18 @@ const StoreApprovalForm = ({ store }: StoreApprovalFormProps) => {
             action={`/dashboard/admin/stores/${store.id}/approve`}
             x-target="store-approval-status"
           >
-            <button type="submit" class="btn btn-success btn-sm">
+            <Button variant="solid" color="success">
               Approve
-            </button>
+            </Button>
           </form>
-          <button
-            type="button"
-            class="btn btn-danger btn-sm"
-            x-on:click={`$ajax('/dashboard/admin/stores/${store.id}/reject')`}
+          <a
+            href={`/dashboard/admin/stores/${store.id}/reject`}
+            x-target="modal-root"
           >
-            Reject
-          </button>
+            <Button variant="solid" color="danger">
+              Reject
+            </Button>
+          </a>
         </div>
       )}
     </div>

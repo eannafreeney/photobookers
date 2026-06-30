@@ -1,3 +1,4 @@
+import Button from "../../../../../components/app/Button";
 import type { BookFair } from "../../../../../db/schema";
 import StatusPill from "../../components/StatusPill";
 
@@ -18,17 +19,19 @@ const FairApprovalForm = ({ fair }: FairApprovalFormProps) => {
             action={`/dashboard/admin/fairs/${fair.id}/approve`}
             x-target="fair-approval-status"
           >
-            <button type="submit" class="btn btn-success btn-sm">
+            <Button variant="solid" color="success">
               Approve
-            </button>
+            </Button>
           </form>
-          <button
-            type="button"
-            class="btn btn-danger btn-sm"
-            x-on:click={`$ajax('/dashboard/admin/fairs/${fair.id}/reject')`}
+
+          <a
+            href={`/dashboard/admin/fairs/${fair.id}/reject`}
+            x-target="modal-root"
           >
-            Reject
-          </button>
+            <Button variant="solid" color="danger">
+              Reject
+            </Button>
+          </a>
         </div>
       )}
     </div>

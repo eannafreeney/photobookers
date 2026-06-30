@@ -29,7 +29,7 @@ const ComboBox = ({
   return (
     <>
       <div class="flex w-full max-w-xs flex-col gap-1" {...alpineAttrs}>
-        <fieldset class="fieldset py-0">
+        <fieldset class="grid gap-1.5 py-0 text-xs grid-cols-1 auto-rows-max">
           <InputLabel label={label} name={name} required={required} />
           <div class="relative">
             <TriggerButton />
@@ -80,11 +80,11 @@ const DropdownList = ({
       class="absolute left-0 top-11 z-10 w-full overflow-hidden rounded-radius border border-outline bg-surface-alt "
       {...alpineAttrs}
     >
-      <label class="input w-full rounded-none ">
+      <div class="relative">
         {searchIcon}
         <input
           type="text"
-          class="w-full border-b border-outline bg-surface-alt py-2.5 pl-11 pr-4 text-base md:text-sm text-on-surface focus:outline-hidden focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-75 "
+          class="w-full border-b border-outline bg-surface-alt py-2.5 pl-11 pr-4 text-base md:text-sm text-on-surface focus:outline-hidden focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-75"
           name="searchField"
           x-on:input="getFilteredOptions($el.value)"
           x-ref="searchField"
@@ -98,12 +98,12 @@ const DropdownList = ({
         >
           {clearIcon}
         </span>
-      </label>
+      </div>
 
       {/* <!-- List of Options  --> */}
       <ul class="flex max-h-44 flex-col overflow-y-auto">
         <li
-          class="px-4 py-2 text-sm cursor-pointer text-primary hover:bg-base-200 focus-visible:bg-base-200 focus-visible:outline-none"
+          class="px-4 py-2 text-sm cursor-pointer text-primary hover:bg-primary/10 focus-visible:bg-primary/10 focus-visible:outline-none"
           tabindex={0}
           {...{
             "x-on:click": "addNewOption()",
@@ -185,7 +185,7 @@ const searchIcon = (
     stroke="currentColor"
     fill="none"
     stroke-width="1.5"
-    class="size-5 opacity-50"
+    class="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-surface/50"
     aria-hidden="true"
   >
     <path

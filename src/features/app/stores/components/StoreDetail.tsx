@@ -80,7 +80,7 @@ const StoreDetail = ({ store }: StoreDetailProps) => {
         </div>
 
         {store.description ? (
-          <div class="prose prose-lg max-w-none text-on-surface">
+          <div class="max-w-none text-on-surface">
             <div class="bg-surface-container rounded-2xl">
               <ExpandableDescription text={store.description} />
             </div>

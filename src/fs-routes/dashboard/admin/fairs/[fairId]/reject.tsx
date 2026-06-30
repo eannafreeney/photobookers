@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Context } from "hono";
 import Modal from "../../../../../components/app/Modal";
 import StatusPill from "../../../../../features/dashboard/admin/components/StatusPill";
+import Button from "../../../../../components/app/Button";
 
 const rejectFeedbackSchema = z.object({
   feedback: z.string().optional(),
@@ -37,16 +38,17 @@ export const GET = createRoute(
             />
           </div>
           <div class="flex gap-2 justify-end">
-            <button
+            <Button
+              variant="outline"
+              color="secondary"
               type="button"
-              class="btn btn-secondary"
-              x-on:click="$dispatch('modal:close')"
+              x-on:click="$dispatch('dialog:close')"
             >
               Cancel
-            </button>
-            <button type="submit" class="btn btn-danger">
+            </Button>
+            <Button variant="solid" color="danger">
               Reject Fair
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>,

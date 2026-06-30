@@ -109,7 +109,7 @@ const FairDetails = ({ fair }: { fair: BookFair }) => {
 const FairDescription = ({ fair }: { fair: BookFair }) => {
   if (!fair.description) return <></>;
   return (
-    <div class="prose prose-lg max-w-none text-on-surface">
+    <div class="max-w-none text-on-surface">
       <div class="bg-surface-container rounded-2xl">
         <ExpandableDescription text={fair.description} />
       </div>
