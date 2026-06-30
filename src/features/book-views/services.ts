@@ -273,13 +273,17 @@ export type TopCreatorByViewsRow = {
   viewCount: number;
 };
 
+export type TopCreatorsByViewsScope = Extract<CreatorType, "publisher" | "artist">;
+
 export function getTopCreatorsByViews(
   limit: number,
 ): Promise<Result<CreatorCardResult[], { reason: string }>>;
+
 export function getTopCreatorsByViews(
   range: AnalyticsDateRange | null | undefined,
   currentPage: number,
-  limit?: number,
+  limitOrScope?: number | TopCreatorsByViewsScope | null,
+  scope?: TopCreatorsByViewsScope | null,
 ): Promise<
   Result<
     {
@@ -293,7 +297,8 @@ export function getTopCreatorsByViews(
 export async function getTopCreatorsByViews(
   rangeOrLimit?: AnalyticsDateRange | null | number,
   currentPage?: number,
-  limit = 10,
+  limitOrScope: number | TopCreatorsByViewsScope | null = 10,
+  scope?: TopCreatorsByViewsScope | null,
 ): Promise<
   Result<
     | CreatorCardResult[]
@@ -307,16 +312,24 @@ export async function getTopCreatorsByViews(
 > {
   try {
     const paginate = currentPage !== undefined;
+    const limit = typeof limitOrScope === "number" ? limitOrScope : 10;
+    const creatorScope =
+      typeof limitOrScope === "string" ? limitOrScope : (scope ?? null);
 
     let range: AnalyticsDateRange | null | undefined;
     if (typeof rangeOrLimit === "number") {
-      limit = rangeOrLimit;
       range = null;
     } else {
       range = rangeOrLimit;
     }
 
     const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
+    const creatorBookJoin = creatorScope
+      ? eq(
+          creators.id,
+          creatorScope === "publisher" ? books.publisherId : books.artistId,
+        )
+      : or(eq(creators.id, books.artistId), eq(creators.id, books.publisherId));
     const where = dateFilter
       ? and(publishedBookConditions, dateFilter)
       : publishedBookConditions;
@@ -328,10 +341,7 @@ export async function getTopCreatorsByViews(
       })
       .from(bookViews)
       .innerJoin(books, eq(bookViews.bookId, books.id))
-      .innerJoin(
-        creators,
-        or(eq(creators.id, books.artistId), eq(creators.id, books.publisherId)),
-      )
+      .innerJoin(creators, creatorBookJoin)
       .where(where)
       .groupBy(creators.id)
       .orderBy(desc(count(bookViews.id)));
@@ -343,13 +353,7 @@ export async function getTopCreatorsByViews(
         })
         .from(bookViews)
         .innerJoin(books, eq(bookViews.bookId, books.id))
-        .innerJoin(
-          creators,
-          or(
-            eq(creators.id, books.artistId),
-            eq(creators.id, books.publisherId),
-          ),
-        )
+        .innerJoin(creators, creatorBookJoin)
         .where(where);
 
       const [{ value: totalCount = 0 }] = await countQuery;

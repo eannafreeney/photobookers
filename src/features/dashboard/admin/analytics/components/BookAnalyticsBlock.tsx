@@ -55,6 +55,14 @@ const BookAnalyticsBlock = ({
         currentPath={viewsPaginationBaseUrl}
         currentPage={viewsPage}
         pageParam="viewsPage"
+        scope="publisher"
+      />
+      <TopCreatorsByViews
+        dateRange={dateRange}
+        currentPath={viewsPaginationBaseUrl}
+        currentPage={viewsPage}
+        pageParam="viewsPage"
+        scope="artist"
       />
       <TopBooksByViewsSection
         dateRange={dateRange}

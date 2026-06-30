@@ -1,10 +1,14 @@
 import Link from "../../../components/app/Link";
 import SectionTitle from "../../../components/app/SectionTitle";
 import Table from "../../../components/app/Table";
+import { CreatorType } from "../../../db/schema";
 import { capitalize } from "../../../utils";
 import ListNavigation from "../../app/components/ListNavigation";
 import type { AnalyticsDateRange } from "../../book-analytics/dateRange";
-import { getTopCreatorsByViews } from "../../book-views/services";
+import {
+  getTopCreatorsByViews,
+  type TopCreatorsByViewsScope,
+} from "../../book-views/services";
 import WindowTable from "../admin/components/WindowTable";
 
 type Props = {
@@ -12,6 +16,7 @@ type Props = {
   currentPath: string;
   currentPage: number;
   pageParam: string;
+  scope?: TopCreatorsByViewsScope | null;
 };
 
 const TopCreatorsByViews = async ({
@@ -19,16 +24,28 @@ const TopCreatorsByViews = async ({
   currentPath,
   currentPage,
   pageParam,
+  scope,
 }: Props) => {
-  const [error, result] = await getTopCreatorsByViews(dateRange, currentPage);
+  const [error, result] = await getTopCreatorsByViews(
+    dateRange,
+    currentPage,
+    scope,
+  );
   if (error) return <div>{error.reason}</div>;
 
-  const targetId = "analytics-top-creators-by-views";
+  const role = scope ?? "creator";
+  const targetId = `analytics-top-${role}s-by-views`;
+  const title =
+    scope === "publisher"
+      ? "Top publishers by views"
+      : scope === "artist"
+        ? "Top artists by views"
+        : "Top creators by views";
   const { creators, totalPages, page } = result;
 
   return (
     <div>
-      <SectionTitle>Top creators by views</SectionTitle>
+      <SectionTitle>{title}</SectionTitle>
       <WindowTable>
         <Table>
           <Table.Head>
@@ -75,7 +92,7 @@ const TopCreatorsByViews = async ({
           totalPages={totalPages}
           targetId={targetId}
           pageParam={pageParam}
-          navId="pagination-top-creators-by-views-table"
+          navId={`pagination-top-${role}s-by-views-table`}
         />
       </WindowTable>
     </div>
