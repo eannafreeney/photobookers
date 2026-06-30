@@ -40,6 +40,13 @@ describe("milestonesToCascadeMark", () => {
     ]);
   });
 
+  it("cascades profile view tiers", () => {
+    expect(milestonesToCascadeMark("profile_views_100")).toEqual([
+      "profile_views_50",
+      "profile_views_100",
+    ]);
+  });
+
   it("cascades follower tiers", () => {
     expect(milestonesToCascadeMark("followers_50")).toEqual([
       "first_follower",
@@ -55,6 +62,7 @@ describe("pickNextMilestone", () => {
       hasWishlist: true,
       hasOutboundClick: true,
       followerCount: 50,
+      profileViewCount: 200,
       viewCount: 2000,
     });
     expect(milestone).toBe("first_wishlist");
@@ -65,9 +73,21 @@ describe("pickNextMilestone", () => {
       hasWishlist: true,
       hasOutboundClick: false,
       followerCount: 0,
+      profileViewCount: 0,
       viewCount: 2000,
     });
     expect(milestone).toBe("views_1000");
+  });
+
+  it("returns highest unsent profile view tier", () => {
+    const milestone = pickNextMilestone(new Set(["first_wishlist"]), {
+      hasWishlist: true,
+      hasOutboundClick: false,
+      followerCount: 0,
+      profileViewCount: 120,
+      viewCount: 0,
+    });
+    expect(milestone).toBe("profile_views_100");
   });
 
   it("returns null when all milestones are sent", () => {
@@ -76,6 +96,8 @@ describe("pickNextMilestone", () => {
       "first_follower",
       "followers_10",
       "followers_50",
+      "profile_views_50",
+      "profile_views_100",
       "views_100",
       "views_500",
       "views_1000",
@@ -84,6 +106,7 @@ describe("pickNextMilestone", () => {
       hasWishlist: true,
       hasOutboundClick: true,
       followerCount: 100,
+      profileViewCount: 500,
       viewCount: 5000,
     });
     expect(milestone).toBeNull();

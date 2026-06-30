@@ -34,6 +34,7 @@ import {
   type AnalyticsDateRange,
 } from "../book-analytics/dateRange";
 import { getCreatorBookViewTotal } from "../book-views/services";
+import { getCreatorProfileViewTotal } from "../creator-views/services";
 import { getTopBooksByViews } from "../book-views/services";
 import { getTopBooksByClicks } from "../purchase-clicks/services";
 import { findFollowersCount } from "../../db/queries";
@@ -491,6 +492,7 @@ async function gatherMilestoneMetrics(
     hasWishlist: boolean;
     hasOutboundClick: boolean;
     followerCount: number;
+    profileViewCount: number;
     viewCount: number;
   };
   wishlistBookTitle: string | null;
@@ -514,13 +516,17 @@ async function gatherMilestoneMetrics(
     .limit(1);
 
   const followerCount = await findFollowersCount(creatorId);
-  const viewCount = await getCreatorBookViewTotal(creatorId, creatorType);
+  const [viewCount, profileViewCount] = await Promise.all([
+    getCreatorBookViewTotal(creatorId, creatorType),
+    getCreatorProfileViewTotal(creatorId),
+  ]);
 
   return {
     metrics: {
       hasWishlist: Boolean(wishlistRow),
       hasOutboundClick: Boolean(clickRow),
       followerCount,
+      profileViewCount,
       viewCount,
     },
     wishlistBookTitle: wishlistRow?.title ?? null,

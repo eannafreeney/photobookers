@@ -3,6 +3,8 @@ export const CREATOR_MILESTONE_KINDS = [
   "first_follower",
   "followers_10",
   "followers_50",
+  "profile_views_50",
+  "profile_views_100",
   "views_100",
   "views_500",
   "views_1000",
@@ -13,6 +15,8 @@ export type CreatorMilestoneKind = (typeof CREATOR_MILESTONE_KINDS)[number];
 export const MILESTONE_PRIORITY: CreatorMilestoneKind[] = [
   "first_wishlist",
   "first_follower",
+  "profile_views_50",
+  "profile_views_100",
   "views_100",
   "views_500",
   "views_1000",
@@ -24,6 +28,7 @@ export type CreatorMilestoneMetrics = {
   hasWishlist: boolean;
   hasOutboundClick: boolean;
   followerCount: number;
+  profileViewCount: number;
   viewCount: number;
 };
 
@@ -39,6 +44,8 @@ export function milestonesToCascadeMark(
       return ["first_follower", "followers_10", "followers_50"];
     case "followers_10":
       return ["first_follower", "followers_10"];
+    case "profile_views_100":
+      return ["profile_views_50", "profile_views_100"];
     default:
       return [kind];
   }
@@ -59,6 +66,11 @@ export function pickNextMilestone(
     candidates.push("followers_10");
   } else if (metrics.followerCount >= 1 && !sent.has("first_follower")) {
     candidates.push("first_follower");
+  }
+  if (metrics.profileViewCount >= 100 && !sent.has("profile_views_100")) {
+    candidates.push("profile_views_100");
+  } else if (metrics.profileViewCount >= 50 && !sent.has("profile_views_50")) {
+    candidates.push("profile_views_50");
   }
   if (metrics.viewCount >= 1000 && !sent.has("views_1000")) {
     candidates.push("views_1000");

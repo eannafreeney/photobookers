@@ -136,6 +136,10 @@ function milestoneBody(
       return "You now have 10 followers on Photobookers.";
     case "followers_50":
       return "You now have 50 followers on Photobookers.";
+    case "profile_views_50":
+      return "Your profile reached 50 views on Photobookers.";
+    case "profile_views_100":
+      return "Your profile reached 100 views on Photobookers.";
     case "views_100":
       return "Your books reached 100 views on Photobookers.";
     case "views_500":
@@ -160,6 +164,10 @@ export function creatorMilestoneEmailSubject(
       return "10 followers on Photobookers";
     case "followers_50":
       return "50 followers on Photobookers";
+    case "profile_views_50":
+      return "50 profile views on Photobookers";
+    case "profile_views_100":
+      return "100 profile views on Photobookers";
     case "views_100":
       return "100 views on Photobookers";
     case "views_500":

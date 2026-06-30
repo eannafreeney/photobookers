@@ -116,6 +116,21 @@ describe("buildCreatorMilestoneEmail", () => {
     );
   });
 
+  it("includes profile views milestone copy", () => {
+    const html = buildCreatorMilestoneEmail({
+      displayName: "Jane Doe",
+      kind: "profile_views_100",
+      bookTitle: null,
+      profileUrl: "https://photobookers.com/creators/jane-doe",
+      analyticsUrl: "https://photobookers.com/dashboard/analytics",
+    });
+
+    expect(html).toContain("profile reached 100 views");
+    expect(creatorMilestoneEmailSubject("profile_views_100", null)).toBe(
+      "100 profile views on Photobookers",
+    );
+  });
+
   it("includes views milestone copy", () => {
     const html = buildCreatorMilestoneEmail({
       displayName: "Jane Doe",

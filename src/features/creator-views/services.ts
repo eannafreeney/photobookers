@@ -61,6 +61,15 @@ function countViewsForCreatorType(
     .where(where);
 }
 
+export const getCreatorProfileViewTotal = async (creatorId: string) => {
+  const result = await db
+    .select({ value: count() })
+    .from(creatorViews)
+    .where(eq(creatorViews.creatorId, creatorId));
+
+  return result[0]?.value ?? 0;
+};
+
 export const getCreatorViewTotals = async (
   range?: AnalyticsDateRange | null,
 ) => {
