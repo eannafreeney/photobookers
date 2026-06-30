@@ -18,9 +18,14 @@ describe("bufferCreateScheduledImagePost", () => {
     delete process.env.BUFFER_INSTAGRAM_CHANNEL_ID;
   });
 
-  it("sends required Instagram metadata and returns post id on success", async () => {
+  it("schedules notification-based Instagram feed posts with metadata", async () => {
     const fetchMock = vi.fn(async (_url, init) => {
       const body = JSON.parse(String(init?.body));
+      expect(body.variables.input).toMatchObject({
+        schedulingType: "notification",
+        mode: "customScheduled",
+        dueAt: "2026-06-01T10:00:00.000Z",
+      });
       expect(body.variables.input.metadata.instagram).toEqual({
         type: "post",
         shouldShareToFeed: true,

@@ -4,14 +4,11 @@ import { toDateString } from "../../../../../lib/utils";
 import { BookOfTheDayWithBook } from "../../../../app/BOTDServices";
 import {
   buildBotdInstagramCaption,
-  buildBotdStoryMentions,
   buildDefaultArtistInstagramCaption,
   buildDefaultPublisherInstagramCaption,
   collectBookImageOptions,
   collectCreatorImageOptions,
-  formatInstagramHandle,
   formatInstagramHashtags,
-  type InstagramMention,
 } from "../instagramCaption";
 import type {
   ArtistOfTheWeekWithCreator,
@@ -106,9 +103,9 @@ const PrepareInstagramModal = ({
       ) : (
         <div>
           <p class="mb-4 text-sm text-on-surface">
-            Feed posts publish automatically. Stories use Buffer&apos;s
-            notification flow — you&apos;ll get a phone alert to paste the text
-            sticker, tag people, and publish in Instagram.
+            Posts and stories use Buffer&apos;s notification flow — you&apos;ll
+            get a phone alert at the scheduled time with copy-paste sticker
+            text for tagging creators.
           </p>
           <FormPost
             action={`/dashboard/admin/planner/instagram/${week}/prepare`}
@@ -142,7 +139,6 @@ const PrepareInstagramModal = ({
                     tagsLine={
                       tagLine ? `Tags: ${tagLine}` : "No tags on this book"
                     }
-                    mentions={buildBotdStoryMentions(book)}
                   />
                 );
               })}
@@ -169,13 +165,6 @@ const PrepareInstagramModal = ({
                     )[0] ??
                     ""
                   }
-                  mentions={[
-                    {
-                      displayName: artistCreator.displayName,
-                      instagram: artistCreator.instagram,
-                      role: "artist",
-                    },
-                  ]}
                 />
               ) : null}
 
@@ -201,13 +190,6 @@ const PrepareInstagramModal = ({
                     )[0] ??
                     ""
                   }
-                  mentions={[
-                    {
-                      displayName: publisherCreator.displayName,
-                      instagram: publisherCreator.instagram,
-                      role: "publisher",
-                    },
-                  ]}
                 />
               ) : null}
             </div>
@@ -250,21 +232,6 @@ type ImageCaptionSectionProps = {
   caption: string;
   selectedImage: string;
   tagsLine?: string | null;
-  mentions?: InstagramMention[];
-};
-
-const formatMentionsLine = (mentions: InstagramMention[]): string | null => {
-  const handles = mentions
-    .map((mention) => {
-      const handle = formatInstagramHandle(mention.instagram);
-      if (!handle) return null;
-      const roleLabel = mention.role ? ` (${mention.role})` : "";
-      return `${handle}${roleLabel}`;
-    })
-    .filter((handle): handle is string => Boolean(handle));
-
-  if (handles.length === 0) return null;
-  return `Story mentions: ${handles.join(", ")}`;
 };
 
 const ImageCaptionSection = ({
@@ -275,9 +242,7 @@ const ImageCaptionSection = ({
   caption,
   selectedImage,
   tagsLine,
-  mentions = [],
 }: ImageCaptionSectionProps) => {
-  const mentionsLine = formatMentionsLine(mentions);
   return (
     <section class="rounded border border-outline bg-surface-alt/40 p-4">
       <h3 class="mb-3 text-sm font-semibold text-on-surface-strong">{title}</h3>
@@ -287,9 +252,6 @@ const ImageCaptionSection = ({
       ) : (
         <div class="mb-3" />
       )}
-      {mentionsLine ? (
-        <p class="mb-3 text-xs text-on-surface">{mentionsLine}</p>
-      ) : null}
 
       <fieldset class="mb-4">
         <legend class="mb-2 block text-xs font-medium text-on-surface">

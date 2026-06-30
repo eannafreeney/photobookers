@@ -128,52 +128,6 @@ export function ensureBookTagsInCaption(
   return `${trimmed}\n\n${tagLine}`;
 }
 
-export type InstagramMention = {
-  displayName: string;
-  instagram?: string | null;
-  role?: string;
-};
-
-/** Story sticker text with a dedicated mention block for manual @ tagging in Instagram. */
-export function buildStoryStickerText(
-  caption: string,
-  mentions: InstagramMention[],
-): string {
-  const trimmed = caption.trim();
-  const mentionLines = mentions
-    .map((mention) => {
-      const handle = formatInstagramHandle(mention.instagram);
-      if (!handle) return null;
-      const roleLabel = mention.role ? ` (${mention.role})` : "";
-      return `${handle}${roleLabel} — ${mention.displayName}`;
-    })
-    .filter((line): line is string => Boolean(line));
-
-  if (mentionLines.length === 0) return trimmed;
-
-  const mentionBlock = ["", "Mention:", ...mentionLines].join("\n");
-  const linkMarker = "Link in bio";
-  const linkIdx = trimmed.indexOf(linkMarker);
-  if (linkIdx >= 0) {
-    const before = trimmed.slice(0, linkIdx).trimEnd();
-    const after = trimmed.slice(linkIdx).trim();
-    return `${before}${mentionBlock}\n\n${after}`;
-  }
-
-  return `${trimmed}${mentionBlock}`;
-}
-
-export function buildBotdStoryMentions(book: BookForCaption): InstagramMention[] {
-  const mentions: InstagramMention[] = [];
-  if (book.artist) {
-    mentions.push({ ...book.artist, role: "artist" });
-  }
-  if (book.publisher) {
-    mentions.push({ ...book.publisher, role: "publisher" });
-  }
-  return mentions;
-}
-
 /** Instagram handles for BOTD story sticker copy (artist, then publisher). */
 export function buildBotdStoryHandles(book: BookForCaption): string {
   const handles = [book.artist, book.publisher]
@@ -183,19 +137,57 @@ export function buildBotdStoryHandles(book: BookForCaption): string {
   return handles.join("\n");
 }
 
-/** Buffer sticker fields for BOTD stories (see Buffer InstagramStickerFieldsInput). */
-export function buildBotdStoryStickerFields(book: BookForCaption): {
+/** Copy-paste sticker text generated when queuing BOTD stories to Buffer. */
+export function buildBotdBufferStickerFields(book: BookForCaption): {
   text: string;
-  music: string;
   products: string;
-  other: string;
 } {
+  const lines: string[] = [];
+  const bookUrl = buildBookPageUrl(book.slug);
+
+  if (book.artist?.displayName) {
+    lines.push(
+      `Hi! Your book "${book.title}" was Book of the Day on photobookers.com.`,
+      bookUrl,
+    );
+  }
+
+  if (book.publisher?.displayName) {
+    if (lines.length > 0) lines.push("");
+    const artistName = book.artist?.displayName ?? "the artist";
+    lines.push(
+      `Hi! "${book.title}" by ${artistName} was Book of the Day on photobookers.com.`,
+      bookUrl,
+    );
+  }
+
+  const products = buildBotdStoryHandles(book);
   return {
-    text: "Book of the Day",
-    music: book.title,
-    products: buildBotdStoryHandles(book),
-    other: "Link In Bio",
+    text: lines.join("\n"),
+    ...(products ? { products } : {}),
   };
+}
+
+/** Copy-paste sticker text generated when queuing AOTW stories to Buffer. */
+export function buildArtistBufferStickerText(
+  creator: CreatorSpotlightForCaption,
+): string {
+  const handle = formatInstagramHandle(creator.instagram);
+  const greeting = handle
+    ? `Hi ${handle}! You were Artist of the Week on photobookers.com.`
+    : `Hi! You were Artist of the Week on photobookers.com.`;
+  return [greeting, buildCreatorPageUrl(creator.slug)].join("\n");
+}
+
+/** Copy-paste sticker text generated when queuing POTW stories to Buffer. */
+export function buildPublisherBufferStickerText(
+  creator: CreatorSpotlightForCaption,
+): string {
+  const handle = formatInstagramHandle(creator.instagram);
+  const greeting = handle
+    ? `Hi ${handle}! You were Publisher of the Week on photobookers.com.`
+    : `Hi! You were Publisher of the Week on photobookers.com.`;
+  return [greeting, buildCreatorPageUrl(creator.slug)].join("\n");
 }
 
 export function buildBotdInstagramCaption(

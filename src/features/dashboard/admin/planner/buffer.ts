@@ -133,7 +133,7 @@ export async function bufferCreateScheduledImagePost(params: {
 }): Promise<Result<{ postId: string }, { reason: string }>> {
   return bufferCreatePost({
     text: params.text,
-    schedulingType: "automatic",
+    schedulingType: "notification",
     mode: "customScheduled",
     dueAt: params.dueAt.toISOString(),
     assets: [{ image: { url: params.imageUrl } }],

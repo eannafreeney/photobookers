@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildArtistBufferStickerText,
+  buildBotdBufferStickerFields,
   buildBotdInstagramCaption,
   buildBotdStoryHandles,
-  buildBotdStoryStickerFields,
   buildDefaultArtistInstagramCaption,
   buildDefaultInstagramCaption,
   buildDefaultInstagramFirstComment,
   buildDefaultPublisherInstagramCaption,
-  buildStoryStickerText,
+  buildPublisherBufferStickerText,
   collectBookImageOptions,
   collectCreatorImageOptions,
   ensureBookTagsInCaption,
@@ -160,39 +161,7 @@ describe("instagram caption helpers", () => {
     ]);
   });
 
-  it("adds a mention block before link in bio for story stickers", () => {
-    const stickerText = buildStoryStickerText(
-      "Book of the Day\n\nWinter Light\n\nLink in bio →",
-      [
-        {
-          displayName: "Jane Doe",
-          instagram: "@janedoe",
-          role: "artist",
-        },
-        {
-          displayName: "Acme Press",
-          instagram: "acmepress",
-          role: "publisher",
-        },
-      ],
-    );
-
-    expect(stickerText).toContain("Mention:");
-    expect(stickerText).toContain("@janedoe (artist) — Jane Doe");
-    expect(stickerText).toContain("@acmepress (publisher) — Acme Press");
-    expect(stickerText.indexOf("Mention:")).toBeLessThan(
-      stickerText.indexOf("Link in bio"),
-    );
-  });
-
-  it("omits mention block when no handles are available", () => {
-    const caption = "Artist of the Week\n\nLink in bio →";
-    expect(
-      buildStoryStickerText(caption, [{ displayName: "Jane Doe" }]),
-    ).toBe(caption);
-  });
-
-  it("builds BOTD story sticker fields for Buffer copy boxes", () => {
+  it("builds BOTD buffer sticker text for artist and publisher", () => {
     const book = {
       title: "Winter Light",
       slug: "winter-light",
@@ -207,12 +176,31 @@ describe("instagram caption helpers", () => {
     };
 
     expect(buildBotdStoryHandles(book)).toBe("@janedoe\n@acmepress");
-    expect(buildBotdStoryStickerFields(book)).toEqual({
-      text: "Book of the Day",
-      music: "Winter Light",
+    expect(buildBotdBufferStickerFields(book)).toEqual({
+      text: [
+        'Hi! Your book "Winter Light" was Book of the Day on photobookers.com.',
+        "https://www.photobookers.com/books/winter-light",
+        "",
+        'Hi! "Winter Light" by Jane Doe was Book of the Day on photobookers.com.',
+        "https://www.photobookers.com/books/winter-light",
+      ].join("\n"),
       products: "@janedoe\n@acmepress",
-      other: "Link In Bio",
     });
+  });
+
+  it("builds spotlight buffer sticker text with creator page url", () => {
+    const creator = {
+      displayName: "Jane Doe",
+      slug: "jane-doe",
+      instagram: "@janedoe",
+    };
+
+    expect(buildArtistBufferStickerText(creator)).toBe(
+      "Hi @janedoe! You were Artist of the Week on photobookers.com.\nhttps://www.photobookers.com/creators/jane-doe",
+    );
+    expect(buildPublisherBufferStickerText(creator)).toBe(
+      "Hi @janedoe! You were Publisher of the Week on photobookers.com.\nhttps://www.photobookers.com/creators/jane-doe",
+    );
   });
 });
 

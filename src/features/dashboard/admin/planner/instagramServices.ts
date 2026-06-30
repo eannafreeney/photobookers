@@ -36,10 +36,11 @@ import {
   bufferCreateScheduledStory,
 } from "./buffer";
 import {
+  buildArtistBufferStickerText,
+  buildBotdBufferStickerFields,
   buildDefaultCreatorInstagramFirstComment,
   buildDefaultInstagramFirstComment,
-  buildBotdStoryStickerFields,
-  buildStoryStickerText,
+  buildPublisherBufferStickerText,
   ensureBookTagsInCaption,
 } from "./instagramCaption";
 import {
@@ -559,7 +560,7 @@ export async function queuePreparedBotdInstagramStoryForDate(
     imageUrl: row.instagramImageUrl,
     dueAt,
     stickerFields: row.book
-      ? buildBotdStoryStickerFields(row.book)
+      ? buildBotdBufferStickerFields(row.book)
       : { text: baseCaption },
     link: linksUrl(),
   });
@@ -664,6 +665,7 @@ async function queueSpotlightStoryRow(params: {
     instagramCaption: string | null;
     creator: {
       displayName: string;
+      slug: string;
       instagram?: string | null;
       type?: string;
     } | null;
@@ -682,19 +684,11 @@ async function queueSpotlightStoryRow(params: {
   }
 
   const dueAt = scheduleDueAt(params.dueAt);
-  const mentions = params.row.creator
-    ? [
-        {
-          displayName: params.row.creator.displayName,
-          instagram: params.row.creator.instagram,
-          role: params.row.creator.type,
-        },
-      ]
-    : [];
-  const stickerText = buildStoryStickerText(
-    params.row.instagramCaption,
-    mentions,
-  );
+  const stickerText = params.row.creator
+    ? params.table === artistOfTheWeek
+      ? buildArtistBufferStickerText(params.row.creator)
+      : buildPublisherBufferStickerText(params.row.creator)
+    : params.row.instagramCaption;
 
   const [bufferError, bufferData] = await bufferCreateScheduledStory({
     caption: params.row.instagramCaption,
