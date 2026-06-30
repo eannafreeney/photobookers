@@ -20,6 +20,15 @@ export function presetAnalyticsDateRange(days: number): AnalyticsDateRange {
   return { from, to };
 }
 
+export function yesterdayAnalyticsDateRange(
+  referenceDate: Date = new Date(),
+): AnalyticsDateRange {
+  const today = toUtcStartOfDay(referenceDate);
+  const yesterday = new Date(today);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  return { from: yesterday, to: yesterday };
+}
+
 export function parseAnalyticsDateRange(
   from?: string,
   to?: string,
@@ -78,6 +87,15 @@ export function matchesPreset(
   return (
     toDateString(range.from) === toDateString(preset.from) &&
     toDateString(range.to) === toDateString(preset.to)
+  );
+}
+
+export function matchesYesterdayPreset(range: AnalyticsDateRange | null): boolean {
+  if (!range) return false;
+  const yesterday = yesterdayAnalyticsDateRange();
+  return (
+    toDateString(range.from) === toDateString(yesterday.from) &&
+    toDateString(range.to) === toDateString(yesterday.to)
   );
 }
 

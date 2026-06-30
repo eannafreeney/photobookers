@@ -1,5 +1,5 @@
 import CreatorsSlider from "../components/CreatorsSlider";
-import { getTopCreatorsByViews } from "../../book-views/services";
+import { getTopCreatorsByViews } from "../../creator-views/services";
 
 const TRENDING_CREATORS_LIMIT = 20;
 

@@ -9,6 +9,7 @@ import {
 import { getOverallFunnelTotals } from "../../book-analytics/funnel";
 import { getFollowTotal } from "../../book-analytics/trends";
 import { getBookViewTotals } from "../../book-views/services";
+import { getCreatorViewTotals } from "../../creator-views/services";
 import { getPurchaseClickTotals } from "../../purchase-clicks/services";
 
 type Props = {
@@ -48,9 +49,10 @@ const AnalyticsOverviewSection = async ({
     );
   }
 
-  const [viewTotals, clickTotals, funnelTotals, followTotal] =
+  const [viewTotals, creatorViewTotals, clickTotals, funnelTotals, followTotal] =
     await Promise.all([
       getBookViewTotals(dateRange),
+      getCreatorViewTotals(dateRange),
       getPurchaseClickTotals(dateRange),
       getOverallFunnelTotals(dateRange),
       getFollowTotal(dateRange),
@@ -68,6 +70,14 @@ const AnalyticsOverviewSection = async ({
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard label="Total book views" value={viewTotals.totalViews} />
         <StatCard label="Books with views" value={viewTotals.booksWithViews} />
+        <StatCard
+          label="Publisher page views"
+          value={creatorViewTotals.publisherPageViews}
+        />
+        <StatCard
+          label="Artist page views"
+          value={creatorViewTotals.artistPageViews}
+        />
         <StatCard
           label="Total outbound clicks"
           value={clickTotals.totalClicks}

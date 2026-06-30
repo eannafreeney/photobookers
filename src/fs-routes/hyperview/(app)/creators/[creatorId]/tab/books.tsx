@@ -20,6 +20,7 @@ import { relatedCreatorsListStyles } from "../../../../../../features/hyperview/
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { creatorIdSchema } from "../../../../../../schemas";
 import { getBooksByCreatorId } from "../../../../../../domain/creators/books";
+import { maybeRecordCreatorView } from "../../../../../../features/creator-views/record";
 import CreatorBanner, {
   creatorBannerStyles,
 } from "../../../../../../features/hyperview/components/CreatorBanner";
@@ -44,6 +45,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   }
 
   const { creator, books, totalPages = 1 } = result;
+  await maybeRecordCreatorView(c, creator, "hyperview");
   const isStubCreator = creator.status === "stub";
   const hasCreatorAccount = Boolean(user?.creator?.id);
   const isAdmin = Boolean(user?.isAdmin);

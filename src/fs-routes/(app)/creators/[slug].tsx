@@ -5,6 +5,7 @@ import { getIsMobile } from "../../../lib/device";
 import { Context } from "hono";
 import { getUser } from "../../../utils";
 import { getBooksByCreatorSlug } from "../../../features/app/services";
+import { maybeRecordCreatorView } from "../../../features/creator-views/record";
 import InfoPage from "../../../pages/InfoPage";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
@@ -31,6 +32,8 @@ export const GET = createRoute(
     }
 
     const { creator } = result;
+
+    await maybeRecordCreatorView(c, creator, "web");
 
     // Fetch upcoming fairs if feature is enabled
     let upcomingFairs: Awaited<

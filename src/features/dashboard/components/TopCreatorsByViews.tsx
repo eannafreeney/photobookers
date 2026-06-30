@@ -8,7 +8,7 @@ import type { AnalyticsDateRange } from "../../book-analytics/dateRange";
 import {
   getTopCreatorsByViews,
   type TopCreatorsByViewsScope,
-} from "../../book-views/services";
+} from "../../creator-views/services";
 import WindowTable from "../admin/components/WindowTable";
 
 type Props = {

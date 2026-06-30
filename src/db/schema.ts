@@ -84,6 +84,11 @@ export const fairViewSourceEnum = pgEnum("fair_view_source", [
   "hyperview",
 ]);
 
+export const creatorViewSourceEnum = pgEnum("creator_view_source", [
+  "web",
+  "hyperview",
+]);
+
 export const bookFairStatusEnum = pgEnum("book_fair_status", [
   "draft",
   "published",
@@ -259,6 +264,7 @@ export const creatorsRelations = relations(creators, ({ one, many }) => ({
   fairAttendees: many(fairAttendees),
   milestoneEmails: many(creatorMilestoneEmails),
   stubOutreachEmails: many(creatorStubOutreachEmails),
+  views: many(creatorViews),
 }));
 
 export const creatorStubOutreachEmails = pgTable(
@@ -851,6 +857,35 @@ export const bookViewsRelations = relations(bookViews, ({ one }) => ({
   }),
 }));
 
+export const creatorViews = pgTable(
+  "creator_views",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    creatorId: uuid("creator_id")
+      .references(() => creators.id)
+      .notNull(),
+    userId: uuid("user_id").references(() => users.id),
+    source: creatorViewSourceEnum("source").notNull().default("web"),
+    referer: text("referer"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    creatorIdIdx: index("creator_views_creator_id_idx").on(table.creatorId),
+    createdAtIdx: index("creator_views_created_at_idx").on(table.createdAt),
+  }),
+);
+
+export const creatorViewsRelations = relations(creatorViews, ({ one }) => ({
+  creator: one(creators, {
+    fields: [creatorViews.creatorId],
+    references: [creators.id],
+  }),
+  user: one(users, {
+    fields: [creatorViews.userId],
+    references: [users.id],
+  }),
+}));
+
 export const bookFairs = pgTable(
   "book_fairs",
   {
@@ -1097,6 +1132,11 @@ export type PurchaseClickSource =
 export type BookView = InferSelectModel<typeof bookViews>;
 export type NewBookView = InferInsertModel<typeof bookViews>;
 export type BookViewSource = (typeof bookViewSourceEnum.enumValues)[number];
+
+export type CreatorView = InferSelectModel<typeof creatorViews>;
+export type NewCreatorView = InferInsertModel<typeof creatorViews>;
+export type CreatorViewSource =
+  (typeof creatorViewSourceEnum.enumValues)[number];
 
 export type BookFair = InferSelectModel<typeof bookFairs>;
 export type NewBookFair = InferInsertModel<typeof bookFairs>;

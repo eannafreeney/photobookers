@@ -1,21 +1,30 @@
 import { createRoute } from "hono-fsr";
+import { getHomepageActivityStats } from "../../../features/app/homepageActivity";
+import HomepageActivityPulse from "../../../features/app/components/HomepageActivityPulse";
 import { getHomepageStats } from "../../../features/app/services";
 import { capitalize } from "../../../utils";
 
 export const GET = createRoute(async (c) => {
-  const [error, result] = await getHomepageStats();
-  if (error) return c.html(<></>);
-  const { books, artists, publishers } = result;
+  const [statsError, statsResult] = await getHomepageStats();
+  if (statsError) return c.html(<></>);
+  const { books, artists, publishers } = statsResult;
   if (!books || !artists || !publishers) return c.html(<></>);
 
+  const [, activity] = await getHomepageActivityStats();
+
   return c.html(
-    <div
-      id="stats-fragment"
-      class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6"
-    >
-      <StatsCard entity="books" count={books} href="/books" />
-      <StatsCard entity="artists" count={artists} href="/artists" />
-      <StatsCard entity="publishers" count={publishers} href="/publishers" />
+    <div id="stats-fragment" class="flex flex-col">
+      {activity ? (
+        <HomepageActivityPulse
+          bookViews={activity.bookViews}
+          profileViews={activity.profileViews}
+        />
+      ) : null}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+        <StatsCard entity="books" count={books} href="/books" />
+        <StatsCard entity="artists" count={artists} href="/artists" />
+        <StatsCard entity="publishers" count={publishers} href="/publishers" />
+      </div>
     </div>,
   );
 });

@@ -1,4 +1,4 @@
-import { getTopCreatorsByViews } from "../../book-views/services";
+import { getTopCreatorsByViews } from "../../creator-views/services";
 import { ScrollView, Style, View } from "../../../lib/hxml-comps";
 import SectionHeader from "./SectionHeader";
 import { verificationBadgeStyles } from "./VerificationBadge";

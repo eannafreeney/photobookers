@@ -1,5 +1,5 @@
 import { createRoute } from "hono-fsr";
-import { getTopCreatorsByViews } from "../../../features/book-views/services";
+import { getTopCreatorsByViews } from "../../../features/creator-views/services";
 import CreatorsSlider from "../../../features/app/components/CreatorsSlider";
 import SectionTitle from "../../../components/app/SectionTitle";
 import ViewAllLink from "../../../features/app/components/ViewAllLink";

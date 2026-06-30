@@ -1,7 +1,9 @@
 import {
   analyticsSearchParams,
   matchesPreset,
+  matchesYesterdayPreset,
   presetAnalyticsDateRange,
+  yesterdayAnalyticsDateRange,
   type AnalyticsDateRange,
 } from "../../book-analytics/dateRange";
 import { toDateString } from "../../../lib/utils";
@@ -17,7 +19,7 @@ type Props = {
 
 const PRESETS = [
   { label: "All time", days: null },
-  { label: "Today", days: 1 },
+  { label: "Yesterday", days: "yesterday" as const },
   { label: "Last 7 days", days: 7 },
   { label: "Last 30 days", days: 30 },
   { label: "Last 90 days", days: 90 },
@@ -52,13 +54,17 @@ const AnalyticsDateRangeFilter = ({
           const href =
             preset.days === null
               ? `${basePath}${searchParams(null)}`
-              : `${basePath}${searchParams(
-                  presetAnalyticsDateRange(preset.days),
-                )}`;
+              : preset.days === "yesterday"
+                ? `${basePath}${searchParams(yesterdayAnalyticsDateRange())}`
+                : `${basePath}${searchParams(
+                    presetAnalyticsDateRange(preset.days),
+                  )}`;
           const active =
             preset.days === null
               ? dateRange === null
-              : matchesPreset(dateRange, preset.days);
+              : preset.days === "yesterday"
+                ? matchesYesterdayPreset(dateRange)
+                : matchesPreset(dateRange, preset.days);
 
           return (
             <a

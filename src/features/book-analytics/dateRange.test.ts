@@ -5,12 +5,44 @@ import {
   formatAnalyticsDateRangeLabel,
   formatMonthLabel,
   matchesPreset,
+  matchesYesterdayPreset,
   monthKeyFromRange,
   parseAnalyticsDateRange,
   parseMonthKey,
   presetAnalyticsDateRange,
   previousCalendarMonthRange,
+  yesterdayAnalyticsDateRange,
 } from "./dateRange";
+
+describe("yesterdayAnalyticsDateRange", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("returns the previous UTC day only", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-30T15:00:00Z"));
+
+    const range = yesterdayAnalyticsDateRange();
+    expect(range.from.toISOString()).toBe("2026-06-29T00:00:00.000Z");
+    expect(range.to.toISOString()).toBe("2026-06-29T00:00:00.000Z");
+  });
+});
+
+describe("matchesYesterdayPreset", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("matches yesterday only", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-30T12:00:00Z"));
+
+    expect(matchesYesterdayPreset(yesterdayAnalyticsDateRange())).toBe(true);
+    expect(matchesYesterdayPreset(presetAnalyticsDateRange(1))).toBe(false);
+    expect(matchesYesterdayPreset(null)).toBe(false);
+  });
+});
 
 describe("presetAnalyticsDateRange", () => {
   afterEach(() => {
