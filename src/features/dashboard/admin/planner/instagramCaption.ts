@@ -140,7 +140,7 @@ export function buildBotdStoryHandles(book: BookForCaption): string {
 /** Copy-paste sticker text generated when queuing BOTD stories to Buffer. */
 export function buildBotdBufferStickerFields(book: BookForCaption): {
   text: string;
-  products: string;
+  products?: string;
 } {
   const lines: string[] = [];
   const bookUrl = buildBookPageUrl(book.slug);
