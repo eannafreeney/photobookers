@@ -252,8 +252,14 @@ export function collectBookImageOptions(book: {
   return [...urls];
 }
 
-export function collectCreatorImageOptions(creator: {
-  coverUrl: string | null;
-}): string[] {
-  return creator.coverUrl ? [creator.coverUrl] : [];
+export function collectCreatorImageOptions(
+  creator: { coverUrl: string | null },
+  bookCoverUrls: string[] = [],
+): string[] {
+  const urls = new Set<string>();
+  if (creator.coverUrl) urls.add(creator.coverUrl);
+  for (const url of bookCoverUrls) {
+    if (url) urls.add(url);
+  }
+  return [...urls];
 }

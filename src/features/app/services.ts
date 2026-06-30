@@ -1459,6 +1459,51 @@ export async function getCoverUrlsForHeroCarousel(
   }
 }
 
+/** Covers and gallery images from a creator's recent published books. */
+export async function getCreatorSpotlightImageUrls(
+  creatorType: "publisher" | "artist",
+  creatorId: string,
+  bookLimit = 12,
+) {
+  const column =
+    creatorType === "publisher" ? books.publisherId : books.artistId;
+  try {
+    const rows = await db.query.books.findMany({
+      columns: { coverUrl: true },
+      where: and(
+        eq(column, creatorId),
+        eq(books.publicationStatus, "published"),
+        eq(books.approvalStatus, "approved"),
+        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+      ),
+      orderBy: (b, { desc: d }) => [d(b.releaseDate), d(b.createdAt)],
+      limit: bookLimit,
+      with: {
+        images: {
+          columns: { imageUrl: true },
+          orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
+        },
+      },
+    });
+
+    const urls = new Set<string>();
+    for (const book of rows) {
+      if (book.coverUrl) urls.add(book.coverUrl);
+      for (const image of book.images ?? []) {
+        if (image.imageUrl) urls.add(image.imageUrl);
+      }
+    }
+
+    return ok([...urls]);
+  } catch (e) {
+    console.error("getCreatorSpotlightImageUrls", e);
+    return err({
+      reason: "Failed to get spotlight image urls for creator catalogue",
+      error: e,
+    });
+  }
+}
+
 export const getMessagesByCreatorSlug = async (
   creatorSlug: string,
   currentPage = 1,

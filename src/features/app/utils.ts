@@ -62,7 +62,7 @@ export function buildHeroCarouselItems(
       label: "Book of the Day",
       title: book.title,
       text: book.artist ? `by ${book.artist.displayName}` : "",
-      image: imageUrls[0],
+      image: bookOfTheDay.instagramImageUrl ?? imageUrls[0],
       link: botdPath(bookOfTheDay.date),
       slideClass: "bg-[#f2efe8]",
       weekNumber,
@@ -73,11 +73,14 @@ export function buildHeroCarouselItems(
   const artist = artistOfTheWeek?.creator;
 
   if (artist) {
-    const stack = artistCoverStack.length >= 2 ? artistCoverStack : [];
+    const heroImage =
+      artistOfTheWeek.instagramImageUrl ?? artist.coverUrl ?? undefined;
+    const stack =
+      heroImage || artistCoverStack.length < 2 ? [] : artistCoverStack;
     items.push({
       label: "Artist of the Week",
       title: artist.displayName,
-      image: artist.coverUrl ?? undefined,
+      image: heroImage,
       coverStack: stack,
       text: artist.country?.trim()
         ? `Based in ${formatCountry(artist.country.trim())}`
@@ -91,12 +94,15 @@ export function buildHeroCarouselItems(
   const publisher = publisherOfTheWeek?.creator;
 
   if (publisher) {
-    const stack = publisherCoverStack.length >= 2 ? publisherCoverStack : [];
+    const heroImage =
+      publisherOfTheWeek.instagramImageUrl ?? publisher.coverUrl ?? undefined;
+    const stack =
+      heroImage || publisherCoverStack.length < 2 ? [] : publisherCoverStack;
 
     items.push({
       label: "Publisher of the Week",
       title: publisher.displayName,
-      image: publisher.coverUrl ?? undefined,
+      image: heroImage,
       coverStack: stack,
       link: potwPath(publisherOfTheWeek.weekStart),
       text: publisher.country?.trim()

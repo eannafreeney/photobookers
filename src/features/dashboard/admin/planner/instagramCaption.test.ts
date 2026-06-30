@@ -9,6 +9,7 @@ import {
   buildDefaultPublisherInstagramCaption,
   buildStoryStickerText,
   collectBookImageOptions,
+  collectCreatorImageOptions,
   ensureBookTagsInCaption,
   formatInstagramHandle,
   formatInstagramHashtags,
@@ -23,6 +24,7 @@ import {
   isWeekInstagramFullyPrepared,
   parsePrepareInstagramForm,
   parsePrepareInstagramFormEntries,
+  parseFeaturedHeroImagesForm,
 } from "./instagramUtils";
 import { toDateString } from "../../../../lib/utils";
 import { getWeekDays } from "./utils";
@@ -136,6 +138,25 @@ describe("instagram caption helpers", () => {
     expect(urls).toEqual([
       "https://example.com/cover.jpg",
       "https://example.com/page1.jpg",
+    ]);
+  });
+
+  it("collects creator cover and catalogue book covers", () => {
+    const urls = collectCreatorImageOptions(
+      { coverUrl: "https://example.com/creator.jpg" },
+      [
+        "https://example.com/book-a-cover.jpg",
+        "https://example.com/book-a-page.jpg",
+        "https://example.com/book-b-cover.jpg",
+        "https://example.com/book-a-cover.jpg",
+      ],
+    );
+
+    expect(urls).toEqual([
+      "https://example.com/creator.jpg",
+      "https://example.com/book-a-cover.jpg",
+      "https://example.com/book-a-page.jpg",
+      "https://example.com/book-b-cover.jpg",
     ]);
   });
 
@@ -269,6 +290,22 @@ describe("instagram planner helpers", () => {
     expect(payload?.botd).toHaveLength(0);
     expect(payload?.artist?.caption).toBe("Artist caption");
     expect(payload?.publisher?.caption).toBe("Publisher caption");
+  });
+
+  it("parses featured hero image form without captions", () => {
+    const [error, payload] = parseFeaturedHeroImagesForm({
+      imageUrl: {
+        "2026-06-30": "https://example.com/botd.jpg",
+        [INSTAGRAM_SPOTLIGHT_AOTW_KEY]: "https://example.com/a.jpg",
+        [INSTAGRAM_SPOTLIGHT_POTW_KEY]: "https://example.com/p.jpg",
+      },
+    });
+
+    expect(error).toBeNull();
+    expect(payload?.botd).toHaveLength(1);
+    expect(payload?.botd[0]?.imageUrl).toBe("https://example.com/botd.jpg");
+    expect(payload?.artist?.imageUrl).toBe("https://example.com/a.jpg");
+    expect(payload?.publisher?.imageUrl).toBe("https://example.com/p.jpg");
   });
 
   it("builds due at from configured post time", () => {

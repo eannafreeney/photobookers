@@ -25,6 +25,7 @@ import {
   getBooksOfTheDayInRange,
   type BookOfTheDayWithBook,
 } from "../../../app/BOTDServices";
+import { getCreatorSpotlightImageUrls } from "../../../app/services";
 import { linksUrl } from "../../../app/spotlightUrls";
 import type {
   ArtistOfTheWeekWithCreator,
@@ -53,10 +54,12 @@ import {
   buildPotwInstagramDueAt,
   buildPotwInstagramStoryDueAt,
   isWeekInstagramFullyPrepared,
+  type FeaturedHeroImagesPayload,
   type PrepareInstagramFormPayload,
 } from "./instagramUtils";
 
 export type {
+  FeaturedHeroImagesPayload,
   PrepareInstagramEntry,
   PrepareInstagramFormPayload,
   PrepareInstagramSpotlightEntry,
@@ -73,6 +76,7 @@ export {
   isWeekInstagramFullyPrepared,
   parsePrepareInstagramForm,
   parsePrepareInstagramFormEntries,
+  parseFeaturedHeroImagesForm,
 } from "./instagramUtils";
 
 const CREATOR_INSTAGRAM_COLUMNS = {
@@ -104,7 +108,11 @@ export type WeekInstagramPrepareData = {
   botdEntries: BookOfTheDayWithBook[];
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
+  artistBookCoverUrls: string[];
+  publisherBookCoverUrls: string[];
 };
+
+const SPOTLIGHT_IMAGE_BOOK_LIMIT = 12;
 
 export async function getWeekInstagramForPrepare(
   weekStart: Date,
@@ -130,10 +138,29 @@ export async function getWeekInstagramForPrepare(
       }),
     ]);
 
+    const [artistCoversRes, publisherCoversRes] = await Promise.all([
+      artistRow
+        ? getCreatorSpotlightImageUrls(
+            "artist",
+            artistRow.creatorId,
+            SPOTLIGHT_IMAGE_BOOK_LIMIT,
+          )
+        : Promise.resolve(ok([] as string[])),
+      publisherRow
+        ? getCreatorSpotlightImageUrls(
+            "publisher",
+            publisherRow.creatorId,
+            SPOTLIGHT_IMAGE_BOOK_LIMIT,
+          )
+        : Promise.resolve(ok([] as string[])),
+    ]);
+
     return ok({
       botdEntries: botdData.botdEntries,
       artistOfTheWeek: artistRow ?? null,
       publisherOfTheWeek: publisherRow ?? null,
+      artistBookCoverUrls: !artistCoversRes[0] ? artistCoversRes[1] : [],
+      publisherBookCoverUrls: !publisherCoversRes[0] ? publisherCoversRes[1] : [],
     });
   } catch (e) {
     console.error("getWeekInstagramForPrepare", e);
@@ -246,6 +273,90 @@ export async function saveWeekInstagramPreparation(
   } catch (e) {
     console.error("saveWeekInstagramPreparation", e);
     return err({ reason: "Failed to save Instagram preparation" });
+  }
+}
+
+export async function saveWeekFeaturedHeroImages(
+  weekStart: Date,
+  payload: FeaturedHeroImagesPayload,
+): Promise<Result<{ saved: number }, { reason: string }>> {
+  const normalizedWeekStart = toWeekStart(weekStart);
+
+  const [loadError, weekData] =
+    await getWeekInstagramForPrepare(normalizedWeekStart);
+  if (loadError) return err({ reason: loadError.reason });
+
+  const allowedDates = new Set(
+    weekData.botdEntries.map((entry) => toDateString(entry.date)),
+  );
+
+  const now = new Date();
+  let saved = 0;
+
+  try {
+    for (const entry of payload.botd) {
+      const dateKey = toDateString(toUtcStartOfDay(entry.date));
+      if (!allowedDates.has(dateKey)) {
+        return err({ reason: `No book of the day scheduled for ${dateKey}` });
+      }
+
+      const [row] = await db
+        .update(bookOfTheDay)
+        .set({
+          instagramImageUrl: entry.imageUrl,
+          updatedAt: now,
+        })
+        .where(eq(bookOfTheDay.date, toUtcStartOfDay(entry.date)))
+        .returning();
+
+      if (!row) {
+        return err({ reason: `Failed to save featured hero image for ${dateKey}` });
+      }
+      saved += 1;
+    }
+
+    if (payload.artist) {
+      if (!weekData.artistOfTheWeek) {
+        return err({ reason: "No artist of the week scheduled for this week" });
+      }
+      const [row] = await db
+        .update(artistOfTheWeek)
+        .set({
+          instagramImageUrl: payload.artist.imageUrl,
+          updatedAt: now,
+        })
+        .where(eq(artistOfTheWeek.weekStart, normalizedWeekStart))
+        .returning();
+      if (!row) {
+        return err({ reason: "Failed to save artist featured hero image" });
+      }
+      saved += 1;
+    }
+
+    if (payload.publisher) {
+      if (!weekData.publisherOfTheWeek) {
+        return err({
+          reason: "No publisher of the week scheduled for this week",
+        });
+      }
+      const [row] = await db
+        .update(publisherOfTheWeek)
+        .set({
+          instagramImageUrl: payload.publisher.imageUrl,
+          updatedAt: now,
+        })
+        .where(eq(publisherOfTheWeek.weekStart, normalizedWeekStart))
+        .returning();
+      if (!row) {
+        return err({ reason: "Failed to save publisher featured hero image" });
+      }
+      saved += 1;
+    }
+
+    return ok({ saved });
+  } catch (e) {
+    console.error("saveWeekFeaturedHeroImages", e);
+    return err({ reason: "Failed to save featured hero images" });
   }
 }
 

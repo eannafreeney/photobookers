@@ -265,3 +265,48 @@ export function parsePrepareInstagramFormEntries(formData: {
   if (error) return err(error);
   return ok(payload.botd);
 }
+
+export type FeaturedHeroImagesPayload = {
+  botd: { date: Date; imageUrl: string }[];
+  artist: { imageUrl: string } | null;
+  publisher: { imageUrl: string } | null;
+};
+
+export function parseFeaturedHeroImagesForm(formData: {
+  imageUrl?: Record<string, string>;
+}): Result<FeaturedHeroImagesPayload, { reason: string }> {
+  const imageUrls = formData.imageUrl ?? {};
+  if (Object.keys(imageUrls).length === 0) {
+    return err({ reason: "No featured hero images to save" });
+  }
+
+  const botd: FeaturedHeroImagesPayload["botd"] = [];
+  for (const dateKey of Object.keys(imageUrls)) {
+    if (!DATE_KEY_PATTERN.test(dateKey)) continue;
+
+    const date = parseDateString(dateKey);
+    if (Number.isNaN(date.getTime())) {
+      return err({ reason: `Invalid date: ${dateKey}` });
+    }
+
+    const imageUrl = imageUrls[dateKey]?.trim();
+    if (!imageUrl) {
+      return err({ reason: `Image is required for ${dateKey}` });
+    }
+
+    botd.push({ date: toUtcStartOfDay(date), imageUrl });
+  }
+
+  const artistUrl = imageUrls[INSTAGRAM_SPOTLIGHT_AOTW_KEY]?.trim();
+  const publisherUrl = imageUrls[INSTAGRAM_SPOTLIGHT_POTW_KEY]?.trim();
+
+  if (botd.length === 0 && !artistUrl && !publisherUrl) {
+    return err({ reason: "No featured hero images to save" });
+  }
+
+  return ok({
+    botd,
+    artist: artistUrl ? { imageUrl: artistUrl } : null,
+    publisher: publisherUrl ? { imageUrl: publisherUrl } : null,
+  });
+}

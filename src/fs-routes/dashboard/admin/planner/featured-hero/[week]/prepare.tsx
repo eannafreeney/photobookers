@@ -1,14 +1,14 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { weekQuerySchema } from "../../../../../../features/dashboard/admin/planner/schema";
-import PrepareInstagramModal from "../../../../../../features/dashboard/admin/planner/modals/PrepareInstagramModal";
+import FeaturedHeroImagesModal from "../../../../../../features/dashboard/admin/planner/modals/FeaturedHeroImagesModal";
 import {
   getWeekInstagramForPrepare,
-  saveWeekInstagramPreparation,
+  saveWeekFeaturedHeroImages,
 } from "../../../../../../features/dashboard/admin/planner/instagramServices";
 import {
   extractBracketedFormFields,
-  parsePrepareInstagramForm,
+  parseFeaturedHeroImagesForm,
 } from "../../../../../../features/dashboard/admin/planner/instagramUtils";
 import { parseWeekString } from "../../../../../../lib/utils";
 import { showErrorAlert } from "../../../../../../lib/alertHelpers";
@@ -25,12 +25,15 @@ export const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
   const [error, data] = await getWeekInstagramForPrepare(weekStart);
   if (error) {
     return c.html(
-      <Alert type="danger" message="Failed to load Instagram plan for this week" />,
+      <Alert
+        type="danger"
+        message="Failed to load featured hero images for this week"
+      />,
     );
   }
 
   return c.html(
-    <PrepareInstagramModal
+    <FeaturedHeroImagesModal
       week={week}
       entries={data.botdEntries}
       artistOfTheWeek={data.artistOfTheWeek}
@@ -52,16 +55,12 @@ export const POST = createRoute(paramValidator(weekQuerySchema), async (c) => {
     string,
     unknown
   >;
-  const captions = extractBracketedFormFields(body, "captions");
   const imageUrl = extractBracketedFormFields(body, "imageUrl");
 
-  const [parseError, payload] = parsePrepareInstagramForm({
-    captions,
-    imageUrl,
-  });
+  const [parseError, payload] = parseFeaturedHeroImagesForm({ imageUrl });
   if (parseError) return showErrorAlert(c, parseError.reason);
 
-  const [saveError, result] = await saveWeekInstagramPreparation(
+  const [saveError, result] = await saveWeekFeaturedHeroImages(
     weekStart,
     payload,
   );
@@ -71,7 +70,7 @@ export const POST = createRoute(paramValidator(weekQuerySchema), async (c) => {
     <>
       <Alert
         type="success"
-        message={`Instagram prepared for ${result.saved} post${result.saved === 1 ? "" : "s"}.`}
+        message={`Featured hero image${result.saved === 1 ? "" : "s"} saved.`}
       />
       {dispatchEvents(["planner:updated"])}
     </>,

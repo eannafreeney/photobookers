@@ -28,6 +28,8 @@ type Props = {
   entries: BookOfTheDayWithBook[];
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
+  artistBookCoverUrls?: string[];
+  publisherBookCoverUrls?: string[];
 };
 
 const PrepareInstagramModal = ({
@@ -35,6 +37,8 @@ const PrepareInstagramModal = ({
   entries,
   artistOfTheWeek,
   publisherOfTheWeek,
+  artistBookCoverUrls = [],
+  publisherBookCoverUrls = [],
 }: Props) => {
   const saveAlpineAttrs = {
     "x-target": "toast",
@@ -149,14 +153,20 @@ const PrepareInstagramModal = ({
                   title="Artist of the week"
                   subtitle={artistCreator.displayName}
                   fieldKey={INSTAGRAM_SPOTLIGHT_AOTW_KEY}
-                  imageOptions={collectCreatorImageOptions(artistCreator)}
+                  imageOptions={collectCreatorImageOptions(
+                    artistCreator,
+                    artistBookCoverUrls,
+                  )}
                   caption={
                     artistOfTheWeek.instagramCaption ??
                     buildDefaultArtistInstagramCaption(artistCreator)
                   }
                   selectedImage={
                     artistOfTheWeek.instagramImageUrl ??
-                    artistCreator.coverUrl ??
+                    collectCreatorImageOptions(
+                      artistCreator,
+                      artistBookCoverUrls,
+                    )[0] ??
                     ""
                   }
                   mentions={[
@@ -175,14 +185,20 @@ const PrepareInstagramModal = ({
                   title="Publisher of the week"
                   subtitle={publisherCreator.displayName}
                   fieldKey={INSTAGRAM_SPOTLIGHT_POTW_KEY}
-                  imageOptions={collectCreatorImageOptions(publisherCreator)}
+                  imageOptions={collectCreatorImageOptions(
+                    publisherCreator,
+                    publisherBookCoverUrls,
+                  )}
                   caption={
                     publisherOfTheWeek.instagramCaption ??
                     buildDefaultPublisherInstagramCaption(publisherCreator)
                   }
                   selectedImage={
                     publisherOfTheWeek.instagramImageUrl ??
-                    publisherCreator.coverUrl ??
+                    collectCreatorImageOptions(
+                      publisherCreator,
+                      publisherBookCoverUrls,
+                    )[0] ??
                     ""
                   }
                   mentions={[

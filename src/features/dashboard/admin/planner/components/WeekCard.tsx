@@ -144,6 +144,13 @@ const WeekCardHeader = ({
       <div class="flex flex-col items-center justify-end gap-2">
         <RandomizeBOTDButton weekStart={weekStart} botdByDate={botdByDate} />
         <a
+          href={`/dashboard/admin/planner/featured-hero/${weekKey}/prepare`}
+          x-target="modal-root"
+          class="rounded border border-outline bg-surface-alt px-2 py-1 text-xs font-medium text-on-surface opacity-80 hover:bg-surface"
+        >
+          Featured hero
+        </a>
+        <a
           href={`/dashboard/admin/planner/instagram/${weekKey}/prepare`}
           x-target="modal-root"
           class={instagramButtonClasses(instagramPrepared)}
