@@ -19,7 +19,9 @@ export const GET = createRoute(async (c) => {
           bookViews={activity.bookViews}
           profileViews={activity.profileViews}
         />
-      ) : null}
+      ) : (
+        <></>
+      )}
       <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
         <StatsCard entity="books" count={books} href="/books" />
         <StatsCard entity="artists" count={artists} href="/artists" />

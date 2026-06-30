@@ -34,7 +34,7 @@ export async function getHomepageActivityStats(): Promise<
     ]);
 
     const stats: HomepageActivityStats = {
-      bookViews: bookTotals.totalViews,
+      bookViews: bookTotals.booksWithViews,
       profileViews:
         creatorTotals.publisherPageViews + creatorTotals.artistPageViews,
     };
