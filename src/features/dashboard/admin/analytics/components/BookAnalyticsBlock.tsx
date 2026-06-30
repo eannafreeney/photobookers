@@ -7,6 +7,7 @@ import AnalyticsSourceBreakdownSection from "../../../components/AnalyticsSource
 import TopBooksByClicksSection from "../../../components/TopBooksByClicksSection";
 import TopCreatorsTable from "./TopCreatorsTable";
 import { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
+import TopCreatorsByViews from "../../../components/TopCreatorsByViews";
 
 type Props = {
   dateRange: AnalyticsDateRange;
@@ -49,6 +50,12 @@ const BookAnalyticsBlock = ({
         dateRange={dateRange}
       />
       <AnalyticsSourceBreakdownSection dateRange={dateRange} />
+      <TopCreatorsByViews
+        dateRange={dateRange}
+        currentPath={viewsPaginationBaseUrl}
+        currentPage={viewsPage}
+        pageParam="viewsPage"
+      />
       <TopBooksByViewsSection
         dateRange={dateRange}
         currentPath={viewsPaginationBaseUrl}

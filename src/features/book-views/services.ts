@@ -21,7 +21,7 @@ import {
   buildCreatedAtFilter,
   type AnalyticsDateRange,
 } from "../book-analytics/dateRange";
-import { err, ok } from "../../lib/result";
+import { err, ok, type Result } from "../../lib/result";
 import {
   CREATOR_CARD_COLUMNS,
   type CreatorCardResult,
@@ -165,20 +165,18 @@ export const getTopBooksByViews = async (
         ? and(scopeFilter, dateFilter)
         : (scopeFilter ?? dateFilter);
 
-    const countQuery = (
-      scope
-        ? db
-            .select({
-              value: sql<number>`count(distinct ${bookViews.bookId})`,
-            })
-            .from(bookViews)
-            .innerJoin(books, eq(bookViews.bookId, books.id))
-        : db
-            .select({
-              value: sql<number>`count(distinct ${bookViews.bookId})`,
-            })
-            .from(bookViews)
-    );
+    const countQuery = scope
+      ? db
+          .select({
+            value: sql<number>`count(distinct ${bookViews.bookId})`,
+          })
+          .from(bookViews)
+          .innerJoin(books, eq(bookViews.bookId, books.id))
+      : db
+          .select({
+            value: sql<number>`count(distinct ${bookViews.bookId})`,
+          })
+          .from(bookViews);
 
     const [{ value: totalCount = 0 }] = where
       ? await countQuery.where(where)
@@ -266,13 +264,64 @@ const publishedBookConditions = and(
   or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
 );
 
-export const getTopCreatorsByViews = async (
+export type TopCreatorByViewsRow = {
+  creatorId: string;
+  displayName: string;
+  slug: string;
+  coverUrl: string | null;
+  type: CreatorType;
+  viewCount: number;
+};
+
+export function getTopCreatorsByViews(
+  limit: number,
+): Promise<Result<CreatorCardResult[], { reason: string }>>;
+export function getTopCreatorsByViews(
+  range: AnalyticsDateRange | null | undefined,
+  currentPage: number,
+  limit?: number,
+): Promise<
+  Result<
+    {
+      creators: TopCreatorByViewsRow[];
+      totalPages: number;
+      page: number;
+    },
+    { reason: string }
+  >
+>;
+export async function getTopCreatorsByViews(
+  rangeOrLimit?: AnalyticsDateRange | null | number,
+  currentPage?: number,
   limit = 10,
-  range?: AnalyticsDateRange | null,
-) => {
+): Promise<
+  Result<
+    | CreatorCardResult[]
+    | {
+        creators: TopCreatorByViewsRow[];
+        totalPages: number;
+        page: number;
+      },
+    { reason: string }
+  >
+> {
   try {
+    const paginate = currentPage !== undefined;
+
+    let range: AnalyticsDateRange | null | undefined;
+    if (typeof rangeOrLimit === "number") {
+      limit = rangeOrLimit;
+      range = null;
+    } else {
+      range = rangeOrLimit;
+    }
+
     const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
-    const viewQuery = db
+    const where = dateFilter
+      ? and(publishedBookConditions, dateFilter)
+      : publishedBookConditions;
+
+    const viewQueryBase = db
       .select({
         creatorId: creators.id,
         viewCount: count(bookViews.id),
@@ -283,16 +332,82 @@ export const getTopCreatorsByViews = async (
         creators,
         or(eq(creators.id, books.artistId), eq(creators.id, books.publisherId)),
       )
-      .where(
-        dateFilter
-          ? and(publishedBookConditions, dateFilter)
-          : publishedBookConditions,
-      )
+      .where(where)
       .groupBy(creators.id)
-      .orderBy(desc(count(bookViews.id)))
-      .limit(limit);
+      .orderBy(desc(count(bookViews.id)));
 
-    const viewRows = await viewQuery;
+    if (paginate) {
+      const countQuery = db
+        .select({
+          value: sql<number>`count(distinct ${creators.id})`,
+        })
+        .from(bookViews)
+        .innerJoin(books, eq(bookViews.bookId, books.id))
+        .innerJoin(
+          creators,
+          or(
+            eq(creators.id, books.artistId),
+            eq(creators.id, books.publisherId),
+          ),
+        )
+        .where(where);
+
+      const [{ value: totalCount = 0 }] = await countQuery;
+      const { page, limit: pageLimit, offset, totalPages } = getPagination(
+        currentPage,
+        totalCount,
+        limit,
+      );
+
+      if (totalCount === 0) {
+        return ok({ creators: [], totalPages: 1, page: 1 });
+      }
+
+      const viewRows = await viewQueryBase.limit(pageLimit).offset(offset);
+
+      if (viewRows.length === 0) {
+        return ok({ creators: [], totalPages, page });
+      }
+
+      const creatorIds = viewRows.map((row) => row.creatorId);
+      const viewCountByCreatorId = new Map(
+        viewRows.map((row) => [row.creatorId, row.viewCount]),
+      );
+
+      const creatorRows = await db.query.creators.findMany({
+        where: inArray(creators.id, creatorIds),
+        columns: {
+          id: true,
+          displayName: true,
+          slug: true,
+          coverUrl: true,
+          type: true,
+        },
+      });
+
+      const creatorById = new Map(
+        creatorRows.map((creator) => [creator.id, creator]),
+      );
+
+      const topCreators = creatorIds
+        .map((creatorId) => {
+          const creator = creatorById.get(creatorId);
+          if (!creator) return null;
+          return {
+            creatorId: creator.id,
+            displayName: creator.displayName,
+            slug: creator.slug,
+            coverUrl: creator.coverUrl,
+            type: creator.type,
+            viewCount: viewCountByCreatorId.get(creator.id) ?? 0,
+          };
+        })
+        .filter((row): row is TopCreatorByViewsRow => row !== null);
+
+      return ok({ creators: topCreators, totalPages, page });
+    }
+
+    const viewRows = await viewQueryBase.limit(limit);
 
     if (viewRows.length === 0) return ok([]);
 
@@ -315,4 +430,4 @@ export const getTopCreatorsByViews = async (
     console.error("Failed to get top creators by views", error);
     return err({ reason: "Failed to get top creators by views", cause: error });
   }
-};
+}
