@@ -3,7 +3,7 @@ import { getUser } from "../../utils";
 import { Context } from "hono";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
-import HeroCarousel from "../../components/app/HeroCarousel";
+import HeroCarouselFeatureCard from "../../components/app/HeroCarouselFeatureCard";
 import SiteFeatures from "../../features/app/components/SiteFeatures";
 import Intersector from "../../features/app/components/Intersector";
 import NewsletterBanner from "../../features/app/components/NewsletterBanner";
@@ -32,7 +32,7 @@ export const GET = createRoute(async (c: Context) => {
     >
       <NewsletterBanner />
       <Page>
-        <HeroCarousel />
+        <HeroCarouselFeatureCard />
         <ThisWeekOnPhotobookersLink />
         <Slogan />
         <ScrollReveal>

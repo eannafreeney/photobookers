@@ -96,7 +96,7 @@ export function buildHeroCarouselItems(
     items.push({
       label: "Publisher of the Week",
       title: publisher.displayName,
-      image: stack[0],
+      image: publisher.coverUrl ?? undefined,
       coverStack: stack,
       link: potwPath(publisherOfTheWeek.weekStart),
       text: publisher.country?.trim()
