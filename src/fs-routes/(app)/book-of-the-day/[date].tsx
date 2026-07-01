@@ -92,10 +92,8 @@ export const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
           book={book}
           galleryImages={galleryImages}
           isMobile={isMobile}
-          currentPath={currentPath}
           user={user}
           date={date}
-          editorial={editorial}
         />
         <a href="/book-of-the-day" class="mx-auto">
           <Button variant="outline" color="primary" width="auto">

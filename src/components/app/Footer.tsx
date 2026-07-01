@@ -87,8 +87,8 @@ const FooterAppLink = () => (
 );
 
 const Footer = () => (
-  <footer class="border-t-2 border-on-surface-strong bg-surface mt-16">
-    <div class="mx-auto grid w-full max-w-[1680px] gap-10 px-4 py-12 md:grid-cols-[2fr_1fr_1fr_1fr] md:px-6">
+  <footer class="border-t-2 border-on-surface-strong bg-surface mt-6">
+    <div class="mx-auto grid w-full max-w-[1680px] gap-10 px-4 py-6 md:grid-cols-[2fr_1fr_1fr_1fr] md:px-6">
       <div class="flex flex-col gap-3">
         <a
           href="/"

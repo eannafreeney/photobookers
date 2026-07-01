@@ -15,31 +15,33 @@ import {
   bookOfTheDayShareText,
   bookOfTheDayShareTitle,
 } from "../../../lib/share";
+import { getBookComments } from "../services";
+import CommentsList from "./CommentsList";
 
 type Props = {
   book: BookWithGalleryImages;
   galleryImages: string[];
   isMobile: boolean;
-  currentPath: string;
   user: AuthUser | null;
   date: Date;
-  editorial?: string | null;
 };
 
 const BookOfTheDayDetail = async ({
   book,
   galleryImages,
   isMobile,
-  currentPath,
   user,
   date,
 }: Props) => {
+  const [err, comments] = await getBookComments(book.id);
+  if (err) return <p class="text-sm text-on-surface">{err.reason}</p>;
+
   return (
-    <div class="flex w-full min-w-0 flex-col gap-6">
+    <div class="flex w-full min-w-0 flex-col gap-4">
       <FeaturedPageHeader
         title="Book of the Day"
         name={book.title}
-        weekStart={date}
+        date={date}
       />
       {galleryImages.length > 0 ? (
         isMobile ? (
@@ -77,13 +79,9 @@ const BookOfTheDayDetail = async ({
         {book.publisher && (
           <SpotlightCreatorLink creator={book.publisher} role="Publisher" />
         )}
-        <CommentsSection
-          bookId={book.id}
-          user={user}
-          bookSlug={book.slug}
-          commentsRefreshPath={currentPath}
-          isMobile={isMobile}
-        />
+        {comments.length > 0 && (
+          <CommentsList bookId={book.id} comments={comments} user={user} />
+        )}
       </div>
     </div>
   );

@@ -27,16 +27,18 @@ const CreatorsCircle = ({ creator, size = 32, showType = false }: Props) => {
             <VerifiedCreator creatorStatus={creator.status} size="sm" />
           </div>
         </div>
-        <Link href={`/creators/${creator.slug}`}>
-          <span class="text-sm font-medium">
-            {truncate(creator.displayName ?? "", 20)}
-          </span>
-        </Link>
-        {showType ? (
-          <span class="kicker text-on-surface-weak text-xs capitalize">
-            {creator.type}
-          </span>
-        ) : null}
+        <div class="flex flex-col items-center gap-1">
+          <Link href={`/creators/${creator.slug}`}>
+            <span class="text-sm font-medium">
+              {truncate(creator.displayName ?? "", 20)}
+            </span>
+          </Link>
+          {showType ? (
+            <span class="kicker text-on-surface-weak text-xs capitalize">
+              {creator.type}
+            </span>
+          ) : null}
+        </div>
       </a>
     </div>
   );

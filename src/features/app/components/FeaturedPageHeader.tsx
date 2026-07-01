@@ -1,14 +1,26 @@
-import { toWeekString } from "../../../lib/utils";
+import { formatOrdinalDate, toWeekString } from "../../../lib/utils";
 
 type Props = {
   title: string;
   name: string;
-  weekStart: Date;
+  weekStart?: Date;
+  date?: Date;
   location?: string | null;
 };
 
-const FeaturedPageHeader = ({ title, name, weekStart, location }: Props) => {
-  const meta = [location, toWeekString(weekStart)].filter(Boolean).join(" · ");
+const FeaturedPageHeader = ({
+  title,
+  name,
+  weekStart,
+  date,
+  location,
+}: Props) => {
+  const when = date
+    ? formatOrdinalDate(date)
+    : weekStart
+      ? toWeekString(weekStart)
+      : null;
+  const meta = [location, when].filter(Boolean).join(" · ");
 
   return (
     <header class="flex flex-col items-center gap-3 text-center border-b-2 border-on-surface-strong pb-6">

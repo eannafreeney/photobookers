@@ -28,11 +28,10 @@ const HomepageActivityPulse = ({
       {showBooks && showProfiles ? "," : null}
       {showProfiles ? (
         <>
-          {" "}
           <span class="font-semibold text-on-surface-strong">
             {profileViews.toLocaleString()}
           </span>{" "}
-          artist &amp; publisher profiles visited
+          artist &amp; publisher profile visits
         </>
       ) : null}
     </p>

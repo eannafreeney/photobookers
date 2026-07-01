@@ -14,13 +14,12 @@ import { creatorShareText } from "../../../lib/share";
 import ExpandableDescription from "./ExpandableDescription";
 import MobileHeader from "./MobileHeader";
 import UpcomingFairsSection from "../fairs/components/UpcomingFairsSection";
-
 export type CreatorBooksResult = {
   creator: Creator;
   books: BookCardResult[];
   totalPages: number;
   page: number;
-  relatedCreators: { length: number };
+  relatedCreators: { creators: Creator[] };
 };
 
 type CreatorDetailProps = {
@@ -47,7 +46,7 @@ const CreatorDetail = ({
   isMobile,
   upcomingFairs,
 }: CreatorDetailProps) => {
-  const showCreatorsTab = result.relatedCreators.length > 0;
+  const showCreatorsTab = result.relatedCreators.creators.length > 0;
   const showFairsTab = upcomingFairs.length > 0;
 
   return isMobile ? (

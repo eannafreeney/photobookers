@@ -34,14 +34,8 @@ const SpotlightCard = ({
         className ?? "min-w-[200px] max-w-[24rem]",
       )}
     >
-      <div class="flex items-center justify-between gap-2 border-b border-outline px-3 py-2">
+      <div class="flex justify-center gap-2 border-b border-outline px-3 py-2">
         <span class="kicker text-accent whitespace-nowrap">{dateLabel}</span>
-        <span
-          aria-hidden="true"
-          class="kicker text-on-surface-weak transition-colors group-hover:text-on-surface-strong"
-        >
-          Read →
-        </span>
       </div>
       <figure
         class={clsx(

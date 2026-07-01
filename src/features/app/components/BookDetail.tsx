@@ -236,6 +236,7 @@ const DetailMobile = ({
             creator={book.publisher}
             currentPath={currentPath}
             user={user}
+            showHeader={false}
           />
           <Divider />
           <BookGridWrapper

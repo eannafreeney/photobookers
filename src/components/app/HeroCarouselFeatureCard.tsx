@@ -129,7 +129,7 @@ const HeroCarouselFeatureCard = ({
             x-show="items.length > 1"
             x-on:click="prev()"
             type="button"
-            class="group flex absolute left-2 top-1/2 z-20 size-8 md:size-11 -translate-y-1/2 items-center justify-center  text-on-surface-strong  transition duration-300 ease-out hover:-translate-x-1 sm:left-4 cursor-pointer"
+            class="group flex absolute left-2 top-2/3 md:top-1/2 z-20 size-8 md:size-11 -translate-y-1/2 items-center justify-center  text-on-surface-strong  transition duration-300 ease-out hover:-translate-x-1 sm:left-4 cursor-pointer"
           >
             <span class="transition-transform duration-300 ease-out group-hover:-translate-x-0.5">
               {leftArrowIcon}
@@ -139,7 +139,7 @@ const HeroCarouselFeatureCard = ({
             x-show="items.length > 1"
             x-on:click="next()"
             type="button"
-            class="group flex absolute right-2 top-1/2 z-20 size-8 md:size-11 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:translate-x-1 sm:right-4 cursor-pointer"
+            class="group flex absolute right-2 top-2/3 md:top-1/2 z-20 size-8 md:size-11 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:translate-x-1 sm:right-4 cursor-pointer"
           >
             <span class="transition-transform duration-300 ease-out group-hover:translate-x-0.5">
               {rightArrowIcon}

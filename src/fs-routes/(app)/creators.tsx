@@ -28,6 +28,66 @@ import { CreatorCardResult } from "../../constants/queries";
 const PAGE_SIZE = 48;
 const targetId = "creators-grid";
 
+export const GET = createRoute(async (c) => {
+  const user = await getUser(c);
+  const currentPage = Number(c.req.query("page") ?? 1);
+  const filter = parseCreatorBrowseFilter(c.req.query("type"), Boolean(user));
+  const paginationBaseUrl = paginationRequestBaseUrl(c.req.url);
+  const canonicalPath = creatorsBrowseUrl(filter);
+
+  const [error, result] = await loadCreatorsForFilter(
+    filter,
+    currentPage,
+    user,
+  );
+
+  if (error) {
+    return c.html(<InfoPage errorMessage="Creators not found" user={user} />);
+  }
+
+  const { creators, totalPages, page } = result;
+
+  const catalog = (
+    <CreatorsBrowseCatalog
+      filter={filter}
+      creators={creators}
+      page={page}
+      totalPages={totalPages}
+      paginationBaseUrl={paginationBaseUrl}
+      user={user}
+    />
+  );
+
+  if (c.req.query("fragment") === "catalog") {
+    return c.html(catalog);
+  }
+
+  const title = pageTitle("Creators");
+  const description =
+    "Discover photobook artists and publishers on photobookers. Browse profiles and explore their published work.";
+
+  return c.html(
+    <AppLayout
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl(c.req.url, canonicalPath)}
+      user={user}
+      currentPath={canonicalPath}
+    >
+      <Page>
+        <PageHeader
+          kicker="The People"
+          title="Creators"
+          intro="Artists and publishers behind the books — browse profiles and explore their published work."
+        />
+        <div x-data x-ref="paginationContent">
+          {catalog}
+        </div>
+      </Page>
+    </AppLayout>,
+  );
+});
+
 async function loadCreatorsForFilter(
   filter: CreatorBrowseFilter,
   page: number,
@@ -90,63 +150,3 @@ const CreatorsBrowseCatalog = ({
     />
   </div>
 );
-
-export const GET = createRoute(async (c) => {
-  const user = await getUser(c);
-  const currentPage = Number(c.req.query("page") ?? 1);
-  const filter = parseCreatorBrowseFilter(c.req.query("type"), Boolean(user));
-  const paginationBaseUrl = paginationRequestBaseUrl(c.req.url);
-  const canonicalPath = creatorsBrowseUrl(filter);
-
-  const [error, result] = await loadCreatorsForFilter(
-    filter,
-    currentPage,
-    user,
-  );
-
-  if (error) {
-    return c.html(<InfoPage errorMessage="Creators not found" user={user} />);
-  }
-
-  const { creators, totalPages, page } = result;
-
-  const catalog = (
-    <CreatorsBrowseCatalog
-      filter={filter}
-      creators={creators}
-      page={page}
-      totalPages={totalPages}
-      paginationBaseUrl={paginationBaseUrl}
-      user={user}
-    />
-  );
-
-  if (c.req.query("fragment") === "catalog") {
-    return c.html(catalog);
-  }
-
-  const title = pageTitle("Creators");
-  const description =
-    "Discover photobook artists and publishers on photobookers. Browse profiles and explore their published work.";
-
-  return c.html(
-    <AppLayout
-      title={title}
-      description={description}
-      canonicalUrl={canonicalUrl(c.req.url, canonicalPath)}
-      user={user}
-      currentPath={canonicalPath}
-    >
-      <Page>
-        <PageHeader
-          kicker="The People"
-          title="Creators"
-          intro="Artists and publishers behind the books — browse profiles and explore their published work."
-        />
-        <div x-data x-ref="paginationContent">
-          {catalog}
-        </div>
-      </Page>
-    </AppLayout>,
-  );
-});

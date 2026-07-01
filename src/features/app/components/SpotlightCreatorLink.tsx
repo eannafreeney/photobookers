@@ -1,11 +1,8 @@
-import SocialLinks from "../../../components/app/SocialLinks";
-import FollowButton from "../../api/components/FollowButton";
-import { Creator } from "../../../db/schema";
-import { AuthUser } from "../../../../types";
+import { CreatorCardResult } from "../../../constants/queries";
 import Button from "../../../components/app/Button";
 
 type Props = {
-  creator: Creator | null | undefined;
+  creator: CreatorCardResult | null | undefined;
   role: string;
 };
 
@@ -32,7 +29,9 @@ const SpotlightCreatorLink = async ({ creator, role }: Props) => {
         <div class="min-w-0">
           <p class="kicker text-accent">{role}</p>
           <p class="truncate font-display text-lg font-medium text-on-surface-strong">
-            {creator.displayName}
+            {creator.displayName.length > 18
+              ? creator.displayName.slice(0, 18) + "..."
+              : creator.displayName}
           </p>
         </div>
       </div>

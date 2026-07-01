@@ -123,10 +123,11 @@ export const getVerifiedCreators = async () => {
   }
 };
 
-export const getBookComments = async (bookId: string) => {
+export const getBookComments = async (bookId: string, defaultLimit = 3) => {
   try {
     const comments = await db.query.bookComments.findMany({
       where: eq(bookComments.bookId, bookId),
+      limit: defaultLimit,
       orderBy: (bookComments, { desc }) => [desc(bookComments.createdAt)],
       with: {
         user: {
@@ -316,7 +317,7 @@ export const getBooksByCreatorSlug = async (
     const limit = defaultLimit;
     const offset = (currentPage - 1) * defaultLimit;
 
-    const [countResult, foundBooks, relatedCreators] = await Promise.all([
+    const [countResult, foundBooks, relatedCreatorsResult] = await Promise.all([
       db
         .select({ value: count() })
         .from(books)
@@ -346,8 +347,13 @@ export const getBooksByCreatorSlug = async (
           },
         },
       }),
-      await getRelatedCreators(creator.id, creator.type),
+      getRelatedCreators(creator.id, creator.type),
     ]);
+
+    const relatedCreators =
+      Array.isArray(relatedCreatorsResult) && relatedCreatorsResult[1]
+        ? relatedCreatorsResult[1]
+        : { creators: [] };
 
     const totalCount = countResult[0]?.value ?? 0;
     const { totalPages: totalPagesComputed, page: pageComputed } =

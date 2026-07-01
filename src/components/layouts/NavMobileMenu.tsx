@@ -140,11 +140,8 @@ const MobileDropDownMenu = ({
         </NavLink>
       )}
 
-      <NavLink href="/artists" currentPath={currentPath}>
-        Artists
-      </NavLink>
-      <NavLink href="/publishers" currentPath={currentPath}>
-        Publishers
+      <NavLink href="/creators" currentPath={currentPath}>
+        Creators
       </NavLink>
       <NavLink href="/about" currentPath={currentPath}>
         About

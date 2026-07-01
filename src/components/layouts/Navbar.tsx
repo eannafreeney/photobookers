@@ -4,8 +4,6 @@ import NavSearch from "./NavSearch";
 import BrandLogo from "../app/BrandLogo";
 import Button from "../app/Button";
 import { AuthUser } from "../../../types";
-import FeatureGuard from "./FeatureGuard";
-import { useUser } from "../../contexts/UserContext";
 
 type NavbarProps = {
   currentPath?: string | null;
@@ -16,14 +14,15 @@ type NavbarProps = {
 const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
   const alpineAttrs = {
     "x-data": "{ mobileMenuIsOpen: false, scrolled: false }",
+    "x-init": "scrolled = window.scrollY > 20",
     "x-on:click.away": "mobileMenuIsOpen = false",
     "x-on:scroll.window": "scrolled = window.scrollY > 20",
   };
 
   return (
     <nav
-      x-bind:class="scrolled ? 'py-2 shadow-sm' : 'py-4 shadow-none'"
-      class="sticky top-0 z-50 border-b border-on-surface-strong bg-surface transition-all duration-200 ease-in-out"
+      x-bind:class="scrolled ? 'py-2! shadow-sm' : ''"
+      class="sticky top-0 z-50 border-b border-on-surface-strong bg-surface py-4 shadow-none transition-all duration-200 ease-in-out"
       {...alpineAttrs}
     >
       <div class="mx-auto flex w-full max-w-[1680px] items-center justify-between gap-4 px-4 md:px-8">

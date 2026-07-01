@@ -1,10 +1,9 @@
-import CreatorCard from "../../../components/app/CreatorCard";
 import ScrollReveal from "../../../components/app/ScrollReveal";
 import SectionTitle from "../../../components/app/SectionTitle";
-import { useUser } from "../../../contexts/UserContext";
-import { getCreatorsByCreatorId, getRelatedCreators } from "../services";
-import CreatorsCircle from "./CreatorsCircle";
+import { capitalize } from "../../../utils";
+import { getCreatorsByCreatorId } from "../services";
 import ListNavigation from "./ListNavigation";
+import SpotlightCreatorLink from "./SpotlightCreatorLink";
 
 type Props = {
   creatorId: string;
@@ -23,7 +22,6 @@ const CreatorsGrid = async ({
   currentPage,
   pageParam,
 }: Props) => {
-  const user = useUser();
   const [error, result] = await getCreatorsByCreatorId(
     creatorId,
     creatorType,
@@ -39,19 +37,12 @@ const CreatorsGrid = async ({
   return (
     <section>
       {title && <SectionTitle>{title}</SectionTitle>}
-      <div
-        x-ref="creatorsContent"
-        id={targetId}
-        x-merge="append"
-        class="grid grid-cols-2 md:grid-cols-4 gap-6"
-      >
+      <div id={targetId} x-merge="append">
         {creators.map((creator) => (
           <ScrollReveal>
-            <CreatorCard
+            <SpotlightCreatorLink
               creator={creator}
-              currentPath={currentPath}
-              user={user}
-              showHeader={false}
+              role={capitalize(creator.type)}
             />
           </ScrollReveal>
         ))}
