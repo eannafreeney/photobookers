@@ -8,9 +8,9 @@ type PublishersSliderProps = {
 const CreatorsSlider = async ({ creators }: PublishersSliderProps) => {
   return (
     <div class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div class="flex w-max items-center gap-6">
+      <div class="flex w-max items-center gap-3">
         {creators.map((creator) => (
-          <CreatorsCircle creator={creator} />
+          <CreatorsCircle key={creator.id} creator={creator} size={24} />
         ))}
       </div>
     </div>

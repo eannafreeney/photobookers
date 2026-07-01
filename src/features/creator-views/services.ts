@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   creatorViews,
@@ -143,15 +143,26 @@ export async function getTopCreatorsByViews(
 > {
   try {
     const paginate = currentPage !== undefined;
-    const limit = typeof limitOrScope === "number" ? limitOrScope : 10;
-    const creatorScope =
-      typeof limitOrScope === "string" ? limitOrScope : (scope ?? null);
 
+    let limit: number;
+    let creatorScope: TopCreatorsByViewsScope | null;
     let range: AnalyticsDateRange | null | undefined;
-    if (typeof rangeOrLimit === "number") {
+
+    if (paginate) {
+      range = typeof rangeOrLimit === "number" ? null : rangeOrLimit;
+      limit = typeof limitOrScope === "number" ? limitOrScope : 10;
+      creatorScope =
+        typeof limitOrScope === "string" ? limitOrScope : (scope ?? null);
+    } else if (typeof rangeOrLimit === "number") {
+      // Single-arg overload: getTopCreatorsByViews(limit)
       range = null;
+      limit = rangeOrLimit;
+      creatorScope = null;
     } else {
       range = rangeOrLimit;
+      limit = typeof limitOrScope === "number" ? limitOrScope : 10;
+      creatorScope =
+        typeof limitOrScope === "string" ? limitOrScope : (scope ?? null);
     }
 
     const dateFilter = buildCreatedAtFilter(creatorViews.createdAt, range);
@@ -166,7 +177,7 @@ export async function getTopCreatorsByViews(
       .innerJoin(creators, eq(creatorViews.creatorId, creators.id))
       .where(where)
       .groupBy(creators.id)
-      .orderBy(desc(count(creatorViews.id)));
+      .orderBy(desc(count(creatorViews.id)), asc(creators.displayName));
 
     if (paginate) {
       const countQuery = db

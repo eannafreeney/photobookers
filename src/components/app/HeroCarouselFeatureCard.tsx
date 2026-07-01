@@ -1,5 +1,6 @@
 import type { HeroCarouselItem } from "../../client/components/heroCarousel";
 import { toAlpineDataJson } from "../../features/app/utils";
+import { heroLcpImageSources } from "../../lib/imageUrl";
 import { leftArrowIcon, rightArrowIcon } from "../../lib/icons";
 import Button from "./Button";
 
@@ -157,7 +158,10 @@ const HeroCarouselLcpSlide = ({
   item,
   class: className,
   "x-show": xShow,
-}: HeroCarouselLcpSlideProps) => (
+}: HeroCarouselLcpSlideProps) => {
+  const imageSources = item.image ? heroLcpImageSources(item.image) : null;
+
+  return (
   <div class={className} {...(xShow ? { "x-show": xShow } : {})}>
     <div class="grid grid-cols-1 pb-12 md:h-full md:grid-cols-2 md:pb-0">
       <div class="flex flex-col items-center justify-center order-2 px-4 py-4 sm:p-8 lg:p-12">
@@ -197,9 +201,11 @@ const HeroCarouselLcpSlide = ({
           href={item.link}
           class="flex h-full w-full items-center justify-center md:justify-end cursor-pointer"
         >
-          {item.image ? (
+          {imageSources ? (
             <img
-              src={item.image}
+              src={imageSources.src}
+              srcset={imageSources.srcSet}
+              sizes={imageSources.sizes}
               alt={item.title}
               width={HERO_IMAGE_WIDTH}
               height={HERO_IMAGE_HEIGHT}
@@ -211,6 +217,7 @@ const HeroCarouselLcpSlide = ({
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default HeroCarouselFeatureCard;

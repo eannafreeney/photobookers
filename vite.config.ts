@@ -37,7 +37,6 @@ export default defineConfig(async ({ command }) => {
             if (assetInfo.name?.endsWith(".css")) {
               return "styles.css";
             }
-            // Fonts and other emitted assets → /assets/* (served in production)
             return "assets/[name][extname]";
           },
         },

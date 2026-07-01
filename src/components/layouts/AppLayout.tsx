@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "hono/jsx";
 import Head, { type ShareOgMeta } from "./Head";
+import type { HeroImageSources } from "../../lib/imageUrl";
 import { UserProvider } from "../../contexts/UserContext";
 import { AuthUser, Flash } from "../../../types";
 import Navbar from "./Navbar";
@@ -23,7 +24,7 @@ type LayoutProps = PropsWithChildren<{
   adminEditHref?: string;
   shareOg?: ShareOgMeta;
   jsonLd?: Record<string, unknown>;
-  preloadLcpImage?: string;
+  preloadLcpImage?: HeroImageSources;
 }>;
 
 function needsDashboardScripts(path?: string | null): boolean {

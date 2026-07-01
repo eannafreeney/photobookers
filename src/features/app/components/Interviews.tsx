@@ -12,7 +12,7 @@ const Interviews = async () => {
 
   return (
     <div id="interviews-fragment">
-      <div class="mb-6 mt-12 border-t-2 border-on-surface-strong pt-3">
+      <div class="mb-6 border-t-2 border-on-surface-strong pt-3">
         <div class="mr-6 flex items-end justify-between">
           <SectionTitle className="mb-0" kicker="In Conversation">
             Interviews

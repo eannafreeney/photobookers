@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { SITE_APP } from "../../constants/siteSocial";
+import type { HeroImageSources } from "../../lib/imageUrl";
 
 export type ShareOgMeta = {
   title?: string;
@@ -17,7 +18,7 @@ type HeadProps = {
   jsonLd?: Record<string, unknown>;
   loadDashboardScripts?: boolean;
   loadAdminScripts?: boolean;
-  preloadLcpImage?: string;
+  preloadLcpImage?: HeroImageSources;
 };
 
 const Head = ({
@@ -41,6 +42,7 @@ const Head = ({
     process.env.NODE_ENV === "production" &&
     hasBuiltAssets &&
     !isRunningViaViteDevServer;
+  const stylesHref = useBuiltAssets ? "/styles.css" : "/src/styles/styles.css";
   const gaId =
     process.env.VITE_GA_MEASUREMENT_ID || process.env.GA_MEASUREMENT_ID;
 
@@ -94,14 +96,13 @@ const Head = ({
         <link
           rel="preload"
           as="image"
-          href={preloadLcpImage}
+          href={preloadLcpImage.preloadHref}
+          imagesrcset={preloadLcpImage.srcSet}
+          imagesizes={preloadLcpImage.sizes}
           fetchpriority="high"
         />
       ) : null}
-      <link
-        rel="stylesheet"
-        href={useBuiltAssets ? "/styles.css" : "/src/styles/styles.css"}
-      />
+      <link rel="stylesheet" href={stylesHref} />
       <script
         type="module"
         src={useBuiltAssets ? "/main.js" : "/src/client/main.js"}

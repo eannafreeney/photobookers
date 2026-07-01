@@ -12,6 +12,7 @@ import ScrollReveal from "../../components/app/ScrollReveal";
 import Interviews from "../../features/app/components/Interviews";
 import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
 import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
+import { heroLcpImageSources } from "../../lib/imageUrl";
 import ThisWeekOnPhotobookersLink from "../../features/app/components/ThisWeekOnPhotobookersLink";
 import PageBleed from "../../components/layouts/PageBleedRight";
 import { isFeatureEnabled } from "../../lib/features";
@@ -22,7 +23,9 @@ export const GET = createRoute(async (c: Context) => {
     loadHeroCarouselFeatureItems(),
   ]);
   const currentPath = c.req.path;
-  const lcpImage = heroItems[0]?.image;
+  const lcpImage = heroItems[0]?.image
+    ? heroLcpImageSources(heroItems[0].image)
+    : undefined;
 
   const title = pageTitle("Featured");
   const description = DEFAULT_DESCRIPTION;

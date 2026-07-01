@@ -45,46 +45,6 @@ export const trendingCreatorsStyles = () => (
       marginBottom={12}
     />
     <Style id="trending-creators-scroll" flexDirection="row" marginTop={12} />
-    <Style
-      id="trending-creator-circle"
-      width={80}
-      marginRight={24}
-      flexDirection="column"
-      alignItems="center"
-      gap={12}
-    />
-    <Style
-      id="trending-creator-avatar-wrap"
-      width={96}
-      height={96}
-      position="relative"
-    />
-    <Style
-      id="trending-creator-avatar"
-      width={96}
-      height={96}
-      borderRadius={48}
-    />
-    <Style
-      id="trending-creator-avatar-placeholder"
-      width={96}
-      height={96}
-      borderRadius={48}
-      backgroundColor="#e4e0d5"
-    />
-    <Style
-      id="trending-creator-avatar-badge"
-      position="absolute"
-      top={0}
-      right={0}
-    />
-    <Style
-      id="trending-creator-name"
-      fontSize={14}
-      fontWeight="500"
-      color="#191613"
-      textAlign="center"
-    />
     {verificationBadgeStyles()}
     {creatorCircleStyles()}
   </>
