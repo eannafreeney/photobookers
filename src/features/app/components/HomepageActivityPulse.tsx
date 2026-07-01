@@ -28,6 +28,7 @@ const HomepageActivityPulse = ({
       {showBooks && showProfiles ? "," : null}
       {showProfiles ? (
         <>
+          {" "}
           <span class="font-semibold text-on-surface-strong">
             {profileViews.toLocaleString()}
           </span>{" "}
