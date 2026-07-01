@@ -24,17 +24,21 @@ export default defineConfig(async ({ command }) => {
       rollupOptions: {
         input: {
           main: "src/client/main.js",
+          dashboard: "src/client/dashboard.js",
           admin: "src/client/admin.js",
         },
         output: {
-          entryFileNames: (chunk) =>
-            chunk.name === "admin" ? "admin.js" : "main.js",
+          entryFileNames: (chunk) => {
+            if (chunk.name === "admin") return "admin.js";
+            if (chunk.name === "dashboard") return "dashboard.js";
+            return "main.js";
+          },
           assetFileNames: (assetInfo) => {
-            // Extract CSS to a predictable filename
             if (assetInfo.name?.endsWith(".css")) {
               return "styles.css";
             }
-            return assetInfo.name || "assets/[name].[ext]";
+            // Fonts and other emitted assets → /assets/* (served in production)
+            return "assets/[name][extname]";
           },
         },
       },

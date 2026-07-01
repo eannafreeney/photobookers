@@ -3,34 +3,16 @@ import Alpine from "alpinejs";
 import { registerAndClaimFormSchema } from "../schema";
 import { createRegisterFormUtils } from "../../auth/client/registerFormUtils";
 import { handleSubmit, validateField } from "../../../client/forms/formUtils";
+import { ensureTurnstileScript } from "../../../client/utils/turnstile";
 import type { z } from "zod";
 
 type FormShape = z.infer<typeof registerAndClaimFormSchema>;
 
 export function registerClaimSignupForm() {
-  if (
-    !(window as typeof window & { __turnstileHandlersRegistered?: boolean })
-      .__turnstileHandlersRegistered
-  ) {
-    (
-      window as typeof window & { __turnstileHandlersRegistered?: boolean }
-    ).__turnstileHandlersRegistered = true;
-
-    (
-      window as typeof window & { onTurnstileSuccess?: (token: string) => void }
-    ).onTurnstileSuccess = (token: string) => {
-      window.dispatchEvent(
-        new CustomEvent("turnstile:success", { detail: { token } }),
-      );
-    };
-
-    (
-      window as typeof window & { onTurnstileExpired?: () => void }
-    ).onTurnstileExpired = () => {
-      window.dispatchEvent(new CustomEvent("turnstile:expired"));
-    };
-  }
   Alpine.data("claimSignupForm", () => ({
+    init() {
+      ensureTurnstileScript();
+    },
     isSubmitting: false,
     emailIsTaken: false,
     form: {

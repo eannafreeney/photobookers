@@ -11,13 +11,18 @@ import NewsletterCard from "../../features/app/components/NewsletterCard";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import Interviews from "../../features/app/components/Interviews";
 import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
+import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
 import ThisWeekOnPhotobookersLink from "../../features/app/components/ThisWeekOnPhotobookersLink";
 import PageBleed from "../../components/layouts/PageBleedRight";
 import { isFeatureEnabled } from "../../lib/features";
 
 export const GET = createRoute(async (c: Context) => {
-  const user = await getUser(c);
+  const [user, heroItems] = await Promise.all([
+    getUser(c),
+    loadHeroCarouselFeatureItems(),
+  ]);
   const currentPath = c.req.path;
+  const lcpImage = heroItems[0]?.image;
 
   const title = pageTitle("Featured");
   const description = DEFAULT_DESCRIPTION;
@@ -29,10 +34,11 @@ export const GET = createRoute(async (c: Context) => {
       canonicalUrl={canonicalUrl(c.req.url, "/featured")}
       user={user}
       currentPath={currentPath}
+      preloadLcpImage={lcpImage}
     >
       <NewsletterBanner />
       <Page>
-        <HeroCarouselFeatureCard />
+        <HeroCarouselFeatureCard heroItems={heroItems} />
         <ThisWeekOnPhotobookersLink />
         <Slogan />
         <ScrollReveal>

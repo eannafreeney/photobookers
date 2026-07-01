@@ -8,7 +8,7 @@ import resize from "@alpinejs/resize";
 import collapse from "@alpinejs/collapse";
 
 import "../styles/styles.css";
-import "./";
+import "./public.ts";
 
 Alpine.plugin(collapse);
 Alpine.plugin(morph);
@@ -20,8 +20,10 @@ Alpine.plugin(resize);
 
 window.Alpine = Alpine;
 
-// Admin pages load a second bundle that registers admin-only Alpine components.
-// Don't start until that bundle has run, or bookFormAdmin etc. won't exist yet.
-if (!document.querySelector('script[src*="admin"]')) {
+// Dashboard/admin pages load extra bundles that register more Alpine components.
+if (
+  !document.querySelector('script[src*="dashboard"]') &&
+  !document.querySelector('script[src*="admin"]')
+) {
   Alpine.start();
 }

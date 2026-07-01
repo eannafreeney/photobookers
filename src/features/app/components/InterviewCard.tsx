@@ -23,8 +23,12 @@ const InterviewCard = ({
     <a href={link} class="cursor-pointer">
       <img
         src={interview.promoImageUrl ?? ""}
+        alt={`Interview with ${interview.creator.displayName}`}
+        width={800}
+        height={256}
+        loading="lazy"
+        decoding="async"
         class="w-full h-64 object-cover rounded-radius"
-        alt="Interview"
       />
       <div class="absolute inset-0 flex flex-col gap-2 items-center justify-center bg-black/55 hover:bg-black/20 transition-all duration-300 p-4 text-white">
         <p class="kicker text-center text-white/70">Interview</p>

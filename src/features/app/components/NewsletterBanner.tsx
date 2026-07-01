@@ -1,17 +1,18 @@
 import Button from "../../../components/app/Button";
 import { NEWSLETTER_COPY } from "../../../constants/newsletter";
-import { fadeTransition } from "../../../lib/transitions";
 
 const NewsletterBanner = () => {
   return (
     <div
-      x-cloak
+      class="hidden md:block"
       x-data="{ showBanner: $persist(true).as('newsletter-banner'), dismiss() { this.showBanner = false } }"
     >
       <div
         x-show="showBanner"
-        {...fadeTransition}
-        class="relative flex bg-on-surface-strong pt-3 pb-3 text-surface"
+        x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="relative flex min-h-12 items-center bg-on-surface-strong py-3 text-surface"
       >
         <div class="mx-auto flex items-center justify-center gap-4 px-6">
           <p class="text-sm text-pretty">

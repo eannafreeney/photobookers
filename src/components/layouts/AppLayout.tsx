@@ -10,7 +10,6 @@ import Dock from "./Dock";
 import ToastContainer from "../app/ToastContainer";
 import ActivityStream from "../app/ActivityStream";
 import { fadeTransition } from "../../lib/transitions";
-import AppStoreBanner from "../../features/app/components/AppStoreBanner";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
@@ -24,7 +23,20 @@ type LayoutProps = PropsWithChildren<{
   adminEditHref?: string;
   shareOg?: ShareOgMeta;
   jsonLd?: Record<string, unknown>;
+  preloadLcpImage?: string;
 }>;
+
+function needsDashboardScripts(path?: string | null): boolean {
+  if (!path) return false;
+  if (path.startsWith("/dashboard/admin")) return false;
+  if (path.startsWith("/dashboard")) return true;
+  if (path.startsWith("/stores")) return true;
+  if (path.startsWith("/interviews/") && !path.startsWith("/interviews/view")) {
+    return true;
+  }
+  if (/^\/users\/[^/]+\/update$/.test(path)) return true;
+  return false;
+}
 
 const AppLayout = ({
   title = "photobookers",
@@ -39,7 +51,9 @@ const AppLayout = ({
   adminEditHref,
   shareOg,
   jsonLd,
+  preloadLcpImage,
 }: LayoutProps) => {
+  const loadDashboardScripts = needsDashboardScripts(currentPath);
   const loadAdminScripts =
     currentPath?.startsWith("/dashboard/admin") ?? false;
 
@@ -52,7 +66,9 @@ const AppLayout = ({
       noIndex={noIndex ?? currentPath?.startsWith("/dashboard")}
       shareOg={shareOg}
       jsonLd={jsonLd}
+      loadDashboardScripts={loadDashboardScripts}
       loadAdminScripts={loadAdminScripts}
+      preloadLcpImage={preloadLcpImage}
     />
     <body class="bg-surface">
       <UserProvider user={user}>

@@ -15,7 +15,9 @@ type HeadProps = {
   noIndex?: boolean;
   shareOg?: ShareOgMeta;
   jsonLd?: Record<string, unknown>;
+  loadDashboardScripts?: boolean;
   loadAdminScripts?: boolean;
+  preloadLcpImage?: string;
 };
 
 const Head = ({
@@ -25,7 +27,9 @@ const Head = ({
   noIndex = false,
   shareOg,
   jsonLd,
+  loadDashboardScripts = false,
   loadAdminScripts = false,
+  preloadLcpImage,
 }: HeadProps) => {
   const hasBuiltAssets =
     existsSync("./dist/client/main.js") &&
@@ -86,16 +90,14 @@ const Head = ({
         </>
       ) : null}
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin="anonymous"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
-        rel="stylesheet"
-      />
+      {preloadLcpImage ? (
+        <link
+          rel="preload"
+          as="image"
+          href={preloadLcpImage}
+          fetchpriority="high"
+        />
+      ) : null}
       <link
         rel="stylesheet"
         href={useBuiltAssets ? "/styles.css" : "/src/styles/styles.css"}
@@ -104,17 +106,18 @@ const Head = ({
         type="module"
         src={useBuiltAssets ? "/main.js" : "/src/client/main.js"}
       ></script>
+      {loadDashboardScripts ? (
+        <script
+          type="module"
+          src={useBuiltAssets ? "/dashboard.js" : "/src/client/dashboard.js"}
+        ></script>
+      ) : null}
       {loadAdminScripts ? (
         <script
           type="module"
           src={useBuiltAssets ? "/admin.js" : "/src/client/admin.js"}
         ></script>
       ) : null}
-      <script
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-        async
-        defer
-      ></script>
       {gaId && useBuiltAssets && (
         <>
           <script

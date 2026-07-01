@@ -5,7 +5,11 @@ import {
   getPublisherOfTheWeekForDateQuery,
 } from "../dashboard/admin/planner/services";
 import { getWeekNumber } from "../dashboard/admin/planner/utils";
-import { BookOfTheDayWithBook } from "./BOTDServices";
+import { BookOfTheDayWithBook, getTodaysBookOfTheDay } from "./BOTDServices";
+import {
+  getThisWeeksArtistOfTheWeek,
+  getThisWeeksPublisherOfTheWeek,
+} from "./CreatorSpotlightServices";
 import { getCoverUrlsForHeroCarousel } from "./services";
 import { aotwPath, botdPath, potwPath } from "./spotlightUrls";
 
@@ -114,6 +118,37 @@ export function buildHeroCarouselItems(
   }
 
   return items;
+}
+
+/** Hero carousel data for /featured (and LCP preload). Returns [] when spotlight data is unavailable. */
+export async function loadHeroCarouselFeatureItems(): Promise<HeroCarouselItem[]> {
+  const [bookRes, artistRes, publisherRes] = await Promise.all([
+    getTodaysBookOfTheDay(),
+    getThisWeeksArtistOfTheWeek(),
+    getThisWeeksPublisherOfTheWeek(),
+  ]);
+
+  const [bookErr, bookOfTheDay] = bookRes;
+  const [artistErr, artistOfTheWeek] = artistRes;
+  const [publisherErr, publisherOfTheWeek] = publisherRes;
+
+  if (artistErr || publisherErr) {
+    return [];
+  }
+
+  const { publisherCoverStack, artistCoverStack } =
+    await loadHeroCarouselCoverStacks({
+      publisherCreatorId: publisherOfTheWeek ? publisherOfTheWeek.creatorId : null,
+      artistCreatorId: artistOfTheWeek ? artistOfTheWeek.creatorId : null,
+    });
+
+  return buildHeroCarouselItems(
+    bookErr ? null : bookOfTheDay,
+    artistErr ? null : artistOfTheWeek,
+    publisherErr ? null : publisherOfTheWeek,
+    publisherCoverStack,
+    artistCoverStack,
+  );
 }
 
 export function toAlpineDataJson(items: HeroCarouselItem[]) {

@@ -2,35 +2,17 @@ import Alpine from "alpinejs";
 import { registerFanFormSchema } from "../schema";
 import { createRegisterFormUtils } from "./registerFormUtils";
 import { handleSubmit, validateField } from "../../../client/forms/formUtils";
+import { ensureTurnstileScript } from "../../../client/utils/turnstile";
 import z from "zod";
 
 type RegisterFanFormShape = z.infer<typeof registerFanFormSchema>;
 
 export function registerRegisterFanForm() {
-  if (
-    !(window as typeof window & { __turnstileHandlersRegistered?: boolean })
-      .__turnstileHandlersRegistered
-  ) {
-    (
-      window as typeof window & { __turnstileHandlersRegistered?: boolean }
-    ).__turnstileHandlersRegistered = true;
-
-    (
-      window as typeof window & { onTurnstileSuccess?: (token: string) => void }
-    ).onTurnstileSuccess = (token: string) => {
-      window.dispatchEvent(
-        new CustomEvent("turnstile:success", { detail: { token } }),
-      );
-    };
-
-    (
-      window as typeof window & { onTurnstileExpired?: () => void }
-    ).onTurnstileExpired = () => {
-      window.dispatchEvent(new CustomEvent("turnstile:expired"));
-    };
-  }
   Alpine.data("registerFanForm", () => {
     return {
+      init() {
+        ensureTurnstileScript();
+      },
       isSubmitting: false,
       emailIsTaken: false,
       form: {
