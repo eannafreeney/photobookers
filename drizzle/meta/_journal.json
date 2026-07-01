@@ -344,6 +344,13 @@
       "when": 1782845165977,
       "tag": "0049_kind_stellaris",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1782917788336,
+      "tag": "0050_parched_the_captain",
+      "breakpoints": true
     }
   ]
 }
