@@ -189,10 +189,42 @@ describe("instagram caption helpers", () => {
       products: "@janedoe\n@acmepress",
     });
     expect(buildBotdStoryStickerFields(book)).toEqual({
-      text: "Book of the Day",
-      music: "Winter Light",
-      products: "@janedoe\n@acmepress",
-      other: "Link In Bio",
+      text: [
+        'Hi! Your book "Winter Light" was Book of the Day on photobookers.com.',
+        "https://www.photobookers.com/books/winter-light",
+      ].join("\n"),
+      topics: [
+        'Hi! "Winter Light" by Jane Doe was Book of the Day on photobookers.com.',
+        "https://www.photobookers.com/books/winter-light",
+      ].join("\n"),
+    });
+  });
+
+  it("fills BOTD story stickers when only artist or publisher is present", () => {
+    expect(
+      buildBotdStoryStickerFields({
+        title: "Winter Light",
+        slug: "winter-light",
+        artist: { displayName: "Jane Doe", instagram: "@janedoe" },
+      }),
+    ).toEqual({
+      text: [
+        'Hi! Your book "Winter Light" was Book of the Day on photobookers.com.',
+        "https://www.photobookers.com/books/winter-light",
+      ].join("\n"),
+    });
+
+    expect(
+      buildBotdStoryStickerFields({
+        title: "Winter Light",
+        slug: "winter-light",
+        publisher: { displayName: "Acme Press", instagram: "acmepress" },
+      }),
+    ).toEqual({
+      text: [
+        'Hi! "Winter Light" by the artist was Book of the Day on photobookers.com.',
+        "https://www.photobookers.com/books/winter-light",
+      ].join("\n"),
     });
   });
 

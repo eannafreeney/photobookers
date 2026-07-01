@@ -36,12 +36,9 @@ import {
   bufferCreateScheduledStory,
 } from "./buffer";
 import {
-  buildArtistPostStickerText,
-  buildBotdPostStickerFields,
   buildBotdStoryStickerFields,
   buildDefaultCreatorInstagramFirstComment,
   buildDefaultInstagramFirstComment,
-  buildPublisherPostStickerText,
   buildSpotlightStoryStickerText,
   ensureBookTagsInCaption,
 } from "./instagramCaption";
@@ -497,7 +494,6 @@ export async function queuePreparedBotdInstagramForDate(
     imageUrl: row.instagramImageUrl,
     dueAt,
     firstComment,
-    stickerFields: row.book ? buildBotdPostStickerFields(row.book) : undefined,
   });
 
   if (bufferError) {
@@ -625,14 +621,6 @@ async function queueSpotlightRow(params: {
     imageUrl: params.row.instagramImageUrl,
     dueAt,
     firstComment,
-    stickerFields: params.row.creator
-      ? {
-          text:
-            params.table === artistOfTheWeek
-              ? buildArtistPostStickerText(params.row.creator)
-              : buildPublisherPostStickerText(params.row.creator),
-        }
-      : undefined,
   });
 
   if (bufferError) {

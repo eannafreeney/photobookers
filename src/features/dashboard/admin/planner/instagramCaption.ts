@@ -137,50 +137,53 @@ export function buildBotdStoryHandles(book: BookForCaption): string {
   return handles.join("\n");
 }
 
+function buildBotdArtistDmSticker(book: BookForCaption): string | null {
+  if (!book.artist?.displayName) return null;
+  return [
+    `Hi! Your book "${book.title}" was Book of the Day on photobookers.com.`,
+    buildBookPageUrl(book.slug),
+  ].join("\n");
+}
+
+function buildBotdPublisherDmSticker(book: BookForCaption): string | null {
+  if (!book.publisher?.displayName) return null;
+  const artistName = book.artist?.displayName ?? "the artist";
+  return [
+    `Hi! "${book.title}" by ${artistName} was Book of the Day on photobookers.com.`,
+    buildBookPageUrl(book.slug),
+  ].join("\n");
+}
+
 /** Copy-paste sticker fields for BOTD feed posts (notification reminder). */
 export function buildBotdPostStickerFields(book: BookForCaption): {
   text: string;
   products?: string;
 } {
-  const lines: string[] = [];
-  const bookUrl = buildBookPageUrl(book.slug);
-
-  if (book.artist?.displayName) {
-    lines.push(
-      `Hi! Your book "${book.title}" was Book of the Day on photobookers.com.`,
-      bookUrl,
-    );
-  }
-
-  if (book.publisher?.displayName) {
-    if (lines.length > 0) lines.push("");
-    const artistName = book.artist?.displayName ?? "the artist";
-    lines.push(
-      `Hi! "${book.title}" by ${artistName} was Book of the Day on photobookers.com.`,
-      bookUrl,
-    );
-  }
-
+  const dms = [
+    buildBotdArtistDmSticker(book),
+    buildBotdPublisherDmSticker(book),
+  ].filter((dm): dm is string => Boolean(dm));
   const products = buildBotdStoryHandles(book);
   return {
-    text: lines.join("\n"),
+    text: dms.join("\n\n"),
     ...(products ? { products } : {}),
   };
 }
 
-/** Story sticker fields for BOTD — paste into Instagram story stickers. */
+/** Story sticker fields for BOTD — artist and publisher DMs only. */
 export function buildBotdStoryStickerFields(book: BookForCaption): {
   text: string;
-  music: string;
-  products: string;
-  other: string;
+  topics?: string;
 } {
-  return {
-    text: "Book of the Day",
-    music: book.title,
-    products: buildBotdStoryHandles(book),
-    other: "Link In Bio",
-  };
+  const artistDm = buildBotdArtistDmSticker(book);
+  const publisherDm = buildBotdPublisherDmSticker(book);
+
+  if (artistDm && publisherDm) {
+    return { text: artistDm, topics: publisherDm };
+  }
+  if (artistDm) return { text: artistDm };
+  if (publisherDm) return { text: publisherDm };
+  return { text: "Book of the Day" };
 }
 
 type SpotlightMention = {

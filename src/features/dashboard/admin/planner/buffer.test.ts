@@ -18,11 +18,11 @@ describe("bufferCreateScheduledImagePost", () => {
     delete process.env.BUFFER_INSTAGRAM_CHANNEL_ID;
   });
 
-  it("schedules notification-based Instagram feed posts with sticker fields", async () => {
+  it("schedules automatic Instagram feed posts with optional sticker fields", async () => {
     const fetchMock = vi.fn(async (_url, init) => {
       const body = JSON.parse(String(init?.body));
       expect(body.variables.input).toMatchObject({
-        schedulingType: "notification",
+        schedulingType: "automatic",
         mode: "customScheduled",
         dueAt: "2026-06-01T10:00:00.000Z",
       });

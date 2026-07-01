@@ -103,9 +103,9 @@ const PrepareInstagramModal = ({
       ) : (
         <div>
           <p class="mb-4 text-sm text-on-surface">
-            Posts and stories use Buffer&apos;s notification flow — you&apos;ll
-            get a phone alert at the scheduled time. Feed posts include
-            copy-paste DM text; stories include the usual sticker fields.
+            Feed posts publish automatically. Stories use Buffer&apos;s
+            notification flow — you&apos;ll get a phone alert with copy-paste DM
+            stickers for artist and publisher.
           </p>
           <FormPost
             action={`/dashboard/admin/planner/instagram/${week}/prepare`}
