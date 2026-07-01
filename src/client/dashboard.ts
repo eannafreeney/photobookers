@@ -1,6 +1,5 @@
 import { registerEditCreatorForm } from "../features/dashboard/creators/client/editCreatorForm";
 import { registerBookForm } from "../features/dashboard/books/client/bookForm";
-import { registerCarouselForm } from "../features/dashboard/images/client/carouselForm";
 import { registerBookCoverForm } from "../features/dashboard/books/client/bookCoverForm";
 import { registerCreatorCoverForm } from "../features/dashboard/creators/client/creatorCoverForm";
 import { registerBookGalleryForm } from "../features/dashboard/books/client/bookGalleryForm";
@@ -13,7 +12,6 @@ import { registerStoresMap } from "../features/app/stores/client/storesMap";
 
 registerEditCreatorForm();
 registerBookForm();
-registerCarouselForm();
 registerBookCoverForm();
 registerCreatorCoverForm();
 registerBookGalleryForm();
