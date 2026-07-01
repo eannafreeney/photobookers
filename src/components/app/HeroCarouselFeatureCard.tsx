@@ -70,17 +70,17 @@ const HeroCarouselFeatureCard = async () => {
         class="border-t-2 border-b-2 border-on-surface-strong relative overflow-hidden text-on-surface transition-colors duration-300 ease-out"
         x-bind:class="items[active] ? items[active].slideClass : ''"
       >
-        <div class="relative min-h-[480px] overflow-hidden rounded-radius border border-outline md:h-[500px]">
+        <div class="relative overflow-hidden rounded-radius border border-outline md:h-[500px]">
           <template x-for="(item, index) in items">
             <div
               x-show="active === index"
               x-transition:enter="transition ease-out duration-500"
               x-transition:enter-start="opacity-0 translate-x-6"
               x-transition:enter-end="opacity-100 translate-x-0"
-              class="absolute inset-0"
+              class="md:absolute md:inset-0"
             >
-              <div class="grid h-full grid-cols-1 md:grid-cols-2">
-                <div class="flex flex-col items-center justify-center order-2 sm:p-8 lg:p-12">
+              <div class="grid grid-cols-1 pb-12 md:h-full md:grid-cols-2 md:pb-0">
+                <div class="flex flex-col items-center justify-center order-2 px-4 py-4 sm:p-8 lg:p-12">
                   <div class="max-w-xl flex flex-col items-center justify-center gap-2">
                     <p class="kicker text-accent" x-text="item.label"></p>
                     <p

@@ -66,18 +66,18 @@ const HeroCarousel = async () => {
         </template>
       </div>
       <section
-        class="relative h-[470px] overflow-hidden sm:h-[560px] md:h-[500px] py-6 text-on-surface transition-colors duration-300 ease-out sm:py-8"
+        class="relative overflow-hidden py-6 text-on-surface transition-colors duration-300 ease-out sm:py-8 md:h-[500px]"
         x-bind:class="items[active] ? items[active].slideClass : ''"
       >
         {/* <!-- Slides: visual on top (mobile), left (md+) --> */}
-        <div class="relative h-full w-full">
+        <div class="relative w-full md:h-full">
           <template x-for="(item, index) in items">
             <div
               x-show="active === index"
               x-transition:enter="transition ease-out duration-500"
               x-transition:enter-start="opacity-0 translate-x-6"
               x-transition:enter-end="opacity-100 translate-x-0"
-              class="absolute inset-0 grid w-full grid-cols-1 grid-rows-[auto_auto] content-center gap-6 md:grid-cols-[3fr_2fr] md:grid-rows-1 md:gap-10 md:items-center"
+              class="md:absolute md:inset-0 grid w-full grid-cols-1 grid-rows-[auto_auto] content-center gap-6 md:grid-cols-[3fr_2fr] md:grid-rows-1 md:gap-10 md:items-center"
             >
               <div class="relative order-1 flex w-full justify-center md:order-0">
                 <template x-if="item.coverStack && item.coverStack.length >= 2">
