@@ -9,6 +9,7 @@ import {
   buildDefaultInstagramCaption,
   buildDefaultInstagramFirstComment,
   buildDefaultPublisherInstagramCaption,
+  buildNewlyVerifiedCreatorInstagramCaption,
   buildPublisherPostStickerText,
   buildSpotlightStoryStickerText,
   collectBookImageOptions,
@@ -130,6 +131,23 @@ describe("instagram caption helpers", () => {
     expect(
       buildDefaultInstagramFirstComment({ slug: "winter-light" }),
     ).toContain("/books/winter-light");
+  });
+
+  it("builds a newly verified creator caption", () => {
+    const caption = buildNewlyVerifiedCreatorInstagramCaption({
+      displayName: "Jane Doe",
+      slug: "jane-doe",
+      type: "artist",
+      tagline: "Documentary work from Berlin",
+      instagram: "https://instagram.com/janedoe",
+    });
+
+    expect(caption).toContain("New on photobookers");
+    expect(caption).toContain("Jane Doe");
+    expect(caption).toContain("Artist");
+    expect(caption).toContain("Documentary work from Berlin");
+    expect(caption).toContain("@janedoe");
+    expect(caption).toContain("Link in bio");
   });
 
   it("collects cover and gallery image urls", () => {

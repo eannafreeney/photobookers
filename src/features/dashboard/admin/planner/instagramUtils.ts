@@ -73,6 +73,21 @@ export function buildPotwInstagramStoryDueAt(weekStart: Date): Date {
   return buildInstagramDueAtWithTime(sunday, time);
 }
 
+/** Bump past-due slots so Buffer accepts them (5 min from now). */
+export function scheduleInstagramDueAt(dueAt: Date): Date {
+  const now = new Date();
+  if (dueAt.getTime() <= now.getTime()) {
+    return new Date(now.getTime() + 5 * 60 * 1000);
+  }
+  return dueAt;
+}
+
+/** UTC post time on the creator's verification day. */
+export function buildVerifiedCreatorInstagramDueAt(verifiedAt: Date): Date {
+  const time = process.env.VERIFIED_CREATOR_INSTAGRAM_POST_TIME ?? "14:00";
+  return buildInstagramDueAtWithTime(verifiedAt, time);
+}
+
 function buildInstagramDueAtWithTime(day: Date, time: string): Date {
   const match = time.match(/^(\d{1,2}):(\d{2})$/);
   const hour = match ? Number(match[1]) : 10;

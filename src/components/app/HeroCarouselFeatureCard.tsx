@@ -5,12 +5,16 @@ import { leftArrowIcon, rightArrowIcon } from "../../lib/icons";
 import Button from "./Button";
 
 const HERO_IMAGE_CLASS =
-  "h-auto w-full max-h-[220px] object-contain sm:max-h-[260px] md:h-full md:max-h-none md:w-full";
+  "h-auto w-full max-h-[220px] object-contain sm:max-h-[260px] md:h-full md:max-h-none md:w-full object-cover";
 /** Intrinsic ratio for book-cover CLS reservation (actual display size is CSS-controlled). */
 const HERO_IMAGE_WIDTH = 600;
 const HERO_IMAGE_HEIGHT = 800;
 
-const HeroCarouselFeatureCard = ({ heroItems }: { heroItems: HeroCarouselItem[] }) => {
+const HeroCarouselFeatureCard = ({
+  heroItems,
+}: {
+  heroItems: HeroCarouselItem[];
+}) => {
   if (heroItems.length === 0) {
     return <></>;
   }
@@ -27,7 +31,7 @@ const HeroCarouselFeatureCard = ({ heroItems }: { heroItems: HeroCarouselItem[] 
       x-on:touchmove="handleTouchMove($event)"
       x-on:touchend="handleTouchEnd()"
     >
-      <div class="hidden md:flex flex-wrap gap-3 py-3 sm:gap-8 border-b border-outline">
+      {/* <div class="hidden md:flex flex-wrap gap-3 py-3 sm:gap-8 border-b border-outline">
         <template x-for="(item, index) in items">
           <button
             x-on:click="go(index)"
@@ -37,13 +41,13 @@ const HeroCarouselFeatureCard = ({ heroItems }: { heroItems: HeroCarouselItem[] 
             x-text="item.label"
           ></button>
         </template>
-      </div>
+      </div> */}
 
       <section
-        class={`sm:py-0 border-t-2 border-b-2 border-on-surface-strong relative overflow-hidden text-on-surface transition-colors duration-300 ease-out ${firstItem.slideClass ?? ""}`}
+        class={`pt-6 sm:pt-0 border-t-2 border-b-2 border-on-surface-strong relative overflow-hidden text-on-surface transition-colors duration-300 ease-out ${firstItem.slideClass ?? ""}`}
         x-bind:class="items[active] ? items[active].slideClass : ''"
       >
-        <div class="relative overflow-hidden rounded-radius border border-outline md:h-[500px]">
+        <div class="relative overflow-hidden rounded-radius md:h-[500px]">
           <HeroCarouselLcpSlide
             item={firstItem}
             x-show="active === 0"
@@ -162,61 +166,61 @@ const HeroCarouselLcpSlide = ({
   const imageSources = item.image ? heroLcpImageSources(item.image) : null;
 
   return (
-  <div class={className} {...(xShow ? { "x-show": xShow } : {})}>
-    <div class="grid grid-cols-1 pb-12 md:h-full md:grid-cols-2 md:pb-0">
-      <div class="flex flex-col items-center justify-center order-2 px-4 py-4 sm:p-8 lg:p-12">
-        <div class="max-w-xl flex flex-col items-center justify-center gap-2">
-          <p class="kicker text-accent">{item.label}</p>
-          <p class="font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance sm:text-5xl">
-            {item.title}
-          </p>
-          {item.text ? (
-            <p class="max-w-md text-sm leading-6 text-on-surface sm:text-base">
-              {item.text}
+    <div class={className} {...(xShow ? { "x-show": xShow } : {})}>
+      <div class="grid grid-cols-1 pb-12 md:h-full md:grid-cols-2 md:pb-0">
+        <div class="flex flex-col items-center justify-center order-2 px-4 py-4 sm:p-8 lg:p-12">
+          <div class="max-w-xl flex flex-col items-center justify-center gap-2">
+            <p class="kicker text-accent">{item.label}</p>
+            <p class="font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance sm:text-5xl">
+              {item.title}
             </p>
-          ) : null}
+            {item.text ? (
+              <p class="max-w-md text-sm leading-6 text-on-surface sm:text-base">
+                {item.text}
+              </p>
+            ) : null}
 
-          <div class="mt-1 mb-4 flex items-center gap-3 group">
-            <a href={item.link} class="cursor-pointer">
-              <Button
-                variant="solid"
-                color="primary"
-                width="lg"
-                href={item.link}
-              >
-                <span class="inline-flex items-center">
-                  View feature
-                  <span class="w-0 overflow-hidden opacity-0 group-hover:w-6 group-hover:opacity-100 transition-all duration-300 ease-in-out whitespace-nowrap">
-                    &nbsp;→
+            <div class="mt-1 mb-4 flex items-center gap-3 group">
+              <a href={item.link} class="cursor-pointer">
+                <Button
+                  variant="solid"
+                  color="primary"
+                  width="lg"
+                  href={item.link}
+                >
+                  <span class="inline-flex items-center">
+                    View feature
+                    <span class="w-0 overflow-hidden opacity-0 group-hover:w-6 group-hover:opacity-100 transition-all duration-300 ease-in-out whitespace-nowrap">
+                      &nbsp;→
+                    </span>
                   </span>
-                </span>
-              </Button>
-            </a>
+                </Button>
+              </a>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="order-1 relative border-b border-outline/70 sm:px-4 sm:py-6 md:order-2 md:h-full md:min-h-[240px] md:border-b-0 md:px-0 md:py-0">
-        <a
-          href={item.link}
-          class="flex h-full w-full items-center justify-center md:justify-end cursor-pointer"
-        >
-          {imageSources ? (
-            <img
-              src={imageSources.src}
-              srcset={imageSources.srcSet}
-              sizes={imageSources.sizes}
-              alt={item.title}
-              width={HERO_IMAGE_WIDTH}
-              height={HERO_IMAGE_HEIGHT}
-              fetchpriority="high"
-              class={HERO_IMAGE_CLASS}
-            />
-          ) : null}
-        </a>
+        <div class="order-1 relative border-b border-outline/70 sm:px-4 sm:py-6 md:order-2 md:h-full md:min-h-[240px] md:border-b-0 md:px-0 md:py-0">
+          <a
+            href={item.link}
+            class="flex h-full w-full items-center justify-center md:justify-end cursor-pointer"
+          >
+            {imageSources ? (
+              <img
+                src={imageSources.src}
+                srcset={imageSources.srcSet}
+                sizes={imageSources.sizes}
+                alt={item.title}
+                width={HERO_IMAGE_WIDTH}
+                height={HERO_IMAGE_HEIGHT}
+                fetchpriority="high"
+                class={HERO_IMAGE_CLASS}
+              />
+            ) : null}
+          </a>
+        </div>
       </div>
     </div>
-  </div>
   );
 };
 

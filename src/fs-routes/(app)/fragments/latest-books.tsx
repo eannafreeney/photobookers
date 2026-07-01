@@ -9,7 +9,7 @@ import { getUser } from "../../../utils";
 
 const FEATURED_BOOKS_LIMIT = 10;
 const FRAGMENT_PATH = "/fragments/latest-books";
-const DEFAULT_SORT = "trending" as const;
+const DEFAULT_SORT = "newest" as const;
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);

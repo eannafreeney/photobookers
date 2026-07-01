@@ -62,6 +62,22 @@ export function buildDefaultCreatorInstagramFirstComment(creator: {
   return buildCreatorPageUrl(creator.slug);
 }
 
+export function buildNewlyVerifiedCreatorInstagramCaption(
+  creator: CreatorSpotlightForCaption & {
+    type: "artist" | "publisher";
+    tagline?: string | null;
+  },
+): string {
+  const role = creator.type === "artist" ? "Artist" : "Publisher";
+  const lines = ["New on photobookers", "", creator.displayName, role];
+  const blurb = creator.tagline?.trim() || creator.bio?.trim();
+  if (blurb) lines.push("", blurb);
+  const handle = formatInstagramHandle(creator.instagram);
+  if (handle) lines.push("", handle);
+  lines.push("", "#photobook #photobookjousting", "", "Link in bio →");
+  return lines.join("\n");
+}
+
 /** Normalizes stored instagram URL or handle to `@username` for captions. */
 export function formatInstagramHandle(
   instagram: string | null | undefined,

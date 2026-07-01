@@ -28,6 +28,6 @@ export const getBookCatalogOrderBy = (sort: BookCatalogSort) => {
       return [desc(books.sortOrder), desc(books.id)];
     case "newest":
     default:
-      return [desc(books.sortOrder), desc(books.id)];
+      return [desc(books.createdAt), desc(books.id)];
   }
 };

@@ -233,6 +233,9 @@ export const creators = pgTable(
       length: 7,
     }),
     stubOutreachOptOutAt: timestamp("stub_outreach_opt_out_at"),
+    verifiedInstagramQueuedAt: timestamp("verified_instagram_queued_at"),
+    verifiedInstagramBufferPostId: text("verified_instagram_buffer_post_id"),
+    verifiedInstagramError: text("verified_instagram_error"),
     createdByUserId: uuid("created_by_user_id")
       .references(() => users.id)
       .notNull(),

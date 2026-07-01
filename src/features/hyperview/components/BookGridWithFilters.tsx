@@ -21,7 +21,7 @@ import SectionHeader from "./SectionHeader";
 
 const FEATURED_LATEST_BOOKS_TAB = "/hyperview/featured/tab/latest-books";
 const FEATURED_LATEST_BOOKS_LIMIT = 5;
-export const FEATURED_LATEST_BOOKS_DEFAULT_SORT = "trending" as const;
+export const FEATURED_LATEST_BOOKS_DEFAULT_SORT = "newest" as const;
 const FEATURED_LATEST_BOOKS_SCROLL_ID = "featured-latest-books-scroll";
 
 export const featuredLatestBooksFilterPath = (baseUrl: string) =>

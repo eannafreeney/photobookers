@@ -4,9 +4,7 @@ type PageProps = PropsWithChildren<{}>;
 
 const Page = ({ children }: PageProps) => {
   return (
-    <div class="min-h-screen flex flex-col gap-4 mt-6 mb-12 space-y-6">
-      {children}
-    </div>
+    <div class="min-h-screen flex flex-col gap-6 mt-6 mb-12 ">{children}</div>
   );
 };
 
