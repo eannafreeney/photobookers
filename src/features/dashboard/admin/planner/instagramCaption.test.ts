@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildArtistBufferStickerText,
-  buildBotdBufferStickerFields,
+  buildArtistPostStickerText,
   buildBotdInstagramCaption,
+  buildBotdPostStickerFields,
   buildBotdStoryHandles,
+  buildBotdStoryStickerFields,
   buildDefaultArtistInstagramCaption,
   buildDefaultInstagramCaption,
   buildDefaultInstagramFirstComment,
   buildDefaultPublisherInstagramCaption,
-  buildPublisherBufferStickerText,
+  buildPublisherPostStickerText,
+  buildSpotlightStoryStickerText,
   collectBookImageOptions,
   collectCreatorImageOptions,
   ensureBookTagsInCaption,
@@ -161,7 +163,7 @@ describe("instagram caption helpers", () => {
     ]);
   });
 
-  it("builds BOTD buffer sticker text for artist and publisher", () => {
+  it("builds BOTD post sticker fields for feed notifications", () => {
     const book = {
       title: "Winter Light",
       slug: "winter-light",
@@ -176,7 +178,7 @@ describe("instagram caption helpers", () => {
     };
 
     expect(buildBotdStoryHandles(book)).toBe("@janedoe\n@acmepress");
-    expect(buildBotdBufferStickerFields(book)).toEqual({
+    expect(buildBotdPostStickerFields(book)).toEqual({
       text: [
         'Hi! Your book "Winter Light" was Book of the Day on photobookers.com.',
         "https://www.photobookers.com/books/winter-light",
@@ -186,21 +188,33 @@ describe("instagram caption helpers", () => {
       ].join("\n"),
       products: "@janedoe\n@acmepress",
     });
+    expect(buildBotdStoryStickerFields(book)).toEqual({
+      text: "Book of the Day",
+      music: "Winter Light",
+      products: "@janedoe\n@acmepress",
+      other: "Link In Bio",
+    });
   });
 
-  it("builds spotlight buffer sticker text with creator page url", () => {
+  it("builds spotlight post sticker text and story mention block", () => {
     const creator = {
       displayName: "Jane Doe",
       slug: "jane-doe",
       instagram: "@janedoe",
     };
 
-    expect(buildArtistBufferStickerText(creator)).toBe(
+    expect(buildArtistPostStickerText(creator)).toBe(
       "Hi @janedoe! You were Artist of the Week on photobookers.com.\nhttps://www.photobookers.com/creators/jane-doe",
     );
-    expect(buildPublisherBufferStickerText(creator)).toBe(
+    expect(buildPublisherPostStickerText(creator)).toBe(
       "Hi @janedoe! You were Publisher of the Week on photobookers.com.\nhttps://www.photobookers.com/creators/jane-doe",
     );
+    expect(
+      buildSpotlightStoryStickerText(
+        "Artist of the Week\n\nJane Doe\n\nLink in bio →",
+        [{ displayName: "Jane Doe", instagram: "@janedoe", role: "artist" }],
+      ),
+    ).toContain("@janedoe (artist) — Jane Doe");
   });
 });
 

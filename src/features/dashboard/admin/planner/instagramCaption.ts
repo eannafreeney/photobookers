@@ -137,8 +137,8 @@ export function buildBotdStoryHandles(book: BookForCaption): string {
   return handles.join("\n");
 }
 
-/** Copy-paste sticker text generated when queuing BOTD stories to Buffer. */
-export function buildBotdBufferStickerFields(book: BookForCaption): {
+/** Copy-paste sticker fields for BOTD feed posts (notification reminder). */
+export function buildBotdPostStickerFields(book: BookForCaption): {
   text: string;
   products?: string;
 } {
@@ -168,8 +168,58 @@ export function buildBotdBufferStickerFields(book: BookForCaption): {
   };
 }
 
-/** Copy-paste sticker text generated when queuing AOTW stories to Buffer. */
-export function buildArtistBufferStickerText(
+/** Story sticker fields for BOTD — paste into Instagram story stickers. */
+export function buildBotdStoryStickerFields(book: BookForCaption): {
+  text: string;
+  music: string;
+  products: string;
+  other: string;
+} {
+  return {
+    text: "Book of the Day",
+    music: book.title,
+    products: buildBotdStoryHandles(book),
+    other: "Link In Bio",
+  };
+}
+
+type SpotlightMention = {
+  displayName: string;
+  instagram?: string | null;
+  role?: string;
+};
+
+/** Story sticker text for AOTW / POTW — caption plus @mention hints. */
+export function buildSpotlightStoryStickerText(
+  caption: string,
+  mentions: SpotlightMention[],
+): string {
+  const trimmed = caption.trim();
+  const mentionLines = mentions
+    .map((mention) => {
+      const handle = formatInstagramHandle(mention.instagram);
+      if (!handle) return null;
+      const roleLabel = mention.role ? ` (${mention.role})` : "";
+      return `${handle}${roleLabel} — ${mention.displayName}`;
+    })
+    .filter((line): line is string => Boolean(line));
+
+  if (mentionLines.length === 0) return trimmed;
+
+  const mentionBlock = ["", "Mention:", ...mentionLines].join("\n");
+  const linkMarker = "Link in bio";
+  const linkIdx = trimmed.indexOf(linkMarker);
+  if (linkIdx >= 0) {
+    const before = trimmed.slice(0, linkIdx).trimEnd();
+    const after = trimmed.slice(linkIdx).trim();
+    return `${before}${mentionBlock}\n\n${after}`;
+  }
+
+  return `${trimmed}${mentionBlock}`;
+}
+
+/** Copy-paste sticker text for AOTW feed posts (notification reminder). */
+export function buildArtistPostStickerText(
   creator: CreatorSpotlightForCaption,
 ): string {
   const handle = formatInstagramHandle(creator.instagram);
@@ -179,8 +229,8 @@ export function buildArtistBufferStickerText(
   return [greeting, buildCreatorPageUrl(creator.slug)].join("\n");
 }
 
-/** Copy-paste sticker text generated when queuing POTW stories to Buffer. */
-export function buildPublisherBufferStickerText(
+/** Copy-paste sticker text for POTW feed posts (notification reminder). */
+export function buildPublisherPostStickerText(
   creator: CreatorSpotlightForCaption,
 ): string {
   const handle = formatInstagramHandle(creator.instagram);

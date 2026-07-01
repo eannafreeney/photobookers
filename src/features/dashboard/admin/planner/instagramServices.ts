@@ -36,11 +36,13 @@ import {
   bufferCreateScheduledStory,
 } from "./buffer";
 import {
-  buildArtistBufferStickerText,
-  buildBotdBufferStickerFields,
+  buildArtistPostStickerText,
+  buildBotdPostStickerFields,
+  buildBotdStoryStickerFields,
   buildDefaultCreatorInstagramFirstComment,
   buildDefaultInstagramFirstComment,
-  buildPublisherBufferStickerText,
+  buildPublisherPostStickerText,
+  buildSpotlightStoryStickerText,
   ensureBookTagsInCaption,
 } from "./instagramCaption";
 import {
@@ -463,9 +465,7 @@ export async function queuePreparedBotdInstagramForDate(
   const row = await db.query.bookOfTheDay.findFirst({
     where: eq(bookOfTheDay.date, day),
     with: {
-      book: {
-        columns: BOOK_CARD_COLUMNS,
-      },
+      book: BOOK_WITH_CREATORS_FOR_INSTAGRAM,
     },
   });
 
@@ -497,6 +497,7 @@ export async function queuePreparedBotdInstagramForDate(
     imageUrl: row.instagramImageUrl,
     dueAt,
     firstComment,
+    stickerFields: row.book ? buildBotdPostStickerFields(row.book) : undefined,
   });
 
   if (bufferError) {
@@ -560,7 +561,7 @@ export async function queuePreparedBotdInstagramStoryForDate(
     imageUrl: row.instagramImageUrl,
     dueAt,
     stickerFields: row.book
-      ? buildBotdBufferStickerFields(row.book)
+      ? buildBotdStoryStickerFields(row.book)
       : { text: baseCaption },
     link: linksUrl(),
   });
@@ -593,7 +594,11 @@ async function queueSpotlightRow(params: {
     instagramBufferPostId: string | null;
     instagramImageUrl: string | null;
     instagramCaption: string | null;
-    creator: { slug: string } | null;
+    creator: {
+      displayName: string;
+      slug: string;
+      instagram?: string | null;
+    } | null;
   };
   table: typeof artistOfTheWeek | typeof publisherOfTheWeek;
   dueAt: Date;
@@ -620,6 +625,14 @@ async function queueSpotlightRow(params: {
     imageUrl: params.row.instagramImageUrl,
     dueAt,
     firstComment,
+    stickerFields: params.row.creator
+      ? {
+          text:
+            params.table === artistOfTheWeek
+              ? buildArtistPostStickerText(params.row.creator)
+              : buildPublisherPostStickerText(params.row.creator),
+        }
+      : undefined,
   });
 
   if (bufferError) {
@@ -684,11 +697,19 @@ async function queueSpotlightStoryRow(params: {
   }
 
   const dueAt = scheduleDueAt(params.dueAt);
-  const stickerText = params.row.creator
-    ? params.table === artistOfTheWeek
-      ? buildArtistBufferStickerText(params.row.creator)
-      : buildPublisherBufferStickerText(params.row.creator)
-    : params.row.instagramCaption;
+  const mentions = params.row.creator
+    ? [
+        {
+          displayName: params.row.creator.displayName,
+          instagram: params.row.creator.instagram,
+          role: params.row.creator.type,
+        },
+      ]
+    : [];
+  const stickerText = buildSpotlightStoryStickerText(
+    params.row.instagramCaption,
+    mentions,
+  );
 
   const [bufferError, bufferData] = await bufferCreateScheduledStory({
     caption: params.row.instagramCaption,

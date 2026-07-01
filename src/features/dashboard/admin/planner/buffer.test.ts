@@ -18,7 +18,7 @@ describe("bufferCreateScheduledImagePost", () => {
     delete process.env.BUFFER_INSTAGRAM_CHANNEL_ID;
   });
 
-  it("schedules notification-based Instagram feed posts with metadata", async () => {
+  it("schedules notification-based Instagram feed posts with sticker fields", async () => {
     const fetchMock = vi.fn(async (_url, init) => {
       const body = JSON.parse(String(init?.body));
       expect(body.variables.input).toMatchObject({
@@ -30,6 +30,9 @@ describe("bufferCreateScheduledImagePost", () => {
         type: "post",
         shouldShareToFeed: true,
         firstComment: "https://www.photobookers.com/books/winter-light",
+        stickerFields: {
+          text: "Hi! Your book was Book of the Day.",
+        },
       });
 
       return new Response(
@@ -51,6 +54,7 @@ describe("bufferCreateScheduledImagePost", () => {
       imageUrl: "https://cdn.example.com/cover.jpg",
       dueAt: new Date("2026-06-01T10:00:00.000Z"),
       firstComment: "https://www.photobookers.com/books/winter-light",
+      stickerFields: { text: "Hi! Your book was Book of the Day." },
     });
 
     expect(error).toBeNull();

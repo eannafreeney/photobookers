@@ -130,6 +130,7 @@ export async function bufferCreateScheduledImagePost(params: {
   imageUrl: string;
   dueAt: Date;
   firstComment?: string;
+  stickerFields?: BufferStoryStickerFields;
 }): Promise<Result<{ postId: string }, { reason: string }>> {
   return bufferCreatePost({
     text: params.text,
@@ -143,6 +144,9 @@ export async function bufferCreateScheduledImagePost(params: {
         shouldShareToFeed: true,
         ...(params.firstComment
           ? { firstComment: params.firstComment }
+          : {}),
+        ...(params.stickerFields
+          ? { stickerFields: params.stickerFields }
           : {}),
       },
     },
