@@ -24,7 +24,7 @@ const CardCreatorCard = async ({
       : (creator.displayName ?? "");
 
   return (
-    <div class="flex min-w-0 flex-1 items-center gap-2">
+    <div class="flex min-w-0 items-center gap-2">
       <Link href={`/creators/${creator.slug}`} className="shrink-0">
         <Avatar
           src={creator.coverUrl ?? ""}
@@ -32,14 +32,18 @@ const CardCreatorCard = async ({
           size={avatarSize}
         />
       </Link>
-      <Link
-        href={`/creators/${creator.slug}`}
-        className="min-w-0 flex-1 truncate"
-        title={creator.displayName}
-      >
-        <Card.SubTitle title={displayName}>{displayName}</Card.SubTitle>
-      </Link>
-      <VerifiedCreator creatorStatus={creator.status} size="xs" />
+      <div class="flex min-w-0 items-center gap-1">
+        <Link
+          href={`/creators/${creator.slug}`}
+          className="min-w-0 truncate"
+          title={creator.displayName}
+        >
+          <Card.SubTitle title={displayName}>{displayName}</Card.SubTitle>
+        </Link>
+        <div class="shrink-0">
+          <VerifiedCreator creatorStatus={creator.status} size="xs" />
+        </div>
+      </div>
     </div>
   );
 };

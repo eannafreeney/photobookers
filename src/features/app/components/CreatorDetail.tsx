@@ -161,6 +161,8 @@ const CreatorDetailMobile = ({
       </Tabs.Panel>
       <Tabs.Panel tabId="creators">
         <CreatorsGrid
+          isMobile
+          user={user}
           currentPage={creatorsCurrentPage}
           creatorId={creator.id}
           creatorType={creator.type}
@@ -179,6 +181,7 @@ const CreatorDetailMobile = ({
           shouldRefreshCreatorMessages
         />
         <CreatorsGrid
+          user={user}
           currentPage={creatorsCurrentPage}
           creatorId={creator.id}
           creatorType={creator.type}
@@ -252,6 +255,7 @@ const CreatorDetailDesktop = ({
                   {creator.type === "publisher" ? "Artists" : "Publishers"}
                 </Tabs.Link>
               )}
+              {showFairsTab && <Tabs.Link tabId="fairs">Fairs</Tabs.Link>}
             </Tabs.LinkContainer>
             <Tabs.Panel tabId="books">
               <BooksGrid
@@ -268,12 +272,16 @@ const CreatorDetailDesktop = ({
             </Tabs.Panel>
             <Tabs.Panel tabId="creators">
               <CreatorsGrid
+                user={user}
                 creatorId={creator.id}
                 creatorType={creator.type}
                 currentPath={currentPath}
                 currentPage={creatorsCurrentPage}
                 pageParam="creatorsPage"
               />
+            </Tabs.Panel>
+            <Tabs.Panel tabId="fairs">
+              <UpcomingFairsSection fairs={upcomingFairs} />
             </Tabs.Panel>
           </Tabs>
         </div>
