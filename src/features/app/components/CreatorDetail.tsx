@@ -440,7 +440,7 @@ const CreatorBioMeta = async ({
             {formatCountry(creator.country ?? "")}
           </span>
         )}
-        {hasFollowers && <FollowersCount count={followerCount} />}
+        {followerCount > 10 && <FollowersCount count={followerCount} />}
         {hasSocials && (
           <SocialLinks
             creator={creator}
