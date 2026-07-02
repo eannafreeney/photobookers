@@ -20,6 +20,7 @@ import BookGridWrapper from "./BookGridWrapper";
 import { bookShareText, bookShareTitle } from "../../../lib/share";
 import { bookUrl } from "../spotlightUrls";
 import MobileHeader from "./MobileHeader";
+import SpotlightCreator from "./SpotlightCreator";
 
 const shouldTrackOutboundPurchase = (book: BookWithGalleryImages) =>
   book.publicationStatus === "published" && book.approvalStatus === "approved";
@@ -44,7 +45,7 @@ type BookMobileProps = {
 type BookDesktopProps = {
   galleryImages: string[];
   book: BookWithGalleryImages;
-  currentPath: string;
+  currentPath?: string;
   user: AuthUser | null;
   isMobile?: boolean;
   creator?: Creator | null;
@@ -67,27 +68,24 @@ const BookDetail = ({
       currentPage={currentPage}
     />
   ) : (
-    <DetailDesktop
-      galleryImages={galleryImages}
-      book={book}
-      currentPath={currentPath}
-      user={user}
-    />
+    <DetailDesktop galleryImages={galleryImages} book={book} user={user} />
   );
 };
 
 export default BookDetail;
 
-const DetailDesktop = ({
-  galleryImages,
-  book,
-  currentPath,
-  user,
-}: BookDesktopProps) => {
+const scrollPanelClass =
+  "h-full overflow-y-auto pr-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+
+const DetailDesktop = ({ galleryImages, book, user }: BookDesktopProps) => {
+  const hasArtist = !!book.artist;
+  const hasPublisher = !!book.publisher;
+  const creditCols = hasArtist && hasPublisher ? "grid-cols-2" : "grid-cols-1";
+
   return (
     <div class="flex flex-col gap-8">
       <div class="flex gap-8 h-[calc(100vh-8rem)]">
-        <div class="w-2/5 h-full overflow-y-auto pr-2">
+        <div class={`w-1/2 ${scrollPanelClass}`}>
           <div class="flex flex-col">
             {galleryImages.map((image, index) => (
               <img
@@ -99,19 +97,38 @@ const DetailDesktop = ({
           </div>
         </div>
 
-        <div class="w-2/5 h-full overflow-y-auto pr-2">
-          <div class="mb-4 flex flex-col gap-4">
-            <div class="flex flex-col gap-1 border-b-2 border-on-surface-strong pb-4">
+        <div class={`w-1/2 ${scrollPanelClass}`}>
+          <div class="mb-4 flex flex-col">
+            <div class="flex flex-col gap-2 border-b-2 border-on-surface-strong pb-4">
               <span class="kicker text-accent">Photobook</span>
               <h1 class="text-balance font-display text-3xl xl:text-5xl font-medium leading-tight text-on-surface-strong">
                 {book.title}
               </h1>
-              <p class="text-balance text-base text-on-surface">
-                {book.artist?.displayName}
-              </p>
+              {(hasArtist || hasPublisher) && (
+                <div class={`grid ${creditCols} items-center gap-4`}>
+                  {hasArtist && (
+                    <a href={`/creators/${book.artist!.slug}`}>
+                      <SpotlightCreator
+                        creator={book.artist}
+                        role="Artist"
+                        truncateName={false}
+                      />
+                    </a>
+                  )}
+                  {hasPublisher && (
+                    <a href={`/creators/${book.publisher!.slug}`}>
+                      <SpotlightCreator
+                        creator={book.publisher}
+                        role="Publisher"
+                        truncateName={false}
+                      />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="grid grid-cols-2 gap-4 py-4">
               <FavouriteButton book={book} user={user} />
               <ShareButton
                 title={bookShareTitle(book)}
@@ -138,22 +155,6 @@ const DetailDesktop = ({
               <BookCredits releaseDate={book.releaseDate} />
             </div>
           </div>
-        </div>
-        <div class="w-1/5 h-full overflow-y-auto flex flex-col gap-4">
-          <CreatorCard
-            creator={book.artist}
-            currentPath={currentPath}
-            title="Artist"
-            user={user}
-            showHeader={false}
-          />
-          <CreatorCard
-            creator={book.publisher}
-            currentPath={currentPath}
-            title="Publisher"
-            user={user}
-            showHeader={false}
-          />
         </div>
       </div>
       <Divider />
