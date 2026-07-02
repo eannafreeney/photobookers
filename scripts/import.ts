@@ -13,11 +13,16 @@ import { createStubCreatorProfileAdmin } from "../src/features/dashboard/admin/c
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "four-eyes-editions.csv";
+const SOURCE_CSV_FILE = "simon-roberts.csv";
 const AMOUNT_OF_BOOKS = 100;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+function normalizeAvailability(value: string | undefined): "available" | "sold_out" {
+  const normalized = (value ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return normalized.includes("sold") ? "sold_out" : "available";
 }
 
 type CsvRow = {
@@ -86,6 +91,11 @@ function parseImages(imagesCell: string): string[] {
     .filter(Boolean);
 }
 
+function optionalEnvUuid(value: string | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
 async function main() {
   const csvPath =
     process.argv[2] ?? join(process.cwd(), "output", SOURCE_CSV_FILE);
@@ -105,12 +115,16 @@ async function main() {
 
   console.log(`Found ${rows.length} rows in CSV.`);
 
+  const rowsToImport = rows.slice(0, AMOUNT_OF_BOOKS);
+
   let created = 0;
   let skipped = 0;
   let errors = 0;
 
-  for (let rowIndex = 0; rowIndex < AMOUNT_OF_BOOKS; rowIndex++) {
-    const row = rows[rowIndex];
+  const publisherId = optionalEnvUuid(process.env.PUBLISHER_ID);
+
+  for (let rowIndex = 0; rowIndex < rowsToImport.length; rowIndex++) {
+    const row = rowsToImport[rowIndex];
     const title = row.title?.trim();
     if (!title) {
       console.warn(`[${rowIndex + 1}] Skipping row: no title`);
@@ -140,13 +154,12 @@ async function main() {
       title,
       description: row.description?.trim() || null,
       artistId: artistCreator.id,
-      publisherId: process.env.PUBLISHER_ID,
+      publisherId,
       createdByUserId,
       coverUrl: null,
       purchaseLink: row.purchaseLink?.trim() || null,
       images: null,
-      availabilityStatus:
-        row.availability?.trim() === "sold out" ? "sold_out" : "available",
+      availabilityStatus: normalizeAvailability(row.availability),
       approvalStatus: "approved",
       publicationStatus: "draft",
       tags: null,
@@ -211,7 +224,7 @@ async function main() {
     }
 
     created++;
-    console.log(`[${rowIndex + 1}/${rows.length}] Created: ${newBook.title}`);
+    console.log(`[${rowIndex + 1}/${rowsToImport.length}] Created: ${newBook.title}`);
   }
 
   console.log(

@@ -19,7 +19,7 @@ import CreatorPage, {
 import { relatedCreatorsListStyles } from "../../../../../../features/hyperview/components/RelatedCreatorsList";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { creatorIdSchema } from "../../../../../../schemas";
-import { getBooksByCreatorId } from "../../../../../../domain/creators/books";
+import { getPublicBooksByCreatorId } from "../../../../../../domain/creators/books";
 import { maybeRecordCreatorView } from "../../../../../../features/creator-views/record";
 import CreatorBanner, {
   creatorBannerStyles,
@@ -36,7 +36,9 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const currentPage = parseInt(c.req.query("page") ?? "1");
   const hv = hyperview(c);
 
-  const [error, result] = await getBooksByCreatorId(creatorId, currentPage);
+  const [error, result] = await getPublicBooksByCreatorId(creatorId, currentPage, {
+    defaultLimit: 3,
+  });
 
   if (error || !result?.books || !result?.creator) {
     return hv(

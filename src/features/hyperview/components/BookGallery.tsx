@@ -30,7 +30,7 @@ const BookGallery = ({ galleryImages }: Props) => {
               <Image
                 source={url}
                 style="gallery-hero-image"
-                resize-mode="cover"
+                resize-mode="contain"
               />
             </View>
           ))}
@@ -66,13 +66,13 @@ export const bookGalleryStyles = () => (
       marginRight={-16}
       marginTop={-16}
     />
+    <Style id="gallery-hero-wrap" width="100%" />
     <Style
-      id="gallery-hero-wrap"
+      id="gallery-hero-image"
       width="100%"
       height={320}
-      backgroundColor="#f2efe8"
+      resizeMode="contain"
     />
-    <Style id="gallery-hero-image" width="100%" height={320} />
     <Style
       id="gallery-thumbs"
       flexDirection="row"

@@ -6,7 +6,7 @@ import { getUser } from "../../../../../../utils";
 import { favoriteFlagsForBooks } from "../../../../../../features/hyperview/findFlags";
 import CreatorPage from "../../../../../../features/hyperview/components/CreatorPage";
 import { creatorIdSchema } from "../../../../../../schemas";
-import { getBooksByCreatorId } from "../../../../../../domain/creators/books";
+import { getPublicBooksByCreatorId } from "../../../../../../domain/creators/books";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
@@ -16,7 +16,9 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const hv = hyperview(c);
   const loadMoreHref = `${baseUrl}/hyperview/creators/${creatorId}/tab/books-content`;
 
-  const [error, result] = await getBooksByCreatorId(creatorId, currentPage);
+  const [error, result] = await getPublicBooksByCreatorId(creatorId, currentPage, {
+    defaultLimit: 3,
+  });
 
   if (error || !result?.books || !result?.creator) {
     return hv(

@@ -185,8 +185,11 @@ export const Image: FC<{
   style?: string;
   source: string;
   tintColor?: string;
+  resizeMode?: "cover" | "contain" | "stretch" | "center";
   "resize-mode"?: "cover" | "contain" | "stretch" | "center";
-}> = (props) => <image {...props} />;
+}> = ({ "resize-mode": resizeModeLegacy, resizeMode, ...rest }) => (
+  <image {...rest} resizeMode={resizeMode ?? resizeModeLegacy} />
+);
 
 // ---------------------------------------------------------------------------
 // Interaction

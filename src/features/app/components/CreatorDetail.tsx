@@ -373,6 +373,7 @@ const CreatorDetailDesktop = ({
           </Tabs.LinkContainer>
           <Tabs.Panel tabId="books">
             <BooksGrid
+              isInfiniteScroll
               user={user}
               currentPath={currentPath}
               result={result}

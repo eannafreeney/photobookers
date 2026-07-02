@@ -31,6 +31,7 @@ import {
   type BookCatalogSort,
   getBookCatalogOrderBy,
 } from "../../lib/bookCatalogSort";
+import { getPublicBooksForCreator } from "../../domain/creators/books";
 import { getBooksOrderBy } from "../../lib/booksOrderBy";
 import { slugToTag } from "../../lib/tags";
 import {
@@ -310,60 +311,25 @@ export const getBooksByCreatorSlug = async (
       return err({ reason: "Creator not found" });
     }
 
-    // 2. Count books for this creator (by type)
-    const bookColumn =
-      creator.type === "publisher" ? books.publisherId : books.artistId;
-
-    const limit = defaultLimit;
-    const offset = (currentPage - 1) * defaultLimit;
-
-    const [countResult, foundBooks, relatedCreatorsResult] = await Promise.all([
-      db
-        .select({ value: count() })
-        .from(books)
-        .where(
-          and(
-            eq(bookColumn, creator.id),
-            eq(books.publicationStatus, "published"),
-            eq(books.approvalStatus, "approved"),
-          ),
-        ),
-      db.query.books.findMany({
-        columns: BOOK_CARD_COLUMNS,
-        where: and(
-          eq(bookColumn, creator.id),
-          eq(books.publicationStatus, "published"),
-          or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-        ),
-        orderBy: getBooksOrderBy(sortBy),
-        limit,
-        offset,
-        with: {
-          artist: {
-            columns: CREATOR_CARD_COLUMNS,
-          },
-          publisher: {
-            columns: CREATOR_CARD_COLUMNS,
-          },
-        },
-      }),
+    const [booksResult, relatedCreatorsResult] = await Promise.all([
+      getPublicBooksForCreator(creator, currentPage, { sortBy, defaultLimit }),
       getRelatedCreators(creator.id, creator.type),
     ]);
+
+    if (booksResult[0]) {
+      return booksResult;
+    }
 
     const relatedCreators =
       Array.isArray(relatedCreatorsResult) && relatedCreatorsResult[1]
         ? relatedCreatorsResult[1]
         : { creators: [] };
 
-    const totalCount = countResult[0]?.value ?? 0;
-    const { totalPages: totalPagesComputed, page: pageComputed } =
-      getPagination(currentPage, totalCount, defaultLimit);
-
     const result = ok({
       creator,
-      books: foundBooks,
-      totalPages: totalPagesComputed,
-      page: pageComputed,
+      books: booksResult[1].books,
+      totalPages: booksResult[1].totalPages,
+      page: booksResult[1].page,
       relatedCreators,
     });
 
