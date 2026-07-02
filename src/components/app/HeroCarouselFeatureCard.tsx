@@ -44,10 +44,10 @@ const HeroCarouselFeatureCard = ({
       </div> */}
 
       <section
-        class={`pt-6 sm:pt-0 border-t-2 border-b-2 border-on-surface-strong relative overflow-hidden text-on-surface transition-colors duration-300 ease-out ${firstItem.slideClass ?? ""}`}
+        class={`border-t-2 border-b-2 border-on-surface-strong relative text-on-surface transition-colors duration-300 ease-out md:h-[500px] ${firstItem.slideClass ?? ""}`}
         x-bind:class="items[active] ? items[active].slideClass : ''"
       >
-        <div class="relative overflow-hidden rounded-radius md:h-[500px]">
+        <div class="relative overflow-hidden rounded-radius md:h-full">
           <HeroCarouselLcpSlide
             item={firstItem}
             x-show="active === 0"
@@ -124,28 +124,28 @@ const HeroCarouselFeatureCard = ({
               ></button>
             </template>
           </div>
-
-          <button
-            x-show="items.length > 1"
-            x-on:click="prev()"
-            type="button"
-            class="group flex absolute left-2 top-2/3 md:top-1/2 z-20 size-8 md:size-11 -translate-y-1/2 items-center justify-center  text-on-surface-strong  transition duration-300 ease-out hover:-translate-x-1 sm:left-4 cursor-pointer"
-          >
-            <span class="transition-transform duration-300 ease-out group-hover:-translate-x-0.5">
-              {leftArrowIcon}
-            </span>
-          </button>
-          <button
-            x-show="items.length > 1"
-            x-on:click="next()"
-            type="button"
-            class="group flex absolute right-2 top-2/3 md:top-1/2 z-20 size-8 md:size-11 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:translate-x-1 sm:right-4 cursor-pointer"
-          >
-            <span class="transition-transform duration-300 ease-out group-hover:translate-x-0.5">
-              {rightArrowIcon}
-            </span>
-          </button>
         </div>
+
+        <button
+          x-show="items.length > 1"
+          x-on:click="prev()"
+          type="button"
+          class="group absolute left-2 top-2/3 md:top-1/2 z-20 flex size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:-translate-x-1 sm:left-4 md:left-10 md:size-11 cursor-pointer"
+        >
+          <span class="transition-transform duration-300 ease-out group-hover:-translate-x-0.5">
+            {leftArrowIcon}
+          </span>
+        </button>
+        <button
+          x-show="items.length > 1"
+          x-on:click="next()"
+          type="button"
+          class="group absolute right-2 top-2/3 md:top-1/2 z-20 flex size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:translate-x-1 sm:right-4 md:right-10 md:size-11 cursor-pointer"
+        >
+          <span class="transition-transform duration-300 ease-out group-hover:translate-x-0.5">
+            {rightArrowIcon}
+          </span>
+        </button>
       </section>
     </div>
   );
