@@ -1,21 +1,11 @@
 import { SITE_APP, SITE_SOCIAL } from "../../constants/siteSocial";
-import { isFeatureEnabled } from "../../lib/features";
 
-const discoverLinks = () => {
-  const links = [
-    { href: "/books", label: "All Books" },
-    { href: "/creators", label: "Creators" },
-    { href: "/artists", label: "Artists" },
-    { href: "/publishers", label: "Publishers" },
-    { href: "/fairs", label: "Book Fairs" },
-  ];
-
-  if (isFeatureEnabled("stores")) {
-    links.push({ href: "/stores", label: "Bookstores" });
-  }
-
-  return links;
-};
+const discoverLinks = () => [
+  { href: "/books", label: "All Books" },
+  { href: "/creators", label: "Creators" },
+  { href: "/fairs", label: "Book Fairs" },
+  { href: "/stores", label: "Bookstores" },
+];
 
 type FooterColumnProps = {
   title: string;

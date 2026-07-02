@@ -1,6 +1,6 @@
 export const SITE_SOCIAL = {
   instagram: {
-    href: "https://instagram.com/photobookers",
+    href: "https://instagram.com/photobookers_",
     label: "Follow Photobookers on Instagram",
   },
 } as const;

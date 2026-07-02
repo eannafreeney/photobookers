@@ -15,7 +15,6 @@ import FeaturedSpotlightCarousel, {
 import { trendingCreatorsStyles } from "./TrendingCreatorsSlider";
 import { getSpotlightItems } from "../lib/utils";
 import { toWeekString, toWeekStart } from "../../../lib/utils";
-import { isFeatureEnabled } from "../../../lib/features";
 import { storesSectionStyles } from "./StoresSection";
 
 type Props = {

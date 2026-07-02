@@ -15,7 +15,6 @@ import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
 import { heroLcpImageSources } from "../../lib/imageUrl";
 import ThisWeekOnPhotobookersLink from "../../features/app/components/ThisWeekOnPhotobookersLink";
 import PageBleed from "../../components/layouts/PageBleedRight";
-import { isFeatureEnabled } from "../../lib/features";
 
 export const GET = createRoute(async (c: Context) => {
   const [user, heroItems] = await Promise.all([
@@ -75,11 +74,10 @@ export const GET = createRoute(async (c: Context) => {
         <ScrollReveal>
           <Intersector id="fairs-fragment" endpoint="/fragments/fairs" />
         </ScrollReveal>
-        {isFeatureEnabled("stores") ? (
-          <ScrollReveal>
-            <Intersector id="stores-fragment" endpoint="/fragments/stores" />
-          </ScrollReveal>
-        ) : null}
+
+        <ScrollReveal>
+          <Intersector id="stores-fragment" endpoint="/fragments/stores" />
+        </ScrollReveal>
       </Page>
     </AppLayout>,
   );

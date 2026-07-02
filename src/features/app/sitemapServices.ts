@@ -13,7 +13,6 @@ import {
 import { DISCOVER_TAGS } from "../../constants/discover";
 import { tagBooksUrl } from "../../lib/tags";
 import { toDateString, toWeekStart, toWeekString } from "../../lib/utils";
-import { isFeatureEnabled } from "../../lib/features";
 
 export type SitemapEntry = {
   loc: string;
@@ -41,6 +40,7 @@ const STATIC_PAGES: Array<
   { loc: "/privacy", changefreq: "yearly" as never, priority: 0.2 },
   { loc: "/this-week", changefreq: "weekly", priority: 0.8 },
   { loc: "/newsletter", changefreq: "weekly", priority: 0.6 },
+  { loc: "/stores", changefreq: "weekly", priority: 0.7 },
 ];
 
 // Same rule used in getAllCreatorsForBrowse
@@ -63,89 +63,85 @@ function formatLastmod(date: Date | null | undefined): string | undefined {
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {
-  const storesEnabled = isFeatureEnabled("stores");
+  const [
+    bookRows,
+    creatorRows,
+    interviewRows,
+    fairRows,
+    storeRows,
+    botdRows,
+    aotwRows,
+    potwRows,
+  ] = await Promise.all([
+    db
+      .select({
+        slug: books.slug,
+        updatedAt: books.updatedAt,
+      })
+      .from(books)
+      .where(publishedBookConditions),
 
-  const [bookRows, creatorRows, interviewRows, fairRows, storeRows, botdRows, aotwRows, potwRows] =
-    await Promise.all([
-      db
-        .select({
-          slug: books.slug,
-          updatedAt: books.updatedAt,
-        })
-        .from(books)
-        .where(publishedBookConditions),
+    db
+      .select({
+        slug: creators.slug,
+        updatedAt: creators.updatedAt,
+      })
+      .from(creators)
+      .where(creatorsWithPublishedBooks),
 
-      db
-        .select({
-          slug: creators.slug,
-          updatedAt: creators.updatedAt,
-        })
-        .from(creators)
-        .where(creatorsWithPublishedBooks),
-
-      db
-        .select({
-          slug: creatorInterviews.creatorSlug,
-          completedAt: creatorInterviews.completedAt,
-        })
-        .from(creatorInterviews)
-        .where(
-          and(
-            eq(creatorInterviews.status, "published"),
-            isNotNull(creatorInterviews.promoImageUrl),
-          ),
+    db
+      .select({
+        slug: creatorInterviews.creatorSlug,
+        completedAt: creatorInterviews.completedAt,
+      })
+      .from(creatorInterviews)
+      .where(
+        and(
+          eq(creatorInterviews.status, "published"),
+          isNotNull(creatorInterviews.promoImageUrl),
         ),
-      db
-        .select({
-          slug: bookFairs.slug,
-          updatedAt: bookFairs.updatedAt,
-        })
-        .from(bookFairs)
-        .where(
-          and(
-            eq(bookFairs.status, "published"),
-            eq(bookFairs.approvalStatus, "approved"),
-          ),
+      ),
+    db
+      .select({
+        slug: bookFairs.slug,
+        updatedAt: bookFairs.updatedAt,
+      })
+      .from(bookFairs)
+      .where(
+        and(
+          eq(bookFairs.status, "published"),
+          eq(bookFairs.approvalStatus, "approved"),
         ),
-      storesEnabled
-        ? db
-            .select({
-              slug: bookStores.slug,
-              updatedAt: bookStores.updatedAt,
-            })
-            .from(bookStores)
-            .where(
-              and(
-                eq(bookStores.status, "published"),
-                eq(bookStores.approvalStatus, "approved"),
-              ),
-            )
-        : Promise.resolve([]),
-      db.query.bookOfTheDay.findMany({
-        columns: { date: true, updatedAt: true },
-        where: lte(bookOfTheDay.date, new Date()),
-      }),
-      db.query.artistOfTheWeek.findMany({
-        columns: { weekStart: true, updatedAt: true },
-        where: lte(artistOfTheWeek.weekStart, toWeekStart(new Date())),
-      }),
-      db.query.publisherOfTheWeek.findMany({
-        columns: { weekStart: true, updatedAt: true },
-        where: lte(publisherOfTheWeek.weekStart, toWeekStart(new Date())),
-      }),
-    ]);
+      ),
+    db
+      .select({
+        slug: bookStores.slug,
+        updatedAt: bookStores.updatedAt,
+      })
+      .from(bookStores)
+      .where(
+        and(
+          eq(bookStores.status, "published"),
+          eq(bookStores.approvalStatus, "approved"),
+        ),
+      ),
+    db.query.bookOfTheDay.findMany({
+      columns: { date: true, updatedAt: true },
+      where: lte(bookOfTheDay.date, new Date()),
+    }),
+    db.query.artistOfTheWeek.findMany({
+      columns: { weekStart: true, updatedAt: true },
+      where: lte(artistOfTheWeek.weekStart, toWeekStart(new Date())),
+    }),
+    db.query.publisherOfTheWeek.findMany({
+      columns: { weekStart: true, updatedAt: true },
+      where: lte(publisherOfTheWeek.weekStart, toWeekStart(new Date())),
+    }),
+  ]);
 
   const staticEntries: SitemapEntry[] = STATIC_PAGES.map((page) => ({
     ...page,
   }));
-
-  if (storesEnabled) {
-    staticEntries.push({
-      loc: "/stores",
-      changefreq: "weekly",
-      priority: 0.7,
-    });
-  }
 
   const bookEntries: SitemapEntry[] = bookRows.map((book) => ({
     loc: `/books/${book.slug}`,

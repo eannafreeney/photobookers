@@ -230,8 +230,7 @@ const CreatorDetailMobile = ({
           />
         </div>
       </MobileHeader>
-
-      <CreatorBio creator={creator} maxWords={25} />
+      {/* <CreatorBio creator={creator} maxWords={25} /> */}
       <Tabs defaultTab="books">
         <Tabs.LinkContainer>
           <Tabs.Link tabId="books">Books</Tabs.Link>
@@ -277,6 +276,7 @@ const CreatorDetailMobile = ({
             currentPath={currentPath}
             user={user}
             shouldRefreshCreatorMessages
+            showHeader={false}
           />
           <CreatorsGrid
             user={user}
@@ -451,7 +451,7 @@ const CreatorBioMeta = async ({
   }
 
   return (
-    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-on-surface">
+    <div class="flex items-center justify-center gap-3 text-sm text-on-surface">
       {hasLocation && (
         <span>
           {creator.city ? `${creator.city}, ` : ""}
