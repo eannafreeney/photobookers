@@ -13,6 +13,9 @@ import { registerFairCoverForm } from "../features/dashboard/admin/fairs/client/
 import { registerFairBannerForm } from "../features/dashboard/admin/fairs/client/fairBannerForm";
 import { registerStoreFormAdmin } from "../features/dashboard/admin/stores/client/storeFormAdmin";
 import { registerStoreCoverForm } from "../features/dashboard/admin/stores/client/storeCoverForm";
+import { registerBookCoverForm } from "../features/dashboard/books/client/bookCoverForm";
+import { registerBookGalleryForm } from "../features/dashboard/books/client/bookGalleryForm";
+import { registerCreatorCoverForm } from "../features/dashboard/creators/client/creatorCoverForm";
 
 registerAdminClaimsBadge();
 registerAddCreatorFormAdmin();
@@ -29,6 +32,9 @@ registerFairCoverForm();
 registerFairBannerForm();
 registerStoreFormAdmin();
 registerStoreCoverForm();
+registerBookCoverForm();
+registerBookGalleryForm();
+registerCreatorCoverForm();
 
 // main.js sets window.Alpine and defers start() until this bundle runs.
 (window as unknown as { Alpine: { start: () => void } }).Alpine.start();
