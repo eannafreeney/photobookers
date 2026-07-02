@@ -283,17 +283,9 @@ const CreatorDetailDesktop = ({
               creator={creator}
               currentPath={currentPath}
               user={user}
-              title="About"
               shouldRefreshCreatorMessages
+              showHeader={false}
             />
-            {showFairsTab && (
-              <div class="flex flex-col gap-2">
-                <h3 class="text-lg font-medium text-on-surface-strong">
-                  Upcoming Fairs
-                </h3>
-                <UpcomingFairsSection fairs={upcomingFairs} />
-              </div>
-            )}
           </div>
         </div>
       </div>

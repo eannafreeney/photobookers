@@ -70,33 +70,7 @@ export function registerActivityFeed() {
     mobileDurationMs: 4000,
 
     connect() {
-      this.source = new EventSource("/api/activity/stream");
-
-      this.source.addEventListener("activity", (raw) => {
-        const evt = JSON.parse((raw as MessageEvent).data) as ActivityEvent;
-
-        const currentUserId =
-          (this.$el as HTMLElement).dataset.currentUserId || null;
-        if (currentUserId && evt.actorId === currentUserId) return;
-
-        const item: ActivityItem = { ...evt, ...toMessageParts(evt) };
-
-        // Desktop: keep stacked feed
-        this.items.unshift(item);
-        this.items = this.items.slice(0, this.maxDesktopItems);
-        setTimeout(() => {
-          this.items = this.items.filter((x) => x.id !== item.id);
-        }, this.desktopDurationMs);
-
-        // Mobile: queue one-at-a-time
-        this.queue.push(item);
-        this.pendingCount = this.queue.length + (this.activeItem ? 1 : 0) - 1;
-        this.showNextMobile();
-      });
-
-      this.source.onerror = () => {
-        // browser retries automatically
-      };
+      return;
     },
 
     showNextMobile() {
