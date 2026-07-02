@@ -73,7 +73,11 @@ const NavSearchResults = ({
           </div>
         ) : (
           <div
-            class={isPage ? "grid grid-cols-1 gap-4 lg:grid-cols-3" : "flex flex-col gap-4"}
+            class={
+              isPage
+                ? "grid grid-cols-1 gap-4 lg:h-[calc(100vh-18rem)] lg:grid-cols-3 lg:overflow-hidden"
+                : "flex flex-col gap-4"
+            }
           >
             {(isPage || creators.length > 0) && (
               <ResultsSection
@@ -144,12 +148,14 @@ const ResultsSection = ({
 }) => {
   if (isPage) {
     return (
-      <section class="rounded-radius border border-outline bg-surface p-4">
+      <section class="flex flex-col rounded-radius border border-outline bg-surface p-4 lg:h-full lg:min-h-0 lg:overflow-hidden">
         <h2 class="pb-3 text-xs font-semibold uppercase text-on-surface">
           {title}
         </h2>
         {hasResults ? (
-          <ul class="flex flex-col gap-4">{children}</ul>
+          <ul class="flex flex-1 flex-col gap-4 lg:min-h-0 lg:overflow-y-auto">
+            {children}
+          </ul>
         ) : (
           <p class="text-sm text-on-surface-muted">No results found</p>
         )}
