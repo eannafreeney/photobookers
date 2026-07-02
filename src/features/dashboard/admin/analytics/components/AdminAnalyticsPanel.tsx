@@ -11,6 +11,7 @@ import AnalyticsSectionTabs, {
 import BookAnalyticsBlock from "./BookAnalyticsBlock";
 import SiteTrafficBlock from "./SiteTrafficBlock";
 import AppAnalyticsBlock from "./AppAnalyticsBlock";
+import NewsletterAnalyticsBlock from "./NewsletterAnalyticsBlock";
 
 type Props = {
   tab: AnalyticsSectionTab;
@@ -60,7 +61,11 @@ const AdminAnalyticsPanel = async ({
         <AnalyticsDateRangeFilter
           dateRange={dateRange}
           basePath={ADMIN_ANALYTICS_BASE_PATH}
-          tab={tab === "site" || tab === "app" ? tab : undefined}
+          tab={
+            tab === "site" || tab === "app" || tab === "newsletter"
+              ? tab
+              : undefined
+          }
           partialUpdateTarget={ADMIN_ANALYTICS_PANEL_ID}
           fragment={ADMIN_ANALYTICS_FRAGMENT}
         />
@@ -84,8 +89,10 @@ const AdminAnalyticsPanel = async ({
         />
       ) : tab === "site" ? (
         <SiteTrafficBlock dateRange={dateRange} />
-      ) : (
+      ) : tab === "app" ? (
         <AppAnalyticsBlock dateRange={dateRange} />
+      ) : (
+        <NewsletterAnalyticsBlock dateRange={dateRange} />
       )}
     </div>
   );

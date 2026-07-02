@@ -202,3 +202,101 @@ export async function sendBrevoCampaignNow(
 export function prepareNewsletterHtmlForBrevo(html: string): string {
   return html.replace(/\{\$unsubscribe\}/g, "{{ unsubscribe }}");
 }
+
+export type BrevoListStats = {
+  id: number;
+  name: string;
+  totalSubscribers: number;
+  uniqueSubscribers: number;
+};
+
+export type BrevoContactSummary = {
+  email: string;
+  createdAt: string;
+};
+
+export function getBrevoListDashboardUrl(listId: number): string {
+  return `https://app.brevo.com/contact/list/listing/id/${listId}`;
+}
+
+export async function getBrevoListStats(
+  apiKey: string,
+  listId: number,
+): Promise<Result<BrevoListStats, { reason: string; status?: number }>> {
+  try {
+    const [error, data] = await brevoFetch<{
+      id: number;
+      name: string;
+      totalSubscribers?: number;
+      uniqueSubscribers?: number;
+    }>(apiKey, `/contacts/lists/${listId}`);
+
+    if (error) return err(error);
+    if (!data?.id) {
+      return err({ reason: "Brevo did not return list details" });
+    }
+
+    return ok({
+      id: data.id,
+      name: data.name,
+      totalSubscribers: data.totalSubscribers ?? 0,
+      uniqueSubscribers: data.uniqueSubscribers ?? data.totalSubscribers ?? 0,
+    });
+  } catch (e) {
+    console.error("getBrevoListStats", listId, e);
+    return err({ reason: "Failed to load Brevo list stats" });
+  }
+}
+
+type FetchBrevoListContactsOptions = {
+  createdSince?: Date;
+};
+
+export async function fetchBrevoListContacts(
+  apiKey: string,
+  listId: number,
+  options: FetchBrevoListContactsOptions = {},
+): Promise<Result<BrevoContactSummary[], { reason: string; status?: number }>> {
+  const PAGE_SIZE = 1000;
+  const contacts: BrevoContactSummary[] = [];
+  let offset = 0;
+
+  try {
+    while (true) {
+      const params = new URLSearchParams({
+        limit: String(PAGE_SIZE),
+        offset: String(offset),
+        sort: "asc",
+      });
+      params.append("listIds", String(listId));
+      if (options.createdSince) {
+        params.set("createdSince", options.createdSince.toISOString());
+      }
+
+      const [error, data] = await brevoFetch<{
+        contacts?: Array<{ email?: string; createdAt?: string }>;
+      }>(apiKey, `/contacts?${params.toString()}`);
+
+      if (error) return err(error);
+
+      const page = (data?.contacts ?? [])
+        .filter(
+          (contact): contact is { email: string; createdAt: string } =>
+            Boolean(contact.email?.trim() && contact.createdAt),
+        )
+        .map((contact) => ({
+          email: contact.email.trim().toLowerCase(),
+          createdAt: contact.createdAt,
+        }));
+
+      contacts.push(...page);
+      if (page.length < PAGE_SIZE) break;
+      offset += PAGE_SIZE;
+    }
+
+    return ok(contacts);
+  } catch (e) {
+    console.error("fetchBrevoListContacts", listId, options, e);
+    return err({ reason: "Failed to load Brevo contacts" });
+  }
+}
