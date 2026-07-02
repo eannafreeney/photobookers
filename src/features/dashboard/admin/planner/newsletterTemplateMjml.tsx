@@ -20,6 +20,7 @@ import {
   CreatorFeatureCard,
   FairFeatureCard,
   NewMemberFeatureCard,
+  NewsletterAppPromo,
   NewsletterCtaButton,
   NewsletterFooter,
   NewsletterHeader,
@@ -184,6 +185,7 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
         weekLabel={formatNewsletterWeekRange(params.weekStart, params.weekEnd)}
       />
       {/* <NewsletterIntro introText={params.introText} /> */}
+      <NewsletterAppPromo />
 
       {params.items.length > 0 ? (
         <SectionHeading kicker="Daily picks">Books of the day</SectionHeading>

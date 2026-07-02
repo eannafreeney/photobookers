@@ -256,9 +256,10 @@ describe("newsletter template rendering", () => {
     expect(html).toContain("Weekly BOTD");
     expect(html).toContain("Photobookers");
     expect(html).toContain("newsletter/logo.png");
-    expect(html).toContain("Intro copy");
     expect(html).toContain("Outro copy");
     expect(html).toContain("Explore");
+    expect(html).toContain("Download iOS App");
+    expect(html).toContain("apps.apple.com/us/app/photobookers/id6771879476");
     expect(html).toContain("{$unsubscribe}");
     expect(html.match(/<!doctype html>/i)).not.toBeNull();
   });

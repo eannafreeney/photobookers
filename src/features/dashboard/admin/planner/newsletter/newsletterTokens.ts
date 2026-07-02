@@ -1,4 +1,7 @@
+import { SITE_APP } from "../../../../../constants/siteSocial";
 import { emailFontLogo, emailFontSans } from "../newsletterEspHtml";
+
+export const appStoreUrl = SITE_APP.ios.href;
 
 export const appBaseUrl =
   process.env.PUBLIC_APP_URL ??

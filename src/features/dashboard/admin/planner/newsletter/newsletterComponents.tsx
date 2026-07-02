@@ -17,6 +17,7 @@ import type {
 } from "../newsletterTemplate";
 import {
   appBaseUrl,
+  appStoreUrl,
   brand,
   newsletterAssets,
   newsletterLogoWidthPx,
@@ -179,6 +180,28 @@ export const NewsletterIntro = ({ introText }: { introText: string }) => (
       >
         {introText}
       </MjmlText>
+    </MjmlColumn>
+  </MjmlSection>
+);
+
+export const NewsletterAppPromo = () => (
+  <MjmlSection backgroundColor={brand.surface} padding="0 25px 24px">
+    <MjmlColumn>
+      <MjmlButton
+        href={appStoreUrl}
+        backgroundColor={brand.primary}
+        color={brand.onPrimary}
+        fontSize="11px"
+        fontWeight={600}
+        letterSpacing="0.16em"
+        textTransform="uppercase"
+        borderRadius="0"
+        innerPadding="14px 28px"
+        align="center"
+        cssClass="newsletter-cta-button"
+      >
+        Download iOS App
+      </MjmlButton>
     </MjmlColumn>
   </MjmlSection>
 );
