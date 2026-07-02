@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, isNull, lte, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, isNull, lte, or } from "drizzle-orm";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -15,21 +15,19 @@ export const getBooksByCreatorId = async (
   searchQuery?: string,
   defaultLimit = 3,
 ) => {
-  const baseFilter = or(
-    eq(books.artistId, creatorId),
-    eq(books.publisherId, creatorId),
-  );
-  const titleFilter = searchQuery?.trim()
-    ? ilike(books.title, `%${searchQuery.trim()}%`)
-    : undefined;
-
-  const whereClause = titleFilter ? and(baseFilter, titleFilter) : baseFilter;
-
   try {
     const creator = await db.query.creators.findFirst({
       where: eq(creators.id, creatorId),
     });
     if (!creator) return err({ reason: "Creator not found" });
+
+    const bookColumn = creatorRoleBookColumn(creator);
+    const baseFilter = eq(bookColumn, creatorId);
+    const titleFilter = searchQuery?.trim()
+      ? ilike(books.title, `%${searchQuery.trim()}%`)
+      : undefined;
+
+    const whereClause = titleFilter ? and(baseFilter, titleFilter) : baseFilter;
 
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
@@ -44,7 +42,7 @@ export const getBooksByCreatorId = async (
 
     const foundBooks = await db.query.books.findMany({
       where: whereClause,
-      orderBy: (booksTable, { desc }) => [desc(booksTable.createdAt)],
+      orderBy: [asc(books.sortOrder), desc(books.createdAt)],
       with: {
         artist: true,
         publisher: true,
@@ -104,7 +102,7 @@ export const getPublicBooksByCreatorId = async (
     searchQuery?: string;
   },
 ) => {
-  const sortBy = options?.sortBy ?? "newest";
+  const sortBy = options?.sortBy ?? "creator_order";
   const defaultLimit = options?.defaultLimit ?? 16;
   const searchQuery = options?.searchQuery;
 
@@ -137,7 +135,7 @@ export const getPublicBooksForCreator = async (
     searchQuery?: string;
   },
 ) => {
-  const sortBy = options?.sortBy ?? "newest";
+  const sortBy = options?.sortBy ?? "creator_order";
   const defaultLimit = options?.defaultLimit ?? 16;
   const searchQuery = options?.searchQuery;
   const listWhere = publicCreatorBooksListWhere(creator, searchQuery);

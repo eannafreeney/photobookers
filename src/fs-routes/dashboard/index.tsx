@@ -27,11 +27,13 @@ export const GET = createRoute(async (c: Context) => {
 
   const creatorId = user.creator.id;
   const creatorType = user.creator.type;
+  const isSearching = Boolean(searchQuery?.trim());
+  const pageLimit = isSearching ? 30 : 10_000;
 
   const booksByCreator =
     creatorType === "artist"
-      ? getBooksByArtistId(creatorId, currentPage, searchQuery)
-      : getBooksByPublisherId(creatorId, currentPage, searchQuery);
+      ? getBooksByArtistId(creatorId, currentPage, searchQuery, pageLimit)
+      : getBooksByPublisherId(creatorId, currentPage, searchQuery, pageLimit);
 
   const [[claimError, claim], [error, result]] = await Promise.all([
     getPendingClaim(user.id, creatorId),
@@ -70,6 +72,7 @@ export const GET = createRoute(async (c: Context) => {
             currentPath={currentPath}
             page={page}
             totalPages={totalPages}
+            reorderEnabled={!isSearching}
           />
         </div>
       </CreatorDashboardShell>

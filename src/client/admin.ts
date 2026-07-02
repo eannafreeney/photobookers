@@ -15,6 +15,7 @@ import { registerStoreFormAdmin } from "../features/dashboard/admin/stores/clien
 import { registerStoreCoverForm } from "../features/dashboard/admin/stores/client/storeCoverForm";
 import { registerBookCoverForm } from "../features/dashboard/books/client/bookCoverForm";
 import { registerBookGalleryForm } from "../features/dashboard/books/client/bookGalleryForm";
+import { registerBooksTableReorder } from "../features/dashboard/books/client/booksTableReorder";
 import { registerCreatorCoverForm } from "../features/dashboard/creators/client/creatorCoverForm";
 
 registerAdminClaimsBadge();
@@ -34,6 +35,7 @@ registerStoreFormAdmin();
 registerStoreCoverForm();
 registerBookCoverForm();
 registerBookGalleryForm();
+registerBooksTableReorder();
 registerCreatorCoverForm();
 
 // main.js sets window.Alpine and defers start() until this bundle runs.

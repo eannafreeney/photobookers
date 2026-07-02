@@ -34,7 +34,7 @@ import { processTags } from "./utils";
 import { getPagination } from "../../../lib/pagination";
 import { bookFormAdminSchema } from "../admin/books/schema";
 import { err, ok } from "../../../lib/result";
-import { invalidateBookCache } from "../../app/services";
+import { invalidateBookCache, invalidateCreatorCache } from "../../app/services";
 import { shouldModerateNewBook } from "../../../lib/bookModeration";
 import type { AuthUser } from "../../../../types";
 
@@ -335,6 +335,66 @@ export const getBooksByPublisherId = async (
   } catch (error) {
     console.error("Failed to get books by creator", error);
     return err({ reason: "Failed to get books by creator" });
+  }
+};
+
+function creatorBookFilter(creatorId: string, creatorType: Creator["type"]) {
+  return creatorType === "publisher"
+    ? eq(books.publisherId, creatorId)
+    : eq(books.artistId, creatorId);
+}
+
+export const reorderBooksForCreator = async (
+  creator: Pick<Creator, "id" | "type" | "slug">,
+  orderedIds: string[],
+) => {
+  if (!orderedIds.length) {
+    return err({ reason: "No books to reorder" });
+  }
+  if (new Set(orderedIds).size !== orderedIds.length) {
+    return err({ reason: "Duplicate book IDs" });
+  }
+
+  const bookColumn = creatorBookFilter(creator.id, creator.type);
+
+  try {
+    const [{ value: totalCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(bookColumn);
+
+    if (orderedIds.length !== Number(totalCount)) {
+      return err({ reason: "Must include all books" });
+    }
+
+    const ownedBooks = await db.query.books.findMany({
+      columns: { id: true },
+      where: and(bookColumn, inArray(books.id, orderedIds)),
+    });
+
+    if (ownedBooks.length !== orderedIds.length) {
+      return err({
+        reason: "One or more books do not belong to this creator",
+      });
+    }
+
+    await db.transaction(async (tx) => {
+      for (const [index, bookId] of orderedIds.entries()) {
+        await tx
+          .update(books)
+          .set({ sortOrder: index })
+          .where(and(eq(books.id, bookId), bookColumn));
+      }
+    });
+
+    if (creator.slug) {
+      invalidateCreatorCache(creator.slug);
+    }
+
+    return ok(undefined);
+  } catch (error) {
+    console.error("Failed to reorder books for creator", error);
+    return err({ reason: "Failed to reorder books", cause: error });
   }
 };
 

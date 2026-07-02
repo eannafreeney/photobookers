@@ -10,6 +10,7 @@ type BookTableProps = {
   currentPath: string;
   page: number;
   totalPages: number;
+  reorderEnabled?: boolean;
 };
 
 export const BooksOverviewTable = async ({
@@ -20,6 +21,7 @@ export const BooksOverviewTable = async ({
   currentPath,
   page,
   totalPages,
+  reorderEnabled = false,
 }: BookTableProps) => {
   if (!user || !creator) return <></>;
 
@@ -35,6 +37,7 @@ export const BooksOverviewTable = async ({
       currentPath={currentPath}
       page={page}
       totalPages={totalPages}
+      reorderEnabled={reorderEnabled}
     />
   );
 };

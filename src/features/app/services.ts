@@ -338,7 +338,12 @@ export const getBooksInCollection = async (
 export const getBooksByCreatorSlug = async (
   slug: string,
   currentPage: number = 1,
-  sortBy: "newest" | "oldest" | "title_asc" | "title_desc" = "newest",
+  sortBy:
+    | "newest"
+    | "oldest"
+    | "title_asc"
+    | "title_desc"
+    | "creator_order" = "creator_order",
   defaultLimit = 16,
 ) => {
   const cacheKey = `${slug}:${currentPage}:${sortBy}:${defaultLimit}`;

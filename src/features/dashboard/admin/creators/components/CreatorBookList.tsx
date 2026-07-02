@@ -8,7 +8,7 @@ import TableSearch from "../../../../../components/app/TableSearch";
 import FormDelete from "../../../../../components/forms/FormDelete";
 import { useUser } from "../../../../../contexts/UserContext";
 import { Book, Creator } from "../../../../../db/schema";
-import { deleteIcon } from "../../../../../lib/icons";
+import { deleteIcon, dragHandleIcon } from "../../../../../lib/icons";
 import { canEditBook } from "../../../../../lib/permissions";
 import PreviewButton from "../../../../api/components/PreviewButton";
 import {
@@ -28,6 +28,18 @@ type CreatorBookListProps = {
   searchQuery?: string;
 };
 
+const reorderHandleAttrs = {
+  draggable: true,
+  "@dragstart": "onReorderDragStart($event, $el.closest('tr'))",
+  "@dragend": "onReorderDragEnd()",
+};
+
+const reorderRowAttrs = {
+  "@dragenter.prevent": "onReorderDragEnter($el)",
+  "@dragover.prevent": true,
+  "@drop.prevent": true,
+};
+
 const CreatorBookList = async ({
   creatorId,
   currentPath,
@@ -36,10 +48,16 @@ const CreatorBookList = async ({
 }: CreatorBookListProps) => {
   const user = useUser();
   if (!user) return <div>Error: User not found</div>;
+
+  const isSearching = Boolean(searchQuery?.trim());
+  const pageLimit = isSearching ? 30 : 10_000;
+  const reorderEnabled = !isSearching;
+
   const [error, result] = await getBooksByCreatorId(
     creatorId,
     currentPage,
     searchQuery,
+    pageLimit,
   );
   if (error) return <div>Error: {error.reason}</div>;
 
@@ -60,6 +78,12 @@ const CreatorBookList = async ({
     catalogueTotals.views,
     catalogueTotals.outboundClicks,
   );
+
+  const tableWrapperAttrs = reorderEnabled
+    ? {
+        "x-data": `booksTableReorder(${JSON.stringify(books.map((book) => book.id))}, ${JSON.stringify(creatorId)})`,
+      }
+    : {};
 
   return (
     <div class="flex flex-col gap-4">
@@ -85,37 +109,54 @@ const CreatorBookList = async ({
           </Button>
         </Link>
       </div>
-      <Table id="creator-books-table">
-        <Table.Head>
-          <Table.HeadRow>Cover</Table.HeadRow>
-          <Table.HeadRow>Title</Table.HeadRow>
-          <Table.HeadRow>Artist</Table.HeadRow>
-          <Table.HeadRow>Publisher</Table.HeadRow>
-          <Table.HeadRow>Views</Table.HeadRow>
-          <Table.HeadRow>Wishlists</Table.HeadRow>
-          <Table.HeadRow>Collections</Table.HeadRow>
-          <Table.HeadRow>Outbound clicks</Table.HeadRow>
-          <Table.HeadRow>Release Date</Table.HeadRow>
-          <Table.HeadRow>Publish</Table.HeadRow>
-          <Table.HeadRow>Actions</Table.HeadRow>
-        </Table.Head>
-        <Table.Body id={targetId} xMerge="append">
-          {books.map((book) => (
-            <BookTableRow
-              book={book}
-              user={user}
-              funnel={funnelCounts.get(book.id) ?? emptyFunnel}
-            />
-          ))}
-        </Table.Body>
-      </Table>
-      <ListNavigation
-        isInfiniteScroll
-        currentPath={currentPath}
-        page={page}
-        totalPages={totalPages}
-        targetId={targetId}
-      />
+      <div {...tableWrapperAttrs}>
+        {reorderEnabled ? (
+          <p class="mb-2 text-xs text-on-surface/60" x-show="isSaving" x-cloak>
+            Saving order...
+          </p>
+        ) : null}
+        <Table id="creator-books-table">
+          <Table.Head>
+            <tr>
+              {reorderEnabled ? (
+                <Table.HeadRow>
+                  <span class="sr-only">Reorder</span>
+                </Table.HeadRow>
+              ) : null}
+              <Table.HeadRow>Cover</Table.HeadRow>
+              <Table.HeadRow>Title</Table.HeadRow>
+              <Table.HeadRow>Artist</Table.HeadRow>
+              <Table.HeadRow>Publisher</Table.HeadRow>
+              <Table.HeadRow>Views</Table.HeadRow>
+              <Table.HeadRow>Wishlists</Table.HeadRow>
+              <Table.HeadRow>Collections</Table.HeadRow>
+              <Table.HeadRow>Outbound clicks</Table.HeadRow>
+              <Table.HeadRow>Release Date</Table.HeadRow>
+              <Table.HeadRow>Publish</Table.HeadRow>
+              <Table.HeadRow>Actions</Table.HeadRow>
+            </tr>
+          </Table.Head>
+          <Table.Body id={targetId} xMerge={reorderEnabled ? undefined : "append"}>
+            {books.map((book) => (
+              <BookTableRow
+                book={book}
+                user={user}
+                funnel={funnelCounts.get(book.id) ?? emptyFunnel}
+                reorderEnabled={reorderEnabled}
+              />
+            ))}
+          </Table.Body>
+        </Table>
+      </div>
+      {!reorderEnabled && totalPages > 1 ? (
+        <ListNavigation
+          isInfiniteScroll
+          currentPath={currentPath}
+          page={page}
+          totalPages={totalPages}
+          targetId={targetId}
+        />
+      ) : null}
     </div>
   );
 };
@@ -126,9 +167,15 @@ type RowProps = {
   book: Book & { artist: Creator | null; publisher: Creator | null };
   user: AuthUser;
   funnel: BookFunnelCounts;
+  reorderEnabled: boolean;
 };
 
-const BookTableRow = ({ book, user, funnel }: RowProps) => {
+const BookTableRow = ({
+  book,
+  user,
+  funnel,
+  reorderEnabled,
+}: RowProps) => {
   if (!book || !book.id || !book.slug || !book.title) {
     return <></>;
   }
@@ -141,7 +188,18 @@ const BookTableRow = ({ book, user, funnel }: RowProps) => {
   };
 
   return (
-    <tr>
+    <tr {...{ "data-book-id": book.id }} {...(reorderEnabled ? reorderRowAttrs : {})}>
+      {reorderEnabled ? (
+        <Table.BodyRow>
+          <div
+            class="flex items-center justify-center text-on-surface/50 cursor-grab active:cursor-grabbing"
+            aria-label="Drag to reorder"
+            {...reorderHandleAttrs}
+          >
+            {dragHandleIcon()}
+          </div>
+        </Table.BodyRow>
+      ) : null}
       <Table.BodyRow>
         {book.coverUrl ? (
           <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />

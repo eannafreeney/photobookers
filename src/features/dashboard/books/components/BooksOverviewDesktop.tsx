@@ -14,6 +14,7 @@ import Table from "../../../../components/app/Table";
 import { canEditBook } from "../../../../lib/permissions";
 import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
 import BookApprovalStatusPill from "../../admin/books/components/BookApprovalStatusPill";
+import { dragHandleIcon } from "../../../../lib/icons";
 
 type Props = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
@@ -21,6 +22,19 @@ type Props = {
   currentPath: string;
   page: number;
   totalPages: number;
+  reorderEnabled?: boolean;
+};
+
+const reorderHandleAttrs = {
+  draggable: true,
+  "@dragstart": "onReorderDragStart($event, $el.closest('tr'))",
+  "@dragend": "onReorderDragEnd()",
+};
+
+const reorderRowAttrs = {
+  "@dragenter.prevent": "onReorderDragEnter($el)",
+  "@dragover.prevent": true,
+  "@drop.prevent": true,
 };
 
 const BooksOverviewDesktop = async ({
@@ -29,15 +43,26 @@ const BooksOverviewDesktop = async ({
   currentPath,
   page,
   totalPages,
+  reorderEnabled = false,
 }: Props) => {
   const targetId = "books-table-body";
   const funnelCounts = await getBookFunnelCounts(books.map((book) => book.id));
 
-  const alpineAttrs = {
-    "x-init": "true",
-    "@books:updated.window":
-      "$ajax('/dashboard', { target: 'books-table-body' })",
-  };
+  const tbodyAttrs = reorderEnabled
+    ? {
+        "@books:updated.window": "$ajax('/dashboard', { target: 'books-table-body' })",
+      }
+    : {
+        "x-init": "true",
+        "@books:updated.window":
+          "$ajax('/dashboard', { target: 'books-table-body' })",
+      };
+
+  const tableWrapperAttrs = reorderEnabled
+    ? {
+        "x-data": `booksTableReorder(${JSON.stringify(books.map((book) => book.id))})`,
+      }
+    : {};
 
   const emptyFunnel: BookFunnelCounts = {
     views: 0,
@@ -68,9 +93,20 @@ const BooksOverviewDesktop = async ({
           </Link>
         </div>
       </div>
-      <Table id="books-table">
+      <div {...tableWrapperAttrs}>
+        {reorderEnabled ? (
+          <p class="mb-2 text-xs text-on-surface/60" x-show="isSaving" x-cloak>
+            Saving order...
+          </p>
+        ) : null}
+        <Table id="books-table">
         <Table.Head>
           <tr>
+            {reorderEnabled ? (
+              <Table.HeadRow>
+                <span class="sr-only">Reorder</span>
+              </Table.HeadRow>
+            ) : null}
             <Table.HeadRow>Cover</Table.HeadRow>
             <Table.HeadRow>Title</Table.HeadRow>
             <Table.HeadRow>Artist</Table.HeadRow>
@@ -84,22 +120,26 @@ const BooksOverviewDesktop = async ({
             <Table.HeadRow>Publish</Table.HeadRow>
           </tr>
         </Table.Head>
-        <Table.Body id={targetId} {...alpineAttrs}>
+        <Table.Body id={targetId} {...tbodyAttrs}>
           {books.map((book) => (
             <BookTableRow
               book={book}
               user={user}
               funnel={funnelCounts.get(book.id) ?? emptyFunnel}
+              reorderEnabled={reorderEnabled}
             />
           ))}
         </Table.Body>
       </Table>
-      <InfiniteScroll
-        baseUrl={currentPath}
-        page={page}
-        totalPages={totalPages}
-        targetId={targetId}
-      />
+      </div>
+      {!reorderEnabled && totalPages > 1 ? (
+        <InfiniteScroll
+          baseUrl={currentPath}
+          page={page}
+          totalPages={totalPages}
+          targetId={targetId}
+        />
+      ) : null}
     </div>
   );
 };
@@ -110,15 +150,32 @@ type RowProps = {
   book: Book & { artist: Creator | null; publisher: Creator | null };
   user: AuthUser;
   funnel: BookFunnelCounts;
+  reorderEnabled: boolean;
 };
 
-const BookTableRow = ({ book, user, funnel }: RowProps) => {
+const BookTableRow = ({
+  book,
+  user,
+  funnel,
+  reorderEnabled,
+}: RowProps) => {
   if (!book || !book.id || !book.slug || !book.title) {
     return <></>;
   }
 
   return (
-    <tr>
+    <tr {...{ "data-book-id": book.id }} {...(reorderEnabled ? reorderRowAttrs : {})}>
+      {reorderEnabled ? (
+        <Table.BodyRow>
+          <div
+            class="flex items-center justify-center text-on-surface/50 cursor-grab active:cursor-grabbing"
+            aria-label="Drag to reorder"
+            {...reorderHandleAttrs}
+          >
+            {dragHandleIcon()}
+          </div>
+        </Table.BodyRow>
+      ) : null}
       <Table.BodyRow>
         {book.coverUrl ? (
           <img src={book.coverUrl ?? ""} alt={book.title} class="w-auto h-12" />

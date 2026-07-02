@@ -2,6 +2,7 @@ import { registerEditCreatorForm } from "../features/dashboard/creators/client/e
 import { registerBookForm } from "../features/dashboard/books/client/bookForm";
 import { registerBookCoverForm } from "../features/dashboard/books/client/bookCoverForm";
 import { registerCreatorCoverForm } from "../features/dashboard/creators/client/creatorCoverForm";
+import { registerBooksTableReorder } from "../features/dashboard/books/client/booksTableReorder";
 import { registerBookGalleryForm } from "../features/dashboard/books/client/bookGalleryForm";
 import { registerBulkCoverUpload } from "./components/bulkCoverUpload";
 import { registerUserProfileImageForm } from "../features/app/client/userProfileImageForm";
@@ -15,6 +16,7 @@ registerBookForm();
 registerBookCoverForm();
 registerCreatorCoverForm();
 registerBookGalleryForm();
+registerBooksTableReorder();
 registerBulkCoverUpload();
 registerUserProfileImageForm();
 registerInterviewForm();
