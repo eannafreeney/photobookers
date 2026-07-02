@@ -1,13 +1,13 @@
 import SpotlightCard from "../../../components/app/SpotlightCard";
 import SectionTitle from "../../../components/app/SectionTitle";
 import Button from "../../../components/app/Button";
+import { SITE_APP, SITE_SOCIAL } from "../../../constants/siteSocial";
 import { formatCountry } from "../../../lib/utils";
 import { BookOfTheDayWithBook } from "../BOTDServices";
 import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
 import { PublisherOfTheWeekWithCreator } from "../POTWServices";
 import { aotwPath, botdPath, potwPath } from "../spotlightUrls";
 import { formatDate } from "../../../utils";
-import SecondaryButtonLink from "../../hyperview/components/SecondaryButtonLink";
 
 type Props = {
   bookOfTheDay: BookOfTheDayWithBook | null;
@@ -16,6 +16,11 @@ type Props = {
 };
 
 const cardClassName = "w-full max-w-none";
+
+const pageLinks = [
+  { href: SITE_APP.ios.href, label: "Download the app", external: true },
+  { href: "/newsletter", label: "Join the newsletter" },
+] as const;
 
 const LinksPage = ({
   bookOfTheDay,
@@ -53,8 +58,22 @@ const LinksPage = ({
         </p>
       ) : null}
 
+      <nav class="flex w-full flex-col gap-3" aria-label="Explore Photobookers">
+        {pageLinks.map((link) => (
+          <a
+            href={link.href}
+            target={"external" in link && link.external ? "_blank" : undefined}
+            class="w-full"
+          >
+            <Button variant="outline" color="primary" width="full">
+              {link.label}
+            </Button>
+          </a>
+        ))}
+      </nav>
+
       {bookOfTheDay ? (
-        <section class="flex flex-col gap-4">
+        <section class="flex flex-col items-center gap-4">
           <SectionTitle>Book of the Day</SectionTitle>
           <SpotlightCard
             href={botdPath(bookOfTheDay.date)}
@@ -69,7 +88,7 @@ const LinksPage = ({
       ) : null}
 
       {artistOfTheWeek ? (
-        <section class="flex flex-col gap-4">
+        <section class="flex flex-col items-center gap-4">
           <SectionTitle>Artist of the Week</SectionTitle>
           <SpotlightCard
             href={aotwPath(artistOfTheWeek.weekStart)}
@@ -96,7 +115,7 @@ const LinksPage = ({
       ) : null}
 
       {publisherOfTheWeek ? (
-        <section class="flex flex-col gap-4">
+        <section class="flex flex-col items-center gap-4">
           <SectionTitle>Publisher of the Week</SectionTitle>
           <SpotlightCard
             href={potwPath(publisherOfTheWeek.weekStart)}
@@ -121,7 +140,8 @@ const LinksPage = ({
           />
         </section>
       ) : null}
-      <a href={`/featured`} class="mx-auto">
+
+      <a href="/featured" class="mx-auto">
         <Button variant="outline" color="primary" width="auto">
           Visit Photobookers
         </Button>
