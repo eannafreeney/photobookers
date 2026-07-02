@@ -73,8 +73,8 @@ export const creatorCircleStyles = () => (
     <Style
       id="trending-creator-avatar-badge"
       position="absolute"
-      top={0}
-      right={0}
+      top={-1}
+      right={-1}
     />
     <Style
       id="trending-creator-name"
