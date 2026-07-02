@@ -1,4 +1,4 @@
-import { and, asc, eq, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import { CREATOR_CARD_COLUMNS } from "../../../constants/queries";
 import { db } from "../../../db/client";
 import { books, creators } from "../../../db/schema";
@@ -45,6 +45,10 @@ export type RunVerifiedCreatorInstagramCronResult = Result<
   VerifiedCreatorInstagramError
 >;
 
+export function getVerifiedCreatorInstagramCutoff(now = new Date()): Date {
+  return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+}
+
 const CREATOR_INSTAGRAM_COLUMNS = {
   ...CREATOR_CARD_COLUMNS,
   bio: true,
@@ -82,12 +86,14 @@ export async function runVerifiedCreatorInstagramCron(
   options: RunVerifiedCreatorInstagramCronOptions = {},
 ): Promise<RunVerifiedCreatorInstagramCronResult> {
   const { dryRun = false, creatorId } = options;
+  const verifiedCutoff = getVerifiedCreatorInstagramCutoff();
 
   try {
     const rows = await db.query.creators.findMany({
       where: and(
         eq(creators.status, "verified"),
         isNotNull(creators.verifiedAt),
+        ...(creatorId ? [] : [gte(creators.verifiedAt, verifiedCutoff)]),
         isNull(creators.verifiedInstagramQueuedAt),
         ...(creatorId ? [eq(creators.id, creatorId)] : []),
       ),
