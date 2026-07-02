@@ -3,6 +3,7 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { refreshAccessToken } from "./refreshAccessToken";
 import { getUserFromToken } from "./getUserFromToken";
 import { getAuthCookieOptions } from "../features/auth/services";
+import { getCookieClearOptions } from "../lib/authCookies";
 import { getAccessTokenFromRequest } from "../lib/getAccessTokenFromRequest";
 
 export const optionalAuthMiddleware = async (c: Context, next: Next) => {
@@ -47,8 +48,9 @@ export const optionalAuthMiddleware = async (c: Context, next: Next) => {
   }
 
   if (token && !user) {
-    deleteCookie(c, "token");
-    deleteCookie(c, "refresh_token");
+    const clearOpts = getCookieClearOptions(c);
+    deleteCookie(c, "token", clearOpts);
+    deleteCookie(c, "refresh_token", clearOpts);
   }
 
   c.set("user", user);

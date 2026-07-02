@@ -1,6 +1,7 @@
 import { Context, Next } from "hono";
 import { deleteCookie } from "hono/cookie";
 import { supabaseAdmin } from "../lib/supabase";
+import { getCookieClearOptions } from "../lib/authCookies";
 
 export async function refreshAccessToken(refreshToken: string, c?: Context) {
   try {
@@ -11,8 +12,9 @@ export async function refreshAccessToken(refreshToken: string, c?: Context) {
     if (error || !data.session) {
       // Clear invalid refresh token cookie if context is provided
       if (c) {
-        deleteCookie(c, "refresh_token");
-        deleteCookie(c, "token");
+        const clearOpts = getCookieClearOptions(c);
+        deleteCookie(c, "refresh_token", clearOpts);
+        deleteCookie(c, "token", clearOpts);
       }
       return null;
     }

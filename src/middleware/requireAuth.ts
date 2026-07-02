@@ -3,6 +3,7 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { refreshAccessToken } from "./refreshAccessToken";
 import { getUserFromToken } from "./getUserFromToken";
 import { getAuthCookieOptions } from "../features/auth/services";
+import { getCookieClearOptions } from "../lib/authCookies";
 import { getAccessTokenFromRequest } from "../lib/getAccessTokenFromRequest";
 
 const LOGIN_PATH = "/auth/login";
@@ -67,9 +68,9 @@ export const requireAuth = async (c: Context, next: Next) => {
   }
 
   if (!user) {
-    // Clear invalid cookies
-    deleteCookie(c, "token");
-    deleteCookie(c, "refresh_token");
+    const clearOpts = getCookieClearOptions(c);
+    deleteCookie(c, "token", clearOpts);
+    deleteCookie(c, "refresh_token", clearOpts);
     return redirectToLogin(c);
   }
 

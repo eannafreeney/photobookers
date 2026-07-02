@@ -31,6 +31,22 @@ describe("getSharedCookieOptions", () => {
     });
   });
 
+  it("uses host-only cookies on staging subdomain", async () => {
+    const app = new Hono();
+    app.get("/test", (c) => {
+      const opts = getSharedCookieOptions(c);
+      return c.json(opts);
+    });
+
+    const res = await app.request("https://staging.photobookers.com/test", {
+      headers: { host: "staging.photobookers.com" },
+    });
+    expect(await res.json()).toEqual({
+      path: "/",
+      secure: true,
+    });
+  });
+
   it("falls back to SITE_URL when no request context is provided", () => {
     const prev = process.env.SITE_URL;
     process.env.SITE_URL = "https://www.photobookers.com";

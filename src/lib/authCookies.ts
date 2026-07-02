@@ -35,6 +35,15 @@ export function getCookieHostname(c?: Context): string {
   return getSiteHostname();
 }
 
+/** Apex + www share `.photobookers.com`; other hosts (e.g. staging) use host-only cookies. */
+export function getSharedCookieDomain(hostname: string): string | undefined {
+  const withoutWww = hostname.replace(/^www\./i, "");
+  if (withoutWww === "photobookers.com") {
+    return ".photobookers.com";
+  }
+  return undefined;
+}
+
 export function getSharedCookieOptions(c?: Context): {
   path: "/";
   domain?: string;
@@ -44,6 +53,16 @@ export function getSharedCookieOptions(c?: Context): {
   if (isLocalHostname(hostname)) {
     return { path: "/" };
   }
-  const rootDomain = hostname.replace(/^www\./i, "");
-  return { domain: `.${rootDomain}`, path: "/", secure: true };
+  const domain = getSharedCookieDomain(hostname);
+  return domain
+    ? { domain, path: "/", secure: true }
+    : { path: "/", secure: true };
+}
+
+export function getCookieClearOptions(c?: Context): {
+  path: "/";
+  domain?: string;
+} {
+  const { path, domain } = getSharedCookieOptions(c);
+  return { path, domain };
 }
