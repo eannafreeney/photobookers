@@ -265,12 +265,17 @@ export const deleteWishlist = async (userId: string, bookId: string) => {
     .where(and(eq(wishlists.userId, userId), eq(wishlists.bookId, bookId)));
 };
 
-export const searchBooks = async (searchQuery: string) => {
+export const searchBooks = async (searchQuery: string, limit: number = 5) => {
   try {
     const searchPattern = `%${searchQuery}%`;
 
     // Find creator IDs matching the search
     const matchingCreatorIds = db
+      .select({ id: creators.id })
+      .from(creators)
+      .where(ilike(creators.displayName, searchPattern));
+
+    const matchingPublisherIds = db
       .select({ id: creators.id })
       .from(creators)
       .where(ilike(creators.displayName, searchPattern));
@@ -301,6 +306,7 @@ export const searchBooks = async (searchQuery: string) => {
         or(
           ilike(books.title, searchPattern),
           inArray(books.artistId, matchingCreatorIds),
+          inArray(books.publisherId, matchingPublisherIds),
           sql`EXISTS (
           SELECT 1
           FROM unnest(${books.tags}) AS tag
@@ -309,7 +315,7 @@ export const searchBooks = async (searchQuery: string) => {
         ),
       ),
       orderBy: (books, { asc }) => [asc(books.title)],
-      limit: 5,
+      limit,
     });
     if (foundBooks.length === 0) return ok([]);
     return ok(foundBooks);

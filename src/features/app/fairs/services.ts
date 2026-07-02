@@ -1,10 +1,43 @@
-import { and, desc, eq, gt, gte, ilike, lte, or, sql } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  gt,
+  gte,
+  ilike,
+  inArray,
+  lte,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../../db/client";
-import { bookFairs, fairAttendees } from "../../../db/schema";
+import { bookFairs, creators, fairAttendees } from "../../../db/schema";
 import { getPagination } from "../../../lib/pagination";
 import { err, ok } from "../../../lib/result";
 
 const today = () => new Date(new Date().setHours(0, 0, 0, 0));
+
+const buildFairSearchCondition = (query: string) => {
+  const searchPattern = `%${query.trim()}%`;
+  const matchingFairIdsByParticipant = db
+    .select({ id: fairAttendees.fairId })
+    .from(fairAttendees)
+    .innerJoin(creators, eq(fairAttendees.creatorId, creators.id))
+    .where(
+      and(
+        eq(fairAttendees.status, "approved"),
+        ilike(creators.displayName, searchPattern),
+      ),
+    );
+
+  return or(
+    ilike(bookFairs.name, searchPattern),
+    ilike(bookFairs.city, searchPattern),
+    ilike(bookFairs.country, searchPattern),
+    ilike(bookFairs.venue, searchPattern),
+    inArray(bookFairs.id, matchingFairIdsByParticipant),
+  )!;
+};
 
 export const getUpcomingFairs = async (
   currentPage: number = 1,
@@ -275,16 +308,9 @@ export const searchFairs = async (params: FairSearchParams) => {
       eq(bookFairs.approvalStatus, "approved"),
     ];
 
-    // Text search (name, description, venue)
+    // Text search (name, location, participant names)
     if (query && query.trim()) {
-      const searchTerm = `%${query.trim()}%`;
-      conditions.push(
-        or(
-          ilike(bookFairs.name, searchTerm),
-          ilike(bookFairs.description, searchTerm),
-          ilike(bookFairs.venue, searchTerm),
-        )!,
-      );
+      conditions.push(buildFairSearchCondition(query));
     }
 
     // Location filters
@@ -345,16 +371,10 @@ export const searchFairsForNav = async (
       return ok([]);
     }
 
-    const searchPattern = `%${searchTerm.trim()}%`;
     const conditions = [
       eq(bookFairs.status, "published"),
       eq(bookFairs.approvalStatus, "approved"),
-      or(
-        ilike(bookFairs.name, searchPattern),
-        ilike(bookFairs.description, searchPattern),
-        ilike(bookFairs.city, searchPattern),
-        ilike(bookFairs.venue, searchPattern),
-      )!,
+      buildFairSearchCondition(searchTerm),
     ];
 
     const fairs = await db.query.bookFairs.findMany({

@@ -53,6 +53,7 @@ export const GET = createRoute(async (c: Context) => {
       creators={creators ?? []}
       books={books ?? []}
       fairs={fairs ?? []}
+      searchQuery={searchQuery}
     />,
   );
 });

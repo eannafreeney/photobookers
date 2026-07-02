@@ -1,9 +1,8 @@
-//
 import { Book, BookFair, Creator } from "../../db/schema";
-import { AuthUser } from "../../../types";
 import VerifiedCreator from "./VerifiedCreator";
 import Avatar from "./Avatar";
 import { formatDate } from "../../utils";
+import { tagBooksUrl } from "../../lib/tags";
 
 type CreatorSearchResult = Pick<
   Creator,
@@ -31,8 +30,9 @@ type NavSearchResultsProps = {
   creators: CreatorSearchResult[];
   books: BookSearchResult[];
   fairs: FairSearchResult[];
-  user?: AuthUser | null;
   isMobile?: boolean;
+  searchQuery?: string;
+  variant?: "dropdown" | "page";
 };
 
 const NavSearchResults = ({
@@ -40,82 +40,147 @@ const NavSearchResults = ({
   books,
   fairs,
   isMobile = false,
+  searchQuery,
+  variant = "dropdown",
 }: NavSearchResultsProps) => {
   const hasResults =
     creators.length > 0 || books.length > 0 || fairs.length > 0;
+  const fullResultsHref = searchQuery?.trim()
+    ? `/search/results?search=${encodeURIComponent(searchQuery.trim())}`
+    : null;
+  const tagResultsHref = searchQuery?.trim() ? tagBooksUrl(searchQuery.trim()) : null;
+  const isPage = variant === "page";
+  const containerId = isPage
+    ? undefined
+    : isMobile
+      ? "search-results-mobile"
+      : "search-results";
+  const containerClass = isPage
+    ? "rounded-radius border border-outline bg-surface-alt"
+    : "fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border shadow-sm border-outline bg-surface-alt";
 
   return (
     <div
-      id={isMobile ? "search-results-mobile" : "search-results"}
-      class="fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11  md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border shadow-sm border-outline bg-surface-alt "
-      x-data="{ isOpen: true }"
-      x-show="isOpen"
+      id={containerId}
+      class={containerClass}
+      x-data={isPage ? undefined : "{ isOpen: true }"}
+      x-show={isPage ? undefined : "isOpen"}
     >
-      <div class="max-h-[calc(100vh-4rem)] overflow-y-auto p-4">
-        {!hasResults ? (
+      <div class={isPage ? "p-4 md:p-6" : "max-h-[calc(100vh-4rem)] overflow-y-auto p-4"}>
+        {!hasResults && !isPage ? (
           <div class="p-8 text-center">
             <p class="text-sm text-on-surface">No results found</p>
           </div>
         ) : (
-          <ul class="flex flex-col gap-4">
-            {creators.length > 0 && (
-              <>
-                <li class="text-xs uppercase font-semibold text-on-surface pt-2 pb-1">
-                  Creators
-                </li>
-                <ul class="flex flex-col gap-4">
-                  {creators.map((creator) => (
-                    <CreatorResultItem key={creator.id} creator={creator} />
-                  ))}
-                </ul>
-              </>
+          <div
+            class={isPage ? "grid grid-cols-1 gap-4 lg:grid-cols-3" : "flex flex-col gap-4"}
+          >
+            {(isPage || creators.length > 0) && (
+              <ResultsSection
+                isPage={isPage}
+                title="Creators"
+                hasResults={creators.length > 0}
+              >
+                {creators.map((creator) => (
+                  <CreatorResultItem key={creator.id} creator={creator} />
+                ))}
+              </ResultsSection>
             )}
 
-            {books.length > 0 && (
-              <>
-                {creators.length > 0 && (
-                  <li class="text-xs uppercase font-semibold text-on-surface pt-4 pb-1">
-                    Books
-                  </li>
-                )}
-                {!creators.length && (
-                  <li class="text-xs uppercase font-semibold text-on-surface pt-2 pb-1">
-                    Books
-                  </li>
-                )}
-                <ul class="flex flex-col gap-4">
-                  {books.map((book) => (
-                    <BookResultItem key={book.id} book={book} />
-                  ))}
-                </ul>
-              </>
+            {(isPage || books.length > 0) && (
+              <ResultsSection
+                isPage={isPage}
+                title="Books"
+                hasResults={books.length > 0}
+              >
+                {books.map((book) => (
+                  <BookResultItem key={book.id} book={book} />
+                ))}
+              </ResultsSection>
             )}
 
-            {fairs.length > 0 && (
-              <>
-                {(creators.length > 0 || books.length > 0) && (
-                  <li class="text-xs uppercase font-semibold text-on-surface pt-4 pb-1">
-                    Fairs
-                  </li>
-                )}
-                {!creators.length && !books.length && (
-                  <li class="text-xs uppercase font-semibold text-on-surface pt-2 pb-1">
-                    Fairs
-                  </li>
-                )}
-                <ul class="flex flex-col gap-4">
-                  {fairs.map((fair) => (
-                    <FairResultItem key={fair.id} fair={fair} />
-                  ))}
-                </ul>
-              </>
+            {(isPage || fairs.length > 0) && (
+              <ResultsSection
+                isPage={isPage}
+                title="Fairs"
+                hasResults={fairs.length > 0}
+              >
+                {fairs.map((fair) => (
+                  <FairResultItem key={fair.id} fair={fair} />
+                ))}
+              </ResultsSection>
             )}
-          </ul>
+          </div>
         )}
+        {!isPage && (fullResultsHref || tagResultsHref) ? (
+          <div class="mt-4 flex flex-col gap-2 border-t border-outline pt-4">
+            {fullResultsHref ? (
+              <CtaLinkButton href={fullResultsHref}>
+                View all results for "{searchQuery?.trim()}"
+              </CtaLinkButton>
+            ) : null}
+            {tagResultsHref ? (
+              <CtaLinkButton href={tagResultsHref}>
+                View all books tagged with "{searchQuery?.trim()}"
+              </CtaLinkButton>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );
 };
+
+const ResultsSection = ({
+  title,
+  isPage,
+  hasResults,
+  children,
+}: {
+  title: string;
+  isPage: boolean;
+  hasResults: boolean;
+  children: any;
+}) => {
+  if (isPage) {
+    return (
+      <section class="rounded-radius border border-outline bg-surface p-4">
+        <h2 class="pb-3 text-xs font-semibold uppercase text-on-surface">
+          {title}
+        </h2>
+        {hasResults ? (
+          <ul class="flex flex-col gap-4">{children}</ul>
+        ) : (
+          <p class="text-sm text-on-surface-muted">No results found</p>
+        )}
+      </section>
+    );
+  }
+
+  return (
+    <div class="flex flex-col gap-4">
+      <div class="pt-2 pb-1 text-xs font-semibold uppercase text-on-surface">
+        {title}
+      </div>
+      <ul class="flex flex-col gap-4">{children}</ul>
+    </div>
+  );
+};
+
+const CtaLinkButton = ({
+  href,
+  children,
+}: {
+  href: string;
+  children: any;
+}) => (
+  <a
+    href={href}
+    class="w-full whitespace-nowrap rounded-radius px-5 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.16em] transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 active:opacity-100 active:outline-offset-0 cursor-pointer bg-primary text-on-primary"
+  >
+    {children}
+  </a>
+);
 
 type CreatorResultItemProps = {
   creator: CreatorSearchResult;

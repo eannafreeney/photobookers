@@ -1042,7 +1042,10 @@ export const filterPublishedCreators = async (
   }
 };
 
-export const searchCreators = async (searchQuery: string) => {
+export const searchCreators = async (
+  searchQuery: string,
+  limit: number = 5,
+) => {
   // find creators with at least one book
   try {
     const foundCreators = await db.query.creators.findMany({
@@ -1067,7 +1070,7 @@ export const searchCreators = async (searchQuery: string) => {
         },
       },
       orderBy: (creators, { asc }) => [asc(creators.displayName)],
-      limit: 5,
+      limit,
     });
 
     const result = foundCreators.filter(
