@@ -199,6 +199,22 @@ function passwordUpdateRedirectUrl(): string {
   return `${baseUrl.replace(/\/$/, "")}/auth/update-password`;
 }
 
+/** SSR-friendly recovery link — action_link redirects via Supabase without token_hash in query. */
+function buildRecoverySetPasswordLink(
+  redirectTo: string,
+  properties: { hashed_token?: string; action_link?: string } | undefined,
+): string | undefined {
+  const hashedToken = properties?.hashed_token;
+  if (hashedToken) {
+    const params = new URLSearchParams({
+      token_hash: hashedToken,
+      type: "recovery",
+    });
+    return `${redirectTo}?${params.toString()}`;
+  }
+  return properties?.action_link;
+}
+
 export const sendUserLoginInstructionsEmail = async (
   email: string,
   options: {
@@ -208,15 +224,19 @@ export const sendUserLoginInstructionsEmail = async (
   },
 ) => {
   try {
+    const redirectTo = passwordUpdateRedirectUrl();
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
       email,
       options: {
-        redirectTo: passwordUpdateRedirectUrl(),
+        redirectTo,
       },
     });
 
-    const setPasswordLink = data?.properties?.action_link;
+    const setPasswordLink = buildRecoverySetPasswordLink(
+      redirectTo,
+      data?.properties ?? undefined,
+    );
     if (error || !setPasswordLink) {
       return err({
         reason: "Failed to generate login link",
@@ -234,7 +254,7 @@ export const sendUserLoginInstructionsEmail = async (
     );
 
     if (emailError)
-      err({
+      return err({
         reason: "Failed to send login instructions email",
         cause: emailError,
       });
