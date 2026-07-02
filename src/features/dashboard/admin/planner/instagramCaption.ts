@@ -63,18 +63,15 @@ export function buildDefaultCreatorInstagramFirstComment(creator: {
 }
 
 export function buildNewlyVerifiedCreatorInstagramCaption(
-  creator: CreatorSpotlightForCaption & {
-    type: "artist" | "publisher";
-    tagline?: string | null;
-  },
+  creator: CreatorSpotlightForCaption,
 ): string {
-  const role = creator.type === "artist" ? "Artist" : "Publisher";
-  const lines = ["New on photobookers", "", creator.displayName, role];
-  const blurb = creator.tagline?.trim() || creator.bio?.trim();
-  if (blurb) lines.push("", blurb);
-  const handle = formatInstagramHandle(creator.instagram);
-  if (handle) lines.push("", handle);
-  lines.push("", "#photobook #photobookjousting", "", "Link in bio →");
+  const lines = [
+    "New on photobookers",
+    "",
+    `We are delighted to welcome ${creator.displayName} to photobookers.`,
+  ];
+  if (creator.bio?.trim()) lines.push("", creator.bio.trim());
+  lines.push("", "Link in Bio");
   return lines.join("\n");
 }
 

@@ -137,17 +137,20 @@ describe("instagram caption helpers", () => {
     const caption = buildNewlyVerifiedCreatorInstagramCaption({
       displayName: "Jane Doe",
       slug: "jane-doe",
-      type: "artist",
-      tagline: "Documentary work from Berlin",
-      instagram: "https://instagram.com/janedoe",
+      bio: "Documentary work from Berlin.",
     });
 
-    expect(caption).toContain("New on photobookers");
-    expect(caption).toContain("Jane Doe");
-    expect(caption).toContain("Artist");
-    expect(caption).toContain("Documentary work from Berlin");
-    expect(caption).toContain("@janedoe");
-    expect(caption).toContain("Link in bio");
+    expect(caption).toBe(
+      [
+        "New on photobookers",
+        "",
+        "We are delighted to welcome Jane Doe to photobookers.",
+        "",
+        "Documentary work from Berlin.",
+        "",
+        "Link in Bio",
+      ].join("\n"),
+    );
   });
 
   it("collects cover and gallery image urls", () => {

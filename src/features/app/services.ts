@@ -4,6 +4,7 @@ import {
   count,
   desc,
   eq,
+  gte,
   ilike,
   inArray,
   InferSelectModel,
@@ -121,6 +122,49 @@ export const getVerifiedCreators = async () => {
   } catch (error) {
     console.error("Failed to get verified creators", error);
     return err({ reason: "Failed to get verified creators", error });
+  }
+};
+
+export const getRecentlyVerifiedCreators = async () => {
+  try {
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const foundCreators = await db.query.creators.findMany({
+      where: and(
+        eq(creators.status, "verified"),
+        isNotNull(creators.verifiedAt),
+        gte(creators.verifiedAt, cutoff),
+      ),
+      columns: {
+        id: true,
+        slug: true,
+        displayName: true,
+        type: true,
+      },
+      with: {
+        booksAsArtist: {
+          columns: { id: true },
+          where: eq(books.publicationStatus, "published"),
+        },
+        booksAsPublisher: {
+          columns: { id: true },
+          where: eq(books.publicationStatus, "published"),
+        },
+      },
+      orderBy: [asc(creators.verifiedAt)],
+    });
+
+    const recentlyVerifiedWithPublishedBooks = foundCreators
+      .filter(
+        (creator) =>
+          creator.booksAsArtist.length > 0 ||
+          creator.booksAsPublisher.length > 0,
+      )
+      .map(({ booksAsArtist, booksAsPublisher, ...creator }) => creator);
+
+    return ok(recentlyVerifiedWithPublishedBooks);
+  } catch (error) {
+    console.error("Failed to get recently verified creators", error);
+    return err({ reason: "Failed to get recently verified creators", error });
   }
 };
 

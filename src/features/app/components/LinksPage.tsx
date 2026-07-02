@@ -13,6 +13,12 @@ type Props = {
   bookOfTheDay: BookOfTheDayWithBook | null;
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
+  newlyVerifiedCreators: Array<{
+    id: string;
+    slug: string;
+    displayName: string;
+    type: "artist" | "publisher";
+  }>;
 };
 
 const cardClassName = "w-full max-w-none";
@@ -26,6 +32,7 @@ const LinksPage = ({
   bookOfTheDay,
   artistOfTheWeek,
   publisherOfTheWeek,
+  newlyVerifiedCreators,
 }: Props) => {
   const hasContent = bookOfTheDay || artistOfTheWeek || publisherOfTheWeek;
 
@@ -61,6 +68,7 @@ const LinksPage = ({
       <nav class="flex w-full flex-col gap-3" aria-label="Explore Photobookers">
         {pageLinks.map((link) => (
           <a
+            key={link.href}
             href={link.href}
             target={"external" in link && link.external ? "_blank" : undefined}
             class="w-full"
@@ -138,6 +146,28 @@ const LinksPage = ({
             aspectSquare
             className={cardClassName}
           />
+        </section>
+      ) : null}
+
+      {newlyVerifiedCreators.length > 0 ? (
+        <section class="flex w-full flex-col items-center gap-4">
+          <SectionTitle>New on photobookers</SectionTitle>
+          <nav
+            class="flex w-full flex-col gap-3"
+            aria-label="New on photobookers"
+          >
+            {newlyVerifiedCreators.map((creator) => (
+              <a
+                key={creator.id}
+                href={`/creators/${creator.slug}`}
+                class="w-full"
+              >
+                <Button variant="outline" color="primary" width="full">
+                  {creator.displayName}
+                </Button>
+              </a>
+            ))}
+          </nav>
         </section>
       ) : null}
 

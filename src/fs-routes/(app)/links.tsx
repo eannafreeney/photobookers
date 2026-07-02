@@ -3,6 +3,7 @@ import { getUser } from "../../utils";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
 import LinksPage from "../../features/app/components/LinksPage";
+import { getRecentlyVerifiedCreators } from "../../features/app/services";
 import { getTodaysBookOfTheDay } from "../../features/app/BOTDServices";
 import { getThisWeeksArtistOfTheWeek } from "../../features/app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../features/app/POTWServices";
@@ -17,10 +18,12 @@ export const GET = createRoute(async (c) => {
     [botdErr, bookOfTheDay],
     [artistErr, artistOfTheWeek],
     [publisherErr, publisherOfTheWeek],
+    [newCreatorsErr, newlyVerifiedCreators],
   ] = await Promise.all([
     getTodaysBookOfTheDay(),
     getThisWeeksArtistOfTheWeek(),
     getThisWeeksPublisherOfTheWeek(),
+    getRecentlyVerifiedCreators(),
   ]);
 
   const title = pageTitle("Photobookers");
@@ -31,14 +34,7 @@ export const GET = createRoute(async (c) => {
   const botd = !botdErr ? bookOfTheDay : null;
   const artist = !artistErr ? artistOfTheWeek : null;
   const publisher = !publisherErr ? publisherOfTheWeek : null;
-
-  const shareImage =
-    botd?.book.coverUrl ??
-    artist?.instagramImageUrl ??
-    publisher?.instagramImageUrl ??
-    artist?.creator.coverUrl ??
-    publisher?.creator.coverUrl ??
-    undefined;
+  const newCreators = !newCreatorsErr ? newlyVerifiedCreators : [];
 
   if (!user) {
     c.header("Vary", "Cookie");
@@ -62,6 +58,7 @@ export const GET = createRoute(async (c) => {
           bookOfTheDay={botd}
           artistOfTheWeek={artist}
           publisherOfTheWeek={publisher}
+          newlyVerifiedCreators={newCreators}
         />
       </Page>
       ,
