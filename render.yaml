@@ -1,11 +1,16 @@
 # Render Blueprint — service names must match your dashboard exactly.
 # Client JS/CSS builds automatically during npm ci on both services
 # (see scripts/render-postinstall.mjs).
+#
+# autoDeployTrigger: checksPass — deploy only after GitHub Actions CI passes.
+# Without a synced blueprint, set Auto-Deploy → "After CI Checks Pass" in the
+# Render dashboard for each service (Settings).
 services:
   - type: web
     name: photobookers-production
     runtime: node
     branch: main
+    autoDeployTrigger: checksPass
     buildCommand: npm ci
     startCommand: npm start
 
@@ -13,5 +18,6 @@ services:
     name: photobookers-staging
     runtime: node
     branch: staging
+    autoDeployTrigger: checksPass
     buildCommand: npm ci
     startCommand: npm start
