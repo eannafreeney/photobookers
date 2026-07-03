@@ -10,11 +10,11 @@ const HERO_IMAGE_CLASS =
 const HERO_IMAGE_WIDTH = 600;
 const HERO_IMAGE_HEIGHT = 800;
 
-const HeroCarouselFeatureCard = ({
-  heroItems,
-}: {
+type Props = {
   heroItems: HeroCarouselItem[];
-}) => {
+};
+
+const HeroCarouselFeatureCard = ({ heroItems }: Props) => {
   if (heroItems.length === 0) {
     return <></>;
   }
@@ -31,18 +31,6 @@ const HeroCarouselFeatureCard = ({
       x-on:touchmove="handleTouchMove($event)"
       x-on:touchend="handleTouchEnd()"
     >
-      {/* <div class="hidden md:flex flex-wrap gap-3 py-3 sm:gap-8 border-b border-outline">
-        <template x-for="(item, index) in items">
-          <button
-            x-on:click="go(index)"
-            x-bind:class="active === index ? 'text-on-surface-strong border-b-2 border-accent' : 'text-on-surface-weak border-b-2 border-transparent'"
-            class="pb-2 kicker transition cursor-pointer"
-            type="button"
-            x-text="item.label"
-          ></button>
-        </template>
-      </div> */}
-
       <section
         class={`border-t-2 border-b-2 border-on-surface-strong relative text-on-surface transition-colors duration-300 ease-out md:h-[500px] ${firstItem.slideClass ?? ""}`}
         x-bind:class="items[active] ? items[active].slideClass : ''"
@@ -112,6 +100,15 @@ const HeroCarouselFeatureCard = ({
               </div>
             </div>
           </template>
+
+          <p
+            x-show="items.length > 1"
+            class="absolute inset-x-0 top-6 z-20 kicker tabular-nums text-center text-on-surface-strong"
+            aria-live="polite"
+            x-text="`${active + 1}-${items.length}`"
+          >
+            {heroItems.length > 1 ? `1-${heroItems.length}` : null}
+          </p>
 
           <div class="absolute inset-x-0 bottom-4 z-20 flex items-center justify-center gap-2 md:hidden">
             <template x-for="(item, index) in items">
