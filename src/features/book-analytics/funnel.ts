@@ -23,8 +23,7 @@ import { buildCreatedAtFilter, type AnalyticsDateRange } from "./dateRange";
 
 export type BookFunnelCounts = {
   views: number;
-  wishlists: number;
-  collections: number;
+  favorites: number;
   outboundClicks: number;
 };
 
@@ -51,21 +50,17 @@ export async function getBookFunnelCounts(
 ): Promise<Map<string, BookFunnelCounts>> {
   if (bookIds.length === 0) return new Map();
 
-  const [views, wishlistMap, collectionMap, outboundClicks] = await Promise.all(
-    [
-      findBookViewCounts(bookIds),
-      findWishlistCounts(bookIds),
-      findCollectionCounts(bookIds),
-      findPurchaseClickCounts(bookIds),
-    ],
-  );
+  const [views, wishlistMap, outboundClicks] = await Promise.all([
+    findBookViewCounts(bookIds),
+    findWishlistCounts(bookIds),
+    findPurchaseClickCounts(bookIds),
+  ]);
 
   const result = new Map<string, BookFunnelCounts>();
   for (const bookId of bookIds) {
     result.set(bookId, {
       views: views.get(bookId) ?? 0,
-      wishlists: wishlistMap.get(bookId) ?? 0,
-      collections: collectionMap.get(bookId) ?? 0,
+      favorites: wishlistMap.get(bookId) ?? 0,
       outboundClicks: outboundClicks.get(bookId) ?? 0,
     });
   }
@@ -116,18 +111,15 @@ export async function getCreatorCatalogueFunnelTotals(
   creatorId: string,
   role: CreatorType,
 ): Promise<CatalogueFunnelTotals> {
-  const [views, wishlistTotal, collectionTotal, outboundClicks] =
-    await Promise.all([
-      getCreatorBookViewTotal(creatorId, role),
-      getCreatorEngagementTotal(creatorId, role, wishlists),
-      getCreatorEngagementTotal(creatorId, role, collectionItems),
-      getCreatorPurchaseClickTotal(creatorId, role),
-    ]);
+  const [views, wishlistTotal, outboundClicks] = await Promise.all([
+    getCreatorBookViewTotal(creatorId, role),
+    getCreatorEngagementTotal(creatorId, role, wishlists),
+    getCreatorPurchaseClickTotal(creatorId, role),
+  ]);
 
   return withClickRate({
     views,
-    wishlists: wishlistTotal,
-    collections: collectionTotal,
+    favorites: wishlistTotal,
     outboundClicks,
   });
 }
@@ -135,18 +127,15 @@ export async function getCreatorCatalogueFunnelTotals(
 export async function getCreatorCatalogueFunnelTotalsAdmin(
   creatorId: string,
 ): Promise<CatalogueFunnelTotals> {
-  const [views, wishlistTotal, collectionTotal, outboundClicks] =
-    await Promise.all([
-      getCreatorCatalogueBookViewTotal(creatorId),
-      getCreatorCatalogueEngagementTotal(creatorId, wishlists),
-      getCreatorCatalogueEngagementTotal(creatorId, collectionItems),
-      getCreatorCataloguePurchaseClickTotal(creatorId),
-    ]);
+  const [views, wishlistTotal, outboundClicks] = await Promise.all([
+    getCreatorCatalogueBookViewTotal(creatorId),
+    getCreatorCatalogueEngagementTotal(creatorId, wishlists),
+    getCreatorCataloguePurchaseClickTotal(creatorId),
+  ]);
 
   return withClickRate({
     views,
-    wishlists: wishlistTotal,
-    collections: collectionTotal,
+    favorites: wishlistTotal,
     outboundClicks,
   });
 }
@@ -177,8 +166,7 @@ export async function getOverallFunnelTotals(
 
   return withClickRate({
     views: viewTotals.totalViews,
-    wishlists: wishlistTotal[0]?.value ?? 0,
-    collections: collectionTotal[0]?.value ?? 0,
+    favorites: wishlistTotal[0]?.value ?? 0,
     outboundClicks: clickTotals.totalClicks,
   });
 }

@@ -17,10 +17,7 @@ type Props = {
   scope?: CreatorAnalyticsScope | null;
 };
 
-const AnalyticsOverviewSection = async ({
-  dateRange,
-  scope = null,
-}: Props) => {
+const AnalyticsOverviewSection = async ({ dateRange, scope = null }: Props) => {
   if (scope) {
     const totals = await getCreatorFunnelTotals(scope, dateRange);
     const clickRateLabel =
@@ -42,21 +39,26 @@ const AnalyticsOverviewSection = async ({
             value={totals.outboundClicks}
           />
           <StatCard label="Overall click rate" value={clickRateLabel} />
-          <StatCard label="Total wishlists" value={totals.wishlists} />
-          <StatCard label="Total collections" value={totals.collections} />
+          <StatCard label="Total Favorited" value={totals.favorites} />
+          <StatCard label="Total follows" value={totals.follows} />
         </div>
       </div>
     );
   }
 
-  const [viewTotals, creatorViewTotals, clickTotals, funnelTotals, followTotal] =
-    await Promise.all([
-      getBookViewTotals(dateRange),
-      getCreatorViewTotals(dateRange),
-      getPurchaseClickTotals(dateRange),
-      getOverallFunnelTotals(dateRange),
-      getFollowTotal(dateRange),
-    ]);
+  const [
+    viewTotals,
+    creatorViewTotals,
+    clickTotals,
+    funnelTotals,
+    followTotal,
+  ] = await Promise.all([
+    getBookViewTotals(dateRange),
+    getCreatorViewTotals(dateRange),
+    getPurchaseClickTotals(dateRange),
+    getOverallFunnelTotals(dateRange),
+    getFollowTotal(dateRange),
+  ]);
 
   const clickRateLabel =
     funnelTotals.clickRate !== null ? `${funnelTotals.clickRate}%` : "—";
@@ -83,8 +85,7 @@ const AnalyticsOverviewSection = async ({
           value={clickTotals.totalClicks}
         />
         <StatCard label="Overall click rate" value={clickRateLabel} />
-        <StatCard label="Total wishlists" value={funnelTotals.wishlists} />
-        <StatCard label="Total collections" value={funnelTotals.collections} />
+        <StatCard label="Total favorites" value={funnelTotals.favorites} />
         <StatCard label="Total follows" value={followTotal} />
       </div>
     </div>

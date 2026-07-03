@@ -10,6 +10,7 @@ import {
 } from "../../db/schema";
 import { buildCreatedAtFilter, type AnalyticsDateRange } from "./dateRange";
 import {
+  getFollowTotal,
   mergeDailyFunnelTrends,
   mergeDailySourceTrends,
   type DailySourceTrendPoint,
@@ -26,6 +27,7 @@ export type CreatorAnalyticsScope = {
 export type CreatorOverviewTotals = CatalogueFunnelTotals & {
   booksWithViews: number;
   booksWithClicks: number;
+  follows: number;
 };
 
 export function creatorRoleBookColumn(creatorType: CreatorType) {
@@ -100,20 +102,13 @@ export async function getCreatorFunnelTotals(
 ): Promise<CreatorOverviewTotals> {
   const { creatorId, creatorType } = scope;
   const creatorFilter = creatorBookFilter(creatorId, creatorType);
-  const wishlistFilter = buildCreatedAtFilter(wishlists.createdAt, range);
-  const collectionFilter = buildCreatedAtFilter(
-    collectionItems.createdAt,
-    range,
-  );
+  const favoritesFilter = buildCreatedAtFilter(wishlists.createdAt, range);
 
-  const wishlistWhere = wishlistFilter
-    ? and(creatorFilter, wishlistFilter)
-    : creatorFilter;
-  const collectionWhere = collectionFilter
-    ? and(creatorFilter, collectionFilter)
+  const favoritesWhere = favoritesFilter
+    ? and(creatorFilter, favoritesFilter)
     : creatorFilter;
 
-  const [viewTotals, clickTotals, wishlistTotal, collectionTotal] =
+  const [viewTotals, clickTotals, favoriteTotal, followTotal] =
     await Promise.all([
       getCreatorBookViewTotals(scope, range),
       getCreatorPurchaseClickTotals(scope, range),
@@ -121,23 +116,19 @@ export async function getCreatorFunnelTotals(
         .select({ value: count() })
         .from(wishlists)
         .innerJoin(books, eq(wishlists.bookId, books.id))
-        .where(wishlistWhere),
-      db
-        .select({ value: count() })
-        .from(collectionItems)
-        .innerJoin(books, eq(collectionItems.bookId, books.id))
-        .where(collectionWhere),
+        .where(favoritesWhere),
+      getFollowTotal(range),
     ]);
 
   return {
     ...withClickRate({
       views: viewTotals.totalViews,
-      wishlists: wishlistTotal[0]?.value ?? 0,
-      collections: collectionTotal[0]?.value ?? 0,
+      favorites: favoriteTotal[0]?.value ?? 0,
       outboundClicks: clickTotals.totalClicks,
     }),
     booksWithViews: viewTotals.booksWithViews,
     booksWithClicks: clickTotals.booksWithClicks,
+    follows: followTotal,
   };
 }
 
