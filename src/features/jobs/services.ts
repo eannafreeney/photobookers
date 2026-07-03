@@ -1,7 +1,10 @@
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "../../db/client";
-import { books, creators, follows, users } from "../../db/schema";
-import { buildNewBookNotificationHtml } from "./emails";
+import { books, creatorMessages, creators, follows, users } from "../../db/schema";
+import {
+  buildCreatorPostNotificationHtml,
+  buildNewBookNotificationHtml,
+} from "./emails";
 
 export type EmailToSend = { to: string; subject: string; html: string };
 
@@ -37,6 +40,63 @@ export async function markFollowerNotificationsSent(bookIds: string[]) {
     .update(books)
     .set({ notifyFollowersSentAt: new Date() })
     .where(inArray(books.id, bookIds));
+}
+
+/** Posts not yet emailed to followers. */
+export async function getPostsDueForFollowerNotification() {
+  return db
+    .select({
+      id: creatorMessages.id,
+      body: creatorMessages.body,
+      imageUrls: creatorMessages.imageUrls,
+      creatorId: creatorMessages.creatorId,
+      creatorDisplayName: creators.displayName,
+      creatorSlug: creators.slug,
+    })
+    .from(creatorMessages)
+    .innerJoin(creators, eq(creatorMessages.creatorId, creators.id))
+    .where(isNull(creatorMessages.notifyFollowersSentAt))
+    .orderBy(creatorMessages.createdAt);
+}
+
+/** Build one batch of emails for all unsent posts (one email per follower per post). */
+export async function buildCreatorPostNotificationEmails(): Promise<{
+  emails: EmailToSend[];
+  postIds: string[];
+}> {
+  const duePosts = await getPostsDueForFollowerNotification();
+  const emails: EmailToSend[] = [];
+  const postIds: string[] = [];
+
+  for (const post of duePosts) {
+    const toList = await getFollowerEmailsByCreatorId(post.creatorId);
+    if (toList.length === 0) {
+      postIds.push(post.id);
+      continue;
+    }
+
+    const subject = `New post from ${post.creatorDisplayName}`;
+    const html = buildCreatorPostNotificationHtml(
+      post.creatorDisplayName,
+      post.creatorSlug,
+      post.body,
+      post.imageUrls?.[0] ?? null,
+    );
+    for (const to of toList) {
+      emails.push({ to, subject, html });
+    }
+    postIds.push(post.id);
+  }
+
+  return { emails, postIds };
+}
+
+export async function markCreatorPostNotificationsSent(postIds: string[]) {
+  if (postIds.length === 0) return;
+  await db
+    .update(creatorMessages)
+    .set({ notifyFollowersSentAt: new Date() })
+    .where(inArray(creatorMessages.id, postIds));
 }
 
 /** Books that should trigger "notify followers" today (scheduled date = today, not yet sent). */

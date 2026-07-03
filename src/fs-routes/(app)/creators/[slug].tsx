@@ -14,6 +14,7 @@ import { canonicalUrl, creatorDescription, pageTitle } from "../../../lib/seo";
 import { getUpcomingFairsForCreator } from "../../../features/app/fairs/services";
 import { isFeatureEnabledForUser } from "../../../lib/features";
 import { routeParam } from "../../../lib/routeParam";
+import { countCreatorPosts } from "../../../db/queries";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -33,7 +34,10 @@ export const GET = createRoute(
 
     const { creator } = result;
 
-    await maybeRecordCreatorView(c, creator, "web");
+    const [, postCount] = await Promise.all([
+      maybeRecordCreatorView(c, creator, "web"),
+      countCreatorPosts(creator.id),
+    ]);
 
     // Fetch upcoming fairs if feature is enabled
     let upcomingFairs: Awaited<
@@ -88,6 +92,7 @@ export const GET = createRoute(
             result={result}
             creatorsCurrentPage={creatorsCurrentPage}
             isMobile={isMobile}
+            postCount={postCount}
             upcomingFairs={upcomingFairs}
           />
         </Page>

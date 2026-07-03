@@ -351,6 +351,13 @@
       "when": 1782917788336,
       "tag": "0050_parched_the_captain",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1783075598224,
+      "tag": "0051_perpetual_anthem",
+      "breakpoints": true
     }
   ]
 }

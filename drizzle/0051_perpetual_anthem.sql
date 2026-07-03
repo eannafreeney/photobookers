@@ -1,0 +1,2 @@
+ALTER TABLE "creator_messages" ADD COLUMN "notify_followers_sent_at" timestamp;--> statement-breakpoint
+UPDATE "creator_messages" SET "notify_followers_sent_at" = NOW() WHERE "notify_followers_sent_at" IS NULL;

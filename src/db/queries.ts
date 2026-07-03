@@ -2,6 +2,7 @@ import { err, ok } from "../lib/result";
 import { db } from "./client";
 import {
   collectionItems,
+  creatorMessages,
   follows,
   FollowTarget,
   users,
@@ -46,6 +47,15 @@ export const findFollowersCount = async (creatorId: string) => {
     .select({ value: count() })
     .from(follows)
     .where(eq(follows.targetCreatorId, creatorId));
+
+  return result[0]?.value ?? 0;
+};
+
+export const countCreatorPosts = async (creatorId: string) => {
+  const result = await db
+    .select({ value: count() })
+    .from(creatorMessages)
+    .where(eq(creatorMessages.creatorId, creatorId));
 
   return result[0]?.value ?? 0;
 };

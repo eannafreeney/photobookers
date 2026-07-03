@@ -6,6 +6,7 @@ import CreatorCard from "../../../components/app/CreatorCard";
 import CreatorsGrid from "./CreatorsGrid";
 import Tabs from "../../../components/app/Tabs";
 import CreatorMessages from "./CreatorMessages";
+import CreatorOwnerPostCta from "./CreatorOwnerPostCta";
 import CreatorPageBanner from "./CreatorPageBanner";
 import { BookFair, Creator } from "../../../db/schema";
 import { AuthUser } from "../../../../types";
@@ -35,6 +36,7 @@ type CreatorDetailProps = {
   result: CreatorBooksResult;
   creatorsCurrentPage: number;
   isMobile: boolean;
+  postCount: number;
   upcomingFairs: Array<
     Pick<
       BookFair,
@@ -50,10 +52,13 @@ const CreatorDetail = ({
   result,
   creatorsCurrentPage,
   isMobile,
+  postCount,
   upcomingFairs,
 }: CreatorDetailProps) => {
   const showCreatorsTab = result.relatedCreators.creators.length > 0;
   const showFairsTab = upcomingFairs.length > 0;
+  const isOwner = user?.creator?.id === creator.id;
+  const postsTabLabel = postCount > 0 ? `Posts (${postCount})` : "Posts";
 
   return isMobile ? (
     <CreatorDetailMobile
@@ -65,6 +70,9 @@ const CreatorDetail = ({
       result={result}
       creatorsCurrentPage={creatorsCurrentPage}
       upcomingFairs={upcomingFairs}
+      isOwner={isOwner}
+      postCount={postCount}
+      postsTabLabel={postsTabLabel}
     />
   ) : (
     <CreatorDetailDesktop
@@ -76,6 +84,9 @@ const CreatorDetail = ({
       result={result}
       creatorsCurrentPage={creatorsCurrentPage}
       upcomingFairs={upcomingFairs}
+      isOwner={isOwner}
+      postCount={postCount}
+      postsTabLabel={postsTabLabel}
     />
   );
 };
@@ -193,6 +204,9 @@ type CreatorDetailMobileProps = {
   showCreatorsTab: boolean;
   showFairsTab: boolean;
   creatorsCurrentPage: number;
+  isOwner: boolean;
+  postCount: number;
+  postsTabLabel: string;
   upcomingFairs: Array<
     Pick<
       BookFair,
@@ -209,6 +223,9 @@ const CreatorDetailMobile = ({
   showCreatorsTab,
   showFairsTab,
   creatorsCurrentPage,
+  isOwner,
+  postCount,
+  postsTabLabel,
   upcomingFairs,
 }: CreatorDetailMobileProps) => (
   <>
@@ -232,10 +249,14 @@ const CreatorDetailMobile = ({
         />
       </div>
 
+      {isOwner && (
+        <CreatorOwnerPostCta creatorSlug={creator.slug} postCount={postCount} />
+      )}
+
       <Tabs defaultTab="books">
         <Tabs.LinkContainer>
           <Tabs.Link tabId="books">Books</Tabs.Link>
-          <Tabs.Link tabId="posts">Posts</Tabs.Link>
+          <Tabs.Link tabId="posts">{postsTabLabel}</Tabs.Link>
           {showCreatorsTab && (
             <Tabs.Link tabId="creators">
               {creator.type === "publisher" ? "Artists" : "Publishers"}
@@ -302,6 +323,9 @@ type CreatorDetailDesktopProps = {
   showCreatorsTab: boolean;
   showFairsTab: boolean;
   creatorsCurrentPage: number;
+  isOwner: boolean;
+  postCount: number;
+  postsTabLabel: string;
   upcomingFairs: Array<
     Pick<
       BookFair,
@@ -319,6 +343,9 @@ const CreatorDetailDesktop = ({
   showFairsTab,
   result,
   upcomingFairs,
+  isOwner,
+  postCount,
+  postsTabLabel,
 }: CreatorDetailDesktopProps) => {
   return (
     <div class="flex flex-col gap-4">
@@ -356,10 +383,16 @@ const CreatorDetailDesktop = ({
 
       <div class="flex flex-col gap-4">
         <CreatorBioSection creator={creator} />
+        {isOwner && (
+          <CreatorOwnerPostCta
+            creatorSlug={creator.slug}
+            postCount={postCount}
+          />
+        )}
         <Tabs defaultTab="books">
           <Tabs.LinkContainer align="left">
             <Tabs.Link tabId="books">Books</Tabs.Link>
-            <Tabs.Link tabId="posts">Posts</Tabs.Link>
+            <Tabs.Link tabId="posts">{postsTabLabel}</Tabs.Link>
             {showCreatorsTab && (
               <Tabs.Link tabId="creators">
                 {creator.type === "publisher" ? "Artists" : "Publishers"}

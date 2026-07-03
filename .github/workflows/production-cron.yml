@@ -23,6 +23,7 @@ on:
           - botd-feature-day-emails
           - spotlight-creator-emails
           - notify-followers-new-books
+          - notify-followers-new-posts
           - weekly-botd-newsletter
           - instagram-prep-reminder-email
           - creator-analytics-digest
@@ -89,6 +90,18 @@ jobs:
       - uses: ./.github/actions/invoke-production-cron
         with:
           endpoint: notify-followers-new-books
+          cron_secret: ${{ secrets.CRON_SECRET }}
+
+  notify-followers-new-posts:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '0 9 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'notify-followers-new-posts')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/invoke-production-cron
+        with:
+          endpoint: notify-followers-new-posts
           cron_secret: ${{ secrets.CRON_SECRET }}
 
   weekly-botd-newsletter:

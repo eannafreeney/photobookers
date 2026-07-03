@@ -448,6 +448,7 @@ export const creatorMessages = pgTable("creator_messages", {
     .references(() => creators.id, { onDelete: "cascade" }),
   body: text("body").notNull(),
   imageUrls: text("image_urls").array(),
+  notifyFollowersSentAt: timestamp("notify_followers_sent_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
