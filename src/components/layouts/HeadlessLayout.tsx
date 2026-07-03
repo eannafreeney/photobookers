@@ -5,6 +5,7 @@ import Alert from "../app/Alert";
 import { Flash } from "../../../types";
 import Footer from "../app/Footer";
 import ToastContainer from "../app/ToastContainer";
+import { isStaging } from "../../lib/isStaging";
 
 type LayoutProps = PropsWithChildren<{
   title: string;
@@ -38,8 +39,17 @@ const HeadlessLayout = ({
 
 export default HeadlessLayout;
 
-const Navbar = () => (
-  <nav class="flex items-center justify-between bg-surface border-b border-on-surface-strong gap-4 px-6 py-4">
-    <BrandLogo />
-  </nav>
-);
+const Navbar = () => {
+  const staging = isStaging();
+  return (
+    <nav
+      class={
+        staging
+          ? "flex items-center justify-between gap-4 border-b border-amber-300 bg-amber-50 px-6 py-4"
+          : "flex items-center justify-between gap-4 border-b border-on-surface-strong bg-surface px-6 py-4"
+      }
+    >
+      <BrandLogo />
+    </nav>
+  );
+};

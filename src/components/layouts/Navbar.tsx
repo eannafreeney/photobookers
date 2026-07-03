@@ -4,6 +4,7 @@ import NavSearch from "./NavSearch";
 import BrandLogo from "../app/BrandLogo";
 import Button from "../app/Button";
 import { AuthUser } from "../../../types";
+import { isStaging } from "../../lib/isStaging";
 
 type NavbarProps = {
   currentPath?: string | null;
@@ -12,6 +13,7 @@ type NavbarProps = {
 };
 
 const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
+  const staging = isStaging();
   const alpineAttrs = {
     "x-data": "{ mobileMenuIsOpen: false, scrolled: false }",
     "x-init": "scrolled = window.scrollY > 20",
@@ -22,7 +24,7 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
   return (
     <nav
       x-bind:class="scrolled ? 'py-2! shadow-sm' : ''"
-      class="sticky top-0 z-50 border-b border-on-surface-strong bg-surface py-4 shadow-none transition-all duration-200 ease-in-out"
+      class={`sticky top-0 z-50 border-b py-4 shadow-none transition-all duration-200 ease-in-out ${staging ? "border-blue-300 bg-blue-500" : "border-on-surface-strong bg-surface"}`}
       {...alpineAttrs}
     >
       <div class="mx-auto flex w-full max-w-[1680px] items-center justify-between gap-4 px-4 md:px-8">
