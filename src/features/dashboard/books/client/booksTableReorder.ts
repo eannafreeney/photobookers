@@ -1,4 +1,8 @@
 import Alpine from "alpinejs";
+import {
+  EMPTY_TOAST_CONTAINER_HTML,
+  prependToast,
+} from "../../../../client/components/toast";
 
 export function registerBooksTableReorder() {
   Alpine.data(
@@ -8,7 +12,6 @@ export function registerBooksTableReorder() {
       creatorId,
       dragRow: null as HTMLTableRowElement | null,
       savedOrder: "",
-      isSaving: false,
 
       init() {
         this.savedOrder = this.bookIds.join(",");
@@ -53,7 +56,7 @@ export function registerBooksTableReorder() {
         const currentOrder = this.bookIds.join(",");
         if (currentOrder === this.savedOrder || this.bookIds.length === 0) return;
 
-        this.isSaving = true;
+        prependToast("info", "Saving order...", { saving: true });
 
         try {
           const response = await fetch("/dashboard/books/reorder", {
@@ -78,11 +81,8 @@ export function registerBooksTableReorder() {
         } catch {
           const container = document.getElementById("toast");
           if (container) {
-            container.outerHTML =
-              '<ul x-sync id="toast" x-merge="prepend" role="status" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 "></ul>';
+            container.outerHTML = EMPTY_TOAST_CONTAINER_HTML;
           }
-        } finally {
-          this.isSaving = false;
         }
       },
     }),

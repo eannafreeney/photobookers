@@ -1,6 +1,4 @@
-import { alertVariants } from "./Alert";
-
-type AlertType = keyof typeof alertVariants;
+import { type AlertType, alertVariants, toastIconSvgs } from "../../lib/toastVariants";
 
 interface AlertProps {
   type: AlertType;
@@ -19,9 +17,8 @@ const AlertStatic = ({ type, message }: AlertProps) => {
         <div
           aria-hidden="true"
           class={`rounded-full p-1 ${variant.iconWrapper}`}
-        >
-          {variant.Icon}
-        </div>
+          dangerouslySetInnerHTML={{ __html: toastIconSvgs[type] }}
+        />
 
         <div class="ml-2">
           <h3 class={`text-sm font-semibold ${variant.class}`}>

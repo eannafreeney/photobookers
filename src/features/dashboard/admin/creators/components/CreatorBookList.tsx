@@ -108,11 +108,6 @@ const CreatorBookList = async ({
         </Link>
       </div>
       <div {...tableWrapperAttrs}>
-        {reorderEnabled ? (
-          <p class="mb-2 text-xs text-on-surface/60" x-show="isSaving" x-cloak>
-            Saving order...
-          </p>
-        ) : null}
         <Table id="creator-books-table">
           <Table.Head>
             <tr>
