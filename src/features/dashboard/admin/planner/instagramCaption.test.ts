@@ -371,11 +371,11 @@ describe("instagram planner helpers", () => {
     process.env.BOTD_INSTAGRAM_POST_TIME = prev;
   });
 
-  it("schedules spotlight posts on saturday and sunday", () => {
+  it("schedules spotlight feed posts on tuesday and monday", () => {
     const weekStart = new Date(Date.UTC(2026, 4, 18));
     const aotwDue = buildAotwInstagramDueAt(weekStart);
     const potwDue = buildPotwInstagramDueAt(weekStart);
-    expect(aotwDue.getUTCDay()).toBe(6);
-    expect(potwDue.getUTCDay()).toBe(0);
+    expect(aotwDue.getUTCDay()).toBe(2);
+    expect(potwDue.getUTCDay()).toBe(1);
   });
 });

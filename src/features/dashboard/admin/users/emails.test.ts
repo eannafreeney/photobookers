@@ -30,7 +30,7 @@ describe("login instructions email", () => {
     expect(loginInstructionsEmailSubject("password_reset")).toBe(
       "Reset your Photobookers password",
     );
-    expect(html).toContain("reset by an administrator");
+    expect(html).toContain("Your Photobookers password has been reset.");
     expect(html).not.toContain("linked to the creator profile");
   });
 });

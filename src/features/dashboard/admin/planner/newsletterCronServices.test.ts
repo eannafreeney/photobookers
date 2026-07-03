@@ -93,7 +93,7 @@ describe("runWeeklyNewsletterCron", () => {
       makeSampleCampaign({ status: "sent" }),
     ]);
 
-    const [error, result] = await runWeeklyNewsletterCron();
+    const [error, result] = await runWeeklyNewsletterCron({ force: true });
     expect(error).toBeNull();
     expect(result).toEqual({
       action: "skipped",
@@ -117,7 +117,7 @@ describe("runWeeklyNewsletterCron", () => {
       },
     ]);
 
-    const [error] = await runWeeklyNewsletterCron();
+    const [error] = await runWeeklyNewsletterCron({ force: true });
     expect(error?.reason).toContain("Expected 7 books");
   });
 
@@ -162,7 +162,7 @@ describe("runWeeklyNewsletterCron", () => {
       },
     ]);
 
-    const [error, result] = await runWeeklyNewsletterCron();
+    const [error, result] = await runWeeklyNewsletterCron({ force: true });
     expect(error).toBeNull();
     expect(result).toEqual({
       action: "sent",
@@ -193,7 +193,7 @@ describe("runWeeklyNewsletterCron", () => {
       makeSampleCampaign({ status: "failed" }),
     ]);
 
-    const [error] = await runWeeklyNewsletterCron();
+    const [error] = await runWeeklyNewsletterCron({ force: true });
     expect(error?.reason).toBe("Brevo API request failed");
     expect(updateNewsletterCampaignDraft).toHaveBeenCalledWith("campaign-1", {
       status: "failed",

@@ -1,0 +1,24 @@
+# .github/workflows/sync-staging-database.yml
+name: Sync staging database
+
+on:
+  schedule:
+    - cron: "0 4 * * 0" # Sunday 04:00 UTC
+  workflow_dispatch: # manual "Run workflow" button
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: npm ci
+      - run: npx tsx scripts/sync-staging-database.ts
+        env:
+          ALLOW_STAGING_DB_SYNC: "true"
+          PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
