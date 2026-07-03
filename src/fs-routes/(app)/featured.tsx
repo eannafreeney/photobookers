@@ -10,6 +10,7 @@ import NewsletterBanner from "../../features/app/components/NewsletterBanner";
 import NewsletterCard from "../../features/app/components/NewsletterCard";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import Interviews from "../../features/app/components/Interviews";
+import FeaturedBookGroups from "../../features/app/components/FeaturedBookGroups";
 import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
 import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
 import { heroLcpImageSources } from "../../lib/imageUrl";
@@ -49,10 +50,14 @@ export const GET = createRoute(async (c: Context) => {
         <ScrollReveal>
           <SiteFeatures />
         </ScrollReveal>
+
         <ScrollReveal>
           <PageBleed>
-            <Interviews />
+            <FeaturedBookGroups />
           </PageBleed>
+        </ScrollReveal>
+        <ScrollReveal>
+          <NewsletterCard />
         </ScrollReveal>
         <ScrollReveal>
           <PageBleed>
@@ -63,8 +68,11 @@ export const GET = createRoute(async (c: Context) => {
           </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
-          <NewsletterCard />
+          <PageBleed>
+            <Interviews />
+          </PageBleed>
         </ScrollReveal>
+
         <ScrollReveal>
           <Intersector
             id="latest-books-fragment"

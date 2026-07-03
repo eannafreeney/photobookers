@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { formatDate } from "../../../utils";
+import { HORIZONTAL_SLIDER_CARD_CLASS } from "../../../lib/horizontalSliderCardWidth";
 
 type InterviewCardData = {
   id: string;
@@ -10,7 +11,7 @@ type InterviewCardData = {
 
 const InterviewCard = ({
   interview,
-  widthClass = "w-[78vw] sm:w-[calc((100%-2rem)/3.3)]",
+  widthClass = HORIZONTAL_SLIDER_CARD_CLASS,
   link,
 }: {
   interview: InterviewCardData;
