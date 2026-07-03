@@ -271,15 +271,26 @@ async function gatherDigestPayload(
   const analyticsUrl = buildAnalyticsDashboardUrl(range);
   const monthLabel = formatMonthLabel(range);
 
-  const [, topViewsResult] = await getTopBooksByViews(range, 1, 1, scope);
-  const topBook = topViewsResult?.books[0] ?? null;
-  let topBookClicks = 0;
-  if (topBook) {
+  const topBookLimit = Math.min(3, publishedBookCount);
+  const [, topViewsResult] = await getTopBooksByViews(
+    range,
+    1,
+    topBookLimit,
+    scope,
+  );
+  const topBooksWithViews =
+    topViewsResult?.books.filter((book) => book.viewCount > 0) ?? [];
+  let topBooks: { title: string; views: number; clicks: number }[] = [];
+  if (topBooksWithViews.length > 0) {
     const [, topClicksResult] = await getTopBooksByClicks(range, 1, 100, scope);
-    const clickRow = topClicksResult?.books.find(
-      (b) => b.id === topBook.bookId,
+    const clickByBookId = new Map(
+      topClicksResult?.books.map((book) => [book.id, book.clickCount]) ?? [],
     );
-    topBookClicks = clickRow?.clickCount ?? 0;
+    topBooks = topBooksWithViews.map((book) => ({
+      title: book.title,
+      views: book.viewCount,
+      clicks: clickByBookId.get(book.bookId) ?? 0,
+    }));
   }
 
   const botd = await getBotdFeatureInRange(creator.id, creator.type, range);
@@ -297,8 +308,7 @@ async function gatherDigestPayload(
     profileUrl,
     analyticsUrl,
     monthLabel,
-    topBook,
-    topBookClicks,
+    topBooks,
     botd,
     hasActivity,
   };
@@ -414,7 +424,7 @@ export async function runCreatorAnalyticsDigestCron(
     const subject = creatorAnalyticsDigestSubject({
       monthLabel: payload.monthLabel,
       template,
-      topBookTitle: payload.topBook?.title ?? null,
+      topBookTitle: payload.topBooks[0]?.title ?? null,
       views: payload.totals.views,
     });
 
@@ -428,9 +438,7 @@ export async function runCreatorAnalyticsDigestCron(
             favorites: payload.totals.favorites,
             newFollowers: payload.newFollowers,
             clickRate: payload.totals.clickRate,
-            topBookTitle: payload.topBook?.title ?? null,
-            topBookViews: payload.topBook?.viewCount ?? 0,
-            topBookClicks: payload.topBookClicks,
+            topBooks: payload.topBooks,
             botdBookTitle: payload.botd?.bookTitle ?? null,
             botdDate: payload.botd?.date ?? null,
             profileUrl: payload.profileUrl,

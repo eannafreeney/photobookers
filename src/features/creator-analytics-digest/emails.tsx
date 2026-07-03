@@ -1,3 +1,4 @@
+import { botdUrl } from "../app/spotlightUrls";
 import { escapeHtml } from "../dashboard/admin/planner/shareKit";
 import { formatBotdDateLong } from "../dashboard/admin/planner/utils";
 import { analyticsSearchParams } from "../book-analytics/dateRange";
@@ -5,6 +6,12 @@ import type { AnalyticsDateRange } from "../book-analytics/dateRange";
 import type { CreatorMilestoneKind } from "./milestones";
 
 const SITE_URL = process.env.SITE_URL ?? "https://photobookers.com";
+
+export type DigestTopBook = {
+  title: string;
+  views: number;
+  clicks: number;
+};
 
 export type DigestHighlightParams = {
   displayName: string;
@@ -14,9 +21,7 @@ export type DigestHighlightParams = {
   favorites: number;
   newFollowers: number;
   clickRate: number | null;
-  topBookTitle: string | null;
-  topBookViews: number;
-  topBookClicks: number;
+  topBooks: DigestTopBook[];
   botdBookTitle: string | null;
   botdDate: Date | null;
   profileUrl: string;
@@ -58,6 +63,31 @@ export function buildAnalyticsDashboardUrl(range: AnalyticsDateRange): string {
   return `${SITE_URL}/dashboard/analytics${analyticsSearchParams(range)}`;
 }
 
+function formatDigestBookStats(book: DigestTopBook): string {
+  const views = `${book.views} view${book.views === 1 ? "" : "s"}`;
+  const clicks =
+    book.clicks > 0
+      ? `, ${book.clicks} click${book.clicks === 1 ? "" : "s"}`
+      : "";
+  return `${views}${clicks}`;
+}
+
+function topBooksBlock(topBooks: DigestTopBook[]): string {
+  if (topBooks.length === 0) return "";
+  if (topBooks.length === 1) {
+    const book = topBooks[0];
+    return `<p>Top book: <strong>${escapeHtml(book.title)}</strong> — ${formatDigestBookStats(book)}.</p>`;
+  }
+  const heading = topBooks.length < 3 ? "Your books:" : "Top books:";
+  const items = topBooks
+    .map(
+      (book) =>
+        `<li><strong>${escapeHtml(book.title)}</strong> — ${formatDigestBookStats(book)}</li>`,
+    )
+    .join("\n    ");
+  return `<p>${heading}</p>\n  <ul>\n    ${items}\n  </ul>`;
+}
+
 export function buildCreatorAnalyticsHighlightEmail(
   params: DigestHighlightParams,
 ): string {
@@ -66,14 +96,11 @@ export function buildCreatorAnalyticsHighlightEmail(
       ? `<p>Your click rate was <strong>${params.clickRate}%</strong> — the share of viewers who clicked through to buy.</p>`
       : "";
 
-  const topBookBlock =
-    params.topBookTitle && params.topBookViews > 0
-      ? `<p>Top book: <strong>${escapeHtml(params.topBookTitle)}</strong> — ${params.topBookViews} view${params.topBookViews === 1 ? "" : "s"}${params.topBookClicks > 0 ? `, ${params.topBookClicks} click${params.topBookClicks === 1 ? "" : "s"}` : ""}.</p>`
-      : "";
+  const topBookBlock = topBooksBlock(params.topBooks);
 
   const botdBlock =
     params.botdBookTitle && params.botdDate
-      ? `<p>Also worth noting: <strong>${escapeHtml(params.botdBookTitle)}</strong> was Book of the Day on ${formatBotdDateLong(params.botdDate)}.</p>`
+      ? `<p>Also worth noting: <strong>${escapeHtml(params.botdBookTitle)}</strong> was <a href="${escapeHtml(botdUrl(params.botdDate))}">Book of the Day</a> on ${formatBotdDateLong(params.botdDate)}.</p>`
       : "";
 
   return `

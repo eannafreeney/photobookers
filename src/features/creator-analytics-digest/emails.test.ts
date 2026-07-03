@@ -39,9 +39,7 @@ describe("buildCreatorAnalyticsHighlightEmail", () => {
       favorites: 3,
       newFollowers: 2,
       clickRate: 7,
-      topBookTitle: "Winter Light",
-      topBookViews: 84,
-      topBookClicks: 5,
+      topBooks: [{ title: "Winter Light", views: 84, clicks: 5 }],
       botdBookTitle: "Winter Light",
       botdDate: new Date(Date.UTC(2026, 0, 15)),
       profileUrl: "https://photobookers.com/creators/jane-doe",
@@ -53,7 +51,9 @@ describe("buildCreatorAnalyticsHighlightEmail", () => {
     expect(html).toContain("120");
     expect(html).toContain("Winter Light");
     expect(html).toContain("84 views");
-    expect(html).toContain("Book of the Day");
+    expect(html).toContain(
+      '<a href="https://www.photobookers.com/book-of-the-day/2026-01-15">Book of the Day</a>',
+    );
     expect(html).toContain("click rate was <strong>7%</strong>");
     expect(html).toContain("/dashboard/analytics?from=2026-01-01");
   });
@@ -67,9 +67,7 @@ describe("buildCreatorAnalyticsHighlightEmail", () => {
       favorites: 1,
       newFollowers: 0,
       clickRate: 0,
-      topBookTitle: "Winter Light",
-      topBookViews: 5,
-      topBookClicks: 0,
+      topBooks: [{ title: "Winter Light", views: 5, clicks: 0 }],
       botdBookTitle: null,
       botdDate: null,
       profileUrl: "https://photobookers.com/creators/jane-doe",
@@ -77,6 +75,56 @@ describe("buildCreatorAnalyticsHighlightEmail", () => {
     });
 
     expect(html).not.toContain("click rate");
+  });
+
+  it("lists top books when more than one had views", () => {
+    const html = buildCreatorAnalyticsHighlightEmail({
+      displayName: "Jane Doe",
+      monthLabel: "January 2026",
+      views: 200,
+      outboundClicks: 12,
+      favorites: 4,
+      newFollowers: 1,
+      clickRate: 6,
+      topBooks: [
+        { title: "Winter Light", views: 84, clicks: 5 },
+        { title: "Coastal Drift", views: 62, clicks: 3 },
+        { title: "Night Walk", views: 41, clicks: 0 },
+      ],
+      botdBookTitle: null,
+      botdDate: null,
+      profileUrl: "https://photobookers.com/creators/jane-doe",
+      analyticsUrl: "https://photobookers.com/dashboard/analytics",
+    });
+
+    expect(html).toContain("Top books:");
+    expect(html).toContain("Winter Light");
+    expect(html).toContain("Coastal Drift");
+    expect(html).toContain("Night Walk");
+    expect(html).toContain("<ul>");
+  });
+
+  it("uses your books heading when showing all books for a small catalogue", () => {
+    const html = buildCreatorAnalyticsHighlightEmail({
+      displayName: "Jane Doe",
+      monthLabel: "January 2026",
+      views: 30,
+      outboundClicks: 2,
+      favorites: 1,
+      newFollowers: 0,
+      clickRate: null,
+      topBooks: [
+        { title: "Winter Light", views: 20, clicks: 1 },
+        { title: "Coastal Drift", views: 10, clicks: 1 },
+      ],
+      botdBookTitle: null,
+      botdDate: null,
+      profileUrl: "https://photobookers.com/creators/jane-doe",
+      analyticsUrl: "https://photobookers.com/dashboard/analytics",
+    });
+
+    expect(html).toContain("Your books:");
+    expect(html).not.toContain("Top books:");
   });
 });
 
