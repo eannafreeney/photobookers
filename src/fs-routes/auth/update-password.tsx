@@ -13,6 +13,7 @@ import {
   verifyOtpForRecovery,
 } from "../../features/auth/utils";
 import {
+  clearMustResetPassword,
   loginAndSetCookies,
   setCookiesAndVerifyUser,
 } from "../../features/auth/services";
@@ -158,6 +159,10 @@ export const POST = createRoute(
 
     const [loginErr] = await loginAndSetCookies(c, authEmail, password);
     if (loginErr) return showErrorAlert(c, loginErr.reason);
+
+    const [setResetPasswordFlagError] = await clearMustResetPassword(user.id);
+    if (setResetPasswordFlagError)
+      return showErrorAlert(c, setResetPasswordFlagError.reason);
 
     const next = safeAppRedirect(formData.redirectUrl, "/");
 
