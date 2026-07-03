@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertSafeStagingSyncConfig,
   parseDatabaseUrlForSync,
+  withSslModeForSync,
 } from "./syncStagingFromProduction";
 
 describe("parseDatabaseUrlForSync", () => {
@@ -48,5 +49,25 @@ describe("assertSafeStagingSyncConfig", () => {
       "postgresql://user:pass@db.staging.supabase.co:5432/postgres",
     );
     expect(error?.reason).toMatch(/transaction pooler/);
+  });
+});
+
+describe("withSslModeForSync", () => {
+  it("adds sslmode=require when missing", () => {
+    expect(
+      withSslModeForSync("postgresql://user:pass@db.prod.supabase.co:5432/postgres"),
+    ).toBe(
+      "postgresql://user:pass@db.prod.supabase.co:5432/postgres?sslmode=require",
+    );
+  });
+
+  it("preserves an existing sslmode", () => {
+    expect(
+      withSslModeForSync(
+        "postgresql://user:pass@db.prod.supabase.co:5432/postgres?sslmode=verify-full",
+      ),
+    ).toBe(
+      "postgresql://user:pass@db.prod.supabase.co:5432/postgres?sslmode=verify-full",
+    );
   });
 });
