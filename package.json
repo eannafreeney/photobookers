@@ -5,9 +5,8 @@
     "dev:fsr": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts -w",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:fsr\"",
     "dev:all:production": "DOTENV_CONFIG_PATH=.env.production concurrently \"node -r dotenv/config ./node_modules/vite/bin/vite.js\" \"node -r dotenv/config ./node_modules/.bin/hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts -w\"",
-    "prebuild": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts && npm run typecheck",
-    "build": "vite build",
-    "build:deploy": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts && vite build",
+    "build": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts && vite build",
+    "build:deploy": "npm run build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/fs-routes/(app)\" \"src/fs-routes/hyperview\"",
     "start": "NODE_ENV=production node --import tsx src/server.ts",
@@ -19,7 +18,7 @@
     "export-social-week": "ENV=production npx tsx scripts/export-social-week.ts",
     "test": "vitest",
     "test:run": "vitest run",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && node scripts/render-postinstall.mjs"
   },
   "dependencies": {
     "@alpinejs/collapse": "^3.15.11",

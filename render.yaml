@@ -1,0 +1,17 @@
+# Render Blueprint — service names must match your dashboard exactly.
+# Client JS/CSS builds automatically during npm ci on both services
+# (see scripts/render-postinstall.mjs).
+services:
+  - type: web
+    name: photobookers-production
+    runtime: node
+    branch: main
+    buildCommand: npm ci
+    startCommand: npm start
+
+  - type: web
+    name: photobookers-staging
+    runtime: node
+    branch: staging
+    buildCommand: npm ci
+    startCommand: npm start
