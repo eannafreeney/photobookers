@@ -36,7 +36,6 @@ export function getBooksOrderBy(sortBy: BookSortBy) {
       case "creator_order":
         return [
           sql`${fields.sortOrder} ASC NULLS LAST`,
-          sql`${fields.releaseDate} DESC NULLS LAST`,
           d(fields.createdAt),
         ];
       default:
