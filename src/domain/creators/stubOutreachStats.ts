@@ -10,8 +10,7 @@ import { creatorProfileUrl } from "../../lib/share";
 export type StubOutreachStats = {
   views: number;
   outboundClicks: number;
-  wishlists: number;
-  collections: number;
+  favorites: number;
   clickRate: number | null;
   topBookTitle: string | null;
   topBookViews: number;
@@ -41,8 +40,7 @@ export async function getStubOutreachStats(
   return {
     views: totals.views,
     outboundClicks: totals.outboundClicks,
-    wishlists: totals.wishlists,
-    collections: totals.collections,
+    favorites: totals.favorites,
     clickRate: totals.clickRate,
     topBookTitle: topBook?.title ?? null,
     topBookViews: topBook?.viewCount ?? 0,

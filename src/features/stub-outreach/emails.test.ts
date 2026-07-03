@@ -21,8 +21,7 @@ describe("generateStubViewMilestoneEmail", () => {
       stats: {
         views: 40,
         outboundClicks: 3,
-        wishlists: 2,
-        collections: 1,
+        favorites: 2,
         clickRate: 7.5,
         topBookTitle: "Coastal Light",
         topBookViews: 25,

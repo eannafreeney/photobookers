@@ -101,14 +101,12 @@ describe("getBookFunnelCounts", () => {
 
     expect(result.get("book-1")).toEqual({
       views: 100,
-      wishlists: 10,
-      collections: 4,
+      favorites: 10,
       outboundClicks: 8,
     });
     expect(result.get("book-2")).toEqual({
       views: 50,
-      wishlists: 0,
-      collections: 2,
+      favorites: 0,
       outboundClicks: 1,
     });
   });
@@ -123,8 +121,7 @@ describe("getBookFunnelCounts", () => {
 
     expect(result.get("book-1")).toEqual({
       views: 0,
-      wishlists: 0,
-      collections: 0,
+      favorites: 0,
       outboundClicks: 0,
     });
   });

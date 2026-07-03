@@ -34,8 +34,7 @@ export function generateStubViewMilestoneEmail(
       ? `<table role="presentation" cellspacing="0" cellpadding="0" style="margin: 16px 0;">
     <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.stats.views}</strong> book views (last 30 days)</td></tr>
     <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.stats.outboundClicks}</strong> outbound clicks to buy</td></tr>
-    <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.stats.wishlists}</strong> wishlists</td></tr>
-    <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.stats.collections}</strong> added to collections</td></tr>
+    <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.stats.favorites}</strong> favorited</td></tr>
   </table>`
       : "";
 

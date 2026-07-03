@@ -11,8 +11,7 @@ describe("digestHasActivity", () => {
       digestHasActivity({
         views: 0,
         outboundClicks: 0,
-        wishlists: 0,
-        collections: 0,
+        favorites: 0,
         newFollowers: 0,
       }),
     ).toBe(false);
@@ -23,8 +22,7 @@ describe("digestHasActivity", () => {
       digestHasActivity({
         views: 0,
         outboundClicks: 0,
-        wishlists: 1,
-        collections: 0,
+        favorites: 1,
         newFollowers: 0,
       }),
     ).toBe(true);

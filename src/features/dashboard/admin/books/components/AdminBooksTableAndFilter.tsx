@@ -45,8 +45,7 @@ const AdminBooksTableAndFilter = async ({
   const funnelCounts = await getBookFunnelCounts(books.map((book) => book.id));
   const emptyFunnel: BookFunnelCounts = {
     views: 0,
-    wishlists: 0,
-    collections: 0,
+    favorites: 0,
     outboundClicks: 0,
   };
 
@@ -75,8 +74,7 @@ const AdminBooksTableAndFilter = async ({
               <Table.HeadRow>Publisher</Table.HeadRow>
               <Table.HeadRow>Release Date</Table.HeadRow>
               <Table.HeadRow>Views</Table.HeadRow>
-              <Table.HeadRow>Wishlists</Table.HeadRow>
-              <Table.HeadRow>Collections</Table.HeadRow>
+              <Table.HeadRow>Favorited</Table.HeadRow>
               <Table.HeadRow>Outbound clicks</Table.HeadRow>
               <Table.HeadRow>Status</Table.HeadRow>
               <Table.HeadRow>Publish</Table.HeadRow>
@@ -165,10 +163,7 @@ const BooksTableRow = ({ book, user, funnel }: BooksTableRowProps) => {
         <Card.Text>{funnel.views}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
-        <Card.Text>{funnel.wishlists}</Card.Text>
-      </Table.BodyRow>
-      <Table.BodyRow>
-        <Card.Text>{funnel.collections}</Card.Text>
+        <Card.Text>{funnel.favorites}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
         <Card.Text>{funnel.outboundClicks}</Card.Text>

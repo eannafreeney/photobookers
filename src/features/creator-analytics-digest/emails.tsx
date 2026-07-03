@@ -11,8 +11,7 @@ export type DigestHighlightParams = {
   monthLabel: string;
   views: number;
   outboundClicks: number;
-  wishlists: number;
-  collections: number;
+  favorites: number;
   newFollowers: number;
   clickRate: number | null;
   topBookTitle: string | null;
@@ -83,8 +82,7 @@ export function buildCreatorAnalyticsHighlightEmail(
   <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 16px 0;">
     <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.views}</strong> book views</td></tr>
     <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.outboundClicks}</strong> outbound clicks to buy</td></tr>
-    <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.wishlists}</strong> wishlists</td></tr>
-    <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.collections}</strong> added to collections</td></tr>
+    <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.favorites}</strong> favorited</td></tr>
     <tr><td style="padding: 4px 16px 4px 0;"><strong>${params.newFollowers}</strong> new followers</td></tr>
   </table>
   ${topBookBlock}
@@ -114,7 +112,7 @@ export function buildCreatorAnalyticsNudgeEmail(
     <li><strong>Add anything missing</strong> — cover, tags, and a fair you're attending all help discovery</li>
   </ul>
   ${singleBookBlock}
-  <p>When traffic picks up, you'll see views, clicks, and wishlists in your <a href="${escapeHtml(params.analyticsUrl)}">analytics dashboard</a>.</p>
+  <p>When traffic picks up, you'll see views, clicks, and favorites in your <a href="${escapeHtml(params.analyticsUrl)}">analytics dashboard</a>.</p>
   <p style="font-size: 12px; color: #666;">Don't want monthly stats emails? Reply to this message and we'll remove you.</p>
   <p>Best regards,<br/>Eanna</p>
 `;

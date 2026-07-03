@@ -70,8 +70,7 @@ const CreatorBookList = async ({
   ]);
   const emptyFunnel: BookFunnelCounts = {
     views: 0,
-    wishlists: 0,
-    collections: 0,
+    favorites: 0,
     outboundClicks: 0,
   };
   const clickRateLabel = formatClickRate(
@@ -91,8 +90,7 @@ const CreatorBookList = async ({
       <div class="rounded-radius border border-outline bg-surface px-4 py-3 text-sm text-on-surface">
         <span class="font-semibold text-on-surface-strong">All time:</span>{" "}
         {catalogueTotals.views.toLocaleString()} views ·{" "}
-        {catalogueTotals.wishlists.toLocaleString()} wishlists ·{" "}
-        {catalogueTotals.collections.toLocaleString()} collections ·{" "}
+        {catalogueTotals.favorites.toLocaleString()} favorited ·{" "}
         {catalogueTotals.outboundClicks.toLocaleString()} outbound clicks
         {clickRateLabel ? ` (${clickRateLabel} click rate)` : null} for{" "}
         {creator.displayName}&apos;s catalogue
@@ -128,8 +126,7 @@ const CreatorBookList = async ({
               <Table.HeadRow>Artist</Table.HeadRow>
               <Table.HeadRow>Publisher</Table.HeadRow>
               <Table.HeadRow>Views</Table.HeadRow>
-              <Table.HeadRow>Wishlists</Table.HeadRow>
-              <Table.HeadRow>Collections</Table.HeadRow>
+              <Table.HeadRow>Favorited</Table.HeadRow>
               <Table.HeadRow>Outbound clicks</Table.HeadRow>
               <Table.HeadRow>Release Date</Table.HeadRow>
               <Table.HeadRow>Publish</Table.HeadRow>
@@ -236,10 +233,7 @@ const BookTableRow = ({
         <Card.Text>{funnel.views}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
-        <Card.Text>{funnel.wishlists}</Card.Text>
-      </Table.BodyRow>
-      <Table.BodyRow>
-        <Card.Text>{funnel.collections}</Card.Text>
+        <Card.Text>{funnel.favorites}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
         <Card.Text>{funnel.outboundClicks}</Card.Text>

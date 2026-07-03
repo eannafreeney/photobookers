@@ -89,15 +89,13 @@ export function pickNextMilestone(
 export function digestHasActivity(totals: {
   views: number;
   outboundClicks: number;
-  wishlists: number;
-  collections: number;
+  favorites: number;
   newFollowers: number;
 }): boolean {
   return (
     totals.views +
       totals.outboundClicks +
-      totals.wishlists +
-      totals.collections +
+      totals.favorites +
       totals.newFollowers >
     0
   );

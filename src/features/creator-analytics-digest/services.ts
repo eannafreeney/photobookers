@@ -286,8 +286,7 @@ async function gatherDigestPayload(
   const hasActivity = digestHasActivity({
     views: totals.views,
     outboundClicks: totals.outboundClicks,
-    wishlists: totals.wishlists,
-    collections: totals.collections,
+    favorites: totals.favorites,
     newFollowers,
   });
 
@@ -426,8 +425,7 @@ export async function runCreatorAnalyticsDigestCron(
             monthLabel: payload.monthLabel,
             views: payload.totals.views,
             outboundClicks: payload.totals.outboundClicks,
-            wishlists: payload.totals.wishlists,
-            collections: payload.totals.collections,
+            favorites: payload.totals.favorites,
             newFollowers: payload.newFollowers,
             clickRate: payload.totals.clickRate,
             topBookTitle: payload.topBook?.title ?? null,

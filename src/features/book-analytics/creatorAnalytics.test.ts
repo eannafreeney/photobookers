@@ -1,7 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const { selectMock } = vi.hoisted(() => ({
+const { selectMock, getFollowTotalMock } = vi.hoisted(() => ({
   selectMock: vi.fn(),
+  getFollowTotalMock: vi.fn().mockResolvedValue(0),
 }));
 
 vi.mock("../../db/client", () => ({
@@ -14,6 +15,14 @@ vi.mock("../../db/client", () => ({
     },
   },
 }));
+
+vi.mock("./trends", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./trends")>();
+  return {
+    ...actual,
+    getFollowTotal: getFollowTotalMock,
+  };
+});
 
 import { books } from "../../db/schema";
 import { getTopBooksByViews } from "../book-views/services";
@@ -49,6 +58,8 @@ describe("creatorRoleBookColumn", () => {
 describe("getCreatorBookViewTotals", () => {
   beforeEach(() => {
     selectMock.mockReset();
+    getFollowTotalMock.mockReset();
+    getFollowTotalMock.mockResolvedValue(0);
   });
 
   it("returns total views and distinct books with views", async () => {
@@ -88,16 +99,18 @@ describe("getCreatorBookViewTotals", () => {
 describe("getCreatorFunnelTotals", () => {
   beforeEach(() => {
     selectMock.mockReset();
+    getFollowTotalMock.mockReset();
+    getFollowTotalMock.mockResolvedValue(0);
   });
 
-  it("merges view, click, wishlist, and collection totals with click rate", async () => {
+  it("merges view, click, favorite, and follow totals with click rate", async () => {
+    getFollowTotalMock.mockResolvedValue(7);
     selectMock
       .mockImplementationOnce(() => mockSelectChain([{ value: 200 }]))
       .mockImplementationOnce(() => mockSelectChain([{ value: 5 }]))
       .mockImplementationOnce(() => mockSelectChain([{ value: 40 }]))
       .mockImplementationOnce(() => mockSelectChain([{ value: 3 }]))
-      .mockImplementationOnce(() => mockSelectChain([{ value: 12 }]))
-      .mockImplementationOnce(() => mockSelectChain([{ value: 7 }]));
+      .mockImplementationOnce(() => mockSelectChain([{ value: 12 }]));
 
     const result = await getCreatorFunnelTotals({
       creatorId: "creator-1",
@@ -109,8 +122,8 @@ describe("getCreatorFunnelTotals", () => {
       booksWithViews: 5,
       outboundClicks: 40,
       booksWithClicks: 3,
-      wishlists: 12,
-      collections: 7,
+      favorites: 12,
+      follows: 7,
       clickRate: 20,
     });
   });
@@ -139,6 +152,8 @@ describe("getCreatorFunnelTotals", () => {
 describe("getTopBooksByViews", () => {
   beforeEach(() => {
     selectMock.mockReset();
+    getFollowTotalMock.mockReset();
+    getFollowTotalMock.mockResolvedValue(0);
   });
 
   it("returns an empty result when no books have views", async () => {
