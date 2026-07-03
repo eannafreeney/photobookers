@@ -47,7 +47,11 @@ export const GET = createRoute(async (c) => {
       currentPath={currentPath}
     >
       <Page>
-        <PageHeader kicker="The Archive" title="Publishers of the Week" intro="Every week, one publisher in focus. Browse past spotlights." />
+        <PageHeader
+          kicker="The Archive"
+          title="Publishers of the Week"
+          intro="Every week, one publisher in focus. Browse past spotlights."
+        />
         <GridPanel id={targetId} isFullWidth xMerge="append">
           {potwEntries.map((entry) => (
             <ScrollReveal>
