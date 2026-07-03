@@ -217,20 +217,21 @@ const CreatorDetailMobile = ({
       displayName={creator.displayName}
     />
     <div class="flex flex-col gap-4">
-      <MobileHeader
-        kicker={creator.type === "publisher" ? "Publisher" : "Artist"}
-        title={creator.displayName}
-      >
-        <div class="flex justify-between items-center gap-2">
-          <FollowButton creator={creator} variant="mobile" user={user} />
-          <ShareButton
-            title={creator.displayName}
-            text={creatorShareText(creator)}
-            url={creatorUrl(creator.slug)}
-          />
-        </div>
-      </MobileHeader>
-      {/* <CreatorBio creator={creator} maxWords={25} /> */}
+      <div class="flex items-center gap-4">
+        <CreatorAvatar creator={creator} class="size-10" />
+        <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
+          {creator.displayName}
+        </h1>
+      </div>
+      <div class="flex justify-between items-center gap-2">
+        <FollowButton creator={creator} variant="mobile" user={user} />
+        <ShareButton
+          title={creator.displayName}
+          text={creatorShareText(creator)}
+          url={creatorUrl(creator.slug)}
+        />
+      </div>
+
       <Tabs defaultTab="books">
         <Tabs.LinkContainer>
           <Tabs.Link tabId="books">Books</Tabs.Link>
@@ -326,16 +327,11 @@ const CreatorDetailDesktop = ({
         displayName={creator.displayName}
       />
       <div class="flex justify-between border-b-2 border-on-surface-strong pb-4">
-        <div class="flex flex-col gap-1">
-          <span class="kicker text-accent">
-            {creator.type === "publisher" ? "Publisher" : "Artist"}
-          </span>
-          <div class="flex items-center gap-4">
-            <CreatorAvatar creator={creator} />
-            <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
-              {creator.displayName}
-            </h1>
-          </div>
+        <div class="flex items-center gap-4">
+          <CreatorAvatar creator={creator} />
+          <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
+            {creator.displayName}
+          </h1>
         </div>
         <div class="flex flex-col items-end justify-end gap-3">
           <div class="grid grid-cols-2 gap-4">
@@ -419,7 +415,7 @@ const CreatorBioMeta = async ({
   const followerCount =
     followerCountProp ?? (await findFollowersCount(creator.id));
   const hasLocation = !!(creator.city || creator.country);
-  const hasFollowers = followerCount > 0;
+  const hasFollowers = followerCount > 10;
   const hasSocials = !!(
     creator.website ||
     creator.facebook ||
@@ -440,7 +436,7 @@ const CreatorBioMeta = async ({
             {formatCountry(creator.country ?? "")}
           </span>
         )}
-        {followerCount > 10 && <FollowersCount count={followerCount} />}
+        {hasFollowers && <FollowersCount count={followerCount} />}
         {hasSocials && (
           <SocialLinks
             creator={creator}

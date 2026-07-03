@@ -87,7 +87,6 @@ const LinksPage = ({
             href={botdPath(bookOfTheDay.date)}
             imageUrl={bookOfTheDay.book.coverUrl ?? ""}
             imageAlt={bookOfTheDay.book.title}
-            dateLabel={formatDate(bookOfTheDay.date)}
             title={bookOfTheDay.book.title}
             subtitle={bookOfTheDay.book.artist?.displayName}
             className={cardClassName}
@@ -106,7 +105,6 @@ const LinksPage = ({
               ""
             }
             imageAlt={artistOfTheWeek.creator.displayName}
-            dateLabel={`Week of ${formatDate(artistOfTheWeek.weekStart)}`}
             title={artistOfTheWeek.creator.displayName}
             subtitle={
               [
@@ -133,7 +131,6 @@ const LinksPage = ({
               ""
             }
             imageAlt={publisherOfTheWeek.creator.displayName}
-            dateLabel={`Week of ${formatDate(publisherOfTheWeek.weekStart)}`}
             title={publisherOfTheWeek.creator.displayName}
             subtitle={
               [

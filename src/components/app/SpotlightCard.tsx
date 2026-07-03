@@ -4,7 +4,6 @@ type Props = {
   href: string;
   imageUrl: string;
   imageAlt: string;
-  dateLabel: string;
   title: string;
   subtitle?: string;
   aspectSquare?: boolean;
@@ -20,7 +19,6 @@ const SpotlightCard = ({
   href,
   imageUrl,
   imageAlt,
-  dateLabel,
   title,
   subtitle,
   aspectSquare = false,
@@ -34,9 +32,6 @@ const SpotlightCard = ({
         className ?? "min-w-[200px] max-w-[24rem]",
       )}
     >
-      <div class="flex justify-center gap-2 border-b border-outline px-3 py-2">
-        <span class="kicker text-accent whitespace-nowrap">{dateLabel}</span>
-      </div>
       <figure
         class={clsx(
           "relative w-full overflow-hidden bg-surface-alt",
