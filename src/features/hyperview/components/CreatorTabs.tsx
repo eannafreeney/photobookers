@@ -49,7 +49,7 @@ const CreatorTabs = ({
           hide-during-load="tab-area"
           show-during-load="tab-spinner"
         >
-          <Text style="tab-label">MESSAGES</Text>
+          <Text style="tab-label">POSTS</Text>
         </Option>
         <Option
           value={creatorType === "publisher" ? "publishers" : "artists"}

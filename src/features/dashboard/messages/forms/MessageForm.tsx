@@ -14,9 +14,7 @@ const MessageForm = ({ creatorId }: { creatorId: string }) => {
 
   return (
     <div>
-      <h2 class="text-lg font-semibold text-on-surface-strong">
-        Post a message
-      </h2>
+      <h2 class="text-lg font-semibold text-on-surface-strong">Write a post</h2>
       <form
         id="message-form"
         method="post"
@@ -29,13 +27,13 @@ const MessageForm = ({ creatorId }: { creatorId: string }) => {
           name="form.body"
           required
           maxLength={5000}
-          placeholder="Write a message for your followers…"
+          placeholder="Share fair dates, new work, or news with your followers…"
           validateInput="validateField('body')"
         />
         <div x-show="previewUrl" x-cloak>
           <img
             x-bind:src="previewUrl"
-            alt="Message image preview"
+            alt="Post image preview"
             class="w-full max-w-md rounded-radius object-cover border border-outline"
           />
         </div>
@@ -47,7 +45,7 @@ const MessageForm = ({ creatorId }: { creatorId: string }) => {
           x-ref="fileInput"
           // isDisabled={!canUploadImage(user, book)}
         />
-        <FormButtons buttonText="Post message" loadingText="Posting…" />
+        <FormButtons buttonText="Publish post" loadingText="Publishing…" />
       </form>
     </div>
   );

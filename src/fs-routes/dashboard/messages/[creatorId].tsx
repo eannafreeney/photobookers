@@ -72,7 +72,7 @@ export const POST = createRoute(
       <>
         <Alert
           type="success"
-          message="Message posted! Your followers will see it."
+          message="Post published! Your followers will see it on your profile."
         />
         <MessageForm creatorId={creatorId} />
         <CreatorMessages creatorSlug={creator.slug} user={user} />

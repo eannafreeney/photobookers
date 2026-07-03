@@ -235,7 +235,7 @@ const CreatorDetailMobile = ({
       <Tabs defaultTab="books">
         <Tabs.LinkContainer>
           <Tabs.Link tabId="books">Books</Tabs.Link>
-          <Tabs.Link tabId="messages">Messages</Tabs.Link>
+          <Tabs.Link tabId="posts">Posts</Tabs.Link>
           {showCreatorsTab && (
             <Tabs.Link tabId="creators">
               {creator.type === "publisher" ? "Artists" : "Publishers"}
@@ -254,7 +254,7 @@ const CreatorDetailMobile = ({
             noResultsMessage="No books found"
           />
         </Tabs.Panel>
-        <Tabs.Panel tabId="messages">
+        <Tabs.Panel tabId="posts">
           <CreatorMessages creatorSlug={creator.slug} user={user} />
         </Tabs.Panel>
         <Tabs.Panel tabId="creators">
@@ -359,7 +359,7 @@ const CreatorDetailDesktop = ({
         <Tabs defaultTab="books">
           <Tabs.LinkContainer align="left">
             <Tabs.Link tabId="books">Books</Tabs.Link>
-            <Tabs.Link tabId="messages">Messages</Tabs.Link>
+            <Tabs.Link tabId="posts">Posts</Tabs.Link>
             {showCreatorsTab && (
               <Tabs.Link tabId="creators">
                 {creator.type === "publisher" ? "Artists" : "Publishers"}
@@ -377,7 +377,7 @@ const CreatorDetailDesktop = ({
               noResultsMessage="No books found"
             />
           </Tabs.Panel>
-          <Tabs.Panel tabId="messages">
+          <Tabs.Panel tabId="posts">
             <CreatorMessages creatorSlug={creator.slug} user={user} />
           </Tabs.Panel>
           <Tabs.Panel tabId="creators">

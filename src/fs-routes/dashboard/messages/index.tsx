@@ -22,7 +22,7 @@ export const GET = createRoute(async (c: Context) => {
     return c.html(<InfoPage errorMessage={claimError.reason} user={user} />);
 
   return c.html(
-    <AppLayout title="Messages" user={user} currentPath={currentPath}>
+    <AppLayout title="Posts" user={user} currentPath={currentPath}>
       <CreatorDashboardShell
         currentPath={currentPath}
         user={user}

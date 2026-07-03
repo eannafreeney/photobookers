@@ -51,7 +51,7 @@ const CreatorMessage = ({
             {...{
               "x-target": "toast",
               "@ajax:before":
-                "confirm('Delete this message?') || $event.preventDefault()",
+                "confirm('Delete this post?') || $event.preventDefault()",
               "@ajax:success": "$el.closest('article').remove()",
             }}
           >
@@ -90,7 +90,7 @@ const CreatorMessage = ({
                   >
                     <img
                       src={url}
-                      alt={`Message image ${idx + 1}`}
+                      alt={`Post image ${idx + 1}`}
                       class="w-full rounded-radius object-cover border border-outline"
                       loading="lazy"
                     />

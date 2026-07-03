@@ -20,7 +20,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   if (error || !result) {
     return hv(
       <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
-        <Text style="comments-placeholder">Messages not found.</Text>
+        <Text style="comments-placeholder">Posts not found.</Text>
       </view>,
       404,
     );
@@ -31,7 +31,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   if (messages.length === 0) {
     return hv(
       <view xmlns="https://hyperview.org/hyperview" style="tab-fragment">
-        <Text style="comments-placeholder">No messages found.</Text>
+        <Text style="comments-placeholder">No posts yet.</Text>
       </view>,
       404,
     );

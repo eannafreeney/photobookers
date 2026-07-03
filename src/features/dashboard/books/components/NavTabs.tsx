@@ -31,7 +31,7 @@ const NavTabs = ({
       </NavLink>
       <NavLink href="/dashboard/messages" currentPath={currentPath}>
         {mailIcon(5)}
-        Messages
+        Posts
       </NavLink>
       {showProfile ? (
         <NavLink
