@@ -10,6 +10,7 @@ on:
     - cron: "0 9 * * 6" # Saturday 09:00 UTC — Instagram prep reminder
     - cron: "0 9 3 * *" # 3rd of month 09:00 UTC — creator analytics digest
     - cron: "0 10 * * *" # daily 10:00 UTC — creator milestone + stub outreach
+    - cron: "0 10 * * 4" # Thursday 10:00 UTC — open interview reminders (14-day cadence in app)
     - cron: "0 11 * * *" # daily 11:00 UTC — verified creator Instagram
   workflow_dispatch:
     inputs:
@@ -29,6 +30,7 @@ on:
           - creator-analytics-digest
           - creator-milestone-emails
           - stub-outreach-emails
+          - interview-reminder-emails
           - verified-creator-instagram
 
 jobs:
@@ -162,6 +164,18 @@ jobs:
       - uses: ./.github/actions/invoke-production-cron
         with:
           endpoint: stub-outreach-emails
+          cron_secret: ${{ secrets.CRON_SECRET }}
+
+  interview-reminder-emails:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '0 10 * * 4') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'interview-reminder-emails')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/invoke-production-cron
+        with:
+          endpoint: interview-reminder-emails
           cron_secret: ${{ secrets.CRON_SECRET }}
 
   verified-creator-instagram:

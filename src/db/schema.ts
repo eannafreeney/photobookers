@@ -164,6 +164,7 @@ export const creatorInterviews = pgTable("creator_interviews", {
   invitedByUserId: uuid("invited_by_user_id").references(() => users.id),
   status: creatorInterviewStatusEnum("status").notNull().default("sent"),
   invitedAt: timestamp("invited_at").defaultNow().notNull(),
+  reminderSentAt: timestamp("reminder_sent_at"),
   completedAt: timestamp("completed_at"),
   expiresAt: timestamp("expires_at"),
   answers: jsonb("answers").$type<{
@@ -233,6 +234,7 @@ export const creators = pgTable(
       length: 7,
     }),
     stubOutreachOptOutAt: timestamp("stub_outreach_opt_out_at"),
+    interviewReminderOptOutAt: timestamp("interview_reminder_opt_out_at"),
     verifiedInstagramQueuedAt: timestamp("verified_instagram_queued_at"),
     verifiedInstagramBufferPostId: text("verified_instagram_buffer_post_id"),
     verifiedInstagramError: text("verified_instagram_error"),

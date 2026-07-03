@@ -1,0 +1,1 @@
+ALTER TABLE "creators" ADD COLUMN "interview_reminder_opt_out_at" timestamp;

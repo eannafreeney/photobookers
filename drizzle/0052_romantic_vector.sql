@@ -1,0 +1,1 @@
+ALTER TABLE "creator_interviews" ADD COLUMN "reminder_sent_at" timestamp;
