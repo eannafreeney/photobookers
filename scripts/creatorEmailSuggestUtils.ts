@@ -7,6 +7,8 @@ export type CreatorEmailInputRow = {
   profile_url?: string;
   publisher_name?: string;
   publisher_profile_url?: string;
+  official_website?: string;
+  website?: string;
 };
 
 export type CreatorEmailOutputRow = CreatorEmailInputRow & {
@@ -24,10 +26,37 @@ export type ScrapeResult = {
   candidateEmails: string[];
   sourceUrl: string;
   pageSnippets: Array<{ url: string; text: string }>;
+  foundOnContactPage: boolean;
 };
 
+const BLOCKED_HOST_PATTERNS = [
+  /(^|\.)photobookers\.com$/i,
+  /(^|\.)instagram\.com$/i,
+  /(^|\.)facebook\.com$/i,
+  /(^|\.)twitter\.com$/i,
+  /(^|\.)x\.com$/i,
+  /(^|\.)linkedin\.com$/i,
+  /(^|\.)wikipedia\.org$/i,
+  /(^|\.)youtube\.com$/i,
+  /(^|\.)amazon\./i,
+  /(^|\.)goodreads\.com$/i,
+  /(^|\.)192\.com$/i,
+];
+
+const PLACEHOLDER_EMAILS = new Set([
+  "user@domain.com",
+  "you@example.com",
+  "name@example.com",
+  "email@example.com",
+  "test@example.com",
+]);
 const USER_AGENT =
   "Mozilla/5.0 (compatible; PhotobookersEmailResearch/1.0; +https://photobookers.com)";
+
+type EmailPick = Pick<
+  CreatorEmailOutputRow,
+  "email" | "email_type" | "confidence" | "source_url" | "notes"
+>;
 const MAX_PAGES_PER_SITE = 10;
 const MAX_SNIPPET_CHARS = 2500;
 const EMAIL_REGEX = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
@@ -85,12 +114,119 @@ function resolveDuckDuckGoUrl(rawHref: string): string | null {
   return normalized;
 }
 
-function getDomain(url: string): string | null {
+function getHost(url: string): string | null {
   try {
     return new URL(url).hostname.replace(/^www\./, "").toLowerCase();
   } catch {
     return null;
   }
+}
+
+function getDomain(url: string): string | null {
+  return getHost(url);
+}
+
+function isBlockedHost(host: string): boolean {
+  return BLOCKED_HOST_PATTERNS.some((pattern) => pattern.test(host));
+}
+
+function isBlockedUrl(url: string): boolean {
+  const host = getHost(url);
+  return !host || isBlockedHost(host);
+}
+
+export function isPlaceholderEmail(email: string): boolean {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized || PLACEHOLDER_EMAILS.has(normalized)) return true;
+  const domain = normalized.split("@")[1] || "";
+  return (
+    domain === "example.com" ||
+    domain === "example.org" ||
+    domain === "domain.com" ||
+    domain.endsWith(".example")
+  );
+}
+
+function artistNameTokens(name: string): string[] {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length >= 3);
+}
+
+function sharedHostNamePrefix(host: string, artistName: string): number {
+  const lastName = artistNameTokens(artistName).at(-1) || "";
+  const normalizedHost = host.replace(/[^a-z0-9]/g, "");
+  if (!lastName || !normalizedHost) return 0;
+
+  const max = Math.min(lastName.length, normalizedHost.length);
+  for (let len = max; len >= 3; len--) {
+    const hostPrefix = normalizedHost.slice(0, len);
+    const namePrefix = lastName.slice(0, len);
+    if (hostPrefix === namePrefix) return len;
+  }
+  return 0;
+}
+
+function isBookstoreProductUrl(url: string): boolean {
+  try {
+    const path = new URL(url).pathname.toLowerCase();
+    return (
+      /\/products?\//.test(path) ||
+      /\/books?\//.test(path) ||
+      /\/shop\//.test(path)
+    );
+  } catch {
+    return false;
+  }
+}
+
+function hostMatchesArtist(host: string, artistName: string): boolean {
+  const normalizedHost = host.replace(/[^a-z0-9]/g, "");
+  const tokens = artistNameTokens(artistName);
+  if (tokens.length === 0) return false;
+  const matched = tokens.filter((token) => normalizedHost.includes(token));
+  return matched.length >= Math.min(2, tokens.length);
+}
+
+function scoreWebsiteCandidate(
+  url: string,
+  html: string,
+  row: CreatorEmailInputRow,
+): number {
+  const host = getHost(url);
+  if (!host || isBlockedHost(host)) return -1;
+
+  const lower = html.toLowerCase();
+  const nameParts = row.artist_name
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+  const hasName = nameParts.every((part) => lower.includes(part));
+  const hasBook = row.book_name
+    ? lower.includes(row.book_name.toLowerCase())
+    : false;
+
+  let score = 0;
+  if (hostMatchesArtist(host, row.artist_name)) score += 5;
+  if (sharedHostNamePrefix(host, row.artist_name) >= 3) score += 4;
+  if (hasName) score += 2;
+  if (hasBook) score += 1;
+  if (/(contact|about|portfolio|photography|gallery)/i.test(host)) score += 1;
+  if (isBookstoreProductUrl(url)) score -= 4;
+  if (matchesPublisherIdentity(host, row.publisher_name)) score -= 4;
+  return score;
+}
+
+function knownWebsiteFromRow(row: CreatorEmailInputRow): string | null {
+  for (const value of [row.official_website, row.website]) {
+    const url = normalizeUrl(value);
+    if (url && !isBlockedUrl(url)) return url;
+  }
+  return null;
 }
 
 async function fetchHtml(url: string): Promise<string | null> {
@@ -117,7 +253,8 @@ export function extractEmails(html: string): string[] {
     if (
       !email.endsWith(".png") &&
       !email.endsWith(".jpg") &&
-      !email.endsWith(".webp")
+      !email.endsWith(".webp") &&
+      !isPlaceholderEmail(email)
     ) {
       emails.add(email);
     }
@@ -139,7 +276,7 @@ export function extractEmails(html: string): string[] {
       .split("?")[0]
       .trim()
       .toLowerCase();
-    if (addr) emails.add(addr);
+    if (addr && !isPlaceholderEmail(addr)) emails.add(addr);
   });
 
   return Array.from(emails);
@@ -206,12 +343,25 @@ function pageTextSnippet(html: string): string {
 export async function findWebsite(
   row: CreatorEmailInputRow,
 ): Promise<{ website: string; notes: string }> {
+  const knownWebsite = knownWebsiteFromRow(row);
+  if (knownWebsite) {
+    const html = await fetchHtml(knownWebsite);
+    if (html) {
+      return { website: knownWebsite, notes: "Using known website from export" };
+    }
+  }
+
   const queries = [
+    [row.artist_name, "photographer", "contact", "-photobookers"]
+      .filter(Boolean)
+      .join(" "),
     [row.artist_name, row.book_name, "official website", "photographer"]
       .filter(Boolean)
       .join(" "),
     [row.artist_name, row.book_name, "contact"].filter(Boolean).join(" "),
   ];
+
+  let best: { website: string; score: number } | null = null;
 
   for (const query of queries) {
     const searchUrl = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
@@ -223,29 +373,33 @@ export async function findWebsite(
     $("a.result__a").each((_, el) => {
       const href = ($(el).attr("href") || "").trim();
       const url = resolveDuckDuckGoUrl(href);
-      if (url) candidates.push(url);
+      if (url && !isBlockedUrl(url)) candidates.push(url);
     });
 
-    for (const candidate of candidates.slice(0, 8)) {
+    for (const candidate of candidates.slice(0, 10)) {
       const html = await fetchHtml(candidate);
       if (!html) continue;
 
-      const lower = html.toLowerCase();
-      const nameParts = row.artist_name
-        .toLowerCase()
-        .split(/\s+/)
-        .filter(Boolean);
-      const hasName = nameParts.every((part) => lower.includes(part));
-      const hasBook = row.book_name
-        ? lower.includes(row.book_name.toLowerCase())
-        : true;
+      const score = scoreWebsiteCandidate(candidate, html, row);
+      if (score < 2) {
+        await sleep(120);
+        continue;
+      }
 
-      if (hasName || hasBook) {
+      if (!best || score > best.score) {
+        best = { website: candidate, score };
+      }
+
+      if (score >= 5) {
         return { website: candidate, notes: "Website found via search" };
       }
 
       await sleep(120);
     }
+  }
+
+  if (best) {
+    return { website: best.website, notes: "Website found via search (weak match)" };
   }
 
   return { website: "", notes: "No confident website match" };
@@ -288,13 +442,24 @@ function normalizeNameTokens(name: string): string[] {
 }
 
 function matchesPublisherIdentity(
-  emailDomain: string,
+  hostOrDomain: string,
   publisherName?: string,
 ): boolean {
   if (!publisherName?.trim()) return false;
-  const normalizedDomain = normalizeDomainForMatch(emailDomain);
+  const normalizedDomain = normalizeDomainForMatch(hostOrDomain);
+  const compactPublisher = publisherName
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]/g, "");
+  if (
+    compactPublisher.length >= 6 &&
+    normalizedDomain.includes(compactPublisher)
+  ) {
+    return true;
+  }
+
   const tokens = normalizeNameTokens(publisherName);
-  if (tokens.length === 0) return false;
   return tokens.some((token) => normalizedDomain.includes(token));
 }
 
@@ -302,11 +467,13 @@ export function pickEmailHeuristic(
   emails: string[],
   website: string,
   publisherName?: string,
+  options: { foundOnContactPage?: boolean } = {},
 ): Pick<
   CreatorEmailOutputRow,
   "email" | "email_type" | "confidence" | "notes"
 > {
   const filteredEmails = emails.filter((email) => {
+    if (isPlaceholderEmail(email)) return false;
     const domain = email.split("@")[1] || "";
     return !matchesPublisherIdentity(domain, publisherName);
   });
@@ -334,14 +501,21 @@ export function pickEmailHeuristic(
     ? filteredEmails.find((email) => email.split("@")[1]?.includes(domain))
     : undefined;
   const chosen = domainMatch || filteredEmails[0];
+  const confidence: CreatorEmailOutputRow["confidence"] = domainMatch
+    ? "high"
+    : options.foundOnContactPage
+      ? "high"
+      : "medium";
 
   return {
     email: chosen,
     email_type: classifyEmail(chosen),
-    confidence: domainMatch ? "high" : "medium",
+    confidence,
     notes: domainMatch
       ? "Heuristic: email domain matches website domain"
-      : "Heuristic: email found but domain does not match website",
+      : options.foundOnContactPage
+        ? "Heuristic: email found on contact/about page"
+        : "Heuristic: email found but domain does not match website",
   };
 }
 
@@ -351,10 +525,16 @@ async function collectEmailsFromSite(
   emails: string[];
   sourceUrl: string;
   pageSnippets: Array<{ url: string; text: string }>;
+  foundOnContactPage: boolean;
 }> {
   const root = await fetchHtml(website);
   if (!root) {
-    return { emails: [], sourceUrl: "", pageSnippets: [] };
+    return {
+      emails: [],
+      sourceUrl: "",
+      pageSnippets: [],
+      foundOnContactPage: false,
+    };
   }
 
   const pages = [
@@ -366,13 +546,22 @@ async function collectEmailsFromSite(
   const found = new Set<string>();
   const pageSnippets: Array<{ url: string; text: string }> = [];
   let sourceUrl = website;
+  let foundOnContactPage = false;
 
   for (const pageUrl of pages) {
     const html = await fetchHtml(pageUrl);
     if (!html) continue;
 
     const emails = extractEmails(html);
-    if (emails.length > 0 && !sourceUrl) sourceUrl = pageUrl;
+    const isContactPage = /\/(contact|about|info|impressum|legal)(\/|$)/i.test(
+      new URL(pageUrl).pathname,
+    );
+    if (isContactPage && emails.length > 0) {
+      foundOnContactPage = true;
+      sourceUrl = pageUrl;
+    } else if (emails.length > 0 && !sourceUrl) {
+      sourceUrl = pageUrl;
+    }
     emails.forEach((email) => found.add(email));
 
     const text = pageTextSnippet(html);
@@ -387,6 +576,7 @@ async function collectEmailsFromSite(
     emails: Array.from(found),
     sourceUrl,
     pageSnippets: pageSnippets.slice(0, 5),
+    foundOnContactPage,
   };
 }
 
@@ -401,6 +591,7 @@ export async function scrapeCreatorEmailContext(
       candidateEmails: [],
       sourceUrl: "",
       pageSnippets: [],
+      foundOnContactPage: false,
     };
   }
 
@@ -411,6 +602,44 @@ export async function scrapeCreatorEmailContext(
     candidateEmails: emailData.emails,
     sourceUrl: emailData.sourceUrl,
     pageSnippets: emailData.pageSnippets,
+    foundOnContactPage: emailData.foundOnContactPage,
+  };
+}
+
+export function mergeEmailPick(
+  heuristic: Pick<
+    CreatorEmailOutputRow,
+    "email" | "email_type" | "confidence" | "notes"
+  >,
+  ai: EmailPick,
+  sourceUrl: string,
+): EmailPick {
+  if (ai.email) {
+    return {
+      email: ai.email,
+      email_type: ai.email_type,
+      confidence: ai.confidence,
+      source_url: ai.source_url || sourceUrl,
+      notes: ai.notes,
+    };
+  }
+
+  if (heuristic.email && heuristic.confidence !== "none") {
+    return {
+      email: heuristic.email,
+      email_type: heuristic.email_type,
+      confidence: heuristic.confidence,
+      source_url: sourceUrl,
+      notes: heuristic.notes,
+    };
+  }
+
+  return {
+    email: "",
+    email_type: "unknown",
+    confidence: "none",
+    source_url: sourceUrl,
+    notes: ai.notes || heuristic.notes,
   };
 }
 
@@ -587,5 +816,29 @@ export function runCreatorEmailSuggestSelfCheck(): void {
     )
   ) {
     throw new Error("emailAppearsInScrapedContent should reject invented emails");
+  }
+
+  if (!isPlaceholderEmail("you@example.com")) {
+    throw new Error("isPlaceholderEmail should reject example addresses");
+  }
+
+  const merged = mergeEmailPick(
+    {
+      email: "artist@artistphoto.com",
+      email_type: "artist",
+      confidence: "medium",
+      notes: "heuristic",
+    },
+    {
+      email: "gallery@gallery.com",
+      email_type: "gallery",
+      confidence: "high",
+      source_url: "https://gallery.com/contact",
+      notes: "ai",
+    },
+    "https://artistphoto.com",
+  );
+  if (merged.email !== "gallery@gallery.com") {
+    throw new Error("mergeEmailPick should prefer AI email when present");
   }
 }

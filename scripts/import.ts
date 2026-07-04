@@ -142,6 +142,25 @@ async function main() {
       continue;
     }
 
+    const purchaseLink = row.purchaseLink?.trim() || null;
+    if (purchaseLink) {
+      const handleMatch = purchaseLink.match(/\/products\/([^/?#]+)/);
+      if (handleMatch?.[1]) {
+        const [existingByLink] = await db
+          .select({ id: books.id })
+          .from(books)
+          .where(ilike(books.purchaseLink, `%/products/${handleMatch[1]}%`))
+          .limit(1);
+        if (existingByLink) {
+          console.warn(
+            `[${rowIndex + 1}] Skipping "${title}": already exists (purchase link)`,
+          );
+          skipped++;
+          continue;
+        }
+      }
+    }
+
     const slug = await generateUniqueBookSlug(title, artistCreator.displayName);
     const coverUrlRaw = row.coverUrl?.trim() || null;
     const galleryUrls = parseImages(row.images).slice(
@@ -157,7 +176,7 @@ async function main() {
       publisherId,
       createdByUserId,
       coverUrl: null,
-      purchaseLink: row.purchaseLink?.trim() || null,
+      purchaseLink: purchaseLink,
       images: null,
       availabilityStatus: normalizeAvailability(row.availability),
       approvalStatus: "approved",

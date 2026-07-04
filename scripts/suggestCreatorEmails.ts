@@ -4,6 +4,7 @@ import { parse, stringify } from "csv/sync";
 import {
   type CreatorEmailInputRow,
   type CreatorEmailOutputRow,
+  mergeEmailPick,
   pickEmailHeuristic,
   runCreatorEmailSuggestSelfCheck,
   scrapeCreatorEmailContext,
@@ -70,6 +71,7 @@ async function processRow(
     scrape.candidateEmails,
     scrape.website,
     row.publisher_name,
+    { foundOnContactPage: scrape.foundOnContactPage },
   );
 
   if (!shouldUseAi(heuristic)) {
@@ -95,9 +97,7 @@ async function processRow(
     model: openAiModel,
   });
 
-  const chosen =
-    ai.email ||
-    (heuristic.email && heuristic.confidence !== "none" ? heuristic : ai);
+  const chosen = mergeEmailPick(heuristic, ai, scrape.sourceUrl);
 
   return {
     ...row,
