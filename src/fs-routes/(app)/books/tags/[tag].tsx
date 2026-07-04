@@ -29,7 +29,7 @@ export const GET = createRoute(
       tag: tagSlug,
       query,
       page: currentPage,
-      limit: 30,
+      limit: 15,
     });
     if (error)
       return c.html(<InfoPage errorMessage={error.reason} user={user} />);

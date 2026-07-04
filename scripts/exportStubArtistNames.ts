@@ -11,6 +11,7 @@ type Row = {
   profile_url: string;
   publisher_name: string;
   publisher_profile_url: string;
+  official_website: string;
 };
 
 const OUTPUT_PATH = "tmp/stub-artists.csv";
@@ -33,6 +34,7 @@ async function run() {
       id: creators.id,
       displayName: creators.displayName,
       slug: creators.slug,
+      website: creators.website,
     })
     .from(creators)
     .where(and(eq(creators.type, "artist"), eq(creators.status, "stub")))
@@ -76,13 +78,14 @@ async function run() {
       profile_url: `https://photobookers.com/creators/${artist.slug}`,
       publisher_name,
       publisher_profile_url,
+      official_website: artist.website?.trim() ?? "",
     });
   }
 
   await fs.mkdir("tmp", { recursive: true });
 
   const lines = [
-    "artist_name,book_name,profile_url,publisher_name,publisher_profile_url",
+    "artist_name,book_name,profile_url,publisher_name,publisher_profile_url,official_website",
   ];
   for (const row of out) {
     lines.push(
@@ -92,6 +95,7 @@ async function run() {
         esc(row.profile_url),
         esc(row.publisher_name),
         esc(row.publisher_profile_url),
+        esc(row.official_website),
       ].join(","),
     );
   }

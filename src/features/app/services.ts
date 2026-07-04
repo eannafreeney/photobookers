@@ -35,6 +35,7 @@ import {
 import { getPublicBooksForCreator } from "../../domain/creators/books";
 import { getBooksOrderBy } from "../../lib/booksOrderBy";
 import { slugToTag } from "../../lib/tags";
+import { FEATURED_BOOK_GROUPS } from "../../constants/featuredBookGroups";
 import {
   BOOK_CARD_COLUMNS,
   BookCardResult,
@@ -720,6 +721,41 @@ export const getLatestBooks = async (
     console.error("Failed to get books", error);
     return err({ reason: "Failed to get books" });
   }
+};
+
+const catalogBookCoverConditions = (tag: string) =>
+  and(
+    eq(books.publicationStatus, "published"),
+    eq(books.approvalStatus, "approved"),
+    or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    isNotNull(books.coverUrl),
+    sql`EXISTS (
+      SELECT 1 FROM unnest(${books.tags}) AS t
+      WHERE LOWER(t) = LOWER(${tag})
+    )`,
+  );
+
+const getCoverUrlForTag = async (tag: string): Promise<string | null> => {
+  const row = await db.query.books.findFirst({
+    where: catalogBookCoverConditions(tag),
+    columns: { coverUrl: true },
+    orderBy: (fields, { desc }) => [
+      sql`${fields.releaseDate} DESC NULLS LAST`,
+      desc(fields.createdAt),
+    ],
+  });
+  return row?.coverUrl ?? null;
+};
+
+export const loadFeaturedBookGroupCovers = async (): Promise<
+  Map<string, string | null>
+> => {
+  const entries = await Promise.all(
+    FEATURED_BOOK_GROUPS.map(
+      async (tag) => [tag, await getCoverUrlForTag(tag)] as const,
+    ),
+  );
+  return new Map(entries);
 };
 
 type GetFilteredBooksParams = {

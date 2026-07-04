@@ -47,10 +47,13 @@ const BooksOverviewDesktop = async ({
 }: Props) => {
   const targetId = "books-table-body";
   const funnelCounts = await getBookFunnelCounts(books.map((book) => book.id));
+  const showArtistColumn = user.creator?.type !== "artist";
+  const showPublisherColumn = user.creator?.type !== "publisher";
 
   const tbodyAttrs = reorderEnabled
     ? {
-        "@books:updated.window": "$ajax('/dashboard', { target: 'books-table-body' })",
+        "@books:updated.window":
+          "$ajax('/dashboard', { target: 'books-table-body' })",
       }
     : {
         "x-init": "true",
@@ -94,36 +97,39 @@ const BooksOverviewDesktop = async ({
       </div>
       <div {...tableWrapperAttrs}>
         <Table id="books-table">
-        <Table.Head>
-          <tr>
-            {reorderEnabled ? (
-              <Table.HeadRow>
-                <span class="sr-only">Reorder</span>
-              </Table.HeadRow>
-            ) : null}
-            <Table.HeadRow>Cover</Table.HeadRow>
-            <Table.HeadRow>Title</Table.HeadRow>
-            <Table.HeadRow>Artist</Table.HeadRow>
-            <Table.HeadRow>Publisher</Table.HeadRow>
-            <Table.HeadRow>Views</Table.HeadRow>
-            <Table.HeadRow>Favorited</Table.HeadRow>
-            <Table.HeadRow>Outbound clicks</Table.HeadRow>
-            <Table.HeadRow>Release Date</Table.HeadRow>
-            <Table.HeadRow>Approval</Table.HeadRow>
-            <Table.HeadRow>Publish</Table.HeadRow>
-          </tr>
-        </Table.Head>
-        <Table.Body id={targetId} {...tbodyAttrs}>
-          {books.map((book) => (
-            <BookTableRow
-              book={book}
-              user={user}
-              funnel={funnelCounts.get(book.id) ?? emptyFunnel}
-              reorderEnabled={reorderEnabled}
-            />
-          ))}
-        </Table.Body>
-      </Table>
+          <Table.Head>
+            <tr>
+              {reorderEnabled ? (
+                <Table.HeadRow>
+                  <span class="sr-only">Reorder</span>
+                </Table.HeadRow>
+              ) : null}
+              <Table.HeadRow>Cover</Table.HeadRow>
+              <Table.HeadRow>Title</Table.HeadRow>
+              {showArtistColumn ? <Table.HeadRow>Artist</Table.HeadRow> : null}
+              {showPublisherColumn ? (
+                <Table.HeadRow>Publisher</Table.HeadRow>
+              ) : null}
+              <Table.HeadRow>Views</Table.HeadRow>
+              <Table.HeadRow>Favs</Table.HeadRow>
+              <Table.HeadRow>Outbound clicks</Table.HeadRow>
+              <Table.HeadRow>Approval</Table.HeadRow>
+              <Table.HeadRow>Publish</Table.HeadRow>
+            </tr>
+          </Table.Head>
+          <Table.Body id={targetId} {...tbodyAttrs}>
+            {books.map((book) => (
+              <BookTableRow
+                book={book}
+                user={user}
+                funnel={funnelCounts.get(book.id) ?? emptyFunnel}
+                reorderEnabled={reorderEnabled}
+                showArtistColumn={showArtistColumn}
+                showPublisherColumn={showPublisherColumn}
+              />
+            ))}
+          </Table.Body>
+        </Table>
       </div>
       {!reorderEnabled && totalPages > 1 ? (
         <InfiniteScroll
@@ -144,6 +150,8 @@ type RowProps = {
   user: AuthUser;
   funnel: BookFunnelCounts;
   reorderEnabled: boolean;
+  showArtistColumn: boolean;
+  showPublisherColumn: boolean;
 };
 
 const BookTableRow = ({
@@ -151,13 +159,18 @@ const BookTableRow = ({
   user,
   funnel,
   reorderEnabled,
+  showArtistColumn,
+  showPublisherColumn,
 }: RowProps) => {
   if (!book || !book.id || !book.slug || !book.title) {
     return <></>;
   }
 
   return (
-    <tr {...{ "data-book-id": book.id }} {...(reorderEnabled ? reorderRowAttrs : {})}>
+    <tr
+      {...{ "data-book-id": book.id }}
+      {...(reorderEnabled ? reorderRowAttrs : {})}
+    >
       {reorderEnabled ? (
         <Table.BodyRow>
           <div
@@ -191,16 +204,20 @@ const BookTableRow = ({
           {book.title}
         </Link>
       </Table.BodyRow>
-      <Table.BodyRow>
-        <Link href={`/creators/${book.artist?.slug}`}>
-          {book.artist?.displayName}
-        </Link>
-      </Table.BodyRow>
-      <Table.BodyRow>
-        <Link href={`/creators/${book.publisher?.slug}`}>
-          {book.publisher?.displayName ?? ""}
-        </Link>
-      </Table.BodyRow>
+      {showArtistColumn ? (
+        <Table.BodyRow>
+          <Link href={`/creators/${book.artist?.slug}`}>
+            {book.artist?.displayName}
+          </Link>
+        </Table.BodyRow>
+      ) : null}
+      {showPublisherColumn ? (
+        <Table.BodyRow>
+          <Link href={`/creators/${book.publisher?.slug}`}>
+            {book.publisher?.displayName ?? ""}
+          </Link>
+        </Table.BodyRow>
+      ) : null}
       <Table.BodyRow>
         <Card.Text>{funnel.views}</Card.Text>
       </Table.BodyRow>
@@ -209,16 +226,6 @@ const BookTableRow = ({
       </Table.BodyRow>
       <Table.BodyRow>
         <Card.Text>{funnel.outboundClicks}</Card.Text>
-      </Table.BodyRow>
-      <Table.BodyRow>
-        {book.releaseDate
-          ? book.releaseDate
-              .toISOString()
-              .slice(0, 10)
-              .split("-")
-              .reverse()
-              .join("/")
-          : ""}
       </Table.BodyRow>
       <Table.BodyRow>
         <BookApprovalStatusPill
