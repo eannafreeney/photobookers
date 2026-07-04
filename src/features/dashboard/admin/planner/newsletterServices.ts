@@ -10,6 +10,8 @@ import {
   publisherOfTheWeek,
 } from "../../../../db/schema";
 import { getBooksOfTheDayInRange } from "../../../app/BOTDServices";
+import { getTopBooksByViews } from "../../../book-views/services";
+import { getTopCreatorsByViews } from "../../../creator-views/services";
 import { CREATOR_CARD_COLUMNS } from "../../../../constants/queries";
 import { err, ok } from "../../../../lib/result";
 import {
@@ -25,6 +27,9 @@ import {
   type WeeklyNewsletterCreatorSpotlight,
   type WeeklyNewsletterFairItem,
   type WeeklyNewsletterNewMember,
+  type WeeklyNewsletterTrending,
+  type WeeklyNewsletterTrendingBookItem,
+  type WeeklyNewsletterTrendingCreatorItem,
 } from "./newsletterTemplate";
 import { renderWeeklyBOTDNewsletterHtmlMjml } from "./newsletterTemplateMjml";
 import {
@@ -40,9 +45,11 @@ export type WeeklyNewsletterGeneratedContent = {
   upcomingFair: WeeklyNewsletterFairItem | null;
   artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
   publisherOfTheWeek: WeeklyNewsletterCreatorSpotlight;
+  trending?: WeeklyNewsletterTrending;
 };
 
 const NEW_MEMBERS_LIMIT = 6;
+const TRENDING_LIMIT = 3;
 
 /** Normalize any week-start value to UTC midnight (matches planner `YYYY-MM-DD` links). */
 export function normalizeWeekStartDate(weekStart: Date): Date {
@@ -226,6 +233,68 @@ async function getUpcomingFairForNextWeek(
   };
 }
 
+async function getTrendingForEdition(
+  rangeStart: Date,
+  rangeEnd: Date,
+): Promise<WeeklyNewsletterTrending> {
+  const range = { from: rangeStart, to: rangeEnd };
+
+  const [booksResult, artistsResult, publishersResult] = await Promise.all([
+    getTopBooksByViews(range, 1, TRENDING_LIMIT),
+    getTopCreatorsByViews(range, 1, TRENDING_LIMIT, "artist"),
+    getTopCreatorsByViews(range, 1, TRENDING_LIMIT, "publisher"),
+  ]);
+
+  if (booksResult[0]) {
+    console.error("getTrendingForEdition books", booksResult[0].reason);
+  }
+  if (artistsResult[0]) {
+    console.error("getTrendingForEdition artists", artistsResult[0].reason);
+  }
+  if (publishersResult[0]) {
+    console.error(
+      "getTrendingForEdition publishers",
+      publishersResult[0].reason,
+    );
+  }
+
+  const books: WeeklyNewsletterTrendingBookItem[] =
+    booksResult[1]?.books.map((book) => ({
+      bookId: book.bookId,
+      bookSlug: book.slug,
+      title: book.title,
+      coverUrl: book.coverUrl,
+      artistName: book.artistName,
+      publisherName: book.publisherName,
+    })) ?? [];
+
+  const toTrendingCreator = (
+    row: {
+      displayName: string;
+      slug: string;
+      type: "artist" | "publisher";
+      coverUrl: string | null;
+    },
+  ): WeeklyNewsletterTrendingCreatorItem => ({
+    displayName: row.displayName,
+    slug: row.slug,
+    type: row.type,
+    coverUrl: row.coverUrl,
+  });
+
+  const artists =
+    artistsResult[1]?.creators
+      .filter((c) => c.type === "artist")
+      .map(toTrendingCreator) ?? [];
+
+  const publishers =
+    publishersResult[1]?.creators
+      .filter((c) => c.type === "publisher")
+      .map(toTrendingCreator) ?? [];
+
+  return { books, artists, publishers };
+}
+
 export const DEFAULT_WEEKLY_NEWSLETTER_SUBJECT = "This week on photobookers";
 export const DEFAULT_WEEKLY_NEWSLETTER_INTRO =
   "We have some new books for you to check out. See below";
@@ -253,11 +322,12 @@ export async function buildWeeklyBOTDGeneratedContent(
   );
   if (rangeError) return err({ reason: rangeError.reason });
 
-  const [{ artistOfTheWeek, publisherOfTheWeek }, newMembers, upcomingFair] =
+  const [{ artistOfTheWeek, publisherOfTheWeek }, newMembers, upcomingFair, trending] =
     await Promise.all([
       getWeeklyCreatorSpotlights(rangeEnd),
       getNewlyVerifiedCreatorsInRange(rangeStart, rangeEnd),
       getUpcomingFairForNextWeek(rangeEnd),
+      getTrendingForEdition(rangeStart, rangeEnd),
     ]);
 
   const items: WeeklyNewsletterBookItem[] = rangeResult.botdEntries.map(
@@ -281,6 +351,7 @@ export async function buildWeeklyBOTDGeneratedContent(
     upcomingFair,
     artistOfTheWeek,
     publisherOfTheWeek,
+    trending,
   });
 }
 
@@ -506,6 +577,7 @@ export async function buildCampaignPreviewHtml(
         stored?.publisherOfTheWeek,
         spotlightWeekKey,
       ),
+    trending: generated?.trending ?? stored?.trending,
   });
 }
 

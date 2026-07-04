@@ -8,12 +8,16 @@ const {
   publisherOfTheWeekFindFirstMock,
   bookFairsFindFirstMock,
   getBooksOfTheDayInRangeMock,
+  getTopBooksByViewsMock,
+  getTopCreatorsByViewsMock,
 } = vi.hoisted(() => ({
   creatorsFindManyMock: vi.fn(),
   artistOfTheWeekFindFirstMock: vi.fn(),
   publisherOfTheWeekFindFirstMock: vi.fn(),
   bookFairsFindFirstMock: vi.fn(),
   getBooksOfTheDayInRangeMock: vi.fn(),
+  getTopBooksByViewsMock: vi.fn(),
+  getTopCreatorsByViewsMock: vi.fn(),
 }));
 
 vi.mock("../../../../db/client", () => ({
@@ -44,6 +48,14 @@ vi.mock("../../../../db/client", () => ({
 
 vi.mock("../../../app/BOTDServices", () => ({
   getBooksOfTheDayInRange: getBooksOfTheDayInRangeMock,
+}));
+
+vi.mock("../../../book-views/services", () => ({
+  getTopBooksByViews: getTopBooksByViewsMock,
+}));
+
+vi.mock("../../../creator-views/services", () => ({
+  getTopCreatorsByViews: getTopCreatorsByViewsMock,
 }));
 
 import { toWeekStart, toWeekString } from "../../../../lib/utils";
@@ -139,6 +151,8 @@ describe("buildWeeklyBOTDGeneratedContent", () => {
     publisherOfTheWeekFindFirstMock.mockReset();
     bookFairsFindFirstMock.mockReset();
     getBooksOfTheDayInRangeMock.mockReset();
+    getTopBooksByViewsMock.mockReset();
+    getTopCreatorsByViewsMock.mockReset();
 
     getBooksOfTheDayInRangeMock.mockResolvedValue([
       null,
@@ -146,6 +160,8 @@ describe("buildWeeklyBOTDGeneratedContent", () => {
         botdEntries: [],
       },
     ]);
+    getTopBooksByViewsMock.mockResolvedValue([null, { books: [] }]);
+    getTopCreatorsByViewsMock.mockResolvedValue([null, { creators: [] }]);
     artistOfTheWeekFindFirstMock.mockResolvedValue(null);
     publisherOfTheWeekFindFirstMock.mockResolvedValue(null);
     bookFairsFindFirstMock.mockResolvedValue(null);
@@ -213,6 +229,100 @@ describe("buildWeeklyBOTDGeneratedContent", () => {
       },
     ]);
     expect(creatorsFindManyMock).toHaveBeenCalledOnce();
+  });
+
+  it("includes top trending books, artists, and publishers for the edition", async () => {
+    creatorsFindManyMock.mockResolvedValue([]);
+    getTopBooksByViewsMock.mockResolvedValue([
+      null,
+      {
+        books: [
+          {
+            bookId: "book-1",
+            slug: "winter-light",
+            title: "Winter Light",
+            coverUrl: "https://example.com/winter.jpg",
+            viewCount: 42,
+            artistName: "Jane Artist",
+            publisherName: "Acme Press",
+          },
+        ],
+      },
+    ]);
+    getTopCreatorsByViewsMock
+      .mockResolvedValueOnce([
+        null,
+        {
+          creators: [
+            {
+              creatorId: "artist-1",
+              displayName: "Jane Artist",
+              slug: "jane-artist",
+              coverUrl: "https://example.com/jane.jpg",
+              type: "artist",
+              viewCount: 10,
+            },
+          ],
+        },
+      ])
+      .mockResolvedValueOnce([
+        null,
+        {
+          creators: [
+            {
+              creatorId: "pub-1",
+              displayName: "Acme Press",
+              slug: "acme-press",
+              coverUrl: null,
+              type: "publisher",
+              viewCount: 8,
+            },
+          ],
+        },
+      ]);
+
+    const [error, generated] = await buildGeneratedContent(
+      new Date(Date.UTC(2026, 4, 28)),
+      new Date(Date.UTC(2026, 5, 3)),
+    );
+
+    expect(error).toBeNull();
+    expect(generated?.trending).toEqual({
+      books: [
+        {
+          bookId: "book-1",
+          bookSlug: "winter-light",
+          title: "Winter Light",
+          coverUrl: "https://example.com/winter.jpg",
+          artistName: "Jane Artist",
+          publisherName: "Acme Press",
+        },
+      ],
+      artists: [
+        {
+          displayName: "Jane Artist",
+          slug: "jane-artist",
+          type: "artist",
+          coverUrl: "https://example.com/jane.jpg",
+        },
+      ],
+      publishers: [
+        {
+          displayName: "Acme Press",
+          slug: "acme-press",
+          type: "publisher",
+          coverUrl: null,
+        },
+      ],
+    });
+    expect(getTopBooksByViewsMock).toHaveBeenCalledWith(
+      {
+        from: new Date(Date.UTC(2026, 4, 28)),
+        to: new Date(Date.UTC(2026, 5, 3)),
+      },
+      1,
+      3,
+    );
   });
 
   it("includes the next week's upcoming fair when one is scheduled", async () => {
@@ -387,5 +497,48 @@ describe("newsletter template rendering", () => {
     expect(html).toContain("Documentary photographer");
     expect(html).toContain(`/artist-of-the-week/${spotlightWeekKey}`);
     expect(html).toContain("instagram.com/photobookers");
+  });
+
+  it("renders trending books, artists, and publishers", () => {
+    const html = renderWeeklyBOTDNewsletterHtmlMjml({
+      ...sampleNewsletterParams,
+      subject: "Weekly roundup",
+      trending: {
+        books: [
+          {
+            bookId: "book-1",
+            bookSlug: "winter-light",
+            title: "Winter Light",
+            coverUrl: "https://example.com/winter.jpg",
+            artistName: "Jane Artist",
+            publisherName: "Acme Press",
+          },
+        ],
+        artists: [
+          {
+            displayName: "Jane Artist",
+            slug: "jane-artist",
+            type: "artist",
+            coverUrl: "https://example.com/jane.jpg",
+          },
+        ],
+        publishers: [
+          {
+            displayName: "Acme Press",
+            slug: "acme-press",
+            type: "publisher",
+            coverUrl: null,
+          },
+        ],
+      },
+    });
+
+    expect(html).toContain("Top books this week");
+    expect(html).toContain("Winter Light");
+    expect(html).toContain("/books/winter-light");
+    expect(html).toContain("Top artists this week");
+    expect(html).toContain("/creators/jane-artist");
+    expect(html).toContain("Top publishers this week");
+    expect(html).toContain("/creators/acme-press");
   });
 });
