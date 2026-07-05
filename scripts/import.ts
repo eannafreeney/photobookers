@@ -13,15 +13,20 @@ import { createStubCreatorProfileAdmin } from "../src/features/dashboard/admin/c
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "simon-roberts.csv";
+const SOURCE_CSV_FILE = "radiusbooks.csv";
 const AMOUNT_OF_BOOKS = 100;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-function normalizeAvailability(value: string | undefined): "available" | "sold_out" {
-  const normalized = (value ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+function normalizeAvailability(
+  value: string | undefined,
+): "available" | "sold_out" {
+  const normalized = (value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
   return normalized.includes("sold") ? "sold_out" : "available";
 }
 
@@ -243,7 +248,9 @@ async function main() {
     }
 
     created++;
-    console.log(`[${rowIndex + 1}/${rowsToImport.length}] Created: ${newBook.title}`);
+    console.log(
+      `[${rowIndex + 1}/${rowsToImport.length}] Created: ${newBook.title}`,
+    );
   }
 
   console.log(

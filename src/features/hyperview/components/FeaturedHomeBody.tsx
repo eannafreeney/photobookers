@@ -48,16 +48,21 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
       <FeaturedSpotlightCarousel items={spotlightItems} />
       <SecondaryButtonLink label="View this week →" href={thisWeekHref} />
       <LazyLoader
-        id="interviews-loader"
-        href={`${baseUrl}/hyperview/featured/tab/interviews`}
+        id="groups-loader"
+        href={`${baseUrl}/hyperview/featured/tab/groups`}
         style="featured-tab-loader"
       />
+      <NewsletterCard baseUrl={baseUrl} />
       <LazyLoader
         id="trending-creators-loader"
         href={`${baseUrl}/hyperview/featured/tab/trending-creators`}
         style="featured-tab-loader"
       />
-      <NewsletterCard baseUrl={baseUrl} />
+      <LazyLoader
+        id="interviews-loader"
+        href={`${baseUrl}/hyperview/featured/tab/interviews`}
+        style="featured-tab-loader"
+      />
       <LazyLoader
         id="latest-books-loader"
         href={`${baseUrl}/hyperview/featured/tab/latest-books`}
