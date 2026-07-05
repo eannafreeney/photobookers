@@ -11,6 +11,7 @@ import {
 } from "../hyperviewCommonScreenStyles";
 import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps";
 import { feedListStyles } from "./FeedList";
+import { bookGroupsStyles } from "./BookGroups";
 import { interviewsStyles } from "./Interviews";
 import { trendingCreatorsStyles } from "./TrendingCreatorsSlider";
 import { newsletterCardStyles } from "./NewsletterCard";
@@ -80,6 +81,7 @@ const pageStyles = () => (
     {messageListStyles()}
     {feedListStyles()}
     {sectionHeaderStyles()}
+    {bookGroupsStyles()}
     {interviewsStyles()}
     {trendingCreatorsStyles()}
     {newsletterCardStyles()}
