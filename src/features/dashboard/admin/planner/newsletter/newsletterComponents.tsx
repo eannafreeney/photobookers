@@ -14,6 +14,8 @@ import type {
   WeeklyNewsletterCreatorSpotlight,
   WeeklyNewsletterFairItem,
   WeeklyNewsletterNewMember,
+  WeeklyNewsletterTrendingBookItem,
+  WeeklyNewsletterTrendingCreatorItem,
 } from "../newsletterTemplate";
 import {
   appBaseUrl,
@@ -446,6 +448,61 @@ export const BookFeatureCard = ({ book }: BookFeatureCardProps) => (
     body={buildBookBody(book)}
     linkHref={`${appBaseUrl}/book-of-the-day/${book.date}`}
     linkLabel="View book"
+  />
+);
+
+const buildTrendingBookBody = (item: WeeklyNewsletterTrendingBookItem): string => {
+  const parts: string[] = [];
+  if (item.artistName) parts.push(item.artistName);
+  if (item.publisherName) parts.push(item.publisherName);
+  return parts.join(" · ");
+};
+
+export const TrendingBookFeatureCard = ({
+  book,
+}: {
+  book: WeeklyNewsletterTrendingBookItem;
+}) => (
+  <FeatureCard
+    kicker="Book"
+    image={
+      book.coverUrl ? (
+        <MjmlImage
+          {...featureCardImageProps}
+          src={book.coverUrl}
+          alt={book.title}
+          cssClass="feature-card-img feature-card-img-book"
+        />
+      ) : null
+    }
+    title={book.title}
+    body={buildTrendingBookBody(book)}
+    linkHref={`${appBaseUrl}/books/${book.bookSlug}`}
+    linkLabel="View book"
+  />
+);
+
+export const TrendingCreatorFeatureCard = ({
+  creator,
+}: {
+  creator: WeeklyNewsletterTrendingCreatorItem;
+}) => (
+  <FeatureCard
+    kicker={creator.type === "artist" ? "Artist" : "Publisher"}
+    image={
+      creator.coverUrl ? (
+        <MjmlImage
+          {...featureCardImageProps}
+          src={creator.coverUrl}
+          alt={creator.displayName}
+          cssClass="feature-card-img feature-card-img-square"
+        />
+      ) : null
+    }
+    title={creator.displayName}
+    body=""
+    linkHref={`${appBaseUrl}/creators/${creator.slug}`}
+    linkLabel="View profile"
   />
 );
 

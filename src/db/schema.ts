@@ -793,6 +793,28 @@ export const newsletterCampaigns = pgTable(
         startDate: string;
         endDate: string;
       } | null;
+      trending?: {
+        books: Array<{
+          bookId: string;
+          bookSlug: string;
+          title: string;
+          coverUrl: string | null;
+          artistName: string | null;
+          publisherName: string | null;
+        }>;
+        artists: Array<{
+          displayName: string;
+          slug: string;
+          type: "artist" | "publisher";
+          coverUrl: string | null;
+        }>;
+        publishers: Array<{
+          displayName: string;
+          slug: string;
+          type: "artist" | "publisher";
+          coverUrl: string | null;
+        }>;
+      };
     }>(),
     sentAt: timestamp("sent_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),

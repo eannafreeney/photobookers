@@ -28,6 +28,8 @@ import {
   NewsletterOutro,
   NewsletterSubject,
   SectionHeading,
+  TrendingBookFeatureCard,
+  TrendingCreatorFeatureCard,
 } from "./newsletter/newsletterComponents";
 import {
   appBaseUrl,
@@ -186,6 +188,38 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
       />
       {/* <NewsletterIntro introText={params.introText} /> */}
       <NewsletterAppPromo />
+
+      {(params.trending?.books.length ?? 0) > 0 ? (
+        <>
+          <SectionHeading kicker="Trending">Top books this week</SectionHeading>
+          {params.trending!.books.map((book) => (
+            <TrendingBookFeatureCard key={book.bookId} book={book} />
+          ))}
+        </>
+      ) : null}
+
+      {(params.trending?.artists.length ?? 0) > 0 ? (
+        <>
+          <SectionHeading kicker="Trending">Top artists this week</SectionHeading>
+          {params.trending!.artists.map((artist) => (
+            <TrendingCreatorFeatureCard key={artist.slug} creator={artist} />
+          ))}
+        </>
+      ) : null}
+
+      {(params.trending?.publishers.length ?? 0) > 0 ? (
+        <>
+          <SectionHeading kicker="Trending">
+            Top publishers this week
+          </SectionHeading>
+          {params.trending!.publishers.map((publisher) => (
+            <TrendingCreatorFeatureCard
+              key={publisher.slug}
+              creator={publisher}
+            />
+          ))}
+        </>
+      ) : null}
 
       {params.items.length > 0 ? (
         <SectionHeading kicker="Daily picks">Books of the day</SectionHeading>

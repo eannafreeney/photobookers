@@ -9,6 +9,7 @@ import AnalyticsSectionTabs, {
   type AnalyticsSectionTab,
 } from "./AnalyticsSectionTabs";
 import BookAnalyticsBlock from "./BookAnalyticsBlock";
+import CeoMetricsBlock from "./CeoMetricsBlock";
 import SiteTrafficBlock from "./SiteTrafficBlock";
 import AppAnalyticsBlock from "./AppAnalyticsBlock";
 import NewsletterAnalyticsBlock from "./NewsletterAnalyticsBlock";
@@ -62,7 +63,10 @@ const AdminAnalyticsPanel = async ({
           dateRange={dateRange}
           basePath={ADMIN_ANALYTICS_BASE_PATH}
           tab={
-            tab === "site" || tab === "app" || tab === "newsletter"
+            tab === "site" ||
+            tab === "app" ||
+            tab === "newsletter" ||
+            tab === "books"
               ? tab
               : undefined
           }
@@ -70,7 +74,9 @@ const AdminAnalyticsPanel = async ({
           fragment={ADMIN_ANALYTICS_FRAGMENT}
         />
       </div>
-      {tab === "books" ? (
+      {tab === "overview" ? (
+        <CeoMetricsBlock dateRange={dateRange} />
+      ) : tab === "books" ? (
         <BookAnalyticsBlock
           dateRange={bookDateRange}
           viewsPaginationBaseUrl={viewsPaginationBaseUrl}

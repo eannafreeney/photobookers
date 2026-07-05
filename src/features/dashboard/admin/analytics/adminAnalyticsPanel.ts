@@ -9,6 +9,7 @@ export const ADMIN_ANALYTICS_FRAGMENT = "panel";
 export const ADMIN_ANALYTICS_BASE_PATH = "/dashboard/admin/analytics";
 
 const TAB_QUERY_VALUES: AnalyticsSectionTab[] = [
+  "overview",
   "books",
   "site",
   "app",
@@ -20,7 +21,9 @@ export function adminAnalyticsHref(
   options?: { tab?: AnalyticsSectionTab; fragment?: boolean },
 ): string {
   const tab =
-    options?.tab && TAB_QUERY_VALUES.includes(options.tab) && options.tab !== "books"
+    options?.tab &&
+    TAB_QUERY_VALUES.includes(options.tab) &&
+    options.tab !== "overview"
       ? options.tab
       : undefined;
   return `${ADMIN_ANALYTICS_BASE_PATH}${analyticsSearchParams(dateRange, {

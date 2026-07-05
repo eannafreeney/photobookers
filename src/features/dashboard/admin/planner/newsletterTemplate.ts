@@ -39,6 +39,28 @@ export type WeeklyNewsletterFairItem = {
   endDate: string;
 };
 
+export type WeeklyNewsletterTrendingBookItem = {
+  bookId: string;
+  bookSlug: string;
+  title: string;
+  coverUrl: string | null;
+  artistName: string | null;
+  publisherName: string | null;
+};
+
+export type WeeklyNewsletterTrendingCreatorItem = {
+  displayName: string;
+  slug: string;
+  type: "artist" | "publisher";
+  coverUrl: string | null;
+};
+
+export type WeeklyNewsletterTrending = {
+  books: WeeklyNewsletterTrendingBookItem[];
+  artists: WeeklyNewsletterTrendingCreatorItem[];
+  publishers: WeeklyNewsletterTrendingCreatorItem[];
+};
+
 export type WeeklyNewsletterRenderParams = {
   weekStart: Date;
   weekEnd: Date;
@@ -51,4 +73,5 @@ export type WeeklyNewsletterRenderParams = {
   upcomingFair?: WeeklyNewsletterFairItem | null;
   artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
   publisherOfTheWeek: WeeklyNewsletterCreatorSpotlight;
+  trending?: WeeklyNewsletterTrending;
 };
