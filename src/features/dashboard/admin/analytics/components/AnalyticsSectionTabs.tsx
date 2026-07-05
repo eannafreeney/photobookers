@@ -5,13 +5,19 @@ import {
   adminAnalyticsHref,
 } from "../adminAnalyticsPanel";
 
-export type AnalyticsSectionTab = "books" | "site" | "app" | "newsletter";
+export type AnalyticsSectionTab =
+  | "overview"
+  | "books"
+  | "site"
+  | "app"
+  | "newsletter";
 
 export function parseAnalyticsSectionTab(raw?: string): AnalyticsSectionTab {
+  if (raw === "overview") return "overview";
   if (raw === "site") return "site";
   if (raw === "app") return "app";
   if (raw === "newsletter") return "newsletter";
-  return "books";
+  return "overview";
 }
 
 type Props = {
@@ -20,6 +26,7 @@ type Props = {
 };
 
 const TABS: { id: AnalyticsSectionTab; label: string }[] = [
+  { id: "overview", label: "Overview" },
   { id: "books", label: "Book analytics" },
   { id: "site", label: "Site analytics" },
   { id: "app", label: "App analytics" },

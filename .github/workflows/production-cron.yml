@@ -5,6 +5,7 @@ name: Production cron jobs
 on:
   schedule:
     - cron: "0 8 * * *" # daily 08:00 UTC — queue Instagram before 10:00 post time
+    - cron: "0 8 * * 1" # Monday 08:00 UTC — CEO weekly metrics email
     - cron: "0 9 * * *" # daily 09:00 UTC — BOTD / spotlight / follower emails
     - cron: "0 9 * * 3" # Wednesday 09:00 UTC — weekly newsletter
     - cron: "0 9 * * 6" # Saturday 09:00 UTC — Instagram prep reminder
@@ -21,6 +22,7 @@ on:
           - daily-botd-instagram
           - botd-advance-notification-emails
           - botd-feature-day-emails
+          - ceo-metrics-email
           - spotlight-creator-emails
           - notify-followers-new-books
           - notify-followers-new-posts
@@ -54,6 +56,18 @@ jobs:
       - uses: ./.github/actions/invoke-production-cron
         with:
           endpoint: botd-advance-notification-emails
+          cron_secret: ${{ secrets.CRON_SECRET }}
+
+  ceo-metrics-email:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '0 8 * * 1') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'ceo-metrics-email')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/invoke-production-cron
+        with:
+          endpoint: ceo-metrics-email
           cron_secret: ${{ secrets.CRON_SECRET }}
 
   botd-feature-day-emails:
