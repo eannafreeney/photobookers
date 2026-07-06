@@ -1,0 +1,22 @@
+const DISCOVER_TAGS = [
+  "urban",
+  "architecture",
+  "landscape",
+  "america",
+  "europe",
+  "asia",
+  "japan",
+  "africa",
+  "australia",
+  "france",
+  "germany",
+  "italy",
+  "spain",
+  "street",
+  "still life",
+  "portraits",
+  "nature"
+].sort((a, b) => a.localeCompare(b));
+export {
+  DISCOVER_TAGS
+};

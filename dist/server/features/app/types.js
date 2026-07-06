@@ -1,0 +1,4 @@
+const BookCard = {};
+export {
+  BookCard
+};

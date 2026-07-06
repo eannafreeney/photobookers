@@ -1,0 +1,17 @@
+const PRIVACY_SECTIONS = [
+  `1. Introduction This Privacy Policy explains how Photobookers (\u201Cwe\u201D, \u201Cus\u201D) collects, uses, and shares personal information when you use our website, mobile apps, and related services.`,
+  `2. Information we collect Account information such as name, email address, display name, and account type when you register. Profile and content you choose to provide, including books, images, comments, messages, and other material you upload or share. Usage information such as pages viewed, features used, and interactions with books, creators, and other users. Device and log information such as IP address, browser or app type, and general location derived from IP.`,
+  `3. How we use information To provide, operate, and improve the service, including authentication, feeds, search, wishlists, collections, and messaging. To communicate with you about your account, security, support requests, and service updates. To protect users and the platform, enforce our Terms, detect abuse, and comply with legal obligations.`,
+  `4. Sharing of information We use service providers for hosting, authentication, analytics, email delivery, and storage. These providers process data on our behalf under appropriate agreements. We may disclose information if required by law, to protect rights and safety, or in connection with a merger, acquisition, or sale of assets.`,
+  `5. Cookies and similar technologies We use cookies and similar technologies to keep you signed in, remember preferences, and understand how the service is used. You can control cookies through your browser settings, though some features may not work correctly if cookies are disabled.`,
+  `6. Your choices and rights Depending on where you live, you may have rights to access, correct, delete, or export your personal information, or to object to or restrict certain processing. You can update much of your account information in your profile settings. To make a privacy request, contact us using the details below.`,
+  `7. Data retention We retain personal information for as long as your account is active and as needed to provide the service, comply with legal obligations, resolve disputes, and enforce agreements.`,
+  `8. Security We use reasonable technical and organizational measures to protect personal information, but no method of transmission or storage is completely secure.`,
+  `9. Children\u2019s privacy Photobookers is not directed to children under 13, and we do not knowingly collect personal information from children under 13.`,
+  `10. International transfers If you use the service from outside the country where we operate, your information may be processed in other countries with different data protection laws.`,
+  `11. Changes to this policy We may update this Privacy Policy from time to time. We will post the updated policy on the site and, where required, provide additional notice.`,
+  `12. Contact For privacy questions or requests, contact us through the Contact page on photobookers.com or the support email listed there.`
+];
+export {
+  PRIVACY_SECTIONS
+};

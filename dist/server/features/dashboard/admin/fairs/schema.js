@@ -1,0 +1,36 @@
+import { z } from "zod";
+const fairFormAdminSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  slug: z.string().min(1, "Slug is required"),
+  description: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  venue: z.string().optional(),
+  website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().min(1, "End date is required"),
+  status: z.enum(["draft", "published", "cancelled"]),
+  listing_tier: z.enum(["free", "promoted"]).optional(),
+  sort_order: z.coerce.number().optional()
+});
+const fairIdSchema = z.object({
+  fairId: z.string().uuid()
+});
+const attendeeSchema = z.object({
+  creatorId: z.union([
+    z.string().uuid(),
+    z.array(z.string().uuid()).min(1)
+  ])
+}).transform(({ creatorId }) => ({
+  creatorIds: Array.isArray(creatorId) ? creatorId : [creatorId]
+}));
+const attendeeIdSchema = z.object({
+  fairId: z.string().uuid(),
+  attendeeId: z.string().uuid()
+});
+export {
+  attendeeIdSchema,
+  attendeeSchema,
+  fairFormAdminSchema,
+  fairIdSchema
+};

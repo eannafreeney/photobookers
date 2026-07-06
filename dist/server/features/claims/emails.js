@@ -1,0 +1,39 @@
+const generateClaimApprovalEmail = async (creator) => {
+  return `
+        <h2>Your Creator Profile Claim has been approved!</h2>
+        <p>Hello,</p>
+        <p>Your claim for the creator profile for <strong>${creator.displayName}</strong> has been approved.</p>
+        <p>You can now start uploading books and editing your profile.</p>
+
+      `;
+};
+const generatePendingReviewEmail = async (creator) => {
+  return `
+        <h2>Your Creator Profile Claim is pending review</h2>
+        <p>Hello,</p>
+        <p>Your claim for the creator profile for <strong>${creator.displayName}</strong> is pending review.</p>
+      `;
+};
+const generateClaimRejectionEmail = async (claimUser, creator) => {
+  return `
+        <h2>Your Creator Profile Claim has been rejected</h2>
+        <p>Hello ${claimUser.firstName},</p>
+        <p>Your claim for the creator profile for <strong>${creator.displayName}</strong> has been rejected.</p>
+        <p>Please try again.</p>
+      `;
+};
+const CLAIMS_DASHBOARD_URL = "https://www.photobookers.com/dashboard/admin/claims";
+const generateClaimNotificationEmail = (creatorClaim, creator) => {
+  return `
+    <h2>New claim submitted</h2>
+    <p>A new creator claim has been submitted for ${creator.displayName}.</p>
+    <p>Status: ${creatorClaim.status}</p>
+    <p><a href="${CLAIMS_DASHBOARD_URL}">View claims in dashboard</a></p>
+  `;
+};
+export {
+  generateClaimApprovalEmail,
+  generateClaimNotificationEmail,
+  generateClaimRejectionEmail,
+  generatePendingReviewEmail
+};

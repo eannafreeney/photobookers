@@ -1,11 +1,12 @@
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
+import type { BetaAnalyticsDataClient } from "@google-analytics/data";
 
 let client: BetaAnalyticsDataClient | null = null;
 
-export function getGa4Client(
+export async function getGa4Client(
   credentials: Record<string, unknown>,
-): BetaAnalyticsDataClient {
+): Promise<BetaAnalyticsDataClient> {
   if (!client) {
+    const { BetaAnalyticsDataClient } = await import("@google-analytics/data");
     client = new BetaAnalyticsDataClient({ credentials });
   }
   return client;
