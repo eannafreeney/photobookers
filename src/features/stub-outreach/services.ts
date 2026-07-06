@@ -1,4 +1,4 @@
-import { and, eq, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
+import { and, asc, count, eq, gte, isNotNull, isNull, lt, lte, or } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   books,
@@ -59,6 +59,42 @@ function addUtcDays(date: Date, days: number): Date {
   return d;
 }
 
+function startOfUtcDay(date: Date): Date {
+  const d = new Date(date);
+  d.setUTCHours(0, 0, 0, 0);
+  return d;
+}
+
+export function resolveDailyWelcomeLimit(
+  override?: number,
+): number | undefined {
+  if (override !== undefined && !Number.isNaN(override) && override > 0) {
+    return override;
+  }
+  const fromEnv = process.env.STUB_OUTREACH_DAILY_WELCOME_LIMIT;
+  if (!fromEnv?.trim()) return undefined;
+  const parsed = Number(fromEnv);
+  return Number.isNaN(parsed) || parsed <= 0 ? undefined : parsed;
+}
+
+export async function countWelcomeEmailsSentOnDate(
+  date: Date = new Date(),
+): Promise<number> {
+  const dayStart = startOfUtcDay(date);
+  const dayEnd = addUtcDays(dayStart, 1);
+  const [row] = await db
+    .select({ value: count() })
+    .from(creatorStubOutreachEmails)
+    .where(
+      and(
+        eq(creatorStubOutreachEmails.kind, "welcome"),
+        gte(creatorStubOutreachEmails.sentAt, dayStart),
+        lt(creatorStubOutreachEmails.sentAt, dayEnd),
+      ),
+    );
+  return Number(row?.value ?? 0);
+}
+
 function daysBetween(earlier: Date, later: Date): number {
   const ms = later.getTime() - earlier.getTime();
   return Math.floor(ms / (1000 * 60 * 60 * 24));
@@ -98,7 +134,8 @@ export async function loadEligibleStubs(
           creatorId ? eq(creators.id, creatorId) : undefined,
           publishedBookConditions,
         ),
-      );
+      )
+      .orderBy(asc(creators.displayName));
 
     return ok(rows);
   } catch (error) {
@@ -147,6 +184,10 @@ export async function runStubOutreachCron(
 
   const outreachSince = addUtcDays(runDate, -OUTREACH_COOLDOWN_DAYS);
   const spotlightSince = addUtcDays(runDate, -SPOTLIGHT_COOLDOWN_DAYS);
+  const dailyWelcomeLimit = resolveDailyWelcomeLimit(
+    options.dailyWelcomeLimit,
+  );
+  let welcomesSentToday = await countWelcomeEmailsSentOnDate(runDate);
 
   for (const stub of eligible) {
     const recipient = options.to?.trim() || stub.email?.trim();
@@ -160,11 +201,27 @@ export async function runStubOutreachCron(
     }
 
     if (!stub.welcomeEmailSent) {
+      if (
+        dailyWelcomeLimit !== undefined &&
+        welcomesSentToday >= dailyWelcomeLimit &&
+        !options.dryRun
+      ) {
+        result.skipped++;
+        result.items.push({
+          creatorId: stub.id,
+          outcome: { status: "skipped", reason: "daily_welcome_limit" },
+        });
+        continue;
+      }
+
       if (options.dryRun) {
         result.items.push({
           creatorId: stub.id,
           outcome: { status: "dry_run", kind: "welcome", to: recipient },
         });
+        if (dailyWelcomeLimit !== undefined) {
+          welcomesSentToday++;
+        }
         continue;
       }
 
@@ -180,6 +237,7 @@ export async function runStubOutreachCron(
         continue;
       }
 
+      welcomesSentToday++;
       result.sent++;
       result.items.push({
         creatorId: stub.id,
