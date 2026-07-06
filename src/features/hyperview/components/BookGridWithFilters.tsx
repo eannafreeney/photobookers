@@ -1,7 +1,10 @@
 import { FC } from "hono/jsx";
 import type { AuthUser } from "../../../../types";
 import type { BookCardResult } from "../../../constants/queries";
-import { type BookCatalogSort } from "../../../lib/bookCatalogSort";
+import {
+  BOOK_CATALOG_DEFAULT_SORT,
+  type BookCatalogSort,
+} from "../../../lib/bookCatalogSort";
 import { getFilteredBooks } from "../../app/services";
 import { favoriteFlagsForBooks } from "../findFlags";
 import {
@@ -21,7 +24,7 @@ import SectionHeader from "./SectionHeader";
 
 const FEATURED_LATEST_BOOKS_TAB = "/hyperview/featured/tab/latest-books";
 const FEATURED_LATEST_BOOKS_LIMIT = 5;
-export const FEATURED_LATEST_BOOKS_DEFAULT_SORT = "newest" as const;
+export const FEATURED_LATEST_BOOKS_DEFAULT_SORT = BOOK_CATALOG_DEFAULT_SORT;
 const FEATURED_LATEST_BOOKS_SCROLL_ID = "featured-latest-books-scroll";
 
 export const featuredLatestBooksFilterPath = (baseUrl: string) =>

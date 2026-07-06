@@ -21,9 +21,17 @@ export const GET = createRoute(
     const tagSlug = c.req.valid("param").tag;
     const tag = slugToTag(tagSlug);
     const query = c.req.query("q") ?? null;
+    const sort = resolveBookCatalogSort(
+      c.req.query("sort"),
+      BOOK_CATALOG_DEFAULT_SORT,
+    );
     const user = await getUser(c);
     const currentPage = Number(c.req.query("page") ?? 1);
-    const currentPath = booksFilterUrl("/books", { tag: tagSlug, query });
+    const currentPath = booksFilterUrl(`/books/tags/${tagSlug}`, {
+      query,
+      sort,
+      defaultSort: BOOK_CATALOG_DEFAULT_SORT,
+    });
     const isFiltered = Boolean(query?.trim() && query.trim().length >= 3);
 
     const [error, result] = await getFilteredBooks({
@@ -31,6 +39,7 @@ export const GET = createRoute(
       query,
       page: currentPage,
       limit: 15,
+      sort,
     });
     if (error)
       return c.html(<InfoPage errorMessage={error.reason} user={user} />);
@@ -53,7 +62,13 @@ export const GET = createRoute(
             title={capitalize(tag)}
             intro={`Photobooks tagged “${capitalize(tag)}” in the archive.`}
           />
-          <BookFilters activeTag={tagSlug} query={query} collapsible />
+          <BookFilters
+            activeTag={tagSlug}
+            query={query}
+            sort={sort}
+            defaultSort={BOOK_CATALOG_DEFAULT_SORT}
+            collapsible
+          />
           <BooksGrid
             isInfiniteScroll
             user={user}

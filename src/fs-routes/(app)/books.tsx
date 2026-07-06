@@ -45,7 +45,7 @@ export const GET = createRoute(async (c) => {
           tag={tag}
           query={query}
           sort={sort}
-          defaultSort={DEFAULT_SORT}
+          defaultSort={BOOK_CATALOG_DEFAULT_SORT}
           currentPath={currentPath}
           result={result}
           isFiltered={isFiltered}
@@ -78,7 +78,7 @@ export const GET = createRoute(async (c) => {
             tag={tag}
             query={query}
             sort={sort}
-            defaultSort={DEFAULT_SORT}
+            defaultSort={BOOK_CATALOG_DEFAULT_SORT}
             currentPath={currentPath}
             result={result}
             isFiltered={isFiltered}

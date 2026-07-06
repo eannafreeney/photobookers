@@ -18,14 +18,11 @@ import BookFilters, {
   bookFiltersStyles,
 } from "../../../features/hyperview/components/BookFiltersPanel";
 import { signInEmptyHintStyles } from "../../../features/hyperview/hyperviewCommonScreenStyles";
+import {
+  BOOK_CATALOG_DEFAULT_SORT,
+  type BookCatalogSort,
+} from "../../../lib/bookCatalogSort";
 import { hyperviewBooksFilterUrl, resolveBookCatalogSort } from "../../../lib/tags";
-import { AuthUser } from "../../../../types";
-import { BookCardResult } from "../../../constants/queries";
-import BookFiltersPanel from "../../../features/hyperview/components/BookFiltersPanel";
-import type { BookCatalogSort } from "../../../lib/bookCatalogSort";
-
-const PAGE_SIZE = 3;
-const DEFAULT_SORT = "newest" as const;
 
 type FilterQuery = {
   tag?: string | null;
@@ -39,7 +36,10 @@ export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const tag = c.req.query("tag") ?? null;
   const q = c.req.query("q") ?? null;
-  const sort = resolveBookCatalogSort(c.req.query("sort"), DEFAULT_SORT);
+  const sort = resolveBookCatalogSort(
+    c.req.query("sort"),
+    BOOK_CATALOG_DEFAULT_SORT,
+  );
   const isListFragment = c.req.query("fragment") === "list";
   const isCatalogFragment = c.req.query("fragment") === "catalog";
   const currentPage = isListFragment ? 1 : parseInt(c.req.query("page") ?? "1");
@@ -89,7 +89,7 @@ export const GET = createRoute(async (c) => {
             activeTag={tag}
             q={q}
             sort={sort}
-            defaultSort={DEFAULT_SORT}
+            defaultSort={BOOK_CATALOG_DEFAULT_SORT}
           />
         </Item>
         <BooksListItems {...listProps} />
@@ -118,7 +118,7 @@ export const GET = createRoute(async (c) => {
         tag,
         query: q,
         sort,
-        defaultSort: DEFAULT_SORT,
+        defaultSort: BOOK_CATALOG_DEFAULT_SORT,
       })}
     >
       {renderBooksCatalog(baseUrl, tag, q, sort, listProps, isFiltered)}
@@ -135,7 +135,10 @@ export const POST = createRoute(async (c) => {
   const tagFromRequest =
     (c.req.query("tag") ?? String(formData.get("tag") ?? "").trim()) || null;
   const tag = q.length >= 3 ? tagFromRequest : null;
-  const sort = resolveBookCatalogSort(c.req.query("sort"), DEFAULT_SORT);
+  const sort = resolveBookCatalogSort(
+    c.req.query("sort"),
+    BOOK_CATALOG_DEFAULT_SORT,
+  );
   const isFiltered = Boolean(tag || q.length >= 3);
 
   const [error, result] = await getFilteredBooks({
@@ -192,7 +195,7 @@ const buildListProps = async (
     tag: filters.tag,
     query: filters.q,
     sort: filters.sort,
-    defaultSort: DEFAULT_SORT,
+    defaultSort: BOOK_CATALOG_DEFAULT_SORT,
   });
   const hasMore = page < totalPages;
   const favoritesByBookId = await favoriteFlagsForBooks(user, books);
@@ -236,7 +239,7 @@ const renderBooksListHost = (
           activeTag={tag}
           q={q}
           sort={sort}
-          defaultSort={DEFAULT_SORT}
+          defaultSort={BOOK_CATALOG_DEFAULT_SORT}
         />
       </BooksList>
     </View>
