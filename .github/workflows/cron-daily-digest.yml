@@ -1,0 +1,35 @@
+# Daily email summary of Production cron jobs workflow runs.
+name: Cron daily digest
+
+on:
+  schedule:
+    - cron: "0 22 * * *" # daily 22:00 UTC — after the day's crons
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Send cron digest email
+        env:
+          ENV: production
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          SUPABASE_URL: ${{ secrets.PRODUCTION_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY }}
+          FUNCTION_SECRET: ${{ secrets.PRODUCTION_FUNCTION_SECRET }}
+          ADMIN_EMAIL: ${{ secrets.PRODUCTION_ADMIN_EMAIL }}
+        run: npx tsx scripts/cron/daily-digest.ts
