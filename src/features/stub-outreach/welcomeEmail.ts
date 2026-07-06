@@ -1,25 +1,19 @@
 import { eq } from "drizzle-orm";
-import { assignUserAsCreatorOwnerAdmin } from "../../domain/claims/owner";
 import { db } from "../../db/client";
-import {
-  creatorStubOutreachEmails,
-  creators,
-  type Creator,
-} from "../../db/schema";
+import { creatorStubOutreachEmails, creators, type Creator } from "../../db/schema";
 import { generateWelcomeEmail } from "../dashboard/admin/creators/emails";
 import { markWelcomeEmailSentAdmin } from "../dashboard/admin/creators/services";
-import {
-  createAuthUser,
-  createUserWithAuthId,
-} from "../dashboard/admin/users/services";
 import { sendEmail } from "../../lib/sendEmail";
 import { err, ok, type Result } from "../../lib/result";
+import { stubClaimStartUrl } from "./urls";
 
 type WelcomeError = { reason: string; cause?: unknown };
 
 export type SendStubWelcomeEmailOptions = {
   to?: string;
 };
+
+export { stubClaimStartUrl } from "./urls";
 
 export async function sendStubWelcomeEmail(
   creator: Pick<
@@ -33,46 +27,10 @@ export async function sendStubWelcomeEmail(
     return err({ reason: "Creator has no email" });
   }
 
-  const siteUrl = process.env.SITE_URL ?? "https://photobookers.com";
-  let loginLink = `${siteUrl}/claims/${creator.id}/start`;
-
-  if (!creator.ownerUserId) {
-    const temporaryPassword = crypto.randomUUID();
-    const [createAuthError, authData] = await createAuthUser(temporaryPassword, {
-      email: recipient,
-      firstName: undefined,
-      lastName: undefined,
-    });
-    if (createAuthError || !authData) {
-      return err({
-        reason: createAuthError?.reason ?? "Failed to create auth user",
-      });
-    }
-
-    const authUserId = authData.data.user.id;
-    const [createUserErr] = await createUserWithAuthId(
-      authUserId,
-      { email: recipient, firstName: undefined, lastName: undefined },
-      { mustResetPassword: true },
-    );
-    if (createUserErr) {
-      return err({ reason: createUserErr.reason });
-    }
-
-    const [assignErr] = await assignUserAsCreatorOwnerAdmin(
-      authUserId,
-      creator.id,
-    );
-    if (assignErr) {
-      return err({ reason: assignErr.reason });
-    }
-
-    loginLink = `${siteUrl}/auth/login?email=${encodeURIComponent(recipient)}&password=${encodeURIComponent(temporaryPassword)}`;
-  }
-
+  const claimLink = stubClaimStartUrl(creator.id);
   const html = generateWelcomeEmail(
     { ...creator, displayName: creator.displayName } as Creator,
-    loginLink,
+    claimLink,
   );
   const subject = `Hi ${creator.displayName}! Invitation to Photobookers`;
   const [emailError] = await sendEmail(recipient, subject, html);

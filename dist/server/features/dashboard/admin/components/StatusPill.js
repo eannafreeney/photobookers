@@ -1,0 +1,19 @@
+import { jsx } from "hono/jsx/jsx-runtime";
+const StatusPill = ({ status }) => {
+  const pillClasses = {
+    pending: "bg-yellow-200 text-yellow-800",
+    approved: "bg-green-200 text-green-800",
+    rejected: "bg-red-200 text-red-800"
+  };
+  return /* @__PURE__ */ jsx(
+    "span",
+    {
+      class: `px-2 py-1 rounded text-xs font-medium ${pillClasses[status]}`,
+      children: status.charAt(0).toUpperCase() + status.slice(1)
+    }
+  );
+};
+var StatusPill_default = StatusPill;
+export {
+  StatusPill_default as default
+};

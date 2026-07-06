@@ -1,0 +1,78 @@
+import Alpine from "alpinejs";
+import {
+  EMPTY_TOAST_CONTAINER_HTML,
+  prependToast
+} from "../../../../client/components/toast.js";
+function registerBooksTableReorder() {
+  Alpine.data(
+    "booksTableReorder",
+    (initialBookIds = [], creatorId = null) => ({
+      bookIds: [...initialBookIds],
+      creatorId,
+      dragRow: null,
+      savedOrder: "",
+      init() {
+        this.savedOrder = this.bookIds.join(",");
+      },
+      rowId(row) {
+        return row?.getAttribute("data-book-id") ?? "";
+      },
+      onReorderDragStart(event, row) {
+        if (!row) return;
+        this.dragRow = row;
+        const bookId = this.rowId(row);
+        event.dataTransfer?.setData("text/plain", bookId);
+        if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
+      },
+      onReorderDragEnter(targetRow) {
+        if (!this.dragRow || this.dragRow === targetRow) return;
+        const dragId = this.rowId(this.dragRow);
+        const targetId = this.rowId(targetRow);
+        if (!dragId || !targetId || dragId === targetId) return;
+        const from = this.bookIds.indexOf(dragId);
+        const to = this.bookIds.indexOf(targetId);
+        if (from < 0 || to < 0 || from === to) return;
+        const [moved] = this.bookIds.splice(from, 1);
+        this.bookIds.splice(to, 0, moved);
+        if (from < to) {
+          targetRow.after(this.dragRow);
+        } else {
+          targetRow.before(this.dragRow);
+        }
+      },
+      async onReorderDragEnd() {
+        this.dragRow = null;
+        const currentOrder = this.bookIds.join(",");
+        if (currentOrder === this.savedOrder || this.bookIds.length === 0) return;
+        prependToast("info", "Saving order...", { saving: true });
+        try {
+          const response = await fetch("/dashboard/books/reorder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              orderedIds: this.bookIds,
+              ...this.creatorId ? { creatorId: this.creatorId } : {}
+            })
+          });
+          const html = await response.text();
+          const container = document.getElementById("toast");
+          if (container) {
+            container.outerHTML = html;
+          }
+          if (response.ok) {
+            this.savedOrder = currentOrder;
+          }
+        } catch {
+          const container = document.getElementById("toast");
+          if (container) {
+            container.outerHTML = EMPTY_TOAST_CONTAINER_HTML;
+          }
+        }
+      }
+    })
+  );
+}
+export {
+  registerBooksTableReorder
+};

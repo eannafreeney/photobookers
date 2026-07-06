@@ -1,0 +1,217 @@
+import { and, count, desc, eq, inArray, or, sql } from "drizzle-orm";
+import { db } from "../../db/client.js";
+import {
+  books,
+  creators,
+  purchaseClicks
+} from "../../db/schema.js";
+import {
+  buildCreatedAtFilter
+} from "../book-analytics/dateRange.js";
+import { err, ok } from "../../lib/result.js";
+import { getPagination } from "../../lib/pagination.js";
+const MAX_REFERER_LENGTH = 512;
+const recordPurchaseClick = async ({
+  bookId,
+  userId,
+  source = "web",
+  referer
+}) => {
+  try {
+    const trimmedReferer = referer?.trim().slice(0, MAX_REFERER_LENGTH) ?? null;
+    await db.insert(purchaseClicks).values({
+      bookId,
+      userId: userId ?? null,
+      source,
+      referer: trimmedReferer
+    });
+    return ok(void 0);
+  } catch (error) {
+    console.error("Failed to record purchase click", error);
+    return err({ reason: "Failed to record purchase click", cause: error });
+  }
+};
+const findPurchaseClickCount = async (bookId) => {
+  const result = await db.select({ value: count() }).from(purchaseClicks).where(eq(purchaseClicks.bookId, bookId));
+  return result[0]?.value ?? 0;
+};
+const findPurchaseClickCounts = async (bookIds, range) => {
+  if (bookIds.length === 0) return /* @__PURE__ */ new Map();
+  const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
+  const rows = await db.select({
+    bookId: purchaseClicks.bookId,
+    value: count()
+  }).from(purchaseClicks).where(
+    dateFilter ? and(inArray(purchaseClicks.bookId, bookIds), dateFilter) : inArray(purchaseClicks.bookId, bookIds)
+  ).groupBy(purchaseClicks.bookId);
+  const counts = /* @__PURE__ */ new Map();
+  for (const id of bookIds) counts.set(id, 0);
+  for (const row of rows) counts.set(row.bookId, row.value);
+  return counts;
+};
+const getCreatorPurchaseClickTotal = async (creatorId, role) => {
+  const creatorColumn = role === "publisher" ? books.publisherId : books.artistId;
+  const result = await db.select({ value: count() }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)).where(eq(creatorColumn, creatorId));
+  return result[0]?.value ?? 0;
+};
+const getCreatorCataloguePurchaseClickTotal = async (creatorId) => {
+  const result = await db.select({ value: count() }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)).where(or(eq(books.artistId, creatorId), eq(books.publisherId, creatorId)));
+  return result[0]?.value ?? 0;
+};
+const getPurchaseClickTotals = async (range) => {
+  const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
+  const countFrom = dateFilter ? db.select({ value: count() }).from(purchaseClicks).where(dateFilter) : db.select({ value: count() }).from(purchaseClicks);
+  const distinctBooks = dateFilter ? db.select({
+    value: sql`count(distinct ${purchaseClicks.bookId})`
+  }).from(purchaseClicks).where(dateFilter) : db.select({
+    value: sql`count(distinct ${purchaseClicks.bookId})`
+  }).from(purchaseClicks);
+  const distinctPublishers = dateFilter ? db.select({
+    value: sql`count(distinct ${books.publisherId})`
+  }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)).where(and(isNotNullPublisher(), dateFilter)) : db.select({
+    value: sql`count(distinct ${books.publisherId})`
+  }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)).where(isNotNullPublisher());
+  const [totalClicksResult, booksWithClicksResult, publishersWithClicksResult] = await Promise.all([countFrom, distinctBooks, distinctPublishers]);
+  const artistsWithClicksResult = dateFilter ? await db.select({
+    value: sql`count(distinct ${books.artistId})`
+  }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)).where(and(isNotNullArtist(), dateFilter)) : await db.select({
+    value: sql`count(distinct ${books.artistId})`
+  }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)).where(isNotNullArtist());
+  const publishersWithClicks = publishersWithClicksResult[0]?.value ?? 0;
+  const artistsWithClicks = artistsWithClicksResult[0]?.value ?? 0;
+  return {
+    totalClicks: totalClicksResult[0]?.value ?? 0,
+    booksWithClicks: booksWithClicksResult[0]?.value ?? 0,
+    creatorsWithClicks: publishersWithClicks + artistsWithClicks
+  };
+};
+function isNotNullPublisher() {
+  return sql`${books.publisherId} IS NOT NULL`;
+}
+function isNotNullArtist() {
+  return sql`${books.artistId} IS NOT NULL`;
+}
+function scopeBookFilter(scope) {
+  const column = scope.creatorType === "publisher" ? books.publisherId : books.artistId;
+  return eq(column, scope.creatorId);
+}
+const getTopBooksByClicks = async (range, currentPage = 1, defaultLimit = 10, scope) => {
+  try {
+    const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
+    const scopeFilter = scope ? scopeBookFilter(scope) : void 0;
+    const where = scopeFilter && dateFilter ? and(scopeFilter, dateFilter) : scopeFilter ?? dateFilter;
+    const countQuery = scope ? db.select({
+      value: sql`count(distinct ${purchaseClicks.bookId})`
+    }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)) : db.select({
+      value: sql`count(distinct ${purchaseClicks.bookId})`
+    }).from(purchaseClicks);
+    const [{ value: totalCount = 0 }] = where ? await countQuery.where(where) : await countQuery;
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit
+    );
+    if (totalCount === 0) {
+      return ok({ books: [], totalPages: 1, page: 1 });
+    }
+    const clickQuery = (scope ? db.select({
+      bookId: purchaseClicks.bookId,
+      clickCount: count()
+    }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)) : db.select({
+      bookId: purchaseClicks.bookId,
+      clickCount: count()
+    }).from(purchaseClicks)).groupBy(purchaseClicks.bookId).orderBy(desc(count())).limit(limit).offset(offset);
+    const clickRows = where ? await clickQuery.where(where) : await clickQuery;
+    if (clickRows.length === 0) {
+      return ok({ books: [], totalPages, page });
+    }
+    const bookIds = clickRows.map((row) => row.bookId);
+    const clickCountByBookId = new Map(
+      clickRows.map((row) => [row.bookId, row.clickCount])
+    );
+    const bookRows = await db.query.books.findMany({
+      where: inArray(books.id, bookIds),
+      columns: {
+        id: true,
+        title: true,
+        slug: true,
+        coverUrl: true
+      },
+      with: {
+        artist: {
+          columns: { id: true, displayName: true, slug: true }
+        },
+        publisher: {
+          columns: { id: true, displayName: true, slug: true }
+        }
+      }
+    });
+    const bookById = new Map(bookRows.map((book) => [book.id, book]));
+    const topBooks = clickRows.map((clickRow) => {
+      const book = bookById.get(clickRow.bookId);
+      if (!book) return null;
+      return {
+        id: book.id,
+        title: book.title,
+        slug: book.slug,
+        coverUrl: book.coverUrl,
+        clickCount: clickCountByBookId.get(book.id) ?? 0,
+        artistName: book.artist?.displayName ?? null,
+        publisherName: book.publisher?.displayName ?? null
+      };
+    }).filter((row) => row !== null);
+    return ok({ books: topBooks, totalPages, page });
+  } catch (error) {
+    console.error("Failed to get top books by clicks", error);
+    return err({ reason: "Failed to get top books by clicks", cause: error });
+  }
+};
+const getTopCreatorsByClicks = async (role, range, currentPage = 1, defaultLimit = 10) => {
+  try {
+    const creatorColumn = role === "publisher" ? books.publisherId : books.artistId;
+    const dateFilter = buildCreatedAtFilter(purchaseClicks.createdAt, range);
+    const countQuery = db.select({
+      value: sql`count(distinct ${creators.id})`
+    }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)).innerJoin(creators, eq(creatorColumn, creators.id));
+    const [{ value: totalCount = 0 }] = dateFilter ? await countQuery.where(dateFilter) : await countQuery;
+    const { page, limit, offset, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      defaultLimit
+    );
+    if (totalCount === 0) {
+      return ok({ creators: [], totalPages: 1, page: 1 });
+    }
+    const groupedQuery = db.select({
+      creatorId: creators.id,
+      displayName: creators.displayName,
+      slug: creators.slug,
+      coverUrl: creators.coverUrl,
+      clickCount: count(purchaseClicks.id)
+    }).from(purchaseClicks).innerJoin(books, eq(purchaseClicks.bookId, books.id)).innerJoin(creators, eq(creatorColumn, creators.id));
+    const filteredQuery = dateFilter ? groupedQuery.where(dateFilter) : groupedQuery;
+    const rows = await filteredQuery.groupBy(
+      creators.id,
+      creators.displayName,
+      creators.slug,
+      creators.coverUrl
+    ).orderBy(desc(count(purchaseClicks.id))).limit(limit).offset(offset);
+    return ok({ creators: rows, totalPages, page });
+  } catch (error) {
+    console.error("Failed to get top creators by clicks", error);
+    return err({
+      reason: "Failed to get top creators by clicks",
+      cause: error
+    });
+  }
+};
+export {
+  findPurchaseClickCount,
+  findPurchaseClickCounts,
+  getCreatorCataloguePurchaseClickTotal,
+  getCreatorPurchaseClickTotal,
+  getPurchaseClickTotals,
+  getTopBooksByClicks,
+  getTopCreatorsByClicks,
+  recordPurchaseClick
+};

@@ -5,7 +5,6 @@ import {
   supabaseStorage,
   supabaseStorageAdmin,
 } from "../lib/supabase";
-import sharp from "sharp";
 import { MAX_GALLERY_SIZE_BYTES } from "../constants/images";
 
 export type UploadKind = "cover" | "gallery";
@@ -18,6 +17,7 @@ async function encodeWebpToTarget(
   input: Buffer,
   kind: UploadKind,
 ): Promise<Buffer> {
+  const { default: sharp } = await import("sharp");
   const maxDim = kind === "cover" ? COVER_MAX_DIMENSION : GALLERY_MAX_DIMENSION;
   const base = sharp(input).resize(maxDim, maxDim, {
     fit: "inside",

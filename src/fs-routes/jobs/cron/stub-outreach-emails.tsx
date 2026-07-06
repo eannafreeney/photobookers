@@ -1,34 +1,13 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runStubOutreachCron } from "../../../features/stub-outreach/services";
+import { runStubOutreachEmailsCron } from "@/jobs/cronRunners";
 import { parseDateString } from "../../../lib/utils";
+import { requireCronSecret } from "@/jobs/cronRouteAuth";
 
-/**
- * Daily stub creator outreach cron.
- *
- * Sends welcome emails for new stubs, then view-milestone activity emails
- * at 50 / 100 / 150 all-time views.
- *
- * Schedule externally, e.g. cron-job.org:
- *
- *   POST https://www.photobookers.com/jobs/cron/stub-outreach-emails
- *   Authorization: Bearer $CRON_SECRET
- *   Cron: 0 10 * * *  (daily 10:00 UTC)
- *
- * Optional query params:
- *   dryRun=1             — evaluate only, do not send
- *   to=email             — override recipient (testing)
- *   creatorId=uuid       — limit to one creator
- *   date=YYYY-MM-DD      — reference date for grace/cooldown guards
- */
+/** Prefer GitHub Actions: npx tsx scripts/cron/run.ts stub-outreach-emails */
 export const POST = createRoute(async (c: Context) => {
-  const secret =
-    c.req.header("Authorization")?.replace(/^Bearer\s+/i, "") ??
-    c.req.query("secret");
-  const expected = process.env.CRON_SECRET;
-  if (!expected || secret !== expected) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
+  const unauthorized = requireCronSecret(c);
+  if (unauthorized) return unauthorized;
 
   const dryRun =
     c.req.query("dryRun") === "1" || c.req.query("dryRun") === "true";
@@ -43,15 +22,12 @@ export const POST = createRoute(async (c: Context) => {
     }
   }
 
-  const [error, result] = await runStubOutreachCron({
+  const [error, result] = await runStubOutreachEmailsCron({
     dryRun,
     to,
     creatorId,
     date,
   });
-  if (error) {
-    return c.json({ error: error.reason }, 500);
-  }
-
+  if (error) return c.json({ error: error.reason }, 500);
   return c.json({ ok: true, ...result });
 });

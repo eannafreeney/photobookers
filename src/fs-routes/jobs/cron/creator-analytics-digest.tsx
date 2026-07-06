@@ -1,32 +1,19 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runCreatorAnalyticsDigestCron } from "../../../features/creator-analytics-digest/services";
+import { runCreatorAnalyticsDigestCronJob } from "@/jobs/cronRunners";
 import { parseDateString } from "../../../lib/utils";
+import { requireCronSecret } from "@/jobs/cronRouteAuth";
 
 /**
  * Monthly creator analytics digest cron.
  *
- * Sends on the 3rd of each month for the previous calendar month.
- * Schedule externally, e.g. cron-job.org:
+ * Prefer GitHub Actions: npx tsx scripts/cron/run.ts creator-analytics-digest
  *
- *   POST https://www.photobookers.com/jobs/cron/creator-analytics-digest
- *   Authorization: Bearer $CRON_SECRET
- *   Cron: 0 9 3 * *  (3rd of each month, 09:00 UTC)
- *
- * Optional query params:
- *   dryRun=1             — build only, do not send
- *   month=YYYY-MM        — report period override
- *   force=1              — send even when not the 3rd
- *   to=email             — override recipient (testing)
- *   creatorId=uuid       — limit to one creator
- *   date=YYYY-MM-DD      — reference date for month calc / guards
+ * Optional query: dryRun=1, month=YYYY-MM, force=1, to=email, creatorId=uuid, date=YYYY-MM-DD
  */
 export const POST = createRoute(async (c: Context) => {
-  const secret = c.req.header("Authorization")?.replace(/^Bearer\s+/i, "");
-  const expected = process.env.CRON_SECRET;
-  if (!expected || secret !== expected) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
+  const unauthorized = requireCronSecret(c);
+  if (unauthorized) return unauthorized;
 
   const dryRun =
     c.req.query("dryRun") === "1" || c.req.query("dryRun") === "true";
@@ -43,7 +30,7 @@ export const POST = createRoute(async (c: Context) => {
     }
   }
 
-  const [error, result] = await runCreatorAnalyticsDigestCron({
+  const [error, result] = await runCreatorAnalyticsDigestCronJob({
     dryRun,
     force,
     to,
@@ -51,9 +38,6 @@ export const POST = createRoute(async (c: Context) => {
     month,
     date,
   });
-  if (error) {
-    return c.json({ error: error.reason }, 500);
-  }
-
+  if (error) return c.json({ error: error.reason }, 500);
   return c.json({ ok: true, ...result });
 });

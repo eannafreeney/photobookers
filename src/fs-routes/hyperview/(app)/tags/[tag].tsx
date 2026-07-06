@@ -1,7 +1,7 @@
 import { createRoute } from "hono-fsr";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { paramValidator } from "../../../../lib/validator";
-import { getBooksByTag } from "../../../../features/app/services";
+import { getFilteredBooks } from "../../../../features/app/services";
 import { tagSchema } from "../../../../features/app/schema";
 import { hyperview } from "../../../../lib/hxml";
 import { capitalize, getUser } from "../../../../utils";
@@ -14,17 +14,33 @@ import FeedList, {
 import { signInEmptyHintStyles } from "../../../../features/hyperview/hyperviewCommonScreenStyles";
 import { Text, View } from "../../../../lib/hxml-comps";
 import ErrorScreen from "../../../../features/hyperview/components/ErrorScreen";
+import { BOOK_CATALOG_DEFAULT_SORT } from "../../../../lib/bookCatalogSort";
+import { resolveBookCatalogSort } from "../../../../lib/tags";
 
 export const TAG_BOOKS_LOAD_MORE_ID = "tag-books-load-more";
+
+const TAG_PAGE_SIZE = 12;
 
 export const GET = createRoute(paramValidator(tagSchema), async (c) => {
   const tag = c.req.valid("param").tag;
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
   const currentPage = parseInt(c.req.query("page") ?? "1");
-  const loadMoreHref = `${baseUrl}/hyperview/tags/${encodeURIComponent(tag)}`;
+  const sort = resolveBookCatalogSort(
+    c.req.query("sort"),
+    BOOK_CATALOG_DEFAULT_SORT,
+  );
+  const loadMoreParams = new URLSearchParams();
+  if (sort !== BOOK_CATALOG_DEFAULT_SORT) loadMoreParams.set("sort", sort);
+  const loadMoreQuery = loadMoreParams.toString();
+  const loadMoreHref = `${baseUrl}/hyperview/tags/${encodeURIComponent(tag)}${loadMoreQuery ? `?${loadMoreQuery}` : ""}`;
 
-  const [error, result] = await getBooksByTag(tag, currentPage);
+  const [error, result] = await getFilteredBooks({
+    tag,
+    page: currentPage,
+    limit: TAG_PAGE_SIZE,
+    sort,
+  });
   const hv = hyperview(c);
 
   if (error) {

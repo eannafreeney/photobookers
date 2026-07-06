@@ -31,7 +31,20 @@ export const GET = createRoute(async (c) => {
             intro="A monthly digital magazine. Each issue follows a theme, with an essay and eight to ten photobooks — and contributions from the artists whose work was selected."
           />
           <ul class="flex flex-col gap-4 border-t border-outline pt-8">
-            <li class="flex flex-col gap-2 border-b border-outline pb-6">
+            <li class="flex flex-col gap-4 border-b border-outline pb-6 sm:flex-row sm:items-start sm:gap-6">
+              <Link
+                href={`/magazine/${issue01Meta.slug}`}
+                className="shrink-0 no-underline"
+              >
+                <img
+                  src={issue01Meta.coverUrl}
+                  alt={`${issue01Meta.kicker}: ${issue01Meta.title}`}
+                  width={400}
+                  height={600}
+                  class="w-32 border border-outline object-cover sm:w-36"
+                />
+              </Link>
+              <div class="flex flex-col gap-2">
               <p class="kicker text-accent">{issue01Meta.kicker}</p>
               <h2 class="font-display text-3xl font-medium text-on-surface-strong">
                 <Link
@@ -51,6 +64,7 @@ export const GET = createRoute(async (c) => {
               >
                 Read issue →
               </Link>
+              </div>
             </li>
           </ul>
         </div>

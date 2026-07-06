@@ -1,6 +1,6 @@
 import { Creator } from "../../../../db/schema";
 
-export const generateWelcomeEmail = (creator: Creator, loginLink: string) => {
+export const generateWelcomeEmail = (creator: Creator, claimLink: string) => {
   const creatorName = creator.displayName;
   const profileUrl = `https://photobookers.com/creators/${creator.slug}`;
   return `
@@ -30,7 +30,7 @@ export const generateWelcomeEmail = (creator: Creator, loginLink: string) => {
         I have already created a profile for you with a small selection of your books.
       </p>
       <p>
-        <a href="${loginLink}">Log in to your account</a> to claim and edit your profile.
+        <a href="${claimLink}">Claim your profile</a> to manage your books and edit your page.
       </p>
       <p>
         You are very welcome to claim and edit the page here:<br />
@@ -49,7 +49,7 @@ export const generateWelcomeEmail = (creator: Creator, loginLink: string) => {
 
 export const generateWelcomeEmailForCreator = (
   creator: Creator,
-  loginLink: string,
+  claimLink: string,
 ) => {
   const creatorName = creator.displayName;
   const profileUrl = `https://photobookers.com/creators/${creator.slug}`;
@@ -71,7 +71,7 @@ export const generateWelcomeEmailForCreator = (
         <a href="${profileUrl}">View Profile</a>
       </p>
       <p>
-        <a href="${loginLink}">Log in to your account</a> to claim and edit your profile.
+        <a href="${claimLink}">Claim your profile</a> to manage your books and edit your page.
       </p>
       <p>The idea is to create a dedicated space where artists and publishers can:</p>
       <ul>

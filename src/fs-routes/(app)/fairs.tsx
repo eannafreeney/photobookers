@@ -194,36 +194,35 @@ export const GET = createRoute(async (c: Context) => {
     );
   }
 
-  // Grid view (default)
-  let upcomingFairs, upcomingPage, upcomingTotalPages;
-  let currentFairs, currentPage, currentTotalPages;
-  let pastFairs, pastPage, pastTotalPages;
+  // Grid view (default) — fetch all tabs; Alpine switches client-side without refetch
+  const upcomingPageNum = tab === "upcoming" ? page : 1;
+  const currentPageNum = tab === "current" ? page : 1;
+  const pastPageNum = tab === "past" ? page : 1;
 
-  if (tab === "upcoming") {
-    const [error, result] = await getUpcomingFairs(page, 30);
-    if (error) {
-      return c.html(<InfoPage errorMessage={error.reason} user={user} />, 500);
-    }
-    upcomingFairs = result.fairs;
-    upcomingPage = result.page;
-    upcomingTotalPages = result.totalPages;
-  } else if (tab === "current") {
-    const [error, result] = await getCurrentFairs(page, 30);
-    if (error) {
-      return c.html(<InfoPage errorMessage={error.reason} user={user} />, 500);
-    }
-    currentFairs = result.fairs;
-    currentPage = result.page;
-    currentTotalPages = result.totalPages;
-  } else {
-    const [error, result] = await getPastFairs(page, 30);
-    if (error) {
-      return c.html(<InfoPage errorMessage={error.reason} user={user} />, 500);
-    }
-    pastFairs = result.fairs;
-    pastPage = result.page;
-    pastTotalPages = result.totalPages;
+  const [
+    [upcomingError, upcomingResult],
+    [currentError, currentResult],
+    [pastError, pastResult],
+  ] = await Promise.all([
+    getUpcomingFairs(upcomingPageNum, 30),
+    getCurrentFairs(currentPageNum, 30),
+    getPastFairs(pastPageNum, 30),
+  ]);
+
+  if (upcomingError || currentError || pastError) {
+    const error = upcomingError ?? currentError ?? pastError;
+    return c.html(<InfoPage errorMessage={error!.reason} user={user} />, 500);
   }
+
+  const upcomingFairs = upcomingResult!.fairs;
+  const upcomingPage = upcomingResult!.page;
+  const upcomingTotalPages = upcomingResult!.totalPages;
+  const currentFairs = currentResult!.fairs;
+  const currentPage = currentResult!.page;
+  const currentTotalPages = currentResult!.totalPages;
+  const pastFairs = pastResult!.fairs;
+  const pastPage = pastResult!.page;
+  const pastTotalPages = pastResult!.totalPages;
 
   const gridContent = (
     <>

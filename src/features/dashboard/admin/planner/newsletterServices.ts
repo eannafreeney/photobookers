@@ -31,7 +31,6 @@ import {
   type WeeklyNewsletterTrendingBookItem,
   type WeeklyNewsletterTrendingCreatorItem,
 } from "./newsletterTemplate";
-import { renderWeeklyBOTDNewsletterHtmlMjml } from "./newsletterTemplateMjml";
 import {
   formatWeekRangeLabel,
   getCurrentNewsletterRange,
@@ -555,6 +554,9 @@ export async function buildCampaignPreviewHtml(
   const { artistOfTheWeek, publisherOfTheWeek } =
     await getWeeklyCreatorSpotlights(weekEnd);
 
+  const { renderWeeklyBOTDNewsletterHtmlMjml } = await import(
+    "./newsletterTemplateMjml"
+  );
   return renderWeeklyBOTDNewsletterHtmlMjml({
     weekStart,
     weekEnd,

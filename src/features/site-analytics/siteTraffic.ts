@@ -240,7 +240,7 @@ export async function getSiteTrafficDashboard(
   if (cached) return ok(cached);
 
   try {
-    const client = getGa4Client(config.credentials);
+    const client = await getGa4Client(config.credentials);
     const reports = await runSiteTrafficReports(
       client,
       config.propertyId,

@@ -59,6 +59,15 @@ const MagazineIssue01Page = ({ books }: Props) => {
 
   return (
     <div class="mx-auto flex w-full max-w-3xl flex-col gap-10">
+      <div class="mx-auto w-full max-w-sm border border-outline">
+        <img
+          src={issue01Meta.coverUrl}
+          alt={`${issue01Meta.kicker}: ${issue01Meta.title} — magazine cover`}
+          width={800}
+          height={1200}
+          class="w-full object-cover"
+        />
+      </div>
       <PageHeader
         kicker={issue01Meta.kicker}
         title={issue01Meta.title}

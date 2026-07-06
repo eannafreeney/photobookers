@@ -9,6 +9,7 @@ import {
 import { getMagazineBooksBySlugs } from "@/features/app/magazine/services";
 import InfoPage from "@/pages/InfoPage";
 import { canonicalUrl, pageTitle, truncateDescription } from "@/lib/seo";
+import { heroLcpImageSources } from "@/lib/imageUrl";
 import { getUser } from "@/utils";
 
 const path = `/magazine/${issue01Meta.slug}`;
@@ -26,7 +27,7 @@ export const GET = createRoute(async (c) => {
   const title = pageTitle(`${issue01Meta.kicker}: ${issue01Meta.title}`);
   const description = truncateDescription(issue01Meta.subtitle);
   const issueCanonicalUrl = canonicalUrl(c.req.url, path);
-  const heroCover = books.find((book) => book?.coverUrl)?.coverUrl;
+  const shareImage = issue01Meta.coverUrl;
 
   if (!user) {
     c.header("Vary", "Cookie");
@@ -45,9 +46,10 @@ export const GET = createRoute(async (c) => {
       shareOg={{
         title,
         description,
-        image: heroCover ?? undefined,
+        image: shareImage,
         url: issueCanonicalUrl,
       }}
+      preloadLcpImage={heroLcpImageSources(shareImage)}
     >
       <Page>
         <MagazineIssue01Page books={books} />

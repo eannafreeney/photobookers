@@ -2,7 +2,7 @@ import "./env";
 import { db } from "../src/db/client";
 import { bookFairs, users } from "../src/db/schema";
 import { eq } from "drizzle-orm";
-import { slugify } from "../src/utils";
+import { FAIRS_FROM_PHOTOBOOK_JOURNAL } from "./data/fairsFromPhotoBookJournal";
 
 async function getAdminUserId(): Promise<string> {
   const [admin] = await db
@@ -16,81 +16,8 @@ async function getAdminUserId(): Promise<string> {
   return admin.id;
 }
 
-const FAIRS_DATA = [
-  {
-    name: "NY Art Book Fair",
-    slug: "ny-art-book-fair-2026",
-    description:
-      "The world's premier event for artists' books, catalogs, monographs, periodicals, and zines. Held at MoMA PS1 in New York, featuring publishers, booksellers, antiquarians, artists, and independent presses from around the world.",
-    city: "New York",
-    country: "USA",
-    venue: "MoMA PS1",
-    website: "https://nyartbookfair.com",
-    startDate: new Date("2026-09-18"),
-    endDate: new Date("2026-09-20"),
-    coverUrl:
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800",
-    status: "published" as const,
-    approvalStatus: "approved" as const,
-    listingTier: "promoted" as const,
-    promotedUntil: new Date("2026-09-21"),
-    sortOrder: 1,
-  },
-  {
-    name: "Paris Photo",
-    slug: "paris-photo-2026",
-    description:
-      "The world's largest international art fair dedicated to the photography medium. Paris Photo brings together the most important galleries, publishers, and artists from around the world at the Grand Palais Éphémère.",
-    city: "Paris",
-    country: "France",
-    venue: "Grand Palais Éphémère",
-    website: "https://www.parisphoto.com",
-    startDate: new Date("2026-11-12"),
-    endDate: new Date("2026-11-15"),
-    coverUrl:
-      "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800",
-    status: "published" as const,
-    approvalStatus: "approved" as const,
-    listingTier: "free" as const,
-    sortOrder: 2,
-  },
-  {
-    name: "Unseen Amsterdam",
-    slug: "unseen-amsterdam-2026",
-    description:
-      "International photography fair and festival celebrating the best of contemporary photography. Features emerging and established photographers, alongside a program of exhibitions, book signings, and talks.",
-    city: "Amsterdam",
-    country: "Netherlands",
-    venue: "Westergasfabriek",
-    website: "https://unseenamsterdam.com",
-    startDate: new Date("2026-09-24"),
-    endDate: new Date("2026-09-27"),
-    coverUrl:
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-    status: "published" as const,
-    approvalStatus: "approved" as const,
-    listingTier: "promoted" as const,
-    promotedUntil: new Date("2026-09-28"),
-    sortOrder: 3,
-  },
-  {
-    name: "Polycopies",
-    slug: "polycopies-2027",
-    description:
-      "Parisian photobook fair focusing on self-published and independent photography books. An intimate gathering of publishers, artists, and collectors in the heart of Paris.",
-    city: "Paris",
-    country: "France",
-    venue: "Le Centquatre-Paris",
-    website: "https://www.polycopies.org",
-    startDate: new Date("2027-01-15"),
-    endDate: new Date("2027-01-17"),
-    coverUrl:
-      "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800",
-    status: "published" as const,
-    approvalStatus: "approved" as const,
-    listingTier: "free" as const,
-    sortOrder: 4,
-  },
+/** Additional fairs not on the PhotoBook Journal list. */
+const EXTRA_FAIRS = [
   {
     name: "Tokyo Art Book Fair",
     slug: "tokyo-art-book-fair-2026",
@@ -107,25 +34,7 @@ const FAIRS_DATA = [
     status: "published" as const,
     approvalStatus: "approved" as const,
     listingTier: "free" as const,
-    sortOrder: 5,
-  },
-  {
-    name: "Offprint London",
-    slug: "offprint-london-2026",
-    description:
-      "A satellite fair of Frieze London dedicated to photo books, art books, magazines, and printed matter. Showcases international galleries, independent publishers, and artists at Tate Modern.",
-    city: "London",
-    country: "UK",
-    venue: "Tate Modern",
-    website: "https://www.offprintlondon.com",
-    startDate: new Date("2026-10-15"),
-    endDate: new Date("2026-10-18"),
-    coverUrl:
-      "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800",
-    status: "published" as const,
-    approvalStatus: "approved" as const,
-    listingTier: "free" as const,
-    sortOrder: 6,
+    sortOrder: 70,
   },
   {
     name: "PhotoEspaña",
@@ -143,27 +52,11 @@ const FAIRS_DATA = [
     status: "published" as const,
     approvalStatus: "approved" as const,
     listingTier: "free" as const,
-    sortOrder: 7,
-  },
-  {
-    name: "LA Art Book Fair",
-    slug: "la-art-book-fair-2027",
-    description:
-      "The West Coast's largest event for artists' books, zines, and printed matter. Organized by Printed Matter at the Geffen Contemporary at MOCA, featuring 300+ exhibitors from around the world.",
-    city: "Los Angeles",
-    country: "USA",
-    venue: "Geffen Contemporary at MOCA",
-    website: "https://laartbookfair.net",
-    startDate: new Date("2027-02-12"),
-    endDate: new Date("2027-02-14"),
-    coverUrl:
-      "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800",
-    status: "published" as const,
-    approvalStatus: "approved" as const,
-    listingTier: "free" as const,
-    sortOrder: 8,
+    sortOrder: 71,
   },
 ];
+
+const FAIRS_DATA = [...FAIRS_FROM_PHOTOBOOK_JOURNAL, ...EXTRA_FAIRS];
 
 async function seedFairs() {
   console.log("Starting fairs seed...");
@@ -184,19 +77,33 @@ async function seedFairs() {
         const [insertedFair] = await db
           .insert(bookFairs)
           .values(fairWithUser)
+          .onConflictDoUpdate({
+            target: bookFairs.slug,
+            set: {
+              name: fairData.name,
+              description: fairData.description,
+              city: fairData.city,
+              country: fairData.country,
+              venue: fairData.venue,
+              website: fairData.website,
+              startDate: fairData.startDate,
+              endDate: fairData.endDate,
+              coverUrl: fairData.coverUrl,
+              status: fairData.status,
+              approvalStatus: fairData.approvalStatus,
+              listingTier: fairData.listingTier,
+              promotedUntil: fairData.promotedUntil ?? null,
+              sortOrder: fairData.sortOrder,
+              updatedAt: new Date(),
+            },
+          })
           .returning();
 
         console.log(
-          `✓ Created fair: ${insertedFair.name} (${insertedFair.slug})`,
+          `✓ Upserted fair: ${insertedFair.name} (${insertedFair.slug})`,
         );
-      } catch (error: any) {
-        if (error.code === "23505") {
-          console.log(
-            `⊘ Fair already exists: ${fairData.name} (${fairData.slug})`,
-          );
-        } else {
-          console.error(`✗ Failed to create fair ${fairData.name}:`, error);
-        }
+      } catch (error) {
+        console.error(`✗ Failed to upsert fair ${fairData.name}:`, error);
       }
     }
 

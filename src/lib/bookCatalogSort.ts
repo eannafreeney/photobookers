@@ -3,6 +3,8 @@ import { books } from "../db/schema";
 
 export type BookCatalogSort = "newest" | "trending";
 
+export const BOOK_CATALOG_DEFAULT_SORT: BookCatalogSort = "trending";
+
 export const BOOK_CATALOG_SORT_VALUES: BookCatalogSort[] = [
   "newest",
   "trending",

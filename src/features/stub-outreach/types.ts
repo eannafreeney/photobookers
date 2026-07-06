@@ -11,7 +11,8 @@ export type StubOutreachSkipReason =
   | "recent_outreach"
   | "recent_spotlight_email"
   | "no_milestone"
-  | "view_threshold_not_met";
+  | "view_threshold_not_met"
+  | "daily_welcome_limit";
 
 export type StubOutreachItemOutcome =
   | { status: "sent"; kind: StubOutreachEmailKind; to: string }
@@ -24,6 +25,7 @@ export type StubOutreachCronOptions = {
   to?: string;
   creatorId?: string;
   date?: Date;
+  dailyWelcomeLimit?: number;
 };
 
 export type StubOutreachCronResult = {

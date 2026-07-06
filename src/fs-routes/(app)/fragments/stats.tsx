@@ -1,6 +1,4 @@
 import { createRoute } from "hono-fsr";
-import { getHomepageActivityStats } from "../../../features/app/homepageActivity";
-import HomepageActivityPulse from "../../../features/app/components/HomepageActivityPulse";
 import { getHomepageStats } from "../../../features/app/services";
 import { capitalize } from "../../../utils";
 
@@ -10,18 +8,8 @@ export const GET = createRoute(async (c) => {
   const { books, artists, publishers } = statsResult;
   if (!books || !artists || !publishers) return c.html(<></>);
 
-  const [, activity] = await getHomepageActivityStats();
-
   return c.html(
     <div id="stats-fragment" class="flex flex-col">
-      {activity ? (
-        <HomepageActivityPulse
-          bookViews={activity.bookViews}
-          profileViews={activity.profileViews}
-        />
-      ) : (
-        <></>
-      )}
       <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
         <StatsCard entity="books" count={books} href="/books" />
         <StatsCard entity="artists" count={artists} href="/artists" />
