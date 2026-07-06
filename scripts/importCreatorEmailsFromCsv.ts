@@ -27,9 +27,14 @@ type ReportRow = {
   reason: string;
 };
 
+const inputArg = process.argv
+  .find((arg) => arg.startsWith("--input="))
+  ?.split("=")[1];
+const positionalArgs = process.argv
+  .slice(2)
+  .filter((arg) => !arg.startsWith("--"));
 const INPUT_PATH =
-  process.argv.find((arg) => !arg.startsWith("--")) ??
-  "tmp/suggested-creator-emails.csv";
+  inputArg ?? positionalArgs.at(-1) ?? "tmp/suggested-creator-emails.csv";
 const OUTPUT_PATH =
   process.argv.find((arg) => arg.startsWith("--output="))?.split("=")[1] ??
   "tmp/import-creator-emails-results.csv";
@@ -43,10 +48,21 @@ const minConfidenceArg = process.argv
 
 async function run() {
   const raw = await fs.readFile(INPUT_PATH, "utf8");
+  if (
+    !raw.includes("artist_name") ||
+    !raw.includes("profile_url") ||
+    raw.includes("__PAGEZERO")
+  ) {
+    throw new Error(
+      `File does not look like a creator emails CSV: ${INPUT_PATH}. Use --input=tmp/suggested-creator-emails.csv`,
+    );
+  }
+
   const rows = parse(raw, {
     columns: true,
     skip_empty_lines: true,
     trim: true,
+    relax_quotes: true,
   }) as InputRow[];
 
   const report: ReportRow[] = [];
