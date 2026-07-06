@@ -1,4 +1,5 @@
 import { runCeoMetricsEmailCron } from "../domain/ceo-metrics/cron";
+import { runInterviewReminderCron } from "../domain/interviews/reminderCron";
 import {
   runBotdAdvanceNotificationEmails,
   runBotdFeatureDayEmails,
@@ -50,6 +51,7 @@ export type CronJobName =
   | "creator-analytics-digest"
   | "creator-milestone-emails"
   | "stub-outreach-emails"
+  | "interview-reminder-emails"
   | "verified-creator-instagram";
 
 export const CRON_JOB_NAMES = [
@@ -65,6 +67,7 @@ export const CRON_JOB_NAMES = [
   "creator-analytics-digest",
   "creator-milestone-emails",
   "stub-outreach-emails",
+  "interview-reminder-emails",
   "verified-creator-instagram",
 ] as const satisfies readonly CronJobName[];
 
@@ -271,6 +274,20 @@ export async function runStubOutreachEmailsCron(
   return ok({ ...result });
 }
 
+export async function runInterviewReminderEmailsCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runInterviewReminderCron({
+    dryRun: options.dryRun,
+    force: options.force,
+    to: options.to,
+    creatorId: options.creatorId,
+    date: options.date,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
 export async function runVerifiedCreatorInstagramCronJob(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
@@ -298,6 +315,7 @@ const RUNNERS: Record<
   "creator-analytics-digest": runCreatorAnalyticsDigestCronJob,
   "creator-milestone-emails": runCreatorMilestoneEmailsCronJob,
   "stub-outreach-emails": runStubOutreachEmailsCron,
+  "interview-reminder-emails": runInterviewReminderEmailsCron,
   "verified-creator-instagram": runVerifiedCreatorInstagramCronJob,
 };
 

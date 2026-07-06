@@ -1,45 +1,49 @@
 import { Creator } from "../../../../db/schema";
 
+const siteUrl = () => process.env.SITE_URL ?? "https://photobookers.com";
+
 export const generateWelcomeEmail = (creator: Creator, claimLink: string) => {
   const creatorName = creator.displayName;
-  const profileUrl = `https://photobookers.com/creators/${creator.slug}`;
+  const profileUrl = `${siteUrl()}/creators/${creator.slug}`;
   return `
       <p>Hi ${creatorName},</p>
       <p>I hope you are well.</p>
       <p>
         My name is Eanna de Freine — I previously founded the independent publisher
-        The Velvet Cell (Berlin/Bremen), which I stepped away from in 2025 to focus on new projects.
+        The Velvet Cell (Berlin/Bremen), and I am now building Photobookers.
       </p>
       <p>
-        I am writing to invite you to join Photobookers, a platform for discovering photobooks and following
-        the artists and publishers behind them — something closer in spirit to Bandcamp, but for photobooks.
+        Photobookers is a curated home for photobook culture — closer in spirit to
+        Bandcamp than a generic marketplace. Collectors browse books, artists,
+        publishers, and fairs in one place; follow the people behind the work; save
+        titles to wishlists and collections; and get updates when creators they follow
+        publish something new.
       </p>
-      <p>The idea is to create a dedicated space where collectors can:</p>
+      <p>
+        We run editorial features throughout the week — Book of the Day, Artist and
+        Publisher of the Week, short interviews, a weekly newsletter, and a monthly
+        digital magazine. There is also an iOS app for browsing on the go.
+      </p>
+      <p>For artists and publishers, a profile means:</p>
       <ul>
-        <li>Follow publishers and artists they admire</li>
-        <li>Explore full catalogues in one place</li>
-        <li>Save books to their collections or wishlists</li>
-        <li>Stay informed about new releases</li>
+        <li>A home for your catalog, with covers, details, and links to where people can buy</li>
+        <li>Discovery through search, tags, fairs, and editorial features</li>
+        <li>Analytics on views, outbound purchase clicks, wishlists, and collections</li>
+        <li>A way for collectors to follow your work and hear from you directly</li>
       </ul>
       <p>
-        We also curate the platform daily with a Book of the Day, plus weekly
-        artist and publisher spotlights.
+        You keep control of your shop, links, and terms. We help the right people find you.
       </p>
       <p>
-        I have long admired what you are doing, and I would love to include you as part of the platform.
-        I have already created a profile for you with a small selection of your books.
+        I have long admired what you are doing, and I have already put together a profile
+        for you with a small selection of your books.
       </p>
       <p>
-        <a href="${claimLink}">Claim your profile</a> to manage your books and edit your page.
+        <a href="${profileUrl}">View your profile</a> — or
+        <a href="${claimLink}">Claim your profile</a> to manage your books, update your page,
+        and see your stats.
       </p>
-      <p>
-        You are very welcome to claim and edit the page here:<br />
-        <a href="${profileUrl}">View Profile</a>
-      </p>
-      <p>— or just reply and I can set it up for you.</p>
-      <p>
-        We are still in an early phase, but building something thoughtful for the photobook community is the goal.
-      </p>
+      <p>If that is easier, just reply and I can set it up for you.</p>
       <p>
         All the best,<br />
         Eanna
@@ -52,50 +56,41 @@ export const generateWelcomeEmailForCreator = (
   claimLink: string,
 ) => {
   const creatorName = creator.displayName;
-  const profileUrl = `https://photobookers.com/creators/${creator.slug}`;
+  const profileUrl = `${siteUrl()}/creators/${creator.slug}`;
   return `
     <p>Hi ${creatorName},</p>
-      <p>I hope you are well. Please forgive the cold email.
-        I am writing today to share your Photobookers profile with you.
+      <p>
+        I hope you are well. Please forgive the cold email — I am writing to share
+        your Photobookers profile with you.
       </p>
       <p>
-        About me: I am the founder of the independent publisher
-        The Velvet Cell (Berlin/Bremen), which I stepped away from in 2025 to focus on new projects.
+        About me: I previously founded the independent publisher The Velvet Cell
+        (Berlin/Bremen), and I am now building Photobookers — a curated home for
+        photobook culture, closer in spirit to Bandcamp than a generic marketplace.
       </p>
       <p>
-        I am now building Photobookers, a platform for discovering photobooks and following
-        the artists and publishers behind them — something close in spirit to Bandcamp, but for photobooks.
+        Collectors use Photobookers to browse books, artists, publishers, and fairs;
+        follow the people behind the work; save titles to wishlists and collections;
+        and discover through Book of the Day, Artist and Publisher of the Week,
+        interviews, our weekly newsletter, and a monthly digital magazine.
       </p>
-      <p>
-        View your profile here: <br/>
-        <a href="${profileUrl}">View Profile</a>
-      </p>
-      <p>
-        <a href="${claimLink}">Claim your profile</a> to manage your books and edit your page.
-      </p>
-      <p>The idea is to create a dedicated space where artists and publishers can:</p>
+      <p>For artists and publishers, a profile means:</p>
       <ul>
-        <li>Share their books and catalogues</li>
-        <li>Connect with fans directly</li>
-        <li>Get discovered by new collectors</li>
-      </ul>
-      <p>...and collectors can:</p>
-      <ul>
-        <li>Follow publishers and artists they admire</li>
-        <li>Explore full catalogues in one place</li>
-        <li>Save books to their collections or wishlists</li>
-        <li>Stay informed about new releases</li>
+        <li>A home for your catalog, with covers, details, and links to where people can buy</li>
+        <li>Discovery through search, tags, fairs, and editorial features</li>
+        <li>Analytics on views, outbound purchase clicks, wishlists, and collections</li>
+        <li>A way for collectors to follow your work and hear from you directly</li>
       </ul>
       <p>
-        We also curate the platform daily with a Book of the Day, plus weekly
-        artist and publisher spotlights.
+        You keep control of your shop, links, and terms. We help the right people find you.
       </p>
       <p>
-        I would love to include you as part of the platform.
-        I have already created a profile for you with a small selection of your books.
+        I have already put together a profile for you with a small selection of your books.
       </p>
       <p>
-        We are still in an early phase, but building something thoughtful for the photobook community is the goal.
+        <a href="${profileUrl}">View your profile</a> — or
+        <a href="${claimLink}">Claim your profile</a> to manage your books, update your page,
+        and see your stats.
       </p>
       <p>
         All the best,<br />

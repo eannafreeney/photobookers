@@ -14,6 +14,7 @@ export type AnalyticsSectionTab =
 
 export function parseAnalyticsSectionTab(raw?: string): AnalyticsSectionTab {
   if (raw === "overview") return "overview";
+  if (raw === "books") return "books";
   if (raw === "site") return "site";
   if (raw === "app") return "app";
   if (raw === "newsletter") return "newsletter";
