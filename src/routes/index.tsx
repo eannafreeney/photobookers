@@ -33,5 +33,5 @@ routes.use("*", methodOverride({ app: routes, form: "_method" }));
 await createRouter(routes, {
   manifest,
   basePath: "/",
-  debug: true,
+  debug: process.env.NODE_ENV !== "production",
 });

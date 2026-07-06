@@ -23,6 +23,11 @@ import {
   type BookCatalogSort,
 } from "../../../lib/bookCatalogSort";
 import { hyperviewBooksFilterUrl, resolveBookCatalogSort } from "../../../lib/tags";
+import { AuthUser } from "../../../../types";
+import { BookCardResult } from "../../../constants/queries";
+import BookFiltersPanel from "../../../features/hyperview/components/BookFiltersPanel";
+
+const PAGE_SIZE = 3;
 
 type FilterQuery = {
   tag?: string | null;
