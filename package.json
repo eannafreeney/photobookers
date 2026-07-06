@@ -18,6 +18,9 @@
     "export-social-week": "ENV=production npx tsx scripts/export-social-week.ts",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:install": "playwright install chromium",
     "postinstall": "patch-package && node scripts/render-postinstall.mjs",
     "fallow": "fallow",
     "fallow:audit": "fallow audit --base main",
@@ -69,6 +72,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@hono/vite-dev-server": "^0.23.0",
+    "@playwright/test": "^1.61.1",
     "@types/alpinejs": "^3.13.11",
     "@types/node": "^20.11.17",
     "@types/react": "^19.2.15",
