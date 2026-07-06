@@ -1,31 +1,13 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runCreatorMilestoneEmailsCron } from "../../../features/creator-analytics-digest/services";
+import { runCreatorMilestoneEmailsCronJob } from "@/jobs/cronRunners";
 import { parseDateString } from "../../../lib/utils";
+import { requireCronSecret } from "@/jobs/cronRouteAuth";
 
-/**
- * Daily creator milestone email cron.
- *
- * Schedule externally, e.g. cron-job.org:
- *
- *   POST https://www.photobookers.com/jobs/cron/creator-milestone-emails
- *   Authorization: Bearer $CRON_SECRET
- *   Cron: 0 10 * * *  (daily 10:00 UTC)
- *
- * Optional query params:
- *   dryRun=1             — evaluate only, do not send
- *   to=email             — override recipient (testing)
- *   creatorId=uuid       — limit to one creator
- *   date=YYYY-MM-DD      — reference date for verified-at guard
- */
+/** Prefer GitHub Actions: npx tsx scripts/cron/run.ts creator-milestone-emails */
 export const POST = createRoute(async (c: Context) => {
-  const secret =
-    c.req.header("Authorization")?.replace(/^Bearer\s+/i, "") ??
-    c.req.query("secret");
-  const expected = process.env.CRON_SECRET;
-  if (!expected || secret !== expected) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
+  const unauthorized = requireCronSecret(c);
+  if (unauthorized) return unauthorized;
 
   const dryRun =
     c.req.query("dryRun") === "1" || c.req.query("dryRun") === "true";
@@ -40,15 +22,12 @@ export const POST = createRoute(async (c: Context) => {
     }
   }
 
-  const [error, result] = await runCreatorMilestoneEmailsCron({
+  const [error, result] = await runCreatorMilestoneEmailsCronJob({
     dryRun,
     to,
     creatorId,
     date,
   });
-  if (error) {
-    return c.json({ error: error.reason }, 500);
-  }
-
+  if (error) return c.json({ error: error.reason }, 500);
   return c.json({ ok: true, ...result });
 });

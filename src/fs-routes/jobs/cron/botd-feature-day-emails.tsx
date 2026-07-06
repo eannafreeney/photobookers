@@ -1,34 +1,26 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runBotdFeatureDayEmails } from "../../../domain/planner/cron/botdEmailServices";
-import { parseDateString, toDateString } from "../../../lib/utils";
+import { runBotdFeatureDayEmailsCron } from "@/jobs/cronRunners";
+import { parseDateString } from "../../../lib/utils";
+import { requireCronSecret } from "@/jobs/cronRouteAuth";
 
+/** Prefer GitHub Actions: npx tsx scripts/cron/run.ts botd-feature-day-emails */
 export const POST = createRoute(async (c: Context) => {
-  const secret =
-    c.req.header("Authorization")?.replace(/^Bearer\s+/i, "") ??
-    c.req.query("secret");
-  const expected = process.env.CRON_SECRET;
-  if (!expected || secret !== expected) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
+  const unauthorized = requireCronSecret(c);
+  if (unauthorized) return unauthorized;
 
   const dateParam = c.req.query("date");
-  const asOf = dateParam ? parseDateString(dateParam) : new Date();
-  if (dateParam && Number.isNaN(asOf.getTime())) {
-    return c.json({ error: "Invalid date (use YYYY-MM-DD)" }, 400);
+  if (dateParam) {
+    const date = parseDateString(dateParam);
+    if (Number.isNaN(date.getTime())) {
+      return c.json({ error: "Invalid date (use YYYY-MM-DD)" }, 400);
+    }
+    const [error, result] = await runBotdFeatureDayEmailsCron({ date });
+    if (error) return c.json({ error: error.reason }, 500);
+    return c.json({ ok: true, ...result });
   }
 
-  const [error, result] = await runBotdFeatureDayEmails(asOf);
-  if (error) {
-    return c.json({ error: error.reason }, 500);
-  }
-
-  return c.json({
-    ok: true,
-    featureDayEmailsSent: result.featureDayEmailsSent,
-    items: result.items.map((item) => ({
-      ...item,
-      date: toDateString(item.date),
-    })),
-  });
+  const [error, result] = await runBotdFeatureDayEmailsCron();
+  if (error) return c.json({ error: error.reason }, 500);
+  return c.json({ ok: true, ...result });
 });

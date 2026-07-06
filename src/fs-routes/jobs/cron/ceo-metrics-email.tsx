@@ -1,28 +1,19 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runCeoMetricsEmailCron } from "../../../domain/ceo-metrics/cron";
+import { runCeoMetricsEmailCronJob } from "@/jobs/cronRunners";
 import { parseDateString } from "../../../lib/utils";
+import { requireCronSecret } from "@/jobs/cronRouteAuth";
 
 /**
  * Weekly CEO metrics email cron.
  *
- * Schedule externally on Monday mornings, e.g. cron-job.org:
+ * Prefer GitHub Actions: npx tsx scripts/cron/run.ts ceo-metrics-email
  *
- *   POST https://www.photobookers.com/jobs/cron/ceo-metrics-email
- *   Authorization: Bearer $CRON_SECRET
- *   Cron: 0 8 * * 1  (Mondays, 08:00 UTC)
- *
- * Optional query params:
- *   dryRun=1   — build metrics only, do not send
- *   force=1    — send even when not Monday
- *   date=YYYY-MM-DD — reference date for Monday guard
+ * Optional query: dryRun=1, force=1, date=YYYY-MM-DD
  */
 export const POST = createRoute(async (c: Context) => {
-  const secret = c.req.header("Authorization")?.replace(/^Bearer\s+/i, "");
-  const expected = process.env.CRON_SECRET;
-  if (!expected || secret !== expected) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
+  const unauthorized = requireCronSecret(c);
+  if (unauthorized) return unauthorized;
 
   const dryRun =
     c.req.query("dryRun") === "1" || c.req.query("dryRun") === "true";
@@ -36,10 +27,7 @@ export const POST = createRoute(async (c: Context) => {
     }
   }
 
-  const [error, result] = await runCeoMetricsEmailCron({ dryRun, force, date });
-  if (error) {
-    return c.json({ error: error.reason }, 500);
-  }
-
+  const [error, result] = await runCeoMetricsEmailCronJob({ dryRun, force, date });
+  if (error) return c.json({ error: error.reason }, 500);
   return c.json({ ok: true, ...result });
 });

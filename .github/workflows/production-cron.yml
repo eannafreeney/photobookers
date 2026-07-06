@@ -1,5 +1,5 @@
-# Triggers production cron HTTP endpoints (replaces cron-job.org).
-# Add CRON_SECRET to repository secrets (same value as production CRON_SECRET).
+# Runs production cron scripts via GitHub Actions (no HTTP hit to Render web service).
+# Add production secrets listed in .github/actions/run-production-cron/action.yml
 name: Production cron jobs
 
 on:
@@ -14,8 +14,8 @@ on:
     - cron: "0 11 * * *" # daily 11:00 UTC — verified creator Instagram
   workflow_dispatch:
     inputs:
-      endpoint:
-        description: Cron endpoint to run manually
+      job:
+        description: Cron job to run manually
         required: true
         type: choice
         options:
@@ -37,155 +37,142 @@ jobs:
   daily-botd-instagram:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 8 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'daily-botd-instagram')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'daily-botd-instagram')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: daily-botd-instagram
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: daily-botd-instagram
 
   botd-advance-notification-emails:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 9 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'botd-advance-notification-emails')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'botd-advance-notification-emails')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: botd-advance-notification-emails
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: botd-advance-notification-emails
 
   ceo-metrics-email:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 8 * * 1') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'ceo-metrics-email')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'ceo-metrics-email')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: ceo-metrics-email
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: ceo-metrics-email
 
   botd-feature-day-emails:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 9 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'botd-feature-day-emails')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'botd-feature-day-emails')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: botd-feature-day-emails
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: botd-feature-day-emails
 
   spotlight-creator-emails:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 9 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'spotlight-creator-emails')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'spotlight-creator-emails')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: spotlight-creator-emails
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: spotlight-creator-emails
 
   notify-followers-new-books:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 9 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'notify-followers-new-books')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'notify-followers-new-books')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: notify-followers-new-books
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: notify-followers-new-books
 
   notify-followers-new-posts:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 9 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'notify-followers-new-posts')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'notify-followers-new-posts')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: notify-followers-new-posts
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: notify-followers-new-posts
 
   weekly-botd-newsletter:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 9 * * 3') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'weekly-botd-newsletter')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'weekly-botd-newsletter')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: weekly-botd-newsletter
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: weekly-botd-newsletter
 
   instagram-prep-reminder-email:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 9 * * 6') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'instagram-prep-reminder-email')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'instagram-prep-reminder-email')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: instagram-prep-reminder-email
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: instagram-prep-reminder-email
 
   creator-analytics-digest:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 9 3 * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'creator-analytics-digest')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'creator-analytics-digest')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: creator-analytics-digest
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: creator-analytics-digest
 
   creator-milestone-emails:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 10 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'creator-milestone-emails')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'creator-milestone-emails')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: creator-milestone-emails
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: creator-milestone-emails
 
   stub-outreach-emails:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 10 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'stub-outreach-emails')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'stub-outreach-emails')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: stub-outreach-emails
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: stub-outreach-emails
 
   verified-creator-instagram:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '0 11 * * *') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.endpoint == 'verified-creator-instagram')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'verified-creator-instagram')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/invoke-production-cron
+      - uses: ./.github/actions/run-production-cron
         with:
-          endpoint: verified-creator-instagram
-          cron_secret: ${{ secrets.CRON_SECRET }}
+          job: verified-creator-instagram

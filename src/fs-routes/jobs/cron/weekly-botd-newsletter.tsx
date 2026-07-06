@@ -1,31 +1,19 @@
 import { Context } from "hono";
 import { createRoute } from "hono-fsr";
-import { runWeeklyNewsletterCron } from "../../../domain/planner/cron/newsletterCronServices";
+import { runWeeklyBotdNewsletterCron } from "@/jobs/cronRunners";
 import { parseDateString } from "../../../lib/utils";
+import { requireCronSecret } from "@/jobs/cronRouteAuth";
 
 /**
  * Weekly BOTD newsletter cron.
  *
- * Sends on Wednesday with Thu–Wed books (7 days ending today).
- * Schedule externally, e.g. cron-job.org:
+ * Prefer GitHub Actions: npx tsx scripts/cron/run.ts weekly-botd-newsletter
  *
- *   POST https://www.photobookers.com/jobs/cron/weekly-botd-newsletter
- *   Authorization: Bearer $CRON_SECRET
- *   Cron: 0 9 * * 3  (Wednesday 09:00 UTC)
- *
- * Optional query params:
- *   dryRun=1             — build/regenerate only, do not send
- *   weekStart=YYYY-MM-DD — Thursday range-start (for backfill/testing)
- *   force=1              — send on a non-Wednesday
+ * Optional query: dryRun=1, weekStart=YYYY-MM-DD, force=1
  */
 export const POST = createRoute(async (c: Context) => {
-  const secret =
-    c.req.header("Authorization")?.replace(/^Bearer\s+/i, "") ??
-    c.req.query("secret");
-  const expected = process.env.CRON_SECRET;
-  if (!expected || secret !== expected) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
+  const unauthorized = requireCronSecret(c);
+  if (unauthorized) return unauthorized;
 
   const dryRun =
     c.req.query("dryRun") === "1" || c.req.query("dryRun") === "true";
@@ -39,14 +27,11 @@ export const POST = createRoute(async (c: Context) => {
     }
   }
 
-  const [error, result] = await runWeeklyNewsletterCron({
+  const [error, result] = await runWeeklyBotdNewsletterCron({
     dryRun,
     weekStart,
     force,
   });
-  if (error) {
-    return c.json({ error: error.reason }, 500);
-  }
-
+  if (error) return c.json({ error: error.reason }, 500);
   return c.json({ ok: true, ...result });
 });
