@@ -2,6 +2,7 @@
 export const FEATURED_BOOK_GROUPS = [
   "japan",
   "urban",
+  "africa",
   "street",
   "architecture",
   "europe",

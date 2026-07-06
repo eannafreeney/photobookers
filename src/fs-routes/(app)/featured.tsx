@@ -16,6 +16,8 @@ import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
 import { heroLcpImageSources } from "../../lib/imageUrl";
 import ThisWeekOnPhotobookersLink from "../../features/app/components/ThisWeekOnPhotobookersLink";
 import PageBleed from "../../components/layouts/PageBleedRight";
+import { getHomepageActivityStats } from "@/features/app/homepageActivity";
+import HomepageActivityPulse from "@/features/app/components/HomepageActivityPulse";
 
 export const GET = createRoute(async (c: Context) => {
   const [user, heroItems] = await Promise.all([
@@ -41,15 +43,20 @@ export const GET = createRoute(async (c: Context) => {
     >
       <NewsletterBanner />
       <Page>
+        <Pulse />
         <HeroCarouselFeatureCard heroItems={heroItems} />
         <ThisWeekOnPhotobookersLink />
         <Slogan />
-        <ScrollReveal>
-          <Intersector id="stats-fragment" endpoint="/fragments/stats" />
-        </ScrollReveal>
-        <ScrollReveal>
-          <SiteFeatures />
-        </ScrollReveal>
+        {!user && (
+          <>
+            <ScrollReveal>
+              <Intersector id="stats-fragment" endpoint="/fragments/stats" />
+            </ScrollReveal>
+            <ScrollReveal>
+              <SiteFeatures />
+            </ScrollReveal>
+          </>
+        )}
 
         <ScrollReveal>
           <PageBleed>
@@ -82,7 +89,6 @@ export const GET = createRoute(async (c: Context) => {
         <ScrollReveal>
           <Intersector id="fairs-fragment" endpoint="/fragments/fairs" />
         </ScrollReveal>
-
         <ScrollReveal>
           <Intersector id="stores-fragment" endpoint="/fragments/stores" />
         </ScrollReveal>
@@ -103,3 +109,16 @@ const Slogan = () => (
     </p>
   </div>
 );
+
+const Pulse = async () => {
+  const [error, activity] = await getHomepageActivityStats();
+
+  if (error || !activity) return <></>;
+
+  return (
+    <HomepageActivityPulse
+      bookViews={activity.bookViews}
+      profileViews={activity.profileViews}
+    />
+  );
+};

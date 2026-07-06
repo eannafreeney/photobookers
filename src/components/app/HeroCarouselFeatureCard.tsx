@@ -6,6 +6,12 @@ import Button from "./Button";
 
 const HERO_IMAGE_CLASS =
   "h-auto w-full max-h-[220px] object-contain sm:max-h-[260px] md:h-full md:max-h-none md:w-full object-cover";
+const HERO_SLIDE_GRID_CLASS =
+  "grid grid-cols-1 pt-6 pb-12 md:h-full md:grid-cols-2 md:pt-0 md:pb-0";
+const HERO_TEXT_COLUMN_CLASS =
+  "flex flex-col items-center justify-center order-2 px-4 py-4 text-center sm:p-8 lg:p-12";
+const HERO_BUTTON_ROW_CLASS =
+  "mt-1 mb-4 flex items-center justify-center gap-3 group md:justify-start";
 /** Intrinsic ratio for book-cover CLS reservation (actual display size is CSS-controlled). */
 const HERO_IMAGE_WIDTH = 600;
 const HERO_IMAGE_HEIGHT = 800;
@@ -50,8 +56,8 @@ const HeroCarouselFeatureCard = ({ heroItems }: Props) => {
               x-transition:enter-end="opacity-100 translate-x-0"
               class="md:absolute md:inset-0"
             >
-              <div class="grid grid-cols-1 pb-12 md:h-full md:grid-cols-2 md:pb-0">
-                <div class="flex flex-col items-center justify-center order-2 px-4 py-4 sm:p-8 lg:p-12">
+              <div class={HERO_SLIDE_GRID_CLASS}>
+                <div class={HERO_TEXT_COLUMN_CLASS}>
                   <div class="max-w-xl flex flex-col items-center justify-center gap-2">
                     <p class="kicker text-accent" x-text="item.label"></p>
                     <p
@@ -65,7 +71,7 @@ const HeroCarouselFeatureCard = ({ heroItems }: Props) => {
                       ></p>
                     </template>
 
-                    <div class="mt-1 mb-4 flex items-center gap-3 group">
+                    <div class={HERO_BUTTON_ROW_CLASS}>
                       <a x-bind:href="item.link" class="cursor-pointer">
                         <Button
                           variant="solid"
@@ -103,7 +109,7 @@ const HeroCarouselFeatureCard = ({ heroItems }: Props) => {
 
           <p
             x-show="items.length > 1"
-            class="absolute inset-x-0 top-6 z-20 kicker tabular-nums text-center text-on-surface-strong"
+            class="hidden md:block absolute inset-x-0 top-6 z-20 kicker tabular-nums text-center text-on-surface-strong"
             aria-live="polite"
             x-text="`${active + 1}-${items.length}`"
           >
@@ -164,8 +170,8 @@ const HeroCarouselLcpSlide = ({
 
   return (
     <div class={className} {...(xShow ? { "x-show": xShow } : {})}>
-      <div class="grid grid-cols-1 pb-12 md:h-full md:grid-cols-2 md:pb-0">
-        <div class="flex flex-col items-center justify-center order-2 px-4 py-4 sm:p-8 lg:p-12">
+      <div class={HERO_SLIDE_GRID_CLASS}>
+        <div class={HERO_TEXT_COLUMN_CLASS}>
           <div class="max-w-xl flex flex-col items-center justify-center gap-2">
             <p class="kicker text-accent">{item.label}</p>
             <p class="font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance sm:text-5xl">
@@ -177,7 +183,7 @@ const HeroCarouselLcpSlide = ({
               </p>
             ) : null}
 
-            <div class="mt-1 mb-4 flex items-center gap-3 group">
+            <div class={HERO_BUTTON_ROW_CLASS}>
               <a href={item.link} class="cursor-pointer">
                 <Button
                   variant="solid"

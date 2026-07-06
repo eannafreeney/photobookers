@@ -14,15 +14,14 @@ const HomepageActivityPulse = ({
   if (!showBooks && !showProfiles) return null;
 
   return (
-    <p class="mb-8 text-center text-sm text-on-surface text-pretty">
-      This week on Photobookers —
+    <p class="text-center text-sm text-on-surface text-pretty">
       {showBooks ? (
         <>
           {" "}
           <span class="font-semibold text-on-surface-strong">
             {bookViews.toLocaleString()}
           </span>{" "}
-          books explored
+          book views
         </>
       ) : null}
       {showBooks && showProfiles ? "," : null}
@@ -34,7 +33,8 @@ const HomepageActivityPulse = ({
           </span>{" "}
           artist &amp; publisher profile visits
         </>
-      ) : null}
+      ) : null}{" "}
+      so far this week.
     </p>
   );
 };

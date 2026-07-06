@@ -19,6 +19,7 @@ export const issue01Meta = {
   kicker: "Issue 01",
   publishedLabel: "August 2026",
   readingMinutes: 12,
+  coverUrl: "/magazine/issue-01-on-the-sidewalk-cover.png",
 } as const;
 
 export const issue01EditorsLetter = {

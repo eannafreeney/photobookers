@@ -7,6 +7,7 @@ import {
 } from "../../../lib/bookCatalogSort";
 import { tagToSlug } from "../../../lib/tags";
 import { capitalize } from "../../../utils";
+import CollapsibleFilters from "./CollapsibleFilters";
 
 export const BOOKS_LIST_TARGET_ID = "books-list";
 export const BOOKS_CATALOG_TARGET_ID = "books-catalog";
@@ -18,6 +19,7 @@ type Props = {
   defaultSort?: BookCatalogSort;
   ajaxPath?: string;
   historyPath?: string | null;
+  collapsible?: boolean;
 };
 
 const BookFilters = ({
@@ -27,9 +29,12 @@ const BookFilters = ({
   defaultSort = "newest",
   ajaxPath = "/books",
   historyPath = "/books",
+  collapsible = false,
 }: Props) => {
   const trimmedQuery = query?.trim() ?? "";
   const activeSlug = activeTag?.trim() || null;
+  const activeFilterCount =
+    (trimmedQuery.length >= 3 ? 1 : 0) + (sort !== defaultSort ? 1 : 0);
 
   const alpineAttrs = {
     "x-data": `bookFilters(${JSON.stringify({
@@ -45,11 +50,8 @@ const BookFilters = ({
   const pillButtonClass =
     "cursor-pointer border-0 bg-transparent p-0 font-inherit";
 
-  return (
-    <div
-      {...alpineAttrs}
-      class="mb-6 flex flex-col gap-4 rounded-lg border border-outline bg-surface p-4"
-    >
+  const controls = (
+    <>
       <div class="flex flex-wrap items-center gap-2">
         <AllPill activeSlug={activeSlug} pillButtonClass={pillButtonClass} />
         {DISCOVER_TAGS.map((tag) => (
@@ -64,6 +66,24 @@ const BookFilters = ({
         <FilterForm />
         <TrendingSortSelect />
       </div>
+    </>
+  );
+
+  return (
+    <div {...alpineAttrs} class="mb-6">
+      {collapsible ? (
+        <CollapsibleFilters
+          activeFilterCount={activeFilterCount}
+          controlsId="book-search-filters"
+          desktopGridClass="md:grid-cols-1"
+        >
+          {controls}
+        </CollapsibleFilters>
+      ) : (
+        <div class="flex flex-col gap-4 rounded-lg border border-outline bg-surface p-4">
+          {controls}
+        </div>
+      )}
     </div>
   );
 };

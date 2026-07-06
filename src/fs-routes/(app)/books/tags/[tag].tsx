@@ -11,8 +11,9 @@ import { getFilteredBooks } from "../../../../features/app/services";
 import InfoPage from "../../../../pages/InfoPage";
 import { BookTagContext } from "../../../../features/app/types";
 import PageHeader from "../../../../components/app/PageHeader";
+import { BOOK_CATALOG_DEFAULT_SORT } from "../../../../lib/bookCatalogSort";
 import { canonicalUrl, pageTitle, tagDescription } from "../../../../lib/seo";
-import { booksFilterUrl, slugToTag } from "../../../../lib/tags";
+import { booksFilterUrl, resolveBookCatalogSort, slugToTag } from "../../../../lib/tags";
 
 export const GET = createRoute(
   paramValidator(tagSchema),
@@ -52,7 +53,7 @@ export const GET = createRoute(
             title={capitalize(tag)}
             intro={`Photobooks tagged “${capitalize(tag)}” in the archive.`}
           />
-          <BookFilters activeTag={tagSlug} query={query} />
+          <BookFilters activeTag={tagSlug} query={query} collapsible />
           <BooksGrid
             isInfiniteScroll
             user={user}
