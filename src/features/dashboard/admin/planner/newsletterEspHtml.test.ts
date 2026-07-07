@@ -59,5 +59,9 @@ describe("prepareNewsletterHtmlForEsp", () => {
       "dbmbrwmygpnhjyyccbjp.supabase.co/storage/v1/object/public/newsletter/logo.png",
     );
     expect(html).toContain("font-family:Instrument Sans");
+    expect(html).toContain("feature-card-row-section");
+    expect(html).toContain("feature-card-row-image-col");
+    expect(html).toMatch(/feature-card-row-image-col[\s\S]*width:\s*100%/);
+    expect(html).toMatch(/min-width:\s*601px[\s\S]*width:\s*30%/);
   });
 });

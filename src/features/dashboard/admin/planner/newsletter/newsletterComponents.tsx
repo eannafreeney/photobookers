@@ -65,7 +65,7 @@ const kickerTextProps = {
   align: "center" as const,
 };
 
-const sectionPadding = "0 25px";
+const sectionPadding = "0 0px";
 
 export const NewsletterThreeColumnRow = ({
   columns,
@@ -457,7 +457,7 @@ export const FeatureCardRow = ({
 }: FeatureCardProps) => (
   <MjmlSection
     backgroundColor={brand.surface}
-    padding="16px"
+    padding="16px 0px 16px 0px"
     cssClass="feature-card-row-section"
   >
     <MjmlColumn
@@ -473,62 +473,62 @@ export const FeatureCardRow = ({
       padding="8px 0"
       cssClass="feature-card-row-text-col"
     >
-      <MjmlText
-        {...kickerTextProps}
-        color={brand.onSurfaceWeak}
-        padding="0 0 4px"
-        align="left"
-        cssClass="feature-card-row-kicker"
-      >
-        {kicker}
-      </MjmlText>
-      <MjmlText
-        fontSize="18px"
-        fontWeight={500}
-        lineHeight="1.25"
-        color={brand.onSurfaceStrong}
-        padding="0"
-        align="left"
-        fontFamily={brand.fontDisplay}
-        cssClass="feature-card-row-title"
-      >
-        {title}
-      </MjmlText>
-      {body ? (
         <MjmlText
-          fontSize="13px"
-          lineHeight="1.5"
-          color={brand.onSurface}
-          padding="6px 0 0"
+          {...kickerTextProps}
+          color={brand.onSurfaceWeak}
+          padding="0 0 4px"
           align="left"
-          cssClass="feature-card-row-body"
+          cssClass="feature-card-row-kicker"
         >
-          {body}
+          {kicker}
         </MjmlText>
-      ) : null}
-    </MjmlColumn>
-    <MjmlColumn
-      width="30%"
-      verticalAlign="middle"
-      padding="8px 8px 8px 0"
-      cssClass="feature-card-row-action-col"
-    >
-      <MjmlButton
-        href={linkHref}
-        backgroundColor={brand.primary}
-        color={brand.onPrimary}
-        fontSize="10px"
-        fontWeight={600}
-        letterSpacing="0.12em"
-        textTransform="uppercase"
-        borderRadius="0"
-        innerPadding="10px 14px"
-        align="right"
-        cssClass="feature-card-row-button"
+        <MjmlText
+          fontSize="18px"
+          fontWeight={500}
+          lineHeight="1.25"
+          color={brand.onSurfaceStrong}
+          padding="0"
+          align="left"
+          fontFamily={brand.fontDisplay}
+          cssClass="feature-card-row-title"
+        >
+          {title}
+        </MjmlText>
+        {body ? (
+          <MjmlText
+            fontSize="13px"
+            lineHeight="1.5"
+            color={brand.onSurface}
+            padding="6px 0 0"
+            align="left"
+            cssClass="feature-card-row-body"
+          >
+            {body}
+          </MjmlText>
+        ) : null}
+      </MjmlColumn>
+      <MjmlColumn
+        width="30%"
+        verticalAlign="middle"
+        padding="8px 8px 8px 0"
+        cssClass="feature-card-row-action-col"
       >
-        {linkLabel}
-      </MjmlButton>
-    </MjmlColumn>
+        <MjmlButton
+          href={linkHref}
+          backgroundColor={brand.primary}
+          color={brand.onPrimary}
+          fontSize="10px"
+          fontWeight={600}
+          letterSpacing="0.12em"
+          textTransform="uppercase"
+          borderRadius="0"
+          innerPadding="10px 14px"
+          align="center"
+          cssClass="feature-card-row-button"
+        >
+          {linkLabel}
+        </MjmlButton>
+      </MjmlColumn>
   </MjmlSection>
 );
 
@@ -541,7 +541,7 @@ const featureCardImageProps = {
 
 const featureCardRowImageProps = {
   width: `${featureCardRowImageWidthPx}px`,
-  fluidOnMobile: "false" as const,
+  fluidOnMobile: "true" as const,
   align: "center" as const,
   padding: "0 8px 0 0",
 };
@@ -564,7 +564,7 @@ export const BookFeatureCard = ({ book }: BookFeatureCardProps) => (
     image={
       book.coverUrl ? (
         <MjmlImage
-          {...featureCardImageProps}
+          {...featureCardRowImageProps}
           src={book.coverUrl}
           alt={book.title}
           cssClass="feature-card-row-img feature-card-row-img-book"
@@ -574,6 +574,7 @@ export const BookFeatureCard = ({ book }: BookFeatureCardProps) => (
     title={book.title}
     body={buildBookBody(book)}
     linkHref={`${appBaseUrl}/book-of-the-day/${book.date}`}
+    linkLabel="View book"
   />
 );
 
@@ -608,6 +609,7 @@ export const TrendingBookFeatureCard = ({
     title={book.title}
     body={buildTrendingBookBody(book)}
     linkHref={`${appBaseUrl}/books/${book.bookSlug}`}
+    linkLabel="View book"
   />
 );
 
@@ -694,7 +696,7 @@ export const TrendingCreatorFeatureCard = ({
     image={
       creator.coverUrl ? (
         <MjmlImage
-          {...featureCardImageProps}
+          {...featureCardRowImageProps}
           src={creator.coverUrl}
           alt={creator.displayName}
           cssClass="feature-card-row-img feature-card-row-img-square"
@@ -704,6 +706,7 @@ export const TrendingCreatorFeatureCard = ({
     title={creator.displayName}
     body=""
     linkHref={`${appBaseUrl}/creators/${creator.slug}`}
+    linkLabel="View profile"
   />
 );
 
@@ -786,7 +789,7 @@ export const NewMemberFeatureCard = ({
     image={
       member.coverUrl ? (
         <MjmlImage
-          {...featureCardImageProps}
+          {...featureCardRowImageProps}
           src={member.coverUrl}
           alt={member.displayName}
           cssClass="feature-card-row-img feature-card-row-img-square"
@@ -796,6 +799,7 @@ export const NewMemberFeatureCard = ({
     title={member.displayName}
     body={buildNewMemberBody(member)}
     linkHref={`${appBaseUrl}/creators/${member.slug}`}
+    linkLabel="View profile"
   />
 );
 
@@ -812,7 +816,7 @@ export const CreatorFeatureCard = ({
     image={
       creator.coverUrl ? (
         <MjmlImage
-          {...featureCardImageProps}
+          {...featureCardRowImageProps}
           src={creator.coverUrl}
           alt={creator.displayName}
           cssClass="feature-card-row-img feature-card-row-img-square"
@@ -836,7 +840,7 @@ export const FairFeatureCard = ({
     image={
       fair.coverUrl ? (
         <MjmlImage
-          {...featureCardImageProps}
+          {...featureCardRowImageProps}
           src={fair.coverUrl}
           alt={fair.name}
           cssClass="feature-card-row-img feature-card-row-img-book"
