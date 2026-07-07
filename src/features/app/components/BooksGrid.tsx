@@ -23,7 +23,6 @@ type Props = {
 };
 
 const BooksGrid = async ({
-  isFullWidth,
   currentPath,
   result,
   user,
@@ -41,7 +40,6 @@ const BooksGrid = async ({
     <div id={BOOKS_LIST_TARGET_ID}>
       <GridPanel
         id={targetId}
-        isFullWidth={isFullWidth}
         xMerge={gridMerge}
         data-nav={isMobile || isInfiniteScroll ? "infinite" : "pagination"}
       >

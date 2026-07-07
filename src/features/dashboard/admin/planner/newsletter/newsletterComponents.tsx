@@ -26,6 +26,10 @@ import {
   newsletterNavLinks,
   newsletterSocial,
   featureCardContentWidthPx,
+  featureCardRowImageWidthPx,
+  newsletterThreeColContentWidthPx,
+  newsletterThreeColCount,
+  newsletterThreeColHalfGapPx,
 } from "./newsletterTokens";
 
 const NewsletterLogo = ({ padding }: { padding: string }) => (
@@ -62,6 +66,35 @@ const kickerTextProps = {
 };
 
 const sectionPadding = "0 25px";
+
+export const NewsletterThreeColumnRow = ({
+  columns,
+  cssClass,
+  bordered = true,
+}: {
+  columns: ReactNode[];
+  cssClass?: string;
+  bordered?: boolean;
+}) => (
+  <MjmlSection
+    backgroundColor={brand.surface}
+    padding={`0 ${sectionPadding} 16px`}
+    cssClass={["newsletter-three-col-row", cssClass].filter(Boolean).join(" ")}
+  >
+    {columns.slice(0, newsletterThreeColCount).map((column, index) => (
+      <MjmlColumn
+        key={index}
+        width={`${100 / newsletterThreeColCount}%`}
+        padding={`0 ${newsletterThreeColHalfGapPx}px`}
+        backgroundColor={brand.surface}
+        border={bordered ? `1px solid ${brand.outline}` : undefined}
+        cssClass="newsletter-three-col-cell"
+      >
+        {column}
+      </MjmlColumn>
+    ))}
+  </MjmlSection>
+);
 
 export const SectionHeading = ({
   kicker,
@@ -336,9 +369,11 @@ type FeatureCardProps = {
   title: string;
   body: string;
   linkHref: string;
-  linkLabel: string;
+  linkLabel?: string;
   image: ReactNode | null;
 };
+
+export type { FeatureCardProps };
 
 const FeatureCard = ({
   kicker,
@@ -412,11 +447,103 @@ const FeatureCard = ({
   </MjmlSection>
 );
 
+export const FeatureCardRow = ({
+  kicker,
+  title,
+  body,
+  linkHref,
+  linkLabel = "View",
+  image,
+}: FeatureCardProps) => (
+  <MjmlSection
+    backgroundColor={brand.surface}
+    padding="16px"
+    cssClass="feature-card-row-section"
+  >
+    <MjmlColumn
+      width="30%"
+      verticalAlign="middle"
+      cssClass="feature-card-row-image-col"
+    >
+      {image}
+    </MjmlColumn>
+    <MjmlColumn
+      width="40%"
+      verticalAlign="middle"
+      padding="8px 0"
+      cssClass="feature-card-row-text-col"
+    >
+      <MjmlText
+        {...kickerTextProps}
+        color={brand.onSurfaceWeak}
+        padding="0 0 4px"
+        align="left"
+        cssClass="feature-card-row-kicker"
+      >
+        {kicker}
+      </MjmlText>
+      <MjmlText
+        fontSize="18px"
+        fontWeight={500}
+        lineHeight="1.25"
+        color={brand.onSurfaceStrong}
+        padding="0"
+        align="left"
+        fontFamily={brand.fontDisplay}
+        cssClass="feature-card-row-title"
+      >
+        {title}
+      </MjmlText>
+      {body ? (
+        <MjmlText
+          fontSize="13px"
+          lineHeight="1.5"
+          color={brand.onSurface}
+          padding="6px 0 0"
+          align="left"
+          cssClass="feature-card-row-body"
+        >
+          {body}
+        </MjmlText>
+      ) : null}
+    </MjmlColumn>
+    <MjmlColumn
+      width="30%"
+      verticalAlign="middle"
+      padding="8px 8px 8px 0"
+      cssClass="feature-card-row-action-col"
+    >
+      <MjmlButton
+        href={linkHref}
+        backgroundColor={brand.primary}
+        color={brand.onPrimary}
+        fontSize="10px"
+        fontWeight={600}
+        letterSpacing="0.12em"
+        textTransform="uppercase"
+        borderRadius="0"
+        innerPadding="10px 14px"
+        align="right"
+        cssClass="feature-card-row-button"
+      >
+        {linkLabel}
+      </MjmlButton>
+    </MjmlColumn>
+  </MjmlSection>
+);
+
 const featureCardImageProps = {
   width: `${featureCardContentWidthPx}px`,
   fluidOnMobile: "true" as const,
   align: "center" as const,
   padding: "0",
+};
+
+const featureCardRowImageProps = {
+  width: `${featureCardRowImageWidthPx}px`,
+  fluidOnMobile: "false" as const,
+  align: "center" as const,
+  padding: "0 8px 0 0",
 };
 
 const buildBookBody = (item: WeeklyNewsletterBookItem): string => {
@@ -432,7 +559,7 @@ type BookFeatureCardProps = {
 };
 
 export const BookFeatureCard = ({ book }: BookFeatureCardProps) => (
-  <FeatureCard
+  <FeatureCardRow
     kicker={formatNewsletterDate(book.date)}
     image={
       book.coverUrl ? (
@@ -440,45 +567,120 @@ export const BookFeatureCard = ({ book }: BookFeatureCardProps) => (
           {...featureCardImageProps}
           src={book.coverUrl}
           alt={book.title}
-          cssClass="feature-card-img feature-card-img-book"
+          cssClass="feature-card-row-img feature-card-row-img-book"
         />
       ) : null
     }
     title={book.title}
     body={buildBookBody(book)}
     linkHref={`${appBaseUrl}/book-of-the-day/${book.date}`}
-    linkLabel="View book"
   />
 );
 
-const buildTrendingBookBody = (item: WeeklyNewsletterTrendingBookItem): string => {
+const buildTrendingBookBody = (
+  item: WeeklyNewsletterTrendingBookItem,
+): string => {
   const parts: string[] = [];
   if (item.artistName) parts.push(item.artistName);
   if (item.publisherName) parts.push(item.publisherName);
   return parts.join(" · ");
 };
 
+type TrendingBookFeatureCardProps = {
+  book: WeeklyNewsletterTrendingBookItem;
+};
+
 export const TrendingBookFeatureCard = ({
   book,
-}: {
-  book: WeeklyNewsletterTrendingBookItem;
-}) => (
-  <FeatureCard
+}: TrendingBookFeatureCardProps) => (
+  <FeatureCardRow
     kicker="Book"
     image={
       book.coverUrl ? (
         <MjmlImage
-          {...featureCardImageProps}
+          {...featureCardRowImageProps}
           src={book.coverUrl}
           alt={book.title}
-          cssClass="feature-card-img feature-card-img-book"
+          cssClass="feature-card-row-img feature-card-row-img-book"
         />
       ) : null
     }
     title={book.title}
     body={buildTrendingBookBody(book)}
     linkHref={`${appBaseUrl}/books/${book.bookSlug}`}
-    linkLabel="View book"
+  />
+);
+
+const trendingBookLink = (bookSlug: string) =>
+  `${appBaseUrl}/books/${bookSlug}`;
+
+const TrendingBookCell = ({
+  book,
+}: {
+  book: WeeklyNewsletterTrendingBookItem;
+}) => {
+  const body = buildTrendingBookBody(book);
+  const href = trendingBookLink(book.bookSlug);
+
+  return (
+    <>
+      {book.coverUrl ? (
+        <MjmlImage
+          src={book.coverUrl}
+          alt={book.title}
+          href={href}
+          width={`${newsletterThreeColContentWidthPx}px`}
+          fluidOnMobile="true"
+          align="center"
+          padding="0"
+          cssClass="newsletter-three-col-img"
+        />
+      ) : null}
+      <MjmlText
+        fontSize="13px"
+        fontWeight={500}
+        lineHeight="1.3"
+        color={brand.onSurfaceStrong}
+        padding="8px 8px 0"
+        align="center"
+        fontFamily={brand.fontDisplay}
+        cssClass="newsletter-three-col-title"
+      >
+        <a
+          href={href}
+          style={{
+            color: brand.onSurfaceStrong,
+            textDecoration: "none",
+          }}
+        >
+          {book.title}
+        </a>
+      </MjmlText>
+      {body ? (
+        <MjmlText
+          fontSize="11px"
+          lineHeight="1.4"
+          color={brand.onSurfaceWeak}
+          padding="4px 8px 8px"
+          align="center"
+        >
+          {body}
+        </MjmlText>
+      ) : null}
+    </>
+  );
+};
+
+export const TrendingBooksRow = ({
+  books,
+}: {
+  books: WeeklyNewsletterTrendingBookItem[];
+}) => (
+  <NewsletterThreeColumnRow
+    cssClass="trending-books-row"
+    columns={books.map((book) => (
+      <TrendingBookCell key={book.bookId} book={book} />
+    ))}
   />
 );
 
@@ -487,7 +689,7 @@ export const TrendingCreatorFeatureCard = ({
 }: {
   creator: WeeklyNewsletterTrendingCreatorItem;
 }) => (
-  <FeatureCard
+  <FeatureCardRow
     kicker={creator.type === "artist" ? "Artist" : "Publisher"}
     image={
       creator.coverUrl ? (
@@ -495,14 +697,13 @@ export const TrendingCreatorFeatureCard = ({
           {...featureCardImageProps}
           src={creator.coverUrl}
           alt={creator.displayName}
-          cssClass="feature-card-img feature-card-img-square"
+          cssClass="feature-card-row-img feature-card-row-img-square"
         />
       ) : null
     }
     title={creator.displayName}
     body=""
     linkHref={`${appBaseUrl}/creators/${creator.slug}`}
-    linkLabel="View profile"
   />
 );
 
@@ -580,7 +781,7 @@ export const NewMemberFeatureCard = ({
   member: WeeklyNewsletterNewMember;
   reversed?: boolean;
 }) => (
-  <FeatureCard
+  <FeatureCardRow
     kicker={member.type === "artist" ? "Artist" : "Publisher"}
     image={
       member.coverUrl ? (
@@ -588,14 +789,13 @@ export const NewMemberFeatureCard = ({
           {...featureCardImageProps}
           src={member.coverUrl}
           alt={member.displayName}
-          cssClass="feature-card-img feature-card-img-square"
+          cssClass="feature-card-row-img feature-card-row-img-square"
         />
       ) : null
     }
     title={member.displayName}
     body={buildNewMemberBody(member)}
     linkHref={`${appBaseUrl}/creators/${member.slug}`}
-    linkLabel="View profile"
   />
 );
 
@@ -607,7 +807,7 @@ export const CreatorFeatureCard = ({
   profilePath: "artist-of-the-week" | "publisher-of-the-week";
   reversed?: boolean;
 }) => (
-  <FeatureCard
+  <FeatureCardRow
     kicker={profilePath === "artist-of-the-week" ? "Artist" : "Publisher"}
     image={
       creator.coverUrl ? (
@@ -615,7 +815,7 @@ export const CreatorFeatureCard = ({
           {...featureCardImageProps}
           src={creator.coverUrl}
           alt={creator.displayName}
-          cssClass="feature-card-img feature-card-img-square"
+          cssClass="feature-card-row-img feature-card-row-img-square"
         />
       ) : null
     }
@@ -626,8 +826,12 @@ export const CreatorFeatureCard = ({
   />
 );
 
-export const FairFeatureCard = ({ fair }: { fair: WeeklyNewsletterFairItem }) => (
-  <FeatureCard
+export const FairFeatureCard = ({
+  fair,
+}: {
+  fair: WeeklyNewsletterFairItem;
+}) => (
+  <FeatureCardRow
     kicker="Book fair"
     image={
       fair.coverUrl ? (
@@ -635,7 +839,7 @@ export const FairFeatureCard = ({ fair }: { fair: WeeklyNewsletterFairItem }) =>
           {...featureCardImageProps}
           src={fair.coverUrl}
           alt={fair.name}
-          cssClass="feature-card-img feature-card-img-book"
+          cssClass="feature-card-row-img feature-card-row-img-book"
         />
       ) : null
     }

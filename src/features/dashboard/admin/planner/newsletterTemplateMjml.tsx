@@ -35,6 +35,7 @@ import {
   appBaseUrl,
   brand,
   featureCardMobileSidePaddingPx,
+  featureCardRowImageWidthPx,
   newsletterWidthPx,
 } from "./newsletter/newsletterTokens";
 
@@ -51,6 +52,8 @@ const responsiveStyles = `
   .section-kicker div,
   .feature-kicker,
   .feature-kicker div,
+  .feature-card-row-kicker,
+  .feature-card-row-kicker div,
   .newsletter-kicker,
   .newsletter-kicker div,
   .newsletter-week,
@@ -74,7 +77,9 @@ const responsiveStyles = `
   .newsletter-subject-text,
   .newsletter-subject-text div,
   .feature-title,
-  .feature-title div {
+  .feature-title div,
+  .feature-card-row-title,
+  .feature-card-row-title div {
     font-family: ${brand.fontDisplay} !important;
   }
   .section-heading-rule td {
@@ -82,6 +87,45 @@ const responsiveStyles = `
   }
   .feature-card {
     border: 1px solid ${brand.outline};
+  }
+  .feature-card-row-section {
+    margin-bottom: 16px !important;
+  }
+  .feature-card-row-section > table > tbody > tr > td {
+    border-top: 1px solid ${brand.outline};
+    border-bottom: 1px solid ${brand.outline};
+    background-color: ${brand.surface};
+  }
+  .feature-card-row-section > table > tbody > tr > td:first-child {
+    border-left: 1px solid ${brand.outline};
+  }
+  .feature-card-row-section > table > tbody > tr > td:last-child {
+    border-right: 1px solid ${brand.outline};
+  }
+  .feature-card-row-image-col img {
+    display: block;
+    border: 0;
+    margin: 0 auto;
+  }
+  .feature-card-row-img-book img {
+    width: 100%;
+    max-width: ${featureCardRowImageWidthPx}px;
+    height: auto;
+  }
+  .feature-card-row-img-square img {
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+    max-width: ${featureCardRowImageWidthPx}px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+  .feature-card-row-img-book > table,
+  .feature-card-row-img-square > table {
+    width: 100%;
+  }
+  .feature-card-row-action-col table {
+    margin-left: auto;
   }
   .feature-card-img img {
     display: block;
@@ -131,6 +175,28 @@ const responsiveStyles = `
     .feature-card-section > table > tbody > tr > td {
       padding-left: ${featureCardMobileSidePaddingPx}px !important;
       padding-right: ${featureCardMobileSidePaddingPx}px !important;
+    }
+    .feature-card-row-section > table > tbody > tr > td {
+      padding-left: ${featureCardMobileSidePaddingPx}px !important;
+      padding-right: ${featureCardMobileSidePaddingPx}px !important;
+    }
+    .feature-card-row-img-book img,
+    .feature-card-row-img-square img {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    .feature-card-row-img-book > table,
+    .feature-card-row-img-square > table {
+      width: 100% !important;
+    }
+    .feature-card-row-button table {
+      width: 100% !important;
+    }
+    .feature-card-row-button a {
+      display: block !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
     }
     .feature-card-img-book img {
       width: 100% !important;
@@ -186,40 +252,7 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
         subject={params.subject}
         weekLabel={formatNewsletterWeekRange(params.weekStart, params.weekEnd)}
       />
-      {/* <NewsletterIntro introText={params.introText} /> */}
       <NewsletterAppPromo />
-
-      {(params.trending?.books.length ?? 0) > 0 ? (
-        <>
-          <SectionHeading kicker="Trending">Top books this week</SectionHeading>
-          {params.trending!.books.map((book) => (
-            <TrendingBookFeatureCard key={book.bookId} book={book} />
-          ))}
-        </>
-      ) : null}
-
-      {(params.trending?.artists.length ?? 0) > 0 ? (
-        <>
-          <SectionHeading kicker="Trending">Top artists this week</SectionHeading>
-          {params.trending!.artists.map((artist) => (
-            <TrendingCreatorFeatureCard key={artist.slug} creator={artist} />
-          ))}
-        </>
-      ) : null}
-
-      {(params.trending?.publishers.length ?? 0) > 0 ? (
-        <>
-          <SectionHeading kicker="Trending">
-            Top publishers this week
-          </SectionHeading>
-          {params.trending!.publishers.map((publisher) => (
-            <TrendingCreatorFeatureCard
-              key={publisher.slug}
-              creator={publisher}
-            />
-          ))}
-        </>
-      ) : null}
 
       {params.items.length > 0 ? (
         <SectionHeading kicker="Daily picks">Books of the day</SectionHeading>
@@ -249,6 +282,40 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
             creator={params.publisherOfTheWeek}
             profilePath="publisher-of-the-week"
           />
+        </>
+      ) : null}
+
+      {(params.trending?.books.length ?? 0) > 0 ? (
+        <>
+          <SectionHeading kicker="Trending">Top books this week</SectionHeading>
+          {params.trending!.books.map((book) => (
+            <TrendingBookFeatureCard key={book.bookId} book={book} />
+          ))}
+        </>
+      ) : null}
+
+      {(params.trending?.artists.length ?? 0) > 0 ? (
+        <>
+          <SectionHeading kicker="Trending">
+            Top artists this week
+          </SectionHeading>
+          {params.trending!.artists.map((artist) => (
+            <TrendingCreatorFeatureCard key={artist.slug} creator={artist} />
+          ))}
+        </>
+      ) : null}
+
+      {(params.trending?.publishers.length ?? 0) > 0 ? (
+        <>
+          <SectionHeading kicker="Trending">
+            Top publishers this week
+          </SectionHeading>
+          {params.trending!.publishers.map((publisher) => (
+            <TrendingCreatorFeatureCard
+              key={publisher.slug}
+              creator={publisher}
+            />
+          ))}
         </>
       ) : null}
 

@@ -8,7 +8,7 @@ type SocialLinksProps = {
 
 const SocialLinks = ({
   creator,
-  className = "flex gap-4 items-center justify-center text-xs mt-4",
+  className = "flex gap-4 items-center justify-center text-xs",
 }: SocialLinksProps) => {
   if (
     !creator.website &&

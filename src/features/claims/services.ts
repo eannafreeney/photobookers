@@ -9,6 +9,7 @@ import {
 import { and, eq, gt, inArray, or } from "drizzle-orm";
 import { cleanupOrphanedStubCreator } from "../dashboard/books/services";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
+import { notifyAdminNewClaim } from "../../domain/notifications/services";
 import { err, ok } from "../../lib/result";
 import { invalidateBookCache } from "../app/services";
 
@@ -63,6 +64,10 @@ export const createClaimWithStatus = async (
         verifiedAt: status === "approved" ? new Date() : null,
       })
       .returning();
+
+    void notifyAdminNewClaim(claim).catch((error) => {
+      console.error("notifyAdminNewClaim failed:", error);
+    });
 
     return ok(claim);
   } catch (error) {

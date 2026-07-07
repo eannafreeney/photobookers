@@ -415,6 +415,7 @@ const CreatorDetailDesktop = ({
           </Tabs.Panel>
           <Tabs.Panel tabId="creators">
             <CreatorsGrid
+              isInfiniteScroll
               user={user}
               creatorId={creator.id}
               creatorType={creator.type}

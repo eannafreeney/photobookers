@@ -1,3 +1,4 @@
+import GridPanel from "@/components/app/GridPanel";
 import { AuthUser } from "../../../../types";
 import CreatorCard from "../../../components/app/CreatorCard";
 import ScrollReveal from "../../../components/app/ScrollReveal";
@@ -16,6 +17,7 @@ type Props = {
   pageParam?: string;
   isMobile?: boolean;
   user: AuthUser | null;
+  isInfiniteScroll?: boolean;
 };
 
 const CreatorsGrid = async ({
@@ -27,6 +29,7 @@ const CreatorsGrid = async ({
   pageParam,
   isMobile = false,
   user = null,
+  isInfiniteScroll = false,
 }: Props) => {
   const [error, result] = await getCreatorsByCreatorId(
     creatorId,
@@ -39,14 +42,15 @@ const CreatorsGrid = async ({
   if (creators.length === 0) return <></>;
 
   const targetId = `creators-grid-${creatorId}`;
+  const gridMerge = isMobile || isInfiniteScroll ? "append" : "replace";
 
   return (
     <section>
       {title && <SectionTitle>{title}</SectionTitle>}
-      <div
+      <GridPanel
         id={targetId}
-        x-merge="append"
-        class={isMobile ? undefined : "grid grid-cols-2 md:grid-cols-4 gap-6"}
+        xMerge={gridMerge}
+        data-nav={isMobile || isInfiniteScroll ? "infinite" : "pagination"}
       >
         {creators.map((creator) => (
           <ScrollReveal>
@@ -65,9 +69,9 @@ const CreatorsGrid = async ({
             )}
           </ScrollReveal>
         ))}
-      </div>
+      </GridPanel>
       <ListNavigation
-        isInfiniteScroll
+        isInfiniteScroll={isInfiniteScroll}
         targetId={targetId}
         totalPages={totalPages}
         page={page}

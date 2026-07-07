@@ -14,7 +14,6 @@ import {
 } from "../../features/claims/utils";
 import { createClaimWithStatus } from "../../features/claims/services";
 import { assignUserAsCreatorOwnerAdmin } from "../../domain/claims/owner";
-import { createCreatorClaimedNotification } from "../../domain/notifications/utils";
 
 export const GET = createRoute(
   queryValidator(claimCompleteQuerySchema),
@@ -75,8 +74,6 @@ export const GET = createRoute(
         />,
         400,
       );
-
-    await createCreatorClaimedNotification(user, creator);
 
     if (status === "approved") {
       const [error] = await assignUserAsCreatorOwnerAdmin(

@@ -38,6 +38,15 @@ export const newsletterWidthPx = 600;
 /** Inner card width after section horizontal padding (25px each side). */
 export const featureCardContentWidthPx = newsletterWidthPx - 50;
 export const featureCardMobileSidePaddingPx = 32;
+export const featureCardRowImageWidthPx = 110;
+export const newsletterThreeColCount = 3;
+export const newsletterThreeColGapPx = 16;
+export const newsletterThreeColHalfGapPx = newsletterThreeColGapPx / 2;
+export const newsletterThreeColContentWidthPx = Math.floor(
+  (featureCardContentWidthPx -
+    newsletterThreeColGapPx * (newsletterThreeColCount - 1)) /
+    newsletterThreeColCount,
+);
 
 /** Editorial theme — aligned with `src/styles/styles.css`. */
 export const brand = {
@@ -53,7 +62,6 @@ export const brand = {
   primary: "#191613",
   onPrimary: "#fbfaf7",
   fontSans: emailFontSans,
-  fontDisplay:
-    "Fraunces, Iowan Old Style, Georgia, Times New Roman, serif",
+  fontDisplay: "Fraunces, Iowan Old Style, Georgia, Times New Roman, serif",
   fontLogo: emailFontLogo,
 } as const;

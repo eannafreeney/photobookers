@@ -2,12 +2,28 @@ import { count, desc, eq } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   adminNotifications,
+  CreatorClaim,
   NewAdminNotification,
 } from "../../db/schema";
 import { getPagination } from "../../lib/pagination";
 import { err, ok } from "../../lib/result";
 import { sendAdminEmail } from "../../lib/sendEmail";
-import { generateBookPendingReviewEmail } from "./emails";
+import {
+  generateBookPendingReviewEmail,
+  generateNewClaimAdminEmail,
+} from "./emails";
+
+function formatClaimantName(input: {
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+}) {
+  const fullName = [input.firstName, input.lastName]
+    .filter((part) => part?.trim())
+    .join(" ")
+    .trim();
+  return fullName || input.email;
+}
 
 export const createAdminNotification = async (input: NewAdminNotification) => {
   try {
@@ -60,6 +76,59 @@ export const notifyAdminBookPendingReview = async (input: {
       emailError.reason,
       emailError,
     );
+  }
+};
+
+export const notifyAdminNewClaim = async (claim: CreatorClaim) => {
+  const creator = await db.query.creators.findFirst({
+    where: (t, { eq }) => eq(t.id, claim.creatorId),
+    columns: { displayName: true },
+  });
+  const user = await db.query.users.findFirst({
+    where: (t, { eq }) => eq(t.id, claim.userId),
+    columns: { email: true, firstName: true, lastName: true },
+  });
+
+  if (!creator || !user?.email) {
+    console.error("notifyAdminNewClaim failed: missing creator or claimant", {
+      claimId: claim.id,
+      creatorId: claim.creatorId,
+      userId: claim.userId,
+    });
+    return;
+  }
+
+  const claimantName = formatClaimantName(user);
+  const reviewUrl = `${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/admin/claims`;
+
+  const result = await createAdminNotification({
+    type: "creator_claimed",
+    title: "Creator claimed",
+    body: `${claimantName} claimed the creator: "${creator.displayName}"`,
+    targetUrl: reviewUrl,
+    actorUserId: claim.userId,
+    isRead: false,
+  });
+  if (result[0]) {
+    console.error("notifyAdminNewClaim failed:", result[0].reason, result[0]);
+  }
+
+  const subject =
+    claim.status === "pending_admin_review"
+      ? `New creator claim pending review: ${creator.displayName}`
+      : `New creator claim (auto-approved): ${creator.displayName}`;
+  const [emailError] = await sendAdminEmail(
+    subject,
+    generateNewClaimAdminEmail({
+      creatorName: creator.displayName,
+      claimantName,
+      claimantEmail: user.email,
+      status: claim.status,
+      reviewUrl,
+    }),
+  );
+  if (emailError) {
+    console.error("notifyAdminNewClaim email failed:", emailError.reason, emailError);
   }
 };
 
