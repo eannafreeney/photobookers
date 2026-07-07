@@ -1,45 +1,38 @@
 import { describe, expect, it } from "vitest";
 import {
-  collectRetainedBookImagePaths,
-  storagePathFromPublicUrl,
+  buildRetainedBookPrefixes,
+  collectDeletedBookStoragePaths,
 } from "./pruneStagingStorage";
 
-describe("storagePathFromPublicUrl", () => {
-  it("extracts paths from Supabase public object URLs", () => {
-    expect(
-      storagePathFromPublicUrl(
-        "https://example.supabase.co/storage/v1/object/public/images/books/123/cover.webp",
-      ),
-    ).toBe("books/123/cover.webp");
-  });
-
-  it("extracts paths from Supabase render URLs", () => {
-    expect(
-      storagePathFromPublicUrl(
-        "https://example.supabase.co/storage/v1/render/image/public/images/books/123/cover%201.webp?width=800",
-      ),
-    ).toBe("books/123/cover 1.webp");
-  });
-
-  it("ignores non-book bucket paths", () => {
-    expect(
-      storagePathFromPublicUrl(
-        "https://example.supabase.co/storage/v1/object/public/images/creators/123/cover.webp",
-      ),
-    ).toBeNull();
+describe("buildRetainedBookPrefixes", () => {
+  it("returns gallery and cover prefixes for each sampled book", () => {
+    expect(buildRetainedBookPrefixes(["book-a", "book-b"])).toEqual([
+      "books/book-a/",
+      "books/book-b/",
+      "books/covers/book-a/",
+      "books/covers/book-b/",
+    ]);
   });
 });
 
-describe("collectRetainedBookImagePaths", () => {
-  it("deduplicates and sorts valid book image paths", () => {
+describe("collectDeletedBookStoragePaths", () => {
+  it("keeps files under sampled book prefixes and deletes the rest", () => {
     expect(
-      collectRetainedBookImagePaths([
-        "https://example.supabase.co/storage/v1/object/public/images/books/b/cover.webp",
-        "https://example.supabase.co/storage/v1/render/image/public/images/books/a/cover.webp?width=800",
-        "https://example.supabase.co/storage/v1/object/public/images/books/b/cover.webp",
-        null,
-        "https://example.com/other.webp",
-      ]),
-    ).toEqual(["books/a/cover.webp", "books/b/cover.webp"]);
+      collectDeletedBookStoragePaths(
+        [
+          "books/book-a/gallery/1.webp",
+          "books/book-z/gallery/2.webp",
+          "books/covers/book-a/cover.webp",
+          "books/covers/book-z/cover.webp",
+        ],
+        buildRetainedBookPrefixes(["book-a"]),
+      ),
+    ).toEqual({
+      retainedCount: 2,
+      deletedPaths: [
+        "books/book-z/gallery/2.webp",
+        "books/covers/book-z/cover.webp",
+      ],
+    });
   });
 });

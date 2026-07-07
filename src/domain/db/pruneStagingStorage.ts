@@ -5,8 +5,6 @@ import { withSslModeForSync } from "./syncStagingFromProduction";
 
 type PruneError = { reason: string };
 
-type NullableString = string | null;
-
 export type PruneStagingStorageResult =
   | {
       action: "dry_run";
@@ -39,6 +37,7 @@ export type PruneStagingStorageOptions = {
 
 const STAGING_BUCKET = "images";
 const BOOKS_PREFIX = "books/";
+const BOOK_COVERS_PREFIX = "books/covers/";
 const STORAGE_DELETE_BATCH_SIZE = 100;
 const DEFAULT_KEEP_BOOK_COUNT = 10;
 
@@ -95,50 +94,35 @@ function resolvePruneConfig(
   });
 }
 
-export function storagePathFromPublicUrl(
-  url: NullableString,
-  bucket: string = STAGING_BUCKET,
-): string | null {
-  if (!url) return null;
-
-  try {
-    const parsed = new URL(url);
-    const publicPrefix = `/storage/v1/object/public/${bucket}/`;
-    const renderPrefix = `/storage/v1/render/image/public/${bucket}/`;
-    const prefix = parsed.pathname.includes(publicPrefix)
-      ? publicPrefix
-      : parsed.pathname.includes(renderPrefix)
-        ? renderPrefix
-        : null;
-
-    if (!prefix) return null;
-
-    const prefixIndex = parsed.pathname.indexOf(prefix);
-    const objectPath = parsed.pathname.slice(prefixIndex + prefix.length);
-    if (!objectPath.startsWith(BOOKS_PREFIX)) return null;
-    return decodeURIComponent(objectPath);
-  } catch {
-    return null;
-  }
-}
-
-export function collectRetainedBookImagePaths(urls: NullableString[]): string[] {
+export function buildRetainedBookPrefixes(bookIds: string[]): string[] {
   const retained = new Set<string>();
-  for (const url of urls) {
-    const path = storagePathFromPublicUrl(url);
-    if (path) retained.add(path);
+  for (const bookId of bookIds) {
+    retained.add(`${BOOKS_PREFIX}${bookId}/`);
+    retained.add(`${BOOK_COVERS_PREFIX}${bookId}/`);
   }
   return [...retained].sort();
 }
 
-async function fetchRetainedBookImagePaths(
+export function collectDeletedBookStoragePaths(
+  existingPaths: string[],
+  retainedPrefixes: string[],
+): { retainedCount: number; deletedPaths: string[] } {
+  let retainedCount = 0;
+  const deletedPaths = existingPaths.filter((path) => {
+    const shouldRetain = retainedPrefixes.some((prefix) => path.startsWith(prefix));
+    if (shouldRetain) {
+      retainedCount += 1;
+    }
+    return !shouldRetain;
+  });
+  return { retainedCount, deletedPaths };
+}
+
+async function fetchSampledBookIds(
   sql: postgres.Sql,
   keepBookCount: number,
-): Promise<{ sampledBooks: number; retainedPaths: string[] }> {
-  const rows = await sql<{
-    book_id: string;
-    url: NullableString;
-  }[]>`
+): Promise<string[]> {
+  const rows = await sql<{ id: string }[]>`
     with sampled_books as (
       select id
       from public.books
@@ -146,35 +130,11 @@ async function fetchRetainedBookImagePaths(
       order by created_at desc nulls last, id desc
       limit ${keepBookCount}
     )
-    select b.id as book_id, b.cover_url as url
-    from public.books b
-    join sampled_books s on s.id = b.id
-    union all
-    select b.id as book_id, unnest(coalesce(b.images, '{}')) as url
-    from public.books b
-    join sampled_books s on s.id = b.id
-    union all
-    select bi.book_id, bi.image_url as url
-    from public.book_images bi
-    join sampled_books s on s.id = bi.book_id
-  `;
-
-  const sampledBookRows = await sql<{ count: string }[]>`
-    with sampled_books as (
-      select id
-      from public.books
-      where publication_status = 'published'
-      order by created_at desc nulls last, id desc
-      limit ${keepBookCount}
-    )
-    select count(*)::text as count
+    select id
     from sampled_books
+    order by id asc
   `;
-
-  return {
-    sampledBooks: Number(sampledBookRows[0]?.count ?? 0),
-    retainedPaths: collectRetainedBookImagePaths(rows.map((row) => row.url)),
-  };
+  return rows.map((row) => row.id);
 }
 
 async function fetchExistingBookStoragePaths(sql: postgres.Sql): Promise<string[]> {
@@ -228,13 +188,13 @@ export async function pruneStagingStorage(
   });
 
   try {
-    const { sampledBooks, retainedPaths } = await fetchRetainedBookImagePaths(
-      sql,
-      keepBookCount,
-    );
+    const sampledBookIds = await fetchSampledBookIds(sql, keepBookCount);
+    const retainedPrefixes = buildRetainedBookPrefixes(sampledBookIds);
     const existingPaths = await fetchExistingBookStoragePaths(sql);
-    const retainedPathSet = new Set(retainedPaths);
-    const deletedPaths = existingPaths.filter((path) => !retainedPathSet.has(path));
+    const { retainedCount, deletedPaths } = collectDeletedBookStoragePaths(
+      existingPaths,
+      retainedPrefixes,
+    );
 
     if (!options.dryRun) {
       await deleteStoragePaths(
@@ -249,8 +209,8 @@ export async function pruneStagingStorage(
       bucket: STAGING_BUCKET,
       prefix: BOOKS_PREFIX,
       keepBookCount,
-      sampledBooks,
-      retainedPaths: retainedPaths.length,
+      sampledBooks: sampledBookIds.length,
+      retainedPaths: retainedCount,
       scannedPaths: existingPaths.length,
       deletedPaths: deletedPaths.length,
     });
