@@ -34,6 +34,7 @@ import type {
 import {
   bufferCreateScheduledImagePost,
   bufferCreateScheduledStory,
+  bufferPostExists,
 } from "./buffer";
 import {
   buildBotdStoryStickerFields,
@@ -450,6 +451,27 @@ function scheduleDueAt(dueAt: Date): Date {
   return dueAt;
 }
 
+const clearFeedQueueFields = {
+  instagramBufferPostId: null,
+  instagramQueuedAt: null,
+  instagramError: null,
+} as const;
+
+const clearStoryQueueFields = {
+  instagramStoryBufferPostId: null,
+  instagramStoryQueuedAt: null,
+  instagramStoryError: null,
+} as const;
+
+/** Skip if still in Buffer; clear stale DB queue state when the post was deleted there. */
+async function resolveQueuedInstagramPost(
+  postId: string,
+): Promise<"skip" | "requeue" | "unknown"> {
+  const [error, exists] = await bufferPostExists(postId);
+  if (error) return "unknown";
+  return exists ? "skip" : "requeue";
+}
+
 function isBufferScheduleLimitError(reason: string): boolean {
   return reason.toLowerCase().includes("scheduled posts limit reached");
 }
@@ -471,7 +493,14 @@ export async function queuePreparedBotdInstagramForDate(
     return err({ reason: "Instagram post is not prepared" });
   }
   if (row.instagramQueuedAt && row.instagramBufferPostId) {
-    return err({ reason: "Instagram post already queued in Buffer" });
+    const action = await resolveQueuedInstagramPost(row.instagramBufferPostId);
+    if (action === "skip" || action === "unknown") {
+      return err({ reason: "Instagram post already queued in Buffer" });
+    }
+    await db
+      .update(bookOfTheDay)
+      .set({ ...clearFeedQueueFields, updatedAt: new Date() })
+      .where(eq(bookOfTheDay.id, row.id));
   }
   if (!row.instagramImageUrl || !row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
@@ -540,7 +569,16 @@ export async function queuePreparedBotdInstagramStoryForDate(
     return err({ reason: "Instagram post is not prepared" });
   }
   if (row.instagramStoryQueuedAt && row.instagramStoryBufferPostId) {
-    return err({ reason: "Instagram story already queued in Buffer" });
+    const action = await resolveQueuedInstagramPost(
+      row.instagramStoryBufferPostId,
+    );
+    if (action === "skip" || action === "unknown") {
+      return err({ reason: "Instagram story already queued in Buffer" });
+    }
+    await db
+      .update(bookOfTheDay)
+      .set({ ...clearStoryQueueFields, updatedAt: new Date() })
+      .where(eq(bookOfTheDay.id, row.id));
   }
   if (!row.instagramImageUrl || !row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
@@ -603,7 +641,16 @@ async function queueSpotlightRow(params: {
     return err({ reason: "Instagram post is not prepared" });
   }
   if (params.row.instagramQueuedAt && params.row.instagramBufferPostId) {
-    return err({ reason: "Instagram post already queued in Buffer" });
+    const action = await resolveQueuedInstagramPost(
+      params.row.instagramBufferPostId,
+    );
+    if (action === "skip" || action === "unknown") {
+      return err({ reason: "Instagram post already queued in Buffer" });
+    }
+    await db
+      .update(params.table)
+      .set({ ...clearFeedQueueFields, updatedAt: new Date() })
+      .where(eq(params.table.id, params.row.id));
   }
   if (!params.row.instagramImageUrl || !params.row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
@@ -678,7 +725,16 @@ async function queueSpotlightStoryRow(params: {
     return err({ reason: "Instagram post is not prepared" });
   }
   if (params.row.instagramStoryQueuedAt && params.row.instagramStoryBufferPostId) {
-    return err({ reason: "Instagram story already queued in Buffer" });
+    const action = await resolveQueuedInstagramPost(
+      params.row.instagramStoryBufferPostId,
+    );
+    if (action === "skip" || action === "unknown") {
+      return err({ reason: "Instagram story already queued in Buffer" });
+    }
+    await db
+      .update(params.table)
+      .set({ ...clearStoryQueueFields, updatedAt: new Date() })
+      .where(eq(params.table.id, params.row.id));
   }
   if (!params.row.instagramImageUrl || !params.row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });

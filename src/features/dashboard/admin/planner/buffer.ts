@@ -5,8 +5,9 @@ type BufferGraphQlResponse = {
     createPost?:
       | { __typename?: string; post?: { id: string } }
       | { __typename?: string; message?: string };
+    post?: { id: string } | null;
   };
-  errors?: { message: string }[];
+  errors?: { message: string; extensions?: { code?: string } }[];
 };
 
 function summarizeBufferResponseBody(
@@ -44,6 +45,63 @@ function getBufferConfig(): Result<
     return err({ reason: "Buffer is not configured" });
   }
   return ok({ accessToken, channelId });
+}
+
+/** False when Buffer reports the post was deleted; errors if the check itself failed. */
+export async function bufferPostExists(
+  postId: string,
+): Promise<Result<boolean, { reason: string }>> {
+  const [configError, config] = getBufferConfig();
+  if (configError) return err(configError);
+
+  const query = `
+    query GetPost($input: PostInput!) {
+      post(input: $input) {
+        id
+      }
+    }
+  `;
+
+  const response = await fetch("https://api.buffer.com", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${config.accessToken}`,
+    },
+    body: JSON.stringify({
+      query,
+      variables: { input: { id: postId } },
+    }),
+  });
+
+  const bodyText = await response.text();
+  let payload: BufferGraphQlResponse | null = null;
+  if (bodyText) {
+    try {
+      payload = JSON.parse(bodyText) as BufferGraphQlResponse;
+    } catch {
+      return err({ reason: "Buffer API returned invalid JSON" });
+    }
+  }
+
+  if (!response.ok) {
+    return err({
+      reason: summarizeBufferResponseBody(response.status, bodyText, payload),
+    });
+  }
+
+  const notFound = payload?.errors?.some(
+    (error) =>
+      error.message === "Post not found" ||
+      error.extensions?.code === "NOT_FOUND",
+  );
+  if (notFound) return ok(false);
+
+  if (payload?.errors?.length) {
+    return err({ reason: payload.errors.map((e) => e.message).join("; ") });
+  }
+
+  return ok(Boolean(payload?.data?.post?.id));
 }
 
 async function bufferCreatePost(

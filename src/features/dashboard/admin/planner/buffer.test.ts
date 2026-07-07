@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   bufferCreateScheduledImagePost,
   bufferCreateScheduledStory,
+  bufferPostExists,
 } from "./buffer";
 
 describe("bufferCreateScheduledImagePost", () => {
@@ -101,6 +102,53 @@ describe("bufferCreateScheduledImagePost", () => {
 
     expect(error?.reason).toContain("Buffer API error (400)");
     expect(error?.reason).toContain("Bad Request");
+  });
+});
+
+describe("bufferPostExists", () => {
+  const originalFetch = globalThis.fetch;
+
+  beforeEach(() => {
+    process.env.BUFFER_ACCESS_TOKEN = "test-token";
+    process.env.BUFFER_INSTAGRAM_CHANNEL_ID = "channel-123";
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    delete process.env.BUFFER_ACCESS_TOKEN;
+    delete process.env.BUFFER_INSTAGRAM_CHANNEL_ID;
+  });
+
+  it("returns false when Buffer reports the post was deleted", async () => {
+    globalThis.fetch = vi.fn(async () =>
+      Response.json({
+        errors: [
+          {
+            message: "Post not found",
+            extensions: { code: "NOT_FOUND" },
+          },
+        ],
+        data: null,
+      }),
+    ) as typeof fetch;
+
+    const [error, exists] = await bufferPostExists("deleted-post");
+
+    expect(error).toBeNull();
+    expect(exists).toBe(false);
+  });
+
+  it("returns true when Buffer returns the post", async () => {
+    globalThis.fetch = vi.fn(async () =>
+      Response.json({
+        data: { post: { id: "post-abc" } },
+      }),
+    ) as typeof fetch;
+
+    const [error, exists] = await bufferPostExists("post-abc");
+
+    expect(error).toBeNull();
+    expect(exists).toBe(true);
   });
 });
 
