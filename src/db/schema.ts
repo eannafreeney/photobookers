@@ -751,8 +751,19 @@ export const newsletterCampaigns = pgTable(
     ctaText: text("cta_text").notNull(),
     generatedContent: jsonb("generated_content").$type<{
       generatedAt: string;
-      items: Array<{
-        date: string;
+      botdEntries?: Array<{
+        date?: string;
+        bookId: string;
+        bookSlug: string;
+        title: string;
+        coverUrl: string | null;
+        artistName: string | null;
+        artistSlug: string | null;
+        publisherName: string | null;
+        publisherSlug: string | null;
+      }>;
+      items?: Array<{
+        date?: string;
         bookId: string;
         bookSlug: string;
         title: string;
@@ -765,6 +776,7 @@ export const newsletterCampaigns = pgTable(
       artistOfTheWeek?: {
         displayName: string;
         slug: string;
+        weekKey?: string;
         coverUrl: string | null;
         tagline?: string | null;
         location?: string | null;
@@ -772,6 +784,7 @@ export const newsletterCampaigns = pgTable(
       publisherOfTheWeek?: {
         displayName: string;
         slug: string;
+        weekKey?: string;
         coverUrl: string | null;
         tagline?: string | null;
         location?: string | null;

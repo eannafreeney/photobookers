@@ -1,5 +1,4 @@
-import { and, asc, desc, eq, gte, isNotNull, lt, lte } from "drizzle-orm";
-import { db } from "../../../../db/client";
+import { db } from "../../../../../db/client";
 import {
   artistOfTheWeek,
   bookFairs,
@@ -8,12 +7,12 @@ import {
   type NewsletterCampaignStatus,
   newsletterCampaigns,
   publisherOfTheWeek,
-} from "../../../../db/schema";
-import { getBooksOfTheDayInRange } from "../../../app/BOTDServices";
-import { getTopBooksByViews } from "../../../book-views/services";
-import { getTopCreatorsByViews } from "../../../creator-views/services";
-import { CREATOR_CARD_COLUMNS } from "../../../../constants/queries";
-import { err, ok } from "../../../../lib/result";
+} from "../../../../../db/schema";
+import { getBooksOfTheDayInRange } from "../../../../app/BOTDServices";
+import { getTopBooksByViews } from "../../../../book-views/services";
+import { getTopCreatorsByViews } from "../../../../creator-views/services";
+import { CREATOR_CARD_COLUMNS } from "../../../../../constants/queries";
+import { err, ok } from "../../../../../lib/result";
 import {
   formatCreatorLocation,
   normalizeStoredDate,
@@ -21,8 +20,9 @@ import {
   toDateString,
   toWeekStart,
   toWeekString,
-} from "../../../../lib/utils";
+} from "../../../../../lib/utils";
 import {
+  WeeklyNewsletterGeneratedContent,
   type WeeklyNewsletterBookItem,
   type WeeklyNewsletterCreatorSpotlight,
   type WeeklyNewsletterFairItem,
@@ -30,22 +30,12 @@ import {
   type WeeklyNewsletterTrending,
   type WeeklyNewsletterTrendingBookItem,
   type WeeklyNewsletterTrendingCreatorItem,
-} from "./newsletterTemplate";
+} from "./types";
 import {
-  formatWeekRangeLabel,
   getCurrentNewsletterRange,
   resolveNewsletterRangeStart,
-} from "./newsletterUtils";
-
-export type WeeklyNewsletterGeneratedContent = {
-  generatedAt: string;
-  botdEntries: WeeklyNewsletterBookItem[];
-  newMembers: WeeklyNewsletterNewMember[];
-  upcomingFair: WeeklyNewsletterFairItem | null;
-  artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
-  publisherOfTheWeek: WeeklyNewsletterCreatorSpotlight;
-  trending?: WeeklyNewsletterTrending;
-};
+} from "./utils";
+import { desc, eq, gte, isNotNull, lt, and, asc, lte } from "drizzle-orm";
 
 const NEW_MEMBERS_LIMIT = 6;
 const TRENDING_LIMIT = 3;
@@ -72,7 +62,7 @@ export function getWeekEndDate(weekStart: Date): Date {
   return end;
 }
 
-export async function findNewsletterCampaignByWeekStart(weekStart: Date) {
+async function findNewsletterCampaignByWeekStart(weekStart: Date) {
   const targetKey = toDateString(normalizeWeekStartDate(weekStart));
   const rows = await db.query.newsletterCampaigns.findMany({
     orderBy: [desc(newsletterCampaigns.weekStart)],
@@ -292,14 +282,14 @@ async function getTrendingForEdition(
   return { books, artists, publishers };
 }
 
-export const DEFAULT_WEEKLY_NEWSLETTER_SUBJECT = "This week on photobookers";
-export const DEFAULT_WEEKLY_NEWSLETTER_INTRO =
+const DEFAULT_WEEKLY_NEWSLETTER_SUBJECT = "This week on photobookers";
+const DEFAULT_WEEKLY_NEWSLETTER_INTRO =
   "We have some new books for you to check out. See below";
-export const DEFAULT_WEEKLY_NEWSLETTER_OUTRO =
+const DEFAULT_WEEKLY_NEWSLETTER_OUTRO =
   "Thanks for following photobookers. Reply and tell us which book stood out to you most.";
-export const DEFAULT_WEEKLY_NEWSLETTER_CTA = "Visit photobookers";
+const DEFAULT_WEEKLY_NEWSLETTER_CTA = "Visit photobookers";
 
-export async function buildWeeklyBOTDGeneratedContent(
+async function buildWeeklyBOTDGeneratedContent(
   weekStart: Date,
   weekEnd: Date,
   options?: { fromDatabase?: boolean },
@@ -556,8 +546,7 @@ export async function buildCampaignPreviewHtml(
   const { artistOfTheWeek, publisherOfTheWeek } =
     await getWeeklyCreatorSpotlights(weekEnd);
 
-  const { renderWeeklyBOTDNewsletterHtml } =
-    await import("./newsletterTemplate");
+  const { renderWeeklyBOTDNewsletterHtml } = await import("./template");
 
   return renderWeeklyBOTDNewsletterHtml({
     weekStart,

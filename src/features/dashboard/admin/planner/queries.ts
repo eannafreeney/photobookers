@@ -16,7 +16,7 @@ import { and, desc, gte, inArray, lte } from "drizzle-orm";
 import { getWeekStarts } from "./utils";
 import { toDateString, toWeekString } from "../../../../lib/utils";
 import { getInstagramPreparedByWeekStart } from "./instagramServices";
-import { getNewsletterRangeStartForPlannerWeek } from "./newsletterUtils";
+import { getNewsletterRangeStartForPlannerWeek } from "./newsletter/utils";
 
 export type PlannerYearData = {
   botdByDate: Awaited<ReturnType<typeof getBotdByDate>>;

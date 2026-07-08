@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import juice from "juice";
+import { FEATURE_COL_MAX_WIDTH } from "./styles";
 
 /**
  * Quote-free stacks for inline `style` attributes. MailerLite rewrites pasted HTML
@@ -12,7 +13,7 @@ export const emailFontSans =
 export const emailFontLogo = "Caveat, cursive";
 
 /** Strip quotes from font-family so ESP paste/save cannot truncate the attribute. */
-export function normalizeEmailInlineStyles(html: string): string {
+function normalizeEmailInlineStyles(html: string): string {
   return html
     .replace(/style="font-family:"(?=>)/gi, 'style=""')
     .replace(/font-family:&quot;([^;&"]+)&quot;/gi, "font-family:$1")
@@ -22,6 +23,23 @@ export function normalizeEmailInlineStyles(html: string): string {
     .replace(/font-family:\s*;/gi, "")
     .replace(/;\s*;/g, ";")
     .replace(/style="\s*;?\s*"/gi, 'style=""');
+}
+
+/** Gmail ignores @media; inline-block + max-width wraps to stack without it. */
+function enforceFeatureColHybridLayout(style: string): string {
+  const withoutLayout = style
+    .replace(/(?:^|;)\s*display:\s*[^;]+;?/gi, "")
+    .replace(/(?:^|;)\s*width:\s*[^;]+;?/gi, "")
+    .replace(/(?:^|;)\s*max-width:\s*[^;]+;?/gi, "")
+    .replace(/(?:^|;)\s*vertical-align:\s*[^;]+;?/gi, "")
+    .replace(/(?:^|;)\s*box-sizing:\s*[^;]+;?/gi, "")
+    .replace(/(?:^|;)\s*margin-bottom:\s*[^;]+;?/gi, "")
+    .replace(/;\s*;/g, ";")
+    .replace(/^;|;$/g, "")
+    .trim();
+
+  const layout = `display:inline-block;width:100%;max-width:${FEATURE_COL_MAX_WIDTH};vertical-align:top;box-sizing:border-box;margin-bottom:24px`;
+  return withoutLayout ? `${layout};${withoutLayout}` : layout;
 }
 
 /**
@@ -51,9 +69,15 @@ export function prepareNewsletterHtmlForEsp(html: string): string {
     preserveMediaQueries: true,
     preserveFontFaces: true,
     removeStyleTags: false,
-    applyWidthAttributes: true,
-    applyHeightAttributes: true,
   });
 
-  return normalizeEmailInlineStyles(inlined);
+  const $inlined = load(inlined);
+  // Juice may add table-column widths from legacy CSS; hybrid cols use inline max-width.
+  $inlined(".feature-col").each((_, element) => {
+    const $el = $inlined(element);
+    $el.removeAttr("width");
+    const style = $el.attr("style") ?? "";
+    $el.attr("style", enforceFeatureColHybridLayout(style));
+  });
+  return normalizeEmailInlineStyles($inlined.html());
 }

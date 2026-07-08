@@ -1,5 +1,5 @@
 import { SITE_APP } from "../../../../../constants/siteSocial";
-import { emailFontLogo, emailFontSans } from "../newsletterEspHtml";
+import { emailFontLogo, emailFontSans } from "./espHtml";
 
 export const appStoreUrl = SITE_APP.ios.href;
 

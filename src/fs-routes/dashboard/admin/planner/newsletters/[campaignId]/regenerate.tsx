@@ -1,7 +1,7 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { newsletterCampaignParamSchema } from "../../../../../../features/dashboard/admin/planner/schema";
-import { regenerateCampaignContent } from "../../../../../../features/dashboard/admin/planner/newsletterServices";
+import { regenerateCampaignContent } from "../../../../../../features/dashboard/admin/planner/newsletter/services";
 import Alert from "../../../../../../components/app/Alert";
 
 export const POST = createRoute(
@@ -13,7 +13,7 @@ export const POST = createRoute(
     if (error) {
       return c.html(<Alert type="danger" message={error.reason} />);
     }
-    const itemCount = generated?.items.length ?? 0;
+    const itemCount = generated?.botdEntries.length ?? 0;
 
     return c.html(
       <Alert

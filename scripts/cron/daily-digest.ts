@@ -3,9 +3,12 @@
  *
  *   ENV=production GITHUB_TOKEN=... GITHUB_REPOSITORY=owner/repo npx tsx scripts/cron/daily-digest.ts
  *
- * Optional env: DIGEST_HOURS (default 24)
+ * Optional env: DIGEST_HOURS (default 24), DATABASE_URL (required)
  */
 import "../env";
+import { and, count, eq, gte, isNotNull, notExists } from "drizzle-orm";
+import { db } from "../../src/db/client";
+import { creators, users } from "../../src/db/schema";
 import { sendAdminEmail } from "../../src/lib/sendEmail";
 
 const WORKFLOW_FILE = "production-cron.yml";
@@ -109,13 +112,53 @@ async function listRunJobs(
   return data.jobs;
 }
 
+type DigestStats = {
+  newlyVerifiedCreators: number;
+  newFans: number;
+};
+
+async function fetchDigestStats(since: Date): Promise<DigestStats> {
+  const creatorSubquery = db
+    .select({ id: creators.id })
+    .from(creators)
+    .where(eq(creators.ownerUserId, users.id));
+
+  const [[{ value: newlyVerifiedCreators = 0 }], [{ value: newFans = 0 }]] =
+    await Promise.all([
+      db
+        .select({ value: count() })
+        .from(creators)
+        .where(
+          and(
+            eq(creators.status, "verified"),
+            isNotNull(creators.verifiedAt),
+            gte(creators.verifiedAt, since),
+          ),
+        ),
+      db
+        .select({ value: count() })
+        .from(users)
+        .where(
+          and(
+            gte(users.createdAt, since),
+            eq(users.mustResetPassword, false),
+            eq(users.isAdmin, false),
+            notExists(creatorSubquery),
+          ),
+        ),
+    ]);
+
+  return { newlyVerifiedCreators, newFans };
+}
+
 function buildDigestHtml(params: {
   repo: string;
   hours: number;
   since: Date;
+  stats: DigestStats;
   jobs: Array<GitHubJob & { runUrl: string; runEvent: string }>;
 }): string {
-  const { repo, hours, since, jobs } = params;
+  const { repo, hours, since, stats, jobs } = params;
   const failures = jobs.filter((job) => job.conclusion === "failure");
   const actionsUrl = `https://github.com/${repo}/actions/workflows/${WORKFLOW_FILE}`;
 
@@ -140,9 +183,19 @@ function buildDigestHtml(params: {
           })
           .join("");
 
+  const creatorLabel =
+    stats.newlyVerifiedCreators === 1
+      ? "newly verified creator"
+      : "newly verified creators";
+  const fanLabel = stats.newFans === 1 ? "new fan" : "new fans";
+
   return `<div style="font-family:ui-sans-serif,system-ui,sans-serif;color:#45413a;max-width:720px;">
   <h1 style="font-size:20px;margin:0 0 8px;">Cron digest</h1>
   <p style="margin:0 0 16px;color:#666;">${escapeHtml(repo)} · last ${hours}h since ${formatUtcTime(since.toISOString())}</p>
+  <p style="margin:0 0 16px;padding:12px;background:#f2efe8;border-left:4px solid #45413a;">
+    <strong>Last ${hours}h:</strong>
+    ${stats.newlyVerifiedCreators} ${creatorLabel} · ${stats.newFans} ${fanLabel}
+  </p>
   ${
     failures.length > 0
       ? `<p style="margin:0 0 16px;padding:12px;background:#fdeeed;border-left:4px solid #a22c29;"><strong>${failures.length} failure(s):</strong> ${failures.map((j) => escapeHtml(j.name)).join(", ")}</p>`
@@ -171,7 +224,10 @@ if (!Number.isFinite(hours) || hours <= 0) {
 }
 
 const since = new Date(Date.now() - hours * 60 * 60 * 1000);
-const runs = await listWorkflowRuns(token, repo, since);
+const [runs, stats] = await Promise.all([
+  listWorkflowRuns(token, repo, since),
+  fetchDigestStats(since),
+]);
 
 const jobs: Array<GitHubJob & { runUrl: string; runEvent: string }> = [];
 for (const run of runs) {
@@ -195,7 +251,7 @@ const subject =
     ? `Cron digest ${day} — ${failures} failure${failures === 1 ? "" : "s"}`
     : `Cron digest ${day} — all OK`;
 
-const html = buildDigestHtml({ repo, hours, since, jobs });
+const html = buildDigestHtml({ repo, hours, since, stats, jobs });
 const [error] = await sendAdminEmail(subject, html);
 if (error) {
   console.error("Failed to send cron digest:", error.reason);
@@ -210,6 +266,8 @@ console.log(
       runs: runs.length,
       jobs: jobs.length,
       failures,
+      newlyVerifiedCreators: stats.newlyVerifiedCreators,
+      newFans: stats.newFans,
     },
     null,
     2,

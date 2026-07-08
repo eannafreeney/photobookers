@@ -1,6 +1,6 @@
 import type { NewsletterCampaign } from "../../../../../db/schema";
 import FormPost from "../../../../../components/forms/FormPost";
-import { isBrevoNewsletterConfigured } from "../newsletterBrevoServices";
+import { isBrevoNewsletterConfigured } from "../newsletter/brevoServices";
 
 export const NEWSLETTER_CAMPAIGN_CONTROLS_ID = "newsletter-campaign-controls";
 export const NEWSLETTER_BREVO_PANEL_ID = "newsletter-brevo-panel";
@@ -114,12 +114,15 @@ export const NewsletterBrevoPanel = ({
       id={NEWSLETTER_BREVO_PANEL_ID}
       class="rounded border border-outline bg-surface p-4"
     >
-      <h2 class="text-lg font-semibold text-on-surface-strong">Send via Brevo</h2>
+      <h2 class="text-lg font-semibold text-on-surface-strong">
+        Send via Brevo
+      </h2>
       {!brevoReady ? (
         <p class="mt-2 text-sm text-on-surface">
-          Set{" "}
-          <code class="rounded bg-surface-alt px-1">BREVO_API_KEY</code>,{" "}
-          <code class="rounded bg-surface-alt px-1">BREVO_NEWSLETTER_LIST_ID</code>
+          Set <code class="rounded bg-surface-alt px-1">BREVO_API_KEY</code>,{" "}
+          <code class="rounded bg-surface-alt px-1">
+            BREVO_NEWSLETTER_LIST_ID
+          </code>
           , and{" "}
           <code class="rounded bg-surface-alt px-1">BREVO_SENDER_EMAIL</code>{" "}
           (verified in Brevo) on the server to enable sending from here.
@@ -180,8 +183,8 @@ export const NewsletterBrevoPanel = ({
       )}
       <p class="mt-3 text-xs text-on-surface">
         Brevo IP blocking: leave &quot;block unauthorized IPs&quot; off until
-        your server&apos;s outbound IP is listed under Security → Authorized
-        IPs (otherwise API calls from the app will fail).
+        your server&apos;s outbound IP is listed under Security → Authorized IPs
+        (otherwise API calls from the app will fail).
       </p>
     </div>
   );

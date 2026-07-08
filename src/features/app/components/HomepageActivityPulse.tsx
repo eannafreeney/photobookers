@@ -17,7 +17,7 @@ const HomepageActivityPulse = ({
     <p class="text-center text-sm text-on-surface text-pretty">
       {showBooks ? (
         <>
-          Fans have viewed
+          Fans have viewed{" "}
           <span class="font-semibold text-on-surface-strong">
             {bookViews.toLocaleString()}
           </span>{" "}
@@ -27,7 +27,7 @@ const HomepageActivityPulse = ({
       {showBooks && showProfiles ? "," : null}
       {showProfiles ? (
         <>
-          and
+          and{" "}
           <span class="font-semibold text-on-surface-strong">
             {profileViews.toLocaleString()}
           </span>{" "}

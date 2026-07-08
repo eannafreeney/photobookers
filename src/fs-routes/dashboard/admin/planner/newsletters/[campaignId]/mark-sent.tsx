@@ -7,8 +7,7 @@ import {
 import {
   getNewsletterCampaignById,
   updateNewsletterCampaignDraft,
-} from "../../../../../../features/dashboard/admin/planner/newsletterServices";
-import { setFlash } from "../../../../../../utils";
+} from "../../../../../../features/dashboard/admin/planner/newsletter/services";
 import Alert from "../../../../../../components/app/Alert";
 
 export const POST = createRoute(

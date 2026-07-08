@@ -9,8 +9,8 @@ import {
   ensureWeeklyNewsletterDraftForRange,
   getNewsletterCampaignById,
   getNewsletterCampaignRange,
-} from "../../../../../features/dashboard/admin/planner/newsletterServices";
-import { formatNewsletterWeekRange } from "../../../../../features/dashboard/admin/planner/newsletterUtils";
+} from "../../../../../features/dashboard/admin/planner/newsletter/services";
+import { formatNewsletterWeekRange } from "../../../../../features/dashboard/admin/planner/newsletter/utils";
 import { parseDateString } from "../../../../../lib/utils";
 import { NewsletterCampaign } from "../../../../../db/schema";
 import FormPost from "../../../../../components/forms/FormPost";
@@ -33,10 +33,7 @@ export const GET = createRoute(async (c) => {
 
   let selectedCampaign: NewsletterCampaign | null = null;
 
-  if (
-    weekStartForSelection &&
-    !Number.isNaN(weekStartForSelection.getTime())
-  ) {
+  if (weekStartForSelection && !Number.isNaN(weekStartForSelection.getTime())) {
     const [ensureWeekDraftError, ensuredCampaign] =
       await ensureWeeklyNewsletterDraftForRange(weekStartForSelection);
     if (ensureWeekDraftError) {
@@ -47,9 +44,11 @@ export const GET = createRoute(async (c) => {
     }
     selectedCampaign = ensuredCampaign ?? null;
   } else if (campaignIdQuery) {
-    selectedCampaign = (await getNewsletterCampaignById(campaignIdQuery)) ?? null;
+    selectedCampaign =
+      (await getNewsletterCampaignById(campaignIdQuery)) ?? null;
   } else {
-    const [draftError, draftCampaign] = await ensureCurrentWeeklyNewsletterDraft();
+    const [draftError, draftCampaign] =
+      await ensureCurrentWeeklyNewsletterDraft();
     if (draftError) {
       console.error("Failed to ensure weekly draft", draftError.reason);
     }
@@ -133,20 +132,20 @@ const CampaignHeader = ({ selectedCampaign }: CampaignHeaderProps) => {
   const { weekStart, weekEnd } = getNewsletterCampaignRange(selectedCampaign);
 
   return (
-  <div class="mb-6 flex items-center justify-between gap-3">
-    <div>
-      <h1 class="text-xl font-semibold text-on-surface-strong">
-        Weekly BOTD newsletter
-      </h1>
-      <p class="mb-3 text-sm text-on-surface">
-        Edition: {formatNewsletterWeekRange(weekStart, weekEnd)}
-      </p>
-      <p class="text-sm text-on-surface">
-        Edit copy, preview the email, send a Brevo test, then send to your list
-        when ready. You can still copy HTML manually if needed.
-      </p>
+    <div class="mb-6 flex items-center justify-between gap-3">
+      <div>
+        <h1 class="text-xl font-semibold text-on-surface-strong">
+          Weekly BOTD newsletter
+        </h1>
+        <p class="mb-3 text-sm text-on-surface">
+          Edition: {formatNewsletterWeekRange(weekStart, weekEnd)}
+        </p>
+        <p class="text-sm text-on-surface">
+          Edit copy, preview the email, send a Brevo test, then send to your
+          list when ready. You can still copy HTML manually if needed.
+        </p>
+      </div>
     </div>
-  </div>
   );
 };
 

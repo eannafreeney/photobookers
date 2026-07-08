@@ -5,15 +5,15 @@ import {
   prepareNewsletterHtmlForBrevo,
   sendBrevoCampaignNow,
   sendBrevoCampaignTest,
-} from "../../../../lib/brevo/client";
-import { err, ok, type Result } from "../../../../lib/result";
-import { toDateString } from "../../../../lib/utils";
-import type { NewsletterCampaign } from "../../../../db/schema";
+} from "../../../../../lib/brevo/client";
+import { err, ok, type Result } from "../../../../../lib/result";
+import { toDateString } from "../../../../../lib/utils";
+import type { NewsletterCampaign } from "../../../../../db/schema";
 import {
   buildCampaignPreviewHtml,
   getNewsletterCampaignById,
   updateNewsletterCampaignDraft,
-} from "./newsletterServices";
+} from "./services";
 
 type BrevoCampaignError = { reason: string; status?: number };
 
@@ -78,11 +78,9 @@ async function createAndSendBrevoCampaign(
       });
     }
 
-    const [contactError] = await ensureBrevoContact(
-      config.apiKey,
-      recipient,
-      [config.listId],
-    );
+    const [contactError] = await ensureBrevoContact(config.apiKey, recipient, [
+      config.listId,
+    ]);
     if (contactError) {
       return err({
         reason: `Could not add ${recipient} to your Brevo list: ${contactError.reason}`,
@@ -90,9 +88,11 @@ async function createAndSendBrevoCampaign(
       });
     }
 
-    const [testError] = await sendBrevoCampaignTest(config.apiKey, brevoCampaignId, [
-      recipient,
-    ]);
+    const [testError] = await sendBrevoCampaignTest(
+      config.apiKey,
+      brevoCampaignId,
+      [recipient],
+    );
     if (testError) {
       const reason = testError.reason.includes("blacklisted")
         ? `${testError.reason} Remove the address from Brevo blocklist (Contacts) and try again.`
@@ -107,7 +107,10 @@ async function createAndSendBrevoCampaign(
     });
   }
 
-  const [sendError] = await sendBrevoCampaignNow(config.apiKey, brevoCampaignId);
+  const [sendError] = await sendBrevoCampaignNow(
+    config.apiKey,
+    brevoCampaignId,
+  );
   if (sendError) return err(sendError);
 
   const [updateError, updatedCampaign] = await updateNewsletterCampaignDraft(
@@ -138,7 +141,9 @@ export async function sendNewsletterBrevoTest(
   const campaign = await getNewsletterCampaignById(campaignId);
   if (!campaign) return err({ reason: "Newsletter campaign not found" });
   if (campaign.status === "sent") {
-    return err({ reason: "Cannot send a test for a campaign already marked sent" });
+    return err({
+      reason: "Cannot send a test for a campaign already marked sent",
+    });
   }
 
   return createAndSendBrevoCampaign(campaign, "test", testEmail);

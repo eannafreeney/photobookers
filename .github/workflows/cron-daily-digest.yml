@@ -26,6 +26,7 @@ jobs:
       - name: Send cron digest email
         env:
           ENV: production
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           SUPABASE_URL: ${{ secrets.PRODUCTION_SUPABASE_URL }}

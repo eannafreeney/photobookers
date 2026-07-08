@@ -7,26 +7,29 @@ import {
   Button,
   Img,
   Hr,
+  Head,
+  Font,
 } from "@react-email/components";
 import {
   appBaseUrl,
   appStoreUrl,
   brand,
   newsletterAssets,
-} from "./newsletterTokens";
+  newsletterNavLinks,
+  newsletterSocial,
+} from "./constants";
 import { ReactNode } from "react";
-import { WeeklyNewsletterBookItem } from "../newsletterTemplate";
-import { formatNewsletterDate } from "./newsletterComponents";
+import { formatNewsletterDate } from "./utils";
 
 export const NewsletterHeader = () => (
-  <Section>
+  <Section style={{ padding: "12px 0 0" }}>
     <Row>
       <Column align="center" className="text-center">
         <Img
           src={newsletterAssets.logo}
           alt="Photobookers"
           height={32}
-          className="mx-auto mb-5"
+          className="mx-auto mb-4"
         />
         <Hr
           style={{ borderColor: brand.outlineStrong, borderWidth: 2 }}
@@ -51,7 +54,7 @@ export const NewsletterSubject = ({
       <Column align="center" className="p-0">
         <Text
           style={{ color: brand.accent }}
-          className="mt-0 mb-0 px-[25px] pt-5 pb-2 text-center text-[11px] font-semibold uppercase leading-[1.2] tracking-[0.18em]"
+          className="mt-0 mb-0 px-[25px] pt-4 pb-2 text-center text-[11px] font-semibold uppercase leading-[1.2] tracking-[0.18em]"
         >
           Photobookers Weekly
         </Text>
@@ -68,7 +71,7 @@ export const NewsletterSubject = ({
             color: brand.onSurfaceStrong,
             fontFamily: brand.fontDisplay,
           }}
-          className=" mt-0 mb-0 px-[25px] pt-0 pb-5 text-center text-[32px] font-medium leading-[1.15]"
+          className="mt-0 mb-0 px-[25px] pt-0 pb-6 text-center text-[32px] font-medium leading-[1.1]"
         >
           {subject}
         </Text>
@@ -78,13 +81,13 @@ export const NewsletterSubject = ({
 );
 
 export const NewsletterAppPromo = () => (
-  <Section className="flex justify-center">
+  <Section style={{ padding: "0 0 8px" }}>
     <Row>
       <Column align="center">
         <Button
           href={appStoreUrl}
           style={{ margin: "0 auto" }}
-          className="bg-black text-white text-xs font-semibold tracking-[0.16em] uppercase rounded-none px-6 py-4 text-center"
+          className="bg-black text-white text-xs font-semibold tracking-[0.16em] uppercase rounded px-6 py-4 text-center"
         >
           Download iOS App
         </Button>
@@ -98,7 +101,10 @@ type KickerProps = {
 };
 
 export const Kicker = ({ children }: KickerProps) => (
-  <Text style={{ color: brand.accent }} className="m-0 text-center">
+  <Text
+    style={{ color: brand.accent }}
+    className="m-0 mb-2 text-center text-[11px] font-semibold uppercase tracking-[0.18em] leading-[1.2]"
+  >
     {children}
   </Text>
 );
@@ -109,18 +115,18 @@ type SectionHeadingProps = {
 };
 
 export const SectionHeading = ({ kicker, children }: SectionHeadingProps) => (
-  <Section className="my-6">
+  <Section style={{ padding: "12px 0 0", margin: "32px 0" }}>
     <Row>
       <Column>
         {kicker && <Kicker>{kicker}</Kicker>}
         <Text
-          className="text-2xl font-medium leading-1.2 text-center"
+          className="m-0 text-2xl font-medium leading-[1.15] text-center"
           style={{ color: brand.onSurfaceStrong }}
         >
           {children}
         </Text>
         <Hr
-          className="mt-0 mb-0 border-t-2 border-black"
+          className="mt-3 mb-0 border-t-2 border-black"
           style={{ borderColor: brand.outlineStrong }}
         />
       </Column>
@@ -142,63 +148,24 @@ type BookFeatureCardProps = {
   inverted?: boolean;
 };
 
-export const BOTDCard = ({ book, inverted = false }: BookFeatureCardProps) => {
+export const BookFeatureCard = ({ book }: BookFeatureCardProps) => {
   const kicker = book.date ? formatNewsletterDate(book.date) : null;
-  const imageColumn = (
-    <Column
-      align="center"
-      className="book-feature-image-col align-top text-center"
-      style={{ width: "50%" }}
-    >
-      {book.coverUrl ? (
-        <Img
-          src={book.coverUrl}
-          alt={book.title}
-          className="block w-full h-auto mx-auto"
-        />
-      ) : null}
-    </Column>
-  );
-  const textColumn = (
-    <Column
-      align="center"
-      className="text-center"
-      style={{ width: "50%", textAlign: "center" }}
-    >
-      {kicker && <Kicker>{kicker}</Kicker>}
-      <Text
-        style={{
-          color: brand.onSurfaceStrong,
-          fontFamily: brand.fontDisplay,
-          textAlign: "center",
-        }}
-        className="m-0 mb-2 text-2xl leading-tight font-medium text-center"
-      >
-        {book.title}
-      </Text>
-      <Text
-        style={{ color: brand.onSurface, textAlign: "center" }}
-        className="m-0 text-sm leading-relaxed text-center"
-      >
-        {book.artistName}
-      </Text>
-      <Text
-        style={{ color: brand.onSurface, textAlign: "center" }}
-        className="m-0 text-sm leading-relaxed text-center"
-      >
-        {book.publisherName}
-      </Text>
-    </Column>
-  );
 
   return (
-    <Section>
-      <Row className="book-feature-row mt-16 mb-6">
-        {inverted ? textColumn : imageColumn}
-        {inverted ? imageColumn : textColumn}
-      </Row>
-      <Row className="mt-6">
-        <Column align="center" className="text-center">
+    <Section className="mb-12">
+      <Row>
+        <Column>
+          {book.coverUrl ? (
+            <Img
+              src={book.coverUrl}
+              alt={book.title}
+              className="block w-full object-cover mx-auto mb-3"
+            />
+          ) : null}
+          {kicker && <Kicker>{kicker}</Kicker>}
+          <Title>{book.title}</Title>
+          <SubTitle>{book.artistName}</SubTitle>
+          <SubTitle>{book.publisherName}</SubTitle>
           <ViewButton href={`${appBaseUrl}/books/${book.bookSlug}`} />
         </Column>
       </Row>
@@ -209,55 +176,28 @@ export const BOTDCard = ({ book, inverted = false }: BookFeatureCardProps) => {
 type CreatorFeatureCardCreator = {
   displayName: string;
   slug: string;
-  type: "artist" | "publisher";
+  type?: "artist" | "publisher";
   coverUrl: string | null;
-  tagline: string | null;
+  tagline?: string | null;
 };
 
-type CreatorFeatureColumnProps = {
+type CreatorFeatureCardProps = {
   creator: CreatorFeatureCardCreator;
 };
 
-export const CreatorFeatureColumn = ({
-  creator,
-}: CreatorFeatureColumnProps) => {
+export const CreatorFeatureCard = ({ creator }: CreatorFeatureCardProps) => {
   return (
-    <Column
-      width="33.33%"
-      className="feature-col align-top"
-      style={{ padding: "0 8px 16px" }}
-    >
-      {creator.coverUrl ? (
-        <RoundedImage src={creator.coverUrl} alt={creator.displayName} />
-      ) : null}
-      <Title>{creator.displayName}</Title>
-      <ViewButton href={`${appBaseUrl}/creators/${creator.slug}`} />
-    </Column>
-  );
-};
-
-export const BookFeatureColumn = ({ book }: BookFeatureCardProps) => {
-  const kicker = book.date ? formatNewsletterDate(book.date) : null;
-
-  return (
-    <Column
-      width="33.33%"
-      className="feature-col align-top"
-      style={{ padding: "0 8px 16px" }}
-    >
-      {book.coverUrl ? (
-        <Img
-          src={book.coverUrl}
-          alt={book.title}
-          className="block w-25 h-full object-cover mx-auto mb-3"
-        />
-      ) : null}
-      {kicker && <Kicker>{kicker}</Kicker>}
-      <Title>{book.title}</Title>
-      <SubTitle>{book.artistName}</SubTitle>
-      <SubTitle>{book.publisherName}</SubTitle>
-      <ViewButton href={`${appBaseUrl}/books/${book.bookSlug}`} />
-    </Column>
+    <Section className="mb-12">
+      <Row>
+        <Column>
+          {creator.coverUrl ? (
+            <RoundedImage src={creator.coverUrl} alt={creator.displayName} />
+          ) : null}
+          <Title>{creator.displayName}</Title>
+          <ViewButton href={`${appBaseUrl}/creators/${creator.slug}`} />
+        </Column>
+      </Row>
+    </Section>
   );
 };
 
@@ -266,12 +206,13 @@ const ViewButton = ({ href }: { href: string }) => (
     href={href}
     style={{
       display: "block",
-      width: "80%",
+      width: "50%",
       maxWidth: "100%",
       boxSizing: "border-box",
-      margin: "8px auto",
+      margin: "12px auto 0",
+      padding: "12px 0",
     }}
-    className="bg-white text-black border-outlineStrong border text-xs font-semibold uppercase rounded px-2 py-2 text-center mx-auto"
+    className="bg-white text-black border-outlineStrong border text-xs font-semibold uppercase rounded px-3 py-2 text-center mx-auto"
   >
     View
   </Button>
@@ -284,7 +225,7 @@ const Title = ({ children }: { children: ReactNode }) => (
       fontFamily: brand.fontDisplay,
       textAlign: "center",
     }}
-    className="m-0 mb-3 text-md leading-tight font-medium text-center"
+    className="m-0 mb-2 text-[18px] leading-[1.2] font-medium text-center"
   >
     {children}
   </Text>
@@ -293,16 +234,10 @@ const Title = ({ children }: { children: ReactNode }) => (
 const SubTitle = ({ children }: { children: ReactNode }) => (
   <Text
     style={{ color: brand.onSurface, textAlign: "center" }}
-    className="m-0 text-sm leading-relaxed text-center"
+    className="m-0 text-sm leading-normal text-center"
   >
     {children}
   </Text>
-);
-
-export const GridRow = ({ children }: { children: ReactNode }) => (
-  <Section style={{ padding: "0 17px" }}>
-    <Row className="grid-row">{children}</Row>
-  </Section>
 );
 
 type RoundedImageProps = {
@@ -315,6 +250,170 @@ const RoundedImage = ({ src, alt, className }: RoundedImageProps) => (
   <Img
     src={src}
     alt={alt}
-    className={`block w-25 h-25 object-cover mx-auto rounded-full ${className}`}
+    className={`block w-50 h-50 object-cover mx-auto rounded-full mb-6 ${className}`}
   />
+);
+
+export const NewsletterOutro = ({ outroText }: { outroText: string }) => (
+  <Section style={{ backgroundColor: brand.surface }}>
+    <Column>
+      <Text
+        style={{ color: brand.onSurface }}
+        className="m-0 text-sm leading-[1.65] px-[25px]"
+      >
+        {outroText}
+      </Text>
+    </Column>
+  </Section>
+);
+
+export const NewsletterCtaButton = ({ ctaText }: { ctaText: string }) => (
+  <Section className="my-12 ">
+    <Row>
+      <Column align="center">
+        <Button
+          href={appBaseUrl}
+          style={{ backgroundColor: brand.primary, color: brand.onPrimary }}
+          className="text-xs font-semibold tracking-[0.16em] uppercase rounded px-6 py-4 text-center"
+        >
+          {ctaText}
+        </Button>
+      </Column>
+    </Row>
+  </Section>
+);
+
+export const NewsletterFooter = () => (
+  <Section>
+    <Row>
+      <Column>
+        {/* <Hr /> */}
+        {/* <NewsletterLogo padding="20px 25px 12px" /> */}
+        <Text
+          style={{ color: brand.onSurface }}
+          className="m-0 text-sm leading-[1.6] px-[25px] text-center"
+        >
+          The home for photobook lovers. Discover books, follow artists and
+          publishers, and keep up with the photobook world.
+        </Text>
+
+        <Section className="text-center my-6">
+          {newsletterNavLinks.map((link, index) => (
+            <span key={link.href}>
+              {index > 0 ? (
+                <span style={{ color: brand.onSurfaceWeak }}> · </span>
+              ) : null}
+              <Button href={link.href} style={{ color: brand.onSurfaceWeak }}>
+                {link.label}
+              </Button>
+            </span>
+          ))}
+        </Section>
+
+        <Section className="text-center mb-6">
+          <Button href={newsletterSocial.instagramUrl}>
+            <Img
+              src={newsletterSocial.instagramIconUrl}
+              alt="Instagram"
+              width="20"
+              height="20"
+              style={{ display: "block", margin: "0 auto" }}
+            />
+          </Button>
+        </Section>
+
+        <Text
+          style={{ color: brand.onSurfaceWeak }}
+          className="m-0 text-sm leading-[1.6] px-[25px] text-center"
+        >
+          © {new Date().getFullYear()} Photobookers
+        </Text>
+        {/* <Text
+          style={{ color: brand.onSurfaceWeak }}
+          className="m-0 text-sm leading-[1.6] px-[25px] text-center"
+        >
+          <Button
+            href="{$unsubscribe}"
+            style={{
+              color: brand.onSurfaceWeak,
+              textDecoration: "underline",
+            }}
+          >
+            Unsubscribe
+          </Button>
+        </Text> */}
+      </Column>
+    </Row>
+  </Section>
+);
+
+export const NewsletterHead = ({ title }: { title: string }) => (
+  <Head>
+    <title>{title}</title>
+    <Font
+      fontFamily="Instrument Sans"
+      fallbackFontFamily="sans-serif"
+      webFont={{
+        url: "https://fonts.gstatic.com/s/instrumentsans/v4/pximypc9vsFDm051Uf6KVwgkfoSxQ0GsQv8ToedPibnr-yp2JGEJOH9npSTF-Qf1.ttf",
+        format: "truetype",
+      }}
+      fontWeight={400}
+    />
+    <Font
+      fontFamily="Fraunces"
+      fallbackFontFamily="serif"
+      webFont={{
+        url: "https://fonts.gstatic.com/s/fraunces/v38/6NUh8FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0K7iN7hzFUPJH58nib1603gg7S2nfgRYIchRujDg.ttf",
+        format: "truetype",
+      }}
+      fontWeight={500}
+    />
+    <Font
+      fontFamily="Caveat"
+      fallbackFontFamily="serif"
+      webFont={{
+        url: "https://fonts.gstatic.com/s/caveat/v23/WnznHAc5bAfYB2QRah7pcpNvOx-pjSx6SII.ttf",
+        format: "truetype",
+      }}
+      fontWeight={600}
+    />
+    <Font
+      fontFamily="Instrument Sans"
+      fallbackFontFamily="sans-serif"
+      webFont={{
+        url: "https://fonts.gstatic.com/s/instrumentsans/v4/pximypc9vsFDm051Uf6KVwgkfoSxQ0GsQv8ToedPibnr-yp2JGEJOH9npST3-Qf1.ttf",
+        format: "truetype",
+      }}
+      fontWeight={500}
+    />
+    <Font
+      fontFamily="Instrument Sans"
+      fallbackFontFamily="sans-serif"
+      webFont={{
+        url: "https://fonts.gstatic.com/s/instrumentsans/v4/pximypc9vsFDm051Uf6KVwgkfoSxQ0GsQv8ToedPibnr-yp2JGEJOH9npSQb_gf1.ttf",
+        format: "truetype",
+      }}
+      fontWeight={600}
+    />
+    <Font
+      fontFamily="Instrument Sans"
+      fallbackFontFamily="sans-serif"
+      webFont={{
+        url: "https://fonts.gstatic.com/s/instrumentsans/v4/pximypc9vsFDm051Uf6KVwgkfoSxQ0GsQv8ToedPibnr-yp2JGEJOH9npSQi_gf1.ttf",
+        format: "truetype",
+      }}
+      fontWeight={700}
+    />
+    <Font
+      fontFamily="Fraunces"
+      fallbackFontFamily="serif"
+      webFont={{
+        url: "https://fonts.gstatic.com/s/fraunces/v38/6NUh8FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0K7iN7hzFUPJH58nib1603gg7S2nfgRYIcaRyjDg.ttf",
+        format: "truetype",
+      }}
+      fontWeight={600}
+    />
+
+    {/* <style>{responsiveStyles}</style> */}
+  </Head>
 );

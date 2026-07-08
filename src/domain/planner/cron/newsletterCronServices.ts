@@ -8,11 +8,11 @@ import {
   normalizeWeekStartDate,
   regenerateCampaignContent,
   updateNewsletterCampaignDraft,
-} from "../../../features/dashboard/admin/planner/newsletterServices";
+} from "../../../features/dashboard/admin/planner/newsletter/services";
 import {
   isBrevoNewsletterConfigured,
   sendNewsletterBrevoToList,
-} from "../../../features/dashboard/admin/planner/newsletterBrevoServices";
+} from "../../../features/dashboard/admin/planner/newsletter/brevoServices";
 
 export const WEEKLY_NEWSLETTER_REQUIRED_BOOKS = 7;
 
@@ -91,7 +91,7 @@ export async function runWeeklyNewsletterCron(
   const [regenError, generated] = await regenerateCampaignContent(campaign.id);
   if (regenError) return err(regenError);
 
-  const bookCount = generated.items.length;
+  const bookCount = generated.botdEntries.length;
   if (bookCount < WEEKLY_NEWSLETTER_REQUIRED_BOOKS) {
     return err({
       reason: `Expected ${WEEKLY_NEWSLETTER_REQUIRED_BOOKS} books of the day for ${weekStart}, found ${bookCount}`,

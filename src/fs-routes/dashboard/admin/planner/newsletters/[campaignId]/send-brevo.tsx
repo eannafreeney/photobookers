@@ -1,7 +1,7 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { newsletterCampaignParamSchema } from "../../../../../../features/dashboard/admin/planner/schema";
-import { sendNewsletterBrevoToList } from "../../../../../../features/dashboard/admin/planner/newsletterBrevoServices";
+import { sendNewsletterBrevoToList } from "../../../../../../features/dashboard/admin/planner/newsletter/brevoServices";
 import {
   NewsletterBrevoPanel,
   NewsletterCampaignControls,

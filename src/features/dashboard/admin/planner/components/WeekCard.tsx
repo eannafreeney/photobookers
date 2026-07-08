@@ -12,7 +12,7 @@ import {
 import BOTDCard from "./BOTDCard";
 import AOTWCard from "./AOTWCard";
 import POTWCard from "./POTWCard";
-import { getNewsletterRangeStartForPlannerWeek } from "../newsletterUtils";
+import { getNewsletterRangeStartForPlannerWeek } from "../newsletter/utils";
 import { formatWeekRange, getWeekDays } from "../utils";
 import RandomizeBOTDButton from "./RandomizeBOTDButton";
 

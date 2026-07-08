@@ -4,7 +4,7 @@ import {
   newsletterBrevoTestSchema,
   newsletterCampaignParamSchema,
 } from "../../../../../../features/dashboard/admin/planner/schema";
-import { sendNewsletterBrevoTest } from "../../../../../../features/dashboard/admin/planner/newsletterBrevoServices";
+import { sendNewsletterBrevoTest } from "../../../../../../features/dashboard/admin/planner/newsletter/brevoServices";
 import Alert from "../../../../../../components/app/Alert";
 
 export const POST = createRoute(

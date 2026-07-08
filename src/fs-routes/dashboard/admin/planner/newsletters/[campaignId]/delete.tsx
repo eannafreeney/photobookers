@@ -1,7 +1,7 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { newsletterCampaignParamSchema } from "../../../../../../features/dashboard/admin/planner/schema";
-import { deleteNewsletterCampaign } from "../../../../../../features/dashboard/admin/planner/newsletterServices";
+import { deleteNewsletterCampaign } from "../../../../../../features/dashboard/admin/planner/newsletter/services";
 import { setFlash } from "../../../../../../utils";
 
 export const POST = createRoute(
