@@ -45,7 +45,8 @@ const NewsletterLogo = ({ padding }: { padding: string }) => (
   />
 );
 
-const formatNewsletterDate = (dateStr: string): string => {
+export const formatNewsletterDate = (dateStr: string): string => {
+  if (!dateStr) return "";
   const date = parseDateString(dateStr);
   if (Number.isNaN(date.getTime())) return dateStr;
   return date.toLocaleDateString("en-US", {
@@ -473,62 +474,62 @@ export const FeatureCardRow = ({
       padding="8px 0"
       cssClass="feature-card-row-text-col"
     >
-        <MjmlText
-          {...kickerTextProps}
-          color={brand.onSurfaceWeak}
-          padding="0 0 4px"
-          align="left"
-          cssClass="feature-card-row-kicker"
-        >
-          {kicker}
-        </MjmlText>
-        <MjmlText
-          fontSize="18px"
-          fontWeight={500}
-          lineHeight="1.25"
-          color={brand.onSurfaceStrong}
-          padding="0"
-          align="left"
-          fontFamily={brand.fontDisplay}
-          cssClass="feature-card-row-title"
-        >
-          {title}
-        </MjmlText>
-        {body ? (
-          <MjmlText
-            fontSize="13px"
-            lineHeight="1.5"
-            color={brand.onSurface}
-            padding="6px 0 0"
-            align="left"
-            cssClass="feature-card-row-body"
-          >
-            {body}
-          </MjmlText>
-        ) : null}
-      </MjmlColumn>
-      <MjmlColumn
-        width="30%"
-        verticalAlign="middle"
-        padding="8px 8px 8px 0"
-        cssClass="feature-card-row-action-col"
+      <MjmlText
+        {...kickerTextProps}
+        color={brand.onSurfaceWeak}
+        padding="0 0 4px"
+        align="left"
+        cssClass="feature-card-row-kicker"
       >
-        <MjmlButton
-          href={linkHref}
-          backgroundColor={brand.primary}
-          color={brand.onPrimary}
-          fontSize="10px"
-          fontWeight={600}
-          letterSpacing="0.12em"
-          textTransform="uppercase"
-          borderRadius="0"
-          innerPadding="10px 14px"
-          align="center"
-          cssClass="feature-card-row-button"
+        {kicker}
+      </MjmlText>
+      <MjmlText
+        fontSize="18px"
+        fontWeight={500}
+        lineHeight="1.25"
+        color={brand.onSurfaceStrong}
+        padding="0"
+        align="left"
+        fontFamily={brand.fontDisplay}
+        cssClass="feature-card-row-title"
+      >
+        {title}
+      </MjmlText>
+      {body ? (
+        <MjmlText
+          fontSize="13px"
+          lineHeight="1.5"
+          color={brand.onSurface}
+          padding="6px 0 0"
+          align="left"
+          cssClass="feature-card-row-body"
         >
-          {linkLabel}
-        </MjmlButton>
-      </MjmlColumn>
+          {body}
+        </MjmlText>
+      ) : null}
+    </MjmlColumn>
+    <MjmlColumn
+      width="30%"
+      verticalAlign="middle"
+      padding="8px 8px 8px 0"
+      cssClass="feature-card-row-action-col"
+    >
+      <MjmlButton
+        href={linkHref}
+        backgroundColor={brand.primary}
+        color={brand.onPrimary}
+        fontSize="10px"
+        fontWeight={600}
+        letterSpacing="0.12em"
+        textTransform="uppercase"
+        borderRadius="0"
+        innerPadding="10px 14px"
+        align="center"
+        cssClass="feature-card-row-button"
+      >
+        {linkLabel}
+      </MjmlButton>
+    </MjmlColumn>
   </MjmlSection>
 );
 

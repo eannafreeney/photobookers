@@ -15,7 +15,7 @@ const NewsletterForm = ({ className }: { className?: string }) => (
       <span class="shrink-0">{getInputIcon("email")}</span>
       <input
         type="email"
-        class="min-w-0 flex-1 bg-surface text-sm leading-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
+        class="min-w-0 flex-1 text-base bg-surface leading-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
         name="email"
         placeholder="you@example.com"
         autocomplete="email"

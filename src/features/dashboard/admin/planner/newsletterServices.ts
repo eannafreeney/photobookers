@@ -39,7 +39,7 @@ import {
 
 export type WeeklyNewsletterGeneratedContent = {
   generatedAt: string;
-  items: WeeklyNewsletterBookItem[];
+  botdEntries: WeeklyNewsletterBookItem[];
   newMembers: WeeklyNewsletterNewMember[];
   upcomingFair: WeeklyNewsletterFairItem | null;
   artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
@@ -267,14 +267,12 @@ async function getTrendingForEdition(
       publisherName: book.publisherName,
     })) ?? [];
 
-  const toTrendingCreator = (
-    row: {
-      displayName: string;
-      slug: string;
-      type: "artist" | "publisher";
-      coverUrl: string | null;
-    },
-  ): WeeklyNewsletterTrendingCreatorItem => ({
+  const toTrendingCreator = (row: {
+    displayName: string;
+    slug: string;
+    type: "artist" | "publisher";
+    coverUrl: string | null;
+  }): WeeklyNewsletterTrendingCreatorItem => ({
     displayName: row.displayName,
     slug: row.slug,
     type: row.type,
@@ -321,15 +319,19 @@ export async function buildWeeklyBOTDGeneratedContent(
   );
   if (rangeError) return err({ reason: rangeError.reason });
 
-  const [{ artistOfTheWeek, publisherOfTheWeek }, newMembers, upcomingFair, trending] =
-    await Promise.all([
-      getWeeklyCreatorSpotlights(rangeEnd),
-      getNewlyVerifiedCreatorsInRange(rangeStart, rangeEnd),
-      getUpcomingFairForNextWeek(rangeEnd),
-      getTrendingForEdition(rangeStart, rangeEnd),
-    ]);
+  const [
+    { artistOfTheWeek, publisherOfTheWeek },
+    newMembers,
+    upcomingFair,
+    trending,
+  ] = await Promise.all([
+    getWeeklyCreatorSpotlights(rangeEnd),
+    getNewlyVerifiedCreatorsInRange(rangeStart, rangeEnd),
+    getUpcomingFairForNextWeek(rangeEnd),
+    getTrendingForEdition(rangeStart, rangeEnd),
+  ]);
 
-  const items: WeeklyNewsletterBookItem[] = rangeResult.botdEntries.map(
+  const botdEntries: WeeklyNewsletterBookItem[] = rangeResult.botdEntries.map(
     (entry) => ({
       date: toDateString(entry.date),
       bookId: entry.book.id,
@@ -345,7 +347,7 @@ export async function buildWeeklyBOTDGeneratedContent(
 
   return ok({
     generatedAt: new Date().toISOString(),
-    items,
+    botdEntries,
     newMembers,
     upcomingFair,
     artistOfTheWeek,
@@ -554,17 +556,17 @@ export async function buildCampaignPreviewHtml(
   const { artistOfTheWeek, publisherOfTheWeek } =
     await getWeeklyCreatorSpotlights(weekEnd);
 
-  const { renderWeeklyBOTDNewsletterHtmlMjml } = await import(
-    "./newsletterTemplateMjml"
-  );
-  return renderWeeklyBOTDNewsletterHtmlMjml({
+  const { renderWeeklyBOTDNewsletterHtml } =
+    await import("./newsletterTemplate");
+
+  return renderWeeklyBOTDNewsletterHtml({
     weekStart,
     weekEnd,
     subject: campaign.subject,
     introText: campaign.introText,
     outroText: campaign.outroText,
     ctaText: campaign.ctaText,
-    items: generated?.items ?? stored?.items ?? [],
+    botdEntries: generated?.botdEntries ?? stored?.items ?? [],
     newMembers: generated?.newMembers ?? stored?.newMembers ?? [],
     upcomingFair: generated?.upcomingFair ?? stored?.upcomingFair ?? null,
     artistOfTheWeek:

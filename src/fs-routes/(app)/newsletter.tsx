@@ -5,22 +5,17 @@ import AppLayout from "../../components/layouts/AppLayout";
 import NewsletterForm from "../../features/app/components/NewsletterForm";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
 import { NEWSLETTER_COPY } from "../../constants/newsletter";
+import HeadlessLayout from "@/components/layouts/HeadlessLayout";
 
 export { POST } from "../api/newsletter";
 
 export const GET = createRoute(async (c) => {
-  const currentPath = c.req.path;
   const title = pageTitle("Newsletter");
   const description =
     "Get a daily Book of the Day pick and weekly photobook highlights from Photobookers.";
 
   return c.html(
-    <AppLayout
-      title={title}
-      description={description}
-      canonicalUrl={canonicalUrl(c.req.url, "/newsletter")}
-      currentPath={currentPath}
-    >
+    <HeadlessLayout title={title} description={description}>
       <Page>
         <PageHeader
           kicker={NEWSLETTER_COPY.kicker}
@@ -36,6 +31,6 @@ export const GET = createRoute(async (c) => {
           <NewsletterForm />
         </div>
       </Page>
-    </AppLayout>,
+    </HeadlessLayout>,
   );
 });

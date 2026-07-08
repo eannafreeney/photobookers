@@ -350,12 +350,12 @@ const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => (
       />
       <NewsletterAppPromo />
 
-      {params.items.length > 0 ? (
+      {params.botdEntries.length > 0 ? (
         <SectionHeading kicker="Daily picks">Books of the day</SectionHeading>
       ) : null}
 
-      {params.items.length > 0 &&
-        params.items.map((book) => (
+      {params.botdEntries.length > 0 &&
+        params.botdEntries.map((book) => (
           <BookFeatureCard key={book.bookId} book={book} />
         ))}
 
