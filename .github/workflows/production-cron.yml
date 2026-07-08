@@ -7,7 +7,7 @@ on:
     - cron: "0 8 * * *" # daily 08:00 UTC — queue Instagram before 10:00 post time
     - cron: "0 8 * * 1" # Monday 08:00 UTC — CEO weekly metrics email
     - cron: "0 9 * * *" # daily 09:00 UTC — BOTD / spotlight / follower emails
-    - cron: "0 9 * * 3" # Wednesday 09:00 UTC — weekly newsletter
+    # - cron: "0 9 * * 3" # Wednesday 09:00 UTC — weekly newsletter
     - cron: "0 9 * * 6" # Saturday 09:00 UTC — Instagram prep reminder
     - cron: "0 9 3 * *" # 3rd of month 09:00 UTC — creator analytics digest
     - cron: "0 10 * * *" # daily 10:00 UTC — creator milestone + stub outreach
