@@ -30,6 +30,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           SUPABASE_URL: ${{ secrets.PRODUCTION_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.PRODUCTION_SUPABASE_ANON_KEY }}
           FUNCTION_SECRET: ${{ secrets.PRODUCTION_FUNCTION_SECRET }}
           ADMIN_EMAIL: ${{ secrets.PRODUCTION_ADMIN_EMAIL }}
         run: npx tsx scripts/cron/daily-digest.ts
