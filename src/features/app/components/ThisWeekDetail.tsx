@@ -7,7 +7,7 @@ import InterviewPreviewSection, {
 } from "./InterviewPreviewSection";
 import NewsletterCard from "./NewsletterCard";
 import { AuthUser } from "../../../../types";
-import { Creator } from "../../../db/schema";
+import { bookOfTheDay, Creator } from "../../../db/schema";
 import { BookOfTheDayWithBook } from "../BOTDServices";
 import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
 import { PublisherOfTheWeekWithCreator } from "../POTWServices";
@@ -18,8 +18,11 @@ import {
   thisWeekPath,
   thisWeekUrl,
 } from "../spotlightUrls";
+import ExpandableDescription from "./ExpandableDescription";
+import { resolveSpotlightCopy } from "../spotlightCopy";
 import { toDateString, toWeekStart } from "../../../lib/utils";
 import { capitalize } from "../../../utils";
+import SpotlightCard from "@/components/app/SpotlightCard";
 
 type Props = {
   weekStart: Date;
@@ -61,7 +64,7 @@ const ThisWeekDetail = async ({
         />
       </header>
 
-      {botdEntries.length > 0 ? (
+      {/* {botdEntries.length > 0 ? (
         <section class="flex flex-col gap-8">
           <SectionTitle>Books of the Day</SectionTitle>
           <div class="flex flex-col gap-8">
@@ -70,14 +73,72 @@ const ThisWeekDetail = async ({
             ))}
           </div>
         </section>
-      ) : null}
+      ) : null} */}
+
+      {botdEntries.map((bookOfTheDay) => {
+        return (
+          <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
+            <SectionTitle>{toDateString(bookOfTheDay.date)}</SectionTitle>
+            <SpotlightCard
+              href={botdPath(bookOfTheDay.date)}
+              imageUrl={bookOfTheDay.book.coverUrl ?? ""}
+              imageAlt={bookOfTheDay.book.title}
+              title={bookOfTheDay.book.title}
+              subtitle={bookOfTheDay.book.artist?.displayName}
+              className="w-full max-w-none"
+            />
+            {bookOfTheDay.spotlightBlurb ? (
+              <ExpandableDescription text={bookOfTheDay.spotlightBlurb} />
+            ) : null}
+          </section>
+        );
+      })}
 
       {artistOfTheWeek ? (
-        <ThisWeekCreatorSpotlight spotlight={artistOfTheWeek} />
-      ) : null}
+        <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
+          <SectionTitle>
+            Artist of the Week {toDateString(artistOfTheWeek.weekStart)}
+          </SectionTitle>
+          <SpotlightCard
+            href={aotwPath(artistOfTheWeek.weekStart)}
+            imageUrl={
+              artistOfTheWeek.featuredImageUrl ??
+              artistOfTheWeek.creator.coverUrl ??
+              ""
+            }
+            imageAlt={artistOfTheWeek.creator.displayName}
+            title={artistOfTheWeek.creator.displayName}
+            subtitle={artistOfTheWeek.creator.city ?? undefined}
+            className="w-full max-w-none"
+          />
+          {artistOfTheWeek.spotlightBlurb ? (
+            <ExpandableDescription text={artistOfTheWeek.spotlightBlurb} />
+          ) : null}
+        </section>
+      ) : // <ThisWeekCreatorSpotlight spotlight={artistOfTheWeek} />
+      null}
 
       {publisherOfTheWeek ? (
-        <ThisWeekCreatorSpotlight spotlight={publisherOfTheWeek} />
+        <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
+          <SectionTitle>
+            Publisher of the Week {toDateString(publisherOfTheWeek.weekStart)}
+          </SectionTitle>
+          <SpotlightCard
+            href={potwPath(publisherOfTheWeek.weekStart)}
+            imageUrl={
+              publisherOfTheWeek.featuredImageUrl ??
+              publisherOfTheWeek.creator.coverUrl ??
+              ""
+            }
+            imageAlt={publisherOfTheWeek.creator.displayName}
+            title={publisherOfTheWeek.creator.displayName}
+            subtitle={publisherOfTheWeek.creator.city ?? undefined}
+            className="w-full max-w-none"
+          />
+          {publisherOfTheWeek.spotlightBlurb ? (
+            <ExpandableDescription text={publisherOfTheWeek.spotlightBlurb} />
+          ) : null}
+        </section>
       ) : null}
 
       <NewsletterCard />
@@ -105,84 +166,3 @@ const ThisWeekDetail = async ({
 };
 
 export default ThisWeekDetail;
-
-const ThisWeekBookEntry = ({ entry }: { entry: BookOfTheDayWithBook }) => {
-  const { book } = entry;
-
-  return (
-    <div class="flex gap-4 border-t border-outline pt-4">
-      {book.coverUrl ? (
-        <a href={botdPath(entry.date)} class="shrink-0 transition-opacity hover:opacity-80">
-          <img
-            src={book.coverUrl}
-            alt={book.title}
-            class="aspect-3/4 w-24 object-cover border border-outline"
-          />
-        </a>
-      ) : null}
-      <div class="flex min-w-0 flex-1 flex-col gap-1">
-        <p class="kicker text-accent">{toDateString(entry.date)}</p>
-        <a
-          href={botdPath(entry.date)}
-          class="text-pretty font-display text-xl font-medium text-on-surface-strong transition-opacity hover:opacity-80 hover:underline decoration-accent decoration-1 underline-offset-4"
-        >
-          {book.title}
-        </a>
-        {book.artist ? (
-          <div class="flex flex-col items-start gap-2">
-            <p class="truncate text-sm text-on-surface">
-              {book.artist.displayName}
-            </p>
-            <a href={`/books/${book.slug}`}>
-              <Button variant="outline" color="primary" width="md">
-                View Book
-              </Button>
-            </a>
-          </div>
-        ) : (
-          <a href={`/books/${book.slug}`}>
-            <Button variant="outline" color="primary" width="md">
-              View Book
-            </Button>
-          </a>
-        )}
-      </div>
-    </div>
-  );
-};
-
-type ThisWeekCreatorSpotlightProps = {
-  spotlight: ArtistOfTheWeekWithCreator | PublisherOfTheWeekWithCreator;
-};
-
-const ThisWeekCreatorSpotlight = async ({
-  spotlight,
-}: ThisWeekCreatorSpotlightProps) => {
-  const { creator } = spotlight;
-  const role = capitalize(creator.type);
-  const title = `${role} of the Week`;
-  const image =
-    spotlight.featuredImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
-
-  return (
-    <section class="flex flex-col gap-6">
-      <SectionTitle>{title}</SectionTitle>
-
-      {image ? (
-        <img
-          src={image}
-          alt={creator.displayName}
-          class="w-full rounded-radius object-cover"
-        />
-      ) : null}
-
-      {creator.tagline?.trim() ? (
-        <p class="text-pretty text-sm font-medium text-on-surface-strong">
-          {creator.tagline.trim()}
-        </p>
-      ) : null}
-
-      <SpotlightCreatorLink creator={creator as Creator} role={role} />
-    </section>
-  );
-};

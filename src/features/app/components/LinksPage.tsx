@@ -7,7 +7,7 @@ import { BookOfTheDayWithBook } from "../BOTDServices";
 import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
 import { PublisherOfTheWeekWithCreator } from "../POTWServices";
 import { aotwPath, botdPath, potwPath } from "../spotlightUrls";
-import { formatDate } from "../../../utils";
+import ExpandableDescription from "./ExpandableDescription";
 
 type Props = {
   bookOfTheDay: BookOfTheDayWithBook | null;
@@ -81,7 +81,7 @@ const LinksPage = ({
       </nav>
 
       {bookOfTheDay ? (
-        <section class="flex flex-col items-center gap-4">
+        <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
           <SectionTitle>Book of the Day</SectionTitle>
           <SpotlightCard
             href={botdPath(bookOfTheDay.date)}
@@ -91,11 +91,14 @@ const LinksPage = ({
             subtitle={bookOfTheDay.book.artist?.displayName}
             className={cardClassName}
           />
+          {bookOfTheDay.spotlightBlurb ? (
+            <ExpandableDescription text={bookOfTheDay.spotlightBlurb} />
+          ) : null}
         </section>
       ) : null}
 
       {artistOfTheWeek ? (
-        <section class="flex flex-col items-center gap-4">
+        <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
           <SectionTitle>Artist of the Week</SectionTitle>
           <SpotlightCard
             href={aotwPath(artistOfTheWeek.weekStart)}
@@ -117,11 +120,14 @@ const LinksPage = ({
             aspectSquare
             className={cardClassName}
           />
+          {artistOfTheWeek.spotlightBlurb ? (
+            <ExpandableDescription text={artistOfTheWeek.spotlightBlurb} />
+          ) : null}
         </section>
       ) : null}
 
       {publisherOfTheWeek ? (
-        <section class="flex flex-col items-center gap-4">
+        <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
           <SectionTitle>Publisher of the Week</SectionTitle>
           <SpotlightCard
             href={potwPath(publisherOfTheWeek.weekStart)}
@@ -143,11 +149,14 @@ const LinksPage = ({
             aspectSquare
             className={cardClassName}
           />
+          {publisherOfTheWeek.spotlightBlurb ? (
+            <ExpandableDescription text={publisherOfTheWeek.spotlightBlurb} />
+          ) : null}
         </section>
       ) : null}
 
       {newlyVerifiedCreators.length > 0 ? (
-        <section class="flex w-full flex-col items-center gap-4">
+        <section class="flex flex-col items-center gap-4 my-4 border-t border-b border-outline py-4">
           <SectionTitle>New on photobookers</SectionTitle>
           <nav
             class="flex w-full flex-col gap-3"
@@ -168,7 +177,7 @@ const LinksPage = ({
         </section>
       ) : null}
 
-      <a href="/featured" class="mx-auto">
+      <a href="/featured" class="mx-auto ">
         <Button variant="outline" color="primary" width="auto">
           Visit Photobookers
         </Button>

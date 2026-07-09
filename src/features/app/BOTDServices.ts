@@ -16,7 +16,7 @@ export async function getBookOfTheDayForDate(date: Date) {
       where: eq(bookOfTheDay.date, day),
       with: {
         book: {
-          columns: BOOK_CARD_COLUMNS,
+          columns: { ...BOOK_CARD_COLUMNS, description: true },
           with: {
             artist: { columns: CREATOR_CARD_COLUMNS },
             publisher: { columns: CREATOR_CARD_COLUMNS },
@@ -95,7 +95,7 @@ export async function getBooksOfTheDayInRange(start: Date, end: Date) {
       orderBy: [bookOfTheDay.date],
       with: {
         book: {
-          columns: BOOK_CARD_COLUMNS,
+          columns: { ...BOOK_CARD_COLUMNS, description: true },
           with: {
             artist: { columns: CREATOR_CARD_COLUMNS },
             publisher: { columns: CREATOR_CARD_COLUMNS },

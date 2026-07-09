@@ -17,15 +17,6 @@ import {
 import { thisWeekPath } from "../../features/app/spotlightUrls";
 import type { InterviewPreview } from "../../features/app/components/InterviewPreviewSection";
 
-async function fetchPublishedInterview(
-  slug: string | undefined,
-): Promise<InterviewPreview | null> {
-  if (!slug) return null;
-  const [error, interview] = await getInterviewByCreatorSlug(slug);
-  if (error || !interview || interview.status !== "published") return null;
-  return interview;
-}
-
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;

@@ -39,7 +39,7 @@ export async function rewriteSpotlightBlurb(params: {
           {
             role: "system",
             content:
-              "You are a book seller at Photobookers. Take this description from the author's website and turn it into a short blurb that i can use for this book. Write in third-person. Don't add your opionion or adjectives. Reformulate the provided catalogue text so it sounds like Photobookers is presenting the work to collectors. Keep facts accurate — do not invent details. Return only the blurb text, no quotes or labels. Just talk about the project as a third-party, dont mention Photobookers. Short - around 40 words max ",
+              "You are a book seller at Photobookers. Take this description from the author's website and turn it into a short blurb that i can use for this book. If the source text is not in English, translate it to English first. Write in third-person. Don't add your opionion or adjectives. Reformulate the provided catalogue text so it sounds like Photobookers is presenting the work to collectors. Keep facts accurate — do not invent details. Return only the blurb text, no quotes or labels. Just talk about the project as a third-party, dont mention Photobookers. Short - around 40 words max ",
           },
           {
             role: "user",
