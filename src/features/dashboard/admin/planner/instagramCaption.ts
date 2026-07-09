@@ -30,25 +30,37 @@ export type CreatorSpotlightForCaption = {
 
 export function buildDefaultArtistInstagramCaption(
   creator: CreatorSpotlightForCaption,
+  spotlightBlurb?: string | null,
 ): string {
-  return buildDefaultCreatorSpotlightInstagramCaption(creator, "artist");
+  return buildDefaultCreatorSpotlightInstagramCaption(
+    creator,
+    "artist",
+    spotlightBlurb,
+  );
 }
 
 export function buildDefaultPublisherInstagramCaption(
   creator: CreatorSpotlightForCaption,
+  spotlightBlurb?: string | null,
 ): string {
-  return buildDefaultCreatorSpotlightInstagramCaption(creator, "publisher");
+  return buildDefaultCreatorSpotlightInstagramCaption(
+    creator,
+    "publisher",
+    spotlightBlurb,
+  );
 }
 
 function buildDefaultCreatorSpotlightInstagramCaption(
   creator: CreatorSpotlightForCaption,
   type: "artist" | "publisher",
+  spotlightBlurb?: string | null,
 ): string {
   const label =
     type === "artist" ? "Artist of the Week" : "Publisher of the Week";
   const lines = [label, "", creator.displayName];
-  if (creator.bio?.trim()) {
-    lines.push("", creator.bio.trim());
+  const blurb = spotlightBlurb?.trim() || creator.bio?.trim();
+  if (blurb) {
+    lines.push("", blurb);
   }
   const handle = formatInstagramHandle(creator.instagram);
   if (handle) lines.push("", handle);
@@ -259,15 +271,25 @@ export function buildPublisherPostStickerText(
 export function buildBotdInstagramCaption(
   book: BookForCaption,
   storedCaption?: string | null,
+  spotlightBlurb?: string | null,
 ): string {
-  if (!storedCaption?.trim()) {
-    return buildDefaultInstagramCaption(book);
+  const blurb = spotlightBlurb?.trim();
+  if (!storedCaption?.trim() || blurb) {
+    return buildDefaultInstagramCaption(book, { spotlightBlurb: blurb });
   }
   return ensureBookTagsInCaption(storedCaption, book.tags);
 }
 
-export function buildDefaultInstagramCaption(book: BookForCaption): string {
+export function buildDefaultInstagramCaption(
+  book: BookForCaption,
+  options?: { spotlightBlurb?: string | null },
+): string {
   const lines = ["Book of the Day", "", book.title];
+
+  const blurb = options?.spotlightBlurb?.trim();
+  if (blurb) {
+    lines.push("", blurb);
+  }
 
   if (book.artist?.displayName) {
     const artistHandle = formatInstagramHandle(book.artist.instagram);

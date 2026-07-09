@@ -58,8 +58,8 @@ export const GET = createRoute(async (c) => {
 
   const shareImage =
     botdEntries[0]?.book.coverUrl ??
-    artistOfTheWeek?.instagramImageUrl ??
-    publisherOfTheWeek?.instagramImageUrl ??
+    artistOfTheWeek?.featuredImageUrl ??
+    publisherOfTheWeek?.featuredImageUrl ??
     artistOfTheWeek?.creator.coverUrl ??
     publisherOfTheWeek?.creator.coverUrl ??
     undefined;

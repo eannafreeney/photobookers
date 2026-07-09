@@ -4,6 +4,7 @@ export type WeeklyNewsletterBookItem = {
   bookSlug: string;
   title: string;
   coverUrl: string | null;
+  blurb: string | null;
   artistName: string | null;
   artistSlug: string | null;
   publisherName: string | null;
@@ -17,6 +18,7 @@ export type WeeklyNewsletterCreatorSpotlight = {
   weekKey: string;
   coverUrl: string | null;
   tagline: string | null;
+  blurb: string | null;
   location: string | null;
 } | null;
 

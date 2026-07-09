@@ -162,7 +162,7 @@ const ThisWeekCreatorSpotlight = async ({
   const role = capitalize(creator.type);
   const title = `${role} of the Week`;
   const image =
-    spotlight.instagramImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
+    spotlight.featuredImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
 
   return (
     <section class="flex flex-col gap-6">

@@ -137,6 +137,19 @@ export function getInstagramPrepReminderScheduledDate(weekStart: Date): Date {
   return addUtcDays(toWeekStart(weekStart), -2);
 }
 
+/** Content preview email sends three days before ISO week start (Friday before Monday week). */
+export function getContentPreviewEmailScheduledDate(weekStart: Date): Date {
+  return addUtcDays(toWeekStart(weekStart), -3);
+}
+
+/** Week start to prep when the cron runs on `asOf`, or null if not reminder day. */
+export function getContentPreviewWeekStartForDate(asOf: Date): Date | null {
+  const today = toUtcStartOfDay(asOf);
+  const weekStart = addUtcDays(today, 3);
+  if (weekStart.getUTCDay() !== 1) return null;
+  return toWeekStart(weekStart);
+}
+
 /** Week start to check when the cron runs on `asOf`, or null if not reminder day. */
 export function getInstagramPrepReminderWeekStart(asOf: Date): Date | null {
   const today = toUtcStartOfDay(asOf);

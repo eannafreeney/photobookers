@@ -12,7 +12,6 @@ import {
 import BOTDCard from "./BOTDCard";
 import AOTWCard from "./AOTWCard";
 import POTWCard from "./POTWCard";
-import { getNewsletterRangeStartForPlannerWeek } from "../newsletter/utils";
 import { formatWeekRange, getWeekDays } from "../utils";
 import RandomizeBOTDButton from "./RandomizeBOTDButton";
 
@@ -23,6 +22,8 @@ type Props = {
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
   newsletterStatus: NewsletterCampaignStatus | null;
+  newsletterCampaignId: string | null;
+  newsletterWeekStart: Date;
   instagramPrepared: boolean;
   interviewByCreatorId: Map<string, CreatorInterview> | null;
 };
@@ -34,6 +35,8 @@ const WeekCard = ({
   artistOfTheWeek,
   publisherOfTheWeek,
   newsletterStatus,
+  newsletterCampaignId,
+  newsletterWeekStart,
   instagramPrepared,
   interviewByCreatorId,
 }: Props) => {
@@ -45,6 +48,8 @@ const WeekCard = ({
         weekStart={weekStart}
         weekNumber={weekNumber}
         newsletterStatus={newsletterStatus}
+        newsletterCampaignId={newsletterCampaignId}
+        newsletterWeekStart={newsletterWeekStart}
         instagramPrepared={instagramPrepared}
         botdByDate={botdByDate}
       />
@@ -84,6 +89,8 @@ type WeekCardHeaderProps = {
   weekStart: Date;
   weekNumber: number;
   newsletterStatus: NewsletterCampaignStatus | null;
+  newsletterCampaignId: string | null;
+  newsletterWeekStart: Date;
   instagramPrepared: boolean;
   botdByDate: Map<string, BookOfTheDayWithBook>;
 };
@@ -117,19 +124,26 @@ const newsletterButtonLabel = (status: NewsletterCampaignStatus | null) => {
   return "Weekly newsletter";
 };
 
+const secondaryButtonClasses =
+  "rounded border border-outline bg-surface-alt px-2 py-1 text-xs font-medium text-on-surface opacity-80 hover:bg-surface";
+
 const WeekCardHeader = ({
   weekStart,
   weekNumber,
   newsletterStatus,
+  newsletterCampaignId,
+  newsletterWeekStart,
   instagramPrepared,
   botdByDate,
 }: WeekCardHeaderProps) => {
   const buttonLabel = newsletterButtonLabel(newsletterStatus);
   const weekKey = toWeekString(weekStart);
-  const newsletterWeekStart = getNewsletterRangeStartForPlannerWeek(weekStart);
   const instagramLabel = instagramPrepared
     ? "Edit Instagram"
     : "Prepare Instagram";
+  const newsletterHref = newsletterCampaignId
+    ? `/dashboard/admin/planner/newsletters?campaignId=${newsletterCampaignId}`
+    : `/dashboard/admin/planner/newsletters?weekStart=${toDateString(newsletterWeekStart)}`;
 
   return (
     <div class="flex items-center justify-between gap-2 p-3 border-b border-outline">
@@ -146,7 +160,7 @@ const WeekCardHeader = ({
         <a
           href={`/dashboard/admin/planner/featured-hero/${weekKey}/prepare`}
           x-target="modal-root"
-          class="rounded border border-outline bg-surface-alt px-2 py-1 text-xs font-medium text-on-surface opacity-80 hover:bg-surface"
+          class={secondaryButtonClasses}
         >
           Featured hero
         </a>
@@ -158,7 +172,7 @@ const WeekCardHeader = ({
           {instagramLabel}
         </a>
         <a
-          href={`/dashboard/admin/planner/newsletters?weekStart=${toDateString(newsletterWeekStart)}`}
+          href={newsletterHref}
           class={newsletterButtonClasses(newsletterStatus)}
         >
           {buttonLabel}

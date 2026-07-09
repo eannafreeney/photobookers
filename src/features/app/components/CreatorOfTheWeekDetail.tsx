@@ -27,6 +27,7 @@ type Props = {
   weekStart: Date;
   publishedInterview: InterviewPreview | null;
   books: BookCardResult[];
+  spotlightBlurb?: string | null;
 };
 
 const CreatorOfTheWeekDetail = async ({
@@ -35,10 +36,11 @@ const CreatorOfTheWeekDetail = async ({
   weekStart,
   publishedInterview,
   books,
+  spotlightBlurb,
 }: Props) => {
   const role = capitalize(creator.type);
   const title = `${role} of the Week`;
-  const bio = creator.bio?.trim() || null;
+  const bio = spotlightBlurb?.trim() || creator.bio?.trim() || null;
   const isSingleBook = books.length === 1;
   const location = formatCreatorLocation(creator.city, creator.country);
   const spotlightUrl =

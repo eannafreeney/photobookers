@@ -51,7 +51,10 @@ export const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
   }
 
   const { book } = bookResult;
-  const editorial = bookOfTheDay.instagramCaption?.trim() || null;
+  const editorial =
+    bookOfTheDay.spotlightBlurb?.trim() ||
+    bookOfTheDay.instagramCaption?.trim() ||
+    null;
 
   const path = botdPath(date);
   const title = pageTitle(`Book of the Day — ${book.title}`);
@@ -94,6 +97,7 @@ export const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
           isMobile={isMobile}
           user={user}
           date={date}
+          spotlightBlurb={bookOfTheDay.spotlightBlurb}
         />
         <a href="/book-of-the-day" class="mx-auto">
           <Button variant="outline" color="primary" width="auto">

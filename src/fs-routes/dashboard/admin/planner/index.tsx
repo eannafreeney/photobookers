@@ -25,7 +25,7 @@ export const GET = createRoute(async (c) => {
     artistLoadError,
     publisherByWeekStart,
     publisherLoadError,
-    newsletterStatusByWeekStart,
+    newsletterByWeekStart,
     instagramPreparedByWeekStart,
     interviewByCreatorId,
   } = await loadPlannerYearData(year);
@@ -59,8 +59,12 @@ export const GET = createRoute(async (c) => {
                 const artistOfTheWeek = artistByWeekStart?.get(key) ?? null;
                 const publisherOfTheWeek =
                   publisherByWeekStart?.get(key) ?? null;
-                const newsletterStatus =
-                  newsletterStatusByWeekStart.get(key) ?? null;
+                const newsletter =
+                  newsletterByWeekStart.get(key) ?? {
+                    status: null,
+                    campaignId: null,
+                    weekStart,
+                  };
                 const instagramPrepared =
                   instagramPreparedByWeekStart.get(key) ?? false;
 
@@ -72,7 +76,9 @@ export const GET = createRoute(async (c) => {
                     botdByDate={botdByDate}
                     artistOfTheWeek={artistOfTheWeek}
                     publisherOfTheWeek={publisherOfTheWeek}
-                    newsletterStatus={newsletterStatus}
+                    newsletterStatus={newsletter.status}
+                    newsletterCampaignId={newsletter.campaignId}
+                    newsletterWeekStart={newsletter.weekStart}
                     instagramPrepared={instagramPrepared}
                     interviewByCreatorId={interviewByCreatorId}
                   />

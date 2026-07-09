@@ -4,6 +4,7 @@ import {
   runBotdAdvanceNotificationEmails,
   runBotdFeatureDayEmails,
 } from "../domain/planner/cron/botdEmailServices";
+import { runContentPreviewEmail } from "../domain/planner/cron/contentPreviewEmailServices";
 import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramReminderEmailServices";
 import { runWeeklyNewsletterCron } from "../domain/planner/cron/newsletterCronServices";
 import { runSpotlightCreatorEmails } from "../domain/planner/cron/spotlightEmailServices";
@@ -48,6 +49,7 @@ export type CronJobName =
   | "notify-followers-new-posts"
   | "weekly-botd-newsletter"
   | "instagram-prep-reminder-email"
+  | "planner-content-preview-email"
   | "creator-analytics-digest"
   | "creator-milestone-emails"
   | "stub-outreach-emails"
@@ -64,6 +66,7 @@ export const CRON_JOB_NAMES = [
   "notify-followers-new-posts",
   "weekly-botd-newsletter",
   "instagram-prep-reminder-email",
+  "planner-content-preview-email",
   "creator-analytics-digest",
   "creator-milestone-emails",
   "stub-outreach-emails",
@@ -233,6 +236,24 @@ export async function runInstagramPrepReminderEmailCron(
   });
 }
 
+export async function runPlannerContentPreviewEmailCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const asOf = options.date ?? new Date();
+  const [error, result] = await runContentPreviewEmail(asOf, {
+    dryRun: options.dryRun,
+    force: options.force,
+    weekStart: options.weekStart,
+  });
+  if (error) return err(error);
+  return ok({
+    previewEmailSent: result.previewEmailSent,
+    weekStart: result.weekStart ? toWeekString(result.weekStart) : null,
+    prepWarnings: result.prepWarnings,
+    outcome: result.outcome,
+  });
+}
+
 export async function runCreatorAnalyticsDigestCronJob(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
@@ -312,6 +333,7 @@ const RUNNERS: Record<
   "notify-followers-new-posts": () => runNotifyFollowersNewPostsCron(),
   "weekly-botd-newsletter": runWeeklyBotdNewsletterCron,
   "instagram-prep-reminder-email": runInstagramPrepReminderEmailCron,
+  "planner-content-preview-email": runPlannerContentPreviewEmailCron,
   "creator-analytics-digest": runCreatorAnalyticsDigestCronJob,
   "creator-milestone-emails": runCreatorMilestoneEmailsCronJob,
   "stub-outreach-emails": runStubOutreachEmailsCron,

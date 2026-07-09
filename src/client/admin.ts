@@ -6,6 +6,7 @@ import { registerEditCreatorFormAdmin } from "../features/dashboard/admin/creato
 import { registerNewUserForm } from "../features/dashboard/admin/users/client/newUserForm";
 import { registerAOTWForm } from "../features/dashboard/admin/planner/client/aotwForm";
 import { registerPOTWForm } from "../features/dashboard/admin/planner/client/potwForm";
+import { registerSpotlightBlurbModal } from "../features/dashboard/admin/planner/client/spotlightBlurbModal";
 import { registerAdminNotificationsBadge } from "../features/dashboard/admin/notifications/client/adminNotificationsBadge";
 import { registerAdminClaimsBadge } from "../features/dashboard/admin/claims/client/adminClaimsBadge";
 import { registerEditInterviewForm } from "../features/dashboard/admin/interviews/client/editInterviewForm";
@@ -27,6 +28,7 @@ registerEditCreatorFormAdmin();
 registerNewUserForm();
 registerAOTWForm();
 registerPOTWForm();
+registerSpotlightBlurbModal();
 registerAdminNotificationsBadge();
 registerEditInterviewForm();
 registerFairCoverForm();

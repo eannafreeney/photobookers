@@ -7,12 +7,12 @@ vi.mock("../../db/client", () => ({
 import { buildHeroCarouselItems } from "./utils";
 
 describe("buildHeroCarouselItems", () => {
-  it("prefers curated instagramImageUrl for spotlight slides", () => {
+  it("prefers curated featuredImageUrl for spotlight slides", () => {
     const bookOfTheDay = {
       id: "botd-1",
       date: new Date("2026-06-30T00:00:00.000Z"),
       bookId: "book-1",
-      instagramImageUrl: "https://example.com/curated-botd.jpg",
+      featuredImageUrl: "https://example.com/curated-botd.jpg",
       book: {
         id: "book-1",
         title: "Test Book",
@@ -27,7 +27,7 @@ describe("buildHeroCarouselItems", () => {
       id: "aotw-1",
       weekStart: new Date("2026-06-30T00:00:00.000Z"),
       creatorId: "artist-1",
-      instagramImageUrl: "https://example.com/curated-artist.jpg",
+      featuredImageUrl: "https://example.com/curated-artist.jpg",
       creator: {
         id: "artist-1",
         displayName: "Jane Doe",
@@ -41,7 +41,7 @@ describe("buildHeroCarouselItems", () => {
       id: "potw-1",
       weekStart: new Date("2026-06-30T00:00:00.000Z"),
       creatorId: "publisher-1",
-      instagramImageUrl: "https://example.com/curated-publisher.jpg",
+      featuredImageUrl: "https://example.com/curated-publisher.jpg",
       creator: {
         id: "publisher-1",
         displayName: "Acme Press",

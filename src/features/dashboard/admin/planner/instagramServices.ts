@@ -41,6 +41,8 @@ import {
   buildDefaultCreatorInstagramFirstComment,
   buildDefaultInstagramFirstComment,
   buildSpotlightStoryStickerText,
+  collectBookImageOptions,
+  collectCreatorImageOptions,
   ensureBookTagsInCaption,
 } from "./instagramCaption";
 import {
@@ -94,7 +96,7 @@ const BOOK_WITH_CREATORS_FOR_INSTAGRAM = {
 } as const;
 
 const clearInstagramFields = {
-  instagramImageUrl: null,
+  featuredImageUrl: null,
   instagramCaption: null,
   instagramPreparedAt: null,
   instagramBufferPostId: null,
@@ -211,7 +213,7 @@ export async function saveWeekInstagramPreparation(
       const [row] = await db
         .update(bookOfTheDay)
         .set({
-          instagramImageUrl: entry.imageUrl,
+          featuredImageUrl: entry.imageUrl,
           instagramCaption: caption,
           instagramPreparedAt: now,
           instagramError: null,
@@ -233,7 +235,7 @@ export async function saveWeekInstagramPreparation(
       const [row] = await db
         .update(artistOfTheWeek)
         .set({
-          instagramImageUrl: payload.artist.imageUrl,
+          featuredImageUrl: payload.artist.imageUrl,
           instagramCaption: payload.artist.caption,
           instagramPreparedAt: now,
           instagramError: null,
@@ -256,7 +258,7 @@ export async function saveWeekInstagramPreparation(
       const [row] = await db
         .update(publisherOfTheWeek)
         .set({
-          instagramImageUrl: payload.publisher.imageUrl,
+          featuredImageUrl: payload.publisher.imageUrl,
           instagramCaption: payload.publisher.caption,
           instagramPreparedAt: now,
           instagramError: null,
@@ -304,7 +306,7 @@ export async function saveWeekFeaturedHeroImages(
       const [row] = await db
         .update(bookOfTheDay)
         .set({
-          instagramImageUrl: entry.imageUrl,
+          featuredImageUrl: entry.imageUrl,
           updatedAt: now,
         })
         .where(eq(bookOfTheDay.date, toUtcStartOfDay(entry.date)))
@@ -323,7 +325,7 @@ export async function saveWeekFeaturedHeroImages(
       const [row] = await db
         .update(artistOfTheWeek)
         .set({
-          instagramImageUrl: payload.artist.imageUrl,
+          featuredImageUrl: payload.artist.imageUrl,
           updatedAt: now,
         })
         .where(eq(artistOfTheWeek.weekStart, normalizedWeekStart))
@@ -343,7 +345,7 @@ export async function saveWeekFeaturedHeroImages(
       const [row] = await db
         .update(publisherOfTheWeek)
         .set({
-          instagramImageUrl: payload.publisher.imageUrl,
+          featuredImageUrl: payload.publisher.imageUrl,
           updatedAt: now,
         })
         .where(eq(publisherOfTheWeek.weekStart, normalizedWeekStart))
@@ -361,11 +363,80 @@ export async function saveWeekFeaturedHeroImages(
   }
 }
 
+export async function ensureWeekFeaturedImages(
+  weekStart: Date,
+): Promise<Result<{ saved: number }, { reason: string }>> {
+  const normalizedWeekStart = toWeekStart(weekStart);
+
+  const [loadError, weekData] =
+    await getWeekInstagramForPrepare(normalizedWeekStart);
+  if (loadError) return err({ reason: loadError.reason });
+
+  const now = new Date();
+  let saved = 0;
+
+  try {
+    for (const entry of weekData.botdEntries) {
+      if (entry.featuredImageUrl || !entry.book) continue;
+      const imageUrl = collectBookImageOptions(entry.book)[0];
+      if (!imageUrl) continue;
+
+      const [row] = await db
+        .update(bookOfTheDay)
+        .set({ featuredImageUrl: imageUrl, updatedAt: now })
+        .where(eq(bookOfTheDay.date, toUtcStartOfDay(entry.date)))
+        .returning();
+      if (row) saved += 1;
+    }
+
+    if (
+      weekData.artistOfTheWeek &&
+      !weekData.artistOfTheWeek.featuredImageUrl
+    ) {
+      const imageUrl = collectCreatorImageOptions(
+        weekData.artistOfTheWeek.creator,
+        weekData.artistBookCoverUrls,
+      )[0];
+      if (imageUrl) {
+        const [row] = await db
+          .update(artistOfTheWeek)
+          .set({ featuredImageUrl: imageUrl, updatedAt: now })
+          .where(eq(artistOfTheWeek.weekStart, normalizedWeekStart))
+          .returning();
+        if (row) saved += 1;
+      }
+    }
+
+    if (
+      weekData.publisherOfTheWeek &&
+      !weekData.publisherOfTheWeek.featuredImageUrl
+    ) {
+      const imageUrl = collectCreatorImageOptions(
+        weekData.publisherOfTheWeek.creator,
+        weekData.publisherBookCoverUrls,
+      )[0];
+      if (imageUrl) {
+        const [row] = await db
+          .update(publisherOfTheWeek)
+          .set({ featuredImageUrl: imageUrl, updatedAt: now })
+          .where(eq(publisherOfTheWeek.weekStart, normalizedWeekStart))
+          .returning();
+        if (row) saved += 1;
+      }
+    }
+
+    return ok({ saved });
+  } catch (e) {
+    console.error("ensureWeekFeaturedImages", e);
+    return err({ reason: "Failed to set default featured images" });
+  }
+}
+
 function hasInstagramPrepData(row: {
   instagramPreparedAt?: Date | null;
   instagramQueuedAt?: Date | null;
   instagramCaption?: string | null;
-  instagramImageUrl?: string | null;
+  featuredImageUrl?: string | null;
   instagramBufferPostId?: string | null;
   instagramStoryQueuedAt?: Date | null;
   instagramStoryBufferPostId?: string | null;
@@ -374,7 +445,7 @@ function hasInstagramPrepData(row: {
     row.instagramPreparedAt ||
     row.instagramQueuedAt ||
     row.instagramCaption ||
-    row.instagramImageUrl ||
+    row.featuredImageUrl ||
     row.instagramBufferPostId ||
     row.instagramStoryQueuedAt ||
     row.instagramStoryBufferPostId,
@@ -502,7 +573,7 @@ export async function queuePreparedBotdInstagramForDate(
       .set({ ...clearFeedQueueFields, updatedAt: new Date() })
       .where(eq(bookOfTheDay.id, row.id));
   }
-  if (!row.instagramImageUrl || !row.instagramCaption) {
+  if (!row.featuredImageUrl || !row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
   }
 
@@ -520,7 +591,7 @@ export async function queuePreparedBotdInstagramForDate(
 
   const [bufferError, bufferData] = await bufferCreateScheduledImagePost({
     text,
-    imageUrl: row.instagramImageUrl,
+    imageUrl: row.featuredImageUrl,
     dueAt,
     firstComment,
   });
@@ -580,7 +651,7 @@ export async function queuePreparedBotdInstagramStoryForDate(
       .set({ ...clearStoryQueueFields, updatedAt: new Date() })
       .where(eq(bookOfTheDay.id, row.id));
   }
-  if (!row.instagramImageUrl || !row.instagramCaption) {
+  if (!row.featuredImageUrl || !row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
   }
 
@@ -592,7 +663,7 @@ export async function queuePreparedBotdInstagramStoryForDate(
 
   const [bufferError, bufferData] = await bufferCreateScheduledStory({
     caption: baseCaption,
-    imageUrl: row.instagramImageUrl,
+    imageUrl: row.featuredImageUrl,
     dueAt,
     stickerFields: row.book
       ? buildBotdStoryStickerFields(row.book)
@@ -626,7 +697,7 @@ async function queueSpotlightRow(params: {
     instagramPreparedAt: Date | null;
     instagramQueuedAt: Date | null;
     instagramBufferPostId: string | null;
-    instagramImageUrl: string | null;
+    featuredImageUrl: string | null;
     instagramCaption: string | null;
     creator: {
       displayName: string;
@@ -652,7 +723,7 @@ async function queueSpotlightRow(params: {
       .set({ ...clearFeedQueueFields, updatedAt: new Date() })
       .where(eq(params.table.id, params.row.id));
   }
-  if (!params.row.instagramImageUrl || !params.row.instagramCaption) {
+  if (!params.row.featuredImageUrl || !params.row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
   }
 
@@ -665,7 +736,7 @@ async function queueSpotlightRow(params: {
 
   const [bufferError, bufferData] = await bufferCreateScheduledImagePost({
     text: params.row.instagramCaption,
-    imageUrl: params.row.instagramImageUrl,
+    imageUrl: params.row.featuredImageUrl,
     dueAt,
     firstComment,
   });
@@ -709,7 +780,7 @@ async function queueSpotlightStoryRow(params: {
     instagramPreparedAt: Date | null;
     instagramStoryQueuedAt: Date | null;
     instagramStoryBufferPostId: string | null;
-    instagramImageUrl: string | null;
+    featuredImageUrl: string | null;
     instagramCaption: string | null;
     creator: {
       displayName: string;
@@ -736,7 +807,7 @@ async function queueSpotlightStoryRow(params: {
       .set({ ...clearStoryQueueFields, updatedAt: new Date() })
       .where(eq(params.table.id, params.row.id));
   }
-  if (!params.row.instagramImageUrl || !params.row.instagramCaption) {
+  if (!params.row.featuredImageUrl || !params.row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
   }
 
@@ -757,7 +828,7 @@ async function queueSpotlightStoryRow(params: {
 
   const [bufferError, bufferData] = await bufferCreateScheduledStory({
     caption: params.row.instagramCaption,
-    imageUrl: params.row.instagramImageUrl,
+    imageUrl: params.row.featuredImageUrl,
     dueAt,
     stickerFields: { text: stickerText },
     link: linksUrl(),

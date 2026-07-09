@@ -63,10 +63,12 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
   const title = pageTitle(`Publisher of the Week — ${creator.displayName}`);
   const interviewTeaser = publishedInterview?.answers?.q1?.trim();
   const description = truncateDescription(
-    interviewTeaser ?? creatorDescription(creator),
+    publisherOfTheWeek.spotlightBlurb?.trim() ??
+      interviewTeaser ??
+      creatorDescription(creator),
   );
   const shareImage =
-    publisherOfTheWeek.instagramImageUrl ??
+    publisherOfTheWeek.featuredImageUrl ??
     publishedInterview?.promoImageUrl ??
     creator.bannerUrl ??
     creator.coverUrl ??
@@ -105,6 +107,7 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
           weekStart={weekStart}
           publishedInterview={publishedInterview}
           books={booksResult.books}
+          spotlightBlurb={publisherOfTheWeek.spotlightBlurb}
         />
 
         <a href={`/publisher-of-the-week`} class="mx-auto">

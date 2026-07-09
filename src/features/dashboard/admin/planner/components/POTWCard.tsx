@@ -5,6 +5,7 @@ import DeleteButton from "./DeleteButton";
 import CreatorEmailBadge from "./CreatorEmailBadge";
 import SpotlightEmailStatusBadges from "./SpotlightEmailStatusBadges";
 import { CreatorInterview, PublisherOfTheWeek } from "../../../../../db/schema";
+import EditSpotlightBlurbButton from "./EditSpotlightBlurbButton";
 
 type PublisherOfTheWeekProps = {
   weekStart: Date;
@@ -98,6 +99,11 @@ const POTWCardContent = ({
           creatorId={publisher.id}
           email={publisher.email}
         />
+        <div class="flex justify-end">
+          <EditSpotlightBlurbButton
+            href={`/dashboard/admin/planner/spotlight-blurb/prepare?week=${encodeURIComponent(weekKey)}&key=potw`}
+          />
+        </div>
         {interview && (
           <p class="text-xs text-on-surface">
             Interview status: {interview.status}

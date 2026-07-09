@@ -489,6 +489,57 @@ function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
+export async function pickCreatorForSpotlightWeek(
+  type: "artist" | "publisher",
+) {
+  const creators = await getCreatorsByTypeForPlanner(type);
+  if (creators.length === 0) return null;
+
+  const verified = creators.filter((creator) => creator.status === "verified");
+  const pool = verified.length > 0 ? verified : creators;
+  return shuffle(pool)[0] ?? null;
+}
+
+export async function autoSetArtistOfTheWeek(weekStart: Date) {
+  const normalized = toWeekStart(weekStart);
+  const existing = await db.query.artistOfTheWeek.findFirst({
+    where: eq(artistOfTheWeek.weekStart, normalized),
+  });
+  if (existing) return ok({ created: false, row: existing });
+
+  const creator = await pickCreatorForSpotlightWeek("artist");
+  if (!creator) {
+    return err({ reason: "No eligible artist found for Artist of the Week" });
+  }
+
+  const row = await setArtistOfTheWeek({
+    weekStart: normalized,
+    creatorId: creator.id,
+  });
+  if (!row) return err({ reason: "Failed to set artist of the week" });
+  return ok({ created: true, row });
+}
+
+export async function autoSetPublisherOfTheWeek(weekStart: Date) {
+  const normalized = toWeekStart(weekStart);
+  const existing = await db.query.publisherOfTheWeek.findFirst({
+    where: eq(publisherOfTheWeek.weekStart, normalized),
+  });
+  if (existing) return ok({ created: false, row: existing });
+
+  const creator = await pickCreatorForSpotlightWeek("publisher");
+  if (!creator) {
+    return err({ reason: "No eligible publisher found for Publisher of the Week" });
+  }
+
+  const [pubError, row] = await setPublisherOfTheWeek({
+    weekStart: normalized,
+    creatorId: creator.id,
+  });
+  if (pubError) return err(pubError);
+  return ok({ created: true, row });
+}
+
 export async function randomizeBooksOfTheDayForWeek(weekStart: Date) {
   const days = getWeekDays(weekStart);
   const existing = await db.query.bookOfTheDay.findMany({

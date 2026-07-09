@@ -1,11 +1,12 @@
 import Link from "../../../../../components/app/Link";
-import { toDateString } from "../../../../../lib/utils";
+import { toDateString, toWeekString } from "../../../../../lib/utils";
 import { BookOfTheDayWithBook } from "../../../../app/BOTDServices";
 import { formatDayWeekday } from "../utils";
 import DeleteButton from "./DeleteButton";
 import ScheduleButton from "./ScheduleButton";
 import CreatorEmailBadge from "./CreatorEmailBadge";
 import BotdEmailStatusBadges from "./BotdEmailStatusBadges";
+import EditSpotlightBlurbButton from "./EditSpotlightBlurbButton";
 
 type BOTDCardProps = {
   date: Date;
@@ -14,6 +15,7 @@ type BOTDCardProps = {
 
 const BOTDCard = ({ date, bookOfTheDay }: BOTDCardProps) => {
   const dateKey = toDateString(date);
+  const weekKey = toWeekString(date);
   const dayLabel = formatDayWeekday(date);
 
   return (
@@ -22,7 +24,11 @@ const BOTDCard = ({ date, bookOfTheDay }: BOTDCardProps) => {
         {dayLabel} {date.getUTCDate()}
       </p>
       {bookOfTheDay?.book ? (
-        <BOTDCardContent dateKey={dateKey} bookOfTheDay={bookOfTheDay} />
+        <BOTDCardContent
+          dateKey={dateKey}
+          weekKey={weekKey}
+          bookOfTheDay={bookOfTheDay}
+        />
       ) : (
         <ScheduleButton
           href={`/dashboard/admin/planner/book-of-the-day/${dateKey}/create`}
@@ -37,10 +43,15 @@ export default BOTDCard;
 
 type BOTDCardContentProps = {
   dateKey: string;
+  weekKey: string;
   bookOfTheDay: BookOfTheDayWithBook;
 };
 
-const BOTDCardContent = ({ dateKey, bookOfTheDay }: BOTDCardContentProps) => {
+const BOTDCardContent = ({
+  dateKey,
+  weekKey,
+  bookOfTheDay,
+}: BOTDCardContentProps) => {
   const book = bookOfTheDay?.book ?? null;
   if (!book) return <></>;
   return (
@@ -100,6 +111,11 @@ const BOTDCardContent = ({ dateKey, bookOfTheDay }: BOTDCardContentProps) => {
       </div>
       <div class="mt-2 border-t border-outline pt-2 flex flex-col gap-2">
         <BotdEmailStatusBadges bookOfTheDay={bookOfTheDay} />
+        <div class="flex justify-end">
+          <EditSpotlightBlurbButton
+            href={`/dashboard/admin/planner/spotlight-blurb/prepare?week=${encodeURIComponent(weekKey)}&key=${encodeURIComponent(dateKey)}`}
+          />
+        </div>
       </div>
     </>
   );

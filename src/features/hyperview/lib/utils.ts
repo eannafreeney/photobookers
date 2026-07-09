@@ -29,7 +29,7 @@ export const getSpotlightItems = (
       label: "Artist of the Week",
       title: creator.displayName,
       imageUrl:
-        artistResult.instagramImageUrl ??
+        artistResult.featuredImageUrl ??
         creator.coverUrl ??
         creator.bannerUrl ??
         null,
@@ -44,7 +44,7 @@ export const getSpotlightItems = (
       label: "Publisher of the Week",
       title: creator.displayName,
       imageUrl:
-        publisherResult.instagramImageUrl ??
+        publisherResult.featuredImageUrl ??
         creator.coverUrl ??
         creator.bannerUrl ??
         null,

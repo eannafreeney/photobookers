@@ -57,7 +57,8 @@ const FeaturedHeroImagesModal = ({
         <div>
           <p class="mb-4 text-sm text-on-surface">
             These images appear in the featured page hero carousel and on
-            spotlight pages. Instagram posts use the same image when prepared.
+            spotlight pages. Instagram posts use the same featured image when
+            prepared.
           </p>
           <FormPost
             action={`/dashboard/admin/planner/featured-hero/${week}/prepare`}
@@ -72,7 +73,7 @@ const FeaturedHeroImagesModal = ({
 
                 const imageOptions = collectBookImageOptions(book);
                 const selectedImage =
-                  entry.instagramImageUrl ?? imageOptions[0] ?? "";
+                  entry.featuredImageUrl ?? imageOptions[0] ?? "";
 
                 return (
                   <HeroImageSection
@@ -97,7 +98,7 @@ const FeaturedHeroImagesModal = ({
                     artistBookCoverUrls,
                   )}
                   selectedImage={
-                    artistOfTheWeek.instagramImageUrl ??
+                    artistOfTheWeek.featuredImageUrl ??
                     collectCreatorImageOptions(
                       artistCreator,
                       artistBookCoverUrls,
@@ -118,7 +119,7 @@ const FeaturedHeroImagesModal = ({
                     publisherBookCoverUrls,
                   )}
                   selectedImage={
-                    publisherOfTheWeek.instagramImageUrl ??
+                    publisherOfTheWeek.featuredImageUrl ??
                     collectCreatorImageOptions(
                       publisherCreator,
                       publisherBookCoverUrls,

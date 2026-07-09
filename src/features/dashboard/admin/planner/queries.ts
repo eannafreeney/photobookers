@@ -14,9 +14,11 @@ import {
 } from "../../../../db/schema";
 import { and, desc, gte, inArray, lte } from "drizzle-orm";
 import { getWeekStarts } from "./utils";
-import { toDateString, toWeekString } from "../../../../lib/utils";
 import { getInstagramPreparedByWeekStart } from "./instagramServices";
-import { getNewsletterRangeStartForPlannerWeek } from "./newsletter/utils";
+import {
+  mapPlannerNewsletterByWeekStart,
+  type PlannerNewsletterWeekData,
+} from "./newsletterPlanner";
 
 export type PlannerYearData = {
   botdByDate: Awaited<ReturnType<typeof getBotdByDate>>;
@@ -27,7 +29,7 @@ export type PlannerYearData = {
     PublisherOfTheWeekWithCreator | null
   > | null;
   publisherLoadError: string | null;
-  newsletterStatusByWeekStart: Map<string, NewsletterCampaignStatus | null>;
+  newsletterByWeekStart: Map<string, PlannerNewsletterWeekData>;
   instagramPreparedByWeekStart: Map<string, boolean>;
   /** Latest interview per creator featured in this year's planner */
   interviewByCreatorId: Map<string, CreatorInterview>;
@@ -40,7 +42,7 @@ export const loadPlannerYearData = async (
     botdByDate,
     artistResult,
     publisherResult,
-    newsletterStatusByWeekStart,
+    newsletterByWeekStart,
     instagramPreparedByWeekStart,
   ] = await Promise.all([
     getBotdByDate(year),
@@ -64,7 +66,7 @@ export const loadPlannerYearData = async (
     artistLoadError: artistErr?.reason ?? null,
     publisherByWeekStart: publisherErr ? null : publisherMap,
     publisherLoadError: publisherErr?.reason ?? null,
-    newsletterStatusByWeekStart,
+    newsletterByWeekStart,
     instagramPreparedByWeekStart,
     interviewByCreatorId,
   };
@@ -102,7 +104,7 @@ async function getInterviewsByCreatorIdForPlanner(
 
 const getNewsletterStatusesByWeekStart = async (
   year: number,
-): Promise<Map<string, NewsletterCampaignStatus | null>> => {
+): Promise<Map<string, PlannerNewsletterWeekData>> => {
   const weekStarts = getWeekStarts(year);
   if (weekStarts.length === 0) return new Map();
 
@@ -116,17 +118,5 @@ const getNewsletterStatusesByWeekStart = async (
       lte(newsletterCampaigns.weekStart, lastSunday),
     ),
   });
-
-  const byWeek = new Map<string, NewsletterCampaignStatus | null>();
-  for (const weekStart of weekStarts) {
-    const weekKey = toWeekString(weekStart);
-    const newsletterRangeStart =
-      getNewsletterRangeStartForPlannerWeek(weekStart);
-    const row = rows.find(
-      (entry) =>
-        toDateString(entry.weekStart) === toDateString(newsletterRangeStart),
-    );
-    byWeek.set(weekKey, row?.status ?? null);
-  }
-  return byWeek;
+  return mapPlannerNewsletterByWeekStart(weekStarts, rows);
 };

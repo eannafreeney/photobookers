@@ -629,7 +629,8 @@ export const bookOfTheDay = pgTable(
     publisherFeatureDayEmailSentAt: timestamp(
       "publisher_feature_day_email_sent_at",
     ),
-    instagramImageUrl: text("instagram_image_url"),
+    featuredImageUrl: text("featured_image_url"),
+    spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
     instagramBufferPostId: text("instagram_buffer_post_id"),
@@ -664,7 +665,8 @@ export const artistOfTheWeek = pgTable(
       .notNull()
       .references(() => creators.id, { onDelete: "cascade" }),
     emailSentAt: timestamp("email_sent_at"),
-    instagramImageUrl: text("instagram_image_url"),
+    featuredImageUrl: text("featured_image_url"),
+    spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
     instagramBufferPostId: text("instagram_buffer_post_id"),
@@ -676,6 +678,7 @@ export const artistOfTheWeek = pgTable(
     interviewReminderSentAt: timestamp("interview_reminder_sent_at"),
     featureDayEmailSentAt: timestamp("feature_day_email_sent_at"),
     relatedNotifySentAt: timestamp("related_notify_sent_at"),
+    contentPreviewEmailSentAt: timestamp("content_preview_email_sent_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -704,7 +707,8 @@ export const publisherOfTheWeek = pgTable(
       .notNull()
       .references(() => creators.id, { onDelete: "cascade" }),
     emailSentAt: timestamp("email_sent_at"),
-    instagramImageUrl: text("instagram_image_url"),
+    featuredImageUrl: text("featured_image_url"),
+    spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
     instagramBufferPostId: text("instagram_buffer_post_id"),

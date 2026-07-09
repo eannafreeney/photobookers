@@ -100,7 +100,7 @@ const LinksPage = ({
           <SpotlightCard
             href={aotwPath(artistOfTheWeek.weekStart)}
             imageUrl={
-              artistOfTheWeek.instagramImageUrl ??
+              artistOfTheWeek.featuredImageUrl ??
               artistOfTheWeek.creator.coverUrl ??
               ""
             }
@@ -126,7 +126,7 @@ const LinksPage = ({
           <SpotlightCard
             href={potwPath(publisherOfTheWeek.weekStart)}
             imageUrl={
-              publisherOfTheWeek.instagramImageUrl ??
+              publisherOfTheWeek.featuredImageUrl ??
               publisherOfTheWeek.creator.coverUrl ??
               ""
             }

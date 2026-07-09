@@ -49,21 +49,21 @@ const PrepareInstagramModal = ({
       entry.instagramPreparedAt ||
       entry.instagramQueuedAt ||
       entry.instagramCaption ||
-      entry.instagramImageUrl,
+      entry.featuredImageUrl,
   );
   const hasArtistPlan = Boolean(
     artistOfTheWeek &&
     (artistOfTheWeek.instagramPreparedAt ||
       artistOfTheWeek.instagramQueuedAt ||
       artistOfTheWeek.instagramCaption ||
-      artistOfTheWeek.instagramImageUrl),
+      artistOfTheWeek.featuredImageUrl),
   );
   const hasPublisherPlan = Boolean(
     publisherOfTheWeek &&
     (publisherOfTheWeek.instagramPreparedAt ||
       publisherOfTheWeek.instagramQueuedAt ||
       publisherOfTheWeek.instagramCaption ||
-      publisherOfTheWeek.instagramImageUrl),
+      publisherOfTheWeek.featuredImageUrl),
   );
   const hasInstagramPlan = hasBotdPlan || hasArtistPlan || hasPublisherPlan;
   const hasQueuedToBuffer =
@@ -120,7 +120,7 @@ const PrepareInstagramModal = ({
 
                 const imageOptions = collectBookImageOptions(book);
                 const selectedImage =
-                  entry.instagramImageUrl ?? imageOptions[0] ?? "";
+                  entry.featuredImageUrl ?? imageOptions[0] ?? "";
 
                 const tagLine = formatInstagramHashtags(book.tags);
 
@@ -158,7 +158,7 @@ const PrepareInstagramModal = ({
                     buildDefaultArtistInstagramCaption(artistCreator)
                   }
                   selectedImage={
-                    artistOfTheWeek.instagramImageUrl ??
+                    artistOfTheWeek.featuredImageUrl ??
                     collectCreatorImageOptions(
                       artistCreator,
                       artistBookCoverUrls,
@@ -183,7 +183,7 @@ const PrepareInstagramModal = ({
                     buildDefaultPublisherInstagramCaption(publisherCreator)
                   }
                   selectedImage={
-                    publisherOfTheWeek.instagramImageUrl ??
+                    publisherOfTheWeek.featuredImageUrl ??
                     collectCreatorImageOptions(
                       publisherCreator,
                       publisherBookCoverUrls,

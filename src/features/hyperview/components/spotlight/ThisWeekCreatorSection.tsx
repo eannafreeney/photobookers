@@ -15,7 +15,7 @@ const ThisWeekCreatorSection: FC<Props> = ({ spotlight, spotlightHref }) => {
   const role = capitalize(creator.type);
   const title = `${role} of the Week`;
   const image =
-    spotlight.instagramImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
+    spotlight.featuredImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
 
   return (
     <View style="spotlight-creator-section">

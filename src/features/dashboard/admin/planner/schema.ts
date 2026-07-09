@@ -100,6 +100,13 @@ export const publisherOfTheWeekFormSchema = z.object({
 
 export const weekQuerySchema = z.object({ week: z.string() });
 export const dateQuerySchema = z.object({ date: z.string() });
+export const spotlightBlurbQuerySchema = z.object({
+  week: z.string(),
+  key: z.string(),
+});
+export const spotlightBlurbSaveSchema = z.object({
+  blurb: z.string(),
+});
 
 export const updateCreatorEmailFormSchema = z.object({
   email: z

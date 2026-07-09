@@ -63,10 +63,12 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
   const title = pageTitle(`Artist of the Week — ${creator.displayName}`);
   const interviewTeaser = publishedInterview?.answers?.q1?.trim();
   const description = truncateDescription(
-    interviewTeaser ?? creatorDescription(creator),
+    artistOfTheWeek.spotlightBlurb?.trim() ??
+      interviewTeaser ??
+      creatorDescription(creator),
   );
   const shareImage =
-    artistOfTheWeek.instagramImageUrl ??
+    artistOfTheWeek.featuredImageUrl ??
     publishedInterview?.promoImageUrl ??
     creator.bannerUrl ??
     creator.coverUrl ??
@@ -105,6 +107,7 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
           weekStart={weekStart}
           publishedInterview={publishedInterview}
           books={booksResult.books}
+          spotlightBlurb={artistOfTheWeek.spotlightBlurb}
         />
         <a href={`/artist-of-the-week`} class="mx-auto">
           <Button variant="outline" color="primary" width="auto">

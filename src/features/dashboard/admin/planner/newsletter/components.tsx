@@ -139,6 +139,7 @@ type BookFeatureCardBook = {
   bookSlug: string;
   title: string;
   coverUrl: string | null;
+  blurb?: string | null;
   artistName: string | null;
   publisherName: string | null;
 };
@@ -164,6 +165,7 @@ export const BookFeatureCard = ({ book }: BookFeatureCardProps) => {
           ) : null}
           {kicker && <Kicker>{kicker}</Kicker>}
           <Title>{book.title}</Title>
+          {book.blurb ? <BodyCopy>{book.blurb}</BodyCopy> : null}
           <SubTitle>{book.artistName}</SubTitle>
           <SubTitle>{book.publisherName}</SubTitle>
           <ViewButton href={`${appBaseUrl}/books/${book.bookSlug}`} />
@@ -179,6 +181,7 @@ type CreatorFeatureCardCreator = {
   type?: "artist" | "publisher";
   coverUrl: string | null;
   tagline?: string | null;
+  blurb?: string | null;
 };
 
 type CreatorFeatureCardProps = {
@@ -194,6 +197,7 @@ export const CreatorFeatureCard = ({ creator }: CreatorFeatureCardProps) => {
             <RoundedImage src={creator.coverUrl} alt={creator.displayName} />
           ) : null}
           <Title>{creator.displayName}</Title>
+          {creator.blurb ? <BodyCopy>{creator.blurb}</BodyCopy> : null}
           <ViewButton href={`${appBaseUrl}/creators/${creator.slug}`} />
         </Column>
       </Row>
@@ -235,6 +239,15 @@ const SubTitle = ({ children }: { children: ReactNode }) => (
   <Text
     style={{ color: brand.onSurface, textAlign: "center" }}
     className="m-0 text-sm leading-normal text-center"
+  >
+    {children}
+  </Text>
+);
+
+const BodyCopy = ({ children }: { children: ReactNode }) => (
+  <Text
+    style={{ color: brand.onSurface, textAlign: "center" }}
+    className="mt-0 mb-3 text-sm leading-[1.6] text-center"
   >
     {children}
   </Text>

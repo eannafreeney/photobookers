@@ -133,6 +133,37 @@ describe("instagram caption helpers", () => {
     ).toContain("/books/winter-light");
   });
 
+  it("weaves spotlight blurb into default BOTD caption", () => {
+    const caption = buildDefaultInstagramCaption(
+      {
+        title: "Winter Light",
+        slug: "winter-light",
+        artist: { displayName: "Jane Doe" },
+      },
+      { spotlightBlurb: "We love this quiet study of winter streets." },
+    );
+
+    expect(caption).toContain("We love this quiet study of winter streets.");
+    expect(caption.indexOf("Winter Light")).toBeLessThan(
+      caption.indexOf("We love this quiet study"),
+    );
+  });
+
+  it("uses blurb-enhanced caption even when a stored caption exists", () => {
+    const caption = buildBotdInstagramCaption(
+      {
+        title: "Winter Light",
+        slug: "winter-light",
+        artist: { displayName: "Jane Doe" },
+      },
+      "Book of the Day\n\nWinter Light\n\nOld manual copy.\n\nLink in bio →",
+      "We are delighted to present this photobook.",
+    );
+
+    expect(caption).toContain("We are delighted to present this photobook.");
+    expect(caption).not.toContain("Old manual copy.");
+  });
+
   it("builds a newly verified creator caption", () => {
     const caption = buildNewlyVerifiedCreatorInstagramCaption({
       displayName: "Jane Doe",

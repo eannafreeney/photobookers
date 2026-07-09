@@ -24,6 +24,7 @@ type Props = {
   isMobile: boolean;
   user: AuthUser | null;
   date: Date;
+  spotlightBlurb?: string | null;
 };
 
 const BookOfTheDayDetail = async ({
@@ -32,9 +33,12 @@ const BookOfTheDayDetail = async ({
   isMobile,
   user,
   date,
+  spotlightBlurb,
 }: Props) => {
   const [err, comments] = await getBookComments(book.id);
   if (err) return <p class="text-sm text-on-surface">{err.reason}</p>;
+
+  const description = spotlightBlurb?.trim() || book.description?.trim() || null;
 
   return (
     <div class="flex w-full min-w-0 flex-col gap-4">
@@ -71,8 +75,8 @@ const BookOfTheDayDetail = async ({
             url={botdUrl(date)}
           />
         </div>
-        {book.description?.trim() ? (
-          <ExpandableDescription text={book.description.trim()} />
+        {description ? (
+          <ExpandableDescription text={description} />
         ) : null}
         <NewsletterCard />
         <SpotlightCreatorLink creator={book.artist} role="Artist" />

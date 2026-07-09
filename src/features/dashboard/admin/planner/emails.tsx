@@ -13,6 +13,7 @@ import {
 } from "./shareKit";
 import { formatBotdDateLong, formatWeekRange } from "./utils";
 import type { InstagramPrepGap } from "./instagramUtils";
+import type { SpotlightContentItem } from "./spotlightBlurb";
 
 type SpotlightEmailParams = {
   creator: { displayName: string; slug: string; ownerUserId: string | null };
@@ -258,6 +259,76 @@ export function buildInstagramPrepReminderEmail(params: {
   <p>Still to prepare:</p>
   <ul>${items}</ul>
   <p><a href="${params.prepareUrl}">Prepare Instagram posts</a></p>
+`;
+}
+
+function formatPreviewItemHeading(item: SpotlightContentItem): string {
+  switch (item.kind) {
+    case "botd":
+      return `Book of the Day — ${formatBotdDateLong(item.date)}`;
+    case "artist":
+      return "Artist of the Week";
+    case "publisher":
+      return "Publisher of the Week";
+  }
+}
+
+function renderPreviewImage(imageUrl: string | null, alt: string): string {
+  if (!imageUrl) {
+    return `<p><em>No featured image selected</em></p>`;
+  }
+  return `<p><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)}" width="320" style="max-width:100%;height:auto;border:1px solid #ddd;" /></p>`;
+}
+
+function renderCaptionBlock(caption: string): string {
+  return `<pre style="white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:13px;background:#f6f6f6;padding:12px;border-radius:4px;">${escapeHtml(caption)}</pre>`;
+}
+
+export function buildPlannerWeekContentPreviewEmail(params: {
+  weekStart: Date;
+  items: SpotlightContentItem[];
+  prepWarnings: string[];
+  plannerUrl: string;
+  featuredHeroUrl: string;
+  instagramPrepUrl: string;
+}) {
+  const weekLabel = formatWeekRange(params.weekStart);
+  const warningBlock =
+    params.prepWarnings.length > 0
+      ? `<p style="color:#b45309;"><strong>Warnings:</strong></p><ul>${params.prepWarnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul>`
+      : "";
+
+  const sections = params.items
+    .map((item) => {
+      const heading = formatPreviewItemHeading(item);
+      const blurb = item.spotlightBlurb?.trim() || item.sourceText?.trim();
+      const blurbHtml = blurb
+        ? `<p style="margin:0 0 16px;">${escapeHtml(blurb)}</p>`
+        : `<p style="margin:0 0 16px;"><em>No page blurb available</em></p>`;
+
+      return `
+      <section style="margin:24px 0;padding-top:16px;border-top:1px solid #ddd;">
+        <h2 style="margin:0 0 12px;font-size:18px;">${escapeHtml(heading)}</h2>
+        <p style="margin:0 0 4px;font-weight:600;">${escapeHtml(item.title)}</p>
+        <p style="margin:0 0 8px;font-size:13px;color:#666;">Featured image (hero + Instagram)</p>
+        ${renderPreviewImage(item.featuredImageUrl, item.title)}
+        <p style="margin:16px 0 4px;font-weight:600;">Page blurb</p>
+        ${blurbHtml}
+        <p style="margin:0 0 4px;font-weight:600;">Instagram caption</p>
+        ${renderCaptionBlock(item.instagramCaption)}
+      </section>`;
+    })
+    .join("");
+
+  return `
+  <p>Your planner week of <strong>${weekLabel}</strong> is ready for review. It starts in three days.</p>
+  ${warningBlock}
+  ${sections}
+  <p style="margin-top:24px;">
+    <a href="${params.plannerUrl}">Open planner</a> ·
+    <a href="${params.featuredHeroUrl}">Edit featured images</a> ·
+    <a href="${params.instagramPrepUrl}">Edit Instagram prep</a>
+  </p>
 `;
 }
 

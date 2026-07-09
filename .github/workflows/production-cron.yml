@@ -7,7 +7,7 @@ on:
     - cron: "0 8 * * *" # daily 08:00 UTC — queue Instagram before 10:00 post time
     - cron: "0 8 * * 1" # Monday 08:00 UTC — CEO weekly metrics email
     - cron: "0 9 * * *" # daily 09:00 UTC — BOTD / spotlight / follower emails
-    - cron: "0 9 * * 4" # Thursday 09:00 UTC — weekly newsletter
+    - cron: "0 9 * * 3" # Wednesday 09:00 UTC — weekly newsletter
     - cron: "0 9 * * 6" # Saturday 09:00 UTC — Instagram prep reminder
     - cron: "0 9 3 * *" # 3rd of month 09:00 UTC — creator analytics digest
     - cron: "0 10 * * *" # daily 10:00 UTC — creator milestone + stub outreach
@@ -29,6 +29,7 @@ on:
           - notify-followers-new-posts
           - weekly-botd-newsletter
           - instagram-prep-reminder-email
+          - planner-content-preview-email
           - creator-analytics-digest
           - creator-milestone-emails
           - stub-outreach-emails
@@ -115,6 +116,15 @@ jobs:
     uses: ./.github/workflows/run-production-cron.yml
     with:
       job: instagram-prep-reminder-email
+    secrets: inherit
+
+  planner-content-preview-email:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '0 9 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'planner-content-preview-email')
+    uses: ./.github/workflows/run-production-cron.yml
+    with:
+      job: planner-content-preview-email
     secrets: inherit
 
   creator-analytics-digest:

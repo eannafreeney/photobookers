@@ -8,7 +8,10 @@ import {
   newsletterCampaigns,
   publisherOfTheWeek,
 } from "../../../../../db/schema";
-import { getBooksOfTheDayInRange } from "../../../../app/BOTDServices";
+import {
+  getBooksOfTheDayInRange,
+  type BookOfTheDayWithBook,
+} from "../../../../app/BOTDServices";
 import { getTopBooksByViews } from "../../../../book-views/services";
 import { getTopCreatorsByViews } from "../../../../creator-views/services";
 import { CREATOR_CARD_COLUMNS } from "../../../../../constants/queries";
@@ -35,7 +38,7 @@ import {
   getCurrentNewsletterRange,
   resolveNewsletterRangeStart,
 } from "./utils";
-import { desc, eq, gte, isNotNull, lt, and, asc, lte } from "drizzle-orm";
+import { desc, eq, gte, isNotNull, lt, and, asc, lte, inArray } from "drizzle-orm";
 
 const NEW_MEMBERS_LIMIT = 6;
 const TRENDING_LIMIT = 3;
@@ -76,29 +79,53 @@ async function findNewsletterCampaignByWeekStart(weekStart: Date) {
 }
 
 const toCreatorSpotlight = (
-  creator:
+  entry:
     | {
-        displayName: string;
-        slug: string;
-        coverUrl: string | null;
-        tagline?: string | null;
-        city?: string | null;
-        country?: string | null;
+        spotlightBlurb?: string | null;
+        creator: {
+          displayName: string;
+          slug: string;
+          coverUrl: string | null;
+          tagline?: string | null;
+          bio?: string | null;
+          city?: string | null;
+          country?: string | null;
+        };
       }
     | null
     | undefined,
   weekStart: Date,
 ): WeeklyNewsletterCreatorSpotlight =>
-  creator
+  entry?.creator
     ? {
-        displayName: creator.displayName,
-        slug: creator.slug,
+        displayName: entry.creator.displayName,
+        slug: entry.creator.slug,
         weekKey: toWeekString(toWeekStart(weekStart)),
-        coverUrl: creator.coverUrl ?? null,
-        tagline: creator.tagline?.trim() || null,
-        location: formatCreatorLocation(creator.city, creator.country),
+        coverUrl: entry.creator.coverUrl ?? null,
+        tagline: entry.creator.tagline?.trim() || null,
+        blurb:
+          entry.spotlightBlurb?.trim() ||
+          entry.creator.bio?.trim() ||
+          entry.creator.tagline?.trim() ||
+          null,
+        location: formatCreatorLocation(
+          entry.creator.city,
+          entry.creator.country,
+        ),
       }
     : null;
+
+async function getBookDescriptionMap(entries: BookOfTheDayWithBook[]) {
+  const bookIds = entries.map((entry) => entry.book.id);
+  if (bookIds.length === 0) return new Map<string, string | null>();
+
+  const rows = await db.query.books.findMany({
+    where: inArray(books.id, bookIds),
+    columns: { id: true, description: true },
+  });
+
+  return new Map(rows.map((row) => [row.id, row.description]));
+}
 
 /** Verified creators whose `verifiedAt` falls in the newsletter edition (Thu–Wed). */
 async function getNewlyVerifiedCreatorsInRange(
@@ -160,23 +187,17 @@ async function getWeeklyCreatorSpotlights(sendWednesday: Date) {
   const [artistEntry, publisherEntry] = await Promise.all([
     db.query.artistOfTheWeek.findFirst({
       where: eq(artistOfTheWeek.weekStart, normalizedWeekStart),
-      with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+      with: { creator: { columns: { ...CREATOR_CARD_COLUMNS, bio: true } } },
     }),
     db.query.publisherOfTheWeek.findFirst({
       where: eq(publisherOfTheWeek.weekStart, normalizedWeekStart),
-      with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+      with: { creator: { columns: { ...CREATOR_CARD_COLUMNS, bio: true } } },
     }),
   ]);
 
   return {
-    artistOfTheWeek: toCreatorSpotlight(
-      artistEntry?.creator,
-      normalizedWeekStart,
-    ),
-    publisherOfTheWeek: toCreatorSpotlight(
-      publisherEntry?.creator,
-      normalizedWeekStart,
-    ),
+    artistOfTheWeek: toCreatorSpotlight(artistEntry, normalizedWeekStart),
+    publisherOfTheWeek: toCreatorSpotlight(publisherEntry, normalizedWeekStart),
   };
 }
 
@@ -308,6 +329,7 @@ async function buildWeeklyBOTDGeneratedContent(
     rangeEnd,
   );
   if (rangeError) return err({ reason: rangeError.reason });
+  const descriptionByBookId = await getBookDescriptionMap(rangeResult.botdEntries);
 
   const [
     { artistOfTheWeek, publisherOfTheWeek },
@@ -328,6 +350,10 @@ async function buildWeeklyBOTDGeneratedContent(
       bookSlug: entry.book.slug,
       title: entry.book.title,
       coverUrl: entry.book.coverUrl ?? null,
+      blurb:
+        entry.spotlightBlurb?.trim() ||
+        descriptionByBookId.get(entry.book.id)?.trim() ||
+        null,
       artistName: entry.book.artist?.displayName ?? null,
       artistSlug: entry.book.artist?.slug ?? null,
       publisherName: entry.book.publisher?.displayName ?? null,
@@ -510,6 +536,7 @@ const normalizeStoredCreatorSpotlight = (
         weekKey?: string;
         coverUrl: string | null;
         tagline?: string | null;
+        blurb?: string | null;
         location?: string | null;
       }
     | null
@@ -523,6 +550,7 @@ const normalizeStoredCreatorSpotlight = (
     weekKey: creator.weekKey ?? fallbackWeekKey,
     coverUrl: creator.coverUrl ?? null,
     tagline: creator.tagline?.trim() || null,
+    blurb: creator.blurb?.trim() || creator.tagline?.trim() || null,
     location: creator.location?.trim() || null,
   };
 };
@@ -547,6 +575,25 @@ export async function buildCampaignPreviewHtml(
     await getWeeklyCreatorSpotlights(weekEnd);
 
   const { renderWeeklyBOTDNewsletterHtml } = await import("./template");
+  const storedBotdEntries =
+    (stored?.botdEntries as
+      | Array<{
+          date?: string;
+          bookId: string;
+          bookSlug: string;
+          title: string;
+          coverUrl: string | null;
+          blurb?: string | null;
+          artistName: string | null;
+          artistSlug: string | null;
+          publisherName: string | null;
+          publisherSlug: string | null;
+        }>
+      | undefined)?.map((entry) => ({
+      ...entry,
+      blurb: entry.blurb ?? null,
+    })) ??
+    [];
 
   return renderWeeklyBOTDNewsletterHtml({
     weekStart,
@@ -555,7 +602,7 @@ export async function buildCampaignPreviewHtml(
     introText: campaign.introText,
     outroText: campaign.outroText,
     ctaText: campaign.ctaText,
-    botdEntries: generated?.botdEntries ?? stored?.items ?? [],
+    botdEntries: generated?.botdEntries ?? storedBotdEntries,
     newMembers: generated?.newMembers ?? stored?.newMembers ?? [],
     upcomingFair: generated?.upcomingFair ?? stored?.upcomingFair ?? null,
     artistOfTheWeek:

@@ -5,6 +5,7 @@ import DeleteButton from "./DeleteButton";
 import CreatorEmailBadge from "./CreatorEmailBadge";
 import SpotlightEmailStatusBadges from "./SpotlightEmailStatusBadges";
 import { CreatorInterview } from "../../../../../db/schema";
+import EditSpotlightBlurbButton from "./EditSpotlightBlurbButton";
 
 type ArtistOfTheWeekProps = {
   weekStart: Date;
@@ -96,6 +97,11 @@ const AOTWCardContent = ({
           creatorId={artist.id}
           email={artist.email}
         />
+        <div class="flex justify-end">
+          <EditSpotlightBlurbButton
+            href={`/dashboard/admin/planner/spotlight-blurb/prepare?week=${encodeURIComponent(weekKey)}&key=aotw`}
+          />
+        </div>
         {interview && (
           <p class="text-xs text-on-surface">
             Interview status: {interview.status}
