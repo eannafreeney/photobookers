@@ -78,7 +78,7 @@ const CreatorOfTheWeekSpotlightBody = ({
         weekStart={weekStart}
         coverImage={coverImage}
       />
-      {bio ? <ExpandableBio bio={bio} id={creator.id} /> : null}
+      {bio ? <Text style="spotlight-body-text">{bio}</Text> : null}
       <View style="spotlight-profile-btn">
         <Text style="spotlight-profile-btn-label">
           Visit {creator.displayName}'s profile

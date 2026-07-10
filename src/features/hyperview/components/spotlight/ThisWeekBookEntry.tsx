@@ -19,7 +19,7 @@ type Props = {
   baseUrl: string;
 };
 
-const ThisWeekBookEntry: FC<Props> = ({ entry, baseUrl }) => {
+const ThisWeekBookEntry = ({ entry, baseUrl }: Props) => {
   const { book } = entry;
   const href = `${baseUrl}/hyperview${botdPath(entry.date)}`;
 

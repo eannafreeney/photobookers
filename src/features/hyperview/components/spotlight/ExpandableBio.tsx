@@ -19,12 +19,12 @@ type Props = {
   maxWords?: number;
 };
 
-const ExpandableBio: FC<Props> = ({
+const ExpandableBio = ({
   bio,
   id,
   textStyle = "spotlight-body-text",
   maxWords = 40,
-}) => {
+}: Props) => {
   const collapsedId = `spotlight-bio-collapsed-${id}`;
   const expandedId = `spotlight-bio-expanded-${id}`;
   const { preview, needsToggle } = truncateWords(bio, maxWords);

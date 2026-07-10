@@ -58,7 +58,10 @@ const BookOfTheDaySpotlightBody: FC<Props> = ({
         shareTitle={`Book of the Day — ${book.title}`}
         shareMessage={`Check out ${book.title} on Photobookers`}
       />
-      {description ? <ExpandableBio bio={description} id={book.id} /> : null}
+      {description ? (
+        <Text style="spotlight-body-text">{description}</Text>
+      ) : null}
+      {/* {description ? <ExpandableBio bio={description} id={book.id} /> : null} */}
       <NewsletterCard baseUrl={baseUrl} />
       {book.artist ? (
         <SpotlightCreatorRow
