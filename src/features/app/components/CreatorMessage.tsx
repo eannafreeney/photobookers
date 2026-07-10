@@ -5,23 +5,24 @@ import { Creator, CreatorMessage } from "../../../db/schema";
 type CreatorMessageProps = {
   creator: Pick<Creator, "id" | "slug" | "displayName" | "coverUrl">;
   message: CreatorMessage;
-  isFollower: boolean;
   isFirst: boolean;
   user: AuthUser | null;
+  canReadMessages: boolean;
 };
 
 const CreatorMessage = ({
   creator,
   message,
-  isFollower,
   isFirst,
   user,
+  canReadMessages,
 }: CreatorMessageProps) => {
   const canDelete = user?.isAdmin || user?.creator?.id === creator.id;
 
-  const redactClass = !isFollower
+  const redactClass = !canReadMessages
     ? "select-none blur-[3px] pointer-events-none"
     : "";
+
   return (
     <article
       class="rounded-radius border border-outline bg-surface p-4 shadow-sm"
@@ -100,7 +101,7 @@ const CreatorMessage = ({
             )}
           </div>
         </div>
-        {!isFollower && (
+        {!canReadMessages && (
           <div class="absolute inset-0 grid place-items-center">
             <div class="rounded-full border border-outline bg-surface/90 px-3 py-1 text-xs font-medium text-on-surface-strong shadow-sm">
               Follow to unlock

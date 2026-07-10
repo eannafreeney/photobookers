@@ -93,28 +93,6 @@ const CreatorDetail = ({
 
 export default CreatorDetail;
 
-const CreatorBio = async ({
-  creator,
-  maxWords = 75,
-}: {
-  creator: Creator;
-  maxWords?: number;
-}) => {
-  const bio = creator.bio?.trim() || null;
-  if (!bio)
-    return (
-      <div class="flex justify-center">
-        <CreatorBioMeta creator={creator} />
-      </div>
-    );
-  return (
-    <div class="flex flex-col gap-2">
-      <ExpandableDescription text={bio} maxWords={maxWords} />
-      <CreatorBioMeta creator={creator} />
-    </div>
-  );
-};
-
 const CreatorBioSection = async ({
   creator,
   maxWords = 75,
@@ -241,7 +219,9 @@ const CreatorDetailMobile = ({
         </h1>
       </div>
       <div class="flex justify-between items-center gap-2">
-        <FollowButton creator={creator} variant="mobile" user={user} />
+        {!isOwner && (
+          <FollowButton creator={creator} variant="mobile" user={user} />
+        )}
         <ShareButton
           title={creator.displayName}
           text={creatorShareText(creator)}
@@ -361,12 +341,14 @@ const CreatorDetailDesktop = ({
           </h1>
         </div>
         <div class="flex flex-col items-end justify-end gap-3">
-          <div class="grid grid-cols-2 gap-4">
-            <FollowButton
-              creator={creator}
-              user={user}
-              shouldRefreshCreatorMessages
-            />
+          <div class={`grid gap-4 ${isOwner ? "grid-cols-1" : "grid-cols-2"}`}>
+            {!isOwner && (
+              <FollowButton
+                creator={creator}
+                user={user}
+                shouldRefreshCreatorMessages
+              />
+            )}
             <ShareButton
               title={creator.displayName}
               text={creatorShareText(creator)}
@@ -411,7 +393,9 @@ const CreatorDetailDesktop = ({
             />
           </Tabs.Panel>
           <Tabs.Panel tabId="posts">
-            <CreatorMessages creatorSlug={creator.slug} user={user} />
+            <div class="mx-auto w-full max-w-[600px]">
+              <CreatorMessages creatorSlug={creator.slug} user={user} />
+            </div>
           </Tabs.Panel>
           <Tabs.Panel tabId="creators">
             <CreatorsGrid

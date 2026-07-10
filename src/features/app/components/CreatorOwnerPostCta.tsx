@@ -20,23 +20,28 @@ const CreatorOwnerPostCta = ({
       x-data={`{ show: $persist(true).as('owner-post-cta-${creatorSlug}') }`}
       x-show="show"
     >
-      <Banner type="info" message={message}>
-        <div class="flex items-center gap-3">
-          <a
-            href="/dashboard/messages"
-            class="shrink-0 text-sm font-medium text-accent hover:underline"
-          >
-            {postCount === 0 ? "Write your first post" : "Write a post"}
-          </a>
-          <button
-            type="button"
-            x-on:click="show = false"
-            class="text-sm cursor-pointer hover:opacity-75"
-          >
-            Dismiss
-          </button>
+      <div
+        class={` flex flex-col md:flex-row rounded-radius bg-info/10 text-on-surface py-4 px-16 items-center justify-center gap-4`}
+      >
+        <p class="text-center text-sm text-pretty">{message}</p>
+        <div>
+          <div class="flex flex-col md:flex-row items-center gap-3">
+            <a
+              href="/dashboard/messages"
+              class="shrink-0 text-sm font-medium text-accent hover:underline"
+            >
+              {postCount === 0 ? "Write your first post" : "Write a post"}
+            </a>
+            <button
+              type="button"
+              x-on:click="show = false"
+              class="text-sm cursor-pointer hover:opacity-75"
+            >
+              Dismiss
+            </button>
+          </div>
         </div>
-      </Banner>
+      </div>
     </div>
   );
 };

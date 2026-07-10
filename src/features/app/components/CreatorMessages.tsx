@@ -16,9 +16,11 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
   const { messages, totalPages, page, creator } = result;
 
   const isOwner = user?.creator?.id === creator.id;
-  const isFollower = user?.id
-    ? Boolean(await findFollow(creator.id, user.id)) || isOwner
-    : false;
+
+  const canReadMessages =
+    isOwner ||
+    user?.isAdmin ||
+    (user?.id ? Boolean(await findFollow(creator.id, user.id)) : false);
 
   const targetId = `creator-messages-${creator.id}`;
 
@@ -40,7 +42,7 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
                 Write your first post →
               </a>
             </>
-          ) : isFollower ? (
+          ) : canReadMessages ? (
             <p>
               No posts yet. Check back soon for updates from{" "}
               {creator.displayName}.
@@ -56,9 +58,9 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
           <CreatorMessage
             creator={creator}
             message={message}
-            isFollower={isFollower}
             user={user}
             isFirst={index === 0}
+            canReadMessages={canReadMessages}
           />
         ))
       )}
