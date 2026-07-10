@@ -41,7 +41,7 @@ export const GET = createRoute(async (c: Context) => {
       currentPath={currentPath}
       preloadLcpImage={lcpImage}
     >
-      <NewsletterBanner />
+      {/* <NewsletterBanner /> */}
       <Page>
         <Pulse />
         <HeroCarouselFeatureCard heroItems={heroItems} />

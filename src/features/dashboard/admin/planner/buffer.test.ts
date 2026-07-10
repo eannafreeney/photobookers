@@ -130,8 +130,8 @@ describe("bufferCreateScheduledImagePost", () => {
   });
 
   it("includes non-JSON error bodies for HTTP failures", async () => {
-    globalThis.fetch = vi.fn(async () =>
-      new Response("Bad Request: missing field", { status: 400 }),
+    globalThis.fetch = vi.fn(
+      async () => new Response("Bad Request: missing field", { status: 400 }),
     ) as typeof fetch;
 
     const [error] = await bufferCreateScheduledImagePost({
