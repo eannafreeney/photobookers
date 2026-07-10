@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildArtistInstagramCaption,
   buildArtistPostStickerText,
   buildBotdInstagramCaption,
   buildBotdPostStickerFields,
@@ -10,6 +11,7 @@ import {
   buildDefaultInstagramFirstComment,
   buildDefaultPublisherInstagramCaption,
   buildNewlyVerifiedCreatorInstagramCaption,
+  buildPublisherInstagramCaption,
   buildPublisherPostStickerText,
   buildSpotlightStoryStickerText,
   collectBookImageOptions,
@@ -162,6 +164,36 @@ describe("instagram caption helpers", () => {
     );
 
     expect(caption).toContain("We are delighted to present this photobook.");
+    expect(caption).not.toContain("Old manual copy.");
+  });
+
+  it("weaves spotlight blurb into artist caption when stored caption exists", () => {
+    const caption = buildArtistInstagramCaption(
+      {
+        displayName: "Jane Doe",
+        slug: "jane-doe",
+        bio: "Photographer based in NYC.",
+      },
+      "Artist of the Week\n\nJane Doe\n\nOld manual copy.\n\nLink in bio →",
+      "A quiet study of winter streets.",
+    );
+
+    expect(caption).toContain("A quiet study of winter streets.");
+    expect(caption).not.toContain("Old manual copy.");
+  });
+
+  it("weaves spotlight blurb into publisher caption when stored caption exists", () => {
+    const caption = buildPublisherInstagramCaption(
+      {
+        displayName: "Acme Press",
+        slug: "acme-press",
+        bio: "Independent photobook publisher.",
+      },
+      "Publisher of the Week\n\nAcme Press\n\nOld manual copy.\n\nLink in bio →",
+      "Publishing bold new voices in photography.",
+    );
+
+    expect(caption).toContain("Publishing bold new voices in photography.");
     expect(caption).not.toContain("Old manual copy.");
   });
 

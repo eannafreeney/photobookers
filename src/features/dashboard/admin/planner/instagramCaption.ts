@@ -50,6 +50,47 @@ export function buildDefaultPublisherInstagramCaption(
   );
 }
 
+export function buildArtistInstagramCaption(
+  creator: CreatorSpotlightForCaption,
+  storedCaption?: string | null,
+  spotlightBlurb?: string | null,
+): string {
+  return buildCreatorSpotlightInstagramCaption(
+    "artist",
+    creator,
+    storedCaption,
+    spotlightBlurb,
+  );
+}
+
+export function buildPublisherInstagramCaption(
+  creator: CreatorSpotlightForCaption,
+  storedCaption?: string | null,
+  spotlightBlurb?: string | null,
+): string {
+  return buildCreatorSpotlightInstagramCaption(
+    "publisher",
+    creator,
+    storedCaption,
+    spotlightBlurb,
+  );
+}
+
+function buildCreatorSpotlightInstagramCaption(
+  type: "artist" | "publisher",
+  creator: CreatorSpotlightForCaption,
+  storedCaption?: string | null,
+  spotlightBlurb?: string | null,
+): string {
+  const blurb = spotlightBlurb?.trim();
+  if (!storedCaption?.trim() || blurb) {
+    return type === "artist"
+      ? buildDefaultArtistInstagramCaption(creator, blurb)
+      : buildDefaultPublisherInstagramCaption(creator, blurb);
+  }
+  return storedCaption.trim();
+}
+
 function buildDefaultCreatorSpotlightInstagramCaption(
   creator: CreatorSpotlightForCaption,
   type: "artist" | "publisher",
@@ -284,12 +325,7 @@ export function buildDefaultInstagramCaption(
   book: BookForCaption,
   options?: { spotlightBlurb?: string | null },
 ): string {
-  const lines = ["Book of the Day", "", book.title];
-
-  const blurb = options?.spotlightBlurb?.trim();
-  if (blurb) {
-    lines.push("", blurb);
-  }
+  const lines = [`Book of the Day - ${book.title}`];
 
   if (book.artist?.displayName) {
     const artistHandle = formatInstagramHandle(book.artist.instagram);
@@ -305,10 +341,15 @@ export function buildDefaultInstagramCaption(
     );
   }
 
-  const tagLine = formatInstagramHashtags(book.tags);
-  if (tagLine) lines.push("", tagLine);
+  const blurb = options?.spotlightBlurb?.trim();
+  if (blurb) {
+    lines.push("", blurb);
+  }
 
-  lines.push("", "#photobook #photobookjousting", "", "Link in bio →");
+  const bookTags = formatInstagramHashtags(book.tags);
+  if (bookTags) lines.push("", bookTags);
+
+  lines.push("#photobook #photobookjousting", "", "Link in bio →");
 
   return lines.map((line) => line.trim()).join("\n");
 }

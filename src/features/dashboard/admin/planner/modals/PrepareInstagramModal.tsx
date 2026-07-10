@@ -3,9 +3,9 @@ import FormPost from "../../../../../components/forms/FormPost";
 import { toDateString } from "../../../../../lib/utils";
 import { BookOfTheDayWithBook } from "../../../../app/BOTDServices";
 import {
+  buildArtistInstagramCaption,
   buildBotdInstagramCaption,
-  buildDefaultArtistInstagramCaption,
-  buildDefaultPublisherInstagramCaption,
+  buildPublisherInstagramCaption,
   collectBookImageOptions,
   collectCreatorImageOptions,
   formatInstagramHashtags,
@@ -141,6 +141,7 @@ const PrepareInstagramModal = ({
                     caption={buildBotdInstagramCaption(
                       book,
                       entry.instagramCaption,
+                      entry.spotlightBlurb,
                     )}
                     selectedImages={selectedImages}
                     tagsLine={
@@ -160,10 +161,11 @@ const PrepareInstagramModal = ({
                     artistCreator,
                     artistBookCoverUrls,
                   )}
-                  caption={
-                    artistOfTheWeek.instagramCaption ??
-                    buildDefaultArtistInstagramCaption(artistCreator)
-                  }
+                  caption={buildArtistInstagramCaption(
+                    artistCreator,
+                    artistOfTheWeek.instagramCaption,
+                    artistOfTheWeek.spotlightBlurb,
+                  )}
                   selectedImages={getPlannerInstagramImageSelection(
                     artistOfTheWeek,
                     collectCreatorImageOptions(
@@ -184,10 +186,11 @@ const PrepareInstagramModal = ({
                     publisherCreator,
                     publisherBookCoverUrls,
                   )}
-                  caption={
-                    publisherOfTheWeek.instagramCaption ??
-                    buildDefaultPublisherInstagramCaption(publisherCreator)
-                  }
+                  caption={buildPublisherInstagramCaption(
+                    publisherCreator,
+                    publisherOfTheWeek.instagramCaption,
+                    publisherOfTheWeek.spotlightBlurb,
+                  )}
                   selectedImages={getPlannerInstagramImageSelection(
                     publisherOfTheWeek,
                     collectCreatorImageOptions(
