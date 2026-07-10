@@ -110,6 +110,7 @@ describe("runContentPreviewEmail", () => {
           date: new Date(Date.UTC(2026, 6, 13)),
           title: "Book",
           featuredImageUrl: "https://example.com/cover.jpg",
+          instagramImageUrls: ["https://example.com/cover.jpg"],
           sourceText: "Source",
           spotlightBlurb: "Rewritten",
           instagramCaption: "Caption",

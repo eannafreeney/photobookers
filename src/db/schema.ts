@@ -244,6 +244,7 @@ export const creators = pgTable(
     verificationFeedbackEmailSentAt: timestamp(
       "verification_feedback_email_sent_at",
     ),
+    profileShareEmailSentAt: timestamp("profile_share_email_sent_at"),
     createdByUserId: uuid("created_by_user_id")
       .references(() => users.id)
       .notNull(),

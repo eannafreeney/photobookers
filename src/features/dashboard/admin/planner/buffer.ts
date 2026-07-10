@@ -250,7 +250,7 @@ export async function bufferCreateScheduledStory(params: {
 
   return bufferCreatePost({
     text: params.caption,
-    schedulingType: "notification",
+    schedulingType: "automatic",
     mode: "customScheduled",
     dueAt: params.dueAt.toISOString(),
     assets: [{ image: { url: params.imageUrl } }],

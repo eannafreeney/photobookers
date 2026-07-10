@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildBotdFeatureDayEmail,
   buildFeatureDayEmail,
+  buildPlannerWeekContentPreviewEmail,
   generateBOTDNotificationEmail,
 } from "./emails";
 
@@ -124,6 +125,42 @@ describe("buildBotdFeatureDayEmail", () => {
     });
 
     expect(html).toContain("Winter Light&quot; by Jane Doe is Book of the Day");
+  });
+});
+
+describe("buildPlannerWeekContentPreviewEmail", () => {
+  it("renders all selected Instagram carousel images", () => {
+    const weekStart = new Date(Date.UTC(2026, 6, 13));
+    const html = buildPlannerWeekContentPreviewEmail({
+      weekStart,
+      items: [
+        {
+          kind: "botd",
+          date: new Date(Date.UTC(2026, 6, 13)),
+          title: "Winter Light",
+          featuredImageUrl: "https://example.com/hero.jpg",
+          instagramImageUrls: [
+            "https://example.com/cover.jpg",
+            "https://example.com/page1.jpg",
+            "https://example.com/page2.jpg",
+          ],
+          sourceText: "Source",
+          spotlightBlurb: "Rewritten blurb",
+          instagramCaption: "Caption text",
+        },
+      ],
+      prepWarnings: [],
+      plannerUrl: "https://example.com/planner",
+      featuredHeroUrl: "https://example.com/featured-hero",
+      instagramPrepUrl: "https://example.com/instagram",
+    });
+
+    expect(html).toContain("https://example.com/cover.jpg");
+    expect(html).toContain("https://example.com/page1.jpg");
+    expect(html).toContain("https://example.com/page2.jpg");
+    expect(html).not.toContain("https://example.com/hero.jpg");
+    expect(html).toContain("(1 of 3)");
+    expect(html).toContain("(3 of 3)");
   });
 });
 

@@ -23,6 +23,7 @@ import {
   collectCreatorImageOptions,
 } from "./instagramCaption";
 import type { WeekInstagramPrepareData } from "./instagramServices";
+import { getPlannerInstagramImageSelection } from "./instagramUtils";
 
 export type SpotlightContentItem =
   | {
@@ -30,6 +31,7 @@ export type SpotlightContentItem =
       date: Date;
       title: string;
       featuredImageUrl: string | null;
+      instagramImageUrls: string[];
       sourceText: string | null;
       spotlightBlurb: string | null;
       instagramCaption: string;
@@ -39,6 +41,7 @@ export type SpotlightContentItem =
       kind: "artist" | "publisher";
       title: string;
       featuredImageUrl: string | null;
+      instagramImageUrls: string[];
       sourceText: string | null;
       spotlightBlurb: string | null;
       instagramCaption: string;
@@ -257,14 +260,19 @@ export async function buildWeekSpotlightContent(
             title: book.title,
           })
           : null);
+      const imageOptions = collectBookImageOptions(book);
       const featuredImageUrl =
-        entry.featuredImageUrl ?? collectBookImageOptions(book)[0] ?? null;
+        entry.featuredImageUrl ?? imageOptions[0] ?? null;
 
       items.push({
         kind: "botd",
         date: entry.date,
         title: book.title,
         featuredImageUrl,
+        instagramImageUrls: getPlannerInstagramImageSelection(
+          entry,
+          imageOptions,
+        ),
         sourceText,
         spotlightBlurb,
         instagramCaption: buildBotdInstagramCaption(
@@ -287,15 +295,23 @@ export async function buildWeekSpotlightContent(
             title: creator.displayName,
           })
           : null);
+      const artistImageOptions = collectCreatorImageOptions(
+        creator,
+        weekData.artistBookCoverUrls,
+      );
       const featuredImageUrl =
         weekData.artistOfTheWeek.featuredImageUrl ??
-        collectCreatorImageOptions(creator, weekData.artistBookCoverUrls)[0] ??
+        artistImageOptions[0] ??
         null;
 
       items.push({
         kind: "artist",
         title: creator.displayName,
         featuredImageUrl,
+        instagramImageUrls: getPlannerInstagramImageSelection(
+          weekData.artistOfTheWeek,
+          artistImageOptions,
+        ),
         sourceText,
         spotlightBlurb,
         instagramCaption:
@@ -318,15 +334,23 @@ export async function buildWeekSpotlightContent(
             title: creator.displayName,
           })
           : null);
+      const publisherImageOptions = collectCreatorImageOptions(
+        creator,
+        weekData.publisherBookCoverUrls,
+      );
       const featuredImageUrl =
         weekData.publisherOfTheWeek.featuredImageUrl ??
-        collectCreatorImageOptions(creator, weekData.publisherBookCoverUrls)[0] ??
+        publisherImageOptions[0] ??
         null;
 
       items.push({
         kind: "publisher",
         title: creator.displayName,
         featuredImageUrl,
+        instagramImageUrls: getPlannerInstagramImageSelection(
+          weekData.publisherOfTheWeek,
+          publisherImageOptions,
+        ),
         sourceText,
         spotlightBlurb,
         instagramCaption:

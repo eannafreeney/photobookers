@@ -8,6 +8,7 @@ import { runContentPreviewEmail } from "../domain/planner/cron/contentPreviewEma
 import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramReminderEmailServices";
 import { runWeeklyNewsletterCron } from "../domain/planner/cron/newsletterCronServices";
 import { runSpotlightCreatorEmails } from "../domain/planner/cron/spotlightEmailServices";
+import { runCreatorProfileShareCron } from "../domain/creator-profile-share/cron";
 import { runVerifiedCreatorInstagramCron } from "../domain/planner/cron/verifiedCreatorInstagramServices";
 import { runVerificationFeedbackCron } from "../domain/verification-feedback/cron";
 import {
@@ -57,7 +58,8 @@ export type CronJobName =
   | "stub-outreach-emails"
   | "interview-reminder-emails"
   | "verified-creator-instagram"
-  | "verification-feedback-emails";
+  | "verification-feedback-emails"
+  | "creator-profile-share-emails";
 
 export const CRON_JOB_NAMES = [
   "daily-botd-instagram",
@@ -76,6 +78,7 @@ export const CRON_JOB_NAMES = [
   "interview-reminder-emails",
   "verified-creator-instagram",
   "verification-feedback-emails",
+  "creator-profile-share-emails",
 ] as const satisfies readonly CronJobName[];
 
 export function isCronJobName(value: string): value is CronJobName {
@@ -339,6 +342,19 @@ export async function runVerificationFeedbackEmailsCron(
   return ok({ ...result });
 }
 
+export async function runCreatorProfileShareEmailsCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runCreatorProfileShareCron({
+    dryRun: options.dryRun,
+    to: options.to,
+    creatorId: options.creatorId,
+    date: options.date,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
 const RUNNERS: Record<
   CronJobName,
   (options: CronRunnerOptions) => Promise<Result<Record<string, unknown>, { reason: string }>>
@@ -359,6 +375,7 @@ const RUNNERS: Record<
   "interview-reminder-emails": runInterviewReminderEmailsCron,
   "verified-creator-instagram": runVerifiedCreatorInstagramCronJob,
   "verification-feedback-emails": runVerificationFeedbackEmailsCron,
+  "creator-profile-share-emails": runCreatorProfileShareEmailsCron,
 };
 
 export async function runCronJob(

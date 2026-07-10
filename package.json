@@ -14,6 +14,8 @@
     "start:tsx": "NODE_ENV=production node --import tsx src/server.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:production": "DOTENV_CONFIG_PATH=.env.production node -r dotenv/config ./node_modules/.bin/drizzle-kit migrate",
+    "db:verify-column": "npx tsx scripts/db-verify-column.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "export-social-week": "ENV=production npx tsx scripts/export-social-week.ts",

@@ -36,6 +36,7 @@ on:
           - interview-reminder-emails
           - verified-creator-instagram
           - verification-feedback-emails
+          - creator-profile-share-emails
 
 jobs:
   daily-botd-instagram:
@@ -180,4 +181,13 @@ jobs:
     uses: ./.github/workflows/run-production-cron.yml
     with:
       job: verification-feedback-emails
+    secrets: inherit
+
+  creator-profile-share-emails:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '0 10 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'creator-profile-share-emails')
+    uses: ./.github/workflows/run-production-cron.yml
+    with:
+      job: creator-profile-share-emails
     secrets: inherit

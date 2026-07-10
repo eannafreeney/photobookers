@@ -273,11 +273,16 @@ function formatPreviewItemHeading(item: SpotlightContentItem): string {
   }
 }
 
-function renderPreviewImage(imageUrl: string | null, alt: string): string {
-  if (!imageUrl) {
-    return `<p><em>No featured image selected</em></p>`;
+function renderPreviewImages(imageUrls: string[], alt: string): string {
+  if (imageUrls.length === 0) {
+    return `<p><em>No Instagram images selected</em></p>`;
   }
-  return `<p><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)}" width="320" style="max-width:100%;height:auto;border:1px solid #ddd;" /></p>`;
+  return imageUrls
+    .map(
+      (imageUrl, index) =>
+        `<p><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)} (${index + 1} of ${imageUrls.length})" width="320" style="max-width:100%;height:auto;border:1px solid #ddd;" /></p>`,
+    )
+    .join("");
 }
 
 function renderCaptionBlock(caption: string): string {
@@ -310,8 +315,8 @@ export function buildPlannerWeekContentPreviewEmail(params: {
       <section style="margin:24px 0;padding-top:16px;border-top:1px solid #ddd;">
         <h2 style="margin:0 0 12px;font-size:18px;">${escapeHtml(heading)}</h2>
         <p style="margin:0 0 4px;font-weight:600;">${escapeHtml(item.title)}</p>
-        <p style="margin:0 0 8px;font-size:13px;color:#666;">Featured image (hero + Instagram)</p>
-        ${renderPreviewImage(item.featuredImageUrl, item.title)}
+        <p style="margin:0 0 8px;font-size:13px;color:#666;">Instagram images</p>
+        ${renderPreviewImages(item.instagramImageUrls, item.title)}
         <p style="margin:16px 0 4px;font-weight:600;">Page blurb</p>
         ${blurbHtml}
         <p style="margin:0 0 4px;font-weight:600;">Instagram caption</p>
