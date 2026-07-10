@@ -83,7 +83,7 @@ export const GET = createRoute(async (c) => {
             messages.map((msg, index) => (
               <CreatorMessage
                 user={user}
-                isFollower
+                canReadMessages
                 creator={msg.creator}
                 message={msg}
                 isFirst={index === 0}

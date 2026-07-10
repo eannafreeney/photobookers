@@ -7,7 +7,7 @@ type CreatorMessageProps = {
   message: CreatorMessage;
   isFirst: boolean;
   user: AuthUser | null;
-  canReadMessages: boolean;
+  canReadMessages?: boolean;
 };
 
 const CreatorMessage = ({
@@ -15,7 +15,7 @@ const CreatorMessage = ({
   message,
   isFirst,
   user,
-  canReadMessages,
+  canReadMessages = true,
 }: CreatorMessageProps) => {
   const canDelete = user?.isAdmin || user?.creator?.id === creator.id;
 
