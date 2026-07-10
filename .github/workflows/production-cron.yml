@@ -4,8 +4,7 @@ name: Production cron jobs
 
 on:
   schedule:
-    - cron: "0 8 * * *" # daily 08:00 UTC — queue Instagram before 10:00 post time
-    - cron: "0 8 * * 1" # Monday 08:00 UTC — CEO weekly metrics email
+    - cron: "0 8 * * *" # daily 08:00 UTC — Instagram queue + CEO metrics email
     - cron: "0 9 * * *" # daily 09:00 UTC — BOTD / spotlight / follower emails
     - cron: "0 9 * * 3" # Wednesday 09:00 UTC — weekly newsletter
     - cron: "0 9 * * 6" # Saturday 09:00 UTC — Instagram prep reminder
@@ -59,7 +58,7 @@ jobs:
 
   ceo-metrics-email:
     if: >-
-      (github.event_name == 'schedule' && github.event.schedule == '0 8 * * 1') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 8 * * *') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'ceo-metrics-email')
     uses: ./.github/workflows/run-production-cron.yml
     with:

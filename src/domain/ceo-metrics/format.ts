@@ -8,10 +8,6 @@ export type PeriodDelta = {
   direction: "up" | "down" | "flat";
 };
 
-export function isMondayUtc(date: Date = new Date()): boolean {
-  return toUtcStartOfDay(date).getUTCDay() === 1;
-}
-
 export function previousPeriodRange(range: AnalyticsDateRange): AnalyticsDateRange {
   const days = eachDayInRange(range).length;
   const priorTo = new Date(range.from);

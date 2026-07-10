@@ -1,15 +1,16 @@
-import { formatAnalyticsDateRangeLabel } from "../../features/book-analytics/dateRange";
+import {
+  formatAnalyticsDateRangeLabel,
+  yesterdayAnalyticsDateRange,
+} from "../../features/book-analytics/dateRange";
 import { sendAdminEmail } from "../../lib/sendEmail";
 import { err, ok, type Result } from "../../lib/result";
 import { buildCeoMetricsEmail, ceoMetricsEmailSubject } from "./emails";
-import { isMondayUtc } from "./format";
 import { getCeoMetricsSnapshot } from "./services";
 
 type ServiceError = { reason: string; cause?: unknown };
 
 export type CeoMetricsCronResult = {
-  action: "sent" | "dry_run" | "skipped";
-  reason?: "not_monday";
+  action: "sent" | "dry_run";
   rangeLabel?: string;
   metrics?: {
     weeklyActiveCollectors: number;
@@ -31,12 +32,9 @@ export async function runCeoMetricsEmailCron(
   options: CeoMetricsCronOptions = {},
 ): Promise<Result<CeoMetricsCronResult, ServiceError>> {
   const runDate = options.date ?? new Date();
+  const metricsRange = yesterdayAnalyticsDateRange(runDate);
 
-  if (!options.force && !isMondayUtc(runDate)) {
-    return ok({ action: "skipped", reason: "not_monday" });
-  }
-
-  const [metricsError, snapshot] = await getCeoMetricsSnapshot(null);
+  const [metricsError, snapshot] = await getCeoMetricsSnapshot(metricsRange);
   if (metricsError) return err(metricsError);
 
   const rangeLabel = formatAnalyticsDateRangeLabel(snapshot.range);

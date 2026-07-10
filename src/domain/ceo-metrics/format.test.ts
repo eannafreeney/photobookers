@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { formatPeriodDelta, isMondayUtc, previousPeriodRange } from "./format";
-
-describe("isMondayUtc", () => {
-  it("returns true on Monday UTC", () => {
-    expect(isMondayUtc(new Date("2026-03-02T15:00:00.000Z"))).toBe(true);
-  });
-
-  it("returns false on other weekdays", () => {
-    expect(isMondayUtc(new Date("2026-03-03T00:00:00.000Z"))).toBe(false);
-  });
-});
+import { formatPeriodDelta, previousPeriodRange } from "./format";
 
 describe("previousPeriodRange", () => {
+  it("shifts a 1-day range back by 1 day", () => {
+    const range = {
+      from: new Date("2026-03-09T00:00:00.000Z"),
+      to: new Date("2026-03-09T00:00:00.000Z"),
+    };
+    const previous = previousPeriodRange(range);
+    expect(previous.from.toISOString()).toBe("2026-03-08T00:00:00.000Z");
+    expect(previous.to.toISOString()).toBe("2026-03-08T00:00:00.000Z");
+  });
+
   it("shifts a 7-day range back by 7 days", () => {
     const range = {
       from: new Date("2026-03-03T00:00:00.000Z"),

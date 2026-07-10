@@ -33,7 +33,7 @@ function snapshotRow(label: string, value: number): string {
 }
 
 export function ceoMetricsEmailSubject(rangeLabel: string): string {
-  return `Photobookers weekly metrics — ${rangeLabel}`;
+  return `Photobookers daily metrics — ${rangeLabel}`;
 }
 
 export function buildCeoMetricsEmail(snapshot: CeoMetricsSnapshot): string {
@@ -47,11 +47,11 @@ export function buildCeoMetricsEmail(snapshot: CeoMetricsSnapshot): string {
 <body style="margin:0;padding:24px;background:#f6f3ef;font-family:Georgia,serif;color:#191613;">
   <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e8e4df;border-radius:8px;padding:24px;">
     <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#8a5a44;">CEO metrics</p>
-    <h1 style="margin:0 0 8px;font-size:24px;font-weight:500;">Weekly snapshot</h1>
-    <p style="margin:0 0 24px;font-size:14px;color:#5c574f;">${escapeHtml(rangeLabel)} · compared to ${escapeHtml(previousLabel)}</p>
+    <h1 style="margin:0 0 8px;font-size:24px;font-weight:500;">Daily snapshot</h1>
+    <p style="margin:0 0 24px;font-size:14px;color:#5c574f;">${escapeHtml(rangeLabel)} · day-over-day vs ${escapeHtml(previousLabel)}</p>
     <table style="width:100%;border-collapse:collapse;">
       ${metricRow(
-        "Weekly active collectors",
+        "Daily active collectors",
         snapshot.weeklyActiveCollectors.value,
         snapshot.weeklyActiveCollectors.delta.label,
       )}

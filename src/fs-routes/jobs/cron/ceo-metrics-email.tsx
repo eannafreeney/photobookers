@@ -5,7 +5,7 @@ import { parseDateString } from "../../../lib/utils";
 import { requireCronSecret } from "@/jobs/cronRouteAuth";
 
 /**
- * Weekly CEO metrics email cron.
+ * Daily CEO metrics email cron (yesterday's metrics).
  *
  * Prefer GitHub Actions: npx tsx scripts/cron/run.ts ceo-metrics-email
  *
