@@ -10,12 +10,14 @@ import { showErrorAlert } from "../../../../../lib/alertHelpers";
 import { uploadImage } from "../../../../../services/storage";
 import { updateBookCoverImage } from "../../../../../features/dashboard/images/services";
 import { showSuccessAlert } from "../../../../../lib/alertHelpers";
+import { getUser } from "../../../../../utils";
 
 export const POST = createRoute(
   paramValidator(bookIdSchema),
   requireBookImageEditAccess,
   async (c: BookIdContext) => {
     const bookId = c.req.valid("param").bookId;
+    const user = await getUser(c);
     const body = await c.req.parseBody();
 
     const validatedFile = validateImageFile(body.cover);
@@ -33,7 +35,9 @@ export const POST = createRoute(
       console.log(error, "error in upload cover image");
       return showErrorAlert(c, "Failed to upload cover image");
     }
-    const [err, updatedBook] = await updateBookCoverImage(bookId, coverUrl);
+    const [err, updatedBook] = await updateBookCoverImage(bookId, coverUrl, {
+      actorUserId: user.id,
+    });
     if (err) return showErrorAlert(c, err.reason);
 
     if (!updatedBook) return showErrorAlert(c, "Failed to update book cover");

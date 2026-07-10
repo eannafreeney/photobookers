@@ -11,7 +11,6 @@ import {
   createBook,
   getNewBookModerationForUser,
 } from "../services";
-import { notifyAdminBookPendingReview } from "../../admin/notifications/services";
 import { rowToBookFormData } from "./rowToBookFormData";
 import type { ValidatedCsvBookRow } from "./schema";
 import { db } from "../../../../db/client";
@@ -329,14 +328,6 @@ export async function importBooksFromRows(
         error: "Failed to create book",
       });
       continue;
-    }
-
-    if (book.approvalStatus === "pending") {
-      await notifyAdminBookPendingReview({
-        bookId: book.id,
-        title: book.title,
-        actorUserId: user.id,
-      });
     }
 
     createdBooks.push(book);

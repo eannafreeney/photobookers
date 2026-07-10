@@ -7,7 +7,7 @@ import { BookIdContext } from "../../../../features/dashboard/books/types";
 import { resubmitBook } from "../../../../features/dashboard/books/services";
 import Alert from "../../../../components/app/Alert";
 import { getUser } from "../../../../utils";
-import { notifyAdminBookPendingReview } from "../../../../features/dashboard/admin/notifications/services";
+import { notifyAdminBookPendingReviewWhenReady } from "../../../../features/dashboard/admin/notifications/services";
 
 export const POST = createRoute(
   paramValidator(bookIdSchema),
@@ -19,9 +19,8 @@ export const POST = createRoute(
     if (error) return showErrorAlert(c, error.reason);
 
     if (updatedBook?.approvalStatus === "pending") {
-      await notifyAdminBookPendingReview({
+      await notifyAdminBookPendingReviewWhenReady({
         bookId: updatedBook.id,
-        title: updatedBook.title,
         actorUserId: user.id,
         isResubmit: true,
       });

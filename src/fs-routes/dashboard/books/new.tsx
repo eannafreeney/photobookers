@@ -20,7 +20,6 @@ import {
 } from "../../../features/dashboard/books/services";
 import BookReviewProcessBanner from "../../../features/dashboard/books/components/BookReviewProcessBanner";
 import { shouldModerateNewBook } from "../../../lib/bookModeration";
-import { notifyAdminBookPendingReview } from "../../../features/dashboard/admin/notifications/services";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -105,14 +104,6 @@ export const POST = createRoute(
     const newBook = await createBook(bookData);
 
     if (!newBook) return showErrorAlert(c, "Failed to create book");
-
-    if (newBook.approvalStatus === "pending") {
-      await notifyAdminBookPendingReview({
-        bookId: newBook.id,
-        title: newBook.title,
-        actorUserId: user.id,
-      });
-    }
 
     await setFlash(c, "success", `Successfully created "${newBook.title}"!`);
     return c.redirect(`/dashboard/books/${newBook.id}`);

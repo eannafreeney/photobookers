@@ -193,7 +193,9 @@ export const POST = createRoute(async (c: Context) => {
           `books/covers/${bookId}`,
           "cover",
         );
-        const [err] = await updateBookCoverImage(bookId, coverResult.url);
+        const [err] = await updateBookCoverImage(bookId, coverResult.url, {
+          actorUserId: user.id,
+        });
         if (err) {
           failedBooks++;
           continue;

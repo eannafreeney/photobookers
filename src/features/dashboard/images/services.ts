@@ -1,6 +1,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { bookFairs, bookImages, bookStores, books, creators, users } from "../../../db/schema";
+import { notifyAdminBookPendingReviewWhenReady } from "../../../domain/notifications/services";
 import { err, ok } from "../../../lib/result";
 import {
   invalidateBookCache,
@@ -84,8 +85,14 @@ export const updateUserProfileImageDB = async (
 export const updateBookCoverImage = async (
   bookId: string,
   coverUrl: string,
+  options?: { actorUserId?: string },
 ) => {
   try {
+    const existing = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      columns: { coverUrl: true },
+    });
+
     const [updatedBook] = await db
       .update(books)
       .set({ coverUrl })
@@ -100,6 +107,13 @@ export const updateBookCoverImage = async (
 
     if (updatedBook.slug) {
       invalidateBookCache(updatedBook.slug);
+    }
+
+    if (options?.actorUserId && !existing?.coverUrl) {
+      await notifyAdminBookPendingReviewWhenReady({
+        bookId,
+        actorUserId: options.actorUserId,
+      });
     }
 
     return ok(updatedBook);

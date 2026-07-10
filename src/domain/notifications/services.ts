@@ -35,6 +35,25 @@ export const createAdminNotification = async (input: NewAdminNotification) => {
   }
 };
 
+export const notifyAdminBookPendingReviewWhenReady = async (input: {
+  bookId: string;
+  actorUserId: string;
+  isResubmit?: boolean;
+}) => {
+  const book = await db.query.books.findFirst({
+    where: (t, { eq }) => eq(t.id, input.bookId),
+    columns: { approvalStatus: true, coverUrl: true, title: true },
+  });
+  if (!book || book.approvalStatus !== "pending" || !book.coverUrl) return;
+
+  await notifyAdminBookPendingReview({
+    bookId: input.bookId,
+    title: book.title,
+    actorUserId: input.actorUserId,
+    isResubmit: input.isResubmit,
+  });
+};
+
 export const notifyAdminBookPendingReview = async (input: {
   bookId: string;
   title: string;
