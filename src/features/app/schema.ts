@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeTagSlug } from "../../lib/tags";
 import { parseDateString, parseWeekString } from "../../lib/utils";
 
 // ============ VALIDATE PASSWORD SCHEMA ============
@@ -55,9 +56,14 @@ export const slugSchema = z.object({
 export const tagSchema = z.object({
   tag: z
     .string()
-    .min(1, "Tag is required")
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Tag must contain only lowercase letters, numbers, and hyphens",
+    .transform(normalizeTagSlug)
+    .pipe(
+      z
+        .string()
+        .min(1, "Tag is required")
+        .regex(
+          /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+          "Tag must contain only lowercase letters, numbers, and hyphens",
+        ),
     ),
 });

@@ -1,7 +1,29 @@
+import { sql, type SQLWrapper } from "drizzle-orm";
+
+export const stripDiacritics = (value: string) =>
+  value.normalize("NFD").replace(/\p{Mark}/gu, "");
+
+export const normalizeTagForMatch = (tag: string) =>
+  stripDiacritics(tag.toLowerCase().trim());
+
+export const normalizeTagSlug = (slug: string) =>
+  normalizeTagForMatch(slug)
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
 export const tagToSlug = (tag: string) =>
-  tag.toLowerCase().replace(/\s+/g, "-");
+  normalizeTagForMatch(tag).replace(/\s+/g, "-");
 
 export const slugToTag = (slug: string) => slug.replace(/-/g, " ");
+
+/** Accent-insensitive tag equality against a book's tags array column. */
+export const tagMatchesBookTags = (tagsColumn: SQLWrapper, tag: string) => {
+  const normalized = normalizeTagForMatch(tag);
+  return sql`EXISTS (
+    SELECT 1 FROM unnest(${tagsColumn}) AS t
+    WHERE regexp_replace(normalize(lower(t), NFKD), '[\u0300-\u036f]+', '', 'g') = ${normalized}
+  )`;
+};
 
 import { type BookCatalogSort, parseBookCatalogSort } from "./bookCatalogSort";
 

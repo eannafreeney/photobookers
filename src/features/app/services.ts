@@ -34,7 +34,7 @@ import {
 } from "../../lib/bookCatalogSort";
 import { getPublicBooksForCreator } from "../../domain/creators/books";
 import { getBooksOrderBy } from "../../lib/booksOrderBy";
-import { slugToTag } from "../../lib/tags";
+import { slugToTag, tagMatchesBookTags } from "../../lib/tags";
 import { FEATURED_BOOK_GROUPS } from "../../constants/featuredBookGroups";
 import {
   BOOK_CARD_COLUMNS,
@@ -581,10 +581,7 @@ export const getBooksByTag = async (
   defaultLimit = 12,
 ) => {
   try {
-    const tagCondition = sql`EXISTS (
-      SELECT 1 FROM unnest(${books.tags}) AS t
-      WHERE LOWER(t) = LOWER(${tag})
-    )`;
+    const tagCondition = tagMatchesBookTags(books.tags, tag);
 
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
@@ -601,10 +598,7 @@ export const getBooksByTag = async (
       where: (books, { and, eq, sql }) =>
         and(
           eq(books.publicationStatus, "published"),
-          sql`EXISTS (
-            SELECT 1 FROM unnest(${books.tags}) AS t
-            WHERE LOWER(t) = LOWER(${tag})
-          )`,
+          tagMatchesBookTags(books.tags, tag),
           or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
         ),
       columns: BOOK_CARD_COLUMNS,
@@ -729,10 +723,7 @@ const catalogBookCoverConditions = (tag: string) =>
     eq(books.approvalStatus, "approved"),
     or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
     isNotNull(books.coverUrl),
-    sql`EXISTS (
-      SELECT 1 FROM unnest(${books.tags}) AS t
-      WHERE LOWER(t) = LOWER(${tag})
-    )`,
+    tagMatchesBookTags(books.tags, tag),
   );
 
 const getCoverUrlForTag = async (tag: string): Promise<string | null> => {
@@ -800,12 +791,7 @@ export const getFilteredBooks = async ({
     const conditions = [publishedConditions];
 
     if (normalizedTag) {
-      conditions.push(
-        sql`EXISTS (
-          SELECT 1 FROM unnest(${books.tags}) AS t
-          WHERE LOWER(t) = LOWER(${normalizedTag})
-        )`,
-      );
+      conditions.push(tagMatchesBookTags(books.tags, normalizedTag));
     }
 
     if (searchQ) {
@@ -862,10 +848,7 @@ const getBooksByTagForCatalog = async (
   defaultLimit: number,
   sort: BookCatalogSort,
 ) => {
-  const tagCondition = sql`EXISTS (
-    SELECT 1 FROM unnest(${books.tags}) AS t
-    WHERE LOWER(t) = LOWER(${tag})
-  )`;
+  const tagCondition = tagMatchesBookTags(books.tags, tag);
 
   const publishedConditions = and(
     eq(books.publicationStatus, "published"),
