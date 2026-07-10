@@ -2,7 +2,8 @@
 # Client JS/CSS builds automatically during npm ci on both services
 # (see scripts/render-postinstall.mjs).
 #
-# autoDeployTrigger: checksPass — deploy only after GitHub Actions CI passes.
+# autoDeployTrigger: checksPass — deploy only after GitHub Actions CI passes
+# (check + migrate jobs on push to main/staging).
 # Without a synced blueprint, set Auto-Deploy → "After CI Checks Pass" in the
 # Render dashboard for each service (Settings).
 services:

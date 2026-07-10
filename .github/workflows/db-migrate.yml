@@ -1,4 +1,5 @@
-# Run Drizzle migrations against production or staging (manual only).
+# Run Drizzle migrations manually (e.g. re-run without a deploy).
+# On push to main/staging, CI runs migrations automatically before Render deploys.
 name: Database migrate
 
 on:
