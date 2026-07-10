@@ -206,12 +206,12 @@ describe("bufferCreateScheduledStory", () => {
     delete process.env.BUFFER_INSTAGRAM_CHANNEL_ID;
   });
 
-  it("schedules automatic Instagram stories with sticker text", async () => {
+  it("schedules notification-based Instagram stories with sticker text", async () => {
     const fetchMock = vi.fn(async (_url, init) => {
       const body = JSON.parse(String(init?.body));
       expect(body.variables.input).toMatchObject({
         text: "Book of the Day\n\nWinter Light\n\nLink in bio →",
-        schedulingType: "automatic",
+        schedulingType: "notification",
         mode: "customScheduled",
         dueAt: "2026-06-01T10:00:00.000Z",
         assets: [{ image: { url: "https://cdn.example.com/cover.jpg" } }],

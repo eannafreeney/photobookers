@@ -175,7 +175,8 @@ async function bufferCreatePost(
     return err({ reason: createPost.message });
   }
 
-  const postId = createPost && "post" in createPost ? createPost.post?.id : null;
+  const postId =
+    createPost && "post" in createPost ? createPost.post?.id : null;
   if (!postId) {
     return err({ reason: "Buffer did not return a post id" });
   }
@@ -208,9 +209,7 @@ export async function bufferCreateScheduledImagePost(params: {
       instagram: {
         type: "post",
         shouldShareToFeed: true,
-        ...(params.firstComment
-          ? { firstComment: params.firstComment }
-          : {}),
+        ...(params.firstComment ? { firstComment: params.firstComment } : {}),
         ...(params.stickerFields
           ? { stickerFields: params.stickerFields }
           : {}),
@@ -250,7 +249,7 @@ export async function bufferCreateScheduledStory(params: {
 
   return bufferCreatePost({
     text: params.caption,
-    schedulingType: "automatic",
+    schedulingType: "notification",
     mode: "customScheduled",
     dueAt: params.dueAt.toISOString(),
     assets: [{ image: { url: params.imageUrl } }],
