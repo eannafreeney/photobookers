@@ -9,10 +9,15 @@ import {
   generateBookApprovedEmail,
   generateBookRejectedEmail,
 } from "../creators/emails";
-import { assignNextBookSortOrder } from "../../books/services";
+import {
+  assignNextBookSortOrder,
+  deleteBookDependents,
+} from "../../books/services";
 
 export const deleteBookByIdAdmin = async (bookId: string) => {
   try {
+    await deleteBookDependents(bookId);
+
     const [deletedBook] = await db
       .delete(books)
       .where(eq(books.id, bookId))

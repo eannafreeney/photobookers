@@ -400,6 +400,13 @@
       "when": 1783099000000,
       "tag": "0057_creator_profile_share_email_sent_at",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1783100000000,
+      "tag": "0058_book_analytics_cascade_delete",
+      "breakpoints": true
     }
   ]
 }

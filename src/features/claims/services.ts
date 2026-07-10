@@ -1,13 +1,15 @@
 import { db } from "../../db/client";
 import {
-  bookImages,
   books,
   CreatorClaim,
   creatorClaims,
   creators,
 } from "../../db/schema";
 import { and, eq, gt, inArray, or } from "drizzle-orm";
-import { cleanupOrphanedStubCreator } from "../dashboard/books/services";
+import {
+  cleanupOrphanedStubCreator,
+  deleteBookDependents,
+} from "../dashboard/books/services";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 import { notifyAdminNewClaim } from "../../domain/notifications/services";
 import { err, ok } from "../../lib/result";
@@ -164,8 +166,7 @@ export const deleteBookById = async (bookId: string) => {
 
     if (!book) return null;
 
-    // Delete related book_images first (FK constraint)
-    await db.delete(bookImages).where(eq(bookImages.bookId, bookId));
+    await deleteBookDependents(bookId);
 
     const [deletedBook] = await db
       .delete(books)

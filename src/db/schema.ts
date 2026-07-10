@@ -859,7 +859,7 @@ export const purchaseClicks = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     bookId: uuid("book_id")
-      .references(() => books.id)
+      .references(() => books.id, { onDelete: "cascade" })
       .notNull(),
     userId: uuid("user_id").references(() => users.id),
     source: purchaseClickSourceEnum("source").notNull().default("web"),
@@ -888,7 +888,7 @@ export const bookViews = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     bookId: uuid("book_id")
-      .references(() => books.id)
+      .references(() => books.id, { onDelete: "cascade" })
       .notNull(),
     userId: uuid("user_id").references(() => users.id),
     source: bookViewSourceEnum("source").notNull().default("web"),

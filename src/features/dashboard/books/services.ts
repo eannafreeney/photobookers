@@ -22,9 +22,11 @@ import {
   Book,
   bookImages,
   books,
+  bookViews,
   Creator,
   creators,
   NewBook,
+  purchaseClicks,
   UpdateBook,
 } from "../../../db/schema";
 import { generateUniqueBookSlug } from "../../../utils";
@@ -456,14 +458,19 @@ export const updateBook = async (input: UpdateBook, bookId: string) => {
   }
 };
 
+export const deleteBookDependents = async (bookId: string) => {
+  await db.delete(purchaseClicks).where(eq(purchaseClicks.bookId, bookId));
+  await db.delete(bookViews).where(eq(bookViews.bookId, bookId));
+  await db.delete(bookImages).where(eq(bookImages.bookId, bookId));
+};
+
 export const deleteBookById = async (bookId: string) => {
   try {
     const [book] = await db.select().from(books).where(eq(books.id, bookId));
 
     if (!book) return null;
 
-    // Delete related book_images first (FK constraint)
-    await db.delete(bookImages).where(eq(bookImages.bookId, bookId));
+    await deleteBookDependents(bookId);
 
     const [deletedBook] = await db
       .delete(books)
