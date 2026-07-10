@@ -19,7 +19,7 @@ describe("creator profile share emails", () => {
     });
 
     expect(html).toContain("Hi Jane Doe");
-    expect(html).toContain("take a screenshot");
+    expect(html).toContain("shared a screenshot");
     expect(html).toContain("Share kit");
     expect(html).toContain("https://www.photobookers.com/creators/jane-doe");
     expect(html).toContain("Find my artist profile and books here:");
