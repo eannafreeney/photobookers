@@ -33,6 +33,7 @@ type Props = {
   isFollowing: boolean;
   favoritesByBookId: Record<string, boolean>;
   spotlightImage?: string | null;
+  spotlightBlurb?: string | null;
 };
 
 const CreatorOfTheWeekSpotlightBody = ({
@@ -44,9 +45,10 @@ const CreatorOfTheWeekSpotlightBody = ({
   isFollowing,
   favoritesByBookId,
   spotlightImage,
+  spotlightBlurb,
 }: Props) => {
   const isArtist = creator.type === "artist";
-  const bio = creator.bio?.trim() || null;
+  const bio = spotlightBlurb?.trim() || creator.bio?.trim() || null;
   const location = formatCreatorLocation(creator.city, creator.country);
   const subtitle = [location, toWeekString(weekStart)]
     .filter(Boolean)

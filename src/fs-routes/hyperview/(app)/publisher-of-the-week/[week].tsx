@@ -89,6 +89,7 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
           isFollowing={followingByCreatorId[booksResult.creator.id] ?? false}
           favoritesByBookId={favoritesByBookId}
           spotlightImage={publisherOfTheWeek.featuredImageUrl}
+          spotlightBlurb={publisherOfTheWeek.spotlightBlurb}
         />
       </View>
     </AppLayout>,

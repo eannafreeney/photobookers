@@ -24,7 +24,7 @@ type Props = {
   book: BookWithGalleryImages;
   galleryImages: string[];
   date: Date;
-  editorial?: string | null;
+  spotlightBlurb?: string | null;
   baseUrl: string;
   isFavorited: boolean;
   followingByCreatorId: Record<string, boolean>;
@@ -34,13 +34,14 @@ const BookOfTheDaySpotlightBody: FC<Props> = ({
   book,
   galleryImages,
   date,
-  editorial,
+  spotlightBlurb,
   baseUrl,
   isFavorited,
   followingByCreatorId,
 }) => {
   const shareUrl = `${baseUrl}${botdPath(date)}`;
-  const description = book.description?.trim() || editorial?.trim() || null;
+  const description =
+    spotlightBlurb?.trim() || book.description?.trim() || null;
 
   return (
     <View style="spotlight-body">

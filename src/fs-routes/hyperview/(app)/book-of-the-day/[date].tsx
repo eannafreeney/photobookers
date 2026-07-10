@@ -75,7 +75,7 @@ export const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
           book={book}
           galleryImages={galleryImages}
           date={date}
-          editorial={bookOfTheDay.instagramCaption?.trim() || null}
+          spotlightBlurb={bookOfTheDay.spotlightBlurb}
           baseUrl={baseUrl}
           isFavorited={favoritesByBookId[book.id] ?? false}
           followingByCreatorId={followingByCreatorId}
