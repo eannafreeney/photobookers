@@ -236,15 +236,9 @@ export function registerBookGalleryForm() {
             }
 
             if (response.ok) {
-              this.initialImages = this.images
-                .filter((img) => !img.file)
-                .map((img) => ({ id: img.id, previewUrl: img.previewUrl }));
-
-              this.removedIds = [];
-              this.images = this.images.map((img) => {
-                if (img.file) return { id: img.id, previewUrl: img.previewUrl };
-                return img;
-              });
+              // Reload so gallery state picks up persisted image ids from the DB.
+              window.location.reload();
+              return;
             }
 
             this.isSubmitting = false;

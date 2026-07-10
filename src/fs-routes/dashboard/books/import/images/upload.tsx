@@ -206,11 +206,12 @@ export const POST = createRoute(async (c: Context) => {
       // Upload gallery images (rest)
       const galleryFiles = imageFiles.slice(1);
       if (galleryFiles.length > 0) {
-        const galleryResults = await Promise.all(
-          galleryFiles.map((file) =>
-            uploadImage(file, `books/${bookId}/gallery`, "gallery"),
-          ),
-        );
+        const galleryResults = [];
+        for (const file of galleryFiles) {
+          galleryResults.push(
+            await uploadImage(file, `books/${bookId}/gallery`, "gallery"),
+          );
+        }
 
         const imageUrls = galleryResults.map((r) => r.url);
         const [galleryErr] = await addBookGalleryImages(bookId, imageUrls);

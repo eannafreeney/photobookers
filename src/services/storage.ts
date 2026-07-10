@@ -142,24 +142,24 @@ export async function uploadImages(
   imageFiles: File[],
   newBookId: string,
 ): Promise<void> {
-  if (imageFiles.length > 0) {
-    const uploadResults = await Promise.all(
-      imageFiles.map((file) =>
-        uploadImage(file, `books/${newBookId}/gallery`, "gallery"),
-      ),
-    );
+  if (imageFiles.length === 0) return;
 
-    // Save to database
-    await Promise.all(
-      uploadResults.map((result, index) =>
-        db.insert(bookImages).values({
-          bookId: newBookId,
-          imageUrl: result.url,
-          sortOrder: index,
-        }),
-      ),
+  const uploadResults = [];
+  for (const file of imageFiles) {
+    uploadResults.push(
+      await uploadImage(file, `books/${newBookId}/gallery`, "gallery"),
     );
   }
+
+  await Promise.all(
+    uploadResults.map((result, index) =>
+      db.insert(bookImages).values({
+        bookId: newBookId,
+        imageUrl: result.url,
+        sortOrder: index,
+      }),
+    ),
+  );
 }
 
 /**

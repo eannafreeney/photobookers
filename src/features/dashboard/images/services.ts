@@ -7,6 +7,7 @@ import {
   invalidateBookCache,
   invalidateCreatorCache,
 } from "../../app/services";
+import { persistedBookImageIds } from "./ids";
 
 export const updateCreatorCoverImage = async (
   coverUrl: string,
@@ -134,10 +135,11 @@ export const reorderBookImages = async (
   bookId: string,
   orderedIds: string[],
 ) => {
-  if (!orderedIds.length) return;
+  const persistedIds = persistedBookImageIds(orderedIds);
+  if (!persistedIds.length) return;
   try {
     await db.transaction(async (tx) => {
-      for (const [index, imageId] of orderedIds.entries()) {
+      for (const [index, imageId] of persistedIds.entries()) {
         await tx
           .update(bookImages)
           .set({ sortOrder: index })
