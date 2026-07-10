@@ -7,6 +7,8 @@ import type { AnalyticsSectionTab } from "./components/AnalyticsSectionTabs";
 export const ADMIN_ANALYTICS_PANEL_ID = "admin-analytics-panel";
 export const ADMIN_ANALYTICS_FRAGMENT = "panel";
 export const ADMIN_ANALYTICS_BASE_PATH = "/dashboard/admin/analytics";
+export const ADMIN_ANALYTICS_FANS_PATH = `${ADMIN_ANALYTICS_BASE_PATH}/fans`;
+export const ADMIN_ANALYTICS_VERIFIED_CREATORS_PATH = `${ADMIN_ANALYTICS_BASE_PATH}/verified-creators`;
 
 const TAB_QUERY_VALUES: AnalyticsSectionTab[] = [
   "overview",

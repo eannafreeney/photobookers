@@ -66,7 +66,7 @@ export const GET = createRoute(async (c) => {
     <div id="latest-books-fragment">
       <div class="flex items-end justify-between mb-3 border-t-2 border-on-surface-strong pt-3">
         <SectionTitle className="mb-0" kicker="New Arrivals">
-          Latest Books
+          TrendingBooks
         </SectionTitle>
         <ViewAllLink href="/books" />
       </div>

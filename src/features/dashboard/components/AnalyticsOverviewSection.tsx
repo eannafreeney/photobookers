@@ -6,6 +6,10 @@ import {
   getCreatorFunnelTotals,
   type CreatorAnalyticsScope,
 } from "../../book-analytics/creatorAnalytics";
+import {
+  getCurrentFanCount,
+  getCurrentVerifiedCreatorCount,
+} from "../../book-analytics/audience";
 import { getOverallFunnelTotals } from "../../book-analytics/funnel";
 import { getFollowTotal } from "../../book-analytics/trends";
 import { getBookViewTotals } from "../../book-views/services";
@@ -15,9 +19,16 @@ import { getPurchaseClickTotals } from "../../purchase-clicks/services";
 type Props = {
   dateRange: AnalyticsDateRange | null;
   scope?: CreatorAnalyticsScope | null;
+  fansHref?: string;
+  verifiedCreatorsHref?: string;
 };
 
-const AnalyticsOverviewSection = async ({ dateRange, scope = null }: Props) => {
+const AnalyticsOverviewSection = async ({
+  dateRange,
+  scope = null,
+  fansHref,
+  verifiedCreatorsHref,
+}: Props) => {
   if (scope) {
     const totals = await getCreatorFunnelTotals(scope, dateRange);
     const clickRateLabel =
@@ -52,12 +63,16 @@ const AnalyticsOverviewSection = async ({ dateRange, scope = null }: Props) => {
     clickTotals,
     funnelTotals,
     followTotal,
+    currentFans,
+    currentVerifiedCreators,
   ] = await Promise.all([
     getBookViewTotals(dateRange),
     getCreatorViewTotals(dateRange),
     getPurchaseClickTotals(dateRange),
     getOverallFunnelTotals(dateRange),
     getFollowTotal(dateRange),
+    getCurrentFanCount(),
+    getCurrentVerifiedCreatorCount(),
   ]);
 
   const clickRateLabel =
@@ -70,6 +85,16 @@ const AnalyticsOverviewSection = async ({ dateRange, scope = null }: Props) => {
         Showing metrics for <span class="font-medium">{periodLabel}</span>
       </p>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <StatCard
+          label="Current fans"
+          value={currentFans}
+          href={fansHref}
+        />
+        <StatCard
+          label="Current verified creators"
+          value={currentVerifiedCreators}
+          href={verifiedCreatorsHref}
+        />
         <StatCard label="Total book views" value={viewTotals.totalViews} />
         <StatCard label="Books with views" value={viewTotals.booksWithViews} />
         <StatCard
@@ -92,19 +117,39 @@ const AnalyticsOverviewSection = async ({ dateRange, scope = null }: Props) => {
   );
 };
 
+const statCardClass =
+  "flex flex-col gap-2 rounded-radius border border-outline bg-surface px-4 py-3 shadow-sm";
+
 const StatCard = ({
   label,
   value,
+  href,
 }: {
   label: string;
   value: number | string;
-}) => (
-  <div class="flex flex-col gap-2 rounded-radius border border-outline bg-surface px-4 py-3 shadow-sm">
-    <p class="text-2xl font-semibold text-on-surface-strong">
-      {typeof value === "number" ? value.toLocaleString() : value}
-    </p>
-    <p class="text-sm text-on-surface">{label}</p>
-  </div>
-);
+  href?: string;
+}) => {
+  const content = (
+    <>
+      <p class="text-2xl font-semibold text-on-surface-strong">
+        {typeof value === "number" ? value.toLocaleString() : value}
+      </p>
+      <p class="text-sm text-on-surface">{label}</p>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        class={`${statCardClass} no-underline transition-colors hover:border-outline-strong`}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return <div class={statCardClass}>{content}</div>;
+};
 
 export default AnalyticsOverviewSection;

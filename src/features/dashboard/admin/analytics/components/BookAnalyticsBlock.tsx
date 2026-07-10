@@ -8,6 +8,10 @@ import TopBooksByClicksSection from "../../../components/TopBooksByClicksSection
 import TopCreatorsTable from "./TopCreatorsTable";
 import { AnalyticsDateRange } from "../../../../book-analytics/dateRange";
 import TopCreatorsByViews from "../../../components/TopCreatorsByViews";
+import {
+  ADMIN_ANALYTICS_FANS_PATH,
+  ADMIN_ANALYTICS_VERIFIED_CREATORS_PATH,
+} from "../adminAnalyticsPanel";
 
 type Props = {
   dateRange: AnalyticsDateRange;
@@ -44,7 +48,11 @@ const BookAnalyticsBlock = ({
 }: Props) => {
   return (
     <>
-      <AnalyticsOverviewSection dateRange={dateRange} />
+      <AnalyticsOverviewSection
+        dateRange={dateRange}
+        fansHref={ADMIN_ANALYTICS_FANS_PATH}
+        verifiedCreatorsHref={ADMIN_ANALYTICS_VERIFIED_CREATORS_PATH}
+      />
       <AnalyticsTrendChartsSection
         chartRange={chartRange}
         dateRange={dateRange}
