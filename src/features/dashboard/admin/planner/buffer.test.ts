@@ -27,6 +27,9 @@ describe("bufferCreateScheduledImagePost", () => {
         mode: "customScheduled",
         dueAt: "2026-06-01T10:00:00.000Z",
       });
+      expect(body.variables.input.assets).toEqual([
+        { image: { url: "https://cdn.example.com/cover.jpg" } },
+      ]);
       expect(body.variables.input.metadata.instagram).toEqual({
         type: "post",
         shouldShareToFeed: true,
@@ -61,6 +64,43 @@ describe("bufferCreateScheduledImagePost", () => {
     expect(error).toBeNull();
     expect(result).toEqual({ postId: "post-abc" });
     expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("schedules carousel feed posts with multiple image assets", async () => {
+    const fetchMock = vi.fn(async (_url, init) => {
+      const body = JSON.parse(String(init?.body));
+      expect(body.variables.input.assets).toEqual([
+        { image: { url: "https://cdn.example.com/1.jpg" } },
+        { image: { url: "https://cdn.example.com/2.jpg" } },
+        { image: { url: "https://cdn.example.com/3.jpg" } },
+      ]);
+
+      return new Response(
+        JSON.stringify({
+          data: {
+            createPost: {
+              __typename: "PostActionSuccess",
+              post: { id: "post-carousel" },
+            },
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    const [error, result] = await bufferCreateScheduledImagePost({
+      text: "Carousel post",
+      imageUrls: [
+        "https://cdn.example.com/1.jpg",
+        "https://cdn.example.com/2.jpg",
+        "https://cdn.example.com/3.jpg",
+      ],
+      dueAt: new Date("2026-06-01T10:00:00.000Z"),
+    });
+
+    expect(error).toBeNull();
+    expect(result).toEqual({ postId: "post-carousel" });
   });
 
   it("surfaces Buffer mutation errors from the response body", async () => {

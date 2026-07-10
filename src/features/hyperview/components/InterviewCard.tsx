@@ -15,11 +15,7 @@ type Props = {
   variant?: "carousel" | "list";
 };
 
-const InterviewCard: FC<Props> = ({
-  interview,
-  href,
-  variant = "carousel",
-}) => {
+const InterviewCard = ({ interview, href, variant = "carousel" }: Props) => {
   const cardStyle =
     variant === "list" ? "interview-list-card" : "interview-card";
   const imageStyle =
@@ -60,7 +56,7 @@ export const interviewCardStyles = () => (
       id="interview-card"
       width={220}
       height={256}
-      borderRadius={0}
+      borderRadius={4}
       overflow="hidden"
       marginRight={12}
     />

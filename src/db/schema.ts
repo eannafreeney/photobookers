@@ -132,6 +132,9 @@ export const users = pgTable("users", {
   acceptsTerms: timestamp("accepts_terms"),
   isAdmin: boolean("is_admin").default(false).notNull(),
   mustResetPassword: boolean("must_reset_password").default(false).notNull(),
+  verificationFeedbackEmailSentAt: timestamp(
+    "verification_feedback_email_sent_at",
+  ),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -238,6 +241,9 @@ export const creators = pgTable(
     verifiedInstagramQueuedAt: timestamp("verified_instagram_queued_at"),
     verifiedInstagramBufferPostId: text("verified_instagram_buffer_post_id"),
     verifiedInstagramError: text("verified_instagram_error"),
+    verificationFeedbackEmailSentAt: timestamp(
+      "verification_feedback_email_sent_at",
+    ),
     createdByUserId: uuid("created_by_user_id")
       .references(() => users.id)
       .notNull(),
@@ -630,6 +636,7 @@ export const bookOfTheDay = pgTable(
       "publisher_feature_day_email_sent_at",
     ),
     featuredImageUrl: text("featured_image_url"),
+    instagramImageUrls: text("instagram_image_urls").array(),
     spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
@@ -666,6 +673,7 @@ export const artistOfTheWeek = pgTable(
       .references(() => creators.id, { onDelete: "cascade" }),
     emailSentAt: timestamp("email_sent_at"),
     featuredImageUrl: text("featured_image_url"),
+    instagramImageUrls: text("instagram_image_urls").array(),
     spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
@@ -708,6 +716,7 @@ export const publisherOfTheWeek = pgTable(
       .references(() => creators.id, { onDelete: "cascade" }),
     emailSentAt: timestamp("email_sent_at"),
     featuredImageUrl: text("featured_image_url"),
+    instagramImageUrls: text("instagram_image_urls").array(),
     spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),

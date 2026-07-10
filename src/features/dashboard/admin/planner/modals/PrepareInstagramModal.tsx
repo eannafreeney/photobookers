@@ -17,6 +17,8 @@ import type {
 import {
   INSTAGRAM_SPOTLIGHT_AOTW_KEY,
   INSTAGRAM_SPOTLIGHT_POTW_KEY,
+  MAX_INSTAGRAM_CAROUSEL_IMAGES,
+  getPlannerInstagramImageSelection,
 } from "../instagramUtils";
 import { formatDayLabel } from "../utils";
 
@@ -49,21 +51,24 @@ const PrepareInstagramModal = ({
       entry.instagramPreparedAt ||
       entry.instagramQueuedAt ||
       entry.instagramCaption ||
-      entry.featuredImageUrl,
+      entry.featuredImageUrl ||
+      (entry.instagramImageUrls?.length ?? 0) > 0,
   );
   const hasArtistPlan = Boolean(
     artistOfTheWeek &&
     (artistOfTheWeek.instagramPreparedAt ||
       artistOfTheWeek.instagramQueuedAt ||
       artistOfTheWeek.instagramCaption ||
-      artistOfTheWeek.featuredImageUrl),
+      artistOfTheWeek.featuredImageUrl ||
+      (artistOfTheWeek.instagramImageUrls?.length ?? 0) > 0),
   );
   const hasPublisherPlan = Boolean(
     publisherOfTheWeek &&
     (publisherOfTheWeek.instagramPreparedAt ||
       publisherOfTheWeek.instagramQueuedAt ||
       publisherOfTheWeek.instagramCaption ||
-      publisherOfTheWeek.featuredImageUrl),
+      publisherOfTheWeek.featuredImageUrl ||
+      (publisherOfTheWeek.instagramImageUrls?.length ?? 0) > 0),
   );
   const hasInstagramPlan = hasBotdPlan || hasArtistPlan || hasPublisherPlan;
   const hasQueuedToBuffer =
@@ -119,8 +124,10 @@ const PrepareInstagramModal = ({
                 if (!book) return null;
 
                 const imageOptions = collectBookImageOptions(book);
-                const selectedImage =
-                  entry.featuredImageUrl ?? imageOptions[0] ?? "";
+                const selectedImages = getPlannerInstagramImageSelection(
+                  entry,
+                  imageOptions,
+                );
 
                 const tagLine = formatInstagramHashtags(book.tags);
 
@@ -135,7 +142,7 @@ const PrepareInstagramModal = ({
                       book,
                       entry.instagramCaption,
                     )}
-                    selectedImage={selectedImage}
+                    selectedImages={selectedImages}
                     tagsLine={
                       tagLine ? `Tags: ${tagLine}` : "No tags on this book"
                     }
@@ -157,14 +164,13 @@ const PrepareInstagramModal = ({
                     artistOfTheWeek.instagramCaption ??
                     buildDefaultArtistInstagramCaption(artistCreator)
                   }
-                  selectedImage={
-                    artistOfTheWeek.featuredImageUrl ??
+                  selectedImages={getPlannerInstagramImageSelection(
+                    artistOfTheWeek,
                     collectCreatorImageOptions(
                       artistCreator,
                       artistBookCoverUrls,
-                    )[0] ??
-                    ""
-                  }
+                    ),
+                  )}
                 />
               ) : null}
 
@@ -182,14 +188,13 @@ const PrepareInstagramModal = ({
                     publisherOfTheWeek.instagramCaption ??
                     buildDefaultPublisherInstagramCaption(publisherCreator)
                   }
-                  selectedImage={
-                    publisherOfTheWeek.featuredImageUrl ??
+                  selectedImages={getPlannerInstagramImageSelection(
+                    publisherOfTheWeek,
                     collectCreatorImageOptions(
                       publisherCreator,
                       publisherBookCoverUrls,
-                    )[0] ??
-                    ""
-                  }
+                    ),
+                  )}
                 />
               ) : null}
             </div>
@@ -230,7 +235,7 @@ type ImageCaptionSectionProps = {
   fieldKey: string;
   imageOptions: string[];
   caption: string;
-  selectedImage: string;
+  selectedImages: string[];
   tagsLine?: string | null;
 };
 
@@ -240,9 +245,12 @@ const ImageCaptionSection = ({
   fieldKey,
   imageOptions,
   caption,
-  selectedImage,
+  selectedImages,
   tagsLine,
 }: ImageCaptionSectionProps) => {
+  const checkboxName = `imageUrl[${fieldKey}][]`;
+  const limitCarouselSelection = `const checked = $el.closest('fieldset').querySelectorAll('input[type=checkbox]:checked'); if (checked.length > ${MAX_INSTAGRAM_CAROUSEL_IMAGES}) $el.checked = false`;
+
   return (
     <section class="rounded border border-outline bg-surface-alt/40 p-4">
       <h3 class="mb-3 text-sm font-semibold text-on-surface-strong">{title}</h3>
@@ -255,7 +263,7 @@ const ImageCaptionSection = ({
 
       <fieldset class="mb-4">
         <legend class="mb-2 block text-xs font-medium text-on-surface">
-          Image
+          Images (select 1–{MAX_INSTAGRAM_CAROUSEL_IMAGES} for carousel)
         </legend>
         {imageOptions.length === 0 ? (
           <p class="text-xs text-danger">No image available.</p>
@@ -268,12 +276,12 @@ const ImageCaptionSection = ({
                   class="cursor-pointer rounded border border-outline p-1 [&:has(input:checked)]:border-primary [&:has(input:checked)]:ring-2 [&:has(input:checked)]:ring-primary"
                 >
                   <input
-                    type="radio"
-                    name={`imageUrl[${fieldKey}]`}
+                    type="checkbox"
+                    name={checkboxName}
                     value={url}
-                    required
-                    checked={url === selectedImage}
+                    checked={selectedImages.includes(url)}
                     class="sr-only"
+                    x-on:change={limitCarouselSelection}
                   />
                   <img
                     src={url}

@@ -23,7 +23,7 @@ if (!jobName || jobName === "--help" || jobName === "-h") {
 Jobs:
 ${CRON_JOB_NAMES.map((name) => `  - ${name}`).join("\n")}
 
-Optional env: DRY_RUN, FORCE, DATE, WEEK_START, MONTH, TO, CREATOR_ID, ALL_PREPARED`);
+Optional env: DRY_RUN, FORCE, DATE, WEEK_START, MONTH, TO, CREATOR_ID, USER_ID, ALL_PREPARED`);
   process.exit(jobName ? 0 : 1);
 }
 

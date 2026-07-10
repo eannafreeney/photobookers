@@ -23,6 +23,7 @@ import {
   buildInstagramDueAt,
   buildPotwInstagramDueAt,
   extractBracketedFormFields,
+  extractBracketedFormArrayFields,
   INSTAGRAM_SPOTLIGHT_AOTW_KEY,
   INSTAGRAM_SPOTLIGHT_POTW_KEY,
   isWeekInstagramFullyPrepared,
@@ -307,12 +308,15 @@ describe("instagram planner helpers", () => {
     const [error, entries] = parsePrepareInstagramFormEntries({
       week: "2026-W22",
       captions: { "2026-05-25": "Hello" },
-      imageUrl: { "2026-05-25": "https://example.com/cover.jpg" },
+      imageUrl: { "2026-05-25": ["https://example.com/cover.jpg"] },
     });
 
     expect(error).toBeNull();
     expect(entries).toHaveLength(1);
     expect(entries?.[0].caption).toBe("Hello");
+    expect(entries?.[0].imageUrls).toEqual([
+      "https://example.com/cover.jpg",
+    ]);
   });
 
   it("extracts bracketed form fields from flat body keys", () => {
@@ -367,8 +371,8 @@ describe("instagram planner helpers", () => {
         [INSTAGRAM_SPOTLIGHT_POTW_KEY]: "Publisher caption",
       },
       imageUrl: {
-        [INSTAGRAM_SPOTLIGHT_AOTW_KEY]: "https://example.com/a.jpg",
-        [INSTAGRAM_SPOTLIGHT_POTW_KEY]: "https://example.com/p.jpg",
+        [INSTAGRAM_SPOTLIGHT_AOTW_KEY]: ["https://example.com/a.jpg"],
+        [INSTAGRAM_SPOTLIGHT_POTW_KEY]: ["https://example.com/p.jpg"],
       },
     });
 
@@ -376,6 +380,47 @@ describe("instagram planner helpers", () => {
     expect(payload?.botd).toHaveLength(0);
     expect(payload?.artist?.caption).toBe("Artist caption");
     expect(payload?.publisher?.caption).toBe("Publisher caption");
+    expect(payload?.artist?.imageUrls).toEqual(["https://example.com/a.jpg"]);
+  });
+
+  it("parses carousel image arrays and caps at three", () => {
+    const [error, payload] = parsePrepareInstagramForm({
+      captions: { "2026-06-02": "Carousel caption" },
+      imageUrl: {
+        "2026-06-02": [
+          "https://example.com/1.jpg",
+          "https://example.com/2.jpg",
+          "https://example.com/3.jpg",
+          "https://example.com/4.jpg",
+        ],
+      },
+    });
+
+    expect(error).toBeNull();
+    expect(payload?.botd[0]?.imageUrls).toEqual([
+      "https://example.com/1.jpg",
+      "https://example.com/2.jpg",
+      "https://example.com/3.jpg",
+    ]);
+  });
+
+  it("extracts bracketed array form fields from flat body keys", () => {
+    const imageUrls = extractBracketedFormArrayFields(
+      {
+        "imageUrl[2026-06-02][]": [
+          "https://example.com/1.jpg",
+          "https://example.com/2.jpg",
+        ],
+      },
+      "imageUrl",
+    );
+
+    expect(imageUrls).toEqual({
+      "2026-06-02": [
+        "https://example.com/1.jpg",
+        "https://example.com/2.jpg",
+      ],
+    });
   });
 
   it("parses featured hero image form without captions", () => {

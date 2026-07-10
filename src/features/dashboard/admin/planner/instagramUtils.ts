@@ -8,17 +8,18 @@ import { getWeekDays } from "./utils";
 
 export const INSTAGRAM_SPOTLIGHT_AOTW_KEY = "aotw";
 export const INSTAGRAM_SPOTLIGHT_POTW_KEY = "potw";
+export const MAX_INSTAGRAM_CAROUSEL_IMAGES = 3;
 
 const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export type PrepareInstagramEntry = {
   date: Date;
-  imageUrl: string;
+  imageUrls: string[];
   caption: string;
 };
 
 export type PrepareInstagramSpotlightEntry = {
-  imageUrl: string;
+  imageUrls: string[];
   caption: string;
 };
 
@@ -200,29 +201,133 @@ export function extractBracketedFormFields(
   return out;
 }
 
+/** Reads `prefix[key][]` fields from nested or flat multipart/form bodies. */
+export function extractBracketedFormArrayFields(
+  body: Record<string, unknown>,
+  prefix: string,
+): Record<string, string[]> {
+  const nested = body[prefix];
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+    const out: Record<string, string[]> = {};
+    for (const [key, raw] of Object.entries(nested)) {
+      const values = normalizeFormStringArray(raw);
+      if (values.length > 0) out[key] = values;
+    }
+    if (Object.keys(out).length > 0) return out;
+  }
+
+  const arrayPattern = new RegExp(
+    `^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\[(.+)]\\[\\]$`,
+  );
+  const scalarPattern = new RegExp(
+    `^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\[(.+)]$`,
+  );
+  const out: Record<string, string[]> = {};
+
+  for (const [key, raw] of Object.entries(body)) {
+    const arrayMatch = key.match(arrayPattern);
+    if (arrayMatch) {
+      const values = normalizeFormStringArray(raw);
+      if (values.length > 0) {
+        out[arrayMatch[1]] = [...(out[arrayMatch[1]] ?? []), ...values];
+      }
+      continue;
+    }
+
+    const scalarMatch = key.match(scalarPattern);
+    if (!scalarMatch) continue;
+    const values = normalizeFormStringArray(raw);
+    if (values.length > 0) out[scalarMatch[1]] = values;
+  }
+
+  for (const [key, values] of Object.entries(out)) {
+    out[key] = dedupeImageUrls(values);
+  }
+
+  return out;
+}
+
+function normalizeFormStringArray(raw: unknown): string[] {
+  if (Array.isArray(raw)) {
+    return raw
+      .map((value) => (typeof value === "string" ? value.trim() : ""))
+      .filter(Boolean);
+  }
+  if (typeof raw === "string" && raw.trim()) return [raw.trim()];
+  return [];
+}
+
+export function dedupeImageUrls(urls: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const url of urls) {
+    const trimmed = url.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    out.push(trimmed);
+  }
+  return out;
+}
+
+export function resolveInstagramImageUrls(row: {
+  instagramImageUrls?: string[] | null;
+  featuredImageUrl?: string | null;
+}): string[] {
+  const urls = dedupeImageUrls(row.instagramImageUrls ?? []);
+  if (urls.length > 0) {
+    return urls.slice(0, MAX_INSTAGRAM_CAROUSEL_IMAGES);
+  }
+  return row.featuredImageUrl ? [row.featuredImageUrl] : [];
+}
+
+export function getPlannerInstagramImageSelection(
+  row: {
+    instagramImageUrls?: string[] | null;
+    featuredImageUrl?: string | null;
+  },
+  imageOptions: string[],
+): string[] {
+  const saved = resolveInstagramImageUrls(row);
+  if (saved.length > 0) return saved;
+  return imageOptions[0] ? [imageOptions[0]] : [];
+}
+
+function parseImageUrlsForKey(
+  key: string,
+  imageUrlsByKey: Record<string, string[]>,
+): Result<string[], { reason: string }> {
+  const imageUrls = dedupeImageUrls(imageUrlsByKey[key] ?? []).slice(
+    0,
+    MAX_INSTAGRAM_CAROUSEL_IMAGES,
+  );
+  if (imageUrls.length === 0) {
+    return err({ reason: `At least one image is required for ${key}` });
+  }
+  return ok(imageUrls);
+}
+
 function parseSpotlightEntry(
   key: string,
   captions: Record<string, string>,
-  imageUrls: Record<string, string>,
+  imageUrlsByKey: Record<string, string[]>,
 ): Result<PrepareInstagramSpotlightEntry | null, { reason: string }> {
   const caption = captions[key]?.trim();
-  const imageUrl = imageUrls[key]?.trim();
-  if (!caption && !imageUrl) return ok(null);
+  const imageUrls = imageUrlsByKey[key] ?? [];
+  if (!caption && imageUrls.length === 0) return ok(null);
   if (!caption) {
     return err({ reason: `Caption is required for ${key}` });
   }
-  if (!imageUrl) {
-    return err({ reason: `Image is required for ${key}` });
-  }
-  return ok({ caption, imageUrl });
+  const [imageError, parsedImageUrls] = parseImageUrlsForKey(key, imageUrlsByKey);
+  if (imageError) return err(imageError);
+  return ok({ caption, imageUrls: parsedImageUrls });
 }
 
 export function parsePrepareInstagramForm(formData: {
   captions?: Record<string, string>;
-  imageUrl?: Record<string, string>;
+  imageUrl?: Record<string, string[]>;
 }): Result<PrepareInstagramFormPayload, { reason: string }> {
   const captions = formData.captions ?? {};
-  const imageUrls = formData.imageUrl ?? {};
+  const imageUrlsByKey = formData.imageUrl ?? {};
 
   if (Object.keys(captions).length === 0) {
     return err({ reason: "No Instagram posts to save" });
@@ -238,28 +343,30 @@ export function parsePrepareInstagramForm(formData: {
     }
 
     const caption = captions[dateKey]?.trim();
-    const imageUrl = imageUrls[dateKey]?.trim();
     if (!caption) {
       return err({ reason: `Caption is required for ${dateKey}` });
     }
-    if (!imageUrl) {
-      return err({ reason: `Image is required for ${dateKey}` });
-    }
 
-    botd.push({ date: toUtcStartOfDay(date), imageUrl, caption });
+    const [imageError, imageUrls] = parseImageUrlsForKey(
+      dateKey,
+      imageUrlsByKey,
+    );
+    if (imageError) return err(imageError);
+
+    botd.push({ date: toUtcStartOfDay(date), imageUrls, caption });
   }
 
   const [artistError, artist] = parseSpotlightEntry(
     INSTAGRAM_SPOTLIGHT_AOTW_KEY,
     captions,
-    imageUrls,
+    imageUrlsByKey,
   );
   if (artistError) return err(artistError);
 
   const [publisherError, publisher] = parseSpotlightEntry(
     INSTAGRAM_SPOTLIGHT_POTW_KEY,
     captions,
-    imageUrls,
+    imageUrlsByKey,
   );
   if (publisherError) return err(publisherError);
 
@@ -274,9 +381,18 @@ export function parsePrepareInstagramForm(formData: {
 export function parsePrepareInstagramFormEntries(formData: {
   week: string;
   captions?: Record<string, string>;
-  imageUrl?: Record<string, string>;
+  imageUrl?: Record<string, string | string[]>;
 }): Result<PrepareInstagramEntry[], { reason: string }> {
-  const [error, payload] = parsePrepareInstagramForm(formData);
+  const imageUrl = Object.fromEntries(
+    Object.entries(formData.imageUrl ?? {}).map(([key, value]) => [
+      key,
+      Array.isArray(value) ? value : [value],
+    ]),
+  );
+  const [error, payload] = parsePrepareInstagramForm({
+    captions: formData.captions,
+    imageUrl,
+  });
   if (error) return err(error);
   return ok(payload.botd);
 }

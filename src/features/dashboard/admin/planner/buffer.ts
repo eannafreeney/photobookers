@@ -185,17 +185,25 @@ async function bufferCreatePost(
 
 export async function bufferCreateScheduledImagePost(params: {
   text: string;
-  imageUrl: string;
+  imageUrl?: string;
+  imageUrls?: string[];
   dueAt: Date;
   firstComment?: string;
   stickerFields?: BufferStoryStickerFields;
 }): Promise<Result<{ postId: string }, { reason: string }>> {
+  const imageUrls = dedupeBufferImageUrls(
+    params.imageUrls ?? (params.imageUrl ? [params.imageUrl] : []),
+  );
+  if (imageUrls.length === 0) {
+    return err({ reason: "At least one image URL is required" });
+  }
+
   return bufferCreatePost({
     text: params.text,
     schedulingType: "automatic",
     mode: "customScheduled",
     dueAt: params.dueAt.toISOString(),
-    assets: [{ image: { url: params.imageUrl } }],
+    assets: imageUrls.map((url) => ({ image: { url } })),
     metadata: {
       instagram: {
         type: "post",
@@ -209,6 +217,18 @@ export async function bufferCreateScheduledImagePost(params: {
       },
     },
   });
+}
+
+function dedupeBufferImageUrls(urls: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const url of urls) {
+    const trimmed = url.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    out.push(trimmed);
+  }
+  return out;
 }
 
 export type BufferStoryStickerFields = {

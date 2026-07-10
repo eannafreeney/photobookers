@@ -10,7 +10,7 @@ on:
     - cron: "0 9 * * 3" # Wednesday 09:00 UTC — weekly newsletter
     - cron: "0 9 * * 6" # Saturday 09:00 UTC — Instagram prep reminder
     - cron: "0 9 3 * *" # 3rd of month 09:00 UTC — creator analytics digest
-    - cron: "0 10 * * *" # daily 10:00 UTC — creator milestone + stub outreach
+    - cron: "0 10 * * *" # daily 10:00 UTC — creator milestone + stub outreach + verification feedback
     - cron: "0 10 * * 4" # Thursday 10:00 UTC — open interview reminders (14-day cadence in app)
     - cron: "0 11 * * *" # daily 11:00 UTC — verified creator Instagram
   workflow_dispatch:
@@ -35,6 +35,7 @@ on:
           - stub-outreach-emails
           - interview-reminder-emails
           - verified-creator-instagram
+          - verification-feedback-emails
 
 jobs:
   daily-botd-instagram:
@@ -170,4 +171,13 @@ jobs:
     uses: ./.github/workflows/run-production-cron.yml
     with:
       job: verified-creator-instagram
+    secrets: inherit
+
+  verification-feedback-emails:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '0 10 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'verification-feedback-emails')
+    uses: ./.github/workflows/run-production-cron.yml
+    with:
+      job: verification-feedback-emails
     secrets: inherit

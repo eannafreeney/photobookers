@@ -57,6 +57,7 @@ import {
   buildPotwInstagramDueAt,
   buildPotwInstagramStoryDueAt,
   isWeekInstagramFullyPrepared,
+  resolveInstagramImageUrls,
   type FeaturedHeroImagesPayload,
   type PrepareInstagramFormPayload,
 } from "./instagramUtils";
@@ -80,6 +81,8 @@ export {
   parsePrepareInstagramForm,
   parsePrepareInstagramFormEntries,
   parseFeaturedHeroImagesForm,
+  extractBracketedFormArrayFields,
+  resolveInstagramImageUrls,
 } from "./instagramUtils";
 
 const CREATOR_INSTAGRAM_COLUMNS = {
@@ -97,6 +100,7 @@ const BOOK_WITH_CREATORS_FOR_INSTAGRAM = {
 
 const clearInstagramFields = {
   featuredImageUrl: null,
+  instagramImageUrls: null,
   instagramCaption: null,
   instagramPreparedAt: null,
   instagramBufferPostId: null,
@@ -213,7 +217,8 @@ export async function saveWeekInstagramPreparation(
       const [row] = await db
         .update(bookOfTheDay)
         .set({
-          featuredImageUrl: entry.imageUrl,
+          featuredImageUrl: entry.imageUrls[0],
+          instagramImageUrls: entry.imageUrls,
           instagramCaption: caption,
           instagramPreparedAt: now,
           instagramError: null,
@@ -235,7 +240,8 @@ export async function saveWeekInstagramPreparation(
       const [row] = await db
         .update(artistOfTheWeek)
         .set({
-          featuredImageUrl: payload.artist.imageUrl,
+          featuredImageUrl: payload.artist.imageUrls[0],
+          instagramImageUrls: payload.artist.imageUrls,
           instagramCaption: payload.artist.caption,
           instagramPreparedAt: now,
           instagramError: null,
@@ -258,7 +264,8 @@ export async function saveWeekInstagramPreparation(
       const [row] = await db
         .update(publisherOfTheWeek)
         .set({
-          featuredImageUrl: payload.publisher.imageUrl,
+          featuredImageUrl: payload.publisher.imageUrls[0],
+          instagramImageUrls: payload.publisher.imageUrls,
           instagramCaption: payload.publisher.caption,
           instagramPreparedAt: now,
           instagramError: null,
@@ -437,6 +444,7 @@ function hasInstagramPrepData(row: {
   instagramQueuedAt?: Date | null;
   instagramCaption?: string | null;
   featuredImageUrl?: string | null;
+  instagramImageUrls?: string[] | null;
   instagramBufferPostId?: string | null;
   instagramStoryQueuedAt?: Date | null;
   instagramStoryBufferPostId?: string | null;
@@ -446,6 +454,7 @@ function hasInstagramPrepData(row: {
     row.instagramQueuedAt ||
     row.instagramCaption ||
     row.featuredImageUrl ||
+    row.instagramImageUrls?.length ||
     row.instagramBufferPostId ||
     row.instagramStoryQueuedAt ||
     row.instagramStoryBufferPostId,
@@ -573,7 +582,11 @@ export async function queuePreparedBotdInstagramForDate(
       .set({ ...clearFeedQueueFields, updatedAt: new Date() })
       .where(eq(bookOfTheDay.id, row.id));
   }
-  if (!row.featuredImageUrl || !row.instagramCaption) {
+  if (!row.instagramCaption) {
+    return err({ reason: "Instagram image or caption is missing" });
+  }
+  const imageUrls = resolveInstagramImageUrls(row);
+  if (imageUrls.length === 0) {
     return err({ reason: "Instagram image or caption is missing" });
   }
 
@@ -591,7 +604,7 @@ export async function queuePreparedBotdInstagramForDate(
 
   const [bufferError, bufferData] = await bufferCreateScheduledImagePost({
     text,
-    imageUrl: row.featuredImageUrl,
+    imageUrls,
     dueAt,
     firstComment,
   });
@@ -651,7 +664,11 @@ export async function queuePreparedBotdInstagramStoryForDate(
       .set({ ...clearStoryQueueFields, updatedAt: new Date() })
       .where(eq(bookOfTheDay.id, row.id));
   }
-  if (!row.featuredImageUrl || !row.instagramCaption) {
+  if (!row.instagramCaption) {
+    return err({ reason: "Instagram image or caption is missing" });
+  }
+  const storyImageUrl = resolveInstagramImageUrls(row)[0];
+  if (!storyImageUrl) {
     return err({ reason: "Instagram image or caption is missing" });
   }
 
@@ -663,7 +680,7 @@ export async function queuePreparedBotdInstagramStoryForDate(
 
   const [bufferError, bufferData] = await bufferCreateScheduledStory({
     caption: baseCaption,
-    imageUrl: row.featuredImageUrl,
+    imageUrl: storyImageUrl,
     dueAt,
     stickerFields: row.book
       ? buildBotdStoryStickerFields(row.book)
@@ -698,6 +715,7 @@ async function queueSpotlightRow(params: {
     instagramQueuedAt: Date | null;
     instagramBufferPostId: string | null;
     featuredImageUrl: string | null;
+    instagramImageUrls?: string[] | null;
     instagramCaption: string | null;
     creator: {
       displayName: string;
@@ -723,7 +741,11 @@ async function queueSpotlightRow(params: {
       .set({ ...clearFeedQueueFields, updatedAt: new Date() })
       .where(eq(params.table.id, params.row.id));
   }
-  if (!params.row.featuredImageUrl || !params.row.instagramCaption) {
+  if (!params.row.instagramCaption) {
+    return err({ reason: "Instagram image or caption is missing" });
+  }
+  const imageUrls = resolveInstagramImageUrls(params.row);
+  if (imageUrls.length === 0) {
     return err({ reason: "Instagram image or caption is missing" });
   }
 
@@ -736,7 +758,7 @@ async function queueSpotlightRow(params: {
 
   const [bufferError, bufferData] = await bufferCreateScheduledImagePost({
     text: params.row.instagramCaption,
-    imageUrl: params.row.featuredImageUrl,
+    imageUrls,
     dueAt,
     firstComment,
   });
@@ -781,6 +803,7 @@ async function queueSpotlightStoryRow(params: {
     instagramStoryQueuedAt: Date | null;
     instagramStoryBufferPostId: string | null;
     featuredImageUrl: string | null;
+    instagramImageUrls?: string[] | null;
     instagramCaption: string | null;
     creator: {
       displayName: string;
@@ -807,7 +830,11 @@ async function queueSpotlightStoryRow(params: {
       .set({ ...clearStoryQueueFields, updatedAt: new Date() })
       .where(eq(params.table.id, params.row.id));
   }
-  if (!params.row.featuredImageUrl || !params.row.instagramCaption) {
+  if (!params.row.instagramCaption) {
+    return err({ reason: "Instagram image or caption is missing" });
+  }
+  const storyImageUrl = resolveInstagramImageUrls(params.row)[0];
+  if (!storyImageUrl) {
     return err({ reason: "Instagram image or caption is missing" });
   }
 
@@ -828,7 +855,7 @@ async function queueSpotlightStoryRow(params: {
 
   const [bufferError, bufferData] = await bufferCreateScheduledStory({
     caption: params.row.instagramCaption,
-    imageUrl: params.row.featuredImageUrl,
+    imageUrl: storyImageUrl,
     dueAt,
     stickerFields: { text: stickerText },
     link: linksUrl(),

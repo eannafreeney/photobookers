@@ -9,6 +9,7 @@ import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramR
 import { runWeeklyNewsletterCron } from "../domain/planner/cron/newsletterCronServices";
 import { runSpotlightCreatorEmails } from "../domain/planner/cron/spotlightEmailServices";
 import { runVerifiedCreatorInstagramCron } from "../domain/planner/cron/verifiedCreatorInstagramServices";
+import { runVerificationFeedbackCron } from "../domain/verification-feedback/cron";
 import {
   runCreatorAnalyticsDigestCron,
   runCreatorMilestoneEmailsCron,
@@ -36,6 +37,7 @@ export type CronRunnerOptions = {
   month?: string;
   to?: string;
   creatorId?: string;
+  userId?: string;
   allPrepared?: boolean;
 };
 
@@ -54,7 +56,8 @@ export type CronJobName =
   | "creator-milestone-emails"
   | "stub-outreach-emails"
   | "interview-reminder-emails"
-  | "verified-creator-instagram";
+  | "verified-creator-instagram"
+  | "verification-feedback-emails";
 
 export const CRON_JOB_NAMES = [
   "daily-botd-instagram",
@@ -72,6 +75,7 @@ export const CRON_JOB_NAMES = [
   "stub-outreach-emails",
   "interview-reminder-emails",
   "verified-creator-instagram",
+  "verification-feedback-emails",
 ] as const satisfies readonly CronJobName[];
 
 export function isCronJobName(value: string): value is CronJobName {
@@ -320,6 +324,21 @@ export async function runVerifiedCreatorInstagramCronJob(
   return ok({ ...result });
 }
 
+export async function runVerificationFeedbackEmailsCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runVerificationFeedbackCron({
+    dryRun: options.dryRun,
+    force: options.force,
+    to: options.to,
+    userId: options.userId,
+    creatorId: options.creatorId,
+    date: options.date,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
 const RUNNERS: Record<
   CronJobName,
   (options: CronRunnerOptions) => Promise<Result<Record<string, unknown>, { reason: string }>>
@@ -339,6 +358,7 @@ const RUNNERS: Record<
   "stub-outreach-emails": runStubOutreachEmailsCron,
   "interview-reminder-emails": runInterviewReminderEmailsCron,
   "verified-creator-instagram": runVerifiedCreatorInstagramCronJob,
+  "verification-feedback-emails": runVerificationFeedbackEmailsCron,
 };
 
 export async function runCronJob(
@@ -361,6 +381,7 @@ export function parseCronRunnerOptionsFromEnv(): CronRunnerOptions {
   const month = process.env.MONTH?.trim() || undefined;
   const to = process.env.TO?.trim() || undefined;
   const creatorId = process.env.CREATOR_ID?.trim() || undefined;
+  const userId = process.env.USER_ID?.trim() || undefined;
 
   return {
     dryRun,
@@ -370,6 +391,7 @@ export function parseCronRunnerOptionsFromEnv(): CronRunnerOptions {
     month,
     to,
     creatorId,
+    userId,
     allPrepared,
   };
 }

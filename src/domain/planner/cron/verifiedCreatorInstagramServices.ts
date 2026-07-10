@@ -1,8 +1,9 @@
-import { and, asc, eq, gte, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, count, eq, gte, isNotNull, isNull, lte } from "drizzle-orm";
 import { CREATOR_CARD_COLUMNS } from "../../../constants/queries";
 import { db } from "../../../db/client";
 import { books, creators } from "../../../db/schema";
 import { err, ok, type Result } from "../../../lib/result";
+import { toUtcStartOfDay } from "../../../lib/utils";
 import { getCreatorSpotlightImageUrls } from "../../../features/app/services";
 import { bufferCreateScheduledImagePost } from "../../../features/dashboard/admin/planner/buffer";
 import {
@@ -45,8 +46,12 @@ export type RunVerifiedCreatorInstagramCronResult = Result<
   VerifiedCreatorInstagramError
 >;
 
-export function getVerifiedCreatorInstagramCutoff(now = new Date()): Date {
-  return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+export const VERIFIED_CREATOR_INSTAGRAM_DAILY_LIMIT = 2;
+
+const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+
+export function getVerifiedCreatorInstagramEligibleBefore(now = new Date()): Date {
+  return new Date(now.getTime() - TWO_DAYS_MS);
 }
 
 const CREATOR_INSTAGRAM_COLUMNS = {
@@ -86,14 +91,38 @@ export async function runVerifiedCreatorInstagramCron(
   options: RunVerifiedCreatorInstagramCronOptions = {},
 ): Promise<RunVerifiedCreatorInstagramCronResult> {
   const { dryRun = false, creatorId } = options;
-  const verifiedCutoff = getVerifiedCreatorInstagramCutoff();
+  const now = new Date();
+  const targetingCreator = Boolean(creatorId);
+  const eligibleBefore = getVerifiedCreatorInstagramEligibleBefore(now);
 
   try {
+    let remainingSlots = VERIFIED_CREATOR_INSTAGRAM_DAILY_LIMIT;
+    if (!targetingCreator) {
+      const [{ value: queuedToday }] = await db
+        .select({ value: count() })
+        .from(creators)
+        .where(
+          and(
+            isNotNull(creators.verifiedInstagramQueuedAt),
+            gte(creators.verifiedInstagramQueuedAt, toUtcStartOfDay(now)),
+          ),
+        );
+      remainingSlots = Math.max(
+        0,
+        VERIFIED_CREATOR_INSTAGRAM_DAILY_LIMIT - queuedToday,
+      );
+      if (remainingSlots === 0) {
+        return ok({ queued: 0, skipped: 0, failed: 0, items: [] });
+      }
+    }
+
     const rows = await db.query.creators.findMany({
       where: and(
         eq(creators.status, "verified"),
         isNotNull(creators.verifiedAt),
-        ...(creatorId ? [] : [gte(creators.verifiedAt, verifiedCutoff)]),
+        ...(targetingCreator
+          ? []
+          : [lte(creators.verifiedAt, eligibleBefore)]),
         isNull(creators.verifiedInstagramQueuedAt),
         ...(creatorId ? [eq(creators.id, creatorId)] : []),
       ),
@@ -117,6 +146,8 @@ export async function runVerifiedCreatorInstagramCron(
     let failed = 0;
 
     for (const row of rows) {
+      if (!targetingCreator && queued >= remainingSlots) break;
+
       if (!hasPublishedBooks(row)) {
         skipped += 1;
         items.push({

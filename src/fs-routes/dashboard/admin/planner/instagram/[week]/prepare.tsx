@@ -8,6 +8,7 @@ import {
 } from "../../../../../../features/dashboard/admin/planner/instagramServices";
 import {
   extractBracketedFormFields,
+  extractBracketedFormArrayFields,
   parsePrepareInstagramForm,
 } from "../../../../../../features/dashboard/admin/planner/instagramUtils";
 import { parseWeekString } from "../../../../../../lib/utils";
@@ -53,7 +54,7 @@ export const POST = createRoute(paramValidator(weekQuerySchema), async (c) => {
     unknown
   >;
   const captions = extractBracketedFormFields(body, "captions");
-  const imageUrl = extractBracketedFormFields(body, "imageUrl");
+  const imageUrl = extractBracketedFormArrayFields(body, "imageUrl");
 
   const [parseError, payload] = parsePrepareInstagramForm({
     captions,

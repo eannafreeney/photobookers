@@ -1,30 +1,117 @@
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+const findManyMock = vi.fn();
+const selectMock = vi.fn();
+const updateMock = vi.fn();
 
 vi.mock("../../../db/client", () => ({
-  db: { query: { creators: { findMany: vi.fn() } } },
+  db: {
+    query: { creators: { findMany: (...args: unknown[]) => findManyMock(...args) } },
+    select: (...args: unknown[]) => selectMock(...args),
+    update: (...args: unknown[]) => updateMock(...args),
+  },
 }));
 
 vi.mock("../../../features/app/services", () => ({
-  getCreatorSpotlightImageUrls: vi.fn(),
+  getCreatorSpotlightImageUrls: vi.fn().mockResolvedValue([null, ["https://example.com/cover.jpg"]]),
 }));
+
+const bufferCreateScheduledImagePostMock = vi.fn();
 
 vi.mock("../../../features/dashboard/admin/planner/buffer", () => ({
-  bufferCreateScheduledImagePost: vi.fn(),
+  bufferCreateScheduledImagePost: (...args: unknown[]) =>
+    bufferCreateScheduledImagePostMock(...args),
 }));
 
-let getVerifiedCreatorInstagramCutoff: typeof import("./verifiedCreatorInstagramServices").getVerifiedCreatorInstagramCutoff;
+let getVerifiedCreatorInstagramEligibleBefore: typeof import("./verifiedCreatorInstagramServices").getVerifiedCreatorInstagramEligibleBefore;
+let runVerifiedCreatorInstagramCron: typeof import("./verifiedCreatorInstagramServices").runVerifiedCreatorInstagramCron;
+
+function makeCreatorRow(id: string, verifiedAt: Date) {
+  return {
+    id,
+    slug: `creator-${id}`,
+    type: "artist" as const,
+    displayName: `Creator ${id}`,
+    coverUrl: "https://example.com/cover.jpg",
+    verifiedAt,
+    booksAsArtist: [{ id: "book-1" }],
+    booksAsPublisher: [],
+  };
+}
+
+function mockQueuedTodayCount(count: number) {
+  selectMock.mockReturnValue({
+    from: vi.fn().mockReturnValue({
+      where: vi.fn().mockResolvedValue([{ value: count }]),
+    }),
+  });
+}
 
 beforeAll(async () => {
-  ({ getVerifiedCreatorInstagramCutoff } = await import(
-    "./verifiedCreatorInstagramServices"
-  ));
+  ({ getVerifiedCreatorInstagramEligibleBefore, runVerifiedCreatorInstagramCron } =
+    await import("./verifiedCreatorInstagramServices"));
 });
 
-describe("getVerifiedCreatorInstagramCutoff", () => {
-  it("returns 24 hours before the provided time", () => {
-    const now = new Date(Date.UTC(2026, 6, 2, 9, 30, 0));
-    expect(getVerifiedCreatorInstagramCutoff(now).toISOString()).toBe(
-      "2026-07-01T09:30:00.000Z",
+beforeEach(() => {
+  findManyMock.mockReset();
+  selectMock.mockReset();
+  updateMock.mockReset();
+  bufferCreateScheduledImagePostMock.mockReset();
+
+  updateMock.mockReturnValue({
+    set: vi.fn().mockReturnValue({
+      where: vi.fn().mockResolvedValue(undefined),
+    }),
+  });
+  bufferCreateScheduledImagePostMock.mockResolvedValue([
+    null,
+    { postId: "buffer-post-1" },
+  ]);
+});
+
+describe("getVerifiedCreatorInstagramEligibleBefore", () => {
+  it("returns 2 days before the provided time", () => {
+    const now = new Date(Date.UTC(2026, 6, 10, 11, 0, 0));
+    expect(getVerifiedCreatorInstagramEligibleBefore(now).toISOString()).toBe(
+      "2026-07-08T11:00:00.000Z",
     );
+  });
+});
+
+describe("runVerifiedCreatorInstagramCron", () => {
+  it("stops after queuing 2 creators when more are eligible", async () => {
+    mockQueuedTodayCount(0);
+    findManyMock.mockResolvedValue([
+      makeCreatorRow("1", new Date(Date.UTC(2026, 6, 1))),
+      makeCreatorRow("2", new Date(Date.UTC(2026, 6, 2))),
+      makeCreatorRow("3", new Date(Date.UTC(2026, 6, 3))),
+    ]);
+
+    const [error, result] = await runVerifiedCreatorInstagramCron();
+    expect(error).toBeNull();
+    expect(result?.queued).toBe(2);
+    expect(bufferCreateScheduledImagePostMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("returns early when the daily limit is already reached", async () => {
+    mockQueuedTodayCount(2);
+
+    const [error, result] = await runVerifiedCreatorInstagramCron();
+    expect(error).toBeNull();
+    expect(result).toEqual({ queued: 0, skipped: 0, failed: 0, items: [] });
+    expect(findManyMock).not.toHaveBeenCalled();
+  });
+
+  it("only queues remaining slots when some were already sent today", async () => {
+    mockQueuedTodayCount(1);
+    findManyMock.mockResolvedValue([
+      makeCreatorRow("1", new Date(Date.UTC(2026, 6, 1))),
+      makeCreatorRow("2", new Date(Date.UTC(2026, 6, 2))),
+    ]);
+
+    const [error, result] = await runVerifiedCreatorInstagramCron();
+    expect(error).toBeNull();
+    expect(result?.queued).toBe(1);
+    expect(bufferCreateScheduledImagePostMock).toHaveBeenCalledTimes(1);
   });
 });
