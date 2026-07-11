@@ -1,6 +1,6 @@
 import { createRoute } from "hono-fsr";
 import { hyperview } from "../../../../../../lib/hxml";
-import { Style, View } from "../../../../../../lib/hxml-comps";
+import { Spinner, Style, View } from "../../../../../../lib/hxml-comps";
 import { paramValidator } from "../../../../../../lib/validator";
 import { AppLayout } from "../../../../+layout";
 import BookTabs, {
@@ -69,6 +69,9 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
         hasPublisher={!!book.publisher}
         activeTab="book"
       />
+      <View id="tab-spinner" style="tab-spinner" hide="true">
+        <Spinner />
+      </View>
       <View id="tab-area" style="page-content">
         <BookPage
           galleryImages={galleryImages}

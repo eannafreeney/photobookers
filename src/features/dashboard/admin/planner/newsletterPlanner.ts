@@ -3,8 +3,10 @@ import type {
   NewsletterCampaignStatus,
 } from "../../../../db/schema";
 import { toDateString, toWeekString } from "../../../../lib/utils";
-import { getNewsletterRangeStartForPlannerWeek } from "./newsletter/utils";
-import { addUtcDays } from "./utils";
+import {
+  getNewsletterRangeStartForPlannerWeek,
+  resolveNewsletterRangeStart,
+} from "./newsletter/utils";
 
 export type PlannerNewsletterWeekData = {
   status: NewsletterCampaignStatus | null;
@@ -20,44 +22,19 @@ export function mapPlannerNewsletterByWeekStart(
 
   for (const plannerWeekStart of weekStarts) {
     const weekKey = toWeekString(plannerWeekStart);
-    const sentCampaign = campaigns.find(
-      (entry) =>
-        entry.status === "sent" &&
-        entry.sentAt &&
-        toWeekString(entry.sentAt) === weekKey,
-    );
+    const editionRangeStart =
+      getNewsletterRangeStartForPlannerWeek(plannerWeekStart);
 
-    if (sentCampaign) {
-      byWeek.set(weekKey, {
-        status: sentCampaign.status,
-        campaignId: sentCampaign.id,
-        weekStart: sentCampaign.weekStart,
-      });
-      continue;
-    }
-
-    const defaultRangeStart = getNewsletterRangeStartForPlannerWeek(
-      plannerWeekStart,
-    );
-    const defaultCampaign = campaigns.find(
+    const campaign = campaigns.find(
       (entry) =>
-        toDateString(entry.weekStart) === toDateString(defaultRangeStart),
-    );
-    const selectedWeekStart =
-      defaultCampaign?.status === "sent" &&
-      defaultCampaign.sentAt &&
-      toWeekString(defaultCampaign.sentAt) !== weekKey
-        ? addUtcDays(defaultRangeStart, 7)
-        : defaultRangeStart;
-    const selectedCampaign = campaigns.find(
-      (entry) =>
-        toDateString(entry.weekStart) === toDateString(selectedWeekStart),
+        toDateString(resolveNewsletterRangeStart(entry.weekStart)) ===
+        toDateString(editionRangeStart),
     );
 
     byWeek.set(weekKey, {
-      status: selectedCampaign?.status ?? null,
-      campaignId: selectedCampaign?.id ?? null,
-      weekStart: selectedWeekStart,
+      status: campaign?.status ?? null,
+      campaignId: campaign?.id ?? null,
+      weekStart: editionRangeStart,
     });
   }
 

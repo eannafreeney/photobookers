@@ -53,7 +53,7 @@ const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
   const purchaseHref = purchaseDeepLinkHref(baseUrl, book);
 
   return (
-    <View style="book-page">
+    <View xmlns="https://hyperview.org/hyperview" style="book-page">
       <BookGallery galleryImages={galleryImages} />
       <BookActions book={book} baseUrl={baseUrl} isFavorited={isFavorited} />
       <View>
