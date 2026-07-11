@@ -45,13 +45,14 @@ export default HomepageActivityPulse;
 
 export const homepageActivityPulseStyles = () => (
   <>
-    <Style id="homepage-activity-pulse" paddingHorizontal={16} />
+    <Style id="homepage-activity-pulse" paddingHorizontal={16} width="100%" />
     <Style
       id="homepage-activity-pulse-text"
       fontSize={13}
       color="#45413a"
       textAlign="center"
       lineHeight={18}
+      width="100%"
     />
     <Style
       id="homepage-activity-pulse-emphasis"
