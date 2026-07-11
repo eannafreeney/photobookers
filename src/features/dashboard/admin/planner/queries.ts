@@ -8,13 +8,12 @@ import {
 import { db } from "../../../../db/client";
 import {
   type CreatorInterview,
-  type NewsletterCampaignStatus,
   creatorInterviews,
   newsletterCampaigns,
 } from "../../../../db/schema";
 import { and, desc, gte, inArray, lte } from "drizzle-orm";
 import { getWeekStarts } from "./utils";
-import { getInstagramPreparedByWeekStart } from "./instagramServices";
+import { getInstagramPreparedByWeekStart } from "./social-media/instagramServices";
 import {
   mapPlannerNewsletterByWeekStart,
   type PlannerNewsletterWeekData,

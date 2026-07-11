@@ -18,7 +18,7 @@ import {
 import {
   queueDuePreparedInstagramPosts,
   queuePreparedBotdInstagramPostsForDate,
-} from "../features/dashboard/admin/planner/instagramServices";
+} from "../features/dashboard/admin/planner/social-media/instagramServices";
 import {
   buildCreatorPostNotificationEmails,
   buildFollowerNotificationEmails,
@@ -28,7 +28,12 @@ import {
 import { runStubOutreachCron } from "../features/stub-outreach/services";
 import { err, ok, type Result } from "../lib/result";
 import { supabaseAdmin } from "../lib/supabase";
-import { parseDateString, toDateString, toUtcStartOfDay, toWeekString } from "../lib/utils";
+import {
+  parseDateString,
+  toDateString,
+  toUtcStartOfDay,
+  toWeekString,
+} from "../lib/utils";
 
 export type CronRunnerOptions = {
   dryRun?: boolean;
@@ -94,7 +99,9 @@ export async function runDailyBotdInstagramCron(
   } else if (options.date) {
     resultPromise = queuePreparedBotdInstagramPostsForDate(options.date);
   } else {
-    resultPromise = queuePreparedBotdInstagramPostsForDate(toUtcStartOfDay(new Date()));
+    resultPromise = queuePreparedBotdInstagramPostsForDate(
+      toUtcStartOfDay(new Date()),
+    );
   }
 
   const [error, result] = await resultPromise;
@@ -179,7 +186,10 @@ export async function runNotifyFollowersNewBooksCron(): Promise<
     headers: { "x-function-secret": process.env.FUNCTION_SECRET ?? "" },
   });
   if (error) {
-    console.error("Cron notify-followers-new-books: send-email-batch failed", error);
+    console.error(
+      "Cron notify-followers-new-books: send-email-batch failed",
+      error,
+    );
     return err({ reason: "Failed to send emails" });
   }
 
@@ -357,7 +367,9 @@ export async function runCreatorProfileShareEmailsCron(
 
 const RUNNERS: Record<
   CronJobName,
-  (options: CronRunnerOptions) => Promise<Result<Record<string, unknown>, { reason: string }>>
+  (
+    options: CronRunnerOptions,
+  ) => Promise<Result<Record<string, unknown>, { reason: string }>>
 > = {
   "daily-botd-instagram": runDailyBotdInstagramCron,
   "botd-advance-notification-emails": runBotdAdvanceNotificationEmailsCron,
@@ -386,8 +398,7 @@ export async function runCronJob(
 }
 
 export function parseCronRunnerOptionsFromEnv(): CronRunnerOptions {
-  const dryRun =
-    process.env.DRY_RUN === "1" || process.env.DRY_RUN === "true";
+  const dryRun = process.env.DRY_RUN === "1" || process.env.DRY_RUN === "true";
   const force = process.env.FORCE === "1" || process.env.FORCE === "true";
   const allPrepared =
     process.env.ALL_PREPARED === "1" || process.env.ALL_PREPARED === "true";

@@ -2,9 +2,9 @@ import {
   parseDateString,
   toDateString,
   toUtcStartOfDay,
-} from "../../../../lib/utils";
-import { err, ok, type Result } from "../../../../lib/result";
-import { getWeekDays } from "./utils";
+} from "../../../../../lib/utils";
+import { err, ok, type Result } from "../../../../../lib/result";
+import { getWeekDays } from "../utils";
 
 export const INSTAGRAM_SPOTLIGHT_AOTW_KEY = "aotw";
 export const INSTAGRAM_SPOTLIGHT_POTW_KEY = "potw";
@@ -109,9 +109,7 @@ type InstagramPreparedRow = {
 } | null;
 
 export type InstagramPrepGap =
-  | { kind: "botd"; date: Date }
-  | { kind: "artist" }
-  | { kind: "publisher" };
+  { kind: "botd"; date: Date } | { kind: "artist" } | { kind: "publisher" };
 
 export function getWeekInstagramPrepGaps(
   weekStart: Date,
@@ -317,7 +315,10 @@ function parseSpotlightEntry(
   if (!caption) {
     return err({ reason: `Caption is required for ${key}` });
   }
-  const [imageError, parsedImageUrls] = parseImageUrlsForKey(key, imageUrlsByKey);
+  const [imageError, parsedImageUrls] = parseImageUrlsForKey(
+    key,
+    imageUrlsByKey,
+  );
   if (imageError) return err(imageError);
   return ok({ caption, imageUrls: parsedImageUrls });
 }

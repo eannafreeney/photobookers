@@ -5,12 +5,12 @@ import PrepareInstagramModal from "../../../../../../features/dashboard/admin/pl
 import {
   getWeekInstagramForPrepare,
   saveWeekInstagramPreparation,
-} from "../../../../../../features/dashboard/admin/planner/instagramServices";
+} from "../../../../../../features/dashboard/admin/planner/social-media/instagramServices";
 import {
   extractBracketedFormFields,
   extractBracketedFormArrayFields,
   parsePrepareInstagramForm,
-} from "../../../../../../features/dashboard/admin/planner/instagramUtils";
+} from "../../../../../../features/dashboard/admin/planner/social-media/instagramUtils";
 import { parseWeekString } from "../../../../../../lib/utils";
 import { showErrorAlert } from "../../../../../../lib/alertHelpers";
 import Alert from "../../../../../../components/app/Alert";
@@ -26,7 +26,10 @@ export const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
   const [error, data] = await getWeekInstagramForPrepare(weekStart);
   if (error) {
     return c.html(
-      <Alert type="danger" message="Failed to load Instagram plan for this week" />,
+      <Alert
+        type="danger"
+        message="Failed to load Instagram plan for this week"
+      />,
     );
   }
 

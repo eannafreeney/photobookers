@@ -4,9 +4,9 @@ import {
   runInstagramPrepReminderEmail,
 } from "./instagramReminderEmailServices";
 import { getWeekInstagramPrepGaps } from "./instagramUtils";
-import { getInstagramPrepReminderScheduledDate } from "./utils";
-import { toDateString } from "../../../../lib/utils";
-import { getWeekDays } from "./utils";
+import { getInstagramPrepReminderScheduledDate } from "../utils";
+import { toDateString } from "../../../../../lib/utils";
+import { getWeekDays } from "../utils";
 
 const getWeekInstagramForPrepareMock = vi.fn();
 const sendAdminEmailMock = vi.fn();
@@ -50,10 +50,7 @@ describe("getWeekInstagramPrepGaps", () => {
       publisherOfTheWeek: { instagramPreparedAt: new Date() },
     });
 
-    expect(gaps).toEqual([
-      { kind: "botd", date: days[1] },
-      { kind: "artist" },
-    ]);
+    expect(gaps).toEqual([{ kind: "botd", date: days[1] }, { kind: "artist" }]);
   });
 });
 

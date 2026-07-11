@@ -21,9 +21,9 @@ import {
   buildDefaultPublisherInstagramCaption,
   collectBookImageOptions,
   collectCreatorImageOptions,
-} from "./instagramCaption";
-import type { WeekInstagramPrepareData } from "./instagramServices";
-import { getPlannerInstagramImageSelection } from "./instagramUtils";
+} from "./social-media/instagramCaption";
+import type { WeekInstagramPrepareData } from "./social-media/instagramServices";
+import { getPlannerInstagramImageSelection } from "./social-media/instagramUtils";
 
 export type SpotlightContentItem =
   | {
@@ -63,7 +63,9 @@ export type SpotlightBlurbEditorItem =
       sourceText: string | null;
     };
 
-export function getSpotlightBlurbFieldKey(item: SpotlightBlurbEditorItem): string {
+export function getSpotlightBlurbFieldKey(
+  item: SpotlightBlurbEditorItem,
+): string {
   return item.kind === "botd"
     ? toDateString(item.date)
     : item.kind === "artist"
@@ -127,7 +129,9 @@ export async function getWeekSpotlightBlurbEditorData(
 ): Promise<Result<SpotlightBlurbEditorItem[], { reason: string }>> {
   try {
     const items: SpotlightBlurbEditorItem[] = [];
-    const descriptionsByBookId = await loadBookDescriptions(weekData.botdEntries);
+    const descriptionsByBookId = await loadBookDescriptions(
+      weekData.botdEntries,
+    );
 
     for (const entry of weekData.botdEntries) {
       const book = entry.book;
@@ -154,12 +158,16 @@ export async function getWeekSpotlightBlurbEditorData(
     }
 
     if (weekData.publisherOfTheWeek) {
-      const sourceText = getCreatorSourceText(weekData.publisherOfTheWeek.creator);
+      const sourceText = getCreatorSourceText(
+        weekData.publisherOfTheWeek.creator,
+      );
       items.push({
         kind: "publisher",
         title: weekData.publisherOfTheWeek.creator.displayName,
         currentBlurb:
-          weekData.publisherOfTheWeek.spotlightBlurb?.trim() || sourceText || "",
+          weekData.publisherOfTheWeek.spotlightBlurb?.trim() ||
+          sourceText ||
+          "",
         sourceText,
       });
     }
@@ -176,14 +184,18 @@ export async function generateSpotlightBlurbForKey(
   key: string,
 ): Promise<Result<string, { reason: string }>> {
   try {
-    const descriptionsByBookId = await loadBookDescriptions(weekData.botdEntries);
+    const descriptionsByBookId = await loadBookDescriptions(
+      weekData.botdEntries,
+    );
 
     if (key === "aotw") {
       const creator = weekData.artistOfTheWeek?.creator;
       if (!creator) return err({ reason: "No artist of the week scheduled" });
       const sourceText = getCreatorSourceText(creator);
       if (!sourceText) {
-        return err({ reason: "No source text available for Artist of the Week" });
+        return err({
+          reason: "No source text available for Artist of the Week",
+        });
       }
       const blurb = await rewriteSpotlightBlurb({
         kind: "artist",
@@ -195,7 +207,8 @@ export async function generateSpotlightBlurbForKey(
 
     if (key === "potw") {
       const creator = weekData.publisherOfTheWeek?.creator;
-      if (!creator) return err({ reason: "No publisher of the week scheduled" });
+      if (!creator)
+        return err({ reason: "No publisher of the week scheduled" });
       const sourceText = getCreatorSourceText(creator);
       if (!sourceText) {
         return err({
@@ -219,7 +232,8 @@ export async function generateSpotlightBlurbForKey(
       (row) => toDateString(row.date) === toDateString(date),
     );
     const book = entry?.book;
-    if (!book) return err({ reason: `No Book of the Day scheduled for ${key}` });
+    if (!book)
+      return err({ reason: `No Book of the Day scheduled for ${key}` });
 
     const sourceText = descriptionsByBookId.get(book.id)?.trim() || null;
     if (!sourceText) {
@@ -243,22 +257,23 @@ export async function buildWeekSpotlightContent(
 ): Promise<Result<SpotlightContentItem[], { reason: string }>> {
   try {
     const items: SpotlightContentItem[] = [];
-    const descriptionsByBookId = await loadBookDescriptions(weekData.botdEntries);
+    const descriptionsByBookId = await loadBookDescriptions(
+      weekData.botdEntries,
+    );
 
     for (const entry of weekData.botdEntries) {
       const book = entry.book;
       if (!book) continue;
 
-      const sourceText =
-        descriptionsByBookId.get(book.id)?.trim() || null;
+      const sourceText = descriptionsByBookId.get(book.id)?.trim() || null;
       const spotlightBlurb =
         entry.spotlightBlurb?.trim() ||
         (sourceText
           ? await rewriteSpotlightBlurb({
-            kind: "book",
-            sourceText,
-            title: book.title,
-          })
+              kind: "book",
+              sourceText,
+              title: book.title,
+            })
           : null);
       const imageOptions = collectBookImageOptions(book);
       const featuredImageUrl =
@@ -290,10 +305,10 @@ export async function buildWeekSpotlightContent(
         weekData.artistOfTheWeek.spotlightBlurb?.trim() ||
         (sourceText
           ? await rewriteSpotlightBlurb({
-            kind: "artist",
-            sourceText,
-            title: creator.displayName,
-          })
+              kind: "artist",
+              sourceText,
+              title: creator.displayName,
+            })
           : null);
       const artistImageOptions = collectCreatorImageOptions(
         creator,
@@ -329,10 +344,10 @@ export async function buildWeekSpotlightContent(
         weekData.publisherOfTheWeek.spotlightBlurb?.trim() ||
         (sourceText
           ? await rewriteSpotlightBlurb({
-            kind: "publisher",
-            sourceText,
-            title: creator.displayName,
-          })
+              kind: "publisher",
+              sourceText,
+              title: creator.displayName,
+            })
           : null);
       const publisherImageOptions = collectCreatorImageOptions(
         creator,

@@ -1,7 +1,7 @@
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator";
 import { weekQuerySchema } from "../../../../../../features/dashboard/admin/planner/schema";
-import { clearWeekInstagramPreparation } from "../../../../../../features/dashboard/admin/planner/instagramServices";
+import { clearWeekInstagramPreparation } from "../../../../../../features/dashboard/admin/planner/social-media/instagramServices";
 import { parseWeekString } from "../../../../../../lib/utils";
 import { showErrorAlert } from "../../../../../../lib/alertHelpers";
 import Alert from "../../../../../../components/app/Alert";

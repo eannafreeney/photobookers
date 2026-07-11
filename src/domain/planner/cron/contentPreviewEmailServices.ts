@@ -5,7 +5,7 @@ import { sendAdminEmail } from "../../../lib/sendEmail";
 import { err, ok, type Result } from "../../../lib/result";
 import { toWeekStart, toWeekString } from "../../../lib/utils";
 import { buildPlannerWeekContentPreviewEmail } from "../../../features/dashboard/admin/planner/emails";
-import { getWeekInstagramForPrepare } from "../../../features/dashboard/admin/planner/instagramServices";
+import { getWeekInstagramForPrepare } from "../../../features/dashboard/admin/planner/social-media/instagramServices";
 import {
   buildWeekSpotlightContent,
   persistWeekSpotlightContent,
@@ -17,9 +17,7 @@ import { ensureWeekPlannerContent } from "./weekPrepServices";
 type ServiceError = { reason: string; cause?: unknown };
 
 export type ContentPreviewSkipReason =
-  | "not_reminder_day"
-  | "already_sent"
-  | "nothing_scheduled";
+  "not_reminder_day" | "already_sent" | "nothing_scheduled";
 
 export type ContentPreviewOutcome =
   | { status: "skipped"; reason: ContentPreviewSkipReason }

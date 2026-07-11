@@ -5,19 +5,20 @@ import { books, creators } from "../../../db/schema";
 import { err, ok, type Result } from "../../../lib/result";
 import { toUtcStartOfDay } from "../../../lib/utils";
 import { getCreatorSpotlightImageUrls } from "../../../features/app/services";
-import { bufferCreateScheduledImagePost } from "../../../features/dashboard/admin/planner/buffer";
+import { bufferCreateScheduledImagePost } from "../../../features/dashboard/admin/planner/social-media/buffer";
 import {
   buildDefaultCreatorInstagramFirstComment,
   buildNewlyVerifiedCreatorInstagramCaption,
-} from "../../../features/dashboard/admin/planner/instagramCaption";
+} from "../../../features/dashboard/admin/planner/social-media/instagramCaption";
 import {
   buildVerifiedCreatorInstagramDueAt,
   scheduleInstagramDueAt,
-} from "../../../features/dashboard/admin/planner/instagramUtils";
+} from "../../../features/dashboard/admin/planner/social-media/instagramUtils";
 
 type VerifiedCreatorInstagramError = { reason: string; cause?: unknown };
 
-export type VerifiedCreatorInstagramSkipReason = "no_published_books" | "no_image";
+export type VerifiedCreatorInstagramSkipReason =
+  "no_published_books" | "no_image";
 
 export type VerifiedCreatorInstagramItemOutcome =
   | { status: "queued"; postId: string }
@@ -50,7 +51,9 @@ export const VERIFIED_CREATOR_INSTAGRAM_DAILY_LIMIT = 2;
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 
-export function getVerifiedCreatorInstagramEligibleBefore(now = new Date()): Date {
+export function getVerifiedCreatorInstagramEligibleBefore(
+  now = new Date(),
+): Date {
   return new Date(now.getTime() - TWO_DAYS_MS);
 }
 
@@ -66,16 +69,16 @@ function hasPublishedBooks(creator: {
   booksAsArtist: { id: string }[];
   booksAsPublisher: { id: string }[];
 }): boolean {
-  return creator.booksAsArtist.length > 0 || creator.booksAsPublisher.length > 0;
+  return (
+    creator.booksAsArtist.length > 0 || creator.booksAsPublisher.length > 0
+  );
 }
 
-async function resolveCreatorImageUrl(
-  creator: {
-    id: string;
-    type: "artist" | "publisher";
-    coverUrl: string | null;
-  },
-): Promise<string | null> {
+async function resolveCreatorImageUrl(creator: {
+  id: string;
+  type: "artist" | "publisher";
+  coverUrl: string | null;
+}): Promise<string | null> {
   if (creator.coverUrl) return creator.coverUrl;
 
   const [imageError, urls] = await getCreatorSpotlightImageUrls(
@@ -120,9 +123,7 @@ export async function runVerifiedCreatorInstagramCron(
       where: and(
         eq(creators.status, "verified"),
         isNotNull(creators.verifiedAt),
-        ...(targetingCreator
-          ? []
-          : [lte(creators.verifiedAt, eligibleBefore)]),
+        ...(targetingCreator ? [] : [lte(creators.verifiedAt, eligibleBefore)]),
         isNull(creators.verifiedInstagramQueuedAt),
         ...(creatorId ? [eq(creators.id, creatorId)] : []),
       ),
@@ -173,7 +174,8 @@ export async function runVerifiedCreatorInstagramCron(
       const dueAt = scheduleInstagramDueAt(
         buildVerifiedCreatorInstagramDueAt(row.verifiedAt!),
       );
-      const useFirstComment = process.env.BUFFER_INSTAGRAM_FIRST_COMMENT === "true";
+      const useFirstComment =
+        process.env.BUFFER_INSTAGRAM_FIRST_COMMENT === "true";
       const firstComment = useFirstComment
         ? buildDefaultCreatorInstagramFirstComment(row)
         : undefined;
@@ -232,6 +234,9 @@ export async function runVerifiedCreatorInstagramCron(
     return ok({ queued, skipped, failed, items });
   } catch (cause) {
     console.error("runVerifiedCreatorInstagramCron", cause);
-    return err({ reason: "Failed to queue verified creator Instagram posts", cause });
+    return err({
+      reason: "Failed to queue verified creator Instagram posts",
+      cause,
+    });
   }
 }

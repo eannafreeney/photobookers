@@ -6,8 +6,8 @@ import {
   getWeekSpotlightBlurbEditorData,
   saveWeekSpotlightBlurbs,
 } from "../../../../../../features/dashboard/admin/planner/spotlightBlurb";
-import { getWeekInstagramForPrepare } from "../../../../../../features/dashboard/admin/planner/instagramServices";
-import { extractBracketedFormFields } from "../../../../../../features/dashboard/admin/planner/instagramUtils";
+import { getWeekInstagramForPrepare } from "../../../../../../features/dashboard/admin/planner/social-media/instagramServices";
+import { extractBracketedFormFields } from "../../../../../../features/dashboard/admin/planner/social-media/instagramUtils";
 import { parseWeekString } from "../../../../../../lib/utils";
 import { showErrorAlert } from "../../../../../../lib/alertHelpers";
 import Alert from "../../../../../../components/app/Alert";
@@ -23,7 +23,10 @@ export const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
   const [loadError, weekData] = await getWeekInstagramForPrepare(weekStart);
   if (loadError) {
     return c.html(
-      <Alert type="danger" message="Failed to load spotlight copy for this week" />,
+      <Alert
+        type="danger"
+        message="Failed to load spotlight copy for this week"
+      />,
     );
   }
 
@@ -42,7 +45,10 @@ export const POST = createRoute(paramValidator(weekQuerySchema), async (c) => {
     return showErrorAlert(c, "Invalid week");
   }
 
-  const body = (await c.req.parseBody({ all: true })) as Record<string, unknown>;
+  const body = (await c.req.parseBody({ all: true })) as Record<
+    string,
+    unknown
+  >;
   const blurbs = extractBracketedFormFields(body, "blurbs");
   if (Object.keys(blurbs).length === 0) {
     return showErrorAlert(c, "No spotlight copy to save");

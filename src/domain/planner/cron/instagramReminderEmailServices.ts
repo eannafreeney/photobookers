@@ -2,19 +2,17 @@ import { sendAdminEmail } from "../../../lib/sendEmail";
 import { err, ok, type Result } from "../../../lib/result";
 import { toDateString, toWeekString } from "../../../lib/utils";
 import { buildInstagramPrepReminderEmail } from "../../../features/dashboard/admin/planner/emails";
-import { getWeekInstagramForPrepare } from "../../../features/dashboard/admin/planner/instagramServices";
+import { getWeekInstagramForPrepare } from "../../../features/dashboard/admin/planner/social-media/instagramServices";
 import {
   getWeekInstagramPrepGaps,
   type InstagramPrepGap,
-} from "../../../features/dashboard/admin/planner/instagramUtils";
+} from "../../../features/dashboard/admin/planner/social-media/instagramUtils";
 import { getInstagramPrepReminderWeekStart } from "../../../features/dashboard/admin/planner/utils";
 
 type InstagramReminderServiceError = { reason: string; cause?: unknown };
 
 export type InstagramPrepReminderSkipReason =
-  | "not_reminder_day"
-  | "fully_prepared"
-  | "nothing_scheduled";
+  "not_reminder_day" | "fully_prepared" | "nothing_scheduled";
 
 export type InstagramPrepReminderOutcome =
   | { status: "skipped"; reason: InstagramPrepReminderSkipReason }

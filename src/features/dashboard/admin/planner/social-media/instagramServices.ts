@@ -1,36 +1,28 @@
-import {
-  and,
-  asc,
-  eq,
-  gte,
-  inArray,
-  isNotNull,
-  lte,
-} from "drizzle-orm";
-import { db } from "../../../../db/client";
+import { and, asc, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
+import { db } from "../../../../../db/client";
 import {
   artistOfTheWeek,
   bookOfTheDay,
   publisherOfTheWeek,
-} from "../../../../db/schema";
-import { err, ok, type Result } from "../../../../lib/result";
+} from "../../../../../db/schema";
+import { err, ok, type Result } from "../../../../../lib/result";
 import {
   toDateString,
   toUtcStartOfDay,
   toWeekStart,
   toWeekString,
-} from "../../../../lib/utils";
-import { getWeekStarts, getWeekDays } from "./utils";
+} from "../../../../../lib/utils";
+import { getWeekStarts, getWeekDays } from "../utils";
 import {
   getBooksOfTheDayInRange,
   type BookOfTheDayWithBook,
-} from "../../../app/BOTDServices";
-import { getCreatorSpotlightImageUrls } from "../../../app/services";
-import { linksUrl } from "../../../app/spotlightUrls";
+} from "../../../../app/BOTDServices";
+import { getCreatorSpotlightImageUrls } from "../../../../app/services";
+import { linksUrl } from "../../../../app/spotlightUrls";
 import type {
   ArtistOfTheWeekWithCreator,
   PublisherOfTheWeekWithCreator,
-} from "./services";
+} from "../services";
 import {
   bufferCreateScheduledImagePost,
   bufferCreateScheduledStory,
@@ -51,7 +43,7 @@ import {
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
-} from "../../../../constants/queries";
+} from "../../../../../constants/queries";
 import {
   buildAotwInstagramDueAt,
   buildAotwInstagramStoryDueAt,
@@ -170,7 +162,9 @@ export async function getWeekInstagramForPrepare(
       artistOfTheWeek: artistRow ?? null,
       publisherOfTheWeek: publisherRow ?? null,
       artistBookCoverUrls: !artistCoversRes[0] ? artistCoversRes[1] : [],
-      publisherBookCoverUrls: !publisherCoversRes[0] ? publisherCoversRes[1] : [],
+      publisherBookCoverUrls: !publisherCoversRes[0]
+        ? publisherCoversRes[1]
+        : [],
     });
   } catch (e) {
     console.error("getWeekInstagramForPrepare", e);
@@ -323,7 +317,9 @@ export async function saveWeekFeaturedHeroImages(
         .returning();
 
       if (!row) {
-        return err({ reason: `Failed to save featured hero image for ${dateKey}` });
+        return err({
+          reason: `Failed to save featured hero image for ${dateKey}`,
+        });
       }
       saved += 1;
     }
@@ -863,7 +859,10 @@ async function queueSpotlightStoryRow(params: {
   if (!params.row.instagramPreparedAt) {
     return err({ reason: "Instagram post is not prepared" });
   }
-  if (params.row.instagramStoryQueuedAt && params.row.instagramStoryBufferPostId) {
+  if (
+    params.row.instagramStoryQueuedAt &&
+    params.row.instagramStoryBufferPostId
+  ) {
     const action = await resolveQueuedInstagramPost(
       params.row.instagramStoryBufferPostId,
     );
@@ -1240,7 +1239,11 @@ export async function queueDuePreparedInstagramPosts(): Promise<
           break;
         }
       } else {
-        queued.push({ key: `aotw-${weekKey}`, postId: result.postId, kind: "post" });
+        queued.push({
+          key: `aotw-${weekKey}`,
+          postId: result.postId,
+          kind: "post",
+        });
       }
     }
 

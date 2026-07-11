@@ -12,7 +12,7 @@ import {
   escapeHtml,
 } from "./shareKit";
 import { formatBotdDateLong, formatWeekRange } from "./utils";
-import type { InstagramPrepGap } from "./instagramUtils";
+import type { InstagramPrepGap } from "./social-media/instagramUtils";
 import type { SpotlightContentItem } from "./spotlightBlurb";
 
 type SpotlightEmailParams = {

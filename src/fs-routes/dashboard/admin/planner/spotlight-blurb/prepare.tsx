@@ -9,7 +9,7 @@ import {
   findSpotlightBlurbEditorItem,
   getWeekSpotlightBlurbEditorData,
 } from "../../../../../features/dashboard/admin/planner/spotlightBlurb";
-import { getWeekInstagramForPrepare } from "../../../../../features/dashboard/admin/planner/instagramServices";
+import { getWeekInstagramForPrepare } from "../../../../../features/dashboard/admin/planner/social-media/instagramServices";
 import { parseWeekString } from "../../../../../lib/utils";
 import Alert from "../../../../../components/app/Alert";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
@@ -63,11 +63,11 @@ export const POST = createRoute(
       return showErrorAlert(c, "Invalid week");
     }
 
-    const [saveError] = await saveWeekSpotlightBlurbs(weekStart, { [key]: blurb });
+    const [saveError] = await saveWeekSpotlightBlurbs(weekStart, {
+      [key]: blurb,
+    });
     if (saveError) return showErrorAlert(c, saveError.reason);
 
-    return c.html(
-      <Alert type="success" message="Spotlight blurb saved." />,
-    );
+    return c.html(<Alert type="success" message="Spotlight blurb saved." />);
   },
 );

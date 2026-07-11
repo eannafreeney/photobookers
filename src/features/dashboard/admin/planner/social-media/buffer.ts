@@ -1,4 +1,4 @@
-import { err, ok, type Result } from "../../../../lib/result";
+import { err, ok, type Result } from "../../../../../lib/result";
 
 type BufferGraphQlResponse = {
   data?: {

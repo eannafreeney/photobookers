@@ -5,8 +5,8 @@ import {
   generateSpotlightBlurbForKey,
   getWeekSpotlightBlurbEditorData,
 } from "../../../../../../features/dashboard/admin/planner/spotlightBlurb";
-import { getWeekInstagramForPrepare } from "../../../../../../features/dashboard/admin/planner/instagramServices";
-import { extractBracketedFormFields } from "../../../../../../features/dashboard/admin/planner/instagramUtils";
+import { getWeekInstagramForPrepare } from "../../../../../../features/dashboard/admin/planner/social-media/instagramServices";
+import { extractBracketedFormFields } from "../../../../../../features/dashboard/admin/planner/social-media/instagramUtils";
 import { parseWeekString, toDateString } from "../../../../../../lib/utils";
 import { showErrorAlert } from "../../../../../../lib/alertHelpers";
 import Alert from "../../../../../../components/app/Alert";

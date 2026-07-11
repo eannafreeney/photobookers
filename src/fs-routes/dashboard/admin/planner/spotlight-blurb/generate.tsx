@@ -9,7 +9,7 @@ import {
   generateSpotlightBlurbForKey,
   getWeekSpotlightBlurbEditorData,
 } from "../../../../../features/dashboard/admin/planner/spotlightBlurb";
-import { getWeekInstagramForPrepare } from "../../../../../features/dashboard/admin/planner/instagramServices";
+import { getWeekInstagramForPrepare } from "../../../../../features/dashboard/admin/planner/social-media/instagramServices";
 import { parseWeekString } from "../../../../../lib/utils";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
 
@@ -31,7 +31,8 @@ export const POST = createRoute(
     if (itemsError) return showErrorAlert(c, itemsError.reason);
 
     const currentItem = findSpotlightBlurbEditorItem(items, key);
-    if (!currentItem) return showErrorAlert(c, "Spotlight blurb item not found");
+    if (!currentItem)
+      return showErrorAlert(c, "Spotlight blurb item not found");
 
     const [generateError, generatedBlurb] = await generateSpotlightBlurbForKey(
       weekData,

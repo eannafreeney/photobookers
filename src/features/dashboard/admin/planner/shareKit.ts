@@ -1,4 +1,4 @@
-import { formatInstagramHandle } from "./instagramCaption";
+import { formatInstagramHandle } from "./social-media/instagramCaption";
 
 const PHOTOBOOKERS_IG = "@photobookers";
 

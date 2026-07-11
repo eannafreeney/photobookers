@@ -33,8 +33,8 @@ import {
   parsePrepareInstagramFormEntries,
   parseFeaturedHeroImagesForm,
 } from "./instagramUtils";
-import { toDateString } from "../../../../lib/utils";
-import { getWeekDays } from "./utils";
+import { toDateString } from "../../../../../lib/utils";
+import { getWeekDays } from "../utils";
 
 describe("instagram caption helpers", () => {
   it("builds a default caption with instagram handles when available", () => {
@@ -79,7 +79,9 @@ describe("instagram caption helpers", () => {
       ["urban"],
     );
     expect(merged).toContain("#urban");
-    expect(merged.indexOf("#urban")).toBeLessThan(merged.indexOf("Link in bio"));
+    expect(merged.indexOf("#urban")).toBeLessThan(
+      merged.indexOf("Link in bio"),
+    );
   });
 
   it("builds botd caption from stored text with tags merged in", () => {
@@ -346,9 +348,7 @@ describe("instagram planner helpers", () => {
     expect(error).toBeNull();
     expect(entries).toHaveLength(1);
     expect(entries?.[0].caption).toBe("Hello");
-    expect(entries?.[0].imageUrls).toEqual([
-      "https://example.com/cover.jpg",
-    ]);
+    expect(entries?.[0].imageUrls).toEqual(["https://example.com/cover.jpg"]);
   });
 
   it("extracts bracketed form fields from flat body keys", () => {
@@ -448,10 +448,7 @@ describe("instagram planner helpers", () => {
     );
 
     expect(imageUrls).toEqual({
-      "2026-06-02": [
-        "https://example.com/1.jpg",
-        "https://example.com/2.jpg",
-      ],
+      "2026-06-02": ["https://example.com/1.jpg", "https://example.com/2.jpg"],
     });
   });
 

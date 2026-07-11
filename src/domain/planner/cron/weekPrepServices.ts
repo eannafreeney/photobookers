@@ -4,7 +4,7 @@ import { getWeekDays } from "../../../features/dashboard/admin/planner/utils";
 import {
   ensureWeekFeaturedImages,
   getWeekInstagramForPrepare,
-} from "../../../features/dashboard/admin/planner/instagramServices";
+} from "../../../features/dashboard/admin/planner/social-media/instagramServices";
 import {
   autoSetArtistOfTheWeek,
   autoSetPublisherOfTheWeek,
@@ -50,7 +50,8 @@ export async function ensureWeekPlannerContent(
   if (reloadError) return err({ reason: reloadError.reason });
 
   if (!weekData.artistOfTheWeek) {
-    const [artistError, artistResult] = await autoSetArtistOfTheWeek(normalized);
+    const [artistError, artistResult] =
+      await autoSetArtistOfTheWeek(normalized);
     if (artistError) {
       warnings.push(artistError.reason);
     } else {

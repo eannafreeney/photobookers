@@ -9,7 +9,7 @@ import {
   collectBookImageOptions,
   collectCreatorImageOptions,
   formatInstagramHashtags,
-} from "../instagramCaption";
+} from "../social-media/instagramCaption";
 import type {
   ArtistOfTheWeekWithCreator,
   PublisherOfTheWeekWithCreator,
@@ -19,7 +19,7 @@ import {
   INSTAGRAM_SPOTLIGHT_POTW_KEY,
   MAX_INSTAGRAM_CAROUSEL_IMAGES,
   getPlannerInstagramImageSelection,
-} from "../instagramUtils";
+} from "../social-media/instagramUtils";
 import { formatDayLabel } from "../utils";
 
 type Props = {
