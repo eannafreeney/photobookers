@@ -1,4 +1,4 @@
-import { and, count, eq, sql, type SQL } from "drizzle-orm";
+import { and, count, countDistinct, eq, sql, type SQL } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   bookViews,
@@ -54,7 +54,7 @@ export async function getCreatorBookViewTotals(
       .where(where),
     db
       .select({
-        value: sql<number>`count(distinct ${bookViews.bookId})`,
+        value: countDistinct(bookViews.bookId),
       })
       .from(bookViews)
       .innerJoin(books, eq(bookViews.bookId, books.id))

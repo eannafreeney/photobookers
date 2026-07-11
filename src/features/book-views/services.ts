@@ -1,6 +1,7 @@
 import {
   and,
   count,
+  countDistinct,
   desc,
   eq,
   inArray,
@@ -121,11 +122,11 @@ export const getBookViewTotals = async (range?: AnalyticsDateRange | null) => {
       : db.select({ value: count() }).from(bookViews),
     dateFilter
       ? db
-          .select({ value: sql<number>`count(distinct ${bookViews.bookId})` })
+          .select({ value: countDistinct(bookViews.bookId) })
           .from(bookViews)
           .where(dateFilter)
       : db
-          .select({ value: sql<number>`count(distinct ${bookViews.bookId})` })
+          .select({ value: countDistinct(bookViews.bookId) })
           .from(bookViews),
   ]);
 
@@ -163,13 +164,13 @@ export const getTopBooksByViews = async (
     const countQuery = scope
       ? db
           .select({
-            value: sql<number>`count(distinct ${bookViews.bookId})`,
+            value: countDistinct(bookViews.bookId),
           })
           .from(bookViews)
           .innerJoin(books, eq(bookViews.bookId, books.id))
       : db
           .select({
-            value: sql<number>`count(distinct ${bookViews.bookId})`,
+            value: countDistinct(bookViews.bookId),
           })
           .from(bookViews);
 

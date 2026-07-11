@@ -28,6 +28,8 @@ import ErrorScreen from "../../../../../../features/hyperview/components/ErrorSc
 import { spotlightCreatorRowStyles } from "../../../../../../features/hyperview/components/spotlight/SpotlightCreatorRow";
 import { publishersListStyles } from "./publishers";
 import { artistsListStyles } from "./artists";
+import { creatorPostsListStyles } from "../../../../../../features/hyperview/components/CreatorPostsList";
+import { messageListStyles } from "../../../../../../features/hyperview/hyperviewCommonScreenStyles";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -199,5 +201,7 @@ const pageStyles = () => (
     {publishersListStyles()}
     {artistsListStyles()}
     {creatorBannerStyles()}
+    {messageListStyles()}
+    {creatorPostsListStyles()}
   </>
 );

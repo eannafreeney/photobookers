@@ -17,11 +17,11 @@ const HomepageActivityPulse = ({
     <p class="text-center text-sm text-on-surface text-pretty">
       {showBooks ? (
         <>
-          Fans have viewed{" "}
+          This week:{" "}
           <span class="font-semibold text-on-surface-strong">
             {bookViews.toLocaleString()}
           </span>{" "}
-          books
+          book views
         </>
       ) : null}
       {showBooks && showProfiles ? "," : null}
@@ -31,10 +31,9 @@ const HomepageActivityPulse = ({
           <span class="font-semibold text-on-surface-strong">
             {profileViews.toLocaleString()}
           </span>{" "}
-          artist &amp; publisher profiles
+          creator profiles views
         </>
-      ) : null}{" "}
-      this week alone.
+      ) : null}
     </p>
   );
 };

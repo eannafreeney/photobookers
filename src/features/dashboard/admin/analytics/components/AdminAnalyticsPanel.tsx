@@ -49,8 +49,6 @@ const AdminAnalyticsPanel = async ({
   followsPaginationBaseUrl,
   followsPage,
 }: Props) => {
-  const bookDateRange = dateRange ?? chartRange;
-
   return (
     <div
       id={ADMIN_ANALYTICS_PANEL_ID}
@@ -78,7 +76,7 @@ const AdminAnalyticsPanel = async ({
         <CeoMetricsBlock dateRange={dateRange} />
       ) : tab === "books" ? (
         <BookAnalyticsBlock
-          dateRange={bookDateRange}
+          dateRange={dateRange}
           viewsPaginationBaseUrl={viewsPaginationBaseUrl}
           viewsPage={viewsPage}
           bookPaginationBaseUrl={bookPaginationBaseUrl}
