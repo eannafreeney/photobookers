@@ -1,4 +1,4 @@
-import { desc } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import { books } from "../db/schema";
 
 export type BookCatalogSort = "newest" | "trending";
@@ -30,6 +30,11 @@ export const getBookCatalogOrderBy = (sort: BookCatalogSort) => {
       return [desc(books.sortOrder), desc(books.id)];
     case "newest":
     default:
-      return [desc(books.createdAt), desc(books.id)];
+      // Match getBooksOrderBy("newest"): release date first, not draft createdAt.
+      return [
+        sql`${books.releaseDate} DESC NULLS LAST`,
+        desc(books.createdAt),
+        desc(books.id),
+      ];
   }
 };

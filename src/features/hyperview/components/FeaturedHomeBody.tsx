@@ -16,6 +16,10 @@ import { trendingCreatorsStyles } from "./TrendingCreatorsSlider";
 import { getSpotlightItems } from "../lib/utils";
 import { toWeekString, toWeekStart } from "../../../lib/utils";
 import { storesSectionStyles } from "./StoresSection";
+import HomepageActivityPulse, {
+  homepageActivityPulseStyles,
+} from "./HomepageActivityPulse";
+import { getHomepageActivityStats } from "../../app/homepageActivity";
 
 type Props = {
   baseUrl: string;
@@ -27,10 +31,12 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
     [botdErr, botdData],
     [artistErr, artistData],
     [publisherErr, publisherData],
+    [activityError, activity],
   ] = await Promise.all([
     getTodaysBookOfTheDay(),
     getThisWeeksArtistOfTheWeek(),
     getThisWeeksPublisherOfTheWeek(),
+    getHomepageActivityStats(),
   ]);
 
   const spotlightItems = getSpotlightItems(
@@ -45,6 +51,12 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
 
   return (
     <View style="featured-home-body">
+      {!activityError && activity ? (
+        <HomepageActivityPulse
+          bookViews={activity.bookViews}
+          profileViews={activity.profileViews}
+        />
+      ) : null}
       <FeaturedSpotlightCarousel items={spotlightItems} />
       <SecondaryButtonLink label="View this week →" href={thisWeekHref} />
       <LazyLoader
@@ -96,6 +108,7 @@ export const featuredHomeBodyStyles = () => (
       paddingTop={24}
       paddingBottom={24}
     />
+    {homepageActivityPulseStyles()}
     {featuredSpotlightCarouselStyles()}
     {secondaryButtonLinkStyles()}
     {trendingCreatorsStyles()}

@@ -14,7 +14,7 @@ import {
 } from "../adminAnalyticsPanel";
 
 type Props = {
-  dateRange: AnalyticsDateRange;
+  dateRange: AnalyticsDateRange | null;
   viewsPaginationBaseUrl: string;
   viewsPage: number;
   bookPaginationBaseUrl: string;
