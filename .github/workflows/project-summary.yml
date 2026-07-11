@@ -1,0 +1,55 @@
+name: Generate project summary
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "docs/project-context/**"
+      - "package.json"
+      - "package-lock.json"
+      - "README.md"
+      - "CLAUDE.md"
+      - "featureFlags.json"
+      - "scripts/generate-project-summary.ts"
+      - "src/lib/projectSummary/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Regenerate fs-routes manifest
+        run: npx hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts
+
+      - name: Generate project summary
+        run: npm run generate:project-summary
+
+      - name: Commit summary if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/project-summary.txt
+          if git diff --staged --quiet; then
+            echo "No summary changes."
+          else
+            git commit -m "$(cat <<'EOF'
+chore: refresh LLM project summary
+
+Auto-generated from routes, schema, and docs/project-context.
+EOF
+)"
+            git push
+          fi

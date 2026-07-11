@@ -27,7 +27,8 @@
     "postinstall": "patch-package && node scripts/render-postinstall.mjs",
     "fallow": "fallow",
     "fallow:audit": "fallow audit --base main",
-    "fallow:dead-code": "fallow dead-code"
+    "fallow:dead-code": "fallow dead-code",
+    "generate:project-summary": "tsx scripts/generate-project-summary.ts"
   },
   "dependencies": {
     "@alpinejs/collapse": "^3.15.11",
