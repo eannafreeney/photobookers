@@ -18,7 +18,7 @@ vi.mock("../../../features/app/services", () => ({
 
 const bufferCreateScheduledImagePostMock = vi.fn();
 
-vi.mock("../../../features/dashboard/admin/planner/buffer", () => ({
+vi.mock("../../../features/dashboard/admin/planner/social-media/buffer", () => ({
   bufferCreateScheduledImagePost: (...args: unknown[]) =>
     bufferCreateScheduledImagePostMock(...args),
 }));

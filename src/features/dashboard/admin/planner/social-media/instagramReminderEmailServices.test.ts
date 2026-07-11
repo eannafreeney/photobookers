@@ -16,7 +16,7 @@ vi.mock("./instagramServices", () => ({
     getWeekInstagramForPrepareMock(...args),
 }));
 
-vi.mock("../../../../lib/sendEmail", () => ({
+vi.mock("../../../../../lib/sendEmail", () => ({
   sendAdminEmail: (...args: unknown[]) => sendAdminEmailMock(...args),
 }));
 

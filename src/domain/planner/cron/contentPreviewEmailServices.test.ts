@@ -18,7 +18,7 @@ vi.mock("./weekPrepServices", () => ({
     ensureWeekPlannerContentMock(...args),
 }));
 
-vi.mock("../../../features/dashboard/admin/planner/instagramServices", () => ({
+vi.mock("../../../features/dashboard/admin/planner/social-media/instagramServices", () => ({
   getWeekInstagramForPrepare: (...args: unknown[]) =>
     getWeekInstagramForPrepareMock(...args),
 }));
