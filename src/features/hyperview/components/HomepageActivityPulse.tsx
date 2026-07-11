@@ -16,29 +16,27 @@ const HomepageActivityPulse = ({
 
   return (
     <View style="homepage-activity-pulse">
-      <View style="homepage-activity-pulse-row">
-        <Text style="homepage-activity-pulse-text">This week: </Text>
+      <Text style="homepage-activity-pulse-text">
+        This week:{" "}
         {showBooks ? (
           <>
             <Text style="homepage-activity-pulse-emphasis">
               {bookViews.toLocaleString()}
             </Text>
-            <Text style="homepage-activity-pulse-text"> book views</Text>
+            {" book views"}
           </>
         ) : null}
-        {showBooks && showProfiles ? (
-          <Text style="homepage-activity-pulse-text"> and </Text>
-        ) : null}
+        {showBooks && showProfiles ? " and " : null}
         {showProfiles ? (
           <>
             <Text style="homepage-activity-pulse-emphasis">
               {profileViews.toLocaleString()}
             </Text>
-            <Text style="homepage-activity-pulse-text"> creator profile views</Text>
+            {" creator profile views"}
           </>
         ) : null}
-        <Text style="homepage-activity-pulse-text">.</Text>
-      </View>
+        .
+      </Text>
     </View>
   );
 };
@@ -49,16 +47,10 @@ export const homepageActivityPulseStyles = () => (
   <>
     <Style id="homepage-activity-pulse" paddingHorizontal={16} />
     <Style
-      id="homepage-activity-pulse-row"
-      flexDirection="row"
-      flexWrap="wrap"
-      justifyContent="center"
-      alignItems="center"
-    />
-    <Style
       id="homepage-activity-pulse-text"
       fontSize={13}
       color="#45413a"
+      textAlign="center"
       lineHeight={18}
     />
     <Style
