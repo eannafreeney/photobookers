@@ -1,4 +1,5 @@
 import { runCeoMetricsEmailCron } from "../domain/ceo-metrics/cron";
+import { runDailyProductDigestCron } from "../domain/daily-product-digest/cron";
 import { runInterviewReminderCron } from "../domain/interviews/reminderCron";
 import {
   runBotdAdvanceNotificationEmails,
@@ -52,6 +53,7 @@ export type CronJobName =
   | "botd-advance-notification-emails"
   | "botd-feature-day-emails"
   | "ceo-metrics-email"
+  | "daily-product-digest"
   | "spotlight-creator-emails"
   | "notify-followers-new-books"
   | "notify-followers-new-posts"
@@ -71,6 +73,7 @@ export const CRON_JOB_NAMES = [
   "botd-advance-notification-emails",
   "botd-feature-day-emails",
   "ceo-metrics-email",
+  "daily-product-digest",
   "spotlight-creator-emails",
   "notify-followers-new-books",
   "notify-followers-new-posts",
@@ -149,6 +152,18 @@ export async function runCeoMetricsEmailCronJob(
   const [error, result] = await runCeoMetricsEmailCron({
     dryRun: options.dryRun,
     force: options.force,
+    date: options.date,
+    to: options.to,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
+export async function runDailyProductDigestCronJob(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runDailyProductDigestCron({
+    dryRun: options.dryRun,
     date: options.date,
     to: options.to,
   });
@@ -375,6 +390,7 @@ const RUNNERS: Record<
   "botd-advance-notification-emails": runBotdAdvanceNotificationEmailsCron,
   "botd-feature-day-emails": runBotdFeatureDayEmailsCron,
   "ceo-metrics-email": runCeoMetricsEmailCronJob,
+  "daily-product-digest": runDailyProductDigestCronJob,
   "spotlight-creator-emails": runSpotlightCreatorEmailsCron,
   "notify-followers-new-books": () => runNotifyFollowersNewBooksCron(),
   "notify-followers-new-posts": () => runNotifyFollowersNewPostsCron(),

@@ -5,7 +5,7 @@ import { leftArrowIcon, rightArrowIcon } from "../../lib/icons";
 import Button from "./Button";
 
 const HERO_IMAGE_CLASS =
-  "h-auto w-full max-h-[220px] object-contain sm:max-h-[260px] md:h-full md:max-h-none md:w-full object-cover";
+  "h-auto w-full max-h-[220px] object-contain sm:max-h-[260px] md:h-full md:max-h-none md:w-full";
 const HERO_SLIDE_GRID_CLASS =
   "grid grid-cols-1 pt-6 pb-12 md:h-full md:grid-cols-2 md:pt-0 md:pb-0";
 const HERO_TEXT_COLUMN_CLASS =
