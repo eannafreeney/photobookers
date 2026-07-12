@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { logger } from "hono/logger";
 import { routes } from "./routes";
 import NotFoundPage from "./pages/NotFoundPage";
+import { handleServerError } from "./lib/serverErrorResponse";
 import { getUser } from "./utils";
 import { BUNDLE_CACHE, cachedStatic, IMMUTABLE_CACHE } from "./lib/staticCache";
 
@@ -57,6 +58,8 @@ if (process.env.NODE_ENV === "production") {
 
 // Mount your routes
 app.route("/", routes);
+
+app.onError((err, c) => handleServerError(c, err));
 
 // 404 route
 app.notFound(async (c) => {
