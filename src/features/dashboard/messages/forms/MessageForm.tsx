@@ -37,9 +37,9 @@ const MessageForm = ({ creatorId }: { creatorId: string }) => {
             class="w-full max-w-md rounded-radius object-cover border border-outline"
           />
         </div>
-        <DragAndDropArea />
+        <DragAndDropArea prompt="Drag and drop or click here to upload an image." />
         <FileUploadInput
-          label="Add Images"
+          label="Add image"
           name="image"
           x-on:change="onFileChange($event)"
           x-ref="fileInput"

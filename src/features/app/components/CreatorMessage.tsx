@@ -5,7 +5,6 @@ import { Creator, CreatorMessage } from "../../../db/schema";
 type CreatorMessageProps = {
   creator: Pick<Creator, "id" | "slug" | "displayName" | "coverUrl">;
   message: CreatorMessage;
-  isFirst: boolean;
   user: AuthUser | null;
   canReadMessages?: boolean;
 };
@@ -13,7 +12,6 @@ type CreatorMessageProps = {
 const CreatorMessage = ({
   creator,
   message,
-  isFirst,
   user,
   canReadMessages = true,
 }: CreatorMessageProps) => {
@@ -24,10 +22,7 @@ const CreatorMessage = ({
     : "";
 
   return (
-    <article
-      class="rounded-radius border border-outline bg-surface p-4 shadow-sm"
-      x-data={`{ isExpanded: ${isFirst ? "true" : "false"} }`}
-    >
+    <article class="rounded-radius border border-outline bg-surface p-4 shadow-sm">
       <header class="mb-3 flex items-center justify-between gap-3">
         <a href={`/creators/${creator.slug}`}>
           <div class="flex items-center gap-2 min-w-0">
@@ -67,40 +62,21 @@ const CreatorMessage = ({
       </header>
       <div class="relative">
         <div class={redactClass}>
-          {/* collapsed preview — always visible */}
-          <p
-            class="whitespace-pre-wrap text-sm text-on-surface line-clamp-2"
-            x-show="!isExpanded"
-          >
+          <p class="whitespace-pre-wrap text-sm text-on-surface">
             {message.body}
           </p>
-
-          {/* expanded content */}
-          <div x-cloak x-show="isExpanded" x-collapse>
-            <p class="whitespace-pre-wrap text-sm text-on-surface">
-              {message.body}
-            </p>
-            {message.imageUrls && message.imageUrls.length > 0 && (
-              <div class="mt-3 flex flex-col gap-2">
-                {message.imageUrls.map((url, idx) => (
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="block"
-                  >
-                    <img
-                      src={url}
-                      alt={`Post image ${idx + 1}`}
-                      class="w-full rounded-radius object-cover border border-outline"
-                      loading="lazy"
-                    />
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
+          {message.imageUrl && (
+            <div class="mt-3">
+              <img
+                src={message.imageUrl}
+                alt="Post image"
+                class="w-full rounded-radius object-cover border border-outline"
+                loading="lazy"
+              />
+            </div>
+          )}
         </div>
+
         {!canReadMessages && (
           <div class="absolute inset-0 grid place-items-center">
             <div class="rounded-full border border-outline bg-surface/90 px-3 py-1 text-xs font-medium text-on-surface-strong shadow-sm">
@@ -109,29 +85,6 @@ const CreatorMessage = ({
           </div>
         )}
       </div>
-      <button
-        type="button"
-        class="mt-2 flex items-center gap-1 text-xs text-on-surface hover:text-on-surface-strong transition cursor-pointer"
-        x-on:click="isExpanded = !isExpanded"
-        x-bind:aria-expanded="isExpanded ? 'true' : 'false'"
-      >
-        <span x-text="isExpanded ? 'Show less' : 'Show more'"></span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke-width="2"
-          stroke="currentColor"
-          class="size-3 transition"
-          x-bind:class="isExpanded ? 'rotate-180' : ''"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-          />
-        </svg>
-      </button>
     </article>
   );
 };

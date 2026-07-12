@@ -407,6 +407,13 @@
       "when": 1783100000000,
       "tag": "0058_book_analytics_cascade_delete",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1783101000000,
+      "tag": "0059_creator_message_image_url",
+      "breakpoints": true
     }
   ]
 }

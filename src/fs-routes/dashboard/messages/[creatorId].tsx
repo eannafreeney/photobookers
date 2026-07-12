@@ -36,7 +36,7 @@ export const POST = createRoute(
       return showErrorAlert(c, "Only one image is allowed per message");
     }
 
-    let imageUrls: string[] | undefined = undefined;
+    let imageUrl: string | undefined = undefined;
 
     if (rawImage instanceof File && rawImage.size > 0) {
       const valid = removeInvalidImages(rawImage);
@@ -50,7 +50,7 @@ export const POST = createRoute(
           `creators/${creatorId}/messages`,
           "gallery",
         );
-        imageUrls = [uploaded.url];
+        imageUrl = uploaded.url;
       } catch (error) {
         console.error("message image upload failed", error);
         return showErrorAlert(c, "Failed to upload image");
@@ -59,7 +59,7 @@ export const POST = createRoute(
 
     const [err, message] = await createMessage(creatorId, {
       body: messageBody,
-      imageUrls,
+      imageUrl,
     });
     if (err) return showErrorAlert(c, err.reason);
 

@@ -54,12 +54,11 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
           )}
         </div>
       ) : (
-        messages.map((message, index) => (
+        messages.map((message) => (
           <CreatorMessage
             creator={creator}
             message={message}
             user={user}
-            isFirst={index === 0}
             canReadMessages={canReadMessages}
           />
         ))

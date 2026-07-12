@@ -80,13 +80,12 @@ export const GET = createRoute(async (c) => {
               Messages from creators you follow will appear here.
             </p>
           ) : (
-            messages.map((msg, index) => (
+            messages.map((msg) => (
               <CreatorMessage
                 user={user}
                 canReadMessages
                 creator={msg.creator}
                 message={msg}
-                isFirst={index === 0}
               />
             ))
           )}

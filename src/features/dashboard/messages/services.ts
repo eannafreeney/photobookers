@@ -6,7 +6,7 @@ import { err, ok } from "../../../lib/result";
 
 export async function createMessage(
   creatorId: string,
-  input: { body: string; imageUrls?: string[] },
+  input: { body: string; imageUrl?: string },
 ) {
   try {
     const [msg] = await db
@@ -14,7 +14,7 @@ export async function createMessage(
       .values({
         creatorId,
         body: input.body.trim(),
-        imageUrls: input.imageUrls?.length ? input.imageUrls : null,
+        imageUrl: input.imageUrl ?? null,
       })
       .returning();
     if (!msg) return err({ reason: "Failed to create message" });

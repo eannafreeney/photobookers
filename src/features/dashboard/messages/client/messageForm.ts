@@ -81,10 +81,19 @@ export function registerMessageForm() {
         const ctx = this as unknown as MessageFormCtx;
         e.preventDefault();
         ctx.isDragOver = false;
-        const uri = e.dataTransfer?.getData("text/uri-list")?.trim();
-        if (!uri) return;
-        const current = (ctx.form.imageUrls ?? "").trim();
-        ctx.form.imageUrls = current ? `${current}, ${uri}` : uri;
+        const file = Array.from(e.dataTransfer?.files ?? []).find((f) =>
+          f.type.startsWith("image/"),
+        );
+        if (!file) return;
+        const input = (this as { $refs?: { fileInput?: HTMLInputElement } })
+          .$refs?.fileInput;
+        if (input) {
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          input.files = dt.files;
+        }
+        if (ctx.previewUrl) URL.revokeObjectURL(ctx.previewUrl);
+        ctx.previewUrl = URL.createObjectURL(file);
       },
 
       onFileChange(e: Event) {

@@ -1,4 +1,10 @@
-const DragAndDropArea = () => {
+type DragAndDropAreaProps = {
+  prompt?: string;
+};
+
+const DragAndDropArea = ({
+  prompt = "Drag and drop or click here to upload images.",
+}: DragAndDropAreaProps) => {
   const dragAttrs = {
     "@dragenter.prevent": "onDragEnter($event)",
     "@dragover.prevent": "onDragOver($event)",
@@ -14,9 +20,7 @@ const DragAndDropArea = () => {
       {...dragAttrs}
     >
       <div class="flex items-center justify-center mb-4">{dragAndDropIcon}</div>
-      <p class="text-sm text-on-surface/80">
-        Drag and drop or click here to upload images.
-      </p>
+      <p class="text-sm text-on-surface/80">{prompt}</p>
       <p class="text-xs text-on-surface/80">PNG, JPG, WebP - Max 5MB</p>
     </div>
   );

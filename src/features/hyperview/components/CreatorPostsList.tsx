@@ -12,7 +12,7 @@ type Post = {
   id: string;
   body: string;
   createdAt: Date | null;
-  imageUrls: string[] | null;
+  imageUrl: string | null;
 };
 
 type Props = {
@@ -57,14 +57,13 @@ const CreatorPostsList = ({
             {post.body ? (
               <Text style="creator-post-body">{post.body}</Text>
             ) : null}
-            {(post.imageUrls ?? []).map((url, idx) => (
+            {post.imageUrl ? (
               <Image
-                key={idx}
-                source={url}
+                source={post.imageUrl}
                 style="creator-post-image"
                 resize-mode="cover"
               />
-            ))}
+            ) : null}
           </>
         ) : (
           <Text style="creator-post-locked">Follow to unlock</Text>
