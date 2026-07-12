@@ -5,15 +5,15 @@ import FormButton from "../../../components/forms/FormButtons";
 const ContactForm = () => {
   const alpineAttrs = {
     "x-data": "contactForm",
-    "x-target": "toast",
+    "x-target": "toast contact-form",
     "x-target.error": "toast",
     "x-on:submit": "submitForm($event)",
-    "x-on:ajax:success": "onSuccess()",
     "x-on:ajax:error": "isSubmitting = false",
   };
 
   return (
     <form
+      id="contact-form"
       action="/contact"
       method="post"
       class="flex flex-col gap-4 max-w-lg"

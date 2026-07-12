@@ -42,12 +42,6 @@ export function registerContactForm() {
         );
       },
 
-      onSuccess() {
-        this.isSubmitting = false;
-        this.form = { name: "", email: "", message: "" };
-        this.errors.form = { name: "", email: "", message: "" };
-      },
-
       submitForm(event: Event) {
         return handleSubmit(this, event, contactFormSchema);
       },

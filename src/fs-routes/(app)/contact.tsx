@@ -6,12 +6,12 @@ import ContactForm from "../../features/app/forms/ContactForm";
 import { createRoute } from "hono-fsr";
 import { contactFormSchema } from "../../features/app/schema";
 import { formValidator } from "../../lib/validator";
-import { match } from "node:assert";
 import { sendAdminEmail } from "../../lib/sendEmail";
 import { generateContactEmail } from "../../features/app/emails";
-import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
+import { showErrorAlert } from "../../lib/alertHelpers";
 import { ContactFormContext } from "../../features/app/types";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
+import Alert from "../../components/app/Alert";
 
 export const GET = createRoute(async (c: Context) => {
   const currentPath = c.req.path;
@@ -82,6 +82,14 @@ export const POST = createRoute(
       if (error) return showErrorAlert(c, error.reason);
     }
 
-    return showSuccessAlert(c, "Message sent — we'll get back to you soon.");
+    return c.html(
+      <>
+        <Alert
+          type="success"
+          message="Message sent — we'll get back to you soon."
+        />
+        <ContactForm />
+      </>,
+    );
   },
 );
