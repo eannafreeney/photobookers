@@ -1,6 +1,6 @@
 import { createRoute } from "hono-fsr";
 import { redirectUrlSchema } from "../../schemas";
-import { formValidator, paramValidator } from "../../lib/validator";
+import { formValidator, queryValidator } from "../../lib/validator";
 import { loginFormSchema } from "../../features/auth/schema";
 import { Context } from "hono";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
@@ -38,11 +38,11 @@ export const GET = createRoute(async (c: Context) => {
 });
 
 export const POST = createRoute(
-  paramValidator(redirectUrlSchema),
+  queryValidator(redirectUrlSchema),
   formValidator(loginFormSchema),
   async (c: LoginFormContext) => {
     const formData = c.req.valid("form");
-    const redirectUrl = c.req.valid("param").redirectUrl;
+    const redirectUrl = c.req.valid("query").redirectUrl;
     const email = (formData.email as string).trim().toLowerCase();
     const password = formData.password as string;
     const [loginErr, login] = await loginAndSetCookies(c, email, password);

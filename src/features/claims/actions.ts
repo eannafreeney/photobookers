@@ -2,8 +2,8 @@ import type { Context } from "hono";
 import { getCreatorById } from "../dashboard/creators/services";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services";
 import { verifyOtpForClaimSignup } from "../auth/services";
-import { isSameDomain, normalizeUrl } from "../../services/verification";
 import { createClaimWithStatus } from "./services";
+import { resolveClaimVerificationUrl, getSubmittedClaimVerificationUrl } from "./verificationUrl";
 import {
   type ClaimApprovalEmailUser,
   emailMatchesWebsite,
@@ -14,6 +14,9 @@ import type z from "zod";
 
 type ClaimFormData = {
   verificationUrl?: string;
+  form?: {
+    verificationUrl?: string;
+  };
 };
 
 export type ClaimSubmitUser = ClaimApprovalEmailUser & {
@@ -35,19 +38,14 @@ export async function submitClaimForUser(
     return { type: "error", message: "Creator not found" };
   }
 
-  const rawUrl = creator.website ?? formData.verificationUrl;
-  const verificationUrl = rawUrl ? normalizeUrl(rawUrl) : null;
-
-  if (
-    creator.website &&
-    verificationUrl &&
-    !isSameDomain(verificationUrl, creator.website)
-  ) {
-    return {
-      type: "error",
-      message: `The URL must match the creator's listed website (${creator.website}).`,
-    };
+  const resolved = resolveClaimVerificationUrl(
+    creator.website,
+    getSubmittedClaimVerificationUrl(formData),
+  );
+  if (!resolved.ok) {
+    return { type: "error", message: resolved.message };
   }
+  const verificationUrl = resolved.verificationUrl;
 
   const domainMatches = verificationUrl
     ? emailMatchesWebsite(user.email, verificationUrl)
@@ -97,14 +95,19 @@ export async function registerAndClaimForCreator(
     };
   }
 
-  const rawUrl = creator.website ?? formData.verificationUrl;
-  const verificationUrl = rawUrl ? normalizeUrl(rawUrl) : null;
+  const resolved = resolveClaimVerificationUrl(
+    creator.website,
+    getSubmittedClaimVerificationUrl(formData),
+  );
+  if (!resolved.ok) {
+    return { type: "error", message: resolved.message };
+  }
 
   const [verifyOtpError] = await verifyOtpForClaimSignup(
     c,
     formData,
     creatorId,
-    verificationUrl,
+    resolved.verificationUrl,
   );
   if (verifyOtpError) {
     return { type: "error", message: verifyOtpError.reason };

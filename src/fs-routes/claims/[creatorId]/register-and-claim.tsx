@@ -5,7 +5,7 @@ import { creatorIdSchema } from "../../../schemas";
 import { RegisterAndClaimFormContext } from "../../../features/claims/types";
 import { getCreatorById } from "../../../features/dashboard/creators/services";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
-import { normalizeUrl } from "../../../services/verification";
+import { resolveClaimVerificationUrl, getSubmittedClaimVerificationUrl } from "../../../features/claims/verificationUrl";
 import { verifyOtpForClaimSignup } from "../../../features/auth/services";
 
 export const POST = createRoute(
@@ -23,14 +23,19 @@ export const POST = createRoute(
     if (creator.status !== "stub")
       return showErrorAlert(c, "This profile is not available to claim.");
 
-    const rawUrl = creator.website ?? formData.verificationUrl;
-    const verificationUrl = rawUrl ? normalizeUrl(rawUrl) : null;
+    const resolved = resolveClaimVerificationUrl(
+      creator.website,
+      getSubmittedClaimVerificationUrl(formData),
+    );
+    if (!resolved.ok) {
+      return showErrorAlert(c, resolved.message);
+    }
 
     const [verifyOtpError] = await verifyOtpForClaimSignup(
       c,
       formData,
       creatorId,
-      verificationUrl,
+      resolved.verificationUrl,
     );
     if (verifyOtpError) return showErrorAlert(c, verifyOtpError.reason);
 

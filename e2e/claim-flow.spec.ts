@@ -10,14 +10,11 @@ import {
   getClaimForUserAndCreator,
   getCreatorById,
 } from "./helpers/db";
-import { e2eBaseUrl, hasE2eEnv, missingE2eEnvVars } from "./helpers/env";
+import { e2eBaseUrl, e2eTargetBlockReason, hasE2eEnv } from "./helpers/env";
 import { seedStubCreator } from "./helpers/seed";
 
 test.describe("claim flow", () => {
-  test.skip(
-    !hasE2eEnv(),
-    `Missing env vars: ${missingE2eEnvVars().join(", ")}`,
-  );
+  test.skip(!hasE2eEnv(), e2eTargetBlockReason() ?? "E2E not configured");
 
   let seedUser: E2eUser;
   const trackedUserIds: string[] = [];
@@ -52,6 +49,52 @@ test.describe("claim flow", () => {
       page.getByRole("button", { name: /create account & submit claim/i }),
     ).toBeVisible();
     await expect(page.getByText(/already have an account/i)).toBeVisible();
+  });
+
+  test("logged-out visitor without listed website sees website input", async ({
+    page,
+  }) => {
+    const creator = await seedStubCreator({
+      createdByUserId: seedUser.id,
+      website: null,
+    });
+    trackedCreatorIds.push(creator.id);
+
+    await page.goto(`/claims/${creator.id}/start`);
+
+    await expect(page.getByPlaceholder("https://yourwebsite.com")).toBeVisible();
+  });
+
+  test("logged-in user with tampered verification URL is rejected", async ({
+    page,
+    context,
+  }) => {
+    const creator = await seedStubCreator({
+      createdByUserId: seedUser.id,
+      website: "https://example.com",
+    });
+    trackedCreatorIds.push(creator.id);
+
+    const claimant = await createE2eUser({ emailDomain: "example.com" });
+    trackedUserIds.push(claimant.id);
+
+    await signInAndSetCookies(context, claimant, e2eBaseUrl());
+    await page.goto(`/claims/${creator.id}/start`);
+
+    await page.locator('input[name="form.verificationUrl"]').evaluate(
+      (input) => {
+        (input as HTMLInputElement).value = "https://other.com";
+      },
+    );
+    await page.getByRole("button", { name: /submit claim/i }).click();
+
+    await expect(page).toHaveURL(/\/claims\/.*\/start/);
+    await expect(
+      page.getByText(/must match the creator's listed website/i),
+    ).toBeVisible();
+
+    const claim = await getClaimForUserAndCreator(claimant.id, creator.id);
+    expect(claim).toBeUndefined();
   });
 
   test("verified creator profile cannot be claimed", async ({ page }) => {

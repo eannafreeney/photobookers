@@ -18,7 +18,7 @@ export type LoginFormContext = Context<
   {
     out: {
       form: z.infer<typeof loginFormSchema>;
-      param: z.infer<typeof redirectUrlSchema>;
+      query: z.infer<typeof redirectUrlSchema>;
     };
   }
 >;

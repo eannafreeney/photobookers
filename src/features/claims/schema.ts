@@ -1,16 +1,25 @@
 import z from "zod";
 import { checkboxField } from "../../schemas";
+import { unwrapPrefixedForm } from "./verificationUrl";
+
+const optionalVerificationUrl = z
+  .string()
+  .url("Please enter a valid URL (e.g., https://example.com)")
+  .optional()
+  .or(z.literal(""));
 
 // ============ CLAIM FORM SCHEMA ============
-export const claimFormSchema = z.object({
-  verificationUrl: z
-    .url("Please enter a valid URL (e.g., https://example.com)")
-    .optional()
-    .or(z.literal("")),
-});
+export const claimFormSchema = z.preprocess((raw) => {
+  const flat = unwrapPrefixedForm(raw);
+  return { verificationUrl: flat.verificationUrl ?? "" };
+}, z.object({
+  verificationUrl: optionalVerificationUrl,
+}));
 
 // ============ REGISTER + CLAIM (FAN FIELDS + VERIFICATION URL) ============
-export const registerAndClaimFormSchema = z.object({
+export const registerAndClaimFormSchema = z.preprocess(
+  (raw) => unwrapPrefixedForm(raw),
+  z.object({
   firstName: z
     .string()
     .min(3, "First name must be at least 3 characters")
@@ -28,7 +37,8 @@ export const registerAndClaimFormSchema = z.object({
     .optional()
     .or(z.literal("")),
   captchaToken: z.string().min(1, "Please complete the CAPTCHA"),
-});
+  }),
+);
 
 export const claimCompleteQuerySchema = z.object({
   creatorId: z.string().uuid(),

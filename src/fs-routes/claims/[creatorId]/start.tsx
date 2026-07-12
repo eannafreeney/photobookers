@@ -1,5 +1,6 @@
 import { createRoute } from "hono-fsr";
-import { paramValidator } from "../../../lib/validator";
+import { formValidator, paramValidator } from "../../../lib/validator";
+import { claimFormSchema } from "../../../features/claims/schema";
 import { creatorIdSchema } from "../../../schemas";
 import { getFlash, getUser, setFlash } from "../../../utils";
 import { getCreatorById } from "../../../features/dashboard/creators/services";
@@ -45,6 +46,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 
 export const POST = createRoute(
   paramValidator(creatorIdSchema),
+  formValidator(claimFormSchema),
   async (c: ProcessClaimContext) => {
     const creatorId = c.req.valid("param").creatorId;
     const user = await getUser(c);

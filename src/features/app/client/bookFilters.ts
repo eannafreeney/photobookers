@@ -1,9 +1,13 @@
 import Alpine from "alpinejs";
 import type { BookCatalogSort } from "../../../lib/bookCatalogSort";
+import {
+  buildBookCatalogFilterParams,
+  MIN_SEARCH_LENGTH,
+} from "./bookFilterParams";
 
 export const BOOKS_CATALOG_TARGET_ID = "books-catalog";
 
-const MIN_SEARCH_LENGTH = 3;
+export { buildBookCatalogFilterParams, MIN_SEARCH_LENGTH };
 
 type BookFiltersInitial = {
   query?: string;
@@ -23,19 +27,6 @@ type BookFiltersCtx = {
   minLen: number;
   $ajax: (url: string, options?: { target?: string }) => void;
   refreshGrid(): void;
-};
-
-const buildFilterParams = (
-  ctx: BookFiltersCtx,
-  options?: { includeFragment?: boolean },
-) => {
-  const params = new URLSearchParams();
-  if (ctx.tag) params.set("tag", ctx.tag);
-  const trimmed = ctx.query.trim();
-  if (trimmed.length >= ctx.minLen) params.set("q", trimmed);
-  if (ctx.sort !== ctx.defaultSort) params.set("sort", ctx.sort);
-  if (options?.includeFragment) params.set("fragment", "grid");
-  return params;
 };
 
 export function registerBookFilters() {
@@ -59,11 +50,28 @@ export function registerBookFilters() {
 
       refreshGrid() {
         const ctx = this as unknown as BookFiltersCtx;
-        const params = buildFilterParams(ctx, { includeFragment: true });
+        const params = buildBookCatalogFilterParams(
+          {
+            query: ctx.query,
+            tag: ctx.tag,
+            sort: ctx.sort,
+            defaultSort: ctx.defaultSort,
+            minLen: ctx.minLen,
+          },
+          { includeFragment: true },
+        );
         ctx.$ajax(ajaxPath + "?" + params.toString(), {
           target: BOOKS_CATALOG_TARGET_ID,
         });
-        replaceHistory(buildFilterParams(ctx));
+        replaceHistory(
+          buildBookCatalogFilterParams({
+            query: ctx.query,
+            tag: ctx.tag,
+            sort: ctx.sort,
+            defaultSort: ctx.defaultSort,
+            minLen: ctx.minLen,
+          }),
+        );
       },
 
       applyFilter(nextTag: string | null) {

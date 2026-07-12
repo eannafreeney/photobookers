@@ -49,7 +49,17 @@ const CommentsSection = async ({
         What did you love about this book?
       </h3>
       <CommentsList bookId={bookId} comments={comments} user={user} />
-      {!hasProfilePic ? (
+      {!user ? (
+        <Link
+          href={`/api/books/${bookId}/comments`}
+          xTarget="modal-root"
+          className="mt-2"
+        >
+          <Button variant="outline" color="primary" width={isMobile ? "full" : "fit"}>
+            Add Comment
+          </Button>
+        </Link>
+      ) : !hasProfilePic ? (
         <form
           method="get"
           action={`/users/${user?.id}/update`}

@@ -26,6 +26,7 @@ export type E2eUser = {
 export async function createE2eUser(opts?: {
   emailDomain?: string;
   isAdmin?: boolean;
+  profileImageUrl?: string | null;
 }): Promise<E2eUser> {
   const domain = opts?.emailDomain ?? "example.com";
   const email = `e2e-claim-${nanoid(10)}@${domain}`;
@@ -51,6 +52,7 @@ export async function createE2eUser(opts?: {
       lastName: "Claim",
       isAdmin: opts?.isAdmin ?? false,
       acceptsTerms: new Date(),
+      profileImageUrl: opts?.profileImageUrl ?? null,
     });
 
   return { id: data.user.id, email, password };
@@ -101,6 +103,44 @@ export async function signInAndSetCookies(
       sameSite: "Lax",
     },
   ]);
+}
+
+export async function createE2eSignupCallback(opts?: {
+  firstName?: string;
+  lastName?: string;
+}): Promise<{
+  email: string;
+  userId: string;
+  callbackPath: string;
+}> {
+  const email = `e2e-fan-${nanoid(10)}@example.com`;
+  const password = `E2e-${nanoid(16)}!`;
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase.auth.admin.generateLink({
+    type: "signup",
+    email,
+    password,
+    options: {
+      data: {
+        firstName: opts?.firstName ?? "E2E",
+        lastName: opts?.lastName ?? "Fan",
+        type: "fan",
+      },
+    },
+  });
+
+  if (error || !data.user || !data.properties?.hashed_token) {
+    throw new Error(error?.message ?? "Failed to generate signup callback");
+  }
+
+  const tokenHash = data.properties.hashed_token;
+
+  return {
+    email,
+    userId: data.user.id,
+    callbackPath: `/auth/callback?token_hash=${encodeURIComponent(tokenHash)}`,
+  };
 }
 
 export async function setUserAdmin(userId: string, isAdmin: boolean) {

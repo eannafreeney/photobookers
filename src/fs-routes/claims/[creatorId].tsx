@@ -1,5 +1,6 @@
 import { createRoute } from "hono-fsr";
-import { paramValidator, queryValidator } from "../../lib/validator";
+import { formValidator, paramValidator, queryValidator } from "../../lib/validator";
+import { claimFormSchema } from "../../features/claims/schema";
 import { creatorIdSchema, currentPathSchema } from "../../schemas";
 import { ClaimModalContext } from "../../features/claims/types";
 import { getUser } from "../../utils";
@@ -10,8 +11,7 @@ import ClaimSignupModal from "../../features/claims/modals/ClaimSignUpModal";
 import ClaimCreatorBtn from "../../features/claims/components/ClaimCreatorBtn";
 import ClaimModal from "../../features/claims/modals/ClaimModal";
 import { ProcessClaimContext } from "../../features/claims/types";
-import { normalizeUrl } from "../../services/verification";
-import { isSameDomain } from "../../services/verification";
+import { resolveClaimVerificationUrl, getSubmittedClaimVerificationUrl } from "../../features/claims/verificationUrl";
 import {
   emailMatchesWebsite,
   sendCreatorVerifiedEmail,
@@ -85,6 +85,7 @@ export const GET = createRoute(
 export const POST = createRoute(
   paramValidator(creatorIdSchema),
   queryValidator(currentPathSchema),
+  formValidator(claimFormSchema),
   async (c: ProcessClaimContext) => {
     const formData = c.req.valid("form");
     const creatorId = c.req.valid("param").creatorId;
@@ -94,20 +95,14 @@ export const POST = createRoute(
     if (creatorError || !creator) {
       return showErrorAlert(c, "Creator not found");
     }
-    // Use creator's existing website, or fall back to user-submitted URL
-    const rawUrl = creator.website ?? formData.verificationUrl;
-    const verificationUrl = rawUrl ? normalizeUrl(rawUrl) : null;
-    // If creator has a listed website, enforce it — don't let user swap it
-    if (
-      creator.website &&
-      verificationUrl &&
-      !isSameDomain(verificationUrl, creator.website)
-    ) {
-      return showErrorAlert(
-        c,
-        `The URL must match the creator's listed website (${creator.website}).`,
-      );
+    const resolved = resolveClaimVerificationUrl(
+      creator.website,
+      getSubmittedClaimVerificationUrl(formData),
+    );
+    if (!resolved.ok) {
+      return showErrorAlert(c, resolved.message);
     }
+    const verificationUrl = resolved.verificationUrl;
     const domainMatches = verificationUrl
       ? emailMatchesWebsite(user.email, verificationUrl)
       : false;

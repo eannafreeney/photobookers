@@ -1,5 +1,6 @@
 import { AuthUser } from "../../../../types";
 import Button from "../../../components/app/Button";
+import AuthModal from "../../../components/app/AuthModal";
 import Modal from "../../../components/app/Modal";
 
 type CommentModalProps = {
@@ -26,7 +27,7 @@ const CommentModal = ({
   };
 
   if (!user) {
-    return <p class="text-sm text-on-surface">Log in to add a comment.</p>;
+    return <AuthModal action="to comment on this book." />;
   }
 
   return (

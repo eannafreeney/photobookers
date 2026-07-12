@@ -4,6 +4,7 @@ import Page from "../../components/layouts/Page";
 import PageHeader from "../../components/app/PageHeader";
 import ContactForm from "../../features/app/forms/ContactForm";
 import { createRoute } from "hono-fsr";
+import { isContactSpam } from "../../features/app/contactSpam";
 import { contactFormSchema } from "../../features/app/schema";
 import { formValidator } from "../../lib/validator";
 import { sendAdminEmail } from "../../lib/sendEmail";
@@ -45,30 +46,13 @@ export const POST = createRoute(
   async (c: ContactFormContext) => {
     const form = c.req.valid("form");
 
-    // 🍯 1. Honeypot (bots fill this)
-    if (form.website) return c.redirect("/");
-
-    // ⏱️ 2. Time check (bots are instant)
-    const ts = Number(form.ts);
-    if (!ts || Date.now() - ts < 3000) {
-      return c.redirect("/");
-    }
-
-    // 🧠 3. Content heuristics (cheap + effective)
-    const msg = String(form.message || "");
-
-    // too many links → spam
-    if ((msg.match(/http/gi) || []).length > 2) {
-      return c.redirect("/");
-    }
-
-    // nonsense length
-    if (msg.length < 10 || msg.length > 2000) {
-      return c.redirect("/");
-    }
-
-    // optional: block obvious keywords
-    if (/viagra|casino|crypto|loan/gi.test(msg)) {
+    if (
+      isContactSpam({
+        website: form.website,
+        ts: form.ts,
+        message: form.message,
+      }).spam
+    ) {
       return c.redirect("/");
     }
 

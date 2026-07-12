@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { e2eTargetBlockReason, hasE2eEnv } from "./helpers/env";
 
 test.describe("contact form", () => {
+  test.skip(!hasE2eEnv(), e2eTargetBlockReason() ?? "E2E not configured");
+
   test("submits successfully, shows toast, and clears fields", async ({
     page,
   }) => {

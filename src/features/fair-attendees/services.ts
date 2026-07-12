@@ -14,6 +14,8 @@ const isFairOpenForAttendance = (fair: {
   fair.approvalStatus === "approved" &&
   new Date(fair.endDate) >= today();
 
+export { isFairOpenForAttendance };
+
 export const getFairAttendees = async (fairId: string) => {
   try {
     const attendees = await db.query.fairAttendees.findMany({
