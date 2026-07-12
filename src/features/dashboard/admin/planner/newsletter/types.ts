@@ -65,6 +65,8 @@ export type TrendingInstagramPostState = {
   caption: string;
   bufferPostId?: string | null;
   queuedAt?: string | null;
+  previewEmailSentAt?: string | null;
+  cancelledAt?: string | null;
   error?: string | null;
 };
 

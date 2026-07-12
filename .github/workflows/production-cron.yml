@@ -10,8 +10,11 @@ on:
     - cron: "0 9 * * 6" # Saturday 09:00 UTC — Instagram prep reminder
     - cron: "0 9 3 * *" # 3rd of month 09:00 UTC — creator analytics digest
     - cron: "0 10 * * *" # daily 10:00 UTC — creator milestone + stub outreach + verification feedback
-    - cron: "0 10 * * 4" # Thursday 10:00 UTC — trending Instagram + interview reminders
-    - cron: "0 11 * * *" # daily 11:00 UTC — verified creator Instagram
+    - cron: "0 10 * * 3" # Wednesday 10:00 UTC — trending Instagram (prepare + queue + preview email)
+    - cron: "0 10 * * 4" # Thursday 10:00 UTC — interview reminders
+    - cron: "0 11 * * 2" # Tuesday 11:00 UTC — verified creator Instagram
+    - cron: "0 11 * * 4" # Thursday 11:00 UTC — verified creator Instagram
+    - cron: "0 11 * * 6" # Saturday 11:00 UTC — verified creator Instagram
   workflow_dispatch:
     inputs:
       job:
@@ -177,7 +180,7 @@ jobs:
 
   weekly-trending-instagram:
     if: >-
-      (github.event_name == 'schedule' && github.event.schedule == '0 10 * * 4') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 10 * * 3') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'weekly-trending-instagram')
     uses: ./.github/workflows/run-production-cron.yml
     with:
@@ -186,7 +189,7 @@ jobs:
 
   verified-creator-instagram:
     if: >-
-      (github.event_name == 'schedule' && github.event.schedule == '0 11 * * *') ||
+      (github.event_name == 'schedule' && (github.event.schedule == '0 11 * * 2' || github.event.schedule == '0 11 * * 4' || github.event.schedule == '0 11 * * 6')) ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'verified-creator-instagram')
     uses: ./.github/workflows/run-production-cron.yml
     with:

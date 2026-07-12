@@ -4,6 +4,7 @@ import { artistOfTheWeek } from "../../../db/schema";
 import { sendAdminEmail } from "../../../lib/sendEmail";
 import { err, ok, type Result } from "../../../lib/result";
 import { toWeekStart, toWeekString } from "../../../lib/utils";
+import { buildPlannerWeekFeedPreviewUrls } from "../instagramSlides/buildPlannerWeekFeedPreview";
 import { buildPlannerWeekContentPreviewEmail } from "../../../features/dashboard/admin/planner/emails";
 import { getWeekInstagramForPrepare } from "../../../features/dashboard/admin/planner/social-media/instagramServices";
 import {
@@ -111,10 +112,16 @@ export async function runContentPreviewEmail(
 
   const siteUrl = process.env.SITE_URL ?? "https://photobookers.com";
   const weekKey = toWeekString(normalizedWeekStart);
+
+  let feedPreviewUrls: Map<string, string[]> | undefined;
+  if (!options.dryRun) {
+    feedPreviewUrls = await buildPlannerWeekFeedPreviewUrls(items, weekKey);
+  }
   const subject = `Planner week ready — ${weekKey}`;
   const html = buildPlannerWeekContentPreviewEmail({
     weekStart: normalizedWeekStart,
     items,
+    feedPreviewUrls,
     prepWarnings,
     plannerUrl: `${siteUrl}/dashboard/admin/planner?year=${normalizedWeekStart.getUTCFullYear()}`,
     featuredHeroUrl: `${siteUrl}/dashboard/admin/planner/featured-hero/${weekKey}/prepare`,

@@ -33,6 +33,10 @@ import {
   trendingPostHasContent,
 } from "./captions";
 import { renderTrendingCarouselSlides } from "./renderTrendingSlide";
+import {
+  markTrendingPreviewEmailSent,
+  sendTrendingInstagramPreviewEmail,
+} from "../cron/trendingInstagramPreviewEmailServices";
 
 const TRENDING_POST_KINDS: TrendingInstagramPostKind[] = [
   "books",
@@ -298,6 +302,11 @@ export async function queueTrendingInstagramPosts(
       continue;
     }
 
+    if (post.cancelledAt) {
+      skipped.push(`${kind}: cancelled`);
+      continue;
+    }
+
     if (
       !options.force &&
       post.queuedAt &&
@@ -369,6 +378,61 @@ export async function queueTrendingInstagramPosts(
   });
 }
 
+export type SendTrendingInstagramPreviewOptions = {
+  dryRun?: boolean;
+  referenceDate?: Date;
+};
+
+export async function sendTrendingInstagramPreviewForEdition(
+  options: SendTrendingInstagramPreviewOptions = {},
+): Promise<Result<{ sent: boolean }, { reason: string }>> {
+  const edition = getCompletedNewsletterEditionRange(options.referenceDate);
+  const editionWeekStart = toDateString(edition.weekStart);
+  const campaign = await findNewsletterCampaignByEditionStart(edition.weekStart);
+  if (!campaign) {
+    return err({
+      reason: `No newsletter campaign found for edition starting ${editionWeekStart}`,
+    });
+  }
+
+  const rawState = campaign.generatedContent?.trendingInstagram;
+  if (!rawState?.posts || Object.keys(rawState.posts).length === 0) {
+    return ok({ sent: false });
+  }
+
+  const state: TrendingInstagramState = {
+    preparedAt: rawState.preparedAt,
+    editionWeekStart: rawState.editionWeekStart,
+    posts: rawState.posts,
+  };
+
+  const [emailError, emailResult] = await sendTrendingInstagramPreviewEmail({
+    campaignId: campaign.id,
+    editionWeekStart,
+    sendWednesday: edition.sendWednesday,
+    state,
+    dryRun: options.dryRun,
+  });
+  if (emailError) return err(emailError);
+  if (!emailResult.sent || options.dryRun) return ok(emailResult);
+
+  const kindsToMark = (["books", "artists", "publishers"] as TrendingInstagramPostKind[]).filter(
+    (kind) => {
+      const post = state.posts[kind];
+      return post?.imageUrls?.length && post.caption && !post.cancelledAt;
+    },
+  );
+  const nextState = markTrendingPreviewEmailSent(state, kindsToMark);
+  const [saveError] = await saveTrendingInstagramState(
+    campaign.id,
+    campaign.generatedContent,
+    nextState,
+  );
+  if (saveError) return err(saveError);
+
+  return ok(emailResult);
+}
+
 export async function runTrendingInstagramForEdition(
   options: PrepareTrendingInstagramOptions & QueueTrendingInstagramOptions = {},
 ): Promise<
@@ -382,6 +446,9 @@ export async function runTrendingInstagramForEdition(
 
   const [queueError, queued] = await queueTrendingInstagramPosts(options);
   if (queueError) return err(queueError);
+
+  const [previewError] = await sendTrendingInstagramPreviewForEdition(options);
+  if (previewError) return err(previewError);
 
   return ok({
     campaignId: prepared.campaignId,

@@ -240,6 +240,10 @@ export const creators = pgTable(
     interviewReminderOptOutAt: timestamp("interview_reminder_opt_out_at"),
     verifiedInstagramQueuedAt: timestamp("verified_instagram_queued_at"),
     verifiedInstagramBufferPostId: text("verified_instagram_buffer_post_id"),
+    verifiedInstagramPreviewEmailSentAt: timestamp(
+      "verified_instagram_preview_email_sent_at",
+    ),
+    verifiedInstagramCancelledAt: timestamp("verified_instagram_cancelled_at"),
     verifiedInstagramError: text("verified_instagram_error"),
     verificationFeedbackEmailSentAt: timestamp(
       "verification_feedback_email_sent_at",
@@ -847,7 +851,7 @@ export const newsletterCampaigns = pgTable(
       trendingInstagram?: {
         preparedAt?: string;
         editionWeekStart: string;
-        posts?: Partial<
+        posts: Partial<
           Record<
             "books" | "artists" | "publishers",
             {
@@ -855,6 +859,8 @@ export const newsletterCampaigns = pgTable(
               caption: string;
               bufferPostId?: string | null;
               queuedAt?: string | null;
+              previewEmailSentAt?: string | null;
+              cancelledAt?: string | null;
               error?: string | null;
             }
           >

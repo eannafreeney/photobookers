@@ -2,7 +2,7 @@ export const NEWSLETTER_COPY = {
   kicker: "Newsletter",
   title: "Your weekly photobook digest",
   banner:
-    "One photobook recommendation every day, plus weekly artist & publisher spotlights",
+    "Books of the Day, weekly spotlights, trending artists & publishers, and new creators — once a week, free.",
   bullets: [
     "Books of the Day — all seven picks from the past week",
     "Creators of the Week — featured artist and publisher",

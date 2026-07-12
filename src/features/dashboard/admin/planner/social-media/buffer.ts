@@ -238,6 +238,76 @@ export type BufferStoryStickerFields = {
   other?: string;
 };
 
+export async function bufferDeletePost(
+  postId: string,
+): Promise<Result<void, { reason: string }>> {
+  const [configError, config] = getBufferConfig();
+  if (configError) return err(configError);
+
+  const mutation = `
+    mutation DeletePost($input: PostInput!) {
+      deletePost(input: $input) {
+        __typename
+        ... on PostActionSuccess {
+          post { id }
+        }
+        ... on MutationError {
+          message
+        }
+        ... on InvalidInputError {
+          message
+        }
+      }
+    }
+  `;
+
+  const response = await fetch("https://api.buffer.com", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${config.accessToken}`,
+    },
+    body: JSON.stringify({
+      query: mutation,
+      variables: { input: { id: postId } },
+    }),
+  });
+
+  const bodyText = await response.text();
+  let payload: BufferGraphQlResponse | null = null;
+  if (bodyText) {
+    try {
+      payload = JSON.parse(bodyText) as BufferGraphQlResponse;
+    } catch {
+      if (!response.ok) {
+        return err({
+          reason: summarizeBufferResponseBody(response.status, bodyText, null),
+        });
+      }
+      return err({ reason: "Buffer API returned invalid JSON" });
+    }
+  }
+
+  if (!response.ok) {
+    return err({
+      reason: summarizeBufferResponseBody(response.status, bodyText, payload),
+    });
+  }
+
+  const notFound = payload?.errors?.some(
+    (error) =>
+      error.message === "Post not found" ||
+      error.extensions?.code === "NOT_FOUND",
+  );
+  if (notFound) return ok(undefined);
+
+  if (payload?.errors?.length) {
+    return err({ reason: payload.errors.map((e) => e.message).join("; ") });
+  }
+
+  return ok(undefined);
+}
+
 export async function bufferCreateScheduledStory(params: {
   caption: string;
   imageUrl: string;

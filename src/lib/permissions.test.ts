@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { AuthUser } from "../../types";
 import type { Book, BookFair, Creator } from "../db/schema";
+import type { BookWithGalleryImages } from "../features/app/types";
 import {
   canClaimCreator,
   canClaimFairAttendance,
@@ -68,14 +69,23 @@ const creatorUser = (creator: Creator): AuthUser => ({
   mustResetPassword: false,
 });
 
-const baseBook = {
+const baseBookFields = {
   artistId: creatorId,
   publisherId: otherCreatorId,
   createdByUserId: userId,
-  approvalStatus: "approved",
-  publicationStatus: "draft",
+  approvalStatus: "approved" as const,
+  publicationStatus: "draft" as const,
   coverUrl: "https://example.com/cover.jpg",
-} as Book;
+};
+
+const baseBook = baseBookFields as Book;
+
+const baseEditBook = {
+  ...baseBookFields,
+  artist: null,
+  publisher: null,
+  images: [],
+} as unknown as BookWithGalleryImages;
 
 describe("canLikeBook / canWishlistBook / canCollectBook", () => {
   it("allows fans to interact with books", () => {
@@ -98,23 +108,23 @@ describe("canLikeBook / canWishlistBook / canCollectBook", () => {
 
 describe("canEditBook", () => {
   it("denies unauthenticated users", () => {
-    expect(canEditBook(null, baseBook)).toBe(false);
+    expect(canEditBook(null, baseEditBook)).toBe(false);
   });
 
   it("allows admins", () => {
-    expect(canEditBook(adminUser, baseBook)).toBe(true);
+    expect(canEditBook(adminUser, baseEditBook)).toBe(true);
   });
 
   it("allows verified owner to edit owned books", () => {
-    expect(canEditBook(creatorUser(baseCreator), baseBook)).toBe(true);
+    expect(canEditBook(creatorUser(baseCreator), baseEditBook)).toBe(true);
   });
 
   it("allows unverified claimed creator to edit only books they created", () => {
     const user = creatorUser(unverifiedClaimedCreator);
-    expect(canEditBook(user, { ...baseBook, createdByUserId: userId })).toBe(
+    expect(canEditBook(user, { ...baseEditBook, createdByUserId: userId })).toBe(
       true,
     );
-    expect(canEditBook(user, { ...baseBook, createdByUserId: "other-user" })).toBe(
+    expect(canEditBook(user, { ...baseEditBook, createdByUserId: "other-user" })).toBe(
       false,
     );
   });
@@ -123,7 +133,7 @@ describe("canEditBook", () => {
     const user = creatorUser({ ...baseCreator, status: "stub" } as Creator);
     expect(
       canEditBook(user, {
-        ...baseBook,
+        ...baseEditBook,
         approvalStatus: "pending",
         artistId: "other-artist",
       }),
@@ -212,7 +222,7 @@ describe("canClaimCreator", () => {
 
 describe("canPublishBook / canUnpublishBook", () => {
   const publishableBook = {
-    ...baseBook,
+    ...baseBookFields,
     approvalStatus: "approved",
     coverUrl: "https://example.com/cover.jpg",
     publicationStatus: "draft",

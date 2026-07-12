@@ -48,11 +48,11 @@ export function buildTrendingInstagramDueAt(
   );
 }
 
-/** Thursday after newsletter send (UTC). */
+/** Wednesday after newsletter send (UTC). Gives ~24h+ before Thu books post. */
 export function isTrendingInstagramRunDay(
   referenceDate: Date = new Date(),
 ): boolean {
-  return toUtcStartOfDay(referenceDate).getUTCDay() === 4;
+  return toUtcStartOfDay(referenceDate).getUTCDay() === 3;
 }
 
 export function parseTrendingInstagramReferenceDate(

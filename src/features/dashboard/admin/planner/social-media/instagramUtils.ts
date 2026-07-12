@@ -83,10 +83,18 @@ export function scheduleInstagramDueAt(dueAt: Date): Date {
   return dueAt;
 }
 
-/** UTC post time on the creator's verification day. */
-export function buildVerifiedCreatorInstagramDueAt(verifiedAt: Date): Date {
+/** UTC post time at least 24h after `from` (for admin preview before Buffer publish). */
+export function buildVerifiedCreatorInstagramDueAt(from: Date = new Date()): Date {
+  const minDueMs = from.getTime() + 24 * 60 * 60 * 1000;
   const time = process.env.VERIFIED_CREATOR_INSTAGRAM_POST_TIME ?? "14:00";
-  return buildInstagramDueAtWithTime(verifiedAt, time);
+  let day = toUtcStartOfDay(new Date(minDueMs));
+  let candidate = buildInstagramDueAtWithTime(day, time);
+  if (candidate.getTime() < minDueMs) {
+    day = new Date(day);
+    day.setUTCDate(day.getUTCDate() + 1);
+    candidate = buildInstagramDueAtWithTime(day, time);
+  }
+  return candidate;
 }
 
 function buildInstagramDueAtWithTime(day: Date, time: string): Date {

@@ -20,7 +20,7 @@ export type RunTrendingInstagramCronOptions = {
 export type RunTrendingInstagramCronResult =
   | {
       action: "skipped";
-      reason: "not_thursday";
+      reason: "not_wednesday";
     }
   | ({
       action: "ran";
@@ -31,7 +31,7 @@ export async function runTrendingInstagramCron(
   options: RunTrendingInstagramCronOptions = {},
 ): Promise<Result<RunTrendingInstagramCronResult, { reason: string }>> {
   if (!options.dryRun && !options.force && !isTrendingInstagramRunDay(options.date)) {
-    return ok({ action: "skipped", reason: "not_thursday" });
+    return ok({ action: "skipped", reason: "not_wednesday" });
   }
 
   const shared = {

@@ -292,6 +292,7 @@ function renderCaptionBlock(caption: string): string {
 export function buildPlannerWeekContentPreviewEmail(params: {
   weekStart: Date;
   items: SpotlightContentItem[];
+  feedPreviewUrls?: Map<string, string[]>;
   prepWarnings: string[];
   plannerUrl: string;
   featuredHeroUrl: string;
@@ -306,6 +307,12 @@ export function buildPlannerWeekContentPreviewEmail(params: {
   const sections = params.items
     .map((item) => {
       const heading = formatPreviewItemHeading(item);
+      const previewKey =
+        item.kind === "botd"
+          ? `botd-${item.date.toISOString().slice(0, 10)}`
+          : item.kind;
+      const imageUrls =
+        params.feedPreviewUrls?.get(previewKey) ?? item.instagramImageUrls;
       const blurb = item.spotlightBlurb?.trim() || item.sourceText?.trim();
       const blurbHtml = blurb
         ? `<p style="margin:0 0 16px;">${escapeHtml(blurb)}</p>`
@@ -315,8 +322,8 @@ export function buildPlannerWeekContentPreviewEmail(params: {
       <section style="margin:24px 0;padding-top:16px;border-top:1px solid #ddd;">
         <h2 style="margin:0 0 12px;font-size:18px;">${escapeHtml(heading)}</h2>
         <p style="margin:0 0 4px;font-weight:600;">${escapeHtml(item.title)}</p>
-        <p style="margin:0 0 8px;font-size:13px;color:#666;">Instagram images</p>
-        ${renderPreviewImages(item.instagramImageUrls, item.title)}
+        <p style="margin:0 0 8px;font-size:13px;color:#666;">Instagram feed preview (lead slide branded)</p>
+        ${renderPreviewImages(imageUrls, item.title)}
         <p style="margin:16px 0 4px;font-weight:600;">Page blurb</p>
         ${blurbHtml}
         <p style="margin:0 0 4px;font-weight:600;">Instagram caption</p>
@@ -335,6 +342,74 @@ export function buildPlannerWeekContentPreviewEmail(params: {
     <a href="${params.instagramPrepUrl}">Edit Instagram prep</a>
   </p>
 `;
+}
+
+export type InstagramPreviewEmailPost = {
+  title: string;
+  imageUrls: string[];
+  caption: string;
+  scheduledAt: Date;
+  cancelUrl: string;
+};
+
+function renderRemovePostButton(cancelUrl: string): string {
+  return `<p style="margin:16px 0 0;"><a href="${escapeHtml(cancelUrl)}" style="display:inline-block;padding:8px 14px;background:#b91c1c;color:#fff;text-decoration:none;border-radius:4px;font-weight:600;">Remove post</a></p>`;
+}
+
+function formatScheduledAt(date: Date): string {
+  return date.toISOString().replace("T", " ").slice(0, 16) + " UTC";
+}
+
+export function buildInstagramPostsPreviewEmail(params: {
+  intro: string;
+  posts: InstagramPreviewEmailPost[];
+  footerUrl?: string;
+}) {
+  const sections = params.posts
+    .map((post) => {
+      return `
+      <section style="margin:24px 0;padding-top:16px;border-top:1px solid #ddd;">
+        <h2 style="margin:0 0 8px;font-size:18px;">${escapeHtml(post.title)}</h2>
+        <p style="margin:0 0 12px;font-size:13px;color:#666;">Scheduled for ${escapeHtml(formatScheduledAt(post.scheduledAt))}</p>
+        ${renderPreviewImages(post.imageUrls, post.title)}
+        <p style="margin:16px 0 4px;font-weight:600;">Caption</p>
+        ${renderCaptionBlock(post.caption)}
+        ${renderRemovePostButton(post.cancelUrl)}
+      </section>`;
+    })
+    .join("");
+
+  const footer = params.footerUrl
+    ? `<p style="margin-top:24px;"><a href="${escapeHtml(params.footerUrl)}">Open planner</a></p>`
+    : "";
+
+  return `
+  <p>${params.intro}</p>
+  ${sections}
+  ${footer}
+`;
+}
+
+export function buildTrendingInstagramPreviewEmail(params: {
+  editionWeekStart: string;
+  posts: InstagramPreviewEmailPost[];
+  plannerUrl: string;
+}) {
+  return buildInstagramPostsPreviewEmail({
+    intro: `Trending Instagram carousels for newsletter edition <strong>${escapeHtml(params.editionWeekStart)}</strong> are scheduled. Each post goes live at least 24 hours after this email.`,
+    posts: params.posts,
+    footerUrl: params.plannerUrl,
+  });
+}
+
+export function buildVerifiedCreatorInstagramPreviewEmail(params: {
+  displayName: string;
+  posts: InstagramPreviewEmailPost[];
+}) {
+  return buildInstagramPostsPreviewEmail({
+    intro: `A <strong>New on photobookers</strong> Instagram post for <strong>${escapeHtml(params.displayName)}</strong> is scheduled.`,
+    posts: params.posts,
+  });
 }
 
 export function buildAotwPublisherNotifyEmail(params: {

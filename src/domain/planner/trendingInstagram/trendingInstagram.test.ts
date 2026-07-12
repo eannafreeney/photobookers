@@ -102,17 +102,17 @@ describe("buildTrendingInstagramDueAt", () => {
     const sendWednesday = new Date("2026-07-08T00:00:00.000Z");
     const dueAt = buildTrendingInstagramDueAt(sendWednesday, "books");
 
-    expect(dueAt.toISOString()).toBe("2026-07-09T14:00:00.000Z");
+    expect(dueAt.toISOString()).toBe("2026-07-09T13:00:00.000Z");
   });
 });
 
 describe("isTrendingInstagramRunDay", () => {
-  it("is true on Thursday UTC", () => {
-    expect(
-      isTrendingInstagramRunDay(new Date("2026-07-09T12:00:00.000Z")),
-    ).toBe(true);
+  it("is true on Wednesday UTC", () => {
     expect(
       isTrendingInstagramRunDay(new Date("2026-07-08T12:00:00.000Z")),
+    ).toBe(true);
+    expect(
+      isTrendingInstagramRunDay(new Date("2026-07-09T12:00:00.000Z")),
     ).toBe(false);
   });
 });

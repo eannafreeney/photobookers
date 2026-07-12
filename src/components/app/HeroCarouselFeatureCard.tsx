@@ -133,7 +133,7 @@ const HeroCarouselFeatureCard = ({ heroItems }: Props) => {
           x-show="items.length > 1"
           x-on:click="prev()"
           type="button"
-          class="group absolute left-2 top-2/3 md:top-1/2 z-20 flex size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:-translate-x-1 sm:left-4 md:left-10 md:size-11 cursor-pointer"
+          class="hidden md:flex group absolute left-2 top-1/2 z-20 size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:-translate-x-1 md:left-3 md:size-11 cursor-pointer"
         >
           <span class="transition-transform duration-300 ease-out group-hover:-translate-x-0.5">
             {leftArrowIcon}
@@ -143,7 +143,7 @@ const HeroCarouselFeatureCard = ({ heroItems }: Props) => {
           x-show="items.length > 1"
           x-on:click="next()"
           type="button"
-          class="group absolute right-2 top-2/3 md:top-1/2 z-20 flex size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:translate-x-1 sm:right-4 md:right-10 md:size-11 cursor-pointer"
+          class=" hidden md:flex group absolute top-1/2 z-20 size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:translate-x-1 md:right-3 md:size-11 cursor-pointer"
         >
           <span class="transition-transform duration-300 ease-out group-hover:translate-x-0.5">
             {rightArrowIcon}

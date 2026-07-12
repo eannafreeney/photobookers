@@ -361,7 +361,9 @@ export async function runVerifiedCreatorInstagramCronJob(
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
   const [error, result] = await runVerifiedCreatorInstagramCron({
     dryRun: options.dryRun,
+    force: options.force,
     creatorId: options.creatorId,
+    date: options.date,
   });
   if (error) return err(error);
   return ok({ ...result });

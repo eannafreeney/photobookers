@@ -5,6 +5,15 @@ import { books, creators } from "../../../db/schema";
 import { err, ok, type Result } from "../../../lib/result";
 import { toUtcStartOfDay } from "../../../lib/utils";
 import { getCreatorSpotlightImageUrls } from "../../../features/app/services";
+import { getCreatorBookCoverUrls } from "../../../domain/planner/instagramSlides/getCreatorBookCoverUrls";
+import {
+  NEW_CREATOR_CAROUSEL_BOOK_LIMIT,
+  prepareNewCreatorFeedImageUrls,
+} from "../../../domain/planner/instagramSlides/renderSpotlightLeadSlide";
+import { sendAdminEmail } from "../../../lib/sendEmail";
+import { buildInstagramCancelUrl } from "../../../lib/adminActionToken";
+import { buildVerifiedCreatorInstagramPreviewEmail } from "../../../features/dashboard/admin/planner/emails";
+import { uploadImageFromBuffer } from "../../../services/storage";
 import { bufferCreateScheduledImagePost } from "../../../features/dashboard/admin/planner/social-media/buffer";
 import {
   buildDefaultCreatorInstagramFirstComment,
@@ -39,8 +48,21 @@ export type VerifiedCreatorInstagramRunResult = {
 
 export type RunVerifiedCreatorInstagramCronOptions = {
   dryRun?: boolean;
+  force?: boolean;
   creatorId?: string;
+  date?: Date;
 };
+
+export const VERIFIED_CREATOR_INSTAGRAM_RUN_WEEKDAYS_UTC = [2, 4, 6] as const;
+
+/** Tuesday, Thursday, and Saturday (UTC). */
+export function isVerifiedCreatorInstagramRunDay(
+  referenceDate: Date = new Date(),
+): boolean {
+  return (VERIFIED_CREATOR_INSTAGRAM_RUN_WEEKDAYS_UTC as readonly number[]).includes(
+    toUtcStartOfDay(referenceDate).getUTCDay(),
+  );
+}
 
 export type RunVerifiedCreatorInstagramCronResult = Result<
   VerifiedCreatorInstagramRunResult,
@@ -93,9 +115,19 @@ async function resolveCreatorImageUrl(creator: {
 export async function runVerifiedCreatorInstagramCron(
   options: RunVerifiedCreatorInstagramCronOptions = {},
 ): Promise<RunVerifiedCreatorInstagramCronResult> {
-  const { dryRun = false, creatorId } = options;
-  const now = new Date();
+  const { dryRun = false, force = false, creatorId } = options;
+  const now = options.date ?? new Date();
   const targetingCreator = Boolean(creatorId);
+
+  if (
+    !dryRun &&
+    !force &&
+    !targetingCreator &&
+    !isVerifiedCreatorInstagramRunDay(now)
+  ) {
+    return ok({ queued: 0, skipped: 0, failed: 0, items: [] });
+  }
+
   const eligibleBefore = getVerifiedCreatorInstagramEligibleBefore(now);
 
   try {
@@ -125,6 +157,7 @@ export async function runVerifiedCreatorInstagramCron(
         isNotNull(creators.verifiedAt),
         ...(targetingCreator ? [] : [lte(creators.verifiedAt, eligibleBefore)]),
         isNull(creators.verifiedInstagramQueuedAt),
+        isNull(creators.verifiedInstagramCancelledAt),
         ...(creatorId ? [eq(creators.id, creatorId)] : []),
       ),
       columns: CREATOR_INSTAGRAM_COLUMNS,
@@ -170,10 +203,15 @@ export async function runVerifiedCreatorInstagramCron(
         continue;
       }
 
-      const caption = buildNewlyVerifiedCreatorInstagramCaption(row);
-      const dueAt = scheduleInstagramDueAt(
-        buildVerifiedCreatorInstagramDueAt(row.verifiedAt!),
+      const bookCoverUrls = await getCreatorBookCoverUrls(
+        row.type,
+        row.id,
+        NEW_CREATOR_CAROUSEL_BOOK_LIMIT,
       );
+
+      const caption = buildNewlyVerifiedCreatorInstagramCaption(row);
+      const scheduledAt = buildVerifiedCreatorInstagramDueAt(new Date());
+      const dueAt = scheduleInstagramDueAt(scheduledAt);
       const useFirstComment =
         process.env.BUFFER_INSTAGRAM_FIRST_COMMENT === "true";
       const firstComment = useFirstComment
@@ -189,9 +227,33 @@ export async function runVerifiedCreatorInstagramCron(
         continue;
       }
 
+      let feedImageUrls: string[];
+      try {
+        feedImageUrls = await prepareNewCreatorFeedImageUrls(
+          imageUrl,
+          bookCoverUrls,
+          {
+            displayName: row.displayName,
+            upload: async (buffer, folder) => {
+              const uploaded = await uploadImageFromBuffer(buffer, folder);
+              return uploaded.url;
+            },
+            uploadFolder: `social/new-creator/${row.slug}/feed`,
+          },
+        );
+      } catch (cause) {
+        failed += 1;
+        items.push({
+          creatorId: row.id,
+          slug: row.slug,
+          outcome: { status: "failed", reason: "Failed to prepare feed images" },
+        });
+        continue;
+      }
+
       const [bufferError, bufferData] = await bufferCreateScheduledImagePost({
         text: caption,
-        imageUrl,
+        imageUrls: feedImageUrls,
         dueAt,
         firstComment,
       });
@@ -218,10 +280,38 @@ export async function runVerifiedCreatorInstagramCron(
         .set({
           verifiedInstagramQueuedAt: new Date(),
           verifiedInstagramBufferPostId: bufferData.postId,
+          verifiedInstagramPreviewEmailSentAt: new Date(),
           verifiedInstagramError: null,
           updatedAt: new Date(),
         })
         .where(eq(creators.id, row.id));
+
+      const previewHtml = buildVerifiedCreatorInstagramPreviewEmail({
+        displayName: row.displayName,
+        posts: [
+          {
+            title: "New on photobookers",
+            imageUrls: feedImageUrls,
+            caption,
+            scheduledAt,
+            cancelUrl: buildInstagramCancelUrl({
+              type: "verified-creator",
+              creatorId: row.id,
+            }),
+          },
+        ],
+      });
+      const [previewEmailError] = await sendAdminEmail(
+        `New creator Instagram preview — ${row.displayName}`,
+        previewHtml,
+      );
+      if (previewEmailError) {
+        console.error(
+          "verifiedCreatorInstagram preview email",
+          row.slug,
+          previewEmailError,
+        );
+      }
 
       queued += 1;
       items.push({

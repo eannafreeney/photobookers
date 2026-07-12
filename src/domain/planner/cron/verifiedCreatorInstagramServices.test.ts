@@ -16,6 +16,24 @@ vi.mock("../../../features/app/services", () => ({
   getCreatorSpotlightImageUrls: vi.fn().mockResolvedValue([null, ["https://example.com/cover.jpg"]]),
 }));
 
+vi.mock("../../../services/storage", () => ({
+  uploadImageFromBuffer: vi.fn().mockResolvedValue({ url: "https://example.com/uploaded.webp" }),
+}));
+
+vi.mock("../../../domain/planner/instagramSlides/getCreatorBookCoverUrls", () => ({
+  getCreatorBookCoverUrls: vi.fn().mockResolvedValue(["https://example.com/book.jpg"]),
+}));
+
+vi.mock("../../../domain/planner/instagramSlides/renderSpotlightLeadSlide", () => ({
+  prepareNewCreatorFeedImageUrls: vi
+    .fn()
+    .mockResolvedValue(["https://example.com/lead.webp", "https://example.com/book.jpg"]),
+}));
+
+vi.mock("../../../lib/sendEmail", () => ({
+  sendAdminEmail: vi.fn().mockResolvedValue([null, undefined]),
+}));
+
 const bufferCreateScheduledImagePostMock = vi.fn();
 
 vi.mock("../../../features/dashboard/admin/planner/social-media/buffer", () => ({
@@ -48,6 +66,7 @@ function mockQueuedTodayCount(count: number) {
 }
 
 beforeAll(async () => {
+  process.env.AUTH_SECRET = "test-secret";
   ({ getVerifiedCreatorInstagramEligibleBefore, runVerifiedCreatorInstagramCron } =
     await import("./verifiedCreatorInstagramServices"));
 });
@@ -78,6 +97,26 @@ describe("getVerifiedCreatorInstagramEligibleBefore", () => {
   });
 });
 
+describe("isVerifiedCreatorInstagramRunDay", () => {
+  it("runs on Tuesday, Thursday, and Saturday UTC", async () => {
+    const { isVerifiedCreatorInstagramRunDay } = await import(
+      "./verifiedCreatorInstagramServices"
+    );
+    expect(
+      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 14))),
+    ).toBe(true);
+    expect(
+      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 16))),
+    ).toBe(true);
+    expect(
+      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 18))),
+    ).toBe(true);
+    expect(
+      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 15))),
+    ).toBe(false);
+  });
+});
+
 describe("runVerifiedCreatorInstagramCron", () => {
   it("stops after queuing 2 creators when more are eligible", async () => {
     mockQueuedTodayCount(0);
@@ -87,7 +126,9 @@ describe("runVerifiedCreatorInstagramCron", () => {
       makeCreatorRow("3", new Date(Date.UTC(2026, 6, 3))),
     ]);
 
-    const [error, result] = await runVerifiedCreatorInstagramCron();
+    const [error, result] = await runVerifiedCreatorInstagramCron({
+      date: new Date(Date.UTC(2026, 6, 14, 11, 0, 0)),
+    });
     expect(error).toBeNull();
     expect(result?.queued).toBe(2);
     expect(bufferCreateScheduledImagePostMock).toHaveBeenCalledTimes(2);
@@ -96,7 +137,9 @@ describe("runVerifiedCreatorInstagramCron", () => {
   it("returns early when the daily limit is already reached", async () => {
     mockQueuedTodayCount(2);
 
-    const [error, result] = await runVerifiedCreatorInstagramCron();
+    const [error, result] = await runVerifiedCreatorInstagramCron({
+      date: new Date(Date.UTC(2026, 6, 14, 11, 0, 0)),
+    });
     expect(error).toBeNull();
     expect(result).toEqual({ queued: 0, skipped: 0, failed: 0, items: [] });
     expect(findManyMock).not.toHaveBeenCalled();
@@ -109,7 +152,9 @@ describe("runVerifiedCreatorInstagramCron", () => {
       makeCreatorRow("2", new Date(Date.UTC(2026, 6, 2))),
     ]);
 
-    const [error, result] = await runVerifiedCreatorInstagramCron();
+    const [error, result] = await runVerifiedCreatorInstagramCron({
+      date: new Date(Date.UTC(2026, 6, 14, 11, 0, 0)),
+    });
     expect(error).toBeNull();
     expect(result?.queued).toBe(1);
     expect(bufferCreateScheduledImagePostMock).toHaveBeenCalledTimes(1);
