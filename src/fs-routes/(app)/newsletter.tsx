@@ -20,7 +20,7 @@ export const GET = createRoute(async (c) => {
         <PageHeader
           kicker={NEWSLETTER_COPY.kicker}
           title={NEWSLETTER_COPY.title}
-          intro={NEWSLETTER_COPY.pageIntro}
+          intro={NEWSLETTER_COPY.banner}
         />
         <div class="mx-auto w-full max-w-md flex flex-col gap-8">
           <ul class="list-disc list-inside space-y-2 text-sm text-on-surface">

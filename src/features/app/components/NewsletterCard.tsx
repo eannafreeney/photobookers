@@ -18,7 +18,7 @@ const NewsletterCard = () => (
             {NEWSLETTER_COPY.title}
           </p>
           <p class="mt-1 text-pretty text-xs leading-relaxed text-on-surface sm:text-sm">
-            {NEWSLETTER_COPY.short}
+            {NEWSLETTER_COPY.banner}
           </p>
         </div>
       </div>
