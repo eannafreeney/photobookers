@@ -46,7 +46,7 @@ const UsersTableAdmin = async ({
         <TableSearch
           target="users-table-container"
           action="/dashboard/admin/users"
-          placeholder="Filter users..."
+          placeholder="Search by name or email..."
         />
         <Link href="/dashboard/users/new">
           <Button variant="solid" color="primary">
@@ -114,7 +114,9 @@ const UserTableRow = ({ user }: RowProps) => {
         />
       </Table.BodyRow>
       <Table.BodyRow>
-        {user.firstName} {user.lastName}
+        <Link href={`/dashboard/admin/users/${user.id}`}>
+          {user.firstName} {user.lastName}
+        </Link>
       </Table.BodyRow>
       <Table.BodyRow>{user.email}</Table.BodyRow>
       <Table.BodyRow>
@@ -133,7 +135,7 @@ const UserTableRow = ({ user }: RowProps) => {
         <div class="flex items-center gap-2">
           <Link href={`/dashboard/admin/users/${user.id}`}>
             <Button variant="outline" color="inverse">
-              <span>View</span>
+              <span>Edit</span>
             </Button>
           </Link>
           <ResetUserPasswordButton userId={user.id} />

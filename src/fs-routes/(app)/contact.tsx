@@ -9,8 +9,7 @@ import { formValidator } from "../../lib/validator";
 import { match } from "node:assert";
 import { sendAdminEmail } from "../../lib/sendEmail";
 import { generateContactEmail } from "../../features/app/emails";
-import { showErrorAlert } from "../../lib/alertHelpers";
-import { setFlash } from "../../utils";
+import { showErrorAlert, showSuccessAlert } from "../../lib/alertHelpers";
 import { ContactFormContext } from "../../features/app/types";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
 
@@ -73,14 +72,16 @@ export const POST = createRoute(
       return c.redirect("/");
     }
 
-    const [error] = await sendAdminEmail(
-      "New Contact Form Submission",
-      generateContactEmail(form),
-    );
+    // ponytail: e2e dev server sets CONTACT_E2E=1 to skip Supabase email invoke
+    if (process.env.CONTACT_E2E !== "1") {
+      const [error] = await sendAdminEmail(
+        "New Contact Form Submission",
+        generateContactEmail(form),
+      );
 
-    if (error) return showErrorAlert(c, error.reason);
+      if (error) return showErrorAlert(c, error.reason);
+    }
 
-    await setFlash(c, "success", "Contact form submitted successfully");
-    return c.redirect("/");
+    return showSuccessAlert(c, "Message sent — we'll get back to you soon.");
   },
 );

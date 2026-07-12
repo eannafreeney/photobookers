@@ -8,7 +8,7 @@ export const contactFormSchema = z.object({
   email: z.string().email().min(1, "Email is required"),
   message: z.string().min(1, "Message is required"),
   website: z.string().optional(),
-  ts: z.number().optional(),
+  ts: z.coerce.number().optional(),
 });
 
 export const userUpdateFormSchema = z.object({

@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   adminNotifications,
@@ -11,7 +11,7 @@ import {
   users,
   wishlists,
 } from "../../../../db/schema";
-import { newUserFormAdminSchema } from "./schema";
+import { newUserFormAdminSchema, editUserFormAdminSchema } from "./schema";
 import z from "zod";
 import { getPagination } from "../../../../lib/pagination";
 import { supabaseAdmin } from "../../../../lib/supabase";
@@ -27,7 +27,7 @@ import {
   CreatorCardResult,
 } from "../../../../constants/queries";
 import { BookCardResult } from "../../../../constants/queries";
-import { Result } from "drizzle-orm/sqlite-core";
+import { findUserByEmailAdmin } from "../creators/services";
 
 const orderByIds = <T extends { id: string }>(ids: string[], items: T[]) => {
   const byId = new Map(items.map((item) => [item.id, item]));
@@ -35,6 +35,7 @@ const orderByIds = <T extends { id: string }>(ids: string[], items: T[]) => {
 };
 
 type NewUserForm = z.infer<typeof newUserFormAdminSchema>;
+type EditUserForm = z.infer<typeof editUserFormAdminSchema>;
 
 export const getAllUsersAdmin = async (
   searchQuery?: string,
@@ -42,19 +43,14 @@ export const getAllUsersAdmin = async (
   defaultLimit = 30,
 ) => {
   try {
-    let userIds: string[] = [];
-    if (searchQuery) {
-      const rows = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(ilike(users.email, `%${searchQuery}%`));
-      userIds = rows.map((r) => r.id);
-    }
-
-    const searchCondition =
-      searchQuery && searchQuery.trim() !== ""
-        ? ilike(users.email, `%${searchQuery}%`)
-        : undefined;
+    const normalizedSearch = searchQuery?.trim();
+    const searchCondition = normalizedSearch
+      ? or(
+          ilike(users.email, `%${normalizedSearch}%`),
+          ilike(users.firstName, `%${normalizedSearch}%`),
+          ilike(users.lastName, `%${normalizedSearch}%`),
+        )
+      : undefined;
 
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
@@ -100,6 +96,57 @@ export const getUserById = async (id: string) => {
   } catch (error) {
     console.error("Failed to get user by id", error);
     return null;
+  }
+};
+
+export const updateUserAdmin = async (userId: string, formData: EditUserForm) => {
+  try {
+    const existing = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+    });
+    if (!existing) return err({ reason: "User not found" });
+
+    const normalizedEmail = formData.email.trim().toLowerCase();
+    if (normalizedEmail !== existing.email.trim().toLowerCase()) {
+      const taken = await findUserByEmailAdmin(normalizedEmail);
+      if (taken && taken.id !== userId) {
+        return err({ reason: "Email is already in use" });
+      }
+    }
+
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      {
+        email: normalizedEmail,
+        user_metadata: {
+          firstName: formData.firstName ?? null,
+          lastName: formData.lastName ?? null,
+        },
+      },
+    );
+    if (authError) {
+      return err({
+        reason: authError.message || "Failed to update auth user",
+        cause: authError,
+      });
+    }
+
+    const [updated] = await db
+      .update(users)
+      .set({
+        email: normalizedEmail,
+        firstName: formData.firstName ?? null,
+        lastName: formData.lastName ?? null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+
+    if (!updated) return err({ reason: "Failed to update user" });
+    return ok(updated);
+  } catch (error) {
+    console.error("Failed to update user", error);
+    return err({ reason: "Failed to update user", cause: error });
   }
 };
 

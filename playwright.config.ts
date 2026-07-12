@@ -31,6 +31,7 @@ export default defineConfig({
         env: {
           ...process.env,
           NODE_ENV: "development",
+          CONTACT_E2E: "1",
         },
       },
   projects: [

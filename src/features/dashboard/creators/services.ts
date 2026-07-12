@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { creators, NewCreator } from "../../../db/schema";
 import { getRandomCoverUrl, slugify } from "../../../utils";
@@ -12,6 +12,14 @@ export const createStubCreatorProfile = async (session: AuthSession) => {
     return err({ reason: "User has no email", cause: undefined });
   }
   const { displayName, type, website } = user_metadata ?? {};
+  if (!displayName?.trim() || !type) {
+    return err({ reason: "Missing creator profile details", cause: undefined });
+  }
+
+  const existingCreator = await db.query.creators.findFirst({
+    where: and(eq(creators.ownerUserId, id), eq(creators.type, type)),
+  });
+  if (existingCreator) return ok(existingCreator);
 
   const [newCreatorError, newCreator] = await createCreatorProfile({
     displayName: displayName.trim(),
@@ -45,7 +53,18 @@ export const createCreatorProfile = async (input: NewCreator) => {
     return ok(newCreator);
   } catch (error) {
     console.error("Failed to create artist", error);
-    return err({ reason: "Failed to create artist", cause: error });
+    const pgCode =
+      error && typeof error === "object" && "code" in error
+        ? String((error as { code: unknown }).code)
+        : null;
+    if (pgCode === "23505") {
+      return err({
+        reason:
+          "This display name is already taken. If this is your profile, try signing in or use the claim flow from the artist page.",
+        cause: error,
+      });
+    }
+    return err({ reason: "Failed to create artist profile", cause: error });
   }
 };
 

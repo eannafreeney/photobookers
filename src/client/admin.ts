@@ -4,6 +4,7 @@ import { registerFairFormAdmin } from "../features/dashboard/admin/fairs/client/
 import { registerBookOfTheDayForm } from "../features/dashboard/admin/planner/client/bookOfTheDayForm";
 import { registerEditCreatorFormAdmin } from "../features/dashboard/admin/creators/client/editCreatorFormAdmin";
 import { registerNewUserForm } from "../features/dashboard/admin/users/client/newUserForm";
+import { registerEditUserFormAdmin } from "../features/dashboard/admin/users/client/editUserFormAdmin";
 import { registerAOTWForm } from "../features/dashboard/admin/planner/client/aotwForm";
 import { registerPOTWForm } from "../features/dashboard/admin/planner/client/potwForm";
 import { registerSpotlightBlurbModal } from "../features/dashboard/admin/planner/client/spotlightBlurbModal";
@@ -26,6 +27,7 @@ registerFairFormAdmin();
 registerBookOfTheDayForm();
 registerEditCreatorFormAdmin();
 registerNewUserForm();
+registerEditUserFormAdmin();
 registerAOTWForm();
 registerPOTWForm();
 registerSpotlightBlurbModal();

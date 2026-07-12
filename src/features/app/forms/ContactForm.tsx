@@ -6,8 +6,9 @@ const ContactForm = () => {
   const alpineAttrs = {
     "x-data": "contactForm",
     "x-target": "toast",
+    "x-target.error": "toast",
     "x-on:submit": "submitForm($event)",
-    "x-target.away": "_top",
+    "x-on:ajax:success": "onSuccess()",
     "x-on:ajax:error": "isSubmitting = false",
   };
 
@@ -40,7 +41,7 @@ const ContactForm = () => {
         tabindex={-1}
         autocomplete="off"
       />
-      <input type="hidden" name="ts" value="${Date.now()}" />
+      <input type="hidden" name="ts" value={Date.now()} />
       <FormButton buttonText="Send message" loadingText="Sending..." />
     </form>
   );

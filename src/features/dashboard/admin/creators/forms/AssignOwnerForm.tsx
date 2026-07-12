@@ -1,6 +1,6 @@
 import Button from "../../../../../components/app/Button";
 import { User } from "../../../../../db/schema";
-import CreatorsComboBox from "../components/CreatorsComboBox";
+import UsersComboBox from "../components/UsersComboBox";
 
 type Props = {
   users: Pick<User, "id" | "email" | "firstName" | "lastName">[];
@@ -21,7 +21,7 @@ const AssignOwnerForm = ({ users, creatorId }: Props) => {
       action={`/dashboard/admin/creators/assign-owner/${creatorId}`}
       class="w-full flex flex-col gap-4"
     >
-      <CreatorsComboBox users={users} />
+      <UsersComboBox users={users} />
       <Button variant="solid" color="primary">
         Assign
       </Button>

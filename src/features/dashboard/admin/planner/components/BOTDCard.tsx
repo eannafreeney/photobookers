@@ -58,16 +58,20 @@ const BOTDCardContent = ({
     <>
       <div class="flex items-start justify-between gap-3">
         {book.coverUrl && (
-          <img
-            src={book.coverUrl}
-            alt={book.title}
-            class="h-16 w-12 rounded object-cover"
-          />
+          <Link href={`/books/${book.slug}`}>
+            <img
+              src={book.coverUrl}
+              alt={book.title}
+              class="h-16 w-12 rounded object-cover"
+            />
+          </Link>
         )}
         <div class="min-w-0 flex-1">
-          <p class="text-sm font-semibold text-on-surface-strong line-clamp-2">
-            {book.title}
-          </p>
+          <Link href={`/books/${book.slug}`}>
+            <p class="text-sm font-semibold text-on-surface-strong line-clamp-2">
+              {book.title}
+            </p>
+          </Link>
           <div class="flex flex-col gap-1">
             {book.artist && (
               <div class="flex items-center gap-1.5 min-w-0">

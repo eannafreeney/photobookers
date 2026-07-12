@@ -8,7 +8,7 @@ type Props = {
 
 const AssignOwnerModalContent = ({ users, creatorId }: Props) => {
   return (
-    <div id="assign-owner-content" class="h-24">
+    <div id="assign-owner-content">
       <AssignOwnerForm users={users} creatorId={creatorId} />
     </div>
   );

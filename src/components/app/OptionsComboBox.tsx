@@ -144,9 +144,11 @@ const OptionsComboBox = ({
               >
                 <div class="flex items-center gap-2">
                   <img
-                    class="size-8 rounded-full"
+                    x-show="item.img"
+                    x-cloak
+                    class="size-8 rounded-full object-cover"
                     x-bind:src="item.img"
-                    alt="Creator avatar"
+                    alt=""
                   />
                   <div class="flex flex-col">
                     <span class="inline-flex items-center gap-1.5">
