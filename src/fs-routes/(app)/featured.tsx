@@ -45,7 +45,7 @@ export const GET = createRoute(async (c: Context) => {
       <Page>
         <Pulse />
         <HeroCarouselFeatureCard heroItems={heroItems} />
-        <ThisWeekOnPhotobookersLink />
+        {/* <ThisWeekOnPhotobookersLink /> */}
         <Slogan />
         {!user && (
           <>

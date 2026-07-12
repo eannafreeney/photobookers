@@ -7,6 +7,7 @@ import {
 } from "../domain/planner/cron/botdEmailServices";
 import { runContentPreviewEmail } from "../domain/planner/cron/contentPreviewEmailServices";
 import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramReminderEmailServices";
+import { runTrendingInstagramCron, formatTrendingInstagramCronSummary } from "../domain/planner/cron/trendingInstagramServices";
 import { runWeeklyNewsletterCron } from "../domain/planner/cron/newsletterCronServices";
 import { runSpotlightCreatorEmails } from "../domain/planner/cron/spotlightEmailServices";
 import { runCreatorProfileShareCron } from "../domain/creator-profile-share/cron";
@@ -58,6 +59,7 @@ export type CronJobName =
   | "notify-followers-new-books"
   | "notify-followers-new-posts"
   | "weekly-botd-newsletter"
+  | "weekly-trending-instagram"
   | "instagram-prep-reminder-email"
   | "planner-content-preview-email"
   | "creator-analytics-digest"
@@ -78,6 +80,7 @@ export const CRON_JOB_NAMES = [
   "notify-followers-new-books",
   "notify-followers-new-posts",
   "weekly-botd-newsletter",
+  "weekly-trending-instagram",
   "instagram-prep-reminder-email",
   "planner-content-preview-email",
   "creator-analytics-digest",
@@ -238,6 +241,18 @@ export async function runNotifyFollowersNewPostsCron(): Promise<
   return ok({ sent: emails.length, posts: postIds.length });
 }
 
+export async function runWeeklyTrendingInstagramCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runTrendingInstagramCron({
+    dryRun: options.dryRun,
+    force: options.force,
+    date: options.date,
+  });
+  if (error) return err(error);
+  return ok(formatTrendingInstagramCronSummary(result));
+}
+
 export async function runWeeklyBotdNewsletterCron(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
@@ -395,6 +410,7 @@ const RUNNERS: Record<
   "notify-followers-new-books": () => runNotifyFollowersNewBooksCron(),
   "notify-followers-new-posts": () => runNotifyFollowersNewPostsCron(),
   "weekly-botd-newsletter": runWeeklyBotdNewsletterCron,
+  "weekly-trending-instagram": runWeeklyTrendingInstagramCron,
   "instagram-prep-reminder-email": runInstagramPrepReminderEmailCron,
   "planner-content-preview-email": runPlannerContentPreviewEmailCron,
   "creator-analytics-digest": runCreatorAnalyticsDigestCronJob,

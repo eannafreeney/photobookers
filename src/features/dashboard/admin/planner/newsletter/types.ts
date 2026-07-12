@@ -55,6 +55,23 @@ export type WeeklyNewsletterTrendingCreatorItem = {
   slug: string;
   type: "artist" | "publisher";
   coverUrl: string | null;
+  instagram?: string | null;
+};
+
+export type TrendingInstagramPostKind = "books" | "artists" | "publishers";
+
+export type TrendingInstagramPostState = {
+  imageUrls: string[];
+  caption: string;
+  bufferPostId?: string | null;
+  queuedAt?: string | null;
+  error?: string | null;
+};
+
+export type TrendingInstagramState = {
+  preparedAt?: string;
+  editionWeekStart: string;
+  posts: Partial<Record<TrendingInstagramPostKind, TrendingInstagramPostState>>;
 };
 
 export type WeeklyNewsletterGeneratedContent = {
@@ -65,6 +82,7 @@ export type WeeklyNewsletterGeneratedContent = {
   artistOfTheWeek: WeeklyNewsletterCreatorSpotlight;
   publisherOfTheWeek: WeeklyNewsletterCreatorSpotlight;
   trending?: WeeklyNewsletterTrending;
+  trendingInstagram?: TrendingInstagramState;
 };
 
 export type WeeklyNewsletterTrending = {

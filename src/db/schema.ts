@@ -834,13 +834,31 @@ export const newsletterCampaigns = pgTable(
           slug: string;
           type: "artist" | "publisher";
           coverUrl: string | null;
+          instagram?: string | null;
         }>;
         publishers: Array<{
           displayName: string;
           slug: string;
           type: "artist" | "publisher";
           coverUrl: string | null;
+          instagram?: string | null;
         }>;
+      };
+      trendingInstagram?: {
+        preparedAt?: string;
+        editionWeekStart: string;
+        posts?: Partial<
+          Record<
+            "books" | "artists" | "publishers",
+            {
+              imageUrls: string[];
+              caption: string;
+              bufferPostId?: string | null;
+              queuedAt?: string | null;
+              error?: string | null;
+            }
+          >
+        >;
       };
     }>(),
     sentAt: timestamp("sent_at"),
