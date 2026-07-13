@@ -7,6 +7,7 @@ import {
   ilike,
   inArray,
   isNull,
+  ne,
   not,
   or,
   sql,
@@ -622,5 +623,37 @@ export const updateCreatorEmail = async (creatorId: string, email: string) => {
     return ok(row);
   } catch (error) {
     return err({ reason: "Failed to update creator email", cause: error });
+  }
+};
+
+export const verifyCreatorAdmin = async (creatorId: string) => {
+  try {
+    const [updatedCreator] = await db
+      .update(creators)
+      .set({
+        status: "verified",
+        verifiedAt: sql`COALESCE(${creators.verifiedAt}, NOW())`,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(eq(creators.id, creatorId), ne(creators.status, "verified")),
+      )
+      .returning();
+
+    if (!updatedCreator) {
+      return err({
+        reason: "Creator not found or already verified",
+        cause: undefined,
+      });
+    }
+
+    if (updatedCreator.slug) {
+      invalidateCreatorCache(updatedCreator.slug);
+    }
+
+    return ok(updatedCreator);
+  } catch (error) {
+    console.error("Failed to verify creator", error);
+    return err({ reason: "Failed to verify creator", cause: error });
   }
 };

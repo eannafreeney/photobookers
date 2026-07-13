@@ -38,10 +38,11 @@ export const setCookiesAndVerifyUser = async (
   setAccessToken(c, access_token, expires_in);
   setRefreshToken(c, refresh_token);
 
-  await markCreatorsOwnedByUserAsVerified(user.id);
+  await verifyCreatorsOwnedByUser(user.id);
 };
 
-const markCreatorsOwnedByUserAsVerified = async (userId: string) => {
+/** Self-registered creators only — claimed profiles stay stub until admin approval. */
+export async function verifyCreatorsOwnedByUser(userId: string) {
   try {
     await db
       .update(creators)
@@ -50,13 +51,17 @@ const markCreatorsOwnedByUserAsVerified = async (userId: string) => {
         verifiedAt: sql`COALESCE(${creators.verifiedAt}, NOW())`,
       })
       .where(
-        and(eq(creators.ownerUserId, userId), ne(creators.status, "verified")),
+        and(
+          eq(creators.ownerUserId, userId),
+          eq(creators.createdByUserId, userId),
+          ne(creators.status, "verified"),
+        ),
       );
     return ok(undefined);
   } catch (e) {
     return err({ reason: "Failed to mark creators as verified", cause: e });
   }
-};
+}
 
 export function getAuthCookieOptions(c?: Context): {
   httpOnly: true;

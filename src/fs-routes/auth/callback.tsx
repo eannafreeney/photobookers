@@ -11,6 +11,7 @@ import {
 import {
   createUserInDatabase,
   setCookiesAndVerifyUser,
+  verifyCreatorsOwnedByUser,
 } from "../../features/auth/services";
 import { createStubCreatorProfile } from "../../features/dashboard/creators/services";
 import { createUserVerifiedNotification } from "../../domain/notifications/utils";
@@ -70,6 +71,8 @@ export const GET = createRoute(
         await createStubCreatorProfile(session);
       if (newCreatorError)
         return c.html(<InfoPage errorMessage={newCreatorError.reason} />);
+
+      await verifyCreatorsOwnedByUser(user.id);
 
       const inviteToken = nanoid(32);
       const [interviewError] = await createCreatorInterviewInviteAdmin({

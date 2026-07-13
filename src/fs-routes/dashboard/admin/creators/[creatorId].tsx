@@ -22,6 +22,7 @@ import FeatureGuard from "../../../../components/layouts/FeatureGuard";
 import { getFormValues } from "../../../../features/dashboard/creators/utils";
 import CreatorBookList from "../../../../features/dashboard/admin/creators/components/CreatorBookList";
 import StubOutreachStatus from "../../../../features/dashboard/admin/creators/components/StubOutreachStatus";
+import VerifyCreatorButton from "../../../../features/dashboard/admin/creators/components/VerifyCreatorButton";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const user = await getUser(c);
@@ -71,7 +72,8 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
               creatorId={creator?.id}
               type={creator?.type}
             />
-            <div class="mt-4">
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+              <VerifyCreatorButton creator={creator} />
               <StubOutreachStatus creator={creator} />
             </div>
           </div>

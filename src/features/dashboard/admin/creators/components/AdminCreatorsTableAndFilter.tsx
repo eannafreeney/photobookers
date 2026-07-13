@@ -10,6 +10,7 @@ import CreatorStatusBadge from "../../components/CreatorStatusBadge";
 import CreatorTypeForm from "../forms/CreatorTypeForm";
 import { getAllCreatorProfilesByTypeAdmin } from "../services";
 import SendWelcomeEmailButton from "./SendWelcomeEmailButton";
+import VerifyCreatorButton from "./VerifyCreatorButton";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import OwnerCell from "./OwnerCell";
 import SendInterviewButton from "./SendInterviewButton";
@@ -66,6 +67,7 @@ const AdminCreatorsTableAndFilter = async ({
               <Table.HeadRow>Type</Table.HeadRow>
               <Table.HeadRow>Website</Table.HeadRow>
               <Table.HeadRow>Status</Table.HeadRow>
+              <Table.HeadRow>Verify</Table.HeadRow>
               <Table.HeadRow>Followers</Table.HeadRow>
               <Table.HeadRow>Created At</Table.HeadRow>
               <Table.HeadRow>Owner</Table.HeadRow>
@@ -135,6 +137,9 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       </Table.BodyRow>
       <Table.BodyRow>
         <CreatorStatusBadge creatorStatus={creator.status ?? "stub"} />
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <VerifyCreatorButton creator={creator} />
       </Table.BodyRow>
       <Table.BodyRow>
         <FollowersCount creatorId={creator.id} />
