@@ -1,0 +1,59 @@
+# TEMPORARY: daily batch send for launch-event survey emails.
+# Sends up to LAUNCH_SURVEY_DAILY_LIMIT per day; disables itself when pending=0.
+# Delete this file after the campaign (or leave disabled — it won't run again).
+name: Launch event survey email batch
+
+on:
+  schedule:
+    - cron: "0 10 * * *" # daily 10:00 UTC
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+env:
+  LAUNCH_SURVEY_DAILY_LIMIT: "30"
+
+jobs:
+  send-batch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Restore / save send progress
+        uses: actions/cache@v4
+        with:
+          path: tmp/launch-event-survey-sent.csv
+          key: launch-event-survey-sent
+
+      - run: npm ci
+
+      - name: Send today's batch
+        env:
+          ENV: production
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          SUPABASE_URL: ${{ secrets.PRODUCTION_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.PRODUCTION_SUPABASE_ANON_KEY }}
+          FUNCTION_SECRET: ${{ secrets.PRODUCTION_FUNCTION_SECRET }}
+        run: npx tsx scripts/cron/launch-event-survey.ts
+
+      - name: Read result
+        id: result
+        run: |
+          pending=$(node -e "console.log(JSON.parse(require('fs').readFileSync('tmp/launch-event-survey-last-run.json','utf8')).pending)")
+          complete=$(node -e "console.log(JSON.parse(require('fs').readFileSync('tmp/launch-event-survey-last-run.json','utf8')).complete)")
+          echo "pending=$pending" >> "$GITHUB_OUTPUT"
+          echo "complete=$complete" >> "$GITHUB_OUTPUT"
+
+      - name: Disable workflow when all creators are sent
+        if: steps.result.outputs.complete == 'true'
+        run: gh workflow disable cron-launch-event-survey.yml
+        env:
+          GH_TOKEN: ${{ github.token }}

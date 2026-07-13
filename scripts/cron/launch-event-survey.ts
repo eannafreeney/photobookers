@@ -1,36 +1,29 @@
-import "./env";
+/**
+ * Daily batch: launch-event interest email to verified creators.
+ * Run via .github/workflows/cron-launch-event-survey.yml (not manually).
+ */
+import "../env";
 import fs from "node:fs/promises";
 import { parse, stringify } from "csv/sync";
 import { eq } from "drizzle-orm";
-import { db } from "../src/db/client";
-import { creators } from "../src/db/schema";
-import { sendEmail } from "../src/lib/sendEmail";
-
-// Interest survey for verified creators — online book launch events.
-//
-// 1. Set SURVEY_URL below (Tally, Google Forms, etc.)
-// 2. Test:
-//      npx tsx scripts/sendLaunchEventSurveyEmail.ts --dry-run
-//      npx tsx scripts/sendLaunchEventSurveyEmail.ts --to=you@example.com
-// 3. Send for real (uses .env.production when ENV=production):
-//      ENV=production npx tsx scripts/sendLaunchEventSurveyEmail.ts
-//
-// Sends one email per creator (not BCC). Progress is saved to
-// tmp/launch-event-survey-sent.csv — safe to re-run; already-sent addresses are skipped.
-// Daily cap matches sendBroadcastEmail.ts (70/day).
+import { db } from "../../src/db/client";
+import { creators } from "../../src/db/schema";
+import { sendEmail } from "../../src/lib/sendEmail";
 
 const SUBJECT = "Quick question: online book launches on Photobookers?";
-
-const DAILY_LIMIT = 70;
 const SENT_LOG_PATH = "tmp/launch-event-survey-sent.csv";
-
-const LIMIT_ARG = process.argv.find((a) => a.startsWith("--limit="));
-const TO_ARG = process.argv.find((a) => a.startsWith("--to="));
-const LIMIT = LIMIT_ARG ? Number(LIMIT_ARG.split("=")[1]) : 500;
-const OVERRIDE_TO = TO_ARG ? TO_ARG.split("=")[1]?.trim().toLowerCase() : "";
-const DRY_RUN = process.argv.includes("--dry-run");
+const RESULT_PATH = "tmp/launch-event-survey-last-run.json";
+const DAILY_LIMIT = Number(process.env.LAUNCH_SURVEY_DAILY_LIMIT) || 30;
 
 type SentRow = { email: string; creatorName: string; sentAt: string };
+
+type LaunchSurveyResult = {
+  sent: number;
+  failed: number;
+  pending: number;
+  eligible: number;
+  complete: boolean;
+};
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
@@ -93,11 +86,16 @@ async function appendSentLog(email: string, creatorName: string) {
   );
 }
 
+async function writeResult(result: LaunchSurveyResult) {
+  await fs.mkdir("tmp", { recursive: true });
+  await fs.writeFile(RESULT_PATH, JSON.stringify(result, null, 2), "utf8");
+}
+
 async function run() {
   const rows = await db.query.creators.findMany({
     where: eq(creators.status, "verified"),
     with: { owner: true },
-    limit: LIMIT,
+    limit: 500,
     orderBy: (c, { desc }) => [desc(c.verifiedAt)],
   });
 
@@ -118,43 +116,38 @@ async function run() {
   const remainingToday = Math.max(0, DAILY_LIMIT - sentToday);
 
   const pending = eligible.filter((row) => !alreadySent.has(row.email));
-  const targets = OVERRIDE_TO
-    ? eligible.slice(
-        0,
-        Math.min(eligible.length, remainingToday || eligible.length),
-      )
-    : pending.slice(0, remainingToday);
+  const targets = pending.slice(0, remainingToday);
 
   console.log(
     `Verified creators: ${rows.length}. With email: ${eligible.length}. Already sent: ${alreadySent.size}.`,
   );
-  if (!OVERRIDE_TO) {
-    console.log(
-      `Sent today: ${sentToday}/${DAILY_LIMIT}. Remaining today: ${remainingToday}. Pending: ${pending.length}.`,
-    );
-  }
-  if (DRY_RUN) console.log("Dry run — no emails will be sent.");
-  if (OVERRIDE_TO) console.log(`All sends redirected to ${OVERRIDE_TO}`);
-  if (!OVERRIDE_TO && !DRY_RUN && remainingToday === 0) {
-    console.log("Daily limit reached. Run again tomorrow.");
-    return;
-  }
+  console.log(
+    `Sent today: ${sentToday}/${DAILY_LIMIT}. Remaining today: ${remainingToday}. Pending: ${pending.length}.`,
+  );
 
   let sent = 0;
   let failed = 0;
 
+  if (remainingToday === 0) {
+    console.log("Daily limit reached. Run again tomorrow.");
+    const result: LaunchSurveyResult = {
+      sent: 0,
+      failed: 0,
+      pending: pending.length,
+      eligible: eligible.length,
+      complete: pending.length === 0,
+    };
+    await writeResult(result);
+    return result;
+  }
+
   for (let i = 0; i < targets.length; i++) {
     const { creator, email } = targets[i];
-    const to = OVERRIDE_TO || email;
 
-    console.log(
-      `[${i + 1}/${targets.length}] ${creator.displayName} -> ${to}${OVERRIDE_TO ? " (override)" : ""}`,
-    );
-
-    if (DRY_RUN) continue;
+    console.log(`[${i + 1}/${targets.length}] ${creator.displayName} -> ${email}`);
 
     const html = generateLaunchEventSurveyEmail(creator.displayName);
-    const [sendErr] = await sendEmail(to, SUBJECT, html);
+    const [sendErr] = await sendEmail(email, SUBJECT, html);
 
     if (sendErr) {
       console.error(`  failed: ${sendErr.reason}`);
@@ -162,20 +155,23 @@ async function run() {
       continue;
     }
 
-    if (!OVERRIDE_TO) await appendSentLog(email, creator.displayName);
+    await appendSentLog(email, creator.displayName);
     sent++;
     await sleep(400);
   }
 
-  if (!DRY_RUN) {
-    const left = OVERRIDE_TO ? 0 : pending.length - sent;
-    console.log(`Done. sent=${sent}, failed=${failed}, still pending=${left}.`);
-    if (!OVERRIDE_TO && left > 0) {
-      console.log(
-        `Re-run tomorrow to send the next batch (max ${DAILY_LIMIT}/day).`,
-      );
-    }
-  }
+  const left = pending.length - sent;
+  const result: LaunchSurveyResult = {
+    sent,
+    failed,
+    pending: left,
+    eligible: eligible.length,
+    complete: left === 0,
+  };
+
+  console.log(`Done. sent=${sent}, failed=${failed}, still pending=${left}.`);
+  await writeResult(result);
+  return result;
 }
 
 run().catch((e) => {
