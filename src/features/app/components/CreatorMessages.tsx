@@ -58,7 +58,6 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
           <CreatorMessage
             creator={creator}
             message={message}
-            user={user}
             canReadMessages={canReadMessages}
           />
         ))

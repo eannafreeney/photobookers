@@ -3,26 +3,63 @@ import FormButtons from "../../../../components/forms/FormButtons";
 import TextArea from "../../../../components/forms/TextArea";
 import DragAndDropArea from "../../images/components/DragAndDropArea";
 
-const MessageForm = ({ creatorId }: { creatorId: string }) => {
-  const alpineAttrs = {
-    "x-data": `messageForm()`,
-    "x-on:submit": "submitForm($event)",
-    "x-target": `toast creator-messages creator-messages-${creatorId}`,
-    "x-on:ajax:error": "isSubmitting = false",
-    "x-on:ajax:success": "onSuccess()",
-  };
+type MessageFormProps = {
+  creatorId: string;
+  messageId?: string;
+  initialBody?: string;
+  initialImageUrl?: string | null;
+};
+
+const MessageForm = ({
+  creatorId,
+  messageId,
+  initialBody,
+  initialImageUrl,
+}: MessageFormProps) => {
+  const isEdit = Boolean(messageId);
+  const formConfig = JSON.stringify({
+    body: initialBody ?? "",
+    previewUrl: initialImageUrl ?? null,
+  });
+
+  const alpineAttrs = isEdit
+    ? {
+        "x-data": `messageForm(${formConfig})`,
+        "x-on:submit": "submitForm($event)",
+        "x-target": "modal-root toast messages-table-body",
+        "x-target.error": "toast",
+        "x-on:ajax:error": "isSubmitting = false",
+        "@ajax:after":
+          "$dispatch('messages:updated'), $dispatch('dialog:close')",
+      }
+    : {
+        "x-data": `messageForm(${formConfig})`,
+        "x-on:submit": "submitForm($event)",
+        "x-target": "toast messages-table-body",
+        "x-on:ajax:error": "isSubmitting = false",
+        "x-on:ajax:success": "onSuccess()",
+      };
 
   return (
     <div>
-      <h2 class="text-lg font-semibold text-on-surface-strong">Write a post</h2>
+      {!isEdit && (
+        <h2 class="text-lg font-semibold text-on-surface-strong">
+          Write a post
+        </h2>
+      )}
       <form
         id="message-form"
         method="post"
         enctype="multipart/form-data"
-        action={`/dashboard/messages/${creatorId}`}
+        action={
+          isEdit
+            ? `/dashboard/messages/${creatorId}/${messageId}`
+            : `/dashboard/messages/${creatorId}`
+        }
         class="flex flex-col gap-4"
         {...alpineAttrs}
       >
+        {isEdit ? <input type="hidden" name="_method" value="PATCH" /> : null}
         <TextArea
           name="form.body"
           required
@@ -43,9 +80,11 @@ const MessageForm = ({ creatorId }: { creatorId: string }) => {
           name="image"
           x-on:change="onFileChange($event)"
           x-ref="fileInput"
-          // isDisabled={!canUploadImage(user, book)}
         />
-        <FormButtons buttonText="Publish post" loadingText="Publishing…" />
+        <FormButtons
+          buttonText={isEdit ? "Save changes" : "Publish post"}
+          loadingText={isEdit ? "Saving…" : "Publishing…"}
+        />
       </form>
     </div>
   );

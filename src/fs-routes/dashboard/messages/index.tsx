@@ -4,7 +4,7 @@ import { getUser } from "../../../utils";
 import AppLayout from "../../../components/layouts/AppLayout";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
 import InfoPage from "../../../pages/InfoPage";
-import CreatorMessages from "../../../features/app/components/CreatorMessages";
+import MessagesTable from "../../../features/dashboard/messages/components/MessagesTable";
 import CreatorDashboardShell from "../../../features/dashboard/components/CreatorDashboardShell";
 import { getPendingClaim } from "../../../features/claims/services";
 
@@ -28,9 +28,9 @@ export const GET = createRoute(async (c: Context) => {
         user={user}
         claimStatus={claim?.status ?? null}
       >
-        <div class="grid grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 gap-8 xl:grid-cols-2">
           <MessageForm creatorId={creator.id} />
-          <CreatorMessages creatorSlug={creator.slug} user={user} />
+          <MessagesTable creatorId={creator.id} />
         </div>
       </CreatorDashboardShell>
     </AppLayout>,

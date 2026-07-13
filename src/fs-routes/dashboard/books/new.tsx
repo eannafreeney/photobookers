@@ -19,22 +19,11 @@ import {
   getNewBookModerationForUser,
 } from "../../../features/dashboard/books/services";
 import BookReviewProcessBanner from "../../../features/dashboard/books/components/BookReviewProcessBanner";
-import { shouldModerateNewBook } from "../../../lib/bookModeration";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
   const isPublisher = user.creator?.type === "publisher";
-
-  const moderation = await getNewBookModerationForUser(user);
-  const needsReview = shouldModerateNewBook({
-    creatorVerifiedAt: moderation.creatorVerifiedAt,
-    creatorStatus: moderation.creatorStatus,
-    booksUploadedSinceVerificationBeforeInsert:
-      moderation.booksUploadedSinceVerificationBeforeInsert,
-    approvedBooksSinceVerificationBeforeInsert:
-      moderation.approvedBooksSinceVerificationBeforeInsert,
-  });
 
   return c.html(
     <AppLayout title="Add Book" user={user} currentPath={currentPath}>
@@ -48,14 +37,12 @@ export const GET = createRoute(async (c) => {
           ]}
         />
         <div class="mb-4">
-          <BookReviewProcessBanner
-            variant={needsReview ? "create_moderated" : "create_trusted"}
-          />
+          <BookReviewProcessBanner variant="create_moderated" />
         </div>
         <BookForm
           action="/dashboard/books/new"
           isPublisher={isPublisher}
-          primaryAction={needsReview ? "submit_for_review" : "save"}
+          primaryAction="submit_for_review"
         />
       </Page>
     </AppLayout>,

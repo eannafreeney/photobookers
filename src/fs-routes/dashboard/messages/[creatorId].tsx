@@ -9,7 +9,8 @@ import { createMessageFormSchema } from "../../../features/dashboard/messages/sc
 import { removeInvalidImages, uploadImage } from "../../../services/storage";
 import Alert from "../../../components/app/Alert";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
-import CreatorMessages from "../../../features/app/components/CreatorMessages";
+import { MessagesTableBody } from "../../../features/dashboard/messages/components/MessagesTable";
+import { getMessagesByCreator } from "../../../features/dashboard/messages/services";
 import { getUser } from "../../../utils";
 import { createMessageCreatedNotification } from "../../../domain/notifications/utils";
 
@@ -67,7 +68,9 @@ export const POST = createRoute(
 
     if (!message) return showErrorAlert(c, "Failed to create message");
 
-    // return showSuccessAlert(c, "Message posted! Your followers will see it.");
+    const [, tableResult] = await getMessagesByCreator(creatorId);
+    const messages = tableResult?.messages ?? [];
+
     return c.html(
       <>
         <Alert
@@ -75,7 +78,7 @@ export const POST = createRoute(
           message="Post published! Your followers will be emailed about it."
         />
         <MessageForm creatorId={creatorId} />
-        <CreatorMessages creatorSlug={creator.slug} user={user} />
+        <MessagesTableBody creatorId={creatorId} messages={messages} />
       </>,
     );
   },

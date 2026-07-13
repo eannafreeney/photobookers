@@ -49,10 +49,6 @@ export const POST = createRoute(
 
     const adminModeration: NewBookModeration = {
       isAdminContext: true,
-      creatorVerifiedAt: null,
-      creatorStatus: "stub",
-      booksUploadedSinceVerificationBeforeInsert: 0,
-      approvedBooksSinceVerificationBeforeInsert: 0,
     };
 
     const bookData = await buildCreateBookData(
