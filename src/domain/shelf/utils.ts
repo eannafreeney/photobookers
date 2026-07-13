@@ -33,12 +33,18 @@ type ShelfOwnerFields = {
   creator?: { displayName: string } | null;
 };
 
+/** Capitalize the first letter of each word so stored lowercase names read nicely. */
+const capitalizeName = (value: string) =>
+  value.replace(/(^|[\s'-])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase());
+
 export function formatShelfOwnerName(user: ShelfOwnerFields): string {
   const creatorName = user.creator?.displayName?.trim();
   if (creatorName) return creatorName;
 
   const fullName = [user.firstName, user.lastName]
-    .filter((part) => part?.trim())
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .map((part) => capitalizeName(part!))
     .join(" ")
     .trim();
   if (fullName) return fullName;

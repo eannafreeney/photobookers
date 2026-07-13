@@ -38,7 +38,10 @@ export const GET = createRoute(
     const [ownerError, ownerResult] = await getPublicShelfBySlug(slug);
     if (ownerError || !ownerResult) {
       return c.html(
-        <InfoPage errorMessage={ownerError?.reason ?? "Shelf not found"} user={user} />,
+        <InfoPage
+          errorMessage={ownerError?.reason ?? "Shelf not found"}
+          user={user}
+        />,
         404,
       );
     }
@@ -74,9 +77,11 @@ export const GET = createRoute(
       booksResult.totalCount ?? booksResult.books.length,
     );
     const shelfCanonicalUrl = canonicalUrl(c.req.url, shelfProfileUrl(slug));
-    const avatarUrl =
-      owner.profileImageUrl ??
-      getInitialsAvatar(owner.firstName ?? "", owner.lastName ?? "");
+    const avatarUrl = owner.profileImageUrl ?? null;
+    // Share preview image: prefer the owner's photo, otherwise the first book
+    // cover so the shelf still shows something when shared.
+    const shareImage =
+      owner.profileImageUrl ?? booksResult.books[0]?.coverUrl ?? undefined;
     const isOwner = user?.id === owner.id;
 
     return c.html(
@@ -90,7 +95,7 @@ export const GET = createRoute(
           title: shelfShareTitle(owner.displayName),
           description,
           url: shelfCanonicalUrl,
-          image: owner.profileImageUrl ?? undefined,
+          image: shareImage,
         }}
       >
         <Page>
@@ -98,38 +103,48 @@ export const GET = createRoute(
             {isOwner ? (
               <p class="rounded border border-outline bg-surface-alt px-4 py-3 text-sm text-on-surface">
                 This is your public shelf.{" "}
-                <a href="/shelf" class="text-accent underline underline-offset-2">
+                <a
+                  href="/shelf"
+                  class="text-accent underline underline-offset-2"
+                >
                   Manage sharing settings
                 </a>
               </p>
             ) : null}
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex justify-between border-b-2 border-on-surface-strong pb-4">
               <div class="flex items-center gap-4">
-                <img
-                  src={avatarUrl}
-                  alt=""
-                  class="size-16 rounded-full object-cover shrink-0"
-                  loading="lazy"
-                />
-                <PageHeader
-                  kicker="Shelf"
-                  title={`${owner.displayName}'s shelf`}
-                  intro={description}
-                />
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={owner.displayName}
+                    class="size-14 rounded-full object-cover shrink-0"
+                    loading="lazy"
+                  />
+                ) : null}
+                <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
+                  {`${owner.displayName}'s shelf`}
+                </h1>
               </div>
-              <ShareButton
-                title={shelfShareTitle(owner.displayName)}
-                text={shelfShareText(owner.displayName)}
-                url={shelfProfileUrl(slug)}
-              />
+              <div class="flex flex-col items-end justify-end gap-3">
+                <div
+                  class={`grid gap-4 ${isOwner ? "grid-cols-1" : "grid-cols-2"}`}
+                >
+                  <ShareButton
+                    title={shelfShareTitle(owner.displayName)}
+                    text={shelfShareText(owner.displayName)}
+                    url={shelfProfileUrl(slug)}
+                  />
+                </div>
+              </div>
             </div>
-            <BooksGrid
-              user={user}
-              currentPath={currentPath}
-              result={booksResult}
-              noResultsMessage="No public favorites yet."
-            />
           </div>
+          <BooksGrid
+            user={user}
+            currentPath={currentPath}
+            result={booksResult}
+            noResultsMessage="No public favorites yet."
+          />
+          {/* </div> */}
         </Page>
       </AppLayout>,
     );
