@@ -13,6 +13,7 @@ import { BooksOverviewTable } from "../../features/dashboard/books/tables/BooksO
 import CreatorDashboardShell from "../../features/dashboard/components/CreatorDashboardShell";
 import { getPendingClaim } from "../../features/claims/services";
 import CreatorBookFunnelSummary from "../../features/dashboard/books/components/CreatorBookFunnelSummary";
+import PageHeader from "@/components/app/PageHeader";
 
 export const GET = createRoute(async (c: Context) => {
   const searchQuery = c.req.query("search");
@@ -59,22 +60,24 @@ export const GET = createRoute(async (c: Context) => {
         user={user}
         claimStatus={claim?.status ?? null}
       >
-        <div class="flex flex-col gap-16">
-          <CreatorBookFunnelSummary
-            creatorId={creatorId}
-            creatorType={creatorType}
-          />
-          <BooksOverviewTable
-            books={books}
-            isMobile={isMobile}
-            creator={user.creator}
-            user={user}
-            currentPath={currentPath}
-            page={page}
-            totalPages={totalPages}
-            reorderEnabled={!isSearching}
-          />
-        </div>
+        <PageHeader
+          title="Dashboard"
+          intro="Manage your books, posts, and more."
+        />
+        <CreatorBookFunnelSummary
+          creatorId={creatorId}
+          creatorType={creatorType}
+        />
+        <BooksOverviewTable
+          books={books}
+          isMobile={isMobile}
+          creator={user.creator}
+          user={user}
+          currentPath={currentPath}
+          page={page}
+          totalPages={totalPages}
+          reorderEnabled={!isSearching}
+        />
       </CreatorDashboardShell>
     </AppLayout>,
   );

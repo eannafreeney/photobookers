@@ -11,12 +11,6 @@ type Props = {
   creatorId: string;
 };
 
-const tableBodyAttrs = {
-  "x-init": true,
-  "@messages:updated.window":
-    "$ajax('/dashboard/messages', { target: 'messages-table-body' })",
-};
-
 const MessagesTable = async ({ creatorId }: Props) => {
   const [error, result] = await getMessagesByCreator(creatorId);
   const messages = error || !result ? [] : result.messages;
@@ -29,7 +23,7 @@ const MessagesTable = async ({ creatorId }: Props) => {
           <tr>
             <Table.HeadRow>Date</Table.HeadRow>
             <Table.HeadRow>Image</Table.HeadRow>
-            <Table.HeadRow>Actions</Table.HeadRow>
+            <Table.HeadRow>Body</Table.HeadRow>
           </tr>
         </Table.Head>
         <MessagesTableBody creatorId={creatorId} messages={messages} />
@@ -44,13 +38,10 @@ type BodyProps = {
 };
 
 export const MessagesTableBody = ({ creatorId, messages }: BodyProps) => (
-  <Table.Body id="messages-table-body" {...tableBodyAttrs}>
+  <Table.Body id="messages-table-body">
     {messages.length === 0 ? (
       <tr>
-        <td
-          colspan={3}
-          class="px-4 py-6 text-sm text-on-surface text-center"
-        >
+        <td colspan={3} class="px-4 py-6 text-sm text-on-surface text-center">
           No posts yet. Publish your first post above.
         </td>
       </tr>
@@ -80,6 +71,7 @@ const MessageTableRow = ({ creatorId, message }: RowProps) => {
           {dateLabel}
         </Link>
       </Table.BodyRow>
+
       <Table.BodyRow>
         {message.imageUrl ? (
           <img
@@ -92,7 +84,14 @@ const MessageTableRow = ({ creatorId, message }: RowProps) => {
         )}
       </Table.BodyRow>
       <Table.BodyRow>
-        <div class="flex items-center gap-2">
+        <span class="text-on-surface-weak">
+          {message.body.length > 100
+            ? message.body.slice(0, 100) + "..."
+            : message.body}
+        </span>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <div class="flex items-center justify-end gap-2">
           <a href={editHref} x-target="modal-root">
             <Button variant="outline" color="inverse">
               <span>Edit</span>

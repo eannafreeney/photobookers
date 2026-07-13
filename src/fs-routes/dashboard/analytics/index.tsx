@@ -18,6 +18,7 @@ import CreatorDashboardShell from "../../../features/dashboard/components/Creato
 import { getPendingClaim } from "../../../features/claims/services";
 import { paginationRequestBaseUrl } from "../../../lib/pagination";
 import InfoPage from "../../../pages/InfoPage";
+import PageHeader from "@/components/app/PageHeader";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -68,47 +69,42 @@ export const GET = createRoute(async (c: Context) => {
         user={user}
         claimStatus={claim?.status ?? null}
       >
-        <div class="flex flex-col gap-12">
-          <div class="flex flex-col gap-6">
-            <SectionTitle>Book analytics</SectionTitle>
-            <AnalyticsDateRangeFilter
-              dateRange={dateRange}
-              basePath="/dashboard/analytics"
-              partialUpdateTarget="creator-dashboard-panel nav-tabs"
-            />
-          </div>
-          <AnalyticsOverviewSection scope={scope} dateRange={dateRange} />
-          <AnalyticsTrendChartsSection
-            scope={scope}
-            chartRange={chartRange}
+        <PageHeader title="Analytics" intro="Check out your book analytics." />
+        <div class="flex flex-col gap-6">
+          <AnalyticsDateRangeFilter
             dateRange={dateRange}
-          />
-          <AnalyticsSourceBreakdownSection
-            scope={scope}
-            dateRange={dateRange}
-          />
-          <TopBooksByViewsSection
-            scope={scope}
-            dateRange={dateRange}
-            currentPath={viewsPaginationBaseUrl}
-            currentPage={viewsPage}
-            pageParam="viewsPage"
-          />
-          <TopBooksByClicksSection
-            scope={scope}
-            dateRange={dateRange}
-            currentPath={bookPaginationBaseUrl}
-            currentPage={bookPage}
-            pageParam="bookPage"
-          />
-          <TopBooksByFavoritesSection
-            scope={scope}
-            dateRange={dateRange}
-            currentPath={favoritesPaginationBaseUrl}
-            currentPage={favoritesPage}
-            pageParam="favoritesPage"
+            basePath="/dashboard/analytics"
+            partialUpdateTarget="creator-dashboard-panel nav-tabs"
           />
         </div>
+        <AnalyticsOverviewSection scope={scope} dateRange={dateRange} />
+        <AnalyticsTrendChartsSection
+          scope={scope}
+          chartRange={chartRange}
+          dateRange={dateRange}
+        />
+        <AnalyticsSourceBreakdownSection scope={scope} dateRange={dateRange} />
+        <TopBooksByViewsSection
+          scope={scope}
+          dateRange={dateRange}
+          currentPath={viewsPaginationBaseUrl}
+          currentPage={viewsPage}
+          pageParam="viewsPage"
+        />
+        <TopBooksByClicksSection
+          scope={scope}
+          dateRange={dateRange}
+          currentPath={bookPaginationBaseUrl}
+          currentPage={bookPage}
+          pageParam="bookPage"
+        />
+        <TopBooksByFavoritesSection
+          scope={scope}
+          dateRange={dateRange}
+          currentPath={favoritesPaginationBaseUrl}
+          currentPage={favoritesPage}
+          pageParam="favoritesPage"
+        />
       </CreatorDashboardShell>
     </AppLayout>,
   );

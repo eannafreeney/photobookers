@@ -22,29 +22,38 @@ const MessageForm = ({
     previewUrl: initialImageUrl ?? null,
   });
 
-  const alpineAttrs = isEdit
-    ? {
-        "x-data": `messageForm(${formConfig})`,
-        "x-on:submit": "submitForm($event)",
-        "x-target": "modal-root toast messages-table-body",
-        "x-target.error": "toast",
-        "x-on:ajax:error": "isSubmitting = false",
-        "@ajax:after":
-          "$dispatch('messages:updated'), $dispatch('dialog:close')",
-      }
-    : {
-        "x-data": `messageForm(${formConfig})`,
-        "x-on:submit": "submitForm($event)",
-        "x-target": "toast messages-table-body",
-        "x-on:ajax:error": "isSubmitting = false",
-        "x-on:ajax:success": "onSuccess()",
-      };
+  // const alpineAttrs = isEdit
+  //   ? {
+  //       "x-data": `messageForm(${formConfig})`,
+  //       "x-on:submit": "submitForm($event)",
+  //       "x-target": "modal-root toast messages-table-body",
+  //       "x-target.error": "toast",
+  //       "x-on:ajax:error": "isSubmitting = false",
+  //       "@ajax:after":
+  //         "$dispatch('messages:updated'), $dispatch('dialog:close')",
+  //     }
+  //   : {
+  //       "x-data": `messageForm(${formConfig})`,
+  //       "x-on:submit": "submitForm($event)",
+  //       "x-target": "toast messages-table-body",
+  //       "x-on:ajax:error": "isSubmitting = false",
+  //       "x-on:ajax:success": "onSuccess()",
+  //     };
+
+  const alpineAttrs = {
+    "x-data": `messageForm(${formConfig})`,
+    "x-on:submit": "submitForm($event)",
+    "x-target": "modal-root toast messages-table-body",
+    "x-on:ajax:error": "isSubmitting = false",
+    "x-on:ajax:success": "onSuccess()",
+    "@ajax:after": "$dispatch('messages:updated'), $dispatch('dialog:close')",
+  };
 
   return (
     <div>
       {!isEdit && (
         <h2 class="text-lg font-semibold text-on-surface-strong">
-          Write a post
+          Share what's new
         </h2>
       )}
       <form

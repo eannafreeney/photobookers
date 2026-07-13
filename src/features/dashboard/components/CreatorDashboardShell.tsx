@@ -36,7 +36,12 @@ const CreatorDashboardShell = ({
           creatorId={creator.id}
           showProfile={creator.status === "verified"}
         />
-        <div id="creator-dashboard-panel" x-merge="replace">
+
+        <div
+          id="creator-dashboard-panel"
+          class="flex flex-col gap-8"
+          x-merge="replace"
+        >
           {children}
         </div>
       </Page>

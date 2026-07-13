@@ -75,7 +75,6 @@ const BooksOverviewDesktop = async ({
 
   return (
     <div class="flex flex-col gap-4">
-      <SectionTitle>Books</SectionTitle>
       <div class="flex items-center justify-between gap-4">
         <TableSearch
           target="books-table"

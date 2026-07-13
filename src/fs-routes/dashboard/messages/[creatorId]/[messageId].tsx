@@ -15,7 +15,9 @@ import { removeInvalidImages, uploadImage } from "../../../../services/storage";
 import Alert from "../../../../components/app/Alert";
 import Modal from "../../../../components/app/Modal";
 import MessageForm from "../../../../features/dashboard/messages/forms/MessageForm";
-import { MessagesTableBody } from "../../../../features/dashboard/messages/components/MessagesTable";
+import MessagesTable, {
+  MessagesTableBody,
+} from "../../../../features/dashboard/messages/components/MessagesTable";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 
 export const GET = createRoute(
@@ -96,14 +98,11 @@ export const PATCH = createRoute(
     });
     if (updateErr) return showErrorAlert(c, updateErr.reason);
 
-    const [, result] = await getMessagesByCreator(creatorId);
-    const messages = result?.messages ?? [];
-
     return c.html(
       <>
         <Alert type="success" message="Post updated." />
-        {dispatchEvents(["messages:updated"])}
-        <MessagesTableBody creatorId={creatorId} messages={messages} />
+        <MessageForm creatorId={creatorId} messageId={messageId} />
+        <MessagesTable creatorId={creatorId} />
         <div id="modal-root"></div>
       </>,
     );
@@ -124,14 +123,10 @@ export const DELETE = createRoute(
     const [error] = await deleteMessageById(messageId);
     if (error) return showErrorAlert(c, error.reason);
 
-    const [, result] = await getMessagesByCreator(creatorId);
-    const messages = result?.messages ?? [];
-
     return c.html(
       <>
         <Alert type="success" message="Post deleted." />
-        {dispatchEvents(["messages:updated"])}
-        <MessagesTableBody creatorId={creatorId} messages={messages} />
+        <MessagesTable creatorId={creatorId} />
       </>,
     );
   },

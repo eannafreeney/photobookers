@@ -4,13 +4,12 @@ import { createMessage } from "../../../features/dashboard/messages/services";
 import { requireCreatorEditAccess } from "../../../middleware/creatorGuard";
 import { creatorIdSchema } from "../../../schemas";
 import { MessageFormContext } from "../../../features/dashboard/messages/types";
-import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
+import { showErrorAlert } from "../../../lib/alertHelpers";
 import { createMessageFormSchema } from "../../../features/dashboard/messages/schema";
 import { removeInvalidImages, uploadImage } from "../../../services/storage";
 import Alert from "../../../components/app/Alert";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
-import { MessagesTableBody } from "../../../features/dashboard/messages/components/MessagesTable";
-import { getMessagesByCreator } from "../../../features/dashboard/messages/services";
+import MessagesTable from "../../../features/dashboard/messages/components/MessagesTable";
 import { getUser } from "../../../utils";
 import { createMessageCreatedNotification } from "../../../domain/notifications/utils";
 
@@ -68,9 +67,6 @@ export const POST = createRoute(
 
     if (!message) return showErrorAlert(c, "Failed to create message");
 
-    const [, tableResult] = await getMessagesByCreator(creatorId);
-    const messages = tableResult?.messages ?? [];
-
     return c.html(
       <>
         <Alert
@@ -78,7 +74,7 @@ export const POST = createRoute(
           message="Post published! Your followers will be emailed about it."
         />
         <MessageForm creatorId={creatorId} />
-        <MessagesTableBody creatorId={creatorId} messages={messages} />
+        <MessagesTable creatorId={creatorId} />
       </>,
     );
   },

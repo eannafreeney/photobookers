@@ -7,6 +7,7 @@ import InfoPage from "../../../pages/InfoPage";
 import MessagesTable from "../../../features/dashboard/messages/components/MessagesTable";
 import CreatorDashboardShell from "../../../features/dashboard/components/CreatorDashboardShell";
 import { getPendingClaim } from "../../../features/claims/services";
+import PageHeader from "@/components/app/PageHeader";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -28,9 +29,15 @@ export const GET = createRoute(async (c: Context) => {
         user={user}
         claimStatus={claim?.status ?? null}
       >
-        <div class="grid grid-cols-1 gap-8 xl:grid-cols-2">
+        <PageHeader
+          title="Your Posts"
+          intro="Share what's new with your followers."
+        />
+        <div class="grid grid-cols-1 gap-8 xl:grid-cols-3">
           <MessageForm creatorId={creator.id} />
-          <MessagesTable creatorId={creator.id} />
+          <div class="xl:col-span-2">
+            <MessagesTable creatorId={creator.id} />
+          </div>
         </div>
       </CreatorDashboardShell>
     </AppLayout>,
