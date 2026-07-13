@@ -8,7 +8,7 @@ import {
 import { runContentPreviewEmail } from "../domain/planner/cron/contentPreviewEmailServices";
 import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramReminderEmailServices";
 import { runTrendingInstagramCron, formatTrendingInstagramCronSummary } from "../domain/planner/cron/trendingInstagramServices";
-import { runWeeklyNewsletterCron } from "../domain/planner/cron/newsletterCronServices";
+import { runWeeklyNewsletterCron, runWeeklyNewsletterTestCron } from "../domain/planner/cron/newsletterCronServices";
 import { runSpotlightCreatorEmails } from "../domain/planner/cron/spotlightEmailServices";
 import { runCreatorProfileShareCron } from "../domain/creator-profile-share/cron";
 import { runVerifiedCreatorInstagramCron } from "../domain/planner/cron/verifiedCreatorInstagramServices";
@@ -59,6 +59,7 @@ export type CronJobName =
   | "notify-followers-new-books"
   | "notify-followers-new-posts"
   | "weekly-botd-newsletter"
+  | "weekly-botd-newsletter-test"
   | "weekly-trending-instagram"
   | "instagram-prep-reminder-email"
   | "planner-content-preview-email"
@@ -80,6 +81,7 @@ export const CRON_JOB_NAMES = [
   "notify-followers-new-books",
   "notify-followers-new-posts",
   "weekly-botd-newsletter",
+  "weekly-botd-newsletter-test",
   "weekly-trending-instagram",
   "instagram-prep-reminder-email",
   "planner-content-preview-email",
@@ -265,6 +267,19 @@ export async function runWeeklyBotdNewsletterCron(
   return ok({ ...result });
 }
 
+export async function runWeeklyBotdNewsletterTestCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runWeeklyNewsletterTestCron({
+    dryRun: options.dryRun,
+    weekStart: options.weekStart,
+    force: options.force,
+    to: options.to,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
 export async function runInstagramPrepReminderEmailCron(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
@@ -412,6 +427,7 @@ const RUNNERS: Record<
   "notify-followers-new-books": () => runNotifyFollowersNewBooksCron(),
   "notify-followers-new-posts": () => runNotifyFollowersNewPostsCron(),
   "weekly-botd-newsletter": runWeeklyBotdNewsletterCron,
+  "weekly-botd-newsletter-test": runWeeklyBotdNewsletterTestCron,
   "weekly-trending-instagram": runWeeklyTrendingInstagramCron,
   "instagram-prep-reminder-email": runInstagramPrepReminderEmailCron,
   "planner-content-preview-email": runPlannerContentPreviewEmailCron,

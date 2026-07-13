@@ -7,6 +7,9 @@ import {
 /** Newsletter is sent on Wednesday (UTC). */
 export const NEWSLETTER_SEND_WEEKDAY_UTC = 3;
 
+/** Tuesday preview test send (UTC), one day before production send. */
+export const NEWSLETTER_TEST_WEEKDAY_UTC = 2;
+
 /** Thu–Wed range ending on the send Wednesday. */
 export function getNewsletterRangeForSendWednesday(sendWednesday: Date) {
   const weekEnd = toUtcStartOfDay(sendWednesday);
@@ -49,6 +52,12 @@ export function getNewsletterRangeStartForPlannerWeek(
 export function isNewsletterSendDay(referenceDate: Date = new Date()): boolean {
   return (
     toUtcStartOfDay(referenceDate).getUTCDay() === NEWSLETTER_SEND_WEEKDAY_UTC
+  );
+}
+
+export function isNewsletterTestDay(referenceDate: Date = new Date()): boolean {
+  return (
+    toUtcStartOfDay(referenceDate).getUTCDay() === NEWSLETTER_TEST_WEEKDAY_UTC
   );
 }
 

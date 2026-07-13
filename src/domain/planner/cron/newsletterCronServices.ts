@@ -1,6 +1,6 @@
 import { err, ok, type Result } from "../../../lib/result";
 import { toDateString } from "../../../lib/utils";
-import { isNewsletterSendDay } from "../newsletterUtils";
+import { isNewsletterSendDay, isNewsletterTestDay } from "../newsletterUtils";
 import {
   ensureCurrentWeeklyNewsletterDraft,
   ensureWeeklyNewsletterDraftForRange,
@@ -11,6 +11,7 @@ import {
 } from "../../../features/dashboard/admin/planner/newsletter/services";
 import {
   isBrevoNewsletterConfigured,
+  sendNewsletterBrevoTest,
   sendNewsletterBrevoToList,
 } from "../../../features/dashboard/admin/planner/newsletter/brevoServices";
 
@@ -126,5 +127,113 @@ export async function runWeeklyNewsletterCron(
     weekStart,
     bookCount,
     brevoCampaignId: sendResult.brevoCampaignId,
+  });
+}
+
+export type WeeklyNewsletterTestCronResult =
+  | {
+      action: "skipped";
+      reason: "not_tuesday";
+    }
+  | {
+      action: "skipped";
+      campaignId: string;
+      weekStart: string;
+      reason: "already_sent";
+    }
+  | {
+      action: "dry_run";
+      campaignId: string;
+      weekStart: string;
+      bookCount: number;
+      recipient: string | null;
+    }
+  | {
+      action: "test_sent";
+      campaignId: string;
+      weekStart: string;
+      bookCount: number;
+      brevoCampaignId: number;
+      recipient: string;
+    };
+
+export type RunWeeklyNewsletterTestCronOptions = RunWeeklyNewsletterCronOptions & {
+  /** Override test recipient (defaults to BREVO_TEST_EMAIL or ADMIN_EMAIL). */
+  to?: string;
+};
+
+export async function runWeeklyNewsletterTestCron(
+  options: RunWeeklyNewsletterTestCronOptions = {},
+): Promise<Result<WeeklyNewsletterTestCronResult, CronError>> {
+  if (
+    !options.dryRun &&
+    !options.weekStart &&
+    !options.force &&
+    !isNewsletterTestDay()
+  ) {
+    return ok({ action: "skipped", reason: "not_tuesday" });
+  }
+
+  const [draftError, campaign] = await ensureDraftForCron(options.weekStart);
+  if (draftError) return err(draftError);
+  if (!campaign) return err({ reason: "Failed to prepare newsletter draft" });
+
+  const weekStart = toDateString(campaign.weekStart);
+
+  if (campaign.status === "sent") {
+    return ok({
+      action: "skipped",
+      campaignId: campaign.id,
+      weekStart,
+      reason: "already_sent",
+    });
+  }
+
+  const [regenError, generated] = await regenerateCampaignContent(campaign.id);
+  if (regenError) return err(regenError);
+
+  const bookCount = generated.botdEntries.length;
+  if (bookCount === 0) {
+    return err({
+      reason: `No books of the day for ${weekStart} yet`,
+    });
+  }
+
+  const recipient =
+    options.to?.trim().toLowerCase() ??
+    process.env.BREVO_TEST_EMAIL?.trim().toLowerCase() ??
+    process.env.ADMIN_EMAIL?.trim().toLowerCase() ??
+    null;
+
+  if (options.dryRun) {
+    return ok({
+      action: "dry_run",
+      campaignId: campaign.id,
+      weekStart,
+      bookCount,
+      recipient,
+    });
+  }
+
+  if (!isBrevoNewsletterConfigured()) {
+    return err({
+      reason:
+        "Brevo newsletter send is not configured (BREVO_API_KEY, BREVO_NEWSLETTER_LIST_ID, BREVO_SENDER_EMAIL)",
+    });
+  }
+
+  const [sendError, sendResult] = await sendNewsletterBrevoTest(
+    campaign.id,
+    options.to,
+  );
+  if (sendError) return err(sendError);
+
+  return ok({
+    action: "test_sent",
+    campaignId: campaign.id,
+    weekStart,
+    bookCount,
+    brevoCampaignId: sendResult.brevoCampaignId,
+    recipient: sendResult.recipient,
   });
 }
