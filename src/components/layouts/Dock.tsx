@@ -1,6 +1,5 @@
 import clsx from "clsx";
-import { bookIcon, feedIcon, libraryIcon, updatesIcon } from "../../lib/icons";
-import FeatureGuard from "./FeatureGuard";
+import { bookIcon, feedIcon, libraryIcon } from "../../lib/icons";
 
 type DockProps = {
   currentPath?: string;
@@ -47,12 +46,6 @@ const Dock = ({ currentPath }: DockProps) => {
         {libraryIcon(5)}
         <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Library</span>
       </a>
-      <FeatureGuard flagName="messages">
-        <a href="/messages" class={item("/messages")}>
-          {updatesIcon}
-          <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Messages</span>
-        </a>
-      </FeatureGuard>
     </div>
   );
 };

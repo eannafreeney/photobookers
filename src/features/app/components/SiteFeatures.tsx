@@ -25,7 +25,7 @@ export const tickerItems = [
   {
     title: "Get updates from artists and publishers you follow",
     icon: updatesIcon,
-    href: "/messages",
+    href: "/feed",
   },
   {
     title: "Follow your favorite artists and publishers",

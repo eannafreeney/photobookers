@@ -8,7 +8,7 @@ export type MemberSignInPromptContent = {
 export const memberSignInPrompts = {
   feed: {
     headline: "Sign in to see your feed",
-    hint: "Follow artists and publishers to get a personalised feed of their latest releases — free to join.",
+    hint: "Follow artists and publishers to get a personalised feed of their latest releases and updates — free to join.",
   },
   library: {
     headline: "Sign in to view your library",

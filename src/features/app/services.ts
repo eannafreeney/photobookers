@@ -44,6 +44,8 @@ import {
 } from "../../constants/queries";
 import { Creator, creatorMessages } from "../../db/schema";
 import { err, ok } from "../../lib/result";
+import { isFeatureEnabled } from "../../lib/features";
+import { mergeFeedItems } from "./followerFeed";
 import { LRUCache } from "lru-cache";
 
 type CachedBook = Omit<InferSelectModel<typeof books>, "images"> & {
@@ -948,6 +950,103 @@ export const getFeedBooks = async (
   } catch (error) {
     console.error("Failed to get feed books", error);
     return err({ reason: "Failed to get feed books", error });
+  }
+};
+
+export const getFollowerFeed = async (
+  followerUserId: string,
+  currentPage = 1,
+  limit = 20,
+  options?: { includeMessages?: boolean },
+) => {
+  const includeMessages =
+    options?.includeMessages ?? isFeatureEnabled("messages");
+
+  try {
+    const userFollows = await db.query.follows.findMany({
+      where: and(
+        eq(follows.followerUserId, followerUserId),
+        eq(follows.targetType, "creator"),
+      ),
+    });
+
+    const followedCreatorIds = userFollows
+      .map((follow) => follow.targetCreatorId)
+      .filter((id): id is string => id !== null);
+
+    if (followedCreatorIds.length === 0) {
+      return ok({ items: [], totalPages: 0, page: 1 });
+    }
+
+    const bookWhere = and(
+      or(
+        inArray(books.artistId, followedCreatorIds),
+        inArray(books.publisherId, followedCreatorIds),
+      ),
+      eq(books.publicationStatus, "published"),
+      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    );
+    const messageWhere = inArray(
+      creatorMessages.creatorId,
+      followedCreatorIds,
+    );
+
+    const [{ value: bookCount = 0 }] = await db
+      .select({ value: count() })
+      .from(books)
+      .where(bookWhere);
+
+    const [{ value: messageCount = 0 }] = includeMessages
+      ? await db
+          .select({ value: count() })
+          .from(creatorMessages)
+          .where(messageWhere)
+      : [{ value: 0 }];
+
+    const totalCount = bookCount + messageCount;
+    const { page, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      limit,
+    );
+    const fetchLimit = page * limit;
+
+    const [feedBooks, feedMessages] = await Promise.all([
+      db.query.books.findMany({
+        where: bookWhere,
+        columns: { ...BOOK_CARD_COLUMNS, createdAt: true },
+        with: {
+          artist: { columns: CREATOR_CARD_COLUMNS },
+          publisher: { columns: CREATOR_CARD_COLUMNS },
+        },
+        orderBy: getBooksOrderBy("newest"),
+        limit: fetchLimit,
+      }),
+      includeMessages
+        ? db.query.creatorMessages.findMany({
+            where: messageWhere,
+            orderBy: [desc(creatorMessages.createdAt)],
+            limit: fetchLimit,
+            with: {
+              creator: {
+                columns: {
+                  id: true,
+                  displayName: true,
+                  slug: true,
+                  coverUrl: true,
+                },
+              },
+            },
+          })
+        : Promise.resolve([]),
+    ]);
+
+    const items = mergeFeedItems(feedBooks, feedMessages, page, limit);
+
+    return ok({ items, totalPages, page });
+  } catch (error) {
+    console.error("Failed to get follower feed", error);
+    return err({ reason: "Failed to get follower feed", error });
   }
 };
 
