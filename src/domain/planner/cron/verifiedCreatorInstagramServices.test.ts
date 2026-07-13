@@ -25,6 +25,7 @@ vi.mock("../../../domain/planner/instagramSlides/getCreatorBookCoverUrls", () =>
 }));
 
 vi.mock("../../../domain/planner/instagramSlides/renderSpotlightLeadSlide", () => ({
+  NEW_CREATOR_CAROUSEL_BOOK_LIMIT: 5,
   prepareNewCreatorFeedImageUrls: vi
     .fn()
     .mockResolvedValue(["https://example.com/lead.webp", "https://example.com/book.jpg"]),

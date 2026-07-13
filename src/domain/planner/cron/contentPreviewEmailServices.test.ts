@@ -12,6 +12,7 @@ const buildWeekSpotlightContentMock = vi.fn();
 const persistWeekSpotlightContentMock = vi.fn();
 const sendAdminEmailMock = vi.fn();
 const findFirstMock = vi.fn();
+const buildPlannerWeekFeedPreviewUrlsMock = vi.fn();
 
 vi.mock("./weekPrepServices", () => ({
   ensureWeekPlannerContent: (...args: unknown[]) =>
@@ -38,6 +39,11 @@ vi.mock("../../../features/dashboard/admin/planner/spotlightBlurb", async () => 
 
 vi.mock("../../../lib/sendEmail", () => ({
   sendAdminEmail: (...args: unknown[]) => sendAdminEmailMock(...args),
+}));
+
+vi.mock("../instagramSlides/buildPlannerWeekFeedPreview", () => ({
+  buildPlannerWeekFeedPreviewUrls: (...args: unknown[]) =>
+    buildPlannerWeekFeedPreviewUrlsMock(...args),
 }));
 
 vi.mock("../../../db/client", () => ({
@@ -79,7 +85,9 @@ describe("runContentPreviewEmail", () => {
     persistWeekSpotlightContentMock.mockReset();
     sendAdminEmailMock.mockReset();
     findFirstMock.mockReset();
+    buildPlannerWeekFeedPreviewUrlsMock.mockReset();
     findFirstMock.mockResolvedValue(null);
+    buildPlannerWeekFeedPreviewUrlsMock.mockResolvedValue(new Map());
 
     ensureWeekPlannerContentMock.mockResolvedValue([
       null,
