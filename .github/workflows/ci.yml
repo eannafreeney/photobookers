@@ -35,6 +35,13 @@ jobs:
 
       - run: npm ci
 
+      - name: Align Drizzle migration history (staging)
+        if: github.ref == 'refs/heads/staging'
+        env:
+          PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: npx tsx scripts/sync-drizzle-migrations-to-staging.ts
+
       - name: Run migrations (production)
         if: github.ref == 'refs/heads/main'
         env:

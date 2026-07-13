@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertSafeStagingSyncConfig,
   parseDatabaseUrlForSync,
+  STAGING_SYNC_SCHEMAS,
   withSslModeForSync,
 } from "./syncStagingFromProduction";
 
@@ -49,6 +50,12 @@ describe("assertSafeStagingSyncConfig", () => {
       "postgresql://user:pass@db.staging.supabase.co:5432/postgres",
     );
     expect(error?.reason).toMatch(/transaction pooler/);
+  });
+});
+
+describe("STAGING_SYNC_SCHEMAS", () => {
+  it("includes public data and drizzle migration history", () => {
+    expect(STAGING_SYNC_SCHEMAS).toEqual(["public", "drizzle"]);
   });
 });
 

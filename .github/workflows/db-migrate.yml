@@ -27,6 +27,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Align Drizzle migration history (staging)
+        if: inputs.target == 'staging'
+        env:
+          PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: npx tsx scripts/sync-drizzle-migrations-to-staging.ts
+
       - name: Run migrations (production)
         if: inputs.target == 'production'
         env:
