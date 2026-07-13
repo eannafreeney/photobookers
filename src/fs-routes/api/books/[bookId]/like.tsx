@@ -23,7 +23,7 @@ import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 import { routeParam } from "../../../../lib/routeParam";
 
-const updateLibraryPage = () => "library:updated";
+const updateShelfPage = () => "shelf:updated";
 
 export const POST = createRoute(async (c: Context) => {
   const isHyperview = getIsHyperview(c);
@@ -141,7 +141,7 @@ const postLikeWeb = async (c: Context) => {
     <>
       <Alert type="success" message={message} />
       <LikeButton book={book} user={user} isCircleButton={isCircleButton} />
-      {dispatchEvents([updateLibraryPage()])}
+      {dispatchEvents([updateShelfPage()])}
     </>,
   );
 };

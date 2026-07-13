@@ -25,6 +25,8 @@ describe("publish* activity helpers", () => {
     firstName: "Pat",
     lastName: null,
     profileImageUrl: null,
+    shelfSlug: null,
+    shelfPublic: false,
     creator: null,
     isAdmin: false,
     mustResetPassword: false,

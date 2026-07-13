@@ -42,7 +42,7 @@ const Dock = ({ currentPath }: DockProps) => {
         {feedIcon}
         <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Feed</span>
       </a>
-      <a href="/library" class={item("/library")}>
+      <a href="/shelf" class={item("/shelf")}>
         {libraryIcon(5)}
         <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Shelf</span>
       </a>

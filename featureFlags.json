@@ -3,5 +3,6 @@
   "comments": true,
   "interviews": false,
   "fairs": true,
-  "stores": true
+  "stores": true,
+  "publicShelf": false
 }
