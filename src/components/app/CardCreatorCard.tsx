@@ -6,12 +6,14 @@ import { CreatorCardResult } from "../../constants/queries";
 import { truncate } from "../../lib/utils";
 
 type CardCreatorCardProps = {
+  banner?: string;
   creator: CreatorCardResult | null;
   avatarSize?: "xs" | "sm" | "md" | "lg";
   maxDisplayNameLength?: number;
 };
 
 const CardCreatorCard = async ({
+  banner,
   creator,
   avatarSize = "xs",
   maxDisplayNameLength,
@@ -38,7 +40,9 @@ const CardCreatorCard = async ({
           className="min-w-0 truncate"
           title={creator.displayName}
         >
-          <Card.SubTitle title={displayName}>{displayName}</Card.SubTitle>
+          <Card.SubTitle title={displayName}>
+            {banner ?? displayName}
+          </Card.SubTitle>
         </Link>
         <div class="shrink-0">
           <VerifiedCreator creatorStatus={creator.status} size="xs" />

@@ -11,7 +11,7 @@ export const memberSignInPrompts = {
     hint: "Follow artists and publishers to get a personalised feed of their latest releases and updates — free to join.",
   },
   library: {
-    headline: "Sign in to view your library",
+    headline: "Sign in to view your shelf",
     hint: "Wishlist titles and keep track of your collection in one place. Create a free account to get started.",
   },
   messages: {

@@ -37,15 +37,10 @@ import { getPagination } from "../../../lib/pagination";
 import { bookFormAdminSchema } from "../admin/books/schema";
 import { err, ok } from "../../../lib/result";
 import { invalidateBookCache, invalidateCreatorCache } from "../../app/services";
-import { shouldModerateNewBook } from "../../../lib/bookModeration";
 import type { AuthUser } from "../../../../types";
 
 export type NewBookModeration = {
   isAdminContext: boolean;
-  creatorVerifiedAt: Date | null;
-  creatorStatus: Creator["status"];
-  booksUploadedSinceVerificationBeforeInsert: number;
-  approvedBooksSinceVerificationBeforeInsert: number;
 };
 
 export async function assignNextBookSortOrder(): Promise<number> {
@@ -55,39 +50,12 @@ export async function assignNextBookSortOrder(): Promise<number> {
   return Number(maxOrder ?? 0) + 1;
 }
 
-export async function countBooksUploadedSinceCreatorVerification(
-  userId: string,
-  verifiedAt: Date,
-): Promise<number> {
-  const [{ value }] = await db
-    .select({ value: count() })
-    .from(books)
-    .where(
-      and(eq(books.createdByUserId, userId), gte(books.createdAt, verifiedAt)),
-    );
-  return Number(value ?? 0);
-}
-
 /** Moderation inputs for a creator creating a book (not admin context). */
 export async function getNewBookModerationForUser(
-  user: AuthUser,
+  _user: AuthUser,
 ): Promise<NewBookModeration> {
-  const verifiedAt = user.creator?.verifiedAt ?? null;
-  const creatorStatus = user.creator?.status ?? "stub";
-  const uploadedSince =
-    verifiedAt && creatorStatus === "verified"
-      ? await countBooksUploadedSinceCreatorVerification(user.id, verifiedAt)
-      : 0;
-  const approvedBooksSinceVerificationBeforeInsert =
-    verifiedAt && creatorStatus === "verified"
-      ? await countApprovedBooksSinceCreatorVerification(user.id, verifiedAt)
-      : 0;
   return {
     isAdminContext: false,
-    creatorVerifiedAt: verifiedAt,
-    creatorStatus,
-    booksUploadedSinceVerificationBeforeInsert: uploadedSince,
-    approvedBooksSinceVerificationBeforeInsert,
   };
 }
 
@@ -534,18 +502,6 @@ export const buildCreateBookData = async (
   if (moderation.isAdminContext) {
     approvalStatus = "approved";
     sortOrder = await assignNextBookSortOrder();
-  } else if (
-    !shouldModerateNewBook({
-      creatorVerifiedAt: moderation.creatorVerifiedAt,
-      creatorStatus: moderation.creatorStatus,
-      booksUploadedSinceVerificationBeforeInsert:
-        moderation.booksUploadedSinceVerificationBeforeInsert,
-      approvedBooksSinceVerificationBeforeInsert:
-        moderation.approvedBooksSinceVerificationBeforeInsert,
-    })
-  ) {
-    approvalStatus = "approved";
-    sortOrder = await assignNextBookSortOrder();
   }
 
   return {
@@ -573,23 +529,6 @@ export const buildCreateBookData = async (
     ...(sortOrder !== undefined ? { sortOrder } : {}),
   };
 };
-
-export async function countApprovedBooksSinceCreatorVerification(
-  userId: string,
-  verifiedAt: Date,
-): Promise<number> {
-  const [{ value }] = await db
-    .select({ value: count() })
-    .from(books)
-    .where(
-      and(
-        eq(books.createdByUserId, userId),
-        gte(books.createdAt, verifiedAt),
-        eq(books.approvalStatus, "approved"),
-      ),
-    );
-  return Number(value ?? 0);
-}
 
 export const buildUpdateBookData = (
   formData:

@@ -11,6 +11,10 @@ import {
 } from "../../../../client/forms/formUtils";
 type MessageFormData = z.infer<typeof createMessageFormSchema>;
 
+type MessageFormConfig = Partial<MessageFormData> & {
+  previewUrl?: string | null;
+};
+
 const MESSAGE_FORM_FIELDS = Object.keys(createMessageFormSchema.shape);
 
 type MessageFormCtx = {
@@ -22,11 +26,13 @@ type MessageFormCtx = {
 };
 
 export function registerMessageForm() {
-  Alpine.data("messageForm", (formValues: Partial<MessageFormData> = {}) => {
+  Alpine.data("messageForm", (config: MessageFormConfig = {}) => {
+    const { previewUrl: initialPreviewUrl, ...formValues } = config;
+
     return {
       isSubmitting: false,
       isDragOver: false,
-      previewUrl: null as string | null,
+      previewUrl: initialPreviewUrl ?? null,
 
       ...createFormState(MESSAGE_FORM_FIELDS, formValues),
 

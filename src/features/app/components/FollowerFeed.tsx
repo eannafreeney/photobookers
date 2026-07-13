@@ -3,6 +3,7 @@ import BookCard from "../../../components/app/BookCard";
 import CreatorMessage from "./CreatorMessage";
 import { FeedItem } from "../followerFeed";
 import ListNavigation from "./ListNavigation";
+import FeedBookCard from "@/components/app/FeedBookCard";
 
 type Props = {
   user: AuthUser;
@@ -33,13 +34,12 @@ const FollowerFeed = ({
           {items.map((item) =>
             item.kind === "message" ? (
               <CreatorMessage
-                user={user}
                 canReadMessages
                 creator={item.message.creator}
                 message={item.message}
               />
             ) : (
-              <BookCard
+              <FeedBookCard
                 book={item.book}
                 user={user}
                 className="w-full max-w-none"

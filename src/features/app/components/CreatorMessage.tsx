@@ -1,22 +1,16 @@
-import { AuthUser } from "../../../../types";
-import FormDelete from "../../../components/forms/FormDelete";
 import { Creator, CreatorMessage } from "../../../db/schema";
 
 type CreatorMessageProps = {
   creator: Pick<Creator, "id" | "slug" | "displayName" | "coverUrl">;
   message: CreatorMessage;
-  user: AuthUser | null;
   canReadMessages?: boolean;
 };
 
 const CreatorMessage = ({
   creator,
   message,
-  user,
   canReadMessages = true,
 }: CreatorMessageProps) => {
-  const canDelete = user?.isAdmin || user?.creator?.id === creator.id;
-
   const redactClass = !canReadMessages
     ? "select-none blur-[3px] pointer-events-none"
     : "";
@@ -41,24 +35,6 @@ const CreatorMessage = ({
             ? new Date(message.createdAt).toLocaleDateString()
             : ""}
         </time>
-        {canDelete && (
-          <FormDelete
-            action={`/dashboard/messages/${creator.id}/${message.id}`}
-            {...{
-              "x-target": "toast",
-              "@ajax:before":
-                "confirm('Delete this post?') || $event.preventDefault()",
-              "@ajax:success": "$el.closest('article').remove()",
-            }}
-          >
-            <button
-              type="submit"
-              class="shrink-0 text-xs text-danger hover:opacity-75 transition cursor-pointer"
-            >
-              Delete
-            </button>
-          </FormDelete>
-        )}
       </header>
       <div class="relative">
         <div class={redactClass}>

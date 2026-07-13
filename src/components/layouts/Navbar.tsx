@@ -43,7 +43,7 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
                 Feed
               </NavLink>
               <NavLink href="/library" currentPath={currentPath} variant="nav">
-                Library
+                Shelf
               </NavLink>
             </>
           )}

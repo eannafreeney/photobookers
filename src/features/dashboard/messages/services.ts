@@ -38,6 +38,40 @@ export async function getMessagesByCreator(creatorId: string) {
   }
 }
 
+export async function getMessageById(messageId: string) {
+  try {
+    const message = await db.query.creatorMessages.findFirst({
+      where: eq(creatorMessages.id, messageId),
+    });
+    if (!message) return err({ reason: "Message not found" });
+    return ok(message);
+  } catch (error) {
+    console.error("Failed to get message", error);
+    return err({ reason: "Failed to get message", cause: error });
+  }
+}
+
+export async function updateMessageById(
+  messageId: string,
+  input: { body: string; imageUrl?: string },
+) {
+  try {
+    const [msg] = await db
+      .update(creatorMessages)
+      .set({
+        body: input.body.trim(),
+        ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl } : {}),
+      })
+      .where(eq(creatorMessages.id, messageId))
+      .returning();
+    if (!msg) return err({ reason: "Message not found" });
+    return ok(msg);
+  } catch (error) {
+    console.error("Failed to update message", error);
+    return err({ reason: "Failed to update message", cause: error });
+  }
+}
+
 export async function getMessagesForFollower(
   followerUserId: string,
   currentPage = 1,

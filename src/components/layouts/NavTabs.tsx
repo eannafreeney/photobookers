@@ -18,7 +18,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       </NavLink>
       <NavLink href="/library" currentPath={currentPath}>
         {libraryIcon(5)}
-        Library
+        Shelf
       </NavLink>
     </nav>
   );

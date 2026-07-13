@@ -10,6 +10,7 @@ import LikeButton from "../../features/api/components/LikeButton";
 import WishlistButton from "../../features/api/components/FavouriteButton";
 
 type BookCardProps = {
+  banner?: string;
   book: BookCardResult;
   user: AuthUser | null;
   currentCreatorId?: string | null;
@@ -19,6 +20,7 @@ type BookCardProps = {
 };
 
 const BookCard = ({
+  banner,
   book,
   user,
   currentCreatorId,
@@ -33,6 +35,7 @@ const BookCard = ({
         <div class="px-3 py-2 flex items-center justify-between gap-2 h-10">
           <div class="min-w-0 flex-1">
             <CardCreatorCard
+              banner={banner}
               creator={book.artist ?? null}
               maxDisplayNameLength={
                 book.releaseDate ? maxDisplayNameLength : 30

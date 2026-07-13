@@ -19,7 +19,7 @@ export const GET = createRoute(async (c) => {
   if (!user) {
     return c.html(
       <AppLayout
-        title="Favorited Books"
+        title="Shelf"
         user={user}
         flash={flash}
         currentPath={currentPath}
@@ -28,8 +28,8 @@ export const GET = createRoute(async (c) => {
         <Page>
           <div class="flex flex-col gap-4">
             <PageHeader
-              kicker="Your Library"
-              title="Favorited Books"
+              kicker="Your Shelf"
+              title="Shelf"
               intro="The books you’ve favorited, all in one place."
             />
             <MemberSignInPrompt
@@ -68,7 +68,7 @@ export const GET = createRoute(async (c) => {
 
   return c.html(
     <AppLayout
-      title="Books"
+      title="Shelf"
       user={user}
       flash={flash}
       currentPath={currentPath}
@@ -81,8 +81,8 @@ export const GET = createRoute(async (c) => {
           {...alpineAttrs}
         >
           <PageHeader
-            kicker="Your Library"
-            title="Favorited Books"
+            kicker="Your Shelf"
+            title="Shelf"
             intro="The books you’ve favorited, all in one place."
           />
           <BooksGrid

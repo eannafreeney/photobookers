@@ -58,6 +58,10 @@ export const creatorIdSchema = z.object({
   creatorId: uuidField,
 });
 
+export const messageParamSchema = creatorIdSchema.extend({
+  messageId: uuidField,
+});
+
 export const claimIdSchema = z.object({
   claimId: uuidField,
 });
