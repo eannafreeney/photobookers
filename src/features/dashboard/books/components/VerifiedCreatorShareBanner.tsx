@@ -17,7 +17,7 @@ const VerifiedCreatorShareBanner = ({ creator }: Props) => {
   return (
     <div
       x-cloak
-      x-data="{ show: $persist(true).as(`verified-share-${creator.slug}`) }"
+      x-data={`{ show: $persist(true).as('verified-share-${creator.slug}') }`}
       x-show="show"
     >
       <Banner
