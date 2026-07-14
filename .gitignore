@@ -16,6 +16,10 @@ output/
 scripts/cover-url-backup-*.csv
 scripts/cover-recompress-suspect-review-*.csv
 
+# Generated at build/deploy time (see build script); route falls back to
+# live generation. No longer committed — avoids bot commits to main.
+public/project-summary.txt
+
 # Weekly audit logs and reports
 logs/
 AUDIT_*.md
