@@ -30,9 +30,12 @@ export type BrevoNewsletterSendResult = {
 };
 
 function defaultTestRecipientEmail(): string | null {
+  // Use `||` (not `??`): GitHub Actions renders an unset secret as an empty
+  // string, which `??` would not skip — so BREVO_TEST_EMAIL="" must still fall
+  // through to ADMIN_EMAIL.
   return (
-    process.env.BREVO_TEST_EMAIL?.trim() ??
-    process.env.ADMIN_EMAIL?.trim() ??
+    process.env.BREVO_TEST_EMAIL?.trim() ||
+    process.env.ADMIN_EMAIL?.trim() ||
     null
   );
 }
