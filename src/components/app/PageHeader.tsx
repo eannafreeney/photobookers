@@ -1,7 +1,7 @@
 import { ChildType } from "../../../types";
 
 type PageHeaderProps = {
-  title: string;
+  title: string | ChildType;
   kicker?: string;
   intro?: string;
 };
