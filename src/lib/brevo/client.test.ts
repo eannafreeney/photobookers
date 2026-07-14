@@ -29,6 +29,23 @@ describe("getBrevoConfig", () => {
     });
   });
 
+  it("falls back to defaults when sender vars are empty strings", () => {
+    // GitHub Actions renders an unset secret as "" (not undefined), so `??`
+    // would not trigger the fallback — see brevo sender-name cron failure.
+    process.env.BREVO_API_KEY = "test-key";
+    process.env.BREVO_NEWSLETTER_LIST_ID = "12";
+    process.env.BREVO_SENDER_NAME = "   ";
+    process.env.BREVO_SENDER_EMAIL = "";
+    process.env.ADMIN_EMAIL = "admin@photobookers.com";
+
+    const [error, config] = getBrevoConfig();
+    expect(error).toBeNull();
+    expect(config?.sender).toEqual({
+      name: "Photobookers",
+      email: "admin@photobookers.com",
+    });
+  });
+
   it("errors when API key is missing", () => {
     delete process.env.BREVO_API_KEY;
     process.env.BREVO_NEWSLETTER_LIST_ID = "12";

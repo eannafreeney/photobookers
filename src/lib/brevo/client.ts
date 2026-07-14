@@ -17,10 +17,10 @@ export function getBrevoConfig(): Result<BrevoConfig, { reason: string }> {
   const apiKey = process.env.BREVO_API_KEY?.trim();
   const listId = Number(process.env.BREVO_NEWSLETTER_LIST_ID);
   const senderEmail =
-    process.env.BREVO_SENDER_EMAIL?.trim() ??
-    process.env.ADMIN_EMAIL?.trim() ??
+    process.env.BREVO_SENDER_EMAIL?.trim() ||
+    process.env.ADMIN_EMAIL?.trim() ||
     "";
-  const senderName = process.env.BREVO_SENDER_NAME?.trim() ?? "Photobookers";
+  const senderName = process.env.BREVO_SENDER_NAME?.trim() || "Photobookers";
 
   if (!apiKey) {
     return err({ reason: "BREVO_API_KEY is not configured" });
