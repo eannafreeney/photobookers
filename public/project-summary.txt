@@ -3,7 +3,7 @@ ABOUT THIS DOCUMENT
 =======================
 
 Machine-readable project summary for LLMs and external tooling.
-Generated: 2026-07-14T12:27:33.733Z
+Generated: 2026-07-14T17:31:58.217Z
 Source repo path: .
 Endpoint: GET /api/project-summary.txt
 
@@ -78,7 +78,7 @@ src/
   middleware/              — auth guards
   lib/                     — shared utilities
 
-Domain modules (12): ceo-metrics, claims, creator-profile-share, creators, daily-product-digest, db, interviews, notifications, planner, server-errors, shelf, verification-feedback
+Domain modules (13): ceo-metrics, claims, creator-profile-share, creators, daily-product-digest, db, interviews, magazine, notifications, planner, server-errors, shelf, verification-feedback
 
 Feature modules (20): api, app, app-store-analytics, auth, book-analytics, book-views, claims, creator-analytics-digest, creator-views, dashboard, fair-attendees, fair-views, hyperview, interviews, jobs, legal, newsletter-analytics, purchase-clicks, site-analytics, stub-outreach
 
@@ -127,10 +127,10 @@ The GitHub Action merges this into `public/project-summary.txt` on each update.
 ROUTE / ENDPOINT STRUCTURE
 ==============================
 
-Total registered routes: 275
+Total registered routes: 285
 Routing: hono-fsr file-system routes in src/fs-routes/
 
-Public web (56 routes) — Server-rendered pages for fans and discovery
+Public web (55 routes) — Server-rendered pages for fans and discovery
   Examples: /, /about, /artist-of-the-week, /artist-of-the-week/:week, /artists, /book-of-the-day, /book-of-the-day/:date, /books, /books/:slug, /books/preview/:slug
 
 API (12 routes) — JSON/partials for likes, comments, follows, newsletter, activity
@@ -139,7 +139,7 @@ API (12 routes) — JSON/partials for likes, comments, follows, newsletter, acti
 Auth (16 routes) — Login, registration, password reset, Supabase callback
   Examples: /auth/accounts, /auth/callback, /auth/force-reset-password, /auth/forgot-password, /auth/login, /auth/logout, /auth/register, /auth/register-creator, /auth/register-fan, /auth/resend-verification
 
-Dashboard (103 routes) — Creator and admin dashboards
+Dashboard (114 routes) — Creator and admin dashboards
   Examples: /dashboard/admin, /dashboard/admin/analytics, /dashboard/admin/analytics/fans, /dashboard/admin/analytics/verified-creators, /dashboard/admin/books, /dashboard/admin/books/:bookId, /dashboard/admin/books/:bookId/approve, /dashboard/admin/books/:bookId/reject, /dashboard/admin/books/books-table-filter, /dashboard/admin/books/create
 
 Hyperview (mobile) (62 routes) — XML routes consumed by the Expo mobile app
@@ -172,7 +172,7 @@ DATABASE SCHEMA
 ORM: Drizzle (src/db/schema.ts)
 Dialect: PostgreSQL
 
-Tables (26):
+Tables (28):
 - users
 - creator_interviews
 - admin_notifications
@@ -199,8 +199,10 @@ Tables (26):
 - fair_attendees
 - fair_views
 - book_stores
+- magazine_issues
+- magazine_issue_books
 
-Enums (20):
+Enums (21):
 - book_availability_status
 - book_approval_status
 - book_publication_status
@@ -221,6 +223,7 @@ Enums (20):
 - book_store_status
 - book_store_approval_status
 - fair_attendee_status
+- magazine_issue_status
 
 ==========================
 BACKGROUND JOBS (CRON)
