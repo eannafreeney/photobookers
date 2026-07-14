@@ -118,6 +118,19 @@ export async function getPublishedIssueBySlug(slug: string) {
   }
 }
 
+/** Titles/themes of every existing issue, so generation can avoid repeats. */
+export async function listAllThemeLabels(): Promise<string[]> {
+  try {
+    const rows = await db.query.magazineIssues.findMany({
+      columns: { title: true, theme: true },
+    });
+    return rows.map((r) => (r.theme ? `${r.title} — ${r.theme}` : r.title));
+  } catch (error) {
+    console.error("Failed to list magazine themes", error);
+    return [];
+  }
+}
+
 /** List published issues, newest number first, for the magazine index. */
 export async function listPublishedIssues() {
   try {
