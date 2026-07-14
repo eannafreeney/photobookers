@@ -3,7 +3,7 @@ ABOUT THIS DOCUMENT
 =======================
 
 Machine-readable project summary for LLMs and external tooling.
-Generated: 2026-07-14T12:05:45.144Z
+Generated: 2026-07-14T12:27:33.733Z
 Source repo path: .
 Endpoint: GET /api/project-summary.txt
 
