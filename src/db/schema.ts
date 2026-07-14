@@ -1243,3 +1243,114 @@ export type UpdateBookStore = Partial<InferInsertModel<typeof bookStores>>;
 export type BookStoreStatus = (typeof bookStoreStatusEnum.enumValues)[number];
 export type BookStoreApprovalStatus =
   (typeof bookStoreApprovalStatusEnum.enumValues)[number];
+
+// ============ MAGAZINE ============
+
+export const magazineIssueStatusEnum = pgEnum("magazine_issue_status", [
+  "draft",
+  "approved",
+  "published",
+]);
+
+/** A themed section within an issue; books reference a movement by `id`. */
+export type MagazineMovementData = {
+  id: string;
+  kicker: string;
+  lead: string;
+  title: string;
+  paragraphs: string[];
+};
+
+export const magazineIssues = pgTable(
+  "magazine_issues",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    status: magazineIssueStatusEnum("status").default("draft").notNull(),
+    // Null until an approved issue is assigned a number.
+    issueNumber: integer("issue_number"),
+    slug: varchar("slug", { length: 255 }).notNull().unique(),
+    kicker: text("kicker"),
+    title: text("title").notNull(),
+    subtitle: text("subtitle"),
+    // The generated concept the issue was built around.
+    theme: text("theme"),
+    editorsLetterTitle: text("editors_letter_title"),
+    editorsLetter: text("editors_letter").array(),
+    movements: jsonb("movements").$type<MagazineMovementData[]>(),
+    coverUrl: text("cover_url"),
+    bannerUrl: text("banner_url"),
+    publishedLabel: text("published_label"),
+    readingMinutes: integer("reading_minutes"),
+    // Generation provenance (which seed/model produced a draft).
+    generationSeed: text("generation_seed"),
+    generationModel: text("generation_model"),
+    createdByUserId: uuid("created_by_user_id").references(() => users.id),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueIssueNumber: unique("magazine_issues_issue_number_unique").on(
+      table.issueNumber,
+    ),
+    statusIdx: index("magazine_issues_status_idx").on(table.status),
+  }),
+);
+
+export const magazineIssueBooks = pgTable(
+  "magazine_issue_books",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    issueId: uuid("issue_id")
+      .notNull()
+      .references(() => magazineIssues.id, { onDelete: "cascade" }),
+    bookId: uuid("book_id")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+    // Matches a `MagazineMovementData.id` in the parent issue's `movements`.
+    movementId: text("movement_id"),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    blurb: text("blurb"),
+    artistPrompt: text("artist_prompt"),
+    artistQuote: text("artist_quote"),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    uniqueIssueBook: unique("magazine_issue_books_issue_book_unique").on(
+      table.issueId,
+      table.bookId,
+    ),
+    issueIdx: index("magazine_issue_books_issue_idx").on(table.issueId),
+  }),
+);
+
+export const magazineIssuesRelations = relations(
+  magazineIssues,
+  ({ one, many }) => ({
+    createdByUser: one(users, {
+      fields: [magazineIssues.createdByUserId],
+      references: [users.id],
+    }),
+    books: many(magazineIssueBooks),
+  }),
+);
+
+export const magazineIssueBooksRelations = relations(
+  magazineIssueBooks,
+  ({ one }) => ({
+    issue: one(magazineIssues, {
+      fields: [magazineIssueBooks.issueId],
+      references: [magazineIssues.id],
+    }),
+    book: one(books, {
+      fields: [magazineIssueBooks.bookId],
+      references: [books.id],
+    }),
+  }),
+);
+
+export type MagazineIssue = InferSelectModel<typeof magazineIssues>;
+export type NewMagazineIssue = InferInsertModel<typeof magazineIssues>;
+export type MagazineIssueStatus =
+  (typeof magazineIssueStatusEnum.enumValues)[number];
+export type MagazineIssueBook = InferSelectModel<typeof magazineIssueBooks>;
+export type NewMagazineIssueBook = InferInsertModel<typeof magazineIssueBooks>;
