@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   magazineIssues,
   magazineIssueBooks,
+  type MagazineIssueStatus,
   type MagazineMovementData,
 } from "@/db/schema";
 import { err, ok } from "@/lib/result";
@@ -105,5 +106,185 @@ export async function createDraftIssue(input: CreateDraftIssueInput) {
   } catch (error) {
     console.error("Failed to create draft issue", error);
     return err({ reason: "Failed to create draft issue", error });
+  }
+}
+
+/** Delete an issue and its book rows (cascade). */
+export async function deleteIssue(id: string) {
+  try {
+    await db.delete(magazineIssues).where(eq(magazineIssues.id, id));
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to delete issue", error);
+    return err({ reason: "Failed to delete issue", error });
+  }
+}
+
+/** Set an issue's lifecycle status (e.g. draft -> approved). */
+export async function setIssueStatus(id: string, status: MagazineIssueStatus) {
+  try {
+    await db
+      .update(magazineIssues)
+      .set({ status })
+      .where(eq(magazineIssues.id, id));
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to set issue status", error);
+    return err({ reason: "Failed to set issue status", error });
+  }
+}
+
+/** Remove one book from an issue (pruning a generated draft). */
+export async function removeIssueBook(issueId: string, bookId: string) {
+  try {
+    await db
+      .delete(magazineIssueBooks)
+      .where(
+        and(
+          eq(magazineIssueBooks.issueId, issueId),
+          eq(magazineIssueBooks.bookId, bookId),
+        ),
+      );
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to remove book from issue", error);
+    return err({ reason: "Failed to remove book from issue", error });
+  }
+}
+
+/** The next unused issue number (max + 1, or 1). */
+export async function nextIssueNumber(): Promise<number> {
+  const [row] = await db
+    .select({ max: sql<number | null>`max(${magazineIssues.issueNumber})` })
+    .from(magazineIssues);
+  return (row?.max ?? 0) + 1;
+}
+
+/** Set (or change) an issue's number. Fails if the number is taken. */
+export async function setIssueNumber(id: string, issueNumber: number) {
+  try {
+    const existing = await db.query.magazineIssues.findFirst({
+      where: and(
+        eq(magazineIssues.issueNumber, issueNumber),
+        sql`${magazineIssues.id} <> ${id}`,
+      ),
+      columns: { id: true },
+    });
+    if (existing) {
+      return err({ reason: `Issue number ${issueNumber} is already taken` });
+    }
+    await db
+      .update(magazineIssues)
+      .set({ issueNumber })
+      .where(eq(magazineIssues.id, id));
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to set issue number", error);
+    return err({ reason: "Failed to set issue number", error });
+  }
+}
+
+/**
+ * Toggle an issue between published and draft. Publishing assigns the next
+ * free issue number if it doesn't have one yet; unpublishing keeps the number.
+ * Returns the new published state.
+ */
+export async function togglePublish(id: string) {
+  try {
+    const issue = await db.query.magazineIssues.findFirst({
+      where: eq(magazineIssues.id, id),
+      columns: { status: true, issueNumber: true },
+    });
+    if (!issue) return err({ reason: "Issue not found" });
+
+    if (issue.status === "published") {
+      await db
+        .update(magazineIssues)
+        .set({ status: "draft" })
+        .where(eq(magazineIssues.id, id));
+      return ok(false as const);
+    }
+
+    const issueNumber = issue.issueNumber ?? (await nextIssueNumber());
+    await db
+      .update(magazineIssues)
+      .set({ status: "published", issueNumber })
+      .where(eq(magazineIssues.id, id));
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to toggle publish", error);
+    return err({ reason: "Failed to toggle publish", error });
+  }
+}
+
+/** Update editable issue details (title, subtitle, editor's letter). */
+export async function updateIssueDetails(
+  id: string,
+  fields: {
+    title?: string;
+    subtitle?: string | null;
+    editorsLetterTitle?: string | null;
+    editorsLetter?: string[];
+  },
+) {
+  try {
+    await db
+      .update(magazineIssues)
+      .set(fields)
+      .where(eq(magazineIssues.id, id));
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to update issue details", error);
+    return err({ reason: "Failed to update issue details", error });
+  }
+}
+
+/** Update the generated blurb for one book within an issue. */
+export async function updateIssueBookBlurb(
+  issueId: string,
+  bookId: string,
+  blurb: string | null,
+) {
+  try {
+    await db
+      .update(magazineIssueBooks)
+      .set({ blurb })
+      .where(
+        and(
+          eq(magazineIssueBooks.issueId, issueId),
+          eq(magazineIssueBooks.bookId, bookId),
+        ),
+      );
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to update book blurb", error);
+    return err({ reason: "Failed to update book blurb", error });
+  }
+}
+
+/** Update one movement's heading (kicker / lead / title) within an issue. */
+export async function updateIssueMovement(
+  issueId: string,
+  movementId: string,
+  fields: { kicker?: string; lead?: string; title?: string },
+) {
+  try {
+    const issue = await db.query.magazineIssues.findFirst({
+      where: eq(magazineIssues.id, issueId),
+      columns: { movements: true },
+    });
+    if (!issue) return err({ reason: "Issue not found" });
+
+    const movements = (issue.movements ?? []).map((m) =>
+      m.id === movementId ? { ...m, ...fields } : m,
+    );
+    await db
+      .update(magazineIssues)
+      .set({ movements })
+      .where(eq(magazineIssues.id, issueId));
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to update movement", error);
+    return err({ reason: "Failed to update movement", error });
   }
 }

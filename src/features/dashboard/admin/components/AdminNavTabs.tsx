@@ -23,6 +23,10 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         {plannerIcon}
         Planner
       </NavLink>
+      <NavLink href="/dashboard/admin/magazine" currentPath={currentPath}>
+        {booksIcon}
+        Magazine
+      </NavLink>
       <NavLink href="/dashboard/admin/analytics" currentPath={currentPath}>
         {analyticsIcon}
         Analytics

@@ -1,5 +1,5 @@
 type Props = {
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "draft" | "published";
 };
 
 const StatusPill = ({ status }: Props) => {
@@ -7,6 +7,8 @@ const StatusPill = ({ status }: Props) => {
     pending: "bg-yellow-200 text-yellow-800",
     approved: "bg-green-200 text-green-800",
     rejected: "bg-red-200 text-red-800",
+    draft: "bg-gray-200 text-gray-800",
+    published: "bg-primary text-on-primary",
   };
 
   return (
