@@ -2,6 +2,7 @@ import { createRoute } from "hono-fsr";
 import { getUser } from "../../../../utils";
 import { Context } from "hono";
 import AdminBooksTableAndFilter from "../../../../features/dashboard/admin/books/components/AdminBooksTableAndFilter";
+import { getIsMobile } from "../../../../lib/device";
 
 export const GET = createRoute(async (c: Context) => {
   const rawStatus = c.req.query("status");
@@ -15,6 +16,7 @@ export const GET = createRoute(async (c: Context) => {
   const currentPath = c.req.path;
   const searchQuery = c.req.query("search");
   const user = await getUser(c);
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   return c.html(
     <AdminBooksTableAndFilter
@@ -23,6 +25,7 @@ export const GET = createRoute(async (c: Context) => {
       currentPage={currentPage}
       searchQuery={searchQuery}
       currentPath={currentPath}
+      isMobile={isMobile}
     />,
   );
 });

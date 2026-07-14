@@ -57,6 +57,14 @@ export function creatorDescription(creator: {
   );
 }
 
+export function shelfDescription(ownerName: string, bookCount: number): string {
+  const countLabel =
+    bookCount === 1 ? "1 favorite photobook" : `${bookCount} favorite photobooks`;
+  return truncateDescription(
+    `Explore ${countLabel} on ${ownerName}'s shelf on photobookers.`,
+  );
+}
+
 export function tagDescription(tagLabel: string): string {
   return truncateDescription(
     `Browse ${tagLabel.toLowerCase()} photobooks on Photobookers — discover titles, artists, and publishers in one place.`,

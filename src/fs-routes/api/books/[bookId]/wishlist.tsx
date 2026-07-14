@@ -26,7 +26,7 @@ import { canWishlistBook } from "../../../../lib/permissions";
 import FavoriteButton from "../../../../features/api/components/FavouriteButton";
 import { routeParam } from "../../../../lib/routeParam";
 
-const updateLibraryPage = () => "library:updated";
+const updateShelfPage = () => "shelf:updated";
 
 export const POST = createRoute(async (c: Context) => {
   const isHyperview = getIsHyperview(c);
@@ -160,7 +160,7 @@ const postWishlistWeb = async (c: Context) => {
     <>
       <Alert type="success" message={message} />
       <FavoriteButton book={book} user={user} isCircleButton={isCircleButton} />
-      {shouldRefreshWishlist && dispatchEvents([updateLibraryPage()])}
+      {shouldRefreshWishlist && dispatchEvents([updateShelfPage()])}
     </>,
   );
 };

@@ -25,8 +25,10 @@ import {
   creatorInterviews,
   creators,
   follows,
+  users,
   wishlists,
 } from "../../db/schema";
+import { supabaseAdmin } from "../../lib/supabase";
 import { getPagination } from "../../lib/pagination";
 import {
   type BookCatalogSort,
@@ -1797,5 +1799,44 @@ export const getInterviewById = async (interviewId: string) => {
   } catch (error) {
     console.error("Failed to get interview by creator slug", error);
     return err({ reason: "Failed to get interview by creator slug", error });
+  }
+};
+
+/**
+ * Update the signed-in user's own name. Writes both the DB row and the
+ * Supabase auth user_metadata, because login (auth/set-session) re-syncs
+ * firstName/lastName from user_metadata into the users table — a DB-only
+ * update would be overwritten on the next sign-in.
+ */
+export const updateOwnUserProfile = async (
+  userId: string,
+  data: { firstName?: string | null; lastName?: string | null },
+) => {
+  try {
+    const firstName = data.firstName ?? null;
+    const lastName = data.lastName ?? null;
+
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      { user_metadata: { firstName, lastName } },
+    );
+    if (authError) {
+      return err({
+        reason: authError.message || "Failed to update profile",
+        cause: authError,
+      });
+    }
+
+    const [updated] = await db
+      .update(users)
+      .set({ firstName, lastName, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+
+    if (!updated) return err({ reason: "Failed to update profile" });
+    return ok(updated);
+  } catch (error) {
+    console.error("Failed to update user profile", error);
+    return err({ reason: "Failed to update profile", cause: error });
   }
 };

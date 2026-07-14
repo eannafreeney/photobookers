@@ -20,7 +20,7 @@ import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 import { routeParam } from "../../../../lib/routeParam";
 
-const updateLibraryPage = () => "library:updated";
+const updateShelfPage = () => "shelf:updated";
 
 export const POST = createRoute(async (c: Context) => {
   const isHyperview = getIsHyperview(c);
@@ -116,7 +116,7 @@ const postCollectWeb = async (c: Context) => {
       <Alert type="success" message={message} />
       <CollectButton book={book} user={user} isCircleButton={isCircleButton} />
       <div id="modal-root"></div>
-      {dispatchEvents([updateLibraryPage()])}
+      {dispatchEvents([updateShelfPage()])}
     </>,
   );
 };

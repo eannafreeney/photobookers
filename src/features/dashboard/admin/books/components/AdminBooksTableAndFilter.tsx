@@ -1,3 +1,4 @@
+import BooksOverviewMobile from "@/features/dashboard/books/components/BooksOverviewMobile";
 import { AuthUser } from "../../../../../../types";
 import Button from "../../../../../components/app/Button";
 import Card from "../../../../../components/app/Card";
@@ -24,6 +25,7 @@ type Props = {
   searchQuery?: string;
   currentPath: string;
   user: AuthUser | null;
+  isMobile: boolean;
 };
 
 const AdminBooksTableAndFilter = async ({
@@ -32,6 +34,7 @@ const AdminBooksTableAndFilter = async ({
   searchQuery,
   currentPath,
   user,
+  isMobile,
 }: Props) => {
   const [error, result] = await getAllBooksAdmin(
     currentPage,
@@ -56,6 +59,21 @@ const AdminBooksTableAndFilter = async ({
     "@ajax:before": "$dispatch('dialog:open')",
     "@books:updated.window": `$dispatch('dialog:close'); $ajax('/dashboard/admin/books', { target: 'books-table-container' })`,
   };
+
+  if (isMobile) {
+    if (!user) return <></>;
+    return (
+      <BooksOverviewMobile
+        books={books}
+        user={user}
+        currentPath={currentPath}
+        page={page}
+        totalPages={totalPages}
+        basePath="/dashboard/admin/books"
+        editBasePath="/dashboard/admin/books"
+      />
+    );
+  }
 
   return (
     <div x-data>

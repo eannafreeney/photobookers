@@ -129,6 +129,8 @@ export const users = pgTable("users", {
   firstName: varchar("first_name", { length: 255 }),
   lastName: varchar("last_name", { length: 255 }),
   profileImageUrl: text("profile_image_url"),
+  shelfSlug: varchar("shelf_slug", { length: 255 }).unique(),
+  shelfPublic: boolean("shelf_public").default(false).notNull(),
   acceptsTerms: timestamp("accepts_terms"),
   isAdmin: boolean("is_admin").default(false).notNull(),
   mustResetPassword: boolean("must_reset_password").default(false).notNull(),

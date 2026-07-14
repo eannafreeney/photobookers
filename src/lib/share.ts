@@ -62,6 +62,18 @@ export function creatorShareText(creator: CreatorShareFields): string {
   return `${creator.displayName} — ${label} on Photobookers`;
 }
 
+export function shelfProfileUrl(slug: string): string {
+  return `/shelf/${slug}`;
+}
+
+export function shelfShareTitle(ownerName: string): string {
+  return `${ownerName}'s shelf`;
+}
+
+export function shelfShareText(ownerName: string): string {
+  return `${ownerName}'s favorite photobooks on Photobookers`;
+}
+
 export function creatorOfTheWeekShareTitle(
   creator: CreatorShareFields,
   role: string,

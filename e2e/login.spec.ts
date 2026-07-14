@@ -13,20 +13,20 @@ test.describe("login", () => {
     await deleteE2eAuthUsers(trackedUserIds);
   });
 
-  test("password sign-in redirects to library", async ({ page }) => {
+  test("password sign-in redirects to shelf", async ({ page }) => {
     const user = await createE2eUser({ emailDomain: "example.com" });
     trackedUserIds.push(user.id);
 
-    await page.goto("/auth/login?redirectUrl=/library");
+    await page.goto("/auth/login?redirectUrl=/shelf");
 
     await expect(page.getByRole("heading", { name: "Sign In" })).toBeVisible();
     await page.getByPlaceholder("you@example.com").fill(user.email);
     await page.getByPlaceholder("••••••••").fill(user.password);
     await page.getByRole("button", { name: "Log In" }).click();
 
-    await expect(page).toHaveURL(/\/library$/);
+    await expect(page).toHaveURL(/\/shelf$/);
     await expect(
-      page.getByRole("heading", { name: "Favorited Books", level: 1 }),
+      page.getByRole("heading", { name: "Shelf", level: 1 }),
     ).toBeVisible();
   });
 });

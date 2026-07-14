@@ -15,7 +15,7 @@ Disallow: /fragments/
 Disallow: /jobs/
 Disallow: /claims/
 Disallow: /feed
-Disallow: /library
+Disallow: /shelf
 Disallow: /messages
 Disallow: /followed-creators
 Disallow: /books/preview/

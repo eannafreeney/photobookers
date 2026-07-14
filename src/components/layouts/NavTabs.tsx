@@ -16,7 +16,7 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         {feedIcon}
         Feed
       </NavLink>
-      <NavLink href="/library" currentPath={currentPath}>
+      <NavLink href="/shelf" currentPath={currentPath}>
         {libraryIcon(5)}
         Shelf
       </NavLink>

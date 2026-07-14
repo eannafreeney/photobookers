@@ -10,17 +10,30 @@ import { and, count, eq, gte, isNotNull, notExists } from "drizzle-orm";
 import { db } from "../../src/db/client";
 import { creators, users } from "../../src/db/schema";
 import { sendAdminEmail } from "../../src/lib/sendEmail";
+import {
+  describeJob,
+  extractEmailsSent,
+  parseCronResultFromLog,
+} from "./digestParsing";
 
 const WORKFLOW_FILE = "production-cron.yml";
 const DEFAULT_HOURS = 24;
 
 type GitHubJob = {
+  id: number;
   name: string;
   conclusion: string | null;
   status: string;
   html_url: string;
   started_at: string | null;
   completed_at: string | null;
+};
+
+type EnrichedJob = GitHubJob & {
+  runUrl: string;
+  runEvent: string;
+  description: string;
+  emailsSent: number | null;
 };
 
 type GitHubWorkflowRun = {
@@ -112,6 +125,50 @@ async function listRunJobs(
   return data.jobs;
 }
 
+// Job-level logs are served as plain text behind a 302 redirect to signed
+// storage. Returns null if logs are missing/expired rather than throwing, so a
+// single unreadable log never sinks the whole digest.
+async function fetchJobLogText(
+  token: string,
+  repo: string,
+  jobId: number,
+): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${repo}/actions/jobs/${jobId}/logs`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+        redirect: "manual",
+      },
+    );
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get("location");
+      if (!location) return null;
+      const logRes = await fetch(location);
+      return logRes.ok ? logRes.text() : null;
+    }
+    return res.ok ? res.text() : null;
+  } catch {
+    return null;
+  }
+}
+
+async function jobEmailsSent(
+  token: string,
+  repo: string,
+  job: GitHubJob,
+): Promise<number | null> {
+  if (job.conclusion !== "success") return null;
+  const log = await fetchJobLogText(token, repo, job.id);
+  if (!log) return null;
+  const result = parseCronResultFromLog(log);
+  return result ? extractEmailsSent(result) : null;
+}
+
 type DigestStats = {
   newlyVerifiedCreators: number;
   newFans: number;
@@ -156,15 +213,16 @@ function buildDigestHtml(params: {
   hours: number;
   since: Date;
   stats: DigestStats;
-  jobs: Array<GitHubJob & { runUrl: string; runEvent: string }>;
+  jobs: EnrichedJob[];
 }): string {
   const { repo, hours, since, stats, jobs } = params;
   const failures = jobs.filter((job) => job.conclusion === "failure");
+  const totalEmails = jobs.reduce((sum, job) => sum + (job.emailsSent ?? 0), 0);
   const actionsUrl = `https://github.com/${repo}/actions/workflows/${WORKFLOW_FILE}`;
 
   const rows =
     jobs.length === 0
-      ? `<tr><td colspan="4" style="padding:12px;color:#666;">No cron jobs ran in the last ${hours} hours.</td></tr>`
+      ? `<tr><td colspan="5" style="padding:12px;color:#666;">No cron jobs ran in the last ${hours} hours.</td></tr>`
       : jobs
           .map((job) => {
             const label = statusLabel(job.conclusion, job.status);
@@ -174,9 +232,14 @@ function buildDigestHtml(params: {
                 : label === "OK"
                   ? "#2f6b3c"
                   : "#666";
+            const description = job.description
+              ? `<div style="margin-top:2px;color:#8a857a;font-size:12px;">${escapeHtml(job.description)}</div>`
+              : "";
+            const emails = job.emailsSent === null ? "—" : String(job.emailsSent);
             return `<tr>
-  <td style="padding:8px 12px;border-top:1px solid #e4e0d5;">${escapeHtml(job.name)}</td>
+  <td style="padding:8px 12px;border-top:1px solid #e4e0d5;">${escapeHtml(job.name)}${description}</td>
   <td style="padding:8px 12px;border-top:1px solid #e4e0d5;color:${color};font-weight:600;">${escapeHtml(label)}</td>
+  <td style="padding:8px 12px;border-top:1px solid #e4e0d5;text-align:right;">${escapeHtml(emails)}</td>
   <td style="padding:8px 12px;border-top:1px solid #e4e0d5;">${escapeHtml(formatUtcTime(job.completed_at ?? job.started_at))}</td>
   <td style="padding:8px 12px;border-top:1px solid #e4e0d5;"><a href="${escapeHtml(job.html_url)}">logs</a></td>
 </tr>`;
@@ -188,13 +251,14 @@ function buildDigestHtml(params: {
       ? "newly verified creator"
       : "newly verified creators";
   const fanLabel = stats.newFans === 1 ? "new fan" : "new fans";
+  const emailLabel = totalEmails === 1 ? "email sent" : "emails sent";
 
-  return `<div style="font-family:ui-sans-serif,system-ui,sans-serif;color:#45413a;max-width:720px;">
+  return `<div style="font-family:ui-sans-serif,system-ui,sans-serif;color:#45413a;max-width:760px;">
   <h1 style="font-size:20px;margin:0 0 8px;">Cron digest</h1>
   <p style="margin:0 0 16px;color:#666;">${escapeHtml(repo)} · last ${hours}h since ${formatUtcTime(since.toISOString())}</p>
   <p style="margin:0 0 16px;padding:12px;background:#f2efe8;border-left:4px solid #45413a;">
     <strong>Last ${hours}h:</strong>
-    ${stats.newlyVerifiedCreators} ${creatorLabel} · ${stats.newFans} ${fanLabel}
+    ${totalEmails} ${emailLabel} · ${stats.newlyVerifiedCreators} ${creatorLabel} · ${stats.newFans} ${fanLabel}
   </p>
   ${
     failures.length > 0
@@ -206,12 +270,14 @@ function buildDigestHtml(params: {
       <tr style="background:#f2efe8;text-align:left;">
         <th style="padding:8px 12px;">Job</th>
         <th style="padding:8px 12px;">Status</th>
+        <th style="padding:8px 12px;text-align:right;">Emails</th>
         <th style="padding:8px 12px;">Completed</th>
         <th style="padding:8px 12px;">Link</th>
       </tr>
     </thead>
     <tbody>${rows}</tbody>
   </table>
+  <p style="margin:8px 0 0;color:#8a857a;font-size:12px;">Emails: “—” means no result was recorded (job failed or logs expired). Campaign sends (newsletter, CEO metrics, product digest) count as one send.</p>
   <p style="margin:16px 0 0;font-size:13px;"><a href="${actionsUrl}">View all runs in GitHub Actions</a></p>
 </div>`;
 }
@@ -229,12 +295,19 @@ const [runs, stats] = await Promise.all([
   fetchDigestStats(since),
 ]);
 
-const jobs: Array<GitHubJob & { runUrl: string; runEvent: string }> = [];
+const jobs: EnrichedJob[] = [];
 for (const run of runs) {
   const runJobs = await listRunJobs(token, repo, run.id);
   for (const job of runJobs) {
     if (job.conclusion === "skipped") continue;
-    jobs.push({ ...job, runUrl: run.html_url, runEvent: run.event });
+    const emailsSent = await jobEmailsSent(token, repo, job);
+    jobs.push({
+      ...job,
+      runUrl: run.html_url,
+      runEvent: run.event,
+      description: describeJob(job.name),
+      emailsSent,
+    });
   }
 }
 
@@ -245,6 +318,7 @@ jobs.sort((a, b) => {
 });
 
 const failures = jobs.filter((job) => job.conclusion === "failure").length;
+const totalEmails = jobs.reduce((sum, job) => sum + (job.emailsSent ?? 0), 0);
 const day = new Date().toISOString().slice(0, 10);
 const subject =
   failures > 0
@@ -266,6 +340,7 @@ console.log(
       runs: runs.length,
       jobs: jobs.length,
       failures,
+      totalEmails,
       newlyVerifiedCreators: stats.newlyVerifiedCreators,
       newFans: stats.newFans,
     },

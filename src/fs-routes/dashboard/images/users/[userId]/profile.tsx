@@ -11,11 +11,22 @@ import {
 import { updateUserProfileImageDB } from "../../../../../features/dashboard/images/services";
 import { UserIdContext } from "../../../../../features/dashboard/admin/users/types";
 import { userIdSchema } from "../../../../../schemas";
+import { getUser } from "../../../../../utils";
 
 export const POST = createRoute(
   paramValidator(userIdSchema),
   async (c: UserIdContext) => {
     const userId = c.req.valid("param").userId;
+
+    const user = await getUser(c);
+    if (!user) {
+      return showErrorAlert(c, "You must be signed in to do this.", 401);
+    }
+    // Only the owner (or an admin) may change a user's profile image.
+    if (userId !== user.id && !user.isAdmin) {
+      return showErrorAlert(c, "You can only edit your own profile.", 403);
+    }
+
     const body = await c.req.parseBody();
 
     const validatedFile = validateImageFile(body.userImageProfile);

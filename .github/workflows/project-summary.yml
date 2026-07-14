@@ -45,11 +45,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No summary changes."
           else
-            git commit -m "$(cat <<'EOF'
-chore: refresh LLM project summary
-
-Auto-generated from routes, schema, and docs/project-context.
-EOF
-)"
+            git commit -m "chore: refresh LLM project summary" -m "Auto-generated from routes, schema, and docs/project-context."
             git push
           fi

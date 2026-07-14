@@ -6,15 +6,12 @@ import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices";
 import NewsletterCard from "./NewsletterCard";
 import LazyLoader from "./LazyLoader";
-import SecondaryButtonLink, {
-  secondaryButtonLinkStyles,
-} from "./SecondaryButtonLink";
+import { secondaryButtonLinkStyles } from "./SecondaryButtonLink";
 import FeaturedSpotlightCarousel, {
   featuredSpotlightCarouselStyles,
 } from "./FeaturedSpotlightCarousel";
 import { trendingCreatorsStyles } from "./TrendingCreatorsSlider";
 import { getSpotlightItems } from "../lib/utils";
-import { toWeekString, toWeekStart } from "../../../lib/utils";
 import { storesSectionStyles } from "./StoresSection";
 import HomepageActivityPulse, {
   homepageActivityPulseStyles,
@@ -26,7 +23,7 @@ type Props = {
   user?: AuthUser | null;
 };
 
-const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
+const FeaturedHomeBody = async ({ baseUrl }: Props) => {
   const [
     [botdErr, botdData],
     [artistErr, artistData],
@@ -46,9 +43,6 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
     baseUrl,
   );
 
-  const weekStart = toWeekStart(new Date());
-  const thisWeekHref = `${baseUrl}/hyperview/this-week?week=${toWeekString(weekStart)}`;
-
   return (
     <View style="featured-home-body">
       {!activityError && activity ? (
@@ -58,7 +52,6 @@ const FeaturedHomeBody: FC<Props> = async ({ baseUrl }) => {
         />
       ) : null}
       <FeaturedSpotlightCarousel items={spotlightItems} />
-      <SecondaryButtonLink label="View this week →" href={thisWeekHref} />
       <LazyLoader
         id="groups-loader"
         href={`${baseUrl}/hyperview/featured/tab/groups`}

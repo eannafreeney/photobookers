@@ -1,419 +1,433 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1764701100011,
-      "tag": "0001_fantastic_starhawk",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1771792075828,
-      "tag": "0002_keen_harpoon",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1772702373092,
-      "tag": "0003_dapper_robin_chapel",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1773055444204,
-      "tag": "0004_medical_colonel_america",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1765000000000,
-      "tag": "0005_featured_books_of_the_week",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1765000000000,
-      "tag": "0006_artist_publisher_of_the_week",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1773316418153,
-      "tag": "0007_sudden_puff_adder",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1773415670969,
-      "tag": "0008_past_layla_miller",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1774288884122,
-      "tag": "0009_curly_alex_power",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1774300117100,
-      "tag": "0010_young_redwing",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1774518709942,
-      "tag": "0011_magenta_christian_walker",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "7",
-      "when": 1774518709942,
-      "tag": "0012_creator_weclcome_email",
-      "breakpoints": true
-    },
-    {
-      "idx": 13,
-      "version": "7",
-      "when": 1774528004905,
-      "tag": "0013_overrated_quentin_quire",
-      "breakpoints": true
-    },
-    {
-      "idx": 14,
-      "version": "7",
-      "when": 1775035258197,
-      "tag": "0014_romantic_xavin",
-      "breakpoints": true
-    },
-    {
-      "idx": 15,
-      "version": "7",
-      "when": 1775037654806,
-      "tag": "0015_new_cyclops",
-      "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "7",
-      "when": 1775133096352,
-      "tag": "0016_wet_ken_ellis",
-      "breakpoints": true
-    },
-    {
-      "idx": 17,
-      "version": "7",
-      "when": 1775133541913,
-      "tag": "0017_deep_toro",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "7",
-      "when": 1775133808080,
-      "tag": "0018_living_khan",
-      "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "7",
-      "when": 1775136638337,
-      "tag": "0019_parched_ezekiel",
-      "breakpoints": true
-    },
-    {
-      "idx": 20,
-      "version": "7",
-      "when": 1775146784461,
-      "tag": "0020_petite_surge",
-      "breakpoints": true
-    },
-    {
-      "idx": 21,
-      "version": "7",
-      "when": 1775555499915,
-      "tag": "0021_massive_hedge_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 22,
-      "version": "7",
-      "when": 1775581409709,
-      "tag": "0022_wide_aaron_stack",
-      "breakpoints": true
-    },
-    {
-      "idx": 23,
-      "version": "7",
-      "when": 1775582207283,
-      "tag": "0023_greedy_mesmero",
-      "breakpoints": true
-    },
-    {
-      "idx": 24,
-      "version": "7",
-      "when": 1776011283366,
-      "tag": "0024_dizzy_tarot",
-      "breakpoints": true
-    },
-    {
-      "idx": 25,
-      "version": "7",
-      "when": 1776333688073,
-      "tag": "0025_naive_northstar",
-      "breakpoints": true
-    },
-    {
-      "idx": 26,
-      "version": "7",
-      "when": 1777000000000,
-      "tag": "0026_creator_verified_at",
-      "breakpoints": true
-    },
-    {
-      "idx": 27,
-      "version": "7",
-      "when": 1776761615819,
-      "tag": "0027_yielding_anita_blake",
-      "breakpoints": true
-    },
-    {
-      "idx": 28,
-      "version": "7",
-      "when": 1776765445073,
-      "tag": "0028_charming_the_spike",
-      "breakpoints": true
-    },
-    {
-      "idx": 29,
-      "version": "7",
-      "when": 1779000000000,
-      "tag": "0029_book_of_the_day_consolidation",
-      "breakpoints": true
-    },
-    {
-      "idx": 30,
-      "version": "7",
-      "when": 1780000000000,
-      "tag": "0030_weekly_botd_newsletters",
-      "breakpoints": true
-    },
-    {
-      "idx": 31,
-      "version": "7",
-      "when": 1780100000000,
-      "tag": "0031_newsletter_scheduled_send",
-      "breakpoints": true
-    },
-    {
-      "idx": 32,
-      "version": "7",
-      "when": 1780200000000,
-      "tag": "0032_drop_newsletter_mailerlite_columns",
-      "breakpoints": true
-    },
-    {
-      "idx": 33,
-      "version": "7",
-      "when": 1780300000000,
-      "tag": "0033_simplify_newsletter_campaign",
-      "breakpoints": true
-    },
-    {
-      "idx": 34,
-      "version": "7",
-      "when": 1780400000000,
-      "tag": "0034_botd_instagram",
-      "breakpoints": true
-    },
-    {
-      "idx": 35,
-      "version": "7",
-      "when": 1780500000000,
-      "tag": "0035_aotw_potw_instagram",
-      "breakpoints": true
-    },
-    {
-      "idx": 36,
-      "version": "7",
-      "when": 1780937673181,
-      "tag": "0036_small_white_tiger",
-      "breakpoints": true
-    },
-    {
-      "idx": 37,
-      "version": "7",
-      "when": 1781008532106,
-      "tag": "0037_misty_rachel_grey",
-      "breakpoints": true
-    },
-    {
-      "idx": 38,
-      "version": "7",
-      "when": 1781009677321,
-      "tag": "0038_solid_reavers",
-      "breakpoints": true
-    },
-    {
-      "idx": 39,
-      "version": "7",
-      "when": 1781100000000,
-      "tag": "0039_botd_feature_day_emails",
-      "breakpoints": true
-    },
-    {
-      "idx": 40,
-      "version": "7",
-      "when": 1781200000000,
-      "tag": "0040_instagram_stories",
-      "breakpoints": true
-    },
-    {
-      "idx": 41,
-      "version": "7",
-      "when": 1781786844582,
-      "tag": "0041_mushy_squadron_sinister",
-      "breakpoints": true
-    },
-    {
-      "idx": 42,
-      "version": "7",
-      "when": 1781788207879,
-      "tag": "0042_daffy_nextwave",
-      "breakpoints": true
-    },
-    {
-      "idx": 43,
-      "version": "7",
-      "when": 1782121660061,
-      "tag": "0043_fearless_spyke",
-      "breakpoints": true
-    },
-    {
-      "idx": 44,
-      "version": "7",
-      "when": 1782127186446,
-      "tag": "0044_damp_sprite",
-      "breakpoints": true
-    },
-    {
-      "idx": 45,
-      "version": "7",
-      "when": 1782320118264,
-      "tag": "0045_smiling_gauntlet",
-      "breakpoints": true
-    },
-    {
-      "idx": 46,
-      "version": "7",
-      "when": 1782322905083,
-      "tag": "0046_polite_ultron",
-      "breakpoints": true
-    },
-    {
-      "idx": 47,
-      "version": "7",
-      "when": 1782499934173,
-      "tag": "0047_fat_morph",
-      "breakpoints": true
-    },
-    {
-      "idx": 48,
-      "version": "7",
-      "when": 1782679423740,
-      "tag": "0048_foamy_sunspot",
-      "breakpoints": true
-    },
-    {
-      "idx": 49,
-      "version": "7",
-      "when": 1782845165977,
-      "tag": "0049_kind_stellaris",
-      "breakpoints": true
-    },
-    {
-      "idx": 50,
-      "version": "7",
-      "when": 1782917788336,
-      "tag": "0050_parched_the_captain",
-      "breakpoints": true
-    },
-    {
-      "idx": 51,
-      "version": "7",
-      "when": 1783075598224,
-      "tag": "0051_perpetual_anthem",
-      "breakpoints": true
-    },
-    {
-      "idx": 52,
-      "version": "7",
-      "when": 1783094938261,
-      "tag": "0052_romantic_vector",
-      "breakpoints": true
-    },
-    {
-      "idx": 53,
-      "version": "7",
-      "when": 1783095172551,
-      "tag": "0053_mean_lockjaw",
-      "breakpoints": true
-    },
-    {
-      "idx": 54,
-      "version": "7",
-      "when": 1783096000000,
-      "tag": "0054_planner_featured_image_blurb",
-      "breakpoints": true
-    },
-    {
-      "idx": 55,
-      "version": "7",
-      "when": 1783097000000,
-      "tag": "0055_instagram_carousel_image_urls",
-      "breakpoints": true
-    },
-    {
-      "idx": 56,
-      "version": "7",
-      "when": 1783098000000,
-      "tag": "0056_verification_feedback_email_sent_at",
-      "breakpoints": true
-    },
-    {
-      "idx": 57,
-      "version": "7",
-      "when": 1783099000000,
-      "tag": "0057_creator_profile_share_email_sent_at",
-      "breakpoints": true
-    },
-    {
-      "idx": 58,
-      "version": "7",
-      "when": 1783100000000,
-      "tag": "0058_book_analytics_cascade_delete",
-      "breakpoints": true
-    },
-    {
-      "idx": 59,
-      "version": "7",
-      "when": 1783101000000,
-      "tag": "0059_creator_message_image_url",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1764701100011,
+			"tag": "0001_fantastic_starhawk",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1771792075828,
+			"tag": "0002_keen_harpoon",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1772702373092,
+			"tag": "0003_dapper_robin_chapel",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1773055444204,
+			"tag": "0004_medical_colonel_america",
+			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "7",
+			"when": 1765000000000,
+			"tag": "0005_featured_books_of_the_week",
+			"breakpoints": true
+		},
+		{
+			"idx": 6,
+			"version": "7",
+			"when": 1765000000000,
+			"tag": "0006_artist_publisher_of_the_week",
+			"breakpoints": true
+		},
+		{
+			"idx": 7,
+			"version": "7",
+			"when": 1773316418153,
+			"tag": "0007_sudden_puff_adder",
+			"breakpoints": true
+		},
+		{
+			"idx": 8,
+			"version": "7",
+			"when": 1773415670969,
+			"tag": "0008_past_layla_miller",
+			"breakpoints": true
+		},
+		{
+			"idx": 9,
+			"version": "7",
+			"when": 1774288884122,
+			"tag": "0009_curly_alex_power",
+			"breakpoints": true
+		},
+		{
+			"idx": 10,
+			"version": "7",
+			"when": 1774300117100,
+			"tag": "0010_young_redwing",
+			"breakpoints": true
+		},
+		{
+			"idx": 11,
+			"version": "7",
+			"when": 1774518709942,
+			"tag": "0011_magenta_christian_walker",
+			"breakpoints": true
+		},
+		{
+			"idx": 12,
+			"version": "7",
+			"when": 1774518709942,
+			"tag": "0012_creator_weclcome_email",
+			"breakpoints": true
+		},
+		{
+			"idx": 13,
+			"version": "7",
+			"when": 1774528004905,
+			"tag": "0013_overrated_quentin_quire",
+			"breakpoints": true
+		},
+		{
+			"idx": 14,
+			"version": "7",
+			"when": 1775035258197,
+			"tag": "0014_romantic_xavin",
+			"breakpoints": true
+		},
+		{
+			"idx": 15,
+			"version": "7",
+			"when": 1775037654806,
+			"tag": "0015_new_cyclops",
+			"breakpoints": true
+		},
+		{
+			"idx": 16,
+			"version": "7",
+			"when": 1775133096352,
+			"tag": "0016_wet_ken_ellis",
+			"breakpoints": true
+		},
+		{
+			"idx": 17,
+			"version": "7",
+			"when": 1775133541913,
+			"tag": "0017_deep_toro",
+			"breakpoints": true
+		},
+		{
+			"idx": 18,
+			"version": "7",
+			"when": 1775133808080,
+			"tag": "0018_living_khan",
+			"breakpoints": true
+		},
+		{
+			"idx": 19,
+			"version": "7",
+			"when": 1775136638337,
+			"tag": "0019_parched_ezekiel",
+			"breakpoints": true
+		},
+		{
+			"idx": 20,
+			"version": "7",
+			"when": 1775146784461,
+			"tag": "0020_petite_surge",
+			"breakpoints": true
+		},
+		{
+			"idx": 21,
+			"version": "7",
+			"when": 1775555499915,
+			"tag": "0021_massive_hedge_knight",
+			"breakpoints": true
+		},
+		{
+			"idx": 22,
+			"version": "7",
+			"when": 1775581409709,
+			"tag": "0022_wide_aaron_stack",
+			"breakpoints": true
+		},
+		{
+			"idx": 23,
+			"version": "7",
+			"when": 1775582207283,
+			"tag": "0023_greedy_mesmero",
+			"breakpoints": true
+		},
+		{
+			"idx": 24,
+			"version": "7",
+			"when": 1776011283366,
+			"tag": "0024_dizzy_tarot",
+			"breakpoints": true
+		},
+		{
+			"idx": 25,
+			"version": "7",
+			"when": 1776333688073,
+			"tag": "0025_naive_northstar",
+			"breakpoints": true
+		},
+		{
+			"idx": 26,
+			"version": "7",
+			"when": 1777000000000,
+			"tag": "0026_creator_verified_at",
+			"breakpoints": true
+		},
+		{
+			"idx": 27,
+			"version": "7",
+			"when": 1776761615819,
+			"tag": "0027_yielding_anita_blake",
+			"breakpoints": true
+		},
+		{
+			"idx": 28,
+			"version": "7",
+			"when": 1776765445073,
+			"tag": "0028_charming_the_spike",
+			"breakpoints": true
+		},
+		{
+			"idx": 29,
+			"version": "7",
+			"when": 1779000000000,
+			"tag": "0029_book_of_the_day_consolidation",
+			"breakpoints": true
+		},
+		{
+			"idx": 30,
+			"version": "7",
+			"when": 1780000000000,
+			"tag": "0030_weekly_botd_newsletters",
+			"breakpoints": true
+		},
+		{
+			"idx": 31,
+			"version": "7",
+			"when": 1780100000000,
+			"tag": "0031_newsletter_scheduled_send",
+			"breakpoints": true
+		},
+		{
+			"idx": 32,
+			"version": "7",
+			"when": 1780200000000,
+			"tag": "0032_drop_newsletter_mailerlite_columns",
+			"breakpoints": true
+		},
+		{
+			"idx": 33,
+			"version": "7",
+			"when": 1780300000000,
+			"tag": "0033_simplify_newsletter_campaign",
+			"breakpoints": true
+		},
+		{
+			"idx": 34,
+			"version": "7",
+			"when": 1780400000000,
+			"tag": "0034_botd_instagram",
+			"breakpoints": true
+		},
+		{
+			"idx": 35,
+			"version": "7",
+			"when": 1780500000000,
+			"tag": "0035_aotw_potw_instagram",
+			"breakpoints": true
+		},
+		{
+			"idx": 36,
+			"version": "7",
+			"when": 1780937673181,
+			"tag": "0036_small_white_tiger",
+			"breakpoints": true
+		},
+		{
+			"idx": 37,
+			"version": "7",
+			"when": 1781008532106,
+			"tag": "0037_misty_rachel_grey",
+			"breakpoints": true
+		},
+		{
+			"idx": 38,
+			"version": "7",
+			"when": 1781009677321,
+			"tag": "0038_solid_reavers",
+			"breakpoints": true
+		},
+		{
+			"idx": 39,
+			"version": "7",
+			"when": 1781100000000,
+			"tag": "0039_botd_feature_day_emails",
+			"breakpoints": true
+		},
+		{
+			"idx": 40,
+			"version": "7",
+			"when": 1781200000000,
+			"tag": "0040_instagram_stories",
+			"breakpoints": true
+		},
+		{
+			"idx": 41,
+			"version": "7",
+			"when": 1781786844582,
+			"tag": "0041_mushy_squadron_sinister",
+			"breakpoints": true
+		},
+		{
+			"idx": 42,
+			"version": "7",
+			"when": 1781788207879,
+			"tag": "0042_daffy_nextwave",
+			"breakpoints": true
+		},
+		{
+			"idx": 43,
+			"version": "7",
+			"when": 1782121660061,
+			"tag": "0043_fearless_spyke",
+			"breakpoints": true
+		},
+		{
+			"idx": 44,
+			"version": "7",
+			"when": 1782127186446,
+			"tag": "0044_damp_sprite",
+			"breakpoints": true
+		},
+		{
+			"idx": 45,
+			"version": "7",
+			"when": 1782320118264,
+			"tag": "0045_smiling_gauntlet",
+			"breakpoints": true
+		},
+		{
+			"idx": 46,
+			"version": "7",
+			"when": 1782322905083,
+			"tag": "0046_polite_ultron",
+			"breakpoints": true
+		},
+		{
+			"idx": 47,
+			"version": "7",
+			"when": 1782499934173,
+			"tag": "0047_fat_morph",
+			"breakpoints": true
+		},
+		{
+			"idx": 48,
+			"version": "7",
+			"when": 1782679423740,
+			"tag": "0048_foamy_sunspot",
+			"breakpoints": true
+		},
+		{
+			"idx": 49,
+			"version": "7",
+			"when": 1782845165977,
+			"tag": "0049_kind_stellaris",
+			"breakpoints": true
+		},
+		{
+			"idx": 50,
+			"version": "7",
+			"when": 1782917788336,
+			"tag": "0050_parched_the_captain",
+			"breakpoints": true
+		},
+		{
+			"idx": 51,
+			"version": "7",
+			"when": 1783075598224,
+			"tag": "0051_perpetual_anthem",
+			"breakpoints": true
+		},
+		{
+			"idx": 52,
+			"version": "7",
+			"when": 1783094938261,
+			"tag": "0052_romantic_vector",
+			"breakpoints": true
+		},
+		{
+			"idx": 53,
+			"version": "7",
+			"when": 1783095172551,
+			"tag": "0053_mean_lockjaw",
+			"breakpoints": true
+		},
+		{
+			"idx": 54,
+			"version": "7",
+			"when": 1783096000000,
+			"tag": "0054_planner_featured_image_blurb",
+			"breakpoints": true
+		},
+		{
+			"idx": 55,
+			"version": "7",
+			"when": 1783097000000,
+			"tag": "0055_instagram_carousel_image_urls",
+			"breakpoints": true
+		},
+		{
+			"idx": 56,
+			"version": "7",
+			"when": 1783098000000,
+			"tag": "0056_verification_feedback_email_sent_at",
+			"breakpoints": true
+		},
+		{
+			"idx": 57,
+			"version": "7",
+			"when": 1783099000000,
+			"tag": "0057_creator_profile_share_email_sent_at",
+			"breakpoints": true
+		},
+		{
+			"idx": 58,
+			"version": "7",
+			"when": 1783100000000,
+			"tag": "0058_book_analytics_cascade_delete",
+			"breakpoints": true
+		},
+		{
+			"idx": 59,
+			"version": "7",
+			"when": 1783101000000,
+			"tag": "0059_creator_message_image_url",
+			"breakpoints": true
+		},
+		{
+			"idx": 60,
+			"version": "7",
+			"when": 1783102000000,
+			"tag": "0060_verified_creator_instagram_preview",
+			"breakpoints": true
+		},
+		{
+			"idx": 61,
+			"version": "7",
+			"when": 1783103000000,
+			"tag": "0061_public_shelf",
+			"breakpoints": true
+		}
+	]
 }
