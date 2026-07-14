@@ -1,11 +1,11 @@
 import { createRoute } from "hono-fsr";
 import AppLayout from "@/components/layouts/AppLayout";
 import Page from "@/components/layouts/Page";
-import MagazineIssue01Page from "@/features/app/components/magazine/MagazineIssue01Page";
+import MagazineIssue02Page from "@/features/app/components/magazine/MagazineIssue02Page";
 import {
-  issue01BookEntries,
-  issue01Meta,
-} from "@/features/app/content/magazine/issue01OnTheSidewalk";
+  issue02Meta,
+  issue02OrderedSlugs,
+} from "@/features/app/content/magazine/issue02AfterMidnight";
 import { getMagazineBooksBySlugs } from "@/features/app/magazine/services";
 import { isFeatureEnabledForUser } from "@/lib/features";
 import InfoPage from "@/pages/InfoPage";
@@ -13,7 +13,7 @@ import { canonicalUrl, pageTitle, truncateDescription } from "@/lib/seo";
 import { heroLcpImageSources } from "@/lib/imageUrl";
 import { getUser } from "@/utils";
 
-const path = `/magazine/${issue01Meta.slug}`;
+const path = `/magazine/${issue02Meta.slug}`;
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -22,16 +22,15 @@ export const GET = createRoute(async (c) => {
   }
   const currentPath = c.req.path;
 
-  const slugs = issue01BookEntries.map((entry) => entry.slug);
-  const [booksError, books] = await getMagazineBooksBySlugs(slugs);
+  const [booksError, books] = await getMagazineBooksBySlugs(issue02OrderedSlugs);
   if (booksError) {
     return c.html(<InfoPage errorMessage={booksError.reason} user={user} />);
   }
 
-  const title = pageTitle(`${issue01Meta.kicker}: ${issue01Meta.title}`);
-  const description = truncateDescription(issue01Meta.subtitle);
+  const title = pageTitle(`${issue02Meta.kicker}: ${issue02Meta.title}`);
+  const description = truncateDescription(issue02Meta.subtitle);
   const issueCanonicalUrl = canonicalUrl(c.req.url, path);
-  const shareImage = issue01Meta.coverUrl;
+  const shareImage = issue02Meta.bannerUrl;
 
   if (!user) {
     c.header("Vary", "Cookie");
@@ -56,7 +55,7 @@ export const GET = createRoute(async (c) => {
       preloadLcpImage={heroLcpImageSources(shareImage)}
     >
       <Page>
-        <MagazineIssue01Page books={books} />
+        <MagazineIssue02Page books={books} />
       </Page>
     </AppLayout>,
   );

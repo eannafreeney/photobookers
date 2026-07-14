@@ -4,5 +4,6 @@
   "interviews": false,
   "fairs": true,
   "stores": true,
-  "publicShelf": false
+  "publicShelf": false,
+  "magazine": false
 }
