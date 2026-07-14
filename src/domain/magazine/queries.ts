@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "@/db/client";
+import { client, db } from "@/db/client";
 import {
   magazineIssues,
   type MagazineIssueStatus,
@@ -32,6 +32,7 @@ export type MagazineIssueView = {
   kicker: string | null;
   title: string;
   subtitle: string | null;
+  theme: string | null;
   editorsLetterTitle: string | null;
   editorsLetter: string[];
   movements: MagazineMovementData[];
@@ -73,6 +74,23 @@ function findIssueBySlug(slug: string) {
   });
 }
 
+function findIssueById(id: string) {
+  return db.query.magazineIssues.findFirst({
+    where: eq(magazineIssues.id, id),
+    with: {
+      books: {
+        orderBy: (table, { asc }) => [asc(table.sortOrder)],
+        with: {
+          book: {
+            columns: BOOK_CARD_COLUMNS,
+            with: { artist: { columns: CREATOR_CARD_COLUMNS } },
+          },
+        },
+      },
+    },
+  });
+}
+
 function toIssueView(issue: IssueWithBooks): MagazineIssueView {
   const placements: MagazineIssuePlacement[] = issue.books.map(
     (entry, index) => ({
@@ -95,6 +113,7 @@ function toIssueView(issue: IssueWithBooks): MagazineIssueView {
     kicker: issue.kicker,
     title: issue.title,
     subtitle: issue.subtitle,
+    theme: issue.theme,
     editorsLetterTitle: issue.editorsLetterTitle,
     editorsLetter: issue.editorsLetter ?? [],
     movements: issue.movements ?? [],
@@ -115,6 +134,54 @@ export async function getPublishedIssueBySlug(slug: string) {
   } catch (error) {
     console.error("Failed to load magazine issue", error);
     return err({ reason: "Failed to load magazine issue", error });
+  }
+}
+
+/** Load any issue (any status) by id for the admin editor. */
+export async function getIssueByIdForAdmin(id: string) {
+  try {
+    const issue = await findIssueById(id);
+    if (!issue) return ok(null);
+    return ok(toIssueView(issue));
+  } catch (error) {
+    console.error("Failed to load magazine issue", error);
+    return err({ reason: "Failed to load magazine issue", error });
+  }
+}
+
+export type AdminIssueListItem = {
+  id: string;
+  status: MagazineIssueStatus;
+  issueNumber: number | null;
+  slug: string;
+  title: string;
+  theme: string | null;
+  bookCount: number;
+  createdAt: string | null;
+};
+
+/** All issues for the admin list, published first then newest drafts. */
+export async function listAllIssuesForAdmin() {
+  try {
+    const rows = await client<AdminIssueListItem[]>`
+      SELECT
+        i.id,
+        i.status,
+        i.issue_number AS "issueNumber",
+        i.slug,
+        i.title,
+        i.theme,
+        (SELECT count(*)::int FROM magazine_issue_books m WHERE m.issue_id = i.id) AS "bookCount",
+        i.created_at AS "createdAt"
+      FROM magazine_issues i
+      ORDER BY
+        CASE i.status WHEN 'published' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END,
+        i.issue_number DESC NULLS LAST,
+        i.created_at DESC`;
+    return ok(rows);
+  } catch (error) {
+    console.error("Failed to list issues", error);
+    return err({ reason: "Failed to list issues", error });
   }
 }
 
