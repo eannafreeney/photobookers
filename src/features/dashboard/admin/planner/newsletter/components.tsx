@@ -166,8 +166,10 @@ export const BookFeatureCard = ({ book }: BookFeatureCardProps) => {
           {kicker && <Kicker>{kicker}</Kicker>}
           <Title>{book.title}</Title>
           {book.blurb ? <BodyCopy>{book.blurb}</BodyCopy> : null}
-          <SubTitle>{book.artistName}</SubTitle>
-          <SubTitle>{book.publisherName}</SubTitle>
+          <SubTitle>
+            {book.artistName}{" "}
+            {book.publisherName ? `– ${book.publisherName}` : null}
+          </SubTitle>
           <ViewButton href={`${appBaseUrl}/books/${book.bookSlug}`} />
         </Column>
       </Row>
@@ -229,7 +231,7 @@ const Title = ({ children }: { children: ReactNode }) => (
       fontFamily: brand.fontDisplay,
       textAlign: "center",
     }}
-    className="m-0 mb-2 text-[18px] leading-[1.2] font-medium text-center"
+    className="m-0 mb-2 text-3xl leading-[1.2] font-medium text-center"
   >
     {children}
   </Text>
@@ -238,7 +240,7 @@ const Title = ({ children }: { children: ReactNode }) => (
 const SubTitle = ({ children }: { children: ReactNode }) => (
   <Text
     style={{ color: brand.onSurface, textAlign: "center" }}
-    className="m-0 text-sm leading-normal text-center"
+    className="m-0 text-md leading-normal text-center"
   >
     {children}
   </Text>
@@ -247,7 +249,7 @@ const SubTitle = ({ children }: { children: ReactNode }) => (
 const BodyCopy = ({ children }: { children: ReactNode }) => (
   <Text
     style={{ color: brand.onSurface, textAlign: "center" }}
-    className="mt-0 mb-3 text-sm leading-[1.6] text-center"
+    className="mt-0 mb-3 text-md leading-[1.6] text-center"
   >
     {children}
   </Text>
