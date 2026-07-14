@@ -3,7 +3,7 @@ ABOUT THIS DOCUMENT
 =======================
 
 Machine-readable project summary for LLMs and external tooling.
-Generated: 2026-07-11T17:29:44.854Z
+Generated: 2026-07-14T08:02:48.200Z
 Source repo path: .
 Endpoint: GET /api/project-summary.txt
 
@@ -78,93 +78,11 @@ src/
   middleware/              — auth guards
   lib/                     — shared utilities
 
-Domain modules (10): ceo-metrics, claims, creator-profile-share, creators, daily-product-digest, db, interviews, notifications, planner, verification-feedback
+Domain modules (12): ceo-metrics, claims, creator-profile-share, creators, daily-product-digest, db, interviews, notifications, planner, server-errors, shelf, verification-feedback
 
 Feature modules (20): api, app, app-store-analytics, auth, book-analytics, book-views, claims, creator-analytics-digest, creator-views, dashboard, fair-attendees, fair-views, hyperview, interviews, jobs, legal, newsletter-analytics, purchase-clicks, site-analytics, stub-outreach
 
 Import rule: public (app) and hyperview routes must import shared logic from src/domain/, not admin features (enforced by npm run lint).
-
-### Project Overview
-`photobookers` is a full-stack TypeScript app for discovering and managing photobooks.
-
-- Server: Hono on Node (`src/server.ts` → `src/index.tsx`)
-- Web UI: Server-rendered Hono JSX (`hono/jsx`) with Tailwind CSS + PenguinUI
-- Client interactivity: Alpine.js (`src/client/`) with `alpine-ajax` for partial updates
-- Mobile: Separate Expo app in `mobile-expo/` consuming Hyperview XML routes under `src/fs-routes/hyperview/`
-- Database: Postgres via Drizzle ORM (`src/db/schema.ts`)
-- Auth: Supabase Auth + `@hono/session` middleware
-
-React is used only in a few places (e.g. MJML newsletter templates). Default to Hono JSX for new UI.
-
-### Architecture
-[code block omitted]
-
-Domain layer (`src/domain/`)
-
-Shared business logic used by more than one surface (public web, Hyperview, creator dashboard, admin, API, cron, auth). Not UI.
-
-Decision test (in order):
-
-1. Is it UI (components, Alpine, HTML partials)? → features, not domain.
-2. Is it imported from outside admin (API, cron, `(app)/`, `hyperview/`, claims, auth)? → domain candidate.
-3. Does it describe product behavior both apps would need after a future split? → domain, even if only admin uses it today.
-
-Import rules:
-
-- `(app)/` and `hyperview/` routes must import shared logic from `src/domain/`, never `features/dashboard/admin/`. Enforced by `npm run lint`.
-- `domain/` must not import admin UI. It may import `db/`, `lib/`, and other domain modules; calling admin-only planner helpers from domain is a smell — extract the shared part instead.
-- When moving code to domain, leave a re-export in the old admin path if it keeps admin imports stable.
-
-Current domain modules: `notifications/`, `claims/owner.ts`, `planner/` (utils + cron services), `creators/books.ts`, `interviews/token.ts`.
-
-Client bundles: `main.js` is for public/creator Alpine; `admin.js` loads only on `/dashboard/ad…
-
-[truncated]
-
-### Routing
-Routes live in `src/fs-routes/` and are registered via `hono-fsr`. After adding or renaming route files, the manifest must be regenerated (`npm run dev:fsr` or `npm run build`).
-
-Top-level route groups: `(app)/` (public web), `dashboard/`, `hyperview/` (mobile), `auth/`, `api/`, `claims/`, `jobs/`.
-
-Rendering patterns
-
-- Web pages: Hono JSX components return HTML via `c.html(...)`. Use Alpine `x-data` attributes for interactivity; register Alpine components in `src/client/`.
-- Hyperview (mobile): Routes return XML using helpers in `src/lib/hxml-comps.tsx` (`View`, `Text`, `Behavior`, etc.) and `hyperview(c)` from `src/lib/hxml`.
-- Forms: `methodOverride` is enabled (`_method` field). Prefer `alpine-ajax` patterns already used in surrounding code.
-
-Auth & middleware
-
-- `optionalAuthMiddleware` runs globally; use `requireAuth`, `requireAdmin`, `creatorGuard` on protected routes.
-- Session secret: `AUTH_SECRET` env var (required at startup).
-- Supabase client helpers: `src/lib/supabase.ts`.
-
-Path alias
-
-`@/` maps to `src/` (configured in `vite.config.ts` and `vitest.config.ts`).
-
-### Rendering patterns
-- Web pages: Hono JSX components return HTML via `c.html(...)`. Use Alpine `x-data` attributes for interactivity; register Alpine components in `src/client/`.
-- Hyperview (mobile): Routes return XML using helpers in `src/lib/hxml-comps.tsx` (`View`, `Text`, `Behavior`, etc.) and `hyperview(c)` from `src/lib/hxml`.
-- Forms: `methodOverride` is enabled (`_method` field). Prefer `alpine-ajax` patterns already used in surrounding code.
-
-Auth & middleware
-
-- `optionalAuthMiddleware` runs globally; use `requireAuth`, `requireAdmin`, `creatorGuard` on protected routes.
-- Session secret: `AUTH_SECRET` env var (required at startup).
-- Supabase client helpers: `src/lib/supabase.ts`.
-
-Path alias
-
-`@/` maps to `src/` (configured in `vite.config.ts` and `vitest.config.ts`).
-
-### Auth & middleware
-- `optionalAuthMiddleware` runs globally; use `requireAuth`, `requireAdmin`, `creatorGuard` on protected routes.
-- Session secret: `AUTH_SECRET` env var (required at startup).
-- Supabase client helpers: `src/lib/supabase.ts`.
-
-Path alias
-
-`@/` maps to `src/` (configured in `vite.config.ts` and `vitest.config.ts`).
 
 =====================================
 CURRENT LIMITATIONS & PAIN POINTS
@@ -203,46 +121,31 @@ Roadmap & next priorities
 Edit this file to keep the auto-generated project summary aligned with team intent.
 The GitHub Action merges this into `public/project-summary.txt` on each update.
 
-Near term
-
-- Continue editorial automation (planner cron emails, Instagram queue, daily product digest).
-- Improve creator onboarding: stub outreach, claim flow, verification feedback.
-- Expand mobile Hyperview parity with public web where gaps remain.
-
-Medium term
-
-- Enable interviews feature flag once content pipeline is ready.
-- Deepen analytics for creators (milestones, audience, purchase clicks).
-- Reduce admin planner manual steps (spotlight copy, featured hero prep).
-
-Longer term
-
-- Consider splitting domain layer for a future API/mobile backend separation.
-- Evaluate search and discovery performance at scale.
+- Start a digital magazine. Each monthly issue is based on a theme and selects 8-10 books from the database that have this theme and then present a piece about each one.
 
 ==============================
 ROUTE / ENDPOINT STRUCTURE
 ==============================
 
-Total registered routes: 266
+Total registered routes: 275
 Routing: hono-fsr file-system routes in src/fs-routes/
 
-Public web (52 routes) — Server-rendered pages for fans and discovery
+Public web (56 routes) — Server-rendered pages for fans and discovery
   Examples: /, /about, /artist-of-the-week, /artist-of-the-week/:week, /artists, /book-of-the-day, /book-of-the-day/:date, /books, /books/:slug, /books/preview/:slug
 
-API (11 routes) — JSON/partials for likes, comments, follows, newsletter, activity
-  Examples: /api/activity/stream, /api/books/:bookId/collect, /api/books/:bookId/comments, /api/books/:bookId/comments/:commentId, /api/books/:bookId/like, /api/books/:bookId/wishlist, /api/creators/:creatorId/follow, /api/fairs/:fairId/attend, /api/newsletter, /api/project-summary.txt, /api/users/:userId/profile-image
+API (12 routes) — JSON/partials for likes, comments, follows, newsletter, activity
+  Examples: /api/activity/stream, /api/books/:bookId/collect, /api/books/:bookId/comments, /api/books/:bookId/comments/:commentId, /api/books/:bookId/like, /api/books/:bookId/wishlist, /api/creators/:creatorId/follow, /api/fairs/:fairId/attend, /api/newsletter, /api/project-summary.txt, /api/users/:userId/profile-image, /api/users/me/shelf-sharing
 
 Auth (16 routes) — Login, registration, password reset, Supabase callback
   Examples: /auth/accounts, /auth/callback, /auth/force-reset-password, /auth/forgot-password, /auth/login, /auth/logout, /auth/register, /auth/register-creator, /auth/register-fan, /auth/resend-verification
 
-Dashboard (102 routes) — Creator and admin dashboards
+Dashboard (103 routes) — Creator and admin dashboards
   Examples: /dashboard/admin, /dashboard/admin/analytics, /dashboard/admin/analytics/fans, /dashboard/admin/analytics/verified-creators, /dashboard/admin/books, /dashboard/admin/books/:bookId, /dashboard/admin/books/:bookId/approve, /dashboard/admin/books/:bookId/reject, /dashboard/admin/books/books-table-filter, /dashboard/admin/books/create
 
 Hyperview (mobile) (62 routes) — XML routes consumed by the Expo mobile app
   Examples: /hyperview/+layout, /hyperview/about, /hyperview/accounts, /hyperview/artist-of-the-week, /hyperview/artist-of-the-week/:week, /hyperview/auth-modal, /hyperview/book-of-the-day, /hyperview/book-of-the-day/:date, /hyperview/books, /hyperview/books/:bookId/tab/artist
 
-Jobs / cron HTTP (18 routes) — Authenticated cron endpoints hit by GitHub Actions
+Jobs / cron HTTP (21 routes) — Authenticated cron endpoints hit by GitHub Actions
   Examples: /jobs/cron/botd-advance-notification-emails, /jobs/cron/botd-feature-day-emails, /jobs/cron/ceo-metrics-email, /jobs/cron/creator-analytics-digest, /jobs/cron/creator-milestone-emails, /jobs/cron/creator-profile-share-emails, /jobs/cron/daily-botd-instagram, /jobs/cron/daily-product-digest, /jobs/cron/instagram-prep-reminder-email, /jobs/cron/interview-reminder-emails
 
 Claims (5 routes) — Creator account claim flow
@@ -260,6 +163,7 @@ Public JSON/HTML API endpoints (sample):
 - /api/newsletter
 - /api/project-summary.txt
 - /api/users/:userId/profile-image
+- /api/users/me/shelf-sharing
 
 ===================
 DATABASE SCHEMA
@@ -331,6 +235,8 @@ BACKGROUND JOBS (CRON)
 - notify-followers-new-books
 - notify-followers-new-posts
 - weekly-botd-newsletter
+- weekly-botd-newsletter-test
+- weekly-trending-instagram
 - instagram-prep-reminder-email
 - planner-content-preview-email
 - creator-analytics-digest
@@ -350,7 +256,9 @@ FEATURE FLAGS
   "comments": true,
   "interviews": false,
   "fairs": true,
-  "stores": true
+  "stores": true,
+  "publicShelf": false,
+  "magazine": false
 }
 
 ===========================
@@ -362,7 +270,7 @@ KEY CONFIGURATION FILES
 - vite.config.ts: Dev server, build, path alias @/
 - vitest.config.ts: Unit test runner config
 - featureFlags.json: Runtime feature toggles
-- CLAUDE.md: Developer architecture guide
+- CLAUDE.md (missing): Developer architecture guide
 - src/db/schema.ts: Drizzle schema (source of truth for DB)
 - src/fs-routes.manifest.ts: Generated route manifest (hono-fsr)
 - src/jobs/cronRunners.ts: Scheduled job registry
