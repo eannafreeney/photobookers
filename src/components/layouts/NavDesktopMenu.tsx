@@ -135,7 +135,7 @@ const DropDownMenu = ({
         </div>
       </li>
       {user?.id && !user.creator && (
-        <NavLink href={`/users/${user?.id}/update`} xTarget="modal-root">
+        <NavLink href={`/users/${user?.id}/edit`} currentPath={currentPath}>
           Edit Profile
         </NavLink>
       )}
@@ -162,9 +162,6 @@ const DropDownMenu = ({
       )}
       {user && (
         <>
-          <NavLink href="/followed-creators" currentPath={currentPath}>
-            Creators I Follow
-          </NavLink>
           <NavLink
             href="/auth/reset-password"
             currentPath={currentPath}

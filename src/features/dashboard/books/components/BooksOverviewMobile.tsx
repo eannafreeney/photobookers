@@ -10,12 +10,21 @@ import BookApprovalStatusPill from "../../admin/books/components/BookApprovalSta
 import { canEditBook } from "../../../../lib/permissions";
 import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
 
+type MobileBook = Book & {
+  artist: Pick<Creator, "id" | "displayName" | "slug"> | null;
+  publisher: Pick<Creator, "id" | "displayName" | "slug"> | null;
+};
+
 type BooksOverviewMobileProps = {
-  books: (Book & { artist: Creator | null; publisher: Creator | null })[];
+  books: MobileBook[];
   user: AuthUser;
   currentPath: string;
   page: number;
   totalPages: number;
+  /** List route used for search + live refresh (e.g. "/dashboard/admin/books"). */
+  basePath?: string;
+  /** Base for a book's edit/cover/delete routes (e.g. "/dashboard/admin/books"). */
+  editBasePath?: string;
 };
 
 const BooksOverviewMobile = ({
@@ -24,13 +33,14 @@ const BooksOverviewMobile = ({
   currentPath,
   page,
   totalPages,
+  basePath = "/dashboard",
+  editBasePath = "/dashboard/books",
 }: BooksOverviewMobileProps) => {
   const targetId = "books-table-body";
 
   const listAttrs = {
     "x-init": "true",
-    "@books:updated.window":
-      "$ajax('/dashboard', { target: 'books-table-body' })",
+    "@books:updated.window": `$ajax('${basePath}', { target: '${targetId}' })`,
   };
 
   return (
@@ -39,26 +49,14 @@ const BooksOverviewMobile = ({
         <TableSearch
           isMobile
           target="books-table"
-          action="/dashboard"
+          action={basePath}
           placeholder="Filter books..."
         />
-        <div class="flex flex-wrap items-center gap-2">
-          <Link href="/dashboard/books/import">
-            <Button variant="outline" color="inverse">
-              Import CSV
-            </Button>
-          </Link>
-          <Link href="/dashboard/books/new">
-            <Button variant="solid" color="primary">
-              New Book
-            </Button>
-          </Link>
-        </div>
       </div>
 
       <ul id={targetId} class="flex flex-col gap-4" {...listAttrs}>
         {books.map((book) => (
-          <BookCardMobile book={book} user={user} />
+          <BookCardMobile book={book} user={user} editBasePath={editBasePath} />
         ))}
       </ul>
 
@@ -77,11 +75,12 @@ const BooksOverviewMobile = ({
 export default BooksOverviewMobile;
 
 type RowProps = {
-  book: Book & { artist: Creator | null; publisher: Creator | null };
+  book: MobileBook;
   user: AuthUser;
+  editBasePath: string;
 };
 
-const BookCardMobile = ({ book, user }: RowProps) => {
+const BookCardMobile = ({ book, user, editBasePath }: RowProps) => {
   if (!book?.id || !book.slug || !book.title) {
     return null;
   }
@@ -98,7 +97,7 @@ const BookCardMobile = ({ book, user }: RowProps) => {
                 class="h-20 w-14 object-cover rounded-sm"
               />
             ) : (
-              <a href={`/dashboard/books/${book.id}#book-images`}>
+              <a href={`${editBasePath}/${book.id}#book-images`}>
                 <Button variant="outline" color="warning">
                   <span>Upload Cover</span>
                 </Button>
@@ -117,6 +116,24 @@ const BookCardMobile = ({ book, user }: RowProps) => {
                 {book.title}
               </p>
             </Link>
+            {book.artist ? (
+              <Link
+                href={`/creators/${book.artist.slug}`}
+                className="block text-sm text-on-surface-weak line-clamp-1"
+                hoverUnderline
+              >
+                {book.artist.displayName}
+              </Link>
+            ) : null}
+            {book.publisher ? (
+              <Link
+                href={`/creators/${book.publisher.slug}`}
+                className="block text-sm text-on-surface-weak line-clamp-1"
+                hoverUnderline
+              >
+                {book.publisher.displayName}
+              </Link>
+            ) : null}
           </div>
         </div>
 
@@ -135,7 +152,7 @@ const BookCardMobile = ({ book, user }: RowProps) => {
 
         <div class="flex flex-wrap justify-evenly items-center gap-2 border-t border-outline pt-3">
           <PreviewButton book={book} user={user} />
-          <a href={`/dashboard/books/${book.id}`}>
+          <a href={`${editBasePath}/${book.id}`}>
             <Button
               variant="outline"
               color="inverse"
@@ -144,7 +161,7 @@ const BookCardMobile = ({ book, user }: RowProps) => {
               <span>Edit</span>
             </Button>
           </a>
-          <DeleteBookForm book={book} user={user} />
+          <DeleteBookForm book={book} user={user} basePath={editBasePath} />
         </div>
       </div>
     </li>

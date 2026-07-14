@@ -4,6 +4,7 @@ import {
   contactFormSchema,
   slugSchema,
   tagSchema,
+  userProfileFormSchema,
   userUpdateFormSchema,
 } from "./schema";
 import { Context } from "hono";
@@ -48,4 +49,10 @@ export type UserUpdateModalContext = Context<
   Env,
   string,
   { out: { form: z.infer<typeof userUpdateFormSchema> } }
+>;
+
+export type UserProfileFormContext = Context<
+  Env,
+  string,
+  { out: { form: z.infer<typeof userProfileFormSchema> } }
 >;

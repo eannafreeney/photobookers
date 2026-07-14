@@ -114,32 +114,15 @@ const MobileDropDownMenu = ({
         </>
       )}
       {user?.creator?.id && (
-        <>
-          <NavLink href="/dashboard" currentPath={currentPath}>
-            Dashboard
-          </NavLink>
-          <NavLink
-            href={`/creators/${user?.creator?.slug}`}
-            currentPath={currentPath}
-          >
-            View Profile
-          </NavLink>
-          <NavLink
-            href={`/dashboard/creators/${user?.creator?.id}`}
-            currentPath={currentPath}
-          >
-            {`Edit ${
-              user.creator.type === "artist" ? "Artist" : "Publisher"
-            } Profile`}
-          </NavLink>
-        </>
+        <NavLink href="/dashboard" currentPath={currentPath}>
+          Dashboard
+        </NavLink>
       )}
       {user?.isAdmin && (
         <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
           Admin Dashboard
         </NavLink>
       )}
-
       <NavLink href="/creators" currentPath={currentPath}>
         Creators
       </NavLink>
@@ -151,9 +134,6 @@ const MobileDropDownMenu = ({
       </NavLink>
       {user && (
         <>
-          <NavLink href="/followed-creators" currentPath={currentPath}>
-            Creators I Follow
-          </NavLink>
           <form
             {...{ "x-target.away": "_top", "x-target": "toast" }}
             action="/auth/logout"

@@ -18,6 +18,10 @@ export const memberSignInPrompts = {
     headline: "Sign in to read creator updates",
     hint: "Notes and announcements from artists and publishers appear here. Sign up to follow creators and stay in the loop.",
   },
+  profile: {
+    headline: "Sign in to edit your profile",
+    hint: "Manage your name and profile photo from your account. Create a free account or sign in to get started.",
+  },
 } as const satisfies Record<string, MemberSignInPromptContent>;
 
 type Props = {

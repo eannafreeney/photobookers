@@ -33,10 +33,10 @@ const Banner = ({
   return (
     <PageBleed>
       <div
-        class={`rounded-radius ${variantBg[type as keyof typeof variantBg]} text-on-surface py-2 px-16 flex items-center justify-center gap-4`}
+        class={`rounded-radius ${variantBg[type as keyof typeof variantBg]} text-on-surface py-2 px-4 sm:px-16 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4`}
       >
         <p class="text-center text-sm text-pretty">{message}</p>
-        <div>{children}</div>
+        {children ? <div class="shrink-0">{children}</div> : null}
       </div>
     </PageBleed>
   );

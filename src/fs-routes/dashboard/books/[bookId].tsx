@@ -1,14 +1,12 @@
 import { createRoute } from "hono-fsr";
 import { getUser } from "../../../utils";
 import { getFlash } from "../../../utils";
-import InfoPage from "../../../pages/InfoPage";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumbs";
 import {
   buildUpdateBookData,
   deleteBookById,
-  getBookById,
   updateBook,
   updateBookPublicationStatus,
 } from "../../../features/dashboard/books/services";
@@ -39,17 +37,12 @@ import FormPost from "../../../components/forms/FormPost";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
-  async (c: BookIdContext) => {
-    const bookId = c.req.valid("param").bookId;
+  requireBookEditAccess,
+  async (c: BookFormWithBookContext) => {
+    const book = c.get("book");
     const user = await getUser(c);
     const flash = await getFlash(c);
     const currentPath = c.req.path;
-
-    const [err, book] = await getBookById(bookId);
-
-    if (err || !book) {
-      return c.html(<InfoPage errorMessage="Book not found" user={user} />);
-    }
 
     const formValues = {
       title: book.title,
@@ -149,7 +142,7 @@ export const GET = createRoute(
           </div>
           <hr class="my-4" />
           <BookForm
-            action={`/dashboard/books/${bookId}`}
+            action={`/dashboard/books/${book.id}`}
             bookId={book.id}
             formValues={formValues}
             isPublisher={isPublisher}

@@ -6,6 +6,7 @@ import AdminBooksTableContainer from "../../../../features/dashboard/admin/books
 import { Context } from "hono";
 import Sidebar from "../../../../components/app/Sidebar";
 import { paginationRequestBaseUrl } from "../../../../lib/pagination";
+import { getIsMobile } from "../../../../lib/device";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -14,6 +15,7 @@ export const GET = createRoute(async (c: Context) => {
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
   const booksPaginationBaseUrl = paginationRequestBaseUrl(c.req.url);
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   return c.html(
     <AppLayout
@@ -29,6 +31,7 @@ export const GET = createRoute(async (c: Context) => {
             currentPath={booksPaginationBaseUrl}
             currentPage={currentPage}
             searchQuery={searchQuery}
+            isMobile={isMobile}
           />
         </Sidebar>
       </Page>

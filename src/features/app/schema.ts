@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { normalizeTagSlug } from "../../lib/tags";
 import { parseDateString, parseWeekString } from "../../lib/utils";
+import { optionalText } from "../../schemas";
 
 // ============ VALIDATE PASSWORD SCHEMA ============
 export const contactFormSchema = z.object({
@@ -13,6 +14,11 @@ export const contactFormSchema = z.object({
 
 export const userUpdateFormSchema = z.object({
   msg: z.string().optional(),
+});
+
+export const userProfileFormSchema = z.object({
+  firstName: optionalText,
+  lastName: optionalText,
 });
 
 export const dateParamSchema = z.object({
