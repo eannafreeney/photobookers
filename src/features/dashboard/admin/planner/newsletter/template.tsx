@@ -130,7 +130,17 @@ const WeeklyNewsletter = (params: WeeklyNewsletterRenderParams) => {
 export async function renderWeeklyBOTDNewsletterHtml(
   params: WeeklyNewsletterRenderParams,
 ): Promise<string> {
-  const html = await render(<WeeklyNewsletter {...params} />, { pretty: true });
+  const element = <WeeklyNewsletter {...params} />;
+  // `pretty: true` runs the output through prettier, whose HTML parser can throw
+  // on otherwise-valid email markup. Fall back to unformatted HTML so a
+  // formatting quirk never takes down the preview or a send.
+  let html: string;
+  try {
+    html = await render(element, { pretty: true });
+  } catch (error) {
+    console.error("renderWeeklyBOTDNewsletterHtml: pretty render failed", error);
+    html = await render(element, { pretty: false });
+  }
   return prepareNewsletterHtmlForEsp(html);
 }
 

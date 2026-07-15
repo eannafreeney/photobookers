@@ -271,27 +271,31 @@ const RoundedImage = ({ src, alt, className }: RoundedImageProps) => (
 
 export const NewsletterOutro = ({ outroText }: { outroText: string }) => (
   <Section style={{ backgroundColor: brand.surface }}>
-    <Column>
-      <Text
-        style={{ color: brand.onSurface }}
-        className="m-0 text-sm leading-[1.65] px-[25px]"
-      >
-        {outroText}
-      </Text>
-    </Column>
+    <Row>
+      <Column>
+        <Text
+          style={{ color: brand.onSurface }}
+          className="m-0 text-sm leading-[1.65] px-[25px]"
+        >
+          {outroText}
+        </Text>
+      </Column>
+    </Row>
   </Section>
 );
 
 export const NewsletterIntro = ({ introText }: { introText: string }) => (
   <Section style={{ backgroundColor: brand.surface }}>
-    <Column>
-      <Text
-        style={{ color: brand.onSurface }}
-        className="m-0 text-sm leading-[1.65] px-[25px]"
-      >
-        {introText}
-      </Text>
-    </Column>
+    <Row>
+      <Column>
+        <Text
+          style={{ color: brand.onSurface }}
+          className="m-0 text-sm leading-[1.65] px-[25px]"
+        >
+          {introText}
+        </Text>
+      </Column>
+    </Row>
   </Section>
 );
 
