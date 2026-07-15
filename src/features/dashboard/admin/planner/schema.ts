@@ -123,6 +123,10 @@ export const newsletterCampaignEditSchema = z.object({
   introText: z.string().min(1, "Intro text is required").max(5000),
   outroText: z.string().min(1, "Outro text is required").max(5000),
   ctaText: z.string().min(1, "CTA text is required").max(120),
+  ctaHref: z.preprocess(
+    (val) => (val === "" || val === undefined ? undefined : val),
+    z.string().url("CTA link must be a valid URL").max(500).optional(),
+  ),
 });
 
 export const newsletterBrevoTestSchema = z.object({

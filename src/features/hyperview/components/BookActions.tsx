@@ -11,13 +11,15 @@ type Props = {
   shareMessage?: string;
 };
 
-export const BookWishlistIcon = ({
-  baseUrl,
-  isActive,
-}: {
+type BookFavouritedIconProps = {
   baseUrl: string;
   isActive: boolean;
-}) => (
+};
+
+export const BookFavouritedIcon = ({
+  baseUrl,
+  isActive,
+}: BookFavouritedIconProps) => (
   <Image
     source={`${baseUrl}/icons/wishlist-${isActive ? "on" : "off"}.png`}
     style="book-action-icon"
@@ -93,7 +95,7 @@ export const HyperviewFavoriteInner = ({
   if (variant === "block") {
     return (
       <View xmlns="https://hyperview.org/hyperview" style="book-action-block">
-        <BookWishlistIcon baseUrl={baseUrl} isActive={isActive} />
+        <BookFavouritedIcon baseUrl={baseUrl} isActive={isActive} />
         <Text style="book-action-label">{label}</Text>
         <Behavior
           verb="post"
@@ -107,7 +109,7 @@ export const HyperviewFavoriteInner = ({
 
   return (
     <View xmlns="https://hyperview.org/hyperview" style="book-btn">
-      <BookWishlistIcon baseUrl={baseUrl} isActive={isActive} />
+      <BookFavouritedIcon baseUrl={baseUrl} isActive={isActive} />
       <Behavior
         verb="post"
         action="replace-inner"

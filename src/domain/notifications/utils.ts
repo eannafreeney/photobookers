@@ -117,9 +117,9 @@ export const createBookWishlistedNotification = async (
   book: NotificationBookTarget,
 ) =>
   await createAdminNotification({
-    type: "book_wishlisted",
-    title: "Book wishlisted",
-    body: `${formatNotificationActorName(user)} wishlisted the book: "${book.title}"`,
+    type: "book_favourited",
+    title: "Book favourited",
+    body: `${formatNotificationActorName(user)} favourited the book: "${book.title}"`,
     targetUrl: `/books/${book.slug}`,
     actorUserId: user.id,
   });

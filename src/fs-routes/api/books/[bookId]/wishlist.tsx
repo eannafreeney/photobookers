@@ -9,7 +9,7 @@ import {
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
-import { publishWishlistActivity } from "../../../../features/api/utils";
+import { publishFavouritedActivity } from "../../../../features/api/utils";
 import { createBookWishlistedNotification } from "../../../../domain/notifications/utils";
 import { Context } from "hono";
 import { hyperview } from "../../../../lib/hxml";
@@ -18,7 +18,7 @@ import { isOk } from "../../../../lib/result";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { getIsHyperview } from "../../../../features/hyperview/lib";
 import {
-  BookWishlistIcon,
+  BookFavouritedIcon,
   HyperviewFavoriteInner,
 } from "../../../../features/hyperview/components/BookActions";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
@@ -50,14 +50,14 @@ const postWishlistHyperview = async (c: Context) => {
       variant === "block" ? (
         <View xmlns="https://hyperview.org/hyperview" style="book-action-block">
           <Behavior trigger="load" action="new" verb="get" href={modalHref} />
-          <BookWishlistIcon baseUrl={baseUrl} isActive={false} />
+          <BookFavouritedIcon baseUrl={baseUrl} isActive={false} />
           <Text style="book-action-label">Favorite</Text>
           <Behavior verb="get" action="new" href={modalHref} />
         </View>
       ) : (
         <View xmlns="https://hyperview.org/hyperview">
           <Behavior trigger="load" action="new" verb="get" href={modalHref} />
-          <BookWishlistIcon baseUrl={baseUrl} isActive={false} />
+          <BookFavouritedIcon baseUrl={baseUrl} isActive={false} />
           <Behavior verb="get" action="new" href={modalHref} />
         </View>
       ),
@@ -90,7 +90,7 @@ const postWishlistHyperview = async (c: Context) => {
       await deleteWishlist(user.id, bookId);
     } else {
       await insertWishlist(user.id, bookId);
-      publishWishlistActivity(user, book);
+      publishFavouritedActivity(user, book);
       void createBookWishlistedNotification(user, book);
     }
   } catch (error) {
@@ -143,7 +143,7 @@ const postWishlistWeb = async (c: Context) => {
       await deleteWishlist(user.id, bookId);
     } else {
       await insertWishlist(user.id, bookId);
-      publishWishlistActivity(user, book);
+      publishFavouritedActivity(user, book);
       void createBookWishlistedNotification(user, book);
     }
   } catch (error) {

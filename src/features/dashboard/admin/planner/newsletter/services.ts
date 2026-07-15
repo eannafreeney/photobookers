@@ -401,6 +401,7 @@ export async function updateNewsletterCampaignDraft(
     introText?: string;
     outroText?: string;
     ctaText?: string;
+    ctaHref?: string | null;
     status?: NewsletterCampaignStatus;
     generatedContent?: WeeklyNewsletterGeneratedContent;
     sentAt?: Date | null;
@@ -418,6 +419,7 @@ export async function updateNewsletterCampaignDraft(
   if (patch.introText !== undefined) updateData.introText = patch.introText;
   if (patch.outroText !== undefined) updateData.outroText = patch.outroText;
   if (patch.ctaText !== undefined) updateData.ctaText = patch.ctaText;
+  if (patch.ctaHref !== undefined) updateData.ctaHref = patch.ctaHref;
   if (patch.status !== undefined) updateData.status = patch.status;
   if (patch.generatedContent !== undefined)
     updateData.generatedContent = patch.generatedContent;
@@ -537,6 +539,7 @@ export async function buildCampaignPreviewHtml(
     introText: campaign.introText,
     outroText: campaign.outroText,
     ctaText: campaign.ctaText,
+    ctaHref: campaign.ctaHref,
     botdEntries: generated?.botdEntries ?? storedBotdEntries,
     newMembers: generated?.newMembers ?? stored?.newMembers ?? [],
     upcomingFair: generated?.upcomingFair ?? stored?.upcomingFair ?? null,

@@ -100,6 +100,8 @@ export type WeeklyNewsletterRenderParams = {
   introText: string;
   outroText: string;
   ctaText: string;
+  /** Absolute URL for the CTA button; null/undefined falls back to the app home. */
+  ctaHref?: string | null;
   botdEntries: WeeklyNewsletterBookItem[];
   newMembers?: WeeklyNewsletterNewMember[];
   upcomingFair?: WeeklyNewsletterFairItem | null;

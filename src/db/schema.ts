@@ -769,6 +769,8 @@ export const newsletterCampaigns = pgTable(
     introText: text("intro_text").notNull(),
     outroText: text("outro_text").notNull(),
     ctaText: text("cta_text").notNull(),
+    /** Absolute URL the CTA button links to. Null falls back to the app home. */
+    ctaHref: text("cta_href"),
     generatedContent: jsonb("generated_content").$type<{
       generatedAt: string;
       botdEntries?: Array<{

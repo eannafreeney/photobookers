@@ -9,6 +9,7 @@ import {
   NewsletterAppPromo,
   NewsletterHeader,
   NewsletterSubject,
+  NewsletterIntro,
   SectionHeading,
   NewsletterCtaButton,
   NewsletterFooter,
@@ -22,8 +23,10 @@ const WeeklyNewsletter = (params: WeeklyNewsletterRenderParams) => {
     weekStart,
     weekEnd,
     subject,
+    introText,
     botdEntries,
     ctaText,
+    ctaHref,
     newMembers,
     artistOfTheWeek,
     publisherOfTheWeek,
@@ -39,6 +42,9 @@ const WeeklyNewsletter = (params: WeeklyNewsletterRenderParams) => {
           <Container className="flex flex-col gap-6 my-6">
             <NewsletterHeader />
             <NewsletterSubject subject={subject} weekLabel={weekLabel} />
+            {introText.trim().length > 0 && (
+              <NewsletterIntro introText={introText} />
+            )}
             <NewsletterAppPromo />
             {botdEntries.length > 0 && (
               <>
@@ -112,7 +118,7 @@ const WeeklyNewsletter = (params: WeeklyNewsletterRenderParams) => {
               </>
             )}
             {/* <NewsletterOutro outroText={outroText} /> */}
-            <NewsletterCtaButton ctaText={ctaText} />
+            <NewsletterCtaButton ctaText={ctaText} href={ctaHref} />
             <NewsletterFooter />
           </Container>
         </Body>

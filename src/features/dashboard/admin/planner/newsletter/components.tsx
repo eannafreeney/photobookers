@@ -282,12 +282,31 @@ export const NewsletterOutro = ({ outroText }: { outroText: string }) => (
   </Section>
 );
 
-export const NewsletterCtaButton = ({ ctaText }: { ctaText: string }) => (
+export const NewsletterIntro = ({ introText }: { introText: string }) => (
+  <Section style={{ backgroundColor: brand.surface }}>
+    <Column>
+      <Text
+        style={{ color: brand.onSurface }}
+        className="m-0 text-sm leading-[1.65] px-[25px]"
+      >
+        {introText}
+      </Text>
+    </Column>
+  </Section>
+);
+
+export const NewsletterCtaButton = ({
+  ctaText,
+  href,
+}: {
+  ctaText: string;
+  href?: string | null;
+}) => (
   <Section className="my-12 ">
     <Row>
       <Column align="center">
         <Button
-          href={appBaseUrl}
+          href={href ?? appBaseUrl}
           style={{ backgroundColor: brand.primary, color: brand.onPrimary }}
           className="text-xs font-semibold tracking-[0.16em] uppercase rounded px-6 py-4 text-center"
         >

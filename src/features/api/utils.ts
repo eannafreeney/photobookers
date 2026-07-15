@@ -24,12 +24,12 @@ export const publishLikeActivity = (user: AuthUser, book: ActivityBookTarget) =>
     targetUrl: `/books/${book.slug}`,
   });
 
-export const publishWishlistActivity = (
+export const publishFavouritedActivity = (
   user: AuthUser,
   book: ActivityBookTarget,
 ) =>
   publishActivityEvent({
-    type: "book_wishlisted",
+    type: "book_favourited",
     actorId: user.id,
     targetName: book.title,
     targetImageUrl: book.coverUrl,

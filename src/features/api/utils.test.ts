@@ -5,7 +5,7 @@ import {
   publishCommentActivity,
   publishFollowActivity,
   publishLikeActivity,
-  publishWishlistActivity,
+  publishFavouritedActivity,
 } from "./utils";
 
 const publishActivityEvent = vi.hoisted(() => vi.fn());
@@ -52,10 +52,10 @@ describe("publish* activity helpers", () => {
     });
   });
 
-  it("publishWishlistActivity sends book_wishlisted", () => {
-    publishWishlistActivity(user, book);
+  it("publishWishlistActivity sends book_favourited", () => {
+    publishFavouritedActivity(user, book);
     expect(publishActivityEvent).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "book_wishlisted" }),
+      expect.objectContaining({ type: "book_favourited" }),
     );
   });
 

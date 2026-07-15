@@ -1,6 +1,6 @@
 type ActivityType =
   | "book_liked"
-  | "book_wishlisted"
+  | "book_favourited"
   | "book_collected"
   | "creator_followed"
   | "book_commented";
