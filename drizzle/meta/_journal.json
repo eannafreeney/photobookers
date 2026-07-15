@@ -428,6 +428,13 @@
 			"when": 1783103000000,
 			"tag": "0061_public_shelf",
 			"breakpoints": true
+		},
+		{
+			"idx": 62,
+			"version": "7",
+			"when": 1784113093574,
+			"tag": "0062_add_newsletter_cta_href",
+			"breakpoints": true
 		}
 	]
 }

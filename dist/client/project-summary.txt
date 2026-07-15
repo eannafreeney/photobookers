@@ -1,0 +1,389 @@
+=======================
+ABOUT THIS DOCUMENT
+=======================
+
+Machine-readable project summary for LLMs and external tooling.
+Generated: 2026-07-15T10:19:36.627Z
+Source repo path: .
+Endpoint: GET /api/project-summary.txt
+
+This file summarizes architecture and structure — not application source code.
+Edit docs/project-context/*.md for roadmap and limitations; re-run generation to refresh extracted data.
+
+===================================
+PROJECT PURPOSE & CORE FEATURES
+===================================
+
+Photobookers is a full-stack TypeScript platform for discovering photobooks and supporting creators (artists and publishers).
+
+Core product areas:
+- Discovery: featured books, search, tags, editorial spotlights (book of the day, artist/publisher of the week)
+- Creators: profiles, social links, book catalogs, verification and claim flows
+- Fans: library/collections, wishlists, likes, follows, feed, newsletter signup
+- Creator dashboard: book CRUD, image uploads, import CSV, analytics, messages
+- Admin dashboard: moderation (books, creators, fairs, stores), user management, planner (newsletter + Instagram + spotlight emails)
+- Book fairs & bookstores: listings, attendee registration, map views
+- Interviews: token-based creator interviews (feature-flagged)
+- Mobile: separate Expo app using Hyperview XML routes under /hyperview/
+- Background jobs: email digests, milestone emails, stub outreach, Instagram queue, CEO metrics
+
+==============================
+TECH STACK & KEY LIBRARIES
+==============================
+
+Runtime: Node 20+, TypeScript, ESM
+Server: Hono on Node (@hono/node-server)
+Web UI: Hono JSX (hono/jsx) + Tailwind CSS 4 + Alpine.js + alpine-ajax
+Mobile API: Hyperview XML (src/fs-routes/hyperview/)
+Database: PostgreSQL via Drizzle ORM
+Auth: Supabase Auth + @hono/session cookies
+Email: MJML / React Email, Brevo for newsletter
+Images: Supabase storage + sharp
+Deploy: Render (inferred from CI/migrate workflow); cron via GitHub Actions
+
+Key dependencies:
+- hono (^4.12.27): HTTP server framework
+- hono-fsr (^1.2.1): File-system routing
+- @hono/node-server (^2.0.6): Node adapter
+- @hono/session (^0.2.0): Cookie sessions
+- drizzle-orm (^0.45.2): Postgres ORM
+- postgres (^3.4.7): Postgres driver
+- @supabase/supabase-js (^2.78.0): Auth + storage
+- alpinejs (^3.15.2): Client interactivity (web)
+- tailwindcss (^4.1.18): CSS utility framework
+- zod (^4.1.13): Schema validation
+- mjml (^4.18.0): Email HTML generation
+- @react-email/components (^1.0.12): React email templates
+- sharp (^0.34.5): Image processing
+- cheerio (^1.1.0): HTML parsing (scrapers/imports)
+- Other runtime deps (29): @alpinejs/collapse, @alpinejs/focus, @alpinejs/intersect, @alpinejs/morph, @alpinejs/persist, @alpinejs/resize, @fontsource/caveat, @fontsource/fraunces, @fontsource/instrument-sans, @google-analytics/data, @imacrayon/alpine-ajax, @react-email/render, @supabase/ssr, @tailwindcss/vite, browser-image-compression, …
+
+Dev tooling: Vite, Vitest, Playwright, ESLint, drizzle-kit, hono-fsr route generator
+
+===========================
+HIGH-LEVEL ARCHITECTURE
+===========================
+
+src/
+  index.tsx, server.ts     — Hono app entry
+  routes/                  — session/auth middleware, router mount
+  fs-routes/               — file-system routes (pages + handlers)
+  fs-routes.manifest.ts    — GENERATED route registry
+  domain/                  — shared business logic (multi-surface)
+  features/                — surface-specific UI and services
+  components/              — shared layouts and UI primitives
+  client/                  — Alpine.js bundles (main.js, admin.js)
+  db/                      — Drizzle schema
+  jobs/                    — cron runner registry
+  middleware/              — auth guards
+  lib/                     — shared utilities
+
+Domain modules (13): ceo-metrics, claims, creator-profile-share, creators, daily-product-digest, db, interviews, magazine, notifications, planner, server-errors, shelf, verification-feedback
+
+Feature modules (20): api, app, app-store-analytics, auth, book-analytics, book-views, claims, creator-analytics-digest, creator-views, dashboard, fair-attendees, fair-views, hyperview, interviews, jobs, legal, newsletter-analytics, purchase-clicks, site-analytics, stub-outreach
+
+Import rule: public (app) and hyperview routes must import shared logic from src/domain/, not admin features (enforced by npm run lint).
+
+### Project Overview
+`photobookers` is a full-stack TypeScript app for discovering and managing photobooks.
+
+- Server: Hono on Node (`src/server.ts` → `src/index.tsx`)
+- Web UI: Server-rendered Hono JSX (`hono/jsx`) with Tailwind CSS + PenguinUI
+- Client interactivity: Alpine.js (`src/client/`) with `alpine-ajax` for partial updates
+- Mobile: Separate Expo app in `mobile-expo/` consuming Hyperview XML routes under `src/fs-routes/hyperview/`
+- Database: Postgres via Drizzle ORM (`src/db/schema.ts`)
+- Auth: Supabase Auth + `@hono/session` middleware
+
+React is used only in a few places (e.g. MJML newsletter templates). Default to Hono JSX for new UI.
+
+### Architecture
+[code block omitted]
+
+Domain layer (`src/domain/`)
+
+Shared business logic used by more than one surface (public web, Hyperview, creator dashboard, admin, API, cron, auth). Not UI.
+
+Decision test (in order):
+
+1. Is it UI (components, Alpine, HTML partials)? → features, not domain.
+2. Is it imported from outside admin (API, cron, `(app)/`, `hyperview/`, claims, auth)? → domain candidate.
+3. Does it describe product behavior both apps would need after a future split? → domain, even if only admin uses it today.
+
+Import rules:
+
+- `(app)/` and `hyperview/` routes must import shared logic from `src/domain/`, never `features/dashboard/admin/`. Enforced by `npm run lint`.
+- `domain/` must not import admin UI. It may import `db/`, `lib/`, and other domain modules; calling admin-only planner helpers from domain is a smell — extract the shared part instead.
+- When moving code to domain, leave a re-export in the old admin path if it keeps admin imports stable.
+
+Current domain modules: `notifications/`, `claims/owner.ts`, `planner/` (utils + cron services), `creators/books.ts`, `interviews/token.ts`.
+
+Client bundles: `main.js` is for public/creator Alpine; `admin.js` loads only on `/dashboard/ad…
+
+[truncated]
+
+### Routing
+Routes live in `src/fs-routes/` and are registered via `hono-fsr`. After adding or renaming route files, the manifest must be regenerated (`npm run dev:fsr` or `npm run build`).
+
+Top-level route groups: `(app)/` (public web), `dashboard/`, `hyperview/` (mobile), `auth/`, `api/`, `claims/`, `jobs/`.
+
+Rendering patterns
+
+- Web pages: Hono JSX components return HTML via `c.html(...)`. Use Alpine `x-data` attributes for interactivity; register Alpine components in `src/client/`.
+- Hyperview (mobile): Routes return XML using helpers in `src/lib/hxml-comps.tsx` (`View`, `Text`, `Behavior`, etc.) and `hyperview(c)` from `src/lib/hxml`.
+- Forms: `methodOverride` is enabled (`_method` field). Prefer `alpine-ajax` patterns already used in surrounding code.
+
+Auth & middleware
+
+- `optionalAuthMiddleware` runs globally; use `requireAuth`, `requireAdmin`, `creatorGuard` on protected routes.
+- Session secret: `AUTH_SECRET` env var (required at startup).
+- Supabase client helpers: `src/lib/supabase.ts`.
+
+Path alias
+
+`@/` maps to `src/` (configured in `vite.config.ts` and `vitest.config.ts`).
+
+### Rendering patterns
+- Web pages: Hono JSX components return HTML via `c.html(...)`. Use Alpine `x-data` attributes for interactivity; register Alpine components in `src/client/`.
+- Hyperview (mobile): Routes return XML using helpers in `src/lib/hxml-comps.tsx` (`View`, `Text`, `Behavior`, etc.) and `hyperview(c)` from `src/lib/hxml`.
+- Forms: `methodOverride` is enabled (`_method` field). Prefer `alpine-ajax` patterns already used in surrounding code.
+
+Auth & middleware
+
+- `optionalAuthMiddleware` runs globally; use `requireAuth`, `requireAdmin`, `creatorGuard` on protected routes.
+- Session secret: `AUTH_SECRET` env var (required at startup).
+- Supabase client helpers: `src/lib/supabase.ts`.
+
+Path alias
+
+`@/` maps to `src/` (configured in `vite.config.ts` and `vitest.config.ts`).
+
+### Auth & middleware
+- `optionalAuthMiddleware` runs globally; use `requireAuth`, `requireAdmin`, `creatorGuard` on protected routes.
+- Session secret: `AUTH_SECRET` env var (required at startup).
+- Supabase client helpers: `src/lib/supabase.ts`.
+
+Path alias
+
+`@/` maps to `src/` (configured in `vite.config.ts` and `vitest.config.ts`).
+
+=====================================
+CURRENT LIMITATIONS & PAIN POINTS
+=====================================
+
+Current limitations & pain points
+
+Edit this file to document known constraints. The generator includes it in the LLM summary.
+
+Architecture
+
+- Monolith: Web, admin, Hyperview mobile API, and cron jobs share one Node process and Postgres database.
+- Dual UI stacks: Hono JSX + Alpine.js on web; Hyperview XML for mobile — features often need two implementations.
+- Domain vs features boundary: Import lint enforces `(app)/` and `hyperview/` routes to use `src/domain/`, but some cron logic still lives in `features/`.
+- Generated routes: `src/fs-routes.manifest.ts` must be regenerated after route file changes (`npm run dev:fsr` or build).
+
+Product & ops
+
+- Feature flags (`featureFlags.json`): interviews and other surfaces can be off in production while code ships.
+- Staging sync: Staging DB/storage sync is a separate workflow; not all production data is mirrored locally.
+- Admin planner complexity: Newsletter, Instagram (Buffer), and spotlight flows are powerful but operationally heavy.
+- Mobile app: Expo project in `mobile-expo/` is a separate deploy; backend changes require Hyperview route updates.
+
+Technical
+
+- README is minimal: Onboarding docs live mainly in `CLAUDE.md` / this summary pipeline.
+- React scope: React is limited to email templates (MJML/React Email); do not assume React for new web UI.
+- Secrets: Many integrations (Supabase, Brevo, Buffer, Google Analytics, App Store Connect) require env vars — names only in docs, never values.
+
+=============================
+ROADMAP & NEXT PRIORITIES
+=============================
+
+Roadmap & next priorities
+
+Edit this file to keep the auto-generated project summary aligned with team intent.
+The build step regenerates `public/project-summary.txt` at deploy time (the
+`/api/project-summary.txt` route also generates it live as a fallback).
+
+- Start a digital magazine. Each monthly issue is based on a theme and selects 8-10 books from the database that have this theme and then present a piece about each one.
+
+==============================
+ROUTE / ENDPOINT STRUCTURE
+==============================
+
+Total registered routes: 288
+Routing: hono-fsr file-system routes in src/fs-routes/
+
+Public web (55 routes) — Server-rendered pages for fans and discovery
+  Examples: /, /about, /artist-of-the-week, /artist-of-the-week/:week, /artists, /book-of-the-day, /book-of-the-day/:date, /books, /books/:slug, /books/preview/:slug
+
+API (12 routes) — JSON/partials for likes, comments, follows, newsletter, activity
+  Examples: /api/activity/stream, /api/books/:bookId/collect, /api/books/:bookId/comments, /api/books/:bookId/comments/:commentId, /api/books/:bookId/like, /api/books/:bookId/wishlist, /api/creators/:creatorId/follow, /api/fairs/:fairId/attend, /api/newsletter, /api/project-summary.txt, /api/users/:userId/profile-image, /api/users/me/shelf-sharing
+
+Auth (16 routes) — Login, registration, password reset, Supabase callback
+  Examples: /auth/accounts, /auth/callback, /auth/force-reset-password, /auth/forgot-password, /auth/login, /auth/logout, /auth/register, /auth/register-creator, /auth/register-fan, /auth/resend-verification
+
+Dashboard (117 routes) — Creator and admin dashboards
+  Examples: /dashboard/admin, /dashboard/admin/analytics, /dashboard/admin/analytics/fans, /dashboard/admin/analytics/verified-creators, /dashboard/admin/books, /dashboard/admin/books/:bookId, /dashboard/admin/books/:bookId/approve, /dashboard/admin/books/:bookId/reject, /dashboard/admin/books/books-table-filter, /dashboard/admin/books/create
+
+Hyperview (mobile) (62 routes) — XML routes consumed by the Expo mobile app
+  Examples: /hyperview/+layout, /hyperview/about, /hyperview/accounts, /hyperview/artist-of-the-week, /hyperview/artist-of-the-week/:week, /hyperview/auth-modal, /hyperview/book-of-the-day, /hyperview/book-of-the-day/:date, /hyperview/books, /hyperview/books/:bookId/tab/artist
+
+Jobs / cron HTTP (21 routes) — Authenticated cron endpoints hit by GitHub Actions
+  Examples: /jobs/cron/botd-advance-notification-emails, /jobs/cron/botd-feature-day-emails, /jobs/cron/ceo-metrics-email, /jobs/cron/creator-analytics-digest, /jobs/cron/creator-milestone-emails, /jobs/cron/creator-profile-share-emails, /jobs/cron/daily-botd-instagram, /jobs/cron/daily-product-digest, /jobs/cron/instagram-prep-reminder-email, /jobs/cron/interview-reminder-emails
+
+Claims (5 routes) — Creator account claim flow
+  Examples: /claims/:creatorId, /claims/:creatorId/register-and-claim, /claims/:creatorId/start, /claims/:creatorId/start/signup, /claims/complete
+
+Public JSON/HTML API endpoints (sample):
+- /api/activity/stream
+- /api/books/:bookId/collect
+- /api/books/:bookId/comments
+- /api/books/:bookId/comments/:commentId
+- /api/books/:bookId/like
+- /api/books/:bookId/wishlist
+- /api/creators/:creatorId/follow
+- /api/fairs/:fairId/attend
+- /api/newsletter
+- /api/project-summary.txt
+- /api/users/:userId/profile-image
+- /api/users/me/shelf-sharing
+
+===================
+DATABASE SCHEMA
+===================
+
+ORM: Drizzle (src/db/schema.ts)
+Dialect: PostgreSQL
+
+Tables (28):
+- users
+- creator_interviews
+- admin_notifications
+- creators
+- creator_stub_outreach_emails
+- books
+- creator_milestone_emails
+- follows
+- creator_messages
+- book_images
+- book_comments
+- creator_claims
+- collections
+- likes
+- wishlists
+- book_of_the_day
+- artist_of_the_week
+- publisher_of_the_week
+- newsletter_campaigns
+- purchase_clicks
+- book_views
+- creator_views
+- book_fairs
+- fair_attendees
+- fair_views
+- book_stores
+- magazine_issues
+- magazine_issue_books
+
+Enums (21):
+- book_availability_status
+- book_approval_status
+- book_publication_status
+- follow_target
+- creator_type
+- creator_status
+- creator_claim_status
+- creator_interview_status
+- interview_type
+- newsletter_campaign_status
+- purchase_click_source
+- book_view_source
+- fair_view_source
+- creator_view_source
+- book_fair_status
+- book_fair_approval_status
+- book_fair_listing_tier
+- book_store_status
+- book_store_approval_status
+- fair_attendee_status
+- magazine_issue_status
+
+==========================
+BACKGROUND JOBS (CRON)
+==========================
+
+- daily-botd-instagram
+- botd-advance-notification-emails
+- botd-feature-day-emails
+- ceo-metrics-email
+- daily-product-digest
+- spotlight-creator-emails
+- notify-followers-new-books
+- notify-followers-new-posts
+- weekly-botd-newsletter
+- weekly-botd-newsletter-test
+- weekly-trending-instagram
+- instagram-prep-reminder-email
+- planner-content-preview-email
+- creator-analytics-digest
+- creator-milestone-emails
+- stub-outreach-emails
+- interview-reminder-emails
+- verified-creator-instagram
+- verification-feedback-emails
+- creator-profile-share-emails
+
+=================
+FEATURE FLAGS
+=================
+
+{
+  "messages": true,
+  "comments": true,
+  "interviews": false,
+  "fairs": true,
+  "stores": true,
+  "publicShelf": false,
+  "magazine": false
+}
+
+===========================
+KEY CONFIGURATION FILES
+===========================
+
+- package.json: Scripts and dependencies
+- drizzle.config.ts: Database migrations (Postgres via DATABASE_URL)
+- vite.config.ts: Dev server, build, path alias @/
+- vitest.config.ts: Unit test runner config
+- featureFlags.json: Runtime feature toggles
+- CLAUDE.md: Developer architecture guide
+- src/db/schema.ts: Drizzle schema (source of truth for DB)
+- src/fs-routes.manifest.ts: Generated route manifest (hono-fsr)
+- src/jobs/cronRunners.ts: Scheduled job registry
+- .github/workflows/ci.yml: Typecheck, tests, migrations on push
+- .github/workflows/production-cron.yml: Production cron schedules
+
+Environment variables (names only — never commit values):
+- DATABASE_URL
+- AUTH_SECRET
+- SITE_URL
+- PUBLIC_APP_URL
+- SUPABASE_URL
+- SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- CRON_SECRET
+- BREVO_API_KEY
+- BREVO_NEWSLETTER_LIST_ID
+- BREVO_SENDER_EMAIL
+- BUFFER_ACCESS_TOKEN
+- GA4_PROPERTY_ID
+- GOOGLE_APPLICATION_CREDENTIALS_JSON
+
+==========
+README
+==========
+
+[code block omitted]
+
+[code block omitted]
+
