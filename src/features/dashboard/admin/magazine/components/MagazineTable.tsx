@@ -4,8 +4,8 @@ import { deleteIcon, editIcon } from "@/lib/icons";
 import type { AdminIssueListItem } from "@/domain/magazine/queries";
 import ThemeGenerator from "./ThemeGenerator";
 import PublishMagazineIssueToggle from "./PublishToggle";
-import StatusPill from "../../components/StatusPill";
 import FormDelete from "@/components/forms/FormDelete";
+import StatusPill from "../../components/StatusPill";
 
 type Props = {
   issues: AdminIssueListItem[];

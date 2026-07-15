@@ -1,23 +1,16 @@
 import { createRoute } from "hono-fsr";
-import { Context } from "hono";
+import { paramValidator } from "@/lib/validator";
+import { idSchema } from "@/features/app/schema";
 import { removeIssueBook } from "@/domain/magazine/mutations";
-import { setFlash } from "@/utils";
+import { showErrorAlert, showSuccessAlert } from "@/lib/alertHelpers";
 
-const LIST = "/dashboard/admin/magazine";
-
-export const POST = createRoute(async (c: Context) => {
-  const id = c.req.param("id");
-  if (!id) {
-    await setFlash(c, "danger", "Missing issue id");
-    return c.redirect(LIST, 303);
-  }
+export const POST = createRoute(paramValidator(idSchema), async (c) => {
+  const id = c.req.valid("param").id;
   const body = await c.req.parseBody();
   const bookId = typeof body.bookId === "string" ? body.bookId : "";
+  if (!bookId) return showErrorAlert(c, "Missing book.");
+
   const [error] = await removeIssueBook(id, bookId);
-  await setFlash(
-    c,
-    error ? "danger" : "success",
-    error ? error.reason : "Book removed.",
-  );
-  return c.redirect(`${LIST}/${id}`, 303);
+  if (error) return showErrorAlert(c, error.reason);
+  return showSuccessAlert(c, "Book removed.");
 });

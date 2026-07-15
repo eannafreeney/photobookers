@@ -13,7 +13,7 @@ type Props = {
 const IssueActions = ({ issue, action, nextNumber }: Props) => (
   <div class="flex flex-col gap-3 border border-on-surface-strong bg-surface-alt p-4">
     <span class="kicker text-accent">Actions</span>
-    <div class="flex flex-wrap items-center gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-3">
       {issue.status === "draft" ? (
         <form method="post" action={`${action}/approve`}>
           <button
@@ -36,40 +36,7 @@ const IssueActions = ({ issue, action, nextNumber }: Props) => (
 
       <PublishIssueButton issue={issue} nextNumber={nextNumber} />
 
-      {/* <form method="post" action={action} class="flex items-center gap-2">
-        <input type="hidden" name="intent" value="setNumber" />
-        <label class="text-sm text-on-surface">Issue #</label>
-        <input
-          type="number"
-          name="issueNumber"
-          min={1}
-          value={String(issue.issueNumber ?? nextNumber)}
-          class="w-20 border border-outline bg-surface px-2 py-1.5 text-sm tabular-nums text-on-surface"
-        />
-        <button
-          type="submit"
-          class="border border-outline px-3 py-1.5 text-sm font-semibold text-on-surface-strong hover:border-accent hover:text-accent"
-        >
-          Save #
-        </button>
-      </form> */}
-
       <DeleteIssueButton issueId={issue.id} />
-
-      {/* <form
-        method="post"
-        action={action}
-        class="ml-auto"
-        onsubmit="return confirm('Delete this issue? This cannot be undone.')"
-      >
-        <input type="hidden" name="intent" value="delete" />
-        <button
-          type="submit"
-          class="border border-danger px-3 py-1.5 text-sm font-semibold text-danger hover:bg-danger/10"
-        >
-          Delete
-        </button>
-      </form> */}
     </div>
     {issue.status !== "published" ? (
       <p class="text-xs text-on-surface-weak">
@@ -91,21 +58,19 @@ const PublishIssueButton = ({ issue, nextNumber }: PublishIssueButtonProps) => {
   const action = `/dashboard/admin/magazine/${issue.id}`;
 
   return (
-    <div class="flex items-center gap-2">
-      <FormPost action={`${action}/number`}>
-        <label class="text-sm text-on-surface">Issue #</label>
-        <input
-          type="number"
-          name="issueNumber"
-          min={1}
-          value={String(issue.issueNumber ?? nextNumber)}
-          class="w-20 border border-outline bg-surface px-2 py-1.5 text-sm tabular-nums text-on-surface"
-        />
-        <Button variant="outline" color="primary">
-          Publish
-        </Button>
-      </FormPost>
-    </div>
+    <FormPost action={`${action}/number`} className="flex items-center gap-2">
+      <label class="text-sm text-on-surface">Issue #</label>
+      <input
+        type="number"
+        name="issueNumber"
+        min={1}
+        value={String(issue.issueNumber ?? nextNumber)}
+        class="w-20 border border-outline bg-surface px-2 py-1.5 text-sm tabular-nums text-on-surface"
+      />
+      <Button variant="outline" color="primary">
+        Publish
+      </Button>
+    </FormPost>
   );
 };
 

@@ -53,9 +53,7 @@ export type MagazineIssueListItem = {
   publishedLabel: string | null;
 };
 
-type IssueWithBooks = NonNullable<
-  Awaited<ReturnType<typeof findIssueBySlug>>
->;
+type IssueWithBooks = NonNullable<Awaited<ReturnType<typeof findIssueBySlug>>>;
 
 function findIssueBySlug(slug: string) {
   return db.query.magazineIssues.findFirst({
@@ -147,6 +145,18 @@ export async function getIssueByIdForAdmin(id: string) {
     console.error("Failed to load magazine issue", error);
     return err({ reason: "Failed to load magazine issue", error });
   }
+}
+
+/** Load one book's card data (cover, artist) — used to render a swapped-in row. */
+export async function getBookCardById(
+  bookId: string,
+): Promise<BookCardResult | null> {
+  const book = await db.query.books.findFirst({
+    where: (table, { eq: eqOp }) => eqOp(table.id, bookId),
+    columns: BOOK_CARD_COLUMNS,
+    with: { artist: { columns: CREATOR_CARD_COLUMNS } },
+  });
+  return (book ?? null) as BookCardResult | null;
 }
 
 export type AdminIssueListItem = {

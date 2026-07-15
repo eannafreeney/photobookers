@@ -262,6 +262,41 @@ export async function updateIssueBookBlurb(
   }
 }
 
+/**
+ * Replace one book in an issue with another, keeping its movement and slot
+ * (sortOrder). Writes the fresh blurb / artist prompt and clears any stale
+ * artist quote from the previous book.
+ */
+export async function swapIssueBook(
+  issueId: string,
+  oldBookId: string,
+  newBookId: string,
+  fields: { blurb: string | null; artistPrompt: string | null },
+) {
+  try {
+    const [row] = await db
+      .update(magazineIssueBooks)
+      .set({
+        bookId: newBookId,
+        blurb: fields.blurb,
+        artistPrompt: fields.artistPrompt,
+        artistQuote: null,
+      })
+      .where(
+        and(
+          eq(magazineIssueBooks.issueId, issueId),
+          eq(magazineIssueBooks.bookId, oldBookId),
+        ),
+      )
+      .returning({ bookId: magazineIssueBooks.bookId });
+    if (!row) return err({ reason: "Book is not in this issue" });
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to swap issue book", error);
+    return err({ reason: "Failed to swap book", error });
+  }
+}
+
 /** Update one movement's heading (kicker / lead / title) within an issue. */
 export async function updateIssueMovement(
   issueId: string,

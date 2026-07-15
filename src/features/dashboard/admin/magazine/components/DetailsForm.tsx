@@ -1,4 +1,7 @@
-import Button from "@/components/app/Button";
+import FormPost from "@/components/forms/FormPost";
+import Input from "@/components/forms/Input";
+import TextArea from "@/components/forms/TextArea";
+import FormButtons from "@/components/forms/FormButtons";
 import { MagazineIssueView } from "@/domain/magazine/queries";
 
 type Props = {
@@ -7,60 +10,44 @@ type Props = {
 };
 
 const DetailsForm = ({ issue, action }: Props) => {
+  const initialForm = {
+    title: issue.title,
+    subtitle: issue.subtitle ?? "",
+    editorsLetterTitle: issue.editorsLetterTitle ?? "",
+    editorsLetter: issue.editorsLetter.join("\n\n"),
+  };
+
+  const alpineAttrs = {
+    "x-data": `magazineDetailsForm(${JSON.stringify(initialForm)})`,
+    "x-target": "toast",
+    "x-on:submit": "submitForm($event)",
+  };
+
   return (
-    <form
-      method="post"
-      action={`${action}/details`}
-      class="flex flex-col gap-3 border-t border-outline pt-4"
-    >
+    <div class="flex flex-col gap-3 border-t border-outline pt-4">
       <span class="kicker text-accent">Edit details</span>
-      <label class="flex flex-col gap-1">
-        <span class="text-xs font-semibold text-on-surface">Title</span>
-        <input
-          name="title"
-          value={issue.title}
-          class="w-full border border-outline bg-surface px-3 py-2 text-sm text-on-surface"
+      <FormPost
+        {...alpineAttrs}
+        action={`${action}/details`}
+        className="flex flex-col gap-3"
+      >
+        <Input
+          label="Title"
+          name="form.title"
+          required
+          validateInput="validateField('title')"
         />
-      </label>
-      <label class="flex flex-col gap-1">
-        <span class="text-xs font-semibold text-on-surface">Subtitle</span>
-        <input
-          name="subtitle"
-          value={issue.subtitle ?? ""}
-          class="w-full border border-outline bg-surface px-3 py-2 text-sm text-on-surface"
+        <Input label="Subtitle" name="form.subtitle" />
+        <Input label="Editor's letter title" name="form.editorsLetterTitle" />
+        <TextArea
+          label="Editor's letter"
+          name="form.editorsLetter"
+          minRows={10}
+          placeholder="Separate paragraphs with a blank line."
         />
-      </label>
-      <label class="flex flex-col gap-1">
-        <span class="text-xs font-semibold text-on-surface">
-          Editor's letter title
-        </span>
-        <input
-          name="editorsLetterTitle"
-          value={issue.editorsLetterTitle ?? ""}
-          class="w-full border border-outline bg-surface px-3 py-2 text-sm text-on-surface"
-        />
-      </label>
-      <label class="flex flex-col gap-1">
-        <span class="text-xs font-semibold text-on-surface">
-          Editor's letter
-        </span>
-        <textarea
-          name="editorsLetter"
-          rows={10}
-          class="w-full border border-outline bg-surface px-3 py-2 text-sm leading-relaxed text-on-surface"
-        >
-          {issue.editorsLetter.join("\n\n")}
-        </textarea>
-        <span class="text-xs text-on-surface-weak">
-          Separate paragraphs with a blank line.
-        </span>
-      </label>
-      <div>
-        <Button variant="outline" color="primary">
-          Save details
-        </Button>
-      </div>
-    </form>
+        <FormButtons buttonText="Save details" loadingText="Saving..." />
+      </FormPost>
+    </div>
   );
 };
 

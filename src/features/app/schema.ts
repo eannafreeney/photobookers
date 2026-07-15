@@ -59,6 +59,10 @@ export const slugSchema = z.object({
     ),
 });
 
+export const idSchema = z.object({
+  id: z.string().uuid("Invalid id"),
+});
+
 export const tagSchema = z.object({
   tag: z
     .string()
