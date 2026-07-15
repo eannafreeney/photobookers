@@ -21,6 +21,8 @@ export type MagazineIssuePlacement = {
   blurb: string | null;
   artistPrompt: string | null;
   artistQuote: string | null;
+  /** When the artist was emailed their prompt, or `null` if not yet sent. */
+  artistEmailSentAt: Date | null;
   book: BookCardResult | null;
 };
 
@@ -99,6 +101,7 @@ function toIssueView(issue: IssueWithBooks): MagazineIssueView {
       blurb: entry.blurb,
       artistPrompt: entry.artistPrompt,
       artistQuote: entry.artistQuote,
+      artistEmailSentAt: entry.artistEmailSentAt ?? null,
       book: (entry.book ?? null) as BookCardResult | null,
     }),
   );

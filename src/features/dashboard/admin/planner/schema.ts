@@ -118,16 +118,22 @@ export const newsletterCampaignParamSchema = z.object({
   campaignId: z.string().uuid("Invalid campaign id"),
 });
 
-export const newsletterCampaignEditSchema = z.object({
-  subject: z.string().min(1, "Subject is required").max(180),
-  introText: z.string().min(1, "Intro text is required").max(5000),
-  outroText: z.string().min(1, "Outro text is required").max(5000),
-  ctaText: z.string().min(1, "CTA text is required").max(120),
+// Draft copy form: nothing is required — any field may be left blank. Used for
+// both the client Alpine validation and the save route.
+export const newsletterCampaignFormSchema = z.object({
+  subject: z.string().max(180).optional(),
+  introText: z.string().max(5000).optional(),
+  outroText: z.string().max(5000).optional(),
+  ctaText: z.string().max(120).optional(),
   ctaHref: z.preprocess(
     (val) => (val === "" || val === undefined ? undefined : val),
     z.url("CTA link must be a valid URL").max(500).optional(),
   ),
 });
+
+export type NewsletterCampaignFormSchema = z.infer<
+  typeof newsletterCampaignFormSchema
+>;
 
 export const newsletterBrevoTestSchema = z.object({
   email: z.preprocess(

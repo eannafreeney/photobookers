@@ -1,4 +1,5 @@
 import AiActionForm from "./AiActionForm";
+import ArtistEmailAction from "./ArtistEmailAction";
 import DeleteBookForm from "./DeleteBookForm";
 import DescriptionForm from "./DescriptionForm";
 import { BookCardResult } from "@/constants/queries";
@@ -10,6 +11,10 @@ type MovementBookCardProps = {
   book: BookCardResult | null;
   blurb: string | null;
   action: string;
+  /** Editorial question posed to the artist for this book. */
+  artistPrompt?: string | null;
+  /** When the artist was emailed the prompt, or `null`/absent if not yet. */
+  artistEmailSentAt?: Date | string | null;
 };
 
 const MovementBookCard = ({
@@ -18,6 +23,8 @@ const MovementBookCard = ({
   book,
   blurb,
   action,
+  artistPrompt = null,
+  artistEmailSentAt = null,
 }: MovementBookCardProps) => {
   const targetId = `magazine-book-${number}`;
   return (
@@ -80,6 +87,14 @@ const MovementBookCard = ({
           </a>
         </span>
         <DescriptionForm bookId={bookId} blurb={blurb} action={action} />
+        <ArtistEmailAction
+          action={action}
+          bookId={bookId}
+          targetId={targetId}
+          artistPrompt={artistPrompt}
+          artistEmail={book?.artist?.email ?? null}
+          artistEmailSentAt={artistEmailSentAt}
+        />
       </div>
     </li>
   );

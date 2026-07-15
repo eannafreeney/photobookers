@@ -1,6 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
+  creators,
   magazineIssues,
   magazineIssueBooks,
   type MagazineIssueStatus,
@@ -294,6 +295,42 @@ export async function swapIssueBook(
   } catch (error) {
     console.error("Failed to swap issue book", error);
     return err({ reason: "Failed to swap book", error });
+  }
+}
+
+/** Save (or overwrite) a creator's contact email — used when emailing an
+ *  artist their magazine prompt and no address is on file yet. */
+export async function saveCreatorEmail(creatorId: string, email: string) {
+  try {
+    await db
+      .update(creators)
+      .set({ email })
+      .where(eq(creators.id, creatorId));
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to save creator email", error);
+    return err({ reason: "Failed to save creator email", error });
+  }
+}
+
+/** Stamp the moment an artist was emailed their prompt for one issue book. */
+export async function stampArtistEmailSent(issueId: string, bookId: string) {
+  try {
+    const [row] = await db
+      .update(magazineIssueBooks)
+      .set({ artistEmailSentAt: new Date() })
+      .where(
+        and(
+          eq(magazineIssueBooks.issueId, issueId),
+          eq(magazineIssueBooks.bookId, bookId),
+        ),
+      )
+      .returning({ artistEmailSentAt: magazineIssueBooks.artistEmailSentAt });
+    if (!row) return err({ reason: "Book is not in this issue" });
+    return ok(row.artistEmailSentAt as Date);
+  } catch (error) {
+    console.error("Failed to stamp artist email", error);
+    return err({ reason: "Failed to record sent email", error });
   }
 }
 

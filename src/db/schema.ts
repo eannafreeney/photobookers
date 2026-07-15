@@ -1314,6 +1314,7 @@ export const magazineIssueBooks = pgTable(
     blurb: text("blurb"),
     artistPrompt: text("artist_prompt"),
     artistQuote: text("artist_quote"),
+    artistEmailSentAt: timestamp("artist_email_sent_at"),
     createdAt: timestamp("created_at").defaultNow(),
   },
   (table) => ({

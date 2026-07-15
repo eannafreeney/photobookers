@@ -33,3 +33,16 @@ export const magazineBookActionSchema = z.object({
 });
 
 export type MagazineBookActionSchema = z.infer<typeof magazineBookActionSchema>;
+
+// Emailing an artist their prompt. `email` is only sent from the modal shown
+// when the artist has no address on file; empty string is treated as absent.
+export const magazineEmailArtistSchema = z.object({
+  bookId: z.string().min(1),
+  email: z
+    .union([z.email("Enter a valid email"), z.literal("")])
+    .optional(),
+});
+
+export type MagazineEmailArtistSchema = z.infer<
+  typeof magazineEmailArtistSchema
+>;

@@ -435,6 +435,13 @@
 			"when": 1784113093574,
 			"tag": "0062_add_newsletter_cta_href",
 			"breakpoints": true
+		},
+		{
+			"idx": 63,
+			"version": "7",
+			"when": 1784200000000,
+			"tag": "0063_magazine_artist_email_sent_at",
+			"breakpoints": true
 		}
 	]
 }

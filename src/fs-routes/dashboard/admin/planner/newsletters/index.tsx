@@ -14,6 +14,9 @@ import { formatNewsletterWeekRange } from "../../../../../features/dashboard/adm
 import { parseDateString } from "../../../../../lib/utils";
 import { NewsletterCampaign } from "../../../../../db/schema";
 import FormPost from "../../../../../components/forms/FormPost";
+import Input from "../../../../../components/forms/Input";
+import TextArea from "../../../../../components/forms/TextArea";
+import FormButtons from "../../../../../components/forms/FormButtons";
 import {
   NewsletterBrevoPanel,
   NewsletterCampaignControls,
@@ -154,76 +157,60 @@ type CampaignTextFormProps = {
 };
 
 const CampaignTextForm = ({ selectedCampaign }: CampaignTextFormProps) => {
-  const saveAttrs = {
+  const initialForm = {
+    subject: selectedCampaign.subject ?? "",
+    introText: selectedCampaign.introText ?? "",
+    outroText: selectedCampaign.outroText ?? "",
+    ctaText: selectedCampaign.ctaText ?? "",
+    ctaHref: selectedCampaign.ctaHref ?? "",
+  };
+
+  const alpineAttrs = {
+    "x-data": `campaignTextForm(${JSON.stringify(initialForm)})`,
     "x-target": "toast",
+    "x-on:submit": "submitForm($event)",
   };
 
   return (
     <FormPost
+      {...alpineAttrs}
       action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/save`}
-      class="space-y-3"
-      {...saveAttrs}
+      className="space-y-3"
     >
-      <label class="block text-sm">
-        <span class="mb-1 block text-on-surface">Subject</span>
-        <input
-          type="text"
-          name="subject"
-          required
-          value={selectedCampaign.subject}
-          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
-        />
-      </label>
-      <label class="block text-sm">
-        <span class="mb-1 block text-on-surface">Intro</span>
-        <textarea
-          name="introText"
-          required
-          rows={4}
-          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
-        >
-          {selectedCampaign.introText}
-        </textarea>
-      </label>
-      <label class="block text-sm">
-        <span class="mb-1 block text-on-surface">Outro</span>
-        <textarea
-          name="outroText"
-          required
-          rows={4}
-          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
-        >
-          {selectedCampaign.outroText}
-        </textarea>
-      </label>
-      <label class="block text-sm">
-        <span class="mb-1 block text-on-surface">CTA</span>
-        <input
-          type="text"
-          name="ctaText"
-          required
-          value={selectedCampaign.ctaText}
-          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
-        />
-      </label>
-      <label class="block text-sm">
-        <span class="mb-1 block text-on-surface">CTA link</span>
-        <input
-          type="url"
-          name="ctaHref"
-          value={selectedCampaign.ctaHref ?? ""}
-          placeholder="Leave blank to link to the homepage"
-          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
-        />
-      </label>
-      <div class="flex flex-wrap gap-2">
-        <button
-          type="submit"
-          class="rounded border border-outline bg-surface-alt px-3 py-2 text-sm font-medium hover:bg-surface cursor-pointer"
-        >
-          Save draft
-        </button>
-      </div>
+      <Input
+        label="Subject"
+        name="form.subject"
+        maxLength={180}
+        validateInput="validateField('subject')"
+      />
+      <TextArea
+        label="Intro"
+        name="form.introText"
+        minRows={4}
+        maxLength={5000}
+        validateInput="validateField('introText')"
+      />
+      <TextArea
+        label="Outro"
+        name="form.outroText"
+        minRows={4}
+        maxLength={5000}
+        validateInput="validateField('outroText')"
+      />
+      <Input
+        label="CTA"
+        name="form.ctaText"
+        maxLength={120}
+        validateInput="validateField('ctaText')"
+      />
+      <Input
+        label="CTA link"
+        type="url"
+        name="form.ctaHref"
+        placeholder="Leave blank to link to the homepage"
+        validateInput="validateField('ctaHref')"
+      />
+      <FormButtons buttonText="Save draft" loadingText="Saving..." />
     </FormPost>
   );
 };

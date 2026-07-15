@@ -1,7 +1,7 @@
 import { createRoute } from "hono-fsr";
 import { formValidator, paramValidator } from "../../../../../../lib/validator";
 import {
-  newsletterCampaignEditSchema,
+  newsletterCampaignFormSchema,
   newsletterCampaignParamSchema,
 } from "../../../../../../features/dashboard/admin/planner/schema";
 import {
@@ -12,7 +12,7 @@ import Alert from "../../../../../../components/app/Alert";
 
 export const POST = createRoute(
   paramValidator(newsletterCampaignParamSchema),
-  formValidator(newsletterCampaignEditSchema),
+  formValidator(newsletterCampaignFormSchema),
   async (c) => {
     const { campaignId } = c.req.valid("param");
     const form = c.req.valid("form");
@@ -21,10 +21,10 @@ export const POST = createRoute(
 
     const isSent = campaign.status === "sent";
     const [error] = await updateNewsletterCampaignDraft(campaignId, {
-      subject: form.subject,
-      introText: form.introText,
-      outroText: form.outroText,
-      ctaText: form.ctaText,
+      subject: form.subject ?? "",
+      introText: form.introText ?? "",
+      outroText: form.outroText ?? "",
+      ctaText: form.ctaText ?? "",
       ctaHref: form.ctaHref ?? null,
       status: isSent ? "sent" : "draft",
       sentAt: isSent ? campaign.sentAt : null,
