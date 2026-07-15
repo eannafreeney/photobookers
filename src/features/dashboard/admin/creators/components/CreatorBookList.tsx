@@ -20,6 +20,7 @@ import {
 import ListNavigation from "../../../../app/components/ListNavigation";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import { getBooksByCreatorId } from "../services";
+import { deleteRowAttrs } from "@/lib/utils";
 
 type CreatorBookListProps = {
   creatorId: string;
@@ -128,7 +129,10 @@ const CreatorBookList = async ({
               <Table.HeadRow>Actions</Table.HeadRow>
             </tr>
           </Table.Head>
-          <Table.Body id={targetId} xMerge={reorderEnabled ? undefined : "append"}>
+          <Table.Body
+            id={targetId}
+            xMerge={reorderEnabled ? undefined : "append"}
+          >
             {books.map((book) => (
               <BookTableRow
                 book={book}
@@ -162,25 +166,16 @@ type RowProps = {
   reorderEnabled: boolean;
 };
 
-const BookTableRow = ({
-  book,
-  user,
-  funnel,
-  reorderEnabled,
-}: RowProps) => {
+const BookTableRow = ({ book, user, funnel, reorderEnabled }: RowProps) => {
   if (!book || !book.id || !book.slug || !book.title) {
     return <></>;
   }
 
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()",
-  };
-
   return (
-    <tr {...{ "data-book-id": book.id }} {...(reorderEnabled ? reorderRowAttrs : {})}>
+    <tr
+      {...{ "data-book-id": book.id }}
+      {...(reorderEnabled ? reorderRowAttrs : {})}
+    >
       {reorderEnabled ? (
         <Table.BodyRow>
           <div
@@ -263,7 +258,7 @@ const BookTableRow = ({
       <Table.BodyRow>
         <FormDelete
           action={`/dashboard/admin/books/${book.id}`}
-          {...alpineAttrs}
+          {...deleteRowAttrs}
         >
           <button type="submit" class="cursor-pointer hover:text-red-500">
             {deleteIcon}

@@ -1,6 +1,7 @@
 import type { NewsletterCampaign } from "../../../../../db/schema";
 import FormPost from "../../../../../components/forms/FormPost";
 import { isBrevoNewsletterConfigured } from "../newsletter/brevoServices";
+import Button from "@/components/app/Button";
 
 export const NEWSLETTER_CAMPAIGN_CONTROLS_ID = "newsletter-campaign-controls";
 export const NEWSLETTER_BREVO_PANEL_ID = "newsletter-brevo-panel";
@@ -145,13 +146,9 @@ export const NewsletterBrevoPanel = ({
                 disabled={isSent}
               />
             </label>
-            <button
-              type="submit"
-              class="rounded border border-outline bg-surface-alt px-3 py-2 text-sm font-medium hover:bg-surface cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={isSent}
-            >
+            <Button variant="solid" color="primary" isDisabled={isSent}>
               Send Brevo test
-            </button>
+            </Button>
           </FormPost>
           <p class="text-xs text-on-surface">
             Brevo requires test recipients to be contacts on your newsletter
@@ -163,29 +160,13 @@ export const NewsletterBrevoPanel = ({
               action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/send-brevo`}
               {...sendListConfirmAttrs}
             >
-              <button
-                type="submit"
-                class="rounded border border-outline bg-primary px-3 py-2 text-sm font-medium text-on-primary hover:opacity-90 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={isSent}
-              >
+              <Button variant="solid" color="primary" isDisabled={isSent}>
                 Send to Brevo list
-              </button>
+              </Button>
             </FormPost>
-            <p class="mt-2 text-xs text-on-surface">
-              Uses list ID from{" "}
-              <code class="rounded bg-surface-alt px-1">
-                BREVO_NEWSLETTER_LIST_ID
-              </code>
-              . Marks this draft as sent on success.
-            </p>
           </div>
         </div>
       )}
-      <p class="mt-3 text-xs text-on-surface">
-        Brevo IP blocking: leave &quot;block unauthorized IPs&quot; off until
-        your server&apos;s outbound IP is listed under Security → Authorized IPs
-        (otherwise API calls from the app will fail).
-      </p>
     </div>
   );
 };

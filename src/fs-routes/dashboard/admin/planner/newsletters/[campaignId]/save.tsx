@@ -5,10 +5,12 @@ import {
   newsletterCampaignParamSchema,
 } from "../../../../../../features/dashboard/admin/planner/schema";
 import {
+  buildCampaignPreviewHtml,
   getNewsletterCampaignById,
   updateNewsletterCampaignDraft,
 } from "../../../../../../features/dashboard/admin/planner/newsletter/services";
 import Alert from "../../../../../../components/app/Alert";
+import CampaignPreview from "@/features/dashboard/admin/planner/newsletter/components/CampaignPreview";
 
 export const POST = createRoute(
   paramValidator(newsletterCampaignParamSchema),
@@ -32,6 +34,13 @@ export const POST = createRoute(
 
     if (error) return c.html(<Alert type="danger" message={error.reason} />);
 
-    return c.html(<Alert type="success" message="Draft saved." />);
+    const previewHtml = await buildCampaignPreviewHtml(campaign);
+
+    return c.html(
+      <>
+        <Alert type="success" message="Draft saved." />
+        <CampaignPreview previewHtml={previewHtml} />
+      </>,
+    );
   },
 );

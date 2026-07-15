@@ -5,6 +5,7 @@ import PublishMagazineIssueToggle from "./PublishToggle";
 import Link from "@/components/app/Link";
 import FormDelete from "@/components/forms/FormDelete";
 import { deleteIcon, editIcon } from "@/lib/icons";
+import { deleteRowAttrs } from "@/lib/utils";
 
 type Props = {
   issues: AdminIssueListItem[];
@@ -44,13 +45,6 @@ const MagazineTable = ({ issues }: Props) => {
 export default MagazineTable;
 
 const TableRow = ({ issue }: { issue: AdminIssueListItem }) => {
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()",
-  };
-
   return (
     <tr>
       <Table.BodyRow>
@@ -92,7 +86,7 @@ const TableRow = ({ issue }: { issue: AdminIssueListItem }) => {
 
           <FormDelete
             action={`/dashboard/admin/magazine/${issue.id}/delete`}
-            {...alpineAttrs}
+            {...deleteRowAttrs}
           >
             <button type="submit" class="cursor-pointer hover:text-red-500">
               {deleteIcon}

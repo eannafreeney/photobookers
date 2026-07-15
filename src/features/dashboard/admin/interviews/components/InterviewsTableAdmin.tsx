@@ -9,6 +9,7 @@ import FormDelete from "../../../../../components/forms/FormDelete";
 import { deleteIcon } from "../../../../../lib/icons";
 import { Creator, CreatorInterview } from "../../../../../db/schema";
 import InterviewStatusForm from "./InterviewStatusForm";
+import { deleteRowAttrs } from "@/lib/utils";
 
 type Props = {
   statusType?: "published" | "sent" | "completed" | "expired";
@@ -95,12 +96,6 @@ const InterviewTableRow = ({
 }: {
   interview: CreatorInterview & { creator: Creator };
 }) => {
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()",
-  };
   return (
     <tr key={interview.id}>
       <Table.BodyRow>
@@ -137,7 +132,7 @@ const InterviewTableRow = ({
       <Table.BodyRow>
         <FormDelete
           action={`/dashboard/admin/interviews/${interview.id}`}
-          {...alpineAttrs}
+          {...deleteRowAttrs}
         >
           <button type="submit" class="cursor-pointer hover:text-red-500">
             {deleteIcon}

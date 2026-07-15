@@ -10,6 +10,7 @@ import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import FormDelete from "../../../../../components/forms/FormDelete";
 import { deleteIcon } from "../../../../../lib/icons";
 import ResetUserPasswordButton from "./ResetUserPasswordButton";
+import { deleteRowAttrs } from "@/lib/utils";
 
 type Props = {
   searchQuery?: string;
@@ -95,13 +96,6 @@ type RowProps = {
 const UserTableRow = ({ user }: RowProps) => {
   if (!user) return <></>;
 
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()",
-  };
-
   return (
     <tr>
       <Table.BodyRow>
@@ -144,7 +138,7 @@ const UserTableRow = ({ user }: RowProps) => {
       <Table.BodyRow>
         <FormDelete
           action={`/dashboard/admin/users/${user.id}`}
-          {...alpineAttrs}
+          {...deleteRowAttrs}
         >
           <button type="submit" class="cursor-pointer hover:text-red-500">
             {deleteIcon}

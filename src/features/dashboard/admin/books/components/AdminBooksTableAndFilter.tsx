@@ -18,6 +18,7 @@ import BookStatusForm from "../forms/BookStatusForm";
 import { getAllBooksAdmin } from "../services";
 import { BookWithAdminRelations } from "../types";
 import BookApprovalStatusPill from "./BookApprovalStatusPill";
+import { deleteRowAttrs } from "@/lib/utils";
 
 type Props = {
   status?: "approved" | "pending" | "rejected" | undefined;
@@ -132,13 +133,6 @@ type BooksTableRowProps = {
 const BooksTableRow = ({ book, user, funnel }: BooksTableRowProps) => {
   if (!user) return <></>;
 
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()",
-  };
-
   return (
     <tr>
       <Table.BodyRow>
@@ -205,7 +199,7 @@ const BooksTableRow = ({ book, user, funnel }: BooksTableRowProps) => {
       <Table.BodyRow>
         <FormDelete
           action={`/dashboard/admin/books/${book.id}`}
-          {...alpineAttrs}
+          {...deleteRowAttrs}
         >
           <button type="submit" class="cursor-pointer hover:text-red-500">
             {deleteIcon}

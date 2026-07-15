@@ -17,6 +17,13 @@ export function parseWeekString(str: string): Date {
   );
 }
 
+export const deleteRowAttrs = {
+  "x-init": "true",
+  "x-target": "toast",
+  "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+  "@ajax:success": "$el.closest('tr').remove()",
+};
+
 /** Format a week-start Date to "YYYY-Www" for display or input value */
 export function toWeekString(d: Date): string {
   const mon = new Date(

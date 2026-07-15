@@ -87,6 +87,7 @@ const MovementBookCard = ({
           </a>
         </span>
         <DescriptionForm bookId={bookId} blurb={blurb} action={action} />
+        <p class="text-xs text-on-surface-weak">{artistPrompt}</p>
         <ArtistEmailAction
           action={action}
           bookId={bookId}

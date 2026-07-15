@@ -8,6 +8,7 @@ import { getAllFairsAdmin } from "../services";
 import FairStatusBadge from "./FairStatusBadge";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import StatusPill from "../../components/StatusPill";
+import { deleteRowAttrs } from "@/lib/utils";
 
 type Props = {
   status?: "draft" | "published" | "cancelled" | undefined;
@@ -96,8 +97,7 @@ const AdminFairsTableAndFilter = async ({
                     </Link>
                     <FormDelete
                       action={`/dashboard/admin/fairs/${fair.id}`}
-                      confirmMessage={`Delete ${fair.name}?`}
-                      {...{ "@ajax:success": "$el.closest('tr').remove()" }}
+                      {...deleteRowAttrs}
                     >
                       <button
                         type="submit"

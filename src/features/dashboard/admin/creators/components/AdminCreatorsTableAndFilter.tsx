@@ -16,6 +16,7 @@ import OwnerCell from "./OwnerCell";
 import SendInterviewButton from "./SendInterviewButton";
 import FormDelete from "../../../../../components/forms/FormDelete";
 import { deleteIcon } from "../../../../../lib/icons";
+import { deleteRowAttrs } from "@/lib/utils";
 
 type Props = {
   type?: "artist" | "publisher" | undefined;
@@ -100,13 +101,6 @@ type CreatorsTableRowProps = {
 };
 
 const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()",
-  };
-
   return (
     <tr>
       <Table.BodyRow>
@@ -166,7 +160,7 @@ const CreatorsTableRow = ({ creator }: CreatorsTableRowProps) => {
       <Table.BodyRow>
         <FormDelete
           action={`/dashboard/admin/creators/${creator.id}`}
-          {...alpineAttrs}
+          {...deleteRowAttrs}
         >
           <button type="submit" class="cursor-pointer hover:text-red-500">
             {deleteIcon}
