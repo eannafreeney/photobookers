@@ -95,6 +95,36 @@ describe("getCompletedNewsletterEditionRange", () => {
     expect(edition.weekStart.toISOString()).toBe("2026-07-02T00:00:00.000Z");
     expect(edition.weekEnd.toISOString()).toBe("2026-07-08T00:00:00.000Z");
   });
+
+  it("uses today's edition when run on the send Wednesday", () => {
+    // Trending cron runs Wednesday 10:00 UTC, after the 09:00 newsletter send —
+    // it must promote that morning's edition, not the previous week's.
+    const edition = getCompletedNewsletterEditionRange(
+      new Date("2026-07-15T10:00:00.000Z"),
+    );
+
+    expect(edition.sendWednesday.toISOString()).toBe(
+      "2026-07-15T00:00:00.000Z",
+    );
+    expect(edition.weekStart.toISOString()).toBe("2026-07-09T00:00:00.000Z");
+    expect(edition.weekEnd.toISOString()).toBe("2026-07-15T00:00:00.000Z");
+  });
+
+  it("schedules the three posts 24h apart in the future from a Wednesday run", () => {
+    const { sendWednesday } = getCompletedNewsletterEditionRange(
+      new Date("2026-07-15T10:00:00.000Z"),
+    );
+
+    expect(buildTrendingInstagramDueAt(sendWednesday, "books").toISOString()).toBe(
+      "2026-07-16T13:00:00.000Z",
+    );
+    expect(
+      buildTrendingInstagramDueAt(sendWednesday, "artists").toISOString(),
+    ).toBe("2026-07-17T13:00:00.000Z");
+    expect(
+      buildTrendingInstagramDueAt(sendWednesday, "publishers").toISOString(),
+    ).toBe("2026-07-18T13:00:00.000Z");
+  });
 });
 
 describe("buildTrendingInstagramDueAt", () => {

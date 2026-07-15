@@ -17,11 +17,13 @@ export function getCompletedNewsletterEditionRange(
   const ref = toUtcStartOfDay(referenceDate);
   const daysSinceSendDay =
     (ref.getUTCDay() - NEWSLETTER_SEND_WEEKDAY_UTC + 7) % 7;
+  // On the send Wednesday itself, the edition sent that morning (09:00 UTC) is
+  // the completed one — the trending cron runs an hour later (10:00 UTC), so it
+  // must promote today's edition and schedule Thu/Fri/Sat of this week (24h
+  // apart, in the future). Rewinding a week here lands every post in the past,
+  // where scheduleInstagramDueAt collapses them all to now+5min.
   const sendWednesday = new Date(ref);
-  sendWednesday.setUTCDate(
-    sendWednesday.getUTCDate() -
-      (daysSinceSendDay === 0 ? 7 : daysSinceSendDay),
-  );
+  sendWednesday.setUTCDate(sendWednesday.getUTCDate() - daysSinceSendDay);
   const { weekStart, weekEnd } =
     getNewsletterRangeForSendWednesday(sendWednesday);
   return { weekStart, weekEnd, sendWednesday };
