@@ -143,6 +143,7 @@ export const POST = createRoute(
           blurb={placement.blurb}
           action={action}
           artistPrompt={finalPrompt}
+          artistQuote={placement.artistQuote}
           artistEmailSentAt={sentAt}
         />
         <Alert type="success" message={`Question emailed to ${recipient}.`} />

@@ -51,6 +51,7 @@ export const POST = createRoute(
           book={book}
           blurb={replacement.blurb}
           action={action}
+          artistPrompt={replacement.artistPrompt}
         />
         <Alert type="success" message="Book swapped" />
       </>,

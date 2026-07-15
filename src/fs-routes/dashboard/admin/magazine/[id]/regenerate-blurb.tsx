@@ -43,6 +43,9 @@ export const POST = createRoute(
           book={placement.book}
           blurb={result.blurb}
           action={action}
+          artistPrompt={placement.artistPrompt}
+          artistQuote={placement.artistQuote}
+          artistEmailSentAt={placement.artistEmailSentAt}
         />
         <Alert type="success" message="Blurb rewritten." />
       </>,

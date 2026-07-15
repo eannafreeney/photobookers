@@ -263,6 +263,29 @@ export async function updateIssueBookBlurb(
   }
 }
 
+/** Save (or overwrite) the artist's answer/quote to publish alongside a book. */
+export async function updateIssueBookArtistQuote(
+  issueId: string,
+  bookId: string,
+  artistQuote: string | null,
+) {
+  try {
+    await db
+      .update(magazineIssueBooks)
+      .set({ artistQuote })
+      .where(
+        and(
+          eq(magazineIssueBooks.issueId, issueId),
+          eq(magazineIssueBooks.bookId, bookId),
+        ),
+      );
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to update artist quote", error);
+    return err({ reason: "Failed to update artist quote", error });
+  }
+}
+
 /** Save (or overwrite) the editorial question posed to the artist for a book. */
 export async function updateIssueBookArtistPrompt(
   issueId: string,

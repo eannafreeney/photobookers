@@ -1,19 +1,18 @@
 import AiActionForm from "./AiActionForm";
+import ArtistAnswerForm from "./ArtistAnswerForm";
 import ArtistEmailAction from "./ArtistEmailAction";
 import DeleteBookForm from "./DeleteBookForm";
 import DescriptionForm from "./DescriptionForm";
 import { BookCardResult } from "@/constants/queries";
 
 type MovementBookCardProps = {
-  /** Stable 1-based slot position; survives a swap, so it anchors the DOM id. */
   number: number;
   bookId: string;
   book: BookCardResult | null;
   blurb: string | null;
   action: string;
-  /** Editorial question posed to the artist for this book. */
   artistPrompt?: string | null;
-  /** When the artist was emailed the prompt, or `null`/absent if not yet. */
+  artistQuote?: string | null;
   artistEmailSentAt?: Date | string | null;
 };
 
@@ -24,16 +23,17 @@ const MovementBookCard = ({
   blurb,
   action,
   artistPrompt = null,
+  artistQuote = null,
   artistEmailSentAt = null,
 }: MovementBookCardProps) => {
   const targetId = `magazine-book-${number}`;
   return (
     <li
       id={targetId}
-      class="flex items-start gap-3 border border-outline bg-surface-alt/40 p-3"
+      class="flex flex-col md:flex-row items-start gap-3 border border-outline bg-surface-alt/40 p-3"
     >
       {/* Image column: 30% of the card */}
-      <div class="w-[30%] shrink-0">
+      <div class="w-full md:w-[30%] shrink-0">
         {book?.coverUrl ? (
           <img
             src={book.coverUrl}
@@ -65,7 +65,7 @@ const MovementBookCard = ({
       </div>
 
       {/* Content column: the remaining 70% */}
-      <div class="flex min-w-0 flex-1 flex-col gap-1">
+      <div class="flex min-w-0 w-full md:w-auto flex-1 flex-col gap-2">
         <div class="flex items-start justify-between gap-2">
           <div class="flex items-center gap-2">
             <span class="font-display text-base font-medium text-on-surface-strong">
@@ -87,13 +87,21 @@ const MovementBookCard = ({
           </a>
         </span>
         <DescriptionForm bookId={bookId} blurb={blurb} action={action} />
-        <p class="text-xs text-on-surface-weak">{artistPrompt}</p>
+        <p class="text-sm text-on-surface-strong">{`Question: ${artistPrompt}`}</p>
         <ArtistEmailAction
           action={action}
           bookId={bookId}
           artistPrompt={artistPrompt}
           artistEmailSentAt={artistEmailSentAt}
         />
+        {/* The answer field only makes sense once the question has been sent. */}
+        {artistEmailSentAt ? (
+          <ArtistAnswerForm
+            bookId={bookId}
+            artistQuote={artistQuote}
+            action={action}
+          />
+        ) : null}
       </div>
     </li>
   );

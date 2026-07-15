@@ -33,6 +33,7 @@ const SelectedBooks = ({ issue, action }: Props) => {
                   blurb={item.blurb}
                   action={action}
                   artistPrompt={item.artistPrompt}
+                  artistQuote={item.artistQuote}
                   artistEmailSentAt={item.artistEmailSentAt}
                 />
               ))}

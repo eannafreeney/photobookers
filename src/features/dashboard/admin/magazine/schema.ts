@@ -27,6 +27,15 @@ export const magazineBlurbFormSchema = z.object({
 
 export type MagazineBlurbFormSchema = z.infer<typeof magazineBlurbFormSchema>;
 
+// The artist's answer/quote, pasted in by the admin to publish in the issue.
+export const magazineArtistQuoteFormSchema = z.object({
+  quote: z.string().max(2000).optional(),
+});
+
+export type MagazineArtistQuoteFormSchema = z.infer<
+  typeof magazineArtistQuoteFormSchema
+>;
+
 // A book-scoped action (swap / regenerate blurb) — just the target book id.
 export const magazineBookActionSchema = z.object({
   bookId: z.string().min(1),
