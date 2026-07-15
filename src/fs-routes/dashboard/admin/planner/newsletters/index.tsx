@@ -206,6 +206,16 @@ const CampaignTextForm = ({ selectedCampaign }: CampaignTextFormProps) => {
           class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
         />
       </label>
+      <label class="block text-sm">
+        <span class="mb-1 block text-on-surface">CTA link</span>
+        <input
+          type="url"
+          name="ctaHref"
+          value={selectedCampaign.ctaHref ?? ""}
+          placeholder="Leave blank to link to the homepage"
+          class="w-full rounded border border-outline bg-surface-alt px-3 py-2"
+        />
+      </label>
       <div class="flex flex-wrap gap-2">
         <button
           type="submit"

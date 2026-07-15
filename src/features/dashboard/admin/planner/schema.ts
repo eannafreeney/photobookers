@@ -125,7 +125,7 @@ export const newsletterCampaignEditSchema = z.object({
   ctaText: z.string().min(1, "CTA text is required").max(120),
   ctaHref: z.preprocess(
     (val) => (val === "" || val === undefined ? undefined : val),
-    z.string().url("CTA link must be a valid URL").max(500).optional(),
+    z.url("CTA link must be a valid URL").max(500).optional(),
   ),
 });
 

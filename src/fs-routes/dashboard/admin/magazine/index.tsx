@@ -3,7 +3,7 @@ import { Context } from "hono";
 import AppLayout from "@/components/layouts/AppLayout";
 import Page from "@/components/layouts/Page";
 import Sidebar from "@/components/app/Sidebar";
-import MagazineTable from "@/features/dashboard/admin/magazine/components/MagazineTable";
+import MagazineTable from "@/features/dashboard/admin/magazine/components/MagazineOverview";
 import { listAllIssuesForAdmin } from "@/domain/magazine/queries";
 import { getFlash, getUser } from "@/utils";
 

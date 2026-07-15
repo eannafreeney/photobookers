@@ -25,6 +25,7 @@ export const POST = createRoute(
       introText: form.introText,
       outroText: form.outroText,
       ctaText: form.ctaText,
+      ctaHref: form.ctaHref ?? null,
       status: isSent ? "sent" : "draft",
       sentAt: isSent ? campaign.sentAt : null,
     });

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { MagazineMovementData } from "@/db/schema";
 import type { MagazineIssueView } from "@/domain/magazine/queries";
 import { err, ok, type Result } from "@/lib/result";
@@ -55,6 +56,7 @@ type GenerateOptions = {
 };
 
 async function chatJSON<T>(
+  schema: z.ZodType<T>,
   system: string,
   user: string,
   temperature: number,
@@ -90,12 +92,75 @@ async function chatJSON<T>(
     };
     const content = data.choices?.[0]?.message?.content;
     if (!content) return err({ reason: "OpenAI returned no content" });
-    return ok(JSON.parse(content) as T);
+
+    let raw: unknown;
+    try {
+      raw = JSON.parse(content);
+    } catch {
+      return err({ reason: "OpenAI returned invalid JSON" });
+    }
+    // Validate the shape so a weaker/mis-configured model (e.g. a missing
+    // OPENAI_MAGAZINE_MODEL falling back to a mini model) fails loudly here
+    // instead of silently saving an issue with empty editorial fields.
+    const parsed = schema.safeParse(raw);
+    if (!parsed.success) {
+      console.error(
+        "magazine generate: response failed validation",
+        `model=${MODEL}`,
+        parsed.error.issues,
+      );
+      return err({
+        reason: `The model (${MODEL}) returned an unexpected shape — check OPENAI_MAGAZINE_MODEL, then try again.`,
+      });
+    }
+    return ok(parsed.data);
   } catch (error) {
     console.error("magazine generate", error);
     return err({ reason: "OpenAI request errored or returned invalid JSON" });
   }
 }
+
+// Response schemas: the exact shape each prompt promises. Strings/arrays are
+// required and non-empty so blank editorial content is treated as a failure.
+const themeResponseSchema = z.object({
+  theme: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string().min(1),
+  kicker: z.string().min(1),
+  editorsLetterTitle: z.string().min(1),
+  editorsLetter: z.array(z.string().min(1)).min(1),
+  facets: z.array(z.string().min(1)).min(3),
+});
+
+const movementResponseSchema = z.object({
+  id: z.string().min(1),
+  kicker: z.string().min(1),
+  lead: z.string().min(1),
+  title: z.string().min(1),
+  paragraphs: z.array(z.string().min(1)).min(1),
+});
+
+const curationResponseSchema = z.object({
+  movements: z.array(movementResponseSchema).min(1),
+  books: z
+    .array(
+      z.object({
+        bookId: z.string().min(1),
+        movementId: z.string().min(1),
+        blurb: z.string().min(1),
+        artistPrompt: z.string().optional(),
+      }),
+    )
+    .min(1),
+});
+
+const replacementResponseSchema = z.object({
+  bookId: z.string().min(1),
+  blurb: z.string().min(1),
+  artistPrompt: z.string().optional(),
+});
+
+const blurbResponseSchema = z.object({ blurb: z.string().min(1) });
 
 const THEME_SYSTEM = `You are the editor of Photobookers, a magazine that curates published photobooks into monthly themed issues. Invent ONE fresh, specific, evocative theme for a new issue about a subject or world that runs across many photobooks (e.g. night, water, labour, the domestic interior, ritual).
 
@@ -137,7 +202,7 @@ export async function generateTheme(
   const direction = seed?.trim()
     ? `The theme should relate to: "${seed.trim()}".`
     : `Surprise me with a strong theme.`;
-  return chatJSON<GeneratedTheme>(THEME_SYSTEM, `${direction}${avoid}`, 0.9);
+  return chatJSON(themeResponseSchema, THEME_SYSTEM, `${direction}${avoid}`, 0.9);
 }
 
 export async function curate(
@@ -151,7 +216,7 @@ export async function curate(
     )
     .join("\n---\n");
   const user = `THEME: ${theme.title} — ${theme.theme}\nSUBTITLE: ${theme.subtitle}\n\nCANDIDATE BOOKS (choose 12-15 by id):\n${list}`;
-  return chatJSON<GeneratedCuration>(CURATE_SYSTEM, user, 0.7);
+  return chatJSON(curationResponseSchema, CURATE_SYSTEM, user, 0.7);
 }
 
 /** Full pipeline: theme → retrieve real books → curate → assembled draft. */
@@ -328,7 +393,8 @@ export async function findReplacementForBook(
   }
 
   const user = `${themeBlock(issue)}\n${movementBlock(movement)}\n\nCANDIDATE BOOKS (choose ONE by id):\n${candidates.map(formatCandidate).join("\n---\n")}`;
-  const [error, pick] = await chatJSON<ReplacementResult>(
+  const [error, pick] = await chatJSON(
+    replacementResponseSchema,
     REPLACE_SYSTEM,
     user,
     0.6,
@@ -363,5 +429,5 @@ export async function regenerateBlurbForBook(
   const book = placement.book;
   const user = `${themeBlock(issue)}\n${movementBlock(movement)}\n\nBOOK:\ntitle: ${book.title}\nartist: ${book.artist?.displayName ?? "unknown"}\ntags: ${(book.tags ?? []).join(", ")}`;
 
-  return chatJSON<{ blurb: string }>(BLURB_SYSTEM, user, 0.7);
+  return chatJSON(blurbResponseSchema, BLURB_SYSTEM, user, 0.7);
 }

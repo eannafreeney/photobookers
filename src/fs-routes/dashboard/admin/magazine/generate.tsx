@@ -2,10 +2,15 @@ import { createRoute } from "hono-fsr";
 import { Context } from "hono";
 import { generateIssue } from "@/features/dashboard/admin/magazine/generate";
 import { createDraftIssue } from "@/domain/magazine/mutations";
-import { listAllThemeLabels } from "@/domain/magazine/queries";
-import { setFlash } from "@/utils";
+import {
+  listAllIssuesForAdmin,
+  listAllThemeLabels,
+} from "@/domain/magazine/queries";
+import { showErrorAlert } from "@/lib/alertHelpers";
+import MagazineTable from "@/features/dashboard/admin/magazine/components/MagazineTable";
+import Alert from "@/components/app/Alert";
 
-const LIST = "/dashboard/admin/magazine";
+// const LIST = "/dashboard/admin/magazine";
 
 export const POST = createRoute(async (c: Context) => {
   const body = await c.req.parseBody();
@@ -15,11 +20,10 @@ export const POST = createRoute(async (c: Context) => {
   const usedThemes = await listAllThemeLabels();
   const [genError, issue] = await generateIssue({ seed, usedThemes });
   if (genError) {
-    await setFlash(c, "danger", genError.reason);
-    return c.redirect(LIST, 303);
+    return showErrorAlert(c, genError.reason);
   }
 
-  const [saveError, saved] = await createDraftIssue({
+  const [saveError] = await createDraftIssue({
     title: issue.theme.title,
     subtitle: issue.theme.subtitle,
     kicker: issue.theme.kicker,
@@ -38,14 +42,21 @@ export const POST = createRoute(async (c: Context) => {
     })),
   });
   if (saveError) {
-    await setFlash(c, "danger", saveError.reason);
-    return c.redirect(LIST, 303);
+    return showErrorAlert(c, saveError.reason);
   }
 
-  await setFlash(
-    c,
-    "success",
-    `Draft “${issue.theme.title}” generated with ${issue.books.length} books.`,
+  const [error, issues] = await listAllIssuesForAdmin();
+  if (error) {
+    return showErrorAlert(c, error.reason);
+  }
+
+  return c.html(
+    <>
+      <MagazineTable issues={issues} />
+      <Alert
+        type="success"
+        message={`Draft “${issue.theme.title}” generated with ${issue.books.length} books.`}
+      />
+    </>,
   );
-  return c.redirect(`${LIST}/${saved.id}`, 303);
 });
