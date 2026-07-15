@@ -41,4 +41,8 @@ export const generateMagazineArtistPromptEmail = (params: {
   `;
 };
 
+/** Subject line for the artist-prompt email. */
+export const magazineArtistPromptEmailSubject = (issueTitle: string) =>
+  `Your book has been selected for ${issueTitle}`;
+
 export const magazineSiteUrl = siteUrl;

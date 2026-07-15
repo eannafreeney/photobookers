@@ -15,6 +15,7 @@ import { registerEditInterviewForm } from "../features/dashboard/admin/interview
 import { registerMagazineDetailsForm } from "../features/dashboard/admin/magazine/client/detailsForm";
 import { registerMagazineMovementForm } from "../features/dashboard/admin/magazine/client/movementForm";
 import { registerMagazineBlurbForm } from "../features/dashboard/admin/magazine/client/blurbForm";
+import { registerMagazineArtistEmailForm } from "../features/dashboard/admin/magazine/client/artistEmailForm";
 import { registerFairCoverForm } from "../features/dashboard/admin/fairs/client/fairCoverForm";
 import { registerFairBannerForm } from "../features/dashboard/admin/fairs/client/fairBannerForm";
 import { registerStoreFormAdmin } from "../features/dashboard/admin/stores/client/storeFormAdmin";
@@ -41,6 +42,7 @@ registerEditInterviewForm();
 registerMagazineDetailsForm();
 registerMagazineMovementForm();
 registerMagazineBlurbForm();
+registerMagazineArtistEmailForm();
 registerFairCoverForm();
 registerFairBannerForm();
 registerStoreFormAdmin();

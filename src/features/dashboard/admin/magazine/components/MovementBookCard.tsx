@@ -91,9 +91,7 @@ const MovementBookCard = ({
         <ArtistEmailAction
           action={action}
           bookId={bookId}
-          targetId={targetId}
           artistPrompt={artistPrompt}
-          artistEmail={book?.artist?.email ?? null}
           artistEmailSentAt={artistEmailSentAt}
         />
       </div>

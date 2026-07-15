@@ -34,15 +34,39 @@ export const magazineBookActionSchema = z.object({
 
 export type MagazineBookActionSchema = z.infer<typeof magazineBookActionSchema>;
 
-// Emailing an artist their prompt. `email` is only sent from the modal shown
-// when the artist has no address on file; empty string is treated as absent.
+// Emailing an artist their prompt. The admin previews and edits the message in a
+// modal before sending: `email` is the (editable, prefilled) recipient, `subject`
+// the subject line, and `prompt` the (editable) AI question — the email body is
+// rebuilt from it server-side. Empty email string is treated as absent.
 export const magazineEmailArtistSchema = z.object({
   bookId: z.string().min(1),
   email: z
     .union([z.email("Enter a valid email"), z.literal("")])
     .optional(),
+  subject: z.string().min(1, "Subject is required").max(300).optional(),
+  prompt: z.string().min(1, "A question is required").max(2000).optional(),
 });
 
 export type MagazineEmailArtistSchema = z.infer<
   typeof magazineEmailArtistSchema
+>;
+
+// Client-side validation for the artist-email modal fields.
+export const magazineArtistEmailFormSchema = z.object({
+  email: z.email("Enter a valid email"),
+  subject: z.string().min(1, "Subject is required").max(300),
+  prompt: z.string().min(1, "A question is required").max(2000),
+});
+
+export type MagazineArtistEmailFormSchema = z.infer<
+  typeof magazineArtistEmailFormSchema
+>;
+
+// Fetching the artist-email preview modal (GET) — just identifies the book.
+export const magazineEmailArtistQuerySchema = z.object({
+  bookId: z.string().min(1),
+});
+
+export type MagazineEmailArtistQuerySchema = z.infer<
+  typeof magazineEmailArtistQuerySchema
 >;

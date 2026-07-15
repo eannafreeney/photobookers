@@ -263,6 +263,29 @@ export async function updateIssueBookBlurb(
   }
 }
 
+/** Save (or overwrite) the editorial question posed to the artist for a book. */
+export async function updateIssueBookArtistPrompt(
+  issueId: string,
+  bookId: string,
+  artistPrompt: string | null,
+) {
+  try {
+    await db
+      .update(magazineIssueBooks)
+      .set({ artistPrompt })
+      .where(
+        and(
+          eq(magazineIssueBooks.issueId, issueId),
+          eq(magazineIssueBooks.bookId, bookId),
+        ),
+      );
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to update artist prompt", error);
+    return err({ reason: "Failed to update artist prompt", error });
+  }
+}
+
 /**
  * Replace one book in an issue with another, keeping its movement and slot
  * (sortOrder). Writes the fresh blurb / artist prompt and clears any stale
