@@ -8,7 +8,7 @@ import {
 } from "@/domain/magazine/queries";
 import { swapIssueBook } from "@/domain/magazine/mutations";
 import { findReplacementForBook } from "@/features/dashboard/admin/magazine/generate";
-import MovementBookCard from "@/features/dashboard/admin/magazine/components/MovementBookCard";
+import IssueBookCard from "@/features/dashboard/admin/magazine/components/IssueBookCard";
 import Alert from "@/components/app/Alert";
 import { showErrorAlert } from "@/lib/alertHelpers";
 
@@ -24,7 +24,7 @@ export const POST = createRoute(
       return showErrorAlert(c, loadErr?.reason ?? "Issue not found");
     }
 
-    // The slot survives the swap (same movement + sortOrder), so its number —
+    // The slot survives the swap (same sortOrder), so its number —
     // which anchors the card's DOM id — is stable and known before the swap.
     const slot = issue.placements.find((p) => p.bookId === bookId);
     if (!slot) return showErrorAlert(c, "Book is not in this issue");
@@ -45,7 +45,7 @@ export const POST = createRoute(
     const action = `/dashboard/admin/magazine/${id}`;
     return c.html(
       <>
-        <MovementBookCard
+        <IssueBookCard
           number={slot.number}
           bookId={replacement.bookId}
           book={book}

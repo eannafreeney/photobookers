@@ -30,12 +30,10 @@ export const POST = createRoute(async (c: Context) => {
     theme: issue.theme.theme,
     editorsLetterTitle: issue.theme.editorsLetterTitle,
     editorsLetter: issue.theme.editorsLetter,
-    movements: issue.movements,
     generationSeed: seed,
     generationModel: issue.model,
     books: issue.books.map((b) => ({
       bookId: b.bookId,
-      movementId: b.movementId,
       sortOrder: b.sortOrder,
       blurb: b.blurb,
       artistPrompt: b.artistPrompt ?? null,

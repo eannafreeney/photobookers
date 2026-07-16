@@ -1254,15 +1254,6 @@ export const magazineIssueStatusEnum = pgEnum("magazine_issue_status", [
   "published",
 ]);
 
-/** A themed section within an issue; books reference a movement by `id`. */
-export type MagazineMovementData = {
-  id: string;
-  kicker: string;
-  lead: string;
-  title: string;
-  paragraphs: string[];
-};
-
 export const magazineIssues = pgTable(
   "magazine_issues",
   {
@@ -1278,7 +1269,6 @@ export const magazineIssues = pgTable(
     theme: text("theme"),
     editorsLetterTitle: text("editors_letter_title"),
     editorsLetter: text("editors_letter").array(),
-    movements: jsonb("movements").$type<MagazineMovementData[]>(),
     coverUrl: text("cover_url"),
     bannerUrl: text("banner_url"),
     publishedLabel: text("published_label"),
@@ -1308,8 +1298,6 @@ export const magazineIssueBooks = pgTable(
     bookId: uuid("book_id")
       .notNull()
       .references(() => books.id, { onDelete: "cascade" }),
-    // Matches a `MagazineMovementData.id` in the parent issue's `movements`.
-    movementId: text("movement_id"),
     sortOrder: integer("sort_order").default(0).notNull(),
     blurb: text("blurb"),
     artistPrompt: text("artist_prompt"),

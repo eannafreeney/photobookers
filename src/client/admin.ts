@@ -13,7 +13,6 @@ import { registerAdminNotificationsBadge } from "../features/dashboard/admin/not
 import { registerAdminClaimsBadge } from "../features/dashboard/admin/claims/client/adminClaimsBadge";
 import { registerEditInterviewForm } from "../features/dashboard/admin/interviews/client/editInterviewForm";
 import { registerMagazineDetailsForm } from "../features/dashboard/admin/magazine/client/detailsForm";
-import { registerMagazineMovementForm } from "../features/dashboard/admin/magazine/client/movementForm";
 import { registerMagazineBlurbForm } from "../features/dashboard/admin/magazine/client/blurbForm";
 import { registerMagazineArtistEmailForm } from "../features/dashboard/admin/magazine/client/artistEmailForm";
 import { registerMagazineArtistQuoteForm } from "../features/dashboard/admin/magazine/client/artistQuoteForm";
@@ -41,7 +40,6 @@ registerCampaignTextForm();
 registerAdminNotificationsBadge();
 registerEditInterviewForm();
 registerMagazineDetailsForm();
-registerMagazineMovementForm();
 registerMagazineBlurbForm();
 registerMagazineArtistEmailForm();
 registerMagazineArtistQuoteForm();

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { MagazineMovementData } from "@/db/schema";
 import type { MagazineIssueView } from "@/domain/magazine/queries";
 import { err, ok, type Result } from "@/lib/result";
 import { retrieveCandidates, type CandidateBook } from "./retrieval";
@@ -22,13 +21,11 @@ export type GeneratedTheme = {
 
 export type GeneratedBook = {
   bookId: string;
-  movementId: string;
   blurb: string;
   artistPrompt?: string;
 };
 
 export type GeneratedCuration = {
-  movements: MagazineMovementData[];
   books: GeneratedBook[];
 };
 
@@ -41,7 +38,6 @@ export type GeneratedIssue = {
   model: string;
   seed: string | null;
   theme: GeneratedTheme;
-  movements: MagazineMovementData[];
   books: GeneratedIssueBook[];
   candidateCount: number;
 };
@@ -132,21 +128,11 @@ const themeResponseSchema = z.object({
   facets: z.array(z.string().min(1)).min(3),
 });
 
-const movementResponseSchema = z.object({
-  id: z.string().min(1),
-  kicker: z.string().min(1),
-  lead: z.string().min(1),
-  title: z.string().min(1),
-  paragraphs: z.array(z.string().min(1)).min(1),
-});
-
 const curationResponseSchema = z.object({
-  movements: z.array(movementResponseSchema).min(1),
   books: z
     .array(
       z.object({
         bookId: z.string().min(1),
-        movementId: z.string().min(1),
         blurb: z.string().min(1),
         artistPrompt: z.string().optional(),
       }),
@@ -178,18 +164,15 @@ Do not mention specific books or photographers. Keep facets broad enough to retr
 
 const CURATE_SYSTEM = `You are curating one issue of Photobookers magazine from a list of REAL candidate photobooks. You may ONLY use books from the provided list, referenced by their exact "id". Never invent a book or an id.
 
-Select the 12-15 books that best fit the theme (the admin will trim further). Group them into exactly 3 movements that tell a small argument about the theme.
+Select the 12-15 books that best fit the theme (the admin will trim further).
 
 Return ONLY JSON:
 {
-  "movements": [
-    { "id": "kebab-case-id", "kicker": "Movement I", "lead": "short accent phrase ending with a period.", "title": "the rest of the heading", "paragraphs": ["1-2 short paragraphs"] }
-  ],
   "books": [
-    { "bookId": "<exact id from the list>", "movementId": "<one of the movement ids>", "blurb": "90-130 words presenting the book within the theme: what it shows, how it feels, why it belongs in this movement", "artistPrompt": "one short question inviting the artist to respond (optional)" }
+    { "bookId": "<exact id from the list>", "blurb": "90-130 words presenting the book within the theme: what it shows, how it feels, why it belongs in this issue", "artistPrompt": "one short question inviting the artist to respond (optional)" }
   ]
 }
-Every book's movementId must match a movement id. Order books by movement, strongest first.`;
+Order books strongest first.`;
 
 export async function generateTheme(
   seed: string | null | undefined,
@@ -243,23 +226,14 @@ export async function generateIssue(
   if (curateErr) return err(curateErr);
 
   const candidateById = new Map(candidates.map((c) => [c.id, c]));
-  const movementOrder = new Map(
-    curation.movements.map((m, index) => [m.id, index]),
-  );
 
-  // Keep only books that reference a real candidate id and a real movement.
-  const valid = curation.books.filter(
-    (b) => candidateById.has(b.bookId) && movementOrder.has(b.movementId),
-  );
-  // De-dupe by book, order by movement then given order.
+  // Keep only books that reference a real candidate id.
+  const valid = curation.books.filter((b) => candidateById.has(b.bookId));
+  // De-dupe by book, keeping the model's given order.
   const seen = new Set<string>();
-  const ordered = valid
-    .filter((b) => (seen.has(b.bookId) ? false : seen.add(b.bookId)))
-    .sort(
-      (a, b) =>
-        (movementOrder.get(a.movementId) ?? 0) -
-        (movementOrder.get(b.movementId) ?? 0),
-    );
+  const ordered = valid.filter((b) =>
+    seen.has(b.bookId) ? false : seen.add(b.bookId),
+  );
 
   if (ordered.length < 8) {
     return err({
@@ -277,7 +251,6 @@ export async function generateIssue(
     model: MODEL,
     seed: options.seed ?? null,
     theme,
-    movements: curation.movements,
     books,
     candidateCount: candidates.length,
   });
@@ -288,16 +261,16 @@ export async function generateIssue(
 // catalogue pick, and rewrite a single blurb at the longer length.
 // ---------------------------------------------------------------------------
 
-const REPLACE_SYSTEM = `You are re-curating ONE slot of a Photobookers magazine issue. From the REAL candidate list, pick exactly one replacement book — referenced by its exact "id", never invented — that best fits the given movement and the issue theme. Favour a book that genuinely strengthens the movement, not just a near-duplicate of what it replaces.
+const REPLACE_SYSTEM = `You are re-curating ONE slot of a Photobookers magazine issue. From the REAL candidate list, pick exactly one replacement book — referenced by its exact "id", never invented — that best fits the issue theme. Favour a book that genuinely strengthens the issue, not just a near-duplicate of what it replaces.
 
 Return ONLY JSON:
 {
   "bookId": "<exact id from the list>",
-  "blurb": "90-130 words presenting the book within the movement and theme",
+  "blurb": "90-130 words presenting the book within the theme",
   "artistPrompt": "one short question inviting the artist to respond"
 }`;
 
-const BLURB_SYSTEM = `You write for Photobookers magazine. Rewrite the blurb for ONE book within its movement and the issue theme. 90-130 words, literary but concrete, present tense, no clichés. Do not invent facts about the book beyond what is provided.
+const BLURB_SYSTEM = `You write for Photobookers magazine. Rewrite the blurb for ONE book within the issue theme. 90-130 words, literary but concrete, present tense, no clichés. Do not invent facts about the book beyond what is provided.
 
 Return ONLY JSON: { "blurb": "90-130 words" }`;
 
@@ -313,12 +286,6 @@ function formatCandidate(c: CandidateBook): string {
 
 function themeBlock(issue: MagazineIssueView): string {
   return `THEME: ${issue.title} — ${issue.theme ?? ""}\nSUBTITLE: ${issue.subtitle ?? ""}`;
-}
-
-function movementBlock(movement: MagazineMovementData | null): string {
-  return movement
-    ? `MOVEMENT: ${movement.kicker} — ${movement.lead} ${movement.title}`
-    : `MOVEMENT: (unassigned)`;
 }
 
 const STOPWORDS = new Set([
@@ -345,29 +312,13 @@ function tokenize(text: string): string[] {
   );
 }
 
-/** Retrieval facets for a swap: the issue's own book tags + theme/movement words. */
-function issueFacets(
-  issue: MagazineIssueView,
-  movement: MagazineMovementData | null,
-): string[] {
+/** Retrieval facets for a swap: the issue's own book tags + theme words. */
+function issueFacets(issue: MagazineIssueView): string[] {
   const tags = issue.placements.flatMap((p) =>
     (p.book?.tags ?? []).map((t) => t.toLowerCase()),
   );
-  const words = [
-    ...tokenize(issue.title),
-    ...tokenize(issue.subtitle ?? ""),
-    ...(movement
-      ? [...tokenize(movement.lead), ...tokenize(movement.title)]
-      : []),
-  ];
+  const words = [...tokenize(issue.title), ...tokenize(issue.subtitle ?? "")];
   return [...new Set([...tags, ...words])];
-}
-
-function movementForBook(
-  issue: MagazineIssueView,
-  movementId: string | null,
-): MagazineMovementData | null {
-  return issue.movements.find((m) => m.id === movementId) ?? null;
 }
 
 /** Find a fresh replacement (book + blurb) for one book, grounded in the catalogue. */
@@ -378,8 +329,7 @@ export async function findReplacementForBook(
   const placement = issue.placements.find((p) => p.bookId === bookId);
   if (!placement) return err({ reason: "Book is not in this issue" });
 
-  const movement = movementForBook(issue, placement.movementId);
-  const facets = issueFacets(issue, movement);
+  const facets = issueFacets(issue);
   if (facets.length === 0) {
     return err({ reason: "Not enough theme signal to find a replacement" });
   }
@@ -392,7 +342,7 @@ export async function findReplacementForBook(
     return err({ reason: "No alternative books matched this issue's theme" });
   }
 
-  const user = `${themeBlock(issue)}\n${movementBlock(movement)}\n\nCANDIDATE BOOKS (choose ONE by id):\n${candidates.map(formatCandidate).join("\n---\n")}`;
+  const user = `${themeBlock(issue)}\n\nCANDIDATE BOOKS (choose ONE by id):\n${candidates.map(formatCandidate).join("\n---\n")}`;
   const [error, pick] = await chatJSON(
     replacementResponseSchema,
     REPLACE_SYSTEM,
@@ -425,9 +375,8 @@ export async function regenerateBlurbForBook(
   if (!placement) return err({ reason: "Book is not in this issue" });
   if (!placement.book) return err({ reason: "Book details unavailable" });
 
-  const movement = movementForBook(issue, placement.movementId);
   const book = placement.book;
-  const user = `${themeBlock(issue)}\n${movementBlock(movement)}\n\nBOOK:\ntitle: ${book.title}\nartist: ${book.artist?.displayName ?? "unknown"}\ntags: ${(book.tags ?? []).join(", ")}`;
+  const user = `${themeBlock(issue)}\n\nBOOK:\ntitle: ${book.title}\nartist: ${book.artist?.displayName ?? "unknown"}\ntags: ${(book.tags ?? []).join(", ")}`;
 
   return chatJSON(blurbResponseSchema, BLURB_SYSTEM, user, 0.7);
 }

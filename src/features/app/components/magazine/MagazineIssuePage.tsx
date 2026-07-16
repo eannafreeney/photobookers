@@ -13,25 +13,10 @@ type Props = {
 
 const proseClass =
   "text-lg leading-relaxed text-balance text-on-surface text-pretty font-display";
-const navChipClass =
-  "rounded-full border border-outline px-3 py-1 text-xs font-semibold text-on-surface transition-colors hover:border-accent hover:text-accent";
 
 const MagazineIssuePage = ({ issue }: Props) => {
   const placements = issue.placements.filter((p) => p.book);
   const bookCount = placements.length;
-
-  const placementsByMovement = new Map<string, MagazineIssuePlacement[]>();
-  const ungrouped: MagazineIssuePlacement[] = [];
-  const movementIds = new Set(issue.movements.map((m) => m.id));
-  for (const placement of placements) {
-    if (placement.movementId && movementIds.has(placement.movementId)) {
-      const list = placementsByMovement.get(placement.movementId) ?? [];
-      list.push(placement);
-      placementsByMovement.set(placement.movementId, list);
-    } else {
-      ungrouped.push(placement);
-    }
-  }
 
   return (
     <div class="mx-auto flex w-full max-w-3xl flex-col gap-10">
@@ -63,22 +48,6 @@ const MagazineIssuePage = ({ issue }: Props) => {
           .join(" · ")}
       </p>
 
-      {issue.movements.length > 0 ? (
-        <nav
-          aria-label="Issue sections"
-          class="flex flex-wrap gap-2 border-y border-outline py-4"
-        >
-          <a href="#editors-letter" class={navChipClass}>
-            Letter
-          </a>
-          {issue.movements.map((movement) => (
-            <a href={`#${movement.id}`} class={navChipClass}>
-              {movement.kicker || movement.title}
-            </a>
-          ))}
-        </nav>
-      ) : null}
-
       {issue.editorsLetter.length > 0 ? (
         <section
           id="editors-letter"
@@ -96,44 +65,9 @@ const MagazineIssuePage = ({ issue }: Props) => {
         </section>
       ) : null}
 
-      {issue.movements.map((movement) => {
-        const items = placementsByMovement.get(movement.id) ?? [];
-        if (items.length === 0) return null;
-        return (
-          <section
-            id={movement.id}
-            class="scroll-mt-24 flex flex-col gap-6 border-t border-outline pt-8"
-          >
-            <div class="flex flex-col gap-1">
-              {movement.kicker ? (
-                <span class="kicker text-accent">{movement.kicker}</span>
-              ) : null}
-              <h2 class="font-display text-2xl font-medium text-on-surface-strong text-balance md:text-3xl">
-                {movement.lead ? (
-                  <span class="italic text-accent">{movement.lead} </span>
-                ) : null}
-                {movement.title}
-              </h2>
-            </div>
-            {movement.paragraphs.map((paragraph) => (
-              <p class={proseClass}>{paragraph}</p>
-            ))}
-            <div class="flex flex-col">
-              {items.map((placement) => (
-                <MagazineBookPlate
-                  key={placement.bookId}
-                  placement={placement}
-                  align={placement.number % 2 === 1 ? "left" : "right"}
-                />
-              ))}
-            </div>
-          </section>
-        );
-      })}
-
-      {ungrouped.length > 0 ? (
+      {placements.length > 0 ? (
         <section class="flex flex-col border-t border-outline pt-8">
-          {ungrouped.map((placement) => (
+          {placements.map((placement) => (
             <MagazineBookPlate
               key={placement.bookId}
               placement={placement}

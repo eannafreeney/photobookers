@@ -11,16 +11,6 @@ export type MagazineDetailsFormSchema = z.infer<
   typeof magazineDetailsFormSchema
 >;
 
-export const magazineMovementFormSchema = z.object({
-  kicker: z.string().min(1, "Kicker is required").max(120),
-  lead: z.string().min(1, "Lead is required").max(200),
-  title: z.string().min(1, "Title is required").max(200),
-});
-
-export type MagazineMovementFormSchema = z.infer<
-  typeof magazineMovementFormSchema
->;
-
 export const magazineBlurbFormSchema = z.object({
   blurb: z.string().max(2000).optional(),
 });

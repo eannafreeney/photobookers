@@ -5,7 +5,7 @@ import { magazineBookActionSchema } from "@/features/dashboard/admin/magazine/sc
 import { getIssueByIdForAdmin } from "@/domain/magazine/queries";
 import { updateIssueBookBlurb } from "@/domain/magazine/mutations";
 import { regenerateBlurbForBook } from "@/features/dashboard/admin/magazine/generate";
-import MovementBookCard from "@/features/dashboard/admin/magazine/components/MovementBookCard";
+import IssueBookCard from "@/features/dashboard/admin/magazine/components/IssueBookCard";
 import Alert from "@/components/app/Alert";
 import { showErrorAlert } from "@/lib/alertHelpers";
 
@@ -37,7 +37,7 @@ export const POST = createRoute(
     const action = `/dashboard/admin/magazine/${id}`;
     return c.html(
       <>
-        <MovementBookCard
+        <IssueBookCard
           number={placement.number}
           bookId={placement.bookId}
           book={placement.book}

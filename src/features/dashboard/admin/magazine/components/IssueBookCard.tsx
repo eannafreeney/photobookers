@@ -5,7 +5,7 @@ import DeleteBookForm from "./DeleteBookForm";
 import DescriptionForm from "./DescriptionForm";
 import { BookCardResult } from "@/constants/queries";
 
-type MovementBookCardProps = {
+type IssueBookCardProps = {
   number: number;
   bookId: string;
   book: BookCardResult | null;
@@ -16,7 +16,7 @@ type MovementBookCardProps = {
   artistEmailSentAt?: Date | string | null;
 };
 
-const MovementBookCard = ({
+const IssueBookCard = ({
   number,
   bookId,
   book,
@@ -25,7 +25,7 @@ const MovementBookCard = ({
   artistPrompt = null,
   artistQuote = null,
   artistEmailSentAt = null,
-}: MovementBookCardProps) => {
+}: IssueBookCardProps) => {
   const targetId = `magazine-book-${number}`;
   return (
     <li
@@ -107,4 +107,4 @@ const MovementBookCard = ({
   );
 };
 
-export default MovementBookCard;
+export default IssueBookCard;

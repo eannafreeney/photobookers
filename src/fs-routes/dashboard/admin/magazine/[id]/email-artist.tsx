@@ -24,7 +24,7 @@ import {
   magazineSiteUrl,
 } from "@/features/dashboard/admin/magazine/emails";
 import { sendEmail } from "@/lib/sendEmail";
-import MovementBookCard from "@/features/dashboard/admin/magazine/components/MovementBookCard";
+import IssueBookCard from "@/features/dashboard/admin/magazine/components/IssueBookCard";
 import ArtistEmailModal from "@/features/dashboard/admin/magazine/components/ArtistEmailModal";
 import Alert from "@/components/app/Alert";
 import { showErrorAlert } from "@/lib/alertHelpers";
@@ -136,7 +136,7 @@ export const POST = createRoute(
     const action = `/dashboard/admin/magazine/${id}`;
     return c.html(
       <>
-        <MovementBookCard
+        <IssueBookCard
           number={placement.number}
           bookId={placement.bookId}
           book={placement.book}

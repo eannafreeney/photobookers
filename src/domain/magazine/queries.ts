@@ -1,10 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { client, db } from "@/db/client";
-import {
-  magazineIssues,
-  type MagazineIssueStatus,
-  type MagazineMovementData,
-} from "@/db/schema";
+import { magazineIssues, type MagazineIssueStatus } from "@/db/schema";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -14,7 +10,6 @@ import { err, ok } from "@/lib/result";
 
 export type MagazineIssuePlacement = {
   bookId: string;
-  movementId: string | null;
   sortOrder: number;
   /** Global 1-based position across the whole issue. */
   number: number;
@@ -37,7 +32,6 @@ export type MagazineIssueView = {
   theme: string | null;
   editorsLetterTitle: string | null;
   editorsLetter: string[];
-  movements: MagazineMovementData[];
   coverUrl: string | null;
   bannerUrl: string | null;
   publishedLabel: string | null;
@@ -95,7 +89,6 @@ function toIssueView(issue: IssueWithBooks): MagazineIssueView {
   const placements: MagazineIssuePlacement[] = issue.books.map(
     (entry, index) => ({
       bookId: entry.bookId,
-      movementId: entry.movementId,
       sortOrder: entry.sortOrder,
       number: index + 1,
       blurb: entry.blurb,
@@ -117,7 +110,6 @@ function toIssueView(issue: IssueWithBooks): MagazineIssueView {
     theme: issue.theme,
     editorsLetterTitle: issue.editorsLetterTitle,
     editorsLetter: issue.editorsLetter ?? [],
-    movements: issue.movements ?? [],
     coverUrl: issue.coverUrl,
     bannerUrl: issue.bannerUrl,
     publishedLabel: issue.publishedLabel,

@@ -5,13 +5,11 @@ import {
   magazineIssues,
   magazineIssueBooks,
   type MagazineIssueStatus,
-  type MagazineMovementData,
 } from "@/db/schema";
 import { err, ok } from "@/lib/result";
 
 export type CreateDraftIssueBook = {
   bookId: string;
-  movementId: string | null;
   sortOrder: number;
   blurb?: string | null;
   artistPrompt?: string | null;
@@ -25,7 +23,6 @@ export type CreateDraftIssueInput = {
   theme?: string | null;
   editorsLetterTitle?: string | null;
   editorsLetter?: string[];
-  movements?: MagazineMovementData[];
   coverUrl?: string | null;
   bannerUrl?: string | null;
   publishedLabel?: string | null;
@@ -79,7 +76,6 @@ export async function createDraftIssue(input: CreateDraftIssueInput) {
         theme: input.theme ?? null,
         editorsLetterTitle: input.editorsLetterTitle ?? null,
         editorsLetter: input.editorsLetter ?? null,
-        movements: input.movements ?? null,
         coverUrl: input.coverUrl ?? null,
         bannerUrl: input.bannerUrl ?? null,
         publishedLabel: input.publishedLabel ?? null,
@@ -94,7 +90,6 @@ export async function createDraftIssue(input: CreateDraftIssueInput) {
         input.books.map((b) => ({
           issueId: issue.id,
           bookId: b.bookId,
-          movementId: b.movementId,
           sortOrder: b.sortOrder,
           blurb: b.blurb ?? null,
           artistPrompt: b.artistPrompt ?? null,
@@ -310,7 +305,7 @@ export async function updateIssueBookArtistPrompt(
 }
 
 /**
- * Replace one book in an issue with another, keeping its movement and slot
+ * Replace one book in an issue with another, keeping its slot
  * (sortOrder). Writes the fresh blurb / artist prompt and clears any stale
  * artist quote from the previous book.
  */
@@ -380,29 +375,3 @@ export async function stampArtistEmailSent(issueId: string, bookId: string) {
   }
 }
 
-/** Update one movement's heading (kicker / lead / title) within an issue. */
-export async function updateIssueMovement(
-  issueId: string,
-  movementId: string,
-  fields: { kicker?: string; lead?: string; title?: string },
-) {
-  try {
-    const issue = await db.query.magazineIssues.findFirst({
-      where: eq(magazineIssues.id, issueId),
-      columns: { movements: true },
-    });
-    if (!issue) return err({ reason: "Issue not found" });
-
-    const movements = (issue.movements ?? []).map((m) =>
-      m.id === movementId ? { ...m, ...fields } : m,
-    );
-    await db
-      .update(magazineIssues)
-      .set({ movements })
-      .where(eq(magazineIssues.id, issueId));
-    return ok(true as const);
-  } catch (error) {
-    console.error("Failed to update movement", error);
-    return err({ reason: "Failed to update movement", error });
-  }
-}
