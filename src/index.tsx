@@ -2,6 +2,8 @@
 import "dotenv/config";
 import { Hono } from "hono";
 import { logger } from "hono/logger";
+import { secureHeaders } from "hono/secure-headers";
+import { HTTPException } from "hono/http-exception";
 import { routes } from "./routes";
 import NotFoundPage from "./pages/NotFoundPage";
 import { handleServerError } from "./lib/serverErrorResponse";
@@ -14,6 +16,10 @@ const app = new Hono();
 
 // Global middleware
 app.use("*", logger());
+// Security headers: X-Frame-Options, X-Content-Type-Options: nosniff, HSTS, etc.
+// CSP is intentionally left off for now — the app uses inline scripts (GA, JSON-LD)
+// and would need a nonce/hash rollout before a restrictive policy can be enabled.
+app.use("*", secureHeaders());
 
 // if (process.env.NODE_ENV !== "production") {
 //   app.use("*", enableEndpointSizeProfiler(60_000));
@@ -59,7 +65,12 @@ if (process.env.NODE_ENV === "production") {
 // Mount your routes
 app.route("/", routes);
 
-app.onError((err, c) => handleServerError(c, err));
+app.onError((err, c) => {
+  // Intentional HTTP errors (e.g. CSRF 403 from hono/csrf) carry their own
+  // response — pass it through instead of treating it as a 500 and paging admins.
+  if (err instanceof HTTPException) return err.getResponse();
+  return handleServerError(c, err);
+});
 
 // 404 route
 app.notFound(async (c) => {

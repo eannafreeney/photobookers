@@ -68,7 +68,11 @@ const Head = ({
       {jsonLd ? (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            // Escape "<" so user-controlled fields (titles, names) can't break
+            // out of the <script> tag. JSON.stringify does not do this.
+            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          }}
         />
       ) : null}
       {showSocialTags ? (

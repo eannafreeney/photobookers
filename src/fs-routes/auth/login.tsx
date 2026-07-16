@@ -13,6 +13,10 @@ import {
 import { LoginFormContext } from "../../features/auth/types";
 import { showErrorAlert } from "../../lib/alertHelpers";
 import { safeAppRedirect } from "../../lib/safeAppRedirect";
+import {
+  clearLoginAttempts,
+  loginRateLimit,
+} from "../../middleware/loginRateLimit";
 
 export const GET = createRoute(async (c: Context) => {
   const redirectUrl = c.req.query("redirectUrl") ?? null;
@@ -38,6 +42,7 @@ export const GET = createRoute(async (c: Context) => {
 });
 
 export const POST = createRoute(
+  loginRateLimit,
   queryValidator(redirectUrlSchema),
   formValidator(loginFormSchema),
   async (c: LoginFormContext) => {
@@ -49,6 +54,9 @@ export const POST = createRoute(
 
     const afterLoginUrl = safeAppRedirect(redirectUrl, "/");
     if (loginErr) return showErrorAlert(c, "Invalid email or password", 401);
+
+    // Successful credential check — reset the throttle for this IP.
+    clearLoginAttempts(c);
 
     const [wasForcedResetPasswordError, wasForcedResetPassword] =
       await getMustResetPasswordState(login.userId);
