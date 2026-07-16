@@ -72,7 +72,8 @@ export function registerBookForm() {
             Object.values(ctx.errors.form).every((err) => !err) &&
             ctx.form.title &&
             ctx.form.availability_status &&
-            ctx.form.release_date;
+            ctx.form.release_date &&
+            ctx.form.tags;
           const conditionalFieldsValid = ctx.isArtist
             ? hasPublisher
             : hasArtist;

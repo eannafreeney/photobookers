@@ -10,7 +10,8 @@ export function rowToBookFormData(
     title: row.title,
     description: row.description || undefined,
     release_date: row.release_date || undefined,
-    tags: row.tags || undefined,
+    // Manual form requires tags; bulk import keeps them optional (empty → no tags).
+    tags: row.tags || "",
     purchase_link: row.purchase_link || undefined,
     availability_status: row.availability_status,
     send_email_to_followers_on_release: false,

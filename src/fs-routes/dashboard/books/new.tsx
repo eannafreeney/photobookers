@@ -4,6 +4,7 @@ import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumb
 import Page from "../../../components/layouts/Page";
 import AppLayout from "../../../components/layouts/AppLayout";
 import { BookForm } from "../../../features/dashboard/books/forms/BookForm";
+import Tabs from "../../../components/app/Tabs";
 import { bookFormSchema } from "../../../features/dashboard/books/schema";
 import { limitBooksPerDay } from "../../../middleware/booksPerDayLimit";
 import { formValidator } from "../../../lib/validator";
@@ -39,11 +40,25 @@ export const GET = createRoute(async (c) => {
         <div class="mb-4">
           <BookReviewProcessBanner variant="create_moderated" />
         </div>
-        <BookForm
-          action="/dashboard/books/new"
-          isPublisher={isPublisher}
-          primaryAction="submit_for_review"
-        />
+        <Tabs defaultTab="info">
+          <Tabs.LinkContainer align="left">
+            <Tabs.Link tabId="info">Details</Tabs.Link>
+            <Tabs.Link
+              tabId="images"
+              disabled
+              title="Save the book first to add images"
+            >
+              Images
+            </Tabs.Link>
+          </Tabs.LinkContainer>
+          <Tabs.Panel tabId="info">
+            <BookForm
+              action="/dashboard/books/new"
+              isPublisher={isPublisher}
+              primaryAction="submit_for_review"
+            />
+          </Tabs.Panel>
+        </Tabs>
       </Page>
     </AppLayout>,
   );
@@ -93,6 +108,6 @@ export const POST = createRoute(
     if (!newBook) return showErrorAlert(c, "Failed to create book");
 
     await setFlash(c, "success", `Successfully created "${newBook.title}"!`);
-    return c.redirect(`/dashboard/books/${newBook.id}`);
+    return c.redirect(`/dashboard/books/${newBook.id}?tab=images`);
   },
 );

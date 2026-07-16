@@ -121,6 +121,8 @@ export const BookForm = async ({
             label="Tags"
             name="form.tags"
             placeholder="photography, landscape, Japan (comma-separated)"
+            validateInput="validateField('tags')"
+            required
           />
           <RadioFields
             label="Status"

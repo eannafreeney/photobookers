@@ -34,6 +34,8 @@ import { dispatchEvents } from "../../../lib/disatchEvents";
 import { createBookPublishedNotification } from "../../../domain/notifications/utils";
 import Button from "../../../components/app/Button";
 import FormPost from "../../../components/forms/FormPost";
+import Tabs from "../../../components/app/Tabs";
+import SectionTitle from "../../../components/app/SectionTitle";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
@@ -70,6 +72,8 @@ export const GET = createRoute(
 
     const primaryAction =
       book.approvalStatus === "rejected" ? "submit_for_review" : "save";
+
+    const defaultTab = c.req.query("tab") === "images" ? "images" : "info";
 
     return c.html(
       <AppLayout
@@ -119,35 +123,47 @@ export const GET = createRoute(
               </div>
             </div>
           )}
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"
-            id="book-images"
-          >
-            <BookCoverForm
-              initialUrl={book.coverUrl ?? null}
-              book={book}
-              user={user}
-            />
-            <hr class="my-4 md:hidden" />
-            <BookGalleryForm
-              initialImages={
-                book.images?.map((image: { id: string; imageUrl: string }) => ({
-                  id: image.id,
-                  url: image.imageUrl,
-                })) ?? []
-              }
-              book={book}
-              user={user}
-            />
-          </div>
-          <hr class="my-4" />
-          <BookForm
-            action={`/dashboard/books/${book.id}`}
-            bookId={book.id}
-            formValues={formValues}
-            isPublisher={isPublisher}
-            primaryAction={primaryAction}
-          />
+          <SectionTitle className="mt-2 mb-0">{book.title}</SectionTitle>
+          <Tabs defaultTab={defaultTab} hashMap={{ "#book-images": "images" }}>
+            <Tabs.LinkContainer align="left">
+              <Tabs.Link tabId="info">Details</Tabs.Link>
+              <Tabs.Link tabId="images">Images</Tabs.Link>
+            </Tabs.LinkContainer>
+            <Tabs.Panel tabId="info">
+              <BookForm
+                action={`/dashboard/books/${book.id}`}
+                bookId={book.id}
+                formValues={formValues}
+                isPublisher={isPublisher}
+                primaryAction={primaryAction}
+              />
+            </Tabs.Panel>
+            <Tabs.Panel tabId="images">
+              <div
+                class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"
+                id="book-images"
+              >
+                <BookCoverForm
+                  initialUrl={book.coverUrl ?? null}
+                  book={book}
+                  user={user}
+                />
+                <hr class="my-4 md:hidden" />
+                <BookGalleryForm
+                  initialImages={
+                    book.images?.map(
+                      (image: { id: string; imageUrl: string }) => ({
+                        id: image.id,
+                        url: image.imageUrl,
+                      }),
+                    ) ?? []
+                  }
+                  book={book}
+                  user={user}
+                />
+              </div>
+            </Tabs.Panel>
+          </Tabs>
         </Page>
       </AppLayout>,
     );

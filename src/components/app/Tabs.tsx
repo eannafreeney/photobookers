@@ -1,16 +1,32 @@
 import { PropsWithChildren } from "hono/jsx";
 
-type TabsProps = PropsWithChildren<{ defaultTab: string }>;
+type TabsProps = PropsWithChildren<{
+  defaultTab: string;
+  // Map of `window.location.hash` values to the tab that should open on load,
+  // e.g. `{ "#book-images": "images" }`.
+  hashMap?: Record<string, string>;
+}>;
 type TabPanelProps = PropsWithChildren<{ tabId: string }>;
 type TabLinkContainerProps = PropsWithChildren<{
   align?: "center" | "left";
 }>;
 type TabLinkProps = PropsWithChildren<{
   tabId: string;
+  disabled?: boolean;
+  title?: string;
 }>;
 
-const Tabs = ({ defaultTab, children }: TabsProps) => (
-  <div x-data={`{ currentTab: '${defaultTab}' }`}>{children}</div>
+const Tabs = ({ defaultTab, hashMap, children }: TabsProps) => (
+  <div
+    x-data={`{ currentTab: '${defaultTab}' }`}
+    x-init={
+      hashMap
+        ? `const t = (${JSON.stringify(hashMap)})[window.location.hash]; if (t) currentTab = t;`
+        : undefined
+    }
+  >
+    {children}
+  </div>
 );
 
 const TabLinkContainer = ({
@@ -26,17 +42,28 @@ const TabLinkContainer = ({
   </div>
 );
 
-const TabLink = ({ tabId, children }: TabLinkProps) => (
-  <button
-    class="flex items-center gap-2 border-b-2 border-transparent -mb-px py-2 kicker cursor-pointer transition-colors"
-    x-bind:class={`currentTab === '${tabId}'
+const TabLink = ({ tabId, disabled = false, title, children }: TabLinkProps) =>
+  disabled ? (
+    <button
+      type="button"
+      disabled
+      title={title}
+      class="flex items-center gap-2 border-b-2 border-transparent -mb-px py-2 kicker cursor-not-allowed text-on-surface-weak opacity-50"
+    >
+      {children}
+    </button>
+  ) : (
+    <button
+      type="button"
+      class="flex items-center gap-2 border-b-2 border-transparent -mb-px py-2 kicker cursor-pointer transition-colors"
+      x-bind:class={`currentTab === '${tabId}'
         ? 'text-on-surface-strong border-b-accent'
         : 'text-on-surface-weak hover:text-on-surface-strong'`}
-    x-on:click={`currentTab = '${tabId}'`}
-  >
-    {children}
-  </button>
-);
+      x-on:click={`currentTab = '${tabId}'`}
+    >
+      {children}
+    </button>
+  );
 
 const TabPanel = ({ tabId, children }: TabPanelProps) => (
   <div
