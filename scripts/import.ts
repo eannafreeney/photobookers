@@ -13,7 +13,7 @@ import { createStubCreatorProfileAdmin } from "../src/features/dashboard/admin/c
 import { generateUniqueBookSlug, slugify } from "../src/utils";
 import { MAX_GALLERY_IMAGES_PER_BOOK } from "../src/constants/images";
 
-const SOURCE_CSV_FILE = "radiusbooks.csv";
+const SOURCE_CSV_FILE = "anotherearth-books.csv";
 const AMOUNT_OF_BOOKS = 100;
 
 function sleep(ms: number) {
@@ -242,7 +242,6 @@ async function main() {
         .update(books)
         .set({
           coverUrl: finalCoverUrl,
-          publicationStatus: "published",
         })
         .where(eq(books.id, bookId));
     }

@@ -65,6 +65,26 @@ function creatorRoleBookColumn(creator: Pick<Creator, "id" | "type">) {
   return creator.type === "publisher" ? books.publisherId : books.artistId;
 }
 
+// Matches the stub-outreach cron's `publishedBookConditions`: a creator only
+// enters the welcome-email queue once it has at least one live published book.
+export const creatorHasPublishedBook = async (
+  creator: Pick<Creator, "id" | "type">,
+): Promise<boolean> => {
+  const bookColumn = creatorRoleBookColumn(creator);
+  const [row] = await db
+    .select({ value: count() })
+    .from(books)
+    .where(
+      and(
+        eq(bookColumn, creator.id),
+        eq(books.publicationStatus, "published"),
+        eq(books.approvalStatus, "approved"),
+        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+      ),
+    );
+  return Number(row?.value ?? 0) > 0;
+};
+
 function publicCreatorBooksListWhere(
   creator: Pick<Creator, "id" | "type">,
   searchQuery?: string,

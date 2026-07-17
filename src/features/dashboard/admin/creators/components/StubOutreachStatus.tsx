@@ -9,6 +9,7 @@ import {
   STUB_VIEW_MILESTONE_KINDS,
 } from "../../../../../domain/creators/stubOutreachMilestones";
 import { getCreatorBookViewTotal } from "../../../../book-views/services";
+import { creatorHasPublishedBook } from "../../../../../domain/creators/books";
 import { eq } from "drizzle-orm";
 import { db } from "../../../../../db/client";
 import { creatorStubOutreachEmails } from "../../../../../db/schema";
@@ -38,9 +39,14 @@ const StubOutreachStatus = async ({ creator }: Props) => {
   const sent = new Set(rows.map((row) => row.kind));
 
   if (!creator.welcomeEmailSent) {
+    const hasPublishedBook = await creatorHasPublishedBook(creator);
     return (
       <div id={id} class="flex flex-wrap items-center gap-2">
-        <Pill variant="warning">Welcome pending (cron)</Pill>
+        {hasPublishedBook ? (
+          <Pill variant="warning">Welcome pending (cron)</Pill>
+        ) : (
+          <Pill variant="default">No published book yet</Pill>
+        )}
         <StubOutreachOptOutToggle creator={creator} optedOut={false} targetId={id} />
       </div>
     );

@@ -1,9 +1,10 @@
-import { count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, isNull, notInArray, or } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
   adminNotifications,
   CreatorClaim,
   NewAdminNotification,
+  users,
 } from "../../db/schema";
 import { getPagination } from "../../lib/pagination";
 import { err, ok } from "../../lib/result";
@@ -188,12 +189,25 @@ export const notifyAdminFairAttendancePending = async (input: {
   }
 };
 
+// Activities performed by admins are noise in the admin feed — exclude any
+// notification whose actor is an admin user. System notifications with no
+// actor (actorUserId is null) are kept.
+const notAdminActorCondition = () =>
+  or(
+    isNull(adminNotifications.actorUserId),
+    notInArray(
+      adminNotifications.actorUserId,
+      db.select({ id: users.id }).from(users).where(eq(users.isAdmin, true)),
+    ),
+  );
+
 export const getAdminNotifications = async (
   currentPage: number,
   defaultLimit = 30,
 ) => {
   try {
     const rows = await db.query.adminNotifications.findMany({
+      where: notAdminActorCondition(),
       orderBy: (t, { desc }) => [desc(t.createdAt)],
     });
 
@@ -220,7 +234,9 @@ export const getUnreadAdminNotificationsCount = async () => {
     const [row] = await db
       .select({ value: count() })
       .from(adminNotifications)
-      .where(eq(adminNotifications.isRead, false));
+      .where(
+        and(eq(adminNotifications.isRead, false), notAdminActorCondition()),
+      );
     return ok(Number(row?.value ?? 0));
   } catch (error) {
     return err({
