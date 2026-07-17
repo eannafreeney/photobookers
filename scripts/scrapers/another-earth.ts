@@ -22,6 +22,47 @@ import {
 
 const BASE = "https://another-earth.com";
 const BOOKS_INDEX_URL = `${BASE}/books`;
+const SITEMAP_URL = `${BASE}/sitemap.xml`;
+
+// Cargo utility/section/merch pages in the sitemap that aren't products
+const NON_PRODUCT_SLUGS = new Set([
+  "artists",
+  "books",
+  "cassettes",
+  "projects",
+  "special-editions",
+  "information",
+  "shipping",
+  "support",
+  "donate",
+  "tote-bags",
+  "home-1",
+  "menu",
+  "footer",
+  "footer-1",
+  "footer-2",
+  "orders-note",
+  "orders-note-1",
+  "orders-note-2",
+]);
+
+/**
+ * The /books index is client-side rendered (Cargo template), so its product
+ * links can't be parsed from static HTML. The sitemap lists every published
+ * page — filter out utility/section pages and numeric-only draft IDs.
+ */
+function getBookUrlsFromSitemap(xml: string): string[] {
+  const urls: string[] = [];
+  for (const m of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
+    const loc = m[1].trim();
+    const slug = loc.replace(`${BASE}/`, "").replace(/\/$/, "");
+    if (!slug || slug === BASE || slug.startsWith("http")) continue;
+    if (/^\d+$/.test(slug)) continue; // numeric-only draft IDs
+    if (NON_PRODUCT_SLUGS.has(slug.toLowerCase())) continue;
+    if (!urls.includes(loc)) urls.push(loc);
+  }
+  return urls;
+}
 
 const FALLBACK_BOOK_PATHS = [
   "/Motherhouse",
@@ -154,22 +195,31 @@ async function main() {
   const outPath =
     process.argv[2] ?? join(process.cwd(), "output", "anotherearth-books.csv");
 
-  let bookUrls: string[];
+  let bookUrls: string[] = [];
 
+  // Primary source: sitemap (the /books index is JS-rendered).
   try {
-    console.log("Fetching books index...");
-    const indexHtml = await fetchHtml(BOOKS_INDEX_URL);
-    const fromIndex = getBookUrlsFromIndex(indexHtml);
-    if (fromIndex.length > 0) {
-      bookUrls = fromIndex;
-      console.log(`Found ${bookUrls.length} book URLs from index.`);
-    } else {
-      bookUrls = FALLBACK_BOOK_PATHS.map((p) => `${BASE}${p}`);
-      console.log("No links from index, using fallback list.");
-    }
+    console.log("Fetching sitemap...");
+    const sitemapXml = await fetchHtml(SITEMAP_URL);
+    bookUrls = getBookUrlsFromSitemap(sitemapXml);
+    console.log(`Found ${bookUrls.length} product URLs from sitemap.`);
   } catch {
+    console.log("Sitemap fetch failed.");
+  }
+
+  // Fallback: try the static index, then the hardcoded list.
+  if (bookUrls.length === 0) {
+    try {
+      console.log("Fetching books index...");
+      const indexHtml = await fetchHtml(BOOKS_INDEX_URL);
+      bookUrls = getBookUrlsFromIndex(indexHtml);
+    } catch {
+      /* ignore */
+    }
+  }
+  if (bookUrls.length === 0) {
     bookUrls = FALLBACK_BOOK_PATHS.map((p) => `${BASE}${p}`);
-    console.log("Index fetch failed, using fallback list.");
+    console.log("Using fallback list.");
   }
 
   const header: Record<string, string> = {
