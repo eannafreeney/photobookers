@@ -8,6 +8,7 @@ import { createRouter } from "hono-fsr";
 import { manifest } from "../fs-routes.manifest";
 import { methodOverride } from "hono/method-override";
 import { csrf } from "hono/csrf";
+import { HTTPException } from "hono/http-exception";
 import type { Context, Next } from "hono";
 
 export const routes = new Hono();

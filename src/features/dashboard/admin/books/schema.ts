@@ -4,7 +4,7 @@ import { methodField } from "../../../../schemas";
 
 // ============ BOOK FORM SCHEMA ============
 export const bookFormAdminSchema = z.object({
-  title: z.string().min(3, "Title is required"),
+  title: z.string().min(1, "Title is required"),
   artist_id: optionalText,
   new_artist_name: optionalText,
   publisher_id: optionalText,
