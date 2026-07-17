@@ -46,7 +46,7 @@ const CeoMetricsBlock = async ({ dateRange }: Props) => {
           label="Editorial-attributed actions"
           value={snapshot.editorialActions.value}
           delta={snapshot.editorialActions.delta}
-          detail={`${breakdown.views.toLocaleString()} editorial views · ${breakdown.clicks.toLocaleString()} editorial clicks · ${breakdown.featuredWishlists.toLocaleString()} featured-book wishlists · ${breakdown.featuredFollows.toLocaleString()} spotlight follows`}
+          detail={`${breakdown.views.toLocaleString()} editorial views · ${breakdown.clicks.toLocaleString()} editorial clicks · ${breakdown.featuredWishlists.toLocaleString()} featured-book favourites · ${breakdown.featuredFollows.toLocaleString()} spotlight follows`}
         />
         <CeoMetricCard
           label="New discoverable releases"

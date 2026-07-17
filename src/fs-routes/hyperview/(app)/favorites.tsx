@@ -37,7 +37,7 @@ export const GET = createRoute(async (c) => {
         <View style="favorites-empty">
           <SignInPrompt
             baseUrl={baseUrl}
-            hint="Sign in to see books on your wishlist."
+            hint="Sign in to see your favourites."
           />
         </View>
       </AppLayout>,
@@ -93,8 +93,8 @@ export const GET = createRoute(async (c) => {
       >
         <View style="favorites-empty">
           <Text style="featured-empty-hint">
-            No favorites yet. Tap the heart on a book to add it to your
-            wishlist.
+            No favourites yet. Tap the heart on a book to add it to your
+            favourites.
           </Text>
         </View>
       </AppLayout>,

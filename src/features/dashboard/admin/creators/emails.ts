@@ -16,7 +16,7 @@ export const generateWelcomeEmail = (creator: Creator, claimLink: string) => {
         Photobookers is a curated home for photobook culture — closer in spirit to
         Bandcamp than a generic marketplace. Collectors browse books, artists,
         publishers, and fairs in one place; follow the people behind the work; save
-        titles to wishlists and collections; and get updates when creators they follow
+        titles to favourites and collections; and get updates when creators they follow
         publish something new.
       </p>
       <p>
@@ -28,7 +28,7 @@ export const generateWelcomeEmail = (creator: Creator, claimLink: string) => {
       <ul>
         <li>A home for your catalog, with covers, details, and links to where people can buy</li>
         <li>Discovery through search, tags, fairs, and editorial features</li>
-        <li>Analytics on views, outbound purchase clicks, wishlists, and collections</li>
+        <li>Analytics on views, outbound purchase clicks, favourites, and collections</li>
         <li>A way for collectors to follow your work and hear from you directly</li>
       </ul>
       <p>
@@ -70,7 +70,7 @@ export const generateWelcomeEmailForCreator = (
       </p>
       <p>
         Collectors use Photobookers to browse books, artists, publishers, and fairs;
-        follow the people behind the work; save titles to wishlists and collections;
+        follow the people behind the work; save titles to favourites and collections;
         and discover through Book of the Day, Artist and Publisher of the Week,
         interviews, our weekly newsletter, and a monthly digital magazine.
       </p>
@@ -78,7 +78,7 @@ export const generateWelcomeEmailForCreator = (
       <ul>
         <li>A home for your catalog, with covers, details, and links to where people can buy</li>
         <li>Discovery through search, tags, fairs, and editorial features</li>
-        <li>Analytics on views, outbound purchase clicks, wishlists, and collections</li>
+        <li>Analytics on views, outbound purchase clicks, favourites, and collections</li>
         <li>A way for collectors to follow your work and hear from you directly</li>
       </ul>
       <p>

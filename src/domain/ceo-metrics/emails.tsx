@@ -64,7 +64,7 @@ export function buildCeoMetricsEmail(snapshot: CeoMetricsSnapshot): string {
         <td style="padding:8px 0 16px;font-size:12px;color:#5c574f;line-height:1.6;">
           ${breakdown.views.toLocaleString()} editorial views ·
           ${breakdown.clicks.toLocaleString()} editorial clicks ·
-          ${breakdown.featuredWishlists.toLocaleString()} featured-book wishlists ·
+          ${breakdown.featuredWishlists.toLocaleString()} featured-book favourites ·
           ${breakdown.featuredFollows.toLocaleString()} spotlight follows
         </td>
       </tr>

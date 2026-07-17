@@ -12,7 +12,7 @@ export const memberSignInPrompts = {
   },
   shelf: {
     headline: "Sign in to view your shelf",
-    hint: "Wishlist titles and keep track of your collection in one place. Create a free account to get started.",
+    hint: "Favourite titles and keep track of your collection in one place. Create a free account to get started.",
   },
   messages: {
     headline: "Sign in to read creator updates",

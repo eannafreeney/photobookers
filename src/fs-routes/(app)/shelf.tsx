@@ -57,7 +57,7 @@ export const GET = createRoute(async (c) => {
 
   if (!wishlistResult?.books) {
     return c.html(
-      <InfoPage errorMessage="No wishlisted books found" user={user} />,
+      <InfoPage errorMessage="No favourited books found" user={user} />,
     );
   }
 

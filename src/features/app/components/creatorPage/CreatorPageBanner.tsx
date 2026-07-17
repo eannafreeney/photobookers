@@ -1,3 +1,5 @@
+import PageBleed from "@/components/layouts/PageBleed";
+
 type Props = {
   bannerUrl: string | null;
   displayName: string;

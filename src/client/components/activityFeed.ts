@@ -33,7 +33,7 @@ const toMessageParts = (
     case "book_favourited":
       return {
         leadingText: "",
-        trailingText: " was added to a wishlist",
+        trailingText: " was added to favourites",
       };
     case "book_collected":
       return {

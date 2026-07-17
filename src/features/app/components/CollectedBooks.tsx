@@ -42,7 +42,7 @@ const CollectedBooks = async ({ user, currentPage, currentPath }: Props) => {
         <div>
           {(!books || books?.length === 0) && (
             <div>
-              Start adding books to your wishlist and collection to see them
+              Start adding books to your favourites and collection to see them
               here.
             </div>
           )}

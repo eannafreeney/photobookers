@@ -18,7 +18,7 @@ export const INTRO_PINNED_INSTAGRAM_SLIDES: IntroPinnedSlide[] = [
   {
     kicker: "For fans",
     lines: [
-      "Follow creators, save a wishlist,",
+      "Follow creators, save favourites,",
       "and get the weekly newsletter.",
     ],
   },
@@ -54,7 +54,7 @@ export const INTRO_PINNED_INSTAGRAM_SLIDES: IntroPinnedSlide[] = [
     kicker: "For publishers",
     lines: [
       "See views, purchase clicks,",
-      "wishlists, and fair listings.",
+      "favourites, and fair listings.",
     ],
   },
   {

@@ -26,7 +26,7 @@ const PADDING = { top: 16, right: 16, bottom: 32, left: 48 };
 const ADMIN_FUNNEL_SERIES = [
   { key: "views" as const, label: "Views", color: "#1d4ed8" },
   { key: "clicks" as const, label: "Outbound clicks", color: "#b91c1c" },
-  { key: "wishlists" as const, label: "Wishlists", color: "#c026d3" },
+  { key: "wishlists" as const, label: "Favourites", color: "#c026d3" },
   { key: "collections" as const, label: "Collections", color: "#047857" },
   { key: "follows" as const, label: "Follows", color: "#d97706" },
 ];
@@ -34,7 +34,7 @@ const ADMIN_FUNNEL_SERIES = [
 const CREATOR_FUNNEL_SERIES = [
   { key: "views" as const, label: "Views", color: "#1d4ed8" },
   { key: "clicks" as const, label: "Outbound clicks", color: "#b91c1c" },
-  { key: "wishlists" as const, label: "Wishlists", color: "#c026d3" },
+  { key: "wishlists" as const, label: "Favourites", color: "#c026d3" },
   { key: "collections" as const, label: "Collections", color: "#047857" },
 ];
 

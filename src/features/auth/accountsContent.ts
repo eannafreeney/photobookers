@@ -12,7 +12,7 @@ export const accountFeatures: AccountFeatureRow[] = [
     artist: true,
     publisher: true,
   },
-  { name: "Wishlist Books", fan: true, artist: true, publisher: true },
+  { name: "Favourite Books", fan: true, artist: true, publisher: true },
   {
     name: "Add Books to Collection",
     fan: true,

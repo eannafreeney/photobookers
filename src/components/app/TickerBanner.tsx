@@ -9,7 +9,7 @@ export const tickerItems = [
   "Artist of The Week",
   "Publisher of The Week",
   "Follow on Instagram",
-  "Wishlist Your Favorite Books",
+  "Add Books to Favourites",
   "Collect Your Favorite Books",
   "Share Your Favorite Books",
 ];

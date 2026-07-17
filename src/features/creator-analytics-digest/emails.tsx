@@ -152,8 +152,8 @@ function milestoneBody(
   switch (kind) {
     case "first_wishlist":
       return bookTitle
-        ? `Someone added <strong>${escapeHtml(bookTitle)}</strong> to their wishlist — your first on Photobookers.`
-        : "Someone wishlisted one of your books — your first on Photobookers.";
+        ? `Someone added <strong>${escapeHtml(bookTitle)}</strong> to their favourites — your first on Photobookers.`
+        : "Someone favourited one of your books — your first on Photobookers.";
 
     case "first_follower":
       return "You have your first follower on Photobookers.";
@@ -181,8 +181,8 @@ export function creatorMilestoneEmailSubject(
   switch (kind) {
     case "first_wishlist":
       return bookTitle
-        ? `First wishlist on Photobookers — ${bookTitle}`
-        : "First wishlist on Photobookers";
+        ? `First favourite on Photobookers — ${bookTitle}`
+        : "First favourite on Photobookers";
     case "first_follower":
       return "Your first follower on Photobookers";
     case "followers_10":

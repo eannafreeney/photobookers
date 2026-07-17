@@ -146,7 +146,7 @@ describe("buildCreatorAnalyticsNudgeEmail", () => {
 });
 
 describe("buildCreatorMilestoneEmail", () => {
-  it("includes first wishlist copy with book title", () => {
+  it("includes first favourite copy with book title", () => {
     const html = buildCreatorMilestoneEmail({
       displayName: "Jane Doe",
       kind: "first_wishlist",
@@ -158,7 +158,7 @@ describe("buildCreatorMilestoneEmail", () => {
     expect(html).toContain("Winter Light");
     expect(html).toContain("first on Photobookers");
     expect(creatorMilestoneEmailSubject("first_wishlist", "Winter Light")).toBe(
-      "First wishlist on Photobookers — Winter Light",
+      "First favourite on Photobookers — Winter Light",
     );
   });
 

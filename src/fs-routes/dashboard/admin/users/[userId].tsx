@@ -142,9 +142,9 @@ export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
           </div>
         )}
 
-        <SectionTitle className="mb-4">Books wishlisted</SectionTitle>
+        <SectionTitle className="mb-4">Books favourited</SectionTitle>
         {wishlistedBooks.length === 0 ? (
-          <p class="text-sm text-on-surface/65">No wishlisted books.</p>
+          <p class="text-sm text-on-surface/65">No favourited books.</p>
         ) : (
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {wishlistedBooks.map((b) => (

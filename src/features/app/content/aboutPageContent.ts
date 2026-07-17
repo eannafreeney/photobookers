@@ -39,7 +39,7 @@ export const aboutAudienceSections: AboutAudienceSection[] = [
       "Whether you collect photobooks or are just getting started, photobookers is built for browsing — not just searching.",
     bullets: [
       "Browse the whole world of photobooks — search and explore by artist, publisher, tag, and fair.",
-      "Follow the people behind the books — save titles to your wishlist and build a collection that reflects your taste.",
+      "Follow the people behind the books — save titles to your favourites and build a collection that reflects your taste.",
       "Stay in the loop — get updates when creators you follow publish new work.",
       "Discover through curation — Book of the Day, Artist and Publisher of the Week, and interviews with the people shaping the field.",
       "Book fairs, in one place — see upcoming fairs, who's attending, and connect what you saw at a fair with what you can find online.",
@@ -64,7 +64,7 @@ export const aboutAudienceSections: AboutAudienceSection[] = [
       "Be found in search and features — when someone browses by tag, publisher, or fair, your books show up.",
       "Reach people who are already looking — photobookers attracts collectors and curious readers, not random traffic.",
       "Share your story — interviews and features give context to your work beyond the cover image.",
-      "See what's working — analytics show views, clicks, wishlists, and collections on your books.",
+      "See what's working — analytics show views, clicks, favourites, and collections on your books.",
     ],
     closing:
       "You keep control: your shop, your links, your terms. We help the right people find you.",
@@ -81,7 +81,7 @@ export const aboutAudienceSections: AboutAudienceSection[] = [
     bullets: [
       "Your full catalog in one place — list books individually or import your backlist by CSV.",
       "Discovery beyond your own site — fans find your titles while browsing other artists, publishers, and fairs.",
-      "Proof it's working — creator analytics show views, outbound purchase clicks, wishlists, and collections.",
+      "Proof it's working — creator analytics show views, outbound purchase clicks, favourites, and collections.",
       "Show up at book fairs — list fairs you attend and connect your catalog to the event.",
       "Editorial exposure — Book of the Day, Publisher of the Week, and interviews put your list in front of an engaged audience.",
     ],
