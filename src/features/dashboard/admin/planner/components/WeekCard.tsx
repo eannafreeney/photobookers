@@ -14,6 +14,7 @@ import AOTWCard from "./AOTWCard";
 import POTWCard from "./POTWCard";
 import { formatWeekRange, getWeekDays } from "../utils";
 import RandomizeBOTDButton from "./RandomizeBOTDButton";
+import Button from "@/components/app/Button";
 
 type Props = {
   weekStart: Date;
@@ -124,9 +125,6 @@ const newsletterButtonLabel = (status: NewsletterCampaignStatus | null) => {
   return "Weekly newsletter";
 };
 
-const secondaryButtonClasses =
-  "rounded border border-outline bg-surface-alt px-2 py-1 text-xs font-medium text-on-surface opacity-80 hover:bg-surface";
-
 const WeekCardHeader = ({
   weekStart,
   weekNumber,
@@ -160,9 +158,10 @@ const WeekCardHeader = ({
         <a
           href={`/dashboard/admin/planner/featured-hero/${weekKey}/prepare`}
           x-target="modal-root"
-          class={secondaryButtonClasses}
         >
-          Featured hero
+          <Button variant="outline" color="secondary" width="auto">
+            Featured hero
+          </Button>
         </a>
         <a
           href={`/dashboard/admin/planner/instagram/${weekKey}/prepare`}

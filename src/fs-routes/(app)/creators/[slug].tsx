@@ -9,7 +9,7 @@ import { maybeRecordCreatorView } from "../../../features/creator-views/record";
 import InfoPage from "../../../pages/InfoPage";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
-import CreatorDetail from "../../../features/app/components/CreatorDetail";
+import CreatorDetail from "../../../features/app/components/creatorPage/CreatorDetail";
 import { canonicalUrl, creatorDescription, pageTitle } from "../../../lib/seo";
 import { getUpcomingFairsForCreator } from "../../../features/app/fairs/services";
 import { isFeatureEnabledForUser } from "../../../lib/features";

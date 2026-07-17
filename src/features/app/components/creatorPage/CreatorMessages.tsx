@@ -1,8 +1,8 @@
-import { AuthUser } from "../../../../types";
-import { findFollow } from "../../../db/queries";
-import { getMessagesByCreatorSlug } from "../services";
+import { AuthUser } from "../../../../../types";
+import { findFollow } from "../../../../db/queries";
+import { getMessagesByCreatorSlug } from "../../services";
 import CreatorMessage from "./CreatorMessage";
-import ListNavigation from "./ListNavigation";
+import ListNavigation from "../ListNavigation";
 
 type CreatorMessagesProps = {
   creatorSlug: string;

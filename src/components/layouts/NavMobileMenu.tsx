@@ -123,6 +123,9 @@ const MobileDropDownMenu = ({
           Admin Dashboard
         </NavLink>
       )}
+      <NavLink href="/books" currentPath={currentPath}>
+        Books
+      </NavLink>
       <NavLink href="/creators" currentPath={currentPath}>
         Creators
       </NavLink>

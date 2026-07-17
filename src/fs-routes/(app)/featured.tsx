@@ -29,7 +29,7 @@ export const GET = createRoute(async (c: Context) => {
     ? heroLcpImageSources(heroItems[0].image)
     : undefined;
 
-  const title = pageTitle("Featured");
+  const title = pageTitle("Discover Photobooks from Artists & Publishers");
   const description = DEFAULT_DESCRIPTION;
 
   return c.html(

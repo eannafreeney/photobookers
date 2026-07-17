@@ -7,7 +7,7 @@ import { getBookBySlug } from "../../../features/app/services";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import InfoPage from "../../../pages/InfoPage";
-import BookDetail from "../../../features/app/components/BookDetail";
+import BookDetail from "../../../features/app/components/bookPage/BookDetail";
 import { BookDetailContext } from "../../../features/app/types";
 import {
   bookDescription,

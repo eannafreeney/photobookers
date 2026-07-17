@@ -540,6 +540,16 @@ export async function autoSetPublisherOfTheWeek(weekStart: Date) {
   return ok({ created: true, row });
 }
 
+export async function setRandomBookOfTheDay(date: Date) {
+  const availableBooks = await getAllBooksForBOTD();
+  if (availableBooks.length === 0) {
+    return err({ reason: "No available books to pick from" });
+  }
+
+  const book = shuffle(availableBooks)[0];
+  return setBookOfTheDay({ date, bookId: book.id });
+}
+
 export async function randomizeBooksOfTheDayForWeek(weekStart: Date) {
   const days = getWeekDays(weekStart);
   const existing = await db.query.bookOfTheDay.findMany({

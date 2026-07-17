@@ -7,7 +7,7 @@ import { requireBookPreviewAccess } from "../../../../middleware/bookGuard";
 import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
 import { getBookBySlug } from "../../../../features/app/services";
-import BookDetail from "../../../../features/app/components/BookDetail";
+import BookDetail from "../../../../features/app/components/bookPage/BookDetail";
 import InfoPage from "../../../../pages/InfoPage";
 import { BookDetailContext } from "../../../../features/app/types";
 import { bookDescription, bookPageTitle } from "../../../../lib/seo";

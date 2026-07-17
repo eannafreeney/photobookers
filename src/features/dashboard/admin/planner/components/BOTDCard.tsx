@@ -4,6 +4,7 @@ import { BookOfTheDayWithBook } from "../../../../app/BOTDServices";
 import { formatDayWeekday } from "../utils";
 import DeleteButton from "./DeleteButton";
 import ScheduleButton from "./ScheduleButton";
+import RandomPickButton from "./RandomPickButton";
 import CreatorEmailBadge from "./CreatorEmailBadge";
 import BotdEmailStatusBadges from "./BotdEmailStatusBadges";
 import EditSpotlightBlurbButton from "./EditSpotlightBlurbButton";
@@ -30,10 +31,16 @@ const BOTDCard = ({ date, bookOfTheDay }: BOTDCardProps) => {
           bookOfTheDay={bookOfTheDay}
         />
       ) : (
-        <ScheduleButton
-          href={`/dashboard/admin/planner/book-of-the-day/${dateKey}/create`}
-          text="Schedule Book of the Day"
-        />
+        <div class="flex flex-col gap-2">
+          <ScheduleButton
+            href={`/dashboard/admin/planner/book-of-the-day/${dateKey}/create`}
+            text="Schedule Book of the Day"
+          />
+          <RandomPickButton
+            action={`/dashboard/admin/planner/book-of-the-day/${dateKey}/random`}
+            text="Random pick"
+          />
+        </div>
       )}
     </div>
   );

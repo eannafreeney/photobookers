@@ -1,6 +1,6 @@
 import { AuthUser } from "../../../../types";
 import BookCard from "../../../components/app/BookCard";
-import CreatorMessage from "./CreatorMessage";
+import CreatorMessage from "./creatorPage/CreatorMessage";
 import { FeedItem } from "../followerFeed";
 import ListNavigation from "./ListNavigation";
 import FeedBookCard from "@/components/app/FeedBookCard";

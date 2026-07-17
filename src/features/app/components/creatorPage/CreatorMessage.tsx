@@ -1,4 +1,4 @@
-import { Creator, CreatorMessage } from "../../../db/schema";
+import { Creator, CreatorMessage } from "../../../../db/schema";
 
 type CreatorMessageProps = {
   creator: Pick<Creator, "id" | "slug" | "displayName" | "coverUrl">;
