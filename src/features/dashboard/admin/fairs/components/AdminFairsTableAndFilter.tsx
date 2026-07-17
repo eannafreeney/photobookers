@@ -15,7 +15,6 @@ type Props = {
   currentPage: number;
   searchQuery?: string;
   currentPath: string;
-  user: AuthUser | null;
 };
 
 const AdminFairsTableAndFilter = async ({
@@ -23,7 +22,6 @@ const AdminFairsTableAndFilter = async ({
   currentPage,
   searchQuery,
   currentPath,
-  user,
 }: Props) => {
   const [error, result] = await getAllFairsAdmin(
     currentPage,

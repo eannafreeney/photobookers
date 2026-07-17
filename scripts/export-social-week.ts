@@ -24,7 +24,7 @@ import {
   buildBotdInstagramCaption,
   buildDefaultArtistInstagramCaption,
   buildDefaultPublisherInstagramCaption,
-} from "../src/features/dashboard/admin/planner/instagramCaption";
+} from "../src/features/dashboard/admin/planner/social-media/instagramCaption";
 
 const BOOK_COLUMNS_FOR_EXPORT = {
   ...BOOK_CARD_COLUMNS,

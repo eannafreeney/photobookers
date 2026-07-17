@@ -24,3 +24,4 @@ public/project-summary.txt
 logs/
 AUDIT_*.md
 !AUDIT_CSV_IMPORT.md
+.fallow/

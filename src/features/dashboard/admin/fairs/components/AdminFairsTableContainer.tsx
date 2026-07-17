@@ -34,7 +34,6 @@ const AdminFairsTableContainer = async ({
         </Link>
       </div>
       <AdminFairsTableAndFilter
-        user={user}
         currentPath={currentPath}
         currentPage={currentPage}
         searchQuery={searchQuery}

@@ -1,6 +1,6 @@
 import Alpine from "alpinejs";
 
-export type ComboBoxOption = {
+type ComboBoxOption = {
   id: string;
   label: string;
   isNew?: boolean;
