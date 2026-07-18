@@ -58,7 +58,10 @@ export const POST = createRoute(async (c) => {
     );
   }
 
-  const { email, password } = parsed.data;
+  // Match the web handler: mobile keyboards often auto-capitalize the first
+  // letter or leave a trailing space, so normalize before hitting Supabase.
+  const email = parsed.data.email.trim().toLowerCase();
+  const { password } = parsed.data;
 
   const [loginErr, login] = await loginAndSetCookies(c, email, password);
 
@@ -140,6 +143,8 @@ const LoginFormPanel = ({
         name="email"
         placeholder="you@example.com"
         keyboard-type="email-address"
+        auto-capitalize="none"
+        auto-correct="false"
       />
       <Text style="login-label">Password</Text>
       <TextField
@@ -159,6 +164,10 @@ const LoginFormPanel = ({
         <Text style="login-submit-label">Sign in</Text>
       </View>
     </Form>
+    <View style="login-forgot-wrap">
+      <Behavior action="deep-link" href={`${baseUrl}/auth/forgot-password`} />
+      <Text style="login-forgot-label">Forgot password?</Text>
+    </View>
   </View>
 );
 
@@ -211,6 +220,13 @@ const pageStyles = () => (
       fontSize={16}
     />
     <Style id="login-error" fontSize={14} color="#b91c1c" marginBottom={12} />
+    <Style id="login-forgot-wrap" marginTop={16} alignItems="center" />
+    <Style
+      id="login-forgot-label"
+      fontSize={14}
+      fontWeight="600"
+      color="#45413a"
+    />
     <Style
       id="login-hint"
       fontSize={14}

@@ -83,15 +83,19 @@ const ProfileGuide = ({ creator }: Props) => {
         }}
       >
         <p>
-          Your books are the heart of your profile. Each one needs a sharp cover
-          and complete details so it surfaces in search and looks its best.
+          Your books are the heart of your profile. Three things make the
+          biggest difference to whether a book gets found and bought:{" "}
+          <strong>tags</strong>, a <strong>good description</strong>, and{" "}
+          <strong>proper images of both the cover and the interior</strong>.
+          Don't skip them.
         </p>
         <TipList
           tips={[
-            "Photograph covers straight-on with true colors and no glare.",
-            "Add a few gallery shots — spreads and detail images help buyers decide.",
-            "Fill in the title, year, publisher, description, and tags so the book is discoverable.",
-            "Keep sold-out or upcoming status up to date so visitors know what they can buy.",
+            "Add plenty of tags — themes, subjects, style, location. Tags are how readers filter and discover your book in browse and search.",
+            "Write a real description: what the book is about, how it's made and printed, and why it matters. A few concrete sentences beat one generic line.",
+            "Upload a proper cover shot — straight-on, true colors, sharp, and no glare.",
+            "Show the interior too: add several spreads and detail images so buyers can see the paper, printing, and sequencing before they commit.",
+            "Fill in the rest — title, year, and publisher — and keep sold-out or upcoming status current so visitors know what they can buy.",
           ]}
         />
       </GuideSection>

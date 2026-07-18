@@ -2,6 +2,7 @@ import { AuthUser } from "../../../../types";
 import Button from "../../../components/app/Button";
 import AuthModal from "../../../components/app/AuthModal";
 import Modal from "../../../components/app/Modal";
+import TextArea from "../../../components/forms/TextArea";
 
 type CommentModalProps = {
   bookId: string;
@@ -42,15 +43,7 @@ const CommentModal = ({
         class="flex flex-col gap-4"
         {...alpineAttrs}
       >
-        <label class="bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary">
-          <textarea
-            class="w-full bg-surface-alt px-2.5 py-2 text-base md:text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75"
-            name="body"
-            x-model="body"
-            x-autosize
-            required
-          />
-        </label>
+        <TextArea name="body" minRows={5} required />
         <input
           type="hidden"
           name="_method"

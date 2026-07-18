@@ -8,6 +8,7 @@ import InfoPage from "@/pages/InfoPage";
 import { canonicalUrl, pageTitle, truncateDescription } from "@/lib/seo";
 import { heroLcpImageSources } from "@/lib/imageUrl";
 import { getUser } from "@/utils";
+import MagazineIssuePage3 from "@/features/app/components/magazine/MagazineIssuePage3";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -38,7 +39,10 @@ export const GET = createRoute(async (c) => {
 
   if (!user) {
     c.header("Vary", "Cookie");
-    c.header("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
+    c.header(
+      "Cache-Control",
+      "public, max-age=300, stale-while-revalidate=3600",
+    );
   } else {
     c.header("Cache-Control", "private, no-store");
   }
@@ -59,7 +63,7 @@ export const GET = createRoute(async (c) => {
       preloadLcpImage={shareImage ? heroLcpImageSources(shareImage) : undefined}
     >
       <Page>
-        <MagazineIssuePage issue={issue} />
+        <MagazineIssuePage3 issue={issue} />
       </Page>
     </AppLayout>,
   );

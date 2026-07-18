@@ -48,7 +48,9 @@ const NavSearchResults = ({
   const fullResultsHref = searchQuery?.trim()
     ? `/search/results?search=${encodeURIComponent(searchQuery.trim())}`
     : null;
-  const tagResultsHref = searchQuery?.trim() ? tagBooksUrl(searchQuery.trim()) : null;
+  const tagResultsHref = searchQuery?.trim()
+    ? tagBooksUrl(searchQuery.trim())
+    : null;
   const isPage = variant === "page";
   const containerId = isPage
     ? undefined
@@ -66,7 +68,11 @@ const NavSearchResults = ({
       x-data={isPage ? undefined : "{ isOpen: true }"}
       x-show={isPage ? undefined : "isOpen"}
     >
-      <div class={isPage ? "p-4 md:p-6" : "max-h-[calc(100vh-4rem)] overflow-y-auto p-4"}>
+      <div
+        class={
+          isPage ? "p-4 md:p-6" : "max-h-[calc(100vh-4rem)] overflow-y-auto p-4"
+        }
+      >
         {!hasResults && !isPage ? (
           <div class="p-8 text-center">
             <p class="text-sm text-on-surface">No results found</p>
@@ -173,16 +179,10 @@ const ResultsSection = ({
   );
 };
 
-const CtaLinkButton = ({
-  href,
-  children,
-}: {
-  href: string;
-  children: any;
-}) => (
+const CtaLinkButton = ({ href, children }: { href: string; children: any }) => (
   <a
     href={href}
-    class="w-full whitespace-nowrap rounded-radius px-5 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.16em] transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 active:opacity-100 active:outline-offset-0 cursor-pointer bg-primary text-on-primary"
+    class="w-full rounded-radius px-5 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.16em] transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 active:opacity-100 active:outline-offset-0 cursor-pointer bg-primary text-on-primary"
   >
     {children}
   </a>

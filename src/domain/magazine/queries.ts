@@ -18,7 +18,7 @@ export type MagazineIssuePlacement = {
   artistQuote: string | null;
   /** When the artist was emailed their prompt, or `null` if not yet sent. */
   artistEmailSentAt: Date | null;
-  book: BookCardResult | null;
+  book: (BookCardResult & { images: { imageUrl: string }[] }) | null;
 };
 
 export type MagazineIssueView = {
@@ -60,7 +60,13 @@ function findIssueBySlug(slug: string) {
         with: {
           book: {
             columns: BOOK_CARD_COLUMNS,
-            with: { artist: { columns: CREATOR_CARD_COLUMNS } },
+            with: {
+              artist: { columns: CREATOR_CARD_COLUMNS },
+              images: {
+                columns: { imageUrl: true },
+                orderBy: (table, { asc }) => [asc(table.sortOrder)],
+              },
+            },
           },
         },
       },
@@ -77,7 +83,13 @@ function findIssueById(id: string) {
         with: {
           book: {
             columns: BOOK_CARD_COLUMNS,
-            with: { artist: { columns: CREATOR_CARD_COLUMNS } },
+            with: {
+              artist: { columns: CREATOR_CARD_COLUMNS },
+              images: {
+                columns: { imageUrl: true },
+                orderBy: (table, { asc }) => [asc(table.sortOrder)],
+              },
+            },
           },
         },
       },
@@ -95,7 +107,8 @@ function toIssueView(issue: IssueWithBooks): MagazineIssueView {
       artistPrompt: entry.artistPrompt,
       artistQuote: entry.artistQuote,
       artistEmailSentAt: entry.artistEmailSentAt ?? null,
-      book: (entry.book ?? null) as BookCardResult | null,
+      book: (entry.book ??
+        null) as MagazineIssuePlacement["book"],
     }),
   );
 

@@ -311,6 +311,8 @@ export const TextField: FC<
     value?: string;
     "keyboard-type"?: string;
     "secure-text-entry"?: "true";
+    "auto-capitalize"?: "none" | "sentences" | "words" | "characters";
+    "auto-correct"?: "true" | "false";
   }>
 > = ({ children, ...props }) => <text-field {...props}>{children}</text-field>;
 
