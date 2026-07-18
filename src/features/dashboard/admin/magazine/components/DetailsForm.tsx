@@ -13,12 +13,13 @@ const DetailsForm = ({ issue, action }: Props) => {
   const initialForm = {
     title: issue.title,
     subtitle: issue.subtitle ?? "",
-    editorsLetterTitle: issue.editorsLetterTitle ?? "",
     editorsLetter: issue.editorsLetter.join("\n\n"),
   };
 
   const alpineAttrs = {
-    "x-data": `magazineDetailsForm(${JSON.stringify(initialForm)})`,
+    "x-data": `magazineDetailsForm(${JSON.stringify(initialForm)}, ${JSON.stringify(
+      `${action}/regenerate-title`,
+    )})`,
     "x-target": "toast",
     "x-on:submit": "submitForm($event)",
   };
@@ -31,14 +32,27 @@ const DetailsForm = ({ issue, action }: Props) => {
         action={`${action}/details`}
         className="flex flex-col gap-3"
       >
-        <Input
-          label="Title"
-          name="form.title"
-          required
-          validateInput="validateField('title')"
-        />
+        <div class="flex items-end gap-2">
+          <div class="flex-1">
+            <Input
+              label="Title"
+              name="form.title"
+              required
+              validateInput="validateField('title')"
+            />
+          </div>
+          <button
+            type="button"
+            x-on:click="regenerateTitle()"
+            x-bind:disabled="regeneratingTitle"
+            class="mb-1 shrink-0 border border-outline px-3 py-2 text-sm font-semibold text-on-surface hover:border-outline-strong disabled:opacity-60"
+          >
+            <span x-show="!regeneratingTitle">Regenerate</span>
+            <span x-show="regeneratingTitle" x-cloak>Regenerating…</span>
+          </button>
+        </div>
+        <p x-show="titleError" x-cloak x-text="titleError" class="text-sm text-danger"></p>
         <Input label="Subtitle" name="form.subtitle" />
-        <Input label="Editor's letter title" name="form.editorsLetterTitle" />
         <TextArea
           label="Editor's letter"
           name="form.editorsLetter"

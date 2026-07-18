@@ -28,6 +28,8 @@ import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import BookApprovalForm from "../../../../features/dashboard/admin/books/forms/BookApprovalForm";
 import { routeParam } from "../../../../lib/routeParam";
+import { isFeatureEnabledForUser } from "../../../../lib/features";
+import { serializePressLinks } from "../../../../features/dashboard/books/pressLinks";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
@@ -41,6 +43,8 @@ export const GET = createRoute(
     if (error)
       return c.html(<InfoPage errorMessage={error.reason} user={user} />);
 
+    const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
+
     const formValues = {
       title: book.title,
       artist_id: book.artistId,
@@ -52,6 +56,9 @@ export const GET = createRoute(
       release_date: book?.releaseDate
         ? new Date(book.releaseDate).toISOString().split("T")[0]
         : "",
+      ...(showPressLinks
+        ? { press_links: serializePressLinks(book.pressLinks) }
+        : {}),
     };
 
     return c.html(
@@ -77,7 +84,11 @@ export const GET = createRoute(
               <PreviewButton book={book} user={user} />
             </div>
           </div>
-          <BookFormAdmin bookId={book.id} formValues={formValues} />
+          <BookFormAdmin
+            bookId={book.id}
+            formValues={formValues}
+            showPressLinks={showPressLinks}
+          />
           <hr class="my-4" />
           <div
             class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"

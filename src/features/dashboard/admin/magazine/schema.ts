@@ -3,7 +3,6 @@ import { z } from "zod";
 export const magazineDetailsFormSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   subtitle: z.string().max(300).optional(),
-  editorsLetterTitle: z.string().max(200).optional(),
   editorsLetter: z.string().max(10000).optional(),
 });
 

@@ -6,13 +6,19 @@ import Input from "../../../../../components/forms/Input";
 import RadioFields from "../../../../../components/forms/RadioFields";
 import TextArea from "../../../../../components/forms/TextArea";
 import { getAllCreatorOptions } from "../../creators/services";
+import BookPressLinksSection from "../../../books/components/BookPressLinksSection";
 
 type BookFormProps = {
   formValues?: Record<string, any>;
   bookId?: string;
+  showPressLinks?: boolean;
 };
 
-export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
+export const BookFormAdmin = async ({
+  formValues,
+  bookId,
+  showPressLinks = false,
+}: BookFormProps) => {
   const artistOptions = await getAllCreatorOptions("artist");
   const publisherOptions = await getAllCreatorOptions("publisher");
   const isEditPage = !!bookId;
@@ -101,6 +107,7 @@ export const BookFormAdmin = async ({ formValues, bookId }: BookFormProps) => {
               { value: "unavailable", label: "Unavailable" },
             ]}
           />
+          {showPressLinks ? <BookPressLinksSection /> : null}
           <FormButtons />
         </div>
       </form>

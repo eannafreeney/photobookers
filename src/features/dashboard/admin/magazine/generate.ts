@@ -14,7 +14,6 @@ export type GeneratedTheme = {
   title: string;
   subtitle: string;
   kicker: string;
-  editorsLetterTitle: string;
   editorsLetter: string[];
   facets: string[];
 };
@@ -123,7 +122,6 @@ const themeResponseSchema = z.object({
   title: z.string().min(1),
   subtitle: z.string().min(1),
   kicker: z.string().min(1),
-  editorsLetterTitle: z.string().min(1),
   editorsLetter: z.array(z.string().min(1)).min(1),
   facets: z.array(z.string().min(1)).min(3),
 });
@@ -156,7 +154,6 @@ Return ONLY JSON with this shape:
   "title": "short evocative issue title (1-4 words)",
   "subtitle": "one line, ~10 words",
   "kicker": "e.g. 'New issue'",
-  "editorsLetterTitle": "short title for the editor's letter",
   "editorsLetter": ["2-3 short paragraphs, literary but concrete, second person welcome"],
   "facets": ["8-15 lowercase search keywords that would plausibly appear in a matching photobook's title, description or tags — mix the theme's concrete nouns, synonyms and settings"]
 }
@@ -364,6 +361,20 @@ export async function findReplacementForBook(
     blurb: pick.blurb,
     artistPrompt: pick.artistPrompt ?? null,
   });
+}
+
+const TITLE_SYSTEM = `You are the editor of Photobookers magazine. Given an existing issue's theme, invent ONE fresh, evocative issue TITLE (1-4 words) that fits the SAME theme. Do not change the theme — only the title. The new title must be clearly different from the current one.
+
+Return ONLY JSON: { "title": "short evocative issue title (1-4 words)" }`;
+
+const titleResponseSchema = z.object({ title: z.string().min(1) });
+
+/** Generate a fresh title for an issue while keeping its theme unchanged. */
+export async function regenerateTitle(
+  issue: MagazineIssueView,
+): Promise<Result<{ title: string }, { reason: string }>> {
+  const user = `THEME: ${issue.theme ?? issue.title}\nSUBTITLE: ${issue.subtitle ?? ""}\nCURRENT TITLE (do not reuse): ${issue.title}`;
+  return chatJSON(titleResponseSchema, TITLE_SYSTEM, user, 0.9);
 }
 
 /** Rewrite a single book's blurb at the longer length. */

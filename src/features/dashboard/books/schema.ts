@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { checkboxField, optionalText } from "../../../schemas";
+import { pressLinksFormField } from "./pressLinks";
 
 // ============ BOOK FORM SCHEMA ============
 export const bookFormSchema = z.object({
@@ -20,6 +21,7 @@ export const bookFormSchema = z.object({
     z.string().min(1, "At least one tag is required"),
   ),
   purchase_link: optionalText,
+  press_links: pressLinksFormField,
   availability_status: z
     .preprocess(
       (val) => (val === "" ? undefined : val),

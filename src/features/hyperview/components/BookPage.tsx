@@ -8,6 +8,8 @@ import BookPurchaseButton, {
   bookPurchaseButtonStyles,
 } from "./BookPurchaseButton";
 import DiscoveryTags, { discoveryTagStyles } from "./DiscoveryTags";
+import { isFeatureEnabledForUser } from "../../../lib/features";
+import type { AuthUser } from "../../../../types";
 
 function purchaseDeepLinkHref(
   baseUrl: string,
@@ -34,6 +36,7 @@ type Props = {
   book: BookWithGalleryImages;
   baseUrl: string;
   isFavorited: boolean;
+  user?: AuthUser | null;
 };
 
 /** Split description into paragraphs so blank lines render as paragraph breaks. */
@@ -48,9 +51,19 @@ function descriptionParagraphs(
     .filter(Boolean);
 }
 
-const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
+const BookPage = ({
+  galleryImages,
+  book,
+  baseUrl,
+  isFavorited,
+  user,
+}: Props) => {
   const paragraphs = descriptionParagraphs(book.description);
   const purchaseHref = purchaseDeepLinkHref(baseUrl, book);
+  const pressLinks =
+    isFeatureEnabledForUser("bookPressLinks", user) && book.pressLinks?.length
+      ? book.pressLinks
+      : [];
 
   return (
     <View xmlns="https://hyperview.org/hyperview" style="book-page">
@@ -67,6 +80,20 @@ const BookPage = ({ galleryImages, book, baseUrl, isFavorited }: Props) => {
       ))}
       <DiscoveryTags baseUrl={baseUrl} tags={book.tags ?? []} />
       {purchaseHref ? <BookPurchaseButton purchaseHref={purchaseHref} /> : null}
+      {pressLinks.length > 0 ? (
+        <View style="press-section">
+          <Text style="press-heading">Press</Text>
+          {pressLinks.map((link) => (
+            <View key={link.url} style="press-item">
+              <Text style="press-title">{link.title}</Text>
+              <Behavior action="deep-link" href={link.url} />
+              {link.quote ? (
+                <Text style="press-quote">{link.quote}</Text>
+              ) : null}
+            </View>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 };
@@ -76,6 +103,17 @@ export default BookPage;
 export const bookPageStyles = () => (
   <>
     <Style id="book-page" flexDirection="column" gap={12} />
+    <Style id="press-section" flexDirection="column" gap={8} marginTop={8} />
+    <Style
+      id="press-heading"
+      fontSize={12}
+      fontWeight="600"
+      textTransform="uppercase"
+      color="#666666"
+    />
+    <Style id="press-item" flexDirection="column" gap={4} />
+    <Style id="press-title" fontSize={15} fontWeight="500" color="#111111" />
+    <Style id="press-quote" fontSize={14} fontStyle="italic" color="#444444" />
     {bookGalleryStyles()}
     {bookActionsStyles()}
     {discoveryTagStyles()}

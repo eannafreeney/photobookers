@@ -19,16 +19,25 @@ import {
 import Alert from "../../../../components/app/Alert";
 import { BookFormContext } from "../../../../features/dashboard/books/types";
 import Sidebar from "../../../../components/app/Sidebar";
+import { isFeatureEnabledForUser } from "../../../../lib/features";
+import { serializePressLinks } from "../../../../features/dashboard/books/pressLinks";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
+  const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
+  const formValues = showPressLinks
+    ? { press_links: serializePressLinks([]) }
+    : undefined;
 
   return c.html(
     <AppLayout title="Books" user={user} currentPath={currentPath}>
       <Page>
         <Sidebar currentPath={currentPath}>
-          <BookFormAdmin />
+          <BookFormAdmin
+            formValues={formValues}
+            showPressLinks={showPressLinks}
+          />
         </Sidebar>
       </Page>
     </AppLayout>,

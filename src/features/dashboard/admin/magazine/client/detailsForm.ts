@@ -15,13 +15,48 @@ const DETAILS_FORM_FIELDS = Object.keys(magazineDetailsFormSchema.shape);
 export function registerMagazineDetailsForm() {
   Alpine.data(
     "magazineDetailsForm",
-    (formValues: Partial<MagazineDetailsFormSchema> = {}) => {
+    (
+      formValues: Partial<MagazineDetailsFormSchema> = {},
+      regenerateTitleUrl: string = "",
+    ) => {
       return {
         isSubmitting: false,
+        regeneratingTitle: false,
+        titleError: "",
         ...createFormState(DETAILS_FORM_FIELDS, formValues),
 
         init() {
           initFormValues(this, DETAILS_FORM_FIELDS, true);
+        },
+
+        async regenerateTitle() {
+          const ctx = this as unknown as {
+            form: Record<string, string>;
+            regeneratingTitle: boolean;
+            titleError: string;
+          };
+          if (ctx.regeneratingTitle || !regenerateTitleUrl) return;
+          ctx.regeneratingTitle = true;
+          ctx.titleError = "";
+          try {
+            const res = await fetch(regenerateTitleUrl, {
+              method: "POST",
+              headers: { Accept: "application/json" },
+            });
+            const data = (await res.json()) as {
+              title?: string;
+              error?: string;
+            };
+            if (!res.ok || !data.title) {
+              ctx.titleError = data.error ?? "Couldn't regenerate the title.";
+              return;
+            }
+            ctx.form.title = data.title;
+          } catch {
+            ctx.titleError = "Couldn't regenerate the title.";
+          } finally {
+            ctx.regeneratingTitle = false;
+          }
         },
 
         validateField(field: string) {

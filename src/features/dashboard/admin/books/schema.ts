@@ -1,6 +1,6 @@
 import z from "zod";
 import { optionalText } from "../../../../schemas";
-import { methodField } from "../../../../schemas";
+import { pressLinksFormField } from "../../books/pressLinks";
 
 // ============ BOOK FORM SCHEMA ============
 export const bookFormAdminSchema = z.object({
@@ -20,6 +20,7 @@ export const bookFormAdminSchema = z.object({
     .default(false),
   tags: optionalText,
   purchase_link: optionalText,
+  press_links: pressLinksFormField,
   availability_status: z
     .preprocess(
       (val) => (val === "" ? undefined : val),

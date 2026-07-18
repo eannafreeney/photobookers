@@ -3,6 +3,7 @@ import { PropsWithChildren } from "hono/jsx";
 import {
   analyticsIcon,
   booksIcon,
+  lightbulbIcon,
   mailIcon,
   usersIcon,
 } from "../../../../lib/icons";
@@ -42,6 +43,10 @@ const NavTabs = ({
           Profile
         </NavLink>
       ) : null}
+      <NavLink href="/dashboard/guide" currentPath={currentPath}>
+        {lightbulbIcon(5)}
+        Guide
+      </NavLink>
     </nav>
   );
 };

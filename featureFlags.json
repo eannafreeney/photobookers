@@ -5,5 +5,6 @@
   "fairs": true,
   "stores": true,
   "publicShelf": false,
-  "magazine": false
+  "magazine": false,
+  "bookPressLinks": false
 }

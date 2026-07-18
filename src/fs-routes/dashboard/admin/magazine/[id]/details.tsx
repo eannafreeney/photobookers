@@ -20,7 +20,6 @@ export const POST = createRoute(
     const [error] = await updateIssueDetails(id, {
       title: form.title.trim(),
       subtitle: form.subtitle?.trim() || null,
-      editorsLetterTitle: form.editorsLetterTitle?.trim() || null,
       editorsLetter: paragraphs,
     });
 

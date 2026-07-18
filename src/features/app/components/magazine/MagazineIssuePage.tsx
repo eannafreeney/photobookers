@@ -54,7 +54,7 @@ const MagazineIssuePage = ({ issue }: Props) => {
           class="scroll-mt-24 mx-auto flex max-w-xl flex-col gap-4 border-t border-outline pt-8"
         >
           <SectionTitle className="mb-0 mt-0" kicker="Editor's letter">
-            {issue.editorsLetterTitle ?? "Editor's letter"}
+            Editor's letter
           </SectionTitle>
           {issue.editorsLetter.map((paragraph) => (
             <p class={proseClass}>{paragraph}</p>

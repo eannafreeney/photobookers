@@ -28,7 +28,6 @@ export const POST = createRoute(async (c: Context) => {
     subtitle: issue.theme.subtitle,
     kicker: issue.theme.kicker,
     theme: issue.theme.theme,
-    editorsLetterTitle: issue.theme.editorsLetterTitle,
     editorsLetter: issue.theme.editorsLetter,
     generationSeed: seed,
     generationModel: issue.model,

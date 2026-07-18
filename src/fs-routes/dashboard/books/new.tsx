@@ -20,11 +20,17 @@ import {
   getNewBookModerationForUser,
 } from "../../../features/dashboard/books/services";
 import BookReviewProcessBanner from "../../../features/dashboard/books/components/BookReviewProcessBanner";
+import { isFeatureEnabledForUser } from "../../../lib/features";
+import { serializePressLinks } from "../../../features/dashboard/books/pressLinks";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
   const isPublisher = user.creator?.type === "publisher";
+  const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
+  const formValues = showPressLinks
+    ? { press_links: serializePressLinks([]) }
+    : undefined;
 
   return c.html(
     <AppLayout title="Add Book" user={user} currentPath={currentPath}>
@@ -56,6 +62,8 @@ export const GET = createRoute(async (c) => {
               action="/dashboard/books/new"
               isPublisher={isPublisher}
               primaryAction="submit_for_review"
+              formValues={formValues}
+              showPressLinks={showPressLinks}
             />
           </Tabs.Panel>
         </Tabs>

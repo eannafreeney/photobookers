@@ -313,6 +313,12 @@ export const creatorStubOutreachEmailsRelations = relations(
   }),
 );
 
+export type BookPressLink = {
+  title: string;
+  url: string;
+  quote?: string | null;
+};
+
 export const books = pgTable(
   "books",
   {
@@ -332,6 +338,11 @@ export const books = pgTable(
       bookPublicationStatusEnum("publication_status").default("draft"),
     coverUrl: text("cover_url"),
     purchaseLink: text("purchase_link"),
+    /** External press / review links curated by the creator or admin. */
+    pressLinks: jsonb("press_links")
+      .$type<BookPressLink[]>()
+      .default([])
+      .notNull(),
     images: text("images").array(),
     tags: text("tags").array(),
     createdByUserId: uuid("created_by_user_id")

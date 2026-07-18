@@ -517,6 +517,9 @@ export const buildCreateBookData = async (
     createdByUserId: userId,
     tags: processTags(formData.tags),
     purchaseLink: formData.purchase_link ?? null,
+    ...(formData.press_links !== undefined
+      ? { pressLinks: formData.press_links }
+      : {}),
     approvalStatus,
     publicationStatus: "draft",
     availabilityStatus: formData.availability_status,
@@ -542,6 +545,9 @@ export const buildUpdateBookData = (
     description: formData.description || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
     purchaseLink: formData.purchase_link ?? null,
+    ...(formData.press_links !== undefined
+      ? { pressLinks: formData.press_links }
+      : {}),
     tags: processTags(formData.tags),
     availabilityStatus: formData.availability_status,
     artistId,

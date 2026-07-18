@@ -9,6 +9,10 @@ import {
   resetFormBaseline,
   validateField,
 } from "../../../../../client/forms/formUtils";
+import {
+  bookPressLinksAlpineMethods,
+  parsePressLinks,
+} from "../../../books/client/bookPressLinks";
 
 type BookFormAdminShape = z.infer<typeof bookFormAdminSchema>;
 
@@ -28,7 +32,7 @@ export function registerBookFormAdmin() {
   Alpine.data(
     "bookFormAdmin",
     (
-      formValues: Partial<BookFormAdminShape> = {},
+      formValues: Partial<BookFormAdminShape> & { press_links?: string } = {},
       artistOptions = [],
       publisherOptions = [],
       isEditMode: boolean = false,
@@ -39,8 +43,14 @@ export function registerBookFormAdmin() {
         isSubmitting: false,
         is_new_artist: false,
         is_new_publisher: false,
+        pressLinks: parsePressLinks(
+          typeof formValues.press_links === "string"
+            ? formValues.press_links
+            : undefined,
+        ),
 
         ...createFormState(BOOK_FORM_FIELDS, formValues),
+        ...bookPressLinksAlpineMethods(),
 
         init() {
           initFormValues(this, BOOK_FORM_FIELDS, isEditMode);
