@@ -6,7 +6,11 @@ import {
   booksIcon,
   claimsIcon,
   creatorsIcon,
+  fairsIcon,
+  interviewsIcon,
+  magazineIcon,
   plannerIcon,
+  storesIcon,
   usersIcon,
 } from "../../../../lib/icons";
 import AdminBadge from "./AdminBadge";
@@ -24,7 +28,7 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         Planner
       </NavLink>
       <NavLink href="/dashboard/admin/magazine" currentPath={currentPath}>
-        {booksIcon}
+        {magazineIcon}
         Magazine
       </NavLink>
       <NavLink href="/dashboard/admin/analytics" currentPath={currentPath}>
@@ -39,14 +43,7 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         {creatorsIcon}
         Creators
       </NavLink>
-      <NavLink href="/dashboard/admin/fairs" currentPath={currentPath}>
-        {plannerIcon}
-        Fairs
-      </NavLink>
-      <NavLink href="/dashboard/admin/stores" currentPath={currentPath}>
-        {plannerIcon}
-        Stores
-      </NavLink>
+
       <NavLink href="/dashboard/admin/users" currentPath={currentPath}>
         {usersIcon(5)}
         Users
@@ -57,8 +54,16 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         <AdminBadge xData="adminClaimsBadge" />
       </NavLink>
       <NavLink href="/dashboard/admin/interviews" currentPath={currentPath}>
-        {usersIcon(5)}
+        {interviewsIcon}
         Interviews
+      </NavLink>
+      <NavLink href="/dashboard/admin/fairs" currentPath={currentPath}>
+        {fairsIcon}
+        Fairs
+      </NavLink>
+      <NavLink href="/dashboard/admin/stores" currentPath={currentPath}>
+        {storesIcon}
+        Stores
       </NavLink>
     </nav>
   );

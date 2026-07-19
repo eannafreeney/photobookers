@@ -1,7 +1,7 @@
 import { createRoute } from "hono-fsr";
 import AppLayout from "@/components/layouts/AppLayout";
 import Page from "@/components/layouts/Page";
-import MagazineIssuePage from "@/features/app/components/magazine/MagazineIssuePage";
+import MagazineIssuePage3 from "@/features/app/components/magazine/MagazineIssuePage3";
 import { paramValidator } from "@/lib/validator";
 import { idSchema } from "@/features/app/schema";
 import { getIssueByIdForAdmin } from "@/domain/magazine/queries";
@@ -43,7 +43,7 @@ export const GET = createRoute(paramValidator(idSchema), async (c) => {
         </Link>
       </div>
       <Page>
-        <MagazineIssuePage issue={issue} />
+        <MagazineIssuePage3 issue={issue} />
       </Page>
     </AppLayout>,
   );
