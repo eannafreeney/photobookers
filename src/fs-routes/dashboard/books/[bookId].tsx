@@ -154,7 +154,7 @@ export const GET = createRoute(
                 <div class="mb-4">
                   <Banner
                     type="warning"
-                    message="A cover image is required. Books without a cover will be rejected during review — please add one below before submitting."
+                    message="A photo of the cover is required. Books with a jpg of the cover will be rejected."
                   />
                 </div>
               )}
