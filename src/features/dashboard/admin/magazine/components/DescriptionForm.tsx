@@ -23,7 +23,7 @@ const DescriptionForm = ({ bookId, blurb, action }: Props) => {
       <TextArea
         label="Description"
         name="form.blurb"
-        minRows={6}
+        minRows={12}
         validateInput="validateField('blurb')"
       />
       <FormButtons buttonText="Save description" loadingText="Saving..." />
