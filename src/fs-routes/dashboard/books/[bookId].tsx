@@ -30,6 +30,7 @@ import {
 } from "../../../middleware/bookGuard";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
+import Banner from "../../../components/app/Banner";
 import { dispatchEvents } from "../../../lib/disatchEvents";
 import { createBookPublishedNotification } from "../../../domain/notifications/utils";
 import Button from "../../../components/app/Button";
@@ -149,6 +150,14 @@ export const GET = createRoute(
               />
             </Tabs.Panel>
             <Tabs.Panel tabId="images">
+              {!book.coverUrl && (
+                <div class="mb-4">
+                  <Banner
+                    type="warning"
+                    message="A cover image is required. Books without a cover will be rejected during review — please add one below before submitting."
+                  />
+                </div>
+              )}
               <div
                 class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0"
                 id="book-images"
