@@ -32,6 +32,14 @@ export const magazineBookActionSchema = z.object({
 
 export type MagazineBookActionSchema = z.infer<typeof magazineBookActionSchema>;
 
+// Reordering a book within an issue — which book, and which way to nudge it.
+export const magazineMoveBookSchema = z.object({
+  bookId: z.string().min(1),
+  direction: z.enum(["up", "down"]),
+});
+
+export type MagazineMoveBookSchema = z.infer<typeof magazineMoveBookSchema>;
+
 // Emailing an artist their prompt. The admin previews and edits the message in a
 // modal before sending: `email` is the (editable, prefilled) recipient, `subject`
 // the subject line, and `prompt` the (editable) AI question — the email body is

@@ -3,10 +3,13 @@ import ArtistAnswerForm from "./ArtistAnswerForm";
 import ArtistEmailAction from "./ArtistEmailAction";
 import DeleteBookForm from "./DeleteBookForm";
 import DescriptionForm from "./DescriptionForm";
+import ReorderControls from "./ReorderControls";
 import { BookCardResult } from "@/constants/queries";
 
 type IssueBookCardProps = {
   number: number;
+  /** Total books in the issue, so the card knows if it's at an edge. */
+  count?: number;
   bookId: string;
   book: BookCardResult | null;
   blurb: string | null;
@@ -18,6 +21,7 @@ type IssueBookCardProps = {
 
 const IssueBookCard = ({
   number,
+  count = number,
   bookId,
   book,
   blurb,
@@ -79,7 +83,15 @@ const IssueBookCard = ({
               </span>
             ) : null}
           </div>
-          <DeleteBookForm bookId={bookId} action={action} />
+          <div class="flex shrink-0 items-center gap-2">
+            <ReorderControls
+              bookId={bookId}
+              action={action}
+              isFirst={number <= 1}
+              isLast={number >= count}
+            />
+            <DeleteBookForm bookId={bookId} action={action} />
+          </div>
         </div>
         <span class="text-xs text-on-surface-weak">
           <a href={`/creators/${book?.artist?.slug}`} target="_blank">

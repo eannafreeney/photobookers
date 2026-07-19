@@ -1,6 +1,10 @@
 import { AuthUser } from "../../../../types";
 import Pill from "../../../components/app/Pill";
-import { type CreatorBrowseFilter, creatorsBrowseUrl, CREATOR_CATALOG_TARGET_ID } from "../creatorsBrowse";
+import {
+  type CreatorBrowseFilter,
+  creatorsBrowseUrl,
+  CREATOR_CATALOG_TARGET_ID,
+} from "../creatorsBrowse";
 
 type Props = {
   activeFilter: CreatorBrowseFilter;
@@ -22,7 +26,7 @@ const CreatorsBrowseFilters = ({ activeFilter, user }: Props) => {
   }
 
   return (
-    <div class="mb-8 flex justify-center items-center gap-2">
+    <div class="mb-8 flex flex-wrap justify-center items-center gap-2">
       {filters.map((filter) => (
         <a
           href={creatorsBrowseUrl(filter.id, { fragment: true })}

@@ -148,6 +148,51 @@ export async function removeIssueBook(issueId: string, bookId: string) {
   }
 }
 
+/**
+ * Nudge one book up or down within an issue's running order. Loads the current
+ * order, swaps the book with its neighbour, then renumbers every row so
+ * sortOrder stays dense (0..n-1) regardless of any pre-existing gaps or ties.
+ * A move past either edge is a no-op.
+ */
+export async function moveIssueBook(
+  issueId: string,
+  bookId: string,
+  direction: "up" | "down",
+) {
+  try {
+    const rows = await db.query.magazineIssueBooks.findMany({
+      where: eq(magazineIssueBooks.issueId, issueId),
+      orderBy: (table, { asc }) => [asc(table.sortOrder), asc(table.createdAt)],
+      columns: { id: true, bookId: true },
+    });
+
+    const index = rows.findIndex((r) => r.bookId === bookId);
+    if (index === -1) return err({ reason: "Book is not in this issue" });
+
+    const target = direction === "up" ? index - 1 : index + 1;
+    if (target < 0 || target >= rows.length) return ok(true as const);
+
+    const reordered = [...rows];
+    [reordered[index], reordered[target]] = [
+      reordered[target],
+      reordered[index],
+    ];
+
+    await db.transaction(async (tx) => {
+      for (let i = 0; i < reordered.length; i += 1) {
+        await tx
+          .update(magazineIssueBooks)
+          .set({ sortOrder: i })
+          .where(eq(magazineIssueBooks.id, reordered[i].id));
+      }
+    });
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to reorder issue book", error);
+    return err({ reason: "Failed to reorder book", error });
+  }
+}
+
 /** The next unused issue number (max + 1, or 1). */
 export async function nextIssueNumber(): Promise<number> {
   const [row] = await db
