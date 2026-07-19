@@ -43,6 +43,7 @@ export const POST = createRoute(
           book={placement.book}
           blurb={result.blurb}
           action={action}
+          selectedImageUrl={placement.selectedImageUrl}
           artistPrompt={placement.artistPrompt}
           artistQuote={placement.artistQuote}
           artistEmailSentAt={placement.artistEmailSentAt}

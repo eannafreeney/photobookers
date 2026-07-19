@@ -142,6 +142,7 @@ export const POST = createRoute(
           book={placement.book}
           blurb={placement.blurb}
           action={action}
+          selectedImageUrl={placement.selectedImageUrl}
           artistPrompt={finalPrompt}
           artistQuote={placement.artistQuote}
           artistEmailSentAt={sentAt}

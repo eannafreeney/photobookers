@@ -95,6 +95,7 @@ const MagazineBookPlate = ({
   const isVerified = artist?.status === "verified";
   const href = book ? `/books/${book.slug}` : "#";
   const isRight = align === "right";
+  const image = placement.selectedImageUrl ?? book?.coverUrl ?? null;
 
   return (
     <aside
@@ -109,13 +110,13 @@ const MagazineBookPlate = ({
           isRight && "sm:flex-row-reverse sm:text-right",
         )}
       >
-        {book?.coverUrl ? (
+        {image ? (
           <Link
             href={href}
             className="block w-full shrink-0 overflow-hidden border border-outline bg-surface no-underline sm:w-2/5"
           >
             <img
-              src={book.coverUrl}
+              src={image}
               alt={`Cover of ${title}`}
               loading="lazy"
               class="h-full min-h-64 w-full object-cover"

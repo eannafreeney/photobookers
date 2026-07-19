@@ -14,6 +14,8 @@ type IssueBookCardProps = {
   book: BookCardResult | null;
   blurb: string | null;
   action: string;
+  /** Admin-chosen featured image, or null to show the book's cover. */
+  selectedImageUrl?: string | null;
   artistPrompt?: string | null;
   artistQuote?: string | null;
   artistEmailSentAt?: Date | string | null;
@@ -26,11 +28,13 @@ const IssueBookCard = ({
   book,
   blurb,
   action,
+  selectedImageUrl = null,
   artistPrompt = null,
   artistQuote = null,
   artistEmailSentAt = null,
 }: IssueBookCardProps) => {
   const targetId = `magazine-book-${number}`;
+  const thumbnailUrl = selectedImageUrl ?? book?.coverUrl ?? null;
   return (
     <li
       id={targetId}
@@ -38,19 +42,26 @@ const IssueBookCard = ({
     >
       {/* Image column: 30% of the card */}
       <div class="w-full md:w-[30%] shrink-0">
-        {book?.coverUrl ? (
+        {thumbnailUrl ? (
           <img
-            src={book.coverUrl}
+            src={thumbnailUrl}
             alt=""
             loading="lazy"
             class="w-full border border-outline object-cover"
           />
         ) : (
           <div class="flex aspect-3/4 w-full items-center justify-center border border-outline text-[0.6rem] text-on-surface-weak">
-            no cover
+            no image
           </div>
         )}
         <div class="mt-2 flex flex-col gap-2">
+          <a
+            href={`${action}/image?bookId=${bookId}`}
+            x-target="modal-root"
+            class="inline-flex w-full items-center justify-center gap-1 border border-outline bg-surface-alt px-2 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-accent hover:text-accent"
+          >
+            {selectedImageUrl ? "Change image" : "Choose image"}
+          </a>
           <AiActionForm
             action={`${action}/regenerate-blurb`}
             bookId={bookId}

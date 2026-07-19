@@ -1311,6 +1311,9 @@ export const magazineIssueBooks = pgTable(
       .references(() => books.id, { onDelete: "cascade" }),
     sortOrder: integer("sort_order").default(0).notNull(),
     blurb: text("blurb"),
+    /** Admin-chosen image URL to feature for this book in the issue. Falls back
+     *  to the book's cover / first image when null. */
+    selectedImageUrl: text("selected_image_url"),
     artistPrompt: text("artist_prompt"),
     artistQuote: text("artist_quote"),
     artistEmailSentAt: timestamp("artist_email_sent_at"),

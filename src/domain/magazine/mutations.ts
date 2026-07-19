@@ -303,6 +303,32 @@ export async function updateIssueBookBlurb(
   }
 }
 
+/** Set (or clear) the featured image for one book within an issue. Passing
+ *  `null` reverts to the book's cover / first image on render. */
+export async function updateIssueBookImage(
+  issueId: string,
+  bookId: string,
+  selectedImageUrl: string | null,
+) {
+  try {
+    const [row] = await db
+      .update(magazineIssueBooks)
+      .set({ selectedImageUrl })
+      .where(
+        and(
+          eq(magazineIssueBooks.issueId, issueId),
+          eq(magazineIssueBooks.bookId, bookId),
+        ),
+      )
+      .returning({ bookId: magazineIssueBooks.bookId });
+    if (!row) return err({ reason: "Book is not in this issue" });
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to update book image", error);
+    return err({ reason: "Failed to update image", error });
+  }
+}
+
 /** Save (or overwrite) the artist's answer/quote to publish alongside a book. */
 export async function updateIssueBookArtistQuote(
   issueId: string,
@@ -368,6 +394,8 @@ export async function swapIssueBook(
         blurb: fields.blurb,
         artistPrompt: fields.artistPrompt,
         artistQuote: null,
+        // The old image belonged to the previous book — drop the override.
+        selectedImageUrl: null,
       })
       .where(
         and(

@@ -18,6 +18,9 @@ export type MagazineIssuePlacement = {
   artistQuote: string | null;
   /** When the artist was emailed their prompt, or `null` if not yet sent. */
   artistEmailSentAt: Date | null;
+  /** Admin-chosen image to feature for this book, or `null` to fall back to
+   *  the book's cover / first image. */
+  selectedImageUrl: string | null;
   book: (BookCardResult & { images: { imageUrl: string }[] }) | null;
 };
 
@@ -107,6 +110,7 @@ function toIssueView(issue: IssueWithBooks): MagazineIssueView {
       artistPrompt: entry.artistPrompt,
       artistQuote: entry.artistQuote,
       artistEmailSentAt: entry.artistEmailSentAt ?? null,
+      selectedImageUrl: entry.selectedImageUrl ?? null,
       book: (entry.book ??
         null) as MagazineIssuePlacement["book"],
     }),

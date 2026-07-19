@@ -32,6 +32,15 @@ export const magazineBookActionSchema = z.object({
 
 export type MagazineBookActionSchema = z.infer<typeof magazineBookActionSchema>;
 
+// Choosing the featured image for one book in an issue. Empty string clears the
+// override (revert to the book's cover / first image).
+export const magazineImageFormSchema = z.object({
+  bookId: z.string().min(1),
+  imageUrl: z.union([z.url("Enter a valid image URL"), z.literal("")]).optional(),
+});
+
+export type MagazineImageFormSchema = z.infer<typeof magazineImageFormSchema>;
+
 // Reordering a book within an issue — which book, and which way to nudge it.
 export const magazineMoveBookSchema = z.object({
   bookId: z.string().min(1),
