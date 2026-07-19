@@ -69,7 +69,7 @@ const IssueBookCard = ({
         <div class="flex items-start justify-between gap-2">
           <div class="flex items-center gap-2">
             <span class="font-display text-base font-medium text-on-surface-strong">
-              <a href={`/books/${bookId}`} target="_blank">
+              <a href={`/books/${book?.slug}`} target="_blank">
                 {book?.title ?? "Untitled"}
               </a>
             </span>

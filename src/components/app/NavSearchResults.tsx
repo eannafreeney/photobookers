@@ -59,7 +59,7 @@ const NavSearchResults = ({
       : "search-results";
   const containerClass = isPage
     ? "rounded-radius border border-outline bg-surface-alt"
-    : "fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border shadow-sm border-outline bg-surface-alt";
+    : "fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:h-auto md:w-fit md:min-w-64 md:max-w-96 lg:min-w-96 lg:max-w-[28rem] md:rounded-radius overflow-hidden rounded-radius border shadow-sm border-outline bg-surface-alt";
 
   return (
     <div
