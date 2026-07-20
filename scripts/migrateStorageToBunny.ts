@@ -17,7 +17,7 @@ import { bunnyPublicUrl, bunnyUpload } from "../src/lib/bunny";
 //   MIGRATE_MODE=copy    npx tsx scripts/migrateStorageToBunny.ts
 //   MIGRATE_MODE=apply   npx tsx scripts/migrateStorageToBunny.ts
 
-type Mode = "report" | "copy" | "apply";
+type Mode = "report" | "copy" | "apply" | "revert";
 const MODE = (process.env.MIGRATE_MODE ?? "report") as Mode;
 const CONCURRENCY = 6;
 const FETCH_TIMEOUT_MS = 60_000;
@@ -86,9 +86,40 @@ async function mapPool<T>(
   await Promise.all(runners);
 }
 
+// Prefix-swap every image URL column: replace `from` with `to` where it matches
+// `likePattern`. Used forward (apply: Supabase→Bunny) and backward (revert).
+async function rewriteUrls(
+  sql: postgres.Sql,
+  from: string,
+  to: string,
+  likePattern: string,
+): Promise<number> {
+  let rowsChanged = 0;
+  for (const { table, column } of SCALAR_COLUMNS) {
+    const result = await sql.unsafe(
+      `UPDATE ${table} SET ${column} = replace(${column}, $1, $2) WHERE ${column} LIKE $3`,
+      [from, to, likePattern],
+    );
+    rowsChanged += result.count;
+    console.log(`  ${table}.${column}: ${result.count}`);
+  }
+  for (const { table, column } of ARRAY_COLUMNS) {
+    const result = await sql.unsafe(
+      `UPDATE ${table} SET ${column} = (
+         SELECT array_agg(replace(elem, $1, $2) ORDER BY ord)
+         FROM unnest(${column}) WITH ORDINALITY AS t(elem, ord)
+       ) WHERE array_to_string(${column}, ',') LIKE $3`,
+      [from, to, likePattern],
+    );
+    rowsChanged += result.count;
+    console.log(`  ${table}.${column} (array): ${result.count}`);
+  }
+  return rowsChanged;
+}
+
 async function main() {
-  if (!["report", "copy", "apply"].includes(MODE)) {
-    throw new Error(`MIGRATE_MODE must be report|copy|apply (got "${MODE}")`);
+  if (!["report", "copy", "apply", "revert"].includes(MODE)) {
+    throw new Error(`MIGRATE_MODE must be report|copy|apply|revert (got "${MODE}")`);
   }
 
   // Target selection. Default (unset) uses the loaded DATABASE_URL/SUPABASE_URL,
@@ -193,28 +224,17 @@ async function main() {
     }
 
     if (MODE === "apply") {
-      console.log("Rewriting DB URLs...");
-      let rowsChanged = 0;
-      for (const { table, column } of SCALAR_COLUMNS) {
-        const result = await sql.unsafe(
-          `UPDATE ${table} SET ${column} = replace(${column}, $1, $2) WHERE ${column} LIKE $3`,
-          [oldPrefix, newPrefix, likePattern],
-        );
-        rowsChanged += result.count;
-        console.log(`  ${table}.${column}: ${result.count}`);
-      }
-      for (const { table, column } of ARRAY_COLUMNS) {
-        const result = await sql.unsafe(
-          `UPDATE ${table} SET ${column} = (
-             SELECT array_agg(replace(elem, $1, $2) ORDER BY ord)
-             FROM unnest(${column}) WITH ORDINALITY AS t(elem, ord)
-           ) WHERE array_to_string(${column}, ',') LIKE $3`,
-          [oldPrefix, newPrefix, likePattern],
-        );
-        rowsChanged += result.count;
-        console.log(`  ${table}.${column} (array): ${result.count}`);
-      }
-      console.log(`\nApply done. Rows rewritten: ${rowsChanged}.`);
+      console.log("Rewriting DB URLs (Supabase → Bunny)...");
+      const rows = await rewriteUrls(sql, oldPrefix, newPrefix, likePattern);
+      console.log(`\nApply done. Rows rewritten: ${rows}.`);
+    }
+
+    if (MODE === "revert") {
+      // Roll back apply: swap Bunny URLs back to Supabase. Safe as long as the
+      // Supabase bucket still holds the objects (i.e. before you empty it).
+      console.log("Reverting DB URLs (Bunny → Supabase)...");
+      const rows = await rewriteUrls(sql, newPrefix, oldPrefix, `${newPrefix}%`);
+      console.log(`\nRevert done. Rows reverted: ${rows}.`);
     }
 
     if (MODE === "report") {
