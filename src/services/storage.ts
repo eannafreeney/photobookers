@@ -5,6 +5,12 @@ import {
   supabaseStorage,
   supabaseStorageAdmin,
 } from "../lib/supabase";
+import {
+  bunnyDelete,
+  bunnyEnabled,
+  bunnyPublicUrl,
+  bunnyUpload,
+} from "../lib/bunny";
 import { MAX_GALLERY_SIZE_BYTES } from "../constants/images";
 
 export type UploadKind = "cover" | "gallery";
@@ -42,6 +48,42 @@ export async function compressImageBuffer(
 
 const BUCKET_NAME = "images";
 
+// Storage provider indirection. Writes and public URLs go to Bunny when
+// STORAGE_PROVIDER=bunny, otherwise Supabase Storage (the default). Object
+// paths are identical across providers, so callers are unaffected.
+async function putObject(
+  path: string,
+  body: Buffer,
+  contentType: string,
+  upsert: boolean,
+): Promise<void> {
+  if (bunnyEnabled()) {
+    await bunnyUpload(path, body, contentType);
+    return;
+  }
+  const { error } = await supabaseStorageAdmin.storage
+    .from(BUCKET_NAME)
+    .upload(path, body, { contentType, upsert });
+  if (error) throw new Error(`Upload failed: ${error.message}`);
+}
+
+function publicUrlForPath(path: string): string {
+  if (bunnyEnabled()) return bunnyPublicUrl(path);
+  return supabaseStorage.storage.from(BUCKET_NAME).getPublicUrl(path).data
+    .publicUrl;
+}
+
+async function removeObject(path: string): Promise<void> {
+  if (bunnyEnabled()) {
+    await bunnyDelete(path);
+    return;
+  }
+  const { error } = await supabaseAdmin.storage
+    .from(BUCKET_NAME)
+    .remove([path]);
+  if (error) throw new Error(`Delete failed: ${error.message}`);
+}
+
 type UploadResult = {
   url: string;
   path: string;
@@ -67,25 +109,10 @@ export async function uploadImage(
   const input = Buffer.from(arrayBuffer);
   const output = await encodeWebpToTarget(input, kind);
 
-  // Upload to Supabase Storage
-  const { data, error } = await supabaseStorageAdmin.storage
-    .from(BUCKET_NAME)
-    .upload(filePath, output, {
-      contentType: "image/webp",
-      upsert: false,
-    });
-
-  if (error) {
-    throw new Error(`Upload failed: ${error.message}`);
-  }
-
-  // Get public URL
-  const { data: urlData } = supabaseStorage.storage
-    .from(BUCKET_NAME)
-    .getPublicUrl(filePath);
+  await putObject(filePath, output, "image/webp", false);
 
   return {
-    url: urlData.publicUrl,
+    url: publicUrlForPath(filePath),
     path: filePath,
   };
 }
@@ -103,20 +130,9 @@ export async function uploadImageFromBuffer(
   const fileName = `${timestamp}-${Math.random().toString(36).substring(7)}.${extension}`;
   const filePath = `${folder}/${fileName}`;
 
-  const { error } = await supabaseStorageAdmin.storage
-    .from(BUCKET_NAME)
-    .upload(filePath, buffer, {
-      contentType,
-      upsert: false,
-    });
+  await putObject(filePath, buffer, contentType, false);
 
-  if (error) throw new Error(`Upload failed: ${error.message}`);
-
-  const { data: urlData } = supabaseStorage.storage
-    .from(BUCKET_NAME)
-    .getPublicUrl(filePath);
-
-  return { url: urlData.publicUrl, path: filePath };
+  return { url: publicUrlForPath(filePath), path: filePath };
 }
 
 /**
@@ -128,11 +144,7 @@ export async function overwriteImageAtPath(
   path: string,
   contentType: string = "image/webp",
 ): Promise<void> {
-  const { error } = await supabaseStorageAdmin.storage
-    .from(BUCKET_NAME)
-    .upload(path, buffer, { contentType, upsert: true });
-
-  if (error) throw new Error(`Overwrite failed: ${error.message}`);
+  await putObject(path, buffer, contentType, true);
 }
 
 /**
@@ -166,13 +178,7 @@ export async function uploadImages(
  * Delete an image from storage
  */
 export async function deleteImage(path: string): Promise<void> {
-  const { error } = await supabaseAdmin.storage
-    .from(BUCKET_NAME)
-    .remove([path]);
-
-  if (error) {
-    throw new Error(`Delete failed: ${error.message}`);
-  }
+  await removeObject(path);
 }
 
 export async function uploadCoverImage(
