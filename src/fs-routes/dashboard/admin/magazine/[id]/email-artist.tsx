@@ -19,6 +19,7 @@ import {
   updateIssueBookArtistPrompt,
 } from "@/domain/magazine/mutations";
 import {
+  formatRevealDate,
   generateMagazineArtistPromptEmail,
   magazineArtistPromptEmailSubject,
   magazineSiteUrl,
@@ -66,6 +67,7 @@ export const GET = createRoute(
         recipientEmail={resolved.artist.email?.trim() || null}
         subject={magazineArtistPromptEmailSubject(issue.title)}
         prompt={resolved.placement.artistPrompt ?? ""}
+        dayNumber={resolved.placement.number}
       />,
     );
   },
@@ -76,7 +78,7 @@ export const POST = createRoute(
   formValidator(magazineEmailArtistSchema),
   async (c) => {
     const id = c.req.valid("param").id;
-    const { bookId, email, subject, prompt } = c.req.valid("form");
+    const { bookId, email, subject, prompt, revealDate } = c.req.valid("form");
 
     const [loadErr, issue] = await getIssueByIdForAdmin(id);
     if (loadErr || !issue) {
@@ -114,13 +116,18 @@ export const POST = createRoute(
       if (promptErr) return showErrorAlert(c, promptErr.reason);
     }
 
+    const coverUrl = placement.selectedImageUrl ?? placement.book?.coverUrl ?? null;
     const html = generateMagazineArtistPromptEmail({
       artistName: artist.displayName ?? "there",
       bookTitle: placement.book?.title ?? "your book",
       issueTitle: issue.title,
       issueKicker: issue.kicker,
+      issueNumber: issue.issueNumber,
       artistPrompt: finalPrompt,
       bookUrl: `${magazineSiteUrl()}/books/${bookId}`,
+      issueUrl: `${magazineSiteUrl()}/magazine/${issue.slug}`,
+      coverUrl,
+      revealDate: formatRevealDate(revealDate),
     });
 
     const subjectLine =

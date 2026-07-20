@@ -1,3 +1,4 @@
+import Button from "@/components/app/Button";
 import AiActionForm from "./AiActionForm";
 import ArtistAnswerForm from "./ArtistAnswerForm";
 import ArtistEmailAction from "./ArtistEmailAction";
@@ -60,7 +61,9 @@ const IssueBookCard = ({
             x-target="modal-root"
             class="inline-flex w-full items-center justify-center gap-1 border border-outline bg-surface-alt px-2 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-accent hover:text-accent"
           >
-            {selectedImageUrl ? "Change image" : "Choose image"}
+            <Button variant="outline" color="primary" width="full">
+              {selectedImageUrl ? "Change image" : "Choose image"}
+            </Button>
           </a>
           <AiActionForm
             action={`${action}/regenerate-blurb`}
@@ -83,18 +86,13 @@ const IssueBookCard = ({
       <div class="flex min-w-0 w-full md:w-auto flex-1 flex-col gap-2">
         <div class="flex items-start justify-between gap-2">
           <div class="flex items-center gap-2">
-            <span class="font-display text-base font-medium text-on-surface-strong">
+            <span class="font-display text-2xl font-medium text-on-surface-strong">
               <a href={`/books/${book?.slug}`} target="_blank">
                 {book?.title ?? "Untitled"}
               </a>
             </span>
-            {book?.artist?.status === "verified" ? (
-              <span class="text-[0.6rem] font-semibold uppercase tracking-wider text-[#4f7a4a]">
-                ✦ Verified
-              </span>
-            ) : null}
           </div>
-          <div class="flex shrink-0 items-center gap-2">
+          <div class="flex shrink-0 items-center gap-4">
             <ReorderControls
               bookId={bookId}
               action={action}
@@ -104,9 +102,14 @@ const IssueBookCard = ({
             <DeleteBookForm bookId={bookId} action={action} />
           </div>
         </div>
-        <span class="text-xs text-on-surface-weak">
+        <span class="text-sm text-on-surface-weak">
           <a href={`/creators/${book?.artist?.slug}`} target="_blank">
             {book?.artist?.displayName ?? "Unknown artist"}
+          </a>
+        </span>
+        <span class="text-sm text-on-surface-weak">
+          <a href={`/creators/${book?.publisher?.slug}`} target="_blank">
+            {book?.publisher?.displayName ?? "Unknown publisher"}
           </a>
         </span>
         <DescriptionForm bookId={bookId} blurb={blurb} action={action} />

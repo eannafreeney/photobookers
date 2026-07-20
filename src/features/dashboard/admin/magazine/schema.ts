@@ -60,17 +60,22 @@ export const magazineEmailArtistSchema = z.object({
     .optional(),
   subject: z.string().min(1, "Subject is required").max(300).optional(),
   prompt: z.string().min(1, "A question is required").max(2000).optional(),
+  // Optional ISO date (yyyy-mm-dd) for when this book goes live on Instagram;
+  // formatted into the email's share kit. Empty when the admin leaves it blank.
+  revealDate: z.string().max(40).optional(),
 });
 
 export type MagazineEmailArtistSchema = z.infer<
   typeof magazineEmailArtistSchema
 >;
 
-// Client-side validation for the artist-email modal fields.
+// Client-side validation for the artist-email modal fields. `revealDate` is
+// optional (a plain date input), tracked here so the form state initialises it.
 export const magazineArtistEmailFormSchema = z.object({
   email: z.email("Enter a valid email"),
   subject: z.string().min(1, "Subject is required").max(300),
   prompt: z.string().min(1, "A question is required").max(2000),
+  revealDate: z.string().max(40).optional(),
 });
 
 export type MagazineArtistEmailFormSchema = z.infer<

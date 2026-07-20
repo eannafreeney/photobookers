@@ -15,6 +15,8 @@ type Props = {
   subject: string;
   /** The AI-generated question, editable before sending. */
   prompt: string;
+  /** 1-based position of this book in the issue, for reveal-day context. */
+  dayNumber: number;
 };
 
 // The edit modal fetched (GET) when the admin clicks "Email question to artist".
@@ -28,11 +30,13 @@ const ArtistEmailModal = ({
   recipientEmail,
   subject,
   prompt,
+  dayNumber,
 }: Props) => {
   const initialForm = {
     email: recipientEmail ?? "",
     subject,
     prompt,
+    revealDate: "",
   };
   // Dotted / namespaced Alpine attribute names must be passed as string keys.
   const formAttrs = {
@@ -75,6 +79,13 @@ const ArtistEmailModal = ({
         <p class="-mt-1 mb-2 text-xs text-on-surface-weak">
           Edit the question if you like — it's saved to the book, and the email is
           written around it.
+        </p>
+
+        <Input label="Reveal day (optional)" type="date" name="form.revealDate" />
+        <p class="-mt-1 mb-2 text-xs text-on-surface-weak">
+          This is book #{dayNumber} in the issue. Set the date it goes live on
+          Instagram and the email tells the artist when to reshare — leave blank to
+          skip.
         </p>
 
         <FormButtons
