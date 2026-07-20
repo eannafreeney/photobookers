@@ -19,8 +19,9 @@ import { bunnyPublicUrl, bunnyUpload } from "../src/lib/bunny";
 
 type Mode = "report" | "copy" | "apply" | "revert";
 const MODE = (process.env.MIGRATE_MODE ?? "report") as Mode;
-const CONCURRENCY = 6;
+const CONCURRENCY = 4;
 const FETCH_TIMEOUT_MS = 60_000;
+const MAX_ATTEMPTS = 4;
 
 // (table, column) pairs that hold Supabase image URLs. The oldPrefix LIKE guard
 // means non-bucket URLs (external links) are skipped automatically, so listing a
@@ -188,31 +189,46 @@ async function main() {
       let missing = 0;
       let failed = 0;
       await mapPool(paths, CONCURRENCY, async (path, i) => {
-        try {
-          // Skip if already present on Bunny (idempotent re-runs).
-          const head = await fetch(bunnyPublicUrl(path), { method: "HEAD" });
-          if (head.ok) {
-            skipped++;
+        // Skip if already present on Bunny (idempotent re-runs). A transient HEAD
+        // failure just means we fall through and (re)upload, which is safe.
+        const head = await fetch(bunnyPublicUrl(path), { method: "HEAD" }).catch(
+          () => null,
+        );
+        if (head?.ok) {
+          skipped++;
+          return;
+        }
+
+        // Retry transient network/timeout errors with backoff before giving up.
+        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+          try {
+            const res = await fetch(oldPrefix + path, {
+              signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+            });
+            if (!res.ok) {
+              if (res.status === 404) {
+                // Dead DB reference (object already deleted) — skip, don't fail.
+                missing++;
+                console.warn(`  [${i + 1}] source 404: ${path}`);
+                return;
+              }
+              throw new Error(`source ${res.status}`);
+            }
+            const buf = Buffer.from(await res.arrayBuffer());
+            await bunnyUpload(path, buf, contentTypeFromPath(path));
+            copied++;
+            if (copied % 50 === 0) console.log(`  copied ${copied}...`);
             return;
+          } catch (e) {
+            if (attempt === MAX_ATTEMPTS) {
+              failed++;
+              console.warn(
+                `  [${i + 1}] failed after ${attempt} attempts: ${path}: ${e instanceof Error ? e.message : e}`,
+              );
+              return;
+            }
+            await new Promise((r) => setTimeout(r, attempt * 750));
           }
-          const res = await fetch(oldPrefix + path, {
-            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-          });
-          if (!res.ok) {
-            // Missing source object (e.g. pruned staging bucket, or a dead DB
-            // reference) — log and skip, don't fail the whole migration.
-            missing++;
-            console.warn(`  [${i + 1}] source ${res.status}: ${path}`);
-            return;
-          }
-          const buf = Buffer.from(await res.arrayBuffer());
-          await bunnyUpload(path, buf, contentTypeFromPath(path));
-          copied++;
-          if (copied % 50 === 0) console.log(`  copied ${copied}...`);
-        } catch (e) {
-          // Upload/network error against Bunny — this is a real failure.
-          failed++;
-          console.warn(`  [${i + 1}] error ${path}:`, e);
         }
       });
       console.log(
