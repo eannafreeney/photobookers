@@ -56,11 +56,7 @@ const IssueBookCard = ({
           </div>
         )}
         <div class="mt-2 flex flex-col gap-2">
-          <a
-            href={`${action}/image?bookId=${bookId}`}
-            x-target="modal-root"
-            class="inline-flex w-full items-center justify-center gap-1 border border-outline bg-surface-alt px-2 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-accent hover:text-accent"
-          >
+          <a href={`${action}/image?bookId=${bookId}`} x-target="modal-root">
             <Button variant="outline" color="primary" width="full">
               {selectedImageUrl ? "Change image" : "Choose image"}
             </Button>
@@ -113,11 +109,12 @@ const IssueBookCard = ({
           </a>
         </span>
         <DescriptionForm bookId={bookId} blurb={blurb} action={action} />
-        <p class="text-sm text-on-surface-strong">{`Question: ${artistPrompt}`}</p>
+        {artistPrompt ? (
+          <p class="text-sm text-on-surface-strong">{`Question: ${artistPrompt}`}</p>
+        ) : null}
         <ArtistEmailAction
           action={action}
           bookId={bookId}
-          artistPrompt={artistPrompt}
           artistEmailSentAt={artistEmailSentAt}
         />
         {/* The answer field only makes sense once the question has been sent. */}

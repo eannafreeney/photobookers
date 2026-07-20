@@ -22,6 +22,16 @@ export const SelectedBooksList = ({ issue, action }: Props) => {
 const SelectedBooks = ({ issue, action }: Props) => {
   return (
     <section class="flex flex-col gap-6 border-t border-outline pt-4">
+      <div class="flex items-center justify-between gap-3">
+        <span class="kicker text-accent">Books</span>
+        <a
+          href={`${action}/add-book`}
+          x-target="modal-root"
+          class="inline-flex items-center gap-1 border border-outline bg-surface-alt px-3 py-1.5 text-sm font-medium text-on-surface transition-colors hover:border-accent hover:text-accent"
+        >
+          + Add book
+        </a>
+      </div>
       <SelectedBooksList issue={issue} action={action} />
     </section>
   );

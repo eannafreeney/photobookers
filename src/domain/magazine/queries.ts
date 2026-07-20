@@ -1,6 +1,12 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ilike, inArray, notInArray, or } from "drizzle-orm";
 import { client, db } from "@/db/client";
-import { magazineIssues, type MagazineIssueStatus } from "@/db/schema";
+import {
+  books,
+  creators,
+  magazineIssueBooks,
+  magazineIssues,
+  type MagazineIssueStatus,
+} from "@/db/schema";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -169,6 +175,56 @@ export async function getBookCardById(
     with: { artist: { columns: CREATOR_CARD_COLUMNS } },
   });
   return (book ?? null) as BookCardResult | null;
+}
+
+/**
+ * Search all books for the "add book" picker, matching on title or on an
+ * artist/publisher whose name matches. Excludes books already placed in the
+ * issue so an admin can't add the same one twice. Returns card data (cover,
+ * artist) ready to render a picker row.
+ */
+export async function searchBooksForIssue(
+  issueId: string,
+  query: string,
+  limit = 12,
+): Promise<BookCardResult[]> {
+  const q = query.trim();
+  if (!q) return [];
+
+  const placed = await db.query.magazineIssueBooks.findMany({
+    where: eq(magazineIssueBooks.issueId, issueId),
+    columns: { bookId: true },
+  });
+  const placedIds = placed.map((p) => p.bookId);
+
+  const creatorRows = await db
+    .select({ id: creators.id })
+    .from(creators)
+    .where(ilike(creators.displayName, `%${q}%`));
+  const creatorIds = creatorRows.map((r) => r.id);
+
+  const match =
+    creatorIds.length > 0
+      ? or(
+          ilike(books.title, `%${q}%`),
+          inArray(books.artistId, creatorIds),
+          inArray(books.publisherId, creatorIds),
+        )
+      : ilike(books.title, `%${q}%`);
+
+  const where = and(
+    placedIds.length > 0 ? notInArray(books.id, placedIds) : undefined,
+    match,
+  );
+
+  const rows = await db.query.books.findMany({
+    where,
+    orderBy: (table, { desc }) => [desc(table.createdAt)],
+    limit,
+    columns: BOOK_CARD_COLUMNS,
+    with: { artist: { columns: CREATOR_CARD_COLUMNS } },
+  });
+  return rows as BookCardResult[];
 }
 
 export type AdminIssueListItem = {

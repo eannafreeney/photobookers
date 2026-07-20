@@ -130,6 +130,42 @@ export async function setIssueStatus(id: string, status: MagazineIssueStatus) {
   }
 }
 
+/**
+ * Manually add one book to the end of an issue's running order. Guards against
+ * adding the same book twice; the new row starts with no blurb / artist prompt
+ * (the admin fills those in, or regenerates the blurb via AI afterwards).
+ */
+export async function addIssueBook(issueId: string, bookId: string) {
+  try {
+    const existing = await db.query.magazineIssueBooks.findFirst({
+      where: and(
+        eq(magazineIssueBooks.issueId, issueId),
+        eq(magazineIssueBooks.bookId, bookId),
+      ),
+      columns: { id: true },
+    });
+    if (existing) return err({ reason: "That book is already in this issue" });
+
+    const [row] = await db
+      .select({
+        max: sql<number | null>`max(${magazineIssueBooks.sortOrder})`,
+      })
+      .from(magazineIssueBooks)
+      .where(eq(magazineIssueBooks.issueId, issueId));
+    const nextSort = (row?.max ?? -1) + 1;
+
+    await db.insert(magazineIssueBooks).values({
+      issueId,
+      bookId,
+      sortOrder: nextSort,
+    });
+    return ok(true as const);
+  } catch (error) {
+    console.error("Failed to add book to issue", error);
+    return err({ reason: "Failed to add book to issue", error });
+  }
+}
+
 /** Remove one book from an issue (pruning a generated draft). */
 export async function removeIssueBook(issueId: string, bookId: string) {
   try {

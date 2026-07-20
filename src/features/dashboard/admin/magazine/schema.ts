@@ -69,12 +69,13 @@ export type MagazineEmailArtistSchema = z.infer<
   typeof magazineEmailArtistSchema
 >;
 
-// Client-side validation for the artist-email modal fields. `revealDate` is
-// optional (a plain date input), tracked here so the form state initialises it.
+// Client-side validation for the artist-email modal fields. `prompt` and
+// `revealDate` are optional (a book can be emailed without a question), tracked
+// here so the form state initialises them.
 export const magazineArtistEmailFormSchema = z.object({
   email: z.email("Enter a valid email"),
   subject: z.string().min(1, "Subject is required").max(300),
-  prompt: z.string().min(1, "A question is required").max(2000),
+  prompt: z.string().max(2000).optional(),
   revealDate: z.string().max(40).optional(),
 });
 

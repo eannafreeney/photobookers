@@ -95,4 +95,22 @@ describe("generateMagazineArtistPromptEmail", () => {
     expect(html).not.toContain("Here is your cover");
     expect(html).toContain("Share kit");
   });
+
+  it("omits the question block when there is no question", () => {
+    const html = generateMagazineArtistPromptEmail({
+      ...base,
+      artistPrompt: null,
+    });
+    expect(html).not.toContain("the question I have for you");
+    expect(html).not.toContain("Just reply to this email");
+    // Still a complete, sendable email with the feature line and share kit.
+    expect(html).toContain("has been selected");
+    expect(html).toContain("Share kit");
+  });
+
+  it("keeps the question block when a question is present", () => {
+    const html = generateMagazineArtistPromptEmail(base);
+    expect(html).toContain("the question I have for you");
+    expect(html).toContain("What drew you to the street at dawn?");
+  });
 });

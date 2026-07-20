@@ -104,7 +104,7 @@ export const generateMagazineArtistPromptEmail = (params: {
   issueTitle: string;
   issueKicker: string | null;
   issueNumber: number | null;
-  artistPrompt: string;
+  artistPrompt: string | null;
   bookUrl: string;
   issueUrl: string;
   coverUrl: string | null;
@@ -121,13 +121,10 @@ export const generateMagazineArtistPromptEmail = (params: {
     coverUrl: params.coverUrl,
     revealDate: params.revealDate,
   });
-  return `
-    <p>Hi ${params.artistName},</p>
-    <p>My name is Eanna de Freine — I am the founder of Photobookers.</p>
-    <p>
-      Great news: your book <strong>${params.bookTitle}</strong> has been selected
-      to feature in our upcoming magazine issue, <strong>${feature}</strong>.
-    </p>
+  // The editor's question is optional — when there's none, the email is a clean
+  // "you're featured, here's your share kit" note with no question block.
+  const questionBlock = params.artistPrompt?.trim()
+    ? `
     <p>
       As part of the feature I would love to include a few words from you. Here is
       the question I have for you about this book:
@@ -138,7 +135,16 @@ export const generateMagazineArtistPromptEmail = (params: {
     <p>
       Just reply to this email with your answer — a sentence or two is perfect, and
       it will be published alongside the book in the issue.
+    </p>`
+    : "";
+  return `
+    <p>Hi ${params.artistName},</p>
+    <p>My name is Eanna de Freine — I am the founder of Photobookers.</p>
+    <p>
+      Great news: your book <strong>${params.bookTitle}</strong> has been selected
+      to feature in our upcoming magazine issue, <strong>${feature}</strong>.
     </p>
+    ${questionBlock}
     <p>You can see the book on your profile here:<br/>
       <a href="${params.bookUrl}">View book</a>
     </p>

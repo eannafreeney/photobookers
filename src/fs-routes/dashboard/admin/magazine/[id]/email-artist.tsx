@@ -101,12 +101,9 @@ export const POST = createRoute(
       if (saveErr) return showErrorAlert(c, saveErr.reason);
     }
 
-    // Use the edited question (falling back to the stored one), persist it if it
-    // changed, and rebuild the email body around it.
-    const finalPrompt = prompt?.trim() || placement.artistPrompt?.trim();
-    if (!finalPrompt) {
-      return showErrorAlert(c, "Add an artist question before emailing.");
-    }
+    // The question is optional. Use the edited value (empty clears it), persist
+    // it if it changed, and build the email body around it (or omit it).
+    const finalPrompt = prompt?.trim() || null;
     if (finalPrompt !== placement.artistPrompt) {
       const [promptErr] = await updateIssueBookArtistPrompt(
         id,
@@ -154,7 +151,7 @@ export const POST = createRoute(
           artistQuote={placement.artistQuote}
           artistEmailSentAt={sentAt}
         />
-        <Alert type="success" message={`Question emailed to ${recipient}.`} />
+        <Alert type="success" message={`Emailed ${recipient}.`} />
       </>,
     );
   },

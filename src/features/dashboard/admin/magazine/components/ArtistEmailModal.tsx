@@ -70,15 +70,15 @@ const ArtistEmailModal = ({
           validateInput="validateField('subject')"
         />
         <TextArea
-          label="Question for the artist"
+          label="Question for the artist (optional)"
           name="form.prompt"
           minRows={4}
-          required
           validateInput="validateField('prompt')"
         />
         <p class="-mt-1 mb-2 text-xs text-on-surface-weak">
           Edit the question if you like — it's saved to the book, and the email is
-          written around it.
+          written around it. Leave it blank to send a plain "you're featured"
+          note with just the share kit.
         </p>
 
         <Input label="Reveal day (optional)" type="date" name="form.revealDate" />
