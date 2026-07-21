@@ -1,3 +1,4 @@
 export const MAX_GALLERY_IMAGES_PER_BOOK = 10;
-/** Target max size for gallery images (aligns with client 0.8 MB). */
-export const MAX_GALLERY_SIZE_BYTES = 0.8 * 1024 * 1024;
+/** Server-side cap for gallery images; headroom above the client's 2 MB so the
+ *  server rarely has to step quality down (images served from Bunny CDN). */
+export const MAX_GALLERY_SIZE_BYTES = 2.5 * 1024 * 1024;

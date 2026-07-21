@@ -14,10 +14,10 @@ import {
 import { MAX_GALLERY_SIZE_BYTES } from "../constants/images";
 
 export type UploadKind = "cover" | "gallery";
-const COVER_MAX_DIMENSION = 1200;
-const GALLERY_MAX_DIMENSION = 1600;
-const COVER_QUALITY = 80;
-const GALLERY_QUALITIES = [75, 65, 55, 45];
+const COVER_MAX_DIMENSION = 1600;
+const GALLERY_MAX_DIMENSION = 2048;
+const COVER_QUALITY = 85;
+const GALLERY_QUALITIES = [88, 82, 78];
 
 async function encodeWebpToTarget(
   input: Buffer,
@@ -36,7 +36,7 @@ async function encodeWebpToTarget(
     const out = await base.clone().webp({ quality: q }).toBuffer();
     if (out.length <= MAX_GALLERY_SIZE_BYTES) return out;
   }
-  return base.webp({ quality: 40 }).toBuffer();
+  return base.webp({ quality: 75 }).toBuffer();
 }
 
 export async function compressImageBuffer(

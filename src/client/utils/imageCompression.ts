@@ -6,9 +6,9 @@ const presets: Record<
   CompressionPreset,
   { maxSizeMB: number; maxWidthOrHeight: number }
 > = {
-  cover: { maxSizeMB: 0.5, maxWidthOrHeight: 1200 }, // Book covers
-  gallery: { maxSizeMB: 0.8, maxWidthOrHeight: 1920 }, // Gallery images
-  profile: { maxSizeMB: 0.3, maxWidthOrHeight: 800 }, // Creator photos
+  cover: { maxSizeMB: 1.2, maxWidthOrHeight: 1600 }, // Book covers
+  gallery: { maxSizeMB: 2, maxWidthOrHeight: 2048 }, // Gallery images
+  profile: { maxSizeMB: 0.6, maxWidthOrHeight: 1000 }, // Creator photos
 };
 
 export async function compressImage(
