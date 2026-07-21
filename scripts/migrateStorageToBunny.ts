@@ -183,7 +183,7 @@ async function main() {
     const paths = urlRows.map((r) => r.url.slice(oldPrefix.length));
     console.log(`Found ${paths.length} distinct objects referenced in the DB.\n`);
 
-    if (MODE === "copy" || MODE === "apply") {
+    if (MODE === "copy") {
       let copied = 0;
       let skipped = 0;
       let missing = 0;
@@ -191,9 +191,10 @@ async function main() {
       await mapPool(paths, CONCURRENCY, async (path, i) => {
         // Skip if already present on Bunny (idempotent re-runs). A transient HEAD
         // failure just means we fall through and (re)upload, which is safe.
-        const head = await fetch(bunnyPublicUrl(path), { method: "HEAD" }).catch(
-          () => null,
-        );
+        const head = await fetch(bunnyPublicUrl(path), {
+          method: "HEAD",
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        }).catch(() => null);
         if (head?.ok) {
           skipped++;
           return;
