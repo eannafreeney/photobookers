@@ -1,4 +1,4 @@
 export const MAX_GALLERY_IMAGES_PER_BOOK = 10;
-/** Server-side cap for gallery images; headroom above the client's 2 MB so the
- *  server rarely has to step quality down (images served from Bunny CDN). */
-export const MAX_GALLERY_SIZE_BYTES = 2.5 * 1024 * 1024;
+/** Server-side target cap for the final gallery webp (served from Bunny CDN).
+ *  The server steps quality down only if a high-quality encode exceeds this. */
+export const MAX_GALLERY_SIZE_BYTES = 3.5 * 1024 * 1024;

@@ -16,8 +16,8 @@ import { MAX_GALLERY_SIZE_BYTES } from "../constants/images";
 export type UploadKind = "cover" | "gallery";
 const COVER_MAX_DIMENSION = 1600;
 const GALLERY_MAX_DIMENSION = 2048;
-const COVER_QUALITY = 85;
-const GALLERY_QUALITIES = [88, 82, 78];
+const COVER_QUALITY = 90;
+const GALLERY_QUALITIES = [92, 88, 84];
 
 async function encodeWebpToTarget(
   input: Buffer,
@@ -36,7 +36,7 @@ async function encodeWebpToTarget(
     const out = await base.clone().webp({ quality: q }).toBuffer();
     if (out.length <= MAX_GALLERY_SIZE_BYTES) return out;
   }
-  return base.webp({ quality: 75 }).toBuffer();
+  return base.webp({ quality: 82 }).toBuffer();
 }
 
 export async function compressImageBuffer(
