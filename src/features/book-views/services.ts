@@ -125,9 +125,7 @@ export const getBookViewTotals = async (range?: AnalyticsDateRange | null) => {
           .select({ value: countDistinct(bookViews.bookId) })
           .from(bookViews)
           .where(dateFilter)
-      : db
-          .select({ value: countDistinct(bookViews.bookId) })
-          .from(bookViews),
+      : db.select({ value: countDistinct(bookViews.bookId) }).from(bookViews),
   ]);
 
   return {
@@ -156,27 +154,16 @@ export const getTopBooksByViews = async (
   try {
     const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
     const scopeFilter = scope ? scopeBookFilter(scope) : undefined;
-    const where =
-      scopeFilter && dateFilter
-        ? and(scopeFilter, dateFilter)
-        : (scopeFilter ?? dateFilter);
+    const where = and(scopeFilter, dateFilter, publishedBookConditions);
 
-    const countQuery = scope
-      ? db
-          .select({
-            value: countDistinct(bookViews.bookId),
-          })
-          .from(bookViews)
-          .innerJoin(books, eq(bookViews.bookId, books.id))
-      : db
-          .select({
-            value: countDistinct(bookViews.bookId),
-          })
-          .from(bookViews);
+    const [{ value: totalCount = 0 }] = await db
+      .select({
+        value: countDistinct(bookViews.bookId),
+      })
+      .from(bookViews)
+      .innerJoin(books, eq(bookViews.bookId, books.id))
+      .where(where);
 
-    const [{ value: totalCount = 0 }] = where
-      ? await countQuery.where(where)
-      : await countQuery;
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
@@ -185,28 +172,19 @@ export const getTopBooksByViews = async (
     if (totalCount === 0) {
       return ok({ books: [], totalPages: 1, page: 1 });
     }
-    const viewQuery = (
-      scope
-        ? db
-            .select({
-              bookId: bookViews.bookId,
-              viewCount: count(),
-            })
-            .from(bookViews)
-            .innerJoin(books, eq(bookViews.bookId, books.id))
-        : db
-            .select({
-              bookId: bookViews.bookId,
-              viewCount: count(),
-            })
-            .from(bookViews)
-    )
+    const viewRows = await db
+      .select({
+        bookId: bookViews.bookId,
+        viewCount: count(),
+      })
+      .from(bookViews)
+      .innerJoin(books, eq(bookViews.bookId, books.id))
+      .where(where)
       .groupBy(bookViews.bookId)
       .orderBy(desc(count()))
       .limit(limit)
       .offset(offset);
 
-    const viewRows = where ? await viewQuery.where(where) : await viewQuery;
     if (viewRows.length === 0) {
       return ok({ books: [], totalPages, page });
     }

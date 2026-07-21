@@ -1,6 +1,19 @@
-import { and, asc, count, desc, eq, inArray, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  exists,
+  inArray,
+  isNull,
+  lte,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../db/client";
 import {
+  books,
   creatorViews,
   creators,
   type CreatorType,
@@ -166,7 +179,34 @@ export async function getTopCreatorsByViews(
     }
 
     const dateFilter = buildCreatedAtFilter(creatorViews.createdAt, range);
-    const where = topCreatorsByViewsWhere(creatorScope, dateFilter);
+    const hasPublishedBook = paginate
+      ? undefined
+      : exists(
+          db
+            .select({ id: books.id })
+            .from(books)
+            .where(
+              and(
+                or(
+                  and(
+                    eq(creators.type, "artist"),
+                    eq(books.artistId, creators.id),
+                  ),
+                  and(
+                    eq(creators.type, "publisher"),
+                    eq(books.publisherId, creators.id),
+                  ),
+                ),
+                eq(books.publicationStatus, "published"),
+                eq(books.approvalStatus, "approved"),
+                or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+              ),
+            ),
+        );
+    const where = and(
+      topCreatorsByViewsWhere(creatorScope, dateFilter),
+      hasPublishedBook,
+    );
 
     const viewQueryBase = db
       .select({

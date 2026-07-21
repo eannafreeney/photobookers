@@ -34,7 +34,17 @@ import {
   getCurrentNewsletterRange,
   resolveNewsletterRangeStart,
 } from "./utils";
-import { desc, eq, gte, isNotNull, lt, and, asc, lte, inArray } from "drizzle-orm";
+import {
+  desc,
+  eq,
+  gte,
+  isNotNull,
+  lt,
+  and,
+  asc,
+  lte,
+  inArray,
+} from "drizzle-orm";
 
 const NEW_MEMBERS_LIMIT = 6;
 
@@ -239,8 +249,7 @@ async function getUpcomingFairForNextWeek(
 }
 
 const DEFAULT_WEEKLY_NEWSLETTER_SUBJECT = "This week on photobookers";
-const DEFAULT_WEEKLY_NEWSLETTER_INTRO =
-  "We have some new books for you to check out. See below";
+const DEFAULT_WEEKLY_NEWSLETTER_INTRO = "";
 const DEFAULT_WEEKLY_NEWSLETTER_OUTRO =
   "Thanks for following photobookers. Reply and tell us which book stood out to you most.";
 const DEFAULT_WEEKLY_NEWSLETTER_CTA = "Visit photobookers";
@@ -264,7 +273,9 @@ async function buildWeeklyBOTDGeneratedContent(
     rangeEnd,
   );
   if (rangeError) return err({ reason: rangeError.reason });
-  const descriptionByBookId = await getBookDescriptionMap(rangeResult.botdEntries);
+  const descriptionByBookId = await getBookDescriptionMap(
+    rangeResult.botdEntries,
+  );
 
   const [
     { artistOfTheWeek, publisherOfTheWeek },
@@ -513,24 +524,25 @@ export async function buildCampaignPreviewHtml(
 
   const { renderWeeklyBOTDNewsletterHtml } = await import("./template");
   const storedBotdEntries =
-    (stored?.botdEntries as
-      | Array<{
-          date?: string;
-          bookId: string;
-          bookSlug: string;
-          title: string;
-          coverUrl: string | null;
-          blurb?: string | null;
-          artistName: string | null;
-          artistSlug: string | null;
-          publisherName: string | null;
-          publisherSlug: string | null;
-        }>
-      | undefined)?.map((entry) => ({
+    (
+      stored?.botdEntries as
+        | Array<{
+            date?: string;
+            bookId: string;
+            bookSlug: string;
+            title: string;
+            coverUrl: string | null;
+            blurb?: string | null;
+            artistName: string | null;
+            artistSlug: string | null;
+            publisherName: string | null;
+            publisherSlug: string | null;
+          }>
+        | undefined
+    )?.map((entry) => ({
       ...entry,
       blurb: entry.blurb ?? null,
-    })) ??
-    [];
+    })) ?? [];
 
   return renderWeeklyBOTDNewsletterHtml({
     weekStart,

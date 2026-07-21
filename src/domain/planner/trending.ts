@@ -23,6 +23,8 @@ export async function getTrendingForRange(
     getTopCreatorsByViews(range, 1, TRENDING_LIMIT, "publisher"),
   ]);
 
+  console.log("booksResult", booksResult);
+
   if (booksResult[0]) {
     console.error("getTrendingForRange books", booksResult[0].reason);
   }
