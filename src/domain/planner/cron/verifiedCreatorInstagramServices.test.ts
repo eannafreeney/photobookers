@@ -33,6 +33,7 @@ vi.mock("../../../domain/planner/instagramSlides/renderSpotlightLeadSlide", () =
 
 vi.mock("../../../lib/sendEmail", () => ({
   sendAdminEmail: vi.fn().mockResolvedValue([null, undefined]),
+  sendEmail: vi.fn().mockResolvedValue([null, undefined]),
 }));
 
 const bufferCreateScheduledImagePostMock = vi.fn();
@@ -53,6 +54,8 @@ function makeCreatorRow(id: string, verifiedAt: Date) {
     displayName: `Creator ${id}`,
     coverUrl: "https://example.com/cover.jpg",
     verifiedAt,
+    email: `creator-${id}@example.com`,
+    owner: { email: `owner-${id}@example.com` },
     booksAsArtist: [{ id: "book-1" }],
     booksAsPublisher: [],
   };
@@ -99,27 +102,32 @@ describe("getVerifiedCreatorInstagramEligibleBefore", () => {
 });
 
 describe("isVerifiedCreatorInstagramRunDay", () => {
-  it("runs on Tuesday, Thursday, and Saturday UTC", async () => {
+  it("runs on Monday and Wednesday UTC", async () => {
     const { isVerifiedCreatorInstagramRunDay } = await import(
       "./verifiedCreatorInstagramServices"
     );
+    // 2026-07-13 is a Monday, 2026-07-15 a Wednesday.
     expect(
-      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 14))),
-    ).toBe(true);
-    expect(
-      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 16))),
-    ).toBe(true);
-    expect(
-      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 18))),
+      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 13))),
     ).toBe(true);
     expect(
       isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 15))),
+    ).toBe(true);
+    // Tuesday / Thursday are post days, not run days.
+    expect(
+      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 14))),
+    ).toBe(false);
+    expect(
+      isVerifiedCreatorInstagramRunDay(new Date(Date.UTC(2026, 6, 16))),
     ).toBe(false);
   });
 });
 
 describe("runVerifiedCreatorInstagramCron", () => {
-  it("stops after queuing 2 creators when more are eligible", async () => {
+  // 2026-07-15 is a Wednesday — a verified-creator run day.
+  const RUN_DAY = new Date(Date.UTC(2026, 6, 15, 11, 0, 0));
+
+  it("queues only one creator per run even when more are eligible", async () => {
     mockQueuedTodayCount(0);
     findManyMock.mockResolvedValue([
       makeCreatorRow("1", new Date(Date.UTC(2026, 6, 1))),
@@ -128,36 +136,50 @@ describe("runVerifiedCreatorInstagramCron", () => {
     ]);
 
     const [error, result] = await runVerifiedCreatorInstagramCron({
-      date: new Date(Date.UTC(2026, 6, 14, 11, 0, 0)),
+      date: RUN_DAY,
     });
     expect(error).toBeNull();
-    expect(result?.queued).toBe(2);
-    expect(bufferCreateScheduledImagePostMock).toHaveBeenCalledTimes(2);
+    expect(result?.queued).toBe(1);
+    expect(bufferCreateScheduledImagePostMock).toHaveBeenCalledTimes(1);
   });
 
   it("returns early when the daily limit is already reached", async () => {
-    mockQueuedTodayCount(2);
+    mockQueuedTodayCount(1);
 
     const [error, result] = await runVerifiedCreatorInstagramCron({
-      date: new Date(Date.UTC(2026, 6, 14, 11, 0, 0)),
+      date: RUN_DAY,
     });
     expect(error).toBeNull();
     expect(result).toEqual({ queued: 0, skipped: 0, failed: 0, items: [] });
     expect(findManyMock).not.toHaveBeenCalled();
   });
 
-  it("only queues remaining slots when some were already sent today", async () => {
-    mockQueuedTodayCount(1);
+  it("emails the creator (preferring creators.email) when a post is queued", async () => {
+    mockQueuedTodayCount(0);
     findManyMock.mockResolvedValue([
       makeCreatorRow("1", new Date(Date.UTC(2026, 6, 1))),
-      makeCreatorRow("2", new Date(Date.UTC(2026, 6, 2))),
     ]);
 
+    const { sendEmail } = await import("../../../lib/sendEmail");
+    const [error, result] = await runVerifiedCreatorInstagramCron({
+      date: RUN_DAY,
+    });
+    expect(error).toBeNull();
+    expect(result?.queued).toBe(1);
+    expect(sendEmail).toHaveBeenCalledWith(
+      "creator-1@example.com",
+      expect.any(String),
+      expect.any(String),
+    );
+  });
+
+  it("does not run on a non-run day", async () => {
+    // 2026-07-14 is a Tuesday (a post day, not a run day).
     const [error, result] = await runVerifiedCreatorInstagramCron({
       date: new Date(Date.UTC(2026, 6, 14, 11, 0, 0)),
     });
     expect(error).toBeNull();
-    expect(result?.queued).toBe(1);
-    expect(bufferCreateScheduledImagePostMock).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ queued: 0, skipped: 0, failed: 0, items: [] });
+    expect(findManyMock).not.toHaveBeenCalled();
   });
 });

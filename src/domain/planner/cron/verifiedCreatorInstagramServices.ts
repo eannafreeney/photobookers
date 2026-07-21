@@ -10,9 +10,13 @@ import {
   NEW_CREATOR_CAROUSEL_BOOK_LIMIT,
   prepareNewCreatorFeedImageUrls,
 } from "../../../domain/planner/instagramSlides/renderSpotlightLeadSlide";
-import { sendAdminEmail } from "../../../lib/sendEmail";
+import { sendAdminEmail, sendEmail } from "../../../lib/sendEmail";
 import { buildInstagramCancelUrl } from "../../../lib/adminActionToken";
-import { buildVerifiedCreatorInstagramPreviewEmail } from "../../../features/dashboard/admin/planner/emails";
+import {
+  buildVerifiedCreatorInstagramCreatorEmail,
+  buildVerifiedCreatorInstagramPreviewEmail,
+  verifiedCreatorInstagramCreatorEmailSubject,
+} from "../../../features/dashboard/admin/planner/emails";
 import { uploadImageFromBuffer } from "../../../services/storage";
 import { bufferCreateScheduledImagePost } from "../../../features/dashboard/admin/planner/social-media/buffer";
 import {
@@ -53,9 +57,12 @@ export type RunVerifiedCreatorInstagramCronOptions = {
   date?: Date;
 };
 
-export const VERIFIED_CREATOR_INSTAGRAM_RUN_WEEKDAYS_UTC = [2, 4, 6] as const;
+export const VERIFIED_CREATOR_INSTAGRAM_RUN_WEEKDAYS_UTC = [1, 3] as const;
 
-/** Tuesday, Thursday, and Saturday (UTC). */
+/**
+ * Monday and Wednesday (UTC). Running the day before the post publishes lets
+ * the preview email go out ~24h ahead of the Tuesday/Thursday Buffer slot.
+ */
 export function isVerifiedCreatorInstagramRunDay(
   referenceDate: Date = new Date(),
 ): boolean {
@@ -69,7 +76,7 @@ export type RunVerifiedCreatorInstagramCronResult = Result<
   VerifiedCreatorInstagramError
 >;
 
-export const VERIFIED_CREATOR_INSTAGRAM_DAILY_LIMIT = 2;
+export const VERIFIED_CREATOR_INSTAGRAM_DAILY_LIMIT = 1;
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 
@@ -83,6 +90,7 @@ const CREATOR_INSTAGRAM_COLUMNS = {
   ...CREATOR_CARD_COLUMNS,
   bio: true,
   tagline: true,
+  email: true,
   verifiedAt: true,
   verifiedInstagramQueuedAt: true,
 } as const;
@@ -162,6 +170,7 @@ export async function runVerifiedCreatorInstagramCron(
       ),
       columns: CREATOR_INSTAGRAM_COLUMNS,
       with: {
+        owner: { columns: { email: true } },
         booksAsArtist: {
           columns: { id: true },
           where: eq(books.publicationStatus, "published"),
@@ -311,6 +320,27 @@ export async function runVerifiedCreatorInstagramCron(
           row.slug,
           previewEmailError,
         );
+      }
+
+      const creatorEmail = row.email?.trim() || row.owner?.email?.trim();
+      if (creatorEmail) {
+        const [creatorEmailError] = await sendEmail(
+          creatorEmail,
+          verifiedCreatorInstagramCreatorEmailSubject(),
+          buildVerifiedCreatorInstagramCreatorEmail({
+            displayName: row.displayName,
+            scheduledAt,
+            imageUrls: feedImageUrls,
+            caption,
+          }),
+        );
+        if (creatorEmailError) {
+          console.error(
+            "verifiedCreatorInstagram creator email",
+            row.slug,
+            creatorEmailError,
+          );
+        }
       }
 
       queued += 1;

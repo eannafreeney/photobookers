@@ -83,18 +83,31 @@ export function scheduleInstagramDueAt(dueAt: Date): Date {
   return dueAt;
 }
 
-/** UTC post time at least 24h after `from` (for admin preview before Buffer publish). */
+/** Weekdays (UTC) verified-creator posts publish on: Tuesday (2) and Thursday (4). */
+const VERIFIED_CREATOR_INSTAGRAM_POST_WEEKDAYS_UTC = [2, 4] as const;
+
+/**
+ * Next Tuesday or Thursday (UTC) at least 24h after `from`, at the configured
+ * post time. The 24h floor gives the admin preview email a full day's notice
+ * before Buffer publishes.
+ */
 export function buildVerifiedCreatorInstagramDueAt(from: Date = new Date()): Date {
   const minDueMs = from.getTime() + 24 * 60 * 60 * 1000;
   const time = process.env.VERIFIED_CREATOR_INSTAGRAM_POST_TIME ?? "14:00";
+  const postWeekdays =
+    VERIFIED_CREATOR_INSTAGRAM_POST_WEEKDAYS_UTC as readonly number[];
+
   let day = toUtcStartOfDay(new Date(minDueMs));
-  let candidate = buildInstagramDueAtWithTime(day, time);
-  if (candidate.getTime() < minDueMs) {
+  for (let i = 0; i < 14; i++) {
+    if (postWeekdays.includes(day.getUTCDay())) {
+      const candidate = buildInstagramDueAtWithTime(day, time);
+      if (candidate.getTime() >= minDueMs) return candidate;
+    }
     day = new Date(day);
     day.setUTCDate(day.getUTCDate() + 1);
-    candidate = buildInstagramDueAtWithTime(day, time);
   }
-  return candidate;
+  // Unreachable (a Tue/Thu always falls within 14 days), but keep a safe fallback.
+  return buildInstagramDueAtWithTime(day, time);
 }
 
 function buildInstagramDueAtWithTime(day: Date, time: string): Date {

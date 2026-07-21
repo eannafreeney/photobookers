@@ -412,6 +412,29 @@ export function buildVerifiedCreatorInstagramPreviewEmail(params: {
   });
 }
 
+export function verifiedCreatorInstagramCreatorEmailSubject(): string {
+  return "We're featuring you on the photobookers Instagram";
+}
+
+export function buildVerifiedCreatorInstagramCreatorEmail(params: {
+  displayName: string;
+  scheduledAt: Date;
+  imageUrls: string[];
+  caption: string;
+}): string {
+  const name = escapeHtml(params.displayName);
+  return `
+  <p>Hi ${name},</p>
+  <p>Good news — we've lined up a <strong>New on photobookers</strong> post celebrating you on our Instagram. It's scheduled to go live on <strong>${escapeHtml(formatScheduledAt(params.scheduledAt))}</strong>.</p>
+  <p>Here's a preview:</p>
+  ${renderPreviewImages(params.imageUrls, params.displayName)}
+  <p style="margin:16px 0 4px;font-weight:600;">Caption</p>
+  ${renderCaptionBlock(params.caption)}
+  <p style="margin-top:16px;">Keep an eye on <a href="https://instagram.com/photobookers">@photobookers</a> and give it a reshare to your stories when it's live — it really helps spread the word.</p>
+  <p>Best regards,<br/>Eanna</p>
+`;
+}
+
 export function buildAotwPublisherNotifyEmail(params: {
   publisherName: string;
   artistName: string;
