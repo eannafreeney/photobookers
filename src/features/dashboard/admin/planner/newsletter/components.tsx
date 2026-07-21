@@ -81,7 +81,7 @@ export const NewsletterSubject = ({
 );
 
 export const NewsletterAppPromo = () => (
-  <Section style={{ padding: "0 0 8px" }}>
+  <Section style={{ padding: "0 0 6px" }}>
     <Row>
       <Column align="center">
         <Button
@@ -115,7 +115,7 @@ type SectionHeadingProps = {
 };
 
 export const SectionHeading = ({ kicker, children }: SectionHeadingProps) => (
-  <Section style={{ padding: "12px 0 0", margin: "32px 0" }}>
+  <Section style={{ margin: "24px 0" }}>
     <Row>
       <Column>
         {kicker && <Kicker>{kicker}</Kicker>}
@@ -275,7 +275,7 @@ export const NewsletterOutro = ({ outroText }: { outroText: string }) => (
       <Column>
         <Text
           style={{ color: brand.onSurface }}
-          className="m-0 text-sm leading-[1.65] px-[25px]"
+          className="m-0 text-center text-sm leading-[1.65] px-[25px]"
         >
           {outroText}
         </Text>
@@ -285,13 +285,10 @@ export const NewsletterOutro = ({ outroText }: { outroText: string }) => (
 );
 
 export const NewsletterIntro = ({ introText }: { introText: string }) => (
-  <Section style={{ backgroundColor: brand.surface }}>
+  <Section>
     <Row>
       <Column>
-        <Text
-          style={{ color: brand.onSurface }}
-          className="m-0 text-sm leading-[1.65] px-[25px]"
-        >
+        <Text className="m-0 pb-6 text-center text-sm leading-[1.65] px-[25px]">
           {introText}
         </Text>
       </Column>

@@ -6,10 +6,26 @@ type Props = { book: Book };
 
 const BookApprovalForm = ({ book }: Props) => {
   const status = book.approvalStatus ?? "pending";
-  const isPending = status === "pending";
 
-  if (!isPending) {
+  if (status === "rejected") {
     return <BookApprovalStatusPill approvalStatus={status} />;
+  }
+
+  if (status === "approved") {
+    return (
+      <div id="book-approval-status" class="flex items-center gap-2">
+        <BookApprovalStatusPill approvalStatus={status} />
+        <form
+          method="post"
+          action={`/dashboard/admin/books/${book.id}/unapprove`}
+          x-target={`toast book-approval-status publish-toggle-${book.id}`}
+        >
+          <Button variant="outline" color="warning">
+            Unapprove
+          </Button>
+        </form>
+      </div>
+    );
   }
 
   return (
@@ -31,6 +47,16 @@ const BookApprovalForm = ({ book }: Props) => {
       >
         <Button variant="outline" color="danger">
           Reject
+        </Button>
+      </form>
+
+      <form
+        method="get"
+        action={`/dashboard/admin/books/${book.id}/feedback`}
+        x-target="modal-root"
+      >
+        <Button variant="outline" color="secondary">
+          Send feedback
         </Button>
       </form>
     </div>

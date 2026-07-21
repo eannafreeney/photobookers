@@ -170,3 +170,19 @@ export const generateBookRejectedEmail = (params: {
     <p>Thank you,<br/>Photobookers</p>
   `;
 };
+
+export const generateBookFeedbackEmail = (params: {
+  creatorName: string;
+  bookTitle: string;
+  feedback: string;
+}) => {
+  return `
+    <p>Hi ${params.creatorName},</p>
+    <p>While reviewing <strong>${params.bookTitle}</strong>, we have some feedback:</p>
+    <blockquote style="border-left: 3px solid #ccc; padding-left: 1rem; margin: 1rem 0;">
+      ${params.feedback}
+    </blockquote>
+    <p>Please make the necessary updates, or reply to this email if you have any questions.</p>
+    <p>Thank you,<br/>Photobookers</p>
+  `;
+};

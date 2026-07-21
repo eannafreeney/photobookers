@@ -7,6 +7,7 @@ import { invalidateBookCache } from "../../../app/services";
 import { sendEmail } from "../../../../lib/sendEmail";
 import {
   generateBookApprovedEmail,
+  generateBookFeedbackEmail,
   generateBookRejectedEmail,
 } from "../creators/emails";
 import {
@@ -206,5 +207,54 @@ export const rejectBook = async (bookId: string, feedback?: string) => {
     return ok(updatedBook);
   } catch (error) {
     return err({ reason: "Failed to reject book", cause: error });
+  }
+};
+
+export const unapproveBook = async (bookId: string) => {
+  try {
+    const [updatedBook] = await db
+      .update(books)
+      .set({ approvalStatus: "pending", publicationStatus: "draft" })
+      .where(
+        and(eq(books.id, bookId), eq(books.approvalStatus, "approved")),
+      )
+      .returning();
+    if (!updatedBook) return err({ reason: "Book is not approved" });
+
+    invalidateBookCache(updatedBook.slug);
+    return ok(updatedBook);
+  } catch (error) {
+    return err({ reason: "Failed to unapprove book", cause: error });
+  }
+};
+
+export const sendBookFeedback = async (bookId: string, feedback: string) => {
+  try {
+    const message = feedback.trim();
+    if (!message) return err({ reason: "Feedback is required" });
+
+    const contact = await getBookSubmitterContact(bookId);
+    if (!contact) return err({ reason: "Book not found" });
+    if (contact.book.approvalStatus !== "pending") {
+      return err({ reason: "Feedback can only be sent for pending books" });
+    }
+    if (!contact.recipientEmail) {
+      return err({ reason: "No recipient email found for this book" });
+    }
+
+    const [emailError] = await sendEmail(
+      contact.recipientEmail,
+      `Feedback on your book "${contact.book.title}"`,
+      generateBookFeedbackEmail({
+        creatorName: contact.displayName,
+        bookTitle: contact.book.title,
+        feedback: message,
+      }),
+    );
+    if (emailError) return err(emailError);
+
+    return ok(undefined);
+  } catch (error) {
+    return err({ reason: "Failed to send book feedback", cause: error });
   }
 };

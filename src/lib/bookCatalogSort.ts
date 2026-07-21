@@ -1,18 +1,20 @@
 import { desc, sql } from "drizzle-orm";
 import { books } from "../db/schema";
 
-export type BookCatalogSort = "newest" | "trending";
+export type BookCatalogSort = "newest" | "trending" | "latest";
 
 export const BOOK_CATALOG_DEFAULT_SORT: BookCatalogSort = "trending";
 
 export const BOOK_CATALOG_SORT_VALUES: BookCatalogSort[] = [
   "newest",
   "trending",
+  "latest",
 ];
 
 export const BOOK_CATALOG_SORT_LABELS: Record<BookCatalogSort, string> = {
   newest: "Newest",
   trending: "Trending",
+  latest: "Latest",
 };
 
 export const parseBookCatalogSort = (
@@ -28,6 +30,8 @@ export const getBookCatalogOrderBy = (sort: BookCatalogSort) => {
   switch (sort) {
     case "trending":
       return [desc(books.sortOrder), desc(books.id)];
+    case "latest":
+      return [desc(books.createdAt), desc(books.id)];
     case "newest":
     default:
       // Match getBooksOrderBy("newest"): release date first, not draft createdAt.
