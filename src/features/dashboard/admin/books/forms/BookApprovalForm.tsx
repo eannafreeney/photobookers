@@ -39,6 +39,15 @@ const BookApprovalForm = ({ book }: Props) => {
           <Button variant="outline" color="warning">
             Unapprove
           </Button>
+          <form
+            method="get"
+            action={`/dashboard/admin/books/${book.id}/feedback`}
+            x-target="modal-root"
+          >
+            <Button variant="outline" color="secondary">
+              Send feedback
+            </Button>
+          </form>
         </form>
       </div>
     );
