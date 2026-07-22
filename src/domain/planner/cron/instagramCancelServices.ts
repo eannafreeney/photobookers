@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { creators, newsletterCampaigns } from "../../../db/schema";
 import { err, ok, type Result } from "../../../lib/result";
-import type { TrendingInstagramPostKind } from "../../../features/dashboard/admin/planner/newsletter/types";
+import type { TrendingInstagramPostKind } from "../../../features/dashboard/admin/newsletters/types";
 import {
   bufferDeletePost,
   bufferPostExists,

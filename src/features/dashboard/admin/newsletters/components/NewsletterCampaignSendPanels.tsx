@@ -1,6 +1,6 @@
 import type { NewsletterCampaign } from "../../../../../db/schema";
 import FormPost from "../../../../../components/forms/FormPost";
-import { isBrevoNewsletterConfigured } from "../newsletter/brevoServices";
+import { isBrevoNewsletterConfigured } from "../brevoServices";
 import Button from "@/components/app/Button";
 
 export const NEWSLETTER_CAMPAIGN_CONTROLS_ID = "newsletter-campaign-controls";
@@ -37,7 +37,7 @@ export const NewsletterCampaignControls = ({
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap gap-2">
           <FormPost
-            action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/regenerate`}
+            action={`/dashboard/admin/newsletters/${selectedCampaign.id}/regenerate`}
             {...regenerateAttrs}
           >
             <button
@@ -49,7 +49,7 @@ export const NewsletterCampaignControls = ({
           </FormPost>
           {!isSent && (
             <FormPost
-              action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/delete`}
+              action={`/dashboard/admin/newsletters/${selectedCampaign.id}/delete`}
               {...deleteDraftAlpineAttrs}
             >
               <button
@@ -63,7 +63,7 @@ export const NewsletterCampaignControls = ({
         </div>
 
         <FormPost
-          action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/mark-sent`}
+          action={`/dashboard/admin/newsletters/${selectedCampaign.id}/mark-sent`}
           class="flex items-center gap-2"
           {...markSentAttrs}
         >
@@ -131,7 +131,7 @@ export const NewsletterBrevoPanel = ({
       ) : (
         <div class="mt-3 space-y-4">
           <FormPost
-            action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/send-brevo-test`}
+            action={`/dashboard/admin/newsletters/${selectedCampaign.id}/send-brevo-test`}
             class="flex flex-wrap items-end gap-2"
             {...toastAttrs}
           >
@@ -157,7 +157,7 @@ export const NewsletterBrevoPanel = ({
 
           <div>
             <FormPost
-              action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/send-brevo`}
+              action={`/dashboard/admin/newsletters/${selectedCampaign.id}/send-brevo`}
               {...sendListConfirmAttrs}
             >
               <Button variant="solid" color="primary" isDisabled={isSent}>

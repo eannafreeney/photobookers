@@ -1,4 +1,4 @@
-import { db } from "../../../../../db/client";
+import { db } from "../../../../db/client";
 import {
   artistOfTheWeek,
   bookFairs,
@@ -7,14 +7,15 @@ import {
   type NewsletterCampaignStatus,
   newsletterCampaigns,
   publisherOfTheWeek,
-} from "../../../../../db/schema";
+} from "../../../../db/schema";
 import {
   getBooksOfTheDayInRange,
   type BookOfTheDayWithBook,
-} from "../../../../app/BOTDServices";
-import { getTrendingForRange } from "../../../../../domain/planner/trending";
-import { CREATOR_CARD_COLUMNS } from "../../../../../constants/queries";
-import { err, ok } from "../../../../../lib/result";
+} from "../../../app/BOTDServices";
+import { getTrendingForRange } from "../../../../domain/planner/trending";
+import { CREATOR_CARD_COLUMNS } from "../../../../constants/queries";
+import { getPagination } from "../../../../lib/pagination";
+import { err, ok } from "../../../../lib/result";
 import {
   formatCreatorLocation,
   normalizeStoredDate,
@@ -22,7 +23,7 @@ import {
   toDateString,
   toWeekStart,
   toWeekString,
-} from "../../../../../lib/utils";
+} from "../../../../lib/utils";
 import {
   WeeklyNewsletterGeneratedContent,
   type WeeklyNewsletterBookItem,
@@ -35,6 +36,7 @@ import {
   resolveNewsletterRangeStart,
 } from "./utils";
 import {
+  count,
   desc,
   eq,
   gte,
@@ -323,9 +325,31 @@ export async function ensureCurrentWeeklyNewsletterDraft() {
   return ensureWeeklyNewsletterDraftForRange(weekStart, weekEnd);
 }
 
+/**
+ * Create the Thu–Wed edition immediately after the most recently created
+ * newsletter (the manual "add next week" action). Falls back to the current
+ * week when no campaigns exist yet. Idempotent via the weekStart unique index.
+ */
+export async function ensureNextNewsletterDraftAfterLatest() {
+  const latest = await db.query.newsletterCampaigns.findFirst({
+    orderBy: [desc(newsletterCampaigns.weekStart)],
+    columns: { weekStart: true },
+  });
+  if (!latest) return ensureCurrentWeeklyNewsletterDraft();
+
+  const nextStart = resolveNewsletterRangeStart(latest.weekStart);
+  nextStart.setUTCDate(nextStart.getUTCDate() + 7);
+  // Content is rebuilt live by the preview/send paths, so skip the ~10 analytics
+  // round trips here — they'd be thrown away when the edit page reloads anyway.
+  return ensureWeeklyNewsletterDraftForRange(nextStart, undefined, {
+    skipContent: true,
+  });
+}
+
 export async function ensureWeeklyNewsletterDraftForRange(
   weekStart: Date,
   _weekEnd?: Date,
+  options?: { skipContent?: boolean },
 ) {
   const normalizedStart = resolveNewsletterRangeStart(weekStart);
   const normalizedEnd = getWeekEndDate(normalizedStart);
@@ -333,11 +357,15 @@ export async function ensureWeeklyNewsletterDraftForRange(
   const existing = await findNewsletterCampaignByWeekStart(normalizedStart);
   if (existing) return ok(existing);
 
-  const [generatedError, generated] = await buildWeeklyBOTDGeneratedContent(
-    normalizedStart,
-    normalizedEnd,
-  );
-  if (generatedError) return err(generatedError);
+  let generated: WeeklyNewsletterGeneratedContent | null = null;
+  if (!options?.skipContent) {
+    const [generatedError, built] = await buildWeeklyBOTDGeneratedContent(
+      normalizedStart,
+      normalizedEnd,
+    );
+    if (generatedError) return err(generatedError);
+    generated = built;
+  }
 
   try {
     const [created] = await db
@@ -350,7 +378,7 @@ export async function ensureWeeklyNewsletterDraftForRange(
         introText: DEFAULT_WEEKLY_NEWSLETTER_INTRO,
         outroText: DEFAULT_WEEKLY_NEWSLETTER_OUTRO,
         ctaText: DEFAULT_WEEKLY_NEWSLETTER_CTA,
-        generatedContent: generated,
+        ...(generated ? { generatedContent: generated } : {}),
       })
       .onConflictDoNothing({
         target: newsletterCampaigns.weekStart,
@@ -375,6 +403,26 @@ export async function listNewsletterCampaigns(limit = 12) {
     orderBy: [desc(newsletterCampaigns.weekStart)],
     limit,
   });
+}
+
+/** Paginated campaign list for the admin newsletters table (newest week first). */
+export async function listNewsletterCampaignsPaginated(currentPage = 1) {
+  const [{ value: totalCount = 0 }] = await db
+    .select({ value: count() })
+    .from(newsletterCampaigns);
+
+  const { page, limit, offset, totalPages } = getPagination(
+    currentPage,
+    totalCount,
+  );
+
+  const campaigns = await db.query.newsletterCampaigns.findMany({
+    orderBy: [desc(newsletterCampaigns.weekStart)],
+    limit,
+    offset,
+  });
+
+  return { campaigns, totalPages, page };
 }
 
 export async function getNewsletterCampaignById(campaignId: string) {

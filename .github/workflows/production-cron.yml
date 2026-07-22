@@ -6,6 +6,7 @@ on:
   schedule:
     - cron: "17 8 * * *" # daily 08:17 UTC — Instagram queue + CEO metrics + product digest
     - cron: "17 9 * * *" # daily 09:17 UTC — BOTD / spotlight / follower emails
+    - cron: "17 8 * * 2" # Tuesday 08:17 UTC — pre-create next week's newsletter draft
     - cron: "17 9 * * 2" # Tuesday 09:17 UTC — weekly newsletter test send
     - cron: "17 9 * * 3" # Wednesday 09:17 UTC — weekly newsletter
     - cron: "17 9 * * 6" # Saturday 09:17 UTC — Instagram prep reminder
@@ -32,6 +33,7 @@ on:
           - notify-followers-new-posts
           - weekly-botd-newsletter
           - weekly-botd-newsletter-test
+          - weekly-botd-newsletter-prepare
           - weekly-trending-instagram
           - instagram-prep-reminder-email
           - planner-content-preview-email
@@ -132,6 +134,15 @@ jobs:
     uses: ./.github/workflows/run-production-cron.yml
     with:
       job: weekly-botd-newsletter-test
+    secrets: inherit
+
+  weekly-botd-newsletter-prepare:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '17 8 * * 2') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'weekly-botd-newsletter-prepare')
+    uses: ./.github/workflows/run-production-cron.yml
+    with:
+      job: weekly-botd-newsletter-prepare
     secrets: inherit
 
   instagram-prep-reminder-email:

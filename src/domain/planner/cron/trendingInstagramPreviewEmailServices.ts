@@ -8,7 +8,7 @@ import {
 import type {
   TrendingInstagramPostKind,
   TrendingInstagramState,
-} from "../../../features/dashboard/admin/planner/newsletter/types";
+} from "../../../features/dashboard/admin/newsletters/types";
 import { buildTrendingInstagramDueAt } from "../trendingInstagram/schedule";
 
 const TRENDING_KIND_TITLES: Record<TrendingInstagramPostKind, string> = {

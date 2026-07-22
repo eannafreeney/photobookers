@@ -26,7 +26,7 @@ const CampaignTextForm = ({ selectedCampaign }: CampaignTextFormProps) => {
   return (
     <FormPost
       {...alpineAttrs}
-      action={`/dashboard/admin/planner/newsletters/${selectedCampaign.id}/save`}
+      action={`/dashboard/admin/newsletters/${selectedCampaign.id}/save`}
       className="space-y-3"
     >
       <Input

@@ -1,6 +1,11 @@
 import { err, ok, type Result } from "../../../lib/result";
 import { toDateString } from "../../../lib/utils";
-import { isNewsletterSendDay, isNewsletterTestDay } from "../newsletterUtils";
+import type { NewsletterCampaignStatus } from "../../../db/schema";
+import {
+  getNextNewsletterRange,
+  isNewsletterSendDay,
+  isNewsletterTestDay,
+} from "../newsletterUtils";
 import {
   ensureCurrentWeeklyNewsletterDraft,
   ensureWeeklyNewsletterDraftForRange,
@@ -8,12 +13,12 @@ import {
   normalizeWeekStartDate,
   regenerateCampaignContent,
   updateNewsletterCampaignDraft,
-} from "../../../features/dashboard/admin/planner/newsletter/services";
+} from "../../../features/dashboard/admin/newsletters/services";
 import {
   isBrevoNewsletterConfigured,
   sendNewsletterBrevoTest,
   sendNewsletterBrevoToList,
-} from "../../../features/dashboard/admin/planner/newsletter/brevoServices";
+} from "../../../features/dashboard/admin/newsletters/brevoServices";
 
 export const WEEKLY_NEWSLETTER_REQUIRED_BOOKS = 7;
 
@@ -235,5 +240,48 @@ export async function runWeeklyNewsletterTestCron(
     bookCount,
     brevoCampaignId: sendResult.brevoCampaignId,
     recipient: sendResult.recipient,
+  });
+}
+
+export type PrepareNextNewsletterCronResult =
+  | { action: "skipped"; reason: "not_tuesday" }
+  | { action: "dry_run"; weekStart: string }
+  | {
+      action: "prepared";
+      campaignId: string;
+      weekStart: string;
+      status: NewsletterCampaignStatus;
+    };
+
+/**
+ * Pre-create the draft for the next Thu–Wed edition. Runs Tuesday so next week's
+ * newsletter exists a full week ahead of its Wednesday send. Idempotent: reuses
+ * the existing draft if one is already there.
+ */
+export async function runPrepareNextNewsletterCron(
+  options: RunWeeklyNewsletterCronOptions = {},
+): Promise<Result<PrepareNextNewsletterCronResult, CronError>> {
+  if (!options.dryRun && !options.force && !isNewsletterTestDay()) {
+    return ok({ action: "skipped", reason: "not_tuesday" });
+  }
+
+  const { weekStart, weekEnd } = getNextNewsletterRange();
+
+  if (options.dryRun) {
+    return ok({ action: "dry_run", weekStart: toDateString(weekStart) });
+  }
+
+  const [error, campaign] = await ensureWeeklyNewsletterDraftForRange(
+    weekStart,
+    weekEnd,
+    { skipContent: true },
+  );
+  if (error) return err(error);
+
+  return ok({
+    action: "prepared",
+    campaignId: campaign.id,
+    weekStart: toDateString(campaign.weekStart),
+    status: campaign.status,
   });
 }

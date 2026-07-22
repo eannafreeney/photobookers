@@ -39,6 +39,19 @@ export function getCurrentNewsletterRange(referenceDate: Date = new Date()) {
   return getNewsletterRangeForSendWednesday(sendWednesday);
 }
 
+/**
+ * The Thu–Wed edition immediately after the current one. Run on Tuesday, this
+ * is the "next Thu–Wed" that gets sent the following Wednesday.
+ */
+export function getNextNewsletterRange(referenceDate: Date = new Date()) {
+  const { weekStart, weekEnd } = getCurrentNewsletterRange(referenceDate);
+  const nextStart = new Date(weekStart);
+  nextStart.setUTCDate(nextStart.getUTCDate() + 7);
+  const nextEnd = new Date(weekEnd);
+  nextEnd.setUTCDate(nextEnd.getUTCDate() + 7);
+  return { weekStart: nextStart, weekEnd: nextEnd };
+}
+
 /** Newsletter range-start (Thursday) for the edition sent on this planner week's Wednesday. */
 export function getNewsletterRangeStartForPlannerWeek(
   plannerMonday: Date,

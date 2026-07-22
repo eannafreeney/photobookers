@@ -7,7 +7,7 @@ import type {
   WeeklyNewsletterTrending,
   WeeklyNewsletterTrendingBookItem,
   WeeklyNewsletterTrendingCreatorItem,
-} from "../../features/dashboard/admin/planner/newsletter/types";
+} from "../../features/dashboard/admin/newsletters/types";
 
 export const TRENDING_LIMIT = 3;
 
@@ -22,8 +22,6 @@ export async function getTrendingForRange(
     getTopCreatorsByViews(range, 1, TRENDING_LIMIT, "artist"),
     getTopCreatorsByViews(range, 1, TRENDING_LIMIT, "publisher"),
   ]);
-
-  console.log("booksResult", booksResult);
 
   if (booksResult[0]) {
     console.error("getTrendingForRange books", booksResult[0].reason);

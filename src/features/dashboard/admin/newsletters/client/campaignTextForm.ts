@@ -5,11 +5,11 @@ import {
   handleSubmit,
   initFormValues,
   validateField,
-} from "../../../../../../client/forms/formUtils";
+} from "../../../../../client/forms/formUtils";
 import {
   NewsletterCampaignFormSchema,
   newsletterCampaignFormSchema,
-} from "../../schema";
+} from "../schema";
 
 const CAMPAIGN_TEXT_FIELDS = Object.keys(newsletterCampaignFormSchema.shape);
 

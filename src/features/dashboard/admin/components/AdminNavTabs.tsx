@@ -9,6 +9,7 @@ import {
   fairsIcon,
   interviewsIcon,
   magazineIcon,
+  mailIcon,
   plannerIcon,
   storesIcon,
   usersIcon,
@@ -26,6 +27,10 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
         {plannerIcon}
         Planner
+      </NavLink>
+      <NavLink href="/dashboard/admin/newsletters" currentPath={currentPath}>
+        {mailIcon(4)}
+        Newsletters
       </NavLink>
       <NavLink href="/dashboard/admin/magazine" currentPath={currentPath}>
         {magazineIcon}

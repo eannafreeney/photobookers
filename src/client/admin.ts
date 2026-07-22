@@ -8,7 +8,7 @@ import { registerEditUserFormAdmin } from "../features/dashboard/admin/users/cli
 import { registerAOTWForm } from "../features/dashboard/admin/planner/client/aotwForm";
 import { registerPOTWForm } from "../features/dashboard/admin/planner/client/potwForm";
 import { registerSpotlightBlurbModal } from "../features/dashboard/admin/planner/client/spotlightBlurbModal";
-import { registerCampaignTextForm } from "../features/dashboard/admin/planner/newsletter/client/campaignTextForm";
+import { registerCampaignTextForm } from "../features/dashboard/admin/newsletters/client/campaignTextForm";
 import { registerAdminNotificationsBadge } from "../features/dashboard/admin/notifications/client/adminNotificationsBadge";
 import { registerAdminClaimsBadge } from "../features/dashboard/admin/claims/client/adminClaimsBadge";
 import { registerEditInterviewForm } from "../features/dashboard/admin/interviews/client/editInterviewForm";

@@ -6,18 +6,9 @@ import {
   PublisherOfTheWeekWithCreator,
 } from "./services";
 import { db } from "../../../../db/client";
-import {
-  type CreatorInterview,
-  creatorInterviews,
-  newsletterCampaigns,
-} from "../../../../db/schema";
-import { and, desc, gte, inArray, lte } from "drizzle-orm";
-import { getWeekStarts } from "./utils";
+import { type CreatorInterview, creatorInterviews } from "../../../../db/schema";
+import { desc, inArray } from "drizzle-orm";
 import { getInstagramPreparedByWeekStart } from "./social-media/instagramServices";
-import {
-  mapPlannerNewsletterByWeekStart,
-  type PlannerNewsletterWeekData,
-} from "./newsletterPlanner";
 
 export type PlannerYearData = {
   botdByDate: Awaited<ReturnType<typeof getBotdByDate>>;
@@ -28,7 +19,6 @@ export type PlannerYearData = {
     PublisherOfTheWeekWithCreator | null
   > | null;
   publisherLoadError: string | null;
-  newsletterByWeekStart: Map<string, PlannerNewsletterWeekData>;
   instagramPreparedByWeekStart: Map<string, boolean>;
   /** Latest interview per creator featured in this year's planner */
   interviewByCreatorId: Map<string, CreatorInterview>;
@@ -37,19 +27,13 @@ export type PlannerYearData = {
 export const loadPlannerYearData = async (
   year: number,
 ): Promise<PlannerYearData> => {
-  const [
-    botdByDate,
-    artistResult,
-    publisherResult,
-    newsletterByWeekStart,
-    instagramPreparedByWeekStart,
-  ] = await Promise.all([
-    getBotdByDate(year),
-    getArtistsOfTheWeekByWeekStart(year),
-    getPublishersOfTheWeekByWeekStart(year),
-    getNewsletterStatusesByWeekStart(year),
-    getInstagramPreparedByWeekStart(year),
-  ]);
+  const [botdByDate, artistResult, publisherResult, instagramPreparedByWeekStart] =
+    await Promise.all([
+      getBotdByDate(year),
+      getArtistsOfTheWeekByWeekStart(year),
+      getPublishersOfTheWeekByWeekStart(year),
+      getInstagramPreparedByWeekStart(year),
+    ]);
 
   const [artistErr, artistMap] = artistResult;
   const [publisherErr, publisherMap] = publisherResult;
@@ -65,7 +49,6 @@ export const loadPlannerYearData = async (
     artistLoadError: artistErr?.reason ?? null,
     publisherByWeekStart: publisherErr ? null : publisherMap,
     publisherLoadError: publisherErr?.reason ?? null,
-    newsletterByWeekStart,
     instagramPreparedByWeekStart,
     interviewByCreatorId,
   };
@@ -100,22 +83,3 @@ async function getInterviewsByCreatorIdForPlanner(
 
   return byCreatorId;
 }
-
-const getNewsletterStatusesByWeekStart = async (
-  year: number,
-): Promise<Map<string, PlannerNewsletterWeekData>> => {
-  const weekStarts = getWeekStarts(year);
-  if (weekStarts.length === 0) return new Map();
-
-  const first = weekStarts[0];
-  const last = weekStarts[weekStarts.length - 1];
-  const lastSunday = new Date(last);
-  lastSunday.setUTCDate(lastSunday.getUTCDate() + 6);
-  const rows = await db.query.newsletterCampaigns.findMany({
-    where: and(
-      gte(newsletterCampaigns.weekStart, first),
-      lte(newsletterCampaigns.weekStart, lastSunday),
-    ),
-  });
-  return mapPlannerNewsletterByWeekStart(weekStarts, rows);
-};

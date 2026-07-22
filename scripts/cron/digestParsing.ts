@@ -24,6 +24,8 @@ export const CRON_JOB_DESCRIPTIONS: Record<string, string> = {
   "weekly-botd-newsletter": "Sends the weekly Book of the Day newsletter campaign.",
   "weekly-botd-newsletter-test":
     "Sends a test copy of the weekly newsletter before the real send.",
+  "weekly-botd-newsletter-prepare":
+    "Pre-creates next week's Book of the Day newsletter draft (Thu–Wed).",
   "weekly-trending-instagram":
     "Prepares and queues the weekly trending-books Instagram post.",
   "instagram-prep-reminder-email":

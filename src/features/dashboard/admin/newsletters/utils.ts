@@ -1,4 +1,4 @@
-export * from "../../../../../domain/planner/newsletterUtils";
+export * from "../../../../domain/newsletters/newsletterUtils";
 
 import { parseDateString } from "@/lib/utils";
 

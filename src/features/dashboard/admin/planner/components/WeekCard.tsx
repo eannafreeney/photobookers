@@ -1,10 +1,7 @@
 import Card from "../../../../../components/app/Card";
 import { BookOfTheDayWithBook } from "../../../../app/BOTDServices";
 import { toDateString, toWeekString } from "../../../../../lib/utils";
-import {
-  CreatorInterview,
-  NewsletterCampaignStatus,
-} from "../../../../../db/schema";
+import { CreatorInterview } from "../../../../../db/schema";
 import {
   ArtistOfTheWeekWithCreator,
   PublisherOfTheWeekWithCreator,
@@ -22,9 +19,6 @@ type Props = {
   botdByDate: Map<string, BookOfTheDayWithBook>;
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
-  newsletterStatus: NewsletterCampaignStatus | null;
-  newsletterCampaignId: string | null;
-  newsletterWeekStart: Date;
   instagramPrepared: boolean;
   interviewByCreatorId: Map<string, CreatorInterview> | null;
 };
@@ -35,9 +29,6 @@ const WeekCard = ({
   botdByDate,
   artistOfTheWeek,
   publisherOfTheWeek,
-  newsletterStatus,
-  newsletterCampaignId,
-  newsletterWeekStart,
   instagramPrepared,
   interviewByCreatorId,
 }: Props) => {
@@ -48,9 +39,6 @@ const WeekCard = ({
       <WeekCardHeader
         weekStart={weekStart}
         weekNumber={weekNumber}
-        newsletterStatus={newsletterStatus}
-        newsletterCampaignId={newsletterCampaignId}
-        newsletterWeekStart={newsletterWeekStart}
         instagramPrepared={instagramPrepared}
         botdByDate={botdByDate}
       />
@@ -89,9 +77,6 @@ export default WeekCard;
 type WeekCardHeaderProps = {
   weekStart: Date;
   weekNumber: number;
-  newsletterStatus: NewsletterCampaignStatus | null;
-  newsletterCampaignId: string | null;
-  newsletterWeekStart: Date;
   instagramPrepared: boolean;
   botdByDate: Map<string, BookOfTheDayWithBook>;
 };
@@ -104,44 +89,16 @@ const instagramButtonClasses = (prepared: boolean): string => {
   return `${base} border-outline bg-surface-alt text-on-surface hover:bg-surface`;
 };
 
-const newsletterButtonClasses = (
-  status: NewsletterCampaignStatus | null,
-): string => {
-  const base = "rounded border px-2 py-1 text-xs font-medium opacity-80";
-  switch (status) {
-    case "draft":
-      return `${base} border-warning bg-warning text-on-warning hover:opacity-90`;
-    case "sent":
-      return `${base} border-success bg-success text-on-success hover:opacity-90`;
-    case "failed":
-      return `${base} border-danger bg-danger text-on-danger hover:opacity-90`;
-    default:
-      return `${base} border-outline bg-surface-alt text-on-surface hover:bg-surface`;
-  }
-};
-
-const newsletterButtonLabel = (status: NewsletterCampaignStatus | null) => {
-  if (status === "sent") return "Newsletter sent";
-  return "Weekly newsletter";
-};
-
 const WeekCardHeader = ({
   weekStart,
   weekNumber,
-  newsletterStatus,
-  newsletterCampaignId,
-  newsletterWeekStart,
   instagramPrepared,
   botdByDate,
 }: WeekCardHeaderProps) => {
-  const buttonLabel = newsletterButtonLabel(newsletterStatus);
   const weekKey = toWeekString(weekStart);
   const instagramLabel = instagramPrepared
     ? "Edit Instagram"
     : "Prepare Instagram";
-  const newsletterHref = newsletterCampaignId
-    ? `/dashboard/admin/planner/newsletters?campaignId=${newsletterCampaignId}`
-    : `/dashboard/admin/planner/newsletters?weekStart=${toDateString(newsletterWeekStart)}`;
 
   return (
     <div class="flex items-center justify-between gap-2 p-3 border-b border-outline">
@@ -169,12 +126,6 @@ const WeekCardHeader = ({
           class={instagramButtonClasses(instagramPrepared)}
         >
           {instagramLabel}
-        </a>
-        <a
-          href={newsletterHref}
-          class={newsletterButtonClasses(newsletterStatus)}
-        >
-          {buttonLabel}
         </a>
       </div>
     </div>

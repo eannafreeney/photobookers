@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import type { TrendingInstagramPostKind } from "../features/dashboard/admin/planner/newsletter/types";
+import type { TrendingInstagramPostKind } from "../features/dashboard/admin/newsletters/types";
 
 const TOKEN_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 

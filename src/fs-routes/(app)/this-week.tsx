@@ -7,7 +7,7 @@ import { getBooksOfTheDayInRange } from "../../features/app/BOTDServices";
 import { getArtistOfTheWeekForDateQuery } from "../../features/app/AOTWServices";
 import { getPublisherOfTheWeekForDateQuery } from "../../features/app/POTWServices";
 import { getInterviewByCreatorSlug } from "../../features/app/services";
-import { formatWeekRangeLabel } from "../../domain/planner/newsletterUtils";
+import { formatWeekRangeLabel } from "../../domain/newsletters/newsletterUtils";
 import { canonicalUrl, pageTitle, truncateDescription } from "../../lib/seo";
 import {
   capEndOfDayToToday,

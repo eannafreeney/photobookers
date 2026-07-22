@@ -1,6 +1,6 @@
 import { NewsletterCampaign } from "@/db/schema";
-import { getNewsletterCampaignRange } from "@/features/dashboard/admin/planner/newsletter/services";
-import { formatNewsletterWeekRange } from "@/features/dashboard/admin/planner/newsletter/utils";
+import { getNewsletterCampaignRange } from "@/features/dashboard/admin/newsletters/services";
+import { formatNewsletterWeekRange } from "@/features/dashboard/admin/newsletters/utils";
 
 type CampaignHeaderProps = {
   selectedCampaign: NewsletterCampaign;

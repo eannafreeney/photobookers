@@ -2,7 +2,7 @@ import { NewsletterCampaign } from "@/db/schema";
 import {
   NewsletterBrevoPanel,
   NewsletterCampaignControls,
-} from "@/features/dashboard/admin/planner/components/NewsletterCampaignSendPanels";
+} from "@/features/dashboard/admin/newsletters/components/NewsletterCampaignSendPanels";
 import CampaignPreview from "./CampaignPreview";
 import CampaignTextForm from "./CampaignTextForm";
 

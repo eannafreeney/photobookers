@@ -1,9 +1,9 @@
 import { parseDateString, toUtcStartOfDay } from "../../../lib/utils";
-import type { TrendingInstagramPostKind } from "../../../features/dashboard/admin/planner/newsletter/types";
+import type { TrendingInstagramPostKind } from "../../../features/dashboard/admin/newsletters/types";
 import {
   getNewsletterRangeForSendWednesday,
   NEWSLETTER_SEND_WEEKDAY_UTC,
-} from "../newsletterUtils";
+} from "../../newsletters/newsletterUtils";
 
 const POST_KIND_DAY_OFFSET: Record<TrendingInstagramPostKind, number> = {
   books: 1,

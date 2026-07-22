@@ -7,8 +7,8 @@ import type {
   WeeklyNewsletterTrending,
   WeeklyNewsletterTrendingBookItem,
   WeeklyNewsletterTrendingCreatorItem,
-} from "../../../features/dashboard/admin/planner/newsletter/types";
-import type { TrendingInstagramPostKind } from "../../../features/dashboard/admin/planner/newsletter/types";
+} from "../../../features/dashboard/admin/newsletters/types";
+import type { TrendingInstagramPostKind } from "../../../features/dashboard/admin/newsletters/types";
 
 const POST_HEADINGS: Record<TrendingInstagramPostKind, string> = {
   books: "Top books this week",

@@ -1,13 +1,13 @@
 import { createRoute } from "hono-fsr";
-import { paramValidator } from "../../../../../../lib/validator";
-import { newsletterCampaignParamSchema } from "../../../../../../features/dashboard/admin/planner/schema";
-import { sendNewsletterBrevoToList } from "../../../../../../features/dashboard/admin/planner/newsletter/brevoServices";
+import { paramValidator } from "../../../../../lib/validator";
+import { newsletterCampaignParamSchema } from "../../../../../features/dashboard/admin/newsletters/schema";
+import { sendNewsletterBrevoToList } from "../../../../../features/dashboard/admin/newsletters/brevoServices";
 import {
   NewsletterBrevoPanel,
   NewsletterCampaignControls,
-} from "../../../../../../features/dashboard/admin/planner/components/NewsletterCampaignSendPanels";
-import Alert from "../../../../../../components/app/Alert";
-import { getUser } from "../../../../../../utils";
+} from "../../../../../features/dashboard/admin/newsletters/components/NewsletterCampaignSendPanels";
+import Alert from "../../../../../components/app/Alert";
+import { getUser } from "../../../../../utils";
 
 export const POST = createRoute(
   paramValidator(newsletterCampaignParamSchema),

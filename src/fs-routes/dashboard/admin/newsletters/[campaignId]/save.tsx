@@ -1,16 +1,16 @@
 import { createRoute } from "hono-fsr";
-import { formValidator, paramValidator } from "../../../../../../lib/validator";
+import { formValidator, paramValidator } from "../../../../../lib/validator";
 import {
   newsletterCampaignFormSchema,
   newsletterCampaignParamSchema,
-} from "../../../../../../features/dashboard/admin/planner/schema";
+} from "../../../../../features/dashboard/admin/newsletters/schema";
 import {
   buildCampaignPreviewHtml,
   getNewsletterCampaignById,
   updateNewsletterCampaignDraft,
-} from "../../../../../../features/dashboard/admin/planner/newsletter/services";
-import Alert from "../../../../../../components/app/Alert";
-import CampaignPreview from "@/features/dashboard/admin/planner/newsletter/components/CampaignPreview";
+} from "../../../../../features/dashboard/admin/newsletters/services";
+import Alert from "../../../../../components/app/Alert";
+import CampaignPreview from "@/features/dashboard/admin/newsletters/components/CampaignPreview";
 
 export const POST = createRoute(
   paramValidator(newsletterCampaignParamSchema),

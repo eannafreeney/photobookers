@@ -5,10 +5,10 @@ import {
   prepareNewsletterHtmlForBrevo,
   sendBrevoCampaignNow,
   sendBrevoCampaignTest,
-} from "../../../../../lib/brevo/client";
-import { err, ok, type Result } from "../../../../../lib/result";
-import { toDateString } from "../../../../../lib/utils";
-import type { NewsletterCampaign } from "../../../../../db/schema";
+} from "../../../../lib/brevo/client";
+import { err, ok, type Result } from "../../../../lib/result";
+import { toDateString } from "../../../../lib/utils";
+import type { NewsletterCampaign } from "../../../../db/schema";
 import {
   buildCampaignPreviewHtml,
   getNewsletterCampaignById,

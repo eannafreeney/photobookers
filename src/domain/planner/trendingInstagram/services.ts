@@ -8,13 +8,13 @@ import {
 } from "../../../lib/utils";
 import {
   normalizeWeekStartDate,
-} from "../../../features/dashboard/admin/planner/newsletter/services";
+} from "../../../features/dashboard/admin/newsletters/services";
 import type {
   TrendingInstagramPostKind,
   TrendingInstagramPostState,
   TrendingInstagramState,
   WeeklyNewsletterTrending,
-} from "../../../features/dashboard/admin/planner/newsletter/types";
+} from "../../../features/dashboard/admin/newsletters/types";
 import {
   bufferCreateScheduledImagePost,
   bufferPostExists,

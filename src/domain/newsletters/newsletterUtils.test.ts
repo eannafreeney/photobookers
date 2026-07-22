@@ -3,6 +3,7 @@ import { toDateString } from "../../lib/utils";
 import {
   getCurrentNewsletterRange,
   getNewsletterRangeStartForPlannerWeek,
+  getNextNewsletterRange,
 } from "./newsletterUtils";
 
 describe("getCurrentNewsletterRange", () => {
@@ -17,6 +18,17 @@ describe("getCurrentNewsletterRange", () => {
   it("switches to the next edition from Friday onward", () => {
     const { weekStart, weekEnd } = getCurrentNewsletterRange(
       new Date(Date.UTC(2026, 6, 10)),
+    );
+    expect(toDateString(weekStart)).toBe("2026-07-09");
+    expect(toDateString(weekEnd)).toBe("2026-07-15");
+  });
+});
+
+describe("getNextNewsletterRange", () => {
+  it("returns the next Thu–Wed edition when run on a Tuesday", () => {
+    // Tuesday Jul 7, 2026: current edition ends Wed Jul 8, so next is Jul 9–15.
+    const { weekStart, weekEnd } = getNextNewsletterRange(
+      new Date(Date.UTC(2026, 6, 7)),
     );
     expect(toDateString(weekStart)).toBe("2026-07-09");
     expect(toDateString(weekEnd)).toBe("2026-07-15");
