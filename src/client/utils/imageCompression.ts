@@ -1,5 +1,14 @@
 import imageCompression from "browser-image-compression";
 
+// Formats sharp can reliably decode server-side. HEIC (iPhone) is intentionally
+// excluded so it still gets converted to webp in the browser.
+const SERVER_ENCODABLE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+// At or under this size, a standard-format file skips the browser pass and is
+// compressed once, server-side, for maximum sharpness. Must stay within the
+// server upload cap (validateImageFile, 5MB).
+const SKIP_BROWSER_COMPRESSION_BYTES = 5 * 1024 * 1024;
+
 export type CompressionPreset = "cover" | "gallery" | "profile";
 
 const presets: Record<
@@ -18,6 +27,17 @@ export async function compressImage(
   file: File,
   preset: CompressionPreset
 ): Promise<File> {
+  // Standard-format files already within the upload cap don't need a browser
+  // pass. Uploading the original lets the server do a single, crisp encode
+  // instead of browser-webp + server-webp double compression (which softens
+  // detail). HEIC and oversized files still go through the browser below.
+  if (
+    SERVER_ENCODABLE_TYPES.includes(file.type) &&
+    file.size <= SKIP_BROWSER_COMPRESSION_BYTES
+  ) {
+    return file;
+  }
+
   const options = {
     ...presets[preset],
     useWebWorker: true,
