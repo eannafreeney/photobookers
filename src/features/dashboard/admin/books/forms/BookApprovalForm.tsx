@@ -8,12 +8,28 @@ const BookApprovalForm = ({ book }: Props) => {
   const status = book.approvalStatus ?? "pending";
 
   if (status === "rejected") {
-    return <BookApprovalStatusPill approvalStatus={status} />;
+    return (
+      <>
+        <BookApprovalStatusPill approvalStatus={status} />;
+        <form
+          method="get"
+          action={`/dashboard/admin/books/${book.id}/feedback`}
+          x-target="modal-root"
+        >
+          <Button variant="outline" color="secondary">
+            Send feedback
+          </Button>
+        </form>
+      </>
+    );
   }
 
   if (status === "approved") {
     return (
-      <div id="book-approval-status" class="flex items-center gap-2">
+      <div
+        id="book-approval-status"
+        class="flex flex-col md:flex-row items-center gap-2"
+      >
         <BookApprovalStatusPill approvalStatus={status} />
         <form
           method="post"
@@ -29,7 +45,10 @@ const BookApprovalForm = ({ book }: Props) => {
   }
 
   return (
-    <div id="book-approval-status" class="flex items-center gap-2">
+    <div
+      id="book-approval-status"
+      class="flex flex-col md:flex-row items-center gap-2"
+    >
       <form
         method="post"
         action={`/dashboard/admin/books/${book.id}/approve`}

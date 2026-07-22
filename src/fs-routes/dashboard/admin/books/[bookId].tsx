@@ -77,9 +77,9 @@ export const GET = createRoute(
               },
             ]}
           />
-          <div class="flex justify-end">
+          <div class="flex flex-col items-center md:items-end gap-4">
+            <BookApprovalForm book={book} />
             <div class="flex items-center gap-4">
-              <BookApprovalForm book={book} />
               <PublishToggleForm book={book} user={user} />
               <PreviewButton book={book} user={user} />
             </div>
