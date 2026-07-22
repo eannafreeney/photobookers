@@ -15,6 +15,9 @@ import { canEditBook } from "../../../../lib/permissions";
 import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
 import BookApprovalStatusPill from "../../admin/books/components/BookApprovalStatusPill";
 import { dragHandleIcon } from "../../../../lib/icons";
+import StatusPill from "../../admin/components/StatusPill";
+import { capitalize } from "@/utils";
+import AvailabilityStatusPill from "../../admin/books/components/AvailabilityStatusPill";
 
 type Props = {
   books: (Book & { artist: Creator | null; publisher: Creator | null })[];
@@ -112,6 +115,7 @@ const BooksOverviewDesktop = async ({
               <Table.HeadRow>Views</Table.HeadRow>
               <Table.HeadRow>Favs</Table.HeadRow>
               <Table.HeadRow>Outbound clicks</Table.HeadRow>
+              <Table.HeadRow>Status</Table.HeadRow>
               <Table.HeadRow>Approval</Table.HeadRow>
               <Table.HeadRow>Publish</Table.HeadRow>
             </tr>
@@ -227,15 +231,15 @@ const BookTableRow = ({
         <Card.Text>{funnel.outboundClicks}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
+        <AvailabilityStatusPill availabilityStatus={book.availabilityStatus} />
+      </Table.BodyRow>
+      <Table.BodyRow>
         <BookApprovalStatusPill
           approvalStatus={book.approvalStatus ?? "pending"}
         />
       </Table.BodyRow>
       <Table.BodyRow>
         <PublishToggleForm book={book} user={user} />
-      </Table.BodyRow>
-      <Table.BodyRow>
-        <PreviewButton book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
         <a href={`/dashboard/books/${book.id}`}>
