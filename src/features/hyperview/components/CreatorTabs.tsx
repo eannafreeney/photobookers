@@ -14,6 +14,7 @@ type CreatorTabsProps = {
   creatorId: string;
   creatorType: "artist" | "publisher";
   activeTab?: CreatorTab;
+  showPostsTab?: boolean;
 };
 
 const CreatorTabs = ({
@@ -21,6 +22,7 @@ const CreatorTabs = ({
   creatorId,
   creatorType,
   activeTab = "books",
+  showPostsTab = false,
 }: CreatorTabsProps) => {
   return (
     <View style="creator-tabs-sticky" sticky="true">
@@ -38,19 +40,21 @@ const CreatorTabs = ({
         >
           <Text style="tab-label">BOOKS</Text>
         </Option>
-        <Option
-          value="messages"
-          style="tab-btn"
-          selected={activeTab === "messages" ? "true" : undefined}
-          trigger="select"
-          href={`${baseUrl}/hyperview/creators/${creatorId}/tab/messages`}
-          action="replace-inner"
-          target="tab-area"
-          hide-during-load="tab-area"
-          show-during-load="tab-spinner"
-        >
-          <Text style="tab-label">POSTS</Text>
-        </Option>
+        {showPostsTab && (
+          <Option
+            value="messages"
+            style="tab-btn"
+            selected={activeTab === "messages" ? "true" : undefined}
+            trigger="select"
+            href={`${baseUrl}/hyperview/creators/${creatorId}/tab/messages`}
+            action="replace-inner"
+            target="tab-area"
+            hide-during-load="tab-area"
+            show-during-load="tab-spinner"
+          >
+            <Text style="tab-label">POSTS</Text>
+          </Option>
+        )}
         <Option
           value={creatorType === "publisher" ? "publishers" : "artists"}
           style="tab-btn"
