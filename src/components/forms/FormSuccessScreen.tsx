@@ -9,10 +9,7 @@ const FormSuccessScreen = ({
   message: string;
 }) => {
   return (
-    <div
-      id={id}
-      class="flex flex-col gap-6 items-center justify-center min-h-screen"
-    >
+    <div id={id} class="flex flex-col gap-6 items-center justify-center">
       <div>{thumbsUpIcon()}</div>
       <h2 class="text-2xl font-bold">Success</h2>
       <p class="text-sm text-center grow-0">{message}</p>

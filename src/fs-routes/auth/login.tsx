@@ -41,6 +41,8 @@ export const GET = createRoute(async (c: Context) => {
   );
 });
 
+const loginErrorMessage = "Invalid email or password";
+
 export const POST = createRoute(
   loginRateLimit,
   queryValidator(redirectUrlSchema),
@@ -53,7 +55,7 @@ export const POST = createRoute(
     const [loginErr, login] = await loginAndSetCookies(c, email, password);
 
     const afterLoginUrl = safeAppRedirect(redirectUrl, "/");
-    if (loginErr) return showErrorAlert(c, "Invalid email or password", 401);
+    if (loginErr) return showErrorAlert(c, loginErrorMessage, 401);
 
     // Successful credential check — reset the throttle for this IP.
     clearLoginAttempts(c);
