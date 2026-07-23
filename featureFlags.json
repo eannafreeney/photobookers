@@ -1,10 +1,9 @@
 {
   "messages": true,
   "comments": true,
-  "interviews": false,
   "fairs": true,
   "stores": true,
   "publicShelf": false,
   "magazine": false,
-  "bookPressLinks": false
+  "bookPressLinks": true
 }
