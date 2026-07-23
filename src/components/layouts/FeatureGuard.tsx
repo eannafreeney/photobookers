@@ -1,5 +1,5 @@
 import { FeatureFlagName, isFeatureEnabled } from "../../lib/features";
-import { FC, PropsWithChildren } from "hono/jsx";
+import { PropsWithChildren } from "hono/jsx";
 
 type Props = PropsWithChildren<{
   flagName: FeatureFlagName;
@@ -11,6 +11,7 @@ const FeatureGuard = ({ flagName, children, fallback = null }: Props) => {
   if (!isEnabled) {
     return fallback ?? null;
   }
-  return (children ?? null) as ReturnType<FC>;
+  // ponytail: wrap so multi-child arrays aren't passed to escapeToBuffer
+  return <>{children}</>;
 };
 export default FeatureGuard;
