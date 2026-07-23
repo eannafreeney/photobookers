@@ -4,7 +4,7 @@
   "interviews": false,
   "fairs": true,
   "stores": true,
-  "collectors": false,
+  "collectors": true,
   "magazine": false,
   "bookPressLinks": false
 }
