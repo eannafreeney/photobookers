@@ -2,13 +2,14 @@ import { err, ok } from "../lib/result";
 import { db } from "./client";
 import {
   collectionItems,
+  collectorPosts,
   creatorMessages,
   follows,
   FollowTarget,
   users,
   wishlists,
 } from "./schema";
-import { and, count, eq, SQL } from "drizzle-orm";
+import { and, count, desc, eq, SQL } from "drizzle-orm";
 
 export const deleteFollow = async (creatorId: string, userId: string) => {
   await db
@@ -47,6 +48,64 @@ export const findFollowersCount = async (creatorId: string) => {
     .select({ value: count() })
     .from(follows)
     .where(eq(follows.targetCreatorId, creatorId));
+
+  return result[0]?.value ?? 0;
+};
+
+// User-to-user follows (Collectors). Parallel to the creator helpers above but
+// keyed on follows.targetUserId with targetType "user".
+export const insertUserFollow = async (
+  followerUserId: string,
+  targetUserId: string,
+) => {
+  if (followerUserId === targetUserId) return; // no self-follow
+  const existing = await findUserFollow(targetUserId, followerUserId);
+  if (existing) return; // already following, no-op
+  await db.insert(follows).values({
+    followerUserId,
+    targetUserId,
+    targetType: "user",
+  });
+};
+
+export const deleteUserFollow = async (
+  targetUserId: string,
+  followerUserId: string,
+) => {
+  await db
+    .delete(follows)
+    .where(
+      and(
+        eq(follows.targetUserId, targetUserId),
+        eq(follows.followerUserId, followerUserId),
+        eq(follows.targetType, "user"),
+      ),
+    );
+};
+
+export const findUserFollow = async (
+  targetUserId: string,
+  followerUserId: string,
+) => {
+  return await db.query.follows.findFirst({
+    where: and(
+      eq(follows.targetUserId, targetUserId),
+      eq(follows.followerUserId, followerUserId),
+      eq(follows.targetType, "user"),
+    ),
+  });
+};
+
+export const findUserFollowersCount = async (targetUserId: string) => {
+  const result = await db
+    .select({ value: count() })
+    .from(follows)
+    .where(
+      and(
+        eq(follows.targetUserId, targetUserId),
+        eq(follows.targetType, "user"),
+      ),
+    );
 
   return result[0]?.value ?? 0;
 };
@@ -124,4 +183,41 @@ export const deleteCollectionItem = async (userId: string, bookId: string) => {
         eq(collectionItems.bookId, bookId),
       ),
     );
+};
+
+export const insertCollectorPost = async (
+  userId: string,
+  input: { body: string; imageUrl?: string },
+) => {
+  const [post] = await db
+    .insert(collectorPosts)
+    .values({ userId, body: input.body, imageUrl: input.imageUrl })
+    .returning();
+  return post;
+};
+
+export const findCollectorPost = async (postId: string) => {
+  return await db.query.collectorPosts.findFirst({
+    where: eq(collectorPosts.id, postId),
+  });
+};
+
+export const deleteCollectorPost = async (postId: string) => {
+  await db.delete(collectorPosts).where(eq(collectorPosts.id, postId));
+};
+
+export const listCollectorPosts = async (userId: string) => {
+  return await db.query.collectorPosts.findMany({
+    where: eq(collectorPosts.userId, userId),
+    orderBy: [desc(collectorPosts.createdAt)],
+  });
+};
+
+export const countCollectorPosts = async (userId: string) => {
+  const result = await db
+    .select({ value: count() })
+    .from(collectorPosts)
+    .where(eq(collectorPosts.userId, userId));
+
+  return result[0]?.value ?? 0;
 };

@@ -27,7 +27,7 @@ const ShelfSharingPanel = ({ user, suggestedSlug, message }: Props) => {
       : null;
 
   return (
-    <FeatureGuard flagName="publicShelf">
+    <FeatureGuard flagName="collectors">
       <details class="group rounded border border-outline bg-surface-alt">
         <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-4 sm:p-5 [&::-webkit-details-marker]:hidden">
           <span class="flex flex-col">

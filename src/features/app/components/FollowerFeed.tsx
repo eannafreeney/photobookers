@@ -1,9 +1,9 @@
 import { AuthUser } from "../../../../types";
-import BookCard from "../../../components/app/BookCard";
 import CreatorMessage from "./creatorPage/CreatorMessage";
 import { FeedItem } from "../followerFeed";
 import ListNavigation from "./ListNavigation";
 import FeedBookCard from "@/components/app/FeedBookCard";
+import PostCard from "../../collectors/components/PostCard";
 
 type Props = {
   user: AuthUser;
@@ -38,6 +38,8 @@ const FollowerFeed = ({
                 creator={item.message.creator}
                 message={item.message}
               />
+            ) : item.kind === "post" ? (
+              <PostCard post={item.post} author={item.post.author} />
             ) : (
               <FeedBookCard
                 book={item.book}

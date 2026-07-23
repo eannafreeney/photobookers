@@ -10,7 +10,7 @@ export const GET = createRoute(async (c) => {
   const currentPath = c.req.path;
   const title = pageTitle("About");
   const description =
-    "Photobookers is a place to discover photobooks, follow artists and publishers, and explore book fairs — for fans, artists, and publishers.";
+    "Photobookers is a place to discover photobooks, follow artists and publishers, and explore book fairs — for collectors, artists, and publishers.";
 
   return c.html(
     <AppLayout

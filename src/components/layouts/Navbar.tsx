@@ -5,6 +5,7 @@ import BrandLogo from "../app/BrandLogo";
 import Button from "../app/Button";
 import { AuthUser } from "../../../types";
 import { isStaging } from "../../lib/isStaging";
+import FeatureGuard from "./FeatureGuard";
 
 type NavbarProps = {
   currentPath?: string | null;
@@ -37,6 +38,15 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
           <NavLink href="/creators" currentPath={currentPath} variant="nav">
             Creators
           </NavLink>
+          <FeatureGuard flagName="collectors">
+            <NavLink
+              href="/collectors"
+              currentPath={currentPath}
+              variant="nav"
+            >
+              Collectors
+            </NavLink>
+          </FeatureGuard>
           {user && (
             <>
               <NavLink href="/feed" currentPath={currentPath} variant="nav">

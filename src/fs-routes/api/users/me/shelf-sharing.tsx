@@ -16,7 +16,7 @@ export const POST = createRoute(async (c: Context) => {
     return c.html(<Alert type="danger" message="Sign in to update your shelf." />, 401);
   }
 
-  if (!isFeatureEnabledForUser("publicShelf", user)) {
+  if (!isFeatureEnabledForUser("collectors", user)) {
     return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 

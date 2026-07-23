@@ -14,20 +14,25 @@ export const accountFeatures: AccountFeatureRow[] = [
   },
   { name: "Favourite Books", fan: true, artist: true, publisher: true },
   {
-    name: "Add Books to Collection",
+    name: "Share Your Public Shelf",
+    fan: true,
+    artist: false,
+    publisher: false,
+  },
+  {
+    name: "Publish Posts",
     fan: true,
     artist: true,
     publisher: true,
   },
   { name: "View Your Feed", fan: true, artist: true, publisher: true },
-  { name: "View Your Profile", fan: true, artist: true, publisher: true },
   { name: "Upload Your Books", fan: false, artist: true, publisher: true },
   { name: "Manage Your Books", fan: false, artist: true, publisher: true },
 ];
 
 export const accountMobileCards = [
   {
-    type: "Fan" as const,
+    type: "Collector" as const,
     slug: "fan",
     features: accountFeatures.filter((f) => f.fan),
   },

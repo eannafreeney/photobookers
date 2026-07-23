@@ -44,7 +44,7 @@ import {
   CREATOR_CARD_COLUMNS,
   CREATOR_CARD_SELECT,
 } from "../../constants/queries";
-import { Creator, creatorMessages } from "../../db/schema";
+import { collectorPosts, Creator, creatorMessages } from "../../db/schema";
 import { err, ok } from "../../lib/result";
 import { isFeatureEnabled } from "../../lib/features";
 import { mergeFeedItems } from "./followerFeed";
@@ -964,20 +964,84 @@ export const getFollowerFeed = async (
   const includeMessages =
     options?.includeMessages ?? isFeatureEnabled("messages");
 
+  const includePosts = isFeatureEnabled("collectors");
+
   try {
-    const userFollows = await db.query.follows.findMany({
-      where: and(
-        eq(follows.followerUserId, followerUserId),
-        eq(follows.targetType, "creator"),
-      ),
+    const allFollows = await db.query.follows.findMany({
+      where: eq(follows.followerUserId, followerUserId),
     });
 
-    const followedCreatorIds = userFollows
+    const followedCreatorIds = allFollows
+      .filter((f) => f.targetType === "creator")
       .map((follow) => follow.targetCreatorId)
       .filter((id): id is string => id !== null);
 
-    if (followedCreatorIds.length === 0) {
+    const followedUserIds = allFollows
+      .filter((f) => f.targetType === "user")
+      .map((follow) => follow.targetUserId)
+      .filter((id): id is string => id !== null);
+
+    // Only surface posts from collectors who still have a public shelf.
+    const publicFollowedUsers =
+      includePosts && followedUserIds.length > 0
+        ? await db.query.users.findMany({
+            columns: { id: true },
+            where: and(
+              inArray(users.id, followedUserIds),
+              eq(users.shelfPublic, true),
+              sql`${users.shelfSlug} IS NOT NULL`,
+            ),
+          })
+        : [];
+    const publicFollowedUserIds = publicFollowedUsers.map((u) => u.id);
+
+    const hasPostSources = publicFollowedUserIds.length > 0;
+
+    if (followedCreatorIds.length === 0 && !hasPostSources) {
       return ok({ items: [], totalPages: 0, page: 1 });
+    }
+
+    const postWhere = hasPostSources
+      ? inArray(collectorPosts.userId, publicFollowedUserIds)
+      : undefined;
+
+    const [{ value: postCount = 0 }] = hasPostSources
+      ? await db
+          .select({ value: count() })
+          .from(collectorPosts)
+          .where(postWhere)
+      : [{ value: 0 }];
+
+    if (followedCreatorIds.length === 0) {
+      // Only collector posts to show.
+      const { page, totalPages } = getPagination(currentPage, postCount, limit);
+      const fetchLimit = page * limit;
+      const feedPosts = hasPostSources
+        ? await db.query.collectorPosts.findMany({
+            where: postWhere,
+            orderBy: [desc(collectorPosts.createdAt)],
+            limit: fetchLimit,
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  shelfSlug: true,
+                  profileImageUrl: true,
+                },
+              },
+            },
+          })
+        : [];
+      const items = mergeFeedItems(
+        [],
+        [],
+        feedPosts.map((p) => ({ ...p, author: p.user })),
+        page,
+        limit,
+      );
+      return ok({ items, totalPages, page });
     }
 
     const bookWhere = and(
@@ -1005,7 +1069,7 @@ export const getFollowerFeed = async (
           .where(messageWhere)
       : [{ value: 0 }];
 
-    const totalCount = bookCount + messageCount;
+    const totalCount = bookCount + messageCount + postCount;
     const { page, totalPages } = getPagination(
       currentPage,
       totalCount,
@@ -1013,7 +1077,7 @@ export const getFollowerFeed = async (
     );
     const fetchLimit = page * limit;
 
-    const [feedBooks, feedMessages] = await Promise.all([
+    const [feedBooks, feedMessages, feedPosts] = await Promise.all([
       db.query.books.findMany({
         where: bookWhere,
         columns: { ...BOOK_CARD_COLUMNS, createdAt: true },
@@ -1041,9 +1105,33 @@ export const getFollowerFeed = async (
             },
           })
         : Promise.resolve([]),
+      hasPostSources
+        ? db.query.collectorPosts.findMany({
+            where: postWhere,
+            orderBy: [desc(collectorPosts.createdAt)],
+            limit: fetchLimit,
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  shelfSlug: true,
+                  profileImageUrl: true,
+                },
+              },
+            },
+          })
+        : Promise.resolve([]),
     ]);
 
-    const items = mergeFeedItems(feedBooks, feedMessages, page, limit);
+    const items = mergeFeedItems(
+      feedBooks,
+      feedMessages,
+      feedPosts.map((p) => ({ ...p, author: p.user })),
+      page,
+      limit,
+    );
 
     return ok({ items, totalPages, page });
   } catch (error) {

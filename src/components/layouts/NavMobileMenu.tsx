@@ -5,6 +5,7 @@ import NavSearchMobile from "./NavSearchMobile";
 import { getInitialsAvatar } from "../../lib/avatar";
 import Button from "../app/Button";
 import { closeMobileMenuIcon, openMobileMenuIcon } from "../../lib/icons";
+import FeatureGuard from "./FeatureGuard";
 
 const NavMobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
   return (
@@ -118,6 +119,13 @@ const MobileDropDownMenu = ({
           Dashboard
         </NavLink>
       )}
+      <FeatureGuard flagName="collectors">
+        {user && !user.creator ? (
+          <NavLink href="/dashboard" currentPath={currentPath}>
+            Dashboard
+          </NavLink>
+        ) : null}
+      </FeatureGuard>
       {user?.isAdmin && (
         <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
           Admin Dashboard
@@ -129,6 +137,11 @@ const MobileDropDownMenu = ({
       <NavLink href="/creators" currentPath={currentPath}>
         Creators
       </NavLink>
+      <FeatureGuard flagName="collectors">
+        <NavLink href="/collectors" currentPath={currentPath}>
+          Collectors
+        </NavLink>
+      </FeatureGuard>
       <NavLink href="/about" currentPath={currentPath}>
         About
       </NavLink>

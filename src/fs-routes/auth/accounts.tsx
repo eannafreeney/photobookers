@@ -20,7 +20,7 @@ export const GET = createRoute(async (c: Context) => {
         <PageHeader
           kicker="Join Photobookers"
           title="Choose your account"
-          intro="Fan, artist, or publisher — pick the account that fits how you live with photobooks."
+          intro="Collector, artist, or publisher — pick the account that fits how you live with photobooks."
         />
         {/* Mobile: cards */}
         <div class="md:hidden space-y-4">
@@ -54,7 +54,7 @@ export const GET = createRoute(async (c: Context) => {
                   Feature
                 </th>
                 <th scope="col" class="p-4 text-center">
-                  Fan
+                  Collector
                 </th>
                 <th scope="col" class="p-4 text-center">
                   Artist / Self-Publisher

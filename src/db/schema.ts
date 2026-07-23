@@ -152,6 +152,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   comments: many(bookComments),
   createdFairs: many(bookFairs),
   createdStores: many(bookStores),
+  posts: many(collectorPosts),
 }));
 
 export const creatorInterviews = pgTable("creator_interviews", {
@@ -487,6 +488,26 @@ export const creatorMessagesRelations = relations(
     }),
   }),
 );
+
+// Collector posts: short public updates published by a collector (a user
+// without a verified creator profile). Cloned from creator_messages, but keyed
+// on users instead of creators. See the "Collectors" feature.
+export const collectorPosts = pgTable("collector_posts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+export const collectorPostsRelations = relations(collectorPosts, ({ one }) => ({
+  user: one(users, {
+    fields: [collectorPosts.userId],
+    references: [users.id],
+  }),
+}));
 
 export const bookImages = pgTable("book_images", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -1204,6 +1225,9 @@ export type NewsletterCampaignStatus =
 
 export type CreatorMessage = InferSelectModel<typeof creatorMessages>;
 export type NewCreatorMessage = InferInsertModel<typeof creatorMessages>;
+
+export type CollectorPost = InferSelectModel<typeof collectorPosts>;
+export type NewCollectorPost = InferInsertModel<typeof collectorPosts>;
 
 export type BookComment = InferSelectModel<typeof bookComments>;
 export type NewBookComment = InferInsertModel<typeof bookComments>;

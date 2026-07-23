@@ -3,17 +3,21 @@ import { createRoute } from "hono-fsr";
 import { searchCreators } from "../../features/app/services";
 import { searchBooks } from "../../features/api/services";
 import { searchFairsForNav } from "../../features/app/fairs/services";
+import { searchCollectors } from "../../domain/collectors/services";
 import Link from "../../components/app/Link";
 import { capitalize, getUser } from "../../utils";
 import { DISCOVER_TAGS } from "../../constants/discover";
 import { tagBooksUrl } from "../../lib/tags";
 import Pill from "../../components/app/Pill";
 import NavSearchResults from "../../components/app/NavSearchResults";
+import { isFeatureEnabledForUser } from "../../lib/features";
+import { ok } from "../../lib/result";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const searchQuery = c.req.query("search");
   const isMobile = c.req.query("isMobile") === "true";
+  const collectorsEnabled = isFeatureEnabledForUser("collectors", user);
 
   if (!searchQuery || searchQuery.length < 3) {
     return c.html(
@@ -37,13 +41,21 @@ export const GET = createRoute(async (c: Context) => {
   }
 
   const searchTerm = searchQuery?.trim().toLowerCase();
-  const [[bookError, books], [creatorError, creators], [fairError, fairs]] = await Promise.all([
+  const [
+    [bookError, books],
+    [creatorError, creators],
+    [fairError, fairs],
+    [collectorError, collectors],
+  ] = await Promise.all([
     searchBooks(searchTerm ?? ""),
     searchCreators(searchTerm ?? ""),
     searchFairsForNav(searchTerm ?? ""),
+    collectorsEnabled
+      ? searchCollectors(searchTerm ?? "")
+      : Promise.resolve(ok([])),
   ]);
 
-  if (bookError || creatorError || fairError) {
+  if (bookError || creatorError || fairError || collectorError) {
     return c.html(<></>);
   }
 
@@ -53,6 +65,7 @@ export const GET = createRoute(async (c: Context) => {
       creators={creators ?? []}
       books={books ?? []}
       fairs={fairs ?? []}
+      collectors={collectorsEnabled ? (collectors ?? []) : []}
       searchQuery={searchQuery}
     />,
   );

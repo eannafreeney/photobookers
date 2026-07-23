@@ -463,6 +463,13 @@
 			"when": 1784500000000,
 			"tag": "0066_magazine_selected_image_and_quote",
 			"breakpoints": true
+		},
+		{
+			"idx": 67,
+			"version": "7",
+			"when": 1784600000000,
+			"tag": "0067_collector_posts",
+			"breakpoints": true
 		}
 	]
 }

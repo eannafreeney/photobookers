@@ -135,9 +135,19 @@ const DropDownMenu = ({
         </div>
       </li>
       {user?.id && !user.creator && (
-        <NavLink href={`/users/${user?.id}/edit`} currentPath={currentPath}>
-          Edit Profile
-        </NavLink>
+        <>
+          <NavLink href={`/users/${user?.id}/edit`} currentPath={currentPath}>
+            Edit Profile
+          </NavLink>
+          <FeatureGuard flagName="collectors">
+            <NavLink href="/dashboard" currentPath={currentPath}>
+              Dashboard
+            </NavLink>
+            <NavLink href="/followed-collectors" currentPath={currentPath}>
+              Collectors I Follow
+            </NavLink>
+          </FeatureGuard>
+        </>
       )}
       {user.creator?.id && (
         <>

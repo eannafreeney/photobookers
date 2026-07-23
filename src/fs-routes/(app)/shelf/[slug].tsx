@@ -22,6 +22,9 @@ import {
   shelfShareTitle,
 } from "../../../lib/share";
 import { getInitialsAvatar } from "../../../lib/avatar";
+import { listCollectorPosts } from "../../../db/queries";
+import PostCard from "../../../features/collectors/components/PostCard";
+import CollectorFollowButton from "../../../features/api/components/CollectorFollowButton";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -31,7 +34,7 @@ export const GET = createRoute(
     const currentPath = c.req.path;
     const currentPage = Number(c.req.query("page") ?? 1);
 
-    if (!isFeatureEnabledForUser("publicShelf", user)) {
+    if (!isFeatureEnabledForUser("collectors", user)) {
       return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
     }
 
@@ -71,13 +74,17 @@ export const GET = createRoute(
       c.header("Cache-Control", "private, no-store");
     }
 
+    const posts = await listCollectorPosts(owner.id);
+
     const title = pageTitle(`${owner.displayName}'s shelf`);
     const description = shelfDescription(
       owner.displayName,
       booksResult.totalCount ?? booksResult.books.length,
     );
     const shelfCanonicalUrl = canonicalUrl(c.req.url, shelfProfileUrl(slug));
-    const avatarUrl = owner.profileImageUrl ?? null;
+    const avatarUrl =
+      owner.profileImageUrl ??
+      getInitialsAvatar(owner.firstName ?? "", owner.lastName ?? "");
     // Share preview image: prefer the owner's photo, otherwise the first book
     // cover so the shelf still shows something when shared.
     const shareImage =
@@ -99,7 +106,7 @@ export const GET = createRoute(
         }}
       >
         <Page>
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-4" x-data="{ tab: 'favourites' }">
             {isOwner ? (
               <p class="rounded border border-outline bg-surface-alt px-4 py-3 text-sm text-on-surface">
                 This is your public shelf.{" "}
@@ -113,22 +120,24 @@ export const GET = createRoute(
             ) : null}
             <div class="flex justify-between border-b-2 border-on-surface-strong pb-4">
               <div class="flex items-center gap-4">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={owner.displayName}
-                    class="size-14 rounded-full object-cover shrink-0"
-                    loading="lazy"
-                  />
-                ) : null}
+                <img
+                  src={avatarUrl}
+                  alt={owner.displayName}
+                  class="size-14 rounded-full object-cover shrink-0"
+                  loading="lazy"
+                />
                 <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
                   {`${owner.displayName}'s shelf`}
                 </h1>
               </div>
               <div class="flex flex-col items-end justify-end gap-3">
-                <div
-                  class={`grid gap-4 ${isOwner ? "grid-cols-1" : "grid-cols-2"}`}
-                >
+                <div class="flex items-center gap-4">
+                  {!isOwner ? (
+                    <CollectorFollowButton
+                      targetUserId={owner.id}
+                      user={user}
+                    />
+                  ) : null}
                   <ShareButton
                     title={shelfShareTitle(owner.displayName)}
                     text={shelfShareText(owner.displayName)}
@@ -137,14 +146,53 @@ export const GET = createRoute(
                 </div>
               </div>
             </div>
+
+            <div class="flex gap-2" role="tablist">
+              <button
+                type="button"
+                x-on:click="tab = 'favourites'"
+                x-bind:class="tab === 'favourites' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
+                class="px-3 py-2 text-sm font-medium"
+              >
+                Favourites
+              </button>
+              <button
+                type="button"
+                x-on:click="tab = 'posts'"
+                x-bind:class="tab === 'posts' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
+                class="px-3 py-2 text-sm font-medium"
+              >
+                {`Posts (${posts.length})`}
+              </button>
+            </div>
+
+            <div x-show="tab === 'favourites'">
+              <BooksGrid
+                user={user}
+                currentPath={currentPath}
+                result={booksResult}
+                noResultsMessage="No public favorites yet."
+              />
+            </div>
+
+            <div x-show="tab === 'posts'" x-cloak class="flex flex-col gap-4">
+              {posts.length === 0 ? (
+                <p class="text-sm text-on-surface">No posts yet.</p>
+              ) : (
+                posts.map((post) => (
+                  <PostCard
+                    post={post}
+                    author={{
+                      shelfSlug: owner.shelfSlug,
+                      firstName: owner.firstName,
+                      lastName: owner.lastName,
+                      profileImageUrl: owner.profileImageUrl,
+                    }}
+                  />
+                ))
+              )}
+            </div>
           </div>
-          <BooksGrid
-            user={user}
-            currentPath={currentPath}
-            result={booksResult}
-            noResultsMessage="No public favorites yet."
-          />
-          {/* </div> */}
         </Page>
       </AppLayout>,
     );

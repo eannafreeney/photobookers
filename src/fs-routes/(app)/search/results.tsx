@@ -6,13 +6,17 @@ import Page from "../../../components/layouts/Page";
 import { searchBooks } from "../../../features/api/services";
 import { searchFairsForNav } from "../../../features/app/fairs/services";
 import { searchCreators } from "../../../features/app/services";
+import { searchCollectors } from "../../../domain/collectors/services";
+import { isFeatureEnabledForUser } from "../../../lib/features";
 import { canonicalUrl, pageTitle } from "../../../lib/seo";
 import { getUser } from "../../../utils";
+import { ok } from "../../../lib/result";
 
 const FULL_RESULTS_LIMIT = 50;
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
+  const collectorsEnabled = isFeatureEnabledForUser("collectors", user);
   const searchQuery = c.req.query("search")?.trim() ?? "";
   const currentPath = searchQuery
     ? `/search/results?search=${encodeURIComponent(searchQuery)}`
@@ -47,14 +51,21 @@ export const GET = createRoute(async (c) => {
     );
   }
 
-  const [[bookError, books], [creatorError, creators], [fairError, fairs]] =
-    await Promise.all([
-      searchBooks(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
-      searchCreators(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
-      searchFairsForNav(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
-    ]);
+  const [
+    [bookError, books],
+    [creatorError, creators],
+    [fairError, fairs],
+    [collectorError, collectors],
+  ] = await Promise.all([
+    searchBooks(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
+    searchCreators(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
+    searchFairsForNav(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
+    collectorsEnabled
+      ? searchCollectors(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT)
+      : Promise.resolve(ok([])),
+  ]);
 
-  if (bookError || creatorError || fairError) {
+  if (bookError || creatorError || fairError || collectorError) {
     return c.html(<></>);
   }
 
@@ -82,6 +93,7 @@ export const GET = createRoute(async (c) => {
             creators={creators ?? []}
             books={books ?? []}
             fairs={fairs ?? []}
+            collectors={collectorsEnabled ? (collectors ?? []) : []}
             searchQuery={searchQuery}
             variant="page"
           />

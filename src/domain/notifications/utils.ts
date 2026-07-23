@@ -161,6 +161,20 @@ export const createCreatorFollowedNotification = async (
     actorUserId: user.id,
   });
 
+export const createCollectorFollowedNotification = async (
+  actor: NotificationUserTarget,
+  target: NotificationUserTarget & { shelfSlug?: string | null },
+) =>
+  await createAdminNotification({
+    type: "collector_followed",
+    title: "Collector followed",
+    body: `${formatNotificationActorName(actor)} followed the collector: "${formatNotificationActorName(target)}"`,
+    targetUrl: target.shelfSlug
+      ? `/shelf/${target.shelfSlug}`
+      : `/dashboard/admin/users/${target.id}`,
+    actorUserId: actor.id,
+  });
+
 export const createUserVerifiedNotification = async (
   welcomeName: string,
   user: NotificationUserTarget,

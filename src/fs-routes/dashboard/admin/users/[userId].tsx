@@ -21,6 +21,7 @@ import InfoPage from "../../../../pages/InfoPage";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import ResetUserPasswordButton from "../../../../features/dashboard/admin/users/components/ResetUserPasswordButton";
+import CollectorPostsTable from "../../../../features/collectors/components/CollectorPostsTable";
 import { formatDate } from "../../../../utils";
 
 export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
@@ -218,6 +219,9 @@ export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
             ))}
           </div>
         )}
+
+        <SectionTitle className="mb-4 mt-8">Collector posts</SectionTitle>
+        <CollectorPostsTable userId={userId} />
       </Page>
     </AppLayout>,
   );

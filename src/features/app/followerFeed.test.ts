@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { mergeFeedItems, type FeedBook, type FeedMessage } from "./followerFeed";
+import {
+  mergeFeedItems,
+  type FeedBook,
+  type FeedItem,
+  type FeedMessage,
+  type FeedPost,
+} from "./followerFeed";
 
 const book = (id: string, sortDate: Date): FeedBook => ({
   id,
@@ -30,19 +36,44 @@ const message = (id: string, sortDate: Date): FeedMessage => ({
   },
 });
 
+const post = (id: string, sortDate: Date): FeedPost => ({
+  id,
+  userId: "user-1",
+  body: `Post ${id}`,
+  imageUrl: null,
+  createdAt: sortDate,
+  updatedAt: null,
+  author: {
+    id: "user-1",
+    firstName: "Ada",
+    lastName: "Lovelace",
+    shelfSlug: "ada",
+    profileImageUrl: null,
+  },
+});
+
+const idOf = (item: FeedItem): string =>
+  item.kind === "book"
+    ? item.book.id
+    : item.kind === "message"
+      ? item.message.id
+      : item.post.id;
+
 describe("mergeFeedItems", () => {
-  it("interleaves books and messages by date descending", () => {
+  it("interleaves books, messages, and posts by date descending", () => {
     const items = mergeFeedItems(
       [book("b-old", new Date("2026-01-01")), book("b-new", new Date("2026-03-01"))],
       [
         message("m-mid", new Date("2026-02-01")),
         message("m-newest", new Date("2026-04-01")),
       ],
+      [post("p-top", new Date("2026-05-01"))],
       1,
       10,
     );
 
-    expect(items.map((item) => item.kind === "book" ? item.book.id : item.message.id)).toEqual([
+    expect(items.map(idOf)).toEqual([
+      "p-top",
       "m-newest",
       "b-new",
       "m-mid",
@@ -52,12 +83,7 @@ describe("mergeFeedItems", () => {
 
   it("prefers messages over books on equal dates", () => {
     const same = new Date("2026-02-15");
-    const items = mergeFeedItems(
-      [book("b-1", same)],
-      [message("m-1", same)],
-      1,
-      10,
-    );
+    const items = mergeFeedItems([book("b-1", same)], [message("m-1", same)], [], 1, 10);
 
     expect(items[0]?.kind).toBe("message");
     expect(items[1]?.kind).toBe("book");
@@ -70,6 +96,7 @@ describe("mergeFeedItems", () => {
         book("b-2", new Date("2026-02-01")),
       ],
       [message("m-1", new Date("2026-03-01"))],
+      [],
       2,
       1,
     );

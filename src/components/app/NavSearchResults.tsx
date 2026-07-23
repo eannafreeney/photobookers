@@ -3,6 +3,8 @@ import VerifiedCreator from "./VerifiedCreator";
 import Avatar from "./Avatar";
 import { formatDate } from "../../utils";
 import { tagBooksUrl } from "../../lib/tags";
+import { CollectorCard } from "../../domain/collectors/services";
+import { getInitialsAvatar } from "../../lib/avatar";
 
 type CreatorSearchResult = Pick<
   Creator,
@@ -30,6 +32,7 @@ type NavSearchResultsProps = {
   creators: CreatorSearchResult[];
   books: BookSearchResult[];
   fairs: FairSearchResult[];
+  collectors?: CollectorCard[];
   isMobile?: boolean;
   searchQuery?: string;
   variant?: "dropdown" | "page";
@@ -39,12 +42,16 @@ const NavSearchResults = ({
   creators,
   books,
   fairs,
+  collectors = [],
   isMobile = false,
   searchQuery,
   variant = "dropdown",
 }: NavSearchResultsProps) => {
   const hasResults =
-    creators.length > 0 || books.length > 0 || fairs.length > 0;
+    creators.length > 0 ||
+    books.length > 0 ||
+    fairs.length > 0 ||
+    collectors.length > 0;
   const fullResultsHref = searchQuery?.trim()
     ? `/search/results?search=${encodeURIComponent(searchQuery.trim())}`
     : null;
@@ -81,7 +88,9 @@ const NavSearchResults = ({
           <div
             class={
               isPage
-                ? "grid grid-cols-1 gap-4 lg:h-[calc(100vh-18rem)] lg:grid-cols-3 lg:overflow-hidden"
+                ? collectors.length > 0
+                  ? "grid grid-cols-1 gap-4 lg:h-[calc(100vh-18rem)] lg:grid-cols-4 lg:overflow-hidden"
+                  : "grid grid-cols-1 gap-4 lg:h-[calc(100vh-18rem)] lg:grid-cols-3 lg:overflow-hidden"
                 : "flex flex-col gap-4"
             }
           >
@@ -117,6 +126,21 @@ const NavSearchResults = ({
               >
                 {fairs.map((fair) => (
                   <FairResultItem key={fair.id} fair={fair} />
+                ))}
+              </ResultsSection>
+            )}
+
+            {collectors.length > 0 && (
+              <ResultsSection
+                isPage={isPage}
+                title="Collectors"
+                hasResults={collectors.length > 0}
+              >
+                {collectors.map((collector) => (
+                  <CollectorResultItem
+                    key={collector.id}
+                    collector={collector}
+                  />
                 ))}
               </ResultsSection>
             )}
@@ -304,22 +328,36 @@ const FairResultItem = ({ fair }: FairResultItemProps) => {
   );
 };
 
-export default NavSearchResults;
+type CollectorResultItemProps = {
+  collector: CollectorCard;
+};
 
-const closeIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth="1.5"
-    stroke="currentColor"
-    class="size-6"
-    aria-hidden="true"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M6 18 18 6M6 6l12 12"
-    />
-  </svg>
-);
+const CollectorResultItem = ({ collector }: CollectorResultItemProps) => {
+  const name =
+    [collector.firstName, collector.lastName].filter(Boolean).join(" ").trim() ||
+    "Collector";
+  const avatarUrl =
+    collector.profileImageUrl ??
+    getInitialsAvatar(collector.firstName ?? "", collector.lastName ?? "");
+
+  if (!collector.shelfSlug) return null;
+
+  return (
+    <li>
+      <a
+        href={`/shelf/${collector.shelfSlug}`}
+        class="flex items-center gap-3 rounded-radius transition-colors"
+      >
+        <Avatar src={avatarUrl} alt={name} size="md" />
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-on-surface truncate">{name}</div>
+          <div class="text-xs uppercase font-semibold text-on-surface">
+            Collector
+          </div>
+        </div>
+      </a>
+    </li>
+  );
+};
+
+export default NavSearchResults;
