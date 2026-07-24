@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   desc,
   eq,
   gt,
@@ -62,11 +63,7 @@ export const getUpcomingFairs = async (
 
     const fairs = await db.query.bookFairs.findMany({
       where: publishedCondition,
-      orderBy: [
-        desc(bookFairs.listingTier),
-        sql`${bookFairs.sortOrder} ASC NULLS LAST`,
-        bookFairs.startDate,
-      ],
+      orderBy: [asc(bookFairs.startDate)],
       limit: pageLimit,
       offset: offset,
     });
@@ -338,11 +335,8 @@ export const searchFairs = async (params: FairSearchParams) => {
 
     const fairs = await db.query.bookFairs.findMany({
       where: whereCondition,
-      orderBy: [
-        desc(bookFairs.listingTier),
-        sql`${bookFairs.sortOrder} ASC NULLS LAST`,
-        bookFairs.startDate,
-      ],
+      // Upcoming soonest first, then past.
+      orderBy: [sql`${bookFairs.startDate} < now()`, asc(bookFairs.startDate)],
       limit: pageLimit,
       offset: offset,
     });
