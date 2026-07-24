@@ -470,6 +470,13 @@
 			"when": 1784600000000,
 			"tag": "0067_drop_book_fairs_approval_status",
 			"breakpoints": true
+		},
+		{
+			"idx": 68,
+			"version": "7",
+			"when": 1784700000000,
+			"tag": "0068_book_fairs_instagram_queue",
+			"breakpoints": true
 		}
 	]
 }

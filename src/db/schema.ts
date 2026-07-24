@@ -995,6 +995,9 @@ export const bookFairs = pgTable(
       .default("free"),
     promotedUntil: timestamp("promoted_until"),
     sortOrder: integer("sort_order"),
+    instagramQueuedAt: timestamp("instagram_queued_at"),
+    instagramBufferPostId: text("instagram_buffer_post_id"),
+    instagramError: text("instagram_error"),
     createdByUserId: uuid("created_by_user_id")
       .notNull()
       .references(() => users.id),

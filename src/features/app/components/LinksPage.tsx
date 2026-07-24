@@ -1,13 +1,19 @@
 import SpotlightCard from "../../../components/app/SpotlightCard";
 import SectionTitle from "../../../components/app/SectionTitle";
 import Button from "../../../components/app/Button";
-import { SITE_APP, SITE_SOCIAL } from "../../../constants/siteSocial";
+import { SITE_APP } from "../../../constants/siteSocial";
 import { formatCountry } from "../../../lib/utils";
 import { BookOfTheDayWithBook } from "../BOTDServices";
 import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
 import { PublisherOfTheWeekWithCreator } from "../POTWServices";
 import { aotwPath, botdPath, potwPath } from "../spotlightUrls";
 import ExpandableDescription from "./ExpandableDescription";
+
+type UpcomingFairLink = {
+  id: string;
+  slug: string;
+  name: string;
+};
 
 type Props = {
   bookOfTheDay: BookOfTheDayWithBook | null;
@@ -19,6 +25,7 @@ type Props = {
     displayName: string;
     type: "artist" | "publisher";
   }>;
+  upcomingFairs?: UpcomingFairLink[];
 };
 
 const cardClassName = "w-full max-w-none";
@@ -33,8 +40,13 @@ const LinksPage = ({
   artistOfTheWeek,
   publisherOfTheWeek,
   newlyVerifiedCreators,
+  upcomingFairs = [],
 }: Props) => {
-  const hasContent = bookOfTheDay || artistOfTheWeek || publisherOfTheWeek;
+  const hasContent =
+    bookOfTheDay ||
+    artistOfTheWeek ||
+    publisherOfTheWeek ||
+    upcomingFairs.length > 0;
 
   return (
     <div class="mx-auto flex w-full max-w-md flex-col gap-8">
@@ -152,6 +164,21 @@ const LinksPage = ({
           {publisherOfTheWeek.spotlightBlurb ? (
             <ExpandableDescription text={publisherOfTheWeek.spotlightBlurb} />
           ) : null}
+        </section>
+      ) : null}
+
+      {upcomingFairs.length > 0 ? (
+        <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
+          <SectionTitle>Upcoming Fairs</SectionTitle>
+          <nav class="flex w-full flex-col gap-3" aria-label="Fairs this week">
+            {upcomingFairs.map((fair) => (
+              <a key={fair.id} href={`/fairs/${fair.slug}`} class="w-full">
+                <Button variant="outline" color="primary" width="full">
+                  {fair.name}
+                </Button>
+              </a>
+            ))}
+          </nav>
         </section>
       ) : null}
 

@@ -166,6 +166,39 @@ export const getFairBySlug = async (slug: string) => {
   }
 };
 
+/** Published fairs overlapping the next `days` days (inclusive of today). */
+export const getFairsInNextDays = async (days: number = 7) => {
+  try {
+    const start = today();
+    const end = new Date(start);
+    end.setDate(end.getDate() + days);
+
+    const fairs = await db.query.bookFairs.findMany({
+      where: and(
+        eq(bookFairs.status, "published"),
+        lte(bookFairs.startDate, end),
+        gte(bookFairs.endDate, start),
+      ),
+      columns: {
+        id: true,
+        slug: true,
+        name: true,
+        city: true,
+        country: true,
+        coverUrl: true,
+        startDate: true,
+        endDate: true,
+      },
+      orderBy: [asc(bookFairs.startDate), asc(bookFairs.name)],
+    });
+
+    return ok(fairs);
+  } catch (error) {
+    console.error("Failed to get fairs in next days", error);
+    return err({ reason: "Failed to get fairs in next days", cause: error });
+  }
+};
+
 export const getUpcomingFairsForCreator = async (
   creatorId: string,
   limit: number = 5,

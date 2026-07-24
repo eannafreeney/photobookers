@@ -7,23 +7,25 @@ import { getRecentlyVerifiedCreators } from "../../features/app/services";
 import { getTodaysBookOfTheDay } from "../../features/app/BOTDServices";
 import { getThisWeeksArtistOfTheWeek } from "../../features/app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../features/app/POTWServices";
-import { canonicalUrl, pageTitle, truncateDescription } from "../../lib/seo";
+import { getFairsInNextDays } from "../../features/app/fairs/services";
+import { pageTitle, truncateDescription } from "../../lib/seo";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
-  const currentPath = c.req.path;
 
   const [
     [botdErr, bookOfTheDay],
     [artistErr, artistOfTheWeek],
     [publisherErr, publisherOfTheWeek],
     [newCreatorsErr, newlyVerifiedCreators],
+    [fairsErr, upcomingFairs],
   ] = await Promise.all([
     getTodaysBookOfTheDay(),
     getThisWeeksArtistOfTheWeek(),
     getThisWeeksPublisherOfTheWeek(),
     getRecentlyVerifiedCreators(),
+    getFairsInNextDays(7),
   ]);
 
   const title = pageTitle("Photobookers");
@@ -35,6 +37,7 @@ export const GET = createRoute(async (c) => {
   const artist = !artistErr ? artistOfTheWeek : null;
   const publisher = !publisherErr ? publisherOfTheWeek : null;
   const newCreators = !newCreatorsErr ? newlyVerifiedCreators : [];
+  const fairs = !fairsErr ? upcomingFairs : [];
 
   if (!user) {
     c.header("Vary", "Cookie");
@@ -59,9 +62,9 @@ export const GET = createRoute(async (c) => {
           artistOfTheWeek={artist}
           publisherOfTheWeek={publisher}
           newlyVerifiedCreators={newCreators}
+          upcomingFairs={fairs}
         />
       </Page>
-      ,
     </HeadlessLayout>,
   );
 });

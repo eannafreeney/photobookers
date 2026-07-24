@@ -21,6 +21,60 @@ export function buildCreatorPageUrl(slug: string): string {
   return `${appBaseUrl}/creators/${slug}`;
 }
 
+export function buildFairPageUrl(slug: string): string {
+  return `${appBaseUrl}/fairs/${slug}`;
+}
+
+export type FairForCaption = {
+  name: string;
+  slug: string;
+  city?: string | null;
+  country?: string | null;
+  startDate: Date;
+  endDate: Date;
+  description?: string | null;
+};
+
+function formatFairDateRange(startDate: Date, endDate: Date): string {
+  const start = startDate.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  const end = endDate.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  return start === end ? start : `${start} – ${end}`;
+}
+
+/** Caption for a fair reminder post (queued 3 days before start). */
+export function buildFairInstagramCaption(fair: FairForCaption): string {
+  const location = [fair.city, fair.country].filter(Boolean).join(", ");
+  const lines = [
+    "Are you going?",
+    "",
+    fair.name,
+    formatFairDateRange(fair.startDate, fair.endDate),
+  ];
+  if (location) lines.push(location);
+  const blurb = fair.description?.trim();
+  if (blurb) {
+    const short =
+      blurb.length > 220 ? `${blurb.slice(0, 217).trimEnd()}…` : blurb;
+    lines.push("", short);
+  }
+  lines.push("", "Link in bio");
+  return lines.join("\n");
+}
+
+export function buildFairInstagramFirstComment(fair: { slug: string }): string {
+  return buildFairPageUrl(fair.slug);
+}
+
 export type CreatorSpotlightForCaption = {
   displayName: string;
   slug: string;

@@ -4,7 +4,7 @@ name: Production cron jobs
 
 on:
   schedule:
-    - cron: "17 8 * * *" # daily 08:17 UTC — Instagram queue + CEO metrics + product digest
+    - cron: "17 8 * * *" # daily 08:17 UTC — Instagram queue + fair Instagram + CEO metrics + product digest
     - cron: "17 9 * * *" # daily 09:17 UTC — BOTD / spotlight / follower emails
     - cron: "17 8 * * 2" # Tuesday 08:17 UTC — pre-create next week's newsletter draft
     - cron: "17 9 * * 2" # Tuesday 09:17 UTC — weekly newsletter test send
@@ -42,6 +42,7 @@ on:
           - stub-outreach-emails
           - interview-reminder-emails
           - verified-creator-instagram
+          - fair-instagram
           - verification-feedback-emails
           - creator-profile-share-emails
 
@@ -215,6 +216,15 @@ jobs:
     uses: ./.github/workflows/run-production-cron.yml
     with:
       job: verified-creator-instagram
+    secrets: inherit
+
+  fair-instagram:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '17 8 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'fair-instagram')
+    uses: ./.github/workflows/run-production-cron.yml
+    with:
+      job: fair-instagram
     secrets: inherit
 
   verification-feedback-emails:
