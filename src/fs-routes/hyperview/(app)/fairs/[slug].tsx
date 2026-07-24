@@ -41,8 +41,7 @@ export const GET = createRoute(paramValidator(slugSchema), async (c) => {
     );
   }
 
-  const isPublished =
-    fair.status === "published" && fair.approvalStatus === "approved";
+  const isPublished = fair.status === "published";
 
   if (!isPublished && !user?.isAdmin) {
     return hv(

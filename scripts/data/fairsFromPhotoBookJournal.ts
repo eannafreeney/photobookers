@@ -18,7 +18,6 @@ export type FairSeed = {
   endDate: Date;
   coverUrl: string;
   status: "draft" | "published";
-  approvalStatus: "pending" | "approved";
   listingTier: "free" | "promoted";
   promotedUntil?: Date;
   sortOrder: number;
@@ -29,7 +28,6 @@ const COVER =
 
 const DRAFT_DEFAULTS = {
   status: "draft" as const,
-  approvalStatus: "pending" as const,
   listingTier: "free" as const,
 };
 

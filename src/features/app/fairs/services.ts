@@ -46,7 +46,6 @@ export const getUpcomingFairs = async (
   try {
     const publishedCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       gt(bookFairs.startDate, today()),
     );
 
@@ -86,7 +85,6 @@ export const getPastFairs = async (
   try {
     const pastCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       lte(bookFairs.endDate, today()),
     );
 
@@ -123,7 +121,6 @@ export const getCurrentFairs = async (
     const now = today();
     const currentCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       lte(bookFairs.startDate, now),
       gte(bookFairs.endDate, now),
     );
@@ -189,7 +186,6 @@ export const getUpcomingFairsForCreator = async (
         (a) =>
           a.status === "approved" &&
           a.fair.status === "published" &&
-          a.fair.approvalStatus === "approved" &&
           new Date(a.fair.startDate) >= today(),
       )
       .map((a) => a.fair)
@@ -222,9 +218,7 @@ export const getFairsByCreatorId = async (
     const allFairs = attendances
       .filter(
         (a) =>
-          a.status === "approved" &&
-          a.fair.status === "published" &&
-          a.fair.approvalStatus === "approved",
+          a.status === "approved" && a.fair.status === "published",
       )
       .map((a) => a.fair)
       .sort((a, b) => {
@@ -263,7 +257,6 @@ export const getFairsByMonth = async (year: number, month: number) => {
 
     const publishedCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       // Fair is in month if it starts before month ends AND ends after month starts
       lte(bookFairs.startDate, endOfMonth),
       gte(bookFairs.endDate, startOfMonth),
@@ -305,7 +298,6 @@ export const searchFairs = async (params: FairSearchParams) => {
 
     const conditions = [
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
     ];
 
     // Text search (name, location, participant names)
@@ -373,7 +365,6 @@ export const searchFairsForNav = async (
 
     const conditions = [
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       buildFairSearchCondition(searchTerm),
     ];
 

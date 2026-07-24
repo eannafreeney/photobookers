@@ -95,12 +95,6 @@ export const bookFairStatusEnum = pgEnum("book_fair_status", [
   "cancelled",
 ]);
 
-export const bookFairApprovalStatusEnum = pgEnum("book_fair_approval_status", [
-  "pending",
-  "approved",
-  "rejected",
-]);
-
 export const bookFairListingTierEnum = pgEnum("book_fair_listing_tier", [
   "free",
   "promoted",
@@ -996,9 +990,6 @@ export const bookFairs = pgTable(
     startDate: timestamp("start_date", { mode: "date" }).notNull(),
     endDate: timestamp("end_date", { mode: "date" }).notNull(),
     status: bookFairStatusEnum("status").notNull().default("draft"),
-    approvalStatus: bookFairApprovalStatusEnum("approval_status")
-      .notNull()
-      .default("pending"),
     listingTier: bookFairListingTierEnum("listing_tier")
       .notNull()
       .default("free"),
@@ -1236,8 +1227,6 @@ export type BookFair = InferSelectModel<typeof bookFairs>;
 export type NewBookFair = InferInsertModel<typeof bookFairs>;
 export type UpdateBookFair = Partial<InferInsertModel<typeof bookFairs>>;
 export type BookFairStatus = (typeof bookFairStatusEnum.enumValues)[number];
-export type BookFairApprovalStatus =
-  (typeof bookFairApprovalStatusEnum.enumValues)[number];
 export type BookFairListingTier =
   (typeof bookFairListingTierEnum.enumValues)[number];
 

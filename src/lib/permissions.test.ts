@@ -287,7 +287,6 @@ describe("canFollowCreator", () => {
 describe("fair attendance permissions", () => {
   const futureFair = {
     status: "published",
-    approvalStatus: "approved",
     endDate: new Date(Date.now() + 86_400_000),
   } as BookFair;
 

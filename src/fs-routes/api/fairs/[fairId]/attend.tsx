@@ -33,7 +33,6 @@ const getFairForAttend = async (fairId: string) => {
       name: true,
       slug: true,
       status: true,
-      approvalStatus: true,
       startDate: true,
       endDate: true,
     },

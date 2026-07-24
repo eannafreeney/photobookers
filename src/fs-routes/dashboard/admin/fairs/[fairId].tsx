@@ -11,6 +11,7 @@ import {
   deleteFairByIdAdmin,
   getFairByIdAdmin,
   updateFairAdmin,
+  updateFairStatusAdmin,
 } from "../../../../features/dashboard/admin/fairs/services";
 import FairFormAdmin from "../../../../features/dashboard/admin/fairs/forms/FairFormAdmin";
 import { fairFormAdminSchema } from "../../../../features/dashboard/admin/fairs/schema";
@@ -21,10 +22,12 @@ import {
 } from "../../../../features/dashboard/admin/fairs/types";
 import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
-import FairApprovalForm from "../../../../features/dashboard/admin/fairs/forms/FairApprovalForm";
 import AttendeeManagerForm from "../../../../features/dashboard/admin/fairs/forms/AttendeeManagerForm";
 import FairCoverForm from "../../../../features/dashboard/admin/fairs/forms/FairCoverForm";
 import FairBannerForm from "../../../../features/dashboard/admin/fairs/forms/FairBannerForm";
+import FairPublishToggle from "../../../../features/dashboard/admin/fairs/components/FairPublishToggle";
+import FairPreviewButton from "../../../../features/dashboard/admin/fairs/components/FairPreviewButton";
+import FairStatusBadge from "../../../../features/dashboard/admin/fairs/components/FairStatusBadge";
 import { routeParam } from "../../../../lib/routeParam";
 
 export const GET = createRoute(
@@ -70,9 +73,6 @@ export const GET = createRoute(
               },
             ]}
           />
-          <div class="flex justify-end mb-4">
-            <FairApprovalForm fair={fair} />
-          </div>
           <FairFormAdmin fairId={fair.id} formValues={formValues} />
           <hr class="my-8" />
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -113,6 +113,45 @@ export const POST = createRoute(
     if (error) return showErrorAlert(c, error.reason);
 
     return showSuccessAlert(c, `${updatedFair.name} updated!`);
+  },
+);
+
+export const PATCH = createRoute(
+  paramValidator(fairIdSchema),
+  async (c: FairIdContext) => {
+    const fairId = c.req.valid("param").fairId;
+    const form = await c.req.parseBody();
+    const intent = form.intent;
+
+    if (intent !== "publish" && intent !== "unpublish") {
+      return showErrorAlert(c, "Invalid intent");
+    }
+
+    const status = intent === "publish" ? "published" : "draft";
+    const [error, updatedFair] = await updateFairStatusAdmin(fairId, status);
+    if (error) return showErrorAlert(c, error.reason);
+
+    return c.html(
+      <>
+        <Alert
+          type={status === "published" ? "success" : "warning"}
+          message={`${updatedFair.name} ${status === "published" ? "published" : "unpublished"}!`}
+        />
+        <FairStatusBadge
+          id={`fair-status-${updatedFair.id}`}
+          status={updatedFair.status}
+        />
+        <FairPublishToggle
+          fairId={updatedFair.id}
+          status={updatedFair.status}
+        />
+        <FairPreviewButton
+          fairId={updatedFair.id}
+          slug={updatedFair.slug}
+          status={updatedFair.status}
+        />
+      </>,
+    );
   },
 );
 

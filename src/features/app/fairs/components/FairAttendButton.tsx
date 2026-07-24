@@ -11,7 +11,7 @@ import FormDelete from "../../../../components/forms/FormDelete";
 type FairAttendButtonProps = {
   fair: Pick<
     BookFair,
-    "id" | "status" | "approvalStatus" | "endDate" | "startDate"
+    "id" | "status" | "endDate" | "startDate"
   >;
   user: AuthUser | null;
   isAttending: boolean;

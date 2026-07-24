@@ -14,7 +14,7 @@ export const fairAttendanceSectionId = (fairId: string) =>
 
 type FairAttendFair = Pick<
   BookFair,
-  "id" | "status" | "approvalStatus" | "endDate" | "startDate"
+  "id" | "status" | "endDate" | "startDate"
 >;
 
 type Props = {

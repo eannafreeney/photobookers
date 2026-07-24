@@ -1,4 +1,6 @@
 import "./env";
+import { existsSync, readFileSync } from "fs";
+import { resolve } from "path";
 import { db } from "../src/db/client";
 import { bookFairs, users } from "../src/db/schema";
 import { eq } from "drizzle-orm";
@@ -33,17 +35,27 @@ const EXTRA_FAIRS = [
     coverUrl:
       "https://images.unsplash.com/photo-1562155847-c05f7cb2d2a2?w=800",
     status: "published" as const,
-    approvalStatus: "approved" as const,
     listingTier: "free" as const,
     sortOrder: 71,
   },
 ];
 
+function loadLensCultureCovers(): Record<string, string> {
+  const path = resolve("scripts/data/fairsFromLensCulture.covers.json");
+  if (!existsSync(path)) return {};
+  return JSON.parse(readFileSync(path, "utf8")) as Record<string, string>;
+}
+
+const LENS_COVERS = loadLensCultureCovers();
+const LENSCULTURE_WITH_COVERS = FAIRS_FROM_LENSCULTURE.map((f) =>
+  LENS_COVERS[f.slug] ? { ...f, coverUrl: LENS_COVERS[f.slug] } : f,
+);
+
 // LensCulture last so overlapping slugs pick up updated dates/copy from that guide.
 const FAIRS_DATA = [
   ...FAIRS_FROM_PHOTOBOOK_JOURNAL,
   ...EXTRA_FAIRS,
-  ...FAIRS_FROM_LENSCULTURE,
+  ...LENSCULTURE_WITH_COVERS,
 ];
 
 async function seedFairs() {
@@ -67,7 +79,7 @@ async function seedFairs() {
           .values(fairWithUser)
           .onConflictDoUpdate({
             target: bookFairs.slug,
-            // Don't clobber publish/approval state if an admin already reviewed the fair.
+            // Don't clobber publish state if an admin already reviewed the fair.
             set: {
               name: fairData.name,
               description: fairData.description,

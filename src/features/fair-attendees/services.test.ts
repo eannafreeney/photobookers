@@ -31,12 +31,11 @@ const pastDate = new Date(Date.now() - 86_400_000);
 const openFair = {
   id: "fair-1",
   status: "published",
-  approvalStatus: "approved",
   endDate: futureDate,
 };
 
 describe("isFairOpenForAttendance", () => {
-  it("returns true only for published approved fairs that have not ended", () => {
+  it("returns true only for published fairs that have not ended", () => {
     expect(isFairOpenForAttendance(openFair)).toBe(true);
     expect(
       isFairOpenForAttendance({ ...openFair, status: "draft" }),

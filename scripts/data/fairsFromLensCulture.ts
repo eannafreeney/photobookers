@@ -14,12 +14,11 @@ const COVER =
 
 const DRAFT_DEFAULTS = {
   status: "draft" as const,
-  approvalStatus: "pending" as const,
   listingTier: "free" as const,
 };
 
 function fair(
-  partial: Omit<FairSeed, "coverUrl" | "status" | "approvalStatus" | "listingTier"> & {
+  partial: Omit<FairSeed, "coverUrl" | "status" | "listingTier"> & {
     coverUrl?: string;
   },
 ): FairSeed {
