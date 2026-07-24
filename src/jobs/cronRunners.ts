@@ -17,6 +17,7 @@ import { runSpotlightCreatorEmails } from "../domain/planner/cron/spotlightEmail
 import { runCreatorProfileShareCron } from "../domain/creator-profile-share/cron";
 import { runVerifiedCreatorInstagramCron } from "../domain/planner/cron/verifiedCreatorInstagramServices";
 import { runFairInstagramCron } from "../domain/planner/cron/fairInstagramServices";
+import { runRandomizeNextWeekBotdCron } from "../domain/planner/cron/randomizeNextWeekBotdServices";
 import { runVerificationFeedbackCron } from "../domain/verification-feedback/cron";
 import {
   runCreatorAnalyticsDigestCron,
@@ -76,6 +77,7 @@ export type CronJobName =
   | "interview-reminder-emails"
   | "verified-creator-instagram"
   | "fair-instagram"
+  | "randomize-next-week-botd"
   | "verification-feedback-emails"
   | "creator-profile-share-emails";
 
@@ -100,6 +102,7 @@ export const CRON_JOB_NAMES = [
   "interview-reminder-emails",
   "verified-creator-instagram",
   "fair-instagram",
+  "randomize-next-week-botd",
   "verification-feedback-emails",
   "creator-profile-share-emails",
 ] as const satisfies readonly CronJobName[];
@@ -417,6 +420,27 @@ export async function runFairInstagramCronJob(
   return ok({ ...result });
 }
 
+export async function runRandomizeNextWeekBotdCronJob(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runRandomizeNextWeekBotdCron({
+    dryRun: options.dryRun,
+    force: options.force,
+    date: options.date,
+  });
+  if (error) return err(error);
+  if (result.outcome.status === "failed") {
+    return err({ reason: result.outcome.reason });
+  }
+  return ok({
+    weekKey: result.weekKey,
+    weekStart: toDateString(result.weekStart),
+    existingCount: result.existingCount,
+    action: result.outcome.status,
+    ...result.outcome,
+  });
+}
+
 export async function runVerificationFeedbackEmailsCron(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
@@ -471,6 +495,7 @@ const RUNNERS: Record<
   "interview-reminder-emails": runInterviewReminderEmailsCron,
   "verified-creator-instagram": runVerifiedCreatorInstagramCronJob,
   "fair-instagram": runFairInstagramCronJob,
+  "randomize-next-week-botd": runRandomizeNextWeekBotdCronJob,
   "verification-feedback-emails": runVerificationFeedbackEmailsCron,
   "creator-profile-share-emails": runCreatorProfileShareEmailsCron,
 };

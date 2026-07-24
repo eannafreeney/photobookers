@@ -10,6 +10,7 @@ import {
 } from "../services";
 import { formatNewsletterWeekRange } from "../utils";
 import NewsletterStatusPill from "./NewsletterStatusPill";
+import { deleteRowAttrs } from "@/lib/utils";
 
 type Props = {
   currentPage: number;
@@ -93,12 +94,9 @@ const NewslettersTableRow = ({
           {!isSent && (
             <FormPost
               action={`/dashboard/admin/newsletters/${campaign.id}/delete`}
-              onsubmit="return confirm('Delete this newsletter draft?')"
+              {...deleteRowAttrs}
             >
-              <button
-                type="submit"
-                class="cursor-pointer hover:text-red-500"
-              >
+              <button type="submit" class="cursor-pointer hover:text-red-500">
                 {deleteIcon}
               </button>
             </FormPost>
