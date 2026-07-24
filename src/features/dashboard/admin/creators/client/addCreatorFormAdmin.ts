@@ -49,9 +49,8 @@ export function registerAddCreatorFormAdmin() {
           Object.values(ctx.errors.form).every((err) => !err) &&
           ctx.form.displayName &&
           ctx.form.type &&
-          ctx.form.website &&
           !ctx.displayNameIsTaken &&
-          !ctx.websiteIsTaken
+          (ctx.form.website ? !ctx.websiteIsTaken : true)
         );
       },
 
