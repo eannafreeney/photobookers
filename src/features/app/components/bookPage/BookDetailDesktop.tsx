@@ -56,6 +56,7 @@ const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
                         creator={book.artist}
                         role="Artist"
                         truncateName={false}
+                        isVerified={book.artist?.status === "verified"}
                       />
                     </a>
                   )}
@@ -65,6 +66,7 @@ const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
                         creator={book.publisher}
                         role="Publisher"
                         truncateName={false}
+                        isVerified={book.publisher?.status === "verified"}
                       />
                     </a>
                   )}
