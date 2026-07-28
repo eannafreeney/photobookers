@@ -9,9 +9,11 @@ import {
   MjmlAll,
   MjmlBreakpoint,
   MjmlBody,
+  MjmlStyle,
 } from "mjml-react";
 import {
   BookColumn,
+  bookColumnCoverStyle,
   BookFeatureCard,
   CreatorColumn,
   FeatureRow,
@@ -63,6 +65,7 @@ export const WeeklyNewsletterMjml = (params: WeeklyNewsletterRenderParams) => {
         <MjmlAttributes>
           <MjmlAll fontFamily={brand.fontSans} color={brand.onSurface} />
         </MjmlAttributes>
+        <MjmlStyle>{bookColumnCoverStyle}</MjmlStyle>
         <MjmlBreakpoint width="600px" />
       </MjmlHead>
       <MjmlBody backgroundColor={brand.surface} width={newsletterWidthPx}>

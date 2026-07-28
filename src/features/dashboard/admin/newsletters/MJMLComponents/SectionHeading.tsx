@@ -12,7 +12,7 @@ export const SectionHeading = ({
   kicker?: string;
   children: ReactNode;
 }) => (
-  <MjmlSection backgroundColor={brand.surface} padding="28px 25px 12px">
+  <MjmlSection backgroundColor={brand.surface} padding="28px 25px 16px">
     <MjmlColumn>
       {kicker ? (
         <MjmlText {...kickerTextProps} color={brand.accent} padding="0 0 6px">
