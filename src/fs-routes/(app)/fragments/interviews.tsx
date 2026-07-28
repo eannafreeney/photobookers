@@ -1,15 +1,16 @@
-import Button from "../../../components/app/Button";
+import { createRoute } from "hono-fsr";
 import SectionTitle from "../../../components/app/SectionTitle";
-import { getPublishedInterviews } from "../services";
-import InterviewCard from "./InterviewCard";
-import ViewAllLink from "./ViewAllLink";
+import ViewAllLink from "../../../features/app/components/ViewAllLink";
+import Button from "../../../components/app/Button";
+import InterviewCard from "@/features/app/components/InterviewCard";
+import { getPublishedInterviews } from "@/features/app/services";
 
-const Interviews = async () => {
+export const GET = createRoute(async (c) => {
   const [error, interviews] = await getPublishedInterviews();
 
-  if (error || !interviews?.length) return <></>;
+  if (error || !interviews?.length) return c.html(<></>);
 
-  return (
+  return c.html(
     <div id="interviews-fragment">
       <div class="mb-6 border-t-2 border-on-surface-strong pt-3">
         <div class="mr-6 flex items-end justify-between">
@@ -36,8 +37,6 @@ const Interviews = async () => {
           </Button>
         </a>
       </div>
-    </div>
+    </div>,
   );
-};
-
-export default Interviews;
+});

@@ -8,10 +8,17 @@ import { FairIdContext } from "../../../../../features/dashboard/admin/fairs/typ
 import { showErrorAlert, showSuccessAlert } from "../../../../../lib/alertHelpers";
 import { uploadImage } from "../../../../../services/storage";
 import { updateFairBannerImage } from "../../../../../features/dashboard/images/services";
+import { getUser } from "../../../../../utils";
 
 export const POST = createRoute(
   paramValidator(fairIdSchema),
   async (c: FairIdContext) => {
+    // Fairs are admin-managed; /dashboard only requires auth, so guard here.
+    const user = await getUser(c);
+    if (!user?.isAdmin) {
+      return showErrorAlert(c, "You are not authorized to do this.", 403);
+    }
+
     const fairId = c.req.valid("param").fairId;
     const body = await c.req.parseBody();
 

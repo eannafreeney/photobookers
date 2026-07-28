@@ -6,15 +6,12 @@ import Page from "../../components/layouts/Page";
 import HeroCarouselFeatureCard from "../../components/app/HeroCarouselFeatureCard";
 import SiteFeatures from "../../features/app/components/SiteFeatures";
 import Intersector from "../../features/app/components/Intersector";
-import NewsletterBanner from "../../features/app/components/NewsletterBanner";
 import NewsletterCard from "../../features/app/components/NewsletterCard";
 import ScrollReveal from "../../components/app/ScrollReveal";
-import Interviews from "../../features/app/components/Interviews";
 import FeaturedBookGroups from "../../features/app/components/FeaturedBookGroups";
 import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
 import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
 import { heroLcpImageSources } from "../../lib/imageUrl";
-import ThisWeekOnPhotobookersLink from "../../features/app/components/ThisWeekOnPhotobookersLink";
 import PageBleed from "../../components/layouts/PageBleedRight";
 import { getHomepageActivityStats } from "@/features/app/homepageActivity";
 import HomepageActivityPulse from "@/features/app/components/HomepageActivityPulse";
@@ -41,11 +38,9 @@ export const GET = createRoute(async (c: Context) => {
       currentPath={currentPath}
       preloadLcpImage={lcpImage}
     >
-      {/* <NewsletterBanner /> */}
       <Page>
         <Pulse />
         <HeroCarouselFeatureCard heroItems={heroItems} />
-        {/* <ThisWeekOnPhotobookersLink /> */}
         <Slogan />
         {!user && (
           <>
@@ -76,10 +71,12 @@ export const GET = createRoute(async (c: Context) => {
         </ScrollReveal>
         <ScrollReveal>
           <PageBleed>
-            <Interviews />
+            <Intersector
+              id="interviews-fragment"
+              endpoint="/fragments/interviews"
+            />
           </PageBleed>
         </ScrollReveal>
-
         <ScrollReveal>
           <Intersector
             id="latest-books-fragment"

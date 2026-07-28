@@ -37,15 +37,12 @@ export const POST = createRoute(
     // Filter to valid image files only
     const validFiles = galleryFiles.filter(removeInvalidImages);
 
-    // 2. Parse removed image IDs
-    const removedIds: string[] = body.removedIds
-      ? JSON.parse(body.removedIds as string)
-      : [];
-
-    // 3. Parse ordered image IDs
-    const orderedIds: string[] = body.orderedIds
-      ? JSON.parse(body.orderedIds as string)
-      : [];
+    // 2. Parse removed + ordered image IDs (client-supplied JSON arrays)
+    const removedIds = parseIdArray(body.removedIds);
+    const orderedIds = parseIdArray(body.orderedIds);
+    if (removedIds === null || orderedIds === null) {
+      return showErrorAlert(c, "Invalid image data. Please try again.");
+    }
 
     if (orderedIds.length > 0) {
       await reorderBookImages(bookId, orderedIds);
@@ -83,3 +80,22 @@ export const POST = createRoute(
     return showSuccessAlert(c, "Images Updated");
   },
 );
+
+/**
+ * Parses a client-supplied JSON string of image IDs. Returns [] when absent,
+ * the string array when valid, or null when the payload is malformed — so the
+ * caller can respond with a clean error instead of throwing a 500.
+ */
+function parseIdArray(value: unknown): string[] | null {
+  if (value == null || value === "") return [];
+  if (typeof value !== "string") return null;
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed) && parsed.every((id) => typeof id === "string")) {
+      return parsed;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}

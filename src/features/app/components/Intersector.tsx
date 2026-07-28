@@ -8,7 +8,7 @@ type Props = PropsWithChildren<{
 
 const Intersector = ({ id, endpoint, children }: Props) => {
   const alpineAttrs = {
-    "x-intersect.margin.500px": `$ajax('${endpoint}', { target: '${id}' })`,
+    "x-intersect.margin.700px": `$ajax('${endpoint}', { target: '${id}' })`,
   };
 
   return (

@@ -1,8 +1,7 @@
 import { Context, Next } from "hono";
-import { deleteCookie, getCookie, setCookie } from "hono/cookie";
-import { refreshAccessToken } from "./refreshAccessToken";
+import { deleteCookie, getCookie } from "hono/cookie";
+import { refreshSessionAndSetCookies } from "./refreshAccessToken";
 import { getUserFromToken } from "./getUserFromToken";
-import { getAuthCookieOptions } from "../features/auth/services";
 import { getCookieClearOptions } from "../lib/authCookies";
 import { getAccessTokenFromRequest } from "../lib/getAccessTokenFromRequest";
 
@@ -28,18 +27,10 @@ export const requireAuth = async (c: Context, next: Next) => {
 
   // If no token but we have a refresh token, try to refresh
   if (!token && refreshToken) {
-    const refreshedToken = await refreshAccessToken(refreshToken, c);
-    if (refreshedToken) {
-      setCookie(c, "token", refreshedToken.access_token, {
-        ...getAuthCookieOptions(c),
-        maxAge: refreshedToken.expires_in,
-      });
-      setCookie(c, "refresh_token", refreshedToken.refresh_token, {
-        ...getAuthCookieOptions(c),
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      });
-      token = refreshedToken.access_token;
-      refreshToken = refreshedToken.refresh_token;
+    const refreshed = await refreshSessionAndSetCookies(c, refreshToken);
+    if (refreshed) {
+      token = refreshed.access_token;
+      refreshToken = refreshed.refresh_token;
     }
   }
 
@@ -51,16 +42,8 @@ export const requireAuth = async (c: Context, next: Next) => {
 
   // If token is invalid/expired but we have a refresh token, try to refresh
   if (!user && refreshToken) {
-    const refreshed = await refreshAccessToken(refreshToken, c);
+    const refreshed = await refreshSessionAndSetCookies(c, refreshToken);
     if (refreshed) {
-      setCookie(c, "token", refreshed.access_token, {
-        ...getAuthCookieOptions(c),
-        maxAge: refreshed.expires_in,
-      });
-      setCookie(c, "refresh_token", refreshed.refresh_token, {
-        ...getAuthCookieOptions(c),
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      });
       token = refreshed.access_token;
       refreshToken = refreshed.refresh_token;
       user = await getUserFromToken(refreshed.access_token);
