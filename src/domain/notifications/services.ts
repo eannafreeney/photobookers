@@ -11,6 +11,7 @@ import { err, ok } from "../../lib/result";
 import { sendAdminEmail } from "../../lib/sendEmail";
 import {
   generateBookPendingReviewEmail,
+  generateInterviewSubmittedEmail,
   generateNewClaimAdminEmail,
 } from "./emails";
 
@@ -149,6 +150,43 @@ export const notifyAdminNewClaim = async (claim: CreatorClaim) => {
   );
   if (emailError) {
     console.error("notifyAdminNewClaim email failed:", emailError.reason, emailError);
+  }
+};
+
+export const notifyAdminInterviewSubmitted = async (input: {
+  interviewId: string;
+  creatorName: string;
+}) => {
+  const targetUrl = `/dashboard/admin/interviews/${input.interviewId}`;
+  const result = await createAdminNotification({
+    type: "interview_submitted",
+    title: "Interview submitted",
+    body: `${input.creatorName} submitted their interview`,
+    targetUrl,
+  });
+  if (result[0]) {
+    console.error(
+      "notifyAdminInterviewSubmitted failed:",
+      result[0].reason,
+      result[0],
+    );
+  }
+
+  const siteUrl = process.env.SITE_URL ?? "https://photobookers.com";
+  const reviewUrl = `${siteUrl}${targetUrl}`;
+  const [emailError] = await sendAdminEmail(
+    `Interview submitted: ${input.creatorName}`,
+    generateInterviewSubmittedEmail({
+      creatorName: input.creatorName,
+      reviewUrl,
+    }),
+  );
+  if (emailError) {
+    console.error(
+      "notifyAdminInterviewSubmitted email failed:",
+      emailError.reason,
+      emailError,
+    );
   }
 };
 

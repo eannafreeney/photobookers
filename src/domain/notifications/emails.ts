@@ -35,3 +35,12 @@ export const generateNewClaimAdminEmail = (params: {
     <p><a href="${params.reviewUrl}">Review in admin dashboard</a></p>
   `;
 };
+
+export const generateInterviewSubmittedEmail = (params: {
+  creatorName: string;
+  reviewUrl: string;
+}) => `
+  <h2>Interview submitted</h2>
+  <p><strong>${params.creatorName}</strong> submitted their interview.</p>
+  <p><a href="${params.reviewUrl}">Review in admin dashboard</a></p>
+`;

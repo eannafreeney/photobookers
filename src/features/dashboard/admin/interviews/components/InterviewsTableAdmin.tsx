@@ -1,5 +1,4 @@
 import Link from "../../../../../components/app/Link";
-import SectionTitle from "../../../../../components/app/SectionTitle";
 import Table from "../../../../../components/app/Table";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
 import { formatDate } from "../../../../../utils";
@@ -9,6 +8,7 @@ import FormDelete from "../../../../../components/forms/FormDelete";
 import { deleteIcon } from "../../../../../lib/icons";
 import { Creator, CreatorInterview } from "../../../../../db/schema";
 import InterviewStatusForm from "./InterviewStatusForm";
+import InterviewPublishToggleForm from "./InterviewPublishToggleForm";
 import { deleteRowAttrs } from "@/lib/utils";
 
 type Props = {
@@ -65,10 +65,10 @@ const InterviewsTableAndFilter = async ({
               <Table.HeadRow>Creator</Table.HeadRow>
               <Table.HeadRow>Recipient</Table.HeadRow>
               <Table.HeadRow>Status</Table.HeadRow>
+              <Table.HeadRow>Published</Table.HeadRow>
               <Table.HeadRow>Sent</Table.HeadRow>
               <Table.HeadRow>Completed</Table.HeadRow>
               <Table.HeadRow>Promo image</Table.HeadRow>
-
               <Table.HeadRow>Actions</Table.HeadRow>
             </tr>
           </Table.Head>
@@ -104,7 +104,14 @@ const InterviewTableRow = ({
         </Link>
       </Table.BodyRow>
       <Table.BodyRow>{interview.recipientEmail}</Table.BodyRow>
-      <Table.BodyRow>{interviewStatusLabel(interview.status)}</Table.BodyRow>
+      <Table.BodyRow>
+        <span id={`interview-status-${interview.id}`}>
+          {interviewStatusLabel(interview.status)}
+        </span>
+      </Table.BodyRow>
+      <Table.BodyRow>
+        <InterviewPublishToggleForm interview={interview} />
+      </Table.BodyRow>
       <Table.BodyRow>
         {interview.invitedAt ? formatDate(interview.invitedAt) : "-"}
       </Table.BodyRow>
@@ -123,21 +130,24 @@ const InterviewTableRow = ({
         )}
       </Table.BodyRow>
       <Table.BodyRow>
-        <a href={`/dashboard/admin/interviews/${interview.id}`} target="_blank">
-          <Button variant="outline" color="inverse">
-            <span>Edit</span>
-          </Button>
-        </a>
-      </Table.BodyRow>
-      <Table.BodyRow>
-        <FormDelete
-          action={`/dashboard/admin/interviews/${interview.id}`}
-          {...deleteRowAttrs}
-        >
-          <button type="submit" class="cursor-pointer hover:text-red-500">
-            {deleteIcon}
-          </button>
-        </FormDelete>
+        <div class="flex items-center gap-2">
+          <a
+            href={`/dashboard/admin/interviews/${interview.id}`}
+            target="_blank"
+          >
+            <Button variant="outline" color="inverse">
+              <span>Edit</span>
+            </Button>
+          </a>
+          <FormDelete
+            action={`/dashboard/admin/interviews/${interview.id}`}
+            {...deleteRowAttrs}
+          >
+            <button type="submit" class="cursor-pointer hover:text-red-500">
+              {deleteIcon}
+            </button>
+          </FormDelete>
+        </div>
       </Table.BodyRow>
     </tr>
   );
