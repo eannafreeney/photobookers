@@ -8,10 +8,17 @@ import { StoreIdContext } from "../../../../../features/dashboard/admin/stores/t
 import { showErrorAlert, showSuccessAlert } from "../../../../../lib/alertHelpers";
 import { uploadImage } from "../../../../../services/storage";
 import { updateStoreCoverImage } from "../../../../../features/dashboard/images/services";
+import { getUser } from "../../../../../utils";
 
 export const POST = createRoute(
   paramValidator(storeIdSchema),
   async (c: StoreIdContext) => {
+    // Stores are admin-managed; /dashboard only requires auth, so guard here.
+    const user = await getUser(c);
+    if (!user?.isAdmin) {
+      return showErrorAlert(c, "You are not authorized to do this.", 403);
+    }
+
     const storeId = c.req.valid("param").storeId;
     const body = await c.req.parseBody();
 

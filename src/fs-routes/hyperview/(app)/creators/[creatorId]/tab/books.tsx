@@ -30,6 +30,7 @@ import { publishersListStyles } from "./publishers";
 import { artistsListStyles } from "./artists";
 import { creatorPostsListStyles } from "../../../../../../features/hyperview/components/CreatorPostsList";
 import { messageListStyles } from "../../../../../../features/hyperview/hyperviewCommonScreenStyles";
+import { countCreatorPosts } from "../../../../../../db/queries";
 
 export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -56,10 +57,13 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const showClaimButton = isStubCreator && !hasCreatorAccount && !isAdmin;
   const claimHref = `${baseUrl}/claims/${creator.id}/start`;
 
-  const [favoritesByBookId, followingByCreatorId] = await Promise.all([
-    favoriteFlagsForBooks(user, books),
-    followFlagsForCreators(user, creator ? [creator] : []),
-  ]);
+  const [favoritesByBookId, followingByCreatorId, postCount] =
+    await Promise.all([
+      favoriteFlagsForBooks(user, books),
+      followFlagsForCreators(user, creator ? [creator] : []),
+      countCreatorPosts(creator.id),
+    ]);
+  const showPostsTab = postCount > 0;
 
   const hasMore = currentPage < totalPages;
   const loadMoreHref = `${baseUrl}/hyperview/creators/${creatorId}/tab/books-content`;
@@ -84,6 +88,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
         creatorId={creator.id}
         activeTab="books"
         creatorType={creator.type}
+        showPostsTab={showPostsTab}
       />
       <View id="tab-area" style="page-content">
         <CreatorPage

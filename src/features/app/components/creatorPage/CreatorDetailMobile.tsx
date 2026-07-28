@@ -20,6 +20,7 @@ const CreatorDetailMobile = (props: CreatorDetailViewProps) => {
         <MobileHeader
           kicker={creator.type === "publisher" ? "Publisher" : "Artist"}
           title={creator.displayName ?? undefined}
+          isVerified={creator.status === "verified"}
         >
           <div class="flex justify-between items-center gap-2">
             {!isOwner && (

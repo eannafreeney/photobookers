@@ -45,6 +45,20 @@ export type FileValidationResult =
   | { success: true; file: File }
   | { success: false; error: string };
 
+// Raster formats only. SVG is intentionally excluded: it can carry embedded
+// <script>, so an uploaded .svg would be a stored-XSS vector when served.
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+  "image/heic",
+  "image/heif",
+]);
+
+const DISALLOWED_IMAGE_EXTENSIONS = /\.(svg|svgz|xml|html?)$/i;
+
 export function validateImageFile(
   file: unknown,
   options?: { maxSize?: number },
@@ -72,8 +86,17 @@ export function validateImageFile(
     };
   }
 
-  if (!validFile.type.startsWith("image/")) {
-    return { success: false, error: "Please upload an image file" };
+  // The MIME type is client-controlled, so allowlist known raster formats and
+  // also reject dangerous extensions regardless of the reported type.
+  if (!ALLOWED_IMAGE_MIME_TYPES.has(validFile.type.toLowerCase())) {
+    return {
+      success: false,
+      error: "Please upload a JPEG, PNG, WebP, GIF, or AVIF image",
+    };
+  }
+
+  if (DISALLOWED_IMAGE_EXTENSIONS.test(validFile.name)) {
+    return { success: false, error: "This image type is not allowed" };
   }
 
   return { success: true, file: validFile };

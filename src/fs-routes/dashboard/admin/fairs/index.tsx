@@ -25,7 +25,6 @@ export const GET = createRoute(async (c: Context) => {
       <Page>
         <Sidebar currentPath={currentPath}>
           <AdminFairsTableContainer
-            user={user}
             currentPath={fairsPaginationBaseUrl}
             currentPage={currentPage}
             searchQuery={searchQuery}

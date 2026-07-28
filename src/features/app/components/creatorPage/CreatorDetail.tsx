@@ -32,8 +32,8 @@ const CreatorDetail = ({
 }: CreatorDetailProps) => {
   const showCreatorsTab = result.relatedCreators.creators.length > 0;
   const showFairsTab = upcomingFairs.length > 0;
+  const showPostsTab = postCount > 0;
   const isOwner = user?.creator?.id === creator.id;
-  const postsTabLabel = postCount > 0 ? `Posts (${postCount})` : "Posts";
 
   return isMobile ? (
     <CreatorDetailMobile
@@ -42,12 +42,12 @@ const CreatorDetail = ({
       currentPath={currentPath}
       showCreatorsTab={showCreatorsTab}
       showFairsTab={showFairsTab}
+      showPostsTab={showPostsTab}
       result={result}
       creatorsCurrentPage={creatorsCurrentPage}
       upcomingFairs={upcomingFairs}
       isOwner={isOwner}
       postCount={postCount}
-      postsTabLabel={postsTabLabel}
     />
   ) : (
     <CreatorDetailDesktop
@@ -56,12 +56,12 @@ const CreatorDetail = ({
       currentPath={currentPath}
       showCreatorsTab={showCreatorsTab}
       showFairsTab={showFairsTab}
+      showPostsTab={showPostsTab}
       result={result}
       creatorsCurrentPage={creatorsCurrentPage}
       upcomingFairs={upcomingFairs}
       isOwner={isOwner}
       postCount={postCount}
-      postsTabLabel={postsTabLabel}
     />
   );
 };

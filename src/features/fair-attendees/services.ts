@@ -7,12 +7,8 @@ const today = () => new Date(new Date().setHours(0, 0, 0, 0));
 
 const isFairOpenForAttendance = (fair: {
   status: string;
-  approvalStatus: string;
   endDate: Date;
-}) =>
-  fair.status === "published" &&
-  fair.approvalStatus === "approved" &&
-  new Date(fair.endDate) >= today();
+}) => fair.status === "published" && new Date(fair.endDate) >= today();
 
 export { isFairOpenForAttendance };
 

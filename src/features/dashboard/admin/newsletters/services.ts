@@ -220,7 +220,6 @@ async function getUpcomingFairForNextWeek(
   const fair = await db.query.bookFairs.findFirst({
     where: and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       gte(bookFairs.startDate, nextWeekStart),
       lte(bookFairs.startDate, nextWeekEnd),
     ),

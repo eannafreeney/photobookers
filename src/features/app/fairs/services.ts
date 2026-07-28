@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   desc,
   eq,
   gt,
@@ -46,7 +47,6 @@ export const getUpcomingFairs = async (
   try {
     const publishedCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       gt(bookFairs.startDate, today()),
     );
 
@@ -63,11 +63,7 @@ export const getUpcomingFairs = async (
 
     const fairs = await db.query.bookFairs.findMany({
       where: publishedCondition,
-      orderBy: [
-        desc(bookFairs.listingTier),
-        sql`${bookFairs.sortOrder} ASC NULLS LAST`,
-        bookFairs.startDate,
-      ],
+      orderBy: [asc(bookFairs.startDate)],
       limit: pageLimit,
       offset: offset,
     });
@@ -86,7 +82,6 @@ export const getPastFairs = async (
   try {
     const pastCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       lte(bookFairs.endDate, today()),
     );
 
@@ -123,7 +118,6 @@ export const getCurrentFairs = async (
     const now = today();
     const currentCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       lte(bookFairs.startDate, now),
       gte(bookFairs.endDate, now),
     );
@@ -172,6 +166,39 @@ export const getFairBySlug = async (slug: string) => {
   }
 };
 
+/** Published fairs overlapping the next `days` days (inclusive of today). */
+export const getFairsInNextDays = async (days: number = 7) => {
+  try {
+    const start = today();
+    const end = new Date(start);
+    end.setDate(end.getDate() + days);
+
+    const fairs = await db.query.bookFairs.findMany({
+      where: and(
+        eq(bookFairs.status, "published"),
+        lte(bookFairs.startDate, end),
+        gte(bookFairs.endDate, start),
+      ),
+      columns: {
+        id: true,
+        slug: true,
+        name: true,
+        city: true,
+        country: true,
+        coverUrl: true,
+        startDate: true,
+        endDate: true,
+      },
+      orderBy: [asc(bookFairs.startDate), asc(bookFairs.name)],
+    });
+
+    return ok(fairs);
+  } catch (error) {
+    console.error("Failed to get fairs in next days", error);
+    return err({ reason: "Failed to get fairs in next days", cause: error });
+  }
+};
+
 export const getUpcomingFairsForCreator = async (
   creatorId: string,
   limit: number = 5,
@@ -189,7 +216,6 @@ export const getUpcomingFairsForCreator = async (
         (a) =>
           a.status === "approved" &&
           a.fair.status === "published" &&
-          a.fair.approvalStatus === "approved" &&
           new Date(a.fair.startDate) >= today(),
       )
       .map((a) => a.fair)
@@ -222,9 +248,7 @@ export const getFairsByCreatorId = async (
     const allFairs = attendances
       .filter(
         (a) =>
-          a.status === "approved" &&
-          a.fair.status === "published" &&
-          a.fair.approvalStatus === "approved",
+          a.status === "approved" && a.fair.status === "published",
       )
       .map((a) => a.fair)
       .sort((a, b) => {
@@ -263,7 +287,6 @@ export const getFairsByMonth = async (year: number, month: number) => {
 
     const publishedCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       // Fair is in month if it starts before month ends AND ends after month starts
       lte(bookFairs.startDate, endOfMonth),
       gte(bookFairs.endDate, startOfMonth),
@@ -305,7 +328,6 @@ export const searchFairs = async (params: FairSearchParams) => {
 
     const conditions = [
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
     ];
 
     // Text search (name, location, participant names)
@@ -346,11 +368,8 @@ export const searchFairs = async (params: FairSearchParams) => {
 
     const fairs = await db.query.bookFairs.findMany({
       where: whereCondition,
-      orderBy: [
-        desc(bookFairs.listingTier),
-        sql`${bookFairs.sortOrder} ASC NULLS LAST`,
-        bookFairs.startDate,
-      ],
+      // Upcoming soonest first, then past.
+      orderBy: [sql`${bookFairs.startDate} < now()`, asc(bookFairs.startDate)],
       limit: pageLimit,
       offset: offset,
     });
@@ -373,7 +392,6 @@ export const searchFairsForNav = async (
 
     const conditions = [
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       buildFairSearchCondition(searchTerm),
     ];
 

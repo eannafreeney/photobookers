@@ -1,25 +1,35 @@
+import VerifiedCreator from "@/components/app/VerifiedCreator";
 import { CreatorCardResult } from "../../../constants/queries";
 
 type Props = {
   creator: CreatorCardResult | null | undefined;
   role: string;
   truncateName?: boolean;
+  isVerified?: boolean;
 };
 
 const SpotlightCreator = ({
   creator,
   role,
   truncateName = true,
+  isVerified = false,
 }: Props) => {
   if (!creator) return <></>;
   return (
     <div class="flex items-center gap-3">
       {creator.coverUrl ? (
-        <img
-          src={creator.coverUrl}
-          alt={creator.displayName}
-          class="size-12 shrink-0 rounded-full border border-outline object-cover"
-        />
+        <div class="relative">
+          <img
+            src={creator.coverUrl}
+            alt={creator.displayName}
+            class="size-12 shrink-0 rounded-full border border-outline object-cover"
+          />
+          {isVerified && (
+            <div class="absolute top-0 right-0">
+              <VerifiedCreator creatorStatus="verified" size="xs" />
+            </div>
+          )}
+        </div>
       ) : (
         <span
           class="flex size-12 shrink-0 items-center justify-center rounded-full border border-outline bg-surface-alt text-sm font-semibold text-on-surface"

@@ -1,4 +1,3 @@
-import { AuthUser } from "../../../../../../types";
 import Link from "../../../../../components/app/Link";
 import Table from "../../../../../components/app/Table";
 import FormDelete from "../../../../../components/forms/FormDelete";
@@ -6,8 +5,9 @@ import { deleteIcon, editIcon } from "../../../../../lib/icons";
 import { formatDate } from "../../../../../utils";
 import { getAllFairsAdmin } from "../services";
 import FairStatusBadge from "./FairStatusBadge";
+import FairPublishToggle from "./FairPublishToggle";
+import FairPreviewButton from "./FairPreviewButton";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll";
-import StatusPill from "../../components/StatusPill";
 import { deleteRowAttrs } from "@/lib/utils";
 
 type Props = {
@@ -51,17 +51,25 @@ const AdminFairsTableAndFilter = async ({
         <Table id="fairs-table">
           <Table.Head>
             <tr>
+              <Table.HeadRow>Cover</Table.HeadRow>
               <Table.HeadRow>Name</Table.HeadRow>
               <Table.HeadRow>Dates</Table.HeadRow>
               <Table.HeadRow>Location</Table.HeadRow>
               <Table.HeadRow>Status</Table.HeadRow>
-              <Table.HeadRow>Approval</Table.HeadRow>
+              <Table.HeadRow>Published</Table.HeadRow>
               <Table.HeadRow>Actions</Table.HeadRow>
             </tr>
           </Table.Head>
           <Table.Body id={targetId} {...tableBodyAttrs} xMerge="append">
             {fairs.map((fair) => (
               <tr key={fair.id} x-data>
+                <Table.BodyRow>
+                  <img
+                    src={fair.coverUrl ?? ""}
+                    alt={fair.name}
+                    class="w-10 h-10 rounded-full object-cover"
+                  />
+                </Table.BodyRow>
                 <Table.BodyRow>
                   <Link href={`/dashboard/admin/fairs/${fair.id}`}>
                     <span class="font-medium">{fair.name}</span>
@@ -80,16 +88,25 @@ const AdminFairsTableAndFilter = async ({
                   </div>
                 </Table.BodyRow>
                 <Table.BodyRow>
-                  <FairStatusBadge status={fair.status} />
+                  <FairStatusBadge
+                    id={`fair-status-${fair.id}`}
+                    status={fair.status}
+                  />
                 </Table.BodyRow>
                 <Table.BodyRow>
-                  <StatusPill status={fair.approvalStatus} />
+                  <FairPublishToggle fairId={fair.id} status={fair.status} />
                 </Table.BodyRow>
                 <Table.BodyRow>
-                  <div class="flex gap-2">
+                  <div class="flex gap-2 items-center">
+                    <FairPreviewButton
+                      fairId={fair.id}
+                      slug={fair.slug}
+                      status={fair.status}
+                    />
                     <Link
                       href={`/dashboard/admin/fairs/${fair.id}`}
                       title="Edit"
+                      target="_blank"
                     >
                       {editIcon()}
                     </Link>

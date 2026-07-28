@@ -1,0 +1,935 @@
+/**
+ * Photobook fairs sourced from LensCulture's global guide:
+ * https://www.lensculture.com/articles/lensculture-editors-the-global-guide-to-photobook-fairs-70-events-around-the-world
+ *
+ * Month-only / approximate dates are noted in the description — verify before travel.
+ * Skipped (no usable dates in source): Hong Kong Photobook Festival, Bangkok Art Book Fair,
+ * Chennai Photo Biennial.
+ */
+
+import type { FairSeed } from "./fairsFromPhotoBookJournal";
+
+const COVER =
+  "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800";
+
+const DRAFT_DEFAULTS = {
+  status: "draft" as const,
+  listingTier: "free" as const,
+};
+
+function fair(
+  partial: Omit<FairSeed, "coverUrl" | "status" | "listingTier"> & {
+    coverUrl?: string;
+  },
+): FairSeed {
+  return {
+    coverUrl: COVER,
+    ...DRAFT_DEFAULTS,
+    ...partial,
+  };
+}
+
+/** New + updated listings from LensCulture (upsert by slug). */
+export const FAIRS_FROM_LENSCULTURE: FairSeed[] = [
+  // --- The Americas ---
+  fair({
+    name: "Printed Matter New York Art Book Fair",
+    slug: "ny-art-book-fair-2026",
+    description:
+      "One of the largest events celebrating arts publishing, at MoMA PS1. Dedicated photography publishers section, rare books, zine tent, and programming. Ticketed entry, Sunday free. Source: LensCulture global guide.",
+    city: "New York",
+    country: "USA",
+    venue: "MoMA PS1",
+    website: "https://printedmatterartbookfairs.org/",
+    startDate: new Date("2026-09-24"),
+    endDate: new Date("2026-09-27"),
+    sortOrder: 100,
+  }),
+  fair({
+    name: "ICP Photobook Fest",
+    slug: "icp-photobook-fest-2026",
+    description:
+      "ICP hosts more than 75 publishers from around the world alongside talks, book signings, and project space exhibitions on the Lower East Side. Ticketed entry.",
+    city: "New York",
+    country: "USA",
+    website: "https://www.icp.org/content/icp-photobook-fest-2026",
+    startDate: new Date("2026-05-08"),
+    endDate: new Date("2026-05-10"),
+    sortOrder: 101,
+  }),
+  fair({
+    name: "AIPAD: The Photography Show",
+    slug: "aipad-photography-show-2026",
+    description:
+      "AIPAD hosts a Photobook section during The Photography Show, with artist talks, book signings, and panel discussions. Ticketed entry.",
+    city: "New York",
+    country: "USA",
+    website: "https://www.aipad.com/member/photobook-partners-sector",
+    startDate: new Date("2026-04-22"),
+    endDate: new Date("2026-04-26"),
+    sortOrder: 102,
+  }),
+  fair({
+    name: "CPW Photobook and Zine Fair",
+    slug: "cpw-photobook-zine-fair-2026",
+    description:
+      "Hosted by the Center for Photography at Woodstock — over 30 publishers and artists for books, discussions, and zine making. Free entry.",
+    city: "Kingston",
+    country: "USA",
+    website: "https://cpw.org/photobookfair/",
+    startDate: new Date("2026-08-08"),
+    endDate: new Date("2026-08-09"),
+    sortOrder: 103,
+  }),
+  fair({
+    name: "Printed Matter Los Angeles Art Book Fair",
+    slug: "la-art-book-fair-2026",
+    description:
+      "Printed Matter’s West Coast fair; recent editions at ArtCenter College of Design in Pasadena. Ticketed entry, Sunday free day.",
+    city: "Los Angeles",
+    country: "USA",
+    website: "https://printedmatterartbookfairs.org/",
+    startDate: new Date("2026-05-07"),
+    endDate: new Date("2026-05-10"),
+    sortOrder: 104,
+  }),
+  fair({
+    name: "San Francisco Art Book Fair",
+    slug: "san-francisco-art-book-fair-2026",
+    description:
+      "Multi-day event at Minnesota Street Project Foundation celebrating art publishing and print culture. Source: LensCulture global guide.",
+    city: "San Francisco",
+    country: "USA",
+    venue: "Minnesota Street Project",
+    website: "https://sfartbookfair.com/",
+    startDate: new Date("2026-07-23"),
+    endDate: new Date("2026-07-26"),
+    sortOrder: 105,
+  }),
+  fair({
+    name: "San Francisco Photobook Fair",
+    slug: "san-francisco-photobook-fair-2026",
+    description:
+      "30 publishers and vendors selling photography books, magazines, and zines at the Harvey Milk Photo Center. Free entry.",
+    city: "San Francisco",
+    country: "USA",
+    venue: "Harvey Milk Photo Center",
+    website:
+      "https://www.harveymilkphotocenter.org/events/san-francisco-photobook-fair/",
+    startDate: new Date("2026-10-17"),
+    endDate: new Date("2026-10-18"),
+    sortOrder: 106,
+  }),
+  fair({
+    name: "20/20 Photo Festival Photo Book Fair",
+    slug: "2020-photo-festival-book-fair-2026",
+    description:
+      "One-day book fair as part of the 20/20 Photo Festival at Cherry Street Pier — artists, independent publishers, and art spaces. Free entry.",
+    city: "Philadelphia",
+    country: "USA",
+    venue: "Cherry Street Pier",
+    website: "https://www.2020photofestival.org/photo-book-fair-1-1",
+    startDate: new Date("2026-09-12"),
+    endDate: new Date("2026-09-12"),
+    sortOrder: 107,
+  }),
+  fair({
+    name: "Pittsburgh Art Book Fair",
+    slug: "pittsburgh-art-book-fair-2026",
+    description:
+      "Held at the Carnegie Museum of Art — publishers of photography, design, and zines, plus readings, releases, and a book swap. Free entry.",
+    city: "Pittsburgh",
+    country: "USA",
+    venue: "Carnegie Museum of Art",
+    website: "https://pabf.cargo.site/",
+    startDate: new Date("2026-10-31"),
+    endDate: new Date("2026-11-01"),
+    sortOrder: 108,
+  }),
+  fair({
+    name: "Filter Photo Festival",
+    slug: "filter-photo-festival-2026",
+    description:
+      "Chicago photography festival with exhibitions, artist talks, a juried photobook exhibition, and publishing workshops. Dates approximate (not listed in LensCulture) — check filterphoto.org.",
+    city: "Chicago",
+    country: "USA",
+    website: "https://www.filterphoto.org/",
+    startDate: new Date("2026-09-10"),
+    endDate: new Date("2026-09-13"),
+    sortOrder: 109,
+  }),
+  fair({
+    name: "Multiple Formats",
+    slug: "multiple-formats-2027",
+    description:
+      "Platform for conversations on artist books, advocacy, and distribution; one-day book fair during the yearly gathering. Month approximate (March 2027) — check multipleformats.cargo.site.",
+    city: "Boston",
+    country: "USA",
+    website: "https://multipleformats.cargo.site/",
+    startDate: new Date("2027-03-01"),
+    endDate: new Date("2027-03-31"),
+    sortOrder: 110,
+  }),
+  fair({
+    name: "Contact Photobook Fair",
+    slug: "contact-photobook-fair-2026",
+    description:
+      "Held during CONTACT Photography Festival; programmed by The Photobook Lab. Free entry.",
+    city: "Toronto",
+    country: "Canada",
+    website:
+      "https://contactphoto.com/festival/2026/public-program/2026-contact-photobook-fair",
+    startDate: new Date("2026-05-02"),
+    endDate: new Date("2026-05-02"),
+    sortOrder: 111,
+  }),
+  fair({
+    name: "Vancouver Art Book Fair",
+    slug: "vancouver-art-book-fair-2026",
+    description:
+      "Three-day celebration of artists’ publishing with over one hundred publishers plus programs, performances, and artists’ projects. Free entry.",
+    city: "Vancouver",
+    country: "Canada",
+    website: "https://vancouverartbookfair.com/",
+    startDate: new Date("2026-05-15"),
+    endDate: new Date("2026-05-17"),
+    sortOrder: 112,
+  }),
+  fair({
+    name: "Zum Festival",
+    slug: "zum-festival-2026",
+    description:
+      "Annual event at the Moreira Salles Institute with talks, debates, workshops, exhibitions, and a photobook fair. Month approximate (November) — check revistazum.com.br.",
+    city: "São Paulo",
+    country: "Brazil",
+    venue: "Moreira Salles Institute",
+    website: "https://revistazum.com.br/",
+    startDate: new Date("2026-11-01"),
+    endDate: new Date("2026-11-30"),
+    sortOrder: 113,
+  }),
+  fair({
+    name: "FotoDoc Festival",
+    slug: "fotodoc-festival-2026",
+    description:
+      "Documentary photography festival with exhibitions, workshops, competitions, and a curated photobook bookstore. Month approximate (November 2026) — check fotodoc.com.br.",
+    city: "São Paulo",
+    country: "Brazil",
+    website: "https://fotodoc.com.br/en/",
+    startDate: new Date("2026-11-01"),
+    endDate: new Date("2026-11-30"),
+    sortOrder: 114,
+  }),
+  fair({
+    name: "STGO FOTO",
+    slug: "stegofoto-2026",
+    description:
+      "During Santiago’s Photography Month — book fair and programming of Latin American exhibitors. Source: LensCulture global guide.",
+    city: "Santiago",
+    country: "Chile",
+    website: "https://stgofoto.com/",
+    startDate: new Date("2026-07-30"),
+    endDate: new Date("2026-08-02"),
+    sortOrder: 115,
+  }),
+  fair({
+    name: "Index Art Book Fair",
+    slug: "index-art-book-fair-2027",
+    description:
+      "Annual book fair organized by kurimanzutto celebrating independent publishing, including ZINDEX for experimental publications. Free entry.",
+    city: "Mexico City",
+    country: "Mexico",
+    website: "https://indexartbookfair.com/",
+    startDate: new Date("2027-01-14"),
+    endDate: new Date("2027-01-17"),
+    sortOrder: 116,
+  }),
+  fair({
+    name: "SUR FOTOLIBROS",
+    slug: "sur-fotolibros-2027",
+    description:
+      "Photobook gathering in Buenos Aires with presentations, talks, workshops, screenings, exhibitions, and panel discussions.",
+    city: "Buenos Aires",
+    country: "Argentina",
+    website: "https://www.instagram.com/sur.artexarte/",
+    startDate: new Date("2027-05-13"),
+    endDate: new Date("2027-05-16"),
+    sortOrder: 117,
+  }),
+
+  // --- Europe ---
+  fair({
+    name: "Arles Books Fair",
+    slug: "arles-books-fair-2026",
+    description:
+      "Organized by Photobook France — eighty international publishing houses focused on photography, plus signings, launches, and panels. Free entry. Source: LensCulture.",
+    city: "Arles",
+    country: "France",
+    website: "https://www.rencontres-arles.com/en/arles-books-fair-2026",
+    startDate: new Date("2026-07-07"),
+    endDate: new Date("2026-07-11"),
+    sortOrder: 120,
+  }),
+  fair({
+    name: "Paris Photo",
+    slug: "paris-photo-2026",
+    description:
+      "Major photography fair; Book sector features photography books, limited editions, and artist’s books. Ticketed entry. Source: LensCulture.",
+    city: "Paris",
+    country: "France",
+    venue: "Grand Palais",
+    website: "https://www.parisphoto.com/",
+    startDate: new Date("2026-11-12"),
+    endDate: new Date("2026-11-15"),
+    sortOrder: 121,
+  }),
+  fair({
+    name: "Offprint Paris",
+    slug: "offprint-paris-2026",
+    description:
+      "LUMA / Offprint fair during Paris Photo week — publishers across visual arts and design. Free entry. Source: LensCulture.",
+    city: "Paris",
+    country: "France",
+    website: "https://www.offprint.org",
+    startDate: new Date("2026-11-12"),
+    endDate: new Date("2026-11-15"),
+    sortOrder: 122,
+  }),
+  fair({
+    name: "Polycopies",
+    slug: "polycopies-2026",
+    description:
+      "Photobook celebration on the Concorde-Atlantique boat and Seine quays during Paris Photo week. Free entry. Source: LensCulture.",
+    city: "Paris",
+    country: "France",
+    venue: "Concorde-Atlantique",
+    website: "http://www.polycopies.net/",
+    startDate: new Date("2026-11-11"),
+    endDate: new Date("2026-11-15"),
+    sortOrder: 123,
+  }),
+  fair({
+    name: "Bold, The Self-Published Photobook Weekend",
+    slug: "bold-self-published-photobook-weekend-2027",
+    description:
+      "Henri Cartier-Bresson Foundation weekend celebrating self-published books with installations, workshops, and talks. Month approximate (January 2027).",
+    city: "Paris",
+    country: "France",
+    website:
+      "https://www.henricartierbresson.org/en/rencontres/bold-the-self-published-photobook-weekend/",
+    startDate: new Date("2027-01-01"),
+    endDate: new Date("2027-01-31"),
+    sortOrder: 124,
+  }),
+  fair({
+    name: "Photo London",
+    slug: "photo-london-2027",
+    description:
+      "UK’s largest photography fair with a dedicated publishers section (40+ exhibitors) and talks. Ticketed entry.",
+    city: "London",
+    country: "UK",
+    website: "https://photolondon.org/",
+    startDate: new Date("2027-05-13"),
+    endDate: new Date("2027-05-16"),
+    sortOrder: 125,
+  }),
+  fair({
+    name: "Offprint London",
+    slug: "offprint-london-2027",
+    description:
+      "Offprint fair during Photo London week — visual arts and design publishers plus public programming. Free entry.",
+    city: "London",
+    country: "UK",
+    website: "https://www.offprint.org/en/",
+    startDate: new Date("2027-05-14"),
+    endDate: new Date("2027-05-16"),
+    sortOrder: 126,
+  }),
+  fair({
+    name: "A Bigger Book Fair (Peckham)",
+    slug: "a-bigger-book-fair-peckham-2027",
+    description:
+      "Peckham24 photobook fair coinciding with Photo London — exhibitions, talks, and books in South London. Free entry.",
+    city: "London",
+    country: "UK",
+    website: "https://www.peckham24.com/a-bigger-book-fair",
+    startDate: new Date("2027-05-14"),
+    endDate: new Date("2027-05-16"),
+    sortOrder: 127,
+  }),
+  fair({
+    name: "Glue Book Fair",
+    slug: "glue-book-fair-2026",
+    description:
+      "ICA’s annual book fair with 90+ publishers, workshops, launches, exhibition, and talks. Free entry.",
+    city: "London",
+    country: "UK",
+    venue: "ICA",
+    website: "https://www.ica.art/talks/glue-2026",
+    startDate: new Date("2026-09-12"),
+    endDate: new Date("2026-09-13"),
+    sortOrder: 128,
+  }),
+  fair({
+    name: "Books on Photography",
+    slug: "books-on-photography-bristol-2026",
+    description:
+      "Martin Parr Foundation weekend — book fair, exhibitions, artist talks, and signings. Free entry.",
+    city: "Bristol",
+    country: "UK",
+    venue: "Martin Parr Foundation",
+    website: "https://bopbristol.org/",
+    startDate: new Date("2026-10-17"),
+    endDate: new Date("2026-10-18"),
+    sortOrder: 129,
+  }),
+  fair({
+    name: "CENTRAL Photobook Festival",
+    slug: "central-photobook-festival-2026",
+    description:
+      "Birmingham photobook festival with fair, talks, and exhibits. Free entry.",
+    city: "Birmingham",
+    country: "UK",
+    website: "https://centralbhx.cargo.site/",
+    startDate: new Date("2026-10-23"),
+    endDate: new Date("2026-10-24"),
+    sortOrder: 130,
+  }),
+  fair({
+    name: "FORMAT Photobook Market",
+    slug: "format-photobook-market-2027",
+    description:
+      "Photobook market alongside the FORMAT festival of contemporary photography. Free entry.",
+    city: "Derby",
+    country: "UK",
+    website: "https://formatfestival.com/",
+    startDate: new Date("2027-03-11"),
+    endDate: new Date("2027-04-11"),
+    sortOrder: 131,
+  }),
+  fair({
+    name: "Tsundoku",
+    slug: "tsundoku-2026",
+    description:
+      "PhotoIreland’s Tsundoku Art Book Fair at the International Centre for the Image — talks, workshops, and launches. Free entry.",
+    city: "Dublin",
+    country: "Ireland",
+    venue: "International Centre for the Image",
+    website: "https://tsundoku.ie/",
+    startDate: new Date("2026-04-14"),
+    endDate: new Date("2026-04-17"),
+    sortOrder: 132,
+  }),
+  fair({
+    name: "Dear Books",
+    slug: "dear-books-2026",
+    description:
+      "Accompanying Unfair — 50 publishers and art book makers from around the world. Free entry.",
+    city: "Amsterdam",
+    country: "Netherlands",
+    website: "https://unfair.nl/dearbooks/",
+    startDate: new Date("2026-09-17"),
+    endDate: new Date("2026-09-20"),
+    sortOrder: 133,
+  }),
+  fair({
+    name: "Unseen Photo Bookmarket",
+    slug: "unseen-photo-bookmarket-2027",
+    description:
+      "Book market of ~40 photobook publishers during Art Rotterdam / Unseen Photo. Free entry to the book market.",
+    city: "Rotterdam",
+    country: "Netherlands",
+    website: "https://unseenphoto.com/bookmarket",
+    startDate: new Date("2027-03-18"),
+    endDate: new Date("2027-03-21"),
+    sortOrder: 134,
+  }),
+  fair({
+    name: "BLIK!",
+    slug: "blik-2026",
+    description:
+      "Festival dedicated to the photographic book — talks, installations, curated books and stores. Free entry.",
+    city: "Aarhus",
+    country: "Denmark",
+    website: "https://blikfest.org/",
+    startDate: new Date("2026-10-28"),
+    endDate: new Date("2026-11-01"),
+    sortOrder: 135,
+  }),
+  fair({
+    name: "Photobook Mania",
+    slug: "photobook-mania-2026",
+    description:
+      "During PhMuseum Days — curated independent publishers, exhibitions, workshops, and presentations. Free entry.",
+    city: "Bologna",
+    country: "Italy",
+    website: "https://phmuseum.com/photobook-mania/2026",
+    startDate: new Date("2026-10-03"),
+    endDate: new Date("2026-10-04"),
+    sortOrder: 136,
+  }),
+  fair({
+    name: "Sprint Milano",
+    slug: "sprint-milano-2026",
+    description:
+      "Artists’ books fair with programming and workshops; also organizes spin-offs in Milan, Turin, and beyond. Free entry.",
+    city: "Milan",
+    country: "Italy",
+    website: "https://www.sprintmilano.org/",
+    startDate: new Date("2026-11-27"),
+    endDate: new Date("2026-11-29"),
+    sortOrder: 137,
+  }),
+  fair({
+    name: "Brussels Ass Book Fair",
+    slug: "brussels-ass-book-fair-2026",
+    description:
+      "Sister fair to Paris Ass Book Fair — independent art publishing with space for LGBTQIA+ projects, live events, and talks. Free entry.",
+    city: "Brussels",
+    country: "Belgium",
+    website: "https://kanal.brussels/en/calendar/brussels-ass-book-fair-2026",
+    startDate: new Date("2026-12-04"),
+    endDate: new Date("2026-12-06"),
+    sortOrder: 138,
+  }),
+  fair({
+    name: "Miss Read Berlin",
+    slug: "miss-read-berlin-2026",
+    description:
+      "Since 2009 — 200+ exhibitors for one of the most international gatherings in independent publishing. Free entry.",
+    city: "Berlin",
+    country: "Germany",
+    website: "https://missread.com/",
+    startDate: new Date("2026-06-26"),
+    endDate: new Date("2026-06-28"),
+    sortOrder: 139,
+  }),
+  fair({
+    name: "Photobook Summer",
+    slug: "photobook-summer-2026",
+    description:
+      "Festival dedicated to the photobook as artistic medium — exhibitions, workshops, and concluding Photo Book Days. Free entry.",
+    city: "Berlin",
+    country: "Germany",
+    website: "https://musuku.de/en/photo-book-summer/",
+    startDate: new Date("2026-07-17"),
+    endDate: new Date("2026-09-22"),
+    sortOrder: 140,
+  }),
+  fair({
+    name: "Leipzig Photobook Festival",
+    slug: "leipzig-photobook-festival-2026",
+    description:
+      "Organized by dienacht e.V. — exhibitions, talks, and a European photobook market. Free entry.",
+    city: "Leipzig",
+    country: "Germany",
+    website: "https://dienacht.eu/leipzig-photobook-festival",
+    startDate: new Date("2026-03-07"),
+    endDate: new Date("2026-03-08"),
+    sortOrder: 141,
+  }),
+  fair({
+    name: "Thousandfold Photobook Fair",
+    slug: "thousandfold-photobook-fair-2026",
+    description:
+      "Self-sustaining fair collaborating with festivals; September edition alongside Photo Book Summer in Berlin. Free entry.",
+    city: "Berlin",
+    country: "Germany",
+    website: "https://dienacht.eu/thousandfold",
+    startDate: new Date("2026-09-12"),
+    endDate: new Date("2026-09-13"),
+    sortOrder: 142,
+  }),
+  fair({
+    name: "Photobooks Switzerland",
+    slug: "photobooks-switzerland-2026",
+    description:
+      "Workshops, two-day fair, exhibition, talks, and Dummy Clinic. Free entry.",
+    city: "Geneva",
+    country: "Switzerland",
+    website:
+      "https://www.centrephotogeneve.ch/exhibitions/photobooks-switzerland-2026",
+    startDate: new Date("2026-04-24"),
+    endDate: new Date("2026-04-26"),
+    sortOrder: 143,
+  }),
+  fair({
+    name: "P.A.G.E.S",
+    slug: "pages-geneva-2026",
+    description:
+      "Platform for art and design publications with launches and Publishing Speed Dating. Free entry.",
+    city: "Geneva",
+    country: "Switzerland",
+    website: "https://www.p-a-g-e-s.ch/",
+    startDate: new Date("2026-05-08"),
+    endDate: new Date("2026-05-09"),
+    sortOrder: 144,
+  }),
+  fair({
+    name: "Booklette",
+    slug: "booklette-2026",
+    description:
+      "Images Vevey and Photo Elysée fair — European photography publishers, signings, tours, and raclette. Free entry. Source: LensCulture.",
+    city: "Vevey",
+    country: "Switzerland",
+    website: "https://www.images.ch/",
+    startDate: new Date("2026-09-12"),
+    endDate: new Date("2026-09-13"),
+    sortOrder: 145,
+  }),
+  fair({
+    name: "I Never Read Art Basel",
+    slug: "i-never-read-art-basel-2027",
+    description:
+      "Book fair accompanying Art Basel week — international publishers, talks, tours, presentations. Month approximate (June 2027). Free entry.",
+    city: "Basel",
+    country: "Switzerland",
+    website: "https://www.ineverread.com/",
+    startDate: new Date("2027-06-01"),
+    endDate: new Date("2027-06-30"),
+    sortOrder: 146,
+  }),
+  fair({
+    name: "Volumes Zurich Art Publishing Days",
+    slug: "volumes-zurich-2026",
+    description:
+      "Independent publishers and artists with performances, installations, workshops, and projections. Free entry.",
+    city: "Zurich",
+    country: "Switzerland",
+    website: "https://www.volumeszurich.ch/",
+    startDate: new Date("2026-11-21"),
+    endDate: new Date("2026-11-22"),
+    sortOrder: 147,
+  }),
+  fair({
+    name: "Paper Photo Festival",
+    slug: "paper-photo-festival-2026",
+    description:
+      "International festival at Zamek Sielecki — book fair, lectures, launches, exhibitions, and dummy award. Free entry.",
+    city: "Sosnowiec",
+    country: "Poland",
+    venue: "Zamek Sielecki",
+    website: "https://paperphoto.pl",
+    startDate: new Date("2026-09-18"),
+    endDate: new Date("2026-09-20"),
+    sortOrder: 148,
+  }),
+  fair({
+    name: "Vienna Art Book Fair",
+    slug: "vienna-art-book-fair-2027",
+    description:
+      "Platform for artists, collectives, self-publishers, small presses, and collectors. Month approximate (October 2027) — check viennaartbookfair.com. Free entry.",
+    city: "Vienna",
+    country: "Austria",
+    website: "https://viennaartbookfair.com/",
+    startDate: new Date("2027-10-01"),
+    endDate: new Date("2027-10-31"),
+    sortOrder: 149,
+  }),
+  fair({
+    name: "Athens Photo Festival",
+    slug: "athens-photo-festival-2026",
+    description:
+      "Annual photography festival with exhibitions, portfolio reviews, and a book program including awards. Free entry.",
+    city: "Athens",
+    country: "Greece",
+    website: "https://photofestival.gr/aphf26/",
+    startDate: new Date("2026-06-10"),
+    endDate: new Date("2026-07-26"),
+    sortOrder: 150,
+  }),
+  fair({
+    name: "Athens Art Book Fair",
+    slug: "athens-art-book-fair-2026",
+    description:
+      "Artist-run fair showcasing artist publications with a focus on Greece and the Balkans. Free entry. Source: LensCulture.",
+    city: "Athens",
+    country: "Greece",
+    website: "https://athensartbookfair.gr/",
+    startDate: new Date("2026-09-25"),
+    endDate: new Date("2026-09-27"),
+    sortOrder: 151,
+  }),
+  fair({
+    name: "Art Photo Bcn Photobook Market",
+    slug: "art-photo-bcn-photobook-market-2026",
+    description:
+      "Invitation-only photobook market accompanying Art Photo Bcn — talks, round tables, and signings. Free entry.",
+    city: "Barcelona",
+    country: "Spain",
+    website: "https://artphotobcn.com/festival/photobook-market/",
+    startDate: new Date("2026-05-09"),
+    endDate: new Date("2026-05-10"),
+    sortOrder: 152,
+  }),
+  fair({
+    name: "Fiebre Photobook",
+    slug: "fiebre-photobook-festival-2026",
+    description:
+      "Spain’s first festival specialized in photobooks — market, presentations, workshops, award, and talks. Free entry. Source: LensCulture.",
+    city: "Madrid",
+    country: "Spain",
+    website: "https://fiebrephotobook.com/",
+    startDate: new Date("2026-09-18"),
+    endDate: new Date("2026-09-20"),
+    sortOrder: 153,
+  }),
+  fair({
+    name: "ArtsLibris ARCOmadrid",
+    slug: "artslibris-arcomadrid-2026",
+    description:
+      "ArtsLibris publishing fair specializing in artist publications, photobooks, and self-publishing (Madrid edition). Free entry.",
+    city: "Madrid",
+    country: "Spain",
+    website: "https://artslibris.cat/en/",
+    startDate: new Date("2026-03-04"),
+    endDate: new Date("2026-03-08"),
+    sortOrder: 154,
+  }),
+  fair({
+    name: "ArtsLibris ARCOlisboa",
+    slug: "artslibris-arcolisboa-2026",
+    description:
+      "ArtsLibris publishing fair specializing in artist publications, photobooks, and self-publishing (Lisbon edition). Free entry.",
+    city: "Lisbon",
+    country: "Portugal",
+    website: "https://artslibris.cat/en/",
+    startDate: new Date("2026-05-28"),
+    endDate: new Date("2026-05-31"),
+    sortOrder: 155,
+  }),
+  fair({
+    name: "ArtsLibris Barcelona",
+    slug: "artslibris-barcelona-2026",
+    description:
+      "ArtsLibris publishing fair specializing in artist publications, photobooks, and self-publishing (Barcelona edition). Free entry.",
+    city: "Barcelona",
+    country: "Spain",
+    website: "https://artslibris.cat/en/",
+    startDate: new Date("2026-10-30"),
+    endDate: new Date("2026-11-01"),
+    sortOrder: 156,
+  }),
+  fair({
+    name: "border_less ART BOOK DAYS",
+    slug: "border-less-art-book-days-2027",
+    description:
+      "Istanbul event bringing together artists, galleries, and institutions working in publication formats. Month approximate (May 2027). Free entry.",
+    city: "Istanbul",
+    country: "Turkey",
+    website: "https://www.border-l-e-s-s.com/art-book-days",
+    startDate: new Date("2027-05-01"),
+    endDate: new Date("2027-05-31"),
+    sortOrder: 157,
+  }),
+
+  // --- Asia ---
+  fair({
+    name: "Tokyo Art Book Fair",
+    slug: "tokyo-art-book-fair-2027",
+    description:
+      "Largest art book fair in Asia, held across two weekends — exhibitions, artist talks, and film screenings. Free entry. Source: LensCulture.",
+    city: "Tokyo",
+    country: "Japan",
+    website: "https://tokyoartbookfair.com/en/",
+    startDate: new Date("2027-01-21"),
+    endDate: new Date("2027-01-31"),
+    sortOrder: 160,
+  }),
+  fair({
+    name: "Kyotographie Photobook Fair",
+    slug: "kyotographie-photobook-fair-2026",
+    description:
+      "Organized by KYOTOGRAPHIE and Kyoto Okazaki Tsutaya Books — 50+ publishers from Japan and beyond. Free entry.",
+    city: "Kyoto",
+    country: "Japan",
+    website: "https://www.kyotographie.jp/en/photobook_fair/",
+    startDate: new Date("2026-05-09"),
+    endDate: new Date("2026-05-10"),
+    sortOrder: 161,
+  }),
+  fair({
+    name: "JJOKJI",
+    slug: "jjokji-2026",
+    description:
+      "Seoul book market for photobooks, zines, artbooks, and independent media. Free entry.",
+    city: "Seoul",
+    country: "South Korea",
+    website: "https://artbookmarket.com/",
+    startDate: new Date("2026-09-04"),
+    endDate: new Date("2026-09-06"),
+    sortOrder: 162,
+  }),
+  fair({
+    name: "UNFOLD Art Book Fair Shanghai",
+    slug: "unfold-shanghai-2026",
+    description:
+      "Traveling UNFOLD art book fair — photography, illustration, and design publishers with workshops and talks. Free entry.",
+    city: "Shanghai",
+    country: "China",
+    website: "https://www.instagram.com/shanghaiartbookfair/",
+    startDate: new Date("2026-06-11"),
+    endDate: new Date("2026-06-14"),
+    sortOrder: 163,
+  }),
+  fair({
+    name: "UNFOLD Art Book Fair Shenzhen",
+    slug: "unfold-shenzhen-2026",
+    description:
+      "Traveling UNFOLD art book fair — photography, illustration, and design publishers with workshops and talks. Free entry.",
+    city: "Shenzhen",
+    country: "China",
+    website: "https://www.instagram.com/shanghaiartbookfair/",
+    startDate: new Date("2026-08-06"),
+    endDate: new Date("2026-08-09"),
+    sortOrder: 164,
+  }),
+  fair({
+    name: "UNFOLD Art Book Fair Macau",
+    slug: "unfold-macau-2026",
+    description:
+      "Traveling UNFOLD art book fair — photography, illustration, and design publishers with workshops and talks. Free entry.",
+    city: "Macau",
+    country: "China",
+    website: "https://www.instagram.com/shanghaiartbookfair/",
+    startDate: new Date("2026-11-27"),
+    endDate: new Date("2026-11-29"),
+    sortOrder: 165,
+  }),
+  fair({
+    name: "Kuala Lumpur Art Book Fair",
+    slug: "kuala-lumpur-art-book-fair-2026",
+    description:
+      "Artists, illustrators, designers, independent publishers, and printmakers with talks and workshops. Free entry.",
+    city: "Kuala Lumpur",
+    country: "Malaysia",
+    website: "https://klartbookfair.com/",
+    startDate: new Date("2026-11-27"),
+    endDate: new Date("2026-11-29"),
+    sortOrder: 166,
+  }),
+  fair({
+    name: "Singapore Art Book Fair",
+    slug: "singapore-art-book-fair-2026",
+    description:
+      "First art book fair in Southeast Asia — artists, designers, small presses, galleries, and zinemakers. Free entry.",
+    city: "Singapore",
+    country: "Singapore",
+    website: "https://singaporeartbookfair.org/",
+    startDate: new Date("2026-08-28"),
+    endDate: new Date("2026-08-30"),
+    sortOrder: 167,
+  }),
+  fair({
+    name: "Focal Point",
+    slug: "focal-point-sharjah-2026",
+    description:
+      "Non-commercial fair hosted by Sharjah Art Foundation for creative producers, bookmakers, and artist presses. Free entry.",
+    city: "Sharjah",
+    country: "UAE",
+    website: "https://www.sharjahart.org/en/",
+    startDate: new Date("2026-12-11"),
+    endDate: new Date("2026-12-13"),
+    sortOrder: 168,
+  }),
+  fair({
+    name: "PaperBack Art Book Fair",
+    slug: "paperback-art-book-fair-2026",
+    description:
+      "Presented by Diriyah Biennale Foundation — contemporary regional publishers, zine creators, and creative encounters. Free entry.",
+    city: "Riyadh",
+    country: "Saudi Arabia",
+    website: "https://www.instagram.com/paperback_sa/",
+    startDate: new Date("2026-11-05"),
+    endDate: new Date("2026-11-07"),
+    sortOrder: 169,
+  }),
+
+  // --- Australia / New Zealand ---
+  fair({
+    name: "Same Page Art Book Fair",
+    slug: "same-page-art-book-fair-2026",
+    description:
+      "Independent imprints, publishers, and distributors — organized by Gertrude and Perimeter. Free entry.",
+    city: "Melbourne",
+    country: "Australia",
+    website: "https://samepageartbookfair.com/",
+    startDate: new Date("2026-10-24"),
+    endDate: new Date("2026-10-25"),
+    sortOrder: 170,
+  }),
+  fair({
+    name: "Melbourne Art Book Fair",
+    slug: "melbourne-art-book-fair-2027",
+    description:
+      "Local and international publishers, artists, and designers with workshops, launches, and archive tours. Free entry.",
+    city: "Melbourne",
+    country: "Australia",
+    website: "https://artbookfair.melbourne/",
+    startDate: new Date("2027-05-20"),
+    endDate: new Date("2027-05-30"),
+    sortOrder: 171,
+  }),
+  fair({
+    name: "Ballarat International Foto Festival",
+    slug: "ballarat-international-foto-festival-2027",
+    description:
+      "Biennial photography festival with exhibitions, workshops, and a Photobook Day / book fair. Free entry.",
+    city: "Ballarat",
+    country: "Australia",
+    website: "https://ballaratfoto.org/",
+    startDate: new Date("2027-08-21"),
+    endDate: new Date("2027-10-17"),
+    sortOrder: 172,
+  }),
+  fair({
+    name: "Photobook N/Z",
+    slug: "photobook-nz-2026",
+    description:
+      "National photobook festival celebrating small-press photobooks — fair, launches, signings, and workshops. Free entry. Source: LensCulture.",
+    city: "Wellington",
+    country: "New Zealand",
+    website: "https://www.photobooknz.com",
+    startDate: new Date("2026-08-06"),
+    endDate: new Date("2026-08-09"),
+    sortOrder: 173,
+  }),
+
+  // --- Africa ---
+  fair({
+    name: "Tanja Book & Print Fair",
+    slug: "tanja-book-print-fair-2026",
+    description:
+      "Weekend fair for self-publishing artists, photographers, illustrators, designers, and independent publishers. Free entry.",
+    city: "Tangier",
+    country: "Morocco",
+    website: "https://think-tanger.com/",
+    startDate: new Date("2026-08-02"),
+    endDate: new Date("2026-08-03"),
+    sortOrder: 180,
+  }),
+  fair({
+    name: "African Art Book Fair",
+    slug: "african-art-book-fair-2026",
+    description:
+      "Independent publishing fair and discussion series focusing on photography, art, design, music, and activism. Free entry.",
+    city: "Dakar",
+    country: "Senegal",
+    website: "https://africanartbookfair.com/african-art-book-fair-2026/",
+    startDate: new Date("2026-11-19"),
+    endDate: new Date("2026-11-22"),
+    sortOrder: 181,
+  }),
+  fair({
+    name: "Cairo Art Book Fair",
+    slug: "cairo-art-book-fair-2026",
+    description:
+      "Highlights zines, graphic design, and artist publications from across the region. Free entry.",
+    city: "Cairo",
+    country: "Egypt",
+    website: "https://cairoartbookfair.com/?lang=ar",
+    startDate: new Date("2026-12-16"),
+    endDate: new Date("2026-12-19"),
+    sortOrder: 182,
+  }),
+];

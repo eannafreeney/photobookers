@@ -1797,6 +1797,19 @@ export const getPublishedInterviews = async () => {
       where: and(
         eq(creatorInterviews.status, "published"),
         isNotNull(creatorInterviews.promoImageUrl),
+        // Inside a relational query (db.query.*), Drizzle rewrites bare column
+        // objects in a raw `sql` fragment to the PRIMARY table's alias — so
+        // `${books.artistId}` wrongly rendered as `creatorInterviews.artist_id`
+        // and the query threw (42703, column does not exist). Alias the books
+        // table as `b` and reference its columns with literal identifiers so
+        // they aren't remapped; the correlated `creatorInterviews.creatorId`
+        // still resolves to the outer row.
+        sql`EXISTS (
+          SELECT 1 FROM ${books} b
+          WHERE (b.artist_id = ${creatorInterviews.creatorId}
+            OR b.publisher_id = ${creatorInterviews.creatorId})
+          AND b.publication_status = 'published'
+        )`,
       ),
       with: {
         creator: {

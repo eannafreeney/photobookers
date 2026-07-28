@@ -179,16 +179,14 @@ export function canCollectBook(
 
 export function canClaimFairAttendance(
   user: AuthUser | null,
-  fair: Pick<BookFair, "status" | "approvalStatus" | "endDate">,
+  fair: Pick<BookFair, "status" | "endDate">,
 ): boolean {
   if (!user?.creator) return false;
   if (user.creator.status !== "verified") return false;
 
   const today = new Date(new Date().setHours(0, 0, 0, 0));
   return (
-    fair.status === "published" &&
-    fair.approvalStatus === "approved" &&
-    new Date(fair.endDate) >= today
+    fair.status === "published" && new Date(fair.endDate) >= today
   );
 }
 

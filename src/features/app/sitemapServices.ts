@@ -110,7 +110,6 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       .where(
         and(
           eq(bookFairs.status, "published"),
-          eq(bookFairs.approvalStatus, "approved"),
         ),
       ),
     db

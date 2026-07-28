@@ -40,8 +40,7 @@ export const GET = createRoute(
       return c.html(<InfoPage errorMessage={error.reason} user={user} />, 404);
     }
 
-    const isPublished =
-      fair.status === "published" && fair.approvalStatus === "approved";
+    const isPublished = fair.status === "published";
 
     if (!isPublished && !user?.isAdmin) {
       return c.html(

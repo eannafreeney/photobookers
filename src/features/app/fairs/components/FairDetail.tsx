@@ -16,6 +16,7 @@ type FairDetailProps = {
 };
 
 const FairDetail = ({ fair, user, isAttending, isMobile }: FairDetailProps) => {
+  console.log(fair);
   return (
     <div class="min-h-screen ">
       <FairBanner fair={fair} isMobile={isMobile} />
@@ -46,27 +47,27 @@ const FairBanner = ({
   fair: BookFair;
   isMobile: boolean;
 }) => {
-  if (!fair.bannerUrl) return <></>;
-
-  if (isMobile && fair.coverUrl) {
-    return (
-      <div class="mt-4 mb-12">
-        <img src={fair.coverUrl} alt={fair.name} class="w-full object-cover" />
-      </div>
-    );
-  }
-
   return (
-    <div class="w-full -mt-8 mb-12">
-      <div class="relative w-full h-[300px] md:h-[500px] overflow-hidden">
-        <img
-          src={fair.bannerUrl}
-          alt={fair.name}
-          class="w-full h-full object-cover"
-        />
-      </div>
+    <div class="mt-4 mb-12 flex justify-center">
+      <img
+        src={fair.coverUrl ?? ""}
+        alt={fair.name}
+        class="h-64 object-cover"
+      />
     </div>
   );
+
+  // return (
+  //   <div class="w-full -mt-8 mb-12">
+  //     <div class="relative w-full h-[300px] md:h-[500px] overflow-hidden">
+  //       <img
+  //         src={fair.bannerUrl}
+  //         alt={fair.name}
+  //         class="w-full h-full object-cover"
+  //       />
+  //     </div>
+  //   </div>
+  // );
 };
 
 const FairDetails = ({ fair }: { fair: BookFair }) => {
@@ -109,7 +110,7 @@ const FairDetails = ({ fair }: { fair: BookFair }) => {
 const FairDescription = ({ fair }: { fair: BookFair }) => {
   if (!fair.description) return <></>;
   return (
-    <div class="max-w-none text-on-surface">
+    <div class="max-w-none text-on-surface text-center">
       <div class="bg-surface-container rounded-2xl">
         <ExpandableDescription text={fair.description} />
       </div>

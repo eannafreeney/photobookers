@@ -3,20 +3,17 @@ import Link from "../../../../../components/app/Link";
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import TableSearch from "../../../../../components/app/TableSearch";
 import AdminFairsTableAndFilter from "./AdminFairsTableAndFilter";
-import { AuthUser } from "../../../../../../types";
 
 type Props = {
   currentPath: string;
   currentPage: number;
   searchQuery?: string;
-  user: AuthUser | null;
 };
 
 const AdminFairsTableContainer = async ({
   currentPath,
   currentPage,
   searchQuery,
-  user,
 }: Props) => {
   return (
     <div class="flex flex-col gap-4">

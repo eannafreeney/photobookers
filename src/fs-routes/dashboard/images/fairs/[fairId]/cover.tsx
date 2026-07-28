@@ -5,13 +5,23 @@ import {
 } from "../../../../../lib/validator";
 import { fairIdSchema } from "../../../../../features/dashboard/admin/fairs/schema";
 import { FairIdContext } from "../../../../../features/dashboard/admin/fairs/types";
-import { showErrorAlert, showSuccessAlert } from "../../../../../lib/alertHelpers";
+import {
+  showErrorAlert,
+  showSuccessAlert,
+} from "../../../../../lib/alertHelpers";
 import { uploadImage } from "../../../../../services/storage";
 import { updateFairCoverImage } from "../../../../../features/dashboard/images/services";
+import { getUser } from "../../../../../utils";
 
 export const POST = createRoute(
   paramValidator(fairIdSchema),
   async (c: FairIdContext) => {
+    // Fairs are admin-managed; /dashboard only requires auth, so guard here.
+    const user = await getUser(c);
+    if (!user?.isAdmin) {
+      return showErrorAlert(c, "You are not authorized to do this.", 403);
+    }
+
     const fairId = c.req.valid("param").fairId;
     const body = await c.req.parseBody();
 
@@ -30,7 +40,7 @@ export const POST = createRoute(
       console.log(error, "error in upload fair cover image");
       return showErrorAlert(c, "Failed to upload cover image");
     }
-    
+
     const [err, updatedFair] = await updateFairCoverImage(fairId, coverUrl);
     if (err) return showErrorAlert(c, err.reason);
 

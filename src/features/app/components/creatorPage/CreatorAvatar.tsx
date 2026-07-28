@@ -22,7 +22,7 @@ const CreatorAvatar = ({ creator, class: className = "size-16" }: Props) => (
         {creator.displayName.charAt(0)}
       </span>
     )}
-    <div class="absolute -top-0.5 -right-0.5">
+    <div class="absolute top-0.5 right-0.5">
       <VerifiedCreator creatorStatus={creator.status ?? "stub"} size="xs" />
     </div>
   </div>

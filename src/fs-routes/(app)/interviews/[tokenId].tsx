@@ -12,7 +12,7 @@ import { interviewFormSchema } from "../../../features/interviews/schema";
 import { formValidator, validateImageFile } from "../../../lib/validator";
 import { InterviewFormContext } from "../../../features/interviews/types";
 import FormSuccessScreen from "../../../components/forms/FormSuccessScreen";
-import { createInterviewSubmittedNotification } from "../../../domain/notifications/utils";
+import { notifyAdminInterviewSubmitted } from "../../../domain/notifications/services";
 import { uploadImage } from "../../../services/storage";
 import { routeParam } from "../../../lib/routeParam";
 
@@ -81,7 +81,10 @@ export const POST = createRoute(
     const [creatorErr, creator] = await getCreatorById(row.creatorId);
     if (creatorErr || !creator) return showErrorAlert(c, "Creator not found");
 
-    await createInterviewSubmittedNotification(creator);
+    await notifyAdminInterviewSubmitted({
+      interviewId: row.id,
+      creatorName: creator.displayName,
+    });
 
     return c.html(
       <FormSuccessScreen

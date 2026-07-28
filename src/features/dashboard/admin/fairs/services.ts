@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
+import { and, asc, count, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "../../../../db/client";
 import {
   bookFairs,
@@ -45,18 +45,20 @@ export const getAllFairsAdmin = async (
 
     const foundFairs = await db.query.bookFairs.findMany({
       where: whereCondition,
-      orderBy: [desc(bookFairs.startDate), desc(bookFairs.createdAt)],
+      // Upcoming first (soonest), then past.
+      orderBy: [sql`${bookFairs.startDate} < now()`, asc(bookFairs.startDate)],
       limit: limit,
       offset: offset,
-      with: {
-        createdBy: {
-          columns: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
+      columns: {
+        id: true,
+        slug: true,
+        name: true,
+        city: true,
+        country: true,
+        startDate: true,
+        endDate: true,
+        status: true,
+        coverUrl: true,
       },
     });
 
@@ -106,7 +108,7 @@ export const getFairByIdAdmin = async (fairId: string) => {
 };
 
 export const createFairAdmin = async (
-  fairData: Omit<NewBookFair, "createdByUserId" | "approvalStatus">,
+  fairData: Omit<NewBookFair, "createdByUserId">,
   userId: string,
 ) => {
   try {
@@ -115,7 +117,6 @@ export const createFairAdmin = async (
       .values({
         ...fairData,
         createdByUserId: userId,
-        approvalStatus: "approved",
       })
       .returning();
 
@@ -164,11 +165,14 @@ export const deleteFairByIdAdmin = async (fairId: string) => {
   }
 };
 
-export const approveFair = async (fairId: string) => {
+export const updateFairStatusAdmin = async (
+  fairId: string,
+  status: "draft" | "published",
+) => {
   try {
     const [updatedFair] = await db
       .update(bookFairs)
-      .set({ approvalStatus: "approved" })
+      .set({ status })
       .where(eq(bookFairs.id, fairId))
       .returning();
 
@@ -176,25 +180,8 @@ export const approveFair = async (fairId: string) => {
 
     return ok(updatedFair);
   } catch (error) {
-    console.error("Failed to approve fair", error);
-    return err({ reason: "Failed to approve fair", cause: error });
-  }
-};
-
-export const rejectFair = async (fairId: string, feedback?: string) => {
-  try {
-    const [updatedFair] = await db
-      .update(bookFairs)
-      .set({ approvalStatus: "rejected", status: "draft" })
-      .where(eq(bookFairs.id, fairId))
-      .returning();
-
-    if (!updatedFair) return err({ reason: "Fair not found" });
-
-    return ok(updatedFair);
-  } catch (error) {
-    console.error("Failed to reject fair", error);
-    return err({ reason: "Failed to reject fair", cause: error });
+    console.error("Failed to update fair status", error);
+    return err({ reason: "Failed to update fair status", cause: error });
   }
 };
 

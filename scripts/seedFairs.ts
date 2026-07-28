@@ -1,8 +1,11 @@
 import "./env";
+import { existsSync, readFileSync } from "fs";
+import { resolve } from "path";
 import { db } from "../src/db/client";
 import { bookFairs, users } from "../src/db/schema";
 import { eq } from "drizzle-orm";
 import { FAIRS_FROM_PHOTOBOOK_JOURNAL } from "./data/fairsFromPhotoBookJournal";
+import { FAIRS_FROM_LENSCULTURE } from "./data/fairsFromLensCulture";
 
 async function getAdminUserId(): Promise<string> {
   const [admin] = await db
@@ -16,26 +19,8 @@ async function getAdminUserId(): Promise<string> {
   return admin.id;
 }
 
-/** Additional fairs not on the PhotoBook Journal list. */
+/** Additional fairs not covered by PhotoBook Journal / LensCulture lists. */
 const EXTRA_FAIRS = [
-  {
-    name: "Tokyo Art Book Fair",
-    slug: "tokyo-art-book-fair-2026",
-    description:
-      "One of Asia's premier events for art books, zines, and independent publications. Features hundreds of publishers and artists from Japan and around the world at the Museum of Contemporary Art Tokyo.",
-    city: "Tokyo",
-    country: "Japan",
-    venue: "Museum of Contemporary Art Tokyo",
-    website: "https://tokyoartbookfair.com",
-    startDate: new Date("2026-10-08"),
-    endDate: new Date("2026-10-11"),
-    coverUrl:
-      "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800",
-    status: "published" as const,
-    approvalStatus: "approved" as const,
-    listingTier: "free" as const,
-    sortOrder: 70,
-  },
   {
     name: "PhotoEspaña",
     slug: "photoespana-2026",
@@ -50,13 +35,28 @@ const EXTRA_FAIRS = [
     coverUrl:
       "https://images.unsplash.com/photo-1562155847-c05f7cb2d2a2?w=800",
     status: "published" as const,
-    approvalStatus: "approved" as const,
     listingTier: "free" as const,
     sortOrder: 71,
   },
 ];
 
-const FAIRS_DATA = [...FAIRS_FROM_PHOTOBOOK_JOURNAL, ...EXTRA_FAIRS];
+function loadLensCultureCovers(): Record<string, string> {
+  const path = resolve("scripts/data/fairsFromLensCulture.covers.json");
+  if (!existsSync(path)) return {};
+  return JSON.parse(readFileSync(path, "utf8")) as Record<string, string>;
+}
+
+const LENS_COVERS = loadLensCultureCovers();
+const LENSCULTURE_WITH_COVERS = FAIRS_FROM_LENSCULTURE.map((f) =>
+  LENS_COVERS[f.slug] ? { ...f, coverUrl: LENS_COVERS[f.slug] } : f,
+);
+
+// LensCulture last so overlapping slugs pick up updated dates/copy from that guide.
+const FAIRS_DATA = [
+  ...FAIRS_FROM_PHOTOBOOK_JOURNAL,
+  ...EXTRA_FAIRS,
+  ...LENSCULTURE_WITH_COVERS,
+];
 
 async function seedFairs() {
   console.log("Starting fairs seed...");
@@ -79,6 +79,7 @@ async function seedFairs() {
           .values(fairWithUser)
           .onConflictDoUpdate({
             target: bookFairs.slug,
+            // Don't clobber publish state if an admin already reviewed the fair.
             set: {
               name: fairData.name,
               description: fairData.description,
@@ -89,8 +90,6 @@ async function seedFairs() {
               startDate: fairData.startDate,
               endDate: fairData.endDate,
               coverUrl: fairData.coverUrl,
-              status: fairData.status,
-              approvalStatus: fairData.approvalStatus,
               listingTier: fairData.listingTier,
               promotedUntil: fairData.promotedUntil ?? null,
               sortOrder: fairData.sortOrder,

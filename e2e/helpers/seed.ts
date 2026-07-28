@@ -175,7 +175,6 @@ export async function seedPublishedFair(opts: {
       startDate,
       endDate,
       status: "published",
-      approvalStatus: "approved",
       createdByUserId: opts.createdByUserId,
     })
     .returning({

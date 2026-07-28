@@ -16,6 +16,8 @@ import {
 import { runSpotlightCreatorEmails } from "../domain/planner/cron/spotlightEmailServices";
 import { runCreatorProfileShareCron } from "../domain/creator-profile-share/cron";
 import { runVerifiedCreatorInstagramCron } from "../domain/planner/cron/verifiedCreatorInstagramServices";
+import { runFairInstagramCron } from "../domain/planner/cron/fairInstagramServices";
+import { runRandomizeNextWeekBotdCron } from "../domain/planner/cron/randomizeNextWeekBotdServices";
 import { runVerificationFeedbackCron } from "../domain/verification-feedback/cron";
 import {
   runCreatorAnalyticsDigestCron,
@@ -49,6 +51,7 @@ export type CronRunnerOptions = {
   month?: string;
   to?: string;
   creatorId?: string;
+  fairId?: string;
   userId?: string;
   allPrepared?: boolean;
 };
@@ -73,6 +76,8 @@ export type CronJobName =
   | "stub-outreach-emails"
   | "interview-reminder-emails"
   | "verified-creator-instagram"
+  | "fair-instagram"
+  | "randomize-next-week-botd"
   | "verification-feedback-emails"
   | "creator-profile-share-emails";
 
@@ -96,6 +101,8 @@ export const CRON_JOB_NAMES = [
   "stub-outreach-emails",
   "interview-reminder-emails",
   "verified-creator-instagram",
+  "fair-instagram",
+  "randomize-next-week-botd",
   "verification-feedback-emails",
   "creator-profile-share-emails",
 ] as const satisfies readonly CronJobName[];
@@ -401,6 +408,39 @@ export async function runVerifiedCreatorInstagramCronJob(
   return ok({ ...result });
 }
 
+export async function runFairInstagramCronJob(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runFairInstagramCron({
+    dryRun: options.dryRun,
+    fairId: options.fairId,
+    date: options.date,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
+export async function runRandomizeNextWeekBotdCronJob(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runRandomizeNextWeekBotdCron({
+    dryRun: options.dryRun,
+    force: options.force,
+    date: options.date,
+  });
+  if (error) return err(error);
+  if (result.outcome.status === "failed") {
+    return err({ reason: result.outcome.reason });
+  }
+  return ok({
+    weekKey: result.weekKey,
+    weekStart: toDateString(result.weekStart),
+    existingCount: result.existingCount,
+    action: result.outcome.status,
+    ...result.outcome,
+  });
+}
+
 export async function runVerificationFeedbackEmailsCron(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
@@ -454,6 +494,8 @@ const RUNNERS: Record<
   "stub-outreach-emails": runStubOutreachEmailsCron,
   "interview-reminder-emails": runInterviewReminderEmailsCron,
   "verified-creator-instagram": runVerifiedCreatorInstagramCronJob,
+  "fair-instagram": runFairInstagramCronJob,
+  "randomize-next-week-botd": runRandomizeNextWeekBotdCronJob,
   "verification-feedback-emails": runVerificationFeedbackEmailsCron,
   "creator-profile-share-emails": runCreatorProfileShareEmailsCron,
 };
@@ -477,6 +519,7 @@ export function parseCronRunnerOptionsFromEnv(): CronRunnerOptions {
   const month = process.env.MONTH?.trim() || undefined;
   const to = process.env.TO?.trim() || undefined;
   const creatorId = process.env.CREATOR_ID?.trim() || undefined;
+  const fairId = process.env.FAIR_ID?.trim() || undefined;
   const userId = process.env.USER_ID?.trim() || undefined;
 
   return {
@@ -487,6 +530,7 @@ export function parseCronRunnerOptionsFromEnv(): CronRunnerOptions {
     month,
     to,
     creatorId,
+    fairId,
     userId,
     allPrepared,
   };

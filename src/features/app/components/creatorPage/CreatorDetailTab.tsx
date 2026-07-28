@@ -23,10 +23,10 @@ export type CreatorDetailViewProps = {
   result: Pick<CreatorBooksResult, "books" | "totalPages" | "page">;
   showCreatorsTab: boolean;
   showFairsTab: boolean;
+  showPostsTab: boolean;
   creatorsCurrentPage: number;
   isOwner: boolean;
   postCount: number;
-  postsTabLabel: string;
   upcomingFairs: Array<
     Pick<
       BookFair,
@@ -43,14 +43,17 @@ const CreatorDetailTabs = ({
   result,
   showCreatorsTab,
   showFairsTab,
+  showPostsTab,
   creatorsCurrentPage,
-  postsTabLabel,
+  postCount,
   upcomingFairs,
 }: CreatorDetailViewProps & { isMobile?: boolean }) => (
   <Tabs defaultTab="books">
     <Tabs.LinkContainer align={isMobile ? undefined : "left"}>
       <Tabs.Link tabId="books">Books</Tabs.Link>
-      <Tabs.Link tabId="posts">{postsTabLabel}</Tabs.Link>
+      {showPostsTab && (
+        <Tabs.Link tabId="posts">{`Posts (${postCount})`}</Tabs.Link>
+      )}
       {showCreatorsTab && (
         <Tabs.Link tabId="creators">
           {creator.type === "publisher" ? "Artists" : "Publishers"}

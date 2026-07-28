@@ -7,8 +7,7 @@ import ViewAllLink from "./ViewAllLink";
 const Interviews = async () => {
   const [error, interviews] = await getPublishedInterviews();
 
-  if (error) return <div>Error: {error.reason}</div>;
-  if (!interviews?.length) return <></>;
+  if (error || !interviews?.length) return <></>;
 
   return (
     <div id="interviews-fragment">
