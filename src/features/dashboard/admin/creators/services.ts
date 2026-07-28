@@ -16,8 +16,11 @@ import { db } from "../../../../db/client";
 import {
   books,
   Creator,
+  creatorClaims,
   creatorInterviews,
+  creatorViews,
   creators,
+  follows,
   NewCreator,
   UpdateCreator,
   User,
@@ -316,10 +319,36 @@ export const createCreatorProfileAdmin = async (input: NewCreator) => {
 
 export const deleteCreatorByIdAdmin = async (creatorId: string) => {
   try {
-    const [deletedCreator] = await db
-      .delete(creators)
-      .where(eq(creators.id, creatorId))
-      .returning();
+    const [deletedCreator] = await db.transaction(async (tx) => {
+      await tx
+        .update(books)
+        .set({
+          artistId: null,
+          publisherId: null,
+          notifyFollowersCreatorId: null,
+        })
+        .where(
+          or(
+            eq(books.artistId, creatorId),
+            eq(books.publisherId, creatorId),
+            eq(books.notifyFollowersCreatorId, creatorId),
+          ),
+        );
+      await tx
+        .delete(follows)
+        .where(eq(follows.targetCreatorId, creatorId));
+      await tx
+        .delete(creatorClaims)
+        .where(eq(creatorClaims.creatorId, creatorId));
+      await tx
+        .delete(creatorViews)
+        .where(eq(creatorViews.creatorId, creatorId));
+
+      return tx
+        .delete(creators)
+        .where(eq(creators.id, creatorId))
+        .returning();
+    });
 
     if (!deletedCreator)
       return err({ reason: "Creator not found", cause: undefined });
