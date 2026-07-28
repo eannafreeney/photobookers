@@ -1709,6 +1709,12 @@ export const getPublishedInterviews = async () => {
       where: and(
         eq(creatorInterviews.status, "published"),
         isNotNull(creatorInterviews.promoImageUrl),
+        sql`EXISTS (
+          SELECT 1 FROM ${books}
+          WHERE (${books.artistId} = ${creatorInterviews.creatorId}
+            OR ${books.publisherId} = ${creatorInterviews.creatorId})
+          AND ${books.publicationStatus} = 'published'
+        )`,
       ),
       with: {
         creator: {
