@@ -10,7 +10,8 @@ export type AnalyticsSectionTab =
   | "books"
   | "site"
   | "app"
-  | "newsletter";
+  | "newsletter"
+  | "instagram";
 
 export function parseAnalyticsSectionTab(raw?: string): AnalyticsSectionTab {
   if (raw === "overview") return "overview";
@@ -18,6 +19,7 @@ export function parseAnalyticsSectionTab(raw?: string): AnalyticsSectionTab {
   if (raw === "site") return "site";
   if (raw === "app") return "app";
   if (raw === "newsletter") return "newsletter";
+  if (raw === "instagram") return "instagram";
   return "overview";
 }
 
@@ -32,6 +34,7 @@ const TABS: { id: AnalyticsSectionTab; label: string }[] = [
   { id: "site", label: "Site analytics" },
   { id: "app", label: "App analytics" },
   { id: "newsletter", label: "Newsletter" },
+  { id: "instagram", label: "Instagram" },
 ];
 
 const pillButtonClass =

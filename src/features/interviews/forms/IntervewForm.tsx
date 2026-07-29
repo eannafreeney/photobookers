@@ -15,6 +15,14 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
     <HeadlessLayout title="Interview">
       <Page>
         <h1 className="text-2xl font-bold">Hi {creator.displayName},</h1>
+        <div class="rounded-lg border border-info/30 bg-info/10 p-4 text-sm text-base-content/80">
+          <p>
+            These questions are designed to get you thinking. The more detailed
+            and informative your answers are, the better chance of the interview
+            being published. Short one-sentence answers will likely mean the
+            interview is not used.
+          </p>
+        </div>
         <form
           id="interview-form"
           x-data="interviewForm"

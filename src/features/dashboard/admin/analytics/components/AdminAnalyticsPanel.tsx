@@ -13,6 +13,7 @@ import CeoMetricsBlock from "./CeoMetricsBlock";
 import SiteTrafficBlock from "./SiteTrafficBlock";
 import AppAnalyticsBlock from "./AppAnalyticsBlock";
 import NewsletterAnalyticsBlock from "./NewsletterAnalyticsBlock";
+import InstagramAnalyticsBlock from "./InstagramAnalyticsBlock";
 
 type Props = {
   tab: AnalyticsSectionTab;
@@ -64,7 +65,8 @@ const AdminAnalyticsPanel = async ({
             tab === "site" ||
             tab === "app" ||
             tab === "newsletter" ||
-            tab === "books"
+            tab === "books" ||
+            tab === "instagram"
               ? tab
               : undefined
           }
@@ -95,8 +97,10 @@ const AdminAnalyticsPanel = async ({
         <SiteTrafficBlock dateRange={dateRange} />
       ) : tab === "app" ? (
         <AppAnalyticsBlock dateRange={dateRange} />
-      ) : (
+      ) : tab === "newsletter" ? (
         <NewsletterAnalyticsBlock dateRange={dateRange} />
+      ) : (
+        <InstagramAnalyticsBlock />
       )}
     </div>
   );

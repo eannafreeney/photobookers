@@ -4,7 +4,7 @@
     "dev": "vite",
     "dev:fsr": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts -w",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:fsr\"",
-    "dev:all:production": "DOTENV_CONFIG_PATH=.env.production concurrently \"node -r dotenv/config ./node_modules/vite/bin/vite.js\" \"node -r dotenv/config ./node_modules/.bin/hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts -w\"",
+    "dev:all:production": "DOTENV_CONFIG_PATH=.env.production concurrently \"node -r dotenv/config ./node_modules/vite/bin/vite.js --port ${PORT:-3000}\" \"node -r dotenv/config ./node_modules/.bin/hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts -w\"",
     "build": "hono-fsr -r ./src/fs-routes -o ./src/fs-routes.manifest.ts && npm run generate:project-summary && vite build && node scripts/build-server.mjs",
     "build:deploy": "npm run build",
     "typecheck": "tsc --noEmit",

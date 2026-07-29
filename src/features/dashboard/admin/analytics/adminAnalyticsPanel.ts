@@ -16,6 +16,7 @@ const TAB_QUERY_VALUES: AnalyticsSectionTab[] = [
   "site",
   "app",
   "newsletter",
+  "instagram",
 ];
 
 export function adminAnalyticsHref(
