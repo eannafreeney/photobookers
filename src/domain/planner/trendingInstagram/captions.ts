@@ -43,6 +43,20 @@ function collectCreatorHandles(
     .filter((handle): handle is string => Boolean(handle));
 }
 
+function collectBookArtistHandles(
+  books: WeeklyNewsletterTrendingBookItem[],
+): string[] {
+  const seen = new Set<string>();
+  const handles: string[] = [];
+  for (const book of books) {
+    const handle = formatInstagramHandle(book.artistInstagram);
+    if (!handle || seen.has(handle)) continue;
+    seen.add(handle);
+    handles.push(handle);
+  }
+  return handles;
+}
+
 export function buildTrendingBooksInstagramCaption(
   books: WeeklyNewsletterTrendingBookItem[],
 ): string {
@@ -52,11 +66,14 @@ export function buildTrendingBooksInstagramCaption(
     POST_HEADINGS.books,
     "",
     ...books.map((book, index) => formatBookLine(index + 1, book)),
-    "",
-    "#photobook #photobookjousting",
-    "",
-    "Link in bio →",
   ];
+
+  const handles = collectBookArtistHandles(books);
+  if (handles.length > 0) {
+    lines.push("", handles.join(" "));
+  }
+
+  lines.push("", "#photobook #photobookjousting", "", "Link in bio →");
   return lines.join("\n");
 }
 

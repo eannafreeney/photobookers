@@ -221,6 +221,7 @@ export const getTopBooksByViews = async (
           coverUrl: book.coverUrl,
           viewCount: viewCountByBookId.get(book.id) ?? 0,
           artistName: book.artist?.displayName ?? null,
+          artistSlug: book.artist?.slug ?? null,
           publisherName: book.publisher?.displayName ?? null,
         };
       })

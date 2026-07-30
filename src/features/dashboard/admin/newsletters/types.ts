@@ -48,6 +48,7 @@ export type WeeklyNewsletterTrendingBookItem = {
   coverUrl: string | null;
   artistName: string | null;
   publisherName: string | null;
+  artistInstagram?: string | null;
 };
 
 export type WeeklyNewsletterTrendingCreatorItem = {

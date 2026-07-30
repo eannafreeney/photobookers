@@ -307,7 +307,18 @@ export const createAuthUser = async (
       },
     });
     if (error) {
-      return err({ reason: "Failed to create auth user", cause: error });
+      console.error("Failed to create auth user", error);
+      const detail = error.message?.trim();
+      return err({
+        reason: detail
+          ? `Failed to create auth user: ${detail}`
+          : "Failed to create auth user",
+        cause: error,
+      });
+    }
+    if (!data.user?.id) {
+      console.error("Failed to create auth user: no user returned", data);
+      return err({ reason: "Failed to create auth user: no user returned" });
     }
     return ok({ data, temporaryPassword });
   } catch (error) {
