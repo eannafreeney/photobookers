@@ -16,7 +16,8 @@ const CreatorBioSection = async ({ creator, maxWords = 75 }: Props) => {
     creator.website ||
     creator.facebook ||
     creator.instagram ||
-    creator.twitter
+    creator.twitter ||
+    creator.substack
   );
   const hasMeta = hasLocation || hasFollowers || hasSocials;
   const bio = creator.bio?.trim() || null;

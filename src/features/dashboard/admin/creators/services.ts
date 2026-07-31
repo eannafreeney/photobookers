@@ -383,6 +383,7 @@ export const updateCreatorProfileAdmin = async (
       facebook: updateableFields.facebook || null,
       twitter: updateableFields.twitter || null,
       instagram: updateableFields.instagram || null,
+      substack: updateableFields.substack || null,
       email: updateableFields.email || null,
       updatedAt: new Date(),
     };

@@ -7,6 +7,7 @@ import Navbar from "./Navbar";
 import Footer from "../app/Footer";
 import Alert from "../app/Alert";
 import PreviewBanner from "../app/PreviewBanner";
+import WelcomeDashboardBanner from "../../features/app/components/WelcomeDashboardBanner";
 import Dock from "./Dock";
 import ToastContainer from "../app/ToastContainer";
 import ActivityStream from "../app/ActivityStream";
@@ -79,7 +80,7 @@ const AppLayout = ({
           user={user}
           adminEditHref={adminEditHref}
         />
-        {/* <AppStoreBanner /> */}
+        {user?.creator ? <WelcomeDashboardBanner /> : null}
         <div
           class="pb-0"
           x-data="{

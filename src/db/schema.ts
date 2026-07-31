@@ -224,6 +224,7 @@ export const creators = pgTable(
     facebook: text("facebook"),
     twitter: text("twitter"),
     instagram: text("instagram"),
+    substack: text("substack"),
     website: text("website"),
     sortName: varchar("sort_name", { length: 255 }),
     email: text("email"),

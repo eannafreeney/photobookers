@@ -34,6 +34,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
         instagram={creator.instagram}
         twitter={creator.twitter}
         facebook={creator.facebook}
+        substack={creator.substack}
       />
     </view>,
   );

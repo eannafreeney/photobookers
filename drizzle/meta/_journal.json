@@ -477,6 +477,13 @@
 			"when": 1784700000000,
 			"tag": "0068_book_fairs_instagram_queue",
 			"breakpoints": true
+		},
+		{
+			"idx": 69,
+			"version": "7",
+			"when": 1784800000000,
+			"tag": "0069_creator_substack",
+			"breakpoints": true
 		}
 	]
 }

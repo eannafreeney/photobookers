@@ -25,7 +25,8 @@ const CreatorBioMeta = async ({
     creator.website ||
     creator.facebook ||
     creator.instagram ||
-    creator.twitter
+    creator.twitter ||
+    creator.substack
   );
 
   if (!hasLocation && !hasFollowers && !hasSocials) return <></>;

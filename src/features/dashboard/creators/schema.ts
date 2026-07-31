@@ -18,5 +18,6 @@ export const creatorFormSchema = z.object({
   facebook: optionalText,
   twitter: optionalText,
   instagram: optionalText,
+  substack: optionalText,
   website: optionalText,
 });

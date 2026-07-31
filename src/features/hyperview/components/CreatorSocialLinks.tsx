@@ -6,6 +6,7 @@ type Props = {
   instagram?: string | null;
   twitter?: string | null;
   facebook?: string | null;
+  substack?: string | null;
 };
 
 const CreatorSocialLinks = ({
@@ -14,8 +15,9 @@ const CreatorSocialLinks = ({
   instagram,
   twitter,
   facebook,
+  substack,
 }: Props) => {
-  const hasSocials = website || instagram || twitter || facebook;
+  const hasSocials = website || instagram || twitter || facebook || substack;
   if (!hasSocials) return null;
 
   return (
@@ -71,6 +73,17 @@ const CreatorSocialLinks = ({
             action="deep-link"
             href={`https://x.com/${twitter.replace(/^@/, "")}`}
           />
+        </View>
+      )}
+      {substack && (
+        <View style="social-btn">
+          <Image
+            source={`${baseUrl}/icons/social/substack.png`}
+            style="social-icon"
+            resize-mode="contain"
+          />
+          <Text style="social-label">Substack</Text>
+          <Behavior action="deep-link" href={substack} />
         </View>
       )}
     </View>
