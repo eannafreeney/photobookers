@@ -15,14 +15,12 @@ const PurchaseLink = ({
 }: PurchaseLinkProps) => {
   if (!purchaseLink) return <></>;
 
-  const href = trackOutbound
-    ? outboundPurchasePath(bookSlug)
-    : purchaseLink;
+  const href = trackOutbound ? outboundPurchasePath(bookSlug) : purchaseLink;
 
   return (
     <Link href={href} target="_blank">
       <Button variant="solid" color="accent" width="lg">
-        <span>See More →</span>
+        <span>Purchase Options →</span>
       </Button>
     </Link>
   );
