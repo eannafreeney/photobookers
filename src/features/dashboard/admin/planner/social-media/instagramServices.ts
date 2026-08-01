@@ -17,6 +17,10 @@ import {
   prepareSpotlightFeedImageUrls,
   type SpotlightLeadLabel,
 } from "../../../../../domain/planner/instagramSlides/renderSpotlightLeadSlide";
+import {
+  renderBotdStoryBlurred,
+  renderBotdStoryFullBleed,
+} from "../../../../../domain/planner/instagramSlides/renderBotdStorySlide";
 import { uploadImageFromBuffer } from "../../../../../services/storage";
 import {
   getBooksOfTheDayInRange,
@@ -58,6 +62,7 @@ import {
   buildPotwInstagramDueAt,
   buildPotwInstagramStoryDueAt,
   isWeekInstagramFullyPrepared,
+  resolveBotdStoryImageUrl,
   resolveInstagramImageUrls,
   type FeaturedHeroImagesPayload,
   type PrepareInstagramFormPayload,
@@ -111,6 +116,15 @@ const clearInstagramFields = {
   instagramStoryQueuedAt: null,
   instagramStoryError: null,
 } as const;
+
+async function uploadBotdStoryImage(
+  buffer: Buffer,
+  day: Date,
+): Promise<Result<string, { reason: string }>> {
+  const folder = `social/botd/${toDateString(day)}/story`;
+  const uploaded = await uploadImageFromBuffer(buffer, folder);
+  return ok(uploaded.url);
+}
 
 export type WeekInstagramPrepareData = {
   botdEntries: BookOfTheDayWithBook[];
@@ -751,10 +765,26 @@ export async function queuePreparedBotdInstagramStoryForDate(
   if (!row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
   }
-  const storyImageUrl = resolveInstagramImageUrls(row)[0];
-  if (!storyImageUrl) {
+  const storySourceUrl = resolveBotdStoryImageUrl(row);
+  if (!storySourceUrl) {
     return err({ reason: "Instagram image or caption is missing" });
   }
+
+  const renderedStory = row.artistProvidedStoryImageUrl
+    ? await renderBotdStoryFullBleed(storySourceUrl, {
+        title: row.book?.title ?? "Book of the Day",
+        artistName: row.book?.artist?.displayName ?? null,
+      })
+    : await renderBotdStoryBlurred(storySourceUrl, {
+        title: row.book?.title ?? "Book of the Day",
+        artistName: row.book?.artist?.displayName ?? null,
+      });
+
+  const [uploadError, storyImageUrl] = await uploadBotdStoryImage(
+    renderedStory,
+    day,
+  );
+  if (uploadError) return err(uploadError);
 
   const dueAt = scheduleDueAt(buildInstagramStoryDueAt(day));
 

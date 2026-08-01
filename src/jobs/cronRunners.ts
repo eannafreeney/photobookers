@@ -6,6 +6,7 @@ import { runInterviewReminderCron } from "../domain/interviews/reminderCron";
 import {
   runBotdAdvanceNotificationEmails,
   runBotdFeatureDayEmails,
+  runBotdStoryImageEmails,
 } from "../domain/planner/cron/botdEmailServices";
 import { runContentPreviewEmail } from "../domain/planner/cron/contentPreviewEmailServices";
 import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramReminderEmailServices";
@@ -62,6 +63,7 @@ export type CronJobName =
   | "daily-botd-instagram"
   | "botd-advance-notification-emails"
   | "botd-feature-day-emails"
+  | "botd-story-image-emails"
   | "ceo-metrics-email"
   | "daily-product-digest"
   | "publisher-release-watch"
@@ -89,6 +91,7 @@ export const CRON_JOB_NAMES = [
   "daily-botd-instagram",
   "botd-advance-notification-emails",
   "botd-feature-day-emails",
+  "botd-story-image-emails",
   "ceo-metrics-email",
   "daily-product-digest",
   "publisher-release-watch",
@@ -163,6 +166,22 @@ export async function runBotdFeatureDayEmailsCron(
   if (error) return err(error);
   return ok({
     featureDayEmailsSent: result.featureDayEmailsSent,
+    items: result.items.map((item) => ({
+      ...item,
+      date: toDateString(item.date),
+    })),
+  });
+}
+
+export async function runBotdStoryImageEmailsCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const asOf = options.date ?? new Date();
+  const [error, result] = await runBotdStoryImageEmails(asOf);
+  if (error) return err(error);
+  return ok({
+    storyImageEmailsSent: result.storyImageEmailsSent,
+    featureDate: result.featureDate ? toDateString(result.featureDate) : null,
     items: result.items.map((item) => ({
       ...item,
       date: toDateString(item.date),
@@ -505,6 +524,7 @@ const RUNNERS: Record<
   "daily-botd-instagram": runDailyBotdInstagramCron,
   "botd-advance-notification-emails": runBotdAdvanceNotificationEmailsCron,
   "botd-feature-day-emails": runBotdFeatureDayEmailsCron,
+  "botd-story-image-emails": runBotdStoryImageEmailsCron,
   "ceo-metrics-email": runCeoMetricsEmailCronJob,
   "daily-product-digest": runDailyProductDigestCronJob,
   "publisher-release-watch": runPublisherReleaseWatchCronJob,

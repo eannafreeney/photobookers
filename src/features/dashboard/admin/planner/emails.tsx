@@ -170,6 +170,33 @@ export function buildInterviewReminderEmail(params: {
 `;
 }
 
+export function buildBotdStoryImageRequestEmail(params: {
+  displayName: string;
+  bookTitle: string;
+  botdDate: Date;
+  exampleImageUrl: string;
+  replyTo: string;
+}) {
+  const formattedDate = formatBotdDateLong(params.botdDate);
+
+  return `
+  <p>Hi ${params.displayName},</p>
+  <p>Your book, <strong>${params.bookTitle}</strong>, is scheduled as <strong>Book of the Day</strong> on Photobookers on <strong>${formattedDate}</strong>.</p>
+  <p>We’re preparing the Instagram Stories for that week and would love to use a vertical image from the book if you have one.</p>
+  <p><strong>What works best</strong></p>
+  <ul>
+    <li>One strong image (not a collage)</li>
+    <li>Portrait/vertical — 9:16 ratio (e.g. 1080 × 1920 px)</li>
+    <li>High-res JPG, PNG, or WebP</li>
+  </ul>
+  <p>Here’s an example of the layout we use:</p>
+  <p><img src="${escapeHtml(params.exampleImageUrl)}" alt="Example Instagram Story layout" width="270" style="max-width:270px;border:1px solid #eee;display:block;"/></p>
+  <p>If you don’t have a vertical image, no problem — we’ll use a spread from the book.</p>
+  <p>Just reply to this email with the image attached.</p>
+  <p>Best regards,<br/>Eanna</p>
+`;
+}
+
 export function buildBotdFeatureDayEmail(params: {
   displayName: string;
   recipientType: "artist" | "publisher";

@@ -650,6 +650,8 @@ export const bookOfTheDay = pgTable(
     ),
     featuredImageUrl: text("featured_image_url"),
     instagramImageUrls: text("instagram_image_urls").array(),
+    artistProvidedStoryImageUrl: text("artist_provided_story_image_url"),
+    artistStoryImageEmailSentAt: timestamp("artist_story_image_email_sent_at"),
     spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
