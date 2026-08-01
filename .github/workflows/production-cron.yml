@@ -28,6 +28,8 @@ on:
           - daily-botd-instagram
           - botd-advance-notification-emails
           - botd-feature-day-emails
+          - botd-story-image-emails
+          - spotlight-story-image-emails
           - ceo-metrics-email
           - daily-product-digest
           - publisher-release-watch
@@ -95,6 +97,24 @@ jobs:
     uses: ./.github/workflows/run-production-cron.yml
     with:
       job: botd-feature-day-emails
+    secrets: inherit
+
+  botd-story-image-emails:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '17 9 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'botd-story-image-emails')
+    uses: ./.github/workflows/run-production-cron.yml
+    with:
+      job: botd-story-image-emails
+    secrets: inherit
+
+  spotlight-story-image-emails:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '17 9 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'spotlight-story-image-emails')
+    uses: ./.github/workflows/run-production-cron.yml
+    with:
+      job: spotlight-story-image-emails
     secrets: inherit
 
   spotlight-creator-emails:
