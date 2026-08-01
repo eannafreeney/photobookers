@@ -175,7 +175,7 @@ export function buildBotdStoryImageRequestEmail(params: {
   bookTitle: string;
   botdDate: Date;
   exampleImageUrl: string;
-  replyTo: string;
+  uploadUrl: string;
 }) {
   const formattedDate = formatBotdDateLong(params.botdDate);
 
@@ -191,8 +191,35 @@ export function buildBotdStoryImageRequestEmail(params: {
   </ul>
   <p>Here’s an example of the layout we use:</p>
   <p><img src="${escapeHtml(params.exampleImageUrl)}" alt="Example Instagram Story layout" width="270" style="max-width:270px;border:1px solid #eee;display:block;"/></p>
+  <p><a href="${escapeHtml(params.uploadUrl)}">Upload your image here</a></p>
   <p>If you don’t have a vertical image, no problem — we’ll use a spread from the book.</p>
-  <p>Just reply to this email with the image attached.</p>
+  <p>Best regards,<br/>Eanna</p>
+`;
+}
+
+export function buildSpotlightStoryImageRequestEmail(params: {
+  displayName: string;
+  kind: "artist" | "publisher";
+  weekStart: Date;
+  exampleImageUrl: string;
+  uploadUrl: string;
+}) {
+  const weekLabel = formatWeekRange(params.weekStart);
+
+  return `
+  <p>Hi ${params.displayName},</p>
+  <p>You are scheduled as <strong>${params.kind === "artist" ? "Artist" : "Publisher"} of the Week</strong> on Photobookers for the week of <strong>${weekLabel}</strong>.</p>
+  <p>We’re preparing the Instagram Stories for that week and would love to use a vertical image from you if you have one.</p>
+  <p><strong>What works best</strong></p>
+  <ul>
+    <li>One strong image (not a collage)</li>
+    <li>Portrait/vertical — 9:16 ratio (e.g. 1080 × 1920 px)</li>
+    <li>High-res JPG, PNG, or WebP</li>
+  </ul>
+  <p>Here’s an example of the layout we use:</p>
+  <p><img src="${escapeHtml(params.exampleImageUrl)}" alt="Example Instagram Story layout" width="270" style="max-width:270px;border:1px solid #eee;display:block;"/></p>
+  <p><a href="${escapeHtml(params.uploadUrl)}">Upload your image here</a></p>
+  <p>If you don’t have a vertical image, no problem — we’ll use an existing image from your profile.</p>
   <p>Best regards,<br/>Eanna</p>
 `;
 }

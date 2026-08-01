@@ -8,6 +8,7 @@ import {
   runBotdFeatureDayEmails,
   runBotdStoryImageEmails,
 } from "../domain/planner/cron/botdEmailServices";
+import { runSpotlightStoryImageEmails } from "../domain/planner/cron/spotlightStoryImageServices";
 import { runContentPreviewEmail } from "../domain/planner/cron/contentPreviewEmailServices";
 import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramReminderEmailServices";
 import { runTrendingInstagramCron, formatTrendingInstagramCronSummary } from "../domain/planner/cron/trendingInstagramServices";
@@ -64,6 +65,7 @@ export type CronJobName =
   | "botd-advance-notification-emails"
   | "botd-feature-day-emails"
   | "botd-story-image-emails"
+  | "spotlight-story-image-emails"
   | "ceo-metrics-email"
   | "daily-product-digest"
   | "publisher-release-watch"
@@ -92,6 +94,7 @@ export const CRON_JOB_NAMES = [
   "botd-advance-notification-emails",
   "botd-feature-day-emails",
   "botd-story-image-emails",
+  "spotlight-story-image-emails",
   "ceo-metrics-email",
   "daily-product-digest",
   "publisher-release-watch",
@@ -186,6 +189,19 @@ export async function runBotdStoryImageEmailsCron(
       ...item,
       date: toDateString(item.date),
     })),
+  });
+}
+
+export async function runSpotlightStoryImageEmailsCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const asOf = options.date ?? new Date();
+  const [error, result] = await runSpotlightStoryImageEmails(asOf);
+  if (error) return err(error);
+  return ok({
+    storyImageEmailsSent: result.storyImageEmailsSent,
+    weekStart: result.weekStart ? toWeekString(result.weekStart) : null,
+    items: result.items,
   });
 }
 
@@ -525,6 +541,7 @@ const RUNNERS: Record<
   "botd-advance-notification-emails": runBotdAdvanceNotificationEmailsCron,
   "botd-feature-day-emails": runBotdFeatureDayEmailsCron,
   "botd-story-image-emails": runBotdStoryImageEmailsCron,
+  "spotlight-story-image-emails": runSpotlightStoryImageEmailsCron,
   "ceo-metrics-email": runCeoMetricsEmailCronJob,
   "daily-product-digest": runDailyProductDigestCronJob,
   "publisher-release-watch": runPublisherReleaseWatchCronJob,

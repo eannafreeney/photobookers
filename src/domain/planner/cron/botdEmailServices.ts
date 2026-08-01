@@ -18,6 +18,7 @@ import {
   generateBOTDNotificationEmail,
   type BotdNotificationAccountCredentials,
 } from "../../../features/dashboard/admin/planner/emails";
+import { createStoryUploadToken } from "../storyUploadToken";
 import { updateBookOfTheDayByDate } from "../../../features/dashboard/admin/planner/services";
 import { formatBotdDateLong } from "../../../features/dashboard/admin/planner/utils";
 
@@ -395,12 +396,13 @@ export async function runBotdStoryImageEmails(
   }
 
   const siteUrl = process.env.SITE_URL ?? "https://photobookers.com";
+  const uploadToken = createStoryUploadToken("botd", row.id);
   const html = buildBotdStoryImageRequestEmail({
     displayName: creator.displayName,
     bookTitle: row.book.title,
     botdDate: row.date,
     exampleImageUrl: `${siteUrl}/examples/botd-story-example.png`,
-    replyTo: email,
+    uploadUrl: `${siteUrl}/story-upload/${uploadToken}`,
   });
   const subject = `Vertical image for your Book of the Day Instagram Story`;
 
