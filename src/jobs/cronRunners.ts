@@ -9,6 +9,7 @@ import {
   runBotdStoryImageEmails,
 } from "../domain/planner/cron/botdEmailServices";
 import { runSpotlightStoryImageEmails } from "../domain/planner/cron/spotlightStoryImageServices";
+import { runStoryUploadCleanup } from "../domain/planner/cron/storyUploadCleanupServices";
 import { runContentPreviewEmail } from "../domain/planner/cron/contentPreviewEmailServices";
 import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramReminderEmailServices";
 import { runTrendingInstagramCron, formatTrendingInstagramCronSummary } from "../domain/planner/cron/trendingInstagramServices";
@@ -66,6 +67,7 @@ export type CronJobName =
   | "botd-feature-day-emails"
   | "botd-story-image-emails"
   | "spotlight-story-image-emails"
+  | "story-upload-cleanup"
   | "ceo-metrics-email"
   | "daily-product-digest"
   | "publisher-release-watch"
@@ -95,6 +97,7 @@ export const CRON_JOB_NAMES = [
   "botd-feature-day-emails",
   "botd-story-image-emails",
   "spotlight-story-image-emails",
+  "story-upload-cleanup",
   "ceo-metrics-email",
   "daily-product-digest",
   "publisher-release-watch",
@@ -202,6 +205,18 @@ export async function runSpotlightStoryImageEmailsCron(
     storyImageEmailsSent: result.storyImageEmailsSent,
     weekStart: result.weekStart ? toWeekString(result.weekStart) : null,
     items: result.items,
+  });
+}
+
+export async function runStoryUploadCleanupCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const asOf = options.date ?? new Date();
+  const [error, result] = await runStoryUploadCleanup(asOf);
+  if (error) return err(error);
+  return ok({
+    deleted: result.deleted,
+    errors: result.errors,
   });
 }
 
@@ -542,6 +557,7 @@ const RUNNERS: Record<
   "botd-feature-day-emails": runBotdFeatureDayEmailsCron,
   "botd-story-image-emails": runBotdStoryImageEmailsCron,
   "spotlight-story-image-emails": runSpotlightStoryImageEmailsCron,
+  "story-upload-cleanup": runStoryUploadCleanupCron,
   "ceo-metrics-email": runCeoMetricsEmailCronJob,
   "daily-product-digest": runDailyProductDigestCronJob,
   "publisher-release-watch": runPublisherReleaseWatchCronJob,
