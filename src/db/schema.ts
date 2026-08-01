@@ -1352,3 +1352,31 @@ export type MagazineIssueStatus =
   (typeof magazineIssueStatusEnum.enumValues)[number];
 export type MagazineIssueBook = InferSelectModel<typeof magazineIssueBooks>;
 export type NewMagazineIssueBook = InferInsertModel<typeof magazineIssueBooks>;
+
+/** Snapshot of publisher catalogue products for weekly new-release watch. */
+export const publisherReleaseWatchSeen = pgTable(
+  "publisher_release_watch_seen",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    publisherId: varchar("publisher_id", { length: 64 }).notNull(),
+    productKey: text("product_key").notNull(),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    uniquePublisherProduct: unique(
+      "publisher_release_watch_seen_publisher_product_unique",
+    ).on(table.publisherId, table.productKey),
+    publisherIdx: index("publisher_release_watch_seen_publisher_idx").on(
+      table.publisherId,
+    ),
+  }),
+);
+
+export type PublisherReleaseWatchSeen = InferSelectModel<
+  typeof publisherReleaseWatchSeen
+>;
+export type NewPublisherReleaseWatchSeen = InferInsertModel<
+  typeof publisherReleaseWatchSeen
+>;

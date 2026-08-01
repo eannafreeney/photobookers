@@ -30,6 +30,8 @@ export const CRON_JOB_DESCRIPTIONS: Record<string, string> = {
     "Prepares and queues the weekly trending-books Instagram post.",
   "instagram-prep-reminder-email":
     "Reminds admins to prepare Instagram content for schedule gaps.",
+  "instagram-weekly-digest":
+    "Emails a weekly Instagram metrics summary and post ideas.",
   "planner-content-preview-email": "Emails a preview of the week's planned content.",
   "creator-analytics-digest": "Emails creators their monthly analytics digest.",
   "creator-milestone-emails":

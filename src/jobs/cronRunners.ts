@@ -1,5 +1,7 @@
 import { runCeoMetricsEmailCron } from "../domain/ceo-metrics/cron";
 import { runDailyProductDigestCron } from "../domain/daily-product-digest/cron";
+import { runInstagramWeeklyDigestCron } from "../domain/instagram-analytics/cron";
+import { runPublisherReleaseWatchCron } from "../domain/publisher-release-watch/cron";
 import { runInterviewReminderCron } from "../domain/interviews/reminderCron";
 import {
   runBotdAdvanceNotificationEmails,
@@ -62,6 +64,7 @@ export type CronJobName =
   | "botd-feature-day-emails"
   | "ceo-metrics-email"
   | "daily-product-digest"
+  | "publisher-release-watch"
   | "spotlight-creator-emails"
   | "notify-followers-new-books"
   | "notify-followers-new-posts"
@@ -70,6 +73,7 @@ export type CronJobName =
   | "weekly-botd-newsletter-prepare"
   | "weekly-trending-instagram"
   | "instagram-prep-reminder-email"
+  | "instagram-weekly-digest"
   | "planner-content-preview-email"
   | "creator-analytics-digest"
   | "creator-milestone-emails"
@@ -87,6 +91,7 @@ export const CRON_JOB_NAMES = [
   "botd-feature-day-emails",
   "ceo-metrics-email",
   "daily-product-digest",
+  "publisher-release-watch",
   "spotlight-creator-emails",
   "notify-followers-new-books",
   "notify-followers-new-posts",
@@ -95,6 +100,7 @@ export const CRON_JOB_NAMES = [
   "weekly-botd-newsletter-prepare",
   "weekly-trending-instagram",
   "instagram-prep-reminder-email",
+  "instagram-weekly-digest",
   "planner-content-preview-email",
   "creator-analytics-digest",
   "creator-milestone-emails",
@@ -177,6 +183,17 @@ export async function runCeoMetricsEmailCronJob(
   return ok({ ...result });
 }
 
+export async function runInstagramWeeklyDigestCronJob(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runInstagramWeeklyDigestCron({
+    dryRun: options.dryRun,
+    date: options.date,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
 export async function runDailyProductDigestCronJob(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
@@ -184,6 +201,16 @@ export async function runDailyProductDigestCronJob(
     dryRun: options.dryRun,
     date: options.date,
     to: options.to,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
+export async function runPublisherReleaseWatchCronJob(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runPublisherReleaseWatchCron({
+    dryRun: options.dryRun,
   });
   if (error) return err(error);
   return ok({ ...result });
@@ -480,6 +507,7 @@ const RUNNERS: Record<
   "botd-feature-day-emails": runBotdFeatureDayEmailsCron,
   "ceo-metrics-email": runCeoMetricsEmailCronJob,
   "daily-product-digest": runDailyProductDigestCronJob,
+  "publisher-release-watch": runPublisherReleaseWatchCronJob,
   "spotlight-creator-emails": runSpotlightCreatorEmailsCron,
   "notify-followers-new-books": () => runNotifyFollowersNewBooksCron(),
   "notify-followers-new-posts": () => runNotifyFollowersNewPostsCron(),
@@ -488,6 +516,7 @@ const RUNNERS: Record<
   "weekly-botd-newsletter-prepare": runWeeklyBotdNewsletterPrepareCron,
   "weekly-trending-instagram": runWeeklyTrendingInstagramCron,
   "instagram-prep-reminder-email": runInstagramPrepReminderEmailCron,
+  "instagram-weekly-digest": runInstagramWeeklyDigestCronJob,
   "planner-content-preview-email": runPlannerContentPreviewEmailCron,
   "creator-analytics-digest": runCreatorAnalyticsDigestCronJob,
   "creator-milestone-emails": runCreatorMilestoneEmailsCronJob,

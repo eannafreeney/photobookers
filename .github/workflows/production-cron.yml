@@ -6,6 +6,7 @@ on:
   schedule:
     - cron: "17 8 * * *" # daily 08:17 UTC — Instagram queue + fair Instagram + CEO metrics + product digest
     - cron: "17 9 * * *" # daily 09:17 UTC — BOTD / spotlight / follower emails
+    - cron: "17 8 * * 1" # Monday 08:17 UTC — Instagram weekly digest
     - cron: "17 8 * * 2" # Tuesday 08:17 UTC — pre-create next week's newsletter draft
     - cron: "17 9 * * 2" # Tuesday 09:17 UTC — weekly newsletter test send
     - cron: "17 9 * * 3" # Wednesday 09:17 UTC — weekly newsletter
@@ -16,6 +17,7 @@ on:
     - cron: "17 10 * * 4" # Thursday 10:17 UTC — interview reminders
     - cron: "17 11 * * 1" # Monday 11:17 UTC — verified creator Instagram (posts Tuesday)
     - cron: "17 11 * * 3" # Wednesday 11:17 UTC — verified creator Instagram (posts Thursday)
+    - cron: "17 12 * * 1" # Monday 12:17 UTC — publisher new-release watch
   workflow_dispatch:
     inputs:
       job:
@@ -28,6 +30,7 @@ on:
           - botd-feature-day-emails
           - ceo-metrics-email
           - daily-product-digest
+          - publisher-release-watch
           - spotlight-creator-emails
           - notify-followers-new-books
           - notify-followers-new-posts
@@ -36,6 +39,7 @@ on:
           - weekly-botd-newsletter-prepare
           - weekly-trending-instagram
           - instagram-prep-reminder-email
+          - instagram-weekly-digest
           - planner-content-preview-email
           - creator-analytics-digest
           - creator-milestone-emails
@@ -156,6 +160,15 @@ jobs:
       job: instagram-prep-reminder-email
     secrets: inherit
 
+  instagram-weekly-digest:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '17 8 * * 1') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'instagram-weekly-digest')
+    uses: ./.github/workflows/run-production-cron.yml
+    with:
+      job: instagram-weekly-digest
+    secrets: inherit
+
   randomize-next-week-botd:
     if: >-
       (github.event_name == 'schedule' && github.event.schedule == '17 9 * * 6') ||
@@ -253,4 +266,13 @@ jobs:
     uses: ./.github/workflows/run-production-cron.yml
     with:
       job: creator-profile-share-emails
+    secrets: inherit
+
+  publisher-release-watch:
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == '17 12 * * 1') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'publisher-release-watch')
+    uses: ./.github/workflows/run-production-cron.yml
+    with:
+      job: publisher-release-watch
     secrets: inherit
