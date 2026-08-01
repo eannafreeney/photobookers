@@ -7,11 +7,16 @@ import { invalidateBookCache } from "../../../app/services.js";
 import { sendEmail } from "../../../../lib/sendEmail.js";
 import {
   generateBookApprovedEmail,
+  generateBookFeedbackEmail,
   generateBookRejectedEmail
 } from "../creators/emails.js";
-import { assignNextBookSortOrder } from "../../books/services.js";
+import {
+  assignNextBookSortOrder,
+  deleteBookDependents
+} from "../../books/services.js";
 const deleteBookByIdAdmin = async (bookId) => {
   try {
+    await deleteBookDependents(bookId);
     const [deletedBook] = await db.delete(books).where(eq(books.id, bookId)).returning();
     if (!deletedBook) return err({ reason: "Book not found" });
     if (deletedBook?.slug) {
@@ -141,9 +146,50 @@ const rejectBook = async (bookId, feedback) => {
     return err({ reason: "Failed to reject book", cause: error });
   }
 };
+const unapproveBook = async (bookId) => {
+  try {
+    const [updatedBook] = await db.update(books).set({ approvalStatus: "pending", publicationStatus: "draft" }).where(
+      and(eq(books.id, bookId), eq(books.approvalStatus, "approved"))
+    ).returning();
+    if (!updatedBook) return err({ reason: "Book is not approved" });
+    invalidateBookCache(updatedBook.slug);
+    return ok(updatedBook);
+  } catch (error) {
+    return err({ reason: "Failed to unapprove book", cause: error });
+  }
+};
+const sendBookFeedback = async (bookId, feedback) => {
+  try {
+    const message = feedback.trim();
+    if (!message) return err({ reason: "Feedback is required" });
+    const contact = await getBookSubmitterContact(bookId);
+    if (!contact) return err({ reason: "Book not found" });
+    if (contact.book.approvalStatus !== "pending") {
+      return err({ reason: "Feedback can only be sent for pending books" });
+    }
+    if (!contact.recipientEmail) {
+      return err({ reason: "No recipient email found for this book" });
+    }
+    const [emailError] = await sendEmail(
+      contact.recipientEmail,
+      `Feedback on your book "${contact.book.title}"`,
+      generateBookFeedbackEmail({
+        creatorName: contact.displayName,
+        bookTitle: contact.book.title,
+        feedback: message
+      })
+    );
+    if (emailError) return err(emailError);
+    return ok(void 0);
+  } catch (error) {
+    return err({ reason: "Failed to send book feedback", cause: error });
+  }
+};
 export {
   approveBook,
   deleteBookByIdAdmin,
   getAllBooksAdmin,
-  rejectBook
+  rejectBook,
+  sendBookFeedback,
+  unapproveBook
 };

@@ -1,0 +1,4 @@
+const TRENDING_SLIDE_SIZE = 1080;
+export {
+  TRENDING_SLIDE_SIZE
+};

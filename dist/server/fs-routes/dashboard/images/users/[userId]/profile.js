@@ -10,10 +10,18 @@ import {
 } from "../../../../../lib/alertHelpers.js";
 import { updateUserProfileImageDB } from "../../../../../features/dashboard/images/services.js";
 import { userIdSchema } from "../../../../../schemas/index.js";
+import { getUser } from "../../../../../utils.js";
 const POST = createRoute(
   paramValidator(userIdSchema),
   async (c) => {
     const userId = c.req.valid("param").userId;
+    const user = await getUser(c);
+    if (!user) {
+      return showErrorAlert(c, "You must be signed in to do this.", 401);
+    }
+    if (userId !== user.id && !user.isAdmin) {
+      return showErrorAlert(c, "You can only edit your own profile.", 403);
+    }
     const body = await c.req.parseBody();
     const validatedFile = validateImageFile(body.userImageProfile);
     if (!validatedFile.success) return showErrorAlert(c, validatedFile.error);

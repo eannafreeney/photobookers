@@ -7,9 +7,14 @@ import { storeIdSchema } from "../../../../../features/dashboard/admin/stores/sc
 import { showErrorAlert, showSuccessAlert } from "../../../../../lib/alertHelpers.js";
 import { uploadImage } from "../../../../../services/storage.js";
 import { updateStoreCoverImage } from "../../../../../features/dashboard/images/services.js";
+import { getUser } from "../../../../../utils.js";
 const POST = createRoute(
   paramValidator(storeIdSchema),
   async (c) => {
+    const user = await getUser(c);
+    if (!user?.isAdmin) {
+      return showErrorAlert(c, "You are not authorized to do this.", 403);
+    }
     const storeId = c.req.valid("param").storeId;
     const body = await c.req.parseBody();
     const validatedFile = validateImageFile(body.cover);

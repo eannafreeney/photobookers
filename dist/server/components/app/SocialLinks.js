@@ -2,7 +2,7 @@ import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import Link from "./Link.js";
 const SocialLinks = ({
   creator,
-  className = "flex gap-4 items-center justify-center text-xs mt-4"
+  className = "flex gap-4 items-center justify-center text-xs"
 }) => {
   if (!creator.website && !creator.facebook && !creator.instagram && !creator.twitter)
     return /* @__PURE__ */ jsx(Fragment, {});

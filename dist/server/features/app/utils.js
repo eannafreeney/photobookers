@@ -32,7 +32,7 @@ function buildHeroCarouselItems(bookOfTheDay, artistOfTheWeek, publisherOfTheWee
       label: "Book of the Day",
       title: book.title,
       text: book.artist ? `by ${book.artist.displayName}` : "",
-      image: bookOfTheDay.instagramImageUrl ?? imageUrls[0],
+      image: bookOfTheDay.featuredImageUrl ?? imageUrls[0],
       link: botdPath(bookOfTheDay.date),
       slideClass: "bg-[#f2efe8]",
       weekNumber,
@@ -41,7 +41,7 @@ function buildHeroCarouselItems(bookOfTheDay, artistOfTheWeek, publisherOfTheWee
   }
   const artist = artistOfTheWeek?.creator;
   if (artist) {
-    const heroImage = artistOfTheWeek.instagramImageUrl ?? artist.coverUrl ?? void 0;
+    const heroImage = artistOfTheWeek.featuredImageUrl ?? artist.coverUrl ?? void 0;
     const stack = heroImage || artistCoverStack.length < 2 ? [] : artistCoverStack;
     items.push({
       label: "Artist of the Week",
@@ -56,7 +56,7 @@ function buildHeroCarouselItems(bookOfTheDay, artistOfTheWeek, publisherOfTheWee
   }
   const publisher = publisherOfTheWeek?.creator;
   if (publisher) {
-    const heroImage = publisherOfTheWeek.instagramImageUrl ?? publisher.coverUrl ?? void 0;
+    const heroImage = publisherOfTheWeek.featuredImageUrl ?? publisher.coverUrl ?? void 0;
     const stack = heroImage || publisherCoverStack.length < 2 ? [] : publisherCoverStack;
     items.push({
       label: "Publisher of the Week",

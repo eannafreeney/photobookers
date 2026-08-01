@@ -1,5 +1,12 @@
 import { jsx } from "hono/jsx/jsx-runtime";
-const Tabs = ({ defaultTab, children }) => /* @__PURE__ */ jsx("div", { "x-data": `{ currentTab: '${defaultTab}' }`, children });
+const Tabs = ({ defaultTab, hashMap, children }) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    "x-data": `{ currentTab: '${defaultTab}' }`,
+    "x-init": hashMap ? `const t = (${JSON.stringify(hashMap)})[window.location.hash]; if (t) currentTab = t;` : void 0,
+    children
+  }
+);
 const TabLinkContainer = ({
   align = "center",
   children
@@ -10,9 +17,19 @@ const TabLinkContainer = ({
     children
   }
 );
-const TabLink = ({ tabId, children }) => /* @__PURE__ */ jsx(
+const TabLink = ({ tabId, disabled = false, title, children }) => disabled ? /* @__PURE__ */ jsx(
   "button",
   {
+    type: "button",
+    disabled: true,
+    title,
+    class: "flex items-center gap-2 border-b-2 border-transparent -mb-px py-2 kicker cursor-not-allowed text-on-surface-weak opacity-50",
+    children
+  }
+) : /* @__PURE__ */ jsx(
+  "button",
+  {
+    type: "button",
     class: "flex items-center gap-2 border-b-2 border-transparent -mb-px py-2 kicker cursor-pointer transition-colors",
     "x-bind:class": `currentTab === '${tabId}'
         ? 'text-on-surface-strong border-b-accent'

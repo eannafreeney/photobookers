@@ -5,25 +5,28 @@ import { getThisWeeksArtistOfTheWeek } from "../../app/AOTWServices.js";
 import { getThisWeeksPublisherOfTheWeek } from "../../app/POTWServices.js";
 import NewsletterCard from "./NewsletterCard.js";
 import LazyLoader from "./LazyLoader.js";
-import SecondaryButtonLink, {
-  secondaryButtonLinkStyles
-} from "./SecondaryButtonLink.js";
+import { secondaryButtonLinkStyles } from "./SecondaryButtonLink.js";
 import FeaturedSpotlightCarousel, {
   featuredSpotlightCarouselStyles
 } from "./FeaturedSpotlightCarousel.js";
 import { trendingCreatorsStyles } from "./TrendingCreatorsSlider.js";
 import { getSpotlightItems } from "../lib/utils.js";
-import { toWeekString, toWeekStart } from "../../../lib/utils.js";
 import { storesSectionStyles } from "./StoresSection.js";
+import HomepageActivityPulse, {
+  homepageActivityPulseStyles
+} from "./HomepageActivityPulse.js";
+import { getHomepageActivityStats } from "../../app/homepageActivity.js";
 const FeaturedHomeBody = async ({ baseUrl }) => {
   const [
     [botdErr, botdData],
     [artistErr, artistData],
-    [publisherErr, publisherData]
+    [publisherErr, publisherData],
+    [activityError, activity]
   ] = await Promise.all([
     getTodaysBookOfTheDay(),
     getThisWeeksArtistOfTheWeek(),
-    getThisWeeksPublisherOfTheWeek()
+    getThisWeeksPublisherOfTheWeek(),
+    getHomepageActivityStats()
   ]);
   const spotlightItems = getSpotlightItems(
     botdErr ? null : botdData,
@@ -31,11 +34,15 @@ const FeaturedHomeBody = async ({ baseUrl }) => {
     publisherErr ? null : publisherData,
     baseUrl
   );
-  const weekStart = toWeekStart(/* @__PURE__ */ new Date());
-  const thisWeekHref = `${baseUrl}/hyperview/this-week?week=${toWeekString(weekStart)}`;
   return /* @__PURE__ */ jsxs(View, { style: "featured-home-body", children: [
+    !activityError && activity ? /* @__PURE__ */ jsx(
+      HomepageActivityPulse,
+      {
+        bookViews: activity.bookViews,
+        profileViews: activity.profileViews
+      }
+    ) : null,
     /* @__PURE__ */ jsx(FeaturedSpotlightCarousel, { items: spotlightItems }),
-    /* @__PURE__ */ jsx(SecondaryButtonLink, { label: "View this week \u2192", href: thisWeekHref }),
     /* @__PURE__ */ jsx(
       LazyLoader,
       {
@@ -102,6 +109,7 @@ const featuredHomeBodyStyles = () => /* @__PURE__ */ jsxs(Fragment, { children: 
       paddingBottom: 24
     }
   ),
+  homepageActivityPulseStyles(),
   featuredSpotlightCarouselStyles(),
   secondaryButtonLinkStyles(),
   trendingCreatorsStyles(),

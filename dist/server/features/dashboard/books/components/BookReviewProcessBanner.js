@@ -7,7 +7,7 @@ const BookReviewProcessBanner = ({ variant }) => {
       Banner,
       {
         type: "info",
-        message: "New books go through review first. That stops once either (1) two books you added since verification have been approved, or (2) you\u2019ve been verified for 30 days and added two books since verification. We\u2019ll email you when this listing is approved.\u201D"
+        message: "New books are reviewed by the team before they can be published. Add a cover image, then submit for review and we\u2019ll email you once the listing has been approved or if we need changes."
       }
     );
   }

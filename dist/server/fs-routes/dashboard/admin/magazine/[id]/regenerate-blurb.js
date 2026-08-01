@@ -1,0 +1,54 @@
+import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
+import { createRoute } from "hono-fsr";
+import { formValidator, paramValidator } from "../../../../../lib/validator.js";
+import { idSchema } from "../../../../../features/app/schema.js";
+import { magazineBookActionSchema } from "../../../../../features/dashboard/admin/magazine/schema.js";
+import { getIssueByIdForAdmin } from "../../../../../domain/magazine/queries.js";
+import { updateIssueBookBlurb } from "../../../../../domain/magazine/mutations.js";
+import { regenerateBlurbForBook } from "../../../../../features/dashboard/admin/magazine/generate.js";
+import IssueBookCard from "../../../../../features/dashboard/admin/magazine/components/IssueBookCard.js";
+import Alert from "../../../../../components/app/Alert.js";
+import { showErrorAlert } from "../../../../../lib/alertHelpers.js";
+const POST = createRoute(
+  paramValidator(idSchema),
+  formValidator(magazineBookActionSchema),
+  async (c) => {
+    const id = c.req.valid("param").id;
+    const { bookId } = c.req.valid("form");
+    const [loadErr, issue] = await getIssueByIdForAdmin(id);
+    if (loadErr || !issue) {
+      return showErrorAlert(c, loadErr?.reason ?? "Issue not found");
+    }
+    const [genErr, result] = await regenerateBlurbForBook(issue, bookId);
+    if (genErr) return showErrorAlert(c, genErr.reason);
+    const [saveErr] = await updateIssueBookBlurb(id, bookId, result.blurb);
+    if (saveErr) return showErrorAlert(c, saveErr.reason);
+    const placement = issue.placements.find((p) => p.bookId === bookId);
+    if (!placement) {
+      return showErrorAlert(c, "Blurb saved, but the card failed to render.");
+    }
+    const action = `/dashboard/admin/magazine/${id}`;
+    return c.html(
+      /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(
+          IssueBookCard,
+          {
+            number: placement.number,
+            bookId: placement.bookId,
+            book: placement.book,
+            blurb: result.blurb,
+            action,
+            selectedImageUrl: placement.selectedImageUrl,
+            artistPrompt: placement.artistPrompt,
+            artistQuote: placement.artistQuote,
+            artistEmailSentAt: placement.artistEmailSentAt
+          }
+        ),
+        /* @__PURE__ */ jsx(Alert, { type: "success", message: "Blurb rewritten." })
+      ] })
+    );
+  }
+);
+export {
+  POST
+};

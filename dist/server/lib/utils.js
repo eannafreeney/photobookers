@@ -15,6 +15,12 @@ function parseWeekString(str) {
     )
   );
 }
+const deleteRowAttrs = {
+  "x-init": "true",
+  "x-target": "toast",
+  "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
+  "@ajax:success": "$el.closest('tr').remove()"
+};
 function toWeekString(d) {
   const mon = new Date(
     Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
@@ -125,6 +131,7 @@ const formatCreatorLocation = (city, country) => {
 };
 export {
   capEndOfDayToToday,
+  deleteRowAttrs,
   formatCountry,
   formatCreatorLocation,
   formatOrdinalDate,

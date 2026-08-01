@@ -10,7 +10,7 @@ import NewsletterCard from "./NewsletterCard";
 import ShareButton from "../../api/components/ShareButton";
 import { botdUrl } from "../spotlightUrls";
 import FeaturedPageHeader from "./FeaturedPageHeader";
-import FavoriteButton from "../../api/components/FavouriteButton";
+import SaveToListButton from "../../api/components/SaveToListButton";
 import {
   bookOfTheDayShareText,
   bookOfTheDayShareTitle,
@@ -68,7 +68,7 @@ const BookOfTheDayDetail = async ({
 
       <div class="mx-auto flex w-full flex-col gap-8 md:max-w-xl">
         <div class="grid grid-cols-2 gap-4">
-          <FavoriteButton book={book} user={user} />
+          <SaveToListButton book={book} user={user} variant="button" />
           <ShareButton
             title={bookOfTheDayShareTitle(book)}
             text={bookOfTheDayShareText(book)}

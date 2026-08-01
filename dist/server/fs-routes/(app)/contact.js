@@ -1,16 +1,17 @@
-import { jsx, jsxs } from "hono/jsx/jsx-runtime";
+import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import AppLayout from "../../components/layouts/AppLayout.js";
 import Page from "../../components/layouts/Page.js";
 import PageHeader from "../../components/app/PageHeader.js";
 import ContactForm from "../../features/app/forms/ContactForm.js";
 import { createRoute } from "hono-fsr";
+import { isContactSpam } from "../../features/app/contactSpam.js";
 import { contactFormSchema } from "../../features/app/schema.js";
 import { formValidator } from "../../lib/validator.js";
 import { sendAdminEmail } from "../../lib/sendEmail.js";
 import { generateContactEmail } from "../../features/app/emails.js";
 import { showErrorAlert } from "../../lib/alertHelpers.js";
-import { setFlash } from "../../utils.js";
 import { canonicalUrl, pageTitle } from "../../lib/seo.js";
+import Alert from "../../components/app/Alert.js";
 const GET = createRoute(async (c) => {
   const currentPath = c.req.path;
   const title = pageTitle("Contact");
@@ -42,28 +43,32 @@ const POST = createRoute(
   formValidator(contactFormSchema),
   async (c) => {
     const form = c.req.valid("form");
-    if (form.website) return c.redirect("/");
-    const ts = Number(form.ts);
-    if (!ts || Date.now() - ts < 3e3) {
+    if (isContactSpam({
+      website: form.website,
+      ts: form.ts,
+      message: form.message
+    }).spam) {
       return c.redirect("/");
     }
-    const msg = String(form.message || "");
-    if ((msg.match(/http/gi) || []).length > 2) {
-      return c.redirect("/");
+    if (process.env.CONTACT_E2E !== "1") {
+      const [error] = await sendAdminEmail(
+        "New Contact Form Submission",
+        generateContactEmail(form)
+      );
+      if (error) return showErrorAlert(c, error.reason);
     }
-    if (msg.length < 10 || msg.length > 2e3) {
-      return c.redirect("/");
-    }
-    if (/viagra|casino|crypto|loan/gi.test(msg)) {
-      return c.redirect("/");
-    }
-    const [error] = await sendAdminEmail(
-      "New Contact Form Submission",
-      generateContactEmail(form)
+    return c.html(
+      /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(
+          Alert,
+          {
+            type: "success",
+            message: "Message sent \u2014 we'll get back to you soon."
+          }
+        ),
+        /* @__PURE__ */ jsx(ContactForm, {})
+      ] })
     );
-    if (error) return showErrorAlert(c, error.reason);
-    await setFlash(c, "success", "Contact form submitted successfully");
-    return c.redirect("/");
   }
 );
 export {

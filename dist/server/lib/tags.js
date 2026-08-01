@@ -1,5 +1,16 @@
-const tagToSlug = (tag) => tag.toLowerCase().replace(/\s+/g, "-");
+import { sql } from "drizzle-orm";
+const stripDiacritics = (value) => value.normalize("NFD").replace(new RegExp("\\p{Mark}", "gu"), "");
+const normalizeTagForMatch = (tag) => stripDiacritics(tag.toLowerCase().trim());
+const normalizeTagSlug = (slug) => normalizeTagForMatch(slug).replace(/-+/g, "-").replace(/^-|-$/g, "");
+const tagToSlug = (tag) => normalizeTagForMatch(tag).replace(/\s+/g, "-");
 const slugToTag = (slug) => slug.replace(/-/g, " ");
+const tagMatchesBookTags = (tagsColumn, tag) => {
+  const normalized = normalizeTagForMatch(tag);
+  return sql`EXISTS (
+    SELECT 1 FROM unnest(${tagsColumn}) AS t
+    WHERE regexp_replace(normalize(lower(t), NFKD), '[\u0300-\u036f]+', '', 'g') = ${normalized}
+  )`;
+};
 import { parseBookCatalogSort } from "./bookCatalogSort.js";
 const booksFilterUrl = (base, { tag, query, sort, defaultSort = "newest" }) => {
   const params = new URLSearchParams();
@@ -19,8 +30,12 @@ export {
   booksFilterUrl,
   hyperviewBooksFilterUrl,
   hyperviewTagBooksUrl,
+  normalizeTagForMatch,
+  normalizeTagSlug,
   resolveBookCatalogSort,
   slugToTag,
+  stripDiacritics,
   tagBooksUrl,
+  tagMatchesBookTags,
   tagToSlug
 };

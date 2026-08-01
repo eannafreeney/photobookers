@@ -5,6 +5,7 @@ import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumb
 import Page from "../../../components/layouts/Page.js";
 import AppLayout from "../../../components/layouts/AppLayout.js";
 import { BookForm } from "../../../features/dashboard/books/forms/BookForm.js";
+import Tabs from "../../../components/app/Tabs.js";
 import { bookFormSchema } from "../../../features/dashboard/books/schema.js";
 import { limitBooksPerDay } from "../../../middleware/booksPerDayLimit.js";
 import { formValidator } from "../../../lib/validator.js";
@@ -19,19 +20,14 @@ import {
   getNewBookModerationForUser
 } from "../../../features/dashboard/books/services.js";
 import BookReviewProcessBanner from "../../../features/dashboard/books/components/BookReviewProcessBanner.js";
-import { shouldModerateNewBook } from "../../../lib/bookModeration.js";
-import { notifyAdminBookPendingReview } from "../../../features/dashboard/admin/notifications/services.js";
+import { isFeatureEnabledForUser } from "../../../lib/features.js";
+import { serializePressLinks } from "../../../features/dashboard/books/pressLinks.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
   const isPublisher = user.creator?.type === "publisher";
-  const moderation = await getNewBookModerationForUser(user);
-  const needsReview = shouldModerateNewBook({
-    creatorVerifiedAt: moderation.creatorVerifiedAt,
-    creatorStatus: moderation.creatorStatus,
-    booksUploadedSinceVerificationBeforeInsert: moderation.booksUploadedSinceVerificationBeforeInsert,
-    approvedBooksSinceVerificationBeforeInsert: moderation.approvedBooksSinceVerificationBeforeInsert
-  });
+  const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
+  const formValues = showPressLinks ? { press_links: serializePressLinks([]) } : void 0;
   return c.html(
     /* @__PURE__ */ jsx(AppLayout, { title: "Add Book", user, currentPath, children: /* @__PURE__ */ jsxs(Page, { children: [
       /* @__PURE__ */ jsx(
@@ -45,20 +41,31 @@ const GET = createRoute(async (c) => {
           ]
         }
       ),
-      /* @__PURE__ */ jsx("div", { class: "mb-4", children: /* @__PURE__ */ jsx(
-        BookReviewProcessBanner,
-        {
-          variant: needsReview ? "create_moderated" : "create_trusted"
-        }
-      ) }),
-      /* @__PURE__ */ jsx(
-        BookForm,
-        {
-          action: "/dashboard/books/new",
-          isPublisher,
-          primaryAction: needsReview ? "submit_for_review" : "save"
-        }
-      )
+      /* @__PURE__ */ jsx("div", { class: "mb-4", children: /* @__PURE__ */ jsx(BookReviewProcessBanner, { variant: "create_moderated" }) }),
+      /* @__PURE__ */ jsxs(Tabs, { defaultTab: "info", children: [
+        /* @__PURE__ */ jsxs(Tabs.LinkContainer, { align: "left", children: [
+          /* @__PURE__ */ jsx(Tabs.Link, { tabId: "info", children: "Details" }),
+          /* @__PURE__ */ jsx(
+            Tabs.Link,
+            {
+              tabId: "images",
+              disabled: true,
+              title: "Save the book first to add images",
+              children: "Images"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx(Tabs.Panel, { tabId: "info", children: /* @__PURE__ */ jsx(
+          BookForm,
+          {
+            action: "/dashboard/books/new",
+            isPublisher,
+            primaryAction: "submit_for_review",
+            formValues,
+            showPressLinks
+          }
+        ) })
+      ] })
     ] }) })
   );
 });
@@ -99,15 +106,8 @@ const POST = createRoute(
     );
     const newBook = await createBook(bookData);
     if (!newBook) return showErrorAlert(c, "Failed to create book");
-    if (newBook.approvalStatus === "pending") {
-      await notifyAdminBookPendingReview({
-        bookId: newBook.id,
-        title: newBook.title,
-        actorUserId: user.id
-      });
-    }
     await setFlash(c, "success", `Successfully created "${newBook.title}"!`);
-    return c.redirect(`/dashboard/books/${newBook.id}`);
+    return c.redirect(`/dashboard/books/${newBook.id}?tab=images`);
   }
 );
 export {

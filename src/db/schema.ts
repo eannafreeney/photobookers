@@ -142,6 +142,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   collections: many(collectionItems),
   likes: many(likes),
   wishlists: many(wishlists),
+  bookLists: many(bookLists),
   claims: many(creatorClaims),
   comments: many(bookComments),
   createdFairs: many(bookFairs),
@@ -382,6 +383,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   images: many(bookImages),
   likes: many(likes),
   wishlists: many(wishlists),
+  bookListItems: many(bookListItems),
   collections: many(collectionItems),
   bookOfTheDay: one(bookOfTheDay),
   purchaseClicks: many(purchaseClicks),
@@ -650,6 +652,66 @@ export const wishlistsRelations = relations(wishlists, ({ one }) => ({
   }),
   book: one(books, {
     fields: [wishlists.bookId],
+    references: [books.id],
+  }),
+}));
+
+export const bookLists = pgTable(
+  "book_lists",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
+    description: text("description"),
+    isPublic: boolean("is_public").default(false).notNull(),
+    isPromoted: boolean("is_promoted").default(false).notNull(),
+    promotedAt: timestamp("promoted_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    userSlugUnique: unique("book_lists_user_slug_unique").on(
+      table.userId,
+      table.slug,
+    ),
+  }),
+);
+
+export const bookListsRelations = relations(bookLists, ({ one, many }) => ({
+  user: one(users, {
+    fields: [bookLists.userId],
+    references: [users.id],
+  }),
+  items: many(bookListItems),
+}));
+
+export const bookListItems = pgTable(
+  "book_list_items",
+  {
+    listId: uuid("list_id")
+      .notNull()
+      .references(() => bookLists.id, { onDelete: "cascade" }),
+    bookId: uuid("book_id")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+    position: integer("position").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey(table.listId, table.bookId),
+  }),
+);
+
+export const bookListItemsRelations = relations(bookListItems, ({ one }) => ({
+  list: one(bookLists, {
+    fields: [bookListItems.listId],
+    references: [bookLists.id],
+  }),
+  book: one(books, {
+    fields: [bookListItems.bookId],
     references: [books.id],
   }),
 }));
@@ -1170,6 +1232,12 @@ export type NewCreatorClaim = InferInsertModel<typeof creatorClaims>;
 
 export type Wishlist = InferSelectModel<typeof wishlists>;
 export type NewWishlist = InferInsertModel<typeof wishlists>;
+
+export type BookList = InferSelectModel<typeof bookLists>;
+export type NewBookList = InferInsertModel<typeof bookLists>;
+
+export type BookListItem = InferSelectModel<typeof bookListItems>;
+export type NewBookListItem = InferInsertModel<typeof bookListItems>;
 
 export type CreatorMilestoneEmail = InferSelectModel<
   typeof creatorMilestoneEmails

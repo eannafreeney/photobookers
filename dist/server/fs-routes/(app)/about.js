@@ -9,7 +9,7 @@ import { canonicalUrl, pageTitle } from "../../lib/seo.js";
 const GET = createRoute(async (c) => {
   const currentPath = c.req.path;
   const title = pageTitle("About");
-  const description = "Photobookers is a place to discover photobooks, follow artists and publishers, and explore book fairs \u2014 for fans, artists, and publishers.";
+  const description = "Photobookers is a place to discover photobooks, follow artists and publishers, and explore book fairs \u2014 for collectors, artists, and publishers.";
   return c.html(
     /* @__PURE__ */ jsx(
       AppLayout,

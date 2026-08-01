@@ -8,7 +8,7 @@ import NewsletterCard from "./NewsletterCard.js";
 import ShareButton from "../../api/components/ShareButton.js";
 import { botdUrl } from "../spotlightUrls.js";
 import FeaturedPageHeader from "./FeaturedPageHeader.js";
-import FavoriteButton from "../../api/components/FavouriteButton.js";
+import SaveToListButton from "../../api/components/SaveToListButton.js";
 import {
   bookOfTheDayShareText,
   bookOfTheDayShareTitle
@@ -20,10 +20,12 @@ const BookOfTheDayDetail = async ({
   galleryImages,
   isMobile,
   user,
-  date
+  date,
+  spotlightBlurb
 }) => {
   const [err, comments] = await getBookComments(book.id);
   if (err) return /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: err.reason });
+  const description = spotlightBlurb?.trim() || book.description?.trim() || null;
   return /* @__PURE__ */ jsxs("div", { class: "flex w-full min-w-0 flex-col gap-4", children: [
     /* @__PURE__ */ jsx(
       FeaturedPageHeader,
@@ -42,7 +44,7 @@ const BookOfTheDayDetail = async ({
     ) }) }) : null,
     /* @__PURE__ */ jsxs("div", { class: "mx-auto flex w-full flex-col gap-8 md:max-w-xl", children: [
       /* @__PURE__ */ jsxs("div", { class: "grid grid-cols-2 gap-4", children: [
-        /* @__PURE__ */ jsx(FavoriteButton, { book, user }),
+        /* @__PURE__ */ jsx(SaveToListButton, { book, user, variant: "button" }),
         /* @__PURE__ */ jsx(
           ShareButton,
           {
@@ -52,7 +54,7 @@ const BookOfTheDayDetail = async ({
           }
         )
       ] }),
-      book.description?.trim() ? /* @__PURE__ */ jsx(ExpandableDescription, { text: book.description.trim() }) : null,
+      description ? /* @__PURE__ */ jsx(ExpandableDescription, { text: description }) : null,
       /* @__PURE__ */ jsx(NewsletterCard, {}),
       /* @__PURE__ */ jsx(SpotlightCreatorLink, { creator: book.artist, role: "Artist" }),
       book.publisher && /* @__PURE__ */ jsx(SpotlightCreatorLink, { creator: book.publisher, role: "Publisher" }),

@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "hono/jsx";
 import { ChildType } from "../../../../types";
-import { feedIcon, lightbulbIcon, mailIcon, usersIcon } from "../../../lib/icons";
+import { feedIcon, libraryIcon, mailIcon, usersIcon } from "../../../lib/icons";
 
 // Static onboarding guide for collectors. Each section links to the screen it
 // describes so a collector can act on the advice immediately.
@@ -9,8 +9,8 @@ const CollectorGuide = () => {
     <div class="flex flex-col gap-8">
       <p class="max-w-2xl text-sm md:text-base text-on-surface text-pretty">
         Your collector profile is how other people discover your taste. Make
-        your shelf public, favourite the books you love, and post updates so
-        others can follow along. Here's how to get set up.
+        your shelf public, favourite the books you love, curate lists, and post
+        updates so others can follow along. Here's how to get set up.
       </p>
 
       <GuideSection
@@ -39,13 +39,31 @@ const CollectorGuide = () => {
         cta={{ label: "Browse books", href: "/books" }}
       >
         <p>
-          Tap the heart on any book to add it to your shelf. Your favourites are
-          what visitors see first, so build a shelf that shows your taste.
+          Tap the + button on any book, then choose Favorite. Your favourites
+          are what visitors see first on your shelf.
         </p>
       </GuideSection>
 
       <GuideSection
         step={3}
+        icon={libraryIcon(5)}
+        title="Create lists"
+        cta={{ label: "Manage lists", href: "/dashboard/lists" }}
+      >
+        <p>
+          Build playlist-style lists — for example “Favourite books of the
+          year” — and publish them on your shelf for others to browse.
+        </p>
+        <TipList
+          tips={[
+            "Add books from any book card with the + button.",
+            "Make a list public so it appears on your shelf.",
+          ]}
+        />
+      </GuideSection>
+
+      <GuideSection
+        step={4}
         icon={mailIcon(5)}
         title="Post updates"
         cta={{ label: "Write a post", href: "/dashboard" }}
@@ -64,7 +82,7 @@ const CollectorGuide = () => {
       </GuideSection>
 
       <GuideSection
-        step={4}
+        step={5}
         icon={usersIcon(5)}
         title="Follow other collectors"
         cta={{ label: "Find collectors", href: "/collectors" }}

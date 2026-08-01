@@ -7,7 +7,12 @@ import Input from "../../../../../components/forms/Input.js";
 import RadioFields from "../../../../../components/forms/RadioFields.js";
 import TextArea from "../../../../../components/forms/TextArea.js";
 import { getAllCreatorOptions } from "../../creators/services.js";
-const BookFormAdmin = async ({ formValues, bookId }) => {
+import BookPressLinksSection from "../../../books/components/BookPressLinksSection.js";
+const BookFormAdmin = async ({
+  formValues,
+  bookId,
+  showPressLinks = false
+}) => {
   const artistOptions = await getAllCreatorOptions("artist");
   const publisherOptions = await getAllCreatorOptions("publisher");
   const isEditPage = !!bookId;
@@ -114,6 +119,7 @@ const BookFormAdmin = async ({ formValues, bookId }) => {
               ]
             }
           ),
+          showPressLinks ? /* @__PURE__ */ jsx(BookPressLinksSection, {}) : null,
           /* @__PURE__ */ jsx(FormButtons, {})
         ] })
       }

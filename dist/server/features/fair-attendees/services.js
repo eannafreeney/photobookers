@@ -3,7 +3,7 @@ import { db } from "../../db/client.js";
 import { bookFairs, books, fairAttendees } from "../../db/schema.js";
 import { err, ok } from "../../lib/result.js";
 const today = () => new Date((/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0));
-const isFairOpenForAttendance = (fair) => fair.status === "published" && fair.approvalStatus === "approved" && new Date(fair.endDate) >= today();
+const isFairOpenForAttendance = (fair) => fair.status === "published" && new Date(fair.endDate) >= today();
 const getFairAttendees = async (fairId) => {
   try {
     const attendees = await db.query.fairAttendees.findMany({
@@ -157,6 +157,7 @@ export {
   approveFairAttendee,
   getFairAttendees,
   isCreatorAttendingFair,
+  isFairOpenForAttendance,
   rejectFairAttendee,
   requestFairAttendance,
   withdrawFairAttendance

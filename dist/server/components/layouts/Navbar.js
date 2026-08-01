@@ -5,6 +5,7 @@ import NavSearch from "./NavSearch.js";
 import BrandLogo from "../app/BrandLogo.js";
 import Button from "../app/Button.js";
 import { isStaging } from "../../lib/isStaging.js";
+import FeatureGuard from "./FeatureGuard.js";
 const Navbar = ({ currentPath, user, adminEditHref }) => {
   const staging = isStaging();
   const alpineAttrs = {
@@ -25,10 +26,18 @@ const Navbar = ({ currentPath, user, adminEditHref }) => {
           /* @__PURE__ */ jsx(AdminEditButton, { href: adminEditHref, user }),
           /* @__PURE__ */ jsx(NavLink, { href: "/books", currentPath, variant: "nav", children: "Books" }),
           /* @__PURE__ */ jsx(NavLink, { href: "/creators", currentPath, variant: "nav", children: "Creators" }),
+          /* @__PURE__ */ jsx(FeatureGuard, { flagName: "collectors", children: /* @__PURE__ */ jsx(
+            NavLink,
+            {
+              href: "/collectors",
+              currentPath,
+              variant: "nav",
+              children: "Collectors"
+            }
+          ) }),
           user && /* @__PURE__ */ jsxs(Fragment, { children: [
             /* @__PURE__ */ jsx(NavLink, { href: "/feed", currentPath, variant: "nav", children: "Feed" }),
-            /* @__PURE__ */ jsx(NavLink, { href: "/library", currentPath, variant: "nav", children: "Library" }),
-            /* @__PURE__ */ jsx(NavLink, { href: "/messages", currentPath, variant: "nav", children: "Messages" })
+            /* @__PURE__ */ jsx(NavLink, { href: "/shelf", currentPath, variant: "nav", children: "Shelf" })
           ] }),
           !user && /* @__PURE__ */ jsx(NavLink, { href: "/about", currentPath, variant: "nav", children: "About" }),
           /* @__PURE__ */ jsx(NavSearch, {}),

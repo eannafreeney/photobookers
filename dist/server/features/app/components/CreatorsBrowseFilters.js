@@ -1,6 +1,9 @@
 import { jsx } from "hono/jsx/jsx-runtime";
 import Pill from "../../../components/app/Pill.js";
-import { creatorsBrowseUrl, CREATOR_CATALOG_TARGET_ID } from "../creatorsBrowse.js";
+import {
+  creatorsBrowseUrl,
+  CREATOR_CATALOG_TARGET_ID
+} from "../creatorsBrowse.js";
 const pillButtonClass = "cursor-pointer border-0 bg-transparent p-0 font-inherit";
 const CreatorsBrowseFilters = ({ activeFilter, user }) => {
   const filters = [
@@ -11,7 +14,7 @@ const CreatorsBrowseFilters = ({ activeFilter, user }) => {
   if (user) {
     filters.push({ id: "following", label: "Following" });
   }
-  return /* @__PURE__ */ jsx("div", { class: "mb-8 flex justify-center items-center gap-2", children: filters.map((filter) => /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsx("div", { class: "mb-8 flex flex-wrap justify-center items-center gap-2", children: filters.map((filter) => /* @__PURE__ */ jsx(
     "a",
     {
       href: creatorsBrowseUrl(filter.id, { fragment: true }),

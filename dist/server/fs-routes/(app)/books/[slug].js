@@ -8,7 +8,7 @@ import { getBookBySlug } from "../../../features/app/services.js";
 import AppLayout from "../../../components/layouts/AppLayout.js";
 import Page from "../../../components/layouts/Page.js";
 import InfoPage from "../../../pages/InfoPage.js";
-import BookDetail from "../../../features/app/components/BookDetail.js";
+import BookDetail from "../../../features/app/components/bookPage/BookDetail.js";
 import {
   bookDescription,
   bookPageTitle,

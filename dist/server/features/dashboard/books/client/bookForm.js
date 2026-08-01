@@ -8,6 +8,7 @@ import {
   resetFormBaseline,
   validateField
 } from "../../../../client/forms/formUtils.js";
+import { bookPressLinksAlpineMethods, parsePressLinks } from "./bookPressLinks.js";
 const BOOK_FORM_FIELDS = Object.keys(bookFormSchema.shape);
 function registerBookForm() {
   Alpine.data(
@@ -21,7 +22,11 @@ function registerBookForm() {
         is_new_publisher: false,
         is_self_published: isArtist,
         isArtist,
+        pressLinks: parsePressLinks(
+          typeof formValues.press_links === "string" ? formValues.press_links : void 0
+        ),
         ...createFormState(BOOK_FORM_FIELDS, formValues),
+        ...bookPressLinksAlpineMethods(),
         init() {
           initFormValues(this, BOOK_FORM_FIELDS, isEditMode);
         },
@@ -35,7 +40,7 @@ function registerBookForm() {
           const ctx = this;
           const hasArtist = ctx.is_new_artist ? !!ctx.form.new_artist_name : !!ctx.form.artist_id;
           const hasPublisher = ctx.is_self_published ? true : ctx.is_new_publisher ? !!ctx.form.new_publisher_name : !!ctx.form.publisher_id;
-          const baseFieldsValid = ctx.isDirty && Object.values(ctx.errors.form).every((err) => !err) && ctx.form.title && ctx.form.availability_status && ctx.form.release_date;
+          const baseFieldsValid = ctx.isDirty && Object.values(ctx.errors.form).every((err) => !err) && ctx.form.title && ctx.form.availability_status && ctx.form.release_date && ctx.form.tags;
           const conditionalFieldsValid = ctx.isArtist ? hasPublisher : hasArtist;
           return baseFieldsValid && conditionalFieldsValid;
         },

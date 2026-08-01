@@ -151,6 +151,25 @@ const feedIcon = /* @__PURE__ */ jsx(
     )
   }
 );
+const lightbulbIcon = (size = 5) => /* @__PURE__ */ jsx(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "none",
+    viewBox: "0 0 24 24",
+    "stroke-width": "1.5",
+    stroke: "currentColor",
+    class: `size-${size}`,
+    children: /* @__PURE__ */ jsx(
+      "path",
+      {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        d: "M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"
+      }
+    )
+  }
+);
 const libraryIcon = (size = 5) => /* @__PURE__ */ jsx(
   "svg",
   {
@@ -264,6 +283,44 @@ const emptyHeartIcon = (size = 4) => /* @__PURE__ */ jsx(
     fill: "currentColor",
     className: `size-${size} fill-transparent stroke-current`,
     children: /* @__PURE__ */ jsx("path", { d: "m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" })
+  }
+);
+const plusIcon = (size = 4) => /* @__PURE__ */ jsx(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "none",
+    viewBox: "0 0 24 24",
+    "stroke-width": "1.5",
+    stroke: "currentColor",
+    class: `size-${size}`,
+    children: /* @__PURE__ */ jsx(
+      "path",
+      {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        d: "M12 4.5v15m7.5-7.5h-15"
+      }
+    )
+  }
+);
+const checkIcon = (size = 4) => /* @__PURE__ */ jsx(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "none",
+    viewBox: "0 0 24 24",
+    "stroke-width": "1.5",
+    stroke: "currentColor",
+    class: `size-${size}`,
+    children: /* @__PURE__ */ jsx(
+      "path",
+      {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        d: "m4.5 12.75 6 6 9-13.5"
+      }
+    )
   }
 );
 const fullHeartIcon = (size = 4) => /* @__PURE__ */ jsx(
@@ -468,6 +525,82 @@ const booksIcon = /* @__PURE__ */ jsx(
     )
   }
 );
+const magazineIcon = /* @__PURE__ */ jsx(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "none",
+    viewBox: "0 0 24 24",
+    "stroke-width": "1.5",
+    stroke: "currentColor",
+    class: "size-4",
+    children: /* @__PURE__ */ jsx(
+      "path",
+      {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        d: "M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z"
+      }
+    )
+  }
+);
+const storesIcon = /* @__PURE__ */ jsx(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "none",
+    viewBox: "0 0 24 24",
+    "stroke-width": "1.5",
+    stroke: "currentColor",
+    class: "size-4",
+    children: /* @__PURE__ */ jsx(
+      "path",
+      {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        d: "M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z"
+      }
+    )
+  }
+);
+const fairsIcon = /* @__PURE__ */ jsx(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "none",
+    viewBox: "0 0 24 24",
+    "stroke-width": "1.5",
+    stroke: "currentColor",
+    class: "size-4",
+    children: /* @__PURE__ */ jsx(
+      "path",
+      {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        d: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+      }
+    )
+  }
+);
+const interviewsIcon = /* @__PURE__ */ jsx(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "none",
+    viewBox: "0 0 24 24",
+    "stroke-width": "1.5",
+    stroke: "currentColor",
+    class: "size-4",
+    children: /* @__PURE__ */ jsx(
+      "path",
+      {
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        d: "M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
+      }
+    )
+  }
+);
 const plannerIcon = /* @__PURE__ */ jsx(
   "svg",
   {
@@ -612,6 +745,7 @@ export {
   bellIcon,
   bookIcon,
   booksIcon,
+  checkIcon,
   claimsIcon,
   closeIcon,
   closeMobileMenuIcon,
@@ -622,19 +756,25 @@ export {
   emptyHeartIcon,
   eyeIcon,
   eyeSlashIcon,
+  fairsIcon,
   feedIcon,
   followersIcon,
   fullHeartIcon,
   imageSkeletonIcon,
+  interviewsIcon,
   leftArrowIcon,
   libraryIcon,
+  lightbulbIcon,
   loadingIcon,
+  magazineIcon,
   mailIcon,
   openMobileMenuIcon,
   plannerIcon,
+  plusIcon,
   rightArrowIcon,
   star,
   stars,
+  storesIcon,
   thumbsDownIcon,
   thumbsUpIcon,
   updatesIcon,

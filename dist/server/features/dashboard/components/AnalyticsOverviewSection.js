@@ -1,16 +1,25 @@
-import { jsx, jsxs } from "hono/jsx/jsx-runtime";
+import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import {
   formatAnalyticsDateRangeLabel
 } from "../../book-analytics/dateRange.js";
 import {
   getCreatorFunnelTotals
 } from "../../book-analytics/creatorAnalytics.js";
+import {
+  getCurrentFanCount,
+  getCurrentVerifiedCreatorCount
+} from "../../book-analytics/audience.js";
 import { getOverallFunnelTotals } from "../../book-analytics/funnel.js";
 import { getFollowTotal } from "../../book-analytics/trends.js";
 import { getBookViewTotals } from "../../book-views/services.js";
 import { getCreatorViewTotals } from "../../creator-views/services.js";
 import { getPurchaseClickTotals } from "../../purchase-clicks/services.js";
-const AnalyticsOverviewSection = async ({ dateRange, scope = null }) => {
+const AnalyticsOverviewSection = async ({
+  dateRange,
+  scope = null,
+  fansHref,
+  verifiedCreatorsHref
+}) => {
   if (scope) {
     const totals = await getCreatorFunnelTotals(scope, dateRange);
     const clickRateLabel2 = totals.clickRate !== null ? `${totals.clickRate}%` : "\u2014";
@@ -39,13 +48,17 @@ const AnalyticsOverviewSection = async ({ dateRange, scope = null }) => {
     creatorViewTotals,
     clickTotals,
     funnelTotals,
-    followTotal
+    followTotal,
+    currentFans,
+    currentVerifiedCreators
   ] = await Promise.all([
     getBookViewTotals(dateRange),
     getCreatorViewTotals(dateRange),
     getPurchaseClickTotals(dateRange),
     getOverallFunnelTotals(dateRange),
-    getFollowTotal(dateRange)
+    getFollowTotal(dateRange),
+    getCurrentFanCount(),
+    getCurrentVerifiedCreatorCount()
   ]);
   const clickRateLabel = funnelTotals.clickRate !== null ? `${funnelTotals.clickRate}%` : "\u2014";
   const periodLabel = formatAnalyticsDateRangeLabel(dateRange);
@@ -55,6 +68,22 @@ const AnalyticsOverviewSection = async ({ dateRange, scope = null }) => {
       /* @__PURE__ */ jsx("span", { class: "font-medium", children: periodLabel })
     ] }),
     /* @__PURE__ */ jsxs("div", { class: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4", children: [
+      /* @__PURE__ */ jsx(
+        StatCard,
+        {
+          label: "Current fans",
+          value: currentFans,
+          href: fansHref
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        StatCard,
+        {
+          label: "Current verified creators",
+          value: currentVerifiedCreators,
+          href: verifiedCreatorsHref
+        }
+      ),
       /* @__PURE__ */ jsx(StatCard, { label: "Total book views", value: viewTotals.totalViews }),
       /* @__PURE__ */ jsx(StatCard, { label: "Books with views", value: viewTotals.booksWithViews }),
       /* @__PURE__ */ jsx(
@@ -84,13 +113,28 @@ const AnalyticsOverviewSection = async ({ dateRange, scope = null }) => {
     ] })
   ] });
 };
+const statCardClass = "flex flex-col gap-2 rounded-radius border border-outline bg-surface px-4 py-3 shadow-sm";
 const StatCard = ({
   label,
-  value
-}) => /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-2 rounded-radius border border-outline bg-surface px-4 py-3 shadow-sm", children: [
-  /* @__PURE__ */ jsx("p", { class: "text-2xl font-semibold text-on-surface-strong", children: typeof value === "number" ? value.toLocaleString() : value }),
-  /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: label })
-] });
+  value,
+  href
+}) => {
+  const content = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("p", { class: "text-2xl font-semibold text-on-surface-strong", children: typeof value === "number" ? value.toLocaleString() : value }),
+    /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: label })
+  ] });
+  if (href) {
+    return /* @__PURE__ */ jsx(
+      "a",
+      {
+        href,
+        class: `${statCardClass} no-underline transition-colors hover:border-outline-strong`,
+        children: content
+      }
+    );
+  }
+  return /* @__PURE__ */ jsx("div", { class: statCardClass, children: content });
+};
 var AnalyticsOverviewSection_default = AnalyticsOverviewSection;
 export {
   AnalyticsOverviewSection_default as default

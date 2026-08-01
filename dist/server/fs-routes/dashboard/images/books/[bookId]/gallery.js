@@ -26,8 +26,11 @@ const POST = createRoute(
     const body = await c.req.parseBody({ all: true });
     const galleryFiles = body.images ? Array.isArray(body.images) ? body.images : [body.images] : [];
     const validFiles = galleryFiles.filter(removeInvalidImages);
-    const removedIds = body.removedIds ? JSON.parse(body.removedIds) : [];
-    const orderedIds = body.orderedIds ? JSON.parse(body.orderedIds) : [];
+    const removedIds = parseIdArray(body.removedIds);
+    const orderedIds = parseIdArray(body.orderedIds);
+    if (removedIds === null || orderedIds === null) {
+      return showErrorAlert(c, "Invalid image data. Please try again.");
+    }
     if (orderedIds.length > 0) {
       await reorderBookImages(bookId, orderedIds);
     }
@@ -52,6 +55,19 @@ const POST = createRoute(
     return showSuccessAlert(c, "Images Updated");
   }
 );
+function parseIdArray(value) {
+  if (value == null || value === "") return [];
+  if (typeof value !== "string") return null;
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed) && parsed.every((id) => typeof id === "string")) {
+      return parsed;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 export {
   POST
 };

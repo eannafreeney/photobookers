@@ -3,17 +3,19 @@ import Modal from "../../../../../components/app/Modal.js";
 import FormPost from "../../../../../components/forms/FormPost.js";
 import { toDateString } from "../../../../../lib/utils.js";
 import {
+  buildArtistInstagramCaption,
   buildBotdInstagramCaption,
-  buildDefaultArtistInstagramCaption,
-  buildDefaultPublisherInstagramCaption,
+  buildPublisherInstagramCaption,
   collectBookImageOptions,
   collectCreatorImageOptions,
   formatInstagramHashtags
-} from "../instagramCaption.js";
+} from "../social-media/instagramCaption.js";
 import {
   INSTAGRAM_SPOTLIGHT_AOTW_KEY,
-  INSTAGRAM_SPOTLIGHT_POTW_KEY
-} from "../instagramUtils.js";
+  INSTAGRAM_SPOTLIGHT_POTW_KEY,
+  MAX_INSTAGRAM_CAROUSEL_IMAGES,
+  getPlannerInstagramImageSelection
+} from "../social-media/instagramUtils.js";
 import { formatDayLabel } from "../utils.js";
 const PrepareInstagramModal = ({
   week,
@@ -29,13 +31,13 @@ const PrepareInstagramModal = ({
     "x-on:ajax:after": "$dispatch('dialog:close'), $dispatch('planner:updated')"
   };
   const hasBotdPlan = entries.some(
-    (entry) => entry.instagramPreparedAt || entry.instagramQueuedAt || entry.instagramCaption || entry.instagramImageUrl
+    (entry) => entry.instagramPreparedAt || entry.instagramQueuedAt || entry.instagramCaption || entry.featuredImageUrl || (entry.instagramImageUrls?.length ?? 0) > 0
   );
   const hasArtistPlan = Boolean(
-    artistOfTheWeek && (artistOfTheWeek.instagramPreparedAt || artistOfTheWeek.instagramQueuedAt || artistOfTheWeek.instagramCaption || artistOfTheWeek.instagramImageUrl)
+    artistOfTheWeek && (artistOfTheWeek.instagramPreparedAt || artistOfTheWeek.instagramQueuedAt || artistOfTheWeek.instagramCaption || artistOfTheWeek.featuredImageUrl || (artistOfTheWeek.instagramImageUrls?.length ?? 0) > 0)
   );
   const hasPublisherPlan = Boolean(
-    publisherOfTheWeek && (publisherOfTheWeek.instagramPreparedAt || publisherOfTheWeek.instagramQueuedAt || publisherOfTheWeek.instagramCaption || publisherOfTheWeek.instagramImageUrl)
+    publisherOfTheWeek && (publisherOfTheWeek.instagramPreparedAt || publisherOfTheWeek.instagramQueuedAt || publisherOfTheWeek.instagramCaption || publisherOfTheWeek.featuredImageUrl || (publisherOfTheWeek.instagramImageUrls?.length ?? 0) > 0)
   );
   const hasInstagramPlan = hasBotdPlan || hasArtistPlan || hasPublisherPlan;
   const hasQueuedToBuffer = entries.some(
@@ -66,7 +68,10 @@ const PrepareInstagramModal = ({
               const book = entry.book;
               if (!book) return null;
               const imageOptions = collectBookImageOptions(book);
-              const selectedImage = entry.instagramImageUrl ?? imageOptions[0] ?? "";
+              const selectedImages = getPlannerInstagramImageSelection(
+                entry,
+                imageOptions
+              );
               const tagLine = formatInstagramHashtags(book.tags);
               return /* @__PURE__ */ jsx(
                 ImageCaptionSection,
@@ -77,9 +82,10 @@ const PrepareInstagramModal = ({
                   imageOptions,
                   caption: buildBotdInstagramCaption(
                     book,
-                    entry.instagramCaption
+                    entry.instagramCaption,
+                    entry.spotlightBlurb
                   ),
-                  selectedImage,
+                  selectedImages,
                   tagsLine: tagLine ? `Tags: ${tagLine}` : "No tags on this book"
                 },
                 entry.id
@@ -95,11 +101,18 @@ const PrepareInstagramModal = ({
                   artistCreator,
                   artistBookCoverUrls
                 ),
-                caption: artistOfTheWeek.instagramCaption ?? buildDefaultArtistInstagramCaption(artistCreator),
-                selectedImage: artistOfTheWeek.instagramImageUrl ?? collectCreatorImageOptions(
+                caption: buildArtistInstagramCaption(
                   artistCreator,
-                  artistBookCoverUrls
-                )[0] ?? ""
+                  artistOfTheWeek.instagramCaption,
+                  artistOfTheWeek.spotlightBlurb
+                ),
+                selectedImages: getPlannerInstagramImageSelection(
+                  artistOfTheWeek,
+                  collectCreatorImageOptions(
+                    artistCreator,
+                    artistBookCoverUrls
+                  )
+                )
               },
               "aotw"
             ) : null,
@@ -113,11 +126,18 @@ const PrepareInstagramModal = ({
                   publisherCreator,
                   publisherBookCoverUrls
                 ),
-                caption: publisherOfTheWeek.instagramCaption ?? buildDefaultPublisherInstagramCaption(publisherCreator),
-                selectedImage: publisherOfTheWeek.instagramImageUrl ?? collectCreatorImageOptions(
+                caption: buildPublisherInstagramCaption(
                   publisherCreator,
-                  publisherBookCoverUrls
-                )[0] ?? ""
+                  publisherOfTheWeek.instagramCaption,
+                  publisherOfTheWeek.spotlightBlurb
+                ),
+                selectedImages: getPlannerInstagramImageSelection(
+                  publisherOfTheWeek,
+                  collectCreatorImageOptions(
+                    publisherCreator,
+                    publisherBookCoverUrls
+                  )
+                )
               },
               "potw"
             ) : null
@@ -158,15 +178,21 @@ const ImageCaptionSection = ({
   fieldKey,
   imageOptions,
   caption,
-  selectedImage,
+  selectedImages,
   tagsLine
 }) => {
+  const checkboxName = `imageUrl[${fieldKey}][]`;
+  const limitCarouselSelection = `const checked = $el.closest('fieldset').querySelectorAll('input[type=checkbox]:checked'); if (checked.length > ${MAX_INSTAGRAM_CAROUSEL_IMAGES}) $el.checked = false`;
   return /* @__PURE__ */ jsxs("section", { class: "rounded border border-outline bg-surface-alt/40 p-4", children: [
     /* @__PURE__ */ jsx("h3", { class: "mb-3 text-sm font-semibold text-on-surface-strong", children: title }),
     /* @__PURE__ */ jsx("p", { class: "mb-1 text-xs text-on-surface line-clamp-2", children: subtitle }),
     tagsLine ? /* @__PURE__ */ jsx("p", { class: "mb-3 text-xs text-on-surface-weak", children: tagsLine }) : /* @__PURE__ */ jsx("div", { class: "mb-3" }),
     /* @__PURE__ */ jsxs("fieldset", { class: "mb-4", children: [
-      /* @__PURE__ */ jsx("legend", { class: "mb-2 block text-xs font-medium text-on-surface", children: "Image" }),
+      /* @__PURE__ */ jsxs("legend", { class: "mb-2 block text-xs font-medium text-on-surface", children: [
+        "Images (select 1\u2013",
+        MAX_INSTAGRAM_CAROUSEL_IMAGES,
+        " for carousel)"
+      ] }),
       imageOptions.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-xs text-danger", children: "No image available." }) : /* @__PURE__ */ jsx("div", { class: "max-h-48 overflow-y-auto overscroll-contain rounded border border-outline/60 bg-surface p-2", children: /* @__PURE__ */ jsx("div", { class: "grid grid-cols-3 gap-2 sm:grid-cols-4", children: imageOptions.map((url) => /* @__PURE__ */ jsxs(
         "label",
         {
@@ -175,12 +201,12 @@ const ImageCaptionSection = ({
             /* @__PURE__ */ jsx(
               "input",
               {
-                type: "radio",
-                name: `imageUrl[${fieldKey}]`,
+                type: "checkbox",
+                name: checkboxName,
                 value: url,
-                required: true,
-                checked: url === selectedImage,
-                class: "sr-only"
+                checked: selectedImages.includes(url),
+                class: "sr-only",
+                "x-on:change": limitCarouselSelection
               }
             ),
             /* @__PURE__ */ jsx(

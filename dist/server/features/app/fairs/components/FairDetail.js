@@ -5,6 +5,7 @@ import Button from "../../../../components/app/Button.js";
 import FairAttendButton from "./FairAttendButton.js";
 import FairAttendingCreators from "./FairAttendingCreators.js";
 const FairDetail = ({ fair, user, isAttending, isMobile }) => {
+  console.log(fair);
   return /* @__PURE__ */ jsxs("div", { class: "min-h-screen ", children: [
     /* @__PURE__ */ jsx(FairBanner, { fair, isMobile }),
     /* @__PURE__ */ jsxs("div", { class: "max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 flex flex-col gap-12", children: [
@@ -24,18 +25,14 @@ const FairBanner = ({
   fair,
   isMobile
 }) => {
-  if (!fair.bannerUrl) return /* @__PURE__ */ jsx(Fragment, {});
-  if (isMobile && fair.coverUrl) {
-    return /* @__PURE__ */ jsx("div", { class: "mt-4 mb-12", children: /* @__PURE__ */ jsx("img", { src: fair.coverUrl, alt: fair.name, class: "w-full object-cover" }) });
-  }
-  return /* @__PURE__ */ jsx("div", { class: "w-full -mt-8 mb-12", children: /* @__PURE__ */ jsx("div", { class: "relative w-full h-[300px] md:h-[500px] overflow-hidden", children: /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsx("div", { class: "mt-4 mb-12 flex justify-center", children: /* @__PURE__ */ jsx(
     "img",
     {
-      src: fair.bannerUrl,
+      src: fair.coverUrl ?? "",
       alt: fair.name,
-      class: "w-full h-full object-cover"
+      class: "h-64 object-cover"
     }
-  ) }) });
+  ) });
 };
 const FairDetails = ({ fair }) => {
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col md:flex-row justify-center items-center gap-1 md:gap-4 text-on-surface", children: [
@@ -59,7 +56,7 @@ const FairDetails = ({ fair }) => {
 };
 const FairDescription = ({ fair }) => {
   if (!fair.description) return /* @__PURE__ */ jsx(Fragment, {});
-  return /* @__PURE__ */ jsx("div", { class: "max-w-none text-on-surface", children: /* @__PURE__ */ jsx("div", { class: "bg-surface-container rounded-2xl", children: /* @__PURE__ */ jsx(ExpandableDescription, { text: fair.description }) }) });
+  return /* @__PURE__ */ jsx("div", { class: "max-w-none text-on-surface text-center", children: /* @__PURE__ */ jsx("div", { class: "bg-surface-container rounded-2xl", children: /* @__PURE__ */ jsx(ExpandableDescription, { text: fair.description }) }) });
 };
 const FairWebsiteButton = ({ fair }) => {
   if (!fair.website) return /* @__PURE__ */ jsx(Fragment, {});

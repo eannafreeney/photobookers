@@ -1,19 +1,24 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
+import VerifiedCreator from "../../../components/app/VerifiedCreator.js";
 const SpotlightCreator = ({
   creator,
   role,
-  truncateName = true
+  truncateName = true,
+  isVerified = false
 }) => {
   if (!creator) return /* @__PURE__ */ jsx(Fragment, {});
   return /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-3", children: [
-    creator.coverUrl ? /* @__PURE__ */ jsx(
-      "img",
-      {
-        src: creator.coverUrl,
-        alt: creator.displayName,
-        class: "size-12 shrink-0 rounded-full border border-outline object-cover"
-      }
-    ) : /* @__PURE__ */ jsx(
+    creator.coverUrl ? /* @__PURE__ */ jsxs("div", { class: "relative", children: [
+      /* @__PURE__ */ jsx(
+        "img",
+        {
+          src: creator.coverUrl,
+          alt: creator.displayName,
+          class: "size-12 shrink-0 rounded-full border border-outline object-cover"
+        }
+      ),
+      isVerified && /* @__PURE__ */ jsx("div", { class: "absolute top-0 right-0", children: /* @__PURE__ */ jsx(VerifiedCreator, { creatorStatus: "verified", size: "xs" }) })
+    ] }) : /* @__PURE__ */ jsx(
       "span",
       {
         class: "flex size-12 shrink-0 items-center justify-center rounded-full border border-outline bg-surface-alt text-sm font-semibold text-on-surface",

@@ -1,7 +1,7 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
 import { redirectUrlSchema } from "../../schemas/index.js";
-import { formValidator, paramValidator } from "../../lib/validator.js";
+import { formValidator, queryValidator } from "../../lib/validator.js";
 import { loginFormSchema } from "../../features/auth/schema.js";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout.js";
 import LoginForm from "../../features/auth/forms/LoginForm.js";
@@ -12,6 +12,10 @@ import {
 } from "../../features/auth/services.js";
 import { showErrorAlert } from "../../lib/alertHelpers.js";
 import { safeAppRedirect } from "../../lib/safeAppRedirect.js";
+import {
+  clearLoginAttempts,
+  loginRateLimit
+} from "../../middleware/loginRateLimit.js";
 const GET = createRoute(async (c) => {
   const redirectUrl = c.req.query("redirectUrl") ?? null;
   const user = await getUser(c);
@@ -27,17 +31,20 @@ const GET = createRoute(async (c) => {
     ] }) }) })
   );
 });
+const loginErrorMessage = "Invalid email or password";
 const POST = createRoute(
-  paramValidator(redirectUrlSchema),
+  loginRateLimit,
+  queryValidator(redirectUrlSchema),
   formValidator(loginFormSchema),
   async (c) => {
     const formData = c.req.valid("form");
-    const redirectUrl = c.req.valid("param").redirectUrl;
+    const redirectUrl = c.req.valid("query").redirectUrl;
     const email = formData.email.trim().toLowerCase();
     const password = formData.password;
     const [loginErr, login] = await loginAndSetCookies(c, email, password);
     const afterLoginUrl = safeAppRedirect(redirectUrl, "/");
-    if (loginErr) return showErrorAlert(c, "Invalid email or password", 401);
+    if (loginErr) return showErrorAlert(c, loginErrorMessage, 401);
+    clearLoginAttempts(c);
     const [wasForcedResetPasswordError, wasForcedResetPassword] = await getMustResetPasswordState(login.userId);
     if (wasForcedResetPasswordError)
       return showErrorAlert(c, wasForcedResetPasswordError.reason);

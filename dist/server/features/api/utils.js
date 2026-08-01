@@ -7,8 +7,8 @@ const publishLikeActivity = (user, book) => publishActivityEvent({
   targetCreatorName: book.artist?.displayName ?? "",
   targetUrl: `/books/${book.slug}`
 });
-const publishWishlistActivity = (user, book) => publishActivityEvent({
-  type: "book_wishlisted",
+const publishFavouritedActivity = (user, book) => publishActivityEvent({
+  type: "book_favourited",
   actorId: user.id,
   targetName: book.title,
   targetImageUrl: book.coverUrl,
@@ -41,7 +41,7 @@ const publishCommentActivity = (user, book) => publishActivityEvent({
 export {
   publishCollectActivity,
   publishCommentActivity,
+  publishFavouritedActivity,
   publishFollowActivity,
-  publishLikeActivity,
-  publishWishlistActivity
+  publishLikeActivity
 };

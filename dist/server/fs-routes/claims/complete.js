@@ -13,7 +13,6 @@ import {
 } from "../../features/claims/utils.js";
 import { createClaimWithStatus } from "../../features/claims/services.js";
 import { assignUserAsCreatorOwnerAdmin } from "../../domain/claims/owner.js";
-import { createCreatorClaimedNotification } from "../../domain/notifications/utils.js";
 const GET = createRoute(
   queryValidator(claimCompleteQuerySchema),
   async (c) => {
@@ -79,7 +78,6 @@ const GET = createRoute(
         ),
         400
       );
-    await createCreatorClaimedNotification(user, creator);
     if (status === "approved") {
       const [error2] = await assignUserAsCreatorOwnerAdmin(
         user.id,

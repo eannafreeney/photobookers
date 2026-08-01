@@ -1,13 +1,13 @@
 import {
   and,
   count,
+  countDistinct,
   desc,
   eq,
   inArray,
   isNull,
   lte,
-  or,
-  sql
+  or
 } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import {
@@ -71,7 +71,7 @@ const getBookViewTotals = async (range) => {
   const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
   const [totalViewsResult, booksWithViewsResult] = await Promise.all([
     dateFilter ? db.select({ value: count() }).from(bookViews).where(dateFilter) : db.select({ value: count() }).from(bookViews),
-    dateFilter ? db.select({ value: sql`count(distinct ${bookViews.bookId})` }).from(bookViews).where(dateFilter) : db.select({ value: sql`count(distinct ${bookViews.bookId})` }).from(bookViews)
+    dateFilter ? db.select({ value: countDistinct(bookViews.bookId) }).from(bookViews).where(dateFilter) : db.select({ value: countDistinct(bookViews.bookId) }).from(bookViews)
   ]);
   return {
     totalViews: totalViewsResult[0]?.value ?? 0,
@@ -86,13 +86,10 @@ const getTopBooksByViews = async (range, currentPage = 1, defaultLimit = 10, sco
   try {
     const dateFilter = buildCreatedAtFilter(bookViews.createdAt, range);
     const scopeFilter = scope ? scopeBookFilter(scope) : void 0;
-    const where = scopeFilter && dateFilter ? and(scopeFilter, dateFilter) : scopeFilter ?? dateFilter;
-    const countQuery = scope ? db.select({
-      value: sql`count(distinct ${bookViews.bookId})`
-    }).from(bookViews).innerJoin(books, eq(bookViews.bookId, books.id)) : db.select({
-      value: sql`count(distinct ${bookViews.bookId})`
-    }).from(bookViews);
-    const [{ value: totalCount = 0 }] = where ? await countQuery.where(where) : await countQuery;
+    const where = and(scopeFilter, dateFilter, publishedBookConditions);
+    const [{ value: totalCount = 0 }] = await db.select({
+      value: countDistinct(bookViews.bookId)
+    }).from(bookViews).innerJoin(books, eq(bookViews.bookId, books.id)).where(where);
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
@@ -101,14 +98,10 @@ const getTopBooksByViews = async (range, currentPage = 1, defaultLimit = 10, sco
     if (totalCount === 0) {
       return ok({ books: [], totalPages: 1, page: 1 });
     }
-    const viewQuery = (scope ? db.select({
+    const viewRows = await db.select({
       bookId: bookViews.bookId,
       viewCount: count()
-    }).from(bookViews).innerJoin(books, eq(bookViews.bookId, books.id)) : db.select({
-      bookId: bookViews.bookId,
-      viewCount: count()
-    }).from(bookViews)).groupBy(bookViews.bookId).orderBy(desc(count())).limit(limit).offset(offset);
-    const viewRows = where ? await viewQuery.where(where) : await viewQuery;
+    }).from(bookViews).innerJoin(books, eq(bookViews.bookId, books.id)).where(where).groupBy(bookViews.bookId).orderBy(desc(count())).limit(limit).offset(offset);
     if (viewRows.length === 0) {
       return ok({ books: [], totalPages, page });
     }

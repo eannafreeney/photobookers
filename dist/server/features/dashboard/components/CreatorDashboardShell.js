@@ -28,7 +28,15 @@ const CreatorDashboardShell = ({
           showProfile: creator.status === "verified"
         }
       ),
-      /* @__PURE__ */ jsx("div", { id: "creator-dashboard-panel", "x-merge": "replace", children })
+      /* @__PURE__ */ jsx(
+        "div",
+        {
+          id: "creator-dashboard-panel",
+          class: "flex flex-col gap-8",
+          "x-merge": "replace",
+          children
+        }
+      )
     ] })
   ] });
 };

@@ -1,14 +1,20 @@
 import { z } from "zod";
+import { normalizeTagSlug } from "../../lib/tags.js";
 import { parseDateString, parseWeekString } from "../../lib/utils.js";
+import { optionalText } from "../../schemas/index.js";
 const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email().min(1, "Email is required"),
   message: z.string().min(1, "Message is required"),
   website: z.string().optional(),
-  ts: z.number().optional()
+  ts: z.coerce.number().optional()
 });
 const userUpdateFormSchema = z.object({
   msg: z.string().optional()
+});
+const userProfileFormSchema = z.object({
+  firstName: optionalText,
+  lastName: optionalText
 });
 const dateParamSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).transform(parseDateString).refine((d) => !Number.isNaN(d.getTime()), "Invalid date")
@@ -25,17 +31,24 @@ const slugSchema = z.object({
     )
   )
 });
+const idSchema = z.object({
+  id: z.string().uuid("Invalid id")
+});
 const tagSchema = z.object({
-  tag: z.string().min(1, "Tag is required").regex(
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-    "Tag must contain only lowercase letters, numbers, and hyphens"
+  tag: z.string().transform(normalizeTagSlug).pipe(
+    z.string().min(1, "Tag is required").regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Tag must contain only lowercase letters, numbers, and hyphens"
+    )
   )
 });
 export {
   contactFormSchema,
   dateParamSchema,
+  idSchema,
   slugSchema,
   tagSchema,
+  userProfileFormSchema,
   userUpdateFormSchema,
   weekParamSchema
 };

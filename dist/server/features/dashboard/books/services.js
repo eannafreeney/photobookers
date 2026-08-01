@@ -4,7 +4,6 @@ import {
   count,
   desc,
   eq,
-  gte,
   ilike,
   inArray,
   isNull,
@@ -17,35 +16,22 @@ import { db } from "../../../db/client.js";
 import {
   bookImages,
   books,
-  creators
+  bookViews,
+  creators,
+  purchaseClicks
 } from "../../../db/schema.js";
 import { generateUniqueBookSlug } from "../../../utils.js";
 import { processTags } from "./utils.js";
 import { getPagination } from "../../../lib/pagination.js";
 import { err, ok } from "../../../lib/result.js";
 import { invalidateBookCache, invalidateCreatorCache } from "../../app/services.js";
-import { shouldModerateNewBook } from "../../../lib/bookModeration.js";
 async function assignNextBookSortOrder() {
   const [{ maxOrder }] = await db.select({ maxOrder: sql`COALESCE(MAX(${books.sortOrder}), 0)` }).from(books);
   return Number(maxOrder ?? 0) + 1;
 }
-async function countBooksUploadedSinceCreatorVerification(userId, verifiedAt) {
-  const [{ value }] = await db.select({ value: count() }).from(books).where(
-    and(eq(books.createdByUserId, userId), gte(books.createdAt, verifiedAt))
-  );
-  return Number(value ?? 0);
-}
-async function getNewBookModerationForUser(user) {
-  const verifiedAt = user.creator?.verifiedAt ?? null;
-  const creatorStatus = user.creator?.status ?? "stub";
-  const uploadedSince = verifiedAt && creatorStatus === "verified" ? await countBooksUploadedSinceCreatorVerification(user.id, verifiedAt) : 0;
-  const approvedBooksSinceVerificationBeforeInsert = verifiedAt && creatorStatus === "verified" ? await countApprovedBooksSinceCreatorVerification(user.id, verifiedAt) : 0;
+async function getNewBookModerationForUser(_user) {
   return {
-    isAdminContext: false,
-    creatorVerifiedAt: verifiedAt,
-    creatorStatus,
-    booksUploadedSinceVerificationBeforeInsert: uploadedSince,
-    approvedBooksSinceVerificationBeforeInsert
+    isAdminContext: false
   };
 }
 const createBook = async (input) => {
@@ -316,11 +302,16 @@ const updateBook = async (input, bookId) => {
     return err({ reason: "Failed to update book", cause: error });
   }
 };
+const deleteBookDependents = async (bookId) => {
+  await db.delete(purchaseClicks).where(eq(purchaseClicks.bookId, bookId));
+  await db.delete(bookViews).where(eq(bookViews.bookId, bookId));
+  await db.delete(bookImages).where(eq(bookImages.bookId, bookId));
+};
 const deleteBookById = async (bookId) => {
   try {
     const [book] = await db.select().from(books).where(eq(books.id, bookId));
     if (!book) return null;
-    await db.delete(bookImages).where(eq(bookImages.bookId, bookId));
+    await deleteBookDependents(bookId);
     const [deletedBook] = await db.delete(books).where(eq(books.id, bookId)).returning();
     if (book.publisherId) {
       await cleanupOrphanedStubCreator(book.publisherId);
@@ -349,14 +340,6 @@ const buildCreateBookData = async (formData, bookCreator, userId, bookPublisher,
   if (moderation.isAdminContext) {
     approvalStatus = "approved";
     sortOrder = await assignNextBookSortOrder();
-  } else if (!shouldModerateNewBook({
-    creatorVerifiedAt: moderation.creatorVerifiedAt,
-    creatorStatus: moderation.creatorStatus,
-    booksUploadedSinceVerificationBeforeInsert: moderation.booksUploadedSinceVerificationBeforeInsert,
-    approvedBooksSinceVerificationBeforeInsert: moderation.approvedBooksSinceVerificationBeforeInsert
-  })) {
-    approvalStatus = "approved";
-    sortOrder = await assignNextBookSortOrder();
   }
   return {
     title: formData.title,
@@ -371,6 +354,7 @@ const buildCreateBookData = async (formData, bookCreator, userId, bookPublisher,
     createdByUserId: userId,
     tags: processTags(formData.tags),
     purchaseLink: formData.purchase_link ?? null,
+    ...formData.press_links !== void 0 ? { pressLinks: formData.press_links } : {},
     approvalStatus,
     publicationStatus: "draft",
     availabilityStatus: formData.availability_status,
@@ -381,22 +365,13 @@ const buildCreateBookData = async (formData, bookCreator, userId, bookPublisher,
     ...sortOrder !== void 0 ? { sortOrder } : {}
   };
 };
-async function countApprovedBooksSinceCreatorVerification(userId, verifiedAt) {
-  const [{ value }] = await db.select({ value: count() }).from(books).where(
-    and(
-      eq(books.createdByUserId, userId),
-      gte(books.createdAt, verifiedAt),
-      eq(books.approvalStatus, "approved")
-    )
-  );
-  return Number(value ?? 0);
-}
 const buildUpdateBookData = (formData, artistId, publisherId) => {
   return {
     title: formData.title,
     description: formData.description || null,
     releaseDate: formData.release_date ? new Date(formData.release_date) : null,
     purchaseLink: formData.purchase_link ?? null,
+    ...formData.press_links !== void 0 ? { pressLinks: formData.press_links } : {},
     tags: processTags(formData.tags),
     availabilityStatus: formData.availability_status,
     artistId,
@@ -471,10 +446,9 @@ export {
   buildCreateBookData,
   buildUpdateBookData,
   cleanupOrphanedStubCreator,
-  countApprovedBooksSinceCreatorVerification,
-  countBooksUploadedSinceCreatorVerification,
   createBook,
   deleteBookById,
+  deleteBookDependents,
   getArtistByBookId,
   getBookById,
   getBookByIdBasic,

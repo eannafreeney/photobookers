@@ -9,6 +9,7 @@ import {
   STUB_VIEW_MILESTONE_KINDS
 } from "../../../../../domain/creators/stubOutreachMilestones.js";
 import { getCreatorBookViewTotal } from "../../../../book-views/services.js";
+import { creatorHasPublishedBook } from "../../../../../domain/creators/books.js";
 import { eq } from "drizzle-orm";
 import { db } from "../../../../../db/client.js";
 import { creatorStubOutreachEmails } from "../../../../../db/schema.js";
@@ -27,8 +28,9 @@ const StubOutreachStatus = async ({ creator }) => {
   });
   const sent = new Set(rows.map((row) => row.kind));
   if (!creator.welcomeEmailSent) {
+    const hasPublishedBook = await creatorHasPublishedBook(creator);
     return /* @__PURE__ */ jsxs("div", { id, class: "flex flex-wrap items-center gap-2", children: [
-      /* @__PURE__ */ jsx(Pill, { variant: "warning", children: "Welcome pending (cron)" }),
+      hasPublishedBook ? /* @__PURE__ */ jsx(Pill, { variant: "warning", children: "Welcome pending (cron)" }) : /* @__PURE__ */ jsx(Pill, { variant: "default", children: "No published book yet" }),
       /* @__PURE__ */ jsx(StubOutreachOptOutToggle, { creator, optedOut: false, targetId: id })
     ] });
   }

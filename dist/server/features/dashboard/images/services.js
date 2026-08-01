@@ -1,11 +1,13 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client.js";
 import { bookFairs, bookImages, bookStores, books, creators, users } from "../../../db/schema.js";
+import { notifyAdminBookPendingReviewWhenReady } from "../../../domain/notifications/services.js";
 import { err, ok } from "../../../lib/result.js";
 import {
   invalidateBookCache,
   invalidateCreatorCache
 } from "../../app/services.js";
+import { persistedBookImageIds } from "./ids.js";
 const updateCreatorCoverImage = async (coverUrl, creatorId) => {
   try {
     const [updatedCreator] = await db.update(creators).set({ coverUrl }).where(eq(creators.id, creatorId)).returning();
@@ -50,8 +52,12 @@ const updateUserProfileImageDB = async (userId, profileImageUrl) => {
     return err({ reason: "Failed to update user profile image", cause: error });
   }
 };
-const updateBookCoverImage = async (bookId, coverUrl) => {
+const updateBookCoverImage = async (bookId, coverUrl, options) => {
   try {
+    const existing = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      columns: { coverUrl: true }
+    });
     const [updatedBook] = await db.update(books).set({ coverUrl }).where(eq(books.id, bookId)).returning();
     if (!updatedBook)
       return err({
@@ -60,6 +66,12 @@ const updateBookCoverImage = async (bookId, coverUrl) => {
       });
     if (updatedBook.slug) {
       invalidateBookCache(updatedBook.slug);
+    }
+    if (options?.actorUserId && !existing?.coverUrl) {
+      await notifyAdminBookPendingReviewWhenReady({
+        bookId,
+        actorUserId: options.actorUserId
+      });
     }
     return ok(updatedBook);
   } catch (error) {
@@ -71,10 +83,11 @@ const removeImages = async (bookId, removedIds) => await db.delete(bookImages).w
   and(eq(bookImages.bookId, bookId), inArray(bookImages.id, removedIds))
 );
 const reorderBookImages = async (bookId, orderedIds) => {
-  if (!orderedIds.length) return;
+  const persistedIds = persistedBookImageIds(orderedIds);
+  if (!persistedIds.length) return;
   try {
     await db.transaction(async (tx) => {
-      for (const [index, imageId] of orderedIds.entries()) {
+      for (const [index, imageId] of persistedIds.entries()) {
         await tx.update(bookImages).set({ sortOrder: index }).where(
           and(eq(bookImages.bookId, bookId), eq(bookImages.id, imageId))
         );

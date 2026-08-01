@@ -6,11 +6,12 @@ import PrepareInstagramModal from "../../../../../../features/dashboard/admin/pl
 import {
   getWeekInstagramForPrepare,
   saveWeekInstagramPreparation
-} from "../../../../../../features/dashboard/admin/planner/instagramServices.js";
+} from "../../../../../../features/dashboard/admin/planner/social-media/instagramServices.js";
 import {
   extractBracketedFormFields,
+  extractBracketedFormArrayFields,
   parsePrepareInstagramForm
-} from "../../../../../../features/dashboard/admin/planner/instagramUtils.js";
+} from "../../../../../../features/dashboard/admin/planner/social-media/instagramUtils.js";
 import { parseWeekString } from "../../../../../../lib/utils.js";
 import { showErrorAlert } from "../../../../../../lib/alertHelpers.js";
 import Alert from "../../../../../../components/app/Alert.js";
@@ -24,7 +25,13 @@ const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
   const [error, data] = await getWeekInstagramForPrepare(weekStart);
   if (error) {
     return c.html(
-      /* @__PURE__ */ jsx(Alert, { type: "danger", message: "Failed to load Instagram plan for this week" })
+      /* @__PURE__ */ jsx(
+        Alert,
+        {
+          type: "danger",
+          message: "Failed to load Instagram plan for this week"
+        }
+      )
     );
   }
   return c.html(
@@ -49,7 +56,7 @@ const POST = createRoute(paramValidator(weekQuerySchema), async (c) => {
   }
   const body = await c.req.parseBody({ all: true });
   const captions = extractBracketedFormFields(body, "captions");
-  const imageUrl = extractBracketedFormFields(body, "imageUrl");
+  const imageUrl = extractBracketedFormArrayFields(body, "imageUrl");
   const [parseError, payload] = parsePrepareInstagramForm({
     captions,
     imageUrl

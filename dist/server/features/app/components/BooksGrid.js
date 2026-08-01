@@ -5,7 +5,6 @@ import ScrollReveal from "../../../components/app/ScrollReveal.js";
 import { BOOKS_LIST_TARGET_ID } from "./BookFilters.js";
 import ListNavigation from "./ListNavigation.js";
 const BooksGrid = async ({
-  isFullWidth,
   currentPath,
   result,
   user,
@@ -23,7 +22,6 @@ const BooksGrid = async ({
       GridPanel,
       {
         id: targetId,
-        isFullWidth,
         xMerge: gridMerge,
         "data-nav": isMobile || isInfiniteScroll ? "infinite" : "pagination",
         children: books?.length > 0 ? books.map((book) => /* @__PURE__ */ jsx(ScrollReveal, { children: /* @__PURE__ */ jsx(

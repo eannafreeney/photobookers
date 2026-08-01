@@ -26,21 +26,25 @@ const setCookiesAndVerifyUser = async (c, session) => {
   const { access_token, refresh_token, expires_in, user } = session;
   setAccessToken(c, access_token, expires_in);
   setRefreshToken(c, refresh_token);
-  await markCreatorsOwnedByUserAsVerified(user.id);
+  await verifyCreatorsOwnedByUser(user.id);
 };
-const markCreatorsOwnedByUserAsVerified = async (userId) => {
+async function verifyCreatorsOwnedByUser(userId) {
   try {
     await db.update(creators).set({
       status: "verified",
       verifiedAt: sql`COALESCE(${creators.verifiedAt}, NOW())`
     }).where(
-      and(eq(creators.ownerUserId, userId), ne(creators.status, "verified"))
+      and(
+        eq(creators.ownerUserId, userId),
+        eq(creators.createdByUserId, userId),
+        ne(creators.status, "verified")
+      )
     );
     return ok(void 0);
   } catch (e) {
     return err({ reason: "Failed to mark creators as verified", cause: e });
   }
-};
+}
 function getAuthCookieOptions(c) {
   return {
     httpOnly: true,
@@ -230,6 +234,7 @@ export {
   setAccessToken,
   setCookiesAndVerifyUser,
   setRefreshToken,
+  verifyCreatorsOwnedByUser,
   verifyOtpForClaimSignup,
   verifyOtpForCreatorSignup,
   verifyOtpForFanSignup

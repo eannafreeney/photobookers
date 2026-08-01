@@ -10,11 +10,13 @@ import CreatorStatusBadge from "../../components/CreatorStatusBadge.js";
 import CreatorTypeForm from "../forms/CreatorTypeForm.js";
 import { getAllCreatorProfilesByTypeAdmin } from "../services.js";
 import SendWelcomeEmailButton from "./SendWelcomeEmailButton.js";
+import VerifyCreatorButton from "./VerifyCreatorButton.js";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll.js";
 import OwnerCell from "./OwnerCell.js";
 import SendInterviewButton from "./SendInterviewButton.js";
 import FormDelete from "../../../../../components/forms/FormDelete.js";
 import { deleteIcon } from "../../../../../lib/icons.js";
+import { deleteRowAttrs } from "../../../../../lib/utils.js";
 const AdminCreatorsTableAndFilter = async ({
   type = void 0,
   currentPage,
@@ -52,6 +54,7 @@ const AdminCreatorsTableAndFilter = async ({
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Type" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Website" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Status" }),
+            /* @__PURE__ */ jsx(Table.HeadRow, { children: "Verify" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Followers" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Created At" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Owner" }),
@@ -76,12 +79,6 @@ const AdminCreatorsTableAndFilter = async ({
 };
 var AdminCreatorsTableAndFilter_default = AdminCreatorsTableAndFilter;
 const CreatorsTableRow = ({ creator }) => {
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()"
-  };
   return /* @__PURE__ */ jsxs("tr", { children: [
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
       "img",
@@ -105,6 +102,7 @@ const CreatorsTableRow = ({ creator }) => {
       }
     ) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(CreatorStatusBadge, { creatorStatus: creator.status ?? "stub" }) }),
+    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(VerifyCreatorButton, { creator }) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(FollowersCount, { creatorId: creator.id }) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: formatDate(creator.createdAt ?? /* @__PURE__ */ new Date()) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(OwnerCell, { ownerUserId: creator.ownerUserId, creatorId: creator.id }) }),
@@ -115,7 +113,7 @@ const CreatorsTableRow = ({ creator }) => {
       FormDelete,
       {
         action: `/dashboard/admin/creators/${creator.id}`,
-        ...alpineAttrs,
+        ...deleteRowAttrs,
         children: /* @__PURE__ */ jsx("button", { type: "submit", class: "cursor-pointer hover:text-red-500", children: deleteIcon })
       }
     ) })

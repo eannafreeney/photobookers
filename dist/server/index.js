@@ -2,12 +2,16 @@ import { jsx } from "hono/jsx/jsx-runtime";
 import "dotenv/config";
 import { Hono } from "hono";
 import { logger } from "hono/logger";
+import { secureHeaders } from "hono/secure-headers";
+import { HTTPException } from "hono/http-exception";
 import { routes } from "./routes/index.js";
 import NotFoundPage from "./pages/NotFoundPage.js";
+import { handleServerError } from "./lib/serverErrorResponse.js";
 import { getUser } from "./utils.js";
 import { BUNDLE_CACHE, cachedStatic, IMMUTABLE_CACHE } from "./lib/staticCache.js";
 const app = new Hono();
 app.use("*", logger());
+app.use("*", secureHeaders());
 app.get(
   "/favicon.svg",
   cachedStatic({ path: "./public/favicon.svg", cacheControl: IMMUTABLE_CACHE })
@@ -45,6 +49,10 @@ if (process.env.NODE_ENV === "production") {
   );
 }
 app.route("/", routes);
+app.onError((err, c) => {
+  if (err instanceof HTTPException) return err.getResponse();
+  return handleServerError(c, err);
+});
 app.notFound(async (c) => {
   const user = await getUser(c);
   return c.html(/* @__PURE__ */ jsx(NotFoundPage, { currentPath: c.req.path, user }), 404);

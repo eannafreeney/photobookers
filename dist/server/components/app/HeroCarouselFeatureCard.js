@@ -3,7 +3,7 @@ import { toAlpineDataJson } from "../../features/app/utils.js";
 import { heroLcpImageSources } from "../../lib/imageUrl.js";
 import { leftArrowIcon, rightArrowIcon } from "../../lib/icons.js";
 import Button from "./Button.js";
-const HERO_IMAGE_CLASS = "h-auto w-full max-h-[220px] object-contain sm:max-h-[260px] md:h-full md:max-h-none md:w-full object-cover";
+const HERO_IMAGE_CLASS = "h-auto w-full max-h-[220px] object-contain sm:max-h-[260px] md:h-full md:max-h-none md:w-full";
 const HERO_SLIDE_GRID_CLASS = "grid grid-cols-1 pt-6 pb-12 md:h-full md:grid-cols-2 md:pt-0 md:pb-0";
 const HERO_TEXT_COLUMN_CLASS = "flex flex-col items-center justify-center order-2 px-4 py-4 text-center sm:p-8 lg:p-12";
 const HERO_BUTTON_ROW_CLASS = "mt-1 mb-4 flex items-center justify-center gap-3 group md:justify-start";
@@ -123,7 +123,7 @@ const HeroCarouselFeatureCard = ({ heroItems }) => {
                 "x-show": "items.length > 1",
                 "x-on:click": "prev()",
                 type: "button",
-                class: "group absolute left-2 top-2/3 md:top-1/2 z-20 flex size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:-translate-x-1 sm:left-4 md:left-10 md:size-11 cursor-pointer",
+                class: "hidden md:flex group absolute left-2 top-1/2 z-20 size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:-translate-x-1 md:left-3 md:size-11 cursor-pointer",
                 children: /* @__PURE__ */ jsx("span", { class: "transition-transform duration-300 ease-out group-hover:-translate-x-0.5", children: leftArrowIcon })
               }
             ),
@@ -133,7 +133,7 @@ const HeroCarouselFeatureCard = ({ heroItems }) => {
                 "x-show": "items.length > 1",
                 "x-on:click": "next()",
                 type: "button",
-                class: "group absolute right-2 top-2/3 md:top-1/2 z-20 flex size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:translate-x-1 sm:right-4 md:right-10 md:size-11 cursor-pointer",
+                class: " hidden md:flex group absolute right-2 top-1/2 z-20 size-8 -translate-y-1/2 items-center justify-center text-on-surface-strong transition duration-300 ease-out hover:translate-x-1 md:right-3 md:size-11 cursor-pointer",
                 children: /* @__PURE__ */ jsx("span", { class: "transition-transform duration-300 ease-out group-hover:translate-x-0.5", children: rightArrowIcon })
               }
             )

@@ -6,8 +6,7 @@ import Link from "./Link";
 import { AuthUser } from "../../../types";
 import { BookCardResult } from "../../constants/queries";
 import Show from "./Show";
-import LikeButton from "../../features/api/components/LikeButton";
-import WishlistButton from "../../features/api/components/FavouriteButton";
+import SaveToListButton from "../../features/api/components/SaveToListButton";
 
 type BookCardProps = {
   banner?: string;
@@ -68,7 +67,7 @@ const BookCard = ({
               </p>
             </Show>
           </div>
-          <WishlistButton isCircleButton book={book} user={user} />
+          <SaveToListButton book={book} user={user} />
         </div>
       </Card.Body>
     </Card>

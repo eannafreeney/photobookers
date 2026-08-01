@@ -1,8 +1,12 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
-function MobileHeader({ kicker, title, children }) {
+import VerifiedCreator from "../../../components/app/VerifiedCreator.js";
+function MobileHeader({ kicker, title, isVerified = false, children }) {
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-1 border-b-2 border-on-surface-strong pb-3", children: [
     /* @__PURE__ */ jsx("span", { class: "kicker text-accent", children: kicker }),
-    /* @__PURE__ */ jsx("h1", { class: "font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance pb-1", children: title }),
+    /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2", children: [
+      title && /* @__PURE__ */ jsx("h1", { class: "font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance pb-1", children: title }),
+      isVerified && /* @__PURE__ */ jsx(VerifiedCreator, { creatorStatus: "verified", size: "xs" })
+    ] }),
     children
   ] });
 }

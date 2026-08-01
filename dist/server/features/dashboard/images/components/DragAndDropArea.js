@@ -1,5 +1,7 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
-const DragAndDropArea = () => {
+const DragAndDropArea = ({
+  prompt = "Drag and drop or click here to upload images."
+}) => {
   const dragAttrs = {
     "@dragenter.prevent": "onDragEnter($event)",
     "@dragover.prevent": "onDragOver($event)",
@@ -15,7 +17,7 @@ const DragAndDropArea = () => {
       ...dragAttrs,
       children: [
         /* @__PURE__ */ jsx("div", { class: "flex items-center justify-center mb-4", children: dragAndDropIcon }),
-        /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface/80", children: "Drag and drop or click here to upload images." }),
+        /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface/80", children: prompt }),
         /* @__PURE__ */ jsx("p", { class: "text-xs text-on-surface/80", children: "PNG, JPG, WebP - Max 5MB" })
       ]
     }

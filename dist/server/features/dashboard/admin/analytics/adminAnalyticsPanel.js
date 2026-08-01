@@ -4,6 +4,8 @@ import {
 const ADMIN_ANALYTICS_PANEL_ID = "admin-analytics-panel";
 const ADMIN_ANALYTICS_FRAGMENT = "panel";
 const ADMIN_ANALYTICS_BASE_PATH = "/dashboard/admin/analytics";
+const ADMIN_ANALYTICS_FANS_PATH = `${ADMIN_ANALYTICS_BASE_PATH}/fans`;
+const ADMIN_ANALYTICS_VERIFIED_CREATORS_PATH = `${ADMIN_ANALYTICS_BASE_PATH}/verified-creators`;
 const TAB_QUERY_VALUES = [
   "overview",
   "books",
@@ -20,7 +22,9 @@ function adminAnalyticsHref(dateRange, options) {
 }
 export {
   ADMIN_ANALYTICS_BASE_PATH,
+  ADMIN_ANALYTICS_FANS_PATH,
   ADMIN_ANALYTICS_FRAGMENT,
   ADMIN_ANALYTICS_PANEL_ID,
+  ADMIN_ANALYTICS_VERIFIED_CREATORS_PATH,
   adminAnalyticsHref
 };

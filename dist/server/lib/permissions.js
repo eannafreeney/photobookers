@@ -85,7 +85,7 @@ function canClaimFairAttendance(user, fair) {
   if (!user?.creator) return false;
   if (user.creator.status !== "verified") return false;
   const today = new Date((/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0));
-  return fair.status === "published" && fair.approvalStatus === "approved" && new Date(fair.endDate) >= today;
+  return fair.status === "published" && new Date(fair.endDate) >= today;
 }
 function canWithdrawFairAttendance(user, fair, creatorId) {
   if (!user?.creator) return false;

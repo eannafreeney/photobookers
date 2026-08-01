@@ -76,7 +76,7 @@ function buildCreatorAnalyticsNudgeEmail(params) {
 function milestoneBody(kind, bookTitle) {
   switch (kind) {
     case "first_wishlist":
-      return bookTitle ? `Someone added <strong>${escapeHtml(bookTitle)}</strong> to their wishlist \u2014 your first on Photobookers.` : "Someone wishlisted one of your books \u2014 your first on Photobookers.";
+      return bookTitle ? `Someone added <strong>${escapeHtml(bookTitle)}</strong> to their favourites \u2014 your first on Photobookers.` : "Someone favourited one of your books \u2014 your first on Photobookers.";
     case "first_follower":
       return "You have your first follower on Photobookers.";
     case "followers_10":
@@ -98,7 +98,7 @@ function milestoneBody(kind, bookTitle) {
 function creatorMilestoneEmailSubject(kind, bookTitle) {
   switch (kind) {
     case "first_wishlist":
-      return bookTitle ? `First wishlist on Photobookers \u2014 ${bookTitle}` : "First wishlist on Photobookers";
+      return bookTitle ? `First favourite on Photobookers \u2014 ${bookTitle}` : "First favourite on Photobookers";
     case "first_follower":
       return "Your first follower on Photobookers";
     case "followers_10":

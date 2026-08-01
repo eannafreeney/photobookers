@@ -7,7 +7,7 @@ import { requireBookEditAccess } from "../../../../middleware/bookGuard.js";
 import { resubmitBook } from "../../../../features/dashboard/books/services.js";
 import Alert from "../../../../components/app/Alert.js";
 import { getUser } from "../../../../utils.js";
-import { notifyAdminBookPendingReview } from "../../../../features/dashboard/admin/notifications/services.js";
+import { notifyAdminBookPendingReviewWhenReady } from "../../../../features/dashboard/admin/notifications/services.js";
 const POST = createRoute(
   paramValidator(bookIdSchema),
   requireBookEditAccess,
@@ -17,9 +17,8 @@ const POST = createRoute(
     const [error, updatedBook] = await resubmitBook(bookId);
     if (error) return showErrorAlert(c, error.reason);
     if (updatedBook?.approvalStatus === "pending") {
-      await notifyAdminBookPendingReview({
+      await notifyAdminBookPendingReviewWhenReady({
         bookId: updatedBook.id,
-        title: updatedBook.title,
         actorUserId: user.id,
         isResubmit: true
       });

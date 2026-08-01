@@ -6,7 +6,13 @@ import {
   booksIcon,
   claimsIcon,
   creatorsIcon,
+  fairsIcon,
+  interviewsIcon,
+  libraryIcon,
+  magazineIcon,
+  mailIcon,
   plannerIcon,
+  storesIcon,
   usersIcon
 } from "../../../../lib/icons.js";
 import AdminBadge from "./AdminBadge.js";
@@ -21,6 +27,14 @@ const AdminNavTabs = ({ currentPath }) => {
       plannerIcon,
       "Planner"
     ] }),
+    /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/newsletters", currentPath, children: [
+      mailIcon(4),
+      "Newsletters"
+    ] }),
+    /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/magazine", currentPath, children: [
+      magazineIcon,
+      "Magazine"
+    ] }),
     /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/analytics", currentPath, children: [
       analyticsIcon,
       "Analytics"
@@ -33,14 +47,6 @@ const AdminNavTabs = ({ currentPath }) => {
       creatorsIcon,
       "Creators"
     ] }),
-    /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/fairs", currentPath, children: [
-      plannerIcon,
-      "Fairs"
-    ] }),
-    /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/stores", currentPath, children: [
-      plannerIcon,
-      "Stores"
-    ] }),
     /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/users", currentPath, children: [
       usersIcon(5),
       "Users"
@@ -51,8 +57,20 @@ const AdminNavTabs = ({ currentPath }) => {
       /* @__PURE__ */ jsx(AdminBadge, { xData: "adminClaimsBadge" })
     ] }),
     /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/interviews", currentPath, children: [
-      usersIcon(5),
+      interviewsIcon,
       "Interviews"
+    ] }),
+    /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/lists", currentPath, children: [
+      libraryIcon(4),
+      "Lists"
+    ] }),
+    /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/fairs", currentPath, children: [
+      fairsIcon,
+      "Fairs"
+    ] }),
+    /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/stores", currentPath, children: [
+      storesIcon,
+      "Stores"
     ] })
   ] });
 };

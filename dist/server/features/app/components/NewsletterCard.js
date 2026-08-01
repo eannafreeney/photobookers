@@ -13,7 +13,7 @@ const NewsletterCard = () => /* @__PURE__ */ jsx(
         /* @__PURE__ */ jsxs("div", { class: "min-w-0 flex-1 pt-0.5", children: [
           /* @__PURE__ */ jsx("span", { class: "kicker text-accent", children: NEWSLETTER_COPY.kicker }),
           /* @__PURE__ */ jsx("p", { class: "mt-1 font-display text-xl text-on-surface-strong", children: NEWSLETTER_COPY.title }),
-          /* @__PURE__ */ jsx("p", { class: "mt-1 text-pretty text-xs leading-relaxed text-on-surface sm:text-sm", children: NEWSLETTER_COPY.short })
+          /* @__PURE__ */ jsx("p", { class: "mt-1 text-pretty text-xs leading-relaxed text-on-surface sm:text-sm", children: NEWSLETTER_COPY.banner })
         ] })
       ] }),
       /* @__PURE__ */ jsx(NewsletterForm, { className: "w-full max-w-md" })

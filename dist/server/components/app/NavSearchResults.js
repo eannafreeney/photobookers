@@ -3,20 +3,22 @@ import VerifiedCreator from "./VerifiedCreator.js";
 import Avatar from "./Avatar.js";
 import { formatDate } from "../../utils.js";
 import { tagBooksUrl } from "../../lib/tags.js";
+import { getInitialsAvatar } from "../../lib/avatar.js";
 const NavSearchResults = ({
   creators,
   books,
   fairs,
+  collectors = [],
   isMobile = false,
   searchQuery,
   variant = "dropdown"
 }) => {
-  const hasResults = creators.length > 0 || books.length > 0 || fairs.length > 0;
+  const hasResults = creators.length > 0 || books.length > 0 || fairs.length > 0 || collectors.length > 0;
   const fullResultsHref = searchQuery?.trim() ? `/search/results?search=${encodeURIComponent(searchQuery.trim())}` : null;
   const tagResultsHref = searchQuery?.trim() ? tagBooksUrl(searchQuery.trim()) : null;
   const isPage = variant === "page";
   const containerId = isPage ? void 0 : isMobile ? "search-results-mobile" : "search-results";
-  const containerClass = isPage ? "rounded-radius border border-outline bg-surface-alt" : "fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:h-auto md:w-fit md:min-w-64 lg:min-w-96 md:rounded-radius overflow-hidden rounded-radius border shadow-sm border-outline bg-surface-alt";
+  const containerClass = isPage ? "rounded-radius border border-outline bg-surface-alt" : "fixed inset-0 z-50 h-screen w-screen md:absolute md:inset-auto top-18 md:top-11 md:h-auto md:w-fit md:min-w-64 md:max-w-96 lg:min-w-96 lg:max-w-[28rem] md:rounded-radius overflow-hidden rounded-radius border shadow-sm border-outline bg-surface-alt";
   return /* @__PURE__ */ jsx(
     "div",
     {
@@ -24,55 +26,76 @@ const NavSearchResults = ({
       class: containerClass,
       "x-data": isPage ? void 0 : "{ isOpen: true }",
       "x-show": isPage ? void 0 : "isOpen",
-      children: /* @__PURE__ */ jsxs("div", { class: isPage ? "p-4 md:p-6" : "max-h-[calc(100vh-4rem)] overflow-y-auto p-4", children: [
-        !hasResults && !isPage ? /* @__PURE__ */ jsx("div", { class: "p-8 text-center", children: /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: "No results found" }) }) : /* @__PURE__ */ jsxs(
-          "div",
-          {
-            class: isPage ? "grid grid-cols-1 gap-4 lg:h-[calc(100vh-18rem)] lg:grid-cols-3 lg:overflow-hidden" : "flex flex-col gap-4",
-            children: [
-              (isPage || creators.length > 0) && /* @__PURE__ */ jsx(
-                ResultsSection,
-                {
-                  isPage,
-                  title: "Creators",
-                  hasResults: creators.length > 0,
-                  children: creators.map((creator) => /* @__PURE__ */ jsx(CreatorResultItem, { creator }, creator.id))
-                }
-              ),
-              (isPage || books.length > 0) && /* @__PURE__ */ jsx(
-                ResultsSection,
-                {
-                  isPage,
-                  title: "Books",
-                  hasResults: books.length > 0,
-                  children: books.map((book) => /* @__PURE__ */ jsx(BookResultItem, { book }, book.id))
-                }
-              ),
-              (isPage || fairs.length > 0) && /* @__PURE__ */ jsx(
-                ResultsSection,
-                {
-                  isPage,
-                  title: "Fairs",
-                  hasResults: fairs.length > 0,
-                  children: fairs.map((fair) => /* @__PURE__ */ jsx(FairResultItem, { fair }, fair.id))
-                }
-              )
-            ]
-          }
-        ),
-        !isPage && (fullResultsHref || tagResultsHref) ? /* @__PURE__ */ jsxs("div", { class: "mt-4 flex flex-col gap-2 border-t border-outline pt-4", children: [
-          fullResultsHref ? /* @__PURE__ */ jsxs(CtaLinkButton, { href: fullResultsHref, children: [
-            'View all results for "',
-            searchQuery?.trim(),
-            '"'
-          ] }) : null,
-          tagResultsHref ? /* @__PURE__ */ jsxs(CtaLinkButton, { href: tagResultsHref, children: [
-            'View all books tagged with "',
-            searchQuery?.trim(),
-            '"'
-          ] }) : null
-        ] }) : null
-      ] })
+      children: /* @__PURE__ */ jsxs(
+        "div",
+        {
+          class: isPage ? "p-4 md:p-6" : "max-h-[calc(100vh-4rem)] overflow-y-auto p-4",
+          children: [
+            !hasResults && !isPage ? /* @__PURE__ */ jsx("div", { class: "p-8 text-center", children: /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: "No results found" }) }) : /* @__PURE__ */ jsxs(
+              "div",
+              {
+                class: isPage ? collectors.length > 0 ? "grid grid-cols-1 gap-4 lg:h-[calc(100vh-18rem)] lg:grid-cols-4 lg:overflow-hidden" : "grid grid-cols-1 gap-4 lg:h-[calc(100vh-18rem)] lg:grid-cols-3 lg:overflow-hidden" : "flex flex-col gap-4",
+                children: [
+                  (isPage || creators.length > 0) && /* @__PURE__ */ jsx(
+                    ResultsSection,
+                    {
+                      isPage,
+                      title: "Creators",
+                      hasResults: creators.length > 0,
+                      children: creators.map((creator) => /* @__PURE__ */ jsx(CreatorResultItem, { creator }, creator.id))
+                    }
+                  ),
+                  (isPage || books.length > 0) && /* @__PURE__ */ jsx(
+                    ResultsSection,
+                    {
+                      isPage,
+                      title: "Books",
+                      hasResults: books.length > 0,
+                      children: books.map((book) => /* @__PURE__ */ jsx(BookResultItem, { book }, book.id))
+                    }
+                  ),
+                  (isPage || fairs.length > 0) && /* @__PURE__ */ jsx(
+                    ResultsSection,
+                    {
+                      isPage,
+                      title: "Fairs",
+                      hasResults: fairs.length > 0,
+                      children: fairs.map((fair) => /* @__PURE__ */ jsx(FairResultItem, { fair }, fair.id))
+                    }
+                  ),
+                  collectors.length > 0 && /* @__PURE__ */ jsx(
+                    ResultsSection,
+                    {
+                      isPage,
+                      title: "Collectors",
+                      hasResults: collectors.length > 0,
+                      children: collectors.map((collector) => /* @__PURE__ */ jsx(
+                        CollectorResultItem,
+                        {
+                          collector
+                        },
+                        collector.id
+                      ))
+                    }
+                  )
+                ]
+              }
+            ),
+            !isPage && (fullResultsHref || tagResultsHref) ? /* @__PURE__ */ jsxs("div", { class: "mt-4 flex flex-col gap-2 border-t border-outline pt-4", children: [
+              fullResultsHref ? /* @__PURE__ */ jsxs(CtaLinkButton, { href: fullResultsHref, children: [
+                'View all results for "',
+                searchQuery?.trim(),
+                '"'
+              ] }) : null,
+              tagResultsHref ? /* @__PURE__ */ jsxs(CtaLinkButton, { href: tagResultsHref, children: [
+                'View all books tagged with "',
+                searchQuery?.trim(),
+                '"'
+              ] }) : null
+            ] }) : null
+          ]
+        }
+      )
     }
   );
 };
@@ -93,14 +116,11 @@ const ResultsSection = ({
     /* @__PURE__ */ jsx("ul", { class: "flex flex-col gap-4", children })
   ] });
 };
-const CtaLinkButton = ({
-  href,
-  children
-}) => /* @__PURE__ */ jsx(
+const CtaLinkButton = ({ href, children }) => /* @__PURE__ */ jsx(
   "a",
   {
     href,
-    class: "w-full whitespace-nowrap rounded-radius px-5 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.16em] transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 active:opacity-100 active:outline-offset-0 cursor-pointer bg-primary text-on-primary",
+    class: "w-full rounded-radius px-5 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.16em] transition hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 active:opacity-100 active:outline-offset-0 cursor-pointer bg-primary text-on-primary",
     children
   }
 );
@@ -195,27 +215,26 @@ const FairResultItem = ({ fair }) => {
     }
   ) });
 };
+const CollectorResultItem = ({ collector }) => {
+  const name = [collector.firstName, collector.lastName].filter(Boolean).join(" ").trim() || "Collector";
+  const avatarUrl = collector.profileImageUrl ?? getInitialsAvatar(collector.firstName ?? "", collector.lastName ?? "");
+  if (!collector.shelfSlug) return null;
+  return /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs(
+    "a",
+    {
+      href: `/shelf/${collector.shelfSlug}`,
+      class: "flex items-center gap-3 rounded-radius transition-colors",
+      children: [
+        /* @__PURE__ */ jsx(Avatar, { src: avatarUrl, alt: name, size: "md" }),
+        /* @__PURE__ */ jsxs("div", { class: "flex-1 min-w-0", children: [
+          /* @__PURE__ */ jsx("div", { class: "font-semibold text-on-surface truncate", children: name }),
+          /* @__PURE__ */ jsx("div", { class: "text-xs uppercase font-semibold text-on-surface", children: "Collector" })
+        ] })
+      ]
+    }
+  ) });
+};
 var NavSearchResults_default = NavSearchResults;
-const closeIcon = /* @__PURE__ */ jsx(
-  "svg",
-  {
-    xmlns: "http://www.w3.org/2000/svg",
-    fill: "none",
-    viewBox: "0 0 24 24",
-    strokeWidth: "1.5",
-    stroke: "currentColor",
-    class: "size-6",
-    "aria-hidden": "true",
-    children: /* @__PURE__ */ jsx(
-      "path",
-      {
-        strokeLinecap: "round",
-        strokeLinejoin: "round",
-        d: "M6 18 18 6M6 6l12 12"
-      }
-    )
-  }
-);
 export {
   NavSearchResults_default as default
 };

@@ -3,7 +3,9 @@ const StatusPill = ({ status }) => {
   const pillClasses = {
     pending: "bg-yellow-200 text-yellow-800",
     approved: "bg-green-200 text-green-800",
-    rejected: "bg-red-200 text-red-800"
+    rejected: "bg-red-200 text-red-800",
+    draft: "bg-gray-200 text-gray-800",
+    published: "bg-primary text-on-primary"
   };
   return /* @__PURE__ */ jsx(
     "span",

@@ -23,7 +23,7 @@ function snapshotRow(label, value) {
   </tr>`;
 }
 function ceoMetricsEmailSubject(rangeLabel) {
-  return `Photobookers weekly metrics \u2014 ${rangeLabel}`;
+  return `Photobookers daily metrics \u2014 ${rangeLabel}`;
 }
 function buildCeoMetricsEmail(snapshot) {
   const rangeLabel = formatAnalyticsDateRangeLabel(snapshot.range);
@@ -35,11 +35,11 @@ function buildCeoMetricsEmail(snapshot) {
 <body style="margin:0;padding:24px;background:#f6f3ef;font-family:Georgia,serif;color:#191613;">
   <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #e8e4df;border-radius:8px;padding:24px;">
     <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#8a5a44;">CEO metrics</p>
-    <h1 style="margin:0 0 8px;font-size:24px;font-weight:500;">Weekly snapshot</h1>
-    <p style="margin:0 0 24px;font-size:14px;color:#5c574f;">${escapeHtml(rangeLabel)} \xB7 compared to ${escapeHtml(previousLabel)}</p>
+    <h1 style="margin:0 0 8px;font-size:24px;font-weight:500;">Daily snapshot</h1>
+    <p style="margin:0 0 24px;font-size:14px;color:#5c574f;">${escapeHtml(rangeLabel)} \xB7 day-over-day vs ${escapeHtml(previousLabel)}</p>
     <table style="width:100%;border-collapse:collapse;">
       ${metricRow(
-    "Weekly active collectors",
+    "Daily active collectors",
     snapshot.weeklyActiveCollectors.value,
     snapshot.weeklyActiveCollectors.delta.label
   )}
@@ -52,7 +52,7 @@ function buildCeoMetricsEmail(snapshot) {
         <td style="padding:8px 0 16px;font-size:12px;color:#5c574f;line-height:1.6;">
           ${breakdown.views.toLocaleString()} editorial views \xB7
           ${breakdown.clicks.toLocaleString()} editorial clicks \xB7
-          ${breakdown.featuredWishlists.toLocaleString()} featured-book wishlists \xB7
+          ${breakdown.featuredWishlists.toLocaleString()} featured-book favourites \xB7
           ${breakdown.featuredFollows.toLocaleString()} spotlight follows
         </td>
       </tr>

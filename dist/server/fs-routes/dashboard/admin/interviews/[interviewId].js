@@ -1,4 +1,4 @@
-import { jsx } from "hono/jsx/jsx-runtime";
+import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { getInterviewById } from "../../../../features/app/services.js";
 import InfoPage from "../../../../pages/InfoPage.js";
 import { createRoute } from "hono-fsr";
@@ -14,9 +14,12 @@ import { getUser } from "../../../../utils.js";
 import EditInterviewForm from "../../../../features/dashboard/admin/interviews/forms/EditInterviewForm.js";
 import {
   deleteInterviewById,
+  setInterviewPublishStatus,
   updateInterviewAndPublishById
 } from "../../../../features/dashboard/admin/interviews/services.js";
 import { showErrorAlert, showSuccessAlert } from "../../../../lib/alertHelpers.js";
+import Alert from "../../../../components/app/Alert.js";
+import InterviewPublishToggleForm from "../../../../features/dashboard/admin/interviews/components/InterviewPublishToggleForm.js";
 const GET = createRoute(paramValidator(interviewIdSchema), async (c) => {
   const interviewId = c.req.valid("param").interviewId;
   const user = await getUser(c);
@@ -49,8 +52,41 @@ const DELETE = createRoute(
     return showSuccessAlert(c, "Interview deleted");
   }
 );
+const PATCH = createRoute(
+  paramValidator(interviewIdSchema),
+  async (c) => {
+    const interviewId = c.req.valid("param").interviewId;
+    const form = await c.req.parseBody();
+    const intent = form.intent;
+    if (intent !== "publish" && intent !== "unpublish") {
+      return showErrorAlert(c, "Invalid publish action", 400);
+    }
+    const [error, updated] = await setInterviewPublishStatus(
+      interviewId,
+      intent
+    );
+    if (error || !updated) {
+      return showErrorAlert(c, error?.reason ?? "Failed to update interview", 400);
+    }
+    const statusLabel = updated.status === "published" ? "Published" : updated.status === "completed" ? "Completed" : updated.status === "expired" ? "Expired" : "Sent";
+    return c.html(
+      /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(
+          Alert,
+          {
+            type: intent === "publish" ? "success" : "warning",
+            message: intent === "publish" ? "Interview published" : "Interview unpublished"
+          }
+        ),
+        /* @__PURE__ */ jsx(InterviewPublishToggleForm, { interview: updated }),
+        /* @__PURE__ */ jsx("span", { id: `interview-status-${interviewId}`, children: statusLabel })
+      ] })
+    );
+  }
+);
 export {
   DELETE,
   GET,
+  PATCH,
   POST
 };

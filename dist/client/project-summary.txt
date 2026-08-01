@@ -3,7 +3,7 @@ ABOUT THIS DOCUMENT
 =======================
 
 Machine-readable project summary for LLMs and external tooling.
-Generated: 2026-07-15T10:19:36.627Z
+Generated: 2026-08-01T11:47:03.235Z
 Source repo path: .
 Endpoint: GET /api/project-summary.txt
 
@@ -78,9 +78,9 @@ src/
   middleware/              — auth guards
   lib/                     — shared utilities
 
-Domain modules (13): ceo-metrics, claims, creator-profile-share, creators, daily-product-digest, db, interviews, magazine, notifications, planner, server-errors, shelf, verification-feedback
+Domain modules (16): ceo-metrics, claims, collectors, creator-profile-share, creators, daily-product-digest, db, interviews, lists, magazine, newsletters, notifications, planner, server-errors, shelf, verification-feedback
 
-Feature modules (20): api, app, app-store-analytics, auth, book-analytics, book-views, claims, creator-analytics-digest, creator-views, dashboard, fair-attendees, fair-views, hyperview, interviews, jobs, legal, newsletter-analytics, purchase-clicks, site-analytics, stub-outreach
+Feature modules (21): api, app, app-store-analytics, auth, book-analytics, book-views, claims, collectors, creator-analytics-digest, creator-views, dashboard, fair-attendees, fair-views, hyperview, interviews, jobs, legal, newsletter-analytics, purchase-clicks, site-analytics, stub-outreach
 
 Import rule: public (app) and hyperview routes must import shared logic from src/domain/, not admin features (enforced by npm run lint).
 
@@ -210,26 +210,26 @@ The build step regenerates `public/project-summary.txt` at deploy time (the
 ROUTE / ENDPOINT STRUCTURE
 ==============================
 
-Total registered routes: 288
+Total registered routes: 315
 Routing: hono-fsr file-system routes in src/fs-routes/
 
-Public web (55 routes) — Server-rendered pages for fans and discovery
+Public web (61 routes) — Server-rendered pages for fans and discovery
   Examples: /, /about, /artist-of-the-week, /artist-of-the-week/:week, /artists, /book-of-the-day, /book-of-the-day/:date, /books, /books/:slug, /books/preview/:slug
 
-API (12 routes) — JSON/partials for likes, comments, follows, newsletter, activity
-  Examples: /api/activity/stream, /api/books/:bookId/collect, /api/books/:bookId/comments, /api/books/:bookId/comments/:commentId, /api/books/:bookId/like, /api/books/:bookId/wishlist, /api/creators/:creatorId/follow, /api/fairs/:fairId/attend, /api/newsletter, /api/project-summary.txt, /api/users/:userId/profile-image, /api/users/me/shelf-sharing
+API (14 routes) — JSON/partials for likes, comments, follows, newsletter, activity
+  Examples: /api/activity/stream, /api/books/:bookId/collect, /api/books/:bookId/comments, /api/books/:bookId/comments/:commentId, /api/books/:bookId/like, /api/books/:bookId/lists/:listId, /api/books/:bookId/wishlist, /api/creators/:creatorId/follow, /api/fairs/:fairId/attend, /api/newsletter
 
 Auth (16 routes) — Login, registration, password reset, Supabase callback
   Examples: /auth/accounts, /auth/callback, /auth/force-reset-password, /auth/forgot-password, /auth/login, /auth/logout, /auth/register, /auth/register-creator, /auth/register-fan, /auth/resend-verification
 
-Dashboard (117 routes) — Creator and admin dashboards
-  Examples: /dashboard/admin, /dashboard/admin/analytics, /dashboard/admin/analytics/fans, /dashboard/admin/analytics/verified-creators, /dashboard/admin/books, /dashboard/admin/books/:bookId, /dashboard/admin/books/:bookId/approve, /dashboard/admin/books/:bookId/reject, /dashboard/admin/books/books-table-filter, /dashboard/admin/books/create
+Dashboard (133 routes) — Creator and admin dashboards
+  Examples: /dashboard/admin, /dashboard/admin/analytics, /dashboard/admin/analytics/fans, /dashboard/admin/analytics/verified-creators, /dashboard/admin/books, /dashboard/admin/books/:bookId, /dashboard/admin/books/:bookId/approve, /dashboard/admin/books/:bookId/feedback, /dashboard/admin/books/:bookId/reject, /dashboard/admin/books/:bookId/unapprove
 
 Hyperview (mobile) (62 routes) — XML routes consumed by the Expo mobile app
   Examples: /hyperview/+layout, /hyperview/about, /hyperview/accounts, /hyperview/artist-of-the-week, /hyperview/artist-of-the-week/:week, /hyperview/auth-modal, /hyperview/book-of-the-day, /hyperview/book-of-the-day/:date, /hyperview/books, /hyperview/books/:bookId/tab/artist
 
-Jobs / cron HTTP (21 routes) — Authenticated cron endpoints hit by GitHub Actions
-  Examples: /jobs/cron/botd-advance-notification-emails, /jobs/cron/botd-feature-day-emails, /jobs/cron/ceo-metrics-email, /jobs/cron/creator-analytics-digest, /jobs/cron/creator-milestone-emails, /jobs/cron/creator-profile-share-emails, /jobs/cron/daily-botd-instagram, /jobs/cron/daily-product-digest, /jobs/cron/instagram-prep-reminder-email, /jobs/cron/interview-reminder-emails
+Jobs / cron HTTP (24 routes) — Authenticated cron endpoints hit by GitHub Actions
+  Examples: /jobs/cron/botd-advance-notification-emails, /jobs/cron/botd-feature-day-emails, /jobs/cron/ceo-metrics-email, /jobs/cron/creator-analytics-digest, /jobs/cron/creator-milestone-emails, /jobs/cron/creator-profile-share-emails, /jobs/cron/daily-botd-instagram, /jobs/cron/daily-product-digest, /jobs/cron/fair-instagram, /jobs/cron/instagram-prep-reminder-email
 
 Claims (5 routes) — Creator account claim flow
   Examples: /claims/:creatorId, /claims/:creatorId/register-and-claim, /claims/:creatorId/start, /claims/:creatorId/start/signup, /claims/complete
@@ -240,11 +240,13 @@ Public JSON/HTML API endpoints (sample):
 - /api/books/:bookId/comments
 - /api/books/:bookId/comments/:commentId
 - /api/books/:bookId/like
+- /api/books/:bookId/lists/:listId
 - /api/books/:bookId/wishlist
 - /api/creators/:creatorId/follow
 - /api/fairs/:fairId/attend
 - /api/newsletter
 - /api/project-summary.txt
+- /api/users/:userId/follow
 - /api/users/:userId/profile-image
 - /api/users/me/shelf-sharing
 
@@ -255,7 +257,7 @@ DATABASE SCHEMA
 ORM: Drizzle (src/db/schema.ts)
 Dialect: PostgreSQL
 
-Tables (28):
+Tables (31):
 - users
 - creator_interviews
 - admin_notifications
@@ -265,12 +267,15 @@ Tables (28):
 - creator_milestone_emails
 - follows
 - creator_messages
+- collector_posts
 - book_images
 - book_comments
 - creator_claims
 - collections
 - likes
 - wishlists
+- book_lists
+- book_list_items
 - book_of_the_day
 - artist_of_the_week
 - publisher_of_the_week
@@ -285,7 +290,7 @@ Tables (28):
 - magazine_issues
 - magazine_issue_books
 
-Enums (21):
+Enums (20):
 - book_availability_status
 - book_approval_status
 - book_publication_status
@@ -301,7 +306,6 @@ Enums (21):
 - fair_view_source
 - creator_view_source
 - book_fair_status
-- book_fair_approval_status
 - book_fair_listing_tier
 - book_store_status
 - book_store_approval_status
@@ -322,6 +326,7 @@ BACKGROUND JOBS (CRON)
 - notify-followers-new-posts
 - weekly-botd-newsletter
 - weekly-botd-newsletter-test
+- weekly-botd-newsletter-prepare
 - weekly-trending-instagram
 - instagram-prep-reminder-email
 - planner-content-preview-email
@@ -330,6 +335,8 @@ BACKGROUND JOBS (CRON)
 - stub-outreach-emails
 - interview-reminder-emails
 - verified-creator-instagram
+- fair-instagram
+- randomize-next-week-botd
 - verification-feedback-emails
 - creator-profile-share-emails
 
@@ -340,11 +347,11 @@ FEATURE FLAGS
 {
   "messages": true,
   "comments": true,
-  "interviews": false,
   "fairs": true,
   "stores": true,
-  "publicShelf": false,
-  "magazine": false
+  "collectors": true,
+  "magazine": false,
+  "bookPressLinks": true
 }
 
 ===========================

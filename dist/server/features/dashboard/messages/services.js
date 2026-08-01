@@ -8,7 +8,7 @@ async function createMessage(creatorId, input) {
     const [msg] = await db.insert(creatorMessages).values({
       creatorId,
       body: input.body.trim(),
-      imageUrls: input.imageUrls?.length ? input.imageUrls : null
+      imageUrl: input.imageUrl ?? null
     }).returning();
     if (!msg) return err({ reason: "Failed to create message" });
     return ok(msg);
@@ -27,6 +27,31 @@ async function getMessagesByCreator(creatorId) {
   } catch (error) {
     console.error("Failed to get messages by creator", error);
     return err({ reason: "Failed to get messages by creator", cause: error });
+  }
+}
+async function getMessageById(messageId) {
+  try {
+    const message = await db.query.creatorMessages.findFirst({
+      where: eq(creatorMessages.id, messageId)
+    });
+    if (!message) return err({ reason: "Message not found" });
+    return ok(message);
+  } catch (error) {
+    console.error("Failed to get message", error);
+    return err({ reason: "Failed to get message", cause: error });
+  }
+}
+async function updateMessageById(messageId, input) {
+  try {
+    const [msg] = await db.update(creatorMessages).set({
+      body: input.body.trim(),
+      ...input.imageUrl !== void 0 ? { imageUrl: input.imageUrl } : {}
+    }).where(eq(creatorMessages.id, messageId)).returning();
+    if (!msg) return err({ reason: "Message not found" });
+    return ok(msg);
+  } catch (error) {
+    console.error("Failed to update message", error);
+    return err({ reason: "Failed to update message", cause: error });
   }
 }
 async function getMessagesForFollower(followerUserId, currentPage = 1, limit = 20) {
@@ -73,6 +98,8 @@ async function deleteMessageById(messageId) {
 export {
   createMessage,
   deleteMessageById,
+  getMessageById,
   getMessagesByCreator,
-  getMessagesForFollower
+  getMessagesForFollower,
+  updateMessageById
 };

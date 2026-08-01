@@ -36,6 +36,16 @@ const queryValidator = (schema) => {
     return result.data;
   });
 };
+const ALLOWED_IMAGE_MIME_TYPES = /* @__PURE__ */ new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+  "image/heic",
+  "image/heif"
+]);
+const DISALLOWED_IMAGE_EXTENSIONS = /\.(svg|svgz|xml|html?)$/i;
 function validateImageFile(file, options) {
   const maxSize = options?.maxSize ?? 5 * 1024 * 1024;
   const isFile = file && typeof file === "object" && "arrayBuffer" in file && "name" in file && "type" in file;
@@ -49,8 +59,14 @@ function validateImageFile(file, options) {
       error: `File too large (max ${maxSize / 1024 / 1024}MB)`
     };
   }
-  if (!validFile.type.startsWith("image/")) {
-    return { success: false, error: "Please upload an image file" };
+  if (!ALLOWED_IMAGE_MIME_TYPES.has(validFile.type.toLowerCase())) {
+    return {
+      success: false,
+      error: "Please upload a JPEG, PNG, WebP, GIF, or AVIF image"
+    };
+  }
+  if (DISALLOWED_IMAGE_EXTENSIONS.test(validFile.name)) {
+    return { success: false, error: "This image type is not allowed" };
   }
   return { success: true, file: validFile };
 }

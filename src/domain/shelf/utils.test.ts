@@ -4,21 +4,12 @@ import {
   formatShelfOwnerName,
   isReservedShelfSlug,
   shelfSlugSchema,
+  userCanHaveShelf,
   withShelfSlugSuffix,
 } from "./utils";
 
 describe("formatShelfOwnerName", () => {
-  it("uses creator display name when present", () => {
-    expect(
-      formatShelfOwnerName({
-        firstName: "Jane",
-        lastName: "Doe",
-        creator: { displayName: "Studio Jane" },
-      }),
-    ).toBe("Studio Jane");
-  });
-
-  it("falls back to full name", () => {
+  it("uses full name", () => {
     expect(
       formatShelfOwnerName({ firstName: "Jane", lastName: "Doe" }),
     ).toBe("Jane Doe");
@@ -28,6 +19,15 @@ describe("formatShelfOwnerName", () => {
     expect(
       formatShelfOwnerName({ email: "jane@example.com" }),
     ).toBe("A photobookers member");
+  });
+});
+
+describe("userCanHaveShelf", () => {
+  it("is true only for collectors", () => {
+    expect(userCanHaveShelf({ creator: null })).toBe(true);
+    expect(userCanHaveShelf({ creator: undefined })).toBe(true);
+    expect(userCanHaveShelf({ creator: { id: "c1" } })).toBe(false);
+    expect(userCanHaveShelf(null)).toBe(false);
   });
 });
 

@@ -4,27 +4,14 @@ import {
   getPublishersOfTheWeekByWeekStart
 } from "./services.js";
 import { db } from "../../../../db/client.js";
-import {
-  creatorInterviews,
-  newsletterCampaigns
-} from "../../../../db/schema.js";
-import { and, desc, gte, inArray, lte } from "drizzle-orm";
-import { getWeekStarts } from "./utils.js";
-import { toDateString, toWeekString } from "../../../../lib/utils.js";
-import { getInstagramPreparedByWeekStart } from "./instagramServices.js";
-import { getNewsletterRangeStartForPlannerWeek } from "./newsletterUtils.js";
+import { creatorInterviews } from "../../../../db/schema.js";
+import { desc, inArray } from "drizzle-orm";
+import { getInstagramPreparedByWeekStart } from "./social-media/instagramServices.js";
 const loadPlannerYearData = async (year) => {
-  const [
-    botdByDate,
-    artistResult,
-    publisherResult,
-    newsletterStatusByWeekStart,
-    instagramPreparedByWeekStart
-  ] = await Promise.all([
+  const [botdByDate, artistResult, publisherResult, instagramPreparedByWeekStart] = await Promise.all([
     getBotdByDate(year),
     getArtistsOfTheWeekByWeekStart(year),
     getPublishersOfTheWeekByWeekStart(year),
-    getNewsletterStatusesByWeekStart(year),
     getInstagramPreparedByWeekStart(year)
   ]);
   const [artistErr, artistMap] = artistResult;
@@ -39,7 +26,6 @@ const loadPlannerYearData = async (year) => {
     artistLoadError: artistErr?.reason ?? null,
     publisherByWeekStart: publisherErr ? null : publisherMap,
     publisherLoadError: publisherErr?.reason ?? null,
-    newsletterStatusByWeekStart,
     instagramPreparedByWeekStart,
     interviewByCreatorId
   };
@@ -65,30 +51,6 @@ async function getInterviewsByCreatorIdForPlanner(artistMap, publisherMap) {
   }
   return byCreatorId;
 }
-const getNewsletterStatusesByWeekStart = async (year) => {
-  const weekStarts = getWeekStarts(year);
-  if (weekStarts.length === 0) return /* @__PURE__ */ new Map();
-  const first = weekStarts[0];
-  const last = weekStarts[weekStarts.length - 1];
-  const lastSunday = new Date(last);
-  lastSunday.setUTCDate(lastSunday.getUTCDate() + 6);
-  const rows = await db.query.newsletterCampaigns.findMany({
-    where: and(
-      gte(newsletterCampaigns.weekStart, first),
-      lte(newsletterCampaigns.weekStart, lastSunday)
-    )
-  });
-  const byWeek = /* @__PURE__ */ new Map();
-  for (const weekStart of weekStarts) {
-    const weekKey = toWeekString(weekStart);
-    const newsletterRangeStart = getNewsletterRangeStartForPlannerWeek(weekStart);
-    const row = rows.find(
-      (entry) => toDateString(entry.weekStart) === toDateString(newsletterRangeStart)
-    );
-    byWeek.set(weekKey, row?.status ?? null);
-  }
-  return byWeek;
-};
 export {
   loadPlannerYearData
 };

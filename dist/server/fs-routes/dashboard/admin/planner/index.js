@@ -24,7 +24,6 @@ const GET = createRoute(async (c) => {
     artistLoadError,
     publisherByWeekStart,
     publisherLoadError,
-    newsletterStatusByWeekStart,
     instagramPreparedByWeekStart,
     interviewByCreatorId
   } = await loadPlannerYearData(year);
@@ -50,7 +49,6 @@ const GET = createRoute(async (c) => {
             const key = toWeekString(weekStart);
             const artistOfTheWeek = artistByWeekStart?.get(key) ?? null;
             const publisherOfTheWeek = publisherByWeekStart?.get(key) ?? null;
-            const newsletterStatus = newsletterStatusByWeekStart.get(key) ?? null;
             const instagramPrepared = instagramPreparedByWeekStart.get(key) ?? false;
             return /* @__PURE__ */ jsx(
               WeekCard,
@@ -60,7 +58,6 @@ const GET = createRoute(async (c) => {
                 botdByDate,
                 artistOfTheWeek,
                 publisherOfTheWeek,
-                newsletterStatus,
                 instagramPrepared,
                 interviewByCreatorId
               },

@@ -1,4 +1,4 @@
-import { and, count, eq, sql } from "drizzle-orm";
+import { and, count, countDistinct, eq, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import {
   bookViews,
@@ -27,7 +27,7 @@ async function getCreatorBookViewTotals({ creatorId, creatorType }, range) {
   const [totalViewsResult, booksWithViewsResult] = await Promise.all([
     db.select({ value: count() }).from(bookViews).innerJoin(books, eq(bookViews.bookId, books.id)).where(where),
     db.select({
-      value: sql`count(distinct ${bookViews.bookId})`
+      value: countDistinct(bookViews.bookId)
     }).from(bookViews).innerJoin(books, eq(bookViews.bookId, books.id)).where(where)
   ]);
   return {

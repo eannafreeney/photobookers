@@ -2,13 +2,13 @@ import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
 import { getFlash, getUser } from "../../utils.js";
 import AppLayout from "../../components/layouts/AppLayout.js";
-import { getFeedBooks } from "../../features/app/services.js";
+import { getFollowerFeed } from "../../features/app/services.js";
 import Page from "../../components/layouts/Page.js";
 import InfoPage from "../../pages/InfoPage.js";
 import MemberSignInPrompt, {
   memberSignInPrompts
 } from "../../features/app/components/MemberSignInPrompt.js";
-import BooksGrid from "../../features/app/components/BooksGrid.js";
+import FollowerFeed from "../../features/app/components/FollowerFeed.js";
 import PageHeader from "../../components/app/PageHeader.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -25,13 +25,13 @@ const GET = createRoute(async (c) => {
           flash,
           currentPath,
           noIndex: true,
-          children: /* @__PURE__ */ jsxs(Page, { children: [
+          children: /* @__PURE__ */ jsx(Page, { children: /* @__PURE__ */ jsxs("div", { class: "mx-auto w-full max-w-[600px]", children: [
             /* @__PURE__ */ jsx(
               PageHeader,
               {
                 kicker: "Your Feed",
-                title: "From Creators You Follow",
-                intro: "The latest books from the artists and publishers you follow."
+                title: "From creators you follow",
+                intro: "The latest books and announcements from the artists and publishers you follow."
               }
             ),
             /* @__PURE__ */ jsx(
@@ -41,48 +41,50 @@ const GET = createRoute(async (c) => {
                 currentPath
               }
             )
-          ] })
+          ] }) })
         }
       )
     );
   }
-  const [error, result] = await getFeedBooks(user.id, currentPage);
+  const [error, result] = await getFollowerFeed(user.id, currentPage);
   if (error) {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: error.reason, user }));
   }
-  if (!result?.books) {
+  if (!result) {
     return c.html(
-      /* @__PURE__ */ jsx(InfoPage, { errorMessage: "No books found by your followees", user })
+      /* @__PURE__ */ jsx(InfoPage, { errorMessage: "Failed to load your feed", user })
     );
   }
+  const { items, totalPages, page } = result;
   return c.html(
     /* @__PURE__ */ jsx(
       AppLayout,
       {
-        title: "Books",
+        title: "Your Feed",
         user,
         flash,
         currentPath,
         noIndex: true,
-        children: /* @__PURE__ */ jsxs(Page, { children: [
+        children: /* @__PURE__ */ jsx(Page, { children: /* @__PURE__ */ jsxs("div", { class: "mx-auto w-full max-w-[600px] flex flex-col gap-4", children: [
           /* @__PURE__ */ jsx(
             PageHeader,
             {
               kicker: "Your Feed",
-              title: "From Creators You Follow",
-              intro: "The latest books from the artists and publishers you follow."
+              title: "From creators you follow",
+              intro: "The latest books and announcements from the artists and publishers you follow."
             }
           ),
           /* @__PURE__ */ jsx(
-            BooksGrid,
+            FollowerFeed,
             {
               user,
               currentPath,
-              result,
-              noResultsMessage: "Start following artists and publishers to see their latest releases here."
+              items,
+              totalPages,
+              page
             }
           )
-        ] })
+        ] }) })
       }
     )
   );

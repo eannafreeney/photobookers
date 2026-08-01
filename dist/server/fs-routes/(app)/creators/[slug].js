@@ -9,7 +9,7 @@ import { maybeRecordCreatorView } from "../../../features/creator-views/record.j
 import InfoPage from "../../../pages/InfoPage.js";
 import AppLayout from "../../../components/layouts/AppLayout.js";
 import Page from "../../../components/layouts/Page.js";
-import CreatorDetail from "../../../features/app/components/CreatorDetail.js";
+import CreatorDetail from "../../../features/app/components/creatorPage/CreatorDetail.js";
 import { canonicalUrl, creatorDescription, pageTitle } from "../../../lib/seo.js";
 import { getUpcomingFairsForCreator } from "../../../features/app/fairs/services.js";
 import { isFeatureEnabledForUser } from "../../../lib/features.js";

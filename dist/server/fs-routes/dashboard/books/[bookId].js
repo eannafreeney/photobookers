@@ -2,14 +2,12 @@ import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
 import { getUser } from "../../../utils.js";
 import { getFlash } from "../../../utils.js";
-import InfoPage from "../../../pages/InfoPage.js";
 import AppLayout from "../../../components/layouts/AppLayout.js";
 import Page from "../../../components/layouts/Page.js";
 import Breadcrumbs from "../../../features/dashboard/admin/components/Breadcrumbs.js";
 import {
   buildUpdateBookData,
   deleteBookById,
-  getBookById,
   updateBook,
   updateBookPublicationStatus
 } from "../../../features/dashboard/books/services.js";
@@ -29,21 +27,23 @@ import {
 } from "../../../middleware/bookGuard.js";
 import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers.js";
 import Alert from "../../../components/app/Alert.js";
+import Banner from "../../../components/app/Banner.js";
 import { dispatchEvents } from "../../../lib/disatchEvents.js";
 import { createBookPublishedNotification } from "../../../domain/notifications/utils.js";
 import Button from "../../../components/app/Button.js";
 import FormPost from "../../../components/forms/FormPost.js";
+import Tabs from "../../../components/app/Tabs.js";
+import SectionTitle from "../../../components/app/SectionTitle.js";
+import { isFeatureEnabledForUser } from "../../../lib/features.js";
+import { serializePressLinks } from "../../../features/dashboard/books/pressLinks.js";
 const GET = createRoute(
   paramValidator(bookIdSchema),
+  requireBookEditAccess,
   async (c) => {
-    const bookId = c.req.valid("param").bookId;
+    const book = c.get("book");
     const user = await getUser(c);
     const flash = await getFlash(c);
     const currentPath = c.req.path;
-    const [err, book] = await getBookById(bookId);
-    if (err || !book) {
-      return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Book not found", user }));
-    }
     const formValues = {
       title: book.title,
       artist_id: book.artistId,
@@ -56,8 +56,15 @@ const GET = createRoute(
     };
     const publisherIsVerified = book?.publisher?.status === "verified";
     const isPublisher = user.creator?.type === "publisher";
+    const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
+    if (showPressLinks) {
+      Object.assign(formValues, {
+        press_links: serializePressLinks(book.pressLinks)
+      });
+    }
     const bannerVariant = book.approvalStatus === "pending" ? "edit_pending" : book.approvalStatus === "rejected" ? "edit_rejected" : "hidden";
     const primaryAction = book.approvalStatus === "rejected" ? "submit_for_review" : "save";
+    const defaultTab = c.req.query("tab") === "images" ? "images" : "info";
     return c.html(
       /* @__PURE__ */ jsx(
         AppLayout,
@@ -101,46 +108,64 @@ const GET = createRoute(
                 ] })
               }
             ),
-            /* @__PURE__ */ jsxs(
-              "div",
-              {
-                class: "grid grid-cols-1 md:grid-cols-2 gap-4 mb-0",
-                id: "book-images",
-                children: [
-                  /* @__PURE__ */ jsx(
-                    BookCoverForm,
-                    {
-                      initialUrl: book.coverUrl ?? null,
-                      book,
-                      user
-                    }
-                  ),
-                  /* @__PURE__ */ jsx("hr", { class: "my-4 md:hidden" }),
-                  /* @__PURE__ */ jsx(
-                    BookGalleryForm,
-                    {
-                      initialImages: book.images?.map((image) => ({
-                        id: image.id,
-                        url: image.imageUrl
-                      })) ?? [],
-                      book,
-                      user
-                    }
-                  )
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsx("hr", { class: "my-4" }),
-            /* @__PURE__ */ jsx(
-              BookForm,
-              {
-                action: `/dashboard/books/${bookId}`,
-                bookId: book.id,
-                formValues,
-                isPublisher,
-                primaryAction
-              }
-            )
+            /* @__PURE__ */ jsx(SectionTitle, { className: "mt-2 mb-0", children: book.title }),
+            /* @__PURE__ */ jsxs(Tabs, { defaultTab, hashMap: { "#book-images": "images" }, children: [
+              /* @__PURE__ */ jsxs(Tabs.LinkContainer, { align: "left", children: [
+                /* @__PURE__ */ jsx(Tabs.Link, { tabId: "info", children: "Details" }),
+                /* @__PURE__ */ jsx(Tabs.Link, { tabId: "images", children: "Images" })
+              ] }),
+              /* @__PURE__ */ jsx(Tabs.Panel, { tabId: "info", children: /* @__PURE__ */ jsx(
+                BookForm,
+                {
+                  action: `/dashboard/books/${book.id}`,
+                  bookId: book.id,
+                  formValues,
+                  isPublisher,
+                  primaryAction,
+                  showPressLinks
+                }
+              ) }),
+              /* @__PURE__ */ jsxs(Tabs.Panel, { tabId: "images", children: [
+                !book.coverUrl && /* @__PURE__ */ jsx("div", { class: "mb-4", children: /* @__PURE__ */ jsx(
+                  Banner,
+                  {
+                    type: "warning",
+                    message: "A photo of the cover is required. Books with a jpg of the cover will be rejected."
+                  }
+                ) }),
+                /* @__PURE__ */ jsxs(
+                  "div",
+                  {
+                    class: "grid grid-cols-1 md:grid-cols-2 gap-4 mb-0",
+                    id: "book-images",
+                    children: [
+                      /* @__PURE__ */ jsx(
+                        BookCoverForm,
+                        {
+                          initialUrl: book.coverUrl ?? null,
+                          book,
+                          user
+                        }
+                      ),
+                      /* @__PURE__ */ jsx("hr", { class: "my-4 md:hidden" }),
+                      /* @__PURE__ */ jsx(
+                        BookGalleryForm,
+                        {
+                          initialImages: book.images?.map(
+                            (image) => ({
+                              id: image.id,
+                              url: image.imageUrl
+                            })
+                          ) ?? [],
+                          book,
+                          user
+                        }
+                      )
+                    ]
+                  }
+                )
+              ] })
+            ] })
           ] })
         }
       )

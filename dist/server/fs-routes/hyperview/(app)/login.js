@@ -50,7 +50,8 @@ const POST = createRoute(async (c) => {
       400
     );
   }
-  const { email, password } = parsed.data;
+  const email = parsed.data.email.trim().toLowerCase();
+  const { password } = parsed.data;
   const [loginErr, login] = await loginAndSetCookies(c, email, password);
   if (loginErr || !login) {
     return hv(
@@ -133,7 +134,9 @@ const LoginFormPanel = ({
             style: "login-field",
             name: "email",
             placeholder: "you@example.com",
-            "keyboard-type": "email-address"
+            "keyboard-type": "email-address",
+            "auto-capitalize": "none",
+            "auto-correct": "false"
           }
         ),
         /* @__PURE__ */ jsx(Text, { style: "login-label", children: "Password" }),
@@ -159,6 +162,10 @@ const LoginFormPanel = ({
           ),
           /* @__PURE__ */ jsx(Text, { style: "login-submit-label", children: "Sign in" })
         ] })
+      ] }),
+      /* @__PURE__ */ jsxs(View, { style: "login-forgot-wrap", children: [
+        /* @__PURE__ */ jsx(Behavior, { action: "deep-link", href: `${baseUrl}/auth/forgot-password` }),
+        /* @__PURE__ */ jsx(Text, { style: "login-forgot-label", children: "Forgot password?" })
       ] })
     ]
   }
@@ -226,6 +233,16 @@ const pageStyles = () => /* @__PURE__ */ jsxs(Fragment, { children: [
     }
   ),
   /* @__PURE__ */ jsx(Style, { id: "login-error", fontSize: 14, color: "#b91c1c", marginBottom: 12 }),
+  /* @__PURE__ */ jsx(Style, { id: "login-forgot-wrap", marginTop: 16, alignItems: "center" }),
+  /* @__PURE__ */ jsx(
+    Style,
+    {
+      id: "login-forgot-label",
+      fontSize: 14,
+      fontWeight: "600",
+      color: "#45413a"
+    }
+  ),
   /* @__PURE__ */ jsx(
     Style,
     {

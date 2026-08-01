@@ -49,10 +49,7 @@ const GET = createRoute(
       );
     }
     if (tokenHash) {
-      const [recoveryError, session] = await verifyOtpForRecovery(
-        c,
-        tokenHash
-      );
+      const [recoveryError, session] = await verifyOtpForRecovery(c, tokenHash);
       if (recoveryError) {
         return c.html(
           /* @__PURE__ */ jsx(
@@ -86,7 +83,7 @@ const GET = createRoute(
       "x-on:ajax:error": "isSubmitting = false"
     };
     return c.html(
-      /* @__PURE__ */ jsx(HeadlessLayout, { title: "Set New Password", children: /* @__PURE__ */ jsx(Page, { children: /* @__PURE__ */ jsx("div", { class: "min-h-screen flex items-center justify-center bg-surface-alt", children: /* @__PURE__ */ jsxs("div", { class: "w-96 my-4 p-6 bg-surface", children: [
+      /* @__PURE__ */ jsx(HeadlessLayout, { title: "Set New Password", children: /* @__PURE__ */ jsx(Page, { children: /* @__PURE__ */ jsx("div", { class: "min-h-screen flex items-center justify-center", children: /* @__PURE__ */ jsxs("div", { class: "w-96 my-4 p-6 bg-surface", children: [
         /* @__PURE__ */ jsx("div", { class: "text-2xl font-bold text-center mb-4", children: "Set a new password" }),
         /* @__PURE__ */ jsxs("div", { class: "text-sm text-center mb-4", children: [
           "Choose a new password for ",

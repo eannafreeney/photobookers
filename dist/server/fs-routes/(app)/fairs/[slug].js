@@ -35,7 +35,7 @@ const GET = createRoute(
     if (error) {
       return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: error.reason, user }), 404);
     }
-    const isPublished = fair.status === "published" && fair.approvalStatus === "approved";
+    const isPublished = fair.status === "published";
     if (!isPublished && !user?.isAdmin) {
       return c.html(
         /* @__PURE__ */ jsx(InfoPage, { errorMessage: "Fair not found", user }),

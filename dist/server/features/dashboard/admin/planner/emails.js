@@ -151,6 +151,113 @@ function buildInstagramPrepReminderEmail(params) {
   <p><a href="${params.prepareUrl}">Prepare Instagram posts</a></p>
 `;
 }
+function formatPreviewItemHeading(item) {
+  switch (item.kind) {
+    case "botd":
+      return `Book of the Day \u2014 ${formatBotdDateLong(item.date)}`;
+    case "artist":
+      return "Artist of the Week";
+    case "publisher":
+      return "Publisher of the Week";
+  }
+}
+function renderPreviewImages(imageUrls, alt) {
+  if (imageUrls.length === 0) {
+    return `<p><em>No Instagram images selected</em></p>`;
+  }
+  return imageUrls.map(
+    (imageUrl, index) => `<p><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)} (${index + 1} of ${imageUrls.length})" width="320" style="max-width:100%;height:auto;border:1px solid #ddd;" /></p>`
+  ).join("");
+}
+function renderCaptionBlock(caption) {
+  return `<pre style="white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:13px;background:#f6f6f6;padding:12px;border-radius:4px;">${escapeHtml(caption)}</pre>`;
+}
+function buildPlannerWeekContentPreviewEmail(params) {
+  const weekLabel = formatWeekRange(params.weekStart);
+  const warningBlock = params.prepWarnings.length > 0 ? `<p style="color:#b45309;"><strong>Warnings:</strong></p><ul>${params.prepWarnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul>` : "";
+  const sections = params.items.map((item) => {
+    const heading = formatPreviewItemHeading(item);
+    const previewKey = item.kind === "botd" ? `botd-${item.date.toISOString().slice(0, 10)}` : item.kind;
+    const imageUrls = params.feedPreviewUrls?.get(previewKey) ?? item.instagramImageUrls;
+    const blurb = item.spotlightBlurb?.trim() || item.sourceText?.trim();
+    const blurbHtml = blurb ? `<p style="margin:0 0 16px;">${escapeHtml(blurb)}</p>` : `<p style="margin:0 0 16px;"><em>No page blurb available</em></p>`;
+    return `
+      <section style="margin:24px 0;padding-top:16px;border-top:1px solid #ddd;">
+        <h2 style="margin:0 0 12px;font-size:18px;">${escapeHtml(heading)}</h2>
+        <p style="margin:0 0 4px;font-weight:600;">${escapeHtml(item.title)}</p>
+        <p style="margin:0 0 8px;font-size:13px;color:#666;">Instagram feed preview (lead slide branded)</p>
+        ${renderPreviewImages(imageUrls, item.title)}
+        <p style="margin:16px 0 4px;font-weight:600;">Page blurb</p>
+        ${blurbHtml}
+        <p style="margin:0 0 4px;font-weight:600;">Instagram caption</p>
+        ${renderCaptionBlock(item.instagramCaption)}
+      </section>`;
+  }).join("");
+  return `
+  <p>Your planner week of <strong>${weekLabel}</strong> is ready for review. It starts in three days.</p>
+  ${warningBlock}
+  ${sections}
+  <p style="margin-top:24px;">
+    <a href="${params.plannerUrl}">Open planner</a> \xB7
+    <a href="${params.featuredHeroUrl}">Edit featured images</a> \xB7
+    <a href="${params.instagramPrepUrl}">Edit Instagram prep</a>
+  </p>
+`;
+}
+function renderRemovePostButton(cancelUrl) {
+  return `<p style="margin:16px 0 0;"><a href="${escapeHtml(cancelUrl)}" style="display:inline-block;padding:8px 14px;background:#b91c1c;color:#fff;text-decoration:none;border-radius:4px;font-weight:600;">Remove post</a></p>`;
+}
+function formatScheduledAt(date) {
+  return date.toISOString().replace("T", " ").slice(0, 16) + " UTC";
+}
+function buildInstagramPostsPreviewEmail(params) {
+  const sections = params.posts.map((post) => {
+    return `
+      <section style="margin:24px 0;padding-top:16px;border-top:1px solid #ddd;">
+        <h2 style="margin:0 0 8px;font-size:18px;">${escapeHtml(post.title)}</h2>
+        <p style="margin:0 0 12px;font-size:13px;color:#666;">Scheduled for ${escapeHtml(formatScheduledAt(post.scheduledAt))}</p>
+        ${renderPreviewImages(post.imageUrls, post.title)}
+        <p style="margin:16px 0 4px;font-weight:600;">Caption</p>
+        ${renderCaptionBlock(post.caption)}
+        ${renderRemovePostButton(post.cancelUrl)}
+      </section>`;
+  }).join("");
+  const footer = params.footerUrl ? `<p style="margin-top:24px;"><a href="${escapeHtml(params.footerUrl)}">Open planner</a></p>` : "";
+  return `
+  <p>${params.intro}</p>
+  ${sections}
+  ${footer}
+`;
+}
+function buildTrendingInstagramPreviewEmail(params) {
+  return buildInstagramPostsPreviewEmail({
+    intro: `Trending Instagram carousels for newsletter edition <strong>${escapeHtml(params.editionWeekStart)}</strong> are scheduled. Each post goes live at least 24 hours after this email.`,
+    posts: params.posts,
+    footerUrl: params.plannerUrl
+  });
+}
+function buildVerifiedCreatorInstagramPreviewEmail(params) {
+  return buildInstagramPostsPreviewEmail({
+    intro: `A <strong>New on photobookers</strong> Instagram post for <strong>${escapeHtml(params.displayName)}</strong> is scheduled.`,
+    posts: params.posts
+  });
+}
+function verifiedCreatorInstagramCreatorEmailSubject() {
+  return "We're featuring you on the photobookers Instagram";
+}
+function buildVerifiedCreatorInstagramCreatorEmail(params) {
+  const name = escapeHtml(params.displayName);
+  return `
+  <p>Hi ${name},</p>
+  <p>Good news \u2014 we've lined up a <strong>New on photobookers</strong> post celebrating you on our Instagram. It's scheduled to go live on <strong>${escapeHtml(formatScheduledAt(params.scheduledAt))}</strong>.</p>
+  <p>Here's a preview:</p>
+  ${renderPreviewImages(params.imageUrls, params.displayName)}
+  <p style="margin:16px 0 4px;font-weight:600;">Caption</p>
+  ${renderCaptionBlock(params.caption)}
+  <p style="margin-top:16px;">Keep an eye on <a href="https://instagram.com/photobookers">@photobookers</a> and give it a reshare to your stories when it's live \u2014 it really helps spread the word.</p>
+  <p>Best regards,<br/>Eanna</p>
+`;
+}
 function buildAotwPublisherNotifyEmail(params) {
   const digestUrl = `${process.env.SITE_URL ?? "https://photobookers.com"}${thisWeekPath(params.weekStart)}`;
   return `
@@ -167,8 +274,14 @@ export {
   buildBotdFeatureDayEmail,
   buildCreatorOfTheWeekNotificationEmail,
   buildFeatureDayEmail,
+  buildInstagramPostsPreviewEmail,
   buildInstagramPrepReminderEmail,
   buildInterviewReminderEmail,
+  buildPlannerWeekContentPreviewEmail,
+  buildTrendingInstagramPreviewEmail,
+  buildVerifiedCreatorInstagramCreatorEmail,
+  buildVerifiedCreatorInstagramPreviewEmail,
   generateBOTDNotificationEmail,
-  spotlightUrlForType
+  spotlightUrlForType,
+  verifiedCreatorInstagramCreatorEmailSubject
 };

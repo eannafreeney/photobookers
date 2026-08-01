@@ -39,7 +39,7 @@ const CeoMetricsBlock = async ({ dateRange }) => {
           label: "Editorial-attributed actions",
           value: snapshot.editorialActions.value,
           delta: snapshot.editorialActions.delta,
-          detail: `${breakdown.views.toLocaleString()} editorial views \xB7 ${breakdown.clicks.toLocaleString()} editorial clicks \xB7 ${breakdown.featuredWishlists.toLocaleString()} featured-book wishlists \xB7 ${breakdown.featuredFollows.toLocaleString()} spotlight follows`
+          detail: `${breakdown.views.toLocaleString()} editorial views \xB7 ${breakdown.clicks.toLocaleString()} editorial clicks \xB7 ${breakdown.featuredWishlists.toLocaleString()} featured-book favourites \xB7 ${breakdown.featuredFollows.toLocaleString()} spotlight follows`
         }
       ),
       /* @__PURE__ */ jsx(

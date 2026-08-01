@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   desc,
   eq,
   gt,
@@ -35,7 +36,6 @@ const getUpcomingFairs = async (currentPage = 1, limit = 30) => {
   try {
     const publishedCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       gt(bookFairs.startDate, today())
     );
     const [{ value: totalCount = 0 }] = await db.select({ value: sql`count(*)` }).from(bookFairs).where(publishedCondition);
@@ -46,11 +46,7 @@ const getUpcomingFairs = async (currentPage = 1, limit = 30) => {
     );
     const fairs = await db.query.bookFairs.findMany({
       where: publishedCondition,
-      orderBy: [
-        desc(bookFairs.listingTier),
-        sql`${bookFairs.sortOrder} ASC NULLS LAST`,
-        bookFairs.startDate
-      ],
+      orderBy: [asc(bookFairs.startDate)],
       limit: pageLimit,
       offset
     });
@@ -64,7 +60,6 @@ const getPastFairs = async (currentPage = 1, limit = 30) => {
   try {
     const pastCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       lte(bookFairs.endDate, today())
     );
     const [{ value: totalCount = 0 }] = await db.select({ value: sql`count(*)` }).from(bookFairs).where(pastCondition);
@@ -90,7 +85,6 @@ const getCurrentFairs = async (currentPage = 1, limit = 30) => {
     const now = today();
     const currentCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       lte(bookFairs.startDate, now),
       gte(bookFairs.endDate, now)
     );
@@ -128,6 +122,35 @@ const getFairBySlug = async (slug) => {
     return err({ reason: "Failed to get fair by slug", cause: error });
   }
 };
+const getFairsInNextDays = async (days = 7) => {
+  try {
+    const start = today();
+    const end = new Date(start);
+    end.setDate(end.getDate() + days);
+    const fairs = await db.query.bookFairs.findMany({
+      where: and(
+        eq(bookFairs.status, "published"),
+        lte(bookFairs.startDate, end),
+        gte(bookFairs.endDate, start)
+      ),
+      columns: {
+        id: true,
+        slug: true,
+        name: true,
+        city: true,
+        country: true,
+        coverUrl: true,
+        startDate: true,
+        endDate: true
+      },
+      orderBy: [asc(bookFairs.startDate), asc(bookFairs.name)]
+    });
+    return ok(fairs);
+  } catch (error) {
+    console.error("Failed to get fairs in next days", error);
+    return err({ reason: "Failed to get fairs in next days", cause: error });
+  }
+};
 const getUpcomingFairsForCreator = async (creatorId, limit = 5) => {
   try {
     const attendances = await db.query.fairAttendees.findMany({
@@ -137,7 +160,7 @@ const getUpcomingFairsForCreator = async (creatorId, limit = 5) => {
       }
     });
     const upcomingFairs = attendances.filter(
-      (a) => a.status === "approved" && a.fair.status === "published" && a.fair.approvalStatus === "approved" && new Date(a.fair.startDate) >= today()
+      (a) => a.status === "approved" && a.fair.status === "published" && new Date(a.fair.startDate) >= today()
     ).map((a) => a.fair).sort((a, b) => a.startDate.getTime() - b.startDate.getTime()).slice(0, limit);
     return ok(upcomingFairs);
   } catch (error) {
@@ -157,7 +180,7 @@ const getFairsByCreatorId = async (creatorId, currentPage = 1, limit = 30) => {
       }
     });
     const allFairs = attendances.filter(
-      (a) => a.status === "approved" && a.fair.status === "published" && a.fair.approvalStatus === "approved"
+      (a) => a.status === "approved" && a.fair.status === "published"
     ).map((a) => a.fair).sort((a, b) => {
       const aIsFuture = new Date(a.startDate) >= today();
       const bIsFuture = new Date(b.startDate) >= today();
@@ -187,7 +210,6 @@ const getFairsByMonth = async (year, month) => {
     const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
     const publishedCondition = and(
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       // Fair is in month if it starts before month ends AND ends after month starts
       lte(bookFairs.startDate, endOfMonth),
       gte(bookFairs.endDate, startOfMonth)
@@ -214,8 +236,7 @@ const searchFairs = async (params) => {
       limit = 30
     } = params;
     const conditions = [
-      eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved")
+      eq(bookFairs.status, "published")
     ];
     if (query && query.trim()) {
       conditions.push(buildFairSearchCondition(query));
@@ -241,11 +262,8 @@ const searchFairs = async (params) => {
     );
     const fairs = await db.query.bookFairs.findMany({
       where: whereCondition,
-      orderBy: [
-        desc(bookFairs.listingTier),
-        sql`${bookFairs.sortOrder} ASC NULLS LAST`,
-        bookFairs.startDate
-      ],
+      // Upcoming soonest first, then past.
+      orderBy: [sql`${bookFairs.startDate} < now()`, asc(bookFairs.startDate)],
       limit: pageLimit,
       offset
     });
@@ -262,7 +280,6 @@ const searchFairsForNav = async (searchTerm, limit = 5) => {
     }
     const conditions = [
       eq(bookFairs.status, "published"),
-      eq(bookFairs.approvalStatus, "approved"),
       buildFairSearchCondition(searchTerm)
     ];
     const fairs = await db.query.bookFairs.findMany({
@@ -294,6 +311,7 @@ export {
   getFairBySlug,
   getFairsByCreatorId,
   getFairsByMonth,
+  getFairsInNextDays,
   getPastFairs,
   getUpcomingFairs,
   getUpcomingFairsForCreator,

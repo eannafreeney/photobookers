@@ -18,10 +18,10 @@ const Banner = ({
   return /* @__PURE__ */ jsx(PageBleed, { children: /* @__PURE__ */ jsxs(
     "div",
     {
-      class: `rounded-radius ${variantBg[type]} text-on-surface py-2 px-16 flex items-center justify-center gap-4`,
+      class: `rounded-radius ${variantBg[type]} text-on-surface py-2 px-4 sm:px-16 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4`,
       children: [
         /* @__PURE__ */ jsx("p", { class: "text-center text-sm text-pretty", children: message }),
-        /* @__PURE__ */ jsx("div", { children })
+        children ? /* @__PURE__ */ jsx("div", { class: "shrink-0", children }) : null
       ]
     }
   ) });

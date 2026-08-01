@@ -10,11 +10,12 @@ import {
 } from "../../../../client/forms/formUtils.js";
 const MESSAGE_FORM_FIELDS = Object.keys(createMessageFormSchema.shape);
 function registerMessageForm() {
-  Alpine.data("messageForm", (formValues = {}) => {
+  Alpine.data("messageForm", (config = {}) => {
+    const { previewUrl: initialPreviewUrl, ...formValues } = config;
     return {
       isSubmitting: false,
       isDragOver: false,
-      previewUrl: null,
+      previewUrl: initialPreviewUrl ?? null,
       ...createFormState(MESSAGE_FORM_FIELDS, formValues),
       init() {
         initFormValues(this, MESSAGE_FORM_FIELDS, false);
@@ -54,10 +55,18 @@ function registerMessageForm() {
         const ctx = this;
         e.preventDefault();
         ctx.isDragOver = false;
-        const uri = e.dataTransfer?.getData("text/uri-list")?.trim();
-        if (!uri) return;
-        const current = (ctx.form.imageUrls ?? "").trim();
-        ctx.form.imageUrls = current ? `${current}, ${uri}` : uri;
+        const file = Array.from(e.dataTransfer?.files ?? []).find(
+          (f) => f.type.startsWith("image/")
+        );
+        if (!file) return;
+        const input = this.$refs?.fileInput;
+        if (input) {
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          input.files = dt.files;
+        }
+        if (ctx.previewUrl) URL.revokeObjectURL(ctx.previewUrl);
+        ctx.previewUrl = URL.createObjectURL(file);
       },
       onFileChange(e) {
         const ctx = this;

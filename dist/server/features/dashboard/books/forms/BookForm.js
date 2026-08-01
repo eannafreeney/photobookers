@@ -9,12 +9,14 @@ import TextArea from "../../../../components/forms/TextArea.js";
 import ToggleInput from "../../../../components/forms/ToggleInput.js";
 import { getAllCreatorOptions } from "../../admin/creators/services.js";
 import FormPost from "../../../../components/forms/FormPost.js";
+import BookPressLinksSection from "../components/BookPressLinksSection.js";
 const BookForm = async ({
   formValues,
   isPublisher,
   bookId,
   action,
-  primaryAction = "save"
+  primaryAction = "save",
+  showPressLinks = false
 }) => {
   const artistOptions = isPublisher ? await getAllCreatorOptions("artist") : [];
   const publisherOptions = !isPublisher ? await getAllCreatorOptions("publisher") : [];
@@ -116,7 +118,9 @@ const BookForm = async ({
         {
           label: "Tags",
           name: "form.tags",
-          placeholder: "photography, landscape, Japan (comma-separated)"
+          placeholder: "photography, landscape, Japan (comma-separated)",
+          validateInput: "validateField('tags')",
+          required: true
         }
       ),
       /* @__PURE__ */ jsx(
@@ -141,6 +145,7 @@ const BookForm = async ({
           disabledBinding: "!form.release_date || new Date(form.release_date + 'T23:59:59') < new Date()"
         }
       ),
+      showPressLinks ? /* @__PURE__ */ jsx(BookPressLinksSection, {}) : null,
       /* @__PURE__ */ jsx("input", { type: "hidden", name: "intent", "x-model": "form.intent" }),
       /* @__PURE__ */ jsx(
         FormButtons,

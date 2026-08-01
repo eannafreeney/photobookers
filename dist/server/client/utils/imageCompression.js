@@ -1,13 +1,21 @@
 import imageCompression from "browser-image-compression";
+const SERVER_ENCODABLE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const SKIP_BROWSER_COMPRESSION_BYTES = 5 * 1024 * 1024;
 const presets = {
-  cover: { maxSizeMB: 0.5, maxWidthOrHeight: 1200 },
+  // Light first pass (near-lossless) — kept under the 5MB upload cap. The server
+  // does the authoritative compression, so the browser mainly normalizes format
+  // (e.g. HEIC) and bounds dimensions.
+  cover: { maxSizeMB: 4.5, maxWidthOrHeight: 1600 },
   // Book covers
-  gallery: { maxSizeMB: 0.8, maxWidthOrHeight: 1920 },
+  gallery: { maxSizeMB: 4.5, maxWidthOrHeight: 2048 },
   // Gallery images
-  profile: { maxSizeMB: 0.3, maxWidthOrHeight: 800 }
+  profile: { maxSizeMB: 2, maxWidthOrHeight: 1e3 }
   // Creator photos
 };
 async function compressImage(file, preset) {
+  if (SERVER_ENCODABLE_TYPES.includes(file.type) && file.size <= SKIP_BROWSER_COMPRESSION_BYTES) {
+    return file;
+  }
   const options = {
     ...presets[preset],
     useWebWorker: true,

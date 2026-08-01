@@ -57,7 +57,10 @@ type NavLinkProps = PropsWithChildren<{
 }>;
 
 const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
-  const isActive = currentPath === href;
+  const isActive =
+    href === "/dashboard"
+      ? currentPath === href
+      : Boolean(currentPath?.startsWith(href));
 
   return (
     <li class="list-none">

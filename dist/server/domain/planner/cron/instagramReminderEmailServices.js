@@ -2,10 +2,10 @@ import { sendAdminEmail } from "../../../lib/sendEmail.js";
 import { err, ok } from "../../../lib/result.js";
 import { toDateString, toWeekString } from "../../../lib/utils.js";
 import { buildInstagramPrepReminderEmail } from "../../../features/dashboard/admin/planner/emails.js";
-import { getWeekInstagramForPrepare } from "../../../features/dashboard/admin/planner/instagramServices.js";
+import { getWeekInstagramForPrepare } from "../../../features/dashboard/admin/planner/social-media/instagramServices.js";
 import {
   getWeekInstagramPrepGaps
-} from "../../../features/dashboard/admin/planner/instagramUtils.js";
+} from "../../../features/dashboard/admin/planner/social-media/instagramUtils.js";
 import { getInstagramPrepReminderWeekStart } from "../../../features/dashboard/admin/planner/utils.js";
 function getInstagramPrepReminderWeekStartForDate(asOf = /* @__PURE__ */ new Date()) {
   return getInstagramPrepReminderWeekStart(asOf);

@@ -2,7 +2,7 @@ import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../../../../lib/validator.js";
 import { weekQuerySchema } from "../../../../../../features/dashboard/admin/planner/schema.js";
-import { clearWeekInstagramPreparation } from "../../../../../../features/dashboard/admin/planner/instagramServices.js";
+import { clearWeekInstagramPreparation } from "../../../../../../features/dashboard/admin/planner/social-media/instagramServices.js";
 import { parseWeekString } from "../../../../../../lib/utils.js";
 import { showErrorAlert } from "../../../../../../lib/alertHelpers.js";
 import Alert from "../../../../../../components/app/Alert.js";

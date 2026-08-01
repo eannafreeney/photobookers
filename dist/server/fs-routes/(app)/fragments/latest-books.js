@@ -57,7 +57,7 @@ const GET = createRoute(async (c) => {
   return c.html(
     /* @__PURE__ */ jsxs("div", { id: "latest-books-fragment", children: [
       /* @__PURE__ */ jsxs("div", { class: "flex items-end justify-between mb-3 border-t-2 border-on-surface-strong pt-3", children: [
-        /* @__PURE__ */ jsx(SectionTitle, { className: "mb-0", kicker: "New Arrivals", children: "Latest Books" }),
+        /* @__PURE__ */ jsx(SectionTitle, { className: "mb-0", kicker: "New Arrivals", children: "TrendingBooks" }),
         /* @__PURE__ */ jsx(ViewAllLink, { href: "/books" })
       ] }),
       /* @__PURE__ */ jsx("div", { id: BOOKS_CATALOG_TARGET_ID, children: /* @__PURE__ */ jsx(BooksGridWithFilters, { ...gridProps }) })

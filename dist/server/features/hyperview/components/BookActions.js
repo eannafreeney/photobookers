@@ -1,7 +1,7 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps.js";
 import { xmlText } from "../../../lib/hxml.js";
-const BookWishlistIcon = ({
+const BookFavouritedIcon = ({
   baseUrl,
   isActive
 }) => /* @__PURE__ */ jsx(
@@ -66,7 +66,7 @@ const HyperviewFavoriteInner = ({
   const href = `${baseUrl}/api/books/${bookId}/wishlist${layoutParam}`;
   if (variant === "block") {
     return /* @__PURE__ */ jsxs(View, { xmlns: "https://hyperview.org/hyperview", style: "book-action-block", children: [
-      /* @__PURE__ */ jsx(BookWishlistIcon, { baseUrl, isActive }),
+      /* @__PURE__ */ jsx(BookFavouritedIcon, { baseUrl, isActive }),
       /* @__PURE__ */ jsx(Text, { style: "book-action-label", children: label }),
       /* @__PURE__ */ jsx(
         Behavior,
@@ -80,7 +80,7 @@ const HyperviewFavoriteInner = ({
     ] });
   }
   return /* @__PURE__ */ jsxs(View, { xmlns: "https://hyperview.org/hyperview", style: "book-btn", children: [
-    /* @__PURE__ */ jsx(BookWishlistIcon, { baseUrl, isActive }),
+    /* @__PURE__ */ jsx(BookFavouritedIcon, { baseUrl, isActive }),
     /* @__PURE__ */ jsx(
       Behavior,
       {
@@ -148,7 +148,7 @@ const bookActionsStyles = () => /* @__PURE__ */ jsxs(Fragment, { children: [
   )
 ] });
 export {
-  BookWishlistIcon,
+  BookFavouritedIcon,
   HyperviewFavoriteInner,
   bookActionsStyles,
   BookActions_default as default

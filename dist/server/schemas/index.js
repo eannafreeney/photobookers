@@ -38,6 +38,9 @@ const userIdSchema = z.object({
 const creatorIdSchema = z.object({
   creatorId: uuidField
 });
+const messageParamSchema = creatorIdSchema.extend({
+  messageId: uuidField
+});
 const claimIdSchema = z.object({
   claimId: uuidField
 });
@@ -56,6 +59,7 @@ export {
   creatorIdSchema,
   currentPathSchema,
   magicLinkFormSchema,
+  messageParamSchema,
   methodField,
   numberField,
   optionalText,

@@ -39,8 +39,8 @@ const SpotlightCard = ({
           }
         ),
         /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-1 px-3 py-3", children: [
-          /* @__PURE__ */ jsx("h3", { class: "font-display text-lg font-medium leading-snug text-on-surface-strong decoration-accent decoration-2 underline-offset-4 group-hover:underline", children: title }),
-          subtitle ? /* @__PURE__ */ jsx("p", { class: "kicker text-on-surface-weak", children: subtitle }) : null
+          /* @__PURE__ */ jsx("h3", { class: "font-display text-lg font-medium text-center leading-snug text-on-surface-strong decoration-accent decoration-2 underline-offset-4 group-hover:underline", children: title }),
+          subtitle ? /* @__PURE__ */ jsx("p", { class: "kicker text-center text-on-surface-weak", children: subtitle }) : null
         ] })
       ]
     }

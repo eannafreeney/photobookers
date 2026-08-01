@@ -7,6 +7,7 @@ import {
   ilike,
   inArray,
   isNull,
+  ne,
   or,
   sql
 } from "drizzle-orm";
@@ -418,6 +419,30 @@ const updateCreatorEmail = async (creatorId, email) => {
     return err({ reason: "Failed to update creator email", cause: error });
   }
 };
+const verifyCreatorAdmin = async (creatorId) => {
+  try {
+    const [updatedCreator] = await db.update(creators).set({
+      status: "verified",
+      verifiedAt: sql`COALESCE(${creators.verifiedAt}, NOW())`,
+      updatedAt: /* @__PURE__ */ new Date()
+    }).where(
+      and(eq(creators.id, creatorId), ne(creators.status, "verified"))
+    ).returning();
+    if (!updatedCreator) {
+      return err({
+        reason: "Creator not found or already verified",
+        cause: void 0
+      });
+    }
+    if (updatedCreator.slug) {
+      invalidateCreatorCache(updatedCreator.slug);
+    }
+    return ok(updatedCreator);
+  } catch (error) {
+    console.error("Failed to verify creator", error);
+    return err({ reason: "Failed to verify creator", cause: error });
+  }
+};
 export {
   completeInterviewByToken,
   createCreatorInterviewInviteAdmin,
@@ -442,5 +467,6 @@ export {
   resolveArtist,
   resolvePublisher,
   updateCreatorEmail,
-  updateCreatorProfileAdmin
+  updateCreatorProfileAdmin,
+  verifyCreatorAdmin
 };

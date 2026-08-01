@@ -8,7 +8,7 @@ import { getUser } from "../../../utils.js";
 import { getBooksOfTheDayInRange } from "../../../features/app/BOTDServices.js";
 import { getArtistOfTheWeekForDateQuery } from "../../../features/app/AOTWServices.js";
 import { getPublisherOfTheWeekForDateQuery } from "../../../features/app/POTWServices.js";
-import { formatWeekRangeLabel } from "../../../domain/planner/newsletterUtils.js";
+import { formatWeekRangeLabel } from "../../../domain/newsletters/newsletterUtils.js";
 import {
   capEndOfDayToToday,
   parseWeekString,

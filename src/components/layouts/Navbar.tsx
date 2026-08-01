@@ -52,9 +52,11 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
               <NavLink href="/feed" currentPath={currentPath} variant="nav">
                 Feed
               </NavLink>
-              <NavLink href="/shelf" currentPath={currentPath} variant="nav">
-                Shelf
-              </NavLink>
+              {!user.creator ? (
+                <NavLink href="/shelf" currentPath={currentPath} variant="nav">
+                  Shelf
+                </NavLink>
+              ) : null}
             </>
           )}
           {!user && (

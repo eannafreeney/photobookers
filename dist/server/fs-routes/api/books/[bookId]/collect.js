@@ -19,7 +19,7 @@ import { getBaseUrl } from "../../../../lib/hyperview.js";
 import { getIsHyperview } from "../../../../features/hyperview/lib.js";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps.js";
 import { routeParam } from "../../../../lib/routeParam.js";
-const updateLibraryPage = () => "library:updated";
+const updateShelfPage = () => "shelf:updated";
 const POST = createRoute(async (c) => {
   const isHyperview = getIsHyperview(c);
   return isHyperview ? postCollectHyperview(c) : postCollectWeb(c);
@@ -90,7 +90,7 @@ const postCollectWeb = async (c) => {
       /* @__PURE__ */ jsx(Alert, { type: "success", message }),
       /* @__PURE__ */ jsx(CollectButton, { book, user, isCircleButton }),
       /* @__PURE__ */ jsx("div", { id: "modal-root" }),
-      dispatchEvents([updateLibraryPage()])
+      dispatchEvents([updateShelfPage()])
     ] })
   );
 };

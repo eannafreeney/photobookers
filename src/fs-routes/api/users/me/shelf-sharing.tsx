@@ -8,6 +8,7 @@ import {
   suggestShelfSlug,
   updateShelfSharing,
 } from "../../../../domain/shelf/services";
+import { userCanHaveShelf } from "../../../../domain/shelf/utils";
 import Alert from "../../../../components/app/Alert";
 
 export const POST = createRoute(async (c: Context) => {
@@ -16,7 +17,7 @@ export const POST = createRoute(async (c: Context) => {
     return c.html(<Alert type="danger" message="Sign in to update your shelf." />, 401);
   }
 
-  if (!isFeatureEnabledForUser("collectors", user)) {
+  if (!isFeatureEnabledForUser("collectors", user) || !userCanHaveShelf(user)) {
     return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 

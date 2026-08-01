@@ -6,6 +6,7 @@ import {
 } from "../adminAnalyticsPanel.js";
 function parseAnalyticsSectionTab(raw) {
   if (raw === "overview") return "overview";
+  if (raw === "books") return "books";
   if (raw === "site") return "site";
   if (raw === "app") return "app";
   if (raw === "newsletter") return "newsletter";

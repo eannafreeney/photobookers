@@ -17,14 +17,14 @@ const PADDING = { top: 16, right: 16, bottom: 32, left: 48 };
 const ADMIN_FUNNEL_SERIES = [
   { key: "views", label: "Views", color: "#1d4ed8" },
   { key: "clicks", label: "Outbound clicks", color: "#b91c1c" },
-  { key: "wishlists", label: "Wishlists", color: "#c026d3" },
+  { key: "wishlists", label: "Favourites", color: "#c026d3" },
   { key: "collections", label: "Collections", color: "#047857" },
   { key: "follows", label: "Follows", color: "#d97706" }
 ];
 const CREATOR_FUNNEL_SERIES = [
   { key: "views", label: "Views", color: "#1d4ed8" },
   { key: "clicks", label: "Outbound clicks", color: "#b91c1c" },
-  { key: "wishlists", label: "Wishlists", color: "#c026d3" },
+  { key: "wishlists", label: "Favourites", color: "#c026d3" },
   { key: "collections", label: "Collections", color: "#047857" }
 ];
 const SOURCE_SERIES = [

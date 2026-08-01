@@ -6,14 +6,15 @@ import { deleteIcon, editIcon } from "../../../../../lib/icons.js";
 import { formatDate } from "../../../../../utils.js";
 import { getAllFairsAdmin } from "../services.js";
 import FairStatusBadge from "./FairStatusBadge.js";
+import FairPublishToggle from "./FairPublishToggle.js";
+import FairPreviewButton from "./FairPreviewButton.js";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll.js";
-import StatusPill from "../../components/StatusPill.js";
+import { deleteRowAttrs } from "../../../../../lib/utils.js";
 const AdminFairsTableAndFilter = async ({
   status = void 0,
   currentPage,
   searchQuery,
-  currentPath,
-  user
+  currentPath
 }) => {
   const [error, result] = await getAllFairsAdmin(
     currentPage,
@@ -37,14 +38,23 @@ const AdminFairsTableAndFilter = async ({
       children: [
         /* @__PURE__ */ jsxs(Table, { id: "fairs-table", children: [
           /* @__PURE__ */ jsx(Table.Head, { children: /* @__PURE__ */ jsxs("tr", { children: [
+            /* @__PURE__ */ jsx(Table.HeadRow, { children: "Cover" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Name" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Dates" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Location" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Status" }),
-            /* @__PURE__ */ jsx(Table.HeadRow, { children: "Approval" }),
+            /* @__PURE__ */ jsx(Table.HeadRow, { children: "Published" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Actions" })
           ] }) }),
           /* @__PURE__ */ jsx(Table.Body, { id: targetId, ...tableBodyAttrs, xMerge: "append", children: fairs.map((fair) => /* @__PURE__ */ jsxs("tr", { "x-data": true, children: [
+            /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
+              "img",
+              {
+                src: fair.coverUrl ?? "",
+                alt: fair.name,
+                class: "w-10 h-10 rounded-full object-cover"
+              }
+            ) }),
             /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Link, { href: `/dashboard/admin/fairs/${fair.id}`, children: /* @__PURE__ */ jsx("span", { class: "font-medium", children: fair.name }) }) }),
             /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsxs("div", { class: "text-sm", children: [
               formatDate(fair.startDate),
@@ -52,14 +62,29 @@ const AdminFairsTableAndFilter = async ({
               formatDate(fair.endDate)
             ] }) }),
             /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx("div", { class: "text-sm", children: fair.city && fair.country ? `${fair.city}, ${fair.country}` : fair.city || fair.country || "-" }) }),
-            /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(FairStatusBadge, { status: fair.status }) }),
-            /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(StatusPill, { status: fair.approvalStatus }) }),
-            /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsxs("div", { class: "flex gap-2", children: [
+            /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
+              FairStatusBadge,
+              {
+                id: `fair-status-${fair.id}`,
+                status: fair.status
+              }
+            ) }),
+            /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(FairPublishToggle, { fairId: fair.id, status: fair.status }) }),
+            /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsxs("div", { class: "flex gap-2 items-center", children: [
+              /* @__PURE__ */ jsx(
+                FairPreviewButton,
+                {
+                  fairId: fair.id,
+                  slug: fair.slug,
+                  status: fair.status
+                }
+              ),
               /* @__PURE__ */ jsx(
                 Link,
                 {
                   href: `/dashboard/admin/fairs/${fair.id}`,
                   title: "Edit",
+                  target: "_blank",
                   children: editIcon()
                 }
               ),
@@ -67,8 +92,7 @@ const AdminFairsTableAndFilter = async ({
                 FormDelete,
                 {
                   action: `/dashboard/admin/fairs/${fair.id}`,
-                  confirmMessage: `Delete ${fair.name}?`,
-                  ...{ "@ajax:success": "$el.closest('tr').remove()" },
+                  ...deleteRowAttrs,
                   children: /* @__PURE__ */ jsx(
                     "button",
                     {

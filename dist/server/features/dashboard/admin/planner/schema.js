@@ -55,46 +55,27 @@ const publisherOfTheWeekFormSchema = z.object({
 });
 const weekQuerySchema = z.object({ week: z.string() });
 const dateQuerySchema = z.object({ date: z.string() });
+const spotlightBlurbQuerySchema = z.object({
+  week: z.string(),
+  key: z.string()
+});
+const spotlightBlurbSaveSchema = z.object({
+  blurb: z.string()
+});
 const updateCreatorEmailFormSchema = z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email")
 });
-const newsletterCampaignParamSchema = z.object({
-  campaignId: z.string().uuid("Invalid campaign id")
-});
-const newsletterCampaignEditSchema = z.object({
-  subject: z.string().min(1, "Subject is required").max(180),
-  introText: z.string().min(1, "Intro text is required").max(5e3),
-  outroText: z.string().min(1, "Outro text is required").max(5e3),
-  ctaText: z.string().min(1, "CTA text is required").max(120)
-});
-const newsletterBrevoTestSchema = z.object({
-  email: z.preprocess(
-    (val) => val === "" || val === void 0 ? void 0 : val,
-    z.string().email("Enter a valid email address").optional()
-  )
-});
-const newsletterMarkSentSchema = z.preprocess(
-  (data) => {
-    if (data instanceof FormData) {
-      return { sent: data.getAll("sent").includes("true") };
-    }
-    return data;
-  },
-  z.object({ sent: z.boolean() })
-);
 export {
   artistOfTheWeekFormSchema,
   bookOfTheDayFormSchema,
   dateQuerySchema,
-  newsletterBrevoTestSchema,
-  newsletterCampaignEditSchema,
-  newsletterCampaignParamSchema,
-  newsletterMarkSentSchema,
   publisherOfTheWeekFormSchema,
   sendAOTWCreatorEmailFormSchema,
   sendBOTDCreatorEmailFormSchema,
   sendPOTWCreatorEmailFormSchema,
   setEmailFormSchema,
+  spotlightBlurbQuerySchema,
+  spotlightBlurbSaveSchema,
   updateCreatorEmailFormSchema,
   weekQuerySchema
 };

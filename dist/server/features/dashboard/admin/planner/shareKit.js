@@ -1,4 +1,4 @@
-import { formatInstagramHandle } from "./instagramCaption.js";
+import { formatInstagramHandle } from "./social-media/instagramCaption.js";
 const PHOTOBOOKERS_IG = "@photobookers";
 function escapeHtml(value) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

@@ -53,9 +53,9 @@ const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
   const title = pageTitle(`Publisher of the Week \u2014 ${creator.displayName}`);
   const interviewTeaser = publishedInterview?.answers?.q1?.trim();
   const description = truncateDescription(
-    interviewTeaser ?? creatorDescription(creator)
+    publisherOfTheWeek.spotlightBlurb?.trim() ?? interviewTeaser ?? creatorDescription(creator)
   );
-  const shareImage = publisherOfTheWeek.instagramImageUrl ?? publishedInterview?.promoImageUrl ?? creator.bannerUrl ?? creator.coverUrl ?? booksResult.books[0]?.coverUrl ?? void 0;
+  const shareImage = publisherOfTheWeek.featuredImageUrl ?? publishedInterview?.promoImageUrl ?? creator.bannerUrl ?? creator.coverUrl ?? booksResult.books[0]?.coverUrl ?? void 0;
   if (!user) {
     c.header("Vary", "Cookie");
     c.header(
@@ -89,7 +89,8 @@ const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
               user,
               weekStart,
               publishedInterview,
-              books: booksResult.books
+              books: booksResult.books,
+              spotlightBlurb: publisherOfTheWeek.spotlightBlurb
             }
           ),
           /* @__PURE__ */ jsx("a", { href: `/publisher-of-the-week`, class: "mx-auto", children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", width: "auto", children: "\u2190 All Publishers of the Week" }) })

@@ -5,8 +5,9 @@ import { formatDate } from "../../utils.js";
 import CardCreatorCard from "./CardCreatorCard.js";
 import Link from "./Link.js";
 import Show from "./Show.js";
-import WishlistButton from "../../features/api/components/FavouriteButton.js";
+import SaveToListButton from "../../features/api/components/SaveToListButton.js";
 const BookCard = ({
+  banner,
   book,
   user,
   currentCreatorId,
@@ -20,6 +21,7 @@ const BookCard = ({
       /* @__PURE__ */ jsx("div", { class: "min-w-0 flex-1", children: /* @__PURE__ */ jsx(
         CardCreatorCard,
         {
+          banner,
           creator: book.artist ?? null,
           maxDisplayNameLength: book.releaseDate ? maxDisplayNameLength : 30
         }
@@ -45,7 +47,7 @@ const BookCard = ({
           }
         )
       ] }),
-      /* @__PURE__ */ jsx(WishlistButton, { isCircleButton: true, book, user })
+      /* @__PURE__ */ jsx(SaveToListButton, { book, user })
     ] }) })
   ] });
 };

@@ -24,7 +24,6 @@ const GET = createRoute(async (c) => {
         children: /* @__PURE__ */ jsx(Page, { children: /* @__PURE__ */ jsx(Sidebar, { currentPath, children: /* @__PURE__ */ jsx(
           AdminFairsTableContainer,
           {
-            user,
             currentPath: fairsPaginationBaseUrl,
             currentPage,
             searchQuery

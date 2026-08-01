@@ -1,8 +1,5 @@
 import { eachDayInRange } from "../../features/book-analytics/dateRange.js";
 import { toUtcStartOfDay } from "../../lib/utils.js";
-function isMondayUtc(date = /* @__PURE__ */ new Date()) {
-  return toUtcStartOfDay(date).getUTCDay() === 1;
-}
 function previousPeriodRange(range) {
   const days = eachDayInRange(range).length;
   const priorTo = new Date(range.from);
@@ -34,6 +31,5 @@ function formatPeriodDelta(current, previous, options) {
 }
 export {
   formatPeriodDelta,
-  isMondayUtc,
   previousPeriodRange
 };

@@ -7,11 +7,11 @@ import {
   getPublicBooksInWishlist,
   getPublicShelfBySlug,
 } from "../../../domain/shelf/services";
+import { getPublicListsForUser } from "../../../domain/lists/services";
 import InfoPage from "../../../pages/InfoPage";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import BooksGrid from "../../../features/app/components/BooksGrid";
-import PageHeader from "../../../components/app/PageHeader";
 import ShareButton from "../../../features/api/components/ShareButton";
 import { canonicalUrl, pageTitle, shelfDescription } from "../../../lib/seo";
 import { isFeatureEnabledForUser } from "../../../lib/features";
@@ -25,6 +25,7 @@ import { getInitialsAvatar } from "../../../lib/avatar";
 import { listCollectorPosts } from "../../../db/queries";
 import PostCard from "../../../features/collectors/components/PostCard";
 import CollectorFollowButton from "../../../features/api/components/CollectorFollowButton";
+import ShelfListsSection from "../../../features/app/components/ShelfListsSection";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -75,6 +76,7 @@ export const GET = createRoute(
     }
 
     const posts = await listCollectorPosts(owner.id);
+    const publicLists = await getPublicListsForUser(owner.id);
 
     const title = pageTitle(`${owner.displayName}'s shelf`);
     const description = shelfDescription(
@@ -158,6 +160,14 @@ export const GET = createRoute(
               </button>
               <button
                 type="button"
+                x-on:click="tab = 'lists'"
+                x-bind:class="tab === 'lists' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
+                class="px-3 py-2 text-sm font-medium"
+              >
+                {`Lists (${publicLists.length + 1})`}
+              </button>
+              <button
+                type="button"
                 x-on:click="tab = 'posts'"
                 x-bind:class="tab === 'posts' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
                 class="px-3 py-2 text-sm font-medium"
@@ -166,12 +176,20 @@ export const GET = createRoute(
               </button>
             </div>
 
-            <div x-show="tab === 'favourites'">
+            <div x-show="tab === 'favourites'" id="favourites">
               <BooksGrid
                 user={user}
                 currentPath={currentPath}
                 result={booksResult}
                 noResultsMessage="No public favorites yet."
+              />
+            </div>
+
+            <div x-show="tab === 'lists'" x-cloak>
+              <ShelfListsSection
+                shelfSlug={slug}
+                favoritesCount={booksResult.totalCount ?? booksResult.books.length}
+                lists={publicLists}
               />
             </div>
 

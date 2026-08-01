@@ -1,13 +1,15 @@
-import { desc } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import { books } from "../db/schema.js";
 const BOOK_CATALOG_DEFAULT_SORT = "trending";
 const BOOK_CATALOG_SORT_VALUES = [
   "newest",
-  "trending"
+  "trending",
+  "latest"
 ];
 const BOOK_CATALOG_SORT_LABELS = {
   newest: "Newest",
-  trending: "Trending"
+  trending: "Trending",
+  latest: "Latest"
 };
 const parseBookCatalogSort = (value) => {
   if (!value) return null;
@@ -17,9 +19,15 @@ const getBookCatalogOrderBy = (sort) => {
   switch (sort) {
     case "trending":
       return [desc(books.sortOrder), desc(books.id)];
+    case "latest":
+      return [desc(books.createdAt), desc(books.id)];
     case "newest":
     default:
-      return [desc(books.createdAt), desc(books.id)];
+      return [
+        sql`${books.releaseDate} DESC NULLS LAST`,
+        desc(books.createdAt),
+        desc(books.id)
+      ];
   }
 };
 export {

@@ -1,13 +1,12 @@
 const NEWSLETTER_COPY = {
   kicker: "Newsletter",
-  title: "One photobook pick, every day",
-  short: "Get Book of the Day, weekly spotlights, and new releases in your inbox \u2014 free.",
-  banner: "One photobook recommendation every day, plus weekly artist & publisher spotlights",
-  pageIntro: "Sign up for curated photobook discovery \u2014 daily Book of the Day picks, weekly highlights, and new books as they arrive.",
+  title: "Your weekly photobook digest",
+  banner: "Books of the Day, weekly spotlights, trending artists & publishers, and new creators \u2014 once a week, free.",
   bullets: [
-    "Book of the Day \u2014 one photobook, every morning",
-    "Weekly round-up of artists, publishers, and interviews",
-    "New releases from creators you follow"
+    "Books of the Day \u2014 all seven picks from the past week",
+    "Creators of the Week \u2014 featured artist and publisher",
+    "Trending \u2014 top books, artists, and publishers",
+    "New on Photobookers \u2014 creators who joined that week"
   ],
   cta: "Sign up free"
 };

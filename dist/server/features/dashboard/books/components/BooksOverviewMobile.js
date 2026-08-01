@@ -1,77 +1,115 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import PreviewButton from "../../../api/components/PreviewButton.js";
 import Button from "../../../../components/app/Button.js";
-import SectionTitle from "../../../../components/app/SectionTitle.js";
 import PublishToggleForm from "./PublishToggleForm.js";
 import DeleteBookForm from "./BookDeleteForm.js";
 import TableSearch from "../../../../components/app/TableSearch.js";
 import Link from "../../../../components/app/Link.js";
+import BookApprovalStatusPill from "../../admin/books/components/BookApprovalStatusPill.js";
+import { canEditBook } from "../../../../lib/permissions.js";
+import { InfiniteScroll } from "../../../../components/app/InfiniteScroll.js";
 const BooksOverviewMobile = ({
   books,
   user,
-  title = "My Books"
+  currentPath,
+  page,
+  totalPages,
+  basePath = "/dashboard",
+  editBasePath = "/dashboard/books"
 }) => {
-  const alpineAttrs = {
+  const targetId = "books-table-body";
+  const listAttrs = {
     "x-init": "true",
-    "@books:updated.window": "$ajax('/dashboard', { target: 'books-table-body' })"
+    "@books:updated.window": `$ajax('${basePath}', { target: '${targetId}' })`
   };
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
-    /* @__PURE__ */ jsx(SectionTitle, { children: title }),
-    /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
-      /* @__PURE__ */ jsx(Link, { href: "/dashboard/books/create", children: /* @__PURE__ */ jsx(Button, { variant: "solid", color: "primary", children: "New Book" }) }),
-      /* @__PURE__ */ jsx(
-        TableSearch,
-        {
-          isMobile: true,
-          target: "books-table",
-          action: "/dashboard",
-          placeholder: "Filter books..."
-        }
-      )
-    ] }),
-    books?.length > 0 && /* @__PURE__ */ jsx("ul", { class: "flex flex-col gap-4", id: "books-table", ...alpineAttrs, children: books.map((book) => /* @__PURE__ */ jsx(BookTableRowMobile, { book, user }, book.id)) })
+    /* @__PURE__ */ jsx("div", { class: "flex flex-col gap-3", children: /* @__PURE__ */ jsx(
+      TableSearch,
+      {
+        isMobile: true,
+        target: "books-table",
+        action: basePath,
+        placeholder: "Filter books..."
+      }
+    ) }),
+    /* @__PURE__ */ jsx("ul", { id: targetId, class: "flex flex-col gap-4", ...listAttrs, children: books.map((book) => /* @__PURE__ */ jsx(BookCardMobile, { book, user, editBasePath })) }),
+    totalPages > 1 ? /* @__PURE__ */ jsx(
+      InfiniteScroll,
+      {
+        baseUrl: currentPath,
+        page,
+        totalPages,
+        targetId
+      }
+    ) : null
   ] });
 };
 var BooksOverviewMobile_default = BooksOverviewMobile;
-const BookTableRowMobile = ({ book, user }) => {
-  if (!book || !book.id || !book.slug || !book.title) {
+const BookCardMobile = ({ book, user, editBasePath }) => {
+  if (!book?.id || !book.slug || !book.title) {
     return null;
   }
-  const releaseDateFormatted = book.releaseDate ? book.releaseDate.toISOString().slice(0, 10).split("-").reverse().join("/") : "";
-  return /* @__PURE__ */ jsx("li", { class: "rounded-radius border border-outline bg-surface-alt overflow-hidden", children: /* @__PURE__ */ jsxs("div", { class: "p-4 flex flex-col gap-3", children: [
+  return /* @__PURE__ */ jsx("li", { class: "rounded-radius border border-outline bg-surface overflow-hidden", children: /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4 p-4", children: [
     /* @__PURE__ */ jsxs("div", { class: "flex gap-3", children: [
       /* @__PURE__ */ jsx("div", { class: "shrink-0", children: book.coverUrl ? /* @__PURE__ */ jsx(
         "img",
         {
           src: book.coverUrl,
           alt: book.title,
-          class: "h-14 w-11 object-cover rounded-sm"
+          class: "h-20 w-14 object-cover rounded-sm"
         }
-      ) : /* @__PURE__ */ jsx("a", { href: `/dashboard/books/${book.id}#book-images`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "warning", children: /* @__PURE__ */ jsx("span", { children: "Upload Cover" }) }) }) }),
-      /* @__PURE__ */ jsxs("div", { class: "min-w-0 flex-1 flex flex-col gap-0.5", children: [
+      ) : /* @__PURE__ */ jsx("a", { href: `${editBasePath}/${book.id}#book-images`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "warning", children: /* @__PURE__ */ jsx("span", { children: "Upload Cover" }) }) }) }),
+      /* @__PURE__ */ jsxs("div", { class: "min-w-0 flex-1", children: [
         /* @__PURE__ */ jsx(
           Link,
           {
             href: book.publicationStatus === "published" ? `/books/${book.slug}` : `/books/preview/${book.slug}`,
-            children: /* @__PURE__ */ jsx("p", { class: "font-medium text-on-surface truncate", children: book.title })
+            children: /* @__PURE__ */ jsx("p", { class: "font-medium text-on-surface-strong line-clamp-3", children: book.title })
           }
         ),
-        book.artist && /* @__PURE__ */ jsx(
-          "a",
+        book.artist ? /* @__PURE__ */ jsx(
+          Link,
           {
             href: `/creators/${book.artist.slug}`,
-            class: "text-sm text-on-surface truncate hover:underline",
+            className: "block text-sm text-on-surface-weak line-clamp-1",
+            hoverUnderline: true,
             children: book.artist.displayName
           }
-        ),
-        releaseDateFormatted ? /* @__PURE__ */ jsx("p", { class: "text-xs text-on-surface", children: releaseDateFormatted }) : null
+        ) : null,
+        book.publisher ? /* @__PURE__ */ jsx(
+          Link,
+          {
+            href: `/creators/${book.publisher.slug}`,
+            className: "block text-sm text-on-surface-weak line-clamp-1",
+            hoverUnderline: true,
+            children: book.publisher.displayName
+          }
+        ) : null
       ] })
     ] }),
-    /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2 border-t border-outline pt-3", children: [
-      /* @__PURE__ */ jsx(PublishToggleForm, { book, user }),
+    /* @__PURE__ */ jsxs("dl", { class: "grid grid-cols-[5.5rem_1fr] items-center gap-x-3 gap-y-3 text-sm", children: [
+      /* @__PURE__ */ jsx("dt", { class: "text-on-surface-weak", children: "Approval" }),
+      /* @__PURE__ */ jsx("dd", { children: /* @__PURE__ */ jsx(
+        BookApprovalStatusPill,
+        {
+          approvalStatus: book.approvalStatus ?? "pending"
+        }
+      ) }),
+      /* @__PURE__ */ jsx("dt", { class: "text-on-surface-weak", children: "Publish" }),
+      /* @__PURE__ */ jsx("dd", { children: /* @__PURE__ */ jsx(PublishToggleForm, { book, user }) })
+    ] }),
+    /* @__PURE__ */ jsxs("div", { class: "flex flex-wrap justify-evenly items-center gap-2 border-t border-outline pt-3", children: [
       /* @__PURE__ */ jsx(PreviewButton, { book, user }),
-      /* @__PURE__ */ jsx("a", { href: `/dashboard/books/${book.id}`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "inverse", width: "sm", children: "Edit" }) }),
-      /* @__PURE__ */ jsx(DeleteBookForm, { book, user })
+      /* @__PURE__ */ jsx("a", { href: `${editBasePath}/${book.id}`, children: /* @__PURE__ */ jsx(
+        Button,
+        {
+          variant: "outline",
+          color: "inverse",
+          disabled: !canEditBook(user, book),
+          children: /* @__PURE__ */ jsx("span", { children: "Edit" })
+        }
+      ) }),
+      /* @__PURE__ */ jsx(DeleteBookForm, { book, user, basePath: editBasePath })
     ] })
   ] }) });
 };

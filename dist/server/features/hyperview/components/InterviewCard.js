@@ -1,11 +1,7 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { Behavior, Image, Style, Text, View } from "../../../lib/hxml-comps.js";
 import { formatDate } from "../../../utils.js";
-const InterviewCard = ({
-  interview,
-  href,
-  variant = "carousel"
-}) => {
+const InterviewCard = ({ interview, href, variant = "carousel" }) => {
   const cardStyle = variant === "list" ? "interview-list-card" : "interview-card";
   const imageStyle = variant === "list" ? "interview-list-card-image" : "interview-card-image";
   const overlayStyle = variant === "list" ? "interview-list-card-overlay" : "interview-card-overlay";
@@ -34,7 +30,7 @@ const interviewCardStyles = () => /* @__PURE__ */ jsxs(Fragment, { children: [
       id: "interview-card",
       width: 220,
       height: 256,
-      borderRadius: 0,
+      borderRadius: 4,
       overflow: "hidden",
       marginRight: 12
     }

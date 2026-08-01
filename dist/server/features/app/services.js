@@ -23,23 +23,27 @@ import {
   creatorInterviews,
   creators,
   follows,
+  users,
   wishlists
 } from "../../db/schema.js";
+import { supabaseAdmin } from "../../lib/supabase.js";
 import { getPagination } from "../../lib/pagination.js";
 import {
   getBookCatalogOrderBy
 } from "../../lib/bookCatalogSort.js";
 import { getPublicBooksForCreator } from "../../domain/creators/books.js";
 import { getBooksOrderBy } from "../../lib/booksOrderBy.js";
-import { slugToTag } from "../../lib/tags.js";
+import { slugToTag, tagMatchesBookTags } from "../../lib/tags.js";
 import { FEATURED_BOOK_GROUPS } from "../../constants/featuredBookGroups.js";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
   CREATOR_CARD_SELECT
 } from "../../constants/queries.js";
-import { creatorMessages } from "../../db/schema.js";
+import { collectorPosts, creatorMessages } from "../../db/schema.js";
 import { err, ok } from "../../lib/result.js";
+import { isFeatureEnabled } from "../../lib/features.js";
+import { mergeFeedItems } from "./followerFeed.js";
 import { LRUCache } from "lru-cache";
 const bookCache = new LRUCache({
   max: 200,
@@ -443,10 +447,7 @@ const getFirstBookByTag = async (tag) => {
 };
 const getBooksByTag = async (tag, currentPage, sortBy = "newest", defaultLimit = 12) => {
   try {
-    const tagCondition = sql`EXISTS (
-      SELECT 1 FROM unnest(${books.tags}) AS t
-      WHERE LOWER(t) = LOWER(${tag})
-    )`;
+    const tagCondition = tagMatchesBookTags(books.tags, tag);
     const [{ value: totalCount = 0 }] = await db.select({ value: count() }).from(books).where(and(eq(books.publicationStatus, "published"), tagCondition));
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
@@ -456,10 +457,7 @@ const getBooksByTag = async (tag, currentPage, sortBy = "newest", defaultLimit =
     const foundBooks = await db.query.books.findMany({
       where: (books2, { and: and2, eq: eq2, sql: sql2 }) => and2(
         eq2(books2.publicationStatus, "published"),
-        sql2`EXISTS (
-            SELECT 1 FROM unnest(${books2.tags}) AS t
-            WHERE LOWER(t) = LOWER(${tag})
-          )`,
+        tagMatchesBookTags(books2.tags, tag),
         or(isNull(books2.releaseDate), lte(books2.releaseDate, /* @__PURE__ */ new Date()))
       ),
       columns: BOOK_CARD_COLUMNS,
@@ -547,10 +545,7 @@ const catalogBookCoverConditions = (tag) => and(
   eq(books.approvalStatus, "approved"),
   or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date())),
   isNotNull(books.coverUrl),
-  sql`EXISTS (
-      SELECT 1 FROM unnest(${books.tags}) AS t
-      WHERE LOWER(t) = LOWER(${tag})
-    )`
+  tagMatchesBookTags(books.tags, tag)
 );
 const getCoverUrlForTag = async (tag) => {
   const row = await db.query.books.findFirst({
@@ -600,12 +595,7 @@ const getFilteredBooks = async ({
     );
     const conditions = [publishedConditions];
     if (normalizedTag) {
-      conditions.push(
-        sql`EXISTS (
-          SELECT 1 FROM unnest(${books.tags}) AS t
-          WHERE LOWER(t) = LOWER(${normalizedTag})
-        )`
-      );
+      conditions.push(tagMatchesBookTags(books.tags, normalizedTag));
     }
     if (searchQ) {
       const searchPattern = `%${searchQ}%`;
@@ -643,10 +633,7 @@ const getFilteredBooks = async ({
   }
 };
 const getBooksByTagForCatalog = async (tag, currentPage, defaultLimit, sort) => {
-  const tagCondition = sql`EXISTS (
-    SELECT 1 FROM unnest(${books.tags}) AS t
-    WHERE LOWER(t) = LOWER(${tag})
-  )`;
+  const tagCondition = tagMatchesBookTags(books.tags, tag);
   const publishedConditions = and(
     eq(books.publicationStatus, "published"),
     eq(books.approvalStatus, "approved"),
@@ -721,6 +708,135 @@ const getFeedBooks = async (userId, currentPage, sortBy = "newest", defaultLimit
   } catch (error) {
     console.error("Failed to get feed books", error);
     return err({ reason: "Failed to get feed books", error });
+  }
+};
+const getFollowerFeed = async (followerUserId, currentPage = 1, limit = 20, options) => {
+  const includeMessages = options?.includeMessages ?? isFeatureEnabled("messages");
+  const includePosts = isFeatureEnabled("collectors");
+  try {
+    const allFollows = await db.query.follows.findMany({
+      where: eq(follows.followerUserId, followerUserId)
+    });
+    const followedCreatorIds = allFollows.filter((f) => f.targetType === "creator").map((follow) => follow.targetCreatorId).filter((id) => id !== null);
+    const followedUserIds = allFollows.filter((f) => f.targetType === "user").map((follow) => follow.targetUserId).filter((id) => id !== null);
+    const publicFollowedUsers = includePosts && followedUserIds.length > 0 ? await db.query.users.findMany({
+      columns: { id: true },
+      where: and(
+        inArray(users.id, followedUserIds),
+        eq(users.shelfPublic, true),
+        sql`${users.shelfSlug} IS NOT NULL`
+      )
+    }) : [];
+    const publicFollowedUserIds = publicFollowedUsers.map((u) => u.id);
+    const hasPostSources = publicFollowedUserIds.length > 0;
+    if (followedCreatorIds.length === 0 && !hasPostSources) {
+      return ok({ items: [], totalPages: 0, page: 1 });
+    }
+    const postWhere = hasPostSources ? inArray(collectorPosts.userId, publicFollowedUserIds) : void 0;
+    const [{ value: postCount = 0 }] = hasPostSources ? await db.select({ value: count() }).from(collectorPosts).where(postWhere) : [{ value: 0 }];
+    if (followedCreatorIds.length === 0) {
+      const { page: page2, totalPages: totalPages2 } = getPagination(currentPage, postCount, limit);
+      const fetchLimit2 = page2 * limit;
+      const feedPosts2 = hasPostSources ? await db.query.collectorPosts.findMany({
+        where: postWhere,
+        orderBy: [desc(collectorPosts.createdAt)],
+        limit: fetchLimit2,
+        with: {
+          user: {
+            columns: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              shelfSlug: true,
+              profileImageUrl: true
+            }
+          }
+        }
+      }) : [];
+      const items2 = mergeFeedItems(
+        [],
+        [],
+        feedPosts2.map((p) => ({ ...p, author: p.user })),
+        page2,
+        limit
+      );
+      return ok({ items: items2, totalPages: totalPages2, page: page2 });
+    }
+    const bookWhere = and(
+      or(
+        inArray(books.artistId, followedCreatorIds),
+        inArray(books.publisherId, followedCreatorIds)
+      ),
+      eq(books.publicationStatus, "published"),
+      or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date()))
+    );
+    const messageWhere = inArray(
+      creatorMessages.creatorId,
+      followedCreatorIds
+    );
+    const [{ value: bookCount = 0 }] = await db.select({ value: count() }).from(books).where(bookWhere);
+    const [{ value: messageCount = 0 }] = includeMessages ? await db.select({ value: count() }).from(creatorMessages).where(messageWhere) : [{ value: 0 }];
+    const totalCount = bookCount + messageCount + postCount;
+    const { page, totalPages } = getPagination(
+      currentPage,
+      totalCount,
+      limit
+    );
+    const fetchLimit = page * limit;
+    const [feedBooks, feedMessages, feedPosts] = await Promise.all([
+      db.query.books.findMany({
+        where: bookWhere,
+        columns: { ...BOOK_CARD_COLUMNS, createdAt: true },
+        with: {
+          artist: { columns: CREATOR_CARD_COLUMNS },
+          publisher: { columns: CREATOR_CARD_COLUMNS }
+        },
+        orderBy: getBooksOrderBy("newest"),
+        limit: fetchLimit
+      }),
+      includeMessages ? db.query.creatorMessages.findMany({
+        where: messageWhere,
+        orderBy: [desc(creatorMessages.createdAt)],
+        limit: fetchLimit,
+        with: {
+          creator: {
+            columns: {
+              id: true,
+              displayName: true,
+              slug: true,
+              coverUrl: true
+            }
+          }
+        }
+      }) : Promise.resolve([]),
+      hasPostSources ? db.query.collectorPosts.findMany({
+        where: postWhere,
+        orderBy: [desc(collectorPosts.createdAt)],
+        limit: fetchLimit,
+        with: {
+          user: {
+            columns: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              shelfSlug: true,
+              profileImageUrl: true
+            }
+          }
+        }
+      }) : Promise.resolve([])
+    ]);
+    const items = mergeFeedItems(
+      feedBooks,
+      feedMessages,
+      feedPosts.map((p) => ({ ...p, author: p.user })),
+      page,
+      limit
+    );
+    return ok({ items, totalPages, page });
+  } catch (error) {
+    console.error("Failed to get follower feed", error);
+    return err({ reason: "Failed to get follower feed", error });
   }
 };
 const getAllCreatorsByType = async (type, currentPage = 1, defaultLimit = 30) => {
@@ -1192,7 +1308,20 @@ const getPublishedInterviews = async () => {
       orderBy: [desc(creatorInterviews.completedAt)],
       where: and(
         eq(creatorInterviews.status, "published"),
-        isNotNull(creatorInterviews.promoImageUrl)
+        isNotNull(creatorInterviews.promoImageUrl),
+        // Inside a relational query (db.query.*), Drizzle rewrites bare column
+        // objects in a raw `sql` fragment to the PRIMARY table's alias — so
+        // `${books.artistId}` wrongly rendered as `creatorInterviews.artist_id`
+        // and the query threw (42703, column does not exist). Alias the books
+        // table as `b` and reference its columns with literal identifiers so
+        // they aren't remapped; the correlated `creatorInterviews.creatorId`
+        // still resolves to the outer row.
+        sql`EXISTS (
+          SELECT 1 FROM ${books} b
+          WHERE (b.artist_id = ${creatorInterviews.creatorId}
+            OR b.publisher_id = ${creatorInterviews.creatorId})
+          AND b.publication_status = 'published'
+        )`
       ),
       with: {
         creator: {
@@ -1282,6 +1411,28 @@ const getInterviewById = async (interviewId) => {
     return err({ reason: "Failed to get interview by creator slug", error });
   }
 };
+const updateOwnUserProfile = async (userId, data) => {
+  try {
+    const firstName = data.firstName ?? null;
+    const lastName = data.lastName ?? null;
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      { user_metadata: { firstName, lastName } }
+    );
+    if (authError) {
+      return err({
+        reason: authError.message || "Failed to update profile",
+        cause: authError
+      });
+    }
+    const [updated] = await db.update(users).set({ firstName, lastName, updatedAt: /* @__PURE__ */ new Date() }).where(eq(users.id, userId)).returning();
+    if (!updated) return err({ reason: "Failed to update profile" });
+    return ok(updated);
+  } catch (error) {
+    console.error("Failed to update user profile", error);
+    return err({ reason: "Failed to update profile", cause: error });
+  }
+};
 export {
   deleteCommentById,
   filterPublishedBooks,
@@ -1309,6 +1460,7 @@ export {
   getFirstBookByTag,
   getFollowedCreators,
   getFollowedCreatorsForBrowse,
+  getFollowerFeed,
   getHomepageStats,
   getInterviewByCreatorSlug,
   getInterviewById,
@@ -1324,5 +1476,6 @@ export {
   invalidateCreatorCache,
   loadFeaturedBookGroupCovers,
   searchCreators,
-  updateCommentById
+  updateCommentById,
+  updateOwnUserProfile
 };

@@ -33,6 +33,15 @@ function creatorShareText(creator) {
   const label = creator.type === "publisher" ? "publisher" : "artist";
   return `${creator.displayName} \u2014 ${label} on Photobookers`;
 }
+function shelfProfileUrl(slug) {
+  return `/shelf/${slug}`;
+}
+function shelfShareTitle(ownerName) {
+  return `${ownerName}'s shelf`;
+}
+function shelfShareText(ownerName) {
+  return `${ownerName}'s favorite photobooks on Photobookers`;
+}
 function creatorOfTheWeekShareTitle(creator, role) {
   return `${role} of the Week \u2014 ${creator.displayName}`;
 }
@@ -56,5 +65,8 @@ export {
   creatorShareText,
   creatorVerifiedSharePost,
   creatorVerifiedSharePostHtml,
-  resolveShareUrl
+  resolveShareUrl,
+  shelfProfileUrl,
+  shelfShareText,
+  shelfShareTitle
 };

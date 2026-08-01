@@ -8,6 +8,10 @@ import {
   resetFormBaseline,
   validateField
 } from "../../../../../client/forms/formUtils.js";
+import {
+  bookPressLinksAlpineMethods,
+  parsePressLinks
+} from "../../../books/client/bookPressLinks.js";
 const BOOK_FORM_FIELDS = Object.keys(bookFormAdminSchema.shape);
 function registerBookFormAdmin() {
   Alpine.data(
@@ -19,7 +23,11 @@ function registerBookFormAdmin() {
         isSubmitting: false,
         is_new_artist: false,
         is_new_publisher: false,
+        pressLinks: parsePressLinks(
+          typeof formValues.press_links === "string" ? formValues.press_links : void 0
+        ),
         ...createFormState(BOOK_FORM_FIELDS, formValues),
+        ...bookPressLinksAlpineMethods(),
         init() {
           initFormValues(this, BOOK_FORM_FIELDS, isEditMode);
         },

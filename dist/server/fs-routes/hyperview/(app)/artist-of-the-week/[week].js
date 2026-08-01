@@ -85,7 +85,8 @@ const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
             baseUrl,
             isFollowing: followingByCreatorId[booksResult.creator.id] ?? false,
             favoritesByBookId,
-            spotlightImage: artistOfTheWeek.instagramImageUrl
+            spotlightImage: artistOfTheWeek.featuredImageUrl,
+            spotlightBlurb: artistOfTheWeek.spotlightBlurb
           }
         ) })
       }

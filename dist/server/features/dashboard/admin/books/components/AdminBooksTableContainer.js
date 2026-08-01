@@ -8,11 +8,12 @@ const AdminBooksTableContainer = async ({
   currentPath,
   currentPage,
   searchQuery,
-  user
+  user,
+  isMobile
 }) => {
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
     /* @__PURE__ */ jsx(SectionTitle, { children: "Books" }),
-    /* @__PURE__ */ jsxs("div", { class: "flex items-center justify-between gap-4", children: [
+    !isMobile ? /* @__PURE__ */ jsxs("div", { class: "flex items-center justify-between gap-4", children: [
       /* @__PURE__ */ jsx(
         TableSearch,
         {
@@ -22,14 +23,15 @@ const AdminBooksTableContainer = async ({
         }
       ),
       /* @__PURE__ */ jsx(Link, { href: "/dashboard/admin/books/create", children: /* @__PURE__ */ jsx(Button, { variant: "solid", color: "primary", children: "New Book" }) })
-    ] }),
+    ] }) : null,
     /* @__PURE__ */ jsx(
       AdminBooksTableAndFilter,
       {
         user,
         currentPath,
         currentPage,
-        searchQuery
+        searchQuery,
+        isMobile
       }
     )
   ] });

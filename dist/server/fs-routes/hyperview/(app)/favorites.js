@@ -38,7 +38,7 @@ const GET = createRoute(async (c) => {
             SignInPrompt,
             {
               baseUrl,
-              hint: "Sign in to see books on your wishlist."
+              hint: "Sign in to see your favourites."
             }
           ) })
         }
@@ -87,7 +87,7 @@ const GET = createRoute(async (c) => {
           baseUrl,
           dockActive: "favorites",
           extraStyles: pageStyles(),
-          children: /* @__PURE__ */ jsx(View, { style: "favorites-empty", children: /* @__PURE__ */ jsx(Text, { style: "featured-empty-hint", children: "No favorites yet. Tap the heart on a book to add it to your wishlist." }) })
+          children: /* @__PURE__ */ jsx(View, { style: "favorites-empty", children: /* @__PURE__ */ jsx(Text, { style: "featured-empty-hint", children: "No favourites yet. Tap the heart on a book to add it to your favourites." }) })
         }
       )
     );

@@ -5,6 +5,7 @@ import Button from "../../../components/app/Button.js";
 import { SITE_APP } from "../../../constants/siteSocial.js";
 import { formatCountry } from "../../../lib/utils.js";
 import { aotwPath, botdPath, potwPath } from "../spotlightUrls.js";
+import ExpandableDescription from "./ExpandableDescription.js";
 const cardClassName = "w-full max-w-none";
 const pageLinks = [
   { href: SITE_APP.ios.href, label: "Download the app", external: true },
@@ -14,9 +15,10 @@ const LinksPage = ({
   bookOfTheDay,
   artistOfTheWeek,
   publisherOfTheWeek,
-  newlyVerifiedCreators
+  newlyVerifiedCreators,
+  upcomingFairs = []
 }) => {
-  const hasContent = bookOfTheDay || artistOfTheWeek || publisherOfTheWeek;
+  const hasContent = bookOfTheDay || artistOfTheWeek || publisherOfTheWeek || upcomingFairs.length > 0;
   return /* @__PURE__ */ jsxs("div", { class: "mx-auto flex w-full max-w-md flex-col gap-8", children: [
     /* @__PURE__ */ jsxs("header", { class: "flex flex-col items-center gap-2 border-b-2 border-t-2 border-on-surface-strong py-6 text-center", children: [
       /* @__PURE__ */ jsx(
@@ -52,7 +54,7 @@ const LinksPage = ({
       },
       link.href
     )) }),
-    bookOfTheDay ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4", children: [
+    bookOfTheDay ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4", children: [
       /* @__PURE__ */ jsx(SectionTitle, { children: "Book of the Day" }),
       /* @__PURE__ */ jsx(
         SpotlightCard,
@@ -64,15 +66,16 @@ const LinksPage = ({
           subtitle: bookOfTheDay.book.artist?.displayName,
           className: cardClassName
         }
-      )
+      ),
+      bookOfTheDay.spotlightBlurb ? /* @__PURE__ */ jsx(ExpandableDescription, { text: bookOfTheDay.spotlightBlurb }) : null
     ] }) : null,
-    artistOfTheWeek ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4", children: [
+    artistOfTheWeek ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4", children: [
       /* @__PURE__ */ jsx(SectionTitle, { children: "Artist of the Week" }),
       /* @__PURE__ */ jsx(
         SpotlightCard,
         {
           href: aotwPath(artistOfTheWeek.weekStart),
-          imageUrl: artistOfTheWeek.instagramImageUrl ?? artistOfTheWeek.creator.coverUrl ?? "",
+          imageUrl: artistOfTheWeek.featuredImageUrl ?? artistOfTheWeek.creator.coverUrl ?? "",
           imageAlt: artistOfTheWeek.creator.displayName,
           title: artistOfTheWeek.creator.displayName,
           subtitle: [
@@ -82,15 +85,16 @@ const LinksPage = ({
           aspectSquare: true,
           className: cardClassName
         }
-      )
+      ),
+      artistOfTheWeek.spotlightBlurb ? /* @__PURE__ */ jsx(ExpandableDescription, { text: artistOfTheWeek.spotlightBlurb }) : null
     ] }) : null,
-    publisherOfTheWeek ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4", children: [
+    publisherOfTheWeek ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4", children: [
       /* @__PURE__ */ jsx(SectionTitle, { children: "Publisher of the Week" }),
       /* @__PURE__ */ jsx(
         SpotlightCard,
         {
           href: potwPath(publisherOfTheWeek.weekStart),
-          imageUrl: publisherOfTheWeek.instagramImageUrl ?? publisherOfTheWeek.creator.coverUrl ?? "",
+          imageUrl: publisherOfTheWeek.featuredImageUrl ?? publisherOfTheWeek.creator.coverUrl ?? "",
           imageAlt: publisherOfTheWeek.creator.displayName,
           title: publisherOfTheWeek.creator.displayName,
           subtitle: [
@@ -100,9 +104,14 @@ const LinksPage = ({
           aspectSquare: true,
           className: cardClassName
         }
-      )
+      ),
+      publisherOfTheWeek.spotlightBlurb ? /* @__PURE__ */ jsx(ExpandableDescription, { text: publisherOfTheWeek.spotlightBlurb }) : null
     ] }) : null,
-    newlyVerifiedCreators.length > 0 ? /* @__PURE__ */ jsxs("section", { class: "flex w-full flex-col items-center gap-4", children: [
+    upcomingFairs.length > 0 ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4", children: [
+      /* @__PURE__ */ jsx(SectionTitle, { children: "Upcoming Fairs" }),
+      /* @__PURE__ */ jsx("nav", { class: "flex w-full flex-col gap-3", "aria-label": "Fairs this week", children: upcomingFairs.map((fair) => /* @__PURE__ */ jsx("a", { href: `/fairs/${fair.slug}`, class: "w-full", children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", width: "full", children: fair.name }) }, fair.id)) })
+    ] }) : null,
+    newlyVerifiedCreators.length > 0 ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4 my-4 border-t border-b border-outline py-4", children: [
       /* @__PURE__ */ jsx(SectionTitle, { children: "New on photobookers" }),
       /* @__PURE__ */ jsx(
         "nav",
@@ -121,7 +130,7 @@ const LinksPage = ({
         }
       )
     ] }) : null,
-    /* @__PURE__ */ jsx("a", { href: "/featured", class: "mx-auto", children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", width: "auto", children: "Visit Photobookers" }) })
+    /* @__PURE__ */ jsx("a", { href: "/featured", class: "mx-auto ", children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", width: "auto", children: "Visit Photobookers" }) })
   ] });
 };
 var LinksPage_default = LinksPage;

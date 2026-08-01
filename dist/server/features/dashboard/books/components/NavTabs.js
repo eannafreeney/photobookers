@@ -3,6 +3,8 @@ import clsx from "clsx";
 import {
   analyticsIcon,
   booksIcon,
+  lightbulbIcon,
+  libraryIcon,
   mailIcon,
   usersIcon
 } from "../../../../lib/icons.js";
@@ -20,6 +22,10 @@ const NavTabs = ({
         /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard", currentPath, children: [
           booksIcon,
           "Books"
+        ] }),
+        /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/lists", currentPath, children: [
+          libraryIcon(5),
+          "Lists"
         ] }),
         /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/analytics", currentPath, children: [
           analyticsIcon,
@@ -39,13 +45,17 @@ const NavTabs = ({
               "Profile"
             ]
           }
-        ) : null
+        ) : null,
+        /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/guide", currentPath, children: [
+          lightbulbIcon(5),
+          "Guide"
+        ] })
       ]
     }
   );
 };
 const NavLink = ({ href, children, currentPath }) => {
-  const isActive = currentPath === href;
+  const isActive = href === "/dashboard" ? currentPath === href : Boolean(currentPath?.startsWith(href));
   return /* @__PURE__ */ jsx("li", { class: "list-none", children: /* @__PURE__ */ jsx(
     "a",
     {

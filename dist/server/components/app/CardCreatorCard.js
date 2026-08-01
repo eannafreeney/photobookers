@@ -5,6 +5,7 @@ import Card from "./Card.js";
 import VerifiedCreator from "./VerifiedCreator.js";
 import { truncate } from "../../lib/utils.js";
 const CardCreatorCard = async ({
+  banner,
   creator,
   avatarSize = "xs",
   maxDisplayNameLength
@@ -27,7 +28,7 @@ const CardCreatorCard = async ({
           href: `/creators/${creator.slug}`,
           className: "min-w-0 truncate",
           title: creator.displayName,
-          children: /* @__PURE__ */ jsx(Card.SubTitle, { title: displayName, children: displayName })
+          children: /* @__PURE__ */ jsx(Card.SubTitle, { title: displayName, children: banner ?? displayName })
         }
       ),
       /* @__PURE__ */ jsx("div", { class: "shrink-0", children: /* @__PURE__ */ jsx(VerifiedCreator, { creatorStatus: creator.status, size: "xs" }) })

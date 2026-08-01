@@ -1,28 +1,28 @@
 const aboutPageMeta = {
   title: "The place to discover photobooks",
-  intro: "Photobookers brings books, artists, publishers, and book fairs together \u2014 so fans can find what matters, and creators can be found by people who care.",
+  intro: "Photobookers brings books, artists, publishers, and book fairs together \u2014 so collectors can find what matters, and creators can be found by people who care.",
   lead: "The photobook is one of photography's most enduring forms. But great books are scattered across small presses, artist shops, and corners of the internet. Photobookers gathers them in one curated place \u2014 with editorial features, fair listings, and tools for the people who make and collect them."
 };
 const aboutAudienceNav = [
-  { id: "fans", label: "For fans" },
+  { id: "collectors", label: "For collectors" },
   { id: "artists", label: "For artists" },
   { id: "publishers", label: "For publishers" }
 ];
 const aboutAudienceSections = [
   {
-    id: "fans",
-    navLabel: "For fans",
-    kicker: "For fans",
+    id: "collectors",
+    navLabel: "For collectors",
+    kicker: "For collectors",
     title: "Find books you didn't know you were looking for",
     intro: "Whether you collect photobooks or are just getting started, photobookers is built for browsing \u2014 not just searching.",
     bullets: [
       "Browse the whole world of photobooks \u2014 search and explore by artist, publisher, tag, and fair.",
-      "Follow the people behind the books \u2014 save titles to your wishlist and build a collection that reflects your taste.",
-      "Stay in the loop \u2014 get updates when creators you follow publish new work.",
+      "Follow the people behind the books \u2014 save titles to your favourites and share a public shelf that reflects your taste.",
+      "Stay in the loop \u2014 get updates when creators you follow publish new work, and follow other collectors for their posts.",
       "Discover through curation \u2014 Book of the Day, Artist and Publisher of the Week, and interviews with the people shaping the field.",
       "Book fairs, in one place \u2014 see upcoming fairs, who's attending, and connect what you saw at a fair with what you can find online."
     ],
-    closing: "You don't need to know what you want before you arrive. Come to browse, follow what catches your eye, and let your collection grow over time.",
+    closing: "You don't need to know what you want before you arrive. Come to browse, follow what catches your eye, and let your shelf grow over time.",
     primaryCta: { label: "Create a free account", href: "/auth/accounts" },
     secondaryCtas: [
       { label: "Browse books", href: "/books" },
@@ -40,7 +40,7 @@ const aboutAudienceSections = [
       "Be found in search and features \u2014 when someone browses by tag, publisher, or fair, your books show up.",
       "Reach people who are already looking \u2014 photobookers attracts collectors and curious readers, not random traffic.",
       "Share your story \u2014 interviews and features give context to your work beyond the cover image.",
-      "See what's working \u2014 analytics show views, clicks, wishlists, and collections on your books."
+      "See what's working \u2014 analytics show views, clicks, favourites, and collections on your books."
     ],
     closing: "You keep control: your shop, your links, your terms. We help the right people find you.",
     primaryCta: { label: "Create a creator account", href: "/auth/register-creator" },
@@ -54,8 +54,8 @@ const aboutAudienceSections = [
     intro: "Photobookers is where serious collectors browse. List your catalog once, show up in search and fairs, and see the traffic you are driving.",
     bullets: [
       "Your full catalog in one place \u2014 list books individually or import your backlist by CSV.",
-      "Discovery beyond your own site \u2014 fans find your titles while browsing other artists, publishers, and fairs.",
-      "Proof it's working \u2014 creator analytics show views, outbound purchase clicks, wishlists, and collections.",
+      "Discovery beyond your own site \u2014 collectors find your titles while browsing other artists, publishers, and fairs.",
+      "Proof it's working \u2014 creator analytics show views, outbound purchase clicks, favourites, and collections.",
       "Show up at book fairs \u2014 list fairs you attend and connect your catalog to the event.",
       "Editorial exposure \u2014 Book of the Day, Publisher of the Week, and interviews put your list in front of an engaged audience."
     ],
@@ -67,7 +67,7 @@ const aboutAudienceSections = [
 const aboutDifferentiators = {
   kicker: "Why here",
   title: "A hub, not a dump",
-  body: "Photobookers is not trying to list every book on the internet. It is a curated gathering place for photobook culture \u2014 discovery, fairs, interviews, and the people behind the work. That matters for fans because browsing here means something. It matters for artists and publishers because being here signals you belong to that world.",
+  body: "Photobookers is not trying to list every book on the internet. It is a curated gathering place for photobook culture \u2014 discovery, fairs, interviews, and the people behind the work. That matters for collectors because browsing here means something. It matters for artists and publishers because being here signals you belong to that world.",
   pillars: [
     {
       title: "Curation",

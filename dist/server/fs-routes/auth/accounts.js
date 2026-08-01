@@ -19,7 +19,7 @@ const GET = createRoute(async (c) => {
         {
           kicker: "Join Photobookers",
           title: "Choose your account",
-          intro: "Fan, artist, or publisher \u2014 pick the account that fits how you live with photobooks."
+          intro: "Collector, artist, or publisher \u2014 pick the account that fits how you live with photobooks."
         }
       ),
       /* @__PURE__ */ jsx("div", { class: "md:hidden space-y-4", children: accountMobileCards.map((account) => /* @__PURE__ */ jsxs(
@@ -37,7 +37,7 @@ const GET = createRoute(async (c) => {
       /* @__PURE__ */ jsx("div", { class: "hidden md:block overflow-hidden w-full overflow-x-auto border-y-2 border-on-surface-strong", children: /* @__PURE__ */ jsxs("table", { class: "w-full table-fixed text-left text-sm text-on-surface", children: [
         /* @__PURE__ */ jsx("thead", { class: "border-b border-outline-strong kicker text-on-surface-strong", children: /* @__PURE__ */ jsxs("tr", { children: [
           /* @__PURE__ */ jsx("th", { scope: "col", class: "p-4", children: "Feature" }),
-          /* @__PURE__ */ jsx("th", { scope: "col", class: "p-4 text-center", children: "Fan" }),
+          /* @__PURE__ */ jsx("th", { scope: "col", class: "p-4 text-center", children: "Collector" }),
           /* @__PURE__ */ jsx("th", { scope: "col", class: "p-4 text-center", children: "Artist / Self-Publisher" }),
           /* @__PURE__ */ jsx("th", { scope: "col", class: "p-4 text-center", children: "Publisher" })
         ] }) }),

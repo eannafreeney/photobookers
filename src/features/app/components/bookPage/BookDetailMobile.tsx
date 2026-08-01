@@ -6,7 +6,7 @@ import CreatorCard from "../../../../components/app/CreatorCard";
 import PurchaseLink from "../../../../components/app/PurchaseLink";
 import ShareButton from "../../../api/components/ShareButton";
 import TagList from "../../../../components/app/TagList";
-import FavouriteButton from "../../../api/components/FavouriteButton";
+import SaveToListButton from "../../../api/components/SaveToListButton";
 import CommentsSection from "../CommentsSection";
 import Divider from "../../../../components/Divider";
 import BookCredits from "./BookCredits";
@@ -36,7 +36,7 @@ const BookDetailMobile = ({
     <div class="flex flex-col gap-4">
       <MobileHeader kicker={book.artist?.displayName ?? ""} title={book.title}>
         <div class="flex justify-between items-center gap-2">
-          <FavouriteButton book={book} user={user} />
+          <SaveToListButton book={book} user={user} variant="button" />
           <ShareButton
             title={bookShareTitle(book)}
             text={bookShareText(book)}

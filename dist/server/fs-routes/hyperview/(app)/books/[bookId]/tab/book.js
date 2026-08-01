@@ -1,7 +1,7 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
 import { hyperview } from "../../../../../../lib/hxml.js";
-import { Style, View } from "../../../../../../lib/hxml-comps.js";
+import { Spinner, Style, View } from "../../../../../../lib/hxml-comps.js";
 import { paramValidator } from "../../../../../../lib/validator.js";
 import { AppLayout } from "../../../../+layout.js";
 import BookTabs, {
@@ -65,13 +65,15 @@ const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
               activeTab: "book"
             }
           ),
+          /* @__PURE__ */ jsx(View, { id: "tab-spinner", style: "tab-spinner", hide: "true", children: /* @__PURE__ */ jsx(Spinner, {}) }),
           /* @__PURE__ */ jsx(View, { id: "tab-area", style: "page-content", children: /* @__PURE__ */ jsx(
             BookPage,
             {
               galleryImages,
               book,
               baseUrl,
-              isFavorited: favoritesByBookId[book.id] ?? false
+              isFavorited: favoritesByBookId[book.id] ?? false,
+              user
             }
           ) })
         ]

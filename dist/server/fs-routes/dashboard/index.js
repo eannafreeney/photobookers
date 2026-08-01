@@ -11,8 +11,13 @@ import InfoPage from "../../pages/InfoPage.js";
 import AppLayout from "../../components/layouts/AppLayout.js";
 import { BooksOverviewTable } from "../../features/dashboard/books/tables/BooksOverviewTable.js";
 import CreatorDashboardShell from "../../features/dashboard/components/CreatorDashboardShell.js";
+import CollectorDashboardShell from "../../features/dashboard/components/CollectorDashboardShell.js";
+import CollectorPostForm from "../../features/collectors/components/CollectorPostForm.js";
+import CollectorPostsTable from "../../features/collectors/components/CollectorPostsTable.js";
 import { getPendingClaim } from "../../features/claims/services.js";
 import CreatorBookFunnelSummary from "../../features/dashboard/books/components/CreatorBookFunnelSummary.js";
+import { isFeatureEnabledForUser } from "../../lib/features.js";
+import PageHeader from "../../components/app/PageHeader.js";
 const GET = createRoute(async (c) => {
   const searchQuery = c.req.query("search");
   const user = await getUser(c);
@@ -20,8 +25,26 @@ const GET = createRoute(async (c) => {
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
   const currentPage = parseInt(c.req.query("page") ?? "1");
   const currentPath = c.req.path;
-  if (!user.creator)
-    return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Creator not found" }));
+  if (!user.creator) {
+    if (!isFeatureEnabledForUser("collectors", user)) {
+      return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Creator not found", user }));
+    }
+    return c.html(
+      /* @__PURE__ */ jsx(AppLayout, { title: "Your Posts", user, flash, currentPath, children: /* @__PURE__ */ jsxs(CollectorDashboardShell, { currentPath, children: [
+        /* @__PURE__ */ jsx(
+          PageHeader,
+          {
+            title: "Your Posts",
+            intro: "Share what's new with the people who follow you."
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { class: "grid grid-cols-1 gap-8 xl:grid-cols-3", children: [
+          /* @__PURE__ */ jsx(CollectorPostForm, {}),
+          /* @__PURE__ */ jsx("div", { class: "xl:col-span-2", children: /* @__PURE__ */ jsx(CollectorPostsTable, { userId: user.id }) })
+        ] })
+      ] }) })
+    );
+  }
   const creatorId = user.creator.id;
   const creatorType = user.creator.type;
   const isSearching = Boolean(searchQuery?.trim());
@@ -44,13 +67,20 @@ const GET = createRoute(async (c) => {
         user,
         flash,
         currentPath,
-        children: /* @__PURE__ */ jsx(
+        children: /* @__PURE__ */ jsxs(
           CreatorDashboardShell,
           {
             currentPath,
             user,
             claimStatus: claim?.status ?? null,
-            children: /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-16", children: [
+            children: [
+              /* @__PURE__ */ jsx(
+                PageHeader,
+                {
+                  title: "Dashboard",
+                  intro: "Manage your books, posts, and more."
+                }
+              ),
               /* @__PURE__ */ jsx(
                 CreatorBookFunnelSummary,
                 {
@@ -71,7 +101,7 @@ const GET = createRoute(async (c) => {
                   reorderEnabled: !isSearching
                 }
               )
-            ] })
+            ]
           }
         )
       }

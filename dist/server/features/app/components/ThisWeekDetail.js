@@ -2,15 +2,17 @@ import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import SectionTitle from "../../../components/app/SectionTitle.js";
 import Button from "../../../components/app/Button.js";
 import ShareButton from "../../api/components/ShareButton.js";
-import SpotlightCreatorLink from "./SpotlightCreatorLink.js";
 import NewsletterCard from "./NewsletterCard.js";
 import {
+  aotwPath,
   botdPath,
+  potwPath,
   thisWeekPath,
   thisWeekUrl
 } from "../spotlightUrls.js";
+import ExpandableDescription from "./ExpandableDescription.js";
 import { toDateString, toWeekStart } from "../../../lib/utils.js";
-import { capitalize } from "../../../utils.js";
+import SpotlightCard from "../../../components/app/SpotlightCard.js";
 const ThisWeekDetail = async ({
   weekStart,
   weekRangeLabel,
@@ -38,12 +40,62 @@ const ThisWeekDetail = async ({
         }
       )
     ] }),
-    botdEntries.length > 0 ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col gap-8", children: [
-      /* @__PURE__ */ jsx(SectionTitle, { children: "Books of the Day" }),
-      /* @__PURE__ */ jsx("div", { class: "flex flex-col gap-8", children: botdEntries.map((entry) => /* @__PURE__ */ jsx(ThisWeekBookEntry, { entry }, entry.id)) })
+    botdEntries.map((bookOfTheDay2) => {
+      return /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4", children: [
+        /* @__PURE__ */ jsx(SectionTitle, { children: toDateString(bookOfTheDay2.date) }),
+        /* @__PURE__ */ jsx(
+          SpotlightCard,
+          {
+            href: botdPath(bookOfTheDay2.date),
+            imageUrl: bookOfTheDay2.book.coverUrl ?? "",
+            imageAlt: bookOfTheDay2.book.title,
+            title: bookOfTheDay2.book.title,
+            subtitle: bookOfTheDay2.book.artist?.displayName,
+            className: "w-full max-w-none"
+          }
+        ),
+        bookOfTheDay2.spotlightBlurb ? /* @__PURE__ */ jsx(ExpandableDescription, { text: bookOfTheDay2.spotlightBlurb }) : null
+      ] });
+    }),
+    artistOfTheWeek ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4", children: [
+      /* @__PURE__ */ jsxs(SectionTitle, { children: [
+        "Artist of the Week ",
+        toDateString(artistOfTheWeek.weekStart)
+      ] }),
+      /* @__PURE__ */ jsx(
+        SpotlightCard,
+        {
+          href: aotwPath(artistOfTheWeek.weekStart),
+          imageUrl: artistOfTheWeek.featuredImageUrl ?? artistOfTheWeek.creator.coverUrl ?? "",
+          imageAlt: artistOfTheWeek.creator.displayName,
+          title: artistOfTheWeek.creator.displayName,
+          subtitle: artistOfTheWeek.creator.city ?? void 0,
+          className: "w-full max-w-none"
+        }
+      ),
+      artistOfTheWeek.spotlightBlurb ? /* @__PURE__ */ jsx(ExpandableDescription, { text: artistOfTheWeek.spotlightBlurb }) : null
+    ] }) : (
+      // <ThisWeekCreatorSpotlight spotlight={artistOfTheWeek} />
+      null
+    ),
+    publisherOfTheWeek ? /* @__PURE__ */ jsxs("section", { class: "flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4", children: [
+      /* @__PURE__ */ jsxs(SectionTitle, { children: [
+        "Publisher of the Week ",
+        toDateString(publisherOfTheWeek.weekStart)
+      ] }),
+      /* @__PURE__ */ jsx(
+        SpotlightCard,
+        {
+          href: potwPath(publisherOfTheWeek.weekStart),
+          imageUrl: publisherOfTheWeek.featuredImageUrl ?? publisherOfTheWeek.creator.coverUrl ?? "",
+          imageAlt: publisherOfTheWeek.creator.displayName,
+          title: publisherOfTheWeek.creator.displayName,
+          subtitle: publisherOfTheWeek.creator.city ?? void 0,
+          className: "w-full max-w-none"
+        }
+      ),
+      publisherOfTheWeek.spotlightBlurb ? /* @__PURE__ */ jsx(ExpandableDescription, { text: publisherOfTheWeek.spotlightBlurb }) : null
     ] }) : null,
-    artistOfTheWeek ? /* @__PURE__ */ jsx(ThisWeekCreatorSpotlight, { spotlight: artistOfTheWeek }) : null,
-    publisherOfTheWeek ? /* @__PURE__ */ jsx(ThisWeekCreatorSpotlight, { spotlight: publisherOfTheWeek }) : null,
     /* @__PURE__ */ jsx(NewsletterCard, {}),
     /* @__PURE__ */ jsxs("nav", { class: "flex items-center justify-between gap-4 border-outline pt-4", children: [
       /* @__PURE__ */ jsx("a", { href: thisWeekPath(prevWeekStart), children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", width: "full", children: "\u2190 Previous week" }) }),
@@ -52,55 +104,6 @@ const ThisWeekDetail = async ({
   ] });
 };
 var ThisWeekDetail_default = ThisWeekDetail;
-const ThisWeekBookEntry = ({ entry }) => {
-  const { book } = entry;
-  return /* @__PURE__ */ jsxs("div", { class: "flex gap-4 border-t border-outline pt-4", children: [
-    book.coverUrl ? /* @__PURE__ */ jsx("a", { href: botdPath(entry.date), class: "shrink-0 transition-opacity hover:opacity-80", children: /* @__PURE__ */ jsx(
-      "img",
-      {
-        src: book.coverUrl,
-        alt: book.title,
-        class: "aspect-3/4 w-24 object-cover border border-outline"
-      }
-    ) }) : null,
-    /* @__PURE__ */ jsxs("div", { class: "flex min-w-0 flex-1 flex-col gap-1", children: [
-      /* @__PURE__ */ jsx("p", { class: "kicker text-accent", children: toDateString(entry.date) }),
-      /* @__PURE__ */ jsx(
-        "a",
-        {
-          href: botdPath(entry.date),
-          class: "text-pretty font-display text-xl font-medium text-on-surface-strong transition-opacity hover:opacity-80 hover:underline decoration-accent decoration-1 underline-offset-4",
-          children: book.title
-        }
-      ),
-      book.artist ? /* @__PURE__ */ jsxs("div", { class: "flex flex-col items-start gap-2", children: [
-        /* @__PURE__ */ jsx("p", { class: "truncate text-sm text-on-surface", children: book.artist.displayName }),
-        /* @__PURE__ */ jsx("a", { href: `/books/${book.slug}`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", width: "md", children: "View Book" }) })
-      ] }) : /* @__PURE__ */ jsx("a", { href: `/books/${book.slug}`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", width: "md", children: "View Book" }) })
-    ] })
-  ] });
-};
-const ThisWeekCreatorSpotlight = async ({
-  spotlight
-}) => {
-  const { creator } = spotlight;
-  const role = capitalize(creator.type);
-  const title = `${role} of the Week`;
-  const image = spotlight.instagramImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
-  return /* @__PURE__ */ jsxs("section", { class: "flex flex-col gap-6", children: [
-    /* @__PURE__ */ jsx(SectionTitle, { children: title }),
-    image ? /* @__PURE__ */ jsx(
-      "img",
-      {
-        src: image,
-        alt: creator.displayName,
-        class: "w-full rounded-radius object-cover"
-      }
-    ) : null,
-    creator.tagline?.trim() ? /* @__PURE__ */ jsx("p", { class: "text-pretty text-sm font-medium text-on-surface-strong", children: creator.tagline.trim() }) : null,
-    /* @__PURE__ */ jsx(SpotlightCreatorLink, { creator, role })
-  ] });
-};
 export {
   ThisWeekDetail_default as default
 };

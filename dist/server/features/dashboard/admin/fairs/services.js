@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, or } from "drizzle-orm";
+import { and, asc, count, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "../../../../db/client.js";
 import {
   bookFairs,
@@ -24,18 +24,20 @@ const getAllFairsAdmin = async (currentPage = 1, searchQuery, status) => {
     );
     const foundFairs = await db.query.bookFairs.findMany({
       where: whereCondition,
-      orderBy: [desc(bookFairs.startDate), desc(bookFairs.createdAt)],
+      // Upcoming first (soonest), then past.
+      orderBy: [sql`${bookFairs.startDate} < now()`, asc(bookFairs.startDate)],
       limit,
       offset,
-      with: {
-        createdBy: {
-          columns: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true
-          }
-        }
+      columns: {
+        id: true,
+        slug: true,
+        name: true,
+        city: true,
+        country: true,
+        startDate: true,
+        endDate: true,
+        status: true,
+        coverUrl: true
       }
     });
     return ok({ fairs: foundFairs, totalPages, page });
@@ -83,8 +85,7 @@ const createFairAdmin = async (fairData, userId) => {
   try {
     const [newFair] = await db.insert(bookFairs).values({
       ...fairData,
-      createdByUserId: userId,
-      approvalStatus: "approved"
+      createdByUserId: userId
     }).returning();
     if (!newFair) return err({ reason: "Failed to create fair" });
     return ok(newFair);
@@ -113,24 +114,14 @@ const deleteFairByIdAdmin = async (fairId) => {
     return err({ reason: "Failed to delete fair", cause: error });
   }
 };
-const approveFair = async (fairId) => {
+const updateFairStatusAdmin = async (fairId, status) => {
   try {
-    const [updatedFair] = await db.update(bookFairs).set({ approvalStatus: "approved" }).where(eq(bookFairs.id, fairId)).returning();
+    const [updatedFair] = await db.update(bookFairs).set({ status }).where(eq(bookFairs.id, fairId)).returning();
     if (!updatedFair) return err({ reason: "Fair not found" });
     return ok(updatedFair);
   } catch (error) {
-    console.error("Failed to approve fair", error);
-    return err({ reason: "Failed to approve fair", cause: error });
-  }
-};
-const rejectFair = async (fairId, feedback) => {
-  try {
-    const [updatedFair] = await db.update(bookFairs).set({ approvalStatus: "rejected", status: "draft" }).where(eq(bookFairs.id, fairId)).returning();
-    if (!updatedFair) return err({ reason: "Fair not found" });
-    return ok(updatedFair);
-  } catch (error) {
-    console.error("Failed to reject fair", error);
-    return err({ reason: "Failed to reject fair", cause: error });
+    console.error("Failed to update fair status", error);
+    return err({ reason: "Failed to update fair status", cause: error });
   }
 };
 const getAttendeesForFair = async (fairId) => {
@@ -148,7 +139,7 @@ const getAttendeesForFair = async (fairId) => {
           }
         }
       },
-      orderBy: (fairAttendees2, { asc }) => [asc(fairAttendees2.createdAt)]
+      orderBy: (fairAttendees2, { asc: asc2 }) => [asc2(fairAttendees2.createdAt)]
     });
     return ok(attendees);
   } catch (error) {
@@ -229,7 +220,7 @@ const getAllCreatorOptionsForFairs = async () => {
         slug: true,
         coverUrl: true
       },
-      orderBy: (creators2, { asc }) => [asc(creators2.displayName)]
+      orderBy: (creators2, { asc: asc2 }) => [asc2(creators2.displayName)]
     });
     const options = allCreators.map((c) => ({
       id: c.id,
@@ -245,14 +236,13 @@ const getAllCreatorOptionsForFairs = async () => {
 export {
   addAttendeeToFair,
   addAttendeesToFair,
-  approveFair,
   createFairAdmin,
   deleteFairByIdAdmin,
   getAllCreatorOptionsForFairs,
   getAllFairsAdmin,
   getAttendeesForFair,
   getFairByIdAdmin,
-  rejectFair,
   removeAttendeeFromFair,
-  updateFairAdmin
+  updateFairAdmin,
+  updateFairStatusAdmin
 };

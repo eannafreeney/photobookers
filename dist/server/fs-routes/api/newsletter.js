@@ -63,17 +63,18 @@ const postNewsletterWeb = async (c) => {
 const subscribeEmail = async (email) => {
   const [configError, config] = getBrevoConfig();
   if (configError) {
-    console.error("Brevo newsletter signup is not configured:", configError.reason);
+    console.error(
+      "Brevo newsletter signup is not configured:",
+      configError.reason
+    );
     return {
       ok: false,
       message: "Newsletter signup is not configured."
     };
   }
-  const [contactError] = await ensureBrevoContact(
-    config.apiKey,
-    email,
-    [config.listId]
-  );
+  const [contactError] = await ensureBrevoContact(config.apiKey, email, [
+    config.listId
+  ]);
   if (contactError) {
     if (contactError.status === 400) {
       return {

@@ -26,7 +26,7 @@ const CollectedBooks = async ({ user, currentPage, currentPath }) => {
       ...attrs,
       "x-ref": "paginationContent",
       children: [
-        /* @__PURE__ */ jsx("div", { children: (!books || books?.length === 0) && /* @__PURE__ */ jsx("div", { children: "Start adding books to your wishlist and collection to see them here." }) }),
+        /* @__PURE__ */ jsx("div", { children: (!books || books?.length === 0) && /* @__PURE__ */ jsx("div", { children: "Start adding books to your favourites and collection to see them here." }) }),
         /* @__PURE__ */ jsx(GridPanel, { id: targetId, xMerge: "append", children: books?.map((book) => /* @__PURE__ */ jsx(BookCard, { book, user })) }),
         /* @__PURE__ */ jsx(
           Pagination,

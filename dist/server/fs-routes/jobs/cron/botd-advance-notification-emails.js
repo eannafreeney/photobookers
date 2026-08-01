@@ -1,30 +1,23 @@
 import { createRoute } from "hono-fsr";
-import { runBotdAdvanceNotificationEmails } from "../../../domain/planner/cron/botdEmailServices.js";
-import { parseDateString, toDateString } from "../../../lib/utils.js";
+import { runBotdAdvanceNotificationEmailsCron } from "../../../jobs/cronRunners.js";
+import { parseDateString } from "../../../lib/utils.js";
+import { requireCronSecret } from "../../../jobs/cronRouteAuth.js";
 const POST = createRoute(async (c) => {
-  const secret = c.req.header("Authorization")?.replace(/^Bearer\s+/i, "") ?? c.req.query("secret");
-  const expected = process.env.CRON_SECRET;
-  if (!expected || secret !== expected) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
+  const unauthorized = requireCronSecret(c);
+  if (unauthorized) return unauthorized;
   const dateParam = c.req.query("date");
-  const asOf = dateParam ? parseDateString(dateParam) : /* @__PURE__ */ new Date();
-  if (dateParam && Number.isNaN(asOf.getTime())) {
-    return c.json({ error: "Invalid date (use YYYY-MM-DD)" }, 400);
+  if (dateParam) {
+    const date = parseDateString(dateParam);
+    if (Number.isNaN(date.getTime())) {
+      return c.json({ error: "Invalid date (use YYYY-MM-DD)" }, 400);
+    }
+    const [error2, result2] = await runBotdAdvanceNotificationEmailsCron({ date });
+    if (error2) return c.json({ error: error2.reason }, 500);
+    return c.json({ ok: true, ...result2 });
   }
-  const [error, result] = await runBotdAdvanceNotificationEmails(asOf);
-  if (error) {
-    return c.json({ error: error.reason }, 500);
-  }
-  return c.json({
-    ok: true,
-    advanceEmailsSent: result.advanceEmailsSent,
-    featureDate: result.featureDate ? toDateString(result.featureDate) : null,
-    items: result.items.map((item) => ({
-      ...item,
-      date: toDateString(item.date)
-    }))
-  });
+  const [error, result] = await runBotdAdvanceNotificationEmailsCron();
+  if (error) return c.json({ error: error.reason }, 500);
+  return c.json({ ok: true, ...result });
 });
 export {
   POST

@@ -11,7 +11,8 @@ const CreatorTabs = ({
   baseUrl,
   creatorId,
   creatorType,
-  activeTab = "books"
+  activeTab = "books",
+  showPostsTab = false
 }) => {
   return /* @__PURE__ */ jsx(View, { style: "creator-tabs-sticky", sticky: "true", children: /* @__PURE__ */ jsxs(SelectSingle, { style: "tab-bar", name: "tab", children: [
     /* @__PURE__ */ jsx(
@@ -29,7 +30,7 @@ const CreatorTabs = ({
         children: /* @__PURE__ */ jsx(Text, { style: "tab-label", children: "BOOKS" })
       }
     ),
-    /* @__PURE__ */ jsx(
+    showPostsTab && /* @__PURE__ */ jsx(
       Option,
       {
         value: "messages",

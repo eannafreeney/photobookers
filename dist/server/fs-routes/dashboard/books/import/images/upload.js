@@ -144,7 +144,9 @@ const POST = createRoute(async (c) => {
           `books/covers/${bookId}`,
           "cover"
         );
-        const [err] = await updateBookCoverImage(bookId, coverResult.url);
+        const [err] = await updateBookCoverImage(bookId, coverResult.url, {
+          actorUserId: user.id
+        });
         if (err) {
           failedBooks++;
           continue;
@@ -153,11 +155,12 @@ const POST = createRoute(async (c) => {
       }
       const galleryFiles = imageFiles.slice(1);
       if (galleryFiles.length > 0) {
-        const galleryResults = await Promise.all(
-          galleryFiles.map(
-            (file) => uploadImage(file, `books/${bookId}/gallery`, "gallery")
-          )
-        );
+        const galleryResults = [];
+        for (const file of galleryFiles) {
+          galleryResults.push(
+            await uploadImage(file, `books/${bookId}/gallery`, "gallery")
+          );
+        }
         const imageUrls = galleryResults.map((r) => r.url);
         const [galleryErr] = await addBookGalleryImages(bookId, imageUrls);
         if (galleryErr) {

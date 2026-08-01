@@ -24,7 +24,7 @@ async function getHomepageActivityStats() {
       getCreatorViewTotals(range)
     ]);
     const stats = {
-      bookViews: bookTotals.booksWithViews,
+      bookViews: bookTotals.totalViews,
       profileViews: creatorTotals.publisherPageViews + creatorTotals.artistPageViews
     };
     cache.set("default", stats);

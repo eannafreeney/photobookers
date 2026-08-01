@@ -16,7 +16,7 @@ const getSpotlightItems = (botdResult, artistResult, publisherResult, baseUrl) =
       id: `aotw-${artistResult.id}`,
       label: "Artist of the Week",
       title: creator.displayName,
-      imageUrl: artistResult.instagramImageUrl ?? creator.coverUrl ?? creator.bannerUrl ?? null,
+      imageUrl: artistResult.featuredImageUrl ?? creator.coverUrl ?? creator.bannerUrl ?? null,
       href: `${baseUrl}/hyperview${aotwPath(artistResult.weekStart)}`
     });
   }
@@ -26,7 +26,7 @@ const getSpotlightItems = (botdResult, artistResult, publisherResult, baseUrl) =
       id: `potw-${publisherResult.id}`,
       label: "Publisher of the Week",
       title: creator.displayName,
-      imageUrl: publisherResult.instagramImageUrl ?? creator.coverUrl ?? creator.bannerUrl ?? null,
+      imageUrl: publisherResult.featuredImageUrl ?? creator.coverUrl ?? creator.bannerUrl ?? null,
       href: `${baseUrl}/hyperview${potwPath(publisherResult.weekStart)}`
     });
   }

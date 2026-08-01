@@ -21,6 +21,8 @@ async function getUserFromToken(token) {
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
         profileImageUrl: dbUser.profileImageUrl,
+        shelfSlug: dbUser.shelfSlug ?? null,
+        shelfPublic: dbUser.shelfPublic ?? false,
         creator: creatorProfile || null,
         isAdmin: dbUser.isAdmin ?? false,
         mustResetPassword: dbUser.mustResetPassword ?? false

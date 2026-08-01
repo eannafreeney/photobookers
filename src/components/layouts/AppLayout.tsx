@@ -96,7 +96,7 @@ const AppLayout = ({
           </main>
           <Footer />
           <ScrollToTopButton />
-          <Dock currentPath={currentPath} />
+          <Dock currentPath={currentPath} user={user} />
         </div>
       </UserProvider>
       <div id="modal-root"></div>

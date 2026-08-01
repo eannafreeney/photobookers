@@ -1,5 +1,5 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
-import { Style, View } from "../../../../lib/hxml-comps.js";
+import { Style, Text, View } from "../../../../lib/hxml-comps.js";
 import { bookActionsStyles } from "../BookActions.js";
 import { bookGalleryStyles } from "../BookGallery.js";
 import { bookPageStyles } from "../BookPage.js";
@@ -16,18 +16,17 @@ import SpotlightHeader from "./SpotlightHeader.js";
 import SpotlightCreatorRow from "./SpotlightCreatorRow.js";
 import { botdIndexPath, botdPath } from "../../../app/spotlightUrls.js";
 import DiscoveryTags from "../DiscoveryTags.js";
-import ExpandableBio from "./ExpandableBio.js";
 const BookOfTheDaySpotlightBody = ({
   book,
   galleryImages,
   date,
-  editorial,
+  spotlightBlurb,
   baseUrl,
   isFavorited,
   followingByCreatorId
 }) => {
   const shareUrl = `${baseUrl}${botdPath(date)}`;
-  const description = book.description?.trim() || editorial?.trim() || null;
+  const description = spotlightBlurb?.trim() || book.description?.trim() || null;
   return /* @__PURE__ */ jsxs(View, { style: "spotlight-body", children: [
     /* @__PURE__ */ jsx(
       SpotlightHeader,
@@ -48,7 +47,7 @@ const BookOfTheDaySpotlightBody = ({
         shareMessage: `Check out ${book.title} on Photobookers`
       }
     ),
-    description ? /* @__PURE__ */ jsx(ExpandableBio, { bio: description, id: book.id }) : null,
+    description ? /* @__PURE__ */ jsx(Text, { style: "spotlight-body-text", children: description }) : null,
     /* @__PURE__ */ jsx(NewsletterCard, { baseUrl }),
     book.artist ? /* @__PURE__ */ jsx(
       SpotlightCreatorRow,

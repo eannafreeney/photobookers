@@ -1,6 +1,7 @@
-import { deleteCookie } from "hono/cookie";
+import { deleteCookie, setCookie } from "hono/cookie";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { getCookieClearOptions } from "../lib/authCookies.js";
+import { getAuthCookieOptions } from "../features/auth/services.js";
 async function refreshAccessToken(refreshToken, c) {
   try {
     const { data, error } = await supabaseAdmin.auth.refreshSession({
@@ -24,6 +25,21 @@ async function refreshAccessToken(refreshToken, c) {
     return null;
   }
 }
+async function refreshSessionAndSetCookies(c, refreshToken) {
+  const refreshed = await refreshAccessToken(refreshToken, c);
+  if (!refreshed) return null;
+  setCookie(c, "token", refreshed.access_token, {
+    ...getAuthCookieOptions(c),
+    maxAge: refreshed.expires_in
+  });
+  setCookie(c, "refresh_token", refreshed.refresh_token, {
+    ...getAuthCookieOptions(c),
+    maxAge: 60 * 60 * 24 * 7
+    // 7 days
+  });
+  return refreshed;
+}
 export {
-  refreshAccessToken
+  refreshAccessToken,
+  refreshSessionAndSetCookies
 };

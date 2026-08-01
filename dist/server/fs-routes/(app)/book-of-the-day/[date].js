@@ -43,7 +43,7 @@ const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Book not found", user }), 404);
   }
   const { book } = bookResult;
-  const editorial = bookOfTheDay.instagramCaption?.trim() || null;
+  const editorial = bookOfTheDay.spotlightBlurb?.trim() || bookOfTheDay.instagramCaption?.trim() || null;
   const path = botdPath(date);
   const title = pageTitle(`Book of the Day \u2014 ${book.title}`);
   const description = truncateDescription(editorial ?? bookDescription(book));
@@ -84,7 +84,8 @@ const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
               galleryImages,
               isMobile,
               user,
-              date
+              date,
+              spotlightBlurb: bookOfTheDay.spotlightBlurb
             }
           ),
           /* @__PURE__ */ jsx("a", { href: "/book-of-the-day", class: "mx-auto", children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", width: "auto", children: "\u2190 All Books of the Day" }) })

@@ -26,6 +26,8 @@ import Alert from "../../../../components/app/Alert.js";
 import { dispatchEvents } from "../../../../lib/disatchEvents.js";
 import BookApprovalForm from "../../../../features/dashboard/admin/books/forms/BookApprovalForm.js";
 import { routeParam } from "../../../../lib/routeParam.js";
+import { isFeatureEnabledForUser } from "../../../../lib/features.js";
+import { serializePressLinks } from "../../../../features/dashboard/books/pressLinks.js";
 const GET = createRoute(
   paramValidator(bookIdSchema),
   async (c) => {
@@ -36,6 +38,7 @@ const GET = createRoute(
     const [error, book] = await getBookById(bookId);
     if (error)
       return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: error.reason, user }));
+    const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
     const formValues = {
       title: book.title,
       artist_id: book.artistId,
@@ -44,7 +47,8 @@ const GET = createRoute(
       purchase_link: book.purchaseLink,
       tags: book.tags?.join(", "),
       availability_status: book.availabilityStatus,
-      release_date: book?.releaseDate ? new Date(book.releaseDate).toISOString().split("T")[0] : ""
+      release_date: book?.releaseDate ? new Date(book.releaseDate).toISOString().split("T")[0] : "",
+      ...showPressLinks ? { press_links: serializePressLinks(book.pressLinks) } : {}
     };
     return c.html(
       /* @__PURE__ */ jsx(
@@ -66,12 +70,21 @@ const GET = createRoute(
                 ]
               }
             ),
-            /* @__PURE__ */ jsx("div", { class: "flex justify-end", children: /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-4", children: [
+            /* @__PURE__ */ jsxs("div", { class: "flex flex-col items-center md:items-end gap-4", children: [
               /* @__PURE__ */ jsx(BookApprovalForm, { book }),
-              /* @__PURE__ */ jsx(PublishToggleForm, { book, user }),
-              /* @__PURE__ */ jsx(PreviewButton, { book, user })
-            ] }) }),
-            /* @__PURE__ */ jsx(BookFormAdmin, { bookId: book.id, formValues }),
+              /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-4", children: [
+                /* @__PURE__ */ jsx(PublishToggleForm, { book, user }),
+                /* @__PURE__ */ jsx(PreviewButton, { book, user })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsx(
+              BookFormAdmin,
+              {
+                bookId: book.id,
+                formValues,
+                showPressLinks
+              }
+            ),
             /* @__PURE__ */ jsx("hr", { class: "my-4" }),
             /* @__PURE__ */ jsxs(
               "div",

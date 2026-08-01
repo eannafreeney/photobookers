@@ -6,11 +6,11 @@ import FeaturedHeroImagesModal from "../../../../../../features/dashboard/admin/
 import {
   getWeekInstagramForPrepare,
   saveWeekFeaturedHeroImages
-} from "../../../../../../features/dashboard/admin/planner/instagramServices.js";
+} from "../../../../../../features/dashboard/admin/planner/social-media/instagramServices.js";
 import {
   extractBracketedFormFields,
   parseFeaturedHeroImagesForm
-} from "../../../../../../features/dashboard/admin/planner/instagramUtils.js";
+} from "../../../../../../features/dashboard/admin/planner/social-media/instagramUtils.js";
 import { parseWeekString } from "../../../../../../lib/utils.js";
 import { showErrorAlert } from "../../../../../../lib/alertHelpers.js";
 import Alert from "../../../../../../components/app/Alert.js";

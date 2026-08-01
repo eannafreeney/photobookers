@@ -28,7 +28,15 @@ const CommentsSection = async ({
       children: [
         /* @__PURE__ */ jsx("h3", { class: "text-base font-semibold text-on-surface-strong", children: "What did you love about this book?" }),
         /* @__PURE__ */ jsx(CommentsList, { bookId, comments, user }),
-        !hasProfilePic ? /* @__PURE__ */ jsxs(
+        !user ? /* @__PURE__ */ jsx(
+          Link,
+          {
+            href: `/api/books/${bookId}/comments`,
+            xTarget: "modal-root",
+            className: "mt-2",
+            children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", width: isMobile ? "full" : "fit", children: "Add Comment" })
+          }
+        ) : !hasProfilePic ? /* @__PURE__ */ jsxs(
           "form",
           {
             method: "get",

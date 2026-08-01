@@ -6,7 +6,7 @@ const ThisWeekCreatorSection = ({ spotlight, spotlightHref }) => {
   const { creator } = spotlight;
   const role = capitalize(creator.type);
   const title = `${role} of the Week`;
-  const image = spotlight.instagramImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
+  const image = spotlight.featuredImageUrl ?? creator.coverUrl ?? creator.bannerUrl;
   return /* @__PURE__ */ jsxs(View, { style: "spotlight-creator-section", children: [
     /* @__PURE__ */ jsx(SectionHeader, { title }),
     image ? /* @__PURE__ */ jsx(Image, { source: image, style: "spotlight-cover", "resize-mode": "cover" }) : null,

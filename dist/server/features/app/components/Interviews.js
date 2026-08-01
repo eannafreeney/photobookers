@@ -6,11 +6,7 @@ import InterviewCard from "./InterviewCard.js";
 import ViewAllLink from "./ViewAllLink.js";
 const Interviews = async () => {
   const [error, interviews] = await getPublishedInterviews();
-  if (error) return /* @__PURE__ */ jsxs("div", { children: [
-    "Error: ",
-    error.reason
-  ] });
-  if (!interviews?.length) return /* @__PURE__ */ jsx(Fragment, {});
+  if (error || !interviews?.length) return /* @__PURE__ */ jsx(Fragment, {});
   return /* @__PURE__ */ jsxs("div", { id: "interviews-fragment", children: [
     /* @__PURE__ */ jsx("div", { class: "mb-6 border-t-2 border-on-surface-strong pt-3", children: /* @__PURE__ */ jsxs("div", { class: "mr-6 flex items-end justify-between", children: [
       /* @__PURE__ */ jsx(SectionTitle, { className: "mb-0", kicker: "In Conversation", children: "Interviews" }),

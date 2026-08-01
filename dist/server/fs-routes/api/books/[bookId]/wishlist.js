@@ -10,7 +10,7 @@ import {
 import { showErrorAlert } from "../../../../lib/alertHelpers.js";
 import Alert from "../../../../components/app/Alert.js";
 import { dispatchEvents } from "../../../../lib/disatchEvents.js";
-import { publishWishlistActivity } from "../../../../features/api/utils.js";
+import { publishFavouritedActivity } from "../../../../features/api/utils.js";
 import { createBookWishlistedNotification } from "../../../../domain/notifications/utils.js";
 import { hyperview } from "../../../../lib/hxml.js";
 import { findWishlist } from "../../../../db/queries.js";
@@ -18,14 +18,17 @@ import { isOk } from "../../../../lib/result.js";
 import { getBaseUrl } from "../../../../lib/hyperview.js";
 import { getIsHyperview } from "../../../../features/hyperview/lib.js";
 import {
-  BookWishlistIcon,
+  BookFavouritedIcon,
   HyperviewFavoriteInner
 } from "../../../../features/hyperview/components/BookActions.js";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps.js";
-import { canWishlistBook } from "../../../../lib/permissions.js";
 import FavoriteButton from "../../../../features/api/components/FavouriteButton.js";
+import {
+  FavoritePopoverRow
+} from "../../../../features/api/components/SaveToListButton.js";
 import { routeParam } from "../../../../lib/routeParam.js";
-const updateLibraryPage = () => "library:updated";
+import { canWishlistBook } from "../../../../lib/permissions.js";
+const updateShelfPage = () => "shelf:updated";
 const POST = createRoute(async (c) => {
   const isHyperview = getIsHyperview(c);
   return isHyperview ? postWishlistHyperview(c) : postWishlistWeb(c);
@@ -42,12 +45,12 @@ const postWishlistHyperview = async (c) => {
     return hv(
       variant === "block" ? /* @__PURE__ */ jsxs(View, { xmlns: "https://hyperview.org/hyperview", style: "book-action-block", children: [
         /* @__PURE__ */ jsx(Behavior, { trigger: "load", action: "new", verb: "get", href: modalHref }),
-        /* @__PURE__ */ jsx(BookWishlistIcon, { baseUrl, isActive: false }),
+        /* @__PURE__ */ jsx(BookFavouritedIcon, { baseUrl, isActive: false }),
         /* @__PURE__ */ jsx(Text, { style: "book-action-label", children: "Favorite" }),
         /* @__PURE__ */ jsx(Behavior, { verb: "get", action: "new", href: modalHref })
       ] }) : /* @__PURE__ */ jsxs(View, { xmlns: "https://hyperview.org/hyperview", children: [
         /* @__PURE__ */ jsx(Behavior, { trigger: "load", action: "new", verb: "get", href: modalHref }),
-        /* @__PURE__ */ jsx(BookWishlistIcon, { baseUrl, isActive: false }),
+        /* @__PURE__ */ jsx(BookFavouritedIcon, { baseUrl, isActive: false }),
         /* @__PURE__ */ jsx(Behavior, { verb: "get", action: "new", href: modalHref })
       ] }),
       401
@@ -70,7 +73,7 @@ const postWishlistHyperview = async (c) => {
       await deleteWishlist(user.id, bookId);
     } else {
       await insertWishlist(user.id, bookId);
-      publishWishlistActivity(user, book);
+      publishFavouritedActivity(user, book);
       void createBookWishlistedNotification(user, book);
     }
   } catch (error) {
@@ -114,13 +117,14 @@ const postWishlistWeb = async (c) => {
   const isCurrentlyFavorited = body.isFavorited === "true";
   const isCircleButton = body.buttonType === "circle";
   const shouldRefreshWishlist = body.shouldRefreshWishlist === "true";
+  const isPopover = body.variant === "popover";
   const isAddingToWishlist = !isCurrentlyFavorited;
   try {
     if (isCurrentlyFavorited) {
       await deleteWishlist(user.id, bookId);
     } else {
       await insertWishlist(user.id, bookId);
-      publishWishlistActivity(user, book);
+      publishFavouritedActivity(user, book);
       void createBookWishlistedNotification(user, book);
     }
   } catch (error) {
@@ -128,11 +132,19 @@ const postWishlistWeb = async (c) => {
     return showErrorAlert(c);
   }
   const message = isAddingToWishlist ? `${book.title} favorited` : `${book.title} unfavorited`;
+  const nowFavorited = isAddingToWishlist;
   return c.html(
     /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx(Alert, { type: "success", message }),
-      /* @__PURE__ */ jsx(FavoriteButton, { book, user, isCircleButton }),
-      shouldRefreshWishlist && dispatchEvents([updateLibraryPage()])
+      isPopover ? /* @__PURE__ */ jsx(
+        FavoritePopoverRow,
+        {
+          bookId,
+          isFavorited: nowFavorited,
+          isDisabled: !canWishlistBook(user, book)
+        }
+      ) : /* @__PURE__ */ jsx(FavoriteButton, { book, user, isCircleButton }),
+      shouldRefreshWishlist && dispatchEvents([updateShelfPage()])
     ] })
   );
 };

@@ -22,6 +22,46 @@ import {
   CREATOR_CARD_COLUMNS
 } from "../../../../constants/queries.js";
 import { err, ok } from "../../../../lib/result.js";
+import { rewriteSpotlightBlurb } from "../../../../lib/openai.js";
+async function generateAndSaveBotdBlurb(date, bookId) {
+  try {
+    const book = await db.query.books.findFirst({
+      where: eq(books.id, bookId),
+      columns: { title: true, description: true }
+    });
+    const sourceText = book?.description?.trim();
+    if (!book || !sourceText) return;
+    const blurb = await rewriteSpotlightBlurb({
+      kind: "book",
+      sourceText,
+      title: book.title
+    });
+    if (!blurb) return;
+    await db.update(bookOfTheDay).set({ spotlightBlurb: blurb, updatedAt: /* @__PURE__ */ new Date() }).where(eq(bookOfTheDay.date, toUtcStartOfDay(date)));
+  } catch (e) {
+    console.error("generateAndSaveBotdBlurb", e);
+  }
+}
+async function generateAndSaveCreatorSpotlightBlurb(type, weekStart, creatorId) {
+  try {
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.id, creatorId),
+      columns: { displayName: true, bio: true, tagline: true }
+    });
+    const sourceText = creator?.bio?.trim() || creator?.tagline?.trim();
+    if (!creator || !sourceText) return;
+    const blurb = await rewriteSpotlightBlurb({
+      kind: type,
+      sourceText,
+      title: creator.displayName
+    });
+    if (!blurb) return;
+    const table = type === "artist" ? artistOfTheWeek : publisherOfTheWeek;
+    await db.update(table).set({ spotlightBlurb: blurb, updatedAt: /* @__PURE__ */ new Date() }).where(eq(table.weekStart, toWeekStart(weekStart)));
+  } catch (e) {
+    console.error("generateAndSaveCreatorSpotlightBlurb", e);
+  }
+}
 async function getAllBooksPreview() {
   return db.query.books.findMany({
     columns: {
@@ -98,6 +138,7 @@ async function setBookOfTheDay(params) {
       bookId: params.bookId
     }).returning();
     if (!row) return err({ reason: "Failed to set book of the day" });
+    void generateAndSaveBotdBlurb(params.date, params.bookId);
     return ok(row);
   } catch (e) {
     console.error("setBookOfTheDay", e);
@@ -232,6 +273,13 @@ async function setArtistOfTheWeek(params) {
       weekStart,
       creatorId: params.creatorId
     }).returning();
+    if (row) {
+      void generateAndSaveCreatorSpotlightBlurb(
+        "artist",
+        weekStart,
+        params.creatorId
+      );
+    }
     return row ?? null;
   } catch (e) {
     console.error("setArtistOfTheWeek", e);
@@ -247,6 +295,11 @@ async function updateArtistOfTheWeek(params) {
       creatorId: params.creatorId
     }).returning();
     if (!row) return err({ reason: "Failed to update artist of the week" });
+    void generateAndSaveCreatorSpotlightBlurb(
+      "artist",
+      weekStart,
+      params.creatorId
+    );
     return ok(row);
   } catch (e) {
     console.error("updateArtistOfTheWeek", e);
@@ -314,6 +367,11 @@ async function setPublisherOfTheWeek(params) {
       creatorId: params.creatorId
     }).returning();
     if (!row) return err({ reason: "Failed to set publisher of the week" });
+    void generateAndSaveCreatorSpotlightBlurb(
+      "publisher",
+      weekStart,
+      params.creatorId
+    );
     return ok(row);
   } catch (e) {
     console.error("setPublisherOfTheWeek", e);
@@ -329,6 +387,11 @@ async function updatePublisherOfTheWeek(params) {
       creatorId: params.creatorId
     }).returning();
     if (!row) return err({ reason: "Failed to update publisher of the week" });
+    void generateAndSaveCreatorSpotlightBlurb(
+      "publisher",
+      weekStart,
+      params.creatorId
+    );
     return ok(row);
   } catch (e) {
     console.error("updatePublisherOfTheWeek", e);
@@ -352,6 +415,55 @@ function shuffle(items) {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
+}
+async function pickCreatorForSpotlightWeek(type) {
+  const creators2 = await getCreatorsByTypeForPlanner(type);
+  if (creators2.length === 0) return null;
+  const verified = creators2.filter((creator) => creator.status === "verified");
+  const pool = verified.length > 0 ? verified : creators2;
+  return shuffle(pool)[0] ?? null;
+}
+async function autoSetArtistOfTheWeek(weekStart) {
+  const normalized = toWeekStart(weekStart);
+  const existing = await db.query.artistOfTheWeek.findFirst({
+    where: eq(artistOfTheWeek.weekStart, normalized)
+  });
+  if (existing) return ok({ created: false, row: existing });
+  const creator = await pickCreatorForSpotlightWeek("artist");
+  if (!creator) {
+    return err({ reason: "No eligible artist found for Artist of the Week" });
+  }
+  const row = await setArtistOfTheWeek({
+    weekStart: normalized,
+    creatorId: creator.id
+  });
+  if (!row) return err({ reason: "Failed to set artist of the week" });
+  return ok({ created: true, row });
+}
+async function autoSetPublisherOfTheWeek(weekStart) {
+  const normalized = toWeekStart(weekStart);
+  const existing = await db.query.publisherOfTheWeek.findFirst({
+    where: eq(publisherOfTheWeek.weekStart, normalized)
+  });
+  if (existing) return ok({ created: false, row: existing });
+  const creator = await pickCreatorForSpotlightWeek("publisher");
+  if (!creator) {
+    return err({ reason: "No eligible publisher found for Publisher of the Week" });
+  }
+  const [pubError, row] = await setPublisherOfTheWeek({
+    weekStart: normalized,
+    creatorId: creator.id
+  });
+  if (pubError) return err(pubError);
+  return ok({ created: true, row });
+}
+async function setRandomBookOfTheDay(date) {
+  const availableBooks = await getAllBooksForBOTD();
+  if (availableBooks.length === 0) {
+    return err({ reason: "No available books to pick from" });
+  }
+  const book = shuffle(availableBooks)[0];
+  return setBookOfTheDay({ date, bookId: book.id });
 }
 async function randomizeBooksOfTheDayForWeek(weekStart) {
   const days = getWeekDays(weekStart);
@@ -424,6 +536,11 @@ async function randomizeBooksOfTheDayForWeek(weekStart) {
       }
       return inserted;
     });
+    void Promise.all(
+      assignments.map(
+        (assignment) => generateAndSaveBotdBlurb(assignment.date, assignment.bookId)
+      )
+    );
     return ok({ scheduled: rows.length });
   } catch (e) {
     console.error("randomizeBooksOfTheDayForWeek", e);
@@ -448,6 +565,8 @@ async function getCreatorsByTypeForPlanner(type) {
   });
 }
 export {
+  autoSetArtistOfTheWeek,
+  autoSetPublisherOfTheWeek,
   deleteArtistOfTheWeekByWeekStart,
   deleteBookOfTheDayByDate,
   deletePublisherOfTheWeekByWeekStart,
@@ -461,10 +580,12 @@ export {
   getPublisherOfTheWeekForDateQuery,
   getPublishersOfTheWeekByWeekStart,
   getTodaysBookOfTheDay,
+  pickCreatorForSpotlightWeek,
   randomizeBooksOfTheDayForWeek,
   setArtistOfTheWeek,
   setBookOfTheDay,
   setPublisherOfTheWeek,
+  setRandomBookOfTheDay,
   updateArtistOfTheWeek,
   updateArtistOfTheWeekByWeekStart,
   updateBookOfTheDayByDate,

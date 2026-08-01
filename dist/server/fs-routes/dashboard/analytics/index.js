@@ -1,7 +1,6 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
 import AppLayout from "../../../components/layouts/AppLayout.js";
-import SectionTitle from "../../../components/app/SectionTitle.js";
 import { getFlash, getUser } from "../../../utils.js";
 import {
   parseAnalyticsDateRange,
@@ -18,6 +17,7 @@ import CreatorDashboardShell from "../../../features/dashboard/components/Creato
 import { getPendingClaim } from "../../../features/claims/services.js";
 import { paginationRequestBaseUrl } from "../../../lib/pagination.js";
 import InfoPage from "../../../pages/InfoPage.js";
+import PageHeader from "../../../components/app/PageHeader.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
@@ -56,24 +56,22 @@ const GET = createRoute(async (c) => {
         user,
         flash,
         currentPath,
-        children: /* @__PURE__ */ jsx(
+        children: /* @__PURE__ */ jsxs(
           CreatorDashboardShell,
           {
             currentPath,
             user,
             claimStatus: claim?.status ?? null,
-            children: /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-12", children: [
-              /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-6", children: [
-                /* @__PURE__ */ jsx(SectionTitle, { children: "Book analytics" }),
-                /* @__PURE__ */ jsx(
-                  AnalyticsDateRangeFilter,
-                  {
-                    dateRange,
-                    basePath: "/dashboard/analytics",
-                    partialUpdateTarget: "creator-dashboard-panel nav-tabs"
-                  }
-                )
-              ] }),
+            children: [
+              /* @__PURE__ */ jsx(PageHeader, { title: "Analytics", intro: "Check out your book analytics." }),
+              /* @__PURE__ */ jsx("div", { class: "flex flex-col gap-6", children: /* @__PURE__ */ jsx(
+                AnalyticsDateRangeFilter,
+                {
+                  dateRange,
+                  basePath: "/dashboard/analytics",
+                  partialUpdateTarget: "creator-dashboard-panel nav-tabs"
+                }
+              ) }),
               /* @__PURE__ */ jsx(AnalyticsOverviewSection, { scope, dateRange }),
               /* @__PURE__ */ jsx(
                 AnalyticsTrendChartsSection,
@@ -83,13 +81,7 @@ const GET = createRoute(async (c) => {
                   dateRange
                 }
               ),
-              /* @__PURE__ */ jsx(
-                AnalyticsSourceBreakdownSection,
-                {
-                  scope,
-                  dateRange
-                }
-              ),
+              /* @__PURE__ */ jsx(AnalyticsSourceBreakdownSection, { scope, dateRange }),
               /* @__PURE__ */ jsx(
                 TopBooksByViewsSection,
                 {
@@ -120,7 +112,7 @@ const GET = createRoute(async (c) => {
                   pageParam: "favoritesPage"
                 }
               )
-            ] })
+            ]
           }
         )
       }

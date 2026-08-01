@@ -34,6 +34,12 @@ function creatorDescription(creator) {
     `Explore photobooks by ${creator.displayName}, a ${label} on photobookers.`
   );
 }
+function shelfDescription(ownerName, bookCount) {
+  const countLabel = bookCount === 1 ? "1 favorite photobook" : `${bookCount} favorite photobooks`;
+  return truncateDescription(
+    `Explore ${countLabel} on ${ownerName}'s shelf on photobookers.`
+  );
+}
 function tagDescription(tagLabel) {
   return truncateDescription(
     `Browse ${tagLabel.toLowerCase()} photobooks on Photobookers \u2014 discover titles, artists, and publishers in one place.`
@@ -146,6 +152,7 @@ export {
   canonicalUrl,
   creatorDescription,
   pageTitle,
+  shelfDescription,
   tagDescription,
   truncateDescription
 };

@@ -6,6 +6,7 @@ import NavSearchMobile from "./NavSearchMobile.js";
 import { getInitialsAvatar } from "../../lib/avatar.js";
 import Button from "../app/Button.js";
 import { closeMobileMenuIcon, openMobileMenuIcon } from "../../lib/icons.js";
+import FeatureGuard from "./FeatureGuard.js";
 const NavMobileMenu = ({ currentPath }) => {
   return /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-5 md:hidden", children: [
     /* @__PURE__ */ jsx(NavSearchMobile, {}),
@@ -92,41 +93,23 @@ const MobileDropDownMenu = ({
           /* @__PURE__ */ jsx(NavLink, { href: "/auth/login", currentPath, children: "Login" }),
           /* @__PURE__ */ jsx(NavLink, { href: "/auth/accounts", currentPath, children: "Register" })
         ] }),
-        user?.creator?.id && /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }),
-          /* @__PURE__ */ jsx(
-            NavLink,
-            {
-              href: `/creators/${user?.creator?.slug}`,
-              currentPath,
-              children: "View Profile"
-            }
-          ),
-          /* @__PURE__ */ jsx(
-            NavLink,
-            {
-              href: `/dashboard/creators/${user?.creator?.id}`,
-              currentPath,
-              children: `Edit ${user.creator.type === "artist" ? "Artist" : "Publisher"} Profile`
-            }
-          )
-        ] }),
+        user?.creator?.id && /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }),
+        /* @__PURE__ */ jsx(FeatureGuard, { flagName: "collectors", children: user && !user.creator ? /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }) : null }),
         user?.isAdmin && /* @__PURE__ */ jsx(NavLink, { href: "/dashboard/admin/planner", currentPath, children: "Admin Dashboard" }),
+        /* @__PURE__ */ jsx(NavLink, { href: "/books", currentPath, children: "Books" }),
         /* @__PURE__ */ jsx(NavLink, { href: "/creators", currentPath, children: "Creators" }),
+        /* @__PURE__ */ jsx(FeatureGuard, { flagName: "collectors", children: /* @__PURE__ */ jsx(NavLink, { href: "/collectors", currentPath, children: "Collectors" }) }),
         /* @__PURE__ */ jsx(NavLink, { href: "/about", currentPath, children: "About" }),
         /* @__PURE__ */ jsx(NavLink, { href: "/contact", currentPath, children: "Contact" }),
-        user && /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsx(NavLink, { href: "/followed-creators", currentPath, children: "Creators I Follow" }),
-          /* @__PURE__ */ jsx(
-            "form",
-            {
-              ...{ "x-target.away": "_top", "x-target": "toast" },
-              action: "/auth/logout",
-              method: "post",
-              children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", type: "submit", children: /* @__PURE__ */ jsx("span", { children: "Logout" }) })
-            }
-          )
-        ] })
+        user && /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx(
+          "form",
+          {
+            ...{ "x-target.away": "_top", "x-target": "toast" },
+            action: "/auth/logout",
+            method: "post",
+            children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "primary", type: "submit", children: /* @__PURE__ */ jsx("span", { children: "Logout" }) })
+          }
+        ) })
       ]
     }
   );

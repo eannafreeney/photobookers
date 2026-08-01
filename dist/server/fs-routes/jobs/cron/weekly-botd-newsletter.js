@@ -1,12 +1,10 @@
 import { createRoute } from "hono-fsr";
-import { runWeeklyNewsletterCron } from "../../../domain/planner/cron/newsletterCronServices.js";
+import { runWeeklyBotdNewsletterCron } from "../../../jobs/cronRunners.js";
 import { parseDateString } from "../../../lib/utils.js";
+import { requireCronSecret } from "../../../jobs/cronRouteAuth.js";
 const POST = createRoute(async (c) => {
-  const secret = c.req.header("Authorization")?.replace(/^Bearer\s+/i, "") ?? c.req.query("secret");
-  const expected = process.env.CRON_SECRET;
-  if (!expected || secret !== expected) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
+  const unauthorized = requireCronSecret(c);
+  if (unauthorized) return unauthorized;
   const dryRun = c.req.query("dryRun") === "1" || c.req.query("dryRun") === "true";
   const force = c.req.query("force") === "1" || c.req.query("force") === "true";
   const weekStartParam = c.req.query("weekStart");
@@ -17,14 +15,12 @@ const POST = createRoute(async (c) => {
       return c.json({ error: "Invalid weekStart (use YYYY-MM-DD)" }, 400);
     }
   }
-  const [error, result] = await runWeeklyNewsletterCron({
+  const [error, result] = await runWeeklyBotdNewsletterCron({
     dryRun,
     weekStart,
     force
   });
-  if (error) {
-    return c.json({ error: error.reason }, 500);
-  }
+  if (error) return c.json({ error: error.reason }, 500);
   return c.json({ ok: true, ...result });
 });
 export {

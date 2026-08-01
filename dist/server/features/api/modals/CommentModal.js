@@ -1,6 +1,8 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import Button from "../../../components/app/Button.js";
+import AuthModal from "../../../components/app/AuthModal.js";
 import Modal from "../../../components/app/Modal.js";
+import TextArea from "../../../components/forms/TextArea.js";
 const CommentModal = ({
   bookId,
   user,
@@ -16,7 +18,7 @@ const CommentModal = ({
     "@ajax:after": "$dispatch('comments:updated'), $dispatch('dialog:close')"
   };
   if (!user) {
-    return /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: "Log in to add a comment." });
+    return /* @__PURE__ */ jsx(AuthModal, { action: "to comment on this book." });
   }
   return /* @__PURE__ */ jsx(Modal, { title: "What did you love about this book?", children: /* @__PURE__ */ jsxs(
     "form",
@@ -26,16 +28,7 @@ const CommentModal = ({
       class: "flex flex-col gap-4",
       ...alpineAttrs,
       children: [
-        /* @__PURE__ */ jsx("label", { class: "bg-surface-alt rounded-radius border border-outline text-on-surface-alt -mb-1 flex items-center justify-between gap-2 px-2 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-primary", children: /* @__PURE__ */ jsx(
-          "textarea",
-          {
-            class: "w-full bg-surface-alt px-2.5 py-2 text-base md:text-sm font-normal focus:outline-none disabled:cursor-not-allowed disabled:opacity-75",
-            name: "body",
-            "x-model": "body",
-            "x-autosize": true,
-            required: true
-          }
-        ) }),
+        /* @__PURE__ */ jsx(TextArea, { name: "body", minRows: 5, required: true }),
         /* @__PURE__ */ jsx(
           "input",
           {

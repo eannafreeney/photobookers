@@ -1,5 +1,6 @@
 import { Fragment, jsx } from "hono/jsx/jsx-runtime";
 import BooksOverviewDesktop from "../components/BooksOverviewDesktop.js";
+import BooksOverviewMobile from "../components/BooksOverviewMobile.js";
 const BooksOverviewTable = async ({
   books,
   creator,
@@ -12,7 +13,16 @@ const BooksOverviewTable = async ({
 }) => {
   if (!user || !creator) return /* @__PURE__ */ jsx(Fragment, {});
   if (isMobile) {
-    return /* @__PURE__ */ jsx("span", { children: "Please use a desktop browser to view this page." });
+    return /* @__PURE__ */ jsx(
+      BooksOverviewMobile,
+      {
+        books,
+        user,
+        currentPath,
+        page,
+        totalPages
+      }
+    );
   }
   return /* @__PURE__ */ jsx(
     BooksOverviewDesktop,

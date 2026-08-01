@@ -28,6 +28,9 @@ import CreatorBanner, {
 import ErrorScreen from "../../../../../../features/hyperview/components/ErrorScreen.js";
 import { publishersListStyles } from "./publishers.js";
 import { artistsListStyles } from "./artists.js";
+import { creatorPostsListStyles } from "../../../../../../features/hyperview/components/CreatorPostsList.js";
+import { messageListStyles } from "../../../../../../features/hyperview/hyperviewCommonScreenStyles.js";
+import { countCreatorPosts } from "../../../../../../db/queries.js";
 const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const creatorId = c.req.valid("param").creatorId;
   const baseUrl = getBaseUrl(c);
@@ -49,10 +52,12 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const isAdmin = Boolean(user?.isAdmin);
   const showClaimButton = isStubCreator && !hasCreatorAccount && !isAdmin;
   const claimHref = `${baseUrl}/claims/${creator.id}/start`;
-  const [favoritesByBookId, followingByCreatorId] = await Promise.all([
+  const [favoritesByBookId, followingByCreatorId, postCount] = await Promise.all([
     favoriteFlagsForBooks(user, books),
-    followFlagsForCreators(user, creator ? [creator] : [])
+    followFlagsForCreators(user, creator ? [creator] : []),
+    countCreatorPosts(creator.id)
   ]);
+  const showPostsTab = postCount > 0;
   const hasMore = currentPage < totalPages;
   const loadMoreHref = `${baseUrl}/hyperview/creators/${creatorId}/tab/books-content`;
   return hv(
@@ -81,7 +86,8 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
               baseUrl,
               creatorId: creator.id,
               activeTab: "books",
-              creatorType: creator.type
+              creatorType: creator.type,
+              showPostsTab
             }
           ),
           /* @__PURE__ */ jsx(View, { id: "tab-area", style: "page-content", children: /* @__PURE__ */ jsx(
@@ -236,7 +242,9 @@ const pageStyles = () => /* @__PURE__ */ jsxs(Fragment, { children: [
   relatedCreatorsListStyles(),
   publishersListStyles(),
   artistsListStyles(),
-  creatorBannerStyles()
+  creatorBannerStyles(),
+  messageListStyles(),
+  creatorPostsListStyles()
 ] });
 export {
   GET

@@ -12,7 +12,7 @@ const VerifiedCreatorShareBanner = ({ creator }) => {
     "div",
     {
       "x-cloak": true,
-      "x-data": "{ show: $persist(true).as(`verified-share-${creator.slug}`) }",
+      "x-data": `{ show: $persist(true).as('verified-share-${creator.slug}') }`,
       "x-show": "show",
       children: /* @__PURE__ */ jsx(
         Banner,

@@ -1,6 +1,7 @@
 import { jsx } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
-import { paramValidator } from "../../../lib/validator.js";
+import { formValidator, paramValidator } from "../../../lib/validator.js";
+import { claimFormSchema } from "../../../features/claims/schema.js";
 import { creatorIdSchema } from "../../../schemas/index.js";
 import { getFlash, getUser, setFlash } from "../../../utils.js";
 import { getCreatorById } from "../../../features/dashboard/creators/services.js";
@@ -45,6 +46,7 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
 });
 const POST = createRoute(
   paramValidator(creatorIdSchema),
+  formValidator(claimFormSchema),
   async (c) => {
     const creatorId = c.req.valid("param").creatorId;
     const user = await getUser(c);

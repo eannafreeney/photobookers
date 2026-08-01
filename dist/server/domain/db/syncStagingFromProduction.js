@@ -1,6 +1,9 @@
 import { spawn } from "node:child_process";
+import postgres from "postgres";
 import { err, ok } from "../../lib/result.js";
 const PUBLIC_SCHEMA = "public";
+const DRIZZLE_SCHEMA = "drizzle";
+const STAGING_SYNC_SCHEMAS = [PUBLIC_SCHEMA, DRIZZLE_SCHEMA];
 const PG_DUMP = process.env.PG_DUMP_PATH ?? "pg_dump";
 const PSQL = process.env.PSQL_PATH ?? "psql";
 function withSslModeForSync(connectionString) {
@@ -125,6 +128,52 @@ const pgChildEnv = {
   ...process.env,
   PGSSLMODE: "require"
 };
+async function syncDrizzleMigrationHistoryFromProduction(options = {}) {
+  const resolved = resolveSyncDatabaseUrls(options);
+  if (resolved[0]) return resolved;
+  const { sourceUrl, targetUrl } = resolved[1];
+  const source = postgres(withSslModeForSync(sourceUrl), { max: 1 });
+  const target = postgres(withSslModeForSync(targetUrl), { max: 1 });
+  try {
+    const rows = await source`
+      SELECT id, hash, created_at
+      FROM drizzle.__drizzle_migrations
+      ORDER BY id
+    `;
+    await target`CREATE SCHEMA IF NOT EXISTS drizzle`;
+    await target`
+      CREATE TABLE IF NOT EXISTS drizzle.__drizzle_migrations (
+        id SERIAL PRIMARY KEY,
+        hash text NOT NULL,
+        created_at bigint
+      )
+    `;
+    await target`TRUNCATE drizzle.__drizzle_migrations`;
+    for (const row of rows) {
+      await target`
+        INSERT INTO drizzle.__drizzle_migrations (id, hash, created_at)
+        VALUES (${row.id}, ${row.hash}, ${row.created_at})
+      `;
+    }
+    if (rows.length > 0) {
+      await target`
+        SELECT setval(
+          pg_get_serial_sequence('drizzle.__drizzle_migrations', 'id'),
+          (SELECT COALESCE(MAX(id), 1) FROM drizzle.__drizzle_migrations)
+        )
+      `;
+    }
+    return ok({ copied: rows.length });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to sync Drizzle migrations";
+    return err({
+      reason: sanitizePgMessage(message, sourceUrl, targetUrl)
+    });
+  } finally {
+    await source.end();
+    await target.end();
+  }
+}
 function runStagingDatabasePipe(sourceUrl, targetUrl) {
   return new Promise((resolve, reject) => {
     const startedAt = Date.now();
@@ -133,7 +182,7 @@ function runStagingDatabasePipe(sourceUrl, targetUrl) {
       [
         "-d",
         sourceUrl,
-        `--schema=${PUBLIC_SCHEMA}`,
+        ...STAGING_SYNC_SCHEMAS.flatMap((schema) => [`--schema=${schema}`]),
         "--no-owner",
         "--no-acl",
         "--clean",
@@ -199,7 +248,7 @@ async function runStagingDatabaseSync(options = {}) {
       action: "dry_run",
       sourceHost: source.host,
       targetHost: target.host,
-      schema: PUBLIC_SCHEMA
+      schemas: STAGING_SYNC_SCHEMAS
     });
   }
   if (process.env.ALLOW_STAGING_DB_SYNC !== "true") {
@@ -226,7 +275,7 @@ async function runStagingDatabaseSync(options = {}) {
       action: "synced",
       sourceHost: source.host,
       targetHost: target.host,
-      schema: PUBLIC_SCHEMA,
+      schemas: STAGING_SYNC_SCHEMAS,
       durationMs
     });
   } catch (error) {
@@ -237,9 +286,11 @@ async function runStagingDatabaseSync(options = {}) {
   }
 }
 export {
+  STAGING_SYNC_SCHEMAS,
   assertSafeStagingSyncConfig,
   parseDatabaseUrlForSync,
   redactDatabaseUrl,
   runStagingDatabaseSync,
+  syncDrizzleMigrationHistoryFromProduction,
   withSslModeForSync
 };

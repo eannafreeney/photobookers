@@ -8,6 +8,10 @@ import AnalyticsSourceBreakdownSection from "../../../components/AnalyticsSource
 import TopBooksByClicksSection from "../../../components/TopBooksByClicksSection.js";
 import TopCreatorsTable from "./TopCreatorsTable.js";
 import TopCreatorsByViews from "../../../components/TopCreatorsByViews.js";
+import {
+  ADMIN_ANALYTICS_FANS_PATH,
+  ADMIN_ANALYTICS_VERIFIED_CREATORS_PATH
+} from "../adminAnalyticsPanel.js";
 const BookAnalyticsBlock = ({
   dateRange,
   viewsPaginationBaseUrl,
@@ -25,7 +29,14 @@ const BookAnalyticsBlock = ({
   chartRange
 }) => {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx(AnalyticsOverviewSection, { dateRange }),
+    /* @__PURE__ */ jsx(
+      AnalyticsOverviewSection,
+      {
+        dateRange,
+        fansHref: ADMIN_ANALYTICS_FANS_PATH,
+        verifiedCreatorsHref: ADMIN_ANALYTICS_VERIFIED_CREATORS_PATH
+      }
+    ),
     /* @__PURE__ */ jsx(
       AnalyticsTrendChartsSection,
       {

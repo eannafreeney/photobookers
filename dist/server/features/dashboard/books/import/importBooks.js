@@ -10,7 +10,6 @@ import {
   createBook,
   getNewBookModerationForUser
 } from "../services.js";
-import { notifyAdminBookPendingReview } from "../../admin/notifications/services.js";
 import { rowToBookFormData } from "./rowToBookFormData.js";
 import { db } from "../../../../db/client.js";
 async function batchResolveCreators(rows, user) {
@@ -215,13 +214,6 @@ async function importBooksFromRows(rows, user) {
         error: "Failed to create book"
       });
       continue;
-    }
-    if (book.approvalStatus === "pending") {
-      await notifyAdminBookPendingReview({
-        bookId: book.id,
-        title: book.title,
-        actorUserId: user.id
-      });
     }
     createdBooks.push(book);
     results.push({

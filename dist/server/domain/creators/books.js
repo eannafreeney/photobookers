@@ -45,6 +45,18 @@ const getBooksByCreatorId = async (creatorId, currentPage, searchQuery, defaultL
 function creatorRoleBookColumn(creator) {
   return creator.type === "publisher" ? books.publisherId : books.artistId;
 }
+const creatorHasPublishedBook = async (creator) => {
+  const bookColumn = creatorRoleBookColumn(creator);
+  const [row] = await db.select({ value: count() }).from(books).where(
+    and(
+      eq(bookColumn, creator.id),
+      eq(books.publicationStatus, "published"),
+      eq(books.approvalStatus, "approved"),
+      or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date()))
+    )
+  );
+  return Number(row?.value ?? 0) > 0;
+};
 function publicCreatorBooksListWhere(creator, searchQuery) {
   const bookColumn = creatorRoleBookColumn(creator);
   const titleFilter = searchQuery?.trim() ? ilike(books.title, `%${searchQuery.trim()}%`) : void 0;
@@ -118,6 +130,7 @@ const getPublicBooksForCreator = async (creator, currentPage, options) => {
   }
 };
 export {
+  creatorHasPublishedBook,
   getBooksByCreatorId,
   getPublicBooksByCreatorId,
   getPublicBooksForCreator

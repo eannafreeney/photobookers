@@ -1,13 +1,16 @@
 import { db } from "../../db/client.js";
 import {
-  bookImages,
   books,
   creatorClaims,
   creators
 } from "../../db/schema.js";
 import { and, eq, gt, inArray, or } from "drizzle-orm";
-import { cleanupOrphanedStubCreator } from "../dashboard/books/services.js";
+import {
+  cleanupOrphanedStubCreator,
+  deleteBookDependents
+} from "../dashboard/books/services.js";
 import { assignUserAsCreatorOwnerAdmin } from "../dashboard/admin/claims/services.js";
+import { notifyAdminNewClaim } from "../../domain/notifications/services.js";
 import { err, ok } from "../../lib/result.js";
 import { invalidateBookCache } from "../app/services.js";
 const getPendingClaim = async (userId, creatorId) => {
@@ -44,6 +47,9 @@ const createClaimWithStatus = async (userId, creatorId, verificationUrl, status)
       status,
       verifiedAt: status === "approved" ? /* @__PURE__ */ new Date() : null
     }).returning();
+    void notifyAdminNewClaim(claim).catch((error) => {
+      console.error("notifyAdminNewClaim failed:", error);
+    });
     return ok(claim);
   } catch (error) {
     console.error("Failed to create claim:", error);
@@ -102,7 +108,7 @@ const deleteBookById = async (bookId) => {
   try {
     const [book] = await db.select().from(books).where(eq(books.id, bookId));
     if (!book) return null;
-    await db.delete(bookImages).where(eq(bookImages.bookId, bookId));
+    await deleteBookDependents(bookId);
     const [deletedBook] = await db.delete(books).where(eq(books.id, bookId)).returning();
     if (deletedBook?.slug) {
       invalidateBookCache(deletedBook.slug);

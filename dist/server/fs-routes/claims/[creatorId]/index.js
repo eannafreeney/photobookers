@@ -1,6 +1,7 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
-import { paramValidator, queryValidator } from "../../../lib/validator.js";
+import { formValidator, paramValidator, queryValidator } from "../../../lib/validator.js";
+import { claimFormSchema } from "../../../features/claims/schema.js";
 import { creatorIdSchema, currentPathSchema } from "../../../schemas/index.js";
 import { getUser } from "../../../utils.js";
 import { getCreatorById } from "../../../features/dashboard/creators/services.js";
@@ -9,8 +10,7 @@ import Modal from "../../../components/app/Modal.js";
 import ClaimSignupModal from "../../../features/claims/modals/ClaimSignUpModal.js";
 import ClaimCreatorBtn from "../../../features/claims/components/ClaimCreatorBtn.js";
 import ClaimModal from "../../../features/claims/modals/ClaimModal.js";
-import { normalizeUrl } from "../../../services/verification.js";
-import { isSameDomain } from "../../../services/verification.js";
+import { resolveClaimVerificationUrl, getSubmittedClaimVerificationUrl } from "../../../features/claims/verificationUrl.js";
 import { emailMatchesWebsite } from "../../../features/claims/utils.js";
 import { createClaimWithStatus } from "../../../features/claims/services.js";
 import { assignUserAsCreatorOwnerAdmin } from "../../../domain/claims/owner.js";
@@ -82,6 +82,7 @@ const GET = createRoute(
 const POST = createRoute(
   paramValidator(creatorIdSchema),
   queryValidator(currentPathSchema),
+  formValidator(claimFormSchema),
   async (c) => {
     const formData = c.req.valid("form");
     const creatorId = c.req.valid("param").creatorId;
@@ -90,14 +91,14 @@ const POST = createRoute(
     if (creatorError || !creator) {
       return showErrorAlert(c, "Creator not found");
     }
-    const rawUrl = creator.website ?? formData.verificationUrl;
-    const verificationUrl = rawUrl ? normalizeUrl(rawUrl) : null;
-    if (creator.website && verificationUrl && !isSameDomain(verificationUrl, creator.website)) {
-      return showErrorAlert(
-        c,
-        `The URL must match the creator's listed website (${creator.website}).`
-      );
+    const resolved = resolveClaimVerificationUrl(
+      creator.website,
+      getSubmittedClaimVerificationUrl(formData)
+    );
+    if (!resolved.ok) {
+      return showErrorAlert(c, resolved.message);
     }
+    const verificationUrl = resolved.verificationUrl;
     const domainMatches = verificationUrl ? emailMatchesWebsite(user.email, verificationUrl) : false;
     const status = domainMatches && creator.website ? "approved" : "pending_admin_review";
     const [createClaimError, creatorClaim] = await createClaimWithStatus(

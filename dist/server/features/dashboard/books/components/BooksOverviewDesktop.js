@@ -1,9 +1,7 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import TableSearch from "../../../../components/app/TableSearch.js";
-import SectionTitle from "../../../../components/app/SectionTitle.js";
 import Button from "../../../../components/app/Button.js";
 import Link from "../../../../components/app/Link.js";
-import PreviewButton from "../../../api/components/PreviewButton.js";
 import PublishToggleForm from "./PublishToggleForm.js";
 import DeleteBookForm from "./BookDeleteForm.js";
 import { getBookFunnelCounts } from "../../../book-analytics/funnel.js";
@@ -13,6 +11,7 @@ import { canEditBook } from "../../../../lib/permissions.js";
 import { InfiniteScroll } from "../../../../components/app/InfiniteScroll.js";
 import BookApprovalStatusPill from "../../admin/books/components/BookApprovalStatusPill.js";
 import { dragHandleIcon } from "../../../../lib/icons.js";
+import AvailabilityStatusPill from "../../admin/books/components/AvailabilityStatusPill.js";
 const reorderHandleAttrs = {
   draggable: true,
   "@dragstart": "onReorderDragStart($event, $el.closest('tr'))",
@@ -50,7 +49,6 @@ const BooksOverviewDesktop = async ({
     outboundClicks: 0
   };
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
-    /* @__PURE__ */ jsx(SectionTitle, { children: "Books" }),
     /* @__PURE__ */ jsxs("div", { class: "flex items-center justify-between gap-4", children: [
       /* @__PURE__ */ jsx(
         TableSearch,
@@ -75,6 +73,7 @@ const BooksOverviewDesktop = async ({
         /* @__PURE__ */ jsx(Table.HeadRow, { children: "Views" }),
         /* @__PURE__ */ jsx(Table.HeadRow, { children: "Favs" }),
         /* @__PURE__ */ jsx(Table.HeadRow, { children: "Outbound clicks" }),
+        /* @__PURE__ */ jsx(Table.HeadRow, { children: "Status" }),
         /* @__PURE__ */ jsx(Table.HeadRow, { children: "Approval" }),
         /* @__PURE__ */ jsx(Table.HeadRow, { children: "Publish" })
       ] }) }),
@@ -141,6 +140,7 @@ const BookTableRow = ({
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.views }) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.favorites }) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.outboundClicks }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(AvailabilityStatusPill, { availabilityStatus: book.availabilityStatus }) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
           BookApprovalStatusPill,
           {
@@ -148,7 +148,6 @@ const BookTableRow = ({
           }
         ) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(PublishToggleForm, { book, user }) }),
-        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(PreviewButton, { book, user }) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx("a", { href: `/dashboard/books/${book.id}`, children: /* @__PURE__ */ jsx(
           Button,
           {

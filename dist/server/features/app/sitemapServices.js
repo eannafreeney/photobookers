@@ -79,8 +79,7 @@ async function getSitemapEntries() {
       updatedAt: bookFairs.updatedAt
     }).from(bookFairs).where(
       and(
-        eq(bookFairs.status, "published"),
-        eq(bookFairs.approvalStatus, "approved")
+        eq(bookFairs.status, "published")
       )
     ),
     db.select({

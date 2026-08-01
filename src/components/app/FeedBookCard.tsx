@@ -6,7 +6,6 @@ import Link from "./Link";
 import { AuthUser } from "../../../types";
 import { BookCardResult } from "../../constants/queries";
 import Show from "./Show";
-import FavouriteButton from "../../features/api/components/FavouriteButton";
 import BookCard from "./BookCard";
 
 type BookCardProps = {

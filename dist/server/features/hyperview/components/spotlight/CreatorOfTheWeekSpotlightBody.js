@@ -10,7 +10,7 @@ import BookCard from "../BookCard.js";
 import NewsletterCard from "../NewsletterCard.js";
 import SectionHeader from "../SectionHeader.js";
 import { followButtonStyles } from "../FollowButton.js";
-import ExpandableBio, { expandableBioStyles } from "./ExpandableBio.js";
+import { expandableBioStyles } from "./ExpandableBio.js";
 import SpotlightHeader from "./SpotlightHeader.js";
 import { formatCreatorLocation, toWeekString } from "../../../../lib/utils.js";
 import CreatorActions, { creatorActionsStyles } from "./CreatorActions.js";
@@ -28,10 +28,11 @@ const CreatorOfTheWeekSpotlightBody = ({
   baseUrl,
   isFollowing,
   favoritesByBookId,
-  spotlightImage
+  spotlightImage,
+  spotlightBlurb
 }) => {
   const isArtist = creator.type === "artist";
-  const bio = creator.bio?.trim() || null;
+  const bio = spotlightBlurb?.trim() || creator.bio?.trim() || null;
   const location = formatCreatorLocation(creator.city, creator.country);
   const subtitle = [location, toWeekString(weekStart)].filter(Boolean).join(" \xB7 ");
   const coverImage = spotlightImage ?? creator.coverUrl ?? creator.bannerUrl ?? null;
@@ -57,7 +58,7 @@ const CreatorOfTheWeekSpotlightBody = ({
         coverImage
       }
     ),
-    bio ? /* @__PURE__ */ jsx(ExpandableBio, { bio, id: creator.id }) : null,
+    bio ? /* @__PURE__ */ jsx(Text, { style: "spotlight-body-text", children: bio }) : null,
     /* @__PURE__ */ jsxs(View, { style: "spotlight-profile-btn", children: [
       /* @__PURE__ */ jsxs(Text, { style: "spotlight-profile-btn-label", children: [
         "Visit ",

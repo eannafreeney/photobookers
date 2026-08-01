@@ -1,4 +1,5 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
+import BooksOverviewMobile from "../../../books/components/BooksOverviewMobile.js";
 import Button from "../../../../../components/app/Button.js";
 import Card from "../../../../../components/app/Card.js";
 import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll.js";
@@ -15,12 +16,14 @@ import PublishToggleForm from "../../../books/components/PublishToggleForm.js";
 import BookStatusForm from "../forms/BookStatusForm.js";
 import { getAllBooksAdmin } from "../services.js";
 import BookApprovalStatusPill from "./BookApprovalStatusPill.js";
+import { deleteRowAttrs } from "../../../../../lib/utils.js";
 const AdminBooksTableAndFilter = async ({
   status = void 0,
   currentPage,
   searchQuery,
   currentPath,
-  user
+  user,
+  isMobile
 }) => {
   const [error, result] = await getAllBooksAdmin(
     currentPage,
@@ -41,6 +44,21 @@ const AdminBooksTableAndFilter = async ({
     "@ajax:before": "$dispatch('dialog:open')",
     "@books:updated.window": `$dispatch('dialog:close'); $ajax('/dashboard/admin/books', { target: 'books-table-container' })`
   };
+  if (isMobile) {
+    if (!user) return /* @__PURE__ */ jsx(Fragment, {});
+    return /* @__PURE__ */ jsx(
+      BooksOverviewMobile,
+      {
+        books,
+        user,
+        currentPath,
+        page,
+        totalPages,
+        basePath: "/dashboard/admin/books",
+        editBasePath: "/dashboard/admin/books"
+      }
+    );
+  }
   return /* @__PURE__ */ jsx("div", { "x-data": true, children: /* @__PURE__ */ jsxs(
     "div",
     {
@@ -89,12 +107,6 @@ const AdminBooksTableAndFilter = async ({
 var AdminBooksTableAndFilter_default = AdminBooksTableAndFilter;
 const BooksTableRow = ({ book, user, funnel }) => {
   if (!user) return /* @__PURE__ */ jsx(Fragment, {});
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()"
-  };
   return /* @__PURE__ */ jsxs("tr", { children: [
     /* @__PURE__ */ jsx(Table.BodyRow, { children: book.coverUrl ? /* @__PURE__ */ jsx("img", { src: book.coverUrl ?? "", alt: book.title, class: "w-auto h-12" }) : /* @__PURE__ */ jsx("a", { href: `/dashboard/admin/books/${book.id}#book-images`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "warning", children: /* @__PURE__ */ jsx("span", { children: "Upload Cover" }) }) }) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
@@ -124,7 +136,7 @@ const BooksTableRow = ({ book, user, funnel }) => {
       FormDelete,
       {
         action: `/dashboard/admin/books/${book.id}`,
-        ...alpineAttrs,
+        ...deleteRowAttrs,
         children: /* @__PURE__ */ jsx("button", { type: "submit", class: "cursor-pointer hover:text-red-500", children: deleteIcon })
       }
     ) })

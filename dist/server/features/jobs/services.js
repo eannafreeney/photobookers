@@ -34,7 +34,7 @@ async function getPostsDueForFollowerNotification() {
   return db.select({
     id: creatorMessages.id,
     body: creatorMessages.body,
-    imageUrls: creatorMessages.imageUrls,
+    imageUrl: creatorMessages.imageUrl,
     creatorId: creatorMessages.creatorId,
     creatorDisplayName: creators.displayName,
     creatorSlug: creators.slug
@@ -55,7 +55,7 @@ async function buildCreatorPostNotificationEmails() {
       post.creatorDisplayName,
       post.creatorSlug,
       post.body,
-      post.imageUrls?.[0] ?? null
+      post.imageUrl
     );
     for (const to of toList) {
       emails.push({ to, subject, html });

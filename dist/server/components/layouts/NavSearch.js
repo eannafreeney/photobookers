@@ -44,7 +44,7 @@ const NavSearch = ({ isMobile = false }) => {
               "x-cloak": true,
               "x-show": "hasResults",
               class: "hidden md:block absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer opacity-70 hover:opacity-100",
-              "x-on:click": "hasResults = false",
+              "x-on:click": "hasResults = false; searchValue = ''",
               children: closeIcon
             }
           ),

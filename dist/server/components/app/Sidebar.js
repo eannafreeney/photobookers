@@ -9,7 +9,7 @@ const Sidebar = ({
     /* @__PURE__ */ jsxs(
       "aside",
       {
-        class: "flex shrink-0 flex-col border-b border-outline bg-surface-alt px-4 py-4 sm:w-56 sm:border-b-0 sm:border-r sm:px-4 sm:py-6 sm:overflow-y-auto",
+        class: "flex shrink-0 flex-col border-b border-outline bg-surface-alt px-4 py-4 sm:w-56 sm:border-b-0 sm:border-r sm:px-4 sm:py-6 sm:sticky sm:top-22 sm:self-start sm:max-h-[calc(100dvh-5.5rem)] sm:overflow-y-auto",
         "aria-label": "Admin navigation",
         children: [
           /* @__PURE__ */ jsx("span", { class: "kicker text-accent mb-4 hidden sm:block", children: "Admin" }),

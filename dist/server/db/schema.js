@@ -81,11 +81,6 @@ const bookFairStatusEnum = pgEnum("book_fair_status", [
   "published",
   "cancelled"
 ]);
-const bookFairApprovalStatusEnum = pgEnum("book_fair_approval_status", [
-  "pending",
-  "approved",
-  "rejected"
-]);
 const bookFairListingTierEnum = pgEnum("book_fair_listing_tier", [
   "free",
   "promoted"
@@ -110,9 +105,14 @@ const users = pgTable("users", {
   firstName: varchar("first_name", { length: 255 }),
   lastName: varchar("last_name", { length: 255 }),
   profileImageUrl: text("profile_image_url"),
+  shelfSlug: varchar("shelf_slug", { length: 255 }).unique(),
+  shelfPublic: boolean("shelf_public").default(false).notNull(),
   acceptsTerms: timestamp("accepts_terms"),
   isAdmin: boolean("is_admin").default(false).notNull(),
   mustResetPassword: boolean("must_reset_password").default(false).notNull(),
+  verificationFeedbackEmailSentAt: timestamp(
+    "verification_feedback_email_sent_at"
+  ),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
 });
@@ -123,10 +123,12 @@ const usersRelations = relations(users, ({ many }) => ({
   collections: many(collectionItems),
   likes: many(likes),
   wishlists: many(wishlists),
+  bookLists: many(bookLists),
   claims: many(creatorClaims),
   comments: many(bookComments),
   createdFairs: many(bookFairs),
-  createdStores: many(bookStores)
+  createdStores: many(bookStores),
+  posts: many(collectorPosts)
 }));
 const creatorInterviews = pgTable("creator_interviews", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -139,6 +141,7 @@ const creatorInterviews = pgTable("creator_interviews", {
   invitedByUserId: uuid("invited_by_user_id").references(() => users.id),
   status: creatorInterviewStatusEnum("status").notNull().default("sent"),
   invitedAt: timestamp("invited_at").defaultNow().notNull(),
+  reminderSentAt: timestamp("reminder_sent_at"),
   completedAt: timestamp("completed_at"),
   expiresAt: timestamp("expires_at"),
   answers: jsonb("answers").$type(),
@@ -200,9 +203,18 @@ const creators = pgTable(
       length: 7
     }),
     stubOutreachOptOutAt: timestamp("stub_outreach_opt_out_at"),
+    interviewReminderOptOutAt: timestamp("interview_reminder_opt_out_at"),
     verifiedInstagramQueuedAt: timestamp("verified_instagram_queued_at"),
     verifiedInstagramBufferPostId: text("verified_instagram_buffer_post_id"),
+    verifiedInstagramPreviewEmailSentAt: timestamp(
+      "verified_instagram_preview_email_sent_at"
+    ),
+    verifiedInstagramCancelledAt: timestamp("verified_instagram_cancelled_at"),
     verifiedInstagramError: text("verified_instagram_error"),
+    verificationFeedbackEmailSentAt: timestamp(
+      "verification_feedback_email_sent_at"
+    ),
+    profileShareEmailSentAt: timestamp("profile_share_email_sent_at"),
     createdByUserId: uuid("created_by_user_id").references(() => users.id).notNull(),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
@@ -273,6 +285,8 @@ const books = pgTable(
     publicationStatus: bookPublicationStatusEnum("publication_status").default("draft"),
     coverUrl: text("cover_url"),
     purchaseLink: text("purchase_link"),
+    /** External press / review links curated by the creator or admin. */
+    pressLinks: jsonb("press_links").$type().default([]).notNull(),
     images: text("images").array(),
     tags: text("tags").array(),
     createdByUserId: uuid("created_by_user_id").references(() => users.id).notNull(),
@@ -312,6 +326,7 @@ const booksRelations = relations(books, ({ one, many }) => ({
   images: many(bookImages),
   likes: many(likes),
   wishlists: many(wishlists),
+  bookListItems: many(bookListItems),
   collections: many(collectionItems),
   bookOfTheDay: one(bookOfTheDay),
   purchaseClicks: many(purchaseClicks),
@@ -384,7 +399,7 @@ const creatorMessages = pgTable("creator_messages", {
   id: uuid("id").primaryKey().defaultRandom(),
   creatorId: uuid("creator_id").notNull().references(() => creators.id, { onDelete: "cascade" }),
   body: text("body").notNull(),
-  imageUrls: text("image_urls").array(),
+  imageUrl: text("image_url"),
   notifyFollowersSentAt: timestamp("notify_followers_sent_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
@@ -398,6 +413,20 @@ const creatorMessagesRelations = relations(
     })
   })
 );
+const collectorPosts = pgTable("collector_posts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
+});
+const collectorPostsRelations = relations(collectorPosts, ({ one }) => ({
+  user: one(users, {
+    fields: [collectorPosts.userId],
+    references: [users.id]
+  })
+}));
 const bookImages = pgTable("book_images", {
   id: uuid("id").primaryKey().defaultRandom(),
   bookId: uuid("book_id").references(() => books.id, { onDelete: "cascade" }).notNull(),
@@ -516,6 +545,56 @@ const wishlistsRelations = relations(wishlists, ({ one }) => ({
     references: [books.id]
   })
 }));
+const bookLists = pgTable(
+  "book_lists",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
+    description: text("description"),
+    isPublic: boolean("is_public").default(false).notNull(),
+    isPromoted: boolean("is_promoted").default(false).notNull(),
+    promotedAt: timestamp("promoted_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
+  },
+  (table) => ({
+    userSlugUnique: unique("book_lists_user_slug_unique").on(
+      table.userId,
+      table.slug
+    )
+  })
+);
+const bookListsRelations = relations(bookLists, ({ one, many }) => ({
+  user: one(users, {
+    fields: [bookLists.userId],
+    references: [users.id]
+  }),
+  items: many(bookListItems)
+}));
+const bookListItems = pgTable(
+  "book_list_items",
+  {
+    listId: uuid("list_id").notNull().references(() => bookLists.id, { onDelete: "cascade" }),
+    bookId: uuid("book_id").notNull().references(() => books.id, { onDelete: "cascade" }),
+    position: integer("position").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow()
+  },
+  (table) => ({
+    pk: primaryKey(table.listId, table.bookId)
+  })
+);
+const bookListItemsRelations = relations(bookListItems, ({ one }) => ({
+  list: one(bookLists, {
+    fields: [bookListItems.listId],
+    references: [bookLists.id]
+  }),
+  book: one(books, {
+    fields: [bookListItems.bookId],
+    references: [books.id]
+  })
+}));
 const bookOfTheDay = pgTable(
   "book_of_the_day",
   {
@@ -528,7 +607,9 @@ const bookOfTheDay = pgTable(
     publisherFeatureDayEmailSentAt: timestamp(
       "publisher_feature_day_email_sent_at"
     ),
-    instagramImageUrl: text("instagram_image_url"),
+    featuredImageUrl: text("featured_image_url"),
+    instagramImageUrls: text("instagram_image_urls").array(),
+    spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
     instagramBufferPostId: text("instagram_buffer_post_id"),
@@ -558,7 +639,9 @@ const artistOfTheWeek = pgTable(
     weekStart: timestamp("week_start", { mode: "date" }).notNull(),
     creatorId: uuid("creator_id").notNull().references(() => creators.id, { onDelete: "cascade" }),
     emailSentAt: timestamp("email_sent_at"),
-    instagramImageUrl: text("instagram_image_url"),
+    featuredImageUrl: text("featured_image_url"),
+    instagramImageUrls: text("instagram_image_urls").array(),
+    spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
     instagramBufferPostId: text("instagram_buffer_post_id"),
@@ -570,6 +653,7 @@ const artistOfTheWeek = pgTable(
     interviewReminderSentAt: timestamp("interview_reminder_sent_at"),
     featureDayEmailSentAt: timestamp("feature_day_email_sent_at"),
     relatedNotifySentAt: timestamp("related_notify_sent_at"),
+    contentPreviewEmailSentAt: timestamp("content_preview_email_sent_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
   },
@@ -593,7 +677,9 @@ const publisherOfTheWeek = pgTable(
     weekStart: timestamp("week_start", { mode: "date" }).notNull(),
     creatorId: uuid("creator_id").notNull().references(() => creators.id, { onDelete: "cascade" }),
     emailSentAt: timestamp("email_sent_at"),
-    instagramImageUrl: text("instagram_image_url"),
+    featuredImageUrl: text("featured_image_url"),
+    instagramImageUrls: text("instagram_image_urls").array(),
+    spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
     instagramBufferPostId: text("instagram_buffer_post_id"),
@@ -634,6 +720,8 @@ const newsletterCampaigns = pgTable(
     introText: text("intro_text").notNull(),
     outroText: text("outro_text").notNull(),
     ctaText: text("cta_text").notNull(),
+    /** Absolute URL the CTA button links to. Null falls back to the app home. */
+    ctaHref: text("cta_href"),
     generatedContent: jsonb("generated_content").$type(),
     sentAt: timestamp("sent_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -649,7 +737,7 @@ const purchaseClicks = pgTable(
   "purchase_clicks",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    bookId: uuid("book_id").references(() => books.id).notNull(),
+    bookId: uuid("book_id").references(() => books.id, { onDelete: "cascade" }).notNull(),
     userId: uuid("user_id").references(() => users.id),
     source: purchaseClickSourceEnum("source").notNull().default("web"),
     referer: text("referer"),
@@ -674,7 +762,7 @@ const bookViews = pgTable(
   "book_views",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    bookId: uuid("book_id").references(() => books.id).notNull(),
+    bookId: uuid("book_id").references(() => books.id, { onDelete: "cascade" }).notNull(),
     userId: uuid("user_id").references(() => users.id),
     source: bookViewSourceEnum("source").notNull().default("web"),
     referer: text("referer"),
@@ -736,10 +824,12 @@ const bookFairs = pgTable(
     startDate: timestamp("start_date", { mode: "date" }).notNull(),
     endDate: timestamp("end_date", { mode: "date" }).notNull(),
     status: bookFairStatusEnum("status").notNull().default("draft"),
-    approvalStatus: bookFairApprovalStatusEnum("approval_status").notNull().default("pending"),
     listingTier: bookFairListingTierEnum("listing_tier").notNull().default("free"),
     promotedUntil: timestamp("promoted_until"),
     sortOrder: integer("sort_order"),
+    instagramQueuedAt: timestamp("instagram_queued_at"),
+    instagramBufferPostId: text("instagram_buffer_post_id"),
+    instagramError: text("instagram_error"),
     createdByUserId: uuid("created_by_user_id").notNull().references(() => users.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
@@ -842,6 +932,91 @@ const bookStoresRelations = relations(bookStores, ({ one }) => ({
     references: [users.id]
   })
 }));
+const magazineIssueStatusEnum = pgEnum("magazine_issue_status", [
+  "draft",
+  "approved",
+  "published"
+]);
+const magazineIssues = pgTable(
+  "magazine_issues",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    status: magazineIssueStatusEnum("status").default("draft").notNull(),
+    // Null until an approved issue is assigned a number.
+    issueNumber: integer("issue_number"),
+    slug: varchar("slug", { length: 255 }).notNull().unique(),
+    kicker: text("kicker"),
+    title: text("title").notNull(),
+    subtitle: text("subtitle"),
+    // The generated concept the issue was built around.
+    theme: text("theme"),
+    editorsLetterTitle: text("editors_letter_title"),
+    editorsLetter: text("editors_letter").array(),
+    coverUrl: text("cover_url"),
+    bannerUrl: text("banner_url"),
+    publishedLabel: text("published_label"),
+    readingMinutes: integer("reading_minutes"),
+    // Generation provenance (which seed/model produced a draft).
+    generationSeed: text("generation_seed"),
+    generationModel: text("generation_model"),
+    createdByUserId: uuid("created_by_user_id").references(() => users.id),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
+  },
+  (table) => ({
+    uniqueIssueNumber: unique("magazine_issues_issue_number_unique").on(
+      table.issueNumber
+    ),
+    statusIdx: index("magazine_issues_status_idx").on(table.status)
+  })
+);
+const magazineIssueBooks = pgTable(
+  "magazine_issue_books",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    issueId: uuid("issue_id").notNull().references(() => magazineIssues.id, { onDelete: "cascade" }),
+    bookId: uuid("book_id").notNull().references(() => books.id, { onDelete: "cascade" }),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    blurb: text("blurb"),
+    /** Admin-chosen image URL to feature for this book in the issue. Falls back
+     *  to the book's cover / first image when null. */
+    selectedImageUrl: text("selected_image_url"),
+    artistPrompt: text("artist_prompt"),
+    artistQuote: text("artist_quote"),
+    artistEmailSentAt: timestamp("artist_email_sent_at"),
+    createdAt: timestamp("created_at").defaultNow()
+  },
+  (table) => ({
+    uniqueIssueBook: unique("magazine_issue_books_issue_book_unique").on(
+      table.issueId,
+      table.bookId
+    ),
+    issueIdx: index("magazine_issue_books_issue_idx").on(table.issueId)
+  })
+);
+const magazineIssuesRelations = relations(
+  magazineIssues,
+  ({ one, many }) => ({
+    createdByUser: one(users, {
+      fields: [magazineIssues.createdByUserId],
+      references: [users.id]
+    }),
+    books: many(magazineIssueBooks)
+  })
+);
+const magazineIssueBooksRelations = relations(
+  magazineIssueBooks,
+  ({ one }) => ({
+    issue: one(magazineIssues, {
+      fields: [magazineIssueBooks.issueId],
+      references: [magazineIssues.id]
+    }),
+    book: one(books, {
+      fields: [magazineIssueBooks.bookId],
+      references: [books.id]
+    })
+  })
+);
 export {
   adminNotifications,
   artistOfTheWeek,
@@ -850,13 +1025,16 @@ export {
   bookAvailabilityStatusEnum,
   bookComments,
   bookCommentsRelations,
-  bookFairApprovalStatusEnum,
   bookFairListingTierEnum,
   bookFairStatusEnum,
   bookFairs,
   bookFairsRelations,
   bookImages,
   bookImagesRelations,
+  bookListItems,
+  bookListItemsRelations,
+  bookLists,
+  bookListsRelations,
   bookOfTheDay,
   bookOfTheDayRelations,
   bookPublicationStatusEnum,
@@ -871,6 +1049,8 @@ export {
   booksRelations,
   collectionItems,
   collectionItemsRelations,
+  collectorPosts,
+  collectorPostsRelations,
   creatorClaimStatusEnum,
   creatorClaims,
   creatorClaimsRelations,
@@ -902,6 +1082,11 @@ export {
   interviewTypeEnum,
   likes,
   likesRelations,
+  magazineIssueBooks,
+  magazineIssueBooksRelations,
+  magazineIssueStatusEnum,
+  magazineIssues,
+  magazineIssuesRelations,
   newsletterCampaignStatusEnum,
   newsletterCampaigns,
   publisherOfTheWeek,

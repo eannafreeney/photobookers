@@ -1,8 +1,10 @@
 import clsx from "clsx";
 import { bookIcon, feedIcon, libraryIcon } from "../../lib/icons";
+import type { AuthUser } from "../../../types";
 
 type DockProps = {
   currentPath?: string;
+  user?: AuthUser | null;
 };
 
 // Base styles for each nav item — mirrors .dock > * from DaisyUI source.
@@ -20,9 +22,10 @@ const itemActive = "after:w-10 after:bg-accent text-on-surface-strong";
 // Inactive: narrow transparent pill (keeps layout stable)
 const itemInactive = "after:w-6 after:bg-transparent text-on-surface-weak";
 
-const Dock = ({ currentPath }: DockProps) => {
+const Dock = ({ currentPath, user }: DockProps) => {
   const item = (path: string) =>
     clsx(itemBase, currentPath === path ? itemActive : itemInactive);
+  const showShelf = !user?.creator;
 
   return (
     <div
@@ -42,10 +45,12 @@ const Dock = ({ currentPath }: DockProps) => {
         {feedIcon}
         <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Feed</span>
       </a>
-      <a href="/shelf" class={item("/shelf")}>
-        {libraryIcon(5)}
-        <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Shelf</span>
-      </a>
+      {showShelf ? (
+        <a href="/shelf" class={item("/shelf")}>
+          {libraryIcon(5)}
+          <span class="text-[0.625rem] uppercase tracking-[0.12em] font-medium">Shelf</span>
+        </a>
+      ) : null}
     </div>
   );
 };

@@ -154,9 +154,11 @@ const OptionsComboBox = ({
                         /* @__PURE__ */ jsx(
                           "img",
                           {
-                            class: "size-8 rounded-full",
+                            "x-show": "item.img",
+                            "x-cloak": true,
+                            class: "size-8 rounded-full object-cover",
                             "x-bind:src": "item.img",
-                            alt: "Creator avatar"
+                            alt: ""
                           }
                         ),
                         /* @__PURE__ */ jsx("div", { class: "flex flex-col", children: /* @__PURE__ */ jsxs("span", { class: "inline-flex items-center gap-1.5", children: [

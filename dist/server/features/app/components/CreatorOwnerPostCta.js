@@ -1,5 +1,4 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
-import Banner from "../../../components/app/Banner.js";
 const CreatorOwnerPostCta = ({
   creatorSlug,
   postCount
@@ -11,25 +10,34 @@ const CreatorOwnerPostCta = ({
       "x-cloak": true,
       "x-data": `{ show: $persist(true).as('owner-post-cta-${creatorSlug}') }`,
       "x-show": "show",
-      children: /* @__PURE__ */ jsx(Banner, { type: "info", message, children: /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-3", children: [
-        /* @__PURE__ */ jsx(
-          "a",
-          {
-            href: "/dashboard/messages",
-            class: "shrink-0 text-sm font-medium text-accent hover:underline",
-            children: postCount === 0 ? "Write your first post" : "Write a post"
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            type: "button",
-            "x-on:click": "show = false",
-            class: "text-sm cursor-pointer hover:opacity-75",
-            children: "Dismiss"
-          }
-        )
-      ] }) })
+      children: /* @__PURE__ */ jsxs(
+        "div",
+        {
+          class: ` flex flex-col md:flex-row rounded-radius bg-info/10 text-on-surface py-4 px-16 items-center justify-center gap-4`,
+          children: [
+            /* @__PURE__ */ jsx("p", { class: "text-center text-sm text-pretty", children: message }),
+            /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsxs("div", { class: "flex flex-col md:flex-row items-center gap-3", children: [
+              /* @__PURE__ */ jsx(
+                "a",
+                {
+                  href: "/dashboard/messages",
+                  class: "shrink-0 text-sm font-medium text-accent hover:underline",
+                  children: postCount === 0 ? "Write your first post" : "Write a post"
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  "x-on:click": "show = false",
+                  class: "text-sm cursor-pointer hover:opacity-75",
+                  children: "Dismiss"
+                }
+              )
+            ] }) })
+          ]
+        }
+      )
     }
   );
 };

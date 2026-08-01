@@ -1,15 +1,9 @@
 import Alpine from "alpinejs";
+import {
+  buildBookCatalogFilterParams,
+  MIN_SEARCH_LENGTH
+} from "./bookFilterParams.js";
 const BOOKS_CATALOG_TARGET_ID = "books-catalog";
-const MIN_SEARCH_LENGTH = 3;
-const buildFilterParams = (ctx, options) => {
-  const params = new URLSearchParams();
-  if (ctx.tag) params.set("tag", ctx.tag);
-  const trimmed = ctx.query.trim();
-  if (trimmed.length >= ctx.minLen) params.set("q", trimmed);
-  if (ctx.sort !== ctx.defaultSort) params.set("sort", ctx.sort);
-  if (options?.includeFragment) params.set("fragment", "grid");
-  return params;
-};
 function registerBookFilters() {
   Alpine.data("bookFilters", (initial = {}) => {
     const ajaxPath = initial.ajaxPath ?? "/books";
@@ -28,11 +22,28 @@ function registerBookFilters() {
       minLen: MIN_SEARCH_LENGTH,
       refreshGrid() {
         const ctx = this;
-        const params = buildFilterParams(ctx, { includeFragment: true });
+        const params = buildBookCatalogFilterParams(
+          {
+            query: ctx.query,
+            tag: ctx.tag,
+            sort: ctx.sort,
+            defaultSort: ctx.defaultSort,
+            minLen: ctx.minLen
+          },
+          { includeFragment: true }
+        );
         ctx.$ajax(ajaxPath + "?" + params.toString(), {
           target: BOOKS_CATALOG_TARGET_ID
         });
-        replaceHistory(buildFilterParams(ctx));
+        replaceHistory(
+          buildBookCatalogFilterParams({
+            query: ctx.query,
+            tag: ctx.tag,
+            sort: ctx.sort,
+            defaultSort: ctx.defaultSort,
+            minLen: ctx.minLen
+          })
+        );
       },
       applyFilter(nextTag) {
         const ctx = this;
@@ -65,5 +76,7 @@ function registerBookFilters() {
 }
 export {
   BOOKS_CATALOG_TARGET_ID,
+  MIN_SEARCH_LENGTH,
+  buildBookCatalogFilterParams,
   registerBookFilters
 };

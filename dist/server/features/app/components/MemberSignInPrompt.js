@@ -3,15 +3,19 @@ import Button from "../../../components/app/Button.js";
 const memberSignInPrompts = {
   feed: {
     headline: "Sign in to see your feed",
-    hint: "Follow artists and publishers to get a personalised feed of their latest releases \u2014 free to join."
+    hint: "Follow artists and publishers to get a personalised feed of their latest releases and updates \u2014 free to join."
   },
-  library: {
-    headline: "Sign in to view your library",
-    hint: "Wishlist titles and keep track of your collection in one place. Create a free account to get started."
+  shelf: {
+    headline: "Sign in to view your shelf",
+    hint: "Favourite titles and keep track of your collection in one place. Create a free account to get started."
   },
   messages: {
     headline: "Sign in to read creator updates",
     hint: "Notes and announcements from artists and publishers appear here. Sign up to follow creators and stay in the loop."
+  },
+  profile: {
+    headline: "Sign in to edit your profile",
+    hint: "Manage your name and profile photo from your account. Create a free account or sign in to get started."
   }
 };
 const MemberSignInPrompt = ({ prompt, currentPath }) => {

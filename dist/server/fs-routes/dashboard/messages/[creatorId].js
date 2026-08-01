@@ -9,7 +9,7 @@ import { createMessageFormSchema } from "../../../features/dashboard/messages/sc
 import { removeInvalidImages, uploadImage } from "../../../services/storage.js";
 import Alert from "../../../components/app/Alert.js";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm.js";
-import CreatorMessages from "../../../features/app/components/CreatorMessages.js";
+import MessagesTable from "../../../features/dashboard/messages/components/MessagesTable.js";
 import { getUser } from "../../../utils.js";
 import { createMessageCreatedNotification } from "../../../domain/notifications/utils.js";
 const POST = createRoute(
@@ -30,7 +30,7 @@ const POST = createRoute(
     if (Array.isArray(rawImage)) {
       return showErrorAlert(c, "Only one image is allowed per message");
     }
-    let imageUrls = void 0;
+    let imageUrl = void 0;
     if (rawImage instanceof File && rawImage.size > 0) {
       const valid = removeInvalidImages(rawImage);
       if (!valid) {
@@ -42,7 +42,7 @@ const POST = createRoute(
           `creators/${creatorId}/messages`,
           "gallery"
         );
-        imageUrls = [uploaded.url];
+        imageUrl = uploaded.url;
       } catch (error) {
         console.error("message image upload failed", error);
         return showErrorAlert(c, "Failed to upload image");
@@ -50,7 +50,7 @@ const POST = createRoute(
     }
     const [err, message] = await createMessage(creatorId, {
       body: messageBody,
-      imageUrls
+      imageUrl
     });
     if (err) return showErrorAlert(c, err.reason);
     createMessageCreatedNotification(user, creator, message);
@@ -65,7 +65,7 @@ const POST = createRoute(
           }
         ),
         /* @__PURE__ */ jsx(MessageForm, { creatorId }),
-        /* @__PURE__ */ jsx(CreatorMessages, { creatorSlug: creator.slug, user })
+        /* @__PURE__ */ jsx(MessagesTable, { creatorId })
       ] })
     );
   }

@@ -22,9 +22,12 @@ import {
   HyperviewFavoriteInner,
 } from "../../../../features/hyperview/components/BookActions";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
-import { canWishlistBook } from "../../../../lib/permissions";
 import FavoriteButton from "../../../../features/api/components/FavouriteButton";
+import {
+  FavoritePopoverRow,
+} from "../../../../features/api/components/SaveToListButton";
 import { routeParam } from "../../../../lib/routeParam";
+import { canWishlistBook } from "../../../../lib/permissions";
 
 const updateShelfPage = () => "shelf:updated";
 
@@ -135,6 +138,7 @@ const postWishlistWeb = async (c: Context) => {
   const isCurrentlyFavorited = body.isFavorited === "true";
   const isCircleButton = body.buttonType === "circle";
   const shouldRefreshWishlist = body.shouldRefreshWishlist === "true";
+  const isPopover = body.variant === "popover";
 
   const isAddingToWishlist = !isCurrentlyFavorited;
 
@@ -156,10 +160,20 @@ const postWishlistWeb = async (c: Context) => {
     ? `${book.title} favorited`
     : `${book.title} unfavorited`;
 
+  const nowFavorited = isAddingToWishlist;
+
   return c.html(
     <>
       <Alert type="success" message={message} />
-      <FavoriteButton book={book} user={user} isCircleButton={isCircleButton} />
+      {isPopover ? (
+        <FavoritePopoverRow
+          bookId={bookId}
+          isFavorited={nowFavorited}
+          isDisabled={!canWishlistBook(user, book)}
+        />
+      ) : (
+        <FavoriteButton book={book} user={user} isCircleButton={isCircleButton} />
+      )}
       {shouldRefreshWishlist && dispatchEvents([updateShelfPage()])}
     </>,
   );

@@ -23,6 +23,7 @@ import FeatureGuard from "../../../../components/layouts/FeatureGuard.js";
 import { getFormValues } from "../../../../features/dashboard/creators/utils.js";
 import CreatorBookList from "../../../../features/dashboard/admin/creators/components/CreatorBookList.js";
 import StubOutreachStatus from "../../../../features/dashboard/admin/creators/components/StubOutreachStatus.js";
+import VerifyCreatorButton from "../../../../features/dashboard/admin/creators/components/VerifyCreatorButton.js";
 const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const user = await getUser(c);
   const creatorId = c.req.valid("param").creatorId;
@@ -79,7 +80,10 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
                   type: creator?.type
                 }
               ),
-              /* @__PURE__ */ jsx("div", { class: "mt-4", children: /* @__PURE__ */ jsx(StubOutreachStatus, { creator }) })
+              /* @__PURE__ */ jsxs("div", { class: "mt-4 flex flex-wrap items-center gap-3", children: [
+                /* @__PURE__ */ jsx(VerifyCreatorButton, { creator }),
+                /* @__PURE__ */ jsx(StubOutreachStatus, { creator })
+              ] })
             ] })
           ] }),
           /* @__PURE__ */ jsx(

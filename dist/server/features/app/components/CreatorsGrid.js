@@ -1,4 +1,5 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
+import GridPanel from "../../../components/app/GridPanel.js";
 import CreatorCard from "../../../components/app/CreatorCard.js";
 import ScrollReveal from "../../../components/app/ScrollReveal.js";
 import SectionTitle from "../../../components/app/SectionTitle.js";
@@ -14,7 +15,8 @@ const CreatorsGrid = async ({
   currentPage,
   pageParam,
   isMobile = false,
-  user = null
+  user = null,
+  isInfiniteScroll = false
 }) => {
   const [error, result] = await getCreatorsByCreatorId(
     creatorId,
@@ -26,14 +28,15 @@ const CreatorsGrid = async ({
   if (!creators) return /* @__PURE__ */ jsx(Fragment, {});
   if (creators.length === 0) return /* @__PURE__ */ jsx(Fragment, {});
   const targetId = `creators-grid-${creatorId}`;
+  const gridMerge = isMobile || isInfiniteScroll ? "append" : "replace";
   return /* @__PURE__ */ jsxs("section", { children: [
     title && /* @__PURE__ */ jsx(SectionTitle, { children: title }),
     /* @__PURE__ */ jsx(
-      "div",
+      GridPanel,
       {
         id: targetId,
-        "x-merge": "append",
-        class: isMobile ? void 0 : "grid grid-cols-2 md:grid-cols-4 gap-6",
+        xMerge: gridMerge,
+        "data-nav": isMobile || isInfiniteScroll ? "infinite" : "pagination",
         children: creators.map((creator) => /* @__PURE__ */ jsx(ScrollReveal, { children: isMobile ? /* @__PURE__ */ jsx(
           SpotlightCreatorLink,
           {
@@ -54,7 +57,7 @@ const CreatorsGrid = async ({
     /* @__PURE__ */ jsx(
       ListNavigation,
       {
-        isInfiniteScroll: true,
+        isInfiniteScroll,
         targetId,
         totalPages,
         page,

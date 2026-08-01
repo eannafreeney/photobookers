@@ -3,26 +3,38 @@ import FileUploadInput from "../../../../components/forms/FileUpload.js";
 import FormButtons from "../../../../components/forms/FormButtons.js";
 import TextArea from "../../../../components/forms/TextArea.js";
 import DragAndDropArea from "../../images/components/DragAndDropArea.js";
-const MessageForm = ({ creatorId }) => {
+const MessageForm = ({
+  creatorId,
+  messageId,
+  initialBody,
+  initialImageUrl
+}) => {
+  const isEdit = Boolean(messageId);
+  const formConfig = JSON.stringify({
+    body: initialBody ?? "",
+    previewUrl: initialImageUrl ?? null
+  });
   const alpineAttrs = {
-    "x-data": `messageForm()`,
+    "x-data": `messageForm(${formConfig})`,
     "x-on:submit": "submitForm($event)",
-    "x-target": `toast creator-messages creator-messages-${creatorId}`,
+    "x-target": "modal-root toast messages-table-body",
     "x-on:ajax:error": "isSubmitting = false",
-    "x-on:ajax:success": "onSuccess()"
+    "x-on:ajax:success": "onSuccess()",
+    "@ajax:after": "$dispatch('messages:updated'), $dispatch('dialog:close')"
   };
   return /* @__PURE__ */ jsxs("div", { children: [
-    /* @__PURE__ */ jsx("h2", { class: "text-lg font-semibold text-on-surface-strong", children: "Write a post" }),
+    !isEdit && /* @__PURE__ */ jsx("h2", { class: "text-lg font-semibold text-on-surface-strong", children: "Share what's new" }),
     /* @__PURE__ */ jsxs(
       "form",
       {
         id: "message-form",
         method: "post",
         enctype: "multipart/form-data",
-        action: `/dashboard/messages/${creatorId}`,
+        action: isEdit ? `/dashboard/messages/${creatorId}/${messageId}` : `/dashboard/messages/${creatorId}`,
         class: "flex flex-col gap-4",
         ...alpineAttrs,
         children: [
+          isEdit ? /* @__PURE__ */ jsx("input", { type: "hidden", name: "_method", value: "PATCH" }) : null,
           /* @__PURE__ */ jsx(
             TextArea,
             {
@@ -41,17 +53,23 @@ const MessageForm = ({ creatorId }) => {
               class: "w-full max-w-md rounded-radius object-cover border border-outline"
             }
           ) }),
-          /* @__PURE__ */ jsx(DragAndDropArea, {}),
+          /* @__PURE__ */ jsx(DragAndDropArea, { prompt: "Drag and drop or click here to upload an image." }),
           /* @__PURE__ */ jsx(
             FileUploadInput,
             {
-              label: "Add Images",
+              label: "Add image",
               name: "image",
               "x-on:change": "onFileChange($event)",
               "x-ref": "fileInput"
             }
           ),
-          /* @__PURE__ */ jsx(FormButtons, { buttonText: "Publish post", loadingText: "Publishing\u2026" })
+          /* @__PURE__ */ jsx(
+            FormButtons,
+            {
+              buttonText: isEdit ? "Save changes" : "Publish post",
+              loadingText: isEdit ? "Saving\u2026" : "Publishing\u2026"
+            }
+          )
         ]
       }
     )

@@ -5,14 +5,15 @@ import FormButton from "../../../components/forms/FormButtons.js";
 const ContactForm = () => {
   const alpineAttrs = {
     "x-data": "contactForm",
-    "x-target": "toast",
+    "x-target": "toast contact-form",
+    "x-target.error": "toast",
     "x-on:submit": "submitForm($event)",
-    "x-target.away": "_top",
     "x-on:ajax:error": "isSubmitting = false"
   };
   return /* @__PURE__ */ jsxs(
     "form",
     {
+      id: "contact-form",
       action: "/contact",
       method: "post",
       class: "flex flex-col gap-4 max-w-lg",
@@ -49,7 +50,7 @@ const ContactForm = () => {
             autocomplete: "off"
           }
         ),
-        /* @__PURE__ */ jsx("input", { type: "hidden", name: "ts", value: "${Date.now()}" }),
+        /* @__PURE__ */ jsx("input", { type: "hidden", name: "ts", value: Date.now() }),
         /* @__PURE__ */ jsx(FormButton, { buttonText: "Send message", loadingText: "Sending..." })
       ]
     }

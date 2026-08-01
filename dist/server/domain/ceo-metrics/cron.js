@@ -1,15 +1,15 @@
-import { formatAnalyticsDateRangeLabel } from "../../features/book-analytics/dateRange.js";
+import {
+  formatAnalyticsDateRangeLabel,
+  yesterdayAnalyticsDateRange
+} from "../../features/book-analytics/dateRange.js";
 import { sendAdminEmail } from "../../lib/sendEmail.js";
 import { err, ok } from "../../lib/result.js";
 import { buildCeoMetricsEmail, ceoMetricsEmailSubject } from "./emails.js";
-import { isMondayUtc } from "./format.js";
 import { getCeoMetricsSnapshot } from "./services.js";
 async function runCeoMetricsEmailCron(options = {}) {
   const runDate = options.date ?? /* @__PURE__ */ new Date();
-  if (!options.force && !isMondayUtc(runDate)) {
-    return ok({ action: "skipped", reason: "not_monday" });
-  }
-  const [metricsError, snapshot] = await getCeoMetricsSnapshot(null);
+  const metricsRange = yesterdayAnalyticsDateRange(runDate);
+  const [metricsError, snapshot] = await getCeoMetricsSnapshot(metricsRange);
   if (metricsError) return err(metricsError);
   const rangeLabel = formatAnalyticsDateRangeLabel(snapshot.range);
   const subject = ceoMetricsEmailSubject(rangeLabel);

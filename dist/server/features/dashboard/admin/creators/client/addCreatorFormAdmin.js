@@ -29,7 +29,7 @@ function registerAddCreatorFormAdmin() {
       },
       get isFormValid() {
         const ctx = this;
-        return !!(ctx.isDirty && Object.values(ctx.errors.form).every((err) => !err) && ctx.form.displayName && ctx.form.type && ctx.form.website && !ctx.displayNameIsTaken && !ctx.websiteIsTaken);
+        return !!(ctx.isDirty && Object.values(ctx.errors.form).every((err) => !err) && ctx.form.displayName && ctx.form.type && !ctx.displayNameIsTaken && (ctx.form.website ? !ctx.websiteIsTaken : true));
       },
       submitForm(event) {
         return handleSubmit(this, event, creatorFormAdminSchema);

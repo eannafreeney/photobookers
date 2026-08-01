@@ -37,7 +37,7 @@ const GET = createRoute(paramValidator(slugSchema), async (c) => {
       404
     );
   }
-  const isPublished = fair.status === "published" && fair.approvalStatus === "approved";
+  const isPublished = fair.status === "published";
   if (!isPublished && !user?.isAdmin) {
     return hv(
       /* @__PURE__ */ jsx(ErrorScreen, { user, baseUrl, message: "Fair not found" }),

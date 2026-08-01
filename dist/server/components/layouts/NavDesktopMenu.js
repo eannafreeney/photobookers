@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { useUser } from "../../contexts/UserContext.js";
 import Button from "../app/Button.js";
 import NavAvatar from "../app/NavAvatar.js";
+import FeatureGuard from "./FeatureGuard.js";
 const NavDesktopMenu = ({ currentPath }) => {
   const user = useUser();
   return /* @__PURE__ */ jsxs("ul", { class: "hidden items-center gap-4 shrink-0 sm:flex", children: [
@@ -90,7 +91,13 @@ const DropDownMenu = ({
           /* @__PURE__ */ jsx("span", { class: "text-sm font-medium text-on-surface-strong dark:text-on-surface-dark-strong", children: user?.firstName && user?.lastName ? `${user?.firstName} ${user?.lastName}` : `${user.creator?.displayName}` }),
           /* @__PURE__ */ jsx("p", { class: "text-xs text-on-surface dark:text-on-surface-dark", children: user?.email })
         ] }) }),
-        user?.id && !user.creator && /* @__PURE__ */ jsx(NavLink, { href: `/users/${user?.id}/update`, xTarget: "modal-root", children: "Edit Profile" }),
+        user?.id && !user.creator && /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx(NavLink, { href: `/users/${user?.id}/edit`, currentPath, children: "Edit Profile" }),
+          /* @__PURE__ */ jsxs(FeatureGuard, { flagName: "collectors", children: [
+            /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }),
+            /* @__PURE__ */ jsx(NavLink, { href: "/followed-collectors", currentPath, children: "Collectors I Follow" })
+          ] })
+        ] }),
         user.creator?.id && /* @__PURE__ */ jsxs(Fragment, { children: [
           /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }),
           /* @__PURE__ */ jsx(
@@ -111,7 +118,6 @@ const DropDownMenu = ({
           }
         ),
         user && /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsx(NavLink, { href: "/followed-creators", currentPath, children: "Creators I Follow" }),
           /* @__PURE__ */ jsx(
             NavLink,
             {

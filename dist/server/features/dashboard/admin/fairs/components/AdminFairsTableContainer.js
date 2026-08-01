@@ -7,8 +7,7 @@ import AdminFairsTableAndFilter from "./AdminFairsTableAndFilter.js";
 const AdminFairsTableContainer = async ({
   currentPath,
   currentPage,
-  searchQuery,
-  user
+  searchQuery
 }) => {
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
     /* @__PURE__ */ jsx(SectionTitle, { children: "Book Fairs" }),
@@ -26,7 +25,6 @@ const AdminFairsTableContainer = async ({
     /* @__PURE__ */ jsx(
       AdminFairsTableAndFilter,
       {
-        user,
         currentPath,
         currentPage,
         searchQuery

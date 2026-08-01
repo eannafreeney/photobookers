@@ -8,6 +8,8 @@ import Button from "../../../../../components/app/Button.js";
 import FormDelete from "../../../../../components/forms/FormDelete.js";
 import { deleteIcon } from "../../../../../lib/icons.js";
 import InterviewStatusForm from "./InterviewStatusForm.js";
+import InterviewPublishToggleForm from "./InterviewPublishToggleForm.js";
+import { deleteRowAttrs } from "../../../../../lib/utils.js";
 const interviewStatusLabel = (status) => {
   switch (status) {
     case "published":
@@ -51,6 +53,7 @@ const InterviewsTableAndFilter = async ({
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Creator" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Recipient" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Status" }),
+            /* @__PURE__ */ jsx(Table.HeadRow, { children: "Published" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Sent" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Completed" }),
             /* @__PURE__ */ jsx(Table.HeadRow, { children: "Promo image" }),
@@ -75,16 +78,11 @@ var InterviewsTableAdmin_default = InterviewsTableAndFilter;
 const InterviewTableRow = ({
   interview
 }) => {
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()"
-  };
   return /* @__PURE__ */ jsxs("tr", { children: [
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Link, { href: `/interviews/view/${interview.id}`, target: "_blank", children: interview.creator.displayName }) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: interview.recipientEmail }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: interviewStatusLabel(interview.status) }),
+    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx("span", { id: `interview-status-${interview.id}`, children: interviewStatusLabel(interview.status) }) }),
+    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(InterviewPublishToggleForm, { interview }) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: interview.invitedAt ? formatDate(interview.invitedAt) : "-" }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: interview.completedAt ? formatDate(interview.completedAt) : "-" }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: interview.promoImageUrl ? /* @__PURE__ */ jsx(
@@ -95,15 +93,24 @@ const InterviewTableRow = ({
         class: "w-16 h-16 object-cover rounded"
       }
     ) : "-" }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx("a", { href: `/dashboard/admin/interviews/${interview.id}`, target: "_blank", children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "inverse", children: /* @__PURE__ */ jsx("span", { children: "Edit" }) }) }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
-      FormDelete,
-      {
-        action: `/dashboard/admin/interviews/${interview.id}`,
-        ...alpineAttrs,
-        children: /* @__PURE__ */ jsx("button", { type: "submit", class: "cursor-pointer hover:text-red-500", children: deleteIcon })
-      }
-    ) })
+    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2", children: [
+      /* @__PURE__ */ jsx(
+        "a",
+        {
+          href: `/dashboard/admin/interviews/${interview.id}`,
+          target: "_blank",
+          children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "inverse", children: /* @__PURE__ */ jsx("span", { children: "Edit" }) })
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        FormDelete,
+        {
+          action: `/dashboard/admin/interviews/${interview.id}`,
+          ...deleteRowAttrs,
+          children: /* @__PURE__ */ jsx("button", { type: "submit", class: "cursor-pointer hover:text-red-500", children: deleteIcon })
+        }
+      )
+    ] }) })
   ] }, interview.id);
 };
 export {

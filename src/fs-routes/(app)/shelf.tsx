@@ -7,8 +7,11 @@ import MemberSignInPrompt, {
   memberSignInPrompts,
 } from "../../features/app/components/MemberSignInPrompt";
 import ShelfSharingPanel from "../../features/app/components/ShelfSharingPanel";
+import PrivateShelfListsStrip from "../../features/app/components/PrivateShelfListsStrip";
 import { getBooksInWishlist } from "../../features/app/services";
 import { suggestShelfSlug } from "../../domain/shelf/services";
+import { userCanHaveShelf } from "../../domain/shelf/utils";
+import { listBookListsWithCounts } from "../../domain/lists/services";
 import InfoPage from "../../pages/InfoPage";
 import PageHeader from "../../components/app/PageHeader";
 
@@ -44,6 +47,13 @@ export const GET = createRoute(async (c) => {
     );
   }
 
+  if (!userCanHaveShelf(user)) {
+    return c.html(
+      <InfoPage errorMessage="Not found" user={user} />,
+      404,
+    );
+  }
+
   const [wishlistError, wishlistResult] = await getBooksInWishlist(
     user.id,
     currentPage,
@@ -62,6 +72,7 @@ export const GET = createRoute(async (c) => {
   }
 
   const suggestedSlug = await suggestShelfSlug(user.id);
+  const lists = await listBookListsWithCounts(user.id);
 
   const alpineAttrs = {
     "x-init": true,
@@ -92,6 +103,11 @@ export const GET = createRoute(async (c) => {
             intro="The books you’ve favorited, all in one place."
           />
           <ShelfSharingPanel user={user} suggestedSlug={suggestedSlug} />
+          <PrivateShelfListsStrip
+            lists={lists}
+            shelfSlug={user.shelfSlug}
+            shelfPublic={user.shelfPublic}
+          />
           <BooksGrid
             user={user}
             currentPath={currentPath}

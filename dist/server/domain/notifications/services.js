@@ -1,12 +1,21 @@
-import { count, eq } from "drizzle-orm";
+import { and, count, eq, isNull, notInArray, or } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import {
-  adminNotifications
+  adminNotifications,
+  users
 } from "../../db/schema.js";
 import { getPagination } from "../../lib/pagination.js";
 import { err, ok } from "../../lib/result.js";
 import { sendAdminEmail } from "../../lib/sendEmail.js";
-import { generateBookPendingReviewEmail } from "./emails.js";
+import {
+  generateBookPendingReviewEmail,
+  generateInterviewSubmittedEmail,
+  generateNewClaimAdminEmail
+} from "./emails.js";
+function formatClaimantName(input) {
+  const fullName = [input.firstName, input.lastName].filter((part) => part?.trim()).join(" ").trim();
+  return fullName || input.email;
+}
 const createAdminNotification = async (input) => {
   try {
     const [row] = await db.insert(adminNotifications).values(input).returning();
@@ -15,6 +24,19 @@ const createAdminNotification = async (input) => {
     console.error("Failed to create admin notification", error);
     return err({ reason: "Failed to create admin notification", cause: error });
   }
+};
+const notifyAdminBookPendingReviewWhenReady = async (input) => {
+  const book = await db.query.books.findFirst({
+    where: (t, { eq: eq2 }) => eq2(t.id, input.bookId),
+    columns: { approvalStatus: true, coverUrl: true, title: true }
+  });
+  if (!book || book.approvalStatus !== "pending" || !book.coverUrl) return;
+  await notifyAdminBookPendingReview({
+    bookId: input.bookId,
+    title: book.title,
+    actorUserId: input.actorUserId,
+    isResubmit: input.isResubmit
+  });
 };
 const notifyAdminBookPendingReview = async (input) => {
   const result = await createAdminNotification({
@@ -51,6 +73,83 @@ const notifyAdminBookPendingReview = async (input) => {
     );
   }
 };
+const notifyAdminNewClaim = async (claim) => {
+  const creator = await db.query.creators.findFirst({
+    where: (t, { eq: eq2 }) => eq2(t.id, claim.creatorId),
+    columns: { displayName: true }
+  });
+  const user = await db.query.users.findFirst({
+    where: (t, { eq: eq2 }) => eq2(t.id, claim.userId),
+    columns: { email: true, firstName: true, lastName: true }
+  });
+  if (!creator || !user?.email) {
+    console.error("notifyAdminNewClaim failed: missing creator or claimant", {
+      claimId: claim.id,
+      creatorId: claim.creatorId,
+      userId: claim.userId
+    });
+    return;
+  }
+  const claimantName = formatClaimantName(user);
+  const reviewUrl = `${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/admin/claims`;
+  const result = await createAdminNotification({
+    type: "creator_claimed",
+    title: "Creator claimed",
+    body: `${claimantName} claimed the creator: "${creator.displayName}"`,
+    targetUrl: reviewUrl,
+    actorUserId: claim.userId,
+    isRead: false
+  });
+  if (result[0]) {
+    console.error("notifyAdminNewClaim failed:", result[0].reason, result[0]);
+  }
+  const subject = claim.status === "pending_admin_review" ? `New creator claim pending review: ${creator.displayName}` : `New creator claim (auto-approved): ${creator.displayName}`;
+  const [emailError] = await sendAdminEmail(
+    subject,
+    generateNewClaimAdminEmail({
+      creatorName: creator.displayName,
+      claimantName,
+      claimantEmail: user.email,
+      status: claim.status,
+      reviewUrl
+    })
+  );
+  if (emailError) {
+    console.error("notifyAdminNewClaim email failed:", emailError.reason, emailError);
+  }
+};
+const notifyAdminInterviewSubmitted = async (input) => {
+  const targetUrl = `/dashboard/admin/interviews/${input.interviewId}`;
+  const result = await createAdminNotification({
+    type: "interview_submitted",
+    title: "Interview submitted",
+    body: `${input.creatorName} submitted their interview`,
+    targetUrl
+  });
+  if (result[0]) {
+    console.error(
+      "notifyAdminInterviewSubmitted failed:",
+      result[0].reason,
+      result[0]
+    );
+  }
+  const siteUrl = process.env.SITE_URL ?? "https://photobookers.com";
+  const reviewUrl = `${siteUrl}${targetUrl}`;
+  const [emailError] = await sendAdminEmail(
+    `Interview submitted: ${input.creatorName}`,
+    generateInterviewSubmittedEmail({
+      creatorName: input.creatorName,
+      reviewUrl
+    })
+  );
+  if (emailError) {
+    console.error(
+      "notifyAdminInterviewSubmitted email failed:",
+      emailError.reason,
+      emailError
+    );
+  }
+};
 const notifyAdminFairAttendancePending = async (input) => {
   const result = await createAdminNotification({
     type: "fair_attendance_pending",
@@ -81,9 +180,17 @@ const notifyAdminFairAttendancePending = async (input) => {
     );
   }
 };
+const notAdminActorCondition = () => or(
+  isNull(adminNotifications.actorUserId),
+  notInArray(
+    adminNotifications.actorUserId,
+    db.select({ id: users.id }).from(users).where(eq(users.isAdmin, true))
+  )
+);
 const getAdminNotifications = async (currentPage, defaultLimit = 30) => {
   try {
     const rows = await db.query.adminNotifications.findMany({
+      where: notAdminActorCondition(),
       orderBy: (t, { desc: desc2 }) => [desc2(t.createdAt)]
     });
     const totalCount = rows.length;
@@ -104,7 +211,9 @@ const getAdminNotifications = async (currentPage, defaultLimit = 30) => {
 };
 const getUnreadAdminNotificationsCount = async () => {
   try {
-    const [row] = await db.select({ value: count() }).from(adminNotifications).where(eq(adminNotifications.isRead, false));
+    const [row] = await db.select({ value: count() }).from(adminNotifications).where(
+      and(eq(adminNotifications.isRead, false), notAdminActorCondition())
+    );
     return ok(Number(row?.value ?? 0));
   } catch (error) {
     return err({
@@ -139,5 +248,8 @@ export {
   markAdminNotificationRead,
   markAllAdminNotificationsRead,
   notifyAdminBookPendingReview,
-  notifyAdminFairAttendancePending
+  notifyAdminBookPendingReviewWhenReady,
+  notifyAdminFairAttendancePending,
+  notifyAdminInterviewSubmitted,
+  notifyAdminNewClaim
 };

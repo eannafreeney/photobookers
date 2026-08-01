@@ -28,7 +28,6 @@ const AdminAnalyticsPanel = async ({
   followsPaginationBaseUrl,
   followsPage
 }) => {
-  const bookDateRange = dateRange ?? chartRange;
   return /* @__PURE__ */ jsxs(
     "div",
     {
@@ -52,7 +51,7 @@ const AdminAnalyticsPanel = async ({
         tab === "overview" ? /* @__PURE__ */ jsx(CeoMetricsBlock, { dateRange }) : tab === "books" ? /* @__PURE__ */ jsx(
           BookAnalyticsBlock,
           {
-            dateRange: bookDateRange,
+            dateRange,
             viewsPaginationBaseUrl,
             viewsPage,
             bookPaginationBaseUrl,

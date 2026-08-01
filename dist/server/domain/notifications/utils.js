@@ -51,9 +51,9 @@ const createBookCollectedNotification = async (user, book) => await createAdminN
   actorUserId: user.id
 });
 const createBookWishlistedNotification = async (user, book) => await createAdminNotification({
-  type: "book_wishlisted",
-  title: "Book wishlisted",
-  body: `${formatNotificationActorName(user)} wishlisted the book: "${book.title}"`,
+  type: "book_favourited",
+  title: "Book favourited",
+  body: `${formatNotificationActorName(user)} favourited the book: "${book.title}"`,
   targetUrl: `/books/${book.slug}`,
   actorUserId: user.id
 });
@@ -78,6 +78,13 @@ const createCreatorFollowedNotification = async (user, creator) => await createA
   targetUrl: `/creators/${creator.slug}`,
   actorUserId: user.id
 });
+const createCollectorFollowedNotification = async (actor, target) => await createAdminNotification({
+  type: "collector_followed",
+  title: "Collector followed",
+  body: `${formatNotificationActorName(actor)} followed the collector: "${formatNotificationActorName(target)}"`,
+  targetUrl: target.shelfSlug ? `/shelf/${target.shelfSlug}` : `/dashboard/admin/users/${target.id}`,
+  actorUserId: actor.id
+});
 const createUserVerifiedNotification = async (welcomeName, user) => await createAdminNotification({
   type: "user_verified",
   title: "User verified",
@@ -85,22 +92,16 @@ const createUserVerifiedNotification = async (welcomeName, user) => await create
   targetUrl: `/dashboard/admin/users/${user.id}`,
   actorUserId: user.id
 });
-const createInterviewSubmittedNotification = async (creator) => await createAdminNotification({
-  type: "interview_submitted",
-  title: "Interview submitted",
-  body: `${creator.displayName} submitted their interview`,
-  targetUrl: `/dashboard/admin/interviews`
-});
 export {
   createBookCollectedNotification,
   createBookLikedNotification,
   createBookPublishedNotification,
   createBookWishlistedNotification,
+  createCollectorFollowedNotification,
   createCommentCreatedNotification,
   createCommentUpdatedNotification,
   createCreatorClaimedNotification,
   createCreatorFollowedNotification,
-  createInterviewSubmittedNotification,
   createMessageCreatedNotification,
   createNewPublisherNotification,
   createUserVerifiedNotification

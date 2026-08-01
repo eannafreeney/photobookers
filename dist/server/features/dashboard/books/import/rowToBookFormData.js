@@ -3,7 +3,8 @@ function rowToBookFormData(row, creatorType) {
     title: row.title,
     description: row.description || void 0,
     release_date: row.release_date || void 0,
-    tags: row.tags || void 0,
+    // Manual form requires tags; bulk import keeps them optional (empty → no tags).
+    tags: row.tags || "",
     purchase_link: row.purchase_link || void 0,
     availability_status: row.availability_status,
     send_email_to_followers_on_release: false

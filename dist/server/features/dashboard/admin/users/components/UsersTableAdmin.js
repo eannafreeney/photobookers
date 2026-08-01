@@ -10,6 +10,7 @@ import { InfiniteScroll } from "../../../../../components/app/InfiniteScroll.js"
 import FormDelete from "../../../../../components/forms/FormDelete.js";
 import { deleteIcon } from "../../../../../lib/icons.js";
 import ResetUserPasswordButton from "./ResetUserPasswordButton.js";
+import { deleteRowAttrs } from "../../../../../lib/utils.js";
 const UsersTableAdmin = async ({
   searchQuery,
   currentPage,
@@ -37,7 +38,7 @@ const UsersTableAdmin = async ({
             {
               target: "users-table-container",
               action: "/dashboard/admin/users",
-              placeholder: "Filter users..."
+              placeholder: "Search by name or email..."
             }
           ),
           /* @__PURE__ */ jsx(Link, { href: "/dashboard/users/new", children: /* @__PURE__ */ jsx(Button, { variant: "solid", color: "primary", children: "New" }) })
@@ -70,12 +71,6 @@ const UsersTableAdmin = async ({
 var UsersTableAdmin_default = UsersTableAdmin;
 const UserTableRow = ({ user }) => {
   if (!user) return /* @__PURE__ */ jsx(Fragment, {});
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()"
-  };
   return /* @__PURE__ */ jsxs("tr", { children: [
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
       "input",
@@ -87,23 +82,23 @@ const UserTableRow = ({ user }) => {
         class: "cursor-pointer"
       }
     ) }),
-    /* @__PURE__ */ jsxs(Table.BodyRow, { children: [
+    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsxs(Link, { href: `/dashboard/admin/users/${user.id}`, children: [
       user.firstName,
       " ",
       user.lastName
-    ] }),
+    ] }) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: user.email }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Link, { href: `/creators/${user.creators[0]?.slug}`, target: "_blank", children: user.creators[0]?.displayName }) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Link, { href: `/creators/${user.creators[0]?.slug}`, target: "_blank", children: user.creators[0]?.status && /* @__PURE__ */ jsx(CreatorStatusBadge, { creatorStatus: user.creators[0]?.status }) }) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2", children: [
-      /* @__PURE__ */ jsx(Link, { href: `/dashboard/admin/users/${user.id}`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "inverse", children: /* @__PURE__ */ jsx("span", { children: "View" }) }) }),
+      /* @__PURE__ */ jsx(Link, { href: `/dashboard/admin/users/${user.id}`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "inverse", children: /* @__PURE__ */ jsx("span", { children: "Edit" }) }) }),
       /* @__PURE__ */ jsx(ResetUserPasswordButton, { userId: user.id })
     ] }) }),
     /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
       FormDelete,
       {
         action: `/dashboard/admin/users/${user.id}`,
-        ...alpineAttrs,
+        ...deleteRowAttrs,
         children: /* @__PURE__ */ jsx("button", { type: "submit", class: "cursor-pointer hover:text-red-500", children: deleteIcon })
       }
     ) })

@@ -5,11 +5,11 @@ import { toDateString } from "../../../../../lib/utils.js";
 import {
   collectBookImageOptions,
   collectCreatorImageOptions
-} from "../instagramCaption.js";
+} from "../social-media/instagramCaption.js";
 import {
   INSTAGRAM_SPOTLIGHT_AOTW_KEY,
   INSTAGRAM_SPOTLIGHT_POTW_KEY
-} from "../instagramUtils.js";
+} from "../social-media/instagramUtils.js";
 import { formatDayLabel } from "../utils.js";
 const FeaturedHeroImagesModal = ({
   week,
@@ -27,8 +27,11 @@ const FeaturedHeroImagesModal = ({
   const hasContent = entries.length > 0 || artistOfTheWeek || publisherOfTheWeek;
   const artistCreator = artistOfTheWeek?.creator ?? null;
   const publisherCreator = publisherOfTheWeek?.creator ?? null;
-  return /* @__PURE__ */ jsx(Modal, { title: `Featured hero images \u2013 week ${week}`, maxWidth: "max-w-2xl", children: !hasContent ? /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: "Schedule books of the day, artist of the week, or publisher of the week before choosing featured hero images." }) : /* @__PURE__ */ jsxs("div", { children: [
-    /* @__PURE__ */ jsx("p", { class: "mb-4 text-sm text-on-surface", children: "These images appear in the featured page hero carousel and on spotlight pages. Instagram posts use the same image when prepared." }),
+  if (!hasContent) {
+    return /* @__PURE__ */ jsx(Modal, { title: `Featured hero images \u2013 week ${week}`, maxWidth: "max-w-2xl", children: /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: "Schedule books of the day, artist of the week, or publisher of the week before choosing featured hero images." }) });
+  }
+  return /* @__PURE__ */ jsx(Modal, { title: `Featured hero images \u2013 week ${week}`, maxWidth: "max-w-2xl", children: /* @__PURE__ */ jsxs("div", { children: [
+    /* @__PURE__ */ jsx("p", { class: "mb-4 text-sm text-on-surface", children: "These images appear in the featured page hero carousel and on spotlight pages. Instagram posts use the same featured image when prepared." }),
     /* @__PURE__ */ jsxs(
       FormPost,
       {
@@ -42,7 +45,7 @@ const FeaturedHeroImagesModal = ({
               const book = entry.book;
               if (!book) return null;
               const imageOptions = collectBookImageOptions(book);
-              const selectedImage = entry.instagramImageUrl ?? imageOptions[0] ?? "";
+              const selectedImage = entry.featuredImageUrl ?? imageOptions[0] ?? "";
               return /* @__PURE__ */ jsx(
                 HeroImageSection,
                 {
@@ -65,7 +68,7 @@ const FeaturedHeroImagesModal = ({
                   artistCreator,
                   artistBookCoverUrls
                 ),
-                selectedImage: artistOfTheWeek.instagramImageUrl ?? collectCreatorImageOptions(
+                selectedImage: artistOfTheWeek.featuredImageUrl ?? collectCreatorImageOptions(
                   artistCreator,
                   artistBookCoverUrls
                 )[0] ?? ""
@@ -82,7 +85,7 @@ const FeaturedHeroImagesModal = ({
                   publisherCreator,
                   publisherBookCoverUrls
                 ),
-                selectedImage: publisherOfTheWeek.instagramImageUrl ?? collectCreatorImageOptions(
+                selectedImage: publisherOfTheWeek.featuredImageUrl ?? collectCreatorImageOptions(
                   publisherCreator,
                   publisherBookCoverUrls
                 )[0] ?? ""

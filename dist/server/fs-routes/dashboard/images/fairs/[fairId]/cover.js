@@ -4,12 +4,20 @@ import {
   validateImageFile
 } from "../../../../../lib/validator.js";
 import { fairIdSchema } from "../../../../../features/dashboard/admin/fairs/schema.js";
-import { showErrorAlert, showSuccessAlert } from "../../../../../lib/alertHelpers.js";
+import {
+  showErrorAlert,
+  showSuccessAlert
+} from "../../../../../lib/alertHelpers.js";
 import { uploadImage } from "../../../../../services/storage.js";
 import { updateFairCoverImage } from "../../../../../features/dashboard/images/services.js";
+import { getUser } from "../../../../../utils.js";
 const POST = createRoute(
   paramValidator(fairIdSchema),
   async (c) => {
+    const user = await getUser(c);
+    if (!user?.isAdmin) {
+      return showErrorAlert(c, "You are not authorized to do this.", 403);
+    }
     const fairId = c.req.valid("param").fairId;
     const body = await c.req.parseBody();
     const validatedFile = validateImageFile(body.cover);

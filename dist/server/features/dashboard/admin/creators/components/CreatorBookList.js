@@ -18,6 +18,7 @@ import {
 import ListNavigation from "../../../../app/components/ListNavigation.js";
 import PublishToggleForm from "../../../books/components/PublishToggleForm.js";
 import { getBooksByCreatorId } from "../services.js";
+import { deleteRowAttrs } from "../../../../../lib/utils.js";
 const reorderHandleAttrs = {
   draggable: true,
   "@dragstart": "onReorderDragStart($event, $el.closest('tr'))",
@@ -111,15 +112,22 @@ const CreatorBookList = async ({
         /* @__PURE__ */ jsx(Table.HeadRow, { children: "Publish" }),
         /* @__PURE__ */ jsx(Table.HeadRow, { children: "Actions" })
       ] }) }),
-      /* @__PURE__ */ jsx(Table.Body, { id: targetId, xMerge: reorderEnabled ? void 0 : "append", children: books.map((book) => /* @__PURE__ */ jsx(
-        BookTableRow,
+      /* @__PURE__ */ jsx(
+        Table.Body,
         {
-          book,
-          user,
-          funnel: funnelCounts.get(book.id) ?? emptyFunnel,
-          reorderEnabled
+          id: targetId,
+          xMerge: reorderEnabled ? void 0 : "append",
+          children: books.map((book) => /* @__PURE__ */ jsx(
+            BookTableRow,
+            {
+              book,
+              user,
+              funnel: funnelCounts.get(book.id) ?? emptyFunnel,
+              reorderEnabled
+            }
+          ))
         }
-      )) })
+      )
     ] }) }),
     !reorderEnabled && totalPages > 1 ? /* @__PURE__ */ jsx(
       ListNavigation,
@@ -134,65 +142,61 @@ const CreatorBookList = async ({
   ] });
 };
 var CreatorBookList_default = CreatorBookList;
-const BookTableRow = ({
-  book,
-  user,
-  funnel,
-  reorderEnabled
-}) => {
+const BookTableRow = ({ book, user, funnel, reorderEnabled }) => {
   if (!book || !book.id || !book.slug || !book.title) {
     return /* @__PURE__ */ jsx(Fragment, {});
   }
-  const alpineAttrs = {
-    "x-init": "true",
-    "x-target": "toast",
-    "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('tr').remove()"
-  };
-  return /* @__PURE__ */ jsxs("tr", { ...{ "data-book-id": book.id }, ...reorderEnabled ? reorderRowAttrs : {}, children: [
-    reorderEnabled ? /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
-      "div",
-      {
-        class: "flex items-center justify-center text-on-surface/50 cursor-grab active:cursor-grabbing",
-        "aria-label": "Drag to reorder",
-        ...reorderHandleAttrs,
-        children: dragHandleIcon()
-      }
-    ) }) : null,
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: book.coverUrl ? /* @__PURE__ */ jsx("img", { src: book.coverUrl ?? "", alt: book.title, class: "w-auto h-12" }) : /* @__PURE__ */ jsx("a", { href: `/dashboard/books/${book.id}#book-images`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "warning", children: /* @__PURE__ */ jsx("span", { children: "Upload Cover" }) }) }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
-      Link,
-      {
-        href: book.publicationStatus === "published" ? `/books/${book.slug}` : `/books/preview/${book.slug}`,
-        children: book.title
-      }
-    ) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Link, { href: `/creators/${book.artist?.slug}`, children: book.artist?.displayName }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Link, { href: `/creators/${book.publisher?.slug}`, children: book.publisher?.displayName ?? "" }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.views }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.favorites }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.outboundClicks }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: book.releaseDate ? book.releaseDate.toISOString().slice(0, 10).split("-").reverse().join("/") : "" }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(PublishToggleForm, { book, user }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(PreviewButton, { book, user }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx("a", { href: `/dashboard/admin/books/${book.id}`, children: /* @__PURE__ */ jsx(
-      Button,
-      {
-        variant: "outline",
-        color: "inverse",
-        disabled: !canEditBook(user, book),
-        children: /* @__PURE__ */ jsx("span", { children: "Edit" })
-      }
-    ) }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
-      FormDelete,
-      {
-        action: `/dashboard/admin/books/${book.id}`,
-        ...alpineAttrs,
-        children: /* @__PURE__ */ jsx("button", { type: "submit", class: "cursor-pointer hover:text-red-500", children: deleteIcon })
-      }
-    ) })
-  ] });
+  return /* @__PURE__ */ jsxs(
+    "tr",
+    {
+      ...{ "data-book-id": book.id },
+      ...reorderEnabled ? reorderRowAttrs : {},
+      children: [
+        reorderEnabled ? /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
+          "div",
+          {
+            class: "flex items-center justify-center text-on-surface/50 cursor-grab active:cursor-grabbing",
+            "aria-label": "Drag to reorder",
+            ...reorderHandleAttrs,
+            children: dragHandleIcon()
+          }
+        ) }) : null,
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: book.coverUrl ? /* @__PURE__ */ jsx("img", { src: book.coverUrl ?? "", alt: book.title, class: "w-auto h-12" }) : /* @__PURE__ */ jsx("a", { href: `/dashboard/books/${book.id}#book-images`, children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "warning", children: /* @__PURE__ */ jsx("span", { children: "Upload Cover" }) }) }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
+          Link,
+          {
+            href: book.publicationStatus === "published" ? `/books/${book.slug}` : `/books/preview/${book.slug}`,
+            children: book.title
+          }
+        ) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Link, { href: `/creators/${book.artist?.slug}`, children: book.artist?.displayName }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Link, { href: `/creators/${book.publisher?.slug}`, children: book.publisher?.displayName ?? "" }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.views }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.favorites }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.outboundClicks }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: book.releaseDate ? book.releaseDate.toISOString().slice(0, 10).split("-").reverse().join("/") : "" }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(PublishToggleForm, { book, user }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(PreviewButton, { book, user }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx("a", { href: `/dashboard/admin/books/${book.id}`, children: /* @__PURE__ */ jsx(
+          Button,
+          {
+            variant: "outline",
+            color: "inverse",
+            disabled: !canEditBook(user, book),
+            children: /* @__PURE__ */ jsx("span", { children: "Edit" })
+          }
+        ) }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
+          FormDelete,
+          {
+            action: `/dashboard/admin/books/${book.id}`,
+            ...deleteRowAttrs,
+            children: /* @__PURE__ */ jsx("button", { type: "submit", class: "cursor-pointer hover:text-red-500", children: deleteIcon })
+          }
+        ) })
+      ]
+    }
+  );
 };
 export {
   CreatorBookList_default as default

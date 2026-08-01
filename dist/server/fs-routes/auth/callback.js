@@ -10,7 +10,8 @@ import {
 } from "../../features/auth/utils.js";
 import {
   createUserInDatabase,
-  setCookiesAndVerifyUser
+  setCookiesAndVerifyUser,
+  verifyCreatorsOwnedByUser
 } from "../../features/auth/services.js";
 import { createStubCreatorProfile } from "../../features/dashboard/creators/services.js";
 import { createUserVerifiedNotification } from "../../domain/notifications/utils.js";
@@ -59,6 +60,7 @@ const GET = createRoute(
       const [newCreatorError, newCreator] = await createStubCreatorProfile(session);
       if (newCreatorError)
         return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: newCreatorError.reason }));
+      await verifyCreatorsOwnedByUser(user.id);
       const inviteToken = nanoid(32);
       const [interviewError] = await createCreatorInterviewInviteAdmin({
         creatorId: newCreator.id,

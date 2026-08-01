@@ -1,7 +1,6 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import clsx from "clsx";
-import { bookIcon, feedIcon, libraryIcon, updatesIcon } from "../../lib/icons.js";
-import FeatureGuard from "./FeatureGuard.js";
+import { bookIcon, feedIcon, libraryIcon } from "../../lib/icons.js";
 const itemBase = clsx(
   "relative mb-2 flex h-full max-w-32 shrink basis-full cursor-pointer",
   "flex-col items-center justify-center gap-px rounded-xl bg-transparent",
@@ -32,14 +31,10 @@ const Dock = ({ currentPath }) => {
           feedIcon,
           /* @__PURE__ */ jsx("span", { class: "text-[0.625rem] uppercase tracking-[0.12em] font-medium", children: "Feed" })
         ] }),
-        /* @__PURE__ */ jsxs("a", { href: "/library", class: item("/library"), children: [
+        /* @__PURE__ */ jsxs("a", { href: "/shelf", class: item("/shelf"), children: [
           libraryIcon(5),
-          /* @__PURE__ */ jsx("span", { class: "text-[0.625rem] uppercase tracking-[0.12em] font-medium", children: "Library" })
-        ] }),
-        /* @__PURE__ */ jsx(FeatureGuard, { flagName: "messages", children: /* @__PURE__ */ jsxs("a", { href: "/messages", class: item("/messages"), children: [
-          updatesIcon,
-          /* @__PURE__ */ jsx("span", { class: "text-[0.625rem] uppercase tracking-[0.12em] font-medium", children: "Messages" })
-        ] }) })
+          /* @__PURE__ */ jsx("span", { class: "text-[0.625rem] uppercase tracking-[0.12em] font-medium", children: "Shelf" })
+        ] })
       ]
     }
   );

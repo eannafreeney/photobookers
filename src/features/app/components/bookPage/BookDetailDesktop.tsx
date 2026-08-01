@@ -1,7 +1,7 @@
 import PurchaseLink from "../../../../components/app/PurchaseLink";
 import ShareButton from "../../../api/components/ShareButton";
 import TagList from "../../../../components/app/TagList";
-import FavouriteButton from "../../../api/components/FavouriteButton";
+import SaveToListButton from "../../../api/components/SaveToListButton";
 import RelatedBooks from "../RelatedBooks";
 import CommentsSection from "../CommentsSection";
 import Divider from "../../../../components/Divider";
@@ -75,7 +75,7 @@ const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
             </div>
 
             <div class="grid grid-cols-2 gap-4 py-4">
-              <FavouriteButton book={book} user={user} />
+              <SaveToListButton book={book} user={user} variant="button" />
               <ShareButton
                 title={bookShareTitle(book)}
                 text={bookShareText(book)}

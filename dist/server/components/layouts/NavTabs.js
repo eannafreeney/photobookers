@@ -1,7 +1,6 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import clsx from "clsx";
-import { bookIcon, feedIcon, libraryIcon, updatesIcon } from "../../lib/icons.js";
-import FeatureGuard from "./FeatureGuard.js";
+import { bookIcon, feedIcon, libraryIcon } from "../../lib/icons.js";
 const NavTabs = ({ currentPath }) => {
   return /* @__PURE__ */ jsxs(
     "nav",
@@ -17,14 +16,10 @@ const NavTabs = ({ currentPath }) => {
           feedIcon,
           "Feed"
         ] }),
-        /* @__PURE__ */ jsxs(NavLink, { href: "/library", currentPath, children: [
+        /* @__PURE__ */ jsxs(NavLink, { href: "/shelf", currentPath, children: [
           libraryIcon(5),
-          "Library"
-        ] }),
-        /* @__PURE__ */ jsx(FeatureGuard, { flagName: "messages", children: /* @__PURE__ */ jsxs(NavLink, { href: "/messages", currentPath, children: [
-          updatesIcon,
-          "Updates"
-        ] }) })
+          "Shelf"
+        ] })
       ]
     }
   );

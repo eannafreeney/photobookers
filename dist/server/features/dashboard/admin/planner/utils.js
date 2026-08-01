@@ -104,6 +104,15 @@ function getSpotlightFeatureDayEmailScheduledDate(weekStart) {
 function getInstagramPrepReminderScheduledDate(weekStart) {
   return addUtcDays(toWeekStart(weekStart), -2);
 }
+function getContentPreviewEmailScheduledDate(weekStart) {
+  return addUtcDays(toWeekStart(weekStart), -3);
+}
+function getContentPreviewWeekStartForDate(asOf) {
+  const today = toUtcStartOfDay(asOf);
+  const weekStart = addUtcDays(today, 3);
+  if (weekStart.getUTCDay() !== 1) return null;
+  return toWeekStart(weekStart);
+}
 function getInstagramPrepReminderWeekStart(asOf) {
   const today = toUtcStartOfDay(asOf);
   const weekStart = addUtcDays(today, 2);
@@ -127,6 +136,8 @@ export {
   formatWeekRange,
   getBotdAdvanceEmailScheduledDate,
   getBotdFeatureDayEmailScheduledDate,
+  getContentPreviewEmailScheduledDate,
+  getContentPreviewWeekStartForDate,
   getEmailSendStatus,
   getInstagramPrepReminderScheduledDate,
   getInstagramPrepReminderWeekStart,

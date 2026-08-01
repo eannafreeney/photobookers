@@ -11,7 +11,7 @@ import { showErrorAlert } from "../../../lib/alertHelpers.js";
 import { interviewFormSchema } from "../../../features/interviews/schema.js";
 import { formValidator, validateImageFile } from "../../../lib/validator.js";
 import FormSuccessScreen from "../../../components/forms/FormSuccessScreen.js";
-import { createInterviewSubmittedNotification } from "../../../domain/notifications/utils.js";
+import { notifyAdminInterviewSubmitted } from "../../../domain/notifications/services.js";
 import { uploadImage } from "../../../services/storage.js";
 import { routeParam } from "../../../lib/routeParam.js";
 const GET = createRoute(async (c) => {
@@ -67,7 +67,10 @@ const POST = createRoute(
     if (error) return showErrorAlert(c, error.reason);
     const [creatorErr, creator] = await getCreatorById(row.creatorId);
     if (creatorErr || !creator) return showErrorAlert(c, "Creator not found");
-    await createInterviewSubmittedNotification(creator);
+    await notifyAdminInterviewSubmitted({
+      interviewId: row.id,
+      creatorName: creator.displayName
+    });
     return c.html(
       /* @__PURE__ */ jsx(
         FormSuccessScreen,

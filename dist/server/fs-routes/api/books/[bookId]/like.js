@@ -21,7 +21,7 @@ import { isOk } from "../../../../lib/result.js";
 import { getIsHyperview } from "../../../../features/hyperview/lib.js";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps.js";
 import { routeParam } from "../../../../lib/routeParam.js";
-const updateLibraryPage = () => "library:updated";
+const updateShelfPage = () => "shelf:updated";
 const POST = createRoute(async (c) => {
   const isHyperview = getIsHyperview(c);
   return isHyperview ? postLikeHyperview(c) : postLikeWeb(c);
@@ -109,7 +109,7 @@ const postLikeWeb = async (c) => {
     /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx(Alert, { type: "success", message }),
       /* @__PURE__ */ jsx(LikeButton, { book, user, isCircleButton }),
-      dispatchEvents([updateLibraryPage()])
+      dispatchEvents([updateShelfPage()])
     ] })
   );
 };

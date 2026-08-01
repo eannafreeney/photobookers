@@ -30,17 +30,20 @@ type ShelfOwnerFields = {
   firstName?: string | null;
   lastName?: string | null;
   email?: string | null;
-  creator?: { displayName: string } | null;
 };
+
+/** Shelves are collector-only — users with a creator profile cannot own one. */
+export function userCanHaveShelf(user: {
+  creator?: unknown;
+} | null): boolean {
+  return Boolean(user && !user.creator);
+}
 
 /** Capitalize the first letter of each word so stored lowercase names read nicely. */
 const capitalizeName = (value: string) =>
   value.replace(/(^|[\s'-])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase());
 
 export function formatShelfOwnerName(user: ShelfOwnerFields): string {
-  const creatorName = user.creator?.displayName?.trim();
-  if (creatorName) return creatorName;
-
   const fullName = [user.firstName, user.lastName]
     .map((part) => part?.trim())
     .filter(Boolean)

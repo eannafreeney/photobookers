@@ -6,6 +6,11 @@ const newUserFormAdminSchema = z.object({
   lastName: optionalText,
   creatorId: optionalText
 });
+const editUserFormAdminSchema = z.object({
+  email: z.email().min(1, "Email is required"),
+  firstName: optionalText,
+  lastName: optionalText
+});
 const deleteMultipleUsersSchema = z.object({
   ids: z.preprocess(
     (val) => Array.isArray(val) ? val : val ? [val] : [],
@@ -14,5 +19,6 @@ const deleteMultipleUsersSchema = z.object({
 });
 export {
   deleteMultipleUsersSchema,
+  editUserFormAdminSchema,
   newUserFormAdminSchema
 };
