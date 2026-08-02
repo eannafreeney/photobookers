@@ -349,11 +349,11 @@ const ImageCaptionSection = ({
                 alt="Story preview"
                 class="absolute inset-0 h-full w-full object-cover"
               />
-              <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+              <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/25" />
               <div class="absolute left-0 right-0 top-4 text-center text-[10px] font-semibold uppercase tracking-widest text-white">
                 {title}
               </div>
-              <div class="absolute bottom-8 left-0 right-0 text-center">
+              <div class="absolute left-0 right-0 top-12 text-center">
                 <div class="text-sm font-semibold text-white">{subtitle}</div>
               </div>
             </>
@@ -372,7 +372,7 @@ const ImageCaptionSection = ({
               <div class="absolute left-0 right-0 top-4 text-center text-[10px] font-semibold uppercase tracking-widest text-white">
                 {title}
               </div>
-              <div class="absolute bottom-8 left-0 right-0 text-center">
+              <div class="absolute left-0 right-0 top-12 text-center">
                 <div class="text-sm font-semibold text-white">{subtitle}</div>
               </div>
             </>
