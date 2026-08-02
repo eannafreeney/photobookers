@@ -14,6 +14,7 @@ import FileUploadInput from "../../components/forms/FileUpload";
 import DragAndDropArea from "../../features/dashboard/images/components/DragAndDropArea";
 import Button from "../../components/app/Button";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
+import InfoPage from "../../pages/InfoPage";
 
 async function getRow(kind: "botd" | "aotw" | "potw", id: string) {
   switch (kind) {
@@ -87,12 +88,12 @@ export const GET = createRoute(async (c) => {
   const token = c.req.param("token") ?? "";
   const [tokenError, payload] = verifyStoryUploadToken(token);
   if (tokenError) {
-    return c.html(<Alert type="danger" message={tokenError.reason} />);
+    return c.html(<InfoPage errorMessage={tokenError.reason} />);
   }
 
   const row = await getRow(payload.kind, payload.id);
   if (!row) {
-    return c.html(<Alert type="danger" message="Feature not found" />);
+    return c.html(<InfoPage errorMessage="Feature not found" />);
   }
 
   const alpineAttrs = {
@@ -191,13 +192,13 @@ export const POST = createRoute(async (c) => {
   const token = c.req.param("token") ?? "";
   const [tokenError, payload] = verifyStoryUploadToken(token);
   if (tokenError) {
-    return c.html(<Alert type="danger" message={tokenError.reason} />);
+    return c.html(<InfoPage errorMessage={tokenError.reason} />);
   }
 
   const form = await c.req.formData();
   const file = form.get("image");
   if (!(file instanceof File) || file.size === 0) {
-    return c.html(<Alert type="danger" message="No image provided" />);
+    return c.html(<InfoPage errorMessage="No image provided" />);
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
