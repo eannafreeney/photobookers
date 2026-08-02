@@ -28,16 +28,16 @@ function buildBotdStoryOverlaySvg(meta: BotdStorySlideMeta): string {
   <defs>
     <style>${instagramSlideFontStyles(fonts)}</style>
     <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="rgba(0,0,0,0.42)"/>
+      <stop offset="0" stop-color="rgba(0,0,0,0.45)"/>
       <stop offset="0.35" stop-color="rgba(0,0,0,0)"/>
       <stop offset="0.72" stop-color="rgba(0,0,0,0)"/>
-      <stop offset="1" stop-color="rgba(0,0,0,0.25)"/>
+      <stop offset="1" stop-color="rgba(0,0,0,0.2)"/>
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#fade)"/>
-  <text x="${INSTAGRAM_REEL_WIDTH / 2}" y="180" text-anchor="middle" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Instrument Sans" font-size="34" font-weight="600" letter-spacing="6" opacity="0.94">BOOK OF THE DAY</text>
-  <text x="${INSTAGRAM_REEL_WIDTH / 2}" y="270" text-anchor="middle" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Fraunces" font-size="56" font-weight="600">${escapeXml(title)}</text>
-  ${creditsLine ? `<text x="${INSTAGRAM_REEL_WIDTH / 2}" y="340" text-anchor="middle" fill="#e8e2d6" font-family="Instrument Sans" font-size="34" font-weight="600">${escapeXml(creditsLine)}</text>` : ""}
+  <text x="80" y="180" text-anchor="start" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Instrument Sans" font-size="34" font-weight="600" letter-spacing="6" opacity="0.94">BOOK OF THE DAY</text>
+  <text x="80" y="270" text-anchor="start" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Fraunces" font-size="56" font-weight="600">${escapeXml(title)}</text>
+  ${creditsLine ? `<text x="80" y="340" text-anchor="start" fill="#e8e2d6" font-family="Instrument Sans" font-size="34" font-weight="600">${escapeXml(creditsLine)}</text>` : ""}
 </svg>`;
 }
 
