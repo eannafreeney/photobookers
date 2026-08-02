@@ -293,7 +293,10 @@ const ImageCaptionSection = ({
   const limitCarouselSelection = `const checked = $el.closest('fieldset').querySelectorAll('input[type=checkbox]:checked'); if (checked.length > ${MAX_INSTAGRAM_CAROUSEL_IMAGES}) $el.checked = false`;
 
   return (
-    <section class="rounded border border-outline bg-surface-alt/40 p-4">
+    <section
+      class="rounded border border-outline bg-surface-alt/40 p-4"
+      x-data={`{ selectedImage: ${JSON.stringify(selectedImages[0] ?? null)} }`}
+    >
       <h3 class="mb-3 text-sm font-semibold text-on-surface-strong">{title}</h3>
       <p class="mb-1 text-xs text-on-surface line-clamp-2">{subtitle}</p>
       {tagsLine ? (
@@ -322,6 +325,7 @@ const ImageCaptionSection = ({
                     value={url}
                     checked={selectedImages.includes(url)}
                     class="sr-only"
+                    x-on:change={`selectedImage = ${JSON.stringify(url)}`}
                   />
                   <img
                     src={url}
@@ -361,7 +365,7 @@ const ImageCaptionSection = ({
           style="aspect-ratio: 9/16;"
         >
           <img
-            src={`/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}`}
+            x-bind:src="`/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}&image=${encodeURIComponent(selectedImage || '')}`"
             alt="Story preview"
             class="absolute inset-0 h-full w-full object-contain"
           />

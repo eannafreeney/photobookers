@@ -50,6 +50,7 @@ async function getSpotlightRow(kind: "aotw" | "potw", id: string) {
 export const GET = createRoute(async (c) => {
   const kind = parseKind(c.req.query("kind"));
   const id = c.req.query("id");
+  const overrideImage = c.req.query("image")?.trim() || null;
   if (!kind || !id) {
     return c.text("Invalid parameters", 400);
   }
@@ -63,17 +64,17 @@ export const GET = createRoute(async (c) => {
   if (kind === "botd") {
     const row = await getBotdRow(id);
     if (!row) return c.text("Not found", 404);
-    imageUrl = resolveBotdStoryImageUrl(row);
+    imageUrl = overrideImage ?? resolveBotdStoryImageUrl(row);
     title = row.book?.title ?? "Book of the Day";
     artistName = row.book?.artist?.displayName ?? null;
     publisherName = row.book?.publisher?.displayName ?? null;
-    hasArtistImage = Boolean(row.artistProvidedStoryImageUrl);
+    hasArtistImage = Boolean(row.artistProvidedStoryImageUrl) && !overrideImage;
   } else {
     const row = await getSpotlightRow(kind, id);
     if (!row) return c.text("Not found", 404);
-    imageUrl = row.artistProvidedStoryImageUrl ?? row.instagramImageUrls?.[0] ?? row.featuredImageUrl;
+    imageUrl = overrideImage ?? row.artistProvidedStoryImageUrl ?? row.instagramImageUrls?.[0] ?? row.featuredImageUrl;
     title = row.creator?.displayName ?? (kind === "aotw" ? "Artist of the Week" : "Publisher of the Week");
-    hasArtistImage = Boolean(row.artistProvidedStoryImageUrl);
+    hasArtistImage = Boolean(row.artistProvidedStoryImageUrl) && !overrideImage;
   }
 
   if (!imageUrl) return c.text("No image", 404);

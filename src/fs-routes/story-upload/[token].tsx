@@ -214,14 +214,10 @@ export const POST = createRoute(async (c) => {
     await setImageUrl(payload.kind, payload.id, uploaded.url);
 
     return c.html(
-      <HeadlessLayout title="Image uploaded">
-        <div class="mx-auto max-w-md p-6">
-          <FormSuccessScreen
-            id="story-upload-success"
-            message="Image uploaded — thank you! We’ll use this for your Instagram Story."
-          />
-        </div>
-      </HeadlessLayout>,
+      <FormSuccessScreen
+        id="story-upload-success"
+        message="Image uploaded — thank you! We’ll use this for your Instagram Story."
+      />,
     );
   } catch (error) {
     console.error("story upload", error);
