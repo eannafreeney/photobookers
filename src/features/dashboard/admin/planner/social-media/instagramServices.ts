@@ -719,15 +719,17 @@ async function queueSpotlightStoryRow(params: {
   }
 
   const label =
-    params.kind === "artist" ? "Artist of the Week" : "Publisher of the Week";
+    params.kind === "artist" ? "ARTIST OF THE WEEK" : "PUBLISHER OF THE WEEK";
   const renderedStory = params.row.artistProvidedStoryImageUrl
     ? await renderBotdStoryFullBleed(storySourceUrl, {
         title: params.row.creator?.displayName ?? label,
         artistName: null,
+        label,
       })
     : await renderBotdStoryBlurred(storySourceUrl, {
         title: params.row.creator?.displayName ?? label,
         artistName: null,
+        label,
       });
 
   const [uploadError, storyImageUrl] = await uploadSpotlightStoryImage(

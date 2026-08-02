@@ -14,6 +14,7 @@ export type BotdStorySlideMeta = {
   title: string;
   artistName?: string | null;
   publisherName?: string | null;
+  label?: string;
 };
 
 function buildBotdStoryOverlaySvg(meta: BotdStorySlideMeta): string {
@@ -35,7 +36,7 @@ function buildBotdStoryOverlaySvg(meta: BotdStorySlideMeta): string {
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#fade)"/>
-  <text x="80" y="180" text-anchor="start" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Instrument Sans" font-size="34" font-weight="600" letter-spacing="6" opacity="0.94">BOOK OF THE DAY</text>
+  <text x="80" y="180" text-anchor="start" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Instrument Sans" font-size="34" font-weight="600" letter-spacing="6" opacity="0.94">${escapeXml(meta.label ?? "BOOK OF THE DAY")}</text>
   <text x="80" y="270" text-anchor="start" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Fraunces" font-size="56" font-weight="600">${escapeXml(title)}</text>
   ${creditsLine ? `<text x="80" y="340" text-anchor="start" fill="#e8e2d6" font-family="Instrument Sans" font-size="34" font-weight="600">${escapeXml(creditsLine)}</text>` : ""}
 </svg>`;

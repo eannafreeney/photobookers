@@ -78,9 +78,26 @@ export const GET = createRoute(async (c) => {
 
   if (!imageUrl) return c.text("No image", 404);
 
+  const label =
+    kind === "botd"
+      ? "BOOK OF THE DAY"
+      : kind === "aotw"
+        ? "ARTIST OF THE WEEK"
+        : "PUBLISHER OF THE WEEK";
+
   const buffer = hasArtistImage
-    ? await renderBotdStoryFullBleed(imageUrl, { title, artistName, publisherName })
-    : await renderBotdStoryBlurred(imageUrl, { title, artistName, publisherName });
+    ? await renderBotdStoryFullBleed(imageUrl, {
+        title,
+        artistName,
+        publisherName,
+        label,
+      })
+    : await renderBotdStoryBlurred(imageUrl, {
+        title,
+        artistName,
+        publisherName,
+        label,
+      });
 
   return c.body(new Uint8Array(buffer), 200, { "Content-Type": "image/webp" });
 });
