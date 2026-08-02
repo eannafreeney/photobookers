@@ -304,7 +304,7 @@ const ImageCaptionSection = ({
 
       <fieldset class="mb-4">
         <legend class="mb-2 block text-xs font-medium text-on-surface">
-          Images (select 1–{MAX_INSTAGRAM_CAROUSEL_IMAGES} for carousel)
+          Story image (select one)
         </legend>
         {imageOptions.length === 0 ? (
           <p class="text-xs text-danger">No image available.</p>
@@ -314,21 +314,25 @@ const ImageCaptionSection = ({
               {imageOptions.map((url) => (
                 <label
                   key={url}
-                  class="cursor-pointer rounded border border-outline p-1 [&:has(input:checked)]:border-primary [&:has(input:checked)]:ring-2 [&:has(input:checked)]:ring-primary"
+                  class="cursor-pointer rounded border border-outline p-1 [&:has(input:checked)]:border-primary [&:has(input:checked)]:ring-2 [&:has(input:checked)]:ring-primary relative"
                 >
                   <input
-                    type="checkbox"
+                    type="radio"
                     name={checkboxName}
                     value={url}
                     checked={selectedImages.includes(url)}
                     class="sr-only"
-                    x-on:change={limitCarouselSelection}
                   />
                   <img
                     src={url}
                     alt=""
                     class="aspect-[3/4] w-full rounded object-cover"
                   />
+                  {url === artistProvidedStoryImageUrl ? (
+                    <span class="absolute left-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      Artist
+                    </span>
+                  ) : null}
                 </label>
               ))}
             </div>
@@ -347,19 +351,6 @@ const ImageCaptionSection = ({
           {caption}
         </textarea>
       </label>
-
-      {artistProvidedStoryImageUrl ? (
-        <div class="mt-4 rounded border border-outline bg-surface p-3">
-          <p class="mb-2 text-xs font-medium text-on-surface">
-            Artist-provided story image
-          </p>
-          <img
-            src={artistProvidedStoryImageUrl}
-            alt="Artist-provided story"
-            class="max-h-64 rounded object-contain"
-          />
-        </div>
-      ) : null}
 
       <div class="mt-4 rounded border border-outline bg-surface p-3">
         <p class="mb-2 text-xs font-medium text-on-surface">
