@@ -365,7 +365,7 @@ const ImageCaptionSection = ({
           style="aspect-ratio: 9/16;"
         >
           <img
-            x-bind:src="selectedImage ? `/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}&image=${encodeURIComponent(selectedImage)}` : `/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}`"
+            x-bind:src="`/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}${selectedImage ? '&image=' + encodeURIComponent(selectedImage) : ''}`"
             alt="Story preview"
             class="absolute inset-0 h-full w-full object-contain"
           />
