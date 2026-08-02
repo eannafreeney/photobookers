@@ -214,10 +214,7 @@ export const POST = createRoute(async (c) => {
     await setImageUrl(payload.kind, payload.id, uploaded.url);
 
     return c.html(
-      <FormSuccessScreen
-        id="story-upload-success"
-        message="Image uploaded — thank you! We’ll use this for your Instagram Story."
-      />,
+      <Alert type="success" message="Image uploaded — thank you! We’ll use this for your Instagram Story." />,
     );
   } catch (error) {
     console.error("story upload", error);
