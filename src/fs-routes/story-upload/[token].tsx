@@ -11,7 +11,6 @@ import { uploadImageFromBuffer } from "../../services/storage";
 import Alert from "../../components/app/Alert";
 import FormPost from "../../components/forms/FormPost";
 import FileUploadInput from "../../components/forms/FileUpload";
-import ImagePreview from "../../components/forms/ImagePreview";
 import DragAndDropArea from "../../features/dashboard/images/components/DragAndDropArea";
 import Button from "../../components/app/Button";
 
@@ -110,7 +109,29 @@ export const GET = createRoute(async (c) => {
             x-show="previewUrl"
             x-cloak
           >
-            <ImagePreview />
+            <div
+              class="relative w-full max-w-[240px] overflow-hidden rounded bg-gray-100"
+              style="aspect-ratio: 9/16;"
+            >
+              <img
+                x-bind:src="previewUrl"
+                alt="Story preview"
+                class="absolute inset-0 h-full w-full object-cover"
+              />
+              <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/25" />
+              <div class="absolute left-4 right-4 top-4 text-xs font-semibold uppercase tracking-widest text-white">
+                {payload.kind === "botd"
+                  ? "BOOK OF THE DAY"
+                  : payload.kind === "aotw"
+                    ? "ARTIST OF THE WEEK"
+                    : "PUBLISHER OF THE WEEK"}
+              </div>
+              <div class="absolute bottom-8 left-4 right-4">
+                <div class="text-sm font-semibold text-white">
+                  {titleFor(payload.kind, row)}
+                </div>
+              </div>
+            </div>
           </div>
           <DragAndDropArea />
           <FileUploadInput
