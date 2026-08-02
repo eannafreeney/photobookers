@@ -124,6 +124,9 @@ const PrepareInstagramModal = ({
                 if (!book) return null;
 
                 const imageOptions = collectBookImageOptions(book);
+                if (entry.artistProvidedStoryImageUrl) {
+                  imageOptions.unshift(entry.artistProvidedStoryImageUrl);
+                }
                 const selectedImages = getPlannerInstagramImageSelection(
                   entry,
                   imageOptions,
@@ -157,63 +160,77 @@ const PrepareInstagramModal = ({
               })}
 
               {artistCreator && artistOfTheWeek ? (
-                <ImageCaptionSection
-                  key="aotw"
-                  title="Artist of the week"
-                  subtitle={artistCreator.displayName}
-                  fieldKey={INSTAGRAM_SPOTLIGHT_AOTW_KEY}
-                  imageOptions={collectCreatorImageOptions(
+                (() => {
+                  const aotwImageOptions = collectCreatorImageOptions(
                     artistCreator,
                     artistBookCoverUrls,
-                  )}
-                  caption={buildArtistInstagramCaption(
-                    artistCreator,
-                    artistOfTheWeek.instagramCaption,
-                    artistOfTheWeek.spotlightBlurb,
-                  )}
-                  selectedImages={getPlannerInstagramImageSelection(
-                    artistOfTheWeek,
-                    collectCreatorImageOptions(
-                      artistCreator,
-                      artistBookCoverUrls,
-                    ),
-                  )}
-                  artistProvidedStoryImageUrl={
-                    artistOfTheWeek.artistProvidedStoryImageUrl
+                  );
+                  if (artistOfTheWeek.artistProvidedStoryImageUrl) {
+                    aotwImageOptions.unshift(
+                      artistOfTheWeek.artistProvidedStoryImageUrl,
+                    );
                   }
-                  previewKind="aotw"
-                  previewId={artistOfTheWeek.id}
-                />
+                  return (
+                    <ImageCaptionSection
+                      key="aotw"
+                      title="Artist of the week"
+                      subtitle={artistCreator.displayName}
+                      fieldKey={INSTAGRAM_SPOTLIGHT_AOTW_KEY}
+                      imageOptions={aotwImageOptions}
+                      caption={buildArtistInstagramCaption(
+                        artistCreator,
+                        artistOfTheWeek.instagramCaption,
+                        artistOfTheWeek.spotlightBlurb,
+                      )}
+                      selectedImages={getPlannerInstagramImageSelection(
+                        artistOfTheWeek,
+                        aotwImageOptions,
+                      )}
+                      artistProvidedStoryImageUrl={
+                        artistOfTheWeek.artistProvidedStoryImageUrl
+                      }
+                      previewKind="aotw"
+                      previewId={artistOfTheWeek.id}
+                    />
+                  );
+                })()
               ) : null}
 
               {publisherCreator && publisherOfTheWeek ? (
-                <ImageCaptionSection
-                  key="potw"
-                  title="Publisher of the week"
-                  subtitle={publisherCreator.displayName}
-                  fieldKey={INSTAGRAM_SPOTLIGHT_POTW_KEY}
-                  imageOptions={collectCreatorImageOptions(
+                (() => {
+                  const potwImageOptions = collectCreatorImageOptions(
                     publisherCreator,
                     publisherBookCoverUrls,
-                  )}
-                  caption={buildPublisherInstagramCaption(
-                    publisherCreator,
-                    publisherOfTheWeek.instagramCaption,
-                    publisherOfTheWeek.spotlightBlurb,
-                  )}
-                  selectedImages={getPlannerInstagramImageSelection(
-                    publisherOfTheWeek,
-                    collectCreatorImageOptions(
-                      publisherCreator,
-                      publisherBookCoverUrls,
-                    ),
-                  )}
-                  artistProvidedStoryImageUrl={
-                    publisherOfTheWeek.artistProvidedStoryImageUrl
+                  );
+                  if (publisherOfTheWeek.artistProvidedStoryImageUrl) {
+                    potwImageOptions.unshift(
+                      publisherOfTheWeek.artistProvidedStoryImageUrl,
+                    );
                   }
-                  previewKind="potw"
-                  previewId={publisherOfTheWeek.id}
-                />
+                  return (
+                    <ImageCaptionSection
+                      key="potw"
+                      title="Publisher of the week"
+                      subtitle={publisherCreator.displayName}
+                      fieldKey={INSTAGRAM_SPOTLIGHT_POTW_KEY}
+                      imageOptions={potwImageOptions}
+                      caption={buildPublisherInstagramCaption(
+                        publisherCreator,
+                        publisherOfTheWeek.instagramCaption,
+                        publisherOfTheWeek.spotlightBlurb,
+                      )}
+                      selectedImages={getPlannerInstagramImageSelection(
+                        publisherOfTheWeek,
+                        potwImageOptions,
+                      )}
+                      artistProvidedStoryImageUrl={
+                        publisherOfTheWeek.artistProvidedStoryImageUrl
+                      }
+                      previewKind="potw"
+                      previewId={publisherOfTheWeek.id}
+                    />
+                  );
+                })()
               ) : null}
             </div>
             <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-outline pt-4">

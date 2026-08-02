@@ -10,6 +10,7 @@ import { verifyStoryUploadToken } from "../../domain/planner/storyUploadToken";
 import { uploadImageFromBuffer } from "../../services/storage";
 import Alert from "../../components/app/Alert";
 import FormPost from "../../components/forms/FormPost";
+import FormSuccessScreen from "../../components/forms/FormSuccessScreen";
 import FileUploadInput from "../../components/forms/FileUpload";
 import DragAndDropArea from "../../features/dashboard/images/components/DragAndDropArea";
 import Button from "../../components/app/Button";
@@ -192,34 +193,40 @@ export const POST = createRoute(async (c) => {
   const token = c.req.param("token") ?? "";
   const [tokenError, payload] = verifyStoryUploadToken(token);
   if (tokenError) {
-    return c.html(<InfoPage errorMessage={tokenError.reason} />);
+    return c.html(
+      <Alert type="danger" message={tokenError.reason} />,
+      400,
+    );
   }
 
   const form = await c.req.formData();
   const file = form.get("image");
   if (!(file instanceof File) || file.size === 0) {
-    return c.html(<InfoPage errorMessage="No image provided" />);
+    return c.html(<Alert type="danger" message="No image provided" />, 400);
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const folder = `social/story-uploads/${payload.kind}/${payload.id}`;
-  const uploaded = await uploadImageFromBuffer(buffer, folder);
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const folder = `social/story-uploads/${payload.kind}/${payload.id}`;
+    const uploaded = await uploadImageFromBuffer(buffer, folder);
 
-  await setImageUrl(payload.kind, payload.id, uploaded.url);
+    await setImageUrl(payload.kind, payload.id, uploaded.url);
 
-  return c.html(
-    <HeadlessLayout title="Image uploaded">
-      <div class="mx-auto max-w-md p-6">
-        <Alert type="success" message="Image uploaded — thank you!" />
-        <p class="mt-4 text-sm text-gray-600">
-          We’ll use this for your Instagram Story. You can close this page.
-        </p>
-        <img
-          src={uploaded.url}
-          alt="Uploaded story"
-          class="mt-4 max-h-96 rounded object-contain"
-        />
-      </div>
-    </HeadlessLayout>,
-  );
+    return c.html(
+      <HeadlessLayout title="Image uploaded">
+        <div class="mx-auto max-w-md p-6">
+          <FormSuccessScreen
+            id="story-upload-success"
+            message="Image uploaded — thank you! We’ll use this for your Instagram Story."
+          />
+        </div>
+      </HeadlessLayout>,
+    );
+  } catch (error) {
+    console.error("story upload", error);
+    return c.html(
+      <Alert type="danger" message="Upload failed — please try again" />,
+      500,
+    );
+  }
 });
