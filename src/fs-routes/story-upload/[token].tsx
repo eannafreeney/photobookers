@@ -67,6 +67,13 @@ function titleFor(kind: string, row: Awaited<ReturnType<typeof getRow>>) {
   return "Instagram Story";
 }
 
+function creditsFor(kind: string, row: Awaited<ReturnType<typeof getRow>>) {
+  if (!row || kind !== "botd" || !("book" in row) || !row.book) return null;
+  return [row.book.artist?.displayName, row.book.publisher?.displayName]
+    .filter(Boolean)
+    .join(" · ") || null;
+}
+
 export const GET = createRoute(async (c) => {
   const token = c.req.param("token") ?? "";
   const [tokenError, payload] = verifyStoryUploadToken(token);
@@ -126,16 +133,21 @@ export const GET = createRoute(async (c) => {
                 class="absolute left-0 right-0"
                 style="top: 9.375%; padding-left: 7.4%; padding-right: 7.4%;"
               >
-                <div class="text-[10px] font-semibold uppercase tracking-[0.35em] text-white">
+                <div class="text-[10px] font-semibold uppercase tracking-[0.35em] text-white" style="font-size: 10px; line-height: 1;">
                   {payload.kind === "botd"
                     ? "BOOK OF THE DAY"
                     : payload.kind === "aotw"
                       ? "ARTIST OF THE WEEK"
                       : "PUBLISHER OF THE WEEK"}
                 </div>
-                <div class="mt-2 text-sm font-semibold text-white">
+                <div class="font-semibold text-white" style="font-size: 16px; line-height: 1.2; margin-top: 8px; font-family: Georgia, serif;">
                   {titleFor(payload.kind, row)}
                 </div>
+                {creditsFor(payload.kind, row) && (
+                  <div class="text-white/90" style="font-size: 12px; line-height: 1.2; margin-top: 6px;">
+                    {creditsFor(payload.kind, row)}
+                  </div>
+                )}
               </div>
             </div>
           </div>
