@@ -1,7 +1,13 @@
 import clsx from "clsx";
 import { PropsWithChildren } from "hono/jsx";
 import Page from "../../../components/layouts/Page";
-import { lightbulbIcon, libraryIcon, mailIcon } from "../../../lib/icons";
+import {
+  bookIcon,
+  fullHeartIcon,
+  lightbulbIcon,
+  libraryIcon,
+  mailIcon,
+} from "../../../lib/icons";
 
 type Props = PropsWithChildren<{
   currentPath: string;
@@ -12,9 +18,17 @@ const CollectorDashboardShell = ({ children, currentPath }: Props) => {
     <Page>
       <nav
         id="nav-tabs"
-        class="flex flex-col md:flex-row items-center justify-center border-b border-outline gap-4 mb-8 mt-4 bg-surface"
+        class="flex flex-col md:flex-row flex-wrap items-center justify-center border-b border-outline gap-2 md:gap-4 mb-8 mt-4 bg-surface"
       >
-        <NavLink href="/dashboard" currentPath={currentPath}>
+        <NavLink href="/dashboard/shelf" currentPath={currentPath}>
+          {bookIcon}
+          Shelf
+        </NavLink>
+        <NavLink href="/dashboard/favorites" currentPath={currentPath}>
+          {fullHeartIcon(5)}
+          Favorites
+        </NavLink>
+        <NavLink href="/dashboard/posts" currentPath={currentPath}>
           {mailIcon(5)}
           Posts
         </NavLink>
@@ -45,10 +59,7 @@ type NavLinkProps = PropsWithChildren<{
 }>;
 
 const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
-  const isActive =
-    href === "/dashboard"
-      ? currentPath === href
-      : Boolean(currentPath?.startsWith(href));
+  const isActive = Boolean(currentPath?.startsWith(href));
 
   return (
     <li class="list-none">

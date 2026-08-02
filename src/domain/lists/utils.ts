@@ -64,10 +64,8 @@ export function isListPromotionEligible(
   return list.isPublic && owner.shelfPublic && Boolean(owner.shelfSlug);
 }
 
-/** Creators manage books; only collectors (no creator profile) get custom lists. */
-export function userCanManageBookLists(user: {
-  creator?: unknown;
-} | null): boolean {
-  return Boolean(user && !user.creator);
+/** Any signed-in member can manage personal book lists (creators included). */
+export function userCanManageBookLists(user: { id?: string } | null): boolean {
+  return Boolean(user?.id);
 }
 

@@ -11,9 +11,6 @@ import InfoPage from "../../pages/InfoPage";
 import AppLayout from "../../components/layouts/AppLayout";
 import { BooksOverviewTable } from "../../features/dashboard/books/tables/BooksOverviewTable";
 import CreatorDashboardShell from "../../features/dashboard/components/CreatorDashboardShell";
-import CollectorDashboardShell from "../../features/dashboard/components/CollectorDashboardShell";
-import CollectorPostForm from "../../features/collectors/components/CollectorPostForm";
-import CollectorPostsTable from "../../features/collectors/components/CollectorPostsTable";
 import { getPendingClaim } from "../../features/claims/services";
 import CreatorBookFunnelSummary from "../../features/dashboard/books/components/CreatorBookFunnelSummary";
 import { isFeatureEnabledForUser } from "../../lib/features";
@@ -27,28 +24,12 @@ export const GET = createRoute(async (c: Context) => {
   const currentPage = parseInt(c.req.query("page") ?? "1");
   const currentPath = c.req.path;
 
-  // Collectors (users without a creator profile) get a dashboard for managing
-  // their posts, gated behind the collectors flag.
+  // Non-creators: shelf is their dashboard home.
   if (!user.creator) {
     if (!isFeatureEnabledForUser("collectors", user)) {
       return c.html(<InfoPage errorMessage="Creator not found" user={user} />);
     }
-    return c.html(
-      <AppLayout title="Your Posts" user={user} flash={flash} currentPath={currentPath}>
-        <CollectorDashboardShell currentPath={currentPath}>
-          <PageHeader
-            title="Your Posts"
-            intro="Share what's new with the people who follow you."
-          />
-          <div class="grid grid-cols-1 gap-8 xl:grid-cols-3">
-            <CollectorPostForm />
-            <div class="xl:col-span-2">
-              <CollectorPostsTable userId={user.id} />
-            </div>
-          </div>
-        </CollectorDashboardShell>
-      </AppLayout>,
-    );
+    return c.redirect("/dashboard/shelf");
   }
 
   const creatorId = user.creator.id;

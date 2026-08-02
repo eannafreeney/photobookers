@@ -19,6 +19,7 @@ import { showErrorAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
 import { routeParam } from "../../../lib/routeParam";
 import Link from "../../../components/app/Link";
+import { getPendingClaim } from "../../../features/claims/services";
 
 function canAccessLists(user: Awaited<ReturnType<typeof getUser>>) {
   return (
@@ -60,6 +61,10 @@ export const GET = createRoute(async (c: Context) => {
       ? `/shelf/${user.shelfSlug}/lists/${list.slug}`
       : null;
 
+  const claimStatus = user.creator
+    ? (await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null
+    : null;
+
   return c.html(
     <AppLayout
       title={list.title}
@@ -68,7 +73,11 @@ export const GET = createRoute(async (c: Context) => {
       currentPath={currentPath}
       noIndex
     >
-      <ListsDashboardShell user={user} currentPath={currentPath}>
+      <ListsDashboardShell
+        user={user}
+        currentPath={currentPath}
+        claimStatus={claimStatus}
+      >
         <div class="mb-2">
           <Link href="/dashboard/lists" className="text-sm text-accent">
             ← All lists

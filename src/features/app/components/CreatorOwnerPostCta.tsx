@@ -27,7 +27,7 @@ const CreatorOwnerPostCta = ({
         <div>
           <div class="flex flex-col md:flex-row items-center gap-3">
             <a
-              href="/dashboard/messages"
+              href="/dashboard/posts"
               class="shrink-0 text-sm font-medium text-accent hover:underline"
             >
               {postCount === 0 ? "Write your first post" : "Write a post"}

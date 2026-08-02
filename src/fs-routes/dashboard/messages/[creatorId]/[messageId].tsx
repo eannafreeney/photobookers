@@ -4,6 +4,7 @@ import {
   deleteMessageById,
   getMessageById,
   getMessagesByCreator,
+  postBelongsToCreator,
   updateMessageById,
 } from "../../../../features/dashboard/messages/services";
 import { requireCreatorEditAccess } from "../../../../middleware/creatorGuard";
@@ -27,7 +28,11 @@ export const GET = createRoute(
     const { creatorId, messageId } = c.req.valid("param");
 
     const [err, message] = await getMessageById(messageId);
-    if (err || !message || message.creatorId !== creatorId) {
+    if (
+      err ||
+      !message ||
+      !(await postBelongsToCreator(message.userId, creatorId))
+    ) {
       return c.html(
         <Modal title="Edit post">
           <p class="text-sm text-on-surface">Post not found.</p>
@@ -57,7 +62,11 @@ export const PATCH = createRoute(
     const body = await c.req.parseBody({ all: true });
 
     const [existingErr, existing] = await getMessageById(messageId);
-    if (existingErr || !existing || existing.creatorId !== creatorId) {
+    if (
+      existingErr ||
+      !existing ||
+      !(await postBelongsToCreator(existing.userId, creatorId))
+    ) {
       return showErrorAlert(c, "Post not found");
     }
 
@@ -92,10 +101,14 @@ export const PATCH = createRoute(
       }
     }
 
-    const [updateErr] = await updateMessageById(messageId, {
-      body: messageBody,
-      ...(imageUrl !== undefined ? { imageUrl } : {}),
-    });
+    const [updateErr] = await updateMessageById(
+      messageId,
+      {
+        body: messageBody,
+        ...(imageUrl !== undefined ? { imageUrl } : {}),
+      },
+      existing.userId,
+    );
     if (updateErr) return showErrorAlert(c, updateErr.reason);
 
     return c.html(
@@ -116,11 +129,15 @@ export const DELETE = createRoute(
     const { creatorId, messageId } = c.req.valid("param");
 
     const [existingErr, existing] = await getMessageById(messageId);
-    if (existingErr || !existing || existing.creatorId !== creatorId) {
+    if (
+      existingErr ||
+      !existing ||
+      !(await postBelongsToCreator(existing.userId, creatorId))
+    ) {
       return showErrorAlert(c, "Post not found");
     }
 
-    const [error] = await deleteMessageById(messageId);
+    const [error] = await deleteMessageById(messageId, existing.userId);
     if (error) return showErrorAlert(c, error.reason);
 
     return c.html(

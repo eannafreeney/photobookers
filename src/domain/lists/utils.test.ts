@@ -82,10 +82,10 @@ describe("isListPromotionEligible", () => {
 });
 
 describe("userCanManageBookLists", () => {
-  it("allows collectors and blocks creators", () => {
-    expect(userCanManageBookLists({ creator: null })).toBe(true);
-    expect(userCanManageBookLists({ creator: undefined })).toBe(true);
-    expect(userCanManageBookLists({ creator: { id: "c1" } })).toBe(false);
+  it("is true for any signed-in user", () => {
+    expect(userCanManageBookLists({ id: "u1" })).toBe(true);
+    expect(userCanManageBookLists({ id: "u2" })).toBe(true);
+    expect(userCanManageBookLists({})).toBe(false);
     expect(userCanManageBookLists(null)).toBe(false);
   });
 });

@@ -152,9 +152,8 @@ export async function getPublicListByShelfAndSlug(
 ) {
   const owner = await db.query.users.findFirst({
     where: and(eq(users.shelfSlug, shelfSlug), eq(users.shelfPublic, true)),
-    with: { creators: { columns: { id: true } } },
   });
-  if (!owner || owner.creators[0]) return err({ reason: "Shelf not found" });
+  if (!owner) return err({ reason: "Shelf not found" });
 
   const list = await db.query.bookLists.findFirst({
     where: and(

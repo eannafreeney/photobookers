@@ -274,7 +274,6 @@ export const creatorsRelations = relations(creators, ({ one, many }) => ({
   claims: many(creatorClaims),
   artistOfTheWeekEntries: many(artistOfTheWeek),
   publisherOfTheWeekEntries: many(publisherOfTheWeek),
-  messages: many(creatorMessages),
   fairAttendees: many(fairAttendees),
   milestoneEmails: many(creatorMilestoneEmails),
   stubOutreachEmails: many(creatorStubOutreachEmails),
@@ -464,30 +463,8 @@ export const followsRelations = relations(follows, ({ one }) => ({
   }),
 }));
 
-export const creatorMessages = pgTable("creator_messages", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  creatorId: uuid("creator_id")
-    .notNull()
-    .references(() => creators.id, { onDelete: "cascade" }),
-  body: text("body").notNull(),
-  imageUrl: text("image_url"),
-  notifyFollowersSentAt: timestamp("notify_followers_sent_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
-});
-export const creatorMessagesRelations = relations(
-  creatorMessages,
-  ({ one }) => ({
-    creator: one(creators, {
-      fields: [creatorMessages.creatorId],
-      references: [creators.id],
-    }),
-  }),
-);
-
-// Collector posts: short public updates published by a collector (a user
-// without a verified creator profile). Cloned from creator_messages, but keyed
-// on users instead of creators. See the "Collectors" feature.
+// Unified posts: short updates keyed by user. Creators surface these on their
+// creator page (creator-followers); collectors on their public shelf (user-followers).
 export const collectorPosts = pgTable("collector_posts", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
@@ -495,6 +472,7 @@ export const collectorPosts = pgTable("collector_posts", {
     .references(() => users.id, { onDelete: "cascade" }),
   body: text("body").notNull(),
   imageUrl: text("image_url"),
+  notifyFollowersSentAt: timestamp("notify_followers_sent_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
@@ -1285,11 +1263,11 @@ export type NewNewsletterCampaign = InferInsertModel<
 export type NewsletterCampaignStatus =
   (typeof newsletterCampaignStatusEnum.enumValues)[number];
 
-export type CreatorMessage = InferSelectModel<typeof creatorMessages>;
-export type NewCreatorMessage = InferInsertModel<typeof creatorMessages>;
-
 export type CollectorPost = InferSelectModel<typeof collectorPosts>;
 export type NewCollectorPost = InferInsertModel<typeof collectorPosts>;
+/** @deprecated alias — posts are unified on collector_posts */
+export type CreatorMessage = CollectorPost;
+export type NewCreatorMessage = NewCollectorPost;
 
 export type BookComment = InferSelectModel<typeof bookComments>;
 export type NewBookComment = InferInsertModel<typeof bookComments>;

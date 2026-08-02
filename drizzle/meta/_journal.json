@@ -498,6 +498,13 @@
 			"when": 1785000000000,
 			"tag": "0071_book_lists_promoted",
 			"breakpoints": true
+		},
+		{
+			"idx": 72,
+			"version": "7",
+			"when": 1785100000000,
+			"tag": "0072_unify_posts",
+			"breakpoints": true
 		}
 	]
 }

@@ -3,7 +3,7 @@ import { db } from "./client";
 import {
   collectionItems,
   collectorPosts,
-  creatorMessages,
+  creators,
   follows,
   FollowTarget,
   users,
@@ -111,10 +111,16 @@ export const findUserFollowersCount = async (targetUserId: string) => {
 };
 
 export const countCreatorPosts = async (creatorId: string) => {
+  const creator = await db.query.creators.findFirst({
+    where: eq(creators.id, creatorId),
+    columns: { ownerUserId: true },
+  });
+  if (!creator?.ownerUserId) return 0;
+
   const result = await db
     .select({ value: count() })
-    .from(creatorMessages)
-    .where(eq(creatorMessages.creatorId, creatorId));
+    .from(collectorPosts)
+    .where(eq(collectorPosts.userId, creator.ownerUserId));
 
   return result[0]?.value ?? 0;
 };

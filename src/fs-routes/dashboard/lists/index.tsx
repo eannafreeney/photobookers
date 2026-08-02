@@ -3,6 +3,7 @@ import { Context } from "hono";
 import AppLayout from "../../../components/layouts/AppLayout";
 import PageHeader from "@/components/app/PageHeader";
 import InfoPage from "../../../pages/InfoPage";
+import { getPendingClaim } from "../../../features/claims/services";
 import { getFlash, getUser } from "../../../utils";
 import { isFeatureEnabledForUser } from "../../../lib/features";
 import {
@@ -32,6 +33,9 @@ export const GET = createRoute(async (c: Context) => {
   }
 
   const lists = await listBookListsWithCounts(user.id);
+  const claimStatus = user.creator
+    ? (await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null
+    : null;
 
   return c.html(
     <AppLayout
@@ -41,7 +45,11 @@ export const GET = createRoute(async (c: Context) => {
       currentPath={currentPath}
       noIndex
     >
-      <ListsDashboardShell user={user} currentPath={currentPath}>
+      <ListsDashboardShell
+        user={user}
+        currentPath={currentPath}
+        claimStatus={claimStatus}
+      >
         <PageHeader
           title="Your lists"
           intro="Create playlist-style lists of books. Publish them on your public shelf."

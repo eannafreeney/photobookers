@@ -2,11 +2,15 @@ import clsx from "clsx";
 import { PropsWithChildren } from "hono/jsx";
 import {
   analyticsIcon,
+  bookIcon,
   booksIcon,
+  fullHeartIcon,
   lightbulbIcon,
+  libraryIcon,
   mailIcon,
   usersIcon,
 } from "../../../../lib/icons";
+import { isFeatureEnabled } from "../../../../lib/features";
 
 const NavTabs = ({
   currentPath,
@@ -17,12 +21,14 @@ const NavTabs = ({
   creatorId: string;
   showProfile?: boolean;
 }) => {
+  const showCollectorTabs = isFeatureEnabled("collectors");
+
   return (
     <nav
       id="nav-tabs"
-      class="flex flex-col md:flex-row items-center justify-center border-b border-outline gap-4 mb-8 mt-4 bg-surface"
+      class="flex flex-col md:flex-row flex-wrap items-center justify-center border-b border-outline gap-2 md:gap-4 mb-8 mt-4 bg-surface"
     >
-      <NavLink href="/dashboard" currentPath={currentPath}>
+      <NavLink href="/dashboard" currentPath={currentPath} exact>
         {booksIcon}
         Books
       </NavLink>
@@ -30,10 +36,26 @@ const NavTabs = ({
         {analyticsIcon}
         Analytics
       </NavLink>
-      <NavLink href="/dashboard/messages" currentPath={currentPath}>
+      <NavLink href="/dashboard/posts" currentPath={currentPath}>
         {mailIcon(5)}
         Posts
       </NavLink>
+      {showCollectorTabs ? (
+        <>
+          <NavLink href="/dashboard/shelf" currentPath={currentPath}>
+            {bookIcon}
+            Shelf
+          </NavLink>
+          <NavLink href="/dashboard/favorites" currentPath={currentPath}>
+            {fullHeartIcon(5)}
+            Favorites
+          </NavLink>
+          <NavLink href="/dashboard/lists" currentPath={currentPath}>
+            {libraryIcon(5)}
+            Lists
+          </NavLink>
+        </>
+      ) : null}
       {showProfile ? (
         <NavLink
           href={`/dashboard/creators/${creatorId}`}
@@ -54,13 +76,13 @@ const NavTabs = ({
 type NavLinkProps = PropsWithChildren<{
   href: string;
   currentPath?: string | null;
+  exact?: boolean;
 }>;
 
-const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
-  const isActive =
-    href === "/dashboard"
-      ? currentPath === href
-      : Boolean(currentPath?.startsWith(href));
+const NavLink = ({ href, children, currentPath, exact = false }: NavLinkProps) => {
+  const isActive = exact
+    ? currentPath === href
+    : Boolean(currentPath?.startsWith(href));
 
   return (
     <li class="list-none">

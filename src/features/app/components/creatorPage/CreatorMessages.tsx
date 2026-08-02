@@ -36,7 +36,7 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
                 who follow you.
               </p>
               <a
-                href="/dashboard/messages"
+                href="/dashboard/posts"
                 class="mt-4 inline-block text-sm font-medium text-accent hover:underline"
               >
                 Write your first post →

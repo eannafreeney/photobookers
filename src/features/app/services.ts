@@ -44,10 +44,11 @@ import {
   CREATOR_CARD_COLUMNS,
   CREATOR_CARD_SELECT,
 } from "../../constants/queries";
-import { collectorPosts, Creator, creatorMessages } from "../../db/schema";
+import { collectorPosts, Creator } from "../../db/schema";
 import { err, ok } from "../../lib/result";
 import { isFeatureEnabled } from "../../lib/features";
 import { mergeFeedItems } from "./followerFeed";
+import { listPostsByCreatorSlug } from "../../domain/posts/services";
 import { LRUCache } from "lru-cache";
 
 type CachedBook = Omit<InferSelectModel<typeof books>, "images"> & {
@@ -963,8 +964,7 @@ export const getFollowerFeed = async (
 ) => {
   const includeMessages =
     options?.includeMessages ?? isFeatureEnabled("messages");
-
-  const includePosts = isFeatureEnabled("collectors");
+  const includeCollectorPosts = isFeatureEnabled("collectors");
 
   try {
     const allFollows = await db.query.follows.findMany({
@@ -981,11 +981,41 @@ export const getFollowerFeed = async (
       .map((follow) => follow.targetUserId)
       .filter((id): id is string => id !== null);
 
-    // Only surface posts from collectors who still have a public shelf.
+    const ownedCreators =
+      includeMessages && followedCreatorIds.length > 0
+        ? await db.query.creators.findMany({
+            where: inArray(creators.id, followedCreatorIds),
+            columns: {
+              id: true,
+              ownerUserId: true,
+              displayName: true,
+              slug: true,
+              coverUrl: true,
+            },
+          })
+        : [];
+
+    const creatorOwnerIds = ownedCreators
+      .map((c) => c.ownerUserId)
+      .filter((id): id is string => Boolean(id));
+    const creatorByOwner = new Map(
+      ownedCreators
+        .filter((c) => c.ownerUserId)
+        .map((c) => [c.ownerUserId!, c]),
+    );
+
+    // Collector posts: followed users with a public shelf and no creator profile.
     const publicFollowedUsers =
-      includePosts && followedUserIds.length > 0
+      includeCollectorPosts && followedUserIds.length > 0
         ? await db.query.users.findMany({
-            columns: { id: true },
+            columns: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              shelfSlug: true,
+              profileImageUrl: true,
+            },
+            with: { creators: { columns: { id: true }, limit: 1 } },
             where: and(
               inArray(users.id, followedUserIds),
               eq(users.shelfPublic, true),
@@ -993,16 +1023,27 @@ export const getFollowerFeed = async (
             ),
           })
         : [];
-    const publicFollowedUserIds = publicFollowedUsers.map((u) => u.id);
+    const collectorAuthorIds = publicFollowedUsers
+      .filter((u) => !u.creators[0])
+      .map((u) => u.id);
+    const collectorAuthorById = new Map(
+      publicFollowedUsers
+        .filter((u) => !u.creators[0])
+        .map((u) => [u.id, u]),
+    );
 
-    const hasPostSources = publicFollowedUserIds.length > 0;
+    const postAuthorIds = [
+      ...new Set([...creatorOwnerIds, ...collectorAuthorIds]),
+    ];
+    const hasPostSources = postAuthorIds.length > 0;
+    const hasCreators = followedCreatorIds.length > 0;
 
-    if (followedCreatorIds.length === 0 && !hasPostSources) {
+    if (!hasCreators && !hasPostSources) {
       return ok({ items: [], totalPages: 0, page: 1 });
     }
 
     const postWhere = hasPostSources
-      ? inArray(collectorPosts.userId, publicFollowedUserIds)
+      ? inArray(collectorPosts.userId, postAuthorIds)
       : undefined;
 
     const [{ value: postCount = 0 }] = hasPostSources
@@ -1012,97 +1053,36 @@ export const getFollowerFeed = async (
           .where(postWhere)
       : [{ value: 0 }];
 
-    if (followedCreatorIds.length === 0) {
-      // Only collector posts to show.
-      const { page, totalPages } = getPagination(currentPage, postCount, limit);
-      const fetchLimit = page * limit;
-      const feedPosts = hasPostSources
-        ? await db.query.collectorPosts.findMany({
-            where: postWhere,
-            orderBy: [desc(collectorPosts.createdAt)],
-            limit: fetchLimit,
-            with: {
-              user: {
-                columns: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  shelfSlug: true,
-                  profileImageUrl: true,
-                },
-              },
-            },
-          })
-        : [];
-      const items = mergeFeedItems(
-        [],
-        [],
-        feedPosts.map((p) => ({ ...p, author: p.user })),
-        page,
-        limit,
-      );
-      return ok({ items, totalPages, page });
-    }
+    const bookWhere = hasCreators
+      ? and(
+          or(
+            inArray(books.artistId, followedCreatorIds),
+            inArray(books.publisherId, followedCreatorIds),
+          ),
+          eq(books.publicationStatus, "published"),
+          or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+        )
+      : undefined;
 
-    const bookWhere = and(
-      or(
-        inArray(books.artistId, followedCreatorIds),
-        inArray(books.publisherId, followedCreatorIds),
-      ),
-      eq(books.publicationStatus, "published"),
-      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-    );
-    const messageWhere = inArray(
-      creatorMessages.creatorId,
-      followedCreatorIds,
-    );
-
-    const [{ value: bookCount = 0 }] = await db
-      .select({ value: count() })
-      .from(books)
-      .where(bookWhere);
-
-    const [{ value: messageCount = 0 }] = includeMessages
-      ? await db
-          .select({ value: count() })
-          .from(creatorMessages)
-          .where(messageWhere)
+    const [{ value: bookCount = 0 }] = bookWhere
+      ? await db.select({ value: count() }).from(books).where(bookWhere)
       : [{ value: 0 }];
 
-    const totalCount = bookCount + messageCount + postCount;
-    const { page, totalPages } = getPagination(
-      currentPage,
-      totalCount,
-      limit,
-    );
+    const totalCount = bookCount + postCount;
+    const { page, totalPages } = getPagination(currentPage, totalCount, limit);
     const fetchLimit = page * limit;
 
-    const [feedBooks, feedMessages, feedPosts] = await Promise.all([
-      db.query.books.findMany({
-        where: bookWhere,
-        columns: { ...BOOK_CARD_COLUMNS, createdAt: true },
-        with: {
-          artist: { columns: CREATOR_CARD_COLUMNS },
-          publisher: { columns: CREATOR_CARD_COLUMNS },
-        },
-        orderBy: getBooksOrderBy("newest"),
-        limit: fetchLimit,
-      }),
-      includeMessages
-        ? db.query.creatorMessages.findMany({
-            where: messageWhere,
-            orderBy: [desc(creatorMessages.createdAt)],
-            limit: fetchLimit,
+    const [feedBooks, rawPosts] = await Promise.all([
+      bookWhere
+        ? db.query.books.findMany({
+            where: bookWhere,
+            columns: { ...BOOK_CARD_COLUMNS, createdAt: true },
             with: {
-              creator: {
-                columns: {
-                  id: true,
-                  displayName: true,
-                  slug: true,
-                  coverUrl: true,
-                },
-              },
+              artist: { columns: CREATOR_CARD_COLUMNS },
+              publisher: { columns: CREATOR_CARD_COLUMNS },
             },
+            orderBy: getBooksOrderBy("newest"),
+            limit: fetchLimit,
           })
         : Promise.resolve([]),
       hasPostSources
@@ -1125,14 +1105,26 @@ export const getFollowerFeed = async (
         : Promise.resolve([]),
     ]);
 
-    const items = mergeFeedItems(
-      feedBooks,
-      feedMessages,
-      feedPosts.map((p) => ({ ...p, author: p.user })),
-      page,
-      limit,
-    );
+    const feedMessages = [];
+    const feedPosts = [];
+    for (const p of rawPosts) {
+      const creator = creatorByOwner.get(p.userId);
+      if (creator) {
+        feedMessages.push({
+          ...p,
+          creator: {
+            id: creator.id,
+            displayName: creator.displayName,
+            slug: creator.slug,
+            coverUrl: creator.coverUrl,
+          },
+        });
+      } else if (collectorAuthorById.has(p.userId)) {
+        feedPosts.push({ ...p, author: p.user });
+      }
+    }
 
+    const items = mergeFeedItems(feedBooks, feedMessages, feedPosts, page, limit);
     return ok({ items, totalPages, page });
   } catch (error) {
     console.error("Failed to get follower feed", error);
@@ -1504,55 +1496,13 @@ export const getRelatedCreators = async (
   }
 };
 
-// Add this function (and keep the getPagination + follows pattern consistent with getFeedBooks):
-export const getMessagesForFollower = async (
+import { getMessagesForFollower as getMessagesForFollowerFromDashboard } from "../dashboard/messages/services";
+
+export const getMessagesForFollower = (
   followerUserId: string,
   currentPage = 1,
   limit = 20,
-) => {
-  try {
-    const userFollows = await db.query.follows.findMany({
-      where: and(
-        eq(follows.followerUserId, followerUserId),
-        eq(follows.targetType, "creator"),
-      ),
-    });
-    const followedCreatorIds = userFollows
-      .map((f) => f.targetCreatorId)
-      .filter((id): id is string => id != null);
-    if (followedCreatorIds.length === 0) {
-      return ok({ messages: [], totalPages: 0, page: 1 });
-    }
-
-    const [{ value: totalCount = 0 }] = await db
-      .select({ value: count() })
-      .from(creatorMessages)
-      .where(inArray(creatorMessages.creatorId, followedCreatorIds));
-
-    const {
-      page,
-      limit: take,
-      offset,
-      totalPages,
-    } = getPagination(currentPage, totalCount, limit);
-
-    const messages = await db.query.creatorMessages.findMany({
-      where: inArray(creatorMessages.creatorId, followedCreatorIds),
-      orderBy: [desc(creatorMessages.createdAt)],
-      limit: take,
-      offset,
-      with: {
-        creator: {
-          columns: { id: true, displayName: true, slug: true, coverUrl: true },
-        },
-      },
-    });
-    return ok({ messages, totalPages, page });
-  } catch (e) {
-    console.error("Failed to get messages for follower", e);
-    return err({ reason: "Failed to get messages for follower", error: e });
-  }
-};
+) => getMessagesForFollowerFromDashboard(followerUserId, currentPage, limit);
 
 export const getHomepageStats = async () => {
   try {
@@ -1741,45 +1691,20 @@ export const getMessagesByCreatorSlug = async (
   currentPage = 1,
   limit = 20,
 ) => {
-  try {
-    const creator = await db.query.creators.findFirst({
-      where: eq(creators.slug, creatorSlug),
-      columns: {
-        id: true,
-        slug: true,
-        displayName: true,
-        coverUrl: true,
-        type: true,
-      },
-    });
-    if (!creator) return err({ reason: "Creator not found" });
-    const [{ value: totalCount = 0 }] = await db
-      .select({ value: count() })
-      .from(creatorMessages)
-      .where(eq(creatorMessages.creatorId, creator.id));
-
-    const { page, limit, offset, totalPages } = getPagination(
-      currentPage,
-      totalCount,
-      5,
-    );
-
-    const foundMessages = await db.query.creatorMessages.findMany({
-      where: eq(creatorMessages.creatorId, creator.id),
-      orderBy: [desc(creatorMessages.createdAt)],
-      limit,
-      offset,
-      with: {
-        creator: {
-          columns: { id: true, slug: true, displayName: true, coverUrl: true },
-        },
-      },
-    });
-    return ok({ messages: foundMessages ?? [], totalPages, page, creator });
-  } catch (error) {
-    console.error("Failed to get messages by creator slug", error);
-    return err({ reason: "Failed to get messages by creator slug", error });
+  const [error, result] = await listPostsByCreatorSlug(
+    creatorSlug,
+    currentPage,
+    limit,
+  );
+  if (error || !result) {
+    return err(error ?? { reason: "Failed to get messages by creator slug" });
   }
+  return ok({
+    messages: result.posts,
+    totalPages: result.totalPages,
+    page: result.page,
+    creator: result.creator,
+  });
 };
 
 export const getPublishedInterviews = async () => {

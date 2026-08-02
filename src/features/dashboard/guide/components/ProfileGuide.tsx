@@ -104,7 +104,7 @@ const ProfileGuide = ({ creator }: Props) => {
         step={4}
         icon={updatesIcon}
         title="Post updates regularly"
-        cta={{ label: "Write a post", href: "/dashboard/messages" }}
+        cta={{ label: "Write a post", href: "/dashboard/posts" }}
       >
         <p>
           Posts appear in your <strong>Posts</strong> tab and in your followers'

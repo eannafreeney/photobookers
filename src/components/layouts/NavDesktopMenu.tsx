@@ -160,6 +160,11 @@ const DropDownMenu = ({
           >
             {`View ${user?.creator?.displayName}`}
           </NavLink>
+          <FeatureGuard flagName="collectors">
+            <NavLink href="/followed-collectors" currentPath={currentPath}>
+              Collectors I Follow
+            </NavLink>
+          </FeatureGuard>
         </>
       )}
       {user?.isAdmin && (

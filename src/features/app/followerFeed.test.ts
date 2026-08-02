@@ -22,7 +22,7 @@ const book = (id: string, sortDate: Date): FeedBook => ({
 
 const message = (id: string, sortDate: Date): FeedMessage => ({
   id,
-  creatorId: "creator-1",
+  userId: "user-1",
   body: `Message ${id}`,
   imageUrl: null,
   notifyFollowersSentAt: null,
@@ -41,6 +41,7 @@ const post = (id: string, sortDate: Date): FeedPost => ({
   userId: "user-1",
   body: `Post ${id}`,
   imageUrl: null,
+  notifyFollowersSentAt: null,
   createdAt: sortDate,
   updatedAt: null,
   author: {

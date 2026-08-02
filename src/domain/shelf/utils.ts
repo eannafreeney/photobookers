@@ -32,11 +32,9 @@ type ShelfOwnerFields = {
   email?: string | null;
 };
 
-/** Shelves are collector-only — users with a creator profile cannot own one. */
-export function userCanHaveShelf(user: {
-  creator?: unknown;
-} | null): boolean {
-  return Boolean(user && !user.creator);
+/** Any signed-in member can own a shelf (creators included). */
+export function userCanHaveShelf(user: { id?: string } | null): boolean {
+  return Boolean(user?.id);
 }
 
 /** Capitalize the first letter of each word so stored lowercase names read nicely. */

@@ -20,16 +20,18 @@ export function truncatePostBody(body: string, maxLen = 200): string {
 }
 
 export function buildCreatorPostNotificationHtml(
-  creatorDisplayName: string,
-  creatorSlug: string,
+  displayName: string,
+  profileSlug: string,
   postBody: string,
   imageUrl: string | null,
+  linkPath?: string,
 ): string {
-  const link = `${process.env.SITE_URL ?? "https://photobookers.com"}/creators/${creatorSlug}`;
+  const path = linkPath ?? `/creators/${profileSlug}`;
+  const link = `${process.env.SITE_URL ?? "https://photobookers.com"}${path}`;
   const preview = truncatePostBody(postBody);
   return `
-      <h2>New post from ${creatorDisplayName}</h2>
-      <p>${creatorDisplayName} shared an update on Photobookers:</p>
+      <h2>New post from ${displayName}</h2>
+      <p>${displayName} shared an update on Photobookers:</p>
       <blockquote style="margin: 1em 0; padding-left: 1em; border-left: 3px solid #ccc;">${preview}</blockquote>
       ${imageUrl ? `<img src="${imageUrl}" alt="Post image" width="300" />` : ""}
       <p><a href="${link}">Read on Photobookers</a></p>

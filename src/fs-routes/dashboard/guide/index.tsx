@@ -57,6 +57,15 @@ export const GET = createRoute(async (c: Context) => {
           intro="A practical checklist for building a profile that gets discovered, followed, and bought from."
         />
         <ProfileGuide creator={creator} />
+        {isFeatureEnabledForUser("collectors", user) ? (
+          <div class="mt-12 flex flex-col gap-4 border-t border-outline pt-8">
+            <PageHeader
+              title="Your personal shelf"
+              intro="Creators can also run a public shelf for favourites, lists, and posts."
+            />
+            <CollectorGuide />
+          </div>
+        ) : null}
       </CreatorDashboardShell>
     </AppLayout>,
   );

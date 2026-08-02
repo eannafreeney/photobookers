@@ -1,10 +1,16 @@
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "../../db/client";
-import { books, creatorMessages, creators, follows, users } from "../../db/schema";
+import { books, creators, follows, users } from "../../db/schema";
 import {
   buildCreatorPostNotificationHtml,
   buildNewBookNotificationHtml,
 } from "./emails";
+import {
+  getPostsDueForFollowerNotification,
+  markPostNotificationsSent,
+} from "../../domain/posts/services";
+import { formatShelfOwnerName } from "../../domain/shelf/utils";
+import { sql } from "drizzle-orm";
 
 export type EmailToSend = { to: string; subject: string; html: string };
 
@@ -42,24 +48,7 @@ export async function markFollowerNotificationsSent(bookIds: string[]) {
     .where(inArray(books.id, bookIds));
 }
 
-/** Posts not yet emailed to followers. */
-export async function getPostsDueForFollowerNotification() {
-  return db
-    .select({
-      id: creatorMessages.id,
-      body: creatorMessages.body,
-      imageUrl: creatorMessages.imageUrl,
-      creatorId: creatorMessages.creatorId,
-      creatorDisplayName: creators.displayName,
-      creatorSlug: creators.slug,
-    })
-    .from(creatorMessages)
-    .innerJoin(creators, eq(creatorMessages.creatorId, creators.id))
-    .where(isNull(creatorMessages.notifyFollowersSentAt))
-    .orderBy(creatorMessages.createdAt);
-}
-
-/** Build one batch of emails for all unsent posts (one email per follower per post). */
+/** Build emails for unsent unified posts (creator-followers or user-followers). */
 export async function buildCreatorPostNotificationEmails(): Promise<{
   emails: EmailToSend[];
   postIds: string[];
@@ -69,18 +58,40 @@ export async function buildCreatorPostNotificationEmails(): Promise<{
   const postIds: string[] = [];
 
   for (const post of duePosts) {
-    const toList = await getFollowerEmailsByCreatorId(post.creatorId);
+    const creator = post.user.creators[0] ?? null;
+    let toList: string[] = [];
+    let displayName: string;
+    let profileSlug: string;
+    let linkPath: string;
+
+    if (creator) {
+      toList = await getFollowerEmailsByCreatorId(creator.id);
+      displayName = creator.displayName;
+      profileSlug = creator.slug;
+      linkPath = `/creators/${creator.slug}`;
+    } else if (post.user.shelfPublic && post.user.shelfSlug) {
+      toList = await getFollowerEmailsByUserId(post.user.id);
+      displayName = formatShelfOwnerName(post.user);
+      profileSlug = post.user.shelfSlug;
+      linkPath = `/shelf/${post.user.shelfSlug}`;
+    } else {
+      // No audience yet — mark sent so it doesn't retry forever.
+      postIds.push(post.id);
+      continue;
+    }
+
     if (toList.length === 0) {
       postIds.push(post.id);
       continue;
     }
 
-    const subject = `New post from ${post.creatorDisplayName}`;
+    const subject = `New post from ${displayName}`;
     const html = buildCreatorPostNotificationHtml(
-      post.creatorDisplayName,
-      post.creatorSlug,
+      displayName,
+      profileSlug,
       post.body,
       post.imageUrl,
+      linkPath,
     );
     for (const to of toList) {
       emails.push({ to, subject, html });
@@ -92,11 +103,7 @@ export async function buildCreatorPostNotificationEmails(): Promise<{
 }
 
 export async function markCreatorPostNotificationsSent(postIds: string[]) {
-  if (postIds.length === 0) return;
-  await db
-    .update(creatorMessages)
-    .set({ notifyFollowersSentAt: new Date() })
-    .where(inArray(creatorMessages.id, postIds));
+  await markPostNotificationsSent(postIds);
 }
 
 /** Books that should trigger "notify followers" today (scheduled date = today, not yet sent). */
@@ -123,6 +130,7 @@ export async function getBooksDueForFollowerNotification() {
       ),
     );
 }
+
 /** Follower emails for a creator (targetType = 'creator'). */
 export async function getFollowerEmailsByCreatorId(
   creatorId: string,
@@ -136,6 +144,20 @@ export async function getFollowerEmailsByCreatorId(
         eq(follows.targetCreatorId, creatorId),
         eq(follows.targetType, "creator"),
       ),
+    );
+  return rows.map((r) => r.email).filter(Boolean);
+}
+
+/** Follower emails for a user/shelf (targetType = 'user'). */
+export async function getFollowerEmailsByUserId(
+  userId: string,
+): Promise<string[]> {
+  const rows = await db
+    .select({ email: users.email })
+    .from(follows)
+    .innerJoin(users, eq(follows.followerUserId, users.id))
+    .where(
+      and(eq(follows.targetUserId, userId), eq(follows.targetType, "user")),
     );
   return rows.map((r) => r.email).filter(Boolean);
 }

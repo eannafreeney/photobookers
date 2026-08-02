@@ -75,7 +75,9 @@ export const GET = createRoute(
       c.header("Cache-Control", "private, no-store");
     }
 
-    const posts = await listCollectorPosts(owner.id);
+    const posts = owner.creator
+      ? []
+      : await listCollectorPosts(owner.id);
     const publicLists = await getPublicListsForUser(owner.id);
 
     const title = pageTitle(`${owner.displayName}'s shelf`);
@@ -113,7 +115,7 @@ export const GET = createRoute(
               <p class="rounded border border-outline bg-surface-alt px-4 py-3 text-sm text-on-surface">
                 This is your public shelf.{" "}
                 <a
-                  href="/shelf"
+                  href="/dashboard/shelf"
                   class="text-accent underline underline-offset-2"
                 >
                   Manage sharing settings
@@ -128,9 +130,19 @@ export const GET = createRoute(
                   class="size-14 rounded-full object-cover shrink-0"
                   loading="lazy"
                 />
-                <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
-                  {`${owner.displayName}'s shelf`}
-                </h1>
+                <div class="flex flex-col gap-1">
+                  <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
+                    {`${owner.displayName}'s shelf`}
+                  </h1>
+                  {owner.creator?.slug ? (
+                    <a
+                      href={`/creators/${owner.creator.slug}`}
+                      class="text-sm text-accent underline underline-offset-2"
+                    >
+                      Also a creator → {owner.creator.displayName}
+                    </a>
+                  ) : null}
+                </div>
               </div>
               <div class="flex flex-col items-end justify-end gap-3">
                 <div class="flex items-center gap-4">
@@ -166,14 +178,23 @@ export const GET = createRoute(
               >
                 {`Lists (${publicLists.length + 1})`}
               </button>
-              <button
-                type="button"
-                x-on:click="tab = 'posts'"
-                x-bind:class="tab === 'posts' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
-                class="px-3 py-2 text-sm font-medium"
-              >
-                {`Posts (${posts.length})`}
-              </button>
+              {owner.creator ? (
+                <a
+                  href={`/creators/${owner.creator.slug}`}
+                  class="px-3 py-2 text-sm font-medium text-accent underline underline-offset-2"
+                >
+                  Posts on creator profile →
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  x-on:click="tab = 'posts'"
+                  x-bind:class="tab === 'posts' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
+                  class="px-3 py-2 text-sm font-medium"
+                >
+                  {`Posts (${posts.length})`}
+                </button>
+              )}
             </div>
 
             <div x-show="tab === 'favourites'" id="favourites">
@@ -193,23 +214,25 @@ export const GET = createRoute(
               />
             </div>
 
-            <div x-show="tab === 'posts'" x-cloak class="flex flex-col gap-4">
-              {posts.length === 0 ? (
-                <p class="text-sm text-on-surface">No posts yet.</p>
-              ) : (
-                posts.map((post) => (
-                  <PostCard
-                    post={post}
-                    author={{
-                      shelfSlug: owner.shelfSlug,
-                      firstName: owner.firstName,
-                      lastName: owner.lastName,
-                      profileImageUrl: owner.profileImageUrl,
-                    }}
-                  />
-                ))
-              )}
-            </div>
+            {!owner.creator ? (
+              <div x-show="tab === 'posts'" x-cloak class="flex flex-col gap-4">
+                {posts.length === 0 ? (
+                  <p class="text-sm text-on-surface">No posts yet.</p>
+                ) : (
+                  posts.map((post) => (
+                    <PostCard
+                      post={post}
+                      author={{
+                        shelfSlug: owner.shelfSlug,
+                        firstName: owner.firstName,
+                        lastName: owner.lastName,
+                        profileImageUrl: owner.profileImageUrl,
+                      }}
+                    />
+                  ))
+                )}
+              </div>
+            ) : null}
           </div>
         </Page>
       </AppLayout>,

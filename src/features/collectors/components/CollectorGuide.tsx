@@ -8,16 +8,16 @@ const CollectorGuide = () => {
   return (
     <div class="flex flex-col gap-8">
       <p class="max-w-2xl text-sm md:text-base text-on-surface text-pretty">
-        Your collector profile is how other people discover your taste. Make
-        your shelf public, favourite the books you love, curate lists, and post
-        updates so others can follow along. Here's how to get set up.
+        Your shelf is how other people discover your taste. Make it public,
+        favourite the books you love, curate lists, and post updates so others
+        can follow along. Here's how to get set up.
       </p>
 
       <GuideSection
         step={1}
         icon={usersIcon(5)}
         title="Make your shelf public"
-        cta={{ label: "Manage sharing settings", href: "/shelf" }}
+        cta={{ label: "Manage sharing settings", href: "/dashboard/shelf" }}
       >
         <p>
           Your shelf is your public profile. Turn on sharing and pick a URL so
@@ -66,7 +66,7 @@ const CollectorGuide = () => {
         step={4}
         icon={mailIcon(5)}
         title="Post updates"
-        cta={{ label: "Write a post", href: "/dashboard" }}
+        cta={{ label: "Write a post", href: "/dashboard/posts" }}
       >
         <p>
           Share a recent find, a favourite spread, or what you're hunting for.

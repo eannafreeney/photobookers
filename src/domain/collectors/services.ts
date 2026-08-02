@@ -1,6 +1,6 @@
-import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, notExists, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
-import { follows, users } from "../../db/schema";
+import { creators, follows, users } from "../../db/schema";
 import { err, ok } from "../../lib/result";
 
 export type CollectorCard = {
@@ -19,10 +19,17 @@ const PUBLIC_COLLECTOR_COLUMNS = {
   profileImageUrl: true,
 } as const;
 
-// Only public collectors (opt-in via shelfPublic + a slug) are ever exposed.
+// Public shelves owned by non-creators only — creators keep /shelf/:slug but
+// stay out of the Collectors directory.
 const publicCollectorFilter = and(
   eq(users.shelfPublic, true),
   sql`${users.shelfSlug} IS NOT NULL`,
+  notExists(
+    db
+      .select({ id: creators.id })
+      .from(creators)
+      .where(eq(creators.ownerUserId, users.id)),
+  ),
 );
 
 export async function searchCollectors(searchQuery: string, limit = 5) {

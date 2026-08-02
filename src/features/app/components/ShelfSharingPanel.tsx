@@ -1,21 +1,22 @@
 import { AuthUser } from "../../../../types";
 import FeatureGuard from "../../../components/layouts/FeatureGuard";
 import Button from "../../../components/app/Button";
-import ShareButton from "../../api/components/ShareButton";
-import {
-  shelfProfileUrl,
-  shelfShareText,
-  shelfShareTitle,
-} from "../../../lib/share";
+import { shelfProfileUrl } from "../../../lib/share";
 import { getInitialsAvatar } from "../../../lib/avatar";
 
 type Props = {
   user: AuthUser;
   suggestedSlug: string | null;
   message?: string | null;
+  defaultOpen?: boolean;
 };
 
-const ShelfSharingPanel = ({ user, suggestedSlug, message }: Props) => {
+const ShelfSharingPanel = ({
+  user,
+  suggestedSlug,
+  message,
+  defaultOpen = false,
+}: Props) => {
   const avatarUrl =
     user.profileImageUrl ??
     getInitialsAvatar(user.firstName ?? "", user.lastName ?? "");
@@ -28,7 +29,10 @@ const ShelfSharingPanel = ({ user, suggestedSlug, message }: Props) => {
 
   return (
     <FeatureGuard flagName="collectors">
-      <details class="group rounded border border-outline bg-surface-alt">
+      <details
+        class="group rounded border border-outline bg-surface-alt"
+        open={defaultOpen ? true : undefined}
+      >
         <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-4 sm:p-5 [&::-webkit-details-marker]:hidden">
           <span class="flex flex-col">
             <span class="text-sm font-semibold text-on-surface-strong">

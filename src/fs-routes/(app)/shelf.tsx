@@ -6,14 +6,13 @@ import BooksGrid from "../../features/app/components/BooksGrid";
 import MemberSignInPrompt, {
   memberSignInPrompts,
 } from "../../features/app/components/MemberSignInPrompt";
-import ShelfSharingPanel from "../../features/app/components/ShelfSharingPanel";
 import PrivateShelfListsStrip from "../../features/app/components/PrivateShelfListsStrip";
 import { getBooksInWishlist } from "../../features/app/services";
-import { suggestShelfSlug } from "../../domain/shelf/services";
 import { userCanHaveShelf } from "../../domain/shelf/utils";
 import { listBookListsWithCounts } from "../../domain/lists/services";
 import InfoPage from "../../pages/InfoPage";
 import PageHeader from "../../components/app/PageHeader";
+import Link from "../../components/app/Link";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -71,15 +70,12 @@ export const GET = createRoute(async (c) => {
     );
   }
 
-  const suggestedSlug = await suggestShelfSlug(user.id);
   const lists = await listBookListsWithCounts(user.id);
 
   const alpineAttrs = {
     "x-init": true,
     "x-merge": "replace",
     "@shelf:updated.window":
-      "$ajax('/shelf', { target: 'shelf-container' })",
-    "@avatar:updated.window":
       "$ajax('/shelf', { target: 'shelf-container' })",
   };
 
@@ -102,7 +98,10 @@ export const GET = createRoute(async (c) => {
             title="Shelf"
             intro="The books you’ve favorited, all in one place."
           />
-          <ShelfSharingPanel user={user} suggestedSlug={suggestedSlug} />
+          <p class="text-sm text-on-surface">
+            Manage sharing settings in your{" "}
+            <Link href="/dashboard/shelf">dashboard</Link>.
+          </p>
           <PrivateShelfListsStrip
             lists={lists}
             shelfSlug={user.shelfSlug}

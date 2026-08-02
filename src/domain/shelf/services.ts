@@ -51,10 +51,14 @@ export async function suggestShelfSlug(userId: string) {
 export async function getPublicShelfBySlug(slug: string) {
   const user = await db.query.users.findFirst({
     where: and(eq(users.shelfSlug, slug), eq(users.shelfPublic, true)),
-    with: { creators: { columns: { id: true } } },
+    with: {
+      creators: { columns: { id: true, slug: true, displayName: true } },
+    },
   });
 
-  if (!user || user.creators[0]) return err({ reason: "Shelf not found" });
+  if (!user) return err({ reason: "Shelf not found" });
+
+  const creator = user.creators[0] ?? null;
 
   return ok({
     user: {
@@ -67,6 +71,13 @@ export async function getPublicShelfBySlug(slug: string) {
         firstName: user.firstName,
         lastName: user.lastName,
       }),
+      creator: creator
+        ? {
+            id: creator.id,
+            slug: creator.slug,
+            displayName: creator.displayName,
+          }
+        : null,
     },
   });
 }
@@ -136,12 +147,9 @@ export async function updateShelfSharing(
 ) {
   const owner = await db.query.users.findFirst({
     where: eq(users.id, userId),
-    with: { creators: { columns: { id: true } } },
+    columns: { id: true },
   });
   if (!owner) return err({ reason: "User not found" });
-  if (owner.creators[0]) {
-    return err({ reason: "Creators cannot have a shelf" });
-  }
 
   if (!input.shelfPublic) {
     try {

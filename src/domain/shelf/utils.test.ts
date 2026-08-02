@@ -23,10 +23,10 @@ describe("formatShelfOwnerName", () => {
 });
 
 describe("userCanHaveShelf", () => {
-  it("is true only for collectors", () => {
-    expect(userCanHaveShelf({ creator: null })).toBe(true);
-    expect(userCanHaveShelf({ creator: undefined })).toBe(true);
-    expect(userCanHaveShelf({ creator: { id: "c1" } })).toBe(false);
+  it("is true for any signed-in user", () => {
+    expect(userCanHaveShelf({ id: "u1" })).toBe(true);
+    expect(userCanHaveShelf({ id: "u2" })).toBe(true);
+    expect(userCanHaveShelf({})).toBe(false);
     expect(userCanHaveShelf(null)).toBe(false);
   });
 });
