@@ -19,7 +19,15 @@ async function getRow(kind: "botd" | "aotw" | "potw", id: string) {
     case "botd":
       return db.query.bookOfTheDay.findFirst({
         where: eq(bookOfTheDay.id, id),
-        with: { book: { columns: { title: true } } },
+        with: {
+          book: {
+            columns: { title: true },
+            with: {
+              artist: { columns: { displayName: true } },
+              publisher: { columns: { displayName: true } },
+            },
+          },
+        },
       });
     case "aotw":
       return db.query.artistOfTheWeek.findFirst({
