@@ -290,20 +290,22 @@ export function buildBotdPostStickerFields(book: BookForCaption): {
   };
 }
 
-/** Story sticker fields for BOTD — artist and publisher DMs only. */
+/** Story sticker fields for BOTD — artist and publisher DMs plus handles. */
 export function buildBotdStoryStickerFields(book: BookForCaption): {
   text: string;
   topics?: string;
+  products?: string;
 } {
   const artistDm = buildBotdArtistDmSticker(book);
   const publisherDm = buildBotdPublisherDmSticker(book);
+  const handles = buildBotdStoryHandles(book);
 
-  if (artistDm && publisherDm) {
-    return { text: artistDm, topics: publisherDm };
-  }
-  if (artistDm) return { text: artistDm };
-  if (publisherDm) return { text: publisherDm };
-  return { text: "Book of the Day" };
+  const result: { text: string; topics?: string; products?: string } = {
+    text: artistDm ?? publisherDm ?? "Book of the Day",
+  };
+  if (artistDm && publisherDm) result.topics = publisherDm;
+  if (handles) result.products = handles;
+  return result;
 }
 
 type SpotlightMention = {

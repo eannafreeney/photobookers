@@ -10,6 +10,10 @@ import { verifyStoryUploadToken } from "../../domain/planner/storyUploadToken";
 import { uploadImageFromBuffer } from "../../services/storage";
 import Alert from "../../components/app/Alert";
 import FormPost from "../../components/forms/FormPost";
+import FileUploadInput from "../../components/forms/FileUpload";
+import ImagePreview from "../../components/forms/ImagePreview";
+import DragAndDropArea from "../../features/dashboard/images/components/DragAndDropArea";
+import Button from "../../components/app/Button";
 
 async function getRow(kind: "botd" | "aotw" | "potw", id: string) {
   switch (kind) {
@@ -76,6 +80,15 @@ export const GET = createRoute(async (c) => {
     return c.html(<Alert type="danger" message="Feature not found" />);
   }
 
+  const alpineAttrs = {
+    "x-data": "storyUploadForm()",
+    "x-target": "toast",
+    "x-target.error": "toast",
+    "@ajax:before": "onBefore()",
+    "@ajax:success": "onSuccess()",
+    "@ajax:error": "onError()",
+  };
+
   return c.html(
     <div class="mx-auto max-w-md p-6">
       <h1 class="mb-2 text-xl font-semibold">
@@ -86,20 +99,39 @@ export const GET = createRoute(async (c) => {
         Portrait/vertical (9:16 ratio, e.g. 1080 × 1920 px). One strong image —
         JPG, PNG, or WebP.
       </p>
-      <FormPost action={`/story-upload/${token}`} enctype="multipart/form-data">
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          required
-          class="mb-4 block w-full text-sm"
-        />
-        <button
-          type="submit"
-          class="rounded bg-black px-4 py-2 text-sm font-medium text-white"
-        >
-          Upload
-        </button>
+      <FormPost
+        action={`/story-upload/${token}`}
+        enctype="multipart/form-data"
+        {...alpineAttrs}
+      >
+        <div class="space-y-4">
+          <div
+            class="flex flex-col items-center gap-4"
+            x-show="previewUrl"
+            x-cloak
+          >
+            <ImagePreview />
+          </div>
+          <DragAndDropArea />
+          <FileUploadInput
+            label="Add image"
+            name="image"
+            required
+            x-on:change="onFileChange"
+            x-ref="fileInput"
+          />
+          <p x-show="error" class="text-sm text-red-600" x-text="error"></p>
+          <div class="flex gap-2">
+            <Button
+              variant="solid"
+              color="primary"
+              x-bind:disabled="isSubmitting || isCompressing"
+            >
+              <span x-show="!isSubmitting">Upload</span>
+              <span x-show="isSubmitting">Uploading…</span>
+            </Button>
+          </div>
+        </div>
       </FormPost>
     </div>,
   );
