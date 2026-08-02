@@ -99,7 +99,7 @@ export const GET = createRoute(async (c) => {
 
   const alpineAttrs = {
     "x-data": "storyUploadForm()",
-    "x-target": "toast",
+    "x-target": "story-upload-form",
     "x-target.error": "toast",
     "@ajax:before": "onBefore()",
     "@ajax:success": "onSuccess()",
@@ -118,6 +118,7 @@ export const GET = createRoute(async (c) => {
           JPG, PNG, or WebP.
         </p>
       <FormPost
+        id="story-upload-form"
         action={`/story-upload/${token}`}
         enctype="multipart/form-data"
         {...alpineAttrs}
