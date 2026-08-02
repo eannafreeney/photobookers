@@ -13,29 +13,31 @@ import {
 export type BotdStorySlideMeta = {
   title: string;
   artistName?: string | null;
+  publisherName?: string | null;
 };
 
 function buildBotdStoryOverlaySvg(meta: BotdStorySlideMeta): string {
   const fonts = getInstagramSlideFonts();
   const title = truncateInstagramSlideText(meta.title, 56);
-  const artist = meta.artistName?.trim()
-    ? truncateInstagramSlideText(meta.artistName, 60)
-    : null;
+  const credits = [meta.artistName, meta.publisherName]
+    .filter(Boolean)
+    .map((name) => truncateInstagramSlideText(name!, 40));
+  const creditsLine = credits.length > 0 ? credits.join(" · ") : null;
 
   return `<svg width="${INSTAGRAM_REEL_WIDTH}" height="${INSTAGRAM_REEL_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>${instagramSlideFontStyles(fonts)}</style>
     <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="rgba(0,0,0,0.38)"/>
-      <stop offset="0.28" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="0" stop-color="rgba(0,0,0,0.42)"/>
+      <stop offset="0.35" stop-color="rgba(0,0,0,0)"/>
       <stop offset="0.72" stop-color="rgba(0,0,0,0)"/>
-      <stop offset="1" stop-color="rgba(0,0,0,0.58)"/>
+      <stop offset="1" stop-color="rgba(0,0,0,0.25)"/>
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#fade)"/>
-  <text x="${INSTAGRAM_REEL_WIDTH / 2}" y="220" text-anchor="middle" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Instrument Sans" font-size="34" font-weight="600" letter-spacing="6" opacity="0.94">BOOK OF THE DAY</text>
-  <text x="${INSTAGRAM_REEL_WIDTH / 2}" y="1600" text-anchor="middle" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Fraunces" font-size="64" font-weight="600">${escapeXml(title)}</text>
-  ${artist ? `<text x="${INSTAGRAM_REEL_WIDTH / 2}" y="1672" text-anchor="middle" fill="#e8e2d6" font-family="Instrument Sans" font-size="36" font-weight="600">${escapeXml(artist)}</text>` : ""}
+  <text x="${INSTAGRAM_REEL_WIDTH / 2}" y="180" text-anchor="middle" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Instrument Sans" font-size="34" font-weight="600" letter-spacing="6" opacity="0.94">BOOK OF THE DAY</text>
+  <text x="${INSTAGRAM_REEL_WIDTH / 2}" y="270" text-anchor="middle" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Fraunces" font-size="56" font-weight="600">${escapeXml(title)}</text>
+  ${creditsLine ? `<text x="${INSTAGRAM_REEL_WIDTH / 2}" y="340" text-anchor="middle" fill="#e8e2d6" font-family="Instrument Sans" font-size="34" font-weight="600">${escapeXml(creditsLine)}</text>` : ""}
 </svg>`;
 }
 

@@ -612,10 +612,12 @@ export async function queuePreparedBotdInstagramStoryForDate(
     ? await renderBotdStoryFullBleed(storySourceUrl, {
         title: row.book?.title ?? "Book of the Day",
         artistName: row.book?.artist?.displayName ?? null,
+        publisherName: row.book?.publisher?.displayName ?? null,
       })
     : await renderBotdStoryBlurred(storySourceUrl, {
         title: row.book?.title ?? "Book of the Day",
         artistName: row.book?.artist?.displayName ?? null,
+        publisherName: row.book?.publisher?.displayName ?? null,
       });
 
   const [uploadError, storyImageUrl] = await uploadBotdStoryImage(
