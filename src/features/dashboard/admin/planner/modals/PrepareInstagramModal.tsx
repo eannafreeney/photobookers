@@ -150,6 +150,8 @@ const PrepareInstagramModal = ({
                     artistProvidedStoryImageUrl={
                       entry.artistProvidedStoryImageUrl
                     }
+                    previewKind="botd"
+                    previewId={entry.id}
                   />
                 );
               })}
@@ -179,6 +181,8 @@ const PrepareInstagramModal = ({
                   artistProvidedStoryImageUrl={
                     artistOfTheWeek.artistProvidedStoryImageUrl
                   }
+                  previewKind="aotw"
+                  previewId={artistOfTheWeek.id}
                 />
               ) : null}
 
@@ -207,6 +211,8 @@ const PrepareInstagramModal = ({
                   artistProvidedStoryImageUrl={
                     publisherOfTheWeek.artistProvidedStoryImageUrl
                   }
+                  previewKind="potw"
+                  previewId={publisherOfTheWeek.id}
                 />
               ) : null}
             </div>
@@ -250,6 +256,8 @@ type ImageCaptionSectionProps = {
   selectedImages: string[];
   tagsLine?: string | null;
   artistProvidedStoryImageUrl?: string | null;
+  previewKind: "botd" | "aotw" | "potw";
+  previewId: string;
 };
 
 const ImageCaptionSection = ({
@@ -261,6 +269,8 @@ const ImageCaptionSection = ({
   selectedImages,
   tagsLine,
   artistProvidedStoryImageUrl,
+  previewKind,
+  previewId,
 }: ImageCaptionSectionProps) => {
   const checkboxName = `imageUrl[${fieldKey}][]`;
   const limitCarouselSelection = `const checked = $el.closest('fieldset').querySelectorAll('input[type=checkbox]:checked'); if (checked.length > ${MAX_INSTAGRAM_CAROUSEL_IMAGES}) $el.checked = false`;
@@ -336,51 +346,17 @@ const ImageCaptionSection = ({
 
       <div class="mt-4 rounded border border-outline bg-surface p-3">
         <p class="mb-2 text-xs font-medium text-on-surface">
-          Story preview (approximate)
+          Story preview
         </p>
         <div
-          class="relative mx-auto w-full max-w-[240px] overflow-hidden rounded"
+          class="relative mx-auto w-full max-w-[240px] overflow-hidden rounded bg-gray-100"
           style="aspect-ratio: 9/16;"
         >
-          {artistProvidedStoryImageUrl ? (
-            <>
-              <img
-                src={artistProvidedStoryImageUrl}
-                alt="Story preview"
-                class="absolute inset-0 h-full w-full object-cover"
-              />
-              <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/25" />
-              <div class="absolute left-0 right-0 top-4 text-center text-[10px] font-semibold uppercase tracking-widest text-white">
-                {title}
-              </div>
-              <div class="absolute left-0 right-0 top-12 text-center">
-                <div class="text-sm font-semibold text-white">{subtitle}</div>
-              </div>
-            </>
-          ) : selectedImages[0] ? (
-            <>
-              <img
-                src={selectedImages[0]}
-                alt="Story preview background"
-                class="absolute inset-0 h-full w-full scale-110 object-cover blur-lg brightness-75"
-              />
-              <img
-                src={selectedImages[0]}
-                alt="Story preview"
-                class="absolute left-1/2 top-1/2 max-h-[70%] max-w-[85%] -translate-x-1/2 -translate-y-1/2 rounded object-contain"
-              />
-              <div class="absolute left-0 right-0 top-4 text-center text-[10px] font-semibold uppercase tracking-widest text-white">
-                {title}
-              </div>
-              <div class="absolute left-0 right-0 top-12 text-center">
-                <div class="text-sm font-semibold text-white">{subtitle}</div>
-              </div>
-            </>
-          ) : (
-            <div class="absolute inset-0 flex items-center justify-center bg-gray-200 text-xs text-gray-500">
-              No image selected
-            </div>
-          )}
+          <img
+            src={`/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}`}
+            alt="Story preview"
+            class="absolute inset-0 h-full w-full object-contain"
+          />
         </div>
       </div>
     </section>
