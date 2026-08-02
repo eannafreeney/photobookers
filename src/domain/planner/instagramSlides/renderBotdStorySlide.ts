@@ -9,6 +9,7 @@ import {
   instagramSlideFontStyles,
   truncateInstagramSlideText,
 } from "./shared";
+import { STORY_OVERLAY_LAYOUT } from "./storyOverlayLayout";
 
 export type BotdStorySlideMeta = {
   title: string;
@@ -19,6 +20,7 @@ export type BotdStorySlideMeta = {
 
 function buildBotdStoryOverlaySvg(meta: BotdStorySlideMeta): string {
   const fonts = getInstagramSlideFonts();
+  const L = STORY_OVERLAY_LAYOUT;
   const title = truncateInstagramSlideText(meta.title, 56);
   const credits = [meta.artistName, meta.publisherName]
     .filter(Boolean)
@@ -29,16 +31,16 @@ function buildBotdStoryOverlaySvg(meta: BotdStorySlideMeta): string {
   <defs>
     <style>${instagramSlideFontStyles(fonts)}</style>
     <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="rgba(0,0,0,0.45)"/>
-      <stop offset="0.35" stop-color="rgba(0,0,0,0)"/>
-      <stop offset="0.72" stop-color="rgba(0,0,0,0)"/>
-      <stop offset="1" stop-color="rgba(0,0,0,0.2)"/>
+      <stop offset="0" stop-color="${L.fade.top}"/>
+      <stop offset="${L.fade.topEnd}" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="${L.fade.bottomStart}" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="1" stop-color="${L.fade.bottom}"/>
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#fade)"/>
-  <text x="80" y="180" text-anchor="start" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Instrument Sans" font-size="34" font-weight="600" letter-spacing="6" opacity="0.94">${escapeXml(meta.label ?? "BOOK OF THE DAY")}</text>
-  <text x="80" y="270" text-anchor="start" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="Fraunces" font-size="56" font-weight="600">${escapeXml(title)}</text>
-  ${creditsLine ? `<text x="80" y="340" text-anchor="start" fill="#e8e2d6" font-family="Instrument Sans" font-size="34" font-weight="600">${escapeXml(creditsLine)}</text>` : ""}
+  <text x="${L.paddingX}" y="${L.label.y}" text-anchor="start" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="${L.label.fontFamily}" font-size="${L.label.fontSize}" font-weight="${L.label.fontWeight}" letter-spacing="${L.label.letterSpacing}" opacity="0.94">${escapeXml(meta.label ?? "BOOK OF THE DAY")}</text>
+  <text x="${L.paddingX}" y="${L.title.y}" text-anchor="start" fill="${INSTAGRAM_SLIDE_COLORS.surface}" font-family="${L.title.fontFamily}" font-size="${L.title.fontSize}" font-weight="${L.title.fontWeight}">${escapeXml(title)}</text>
+  ${creditsLine ? `<text x="${L.paddingX}" y="${L.credits.y}" text-anchor="start" fill="#e8e2d6" font-family="${L.credits.fontFamily}" font-size="${L.credits.fontSize}" font-weight="${L.credits.fontWeight}">${escapeXml(creditsLine)}</text>` : ""}
 </svg>`;
 }
 

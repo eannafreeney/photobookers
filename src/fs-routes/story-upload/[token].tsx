@@ -118,16 +118,22 @@ export const GET = createRoute(async (c) => {
                 alt="Story preview"
                 class="absolute inset-0 h-full w-full object-cover"
               />
-              <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/25" />
-              <div class="absolute left-4 right-4 top-4 text-xs font-semibold uppercase tracking-widest text-white">
-                {payload.kind === "botd"
-                  ? "BOOK OF THE DAY"
-                  : payload.kind === "aotw"
-                    ? "ARTIST OF THE WEEK"
-                    : "PUBLISHER OF THE WEEK"}
-              </div>
-              <div class="absolute bottom-8 left-4 right-4">
-                <div class="text-sm font-semibold text-white">
+              <div
+                class="absolute inset-0"
+                style="background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 35%, transparent 72%, rgba(0,0,0,0.2) 100%);"
+              />
+              <div
+                class="absolute left-0 right-0"
+                style="top: 9.375%; padding-left: 7.4%; padding-right: 7.4%;"
+              >
+                <div class="text-[10px] font-semibold uppercase tracking-[0.35em] text-white">
+                  {payload.kind === "botd"
+                    ? "BOOK OF THE DAY"
+                    : payload.kind === "aotw"
+                      ? "ARTIST OF THE WEEK"
+                      : "PUBLISHER OF THE WEEK"}
+                </div>
+                <div class="mt-2 text-sm font-semibold text-white">
                   {titleFor(payload.kind, row)}
                 </div>
               </div>
