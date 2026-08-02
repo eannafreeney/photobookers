@@ -216,7 +216,11 @@ export const POST = createRoute(async (c) => {
     await setImageUrl(payload.kind, payload.id, uploaded.url);
 
     await setFlash(c, "success", "Image uploaded — thank you! We’ll use this for your Instagram Story.");
-    return c.redirect("/");
+    return c.html(
+      `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/" /></head><body>Redirecting…</body></html>`,
+      200,
+      { "Content-Type": "text/html" },
+    );
   } catch (error) {
     console.error("story upload", error);
     return c.html(
