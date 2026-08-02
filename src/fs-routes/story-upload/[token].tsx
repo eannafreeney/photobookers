@@ -13,6 +13,7 @@ import FormPost from "../../components/forms/FormPost";
 import FileUploadInput from "../../components/forms/FileUpload";
 import DragAndDropArea from "../../features/dashboard/images/components/DragAndDropArea";
 import Button from "../../components/app/Button";
+import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 
 async function getRow(kind: "botd" | "aotw" | "potw", id: string) {
   switch (kind) {
@@ -67,10 +68,10 @@ async function setImageUrl(
 function titleFor(kind: string, row: Awaited<ReturnType<typeof getRow>>) {
   if (!row) return "Instagram Story";
   if (kind === "botd" && "book" in row && row.book) {
-    return `Book of the Day — ${row.book.title}`;
+    return row.book.title;
   }
   if ((kind === "aotw" || kind === "potw") && "creator" in row && row.creator) {
-    return `${kind === "aotw" ? "Artist" : "Publisher"} of the Week — ${row.creator.displayName}`;
+    return row.creator.displayName;
   }
   return "Instagram Story";
 }
@@ -104,15 +105,16 @@ export const GET = createRoute(async (c) => {
   };
 
   return c.html(
-    <div class="mx-auto max-w-md p-6">
-      <h1 class="mb-2 text-xl font-semibold">
-        Upload a vertical image for Instagram Stories
-      </h1>
-      <p class="mb-4 text-sm text-gray-600">{titleFor(payload.kind, row)}</p>
-      <p class="mb-4 text-sm text-gray-600">
-        Portrait/vertical (9:16 ratio, e.g. 1080 × 1920 px). One strong image —
-        JPG, PNG, or WebP.
-      </p>
+    <HeadlessLayout title="Upload Instagram Story image">
+      <div class="mx-auto max-w-md p-6">
+        <h1 class="mb-2 text-xl font-semibold">
+          Upload a vertical image for Instagram Stories
+        </h1>
+        <p class="mb-4 text-sm text-gray-600">{titleFor(payload.kind, row)}</p>
+        <p class="mb-4 text-sm text-gray-600">
+          Portrait/vertical (9:16 ratio, e.g. 1080 × 1920 px). One strong image —
+          JPG, PNG, or WebP.
+        </p>
       <FormPost
         action={`/story-upload/${token}`}
         enctype="multipart/form-data"
@@ -180,7 +182,8 @@ export const GET = createRoute(async (c) => {
           </div>
         </div>
       </FormPost>
-    </div>,
+      </div>
+    </HeadlessLayout>,
   );
 });
 
@@ -204,16 +207,18 @@ export const POST = createRoute(async (c) => {
   await setImageUrl(payload.kind, payload.id, uploaded.url);
 
   return c.html(
-    <div class="mx-auto max-w-md p-6">
-      <Alert type="success" message="Image uploaded — thank you!" />
-      <p class="mt-4 text-sm text-gray-600">
-        We’ll use this for your Instagram Story. You can close this page.
-      </p>
-      <img
-        src={uploaded.url}
-        alt="Uploaded story"
-        class="mt-4 max-h-96 rounded object-contain"
-      />
-    </div>,
+    <HeadlessLayout title="Image uploaded">
+      <div class="mx-auto max-w-md p-6">
+        <Alert type="success" message="Image uploaded — thank you!" />
+        <p class="mt-4 text-sm text-gray-600">
+          We’ll use this for your Instagram Story. You can close this page.
+        </p>
+        <img
+          src={uploaded.url}
+          alt="Uploaded story"
+          class="mt-4 max-h-96 rounded object-contain"
+        />
+      </div>
+    </HeadlessLayout>,
   );
 });
