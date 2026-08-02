@@ -8,6 +8,7 @@ import {
 import { eq } from "drizzle-orm";
 import { verifyStoryUploadToken } from "../../domain/planner/storyUploadToken";
 import { uploadImageFromBuffer } from "../../services/storage";
+import { setFlash } from "../../utils";
 import Alert from "../../components/app/Alert";
 import FormPost from "../../components/forms/FormPost";
 import FormSuccessScreen from "../../components/forms/FormSuccessScreen";
@@ -213,7 +214,8 @@ export const POST = createRoute(async (c) => {
 
     await setImageUrl(payload.kind, payload.id, uploaded.url);
 
-    return c.redirect("/?flash=Image uploaded — thank you! We’ll use this for your Instagram Story.");
+    await setFlash(c, "success", "Image uploaded — thank you! We’ll use this for your Instagram Story.");
+    return c.redirect("/");
   } catch (error) {
     console.error("story upload", error);
     return c.html(
