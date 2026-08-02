@@ -102,6 +102,7 @@ export const GET = createRoute(async (c) => {
     "x-data": "storyUploadForm()",
     "x-target": "story-upload-form",
     "x-target.error": "toast",
+    "x-target.away": "_top",
     "@ajax:before": "onBefore()",
     "@ajax:success": "onSuccess()",
     "@ajax:error": "onError()",
@@ -215,9 +216,7 @@ export const POST = createRoute(async (c) => {
     await setImageUrl(payload.kind, payload.id, uploaded.url);
 
     await setFlash(c, "success", "Image uploaded — thank you! We’ll use this for your Instagram Story.");
-    return c.html(
-      <Alert type="success" message="Image uploaded — thank you! We’ll use this for your Instagram Story." />,
-    );
+    return c.redirect("/");
   } catch (error) {
     console.error("story upload", error);
     return c.html(
