@@ -295,7 +295,7 @@ const ImageCaptionSection = ({
   return (
     <section
       class="rounded border border-outline bg-surface-alt/40 p-4"
-      x-data={`{ selectedImage: ${JSON.stringify(selectedImages[0] ?? null)} }`}
+      x-data={`{ selectedImage: ${JSON.stringify(selectedImages[0] ?? "")} }`}
     >
       <h3 class="mb-3 text-sm font-semibold text-on-surface-strong">{title}</h3>
       <p class="mb-1 text-xs text-on-surface line-clamp-2">{subtitle}</p>
