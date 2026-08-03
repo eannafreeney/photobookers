@@ -376,7 +376,7 @@ const ImageCaptionSection = ({
         <div
           class="relative mx-auto w-full max-w-[240px] overflow-hidden rounded bg-gray-100"
           style="aspect-ratio: 9/16;"
-          x-intersect.once="loadPreview()"
+          {...{ "x-intersect.once": "loadPreview()" }}
         >
           <img
             x-bind:src="previewSrc"
