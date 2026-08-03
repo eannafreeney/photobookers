@@ -284,6 +284,7 @@ describe("instagram caption helpers", () => {
         'Hi! "Winter Light" by Jane Doe was Book of the Day on photobookers.com.',
         "https://www.photobookers.com/books/winter-light",
       ].join("\n"),
+      products: "@janedoe\n@acmepress",
     });
   });
 
@@ -299,6 +300,7 @@ describe("instagram caption helpers", () => {
         'Hi! Your book "Winter Light" was Book of the Day on photobookers.com.',
         "https://www.photobookers.com/books/winter-light",
       ].join("\n"),
+      products: "@janedoe",
     });
 
     expect(
@@ -312,6 +314,7 @@ describe("instagram caption helpers", () => {
         'Hi! "Winter Light" by the artist was Book of the Day on photobookers.com.',
         "https://www.photobookers.com/books/winter-light",
       ].join("\n"),
+      products: "@acmepress",
     });
   });
 
