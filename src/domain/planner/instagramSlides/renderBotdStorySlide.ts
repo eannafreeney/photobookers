@@ -9,6 +9,7 @@ import {
   instagramSlideFontStyles,
   truncateInstagramSlideText,
 } from "./shared";
+import { withSharpLock } from "./sharpGate";
 import { STORY_OVERLAY_LAYOUT } from "./storyOverlayLayout";
 
 export type BotdStorySlideMeta = {
@@ -51,27 +52,29 @@ export async function renderBotdStoryFullBleed(
   imageUrl: string,
   meta: BotdStorySlideMeta,
 ): Promise<Buffer> {
-  const source = await fetchInstagramSlideImage(imageUrl);
-  const base = source
-    ? sharp(source).resize(INSTAGRAM_REEL_WIDTH, INSTAGRAM_REEL_HEIGHT, {
-        fit: "cover",
-        position: "attention",
-      })
-    : sharp({
-        create: {
-          width: INSTAGRAM_REEL_WIDTH,
-          height: INSTAGRAM_REEL_HEIGHT,
-          channels: 3,
-          background: INSTAGRAM_SLIDE_COLORS.ink,
-        },
-      });
+  return withSharpLock(async () => {
+    const source = await fetchInstagramSlideImage(imageUrl);
+    const base = source
+      ? sharp(source).resize(INSTAGRAM_REEL_WIDTH, INSTAGRAM_REEL_HEIGHT, {
+          fit: "cover",
+          position: "attention",
+        })
+      : sharp({
+          create: {
+            width: INSTAGRAM_REEL_WIDTH,
+            height: INSTAGRAM_REEL_HEIGHT,
+            channels: 3,
+            background: INSTAGRAM_SLIDE_COLORS.ink,
+          },
+        });
 
-  return base
-    .composite([
-      { input: Buffer.from(buildBotdStoryOverlaySvg(meta)), top: 0, left: 0 },
-    ])
-    .webp({ quality: 90 })
-    .toBuffer();
+    return base
+      .composite([
+        { input: Buffer.from(buildBotdStoryOverlaySvg(meta)), top: 0, left: 0 },
+      ])
+      .webp({ quality: 90 })
+      .toBuffer();
+  });
 }
 
 /**
@@ -82,52 +85,54 @@ export async function renderBotdStoryBlurred(
   imageUrl: string,
   meta: BotdStorySlideMeta,
 ): Promise<Buffer> {
-  const source = await fetchInstagramSlideImage(imageUrl);
-  const bg = source
-    ? sharp(source)
-        .resize(INSTAGRAM_REEL_WIDTH, INSTAGRAM_REEL_HEIGHT, { fit: "cover" })
-        .blur(40)
-        .modulate({ brightness: 0.72 })
-    : sharp({
-        create: {
-          width: INSTAGRAM_REEL_WIDTH,
-          height: INSTAGRAM_REEL_HEIGHT,
-          channels: 3,
-          background: INSTAGRAM_SLIDE_COLORS.ink,
-        },
+  return withSharpLock(async () => {
+    const source = await fetchInstagramSlideImage(imageUrl);
+    const bg = source
+      ? sharp(source)
+          .resize(INSTAGRAM_REEL_WIDTH, INSTAGRAM_REEL_HEIGHT, { fit: "cover" })
+          .blur(40)
+          .modulate({ brightness: 0.72 })
+      : sharp({
+          create: {
+            width: INSTAGRAM_REEL_WIDTH,
+            height: INSTAGRAM_REEL_HEIGHT,
+            channels: 3,
+            background: INSTAGRAM_SLIDE_COLORS.ink,
+          },
+        });
+
+    const bgBuffer = await bg.toBuffer();
+
+    let composites: sharp.OverlayOptions[] = [];
+    if (source) {
+      const fgWidth = 860;
+      const fg = await sharp(source)
+        .resize({ width: fgWidth })
+        .extend({
+          top: 3,
+          bottom: 3,
+          left: 3,
+          right: 3,
+          background: INSTAGRAM_SLIDE_COLORS.surface,
+        })
+        .toBuffer();
+      const fgMeta = await sharp(fg).metadata();
+      composites.push({
+        input: fg,
+        top: Math.round((INSTAGRAM_REEL_HEIGHT - (fgMeta.height ?? 0)) / 2) - 60,
+        left: Math.round((INSTAGRAM_REEL_WIDTH - (fgMeta.width ?? 0)) / 2),
       });
+    }
 
-  const bgBuffer = await bg.toBuffer();
-
-  let composites: sharp.OverlayOptions[] = [];
-  if (source) {
-    const fgWidth = 860;
-    const fg = await sharp(source)
-      .resize({ width: fgWidth })
-      .extend({
-        top: 3,
-        bottom: 3,
-        left: 3,
-        right: 3,
-        background: INSTAGRAM_SLIDE_COLORS.surface,
-      })
-      .toBuffer();
-    const fgMeta = await sharp(fg).metadata();
     composites.push({
-      input: fg,
-      top: Math.round((INSTAGRAM_REEL_HEIGHT - (fgMeta.height ?? 0)) / 2) - 60,
-      left: Math.round((INSTAGRAM_REEL_WIDTH - (fgMeta.width ?? 0)) / 2),
+      input: Buffer.from(buildBotdStoryOverlaySvg(meta)),
+      top: 0,
+      left: 0,
     });
-  }
 
-  composites.push({
-    input: Buffer.from(buildBotdStoryOverlaySvg(meta)),
-    top: 0,
-    left: 0,
+    return sharp(bgBuffer)
+      .composite(composites)
+      .webp({ quality: 90 })
+      .toBuffer();
   });
-
-  return sharp(bgBuffer)
-    .composite(composites)
-    .webp({ quality: 90 })
-    .toBuffer();
 }

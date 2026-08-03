@@ -291,10 +291,26 @@ const ImageCaptionSection = ({
 }: ImageCaptionSectionProps) => {
   const checkboxName = `imageUrl[${fieldKey}][]`;
 
+  // Lazy story-preview: opening the modal used to fire one sharp render per
+  // section at once (~9× 1080×1920) and OOM the 512MB web dyno.
+  const previewAlpine = `{
+    selectedImage: ${JSON.stringify(selectedImages[0] ?? "")},
+    previewSrc: '',
+    previewUrl() {
+      return '/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}'
+        + (this.selectedImage ? '&image=' + encodeURIComponent(this.selectedImage) : '');
+    },
+    loadPreview() { this.previewSrc = this.previewUrl(); },
+    selectImage(url) {
+      this.selectedImage = url;
+      if (this.previewSrc) this.previewSrc = this.previewUrl();
+    },
+  }`;
+
   return (
     <section
       class="rounded border border-outline bg-surface-alt/40 p-4"
-      x-data={`{ selectedImage: ${JSON.stringify(selectedImages[0] ?? "")} }`}
+      x-data={previewAlpine}
     >
       <h3 class="mb-3 text-sm font-semibold text-on-surface-strong">{title}</h3>
       <p class="mb-1 text-xs text-on-surface line-clamp-2">{subtitle}</p>
@@ -324,7 +340,7 @@ const ImageCaptionSection = ({
                     value={url}
                     checked={selectedImages.includes(url)}
                     class="sr-only"
-                    x-on:change={`selectedImage = ${JSON.stringify(url)}`}
+                    x-on:change={`selectImage(${JSON.stringify(url)})`}
                   />
                   <img
                     src={url}
@@ -360,9 +376,10 @@ const ImageCaptionSection = ({
         <div
           class="relative mx-auto w-full max-w-[240px] overflow-hidden rounded bg-gray-100"
           style="aspect-ratio: 9/16;"
+          x-intersect.once="loadPreview()"
         >
           <img
-            x-bind:src={`'/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}' + (selectedImage ? '&image=' + encodeURIComponent(selectedImage) : '')`}
+            x-bind:src="previewSrc"
             alt="Story preview"
             class="absolute inset-0 h-full w-full object-contain"
           />

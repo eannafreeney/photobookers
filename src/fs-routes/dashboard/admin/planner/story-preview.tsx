@@ -100,5 +100,9 @@ export const GET = createRoute(async (c) => {
         label,
       });
 
-  return c.body(new Uint8Array(buffer), 200, { "Content-Type": "image/webp" });
+  return c.body(new Uint8Array(buffer), 200, {
+    "Content-Type": "image/webp",
+    // Short private cache so scrolling the prepare modal back up is cheap.
+    "Cache-Control": "private, max-age=120",
+  });
 });
