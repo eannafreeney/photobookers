@@ -20,7 +20,7 @@ import { registerCountUp } from "../features/app/client/countUp";
 import { registerAlert } from "./components/alert";
 import { registerActivityFeed } from "./components/activityFeed";
 import { registerOptionsComboBox } from "./components/optionsComboBox";
-import { registerStoryUploadForm } from "../features/dashboard/admin/planner/client/storyUploadForm";
+import { registerStoryUploadForm } from "../features/story-upload/client/storyUploadForm";
 
 registerLoginForm();
 registerForgotPasswordForm();

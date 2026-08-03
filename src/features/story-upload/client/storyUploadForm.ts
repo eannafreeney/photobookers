@@ -1,5 +1,5 @@
 import Alpine from "alpinejs";
-import { compressImage } from "../../../../../client/utils/imageCompression";
+import { compressImage } from "../../../client/utils/imageCompression";
 
 export function registerStoryUploadForm() {
   Alpine.data("storyUploadForm", () => {
@@ -78,6 +78,13 @@ export function registerStoryUploadForm() {
 
       onSuccess() {
         this.isSubmitting = false;
+        if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
+        this.previewUrl = null;
+        this.selectedFile = null;
+        this.error = null;
+        if (this.$refs.fileInput) {
+          (this.$refs.fileInput as HTMLInputElement).value = "";
+        }
       },
 
       onError() {

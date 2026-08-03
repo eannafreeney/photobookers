@@ -159,79 +159,79 @@ const PrepareInstagramModal = ({
                 );
               })}
 
-              {artistCreator && artistOfTheWeek ? (
-                (() => {
-                  const aotwImageOptions = collectCreatorImageOptions(
-                    artistCreator,
-                    artistBookCoverUrls,
-                  );
-                  if (artistOfTheWeek.artistProvidedStoryImageUrl) {
-                    aotwImageOptions.unshift(
-                      artistOfTheWeek.artistProvidedStoryImageUrl,
+              {artistCreator && artistOfTheWeek
+                ? (() => {
+                    const aotwImageOptions = collectCreatorImageOptions(
+                      artistCreator,
+                      artistBookCoverUrls,
                     );
-                  }
-                  return (
-                    <ImageCaptionSection
-                      key="aotw"
-                      title="Artist of the week"
-                      subtitle={artistCreator.displayName}
-                      fieldKey={INSTAGRAM_SPOTLIGHT_AOTW_KEY}
-                      imageOptions={aotwImageOptions}
-                      caption={buildArtistInstagramCaption(
-                        artistCreator,
-                        artistOfTheWeek.instagramCaption,
-                        artistOfTheWeek.spotlightBlurb,
-                      )}
-                      selectedImages={getPlannerInstagramImageSelection(
-                        artistOfTheWeek,
-                        aotwImageOptions,
-                      )}
-                      artistProvidedStoryImageUrl={
-                        artistOfTheWeek.artistProvidedStoryImageUrl
-                      }
-                      previewKind="aotw"
-                      previewId={artistOfTheWeek.id}
-                    />
-                  );
-                })()
-              ) : null}
+                    if (artistOfTheWeek.artistProvidedStoryImageUrl) {
+                      aotwImageOptions.unshift(
+                        artistOfTheWeek.artistProvidedStoryImageUrl,
+                      );
+                    }
+                    return (
+                      <ImageCaptionSection
+                        key="aotw"
+                        title="Artist of the week"
+                        subtitle={artistCreator.displayName}
+                        fieldKey={INSTAGRAM_SPOTLIGHT_AOTW_KEY}
+                        imageOptions={aotwImageOptions}
+                        caption={buildArtistInstagramCaption(
+                          artistCreator,
+                          artistOfTheWeek.instagramCaption,
+                          artistOfTheWeek.spotlightBlurb,
+                        )}
+                        selectedImages={getPlannerInstagramImageSelection(
+                          artistOfTheWeek,
+                          aotwImageOptions,
+                        )}
+                        artistProvidedStoryImageUrl={
+                          artistOfTheWeek.artistProvidedStoryImageUrl
+                        }
+                        previewKind="aotw"
+                        previewId={artistOfTheWeek.id}
+                      />
+                    );
+                  })()
+                : null}
 
-              {publisherCreator && publisherOfTheWeek ? (
-                (() => {
-                  const potwImageOptions = collectCreatorImageOptions(
-                    publisherCreator,
-                    publisherBookCoverUrls,
-                  );
-                  if (publisherOfTheWeek.artistProvidedStoryImageUrl) {
-                    potwImageOptions.unshift(
-                      publisherOfTheWeek.artistProvidedStoryImageUrl,
+              {publisherCreator && publisherOfTheWeek
+                ? (() => {
+                    const potwImageOptions = collectCreatorImageOptions(
+                      publisherCreator,
+                      publisherBookCoverUrls,
                     );
-                  }
-                  return (
-                    <ImageCaptionSection
-                      key="potw"
-                      title="Publisher of the week"
-                      subtitle={publisherCreator.displayName}
-                      fieldKey={INSTAGRAM_SPOTLIGHT_POTW_KEY}
-                      imageOptions={potwImageOptions}
-                      caption={buildPublisherInstagramCaption(
-                        publisherCreator,
-                        publisherOfTheWeek.instagramCaption,
-                        publisherOfTheWeek.spotlightBlurb,
-                      )}
-                      selectedImages={getPlannerInstagramImageSelection(
-                        publisherOfTheWeek,
-                        potwImageOptions,
-                      )}
-                      artistProvidedStoryImageUrl={
-                        publisherOfTheWeek.artistProvidedStoryImageUrl
-                      }
-                      previewKind="potw"
-                      previewId={publisherOfTheWeek.id}
-                    />
-                  );
-                })()
-              ) : null}
+                    if (publisherOfTheWeek.artistProvidedStoryImageUrl) {
+                      potwImageOptions.unshift(
+                        publisherOfTheWeek.artistProvidedStoryImageUrl,
+                      );
+                    }
+                    return (
+                      <ImageCaptionSection
+                        key="potw"
+                        title="Publisher of the week"
+                        subtitle={publisherCreator.displayName}
+                        fieldKey={INSTAGRAM_SPOTLIGHT_POTW_KEY}
+                        imageOptions={potwImageOptions}
+                        caption={buildPublisherInstagramCaption(
+                          publisherCreator,
+                          publisherOfTheWeek.instagramCaption,
+                          publisherOfTheWeek.spotlightBlurb,
+                        )}
+                        selectedImages={getPlannerInstagramImageSelection(
+                          publisherOfTheWeek,
+                          potwImageOptions,
+                        )}
+                        artistProvidedStoryImageUrl={
+                          publisherOfTheWeek.artistProvidedStoryImageUrl
+                        }
+                        previewKind="potw"
+                        previewId={publisherOfTheWeek.id}
+                      />
+                    );
+                  })()
+                : null}
             </div>
             <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-outline pt-4">
               <button
@@ -290,7 +290,6 @@ const ImageCaptionSection = ({
   previewId,
 }: ImageCaptionSectionProps) => {
   const checkboxName = `imageUrl[${fieldKey}][]`;
-  const limitCarouselSelection = `const checked = $el.closest('fieldset').querySelectorAll('input[type=checkbox]:checked'); if (checked.length > ${MAX_INSTAGRAM_CAROUSEL_IMAGES}) $el.checked = false`;
 
   return (
     <section
@@ -357,15 +356,13 @@ const ImageCaptionSection = ({
       </label>
 
       <div class="mt-4 rounded border border-outline bg-surface p-3">
-        <p class="mb-2 text-xs font-medium text-on-surface">
-          Story preview
-        </p>
+        <p class="mb-2 text-xs font-medium text-on-surface">Story preview</p>
         <div
           class="relative mx-auto w-full max-w-[240px] overflow-hidden rounded bg-gray-100"
           style="aspect-ratio: 9/16;"
         >
           <img
-            x-bind:src="`/dashboard/admin/planner/story-preview?kind=${previewKind}%26id=${previewId}${selectedImage ? '%26image=' + encodeURIComponent(selectedImage) : ''}`"
+            x-bind:src={`'/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}' + (selectedImage ? '&image=' + encodeURIComponent(selectedImage) : '')`}
             alt="Story preview"
             class="absolute inset-0 h-full w-full object-contain"
           />
