@@ -1,4 +1,11 @@
-const appBaseUrl = process.env.PUBLIC_APP_URL ?? "https://www.photobookers.com";
+function resolveAppBaseUrl(): string {
+  // Use || so an empty PUBLIC_APP_URL (common misconfig) falls through to SITE_URL.
+  const raw =
+    process.env.PUBLIC_APP_URL ||
+    process.env.SITE_URL ||
+    "https://www.photobookers.com";
+  return raw.replace(/\/$/, "");
+}
 
 type CreatorForCaption = {
   displayName: string;
@@ -14,15 +21,15 @@ type BookForCaption = {
 };
 
 export function buildBookPageUrl(slug: string): string {
-  return `${appBaseUrl}/books/${slug}`;
+  return `${resolveAppBaseUrl()}/books/${slug}`;
 }
 
 export function buildCreatorPageUrl(slug: string): string {
-  return `${appBaseUrl}/creators/${slug}`;
+  return `${resolveAppBaseUrl()}/creators/${slug}`;
 }
 
 export function buildFairPageUrl(slug: string): string {
-  return `${appBaseUrl}/fairs/${slug}`;
+  return `${resolveAppBaseUrl()}/fairs/${slug}`;
 }
 
 export type FairForCaption = {

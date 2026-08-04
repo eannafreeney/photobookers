@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildArtistInstagramCaption,
   buildArtistPostStickerText,
+  buildBookPageUrl,
   buildBotdInstagramCaption,
   buildBotdPostStickerFields,
   buildBotdStoryHandles,
@@ -37,6 +38,22 @@ import { toDateString } from "../../../../../lib/utils";
 import { getWeekDays } from "../utils";
 
 describe("instagram caption helpers", () => {
+  it("keeps book page URLs absolute when PUBLIC_APP_URL is empty", () => {
+    const prevPublic = process.env.PUBLIC_APP_URL;
+    const prevSite = process.env.SITE_URL;
+    process.env.PUBLIC_APP_URL = "";
+    process.env.SITE_URL = "https://www.photobookers.com";
+
+    expect(buildBookPageUrl("winter-light")).toBe(
+      "https://www.photobookers.com/books/winter-light",
+    );
+
+    if (prevPublic === undefined) delete process.env.PUBLIC_APP_URL;
+    else process.env.PUBLIC_APP_URL = prevPublic;
+    if (prevSite === undefined) delete process.env.SITE_URL;
+    else process.env.SITE_URL = prevSite;
+  });
+
   it("builds a default caption with instagram handles when available", () => {
     const caption = buildDefaultInstagramCaption({
       title: "Winter Light",

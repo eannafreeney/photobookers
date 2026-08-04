@@ -24,6 +24,9 @@ export const bookColumnCoverStyle = `
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    /* -webkit-box shrink-wraps; without 100% width the block sits left on mobile */
+    width: 100%;
+    text-align: center;
   }
 `;
 
