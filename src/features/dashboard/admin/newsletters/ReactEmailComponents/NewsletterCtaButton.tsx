@@ -1,7 +1,7 @@
 /** @jsxImportSource react */
 
 import { Section, Row, Column, Button } from "@react-email/components";
-import { appBaseUrl, brand } from "../constants";
+import { brand, resolveAppBaseUrl } from "../constants";
 
 export const NewsletterCtaButton = ({
   ctaText,
@@ -14,7 +14,7 @@ export const NewsletterCtaButton = ({
     <Row>
       <Column align="center">
         <Button
-          href={href ?? appBaseUrl}
+          href={href || resolveAppBaseUrl()}
           style={{ backgroundColor: brand.primary, color: brand.onPrimary }}
           className="text-xs font-semibold tracking-[0.16em] uppercase rounded px-6 py-4 text-center"
         >

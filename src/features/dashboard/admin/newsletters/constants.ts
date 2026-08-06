@@ -3,10 +3,18 @@ import { emailFontLogo, emailFontSans } from "./espHtml";
 
 export const appStoreUrl = SITE_APP.ios.href;
 
-export const appBaseUrl =
-  process.env.PUBLIC_APP_URL ??
-  process.env.SITE_URL ??
-  "https://www.photobookers.com";
+/**
+ * Absolute site origin for newsletter hrefs.
+ * Use `||` (not `??`): GitHub Actions injects unset secrets as `""`, which
+ * would otherwise produce relative links like `/books/…` that break in email.
+ */
+export function resolveAppBaseUrl(): string {
+  const raw =
+    process.env.PUBLIC_APP_URL?.trim() ||
+    process.env.SITE_URL?.trim() ||
+    "https://www.photobookers.com";
+  return raw.replace(/\/$/, "");
+}
 
 /** Hero/footer in the public `newsletter` Supabase bucket. */
 const newsletterStorageBase =
@@ -27,12 +35,15 @@ export const newsletterSocial = {
   instagramIconUrl: "https://www.photobookers.com/icons/social/instagram.png",
 } as const;
 
-export const newsletterNavLinks = [
-  { label: "Featured", href: `${appBaseUrl}/featured` },
-  { label: "Books", href: `${appBaseUrl}/books` },
-  { label: "Book of the Day", href: `${appBaseUrl}/book-of-the-day` },
-  { label: "This Week", href: `${appBaseUrl}/this-week` },
-] as const;
+export function newsletterNavLinks() {
+  const base = resolveAppBaseUrl();
+  return [
+    { label: "Featured", href: `${base}/featured` },
+    { label: "Books", href: `${base}/books` },
+    { label: "Book of the Day", href: `${base}/book-of-the-day` },
+    { label: "This Week", href: `${base}/this-week` },
+  ] as const;
+}
 
 export const newsletterWidthPx = 600;
 /** Inner card width after section horizontal padding (25px each side). */

@@ -1,7 +1,11 @@
 /** @jsxImportSource react */
 
 import { MjmlColumn, MjmlImage, MjmlText, MjmlButton } from "mjml-react";
-import { appBaseUrl, brand, newsletterThreeColContentWidthPx } from "../constants";
+import {
+  brand,
+  newsletterThreeColContentWidthPx,
+  resolveAppBaseUrl,
+} from "../constants";
 import type { CreatorCardCreator } from "./types";
 
 /** One column in a 3-up creator row (stacks on mobile). */
@@ -36,7 +40,7 @@ export const CreatorColumn = ({
         {creator.displayName}
       </MjmlText>
       <MjmlButton
-        href={`${appBaseUrl}/creators/${creator.slug}`}
+        href={`${resolveAppBaseUrl()}/creators/${creator.slug}`}
         backgroundColor="#ffffff"
         color={brand.onSurfaceStrong}
         border={`1px solid ${brand.outlineStrong}`}

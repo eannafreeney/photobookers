@@ -1,7 +1,7 @@
 /** @jsxImportSource react */
 
 import { MjmlSection, MjmlColumn, MjmlButton } from "mjml-react";
-import { appBaseUrl, brand } from "../constants";
+import { brand, resolveAppBaseUrl } from "../constants";
 
 export const NewsletterCtaButton = ({
   ctaText,
@@ -13,7 +13,7 @@ export const NewsletterCtaButton = ({
   <MjmlSection backgroundColor={brand.surface} padding="24px 25px 8px">
     <MjmlColumn>
       <MjmlButton
-        href={href ?? appBaseUrl}
+        href={href || resolveAppBaseUrl()}
         backgroundColor={brand.primary}
         color={brand.onPrimary}
         fontSize="11px"

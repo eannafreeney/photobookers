@@ -1,7 +1,7 @@
 /** @jsxImportSource react */
 
 import { Section, Row, Column } from "@react-email/components";
-import { appBaseUrl } from "../constants";
+import { resolveAppBaseUrl } from "../constants";
 import { BodyCopy } from "./BodyCopy";
 import { RoundedImage } from "./RoundedImage";
 import { Title } from "./Title";
@@ -29,7 +29,7 @@ export const CreatorFeatureCard = ({
         ) : null}
         <Title>{creator.displayName}</Title>
         {creator.blurb ? <BodyCopy>{creator.blurb}</BodyCopy> : null}
-        <ViewButton href={`${appBaseUrl}/creators/${creator.slug}`} />
+        <ViewButton href={`${resolveAppBaseUrl()}/creators/${creator.slug}`} />
       </Column>
     </Row>
   </Section>

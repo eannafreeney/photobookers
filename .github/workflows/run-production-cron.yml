@@ -34,7 +34,6 @@ jobs:
           FUNCTION_SECRET: ${{ secrets.PRODUCTION_FUNCTION_SECRET }}
           AUTH_SECRET: ${{ secrets.PRODUCTION_AUTH_SECRET }}
           SITE_URL: ${{ secrets.PRODUCTION_SITE_URL }}
-          PUBLIC_APP_URL: ${{ secrets.PRODUCTION_PUBLIC_APP_URL }}
           ADMIN_EMAIL: ${{ secrets.PRODUCTION_ADMIN_EMAIL }}
           BREVO_TEST_EMAIL: ${{ secrets.PRODUCTION_BREVO_TEST_EMAIL }}
           ADMIN_USER_ID: ${{ secrets.PRODUCTION_ADMIN_USER_ID }}

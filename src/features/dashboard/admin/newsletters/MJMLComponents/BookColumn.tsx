@@ -2,10 +2,10 @@
 
 import { MjmlColumn, MjmlImage, MjmlText, MjmlButton } from "mjml-react";
 import {
-  appBaseUrl,
   brand,
   featureCardContentWidthPx,
   newsletterThreeColContentWidthPx,
+  resolveAppBaseUrl,
 } from "../constants";
 import { formatNewsletterDate } from "../utils";
 import { kickerTextProps } from "./kickerTextProps";
@@ -112,7 +112,7 @@ export const BookColumn = ({
       ) : null}
       {compact ? (
         <MjmlButton
-          href={`${appBaseUrl}/books/${book.bookSlug}`}
+          href={`${resolveAppBaseUrl()}/books/${book.bookSlug}`}
           backgroundColor="#ffffff"
           color={brand.onSurfaceStrong}
           border={`1px solid ${brand.outlineStrong}`}
@@ -128,7 +128,7 @@ export const BookColumn = ({
           View
         </MjmlButton>
       ) : (
-        <ViewButton href={`${appBaseUrl}/books/${book.bookSlug}`} />
+        <ViewButton href={`${resolveAppBaseUrl()}/books/${book.bookSlug}`} />
       )}
     </MjmlColumn>
   );
