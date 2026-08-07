@@ -129,7 +129,7 @@ describe("buildBotdFeatureDayEmail", () => {
 });
 
 describe("buildPlannerWeekContentPreviewEmail", () => {
-  it("renders all selected Instagram carousel images", () => {
+  it("renders Instagram story preview images", () => {
     const weekStart = new Date(Date.UTC(2026, 6, 13));
     const html = buildPlannerWeekContentPreviewEmail({
       weekStart,
@@ -138,29 +138,33 @@ describe("buildPlannerWeekContentPreviewEmail", () => {
           kind: "botd",
           date: new Date(Date.UTC(2026, 6, 13)),
           title: "Winter Light",
+          artistName: "Jane Doe",
+          publisherName: "Press",
           featuredImageUrl: "https://example.com/hero.jpg",
+          artistProvidedStoryImageUrl: null,
           instagramImageUrls: [
             "https://example.com/cover.jpg",
             "https://example.com/page1.jpg",
-            "https://example.com/page2.jpg",
           ],
           sourceText: "Source",
           spotlightBlurb: "Rewritten blurb",
           instagramCaption: "Caption text",
         },
       ],
+      storyPreviewUrls: new Map([
+        ["botd-2026-07-13", ["https://example.com/story-preview.webp"]],
+      ]),
       prepWarnings: [],
       plannerUrl: "https://example.com/planner",
       featuredHeroUrl: "https://example.com/featured-hero",
       instagramPrepUrl: "https://example.com/instagram",
     });
 
-    expect(html).toContain("https://example.com/cover.jpg");
-    expect(html).toContain("https://example.com/page1.jpg");
-    expect(html).toContain("https://example.com/page2.jpg");
+    expect(html).toContain("Instagram story preview");
+    expect(html).toContain("https://example.com/story-preview.webp");
+    expect(html).not.toContain("https://example.com/cover.jpg");
     expect(html).not.toContain("https://example.com/hero.jpg");
-    expect(html).toContain("(1 of 3)");
-    expect(html).toContain("(3 of 3)");
+    expect(html).not.toContain("Instagram feed preview");
   });
 });
 

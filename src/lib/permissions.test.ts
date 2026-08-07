@@ -158,6 +158,16 @@ describe("canDeleteBook", () => {
 });
 
 describe("canPreviewBook", () => {
+  it("denies unauthenticated users", () => {
+    expect(
+      canPreviewBook(null, {
+        ...baseBook,
+        publicationStatus: "draft",
+        coverUrl: "https://example.com/cover.jpg",
+      }),
+    ).toBe(false);
+  });
+
   it("allows admin regardless of draft state", () => {
     expect(
       canPreviewBook(adminUser, {

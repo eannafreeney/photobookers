@@ -329,12 +329,12 @@ function formatPreviewItemHeading(item: SpotlightContentItem): string {
 
 function renderPreviewImages(imageUrls: string[], alt: string): string {
   if (imageUrls.length === 0) {
-    return `<p><em>No Instagram images selected</em></p>`;
+    return `<p><em>No Instagram story image selected</em></p>`;
   }
   return imageUrls
     .map(
       (imageUrl, index) =>
-        `<p><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)} (${index + 1} of ${imageUrls.length})" width="320" style="max-width:100%;height:auto;border:1px solid #ddd;" /></p>`,
+        `<p><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)} (${index + 1} of ${imageUrls.length})" width="240" style="max-width:100%;height:auto;border:1px solid #ddd;" /></p>`,
     )
     .join("");
 }
@@ -346,7 +346,7 @@ function renderCaptionBlock(caption: string): string {
 export function buildPlannerWeekContentPreviewEmail(params: {
   weekStart: Date;
   items: SpotlightContentItem[];
-  feedPreviewUrls?: Map<string, string[]>;
+  storyPreviewUrls?: Map<string, string[]>;
   prepWarnings: string[];
   plannerUrl: string;
   featuredHeroUrl: string;
@@ -366,7 +366,10 @@ export function buildPlannerWeekContentPreviewEmail(params: {
           ? `botd-${item.date.toISOString().slice(0, 10)}`
           : item.kind;
       const imageUrls =
-        params.feedPreviewUrls?.get(previewKey) ?? item.instagramImageUrls;
+        params.storyPreviewUrls?.get(previewKey) ??
+        (item.artistProvidedStoryImageUrl
+          ? [item.artistProvidedStoryImageUrl]
+          : item.instagramImageUrls.slice(0, 1));
       const blurb = item.spotlightBlurb?.trim() || item.sourceText?.trim();
       const blurbHtml = blurb
         ? `<p style="margin:0 0 16px;">${escapeHtml(blurb)}</p>`
@@ -376,7 +379,7 @@ export function buildPlannerWeekContentPreviewEmail(params: {
       <section style="margin:24px 0;padding-top:16px;border-top:1px solid #ddd;">
         <h2 style="margin:0 0 12px;font-size:18px;">${escapeHtml(heading)}</h2>
         <p style="margin:0 0 4px;font-weight:600;">${escapeHtml(item.title)}</p>
-        <p style="margin:0 0 8px;font-size:13px;color:#666;">Instagram feed preview (lead slide branded)</p>
+        <p style="margin:0 0 8px;font-size:13px;color:#666;">Instagram story preview</p>
         ${renderPreviewImages(imageUrls, item.title)}
         <p style="margin:16px 0 4px;font-weight:600;">Page blurb</p>
         ${blurbHtml}

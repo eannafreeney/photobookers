@@ -28,12 +28,22 @@ export const newsletterBrevoTestSchema = z.object({
   ),
 });
 
-export const newsletterMarkSentSchema = z.preprocess(
-  (data) => {
-    if (data instanceof FormData) {
-      return { sent: data.getAll("sent").includes("true") };
-    }
-    return data;
-  },
-  z.object({ sent: z.boolean() }),
-);
+/** Checkbox + hidden "false" field → boolean. Hono form validator passes a plain object, not FormData. */
+function coerceSentFlag(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (Array.isArray(value)) {
+    return value.some((v) => v === true || v === "true");
+  }
+  return value === true || value === "true";
+}
+
+export const newsletterMarkSentSchema = z.preprocess((data) => {
+  if (data instanceof FormData) {
+    return { sent: data.getAll("sent").includes("true") };
+  }
+  if (data && typeof data === "object" && "sent" in data) {
+    return { sent: coerceSentFlag((data as { sent: unknown }).sent) };
+  }
+  return { sent: false };
+}, z.object({ sent: z.boolean() }));
+
