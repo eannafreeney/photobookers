@@ -4,6 +4,7 @@ import { formValidator, paramValidator } from "../../../../lib/validator";
 import { creatorIdSchema } from "../../../../schemas";
 import { getUser } from "../../../../utils";
 import CreatorImageForm from "../../../../features/dashboard/images/forms/CreatorCoverForm";
+import CreatorBannerForm from "../../../../features/dashboard/images/forms/CreatorBannerForm";
 import {
   deleteCreatorByIdAdmin,
   getCreatorByIdAdmin,
@@ -55,9 +56,13 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
           ]}
         />
         <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
-          <div class="md:w-1/3">
+          <div class="flex flex-col gap-8 md:w-1/3">
             <CreatorImageForm
               initialUrl={creator?.coverUrl ?? null}
+              creator={creator}
+            />
+            <CreatorBannerForm
+              initialUrl={creator?.bannerUrl ?? null}
               creator={creator}
             />
           </div>
