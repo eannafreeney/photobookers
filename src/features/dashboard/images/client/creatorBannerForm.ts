@@ -104,7 +104,7 @@ export function registerCreatorBannerForm() {
 
           const formData = new FormData();
           if (this.selectedFile) {
-            formData.append("cover", this.selectedFile);
+            formData.append("banner", this.selectedFile);
           }
 
           try {
