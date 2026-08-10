@@ -14,19 +14,9 @@ import { ViewButton } from "./ViewButton";
 
 /** BookCard-like square crop — pair with `<MjmlStyle>{bookColumnCoverStyle}</MjmlStyle>` in head. */
 export const bookColumnCoverCssClass = "book-col-cover";
-export const bookColumnTitleCssClass = "book-col-title";
 export const bookColumnCoverStyle = `
   .${bookColumnCoverCssClass} img {
     object-fit: cover !important;
-  }
-  .${bookColumnTitleCssClass} div {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    /* -webkit-box shrink-wraps; without 100% width the block sits left on mobile */
-    width: 100%;
-    text-align: center;
   }
 `;
 
@@ -84,7 +74,6 @@ export const BookColumn = ({
         color={brand.onSurfaceStrong}
         padding={compact ? "0 8px 8px" : "0 0 8px"}
         fontFamily={brand.fontDisplay}
-        {...(compact ? { cssClass: bookColumnTitleCssClass } : {})}
       >
         {book.title}
       </MjmlText>
