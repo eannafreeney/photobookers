@@ -11,6 +11,14 @@ type IntervewFormProps = {
 };
 
 const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
+  const alpineAttrs = {
+    "x-data": "interviewForm",
+    "x-target": "toast interview-form",
+    "x-target.error": "toast",
+    "x-on:submit": "submitForm($event)",
+    "x-on:ajax:error": "isSubmitting = false",
+  };
+
   return (
     <HeadlessLayout title="Interview">
       <Page>
@@ -25,15 +33,11 @@ const IntervewForm = ({ inviteToken, creator }: IntervewFormProps) => {
         </div>
         <form
           id="interview-form"
-          x-data="interviewForm"
-          x-target="toast interview-form"
-          x-target.error="toast"
-          x-on:submit="submitForm($event)"
-          x-on:ajax:error="isSubmitting = false"
           method="post"
           action={`/interviews/${inviteToken}`}
           enctype="multipart/form-data"
           class="flex flex-col gap-4"
+          {...alpineAttrs}
         >
           <TextArea
             label="What inspired you to start publishing books?"
