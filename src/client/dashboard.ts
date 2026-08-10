@@ -6,7 +6,6 @@ import { registerBooksTableReorder } from "../features/dashboard/books/client/bo
 import { registerBookGalleryForm } from "../features/dashboard/books/client/bookGalleryForm";
 import { registerBulkCoverUpload } from "./components/bulkCoverUpload";
 import { registerUserProfileImageForm } from "../features/app/client/userProfileImageForm";
-import { registerInterviewForm } from "../features/interviews/client/interviewForm";
 import { registerMessageForm } from "../features/dashboard/messages/client/messageForm";
 import { registerCreatorBannerForm } from "../features/dashboard/images/client/creatorBannerForm";
 import { registerStoresMap } from "../features/app/stores/client/storesMap";
@@ -19,7 +18,6 @@ registerBookGalleryForm();
 registerBooksTableReorder();
 registerBulkCoverUpload();
 registerUserProfileImageForm();
-registerInterviewForm();
 registerMessageForm();
 registerCreatorBannerForm();
 registerStoresMap();

@@ -32,6 +32,7 @@ import { supabaseAdmin } from "../../lib/supabase";
 import { getPagination } from "../../lib/pagination";
 import {
   type BookCatalogSort,
+  catalogTrendingSince,
   getBookCatalogOrderBy,
 } from "../../lib/bookCatalogSort";
 import { getPublicBooksForCreator } from "../../domain/creators/books";
@@ -662,10 +663,20 @@ const findCatalogBooks = async ({
       ? [desc(viewCount), desc(books.id)]
       : [asc(viewCount), asc(books.id)];
 
+  // Trending ranks by views in the last BOOK_CATALOG_TRENDING_DAYS; keep the
+  // date filter on the JOIN so zero-view books still appear via LEFT JOIN.
+  const viewJoin =
+    sort === "trending"
+      ? and(
+          eq(bookViews.bookId, books.id),
+          gte(bookViews.createdAt, catalogTrendingSince()),
+        )
+      : eq(bookViews.bookId, books.id);
+
   const idRows = await db
     .select({ id: books.id })
     .from(books)
-    .leftJoin(bookViews, eq(bookViews.bookId, books.id))
+    .leftJoin(bookViews, viewJoin)
     .where(where)
     .groupBy(books.id)
     .orderBy(...orderBy)

@@ -3,7 +3,16 @@ import { books } from "../db/schema";
 
 export type BookCatalogSort = "newest" | "trending" | "latest";
 
-export const BOOK_CATALOG_DEFAULT_SORT: BookCatalogSort = "latest";
+export const BOOK_CATALOG_DEFAULT_SORT: BookCatalogSort = "trending";
+
+/** Rolling window for catalog "trending" (views counted in findCatalogBooks). */
+export const BOOK_CATALOG_TRENDING_DAYS = 7;
+
+export const catalogTrendingSince = (now: Date = new Date()): Date => {
+  const since = new Date(now.getTime());
+  since.setUTCDate(since.getUTCDate() - BOOK_CATALOG_TRENDING_DAYS);
+  return since;
+};
 
 export const BOOK_CATALOG_SORT_VALUES: BookCatalogSort[] = [
   "newest",
