@@ -1,13 +1,14 @@
 /** @jsxImportSource react */
 
 import { render } from "mjml-react";
+import { rewriteNewsletterImagesForEmail } from "../emailImages";
 import { prepareNewsletterHtmlForEsp } from "../espHtml";
 import { WeeklyNewsletterMjml } from "../templateMjml";
 import type { WeeklyNewsletterRenderParams } from "../types";
 
-export function renderWeeklyBOTDNewsletterHtmlMjml(
+export async function renderWeeklyBOTDNewsletterHtmlMjml(
   params: WeeklyNewsletterRenderParams,
-): string {
+): Promise<string> {
   const { html, errors } = render(<WeeklyNewsletterMjml {...params} />, {
     validationLevel: "soft",
     minify: false,
@@ -16,5 +17,5 @@ export function renderWeeklyBOTDNewsletterHtmlMjml(
     console.error("MJML compile errors", errors);
     throw new Error("Failed to compile weekly newsletter MJML template");
   }
-  return prepareNewsletterHtmlForEsp(html);
+  return rewriteNewsletterImagesForEmail(prepareNewsletterHtmlForEsp(html));
 }

@@ -1,6 +1,7 @@
 /** @jsxImportSource react */
 
 import { render } from "@react-email/render";
+import { rewriteNewsletterImagesForEmail } from "../emailImages";
 import { prepareNewsletterHtmlForEsp } from "../espHtml";
 import { WeeklyNewsletter } from "../templateReactEmail";
 import type { WeeklyNewsletterRenderParams } from "../types";
@@ -22,5 +23,5 @@ export async function renderWeeklyBOTDNewsletterHtmlReactEmail(
     );
     html = await render(element, { pretty: false });
   }
-  return prepareNewsletterHtmlForEsp(html);
+  return rewriteNewsletterImagesForEmail(prepareNewsletterHtmlForEsp(html));
 }

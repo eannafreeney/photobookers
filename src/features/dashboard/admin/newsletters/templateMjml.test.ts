@@ -55,8 +55,8 @@ const minimalParams = (): WeeklyNewsletterRenderParams => ({
 });
 
 describe("renderWeeklyBOTDNewsletterHtmlMjml", () => {
-  it("renders a basic weekly newsletter", () => {
-    const html = renderWeeklyBOTDNewsletterHtmlMjml(minimalParams());
+  it("renders a basic weekly newsletter", async () => {
+    const html = await renderWeeklyBOTDNewsletterHtmlMjml(minimalParams());
 
     expect(html).toContain("Photobookers Weekly");
     expect(html).toContain("This week on photobookers");
@@ -69,8 +69,8 @@ describe("renderWeeklyBOTDNewsletterHtmlMjml", () => {
     expect(html).toContain("Artist Three");
   });
 
-  it("centers compact trending book titles like creator columns", () => {
-    const html = renderWeeklyBOTDNewsletterHtmlMjml({
+  it("centers compact trending book titles like creator columns", async () => {
+    const html = await renderWeeklyBOTDNewsletterHtmlMjml({
       ...minimalParams(),
       trending: {
         books: [
@@ -94,5 +94,12 @@ describe("renderWeeklyBOTDNewsletterHtmlMjml", () => {
     const titleBlock = html.slice(Math.max(0, titleIdx - 350), titleIdx);
     expect(titleBlock).toContain("text-align:center");
     expect(titleBlock).not.toContain("-webkit-box");
+  });
+
+  it("sizes the logo via Supabase image transform", async () => {
+    const html = await renderWeeklyBOTDNewsletterHtmlMjml(minimalParams());
+    expect(html).toMatch(
+      /storage\/v1\/render\/image\/public\/newsletter\/logo\.png\?width=240&amp;quality=75/,
+    );
   });
 });
