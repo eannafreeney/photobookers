@@ -160,6 +160,14 @@ export const getStoreBySlug = async (slug: string) => {
   try {
     const store = await db.query.bookStores.findFirst({
       where: eq(bookStores.slug, slug),
+      with: {
+        images: {
+          orderBy: (images, { asc }) => [
+            asc(images.sortOrder),
+            asc(images.createdAt),
+          ],
+        },
+      },
     });
 
     if (!store) return err({ reason: "Store not found" });

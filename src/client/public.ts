@@ -21,6 +21,7 @@ import { registerAlert } from "./components/alert";
 import { registerActivityFeed } from "./components/activityFeed";
 import { registerOptionsComboBox } from "./components/optionsComboBox";
 import { registerStoryUploadForm } from "../features/story-upload/client/storyUploadForm";
+import { registerStoreUploadForm } from "../features/store-upload/client/storeUploadForm";
 import { registerInterviewForm } from "../features/interviews/client/interviewForm";
 
 registerLoginForm();
@@ -46,4 +47,5 @@ registerAlert();
 registerActivityFeed();
 registerOptionsComboBox();
 registerStoryUploadForm();
+registerStoreUploadForm();
 registerInterviewForm();

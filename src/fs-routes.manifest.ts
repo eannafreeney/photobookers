@@ -312,6 +312,7 @@ import * as m305 from "./fs-routes/hyperview/(app)/publisher-of-the-week/[week]"
 import * as m306 from "./fs-routes/hyperview/(app)/stores/[slug]";
 import * as m307 from "./fs-routes/hyperview/(app)/tags/[tag]";
 import * as m308 from "./fs-routes/story-upload/[token]";
+import * as m309 from "./fs-routes/store-upload/[token]";
 
 export const manifest: Manifest = [
   {
@@ -2476,5 +2477,12 @@ export const manifest: Manifest = [
     type: "handler",
     precedence: 2,
     module: m308
+  },
+  {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/store-upload/[token].tsx",
+    urlPath: "/store-upload/:token",
+    type: "handler",
+    precedence: 2,
+    module: m309
   }
 ];

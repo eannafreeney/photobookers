@@ -491,6 +491,13 @@
 			"when": 1784900000000,
 			"tag": "0070_publisher_release_watch_seen",
 			"breakpoints": true
+		},
+		{
+			"idx": 71,
+			"version": "7",
+			"when": 1785200000000,
+			"tag": "0073_store_images",
+			"breakpoints": true
 		}
 	]
 }
