@@ -1,28 +1,32 @@
-import type { BookStore } from "../../../../db/schema";
+import type { BookStore, StoreImage } from "../../../../db/schema";
 import ExpandableDescription from "../../components/ExpandableDescription";
 import Button from "../../../../components/app/Button";
 import { buildGoogleMapsUrl } from "../googleMaps";
 import { resolveStoreCoverUrl } from "../coverUrl";
 
 type StoreDetailProps = {
-  store: BookStore;
+  store: BookStore & { images?: StoreImage[] };
 };
 
 const StoreDetail = ({ store }: StoreDetailProps) => {
   const coverUrl = resolveStoreCoverUrl(store);
   const mapsUrl = buildGoogleMapsUrl(store.name, store.address);
+  const gallery = (store.images ?? [])
+    .slice()
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  const heroUrl = store.bannerUrl?.trim() || coverUrl;
 
   return (
     <div class="min-h-screen">
-      {/* <div class="w-full -mt-8 mb-12">
+      <div class="w-full -mt-8 mb-12">
         <div class="relative w-full h-[300px] md:h-[500px] overflow-hidden">
           <img
-            src={coverUrl}
+            src={heroUrl}
             alt={store.name}
             class="w-full h-full object-cover"
           />
         </div>
-      </div> */}
+      </div>
 
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 flex flex-col gap-12">
         <div class="text-center space-y-6">
@@ -83,6 +87,29 @@ const StoreDetail = ({ store }: StoreDetailProps) => {
           <div class="max-w-none text-on-surface">
             <div class="bg-surface-container rounded-2xl">
               <ExpandableDescription text={store.description} />
+            </div>
+          </div>
+        ) : null}
+
+        {gallery.length > 0 ? (
+          <div class="space-y-4">
+            <h2 class="font-display text-2xl font-semibold text-on-surface-strong text-center">
+              Photos
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {gallery.map((image) => (
+                <div
+                  key={image.id}
+                  class="overflow-hidden rounded-xl bg-surface-container aspect-[4/3]"
+                >
+                  <img
+                    src={image.imageUrl}
+                    alt={`${store.name} photo`}
+                    class="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         ) : null}

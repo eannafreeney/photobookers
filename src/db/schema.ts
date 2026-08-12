@@ -1120,10 +1120,34 @@ export const bookStores = pgTable(
   }),
 );
 
-export const bookStoresRelations = relations(bookStores, ({ one }) => ({
+export const storeImages = pgTable(
+  "store_images",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    storeId: uuid("store_id")
+      .references(() => bookStores.id, { onDelete: "cascade" })
+      .notNull(),
+    imageUrl: text("image_url").notNull(),
+    sortOrder: integer("sort_order").default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    storeIdIdx: index("store_images_store_id_idx").on(table.storeId),
+  }),
+);
+
+export const bookStoresRelations = relations(bookStores, ({ one, many }) => ({
   createdBy: one(users, {
     fields: [bookStores.createdByUserId],
     references: [users.id],
+  }),
+  images: many(storeImages),
+}));
+
+export const storeImagesRelations = relations(storeImages, ({ one }) => ({
+  store: one(bookStores, {
+    fields: [storeImages.storeId],
+    references: [bookStores.id],
   }),
 }));
 
@@ -1255,6 +1279,8 @@ export type UpdateBookStore = Partial<InferInsertModel<typeof bookStores>>;
 export type BookStoreStatus = (typeof bookStoreStatusEnum.enumValues)[number];
 export type BookStoreApprovalStatus =
   (typeof bookStoreApprovalStatusEnum.enumValues)[number];
+export type StoreImage = InferSelectModel<typeof storeImages>;
+export type NewStoreImage = InferInsertModel<typeof storeImages>;
 
 // ============ MAGAZINE ============
 
