@@ -40,6 +40,7 @@ import * as m33 from "./fs-routes/(app)/stores";
 import * as m34 from "./fs-routes/(app)/terms";
 import * as m35 from "./fs-routes/(app)/this-week";
 import * as m36 from "./fs-routes/api/activity/stream";
+import * as m309 from "./fs-routes/api/email-image";
 import * as m37 from "./fs-routes/api/newsletter";
 import * as m38 from "./fs-routes/api/project-summary.txt";
 import * as m39 from "./fs-routes/api/users/me/shelf-sharing";
@@ -572,6 +573,13 @@ export const manifest: Manifest = [
     type: "handler",
     precedence: 1,
     module: m36
+  },
+  {
+    filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/email-image.tsx",
+    urlPath: "/api/email-image",
+    type: "handler",
+    precedence: 1,
+    module: m309
   },
   {
     filePath: "/Users/eannafreeney/Code/photobookers/src/fs-routes/api/newsletter.tsx",
