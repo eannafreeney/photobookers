@@ -7,6 +7,7 @@ type Props = {
   bookSlug: string;
   purchaseLink: string | null;
   availabilityStatus: BookAvailabilityStatus;
+  artistName?: string | null;
   publisherName?: string | null;
   title?: string;
   trackOutbound?: boolean;
@@ -20,6 +21,7 @@ const BookPurchaseBlock = ({
   bookSlug,
   purchaseLink,
   availabilityStatus,
+  artistName,
   publisherName,
   title,
   trackOutbound = true,
@@ -28,6 +30,7 @@ const BookPurchaseBlock = ({
   const action = getBookPurchaseAction({
     availabilityStatus,
     purchaseLink,
+    artistName,
     publisherName,
     bookSlug,
     trackOutbound,
@@ -49,9 +52,9 @@ const BookPurchaseBlock = ({
     return (
       <>
         <div class={stickyBarClass}>
-          {title ? (
+          {/* {title ? (
             <p class="truncate font-medium text-on-surface-strong">{title}</p>
-          ) : null}
+          ) : null} */}
           {status}
         </div>
         <div class="h-20" aria-hidden="true" />

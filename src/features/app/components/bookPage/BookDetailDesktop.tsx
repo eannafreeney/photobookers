@@ -89,6 +89,7 @@ const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
                 bookSlug={book.slug}
                 purchaseLink={book.purchaseLink}
                 availabilityStatus={book.availabilityStatus}
+                artistName={book.artist?.displayName}
                 publisherName={book.publisher?.displayName}
                 trackOutbound={shouldTrackOutboundPurchase(book)}
               />
