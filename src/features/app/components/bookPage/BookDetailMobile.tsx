@@ -106,7 +106,6 @@ const BookDetailMobile = ({
       </Tabs>
       <BookPurchaseBlock
         sticky
-        title={book.title}
         bookSlug={book.slug}
         purchaseLink={book.purchaseLink}
         availabilityStatus={book.availabilityStatus}

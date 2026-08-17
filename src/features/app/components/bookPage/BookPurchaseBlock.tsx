@@ -9,7 +9,6 @@ type Props = {
   availabilityStatus: BookAvailabilityStatus;
   artistName?: string | null;
   publisherName?: string | null;
-  title?: string;
   trackOutbound?: boolean;
   sticky?: boolean;
 };
@@ -23,7 +22,6 @@ const BookPurchaseBlock = ({
   availabilityStatus,
   artistName,
   publisherName,
-  title,
   trackOutbound = true,
   sticky = false,
 }: Props) => {
@@ -51,12 +49,7 @@ const BookPurchaseBlock = ({
 
     return (
       <>
-        <div class={stickyBarClass}>
-          {/* {title ? (
-            <p class="truncate font-medium text-on-surface-strong">{title}</p>
-          ) : null} */}
-          {status}
-        </div>
+        <div class={stickyBarClass}>{status}</div>
         <div class="h-20" aria-hidden="true" />
       </>
     );
@@ -67,7 +60,7 @@ const BookPurchaseBlock = ({
       <Button
         variant="solid"
         color="accent"
-        width={sticky && !title ? "full" : "fit"}
+        width={sticky ? "full" : "fit"}
         type="button"
       >
         <span>{sticky ? "Buy →" : action.label}</span>
@@ -79,16 +72,7 @@ const BookPurchaseBlock = ({
 
   return (
     <>
-      <div class={stickyBarClass}>
-        <div class="flex items-center gap-3">
-          {/* {title ? (
-            <p class="min-w-0 flex-1 truncate font-medium text-on-surface-strong">
-              {title}
-            </p>
-          ) : null} */}
-          <div class={title ? "shrink-0" : "min-w-0 flex-1"}>{button}</div>
-        </div>
-      </div>
+      <div class={stickyBarClass}>{button}</div>
       <div class="h-20" aria-hidden="true" />
     </>
   );
