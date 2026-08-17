@@ -32,7 +32,22 @@ describe("getBookPurchaseAction", () => {
     });
   });
 
-  it("falls back to Buy when there is no publisher name", () => {
+  it("falls back to the artist name when there is no publisher", () => {
+    expect(
+      getBookPurchaseAction({
+        ...base,
+        availabilityStatus: "available",
+        publisherName: "  ",
+        artistName: "Clare Strand",
+      }),
+    ).toEqual({
+      kind: "buy",
+      href: "/out/skirts",
+      label: "Buy from Clare Strand →",
+    });
+  });
+
+  it("falls back to Buy when there is no publisher or artist name", () => {
     expect(
       getBookPurchaseAction({
         ...base,

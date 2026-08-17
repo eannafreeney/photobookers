@@ -30,7 +30,7 @@ export function getBookPurchaseAction({
   const href = purchaseLink?.trim();
   if (!href) return { kind: "none" };
 
-  const name = publisherName ? publisherName.trim() : artistName?.trim();
+  const name = publisherName?.trim() || artistName?.trim();
   return {
     kind: "buy",
     href: trackOutbound ? outboundPurchasePath(bookSlug) : href,

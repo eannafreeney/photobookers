@@ -56,14 +56,18 @@ const BookPurchaseBlock = ({
   }
 
   const button = (
-    <Link href={action.href} target="_blank">
+    <Link
+      href={action.href}
+      target="_blank"
+      className={sticky ? "block w-full" : undefined}
+    >
       <Button
         variant="solid"
         color="accent"
         width={sticky ? "full" : "fit"}
         type="button"
       >
-        <span>{sticky ? "Buy →" : action.label}</span>
+        <span>{action.label}</span>
       </Button>
     </Link>
   );
