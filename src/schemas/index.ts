@@ -1,8 +1,14 @@
 import { z } from "zod";
+import { parseDateString } from "../lib/utils";
 
 export const optionalText = z.preprocess(
   (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
   z.string().optional(),
+);
+
+export const optionalDateString = optionalText.refine(
+  (v) => v === undefined || !Number.isNaN(parseDateString(v).getTime()),
+  "Enter a valid date (YYYY-MM-DD)",
 );
 
 export const requiredText = z.preprocess(

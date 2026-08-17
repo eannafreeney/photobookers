@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 
 export const formatDate = (date: Date): string => {
   const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
 
   const month = d.toLocaleString("en-US", { month: "short" }); // "Jan"
   const day = d.getDate(); // 7
@@ -17,6 +18,7 @@ export const formatDate = (date: Date): string => {
 
 export const formatDateWithoutYear = (date: Date): string => {
   const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
 
   const month = d.toLocaleString("en-US", { month: "short" });
   const day = d.getDate();

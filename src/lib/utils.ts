@@ -98,6 +98,20 @@ export function toDateString(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+/**
+ * YYYY-MM-DD for `<input type="date">`. Empty on missing/invalid values.
+ * postgres.js parses some stored timestamps (e.g. year 0013) as Invalid Date;
+ * callers must not use `toISOString()` without this guard.
+ */
+export function toDateInputValue(
+  d: Date | string | null | undefined,
+): string {
+  if (d == null || d === "") return "";
+  const date = d instanceof Date ? d : new Date(d);
+  if (Number.isNaN(date.getTime())) return "";
+  return toDateString(date);
+}
+
 /** Format a Date as "YYYY-MM-DD" using local calendar components. */
 export function toLocalDateString(d: Date): string {
   const y = d.getFullYear();

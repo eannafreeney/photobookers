@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { optionalDateString } from "../../../../schemas";
 
 const availabilityStatusSchema = z.enum([
   "available",
@@ -13,12 +14,7 @@ export const csvBookRowSchema = z.object({
     .trim()
     .max(5000, "Description must be less than 5000 characters")
     .optional(),
-  release_date: z
-    .string()
-    .trim()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Release date must be YYYY-MM-DD")
-    .optional()
-    .or(z.literal("")),
+  release_date: optionalDateString,
   tags: z.string().trim().optional(),
   purchase_link: z.string().trim().optional(),
   availability_status: availabilityStatusSchema.default("available"),
