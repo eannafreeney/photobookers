@@ -81,11 +81,11 @@ const BookPurchaseBlock = ({
     <>
       <div class={stickyBarClass}>
         <div class="flex items-center gap-3">
-          {title ? (
+          {/* {title ? (
             <p class="min-w-0 flex-1 truncate font-medium text-on-surface-strong">
               {title}
             </p>
-          ) : null}
+          ) : null} */}
           <div class={title ? "shrink-0" : "min-w-0 flex-1"}>{button}</div>
         </div>
       </div>
