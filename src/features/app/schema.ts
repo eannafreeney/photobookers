@@ -42,7 +42,8 @@ const normalizeSlug = (value: string) =>
     .toLowerCase()
     .trim()
     .replace(/-+/g, "-") // collapse repeated hyphens
-    .replace(/^-|-$/g, ""); // remove leading/trailing hyphens
+    .replace(/_+/g, "_") // collapse repeated underscores
+    .replace(/^[-_]|[-_]$/g, ""); // remove leading/trailing separators
 
 export const slugSchema = z.object({
   slug: z
@@ -53,8 +54,8 @@ export const slugSchema = z.object({
         .string()
         .min(1, "Slug is required")
         .regex(
-          /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-          "Slug must contain only lowercase letters, numbers, and hyphens",
+          /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/,
+          "Slug must contain only lowercase letters, numbers, hyphens, and underscores",
         ),
     ),
 });

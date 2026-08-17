@@ -626,6 +626,15 @@ export const getBooksByTag = async (
   }
 };
 
+const catalogListingConditions = (...extra: SQL[]) =>
+  and(
+    eq(books.publicationStatus, "published"),
+    eq(books.approvalStatus, "approved"),
+    or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    ne(books.availabilityStatus, "sold_out"),
+    ...extra,
+  );
+
 const catalogBookWith = {
   artist: {
     columns: CREATOR_CARD_COLUMNS,
@@ -704,10 +713,11 @@ export const getLatestBooks = async (
   sort: BookCatalogSort = "newest",
 ) => {
   try {
+    const where = catalogListingConditions();
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
       .from(books)
-      .where(eq(books.publicationStatus, "published"));
+      .where(where);
 
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
@@ -716,11 +726,7 @@ export const getLatestBooks = async (
     );
 
     const foundBooks = await findCatalogBooks({
-      where: and(
-        eq(books.publicationStatus, "published"),
-        eq(books.approvalStatus, "approved"),
-        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-      ),
+      where,
       limit,
       offset,
       sort,
@@ -733,10 +739,7 @@ export const getLatestBooks = async (
 };
 
 const catalogBookCoverConditions = (tag: string) =>
-  and(
-    eq(books.publicationStatus, "published"),
-    eq(books.approvalStatus, "approved"),
-    or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+  catalogListingConditions(
     isNotNull(books.coverUrl),
     tagMatchesBookTags(books.tags, tag),
   );
@@ -797,13 +800,7 @@ export const getFilteredBooks = async ({
       );
     }
 
-    const publishedConditions = and(
-      eq(books.publicationStatus, "published"),
-      eq(books.approvalStatus, "approved"),
-      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-    );
-
-    const conditions = [publishedConditions];
+    const conditions = [catalogListingConditions()];
 
     if (normalizedTag) {
       conditions.push(tagMatchesBookTags(books.tags, normalizedTag));
@@ -863,19 +860,12 @@ const getBooksByTagForCatalog = async (
   defaultLimit: number,
   sort: BookCatalogSort,
 ) => {
-  const tagCondition = tagMatchesBookTags(books.tags, tag);
-
-  const publishedConditions = and(
-    eq(books.publicationStatus, "published"),
-    eq(books.approvalStatus, "approved"),
-    or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-    tagCondition,
-  );
+  const where = catalogListingConditions(tagMatchesBookTags(books.tags, tag));
 
   const [{ value: totalCount = 0 }] = await db
     .select({ value: count() })
     .from(books)
-    .where(publishedConditions);
+    .where(where);
 
   const { page, limit, offset, totalPages } = getPagination(
     currentPage,
@@ -884,7 +874,7 @@ const getBooksByTagForCatalog = async (
   );
 
   const foundBooks = await findCatalogBooks({
-    where: publishedConditions,
+    where,
     limit,
     offset,
     sort,

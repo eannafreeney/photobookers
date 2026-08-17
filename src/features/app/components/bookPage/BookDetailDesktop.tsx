@@ -1,4 +1,3 @@
-import PurchaseLink from "../../../../components/app/PurchaseLink";
 import ShareButton from "../../../api/components/ShareButton";
 import TagList from "../../../../components/app/TagList";
 import FavouriteButton from "../../../api/components/FavouriteButton";
@@ -7,11 +6,11 @@ import CommentsSection from "../CommentsSection";
 import Divider from "../../../../components/Divider";
 import BookCredits from "./BookCredits";
 import BookPressSection from "./BookPressSection";
+import BookPurchaseBlock from "./BookPurchaseBlock";
 import { bookShareText, bookShareTitle } from "../../../../lib/share";
 import { bookUrl } from "../../spotlightUrls";
 import SpotlightCreator from "../SpotlightCreator";
 import Card from "@/components/app/Card";
-import AvailabilityBadge from "@/components/app/AvailabilityBadge";
 import { BookDetailProps, shouldTrackOutboundPurchase } from "./BookDetail";
 import { isFeatureEnabledForUser } from "@/lib/features";
 
@@ -86,20 +85,21 @@ const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
               {book.description && (
                 <Card.Description>{book.description}</Card.Description>
               )}
-              <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
-              <TagList tags={book.tags ?? []} />
-              <PurchaseLink
+              <BookPurchaseBlock
                 bookSlug={book.slug}
                 purchaseLink={book.purchaseLink}
+                availabilityStatus={book.availabilityStatus}
+                publisherName={book.publisher?.displayName}
                 trackOutbound={shouldTrackOutboundPurchase(book)}
               />
+              <BookCredits releaseDate={book.releaseDate} />
+              <TagList tags={book.tags ?? []} />
               {showPress ? <BookPressSection links={book.pressLinks} /> : null}
               <CommentsSection
                 bookId={book.id}
                 user={user}
                 bookSlug={book.slug}
               />
-              <BookCredits releaseDate={book.releaseDate} />
             </div>
           </div>
         </div>
