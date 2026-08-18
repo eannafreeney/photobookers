@@ -75,9 +75,7 @@ export const GET = createRoute(
       c.header("Cache-Control", "private, no-store");
     }
 
-    const posts = owner.creator
-      ? []
-      : await listCollectorPosts(owner.id);
+    const posts = owner.creator ? [] : await listCollectorPosts(owner.id);
     const publicLists = await getPublicListsForUser(owner.id);
 
     const title = pageTitle(`${owner.displayName}'s shelf`);
@@ -166,7 +164,7 @@ export const GET = createRoute(
                 type="button"
                 x-on:click="tab = 'favourites'"
                 x-bind:class="tab === 'favourites' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
-                class="px-3 py-2 text-sm font-medium"
+                class="px-3 py-2 text-sm font-medium cursor-pointer"
               >
                 Favourites
               </button>
@@ -174,7 +172,7 @@ export const GET = createRoute(
                 type="button"
                 x-on:click="tab = 'lists'"
                 x-bind:class="tab === 'lists' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
-                class="px-3 py-2 text-sm font-medium"
+                class="px-3 py-2 text-sm font-medium cursor-pointer"
               >
                 {`Lists (${publicLists.length + 1})`}
               </button>
@@ -190,7 +188,7 @@ export const GET = createRoute(
                   type="button"
                   x-on:click="tab = 'posts'"
                   x-bind:class="tab === 'posts' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
-                  class="px-3 py-2 text-sm font-medium"
+                  class="px-3 py-2 text-sm font-medium cursor-pointer"
                 >
                   {`Posts (${posts.length})`}
                 </button>
@@ -209,7 +207,9 @@ export const GET = createRoute(
             <div x-show="tab === 'lists'" x-cloak>
               <ShelfListsSection
                 shelfSlug={slug}
-                favoritesCount={booksResult.totalCount ?? booksResult.books.length}
+                favoritesCount={
+                  booksResult.totalCount ?? booksResult.books.length
+                }
                 lists={publicLists}
               />
             </div>

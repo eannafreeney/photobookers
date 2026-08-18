@@ -7,7 +7,7 @@ import { showErrorAlert } from "../../../../../lib/alertHelpers";
 import Alert from "../../../../../components/app/Alert";
 import { toggleListMembership } from "../../../../../domain/lists/services";
 import { userCanManageBookLists } from "../../../../../domain/lists/utils";
-import { ListMembershipRow } from "../../../../../features/api/components/SaveToListButton";
+import { ListMembershipRow } from "../../../../../features/api/components/ListMembershipRow";
 import { routeParam } from "../../../../../lib/routeParam";
 
 export const POST = createRoute(async (c: Context) => {

@@ -16,17 +16,21 @@ export const GET = createRoute(async (c: Context) => {
   const flash = await getFlash(c);
   const currentPath = c.req.path;
 
-  if (
-    !userCanHaveShelf(user) ||
-    !isFeatureEnabledForUser("collectors", user)
-  ) {
+  if (!userCanHaveShelf(user) || !isFeatureEnabledForUser("collectors", user)) {
     return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 
   const suggestedSlug = await suggestShelfSlug(user.id);
   const claimStatus = user.creator
-    ? (await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null
+    ? ((await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null)
     : null;
+
+  const alpineAttrs = {
+    "x-init": true,
+    "x-merge": "replace",
+    "@avatar:updated.window":
+      "$ajax('/dashboard/shelf', { target: 'shelf-settings-container' })",
+  };
 
   return c.html(
     <AppLayout
@@ -44,11 +48,13 @@ export const GET = createRoute(async (c: Context) => {
           title="Shelf"
           intro="Control whether your shelf is public and choose your public URL."
         />
-        <ShelfSharingPanel
-          user={user}
-          suggestedSlug={suggestedSlug}
-          defaultOpen
-        />
+        <div id="shelf-settings-container" {...alpineAttrs}>
+          <ShelfSharingPanel
+            user={user}
+            suggestedSlug={suggestedSlug}
+            defaultOpen
+          />
+        </div>
       </MemberDashboardShell>
     </AppLayout>,
   );

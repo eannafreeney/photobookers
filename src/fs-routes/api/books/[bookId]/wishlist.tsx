@@ -23,9 +23,7 @@ import {
 } from "../../../../features/hyperview/components/BookActions";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 import FavoriteButton from "../../../../features/api/components/FavouriteButton";
-import {
-  FavoritePopoverRow,
-} from "../../../../features/api/components/SaveToListButton";
+import FavoritePopoverRow from "../../../../features/api/components/FavoritePopoverRow";
 import { routeParam } from "../../../../lib/routeParam";
 import { canWishlistBook } from "../../../../lib/permissions";
 
@@ -172,7 +170,11 @@ const postWishlistWeb = async (c: Context) => {
           isDisabled={!canWishlistBook(user, book)}
         />
       ) : (
-        <FavoriteButton book={book} user={user} isCircleButton={isCircleButton} />
+        <FavoriteButton
+          book={book}
+          user={user}
+          isCircleButton={isCircleButton}
+        />
       )}
       {shouldRefreshWishlist && dispatchEvents([updateShelfPage()])}
     </>,

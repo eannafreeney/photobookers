@@ -13,6 +13,7 @@ import { listBookListsWithCounts } from "../../domain/lists/services";
 import InfoPage from "../../pages/InfoPage";
 import PageHeader from "../../components/app/PageHeader";
 import Link from "../../components/app/Link";
+import Banner from "../../components/app/Banner";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -47,10 +48,7 @@ export const GET = createRoute(async (c) => {
   }
 
   if (!userCanHaveShelf(user)) {
-    return c.html(
-      <InfoPage errorMessage="Not found" user={user} />,
-      404,
-    );
+    return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 
   const [wishlistError, wishlistResult] = await getBooksInWishlist(
@@ -75,8 +73,8 @@ export const GET = createRoute(async (c) => {
   const alpineAttrs = {
     "x-init": true,
     "x-merge": "replace",
-    "@shelf:updated.window":
-      "$ajax('/shelf', { target: 'shelf-container' })",
+    "@shelf:updated.window": "$ajax('/shelf', { target: 'shelf-container' })",
+    "@avatar:updated.window": "$ajax('/shelf', { target: 'shelf-container' })",
   };
 
   return c.html(
@@ -88,20 +86,20 @@ export const GET = createRoute(async (c) => {
       noIndex
     >
       <Page>
-        <div
-          id="shelf-container"
-          class="flex flex-col gap-4"
-          {...alpineAttrs}
-        >
+        <div id="shelf-container" class="flex flex-col gap-4" {...alpineAttrs}>
+          <Banner
+            type={user.shelfPublic ? "success" : "danger"}
+            message={`Your shelf is currently ${user.shelfPublic ? "public" : "private"}.`}
+          >
+            <Link href="/dashboard/shelf" className="text-sm text-accent">
+              Manage sharing settings
+            </Link>
+          </Banner>
           <PageHeader
             kicker="Your Shelf"
             title="Shelf"
             intro="The books you’ve favorited, all in one place."
           />
-          <p class="text-sm text-on-surface">
-            Manage sharing settings in your{" "}
-            <Link href="/dashboard/shelf">dashboard</Link>.
-          </p>
           <PrivateShelfListsStrip
             lists={lists}
             shelfSlug={user.shelfSlug}
