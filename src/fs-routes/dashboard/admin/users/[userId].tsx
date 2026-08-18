@@ -21,7 +21,7 @@ import InfoPage from "../../../../pages/InfoPage";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import ResetUserPasswordButton from "../../../../features/dashboard/admin/users/components/ResetUserPasswordButton";
-import CollectorPostsTable from "../../../../features/collectors/components/CollectorPostsTable";
+import PostsTable from "../../../../features/collectors/components/PostsTable";
 import { formatDate } from "../../../../utils";
 import { getIsMobile } from "../../../../lib/device";
 
@@ -195,8 +195,8 @@ export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
           </div>
         )}
 
-        <SectionTitle className="mb-4 mt-8">Collector posts</SectionTitle>
-        <CollectorPostsTable userId={userId} isMobile={isMobile} />
+        <SectionTitle className="mb-4 mt-8">Posts</SectionTitle>
+        <PostsTable userId={userId} isMobile={isMobile} />
       </Page>
     </AppLayout>,
   );

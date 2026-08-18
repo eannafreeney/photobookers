@@ -1,6 +1,6 @@
 import { count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client";
-import { collectorPosts, creators, follows } from "../../../db/schema";
+import { posts, creators, follows } from "../../../db/schema";
 import { getPagination } from "../../../lib/pagination";
 import { err, ok } from "../../../lib/result";
 import {
@@ -103,8 +103,8 @@ export async function getMessagesForFollower(
 
     const [{ value: total = 0 }] = await db
       .select({ value: count() })
-      .from(collectorPosts)
-      .where(inArray(collectorPosts.userId, ownerIds));
+      .from(posts)
+      .where(inArray(posts.userId, ownerIds));
 
     const { page, offset, totalPages } = getPagination(
       currentPage,
@@ -112,14 +112,14 @@ export async function getMessagesForFollower(
       limit,
     );
 
-    const posts = await db.query.collectorPosts.findMany({
-      where: inArray(collectorPosts.userId, ownerIds),
-      orderBy: [desc(collectorPosts.createdAt)],
+    const rows = await db.query.posts.findMany({
+      where: inArray(posts.userId, ownerIds),
+      orderBy: [desc(posts.createdAt)],
       limit,
       offset,
     });
 
-    const messages = posts.flatMap((post) => {
+    const messages = rows.flatMap((post) => {
       const creator = creatorByOwner.get(post.userId);
       if (!creator) return [];
       return [

@@ -96,8 +96,8 @@ const postFollowWeb = async (c: Context) => {
   const body = await c.req.parseBody();
   const isCurrentlyFollowing = body.isFollowing === "true";
   const isCircleButton = body.buttonType === "circle";
-  const shouldRefreshCreatorMessages =
-    body.shouldRefreshCreatorMessages === "true";
+  const shouldRefreshCreatorPosts =
+    body.shouldRefreshCreatorPosts === "true";
 
   const [err, creator] = await getCreatorPermissionData(creatorId);
   if (err || !creator) {
@@ -128,17 +128,17 @@ const postFollowWeb = async (c: Context) => {
         creator={creator}
         user={user}
         isCircleButton={isCircleButton}
-        shouldRefreshCreatorMessages={shouldRefreshCreatorMessages}
+        shouldRefreshCreatorPosts={shouldRefreshCreatorPosts}
       />
       <FollowButton
         creator={creator}
         user={user}
         isCircleButton={isCircleButton}
         variant="mobile"
-        shouldRefreshCreatorMessages={shouldRefreshCreatorMessages}
+        shouldRefreshCreatorPosts={shouldRefreshCreatorPosts}
       />
-      {shouldRefreshCreatorMessages &&
-        dispatchEvents(["creator-messages:updated"])}
+      {shouldRefreshCreatorPosts &&
+        dispatchEvents(["creator-posts:updated"])}
     </>,
   );
 };

@@ -45,10 +45,9 @@ import {
   CREATOR_CARD_COLUMNS,
   CREATOR_CARD_SELECT,
 } from "../../constants/queries";
-import { collectorPosts, Creator } from "../../db/schema";
+import { posts, Creator } from "../../db/schema";
 import { err, ok } from "../../lib/result";
 import { type FeedItem, type FeedTab } from "./followerFeed";
-import { listPostsByCreatorSlug } from "../../domain/posts/services";
 import { LRUCache } from "lru-cache";
 import { resolveStoragePublicImageUrl } from "../../lib/imageUrl";
 
@@ -977,10 +976,10 @@ export const getFollowerFeed = async (
   followerUserId: string,
   currentPage = 1,
   limit = 20,
-  options?: { tab?: FeedTab; includeMessages?: boolean },
+  options?: { tab?: FeedTab; includePosts?: boolean },
 ) => {
   const tab = options?.tab ?? "posts";
-  const includeMessages = options?.includeMessages ?? true;
+  const includePosts = options?.includePosts ?? true;
 
   try {
     const allFollows = await db.query.follows.findMany({
@@ -1042,7 +1041,7 @@ export const getFollowerFeed = async (
       .filter((id): id is string => id !== null);
 
     const ownedCreators =
-      includeMessages && followedCreatorIds.length > 0
+      includePosts && followedCreatorIds.length > 0
         ? await db.query.creators.findMany({
             where: inArray(creators.id, followedCreatorIds),
             columns: {
@@ -1064,7 +1063,7 @@ export const getFollowerFeed = async (
         .map((c) => [c.ownerUserId!, c]),
     );
 
-    // Collector posts: followed users with a public shelf and no creator profile.
+    // Followed users with a public shelf and no creator profile.
     const publicFollowedUsers =
       followedUserIds.length > 0
         ? await db.query.users.findMany({
@@ -1099,10 +1098,10 @@ export const getFollowerFeed = async (
       return ok({ items: [] as FeedItem[], totalPages: 1, page: 1 });
     }
 
-    const postWhere = inArray(collectorPosts.userId, postAuthorIds);
+    const postWhere = inArray(posts.userId, postAuthorIds);
     const [{ value: postCount = 0 }] = await db
       .select({ value: count() })
-      .from(collectorPosts)
+      .from(posts)
       .where(postWhere);
 
     const { page, offset, totalPages } = getPagination(
@@ -1111,9 +1110,9 @@ export const getFollowerFeed = async (
       limit,
     );
 
-    const rawPosts = await db.query.collectorPosts.findMany({
+    const rawPosts = await db.query.posts.findMany({
       where: postWhere,
-      orderBy: [desc(collectorPosts.createdAt)],
+      orderBy: [desc(posts.createdAt)],
       limit,
       offset,
       with: {
@@ -1714,27 +1713,6 @@ export async function getCreatorSpotlightImageUrls(
     });
   }
 }
-
-export const getMessagesByCreatorSlug = async (
-  creatorSlug: string,
-  currentPage = 1,
-  limit = 20,
-) => {
-  const [error, result] = await listPostsByCreatorSlug(
-    creatorSlug,
-    currentPage,
-    limit,
-  );
-  if (error || !result) {
-    return err(error ?? { reason: "Failed to get messages by creator slug" });
-  }
-  return ok({
-    messages: result.posts,
-    totalPages: result.totalPages,
-    page: result.page,
-    creator: result.creator,
-  });
-};
 
 export const getPublishedInterviews = async () => {
   try {

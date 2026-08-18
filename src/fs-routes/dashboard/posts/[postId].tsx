@@ -3,10 +3,10 @@ import { getUser } from "../../../utils";
 import { showErrorAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
 import Modal from "../../../components/app/Modal";
-import { deleteCollectorPost, findCollectorPost } from "../../../db/queries";
+import { deletePostById, findPost } from "../../../db/queries";
 import { updatePost } from "../../../domain/posts/services";
 import { POST_BODY_MAX_LENGTH } from "../../../domain/posts/utils";
-import CollectorPostForm from "../../../features/collectors/components/CollectorPostForm";
+import PostForm from "../../../features/collectors/components/PostForm";
 import { routeParam } from "../../../lib/routeParam";
 import { dispatchEvents } from "../../../lib/disatchEvents";
 import { removeInvalidImages, uploadImage } from "../../../services/storage";
@@ -27,7 +27,7 @@ export const GET = createRoute(async (c) => {
     );
   }
 
-  const post = await findCollectorPost(postId);
+  const post = await findPost(postId);
 
   if (!post || post.userId !== user.id) {
     return c.html(
@@ -39,7 +39,7 @@ export const GET = createRoute(async (c) => {
 
   return c.html(
     <Modal title="Edit post" maxWidth="max-w-2xl">
-      <CollectorPostForm
+      <PostForm
         postId={post.id}
         initialBody={post.body}
         initialImageUrl={post.imageUrl}
@@ -56,7 +56,7 @@ export const PATCH = createRoute(async (c) => {
     return showErrorAlert(c, "You can't do that.");
   }
 
-  const post = await findCollectorPost(postId);
+  const post = await findPost(postId);
   if (!post || post.userId !== user.id) {
     return showErrorAlert(c, "Post not found");
   }
@@ -91,7 +91,7 @@ export const PATCH = createRoute(async (c) => {
       );
       imageUrl = uploaded.url;
     } catch (error) {
-      console.error("collector post image upload failed", error);
+      console.error("post image upload failed", error);
       return showErrorAlert(c, "Failed to upload image");
     }
   }
@@ -119,16 +119,16 @@ export const DELETE = createRoute(async (c) => {
     return showErrorAlert(c, "You can't do that.");
   }
 
-  const post = await findCollectorPost(postId);
+  const post = await findPost(postId);
   // Owner or admin (moderation) only; otherwise treat as not found.
   if (!post || (post.userId !== user.id && !user.isAdmin)) {
     return showErrorAlert(c, "Post not found");
   }
 
   try {
-    await deleteCollectorPost(postId);
+    await deletePostById(postId);
   } catch (error) {
-    console.error("Failed to delete collector post", error);
+    console.error("Failed to delete post", error);
     return showErrorAlert(c, "Failed to delete post");
   }
 

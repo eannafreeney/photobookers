@@ -1,5 +1,5 @@
 import Link from "../../../../components/app/Link";
-import { CreatorMessage } from "../../../../db/schema";
+import { Post } from "../../../../db/schema";
 import { formatDate } from "../../../../utils";
 import { getMessagesByCreator } from "../services";
 import { getPostLikeStats } from "../../../../domain/posts/likes";
@@ -20,13 +20,15 @@ const alpineAttrs = {
 const MessagesTable = async ({ creatorId, isMobile = false }: Props) => {
   const [error, result] = await getMessagesByCreator(creatorId);
   const messages = error || !result ? [] : result.messages;
-  const likeStats = await getPostLikeStats(messages.map((message) => message.id));
+  const likeStats = await getPostLikeStats(
+    messages.map((message) => message.id),
+  );
 
   if (messages.length === 0) {
     return (
       <div x-data id="posts-table-container" {...alpineAttrs}>
         <div class="rounded border border-outline bg-surface-alt p-6 text-sm text-on-surface">
-          <p>No posts yet. Publish your first post above.</p>
+          <p>No posts yet. Publish your first post.</p>
         </div>
       </div>
     );
@@ -80,7 +82,7 @@ const MessagesTable = async ({ creatorId, isMobile = false }: Props) => {
 
 type BodyProps = {
   creatorId: string;
-  messages: CreatorMessage[];
+  messages: Post[];
   likeStats: Map<string, { likeCount: number }>;
 };
 
@@ -100,7 +102,7 @@ export const MessagesTableBody = ({
   </tbody>
 );
 
-const messageDateLabel = (message: CreatorMessage) =>
+const messageDateLabel = (message: Post) =>
   message.createdAt ? formatDate(new Date(message.createdAt)) : "—";
 
 const messageExcerpt = (body: string) =>
@@ -112,7 +114,7 @@ const MessageCard = ({
   likeCount,
 }: {
   creatorId: string;
-  message: CreatorMessage;
+  message: Post;
   likeCount: number;
 }) => {
   const editHref = `/dashboard/messages/${creatorId}/${message.id}`;
@@ -159,7 +161,7 @@ const MessageCard = ({
 
 type RowProps = {
   creatorId: string;
-  message: CreatorMessage;
+  message: Post;
   likeCount: number;
 };
 
@@ -185,9 +187,7 @@ const MessageTableRow = ({ creatorId, message, likeCount }: RowProps) => {
         )}
       </td>
       <td class="px-4 py-3">
-        <span class="text-on-surface-weak">
-          {messageExcerpt(message.body)}
-        </span>
+        <span class="text-on-surface-weak">{messageExcerpt(message.body)}</span>
       </td>
       <td class="px-4 py-3 tabular-nums">{likeCount}</td>
       <td class="px-4 py-3 text-right">

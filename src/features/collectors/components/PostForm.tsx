@@ -14,7 +14,7 @@ type Props = {
   placeholder?: string;
 };
 
-const CollectorPostForm = ({
+const PostForm = ({
   disabled = false,
   postId,
   initialBody,
@@ -52,7 +52,7 @@ const CollectorPostForm = ({
         </h2>
       )}
       <form
-        id={isEdit ? "collector-post-edit-form" : "collector-post-form"}
+        id={isEdit ? "post-edit-form" : "post-form"}
         method="post"
         enctype="multipart/form-data"
         action={isEdit ? `/dashboard/posts/${postId}` : "/dashboard/posts"}
@@ -113,4 +113,4 @@ const CollectorPostForm = ({
   );
 };
 
-export default CollectorPostForm;
+export default PostForm;

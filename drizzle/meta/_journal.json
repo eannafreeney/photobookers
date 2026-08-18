@@ -547,6 +547,13 @@
 			"when": 1785700000000,
 			"tag": "0078_post_likes",
 			"breakpoints": true
+		},
+		{
+			"idx": 79,
+			"version": "7",
+			"when": 1785800000000,
+			"tag": "0079_rename_collector_posts_to_posts",
+			"breakpoints": true
 		}
 	]
 }

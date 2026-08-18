@@ -1,4 +1,4 @@
-import { CollectorPost } from "../../../db/schema";
+import { Post } from "../../../db/schema";
 import Badge from "../../../components/app/Badge";
 import { getInitialsAvatar } from "../../../lib/avatar";
 import PostLikeButton from "./PostLikeButton";
@@ -17,7 +17,7 @@ export type PostCreator = {
 };
 
 type PostCardProps = {
-  post: Pick<CollectorPost, "id" | "body" | "imageUrl" | "createdAt">;
+  post: Pick<Post, "id" | "body" | "imageUrl" | "createdAt">;
   author: PostAuthor;
   creator?: PostCreator;
   likeCount?: number;

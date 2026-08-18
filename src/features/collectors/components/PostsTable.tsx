@@ -1,6 +1,6 @@
-import { CollectorPost } from "../../../db/schema";
+import { Post } from "../../../db/schema";
 import { formatDate } from "../../../utils";
-import { listCollectorPosts } from "../../../db/queries";
+import { listPosts } from "../../../db/queries";
 import { getPostLikeStats } from "../../../domain/posts/likes";
 import EditRowButton from "@/features/app/components/EditRowButton";
 import DeleteRowButton from "@/features/app/components/DeleteRowButton";
@@ -16,15 +16,15 @@ const alpineAttrs = {
     "$ajax('/dashboard/posts', { target: 'posts-table-container' })",
 };
 
-const CollectorPostsTable = async ({ userId, isMobile = false }: Props) => {
-  const posts = await listCollectorPosts(userId);
+const PostsTable = async ({ userId, isMobile = false }: Props) => {
+  const posts = await listPosts(userId);
   const likeStats = await getPostLikeStats(posts.map((post) => post.id));
 
   if (posts.length === 0) {
     return (
       <div x-data id="posts-table-container" {...alpineAttrs}>
         <div class="rounded border border-outline bg-surface-alt p-6 text-sm text-on-surface">
-          <p>No posts yet. Publish your first post above.</p>
+          <p>No posts yet. Publish your first post.</p>
         </div>
       </div>
     );
@@ -39,7 +39,7 @@ const CollectorPostsTable = async ({ userId, isMobile = false }: Props) => {
         {...alpineAttrs}
       >
         {posts.map((post) => (
-          <CollectorPostCard
+          <PostListCard
             post={post}
             likeCount={likeStats.get(post.id)?.likeCount ?? 0}
           />
@@ -67,7 +67,7 @@ const CollectorPostsTable = async ({ userId, isMobile = false }: Props) => {
         </thead>
         <tbody>
           {posts.map((post) => (
-            <CollectorPostRow
+            <PostListRow
               post={post}
               likeCount={likeStats.get(post.id)?.likeCount ?? 0}
             />
@@ -78,17 +78,17 @@ const CollectorPostsTable = async ({ userId, isMobile = false }: Props) => {
   );
 };
 
-const postDateLabel = (post: CollectorPost) =>
+const postDateLabel = (post: Post) =>
   post.createdAt ? formatDate(new Date(post.createdAt)) : "—";
 
 const postExcerpt = (body: string) =>
   body.length > 100 ? body.slice(0, 100) + "..." : body;
 
-const CollectorPostCard = ({
+const PostListCard = ({
   post,
   likeCount,
 }: {
-  post: CollectorPost;
+  post: Post;
   likeCount: number;
 }) => {
   const editHref = `/dashboard/posts/${post.id}`;
@@ -127,11 +127,11 @@ const CollectorPostCard = ({
   );
 };
 
-const CollectorPostRow = ({
+const PostListRow = ({
   post,
   likeCount,
 }: {
-  post: CollectorPost;
+  post: Post;
   likeCount: number;
 }) => {
   const editHref = `/dashboard/posts/${post.id}`;
@@ -167,4 +167,4 @@ const CollectorPostRow = ({
   );
 };
 
-export default CollectorPostsTable;
+export default PostsTable;

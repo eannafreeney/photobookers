@@ -67,7 +67,7 @@ const NavLink = ({ href, children, currentPath }: NavLinkProps) => {
         href={href}
         {...(isActive
           ? { "aria-current": "page", "x-on:click.prevent": "" }
-          : { "x-target": "collector-dashboard-panel nav-tabs" })}
+          : { "x-target.push": "collector-dashboard-panel nav-tabs" })}
         prefetch="intent"
         class={clsx(
           "flex items-center gap-2 border-b-2 border-transparent md:-mb-px px-4 py-2 kicker transition-colors",

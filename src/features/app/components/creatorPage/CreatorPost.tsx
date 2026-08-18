@@ -1,26 +1,23 @@
 import Badge from "../../../../components/app/Badge";
-import {
-  Creator,
-  CreatorMessage as CreatorMessageType,
-} from "../../../../db/schema";
+import { Creator, Post } from "../../../../db/schema";
 import PostLikeButton from "../../../collectors/components/PostLikeButton";
 
-type CreatorMessageProps = {
+type CreatorPostProps = {
   creator: Pick<Creator, "id" | "slug" | "displayName" | "coverUrl">;
-  message: CreatorMessageType;
-  canReadMessages?: boolean;
+  post: Post;
+  canReadPosts?: boolean;
   likeCount?: number;
   likedByMe?: boolean;
 };
 
-const CreatorMessage = ({
+const CreatorPost = ({
   creator,
-  message,
-  canReadMessages = true,
+  post,
+  canReadPosts = true,
   likeCount = 0,
   likedByMe = false,
-}: CreatorMessageProps) => {
-  const redactClass = !canReadMessages
+}: CreatorPostProps) => {
+  const redactClass = !canReadPosts
     ? "select-none blur-[3px] pointer-events-none"
     : "";
 
@@ -43,20 +40,16 @@ const CreatorMessage = ({
           <Badge variant="accent">Creator</Badge>
         </div>
         <time class="shrink-0 text-xs text-on-surface">
-          {message.createdAt
-            ? new Date(message.createdAt).toLocaleDateString()
-            : ""}
+          {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : ""}
         </time>
       </header>
       <div class="relative">
         <div class={redactClass}>
-          <p class="whitespace-pre-wrap text-sm text-on-surface">
-            {message.body}
-          </p>
-          {message.imageUrl && (
+          <p class="whitespace-pre-wrap text-sm text-on-surface">{post.body}</p>
+          {post.imageUrl && (
             <div class="mt-3">
               <img
-                src={message.imageUrl}
+                src={post.imageUrl}
                 alt="Post image"
                 class="w-full rounded-radius object-cover border border-outline"
                 loading="lazy"
@@ -65,7 +58,7 @@ const CreatorMessage = ({
           )}
         </div>
 
-        {!canReadMessages && (
+        {!canReadPosts && (
           <div class="absolute inset-0 grid place-items-center">
             <div class="rounded-full border border-outline bg-surface/90 px-3 py-1 text-xs font-medium text-on-surface-strong shadow-sm">
               Follow to unlock
@@ -73,9 +66,9 @@ const CreatorMessage = ({
           </div>
         )}
       </div>
-      {canReadMessages ? (
+      {canReadPosts ? (
         <PostLikeButton
-          postId={message.id}
+          postId={post.id}
           likedByMe={likedByMe}
           likeCount={likeCount}
         />
@@ -84,4 +77,4 @@ const CreatorMessage = ({
   );
 };
 
-export default CreatorMessage;
+export default CreatorPost;

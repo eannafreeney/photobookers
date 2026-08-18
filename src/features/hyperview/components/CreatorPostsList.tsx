@@ -18,7 +18,7 @@ type Post = {
 type Props = {
   posts: Post[];
   creator: CreatorInfo;
-  canReadMessages: boolean;
+  canReadPosts: boolean;
   page?: number;
   hasMore?: boolean;
   loadMoreHref?: string;
@@ -27,7 +27,7 @@ type Props = {
 const CreatorPostsList = ({
   posts,
   creator,
-  canReadMessages,
+  canReadPosts,
   page = 1,
   hasMore = false,
   loadMoreHref,
@@ -52,7 +52,7 @@ const CreatorPostsList = ({
             ) : null}
           </View>
         </View>
-        {canReadMessages ? (
+        {canReadPosts ? (
           <>
             {post.body ? (
               <Text style="creator-post-body">{post.body}</Text>

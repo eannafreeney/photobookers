@@ -147,7 +147,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   comments: many(bookComments),
   createdFairs: many(bookFairs),
   createdStores: many(bookStores),
-  posts: many(collectorPosts),
+  posts: many(posts),
 }));
 
 export const creatorInterviews = pgTable("creator_interviews", {
@@ -463,9 +463,9 @@ export const followsRelations = relations(follows, ({ one }) => ({
   }),
 }));
 
-// Unified posts: short updates keyed by user. Creators surface these on their
-// creator page (creator-followers); collectors on their public shelf (user-followers).
-export const collectorPosts = pgTable("collector_posts", {
+// Short updates keyed by user. Creators surface these on their page;
+// collectors on their public shelf.
+export const posts = pgTable("posts", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
     .notNull()
@@ -476,16 +476,13 @@ export const collectorPosts = pgTable("collector_posts", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
-export const collectorPostsRelations = relations(
-  collectorPosts,
-  ({ one, many }) => ({
-    user: one(users, {
-      fields: [collectorPosts.userId],
-      references: [users.id],
-    }),
-    likes: many(postLikes),
+export const postsRelations = relations(posts, ({ one, many }) => ({
+  user: one(users, {
+    fields: [posts.userId],
+    references: [users.id],
   }),
-);
+  likes: many(postLikes),
+}));
 
 export const postLikes = pgTable(
   "post_likes",
@@ -495,7 +492,7 @@ export const postLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     postId: uuid("post_id")
       .notNull()
-      .references(() => collectorPosts.id, { onDelete: "cascade" }),
+      .references(() => posts.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),
   },
   (table) => ({
@@ -509,9 +506,9 @@ export const postLikesRelations = relations(postLikes, ({ one }) => ({
     fields: [postLikes.userId],
     references: [users.id],
   }),
-  post: one(collectorPosts, {
+  post: one(posts, {
     fields: [postLikes.postId],
-    references: [collectorPosts.id],
+    references: [posts.id],
   }),
 }));
 
@@ -1273,11 +1270,8 @@ export type NewNewsletterCampaign = InferInsertModel<
 export type NewsletterCampaignStatus =
   (typeof newsletterCampaignStatusEnum.enumValues)[number];
 
-export type CollectorPost = InferSelectModel<typeof collectorPosts>;
-export type NewCollectorPost = InferInsertModel<typeof collectorPosts>;
-/** @deprecated alias — posts are unified on collector_posts */
-export type CreatorMessage = CollectorPost;
-export type NewCreatorMessage = NewCollectorPost;
+export type Post = InferSelectModel<typeof posts>;
+export type NewPost = InferInsertModel<typeof posts>;
 
 export type BookComment = InferSelectModel<typeof bookComments>;
 export type NewBookComment = InferInsertModel<typeof bookComments>;

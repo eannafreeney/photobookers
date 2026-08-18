@@ -1,37 +1,44 @@
 import { AuthUser } from "../../../../../types";
 import { findFollow } from "../../../../db/queries";
-import { getMessagesByCreatorSlug } from "../../services";
+import { listPostsByCreatorSlug } from "../../../../domain/posts/services";
 import { getPostLikeStats } from "../../../../domain/posts/likes";
-import CreatorMessage from "./CreatorMessage";
+import CreatorPost from "./CreatorPost";
 import ListNavigation from "../ListNavigation";
 
-type CreatorMessagesProps = {
+type Props = {
   creatorSlug: string;
   user: AuthUser | null;
 };
 
-const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
-  const [error, result] = await getMessagesByCreatorSlug(creatorSlug, 1, 5);
+const CreatorPosts = async ({ creatorSlug, user }: Props) => {
+  const [error, result] = await listPostsByCreatorSlug(creatorSlug, 1, 5);
   if (error || !result) return <></>;
 
-  const { messages, totalPages, page, creator } = result;
+  const { posts, totalPages, page, creator } = result;
 
   const isOwner = user?.creator?.id === creator.id;
 
-  const canReadMessages =
+  const canReadPosts =
     isOwner ||
     user?.isAdmin ||
     (user?.id ? Boolean(await findFollow(creator.id, user.id)) : false);
 
-  const targetId = `creator-messages-${creator.id}`;
+  const targetId = `creator-posts-${creator.id}`;
   const likeStats = await getPostLikeStats(
-    messages.map((message) => message.id),
+    posts.map((post) => post.id),
     user?.id,
   );
 
   return (
-    <div id={targetId} class="w-full flex flex-col gap-4">
-      {messages.length === 0 ? (
+    <div
+      id={targetId}
+      class="w-full flex flex-col gap-4"
+      x-data
+      {...{
+        "@creator-posts:updated.window": `$ajax('/creators/${creator.slug}', { target: '${targetId}' })`,
+      }}
+    >
+      {posts.length === 0 ? (
         <div class="rounded-radius border border-outline bg-surface-alt p-6 text-sm text-on-surface">
           {isOwner ? (
             <>
@@ -47,7 +54,7 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
                 Write your first post →
               </a>
             </>
-          ) : canReadMessages ? (
+          ) : canReadPosts ? (
             <p>
               No posts yet. Check back soon for updates from{" "}
               {creator.displayName}.
@@ -59,13 +66,13 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
           )}
         </div>
       ) : (
-        messages.map((message) => (
-          <CreatorMessage
+        posts.map((post) => (
+          <CreatorPost
             creator={creator}
-            message={message}
-            canReadMessages={canReadMessages}
-            likeCount={likeStats.get(message.id)?.likeCount ?? 0}
-            likedByMe={likeStats.get(message.id)?.likedByMe ?? false}
+            post={post}
+            canReadPosts={canReadPosts}
+            likeCount={likeStats.get(post.id)?.likeCount ?? 0}
+            likedByMe={likeStats.get(post.id)?.likedByMe ?? false}
           />
         ))
       )}
@@ -79,4 +86,4 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
   );
 };
 
-export default CreatorMessages;
+export default CreatorPosts;

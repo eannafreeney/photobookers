@@ -1,4 +1,4 @@
-import { CollectorPost, Creator } from "../../db/schema";
+import { Post, Creator } from "../../db/schema";
 import { BookCardResult } from "../../constants/queries";
 
 export type FeedTab = "posts" | "books";
@@ -21,7 +21,7 @@ export type FeedPostCreator = Pick<
   "id" | "displayName" | "slug" | "coverUrl"
 >;
 
-export type FeedPost = CollectorPost & {
+export type FeedPost = Post & {
   author: FeedPostAuthor;
   creator?: FeedPostCreator;
 };

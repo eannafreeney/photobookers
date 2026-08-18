@@ -2,10 +2,10 @@ import { err, ok } from "../lib/result";
 import { db } from "./client";
 import {
   collectionItems,
-  collectorPosts,
   creators,
   follows,
   FollowTarget,
+  posts,
   users,
   wishlists,
 } from "./schema";
@@ -119,8 +119,8 @@ export const countCreatorPosts = async (creatorId: string) => {
 
   const result = await db
     .select({ value: count() })
-    .from(collectorPosts)
-    .where(eq(collectorPosts.userId, creator.ownerUserId));
+    .from(posts)
+    .where(eq(posts.userId, creator.ownerUserId));
 
   return result[0]?.value ?? 0;
 };
@@ -191,39 +191,19 @@ export const deleteCollectionItem = async (userId: string, bookId: string) => {
     );
 };
 
-export const insertCollectorPost = async (
-  userId: string,
-  input: { body: string; imageUrl?: string },
-) => {
-  const [post] = await db
-    .insert(collectorPosts)
-    .values({ userId, body: input.body, imageUrl: input.imageUrl })
-    .returning();
-  return post;
-};
-
-export const findCollectorPost = async (postId: string) => {
-  return await db.query.collectorPosts.findFirst({
-    where: eq(collectorPosts.id, postId),
+export const findPost = async (postId: string) => {
+  return await db.query.posts.findFirst({
+    where: eq(posts.id, postId),
   });
 };
 
-export const deleteCollectorPost = async (postId: string) => {
-  await db.delete(collectorPosts).where(eq(collectorPosts.id, postId));
+export const deletePostById = async (postId: string) => {
+  await db.delete(posts).where(eq(posts.id, postId));
 };
 
-export const listCollectorPosts = async (userId: string) => {
-  return await db.query.collectorPosts.findMany({
-    where: eq(collectorPosts.userId, userId),
-    orderBy: [desc(collectorPosts.createdAt)],
+export const listPosts = async (userId: string) => {
+  return await db.query.posts.findMany({
+    where: eq(posts.userId, userId),
+    orderBy: [desc(posts.createdAt)],
   });
-};
-
-export const countCollectorPosts = async (userId: string) => {
-  const result = await db
-    .select({ value: count() })
-    .from(collectorPosts)
-    .where(eq(collectorPosts.userId, userId));
-
-  return result[0]?.value ?? 0;
 };

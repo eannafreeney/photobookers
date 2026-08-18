@@ -21,7 +21,7 @@ import {
   shelfShareTitle,
 } from "../../../lib/share";
 import { getInitialsAvatar } from "../../../lib/avatar";
-import { listCollectorPosts } from "../../../db/queries";
+import { listPosts } from "../../../db/queries";
 import { getPostLikeStats } from "../../../domain/posts/likes";
 import PostCard from "../../../features/collectors/components/PostCard";
 import CollectorFollowButton from "../../../features/api/components/CollectorFollowButton";
@@ -71,7 +71,7 @@ export const GET = createRoute(
       c.header("Cache-Control", "private, no-store");
     }
 
-    const posts = owner.creator ? [] : await listCollectorPosts(owner.id);
+    const posts = owner.creator ? [] : await listPosts(owner.id);
     const postLikeStats = await getPostLikeStats(
       posts.map((post) => post.id),
       user?.id,

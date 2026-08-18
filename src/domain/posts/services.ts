@@ -1,6 +1,6 @@
 import { and, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "../../db/client";
-import { collectorPosts, creators } from "../../db/schema";
+import { posts, creators } from "../../db/schema";
 import { err, ok } from "../../lib/result";
 import { getPagination } from "../../lib/pagination";
 import { POST_BODY_MAX_LENGTH } from "./utils";
@@ -17,7 +17,7 @@ export async function createPost(
 
   try {
     const [post] = await db
-      .insert(collectorPosts)
+      .insert(posts)
       .values({
         userId,
         body,
@@ -42,13 +42,13 @@ export async function updatePost(
 
   try {
     const [post] = await db
-      .update(collectorPosts)
+      .update(posts)
       .set({
         body,
         ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl } : {}),
       })
       .where(
-        and(eq(collectorPosts.id, postId), eq(collectorPosts.userId, userId)),
+        and(eq(posts.id, postId), eq(posts.userId, userId)),
       )
       .returning();
     if (!post) return err({ reason: "Post not found" });
@@ -62,9 +62,9 @@ export async function updatePost(
 export async function deletePost(postId: string, userId: string) {
   try {
     const [post] = await db
-      .delete(collectorPosts)
+      .delete(posts)
       .where(
-        and(eq(collectorPosts.id, postId), eq(collectorPosts.userId, userId)),
+        and(eq(posts.id, postId), eq(posts.userId, userId)),
       )
       .returning();
     if (!post) return err({ reason: "Post not found" });
@@ -77,8 +77,8 @@ export async function deletePost(postId: string, userId: string) {
 
 export async function getPostById(postId: string) {
   try {
-    const post = await db.query.collectorPosts.findFirst({
-      where: eq(collectorPosts.id, postId),
+    const post = await db.query.posts.findFirst({
+      where: eq(posts.id, postId),
     });
     if (!post) return err({ reason: "Post not found" });
     return ok(post);
@@ -90,11 +90,11 @@ export async function getPostById(postId: string) {
 
 export async function listPostsByUserId(userId: string) {
   try {
-    const posts = await db.query.collectorPosts.findMany({
-      where: eq(collectorPosts.userId, userId),
-      orderBy: [desc(collectorPosts.createdAt)],
+    const rows = await db.query.posts.findMany({
+      where: eq(posts.userId, userId),
+      orderBy: [desc(posts.createdAt)],
     });
-    return ok(posts);
+    return ok(rows);
   } catch (error) {
     console.error("Failed to list posts", error);
     return err({ reason: "Failed to list posts", error });
@@ -124,8 +124,8 @@ export async function listPostsByCreatorId(
 
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
-      .from(collectorPosts)
-      .where(eq(collectorPosts.userId, creator.ownerUserId));
+      .from(posts)
+      .where(eq(posts.userId, creator.ownerUserId));
 
     const { page, offset, totalPages } = getPagination(
       currentPage,
@@ -133,14 +133,14 @@ export async function listPostsByCreatorId(
       limit,
     );
 
-    const posts = await db.query.collectorPosts.findMany({
-      where: eq(collectorPosts.userId, creator.ownerUserId),
-      orderBy: [desc(collectorPosts.createdAt)],
+    const rows = await db.query.posts.findMany({
+      where: eq(posts.userId, creator.ownerUserId),
+      orderBy: [desc(posts.createdAt)],
       limit,
       offset,
     });
 
-    return ok({ posts, creator, totalPages, page, totalCount });
+    return ok({ posts: rows, creator, totalPages, page, totalCount });
   } catch (error) {
     console.error("Failed to list posts by creator", error);
     return err({ reason: "Failed to list posts", error });
@@ -168,8 +168,8 @@ export async function listPostsByCreatorSlug(
 
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
-      .from(collectorPosts)
-      .where(eq(collectorPosts.userId, creator.ownerUserId));
+      .from(posts)
+      .where(eq(posts.userId, creator.ownerUserId));
 
     const { page, offset, totalPages } = getPagination(
       currentPage,
@@ -177,14 +177,14 @@ export async function listPostsByCreatorSlug(
       limit,
     );
 
-    const posts = await db.query.collectorPosts.findMany({
-      where: eq(collectorPosts.userId, creator.ownerUserId),
-      orderBy: [desc(collectorPosts.createdAt)],
+    const rows = await db.query.posts.findMany({
+      where: eq(posts.userId, creator.ownerUserId),
+      orderBy: [desc(posts.createdAt)],
       limit,
       offset,
     });
 
-    return ok({ posts, creator, totalPages, page, totalCount });
+    return ok({ posts: rows, creator, totalPages, page, totalCount });
   } catch (error) {
     console.error("Failed to list posts by creator slug", error);
     return err({ reason: "Failed to list posts", error });
@@ -192,9 +192,9 @@ export async function listPostsByCreatorSlug(
 }
 
 export async function getPostsDueForFollowerNotification() {
-  return db.query.collectorPosts.findMany({
-    where: isNull(collectorPosts.notifyFollowersSentAt),
-    orderBy: [desc(collectorPosts.createdAt)],
+  return db.query.posts.findMany({
+    where: isNull(posts.notifyFollowersSentAt),
+    orderBy: [desc(posts.createdAt)],
     with: {
       user: {
         columns: {
@@ -225,7 +225,7 @@ export async function getPostsDueForFollowerNotification() {
 export async function markPostNotificationsSent(postIds: string[]) {
   if (postIds.length === 0) return;
   await db
-    .update(collectorPosts)
+    .update(posts)
     .set({ notifyFollowersSentAt: new Date() })
-    .where(inArray(collectorPosts.id, postIds));
+    .where(inArray(posts.id, postIds));
 }

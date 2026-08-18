@@ -31,7 +31,7 @@ const CreatorDetailDesktop = (props: CreatorDetailViewProps) => {
               <FollowButton
                 creator={creator}
                 user={user}
-                shouldRefreshCreatorMessages
+                shouldRefreshCreatorPosts
               />
             )}
             <ShareButton

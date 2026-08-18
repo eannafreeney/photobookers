@@ -5,7 +5,7 @@ import { Text } from "../../../../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../../../../lib/hyperview";
 import { getCreatorById } from "../../../../../../features/dashboard/creators/services";
 import { creatorIdSchema } from "../../../../../../schemas";
-import { getMessagesByCreatorSlug } from "../../../../../../features/app/services";
+import { listPostsByCreatorSlug } from "../../../../../../domain/posts/services";
 import { getUser } from "../../../../../../utils";
 import { findFollow } from "../../../../../../features/api/services";
 import CreatorPostsList from "../../../../../../features/hyperview/components/CreatorPostsList";
@@ -28,7 +28,7 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
     );
   }
 
-  const [error, result] = await getMessagesByCreatorSlug(
+  const [error, result] = await listPostsByCreatorSlug(
     creator.slug,
     currentPage,
     5,
@@ -43,19 +43,19 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
     );
   }
 
-  const { messages, totalPages, page } = result;
+  const { posts, totalPages, page } = result;
   const isOwner = user?.creator?.id === creator.id;
   const isFollowing = user?.id
     ? Boolean(await findFollow(creator.id, user.id))
     : false;
-  const canReadMessages =
+  const canReadPosts =
     isOwner || Boolean(user?.isAdmin) || isFollowing;
   const hasMore = page < totalPages;
 
-  if (currentPage === 1 && messages.length === 0) {
+  if (currentPage === 1 && posts.length === 0) {
     const emptyMessage = isOwner
       ? "No posts yet. Share updates with people who follow you from the dashboard."
-      : canReadMessages
+      : canReadPosts
         ? `No posts yet. Check back soon for updates from ${creator.displayName}.`
         : `No posts yet. Follow ${creator.displayName} to see updates here.`;
 
@@ -67,12 +67,12 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   }
 
   const listProps = {
-    posts: messages,
+    posts,
     creator: {
       displayName: creator.displayName,
       coverUrl: creator.coverUrl,
     },
-    canReadMessages,
+    canReadPosts,
     page,
     hasMore,
     loadMoreHref,

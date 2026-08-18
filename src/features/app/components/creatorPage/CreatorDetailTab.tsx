@@ -2,7 +2,7 @@ import BooksGrid from "../BooksGrid";
 import CreatorCard from "../../../../components/app/CreatorCard";
 import CreatorsGrid from "../CreatorsGrid";
 import Tabs from "../../../../components/app/Tabs";
-import CreatorMessages from "./CreatorMessages";
+import CreatorPosts from "./CreatorPosts";
 import UpcomingFairsSection from "../../fairs/components/UpcomingFairsSection";
 import { BookCardResult } from "../../../../constants/queries";
 import { BookFair, Creator } from "../../../../db/schema";
@@ -77,10 +77,10 @@ const CreatorDetailTabs = ({
 
     <Tabs.Panel tabId="posts">
       {isMobile ? (
-        <CreatorMessages creatorSlug={creator.slug} user={user} />
+        <CreatorPosts creatorSlug={creator.slug} user={user} />
       ) : (
         <div class="mx-auto w-full max-w-[600px]">
-          <CreatorMessages creatorSlug={creator.slug} user={user} />
+          <CreatorPosts creatorSlug={creator.slug} user={user} />
         </div>
       )}
     </Tabs.Panel>
@@ -108,7 +108,7 @@ const CreatorDetailTabs = ({
           creator={creator}
           currentPath={currentPath}
           user={user}
-          shouldRefreshCreatorMessages
+          shouldRefreshCreatorPosts
           showHeader={false}
         />
         <CreatorsGrid

@@ -12,7 +12,7 @@ type APIButtonProps = {
   /** Filled primary style (e.g. follow button when already following). */
   isActive?: boolean;
   shouldRefreshFollowedCreators?: boolean;
-  shouldRefreshCreatorMessages?: boolean;
+  shouldRefreshCreatorPosts?: boolean;
 };
 
 const APIButton = ({
@@ -24,7 +24,7 @@ const APIButton = ({
   isDisabled = false,
   isActive = false,
   shouldRefreshFollowedCreators = false,
-  shouldRefreshCreatorMessages = false,
+  shouldRefreshCreatorPosts = false,
 }: APIButtonProps) => {
   const alpineAttrs = {
     "x-data": "{ isSubmitting: false }",
@@ -69,8 +69,8 @@ const APIButton = ({
           value="true"
         />
       )}
-      {shouldRefreshCreatorMessages && (
-        <input type="hidden" name="shouldRefreshCreatorMessages" value="true" />
+      {shouldRefreshCreatorPosts && (
+        <input type="hidden" name="shouldRefreshCreatorPosts" value="true" />
       )}
       <button
         class="flex cursor-pointer items-center justify-center gap-2 hover:cursor-pointer w-full disabled:opacity-50 hover:opacity-75"

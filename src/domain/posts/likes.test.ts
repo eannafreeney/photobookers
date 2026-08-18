@@ -36,7 +36,7 @@ describe("canLikePost", () => {
     ).toBe(true);
   });
 
-  it("allows liking a collector post without following", () => {
+  it("allows liking a non-creator post without following", () => {
     expect(
       canLikePost({
         userId: "fan-1",

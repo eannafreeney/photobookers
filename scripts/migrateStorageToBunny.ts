@@ -32,7 +32,7 @@ const SCALAR_COLUMNS: Array<{ table: string; column: string }> = [
   { table: "creators", column: "cover_url" },
   { table: "creators", column: "banner_url" },
   { table: "books", column: "cover_url" },
-  { table: "creator_messages", column: "image_url" },
+  { table: "posts", column: "image_url" },
   { table: "book_images", column: "image_url" },
   { table: "book_of_the_day", column: "featured_image_url" },
   { table: "artist_of_the_week", column: "featured_image_url" },

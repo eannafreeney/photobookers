@@ -10,8 +10,8 @@ import Banner from "../../../components/app/Banner";
 import Link from "../../../components/app/Link";
 import InfoPage from "../../../pages/InfoPage";
 import MemberDashboardShell from "../../../features/dashboard/components/MemberDashboardShell";
-import CollectorPostForm from "../../../features/collectors/components/CollectorPostForm";
-import CollectorPostsTable from "../../../features/collectors/components/CollectorPostsTable";
+import PostForm from "../../../features/collectors/components/PostForm";
+import PostsTable from "../../../features/collectors/components/PostsTable";
 import { createPost } from "../../../domain/posts/services";
 import { POST_BODY_MAX_LENGTH } from "../../../domain/posts/utils";
 import { getPendingClaim } from "../../../features/claims/services";
@@ -67,7 +67,7 @@ export const GET = createRoute(async (c: Context) => {
         ) : null}
         <div class="grid grid-cols-1 gap-8 xl:grid-cols-3 xl:items-start">
           <div class="bg-surface-alt p-4 rounded-md xl:sticky xl:top-24">
-            <CollectorPostForm
+            <PostForm
               disabled={!user.creator && !canPostToShelf}
               placeholder={
                 user.creator
@@ -77,7 +77,7 @@ export const GET = createRoute(async (c: Context) => {
             />
           </div>
           <div class="xl:col-span-2">
-            <CollectorPostsTable userId={user.id} isMobile={isMobile} />
+            <PostsTable userId={user.id} isMobile={isMobile} />
           </div>
         </div>
       </MemberDashboardShell>
@@ -129,7 +129,7 @@ export const POST = createRoute(async (c: Context) => {
       );
       imageUrl = uploaded.url;
     } catch (error) {
-      console.error("collector post image upload failed", error);
+      console.error("post image upload failed", error);
       return showErrorAlert(c, "Failed to upload image");
     }
   }

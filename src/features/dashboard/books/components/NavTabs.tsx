@@ -84,7 +84,7 @@ const NavLink = ({ href, children, currentPath, exact = false }: NavLinkProps) =
         {...(isActive
           ? { "aria-current": "page", "x-on:click.prevent": "" }
           : {
-              "x-target": "creator-dashboard-panel nav-tabs",
+              "x-target.push": "creator-dashboard-panel nav-tabs",
             })}
         prefetch="intent"
         class={clsx(
