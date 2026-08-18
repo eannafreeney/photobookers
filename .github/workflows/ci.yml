@@ -35,12 +35,9 @@ jobs:
 
       - run: npm ci
 
-      - name: Align Drizzle migration history (staging)
-        if: github.ref == 'refs/heads/staging'
-        env:
-          PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-        run: npx tsx scripts/sync-drizzle-migrations-to-staging.ts
+      # Do not copy production __drizzle_migrations before migrate — that
+      # skips SQL that has not actually run on staging. Weekly schema sync
+      # already copies hashes with the dump.
 
       - name: Run migrations (production)
         if: github.ref == 'refs/heads/main'

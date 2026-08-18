@@ -1,8 +1,11 @@
 /**
  * Copy drizzle.__drizzle_migrations from production to staging.
  *
- * Staging's weekly public-schema sync brings over migrated tables/columns but used to
- * leave migration history behind, so `npm run db:migrate` would re-apply old migrations.
+ * Use only after a schema dump that did not include the drizzle schema.
+ * Do not run this before `db:migrate` — it marks production-applied SQL as
+ * done on staging without executing it (e.g. 0079 skipped the table rename).
+ *
+ * The weekly staging sync already copies public + drizzle together.
  */
 import "./env";
 import { syncDrizzleMigrationHistoryFromProduction } from "../src/domain/db/syncStagingFromProduction";
