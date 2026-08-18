@@ -31,6 +31,7 @@ DO $$ BEGIN
     ADD CONSTRAINT "book_lists_user_slug_unique" UNIQUE("user_id","slug");
 EXCEPTION
   WHEN duplicate_object THEN null;
+  WHEN duplicate_table THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
