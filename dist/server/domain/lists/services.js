@@ -120,8 +120,7 @@ async function getPublicListsForUser(userId) {
 }
 async function getPublicListByShelfAndSlug(shelfSlug, listSlug) {
   const owner = await db.query.users.findFirst({
-    where: and(eq(users.shelfSlug, shelfSlug), eq(users.shelfPublic, true)),
-    with: { creators: { columns: { displayName: true } } }
+    where: and(eq(users.shelfSlug, shelfSlug), eq(users.shelfPublic, true))
   });
   if (!owner) return err({ reason: "Shelf not found" });
   const list = await db.query.bookLists.findFirst({
@@ -404,27 +403,10 @@ async function listPublicListsForAdmin(currentPage, searchQuery, defaultLimit = 
       value: count()
     }).from(bookListItems).where(inArray(bookListItems.listId, listIds)).groupBy(bookListItems.listId);
     const countMap = new Map(counts.map((c) => [c.listId, c.value]));
-    const ownersWithCreators = await db.query.users.findMany({
-      where: inArray(
-        users.id,
-        [...new Set(rows.map((r) => r.owner.id))]
-      ),
-      columns: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        shelfSlug: true,
-        shelfPublic: true
-      },
-      with: { creators: { columns: { displayName: true } } }
-    });
-    const ownerMap = new Map(ownersWithCreators.map((o) => [o.id, o]));
     const lists = rows.map(({ list, owner }) => {
-      const fullOwner = ownerMap.get(owner.id);
       const displayName = formatShelfOwnerName({
         firstName: owner.firstName,
-        lastName: owner.lastName,
-        creator: fullOwner?.creators[0] ?? null
+        lastName: owner.lastName
       });
       return {
         ...list,
@@ -519,17 +501,6 @@ async function getPromotedLists(limit = 8) {
       existing.push(row.coverUrl);
       coversByList.set(row.listId, existing);
     }
-    const ownersWithCreators = await db.query.users.findMany({
-      where: inArray(
-        users.id,
-        [...new Set(rows.map((r) => r.owner.id))]
-      ),
-      columns: { id: true },
-      with: { creators: { columns: { displayName: true } } }
-    });
-    const creatorByUser = new Map(
-      ownersWithCreators.map((o) => [o.id, o.creators[0] ?? null])
-    );
     return ok(
       rows.map(({ list, owner }) => ({
         ...list,
@@ -539,8 +510,7 @@ async function getPromotedLists(limit = 8) {
           id: owner.id,
           displayName: formatShelfOwnerName({
             firstName: owner.firstName,
-            lastName: owner.lastName,
-            creator: creatorByUser.get(owner.id) ?? null
+            lastName: owner.lastName
           }),
           shelfSlug: owner.shelfSlug,
           profileImageUrl: owner.profileImageUrl

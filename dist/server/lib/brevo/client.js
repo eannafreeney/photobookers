@@ -25,8 +25,13 @@ function getBrevoConfig() {
 async function parseBrevoError(res) {
   let message = res.statusText || "Brevo API request failed";
   try {
-    const body = await res.json();
-    if (body.message) message = body.message;
+    const text = await res.text();
+    try {
+      const body = JSON.parse(text);
+      if (body.message) message = body.message;
+    } catch {
+      if (text.trim()) message = text.trim().slice(0, 300);
+    }
   } catch {
   }
   return { reason: message, status: res.status };

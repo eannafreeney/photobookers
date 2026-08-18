@@ -29,6 +29,7 @@ import {
 import { supabaseAdmin } from "../../lib/supabase.js";
 import { getPagination } from "../../lib/pagination.js";
 import {
+  catalogTrendingSince,
   getBookCatalogOrderBy
 } from "../../lib/bookCatalogSort.js";
 import { getPublicBooksForCreator } from "../../domain/creators/books.js";
@@ -40,10 +41,11 @@ import {
   CREATOR_CARD_COLUMNS,
   CREATOR_CARD_SELECT
 } from "../../constants/queries.js";
-import { collectorPosts, creatorMessages } from "../../db/schema.js";
+import { collectorPosts } from "../../db/schema.js";
 import { err, ok } from "../../lib/result.js";
 import { isFeatureEnabled } from "../../lib/features.js";
 import { mergeFeedItems } from "./followerFeed.js";
+import { listPostsByCreatorSlug } from "../../domain/posts/services.js";
 import { LRUCache } from "lru-cache";
 const bookCache = new LRUCache({
   max: 200,
@@ -479,6 +481,13 @@ const getBooksByTag = async (tag, currentPage, sortBy = "newest", defaultLimit =
     return err({ reason: "Failed to get books by tag", error });
   }
 };
+const catalogListingConditions = (...extra) => and(
+  eq(books.publicationStatus, "published"),
+  eq(books.approvalStatus, "approved"),
+  or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date())),
+  ne(books.availabilityStatus, "sold_out"),
+  ...extra
+);
 const catalogBookWith = {
   artist: {
     columns: CREATOR_CARD_COLUMNS
@@ -505,7 +514,11 @@ const findCatalogBooks = async ({
   }
   const viewCount = sql`coalesce(count(${bookViews.id}), 0)`;
   const orderBy = sort === "trending" ? [desc(viewCount), desc(books.id)] : [asc(viewCount), asc(books.id)];
-  const idRows = await db.select({ id: books.id }).from(books).leftJoin(bookViews, eq(bookViews.bookId, books.id)).where(where).groupBy(books.id).orderBy(...orderBy).limit(limit).offset(offset);
+  const viewJoin = sort === "trending" ? and(
+    eq(bookViews.bookId, books.id),
+    gte(bookViews.createdAt, catalogTrendingSince())
+  ) : eq(bookViews.bookId, books.id);
+  const idRows = await db.select({ id: books.id }).from(books).leftJoin(bookViews, viewJoin).where(where).groupBy(books.id).orderBy(...orderBy).limit(limit).offset(offset);
   const bookIds = idRows.map((row) => row.id);
   if (bookIds.length === 0) return [];
   const foundBooks = await db.query.books.findMany({
@@ -518,18 +531,15 @@ const findCatalogBooks = async ({
 };
 const getLatestBooks = async (currentPage, defaultLimit = 15, sort = "newest") => {
   try {
-    const [{ value: totalCount = 0 }] = await db.select({ value: count() }).from(books).where(eq(books.publicationStatus, "published"));
+    const where = catalogListingConditions();
+    const [{ value: totalCount = 0 }] = await db.select({ value: count() }).from(books).where(where);
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
       totalCount,
       defaultLimit
     );
     const foundBooks = await findCatalogBooks({
-      where: and(
-        eq(books.publicationStatus, "published"),
-        eq(books.approvalStatus, "approved"),
-        or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date()))
-      ),
+      where,
       limit,
       offset,
       sort
@@ -540,10 +550,7 @@ const getLatestBooks = async (currentPage, defaultLimit = 15, sort = "newest") =
     return err({ reason: "Failed to get books" });
   }
 };
-const catalogBookCoverConditions = (tag) => and(
-  eq(books.publicationStatus, "published"),
-  eq(books.approvalStatus, "approved"),
-  or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date())),
+const catalogBookCoverConditions = (tag) => catalogListingConditions(
   isNotNull(books.coverUrl),
   tagMatchesBookTags(books.tags, tag)
 );
@@ -588,12 +595,7 @@ const getFilteredBooks = async ({
         sort
       );
     }
-    const publishedConditions = and(
-      eq(books.publicationStatus, "published"),
-      eq(books.approvalStatus, "approved"),
-      or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date()))
-    );
-    const conditions = [publishedConditions];
+    const conditions = [catalogListingConditions()];
     if (normalizedTag) {
       conditions.push(tagMatchesBookTags(books.tags, normalizedTag));
     }
@@ -633,21 +635,15 @@ const getFilteredBooks = async ({
   }
 };
 const getBooksByTagForCatalog = async (tag, currentPage, defaultLimit, sort) => {
-  const tagCondition = tagMatchesBookTags(books.tags, tag);
-  const publishedConditions = and(
-    eq(books.publicationStatus, "published"),
-    eq(books.approvalStatus, "approved"),
-    or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date())),
-    tagCondition
-  );
-  const [{ value: totalCount = 0 }] = await db.select({ value: count() }).from(books).where(publishedConditions);
+  const where = catalogListingConditions(tagMatchesBookTags(books.tags, tag));
+  const [{ value: totalCount = 0 }] = await db.select({ value: count() }).from(books).where(where);
   const { page, limit, offset, totalPages } = getPagination(
     currentPage,
     totalCount,
     defaultLimit
   );
   const foundBooks = await findCatalogBooks({
-    where: publishedConditions,
+    where,
     limit,
     offset,
     sort
@@ -712,79 +708,70 @@ const getFeedBooks = async (userId, currentPage, sortBy = "newest", defaultLimit
 };
 const getFollowerFeed = async (followerUserId, currentPage = 1, limit = 20, options) => {
   const includeMessages = options?.includeMessages ?? isFeatureEnabled("messages");
-  const includePosts = isFeatureEnabled("collectors");
+  const includeCollectorPosts = isFeatureEnabled("collectors");
   try {
     const allFollows = await db.query.follows.findMany({
       where: eq(follows.followerUserId, followerUserId)
     });
     const followedCreatorIds = allFollows.filter((f) => f.targetType === "creator").map((follow) => follow.targetCreatorId).filter((id) => id !== null);
     const followedUserIds = allFollows.filter((f) => f.targetType === "user").map((follow) => follow.targetUserId).filter((id) => id !== null);
-    const publicFollowedUsers = includePosts && followedUserIds.length > 0 ? await db.query.users.findMany({
-      columns: { id: true },
+    const ownedCreators = includeMessages && followedCreatorIds.length > 0 ? await db.query.creators.findMany({
+      where: inArray(creators.id, followedCreatorIds),
+      columns: {
+        id: true,
+        ownerUserId: true,
+        displayName: true,
+        slug: true,
+        coverUrl: true
+      }
+    }) : [];
+    const creatorOwnerIds = ownedCreators.map((c) => c.ownerUserId).filter((id) => Boolean(id));
+    const creatorByOwner = new Map(
+      ownedCreators.filter((c) => c.ownerUserId).map((c) => [c.ownerUserId, c])
+    );
+    const publicFollowedUsers = includeCollectorPosts && followedUserIds.length > 0 ? await db.query.users.findMany({
+      columns: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        shelfSlug: true,
+        profileImageUrl: true
+      },
+      with: { creators: { columns: { id: true }, limit: 1 } },
       where: and(
         inArray(users.id, followedUserIds),
         eq(users.shelfPublic, true),
         sql`${users.shelfSlug} IS NOT NULL`
       )
     }) : [];
-    const publicFollowedUserIds = publicFollowedUsers.map((u) => u.id);
-    const hasPostSources = publicFollowedUserIds.length > 0;
-    if (followedCreatorIds.length === 0 && !hasPostSources) {
+    const collectorAuthorIds = publicFollowedUsers.filter((u) => !u.creators[0]).map((u) => u.id);
+    const collectorAuthorById = new Map(
+      publicFollowedUsers.filter((u) => !u.creators[0]).map((u) => [u.id, u])
+    );
+    const postAuthorIds = [
+      .../* @__PURE__ */ new Set([...creatorOwnerIds, ...collectorAuthorIds])
+    ];
+    const hasPostSources = postAuthorIds.length > 0;
+    const hasCreators = followedCreatorIds.length > 0;
+    if (!hasCreators && !hasPostSources) {
       return ok({ items: [], totalPages: 0, page: 1 });
     }
-    const postWhere = hasPostSources ? inArray(collectorPosts.userId, publicFollowedUserIds) : void 0;
+    const postWhere = hasPostSources ? inArray(collectorPosts.userId, postAuthorIds) : void 0;
     const [{ value: postCount = 0 }] = hasPostSources ? await db.select({ value: count() }).from(collectorPosts).where(postWhere) : [{ value: 0 }];
-    if (followedCreatorIds.length === 0) {
-      const { page: page2, totalPages: totalPages2 } = getPagination(currentPage, postCount, limit);
-      const fetchLimit2 = page2 * limit;
-      const feedPosts2 = hasPostSources ? await db.query.collectorPosts.findMany({
-        where: postWhere,
-        orderBy: [desc(collectorPosts.createdAt)],
-        limit: fetchLimit2,
-        with: {
-          user: {
-            columns: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              shelfSlug: true,
-              profileImageUrl: true
-            }
-          }
-        }
-      }) : [];
-      const items2 = mergeFeedItems(
-        [],
-        [],
-        feedPosts2.map((p) => ({ ...p, author: p.user })),
-        page2,
-        limit
-      );
-      return ok({ items: items2, totalPages: totalPages2, page: page2 });
-    }
-    const bookWhere = and(
+    const bookWhere = hasCreators ? and(
       or(
         inArray(books.artistId, followedCreatorIds),
         inArray(books.publisherId, followedCreatorIds)
       ),
       eq(books.publicationStatus, "published"),
       or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date()))
-    );
-    const messageWhere = inArray(
-      creatorMessages.creatorId,
-      followedCreatorIds
-    );
-    const [{ value: bookCount = 0 }] = await db.select({ value: count() }).from(books).where(bookWhere);
-    const [{ value: messageCount = 0 }] = includeMessages ? await db.select({ value: count() }).from(creatorMessages).where(messageWhere) : [{ value: 0 }];
-    const totalCount = bookCount + messageCount + postCount;
-    const { page, totalPages } = getPagination(
-      currentPage,
-      totalCount,
-      limit
-    );
+    ) : void 0;
+    const [{ value: bookCount = 0 }] = bookWhere ? await db.select({ value: count() }).from(books).where(bookWhere) : [{ value: 0 }];
+    const totalCount = bookCount + postCount;
+    const { page, totalPages } = getPagination(currentPage, totalCount, limit);
     const fetchLimit = page * limit;
-    const [feedBooks, feedMessages, feedPosts] = await Promise.all([
-      db.query.books.findMany({
+    const [feedBooks, rawPosts] = await Promise.all([
+      bookWhere ? db.query.books.findMany({
         where: bookWhere,
         columns: { ...BOOK_CARD_COLUMNS, createdAt: true },
         with: {
@@ -793,21 +780,6 @@ const getFollowerFeed = async (followerUserId, currentPage = 1, limit = 20, opti
         },
         orderBy: getBooksOrderBy("newest"),
         limit: fetchLimit
-      }),
-      includeMessages ? db.query.creatorMessages.findMany({
-        where: messageWhere,
-        orderBy: [desc(creatorMessages.createdAt)],
-        limit: fetchLimit,
-        with: {
-          creator: {
-            columns: {
-              id: true,
-              displayName: true,
-              slug: true,
-              coverUrl: true
-            }
-          }
-        }
       }) : Promise.resolve([]),
       hasPostSources ? db.query.collectorPosts.findMany({
         where: postWhere,
@@ -826,13 +798,25 @@ const getFollowerFeed = async (followerUserId, currentPage = 1, limit = 20, opti
         }
       }) : Promise.resolve([])
     ]);
-    const items = mergeFeedItems(
-      feedBooks,
-      feedMessages,
-      feedPosts.map((p) => ({ ...p, author: p.user })),
-      page,
-      limit
-    );
+    const feedMessages = [];
+    const feedPosts = [];
+    for (const p of rawPosts) {
+      const creator = creatorByOwner.get(p.userId);
+      if (creator) {
+        feedMessages.push({
+          ...p,
+          creator: {
+            id: creator.id,
+            displayName: creator.displayName,
+            slug: creator.slug,
+            coverUrl: creator.coverUrl
+          }
+        });
+      } else if (collectorAuthorById.has(p.userId)) {
+        feedPosts.push({ ...p, author: p.user });
+      }
+    }
+    const items = mergeFeedItems(feedBooks, feedMessages, feedPosts, page, limit);
     return ok({ items, totalPages, page });
   } catch (error) {
     console.error("Failed to get follower feed", error);
@@ -1095,42 +1079,8 @@ const getRelatedCreators = async (creatorId, creatorType) => {
     return [];
   }
 };
-const getMessagesForFollower = async (followerUserId, currentPage = 1, limit = 20) => {
-  try {
-    const userFollows = await db.query.follows.findMany({
-      where: and(
-        eq(follows.followerUserId, followerUserId),
-        eq(follows.targetType, "creator")
-      )
-    });
-    const followedCreatorIds = userFollows.map((f) => f.targetCreatorId).filter((id) => id != null);
-    if (followedCreatorIds.length === 0) {
-      return ok({ messages: [], totalPages: 0, page: 1 });
-    }
-    const [{ value: totalCount = 0 }] = await db.select({ value: count() }).from(creatorMessages).where(inArray(creatorMessages.creatorId, followedCreatorIds));
-    const {
-      page,
-      limit: take,
-      offset,
-      totalPages
-    } = getPagination(currentPage, totalCount, limit);
-    const messages = await db.query.creatorMessages.findMany({
-      where: inArray(creatorMessages.creatorId, followedCreatorIds),
-      orderBy: [desc(creatorMessages.createdAt)],
-      limit: take,
-      offset,
-      with: {
-        creator: {
-          columns: { id: true, displayName: true, slug: true, coverUrl: true }
-        }
-      }
-    });
-    return ok({ messages, totalPages, page });
-  } catch (e) {
-    console.error("Failed to get messages for follower", e);
-    return err({ reason: "Failed to get messages for follower", error: e });
-  }
-};
+import { getMessagesForFollower as getMessagesForFollowerFromDashboard } from "../dashboard/messages/services.js";
+const getMessagesForFollower = (followerUserId, currentPage = 1, limit = 20) => getMessagesForFollowerFromDashboard(followerUserId, currentPage, limit);
 const getHomepageStats = async () => {
   try {
     const now = /* @__PURE__ */ new Date();
@@ -1259,40 +1209,20 @@ async function getCreatorSpotlightImageUrls(creatorType, creatorId, bookLimit = 
   }
 }
 const getMessagesByCreatorSlug = async (creatorSlug, currentPage = 1, limit = 20) => {
-  try {
-    const creator = await db.query.creators.findFirst({
-      where: eq(creators.slug, creatorSlug),
-      columns: {
-        id: true,
-        slug: true,
-        displayName: true,
-        coverUrl: true,
-        type: true
-      }
-    });
-    if (!creator) return err({ reason: "Creator not found" });
-    const [{ value: totalCount = 0 }] = await db.select({ value: count() }).from(creatorMessages).where(eq(creatorMessages.creatorId, creator.id));
-    const { page, limit: limit2, offset, totalPages } = getPagination(
-      currentPage,
-      totalCount,
-      5
-    );
-    const foundMessages = await db.query.creatorMessages.findMany({
-      where: eq(creatorMessages.creatorId, creator.id),
-      orderBy: [desc(creatorMessages.createdAt)],
-      limit: limit2,
-      offset,
-      with: {
-        creator: {
-          columns: { id: true, slug: true, displayName: true, coverUrl: true }
-        }
-      }
-    });
-    return ok({ messages: foundMessages ?? [], totalPages, page, creator });
-  } catch (error) {
-    console.error("Failed to get messages by creator slug", error);
-    return err({ reason: "Failed to get messages by creator slug", error });
+  const [error, result] = await listPostsByCreatorSlug(
+    creatorSlug,
+    currentPage,
+    limit
+  );
+  if (error || !result) {
+    return err(error ?? { reason: "Failed to get messages by creator slug" });
   }
+  return ok({
+    messages: result.posts,
+    totalPages: result.totalPages,
+    page: result.page,
+    creator: result.creator
+  });
 };
 const getPublishedInterviews = async () => {
   try {

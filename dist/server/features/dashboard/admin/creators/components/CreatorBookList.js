@@ -18,7 +18,7 @@ import {
 import ListNavigation from "../../../../app/components/ListNavigation.js";
 import PublishToggleForm from "../../../books/components/PublishToggleForm.js";
 import { getBooksByCreatorId } from "../services.js";
-import { deleteRowAttrs } from "../../../../../lib/utils.js";
+import { deleteRowAttrs, toDateInputValue } from "../../../../../lib/utils.js";
 const reorderHandleAttrs = {
   draggable: true,
   "@dragstart": "onReorderDragStart($event, $el.closest('tr'))",
@@ -174,7 +174,7 @@ const BookTableRow = ({ book, user, funnel, reorderEnabled }) => {
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.views }) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.favorites }) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Card.Text, { children: funnel.outboundClicks }) }),
-        /* @__PURE__ */ jsx(Table.BodyRow, { children: book.releaseDate ? book.releaseDate.toISOString().slice(0, 10).split("-").reverse().join("/") : "" }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: toDateInputValue(book.releaseDate).split("-").reverse().join("/") }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(PublishToggleForm, { book, user }) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(PreviewButton, { book, user }) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx("a", { href: `/dashboard/admin/books/${book.id}`, children: /* @__PURE__ */ jsx(

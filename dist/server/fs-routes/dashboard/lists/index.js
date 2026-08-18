@@ -3,20 +3,20 @@ import { createRoute } from "hono-fsr";
 import AppLayout from "../../../components/layouts/AppLayout.js";
 import PageHeader from "../../../components/app/PageHeader.js";
 import InfoPage from "../../../pages/InfoPage.js";
+import { getPendingClaim } from "../../../features/claims/services.js";
 import { getFlash, getUser } from "../../../utils.js";
 import { isFeatureEnabledForUser } from "../../../lib/features.js";
-import { getPendingClaim } from "../../../features/claims/services.js";
 import {
   createBookList,
   listBookListsWithCounts
 } from "../../../domain/lists/services.js";
+import { userCanManageBookLists } from "../../../domain/lists/utils.js";
 import ListsDashboardShell from "../../../features/dashboard/lists/ListsDashboardShell.js";
 import ListsTable from "../../../features/dashboard/lists/ListsTable.js";
 import ListForm from "../../../features/dashboard/lists/ListForm.js";
 import { showErrorAlert } from "../../../lib/alertHelpers.js";
 function canAccessLists(user) {
-  if (user.creator) return true;
-  return isFeatureEnabledForUser("collectors", user);
+  return userCanManageBookLists(user) && isFeatureEnabledForUser("collectors", user);
 }
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -26,7 +26,7 @@ const GET = createRoute(async (c) => {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
   }
   const lists = await listBookListsWithCounts(user.id);
-  const claim = user.creator ? (await getPendingClaim(user.id, user.creator.id))[1] : null;
+  const claimStatus = user.creator ? (await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null : null;
   return c.html(
     /* @__PURE__ */ jsx(
       AppLayout,
@@ -41,7 +41,7 @@ const GET = createRoute(async (c) => {
           {
             user,
             currentPath,
-            claimStatus: claim?.status ?? null,
+            claimStatus,
             children: [
               /* @__PURE__ */ jsx(
                 PageHeader,

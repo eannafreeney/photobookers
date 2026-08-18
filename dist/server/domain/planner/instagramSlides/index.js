@@ -21,6 +21,10 @@ import {
   applyBotdLeadSlideToFeedImageUrls,
   renderBotdLeadSlide
 } from "./renderBotdLeadSlide.js";
+import {
+  renderBotdStoryBlurred,
+  renderBotdStoryFullBleed
+} from "./renderBotdStorySlide.js";
 export {
   INTRO_PINNED_INSTAGRAM_CAPTION,
   INTRO_PINNED_INSTAGRAM_SLIDES,
@@ -33,6 +37,8 @@ export {
   prepareNewCreatorFeedImageUrls,
   prepareSpotlightFeedImageUrls,
   renderBotdLeadSlide,
+  renderBotdStoryBlurred,
+  renderBotdStoryFullBleed,
   renderIntroPinnedCarouselSlides,
   renderIntroPinnedSlide,
   renderPlainCoverSlide,

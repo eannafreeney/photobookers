@@ -1,9 +1,6 @@
-import { AuthUser } from "../../../../../types";
-import AvailabilityBadge from "../../../../components/app/AvailabilityBadge";
 import Card from "../../../../components/app/Card";
 import CarouselMobile from "../../../../components/app/CarouselMobile";
 import CreatorCard from "../../../../components/app/CreatorCard";
-import PurchaseLink from "../../../../components/app/PurchaseLink";
 import ShareButton from "../../../api/components/ShareButton";
 import TagList from "../../../../components/app/TagList";
 import SaveToListButton from "../../../api/components/SaveToListButton";
@@ -11,6 +8,7 @@ import CommentsSection from "../CommentsSection";
 import Divider from "../../../../components/Divider";
 import BookCredits from "./BookCredits";
 import BookPressSection from "./BookPressSection";
+import BookPurchaseBlock from "./BookPurchaseBlock";
 import PageBleed from "../../../../components/layouts/PageBleed";
 import Tabs from "../../../../components/app/Tabs";
 import Show from "../../../../components/app/Show";
@@ -60,13 +58,6 @@ const BookDetailMobile = ({
           {book.description && (
             <Card.Description>{book.description}</Card.Description>
           )}
-          <AvailabilityBadge availabilityStatus={book.availabilityStatus} />
-
-          <PurchaseLink
-            bookSlug={book.slug}
-            purchaseLink={book.purchaseLink}
-            trackOutbound={shouldTrackOutboundPurchase(book)}
-          />
           {showPress ? <BookPressSection links={book.pressLinks} /> : null}
           <BookCredits releaseDate={book.releaseDate} />
           <TagList tags={book.tags ?? []} />
@@ -113,6 +104,15 @@ const BookDetailMobile = ({
           />
         </Tabs.Panel>
       </Tabs>
+      <BookPurchaseBlock
+        sticky
+        bookSlug={book.slug}
+        purchaseLink={book.purchaseLink}
+        availabilityStatus={book.availabilityStatus}
+        artistName={book.artist?.displayName}
+        publisherName={book.publisher?.displayName}
+        trackOutbound={shouldTrackOutboundPurchase(book)}
+      />
     </div>
   );
 };

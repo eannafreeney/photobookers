@@ -5,22 +5,29 @@ import TextArea from "../../../components/forms/TextArea.js";
 import HeadlessLayout from "../../../components/layouts/HeadlessLayout.js";
 import Page from "../../../components/layouts/Page.js";
 const IntervewForm = ({ inviteToken, creator }) => {
+  const alpineAttrs = {
+    "x-data": "interviewForm",
+    "x-target": "toast interview-form",
+    "x-target.error": "toast",
+    "x-on:submit": "submitForm($event)",
+    "x-on:ajax:error": "isSubmitting = false"
+  };
   return /* @__PURE__ */ jsx(HeadlessLayout, { title: "Interview", children: /* @__PURE__ */ jsxs(Page, { children: [
     /* @__PURE__ */ jsxs("h1", { className: "text-2xl font-bold", children: [
       "Hi ",
       creator.displayName,
       ","
     ] }),
+    /* @__PURE__ */ jsx("div", { class: "rounded-lg border border-info/30 bg-info/10 p-4 text-sm text-base-content/80", children: /* @__PURE__ */ jsx("p", { children: "These questions are designed to get you thinking. The more detailed and informative your answers are, the better chance of the interview being published. Short one-sentence answers will likely mean the interview is not used." }) }),
     /* @__PURE__ */ jsxs(
       "form",
       {
         id: "interview-form",
-        "x-data": "interviewForm",
-        "x-target": "toast interview-form",
         method: "post",
         action: `/interviews/${inviteToken}`,
         enctype: "multipart/form-data",
         class: "flex flex-col gap-4",
+        ...alpineAttrs,
         children: [
           /* @__PURE__ */ jsx(
             TextArea,

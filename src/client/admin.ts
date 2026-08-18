@@ -24,6 +24,7 @@ import { registerBookCoverForm } from "../features/dashboard/books/client/bookCo
 import { registerBookGalleryForm } from "../features/dashboard/books/client/bookGalleryForm";
 import { registerBooksTableReorder } from "../features/dashboard/books/client/booksTableReorder";
 import { registerCreatorCoverForm } from "../features/dashboard/creators/client/creatorCoverForm";
+import { registerCreatorBannerForm } from "../features/dashboard/images/client/creatorBannerForm";
 
 registerAdminClaimsBadge();
 registerAddCreatorFormAdmin();
@@ -51,6 +52,7 @@ registerBookCoverForm();
 registerBookGalleryForm();
 registerBooksTableReorder();
 registerCreatorCoverForm();
+registerCreatorBannerForm();
 
 // main.js sets window.Alpine and defers start() until this bundle runs.
 (window as unknown as { Alpine: { start: () => void } }).Alpine.start();

@@ -1,7 +1,10 @@
 import { SITE_APP } from "../../../../constants/siteSocial.js";
 import { emailFontLogo, emailFontSans } from "./espHtml.js";
 const appStoreUrl = SITE_APP.ios.href;
-const appBaseUrl = process.env.PUBLIC_APP_URL ?? process.env.SITE_URL ?? "https://www.photobookers.com";
+function resolveAppBaseUrl() {
+  const raw = process.env.PUBLIC_APP_URL?.trim() || process.env.SITE_URL?.trim() || "https://www.photobookers.com";
+  return raw.replace(/\/$/, "");
+}
 const newsletterStorageBase = "https://dbmbrwmygpnhjyyccbjp.supabase.co/storage/v1/object/public/newsletter";
 const newsletterAssets = {
   /** Public Supabase asset — email clients cannot load localhost URLs. */
@@ -15,12 +18,15 @@ const newsletterSocial = {
   /** Hosted on production — not available on localhost during dev. */
   instagramIconUrl: "https://www.photobookers.com/icons/social/instagram.png"
 };
-const newsletterNavLinks = [
-  { label: "Featured", href: `${appBaseUrl}/featured` },
-  { label: "Books", href: `${appBaseUrl}/books` },
-  { label: "Book of the Day", href: `${appBaseUrl}/book-of-the-day` },
-  { label: "This Week", href: `${appBaseUrl}/this-week` }
-];
+function newsletterNavLinks() {
+  const base = resolveAppBaseUrl();
+  return [
+    { label: "Featured", href: `${base}/featured` },
+    { label: "Books", href: `${base}/books` },
+    { label: "Book of the Day", href: `${base}/book-of-the-day` },
+    { label: "This Week", href: `${base}/this-week` }
+  ];
+}
 const newsletterWidthPx = 600;
 const featureCardContentWidthPx = newsletterWidthPx - 50;
 const featureCardMobileSidePaddingPx = 32;
@@ -50,7 +56,6 @@ const brand = {
   fontLogo: emailFontLogo
 };
 export {
-  appBaseUrl,
   appStoreUrl,
   brand,
   featureCardContentWidthPx,
@@ -66,5 +71,6 @@ export {
   newsletterThreeColCount,
   newsletterThreeColGapPx,
   newsletterThreeColHalfGapPx,
-  newsletterWidthPx
+  newsletterWidthPx,
+  resolveAppBaseUrl
 };

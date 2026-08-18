@@ -11,7 +11,8 @@ const TAB_QUERY_VALUES = [
   "books",
   "site",
   "app",
-  "newsletter"
+  "newsletter",
+  "instagram"
 ];
 function adminAnalyticsHref(dateRange, options) {
   const tab = options?.tab && TAB_QUERY_VALUES.includes(options.tab) && options.tab !== "overview" ? options.tab : void 0;

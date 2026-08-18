@@ -157,6 +157,10 @@ async function updateBookOfTheDayByDate(date, patch) {
     updateData.artistFeatureDayEmailSentAt = patch.artistFeatureDayEmailSentAt;
   if (patch.publisherFeatureDayEmailSentAt !== void 0)
     updateData.publisherFeatureDayEmailSentAt = patch.publisherFeatureDayEmailSentAt;
+  if (patch.artistStoryImageEmailSentAt !== void 0)
+    updateData.artistStoryImageEmailSentAt = patch.artistStoryImageEmailSentAt;
+  if (patch.artistProvidedStoryImageUrl !== void 0)
+    updateData.artistProvidedStoryImageUrl = patch.artistProvidedStoryImageUrl;
   try {
     const [row] = await db.update(bookOfTheDay).set(updateData).where(eq(bookOfTheDay.date, day)).returning();
     if (!row) return err({ reason: "Book of the day not found" });

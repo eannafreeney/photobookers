@@ -6,7 +6,6 @@ import { registerBooksTableReorder } from "../features/dashboard/books/client/bo
 import { registerBookGalleryForm } from "../features/dashboard/books/client/bookGalleryForm.js";
 import { registerBulkCoverUpload } from "./components/bulkCoverUpload.js";
 import { registerUserProfileImageForm } from "../features/app/client/userProfileImageForm.js";
-import { registerInterviewForm } from "../features/interviews/client/interviewForm.js";
 import { registerMessageForm } from "../features/dashboard/messages/client/messageForm.js";
 import { registerCreatorBannerForm } from "../features/dashboard/images/client/creatorBannerForm.js";
 import { registerStoresMap } from "../features/app/stores/client/storesMap.js";
@@ -18,7 +17,6 @@ registerBookGalleryForm();
 registerBooksTableReorder();
 registerBulkCoverUpload();
 registerUserProfileImageForm();
-registerInterviewForm();
 registerMessageForm();
 registerCreatorBannerForm();
 registerStoresMap();

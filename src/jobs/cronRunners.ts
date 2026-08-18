@@ -1,10 +1,15 @@
 import { runCeoMetricsEmailCron } from "../domain/ceo-metrics/cron";
 import { runDailyProductDigestCron } from "../domain/daily-product-digest/cron";
+import { runInstagramWeeklyDigestCron } from "../domain/instagram-analytics/cron";
+import { runPublisherReleaseWatchCron } from "../domain/publisher-release-watch/cron";
 import { runInterviewReminderCron } from "../domain/interviews/reminderCron";
 import {
   runBotdAdvanceNotificationEmails,
   runBotdFeatureDayEmails,
+  runBotdStoryImageEmails,
 } from "../domain/planner/cron/botdEmailServices";
+import { runSpotlightStoryImageEmails } from "../domain/planner/cron/spotlightStoryImageServices";
+import { runStoryUploadCleanup } from "../domain/planner/cron/storyUploadCleanupServices";
 import { runContentPreviewEmail } from "../domain/planner/cron/contentPreviewEmailServices";
 import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramReminderEmailServices";
 import { runTrendingInstagramCron, formatTrendingInstagramCronSummary } from "../domain/planner/cron/trendingInstagramServices";
@@ -60,8 +65,12 @@ export type CronJobName =
   | "daily-botd-instagram"
   | "botd-advance-notification-emails"
   | "botd-feature-day-emails"
+  | "botd-story-image-emails"
+  | "spotlight-story-image-emails"
+  | "story-upload-cleanup"
   | "ceo-metrics-email"
   | "daily-product-digest"
+  | "publisher-release-watch"
   | "spotlight-creator-emails"
   | "notify-followers-new-books"
   | "notify-followers-new-posts"
@@ -70,6 +79,7 @@ export type CronJobName =
   | "weekly-botd-newsletter-prepare"
   | "weekly-trending-instagram"
   | "instagram-prep-reminder-email"
+  | "instagram-weekly-digest"
   | "planner-content-preview-email"
   | "creator-analytics-digest"
   | "creator-milestone-emails"
@@ -85,8 +95,12 @@ export const CRON_JOB_NAMES = [
   "daily-botd-instagram",
   "botd-advance-notification-emails",
   "botd-feature-day-emails",
+  "botd-story-image-emails",
+  "spotlight-story-image-emails",
+  "story-upload-cleanup",
   "ceo-metrics-email",
   "daily-product-digest",
+  "publisher-release-watch",
   "spotlight-creator-emails",
   "notify-followers-new-books",
   "notify-followers-new-posts",
@@ -95,6 +109,7 @@ export const CRON_JOB_NAMES = [
   "weekly-botd-newsletter-prepare",
   "weekly-trending-instagram",
   "instagram-prep-reminder-email",
+  "instagram-weekly-digest",
   "planner-content-preview-email",
   "creator-analytics-digest",
   "creator-milestone-emails",
@@ -164,6 +179,47 @@ export async function runBotdFeatureDayEmailsCron(
   });
 }
 
+export async function runBotdStoryImageEmailsCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const asOf = options.date ?? new Date();
+  const [error, result] = await runBotdStoryImageEmails(asOf);
+  if (error) return err(error);
+  return ok({
+    storyImageEmailsSent: result.storyImageEmailsSent,
+    featureDate: result.featureDate ? toDateString(result.featureDate) : null,
+    items: result.items.map((item) => ({
+      ...item,
+      date: toDateString(item.date),
+    })),
+  });
+}
+
+export async function runSpotlightStoryImageEmailsCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const asOf = options.date ?? new Date();
+  const [error, result] = await runSpotlightStoryImageEmails(asOf);
+  if (error) return err(error);
+  return ok({
+    storyImageEmailsSent: result.storyImageEmailsSent,
+    weekStart: result.weekStart ? toWeekString(result.weekStart) : null,
+    items: result.items,
+  });
+}
+
+export async function runStoryUploadCleanupCron(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const asOf = options.date ?? new Date();
+  const [error, result] = await runStoryUploadCleanup(asOf);
+  if (error) return err(error);
+  return ok({
+    deleted: result.deleted,
+    errors: result.errors,
+  });
+}
+
 export async function runCeoMetricsEmailCronJob(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
@@ -177,6 +233,17 @@ export async function runCeoMetricsEmailCronJob(
   return ok({ ...result });
 }
 
+export async function runInstagramWeeklyDigestCronJob(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runInstagramWeeklyDigestCron({
+    dryRun: options.dryRun,
+    date: options.date,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
 export async function runDailyProductDigestCronJob(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
@@ -184,6 +251,16 @@ export async function runDailyProductDigestCronJob(
     dryRun: options.dryRun,
     date: options.date,
     to: options.to,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
+export async function runPublisherReleaseWatchCronJob(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runPublisherReleaseWatchCron({
+    dryRun: options.dryRun,
   });
   if (error) return err(error);
   return ok({ ...result });
@@ -478,8 +555,12 @@ const RUNNERS: Record<
   "daily-botd-instagram": runDailyBotdInstagramCron,
   "botd-advance-notification-emails": runBotdAdvanceNotificationEmailsCron,
   "botd-feature-day-emails": runBotdFeatureDayEmailsCron,
+  "botd-story-image-emails": runBotdStoryImageEmailsCron,
+  "spotlight-story-image-emails": runSpotlightStoryImageEmailsCron,
+  "story-upload-cleanup": runStoryUploadCleanupCron,
   "ceo-metrics-email": runCeoMetricsEmailCronJob,
   "daily-product-digest": runDailyProductDigestCronJob,
+  "publisher-release-watch": runPublisherReleaseWatchCronJob,
   "spotlight-creator-emails": runSpotlightCreatorEmailsCron,
   "notify-followers-new-books": () => runNotifyFollowersNewBooksCron(),
   "notify-followers-new-posts": () => runNotifyFollowersNewPostsCron(),
@@ -488,6 +569,7 @@ const RUNNERS: Record<
   "weekly-botd-newsletter-prepare": runWeeklyBotdNewsletterPrepareCron,
   "weekly-trending-instagram": runWeeklyTrendingInstagramCron,
   "instagram-prep-reminder-email": runInstagramPrepReminderEmailCron,
+  "instagram-weekly-digest": runInstagramWeeklyDigestCronJob,
   "planner-content-preview-email": runPlannerContentPreviewEmailCron,
   "creator-analytics-digest": runCreatorAnalyticsDigestCronJob,
   "creator-milestone-emails": runCreatorMilestoneEmailsCronJob,

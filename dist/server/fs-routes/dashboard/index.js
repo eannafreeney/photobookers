@@ -11,9 +11,6 @@ import InfoPage from "../../pages/InfoPage.js";
 import AppLayout from "../../components/layouts/AppLayout.js";
 import { BooksOverviewTable } from "../../features/dashboard/books/tables/BooksOverviewTable.js";
 import CreatorDashboardShell from "../../features/dashboard/components/CreatorDashboardShell.js";
-import CollectorDashboardShell from "../../features/dashboard/components/CollectorDashboardShell.js";
-import CollectorPostForm from "../../features/collectors/components/CollectorPostForm.js";
-import CollectorPostsTable from "../../features/collectors/components/CollectorPostsTable.js";
 import { getPendingClaim } from "../../features/claims/services.js";
 import CreatorBookFunnelSummary from "../../features/dashboard/books/components/CreatorBookFunnelSummary.js";
 import { isFeatureEnabledForUser } from "../../lib/features.js";
@@ -29,21 +26,7 @@ const GET = createRoute(async (c) => {
     if (!isFeatureEnabledForUser("collectors", user)) {
       return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Creator not found", user }));
     }
-    return c.html(
-      /* @__PURE__ */ jsx(AppLayout, { title: "Your Posts", user, flash, currentPath, children: /* @__PURE__ */ jsxs(CollectorDashboardShell, { currentPath, children: [
-        /* @__PURE__ */ jsx(
-          PageHeader,
-          {
-            title: "Your Posts",
-            intro: "Share what's new with the people who follow you."
-          }
-        ),
-        /* @__PURE__ */ jsxs("div", { class: "grid grid-cols-1 gap-8 xl:grid-cols-3", children: [
-          /* @__PURE__ */ jsx(CollectorPostForm, {}),
-          /* @__PURE__ */ jsx("div", { class: "xl:col-span-2", children: /* @__PURE__ */ jsx(CollectorPostsTable, { userId: user.id }) })
-        ] })
-      ] }) })
-    );
+    return c.redirect("/dashboard/shelf");
   }
   const creatorId = user.creator.id;
   const creatorType = user.creator.type;

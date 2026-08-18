@@ -3,7 +3,7 @@ ABOUT THIS DOCUMENT
 =======================
 
 Machine-readable project summary for LLMs and external tooling.
-Generated: 2026-08-01T11:47:03.235Z
+Generated: 2026-08-17T23:11:22.989Z
 Source repo path: .
 Endpoint: GET /api/project-summary.txt
 
@@ -78,9 +78,9 @@ src/
   middleware/              — auth guards
   lib/                     — shared utilities
 
-Domain modules (16): ceo-metrics, claims, collectors, creator-profile-share, creators, daily-product-digest, db, interviews, lists, magazine, newsletters, notifications, planner, server-errors, shelf, verification-feedback
+Domain modules (19): ceo-metrics, claims, collectors, creator-profile-share, creators, daily-product-digest, db, instagram-analytics, interviews, lists, magazine, newsletters, notifications, planner, posts, publisher-release-watch, server-errors, shelf, verification-feedback
 
-Feature modules (21): api, app, app-store-analytics, auth, book-analytics, book-views, claims, collectors, creator-analytics-digest, creator-views, dashboard, fair-attendees, fair-views, hyperview, interviews, jobs, legal, newsletter-analytics, purchase-clicks, site-analytics, stub-outreach
+Feature modules (22): api, app, app-store-analytics, auth, book-analytics, book-views, claims, collectors, creator-analytics-digest, creator-views, dashboard, fair-attendees, fair-views, hyperview, interviews, jobs, legal, newsletter-analytics, purchase-clicks, site-analytics, story-upload, stub-outreach
 
 Import rule: public (app) and hyperview routes must import shared logic from src/domain/, not admin features (enforced by npm run lint).
 
@@ -210,10 +210,10 @@ The build step regenerates `public/project-summary.txt` at deploy time (the
 ROUTE / ENDPOINT STRUCTURE
 ==============================
 
-Total registered routes: 315
+Total registered routes: 322
 Routing: hono-fsr file-system routes in src/fs-routes/
 
-Public web (61 routes) — Server-rendered pages for fans and discovery
+Public web (62 routes) — Server-rendered pages for fans and discovery
   Examples: /, /about, /artist-of-the-week, /artist-of-the-week/:week, /artists, /book-of-the-day, /book-of-the-day/:date, /books, /books/:slug, /books/preview/:slug
 
 API (14 routes) — JSON/partials for likes, comments, follows, newsletter, activity
@@ -222,13 +222,13 @@ API (14 routes) — JSON/partials for likes, comments, follows, newsletter, acti
 Auth (16 routes) — Login, registration, password reset, Supabase callback
   Examples: /auth/accounts, /auth/callback, /auth/force-reset-password, /auth/forgot-password, /auth/login, /auth/logout, /auth/register, /auth/register-creator, /auth/register-fan, /auth/resend-verification
 
-Dashboard (133 routes) — Creator and admin dashboards
+Dashboard (137 routes) — Creator and admin dashboards
   Examples: /dashboard/admin, /dashboard/admin/analytics, /dashboard/admin/analytics/fans, /dashboard/admin/analytics/verified-creators, /dashboard/admin/books, /dashboard/admin/books/:bookId, /dashboard/admin/books/:bookId/approve, /dashboard/admin/books/:bookId/feedback, /dashboard/admin/books/:bookId/reject, /dashboard/admin/books/:bookId/unapprove
 
 Hyperview (mobile) (62 routes) — XML routes consumed by the Expo mobile app
   Examples: /hyperview/+layout, /hyperview/about, /hyperview/accounts, /hyperview/artist-of-the-week, /hyperview/artist-of-the-week/:week, /hyperview/auth-modal, /hyperview/book-of-the-day, /hyperview/book-of-the-day/:date, /hyperview/books, /hyperview/books/:bookId/tab/artist
 
-Jobs / cron HTTP (24 routes) — Authenticated cron endpoints hit by GitHub Actions
+Jobs / cron HTTP (26 routes) — Authenticated cron endpoints hit by GitHub Actions
   Examples: /jobs/cron/botd-advance-notification-emails, /jobs/cron/botd-feature-day-emails, /jobs/cron/ceo-metrics-email, /jobs/cron/creator-analytics-digest, /jobs/cron/creator-milestone-emails, /jobs/cron/creator-profile-share-emails, /jobs/cron/daily-botd-instagram, /jobs/cron/daily-product-digest, /jobs/cron/fair-instagram, /jobs/cron/instagram-prep-reminder-email
 
 Claims (5 routes) — Creator account claim flow
@@ -266,7 +266,6 @@ Tables (31):
 - books
 - creator_milestone_emails
 - follows
-- creator_messages
 - collector_posts
 - book_images
 - book_comments
@@ -289,6 +288,7 @@ Tables (31):
 - book_stores
 - magazine_issues
 - magazine_issue_books
+- publisher_release_watch_seen
 
 Enums (20):
 - book_availability_status
@@ -319,8 +319,12 @@ BACKGROUND JOBS (CRON)
 - daily-botd-instagram
 - botd-advance-notification-emails
 - botd-feature-day-emails
+- botd-story-image-emails
+- spotlight-story-image-emails
+- story-upload-cleanup
 - ceo-metrics-email
 - daily-product-digest
+- publisher-release-watch
 - spotlight-creator-emails
 - notify-followers-new-books
 - notify-followers-new-posts
@@ -329,6 +333,7 @@ BACKGROUND JOBS (CRON)
 - weekly-botd-newsletter-prepare
 - weekly-trending-instagram
 - instagram-prep-reminder-email
+- instagram-weekly-digest
 - planner-content-preview-email
 - creator-analytics-digest
 - creator-milestone-emails

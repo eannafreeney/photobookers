@@ -5,6 +5,7 @@ import Navbar from "./Navbar.js";
 import Footer from "../app/Footer.js";
 import Alert from "../app/Alert.js";
 import PreviewBanner from "../app/PreviewBanner.js";
+import WelcomeDashboardBanner from "../../features/app/components/WelcomeDashboardBanner.js";
 import Dock from "./Dock.js";
 import ToastContainer from "../app/ToastContainer.js";
 import ActivityStream from "../app/ActivityStream.js";
@@ -63,6 +64,7 @@ const AppLayout = ({
             adminEditHref
           }
         ),
+        user?.creator ? /* @__PURE__ */ jsx(WelcomeDashboardBanner, {}) : null,
         /* @__PURE__ */ jsxs(
           "div",
           {

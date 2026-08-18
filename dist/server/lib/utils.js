@@ -80,6 +80,12 @@ function toDateString(d) {
   const day = String(d.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
+function toDateInputValue(d) {
+  if (d == null || d === "") return "";
+  const date = d instanceof Date ? d : new Date(d);
+  if (Number.isNaN(date.getTime())) return "";
+  return toDateString(date);
+}
 function toLocalDateString(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -138,6 +144,7 @@ export {
   normalizeStoredDate,
   parseDateString,
   parseWeekString,
+  toDateInputValue,
   toDateString,
   toLocalDateString,
   toUtcStartOfDay,

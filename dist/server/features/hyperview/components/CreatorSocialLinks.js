@@ -5,9 +5,10 @@ const CreatorSocialLinks = ({
   website,
   instagram,
   twitter,
-  facebook
+  facebook,
+  substack
 }) => {
-  const hasSocials = website || instagram || twitter || facebook;
+  const hasSocials = website || instagram || twitter || facebook || substack;
   if (!hasSocials) return null;
   return /* @__PURE__ */ jsxs(View, { style: "creator-socials", children: [
     website && /* @__PURE__ */ jsxs(View, { style: "social-btn", children: [
@@ -75,6 +76,18 @@ const CreatorSocialLinks = ({
           href: `https://x.com/${twitter.replace(/^@/, "")}`
         }
       )
+    ] }),
+    substack && /* @__PURE__ */ jsxs(View, { style: "social-btn", children: [
+      /* @__PURE__ */ jsx(
+        Image,
+        {
+          source: `${baseUrl}/icons/social/substack.png`,
+          style: "social-icon",
+          "resize-mode": "contain"
+        }
+      ),
+      /* @__PURE__ */ jsx(Text, { style: "social-label", children: "Substack" }),
+      /* @__PURE__ */ jsx(Behavior, { action: "deep-link", href: substack })
     ] })
   ] });
 };

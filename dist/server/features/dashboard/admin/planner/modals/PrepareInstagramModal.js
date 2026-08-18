@@ -13,7 +13,6 @@ import {
 import {
   INSTAGRAM_SPOTLIGHT_AOTW_KEY,
   INSTAGRAM_SPOTLIGHT_POTW_KEY,
-  MAX_INSTAGRAM_CAROUSEL_IMAGES,
   getPlannerInstagramImageSelection
 } from "../social-media/instagramUtils.js";
 import { formatDayLabel } from "../utils.js";
@@ -68,6 +67,9 @@ const PrepareInstagramModal = ({
               const book = entry.book;
               if (!book) return null;
               const imageOptions = collectBookImageOptions(book);
+              if (entry.artistProvidedStoryImageUrl) {
+                imageOptions.unshift(entry.artistProvidedStoryImageUrl);
+              }
               const selectedImages = getPlannerInstagramImageSelection(
                 entry,
                 imageOptions
@@ -86,61 +88,80 @@ const PrepareInstagramModal = ({
                     entry.spotlightBlurb
                   ),
                   selectedImages,
-                  tagsLine: tagLine ? `Tags: ${tagLine}` : "No tags on this book"
+                  tagsLine: tagLine ? `Tags: ${tagLine}` : "No tags on this book",
+                  artistProvidedStoryImageUrl: entry.artistProvidedStoryImageUrl,
+                  previewKind: "botd",
+                  previewId: entry.id
                 },
                 entry.id
               );
             }),
-            artistCreator && artistOfTheWeek ? /* @__PURE__ */ jsx(
-              ImageCaptionSection,
-              {
-                title: "Artist of the week",
-                subtitle: artistCreator.displayName,
-                fieldKey: INSTAGRAM_SPOTLIGHT_AOTW_KEY,
-                imageOptions: collectCreatorImageOptions(
-                  artistCreator,
-                  artistBookCoverUrls
-                ),
-                caption: buildArtistInstagramCaption(
-                  artistCreator,
-                  artistOfTheWeek.instagramCaption,
-                  artistOfTheWeek.spotlightBlurb
-                ),
-                selectedImages: getPlannerInstagramImageSelection(
-                  artistOfTheWeek,
-                  collectCreatorImageOptions(
+            artistCreator && artistOfTheWeek ? (() => {
+              const aotwImageOptions = collectCreatorImageOptions(
+                artistCreator,
+                artistBookCoverUrls
+              );
+              if (artistOfTheWeek.artistProvidedStoryImageUrl) {
+                aotwImageOptions.unshift(
+                  artistOfTheWeek.artistProvidedStoryImageUrl
+                );
+              }
+              return /* @__PURE__ */ jsx(
+                ImageCaptionSection,
+                {
+                  title: "Artist of the week",
+                  subtitle: artistCreator.displayName,
+                  fieldKey: INSTAGRAM_SPOTLIGHT_AOTW_KEY,
+                  imageOptions: aotwImageOptions,
+                  caption: buildArtistInstagramCaption(
                     artistCreator,
-                    artistBookCoverUrls
-                  )
-                )
-              },
-              "aotw"
-            ) : null,
-            publisherCreator && publisherOfTheWeek ? /* @__PURE__ */ jsx(
-              ImageCaptionSection,
-              {
-                title: "Publisher of the week",
-                subtitle: publisherCreator.displayName,
-                fieldKey: INSTAGRAM_SPOTLIGHT_POTW_KEY,
-                imageOptions: collectCreatorImageOptions(
-                  publisherCreator,
-                  publisherBookCoverUrls
-                ),
-                caption: buildPublisherInstagramCaption(
-                  publisherCreator,
-                  publisherOfTheWeek.instagramCaption,
-                  publisherOfTheWeek.spotlightBlurb
-                ),
-                selectedImages: getPlannerInstagramImageSelection(
-                  publisherOfTheWeek,
-                  collectCreatorImageOptions(
+                    artistOfTheWeek.instagramCaption,
+                    artistOfTheWeek.spotlightBlurb
+                  ),
+                  selectedImages: getPlannerInstagramImageSelection(
+                    artistOfTheWeek,
+                    aotwImageOptions
+                  ),
+                  artistProvidedStoryImageUrl: artistOfTheWeek.artistProvidedStoryImageUrl,
+                  previewKind: "aotw",
+                  previewId: artistOfTheWeek.id
+                },
+                "aotw"
+              );
+            })() : null,
+            publisherCreator && publisherOfTheWeek ? (() => {
+              const potwImageOptions = collectCreatorImageOptions(
+                publisherCreator,
+                publisherBookCoverUrls
+              );
+              if (publisherOfTheWeek.artistProvidedStoryImageUrl) {
+                potwImageOptions.unshift(
+                  publisherOfTheWeek.artistProvidedStoryImageUrl
+                );
+              }
+              return /* @__PURE__ */ jsx(
+                ImageCaptionSection,
+                {
+                  title: "Publisher of the week",
+                  subtitle: publisherCreator.displayName,
+                  fieldKey: INSTAGRAM_SPOTLIGHT_POTW_KEY,
+                  imageOptions: potwImageOptions,
+                  caption: buildPublisherInstagramCaption(
                     publisherCreator,
-                    publisherBookCoverUrls
-                  )
-                )
-              },
-              "potw"
-            ) : null
+                    publisherOfTheWeek.instagramCaption,
+                    publisherOfTheWeek.spotlightBlurb
+                  ),
+                  selectedImages: getPlannerInstagramImageSelection(
+                    publisherOfTheWeek,
+                    potwImageOptions
+                  ),
+                  artistProvidedStoryImageUrl: publisherOfTheWeek.artistProvidedStoryImageUrl,
+                  previewKind: "potw",
+                  previewId: publisherOfTheWeek.id
+                },
+                "potw"
+              );
+            })() : null
           ] }),
           /* @__PURE__ */ jsx("div", { class: "mt-4 flex flex-wrap items-center gap-3 border-t border-outline pt-4", children: /* @__PURE__ */ jsx(
             "button",
@@ -179,63 +200,101 @@ const ImageCaptionSection = ({
   imageOptions,
   caption,
   selectedImages,
-  tagsLine
+  tagsLine,
+  artistProvidedStoryImageUrl,
+  previewKind,
+  previewId
 }) => {
   const checkboxName = `imageUrl[${fieldKey}][]`;
-  const limitCarouselSelection = `const checked = $el.closest('fieldset').querySelectorAll('input[type=checkbox]:checked'); if (checked.length > ${MAX_INSTAGRAM_CAROUSEL_IMAGES}) $el.checked = false`;
-  return /* @__PURE__ */ jsxs("section", { class: "rounded border border-outline bg-surface-alt/40 p-4", children: [
-    /* @__PURE__ */ jsx("h3", { class: "mb-3 text-sm font-semibold text-on-surface-strong", children: title }),
-    /* @__PURE__ */ jsx("p", { class: "mb-1 text-xs text-on-surface line-clamp-2", children: subtitle }),
-    tagsLine ? /* @__PURE__ */ jsx("p", { class: "mb-3 text-xs text-on-surface-weak", children: tagsLine }) : /* @__PURE__ */ jsx("div", { class: "mb-3" }),
-    /* @__PURE__ */ jsxs("fieldset", { class: "mb-4", children: [
-      /* @__PURE__ */ jsxs("legend", { class: "mb-2 block text-xs font-medium text-on-surface", children: [
-        "Images (select 1\u2013",
-        MAX_INSTAGRAM_CAROUSEL_IMAGES,
-        " for carousel)"
-      ] }),
-      imageOptions.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-xs text-danger", children: "No image available." }) : /* @__PURE__ */ jsx("div", { class: "max-h-48 overflow-y-auto overscroll-contain rounded border border-outline/60 bg-surface p-2", children: /* @__PURE__ */ jsx("div", { class: "grid grid-cols-3 gap-2 sm:grid-cols-4", children: imageOptions.map((url) => /* @__PURE__ */ jsxs(
-        "label",
-        {
-          class: "cursor-pointer rounded border border-outline p-1 [&:has(input:checked)]:border-primary [&:has(input:checked)]:ring-2 [&:has(input:checked)]:ring-primary",
-          children: [
-            /* @__PURE__ */ jsx(
-              "input",
-              {
-                type: "checkbox",
-                name: checkboxName,
-                value: url,
-                checked: selectedImages.includes(url),
-                class: "sr-only",
-                "x-on:change": limitCarouselSelection
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              "img",
-              {
-                src: url,
-                alt: "",
-                class: "aspect-[3/4] w-full rounded object-cover"
-              }
-            )
-          ]
-        },
-        url
-      )) }) })
-    ] }),
-    /* @__PURE__ */ jsxs("label", { class: "block text-xs font-medium text-on-surface", children: [
-      "Caption",
-      /* @__PURE__ */ jsx(
-        "textarea",
-        {
-          name: `captions[${fieldKey}]`,
-          required: true,
-          rows: 5,
-          class: "mt-1 w-full rounded border border-outline bg-surface px-3 py-2 text-sm",
-          children: caption
-        }
-      )
-    ] })
-  ] });
+  const previewAlpine = `{
+    selectedImage: ${JSON.stringify(selectedImages[0] ?? "")},
+    previewSrc: '',
+    previewUrl() {
+      return '/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}'
+        + (this.selectedImage ? '&image=' + encodeURIComponent(this.selectedImage) : '');
+    },
+    loadPreview() { this.previewSrc = this.previewUrl(); },
+    selectImage(url) {
+      this.selectedImage = url;
+      if (this.previewSrc) this.previewSrc = this.previewUrl();
+    },
+  }`;
+  return /* @__PURE__ */ jsxs(
+    "section",
+    {
+      class: "rounded border border-outline bg-surface-alt/40 p-4",
+      "x-data": previewAlpine,
+      children: [
+        /* @__PURE__ */ jsx("h3", { class: "mb-3 text-sm font-semibold text-on-surface-strong", children: title }),
+        /* @__PURE__ */ jsx("p", { class: "mb-1 text-xs text-on-surface line-clamp-2", children: subtitle }),
+        tagsLine ? /* @__PURE__ */ jsx("p", { class: "mb-3 text-xs text-on-surface-weak", children: tagsLine }) : /* @__PURE__ */ jsx("div", { class: "mb-3" }),
+        /* @__PURE__ */ jsxs("fieldset", { class: "mb-4", children: [
+          /* @__PURE__ */ jsx("legend", { class: "mb-2 block text-xs font-medium text-on-surface", children: "Story image (select one)" }),
+          imageOptions.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-xs text-danger", children: "No image available." }) : /* @__PURE__ */ jsx("div", { class: "max-h-48 overflow-y-auto overscroll-contain rounded border border-outline/60 bg-surface p-2", children: /* @__PURE__ */ jsx("div", { class: "grid grid-cols-3 gap-2 sm:grid-cols-4", children: imageOptions.map((url) => /* @__PURE__ */ jsxs(
+            "label",
+            {
+              class: "cursor-pointer rounded border border-outline p-1 [&:has(input:checked)]:border-primary [&:has(input:checked)]:ring-2 [&:has(input:checked)]:ring-primary relative",
+              children: [
+                /* @__PURE__ */ jsx(
+                  "input",
+                  {
+                    type: "radio",
+                    name: checkboxName,
+                    value: url,
+                    checked: selectedImages.includes(url),
+                    class: "sr-only",
+                    "x-on:change": `selectImage(${JSON.stringify(url)})`
+                  }
+                ),
+                /* @__PURE__ */ jsx(
+                  "img",
+                  {
+                    src: url,
+                    alt: "",
+                    class: "aspect-[3/4] w-full rounded object-cover"
+                  }
+                ),
+                url === artistProvidedStoryImageUrl ? /* @__PURE__ */ jsx("span", { class: "absolute left-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white", children: "Artist" }) : null
+              ]
+            },
+            url
+          )) }) })
+        ] }),
+        /* @__PURE__ */ jsxs("label", { class: "block text-xs font-medium text-on-surface", children: [
+          "Caption",
+          /* @__PURE__ */ jsx(
+            "textarea",
+            {
+              name: `captions[${fieldKey}]`,
+              required: true,
+              rows: 5,
+              class: "mt-1 w-full rounded border border-outline bg-surface px-3 py-2 text-sm",
+              children: caption
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxs("div", { class: "mt-4 rounded border border-outline bg-surface p-3", children: [
+          /* @__PURE__ */ jsx("p", { class: "mb-2 text-xs font-medium text-on-surface", children: "Story preview" }),
+          /* @__PURE__ */ jsx(
+            "div",
+            {
+              class: "relative mx-auto w-full max-w-[240px] overflow-hidden rounded bg-gray-100",
+              style: "aspect-ratio: 9/16;",
+              ...{ "x-intersect.once": "loadPreview()" },
+              children: /* @__PURE__ */ jsx(
+                "img",
+                {
+                  "x-bind:src": "previewSrc",
+                  alt: "Story preview",
+                  class: "absolute inset-0 h-full w-full object-contain"
+                }
+              )
+            }
+          )
+        ] })
+      ]
+    }
+  );
 };
 export {
   PrepareInstagramModal_default as default

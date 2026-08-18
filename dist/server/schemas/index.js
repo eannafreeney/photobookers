@@ -1,7 +1,12 @@
 import { z } from "zod";
+import { parseDateString } from "../lib/utils.js";
 const optionalText = z.preprocess(
   (v) => typeof v === "string" && v.trim() === "" ? void 0 : v,
   z.string().optional()
+);
+const optionalDateString = optionalText.refine(
+  (v) => v === void 0 || !Number.isNaN(parseDateString(v).getTime()),
+  "Enter a valid date (YYYY-MM-DD)"
 );
 const requiredText = z.preprocess(
   (v) => typeof v === "string" ? v.trim() : v,
@@ -62,6 +67,7 @@ export {
   messageParamSchema,
   methodField,
   numberField,
+  optionalDateString,
   optionalText,
   redirectUrlSchema,
   requiredText,

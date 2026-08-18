@@ -6,6 +6,7 @@ import { hyperview } from "./hxml.js";
 import ServerErrorPage from "../pages/ServerErrorPage.js";
 import { recordAndNotifyAdminServerError } from "../domain/server-errors/notifyAdminServerError.js";
 import { getUser } from "../utils.js";
+import { isClientAbortError } from "./isClientAbortError.js";
 const MAINTENANCE_MESSAGE = "We're currently under maintenance. Please try again shortly.";
 function wantsJsonResponse(c) {
   const path = c.req.path;
@@ -18,6 +19,10 @@ function errorMessage(err) {
   return String(err);
 }
 async function handleServerError(c, err) {
+  if (isClientAbortError(err)) {
+    console.warn("Client aborted request:", c.req.method, c.req.path);
+    return c.body(null, 204);
+  }
   console.error("Unhandled server error:", err);
   void recordAndNotifyAdminServerError({
     path: c.req.path,

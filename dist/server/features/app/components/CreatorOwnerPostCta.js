@@ -20,7 +20,7 @@ const CreatorOwnerPostCta = ({
               /* @__PURE__ */ jsx(
                 "a",
                 {
-                  href: "/dashboard/messages",
+                  href: "/dashboard/posts",
                   class: "shrink-0 text-sm font-medium text-accent hover:underline",
                   children: postCount === 0 ? "Write your first post" : "Write a post"
                 }

@@ -18,17 +18,29 @@ function formatCreatorLine(rank, creator) {
 function collectCreatorHandles(creators) {
   return creators.map((creator) => formatInstagramHandle(creator.instagram)).filter((handle) => Boolean(handle));
 }
+function collectBookArtistHandles(books) {
+  const seen = /* @__PURE__ */ new Set();
+  const handles = [];
+  for (const book of books) {
+    const handle = formatInstagramHandle(book.artistInstagram);
+    if (!handle || seen.has(handle)) continue;
+    seen.add(handle);
+    handles.push(handle);
+  }
+  return handles;
+}
 function buildTrendingBooksInstagramCaption(books) {
   if (books.length === 0) return "";
   const lines = [
     POST_HEADINGS.books,
     "",
-    ...books.map((book, index) => formatBookLine(index + 1, book)),
-    "",
-    "#photobook #photobookjousting",
-    "",
-    "Link in bio \u2192"
+    ...books.map((book, index) => formatBookLine(index + 1, book))
   ];
+  const handles = collectBookArtistHandles(books);
+  if (handles.length > 0) {
+    lines.push("", handles.join(" "));
+  }
+  lines.push("", "#photobook #photobookjousting", "", "Link in bio \u2192");
   return lines.join("\n");
 }
 function buildTrendingCreatorsInstagramCaption(kind, creators) {

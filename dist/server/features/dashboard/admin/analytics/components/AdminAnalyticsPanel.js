@@ -11,6 +11,7 @@ import CeoMetricsBlock from "./CeoMetricsBlock.js";
 import SiteTrafficBlock from "./SiteTrafficBlock.js";
 import AppAnalyticsBlock from "./AppAnalyticsBlock.js";
 import NewsletterAnalyticsBlock from "./NewsletterAnalyticsBlock.js";
+import InstagramAnalyticsBlock from "./InstagramAnalyticsBlock.js";
 const AdminAnalyticsPanel = async ({
   tab,
   dateRange,
@@ -42,7 +43,7 @@ const AdminAnalyticsPanel = async ({
             {
               dateRange,
               basePath: ADMIN_ANALYTICS_BASE_PATH,
-              tab: tab === "site" || tab === "app" || tab === "newsletter" || tab === "books" ? tab : void 0,
+              tab: tab === "site" || tab === "app" || tab === "newsletter" || tab === "books" || tab === "instagram" ? tab : void 0,
               partialUpdateTarget: ADMIN_ANALYTICS_PANEL_ID,
               fragment: ADMIN_ANALYTICS_FRAGMENT
             }
@@ -66,7 +67,7 @@ const AdminAnalyticsPanel = async ({
             followsPage,
             chartRange
           }
-        ) : tab === "site" ? /* @__PURE__ */ jsx(SiteTrafficBlock, { dateRange }) : tab === "app" ? /* @__PURE__ */ jsx(AppAnalyticsBlock, { dateRange }) : /* @__PURE__ */ jsx(NewsletterAnalyticsBlock, { dateRange })
+        ) : tab === "site" ? /* @__PURE__ */ jsx(SiteTrafficBlock, { dateRange }) : tab === "app" ? /* @__PURE__ */ jsx(AppAnalyticsBlock, { dateRange }) : tab === "newsletter" ? /* @__PURE__ */ jsx(NewsletterAnalyticsBlock, { dateRange }) : /* @__PURE__ */ jsx(InstagramAnalyticsBlock, {})
       ]
     }
   );

@@ -37,6 +37,7 @@ function canDeleteBook(user, book) {
   return false;
 }
 function canPreviewBook(user, book) {
+  if (!user) return false;
   if (user.isAdmin) return true;
   if (!book.coverUrl) return false;
   const isDraftMode = book.publicationStatus === "draft";

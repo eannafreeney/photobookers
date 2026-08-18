@@ -21,6 +21,7 @@ export const creatorFormAdminSchema = z.object({
   facebook: optionalText,
   twitter: optionalText,
   instagram: optionalText,
+  substack: optionalText,
   email: z.preprocess(
     (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
     z.email("Please enter a valid email").optional(),

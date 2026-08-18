@@ -88,6 +88,15 @@ const EditCreatorForm = ({
           }
         ),
         /* @__PURE__ */ jsx(
+          Input,
+          {
+            label: "Substack",
+            name: "form.substack",
+            type: "url",
+            placeholder: "https://..."
+          }
+        ),
+        /* @__PURE__ */ jsx(
           "input",
           {
             type: "hidden",

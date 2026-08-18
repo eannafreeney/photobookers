@@ -205,6 +205,8 @@ export async function updateBookOfTheDayByDate(
     publisherEmailSentAt?: Date | null;
     artistFeatureDayEmailSentAt?: Date | null;
     publisherFeatureDayEmailSentAt?: Date | null;
+    artistStoryImageEmailSentAt?: Date | null;
+    artistProvidedStoryImageUrl?: string | null;
   },
 ) {
   const day = toUtcStartOfDay(date);
@@ -214,6 +216,8 @@ export async function updateBookOfTheDayByDate(
     publisherEmailSentAt?: Date | null;
     artistFeatureDayEmailSentAt?: Date | null;
     publisherFeatureDayEmailSentAt?: Date | null;
+    artistStoryImageEmailSentAt?: Date | null;
+    artistProvidedStoryImageUrl?: string | null;
     updatedAt: Date;
   } = { updatedAt: new Date() };
 
@@ -227,6 +231,10 @@ export async function updateBookOfTheDayByDate(
   if (patch.publisherFeatureDayEmailSentAt !== undefined)
     updateData.publisherFeatureDayEmailSentAt =
       patch.publisherFeatureDayEmailSentAt;
+  if (patch.artistStoryImageEmailSentAt !== undefined)
+    updateData.artistStoryImageEmailSentAt = patch.artistStoryImageEmailSentAt;
+  if (patch.artistProvidedStoryImageUrl !== undefined)
+    updateData.artistProvidedStoryImageUrl = patch.artistProvidedStoryImageUrl;
 
   try {
     const [row] = await db

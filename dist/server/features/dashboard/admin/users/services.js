@@ -2,12 +2,20 @@ import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../../../db/client.js";
 import {
   adminNotifications,
+  bookFairs,
+  bookStores,
+  bookViews,
   books,
   collectionItems,
   creatorClaims,
+  creatorInterviews,
+  creatorViews,
   creators,
+  fairViews,
   follows,
   likes,
+  magazineIssues,
+  purchaseClicks,
   users,
   wishlists
 } from "../../../../db/schema.js";
@@ -140,6 +148,31 @@ const createUserWithAuthId = async (authUserId, formData, options) => {
 };
 const deleteUserByIdAdmin = async (userId) => {
   try {
+    const [
+      [{ value: createdCreatorsCount = 0 }],
+      [{ value: createdBooksCount = 0 }],
+      [{ value: createdFairsCount = 0 }],
+      [{ value: createdStoresCount = 0 }],
+      [{ value: createdIssuesCount = 0 }]
+    ] = await Promise.all([
+      db.select({ value: count() }).from(creators).where(eq(creators.createdByUserId, userId)),
+      db.select({ value: count() }).from(books).where(eq(books.createdByUserId, userId)),
+      db.select({ value: count() }).from(bookFairs).where(eq(bookFairs.createdByUserId, userId)),
+      db.select({ value: count() }).from(bookStores).where(eq(bookStores.createdByUserId, userId)),
+      db.select({ value: count() }).from(magazineIssues).where(eq(magazineIssues.createdByUserId, userId))
+    ]);
+    const blockers = [
+      createdCreatorsCount ? `${createdCreatorsCount} creator profile(s)` : null,
+      createdBooksCount ? `${createdBooksCount} book(s)` : null,
+      createdFairsCount ? `${createdFairsCount} fair(s)` : null,
+      createdStoresCount ? `${createdStoresCount} store(s)` : null,
+      createdIssuesCount ? `${createdIssuesCount} magazine issue(s)` : null
+    ].filter(Boolean);
+    if (blockers.length > 0) {
+      return err({
+        reason: `Cannot delete user while they still own created content: ${blockers.join(", ")}`
+      });
+    }
     const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
     if (authError && authError.code !== "user_not_found") {
       console.error("Failed to delete auth user", authError);
@@ -150,9 +183,16 @@ const deleteUserByIdAdmin = async (userId) => {
     }
     const result = await db.transaction(async (tx) => {
       await tx.update(creators).set({ ownerUserId: null }).where(eq(creators.ownerUserId, userId));
+      await tx.update(creatorInterviews).set({ invitedByUserId: null }).where(eq(creatorInterviews.invitedByUserId, userId));
       await tx.delete(creatorClaims).where(eq(creatorClaims.userId, userId));
-      await tx.delete(follows).where(eq(follows.followerUserId, userId));
+      await tx.delete(follows).where(
+        or(eq(follows.followerUserId, userId), eq(follows.targetUserId, userId))
+      );
       await tx.update(adminNotifications).set({ actorUserId: null }).where(eq(adminNotifications.actorUserId, userId));
+      await tx.update(purchaseClicks).set({ userId: null }).where(eq(purchaseClicks.userId, userId));
+      await tx.update(bookViews).set({ userId: null }).where(eq(bookViews.userId, userId));
+      await tx.update(creatorViews).set({ userId: null }).where(eq(creatorViews.userId, userId));
+      await tx.update(fairViews).set({ userId: null }).where(eq(fairViews.userId, userId));
       const result2 = await tx.delete(users).where(eq(users.id, userId)).returning();
       return result2;
     });
@@ -174,7 +214,16 @@ const createAuthUser = async (temporaryPassword, formData) => {
       }
     });
     if (error) {
-      return err({ reason: "Failed to create auth user", cause: error });
+      console.error("Failed to create auth user", error);
+      const detail = error.message?.trim();
+      return err({
+        reason: detail ? `Failed to create auth user: ${detail}` : "Failed to create auth user",
+        cause: error
+      });
+    }
+    if (!data.user?.id) {
+      console.error("Failed to create auth user: no user returned", data);
+      return err({ reason: "Failed to create auth user: no user returned" });
     }
     return ok({ data, temporaryPassword });
   } catch (error) {

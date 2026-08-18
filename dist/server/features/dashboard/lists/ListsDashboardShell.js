@@ -1,24 +1,20 @@
 import { jsx } from "hono/jsx/jsx-runtime";
-import CollectorDashboardShell from "../components/CollectorDashboardShell.js";
-import CreatorDashboardShell from "../components/CreatorDashboardShell.js";
+import MemberDashboardShell from "../components/MemberDashboardShell.js";
 const ListsDashboardShell = ({
   user,
   currentPath,
   claimStatus = null,
   children
 }) => {
-  if (user.creator) {
-    return /* @__PURE__ */ jsx(
-      CreatorDashboardShell,
-      {
-        currentPath,
-        user,
-        claimStatus,
-        children
-      }
-    );
-  }
-  return /* @__PURE__ */ jsx(CollectorDashboardShell, { currentPath, children });
+  return /* @__PURE__ */ jsx(
+    MemberDashboardShell,
+    {
+      user,
+      currentPath,
+      claimStatus,
+      children
+    }
+  );
 };
 var ListsDashboardShell_default = ListsDashboardShell;
 export {

@@ -1,6 +1,10 @@
 import { jsx, jsxs } from "react/jsx-runtime";
 import { MjmlColumn, MjmlImage, MjmlText, MjmlButton } from "mjml-react";
-import { appBaseUrl, brand, newsletterThreeColContentWidthPx } from "../constants.js";
+import {
+  brand,
+  newsletterThreeColContentWidthPx,
+  resolveAppBaseUrl
+} from "../constants.js";
 const CreatorColumn = ({
   creator
 }) => {
@@ -34,7 +38,7 @@ const CreatorColumn = ({
     /* @__PURE__ */ jsx(
       MjmlButton,
       {
-        href: `${appBaseUrl}/creators/${creator.slug}`,
+        href: `${resolveAppBaseUrl()}/creators/${creator.slug}`,
         backgroundColor: "#ffffff",
         color: brand.onSurfaceStrong,
         border: `1px solid ${brand.outlineStrong}`,

@@ -7,10 +7,12 @@ import {
   MjmlAttributes,
   MjmlAll,
   MjmlBreakpoint,
-  MjmlBody
+  MjmlBody,
+  MjmlStyle
 } from "mjml-react";
 import {
   BookColumn,
+  bookColumnCoverStyle,
   BookFeatureCard,
   CreatorColumn,
   FeatureRow,
@@ -61,6 +63,7 @@ const WeeklyNewsletterMjml = (params) => {
         }
       ),
       /* @__PURE__ */ jsx(MjmlAttributes, { children: /* @__PURE__ */ jsx(MjmlAll, { fontFamily: brand.fontSans, color: brand.onSurface }) }),
+      /* @__PURE__ */ jsx(MjmlStyle, { children: bookColumnCoverStyle }),
       /* @__PURE__ */ jsx(MjmlBreakpoint, { width: "600px" })
     ] }),
     /* @__PURE__ */ jsxs(MjmlBody, { backgroundColor: brand.surface, width: newsletterWidthPx, children: [

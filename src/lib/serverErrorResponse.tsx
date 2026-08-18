@@ -6,6 +6,7 @@ import { hyperview } from "./hxml";
 import ServerErrorPage from "../pages/ServerErrorPage";
 import { recordAndNotifyAdminServerError } from "../domain/server-errors/notifyAdminServerError";
 import { getUser } from "../utils";
+import { isClientAbortError } from "./isClientAbortError";
 
 const MAINTENANCE_MESSAGE =
   "We're currently under maintenance. Please try again shortly.";
@@ -28,6 +29,12 @@ function errorMessage(err: unknown) {
 }
 
 export async function handleServerError(c: Context, err: unknown) {
+  // Client closed the tab / cancelled an upload — not a server fault; don't page.
+  if (isClientAbortError(err)) {
+    console.warn("Client aborted request:", c.req.method, c.req.path);
+    return c.body(null, 204);
+  }
+
   console.error("Unhandled server error:", err);
 
   void recordAndNotifyAdminServerError({

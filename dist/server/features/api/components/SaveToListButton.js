@@ -9,6 +9,8 @@ import { canWishlistBook } from "../../../lib/permissions.js";
 import { isOk } from "../../../lib/result.js";
 import { findWishlist } from "../services.js";
 import { getListMembershipsForBook } from "../../../domain/lists/services.js";
+import { userCanManageBookLists } from "../../../domain/lists/utils.js";
+import FavouriteButton from "./FavouriteButton.js";
 import clsx from "clsx";
 const FavoritePopoverRow = ({
   bookId,
@@ -16,6 +18,15 @@ const FavoritePopoverRow = ({
   isDisabled
 }) => {
   const id = `save-fav-${bookId}`;
+  const alpineAttrs = {
+    "x-data": "{ isSubmitting: false }",
+    "@ajax:before": "isSubmitting = true",
+    "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
+    "@ajax:error": "isSubmitting = false",
+    "x-target": `${id} toast modal-root`,
+    "x-target.error": "toast modal-root",
+    "x-target.401": "modal-root"
+  };
   return /* @__PURE__ */ jsxs(
     "form",
     {
@@ -23,15 +34,7 @@ const FavoritePopoverRow = ({
       method: "post",
       action: `/api/books/${bookId}/wishlist`,
       class: "w-full",
-      "x-data": "{ isSubmitting: false }",
-      ...{
-        "@ajax:before": "isSubmitting = true",
-        "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
-        "@ajax:error": "isSubmitting = false",
-        "x-target": `${id} toast modal-root`,
-        "x-target.error": "toast modal-root",
-        "x-target.401": "modal-root"
-      },
+      ...alpineAttrs,
       children: [
         /* @__PURE__ */ jsx(
           "input",
@@ -47,7 +50,7 @@ const FavoritePopoverRow = ({
           {
             type: "submit",
             disabled: isDisabled,
-            class: "flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-surface-alt disabled:opacity-50",
+            class: "cursor-pointer flex w-full items-center justify-start gap-2 px-3 py-2 text-left text-sm hover:bg-surface-alt disabled:opacity-50",
             children: [
               /* @__PURE__ */ jsxs("span", { class: "shrink-0", children: [
                 /* @__PURE__ */ jsx("span", { "x-show": isFavorited ? "isSubmitting" : "!isSubmitting", "x-cloak": true, children: emptyHeartIcon(4) }),
@@ -61,50 +64,47 @@ const FavoritePopoverRow = ({
     }
   );
 };
-const ListMembershipRow = ({
-  bookId,
-  list
-}) => {
+const ListMembershipRow = ({ bookId, list }) => {
   const id = `save-list-${bookId}-${list.id}`;
+  const alreadyInList = list.containsBook;
+  const alpineAttrs = alreadyInList ? {} : {
+    "x-data": "{ isSubmitting: false }",
+    "@ajax:before": "isSubmitting = true",
+    "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
+    "@ajax:error": "isSubmitting = false",
+    "x-target": `${id} toast modal-root`,
+    "x-target.error": "toast modal-root",
+    "x-target.401": "modal-root"
+  };
   return /* @__PURE__ */ jsxs(
     "form",
     {
       id,
       method: "post",
-      action: `/api/books/${bookId}/lists/${list.id}`,
+      action: alreadyInList ? void 0 : `/api/books/${bookId}/lists/${list.id}`,
       class: "w-full",
-      "x-data": "{ isSubmitting: false }",
-      ...{
-        "@ajax:before": "isSubmitting = true",
-        "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
-        "@ajax:error": "isSubmitting = false",
-        "x-target": `${id} toast modal-root`,
-        "x-target.error": "toast modal-root",
-        "x-target.401": "modal-root"
-      },
+      ...alpineAttrs,
       children: [
-        /* @__PURE__ */ jsx(
-          "input",
-          {
-            type: "hidden",
-            name: "isInList",
-            value: list.containsBook ? "true" : "false"
-          }
-        ),
+        !alreadyInList ? /* @__PURE__ */ jsx("input", { type: "hidden", name: "isInList", value: "false" }) : null,
         /* @__PURE__ */ jsxs(
           "button",
           {
-            type: "submit",
-            class: "flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-surface-alt",
+            type: alreadyInList ? "button" : "submit",
+            disabled: alreadyInList,
+            title: alreadyInList ? "Already in this list" : `Add to ${list.title}`,
+            class: clsx(
+              "flex w-full items-center gap-2 px-3 py-2 text-left text-sm cursor-pointer",
+              alreadyInList ? "cursor-not-allowed opacity-50" : "hover:bg-surface-alt"
+            ),
             children: [
               /* @__PURE__ */ jsx(
                 "span",
                 {
                   class: clsx(
                     "flex size-4 shrink-0 items-center justify-center",
-                    list.containsBook ? "text-accent" : "text-on-surface-weak"
+                    alreadyInList ? "text-accent" : "text-on-surface-weak"
                   ),
-                  children: list.containsBook ? checkIcon(4) : plusIcon(3)
+                  children: alreadyInList ? checkIcon(4) : plusIcon(3)
                 }
               ),
               /* @__PURE__ */ jsx("span", { class: "min-w-0 truncate", children: list.title })
@@ -115,22 +115,36 @@ const ListMembershipRow = ({
     }
   );
 };
+const saveToListXData = `{ open: false }`;
 const SaveToListButton = async ({
   book,
   user,
   variant = "circle"
 }) => {
+  if (user?.creator) {
+    return /* @__PURE__ */ jsx(
+      FavouriteButton,
+      {
+        book,
+        user,
+        isCircleButton: variant === "circle"
+      }
+    );
+  }
   let isFavorited = false;
   let lists = [];
-  if (user?.id) {
+  if (user?.id && userCanManageBookLists(user)) {
     isFavorited = isOk(await findWishlist(user.id, book.id));
     lists = await getListMembershipsForBook(user.id, book.id);
+  } else if (user?.id) {
+    isFavorited = isOk(await findWishlist(user.id, book.id));
   }
   const isDisabled = !canWishlistBook(user, book);
   const hasSaved = isFavorited || lists.some((l) => l.containsBook);
   const rootId = `save-to-list-${book.id}`;
+  const canUseLists = userCanManageBookLists(user);
   if (!user?.id) {
-    const loginForm = /* @__PURE__ */ jsxs(
+    return /* @__PURE__ */ jsxs(
       "form",
       {
         id: rootId,
@@ -165,7 +179,6 @@ const SaveToListButton = async ({
         ]
       }
     );
-    return loginForm;
   }
   const triggerClass = variant === "circle" ? clsx(
     "inline-flex justify-center items-center aspect-square whitespace-nowrap size-8 rounded-full bg-gray-200 p-1 text-sm font-medium tracking-wide text-on-surface-dark transition hover:opacity-75 text-center cursor-pointer",
@@ -178,9 +191,12 @@ const SaveToListButton = async ({
     "div",
     {
       id: rootId,
-      class: "relative",
-      "x-data": "saveToList",
-      ...{ "@keydown.escape.window": "close()" },
+      class: clsx("relative", variant === "button" && "w-full"),
+      ...{
+        "x-data": `{ open: false }`,
+        "x-on:keydown.escape.window": "open = false",
+        "x-on:click.outside": "open = false"
+      },
       children: [
         /* @__PURE__ */ jsx(
           "button",
@@ -188,7 +204,7 @@ const SaveToListButton = async ({
             type: "button",
             class: triggerClass,
             title: "Save to list",
-            ...{ "@click": "toggle()" },
+            ...{ "x-on:click.stop": "open = !open" },
             children: variant === "circle" ? plusIcon(4) : /* @__PURE__ */ jsxs(Fragment, { children: [
               /* @__PURE__ */ jsx("span", { children: "Save" }),
               plusIcon(4)
@@ -198,13 +214,12 @@ const SaveToListButton = async ({
         /* @__PURE__ */ jsxs(
           "div",
           {
-            "x-show": "open",
-            "x-cloak": true,
             ...{
-              "@click.outside": "close()",
-              "x-transition": true
+              "x-show": "open",
+              "x-cloak": "",
+              "x-transition": ""
             },
-            class: "absolute right-0 z-30 mt-2 w-56 rounded-radius border border-outline bg-surface shadow-lg",
+            class: "absolute right-0 bottom-full z-[100] mb-1 w-56 rounded-radius border border-outline bg-surface shadow-lg",
             children: [
               /* @__PURE__ */ jsx("div", { class: "border-b border-outline py-1", children: /* @__PURE__ */ jsx(
                 FavoritePopoverRow,
@@ -214,15 +229,17 @@ const SaveToListButton = async ({
                   isDisabled
                 }
               ) }),
-              /* @__PURE__ */ jsx("div", { class: "max-h-48 overflow-y-auto py-1", children: lists.length === 0 ? /* @__PURE__ */ jsx("p", { class: "px-3 py-2 text-xs text-on-surface-weak", children: "No lists yet. Create one in your dashboard." }) : lists.map((list) => /* @__PURE__ */ jsx(ListMembershipRow, { bookId: book.id, list })) }),
-              /* @__PURE__ */ jsx("div", { class: "border-t border-outline py-1", children: /* @__PURE__ */ jsx(
-                "a",
-                {
-                  href: "/dashboard/lists",
-                  class: "block px-3 py-2 text-sm text-accent hover:bg-surface-alt",
-                  children: "Manage lists"
-                }
-              ) })
+              canUseLists ? /* @__PURE__ */ jsxs(Fragment, { children: [
+                /* @__PURE__ */ jsx("div", { class: "max-h-48 overflow-y-auto py-1", children: lists.length === 0 ? /* @__PURE__ */ jsx("p", { class: "px-3 py-2 text-xs text-on-surface-weak", children: "No lists yet. Create one in your dashboard." }) : lists.map((list) => /* @__PURE__ */ jsx(ListMembershipRow, { bookId: book.id, list })) }),
+                /* @__PURE__ */ jsx("div", { class: "border-t border-outline py-1", children: /* @__PURE__ */ jsx(
+                  "a",
+                  {
+                    href: "/dashboard/lists",
+                    class: "block px-3 py-2 text-sm text-accent hover:bg-surface-alt",
+                    children: "Manage lists"
+                  }
+                ) })
+              ] }) : null
             ]
           }
         )

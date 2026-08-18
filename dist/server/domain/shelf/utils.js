@@ -10,10 +10,11 @@ const RESERVED_SHELF_SLUGS = /* @__PURE__ */ new Set(["settings", "share"]);
 function isReservedShelfSlug(slug) {
   return RESERVED_SHELF_SLUGS.has(slug);
 }
+function userCanHaveShelf(user) {
+  return Boolean(user?.id);
+}
 const capitalizeName = (value) => value.replace(new RegExp("(^|[\\s'-])(\\p{L})", "gu"), (_, sep, ch) => sep + ch.toUpperCase());
 function formatShelfOwnerName(user) {
-  const creatorName = user.creator?.displayName?.trim();
-  if (creatorName) return creatorName;
   const fullName = [user.firstName, user.lastName].map((part) => part?.trim()).filter(Boolean).map((part) => capitalizeName(part)).join(" ").trim();
   if (fullName) return fullName;
   return "A photobookers member";
@@ -35,5 +36,6 @@ export {
   formatShelfOwnerName,
   isReservedShelfSlug,
   shelfSlugSchema,
+  userCanHaveShelf,
   withShelfSlugSuffix
 };

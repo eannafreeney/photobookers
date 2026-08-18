@@ -52,8 +52,7 @@ const GET = createRoute(
     const { owner, list } = result;
     const displayName = formatShelfOwnerName({
       firstName: owner.firstName,
-      lastName: owner.lastName,
-      creator: owner.creators[0] ?? null
+      lastName: owner.lastName
     });
     const [booksError, booksResult] = await getBooksInList(
       list.id,

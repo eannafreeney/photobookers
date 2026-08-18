@@ -32,6 +32,7 @@ import { supabaseAdmin } from "../../lib/supabase";
 import { getPagination } from "../../lib/pagination";
 import {
   type BookCatalogSort,
+  catalogTrendingSince,
   getBookCatalogOrderBy,
 } from "../../lib/bookCatalogSort";
 import { getPublicBooksForCreator } from "../../domain/creators/books";
@@ -626,6 +627,15 @@ export const getBooksByTag = async (
   }
 };
 
+const catalogListingConditions = (...extra: SQL[]) =>
+  and(
+    eq(books.publicationStatus, "published"),
+    eq(books.approvalStatus, "approved"),
+    or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+    ne(books.availabilityStatus, "sold_out"),
+    ...extra,
+  );
+
 const catalogBookWith = {
   artist: {
     columns: CREATOR_CARD_COLUMNS,
@@ -663,10 +673,20 @@ const findCatalogBooks = async ({
       ? [desc(viewCount), desc(books.id)]
       : [asc(viewCount), asc(books.id)];
 
+  // Trending ranks by views in the last BOOK_CATALOG_TRENDING_DAYS; keep the
+  // date filter on the JOIN so zero-view books still appear via LEFT JOIN.
+  const viewJoin =
+    sort === "trending"
+      ? and(
+          eq(bookViews.bookId, books.id),
+          gte(bookViews.createdAt, catalogTrendingSince()),
+        )
+      : eq(bookViews.bookId, books.id);
+
   const idRows = await db
     .select({ id: books.id })
     .from(books)
-    .leftJoin(bookViews, eq(bookViews.bookId, books.id))
+    .leftJoin(bookViews, viewJoin)
     .where(where)
     .groupBy(books.id)
     .orderBy(...orderBy)
@@ -694,10 +714,11 @@ export const getLatestBooks = async (
   sort: BookCatalogSort = "newest",
 ) => {
   try {
+    const where = catalogListingConditions();
     const [{ value: totalCount = 0 }] = await db
       .select({ value: count() })
       .from(books)
-      .where(eq(books.publicationStatus, "published"));
+      .where(where);
 
     const { page, limit, offset, totalPages } = getPagination(
       currentPage,
@@ -706,11 +727,7 @@ export const getLatestBooks = async (
     );
 
     const foundBooks = await findCatalogBooks({
-      where: and(
-        eq(books.publicationStatus, "published"),
-        eq(books.approvalStatus, "approved"),
-        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-      ),
+      where,
       limit,
       offset,
       sort,
@@ -723,10 +740,7 @@ export const getLatestBooks = async (
 };
 
 const catalogBookCoverConditions = (tag: string) =>
-  and(
-    eq(books.publicationStatus, "published"),
-    eq(books.approvalStatus, "approved"),
-    or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+  catalogListingConditions(
     isNotNull(books.coverUrl),
     tagMatchesBookTags(books.tags, tag),
   );
@@ -787,13 +801,7 @@ export const getFilteredBooks = async ({
       );
     }
 
-    const publishedConditions = and(
-      eq(books.publicationStatus, "published"),
-      eq(books.approvalStatus, "approved"),
-      or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-    );
-
-    const conditions = [publishedConditions];
+    const conditions = [catalogListingConditions()];
 
     if (normalizedTag) {
       conditions.push(tagMatchesBookTags(books.tags, normalizedTag));
@@ -853,19 +861,12 @@ const getBooksByTagForCatalog = async (
   defaultLimit: number,
   sort: BookCatalogSort,
 ) => {
-  const tagCondition = tagMatchesBookTags(books.tags, tag);
-
-  const publishedConditions = and(
-    eq(books.publicationStatus, "published"),
-    eq(books.approvalStatus, "approved"),
-    or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-    tagCondition,
-  );
+  const where = catalogListingConditions(tagMatchesBookTags(books.tags, tag));
 
   const [{ value: totalCount = 0 }] = await db
     .select({ value: count() })
     .from(books)
-    .where(publishedConditions);
+    .where(where);
 
   const { page, limit, offset, totalPages } = getPagination(
     currentPage,
@@ -874,7 +875,7 @@ const getBooksByTagForCatalog = async (
   );
 
   const foundBooks = await findCatalogBooks({
-    where: publishedConditions,
+    where,
     limit,
     offset,
     sort,

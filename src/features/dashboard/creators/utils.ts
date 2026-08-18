@@ -11,6 +11,7 @@ export const getFormValues = (creator: Creator) => {
     facebook: creator?.facebook,
     twitter: creator?.twitter,
     instagram: creator?.instagram,
+    substack: creator?.substack,
     type: creator?.type ?? "artist",
     email: creator?.email,
   });

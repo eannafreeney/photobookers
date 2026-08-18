@@ -68,4 +68,31 @@ describe("renderWeeklyBOTDNewsletterHtmlMjml", () => {
     expect(html).toContain("Artist Two");
     expect(html).toContain("Artist Three");
   });
+
+  it("centers compact trending book titles like creator columns", () => {
+    const html = renderWeeklyBOTDNewsletterHtmlMjml({
+      ...minimalParams(),
+      trending: {
+        books: [
+          {
+            bookId: "trend-1",
+            bookSlug: "trend-book",
+            title: "Trending Title",
+            coverUrl: "https://example.com/t.jpg",
+            artistName: "Ada",
+            publisherName: null,
+          },
+        ],
+        artists: [],
+        publishers: [],
+      },
+    });
+
+    expect(html).toContain("Top books this week");
+    const titleIdx = html.indexOf(">Trending Title<");
+    expect(titleIdx).toBeGreaterThan(-1);
+    const titleBlock = html.slice(Math.max(0, titleIdx - 350), titleIdx);
+    expect(titleBlock).toContain("text-align:center");
+    expect(titleBlock).not.toContain("-webkit-box");
+  });
 });

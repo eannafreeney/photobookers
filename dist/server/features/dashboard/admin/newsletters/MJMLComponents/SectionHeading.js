@@ -5,7 +5,7 @@ import { kickerTextProps } from "./kickerTextProps.js";
 const SectionHeading = ({
   kicker,
   children
-}) => /* @__PURE__ */ jsx(MjmlSection, { backgroundColor: brand.surface, padding: "28px 25px 12px", children: /* @__PURE__ */ jsxs(MjmlColumn, { children: [
+}) => /* @__PURE__ */ jsx(MjmlSection, { backgroundColor: brand.surface, padding: "28px 25px 16px", children: /* @__PURE__ */ jsxs(MjmlColumn, { children: [
   kicker ? /* @__PURE__ */ jsx(MjmlText, { ...kickerTextProps, color: brand.accent, padding: "0 0 6px", children: kicker }) : null,
   /* @__PURE__ */ jsx(
     MjmlText,

@@ -187,6 +187,16 @@ function resolveInstagramImageUrls(row) {
   }
   return row.featuredImageUrl ? [row.featuredImageUrl] : [];
 }
+function resolveBotdStoryImageUrl(row) {
+  const artistUrl = row.artistProvidedStoryImageUrl?.trim();
+  if (artistUrl) return artistUrl;
+  return resolveInstagramImageUrls(row)[0] ?? null;
+}
+function resolveSpotlightStoryImageUrl(row) {
+  const artistUrl = row.artistProvidedStoryImageUrl?.trim();
+  if (artistUrl) return artistUrl;
+  return resolveInstagramImageUrls(row)[0] ?? null;
+}
 function getPlannerInstagramImageSelection(row, imageOptions) {
   const saved = resolveInstagramImageUrls(row);
   if (saved.length > 0) return saved;
@@ -320,6 +330,8 @@ export {
   parseFeaturedHeroImagesForm,
   parsePrepareInstagramForm,
   parsePrepareInstagramFormEntries,
+  resolveBotdStoryImageUrl,
   resolveInstagramImageUrls,
+  resolveSpotlightStoryImageUrl,
   scheduleInstagramDueAt
 };

@@ -1,6 +1,6 @@
 import { jsx, jsxs } from "react/jsx-runtime";
 import { Section, Row, Column } from "@react-email/components";
-import { appBaseUrl } from "../constants.js";
+import { resolveAppBaseUrl } from "../constants.js";
 import { BodyCopy } from "./BodyCopy.js";
 import { RoundedImage } from "./RoundedImage.js";
 import { Title } from "./Title.js";
@@ -11,7 +11,7 @@ const CreatorFeatureCard = ({
   creator.coverUrl ? /* @__PURE__ */ jsx(RoundedImage, { src: creator.coverUrl, alt: creator.displayName }) : null,
   /* @__PURE__ */ jsx(Title, { children: creator.displayName }),
   creator.blurb ? /* @__PURE__ */ jsx(BodyCopy, { children: creator.blurb }) : null,
-  /* @__PURE__ */ jsx(ViewButton, { href: `${appBaseUrl}/creators/${creator.slug}` })
+  /* @__PURE__ */ jsx(ViewButton, { href: `${resolveAppBaseUrl()}/creators/${creator.slug}` })
 ] }) }) });
 export {
   CreatorFeatureCard

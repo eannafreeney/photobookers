@@ -6,7 +6,7 @@ const CreatorBioSection = async ({ creator, maxWords = 75 }) => {
   const followerCount = await findFollowersCount(creator.id);
   const hasLocation = !!(creator.city || creator.country);
   const hasFollowers = followerCount > 0;
-  const hasSocials = !!(creator.website || creator.facebook || creator.instagram || creator.twitter);
+  const hasSocials = !!(creator.website || creator.facebook || creator.instagram || creator.twitter || creator.substack);
   const hasMeta = hasLocation || hasFollowers || hasSocials;
   const bio = creator.bio?.trim() || null;
   if (!bio) {

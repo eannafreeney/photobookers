@@ -4,6 +4,7 @@ import { formValidator, paramValidator } from "../../../../lib/validator.js";
 import {
   deleteMessageById,
   getMessageById,
+  postBelongsToCreator,
   updateMessageById
 } from "../../../../features/dashboard/messages/services.js";
 import { requireCreatorEditAccess } from "../../../../middleware/creatorGuard.js";
@@ -21,7 +22,7 @@ const GET = createRoute(
   async (c) => {
     const { creatorId, messageId } = c.req.valid("param");
     const [err, message] = await getMessageById(messageId);
-    if (err || !message || message.creatorId !== creatorId) {
+    if (err || !message || !await postBelongsToCreator(message.userId, creatorId)) {
       return c.html(
         /* @__PURE__ */ jsx(Modal, { title: "Edit post", children: /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: "Post not found." }) })
       );
@@ -47,7 +48,7 @@ const PATCH = createRoute(
     const { creatorId, messageId } = c.req.valid("param");
     const body = await c.req.parseBody({ all: true });
     const [existingErr, existing] = await getMessageById(messageId);
-    if (existingErr || !existing || existing.creatorId !== creatorId) {
+    if (existingErr || !existing || !await postBelongsToCreator(existing.userId, creatorId)) {
       return showErrorAlert(c, "Post not found");
     }
     const messageBody = String(body.body ?? "").trim();
@@ -76,10 +77,14 @@ const PATCH = createRoute(
         return showErrorAlert(c, "Failed to upload image");
       }
     }
-    const [updateErr] = await updateMessageById(messageId, {
-      body: messageBody,
-      ...imageUrl !== void 0 ? { imageUrl } : {}
-    });
+    const [updateErr] = await updateMessageById(
+      messageId,
+      {
+        body: messageBody,
+        ...imageUrl !== void 0 ? { imageUrl } : {}
+      },
+      existing.userId
+    );
     if (updateErr) return showErrorAlert(c, updateErr.reason);
     return c.html(
       /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -97,10 +102,10 @@ const DELETE = createRoute(
   async (c) => {
     const { creatorId, messageId } = c.req.valid("param");
     const [existingErr, existing] = await getMessageById(messageId);
-    if (existingErr || !existing || existing.creatorId !== creatorId) {
+    if (existingErr || !existing || !await postBelongsToCreator(existing.userId, creatorId)) {
       return showErrorAlert(c, "Post not found");
     }
-    const [error] = await deleteMessageById(messageId);
+    const [error] = await deleteMessageById(messageId, existing.userId);
     if (error) return showErrorAlert(c, error.reason);
     return c.html(
       /* @__PURE__ */ jsxs(Fragment, { children: [

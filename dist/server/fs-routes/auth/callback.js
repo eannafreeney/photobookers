@@ -111,6 +111,9 @@ const GET = createRoute(
       );
     }
     await setFlash(c, "success", "Account Verified. Welcome to Photobookers!");
+    if (isCreator) {
+      return c.redirect("/featured?welcome=dashboard");
+    }
     return c.redirect("/");
   }
 );

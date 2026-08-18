@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { checkboxField, optionalText } from "../../../schemas";
+import { checkboxField, optionalDateString, optionalText } from "../../../schemas";
 import { pressLinksFormField } from "./pressLinks";
 
 // ============ BOOK FORM SCHEMA ============
@@ -14,7 +14,7 @@ export const bookFormSchema = z.object({
     .string()
     .max(5000, "Description must be less than 5000 characters")
     .optional(),
-  release_date: optionalText,
+  release_date: optionalDateString,
   send_email_to_followers_on_release: checkboxField.optional().default(false),
   tags: z.preprocess(
     (v) => (typeof v === "string" ? v.trim() : v),

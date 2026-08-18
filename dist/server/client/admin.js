@@ -24,6 +24,7 @@ import { registerBookCoverForm } from "../features/dashboard/books/client/bookCo
 import { registerBookGalleryForm } from "../features/dashboard/books/client/bookGalleryForm.js";
 import { registerBooksTableReorder } from "../features/dashboard/books/client/booksTableReorder.js";
 import { registerCreatorCoverForm } from "../features/dashboard/creators/client/creatorCoverForm.js";
+import { registerCreatorBannerForm } from "../features/dashboard/images/client/creatorBannerForm.js";
 registerAdminClaimsBadge();
 registerAddCreatorFormAdmin();
 registerBookFormAdmin();
@@ -50,4 +51,5 @@ registerBookCoverForm();
 registerBookGalleryForm();
 registerBooksTableReorder();
 registerCreatorCoverForm();
+registerCreatorBannerForm();
 window.Alpine.start();

@@ -7,13 +7,13 @@ import BooksGrid from "../../features/app/components/BooksGrid.js";
 import MemberSignInPrompt, {
   memberSignInPrompts
 } from "../../features/app/components/MemberSignInPrompt.js";
-import ShelfSharingPanel from "../../features/app/components/ShelfSharingPanel.js";
 import PrivateShelfListsStrip from "../../features/app/components/PrivateShelfListsStrip.js";
 import { getBooksInWishlist } from "../../features/app/services.js";
-import { suggestShelfSlug } from "../../domain/shelf/services.js";
+import { userCanHaveShelf } from "../../domain/shelf/utils.js";
 import { listBookListsWithCounts } from "../../domain/lists/services.js";
 import InfoPage from "../../pages/InfoPage.js";
 import PageHeader from "../../components/app/PageHeader.js";
+import Link from "../../components/app/Link.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
@@ -50,6 +50,12 @@ const GET = createRoute(async (c) => {
       )
     );
   }
+  if (!userCanHaveShelf(user)) {
+    return c.html(
+      /* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }),
+      404
+    );
+  }
   const [wishlistError, wishlistResult] = await getBooksInWishlist(
     user.id,
     currentPage
@@ -64,13 +70,11 @@ const GET = createRoute(async (c) => {
       /* @__PURE__ */ jsx(InfoPage, { errorMessage: "No favourited books found", user })
     );
   }
-  const suggestedSlug = await suggestShelfSlug(user.id);
   const lists = await listBookListsWithCounts(user.id);
   const alpineAttrs = {
     "x-init": true,
     "x-merge": "replace",
-    "@shelf:updated.window": "$ajax('/shelf', { target: 'shelf-container' })",
-    "@avatar:updated.window": "$ajax('/shelf', { target: 'shelf-container' })"
+    "@shelf:updated.window": "$ajax('/shelf', { target: 'shelf-container' })"
   };
   return c.html(
     /* @__PURE__ */ jsx(
@@ -96,7 +100,12 @@ const GET = createRoute(async (c) => {
                   intro: "The books you\u2019ve favorited, all in one place."
                 }
               ),
-              /* @__PURE__ */ jsx(ShelfSharingPanel, { user, suggestedSlug }),
+              /* @__PURE__ */ jsxs("p", { class: "text-sm text-on-surface", children: [
+                "Manage sharing settings in your",
+                " ",
+                /* @__PURE__ */ jsx(Link, { href: "/dashboard/shelf", children: "dashboard" }),
+                "."
+              ] }),
               /* @__PURE__ */ jsx(
                 PrivateShelfListsStrip,
                 {

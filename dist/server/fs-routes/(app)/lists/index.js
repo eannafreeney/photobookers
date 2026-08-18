@@ -1,14 +1,14 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
-import AppLayout from "../../components/layouts/AppLayout.js";
-import Page from "../../components/layouts/Page.js";
-import { getUser } from "../../utils.js";
-import InfoPage from "../../pages/InfoPage.js";
-import { getPromotedLists } from "../../domain/lists/services.js";
-import PromotedListCard from "../../features/app/components/PromotedListCard.js";
-import PageHeader from "../../components/app/PageHeader.js";
-import { canonicalUrl, pageTitle } from "../../lib/seo.js";
-import { isFeatureEnabledForUser } from "../../lib/features.js";
+import AppLayout from "../../../components/layouts/AppLayout.js";
+import Page from "../../../components/layouts/Page.js";
+import { getUser } from "../../../utils.js";
+import InfoPage from "../../../pages/InfoPage.js";
+import { getPromotedLists } from "../../../domain/lists/services.js";
+import PromotedListCard from "../../../features/app/components/PromotedListCard.js";
+import PageHeader from "../../../components/app/PageHeader.js";
+import { canonicalUrl, pageTitle } from "../../../lib/seo.js";
+import { isFeatureEnabledForUser } from "../../../lib/features.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
@@ -44,13 +44,7 @@ const GET = createRoute(async (c) => {
               intro: "Playlist-style photobook lists curated by the community."
             }
           ),
-          /* @__PURE__ */ jsx("div", { class: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3", children: lists.map((list) => /* @__PURE__ */ jsx(
-            PromotedListCard,
-            {
-              list,
-              widthClass: "w-full"
-            }
-          )) })
+          /* @__PURE__ */ jsx("div", { class: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3", children: lists.map((list) => /* @__PURE__ */ jsx(PromotedListCard, { list, widthClass: "w-full" })) })
         ] }) })
       }
     )

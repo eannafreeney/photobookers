@@ -108,7 +108,7 @@ const ProfileGuide = ({ creator }) => {
         step: 4,
         icon: updatesIcon,
         title: "Post updates regularly",
-        cta: { label: "Write a post", href: "/dashboard/messages" },
+        cta: { label: "Write a post", href: "/dashboard/posts" },
         children: [
           /* @__PURE__ */ jsxs("p", { children: [
             "Posts appear in your ",

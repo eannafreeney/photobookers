@@ -63,6 +63,31 @@ describe("buildTrendingBooksInstagramCaption", () => {
     expect(caption).not.toContain("Which one would you pick?");
     expect(caption).toContain("Link in bio →");
   });
+
+  it("includes artist instagram handles when present", () => {
+    const caption = buildTrendingBooksInstagramCaption([
+      {
+        bookId: "1",
+        bookSlug: "alpha",
+        title: "Alpha",
+        coverUrl: null,
+        artistName: "Artist One",
+        publisherName: "Publisher One",
+        artistInstagram: "https://instagram.com/artistone",
+      },
+      {
+        bookId: "2",
+        bookSlug: "beta",
+        title: "Beta",
+        coverUrl: null,
+        artistName: "Artist Two",
+        publisherName: null,
+        artistInstagram: "@artisttwo",
+      },
+    ]);
+
+    expect(caption).toContain("@artistone @artisttwo");
+  });
 });
 
 describe("buildTrendingCreatorsInstagramCaption", () => {

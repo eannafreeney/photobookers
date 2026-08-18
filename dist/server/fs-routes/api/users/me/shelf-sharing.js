@@ -8,13 +8,14 @@ import {
   suggestShelfSlug,
   updateShelfSharing
 } from "../../../../domain/shelf/services.js";
+import { userCanHaveShelf } from "../../../../domain/shelf/utils.js";
 import Alert from "../../../../components/app/Alert.js";
 const POST = createRoute(async (c) => {
   const user = await getUser(c);
   if (!user) {
     return c.html(/* @__PURE__ */ jsx(Alert, { type: "danger", message: "Sign in to update your shelf." }), 401);
   }
-  if (!isFeatureEnabledForUser("collectors", user)) {
+  if (!isFeatureEnabledForUser("collectors", user) || !userCanHaveShelf(user)) {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
   }
   const body = await c.req.parseBody();

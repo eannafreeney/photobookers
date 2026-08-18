@@ -1,9 +1,7 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
-import AvailabilityBadge from "../../../../components/app/AvailabilityBadge.js";
 import Card from "../../../../components/app/Card.js";
 import CarouselMobile from "../../../../components/app/CarouselMobile.js";
 import CreatorCard from "../../../../components/app/CreatorCard.js";
-import PurchaseLink from "../../../../components/app/PurchaseLink.js";
 import ShareButton from "../../../api/components/ShareButton.js";
 import TagList from "../../../../components/app/TagList.js";
 import SaveToListButton from "../../../api/components/SaveToListButton.js";
@@ -11,6 +9,7 @@ import CommentsSection from "../CommentsSection.js";
 import Divider from "../../../../components/Divider.js";
 import BookCredits from "./BookCredits.js";
 import BookPressSection from "./BookPressSection.js";
+import BookPurchaseBlock from "./BookPurchaseBlock.js";
 import PageBleed from "../../../../components/layouts/PageBleed.js";
 import Tabs from "../../../../components/app/Tabs.js";
 import Show from "../../../../components/app/Show.js";
@@ -50,15 +49,6 @@ const BookDetailMobile = ({
       /* @__PURE__ */ jsxs(Tabs.Panel, { tabId: "books", children: [
         /* @__PURE__ */ jsx(PageBleed, { children: /* @__PURE__ */ jsx(CarouselMobile, { images: galleryImages }) }),
         book.description && /* @__PURE__ */ jsx(Card.Description, { children: book.description }),
-        /* @__PURE__ */ jsx(AvailabilityBadge, { availabilityStatus: book.availabilityStatus }),
-        /* @__PURE__ */ jsx(
-          PurchaseLink,
-          {
-            bookSlug: book.slug,
-            purchaseLink: book.purchaseLink,
-            trackOutbound: shouldTrackOutboundPurchase(book)
-          }
-        ),
         showPress ? /* @__PURE__ */ jsx(BookPressSection, { links: book.pressLinks }) : null,
         /* @__PURE__ */ jsx(BookCredits, { releaseDate: book.releaseDate }),
         /* @__PURE__ */ jsx(TagList, { tags: book.tags ?? [] })
@@ -117,7 +107,19 @@ const BookDetailMobile = ({
           }
         )
       ] })
-    ] })
+    ] }),
+    /* @__PURE__ */ jsx(
+      BookPurchaseBlock,
+      {
+        sticky: true,
+        bookSlug: book.slug,
+        purchaseLink: book.purchaseLink,
+        availabilityStatus: book.availabilityStatus,
+        artistName: book.artist?.displayName,
+        publisherName: book.publisher?.displayName,
+        trackOutbound: shouldTrackOutboundPurchase(book)
+      }
+    )
   ] });
 };
 var BookDetailMobile_default = BookDetailMobile;

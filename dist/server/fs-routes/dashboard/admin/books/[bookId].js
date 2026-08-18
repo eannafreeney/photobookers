@@ -28,6 +28,7 @@ import BookApprovalForm from "../../../../features/dashboard/admin/books/forms/B
 import { routeParam } from "../../../../lib/routeParam.js";
 import { isFeatureEnabledForUser } from "../../../../lib/features.js";
 import { serializePressLinks } from "../../../../features/dashboard/books/pressLinks.js";
+import { toDateInputValue } from "../../../../lib/utils.js";
 const GET = createRoute(
   paramValidator(bookIdSchema),
   async (c) => {
@@ -47,7 +48,7 @@ const GET = createRoute(
       purchase_link: book.purchaseLink,
       tags: book.tags?.join(", "),
       availability_status: book.availabilityStatus,
-      release_date: book?.releaseDate ? new Date(book.releaseDate).toISOString().split("T")[0] : "",
+      release_date: toDateInputValue(book.releaseDate),
       ...showPressLinks ? { press_links: serializePressLinks(book.pressLinks) } : {}
     };
     return c.html(

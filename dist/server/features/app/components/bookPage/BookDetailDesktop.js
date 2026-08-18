@@ -1,5 +1,4 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
-import PurchaseLink from "../../../../components/app/PurchaseLink.js";
 import ShareButton from "../../../api/components/ShareButton.js";
 import TagList from "../../../../components/app/TagList.js";
 import SaveToListButton from "../../../api/components/SaveToListButton.js";
@@ -8,11 +7,11 @@ import CommentsSection from "../CommentsSection.js";
 import Divider from "../../../../components/Divider.js";
 import BookCredits from "./BookCredits.js";
 import BookPressSection from "./BookPressSection.js";
+import BookPurchaseBlock from "./BookPurchaseBlock.js";
 import { bookShareText, bookShareTitle } from "../../../../lib/share.js";
 import { bookUrl } from "../../spotlightUrls.js";
 import SpotlightCreator from "../SpotlightCreator.js";
 import Card from "../../../../components/app/Card.js";
-import AvailabilityBadge from "../../../../components/app/AvailabilityBadge.js";
 import { shouldTrackOutboundPurchase } from "./BookDetail.js";
 import { isFeatureEnabledForUser } from "../../../../lib/features.js";
 const scrollPanelClass = "h-full overflow-y-auto pr-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
@@ -69,16 +68,19 @@ const BookDetailDesktop = ({ galleryImages, book, user }) => {
         ] }),
         /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
           book.description && /* @__PURE__ */ jsx(Card.Description, { children: book.description }),
-          /* @__PURE__ */ jsx(AvailabilityBadge, { availabilityStatus: book.availabilityStatus }),
-          /* @__PURE__ */ jsx(TagList, { tags: book.tags ?? [] }),
           /* @__PURE__ */ jsx(
-            PurchaseLink,
+            BookPurchaseBlock,
             {
               bookSlug: book.slug,
               purchaseLink: book.purchaseLink,
+              availabilityStatus: book.availabilityStatus,
+              artistName: book.artist?.displayName,
+              publisherName: book.publisher?.displayName,
               trackOutbound: shouldTrackOutboundPurchase(book)
             }
           ),
+          /* @__PURE__ */ jsx(BookCredits, { releaseDate: book.releaseDate }),
+          /* @__PURE__ */ jsx(TagList, { tags: book.tags ?? [] }),
           showPress ? /* @__PURE__ */ jsx(BookPressSection, { links: book.pressLinks }) : null,
           /* @__PURE__ */ jsx(
             CommentsSection,
@@ -87,8 +89,7 @@ const BookDetailDesktop = ({ galleryImages, book, user }) => {
               user,
               bookSlug: book.slug
             }
-          ),
-          /* @__PURE__ */ jsx(BookCredits, { releaseDate: book.releaseDate })
+          )
         ] })
       ] }) })
     ] }),

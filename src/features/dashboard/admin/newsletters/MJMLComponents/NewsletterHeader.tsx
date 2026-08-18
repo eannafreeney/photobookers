@@ -2,10 +2,10 @@
 
 import { MjmlSection, MjmlColumn, MjmlImage, MjmlDivider } from "mjml-react";
 import {
-  appBaseUrl,
   brand,
   newsletterAssets,
   newsletterLogoWidthPx,
+  resolveAppBaseUrl,
 } from "../constants";
 
 export const NewsletterHeader = () => (
@@ -14,7 +14,7 @@ export const NewsletterHeader = () => (
       <MjmlImage
         src={newsletterAssets.logo}
         alt="Photobookers"
-        href={appBaseUrl}
+        href={resolveAppBaseUrl()}
         width={`${newsletterLogoWidthPx}px`}
         align="center"
         padding="0 0 20px"

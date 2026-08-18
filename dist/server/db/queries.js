@@ -3,7 +3,7 @@ import { db } from "./client.js";
 import {
   collectionItems,
   collectorPosts,
-  creatorMessages,
+  creators,
   follows,
   wishlists
 } from "./schema.js";
@@ -73,7 +73,12 @@ const findUserFollowersCount = async (targetUserId) => {
   return result[0]?.value ?? 0;
 };
 const countCreatorPosts = async (creatorId) => {
-  const result = await db.select({ value: count() }).from(creatorMessages).where(eq(creatorMessages.creatorId, creatorId));
+  const creator = await db.query.creators.findFirst({
+    where: eq(creators.id, creatorId),
+    columns: { ownerUserId: true }
+  });
+  if (!creator?.ownerUserId) return 0;
+  const result = await db.select({ value: count() }).from(collectorPosts).where(eq(collectorPosts.userId, creator.ownerUserId));
   return result[0]?.value ?? 0;
 };
 const findWishlist = async (userId, bookId) => {

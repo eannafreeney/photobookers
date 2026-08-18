@@ -22,12 +22,12 @@ const dateParamSchema = z.object({
 const weekParamSchema = z.object({
   week: z.string().regex(/^\d{4}-W(0[1-9]|[1-4][0-9]|5[0-3])$/).transform(parseWeekString).refine((d) => !Number.isNaN(d.getTime()), "Invalid week")
 });
-const normalizeSlug = (value) => value.toLowerCase().trim().replace(/-+/g, "-").replace(/^-|-$/g, "");
+const normalizeSlug = (value) => value.toLowerCase().trim().replace(/-+/g, "-").replace(/_+/g, "_").replace(/^[-_]|[-_]$/g, "");
 const slugSchema = z.object({
   slug: z.string().transform(normalizeSlug).pipe(
     z.string().min(1, "Slug is required").regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Slug must contain only lowercase letters, numbers, and hyphens"
+      /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/,
+      "Slug must contain only lowercase letters, numbers, hyphens, and underscores"
     )
   )
 });

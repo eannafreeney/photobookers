@@ -107,7 +107,8 @@ const DropDownMenu = ({
               currentPath,
               children: `View ${user?.creator?.displayName}`
             }
-          )
+          ),
+          /* @__PURE__ */ jsx(FeatureGuard, { flagName: "collectors", children: /* @__PURE__ */ jsx(NavLink, { href: "/followed-collectors", currentPath, children: "Collectors I Follow" }) })
         ] }),
         user?.isAdmin && /* @__PURE__ */ jsx(
           NavLink,

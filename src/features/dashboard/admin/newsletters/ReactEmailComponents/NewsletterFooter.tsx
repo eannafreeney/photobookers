@@ -16,7 +16,7 @@ export const NewsletterFooter = () => (
         </Text>
 
         <Section className="text-center my-6">
-          {newsletterNavLinks.map((link, index) => (
+          {newsletterNavLinks().map((link, index) => (
             <span key={link.href}>
               {index > 0 ? (
                 <span style={{ color: brand.onSurfaceWeak }}> · </span>

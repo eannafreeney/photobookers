@@ -83,6 +83,14 @@ describe("validateImportRows", () => {
     );
     expect(results[0]?.valid).toBe(false);
   });
+
+  it("rejects release dates that look ISO but are not real calendar dates", () => {
+    const results = validateImportRows(
+      [{ row: { title: "Valid Title", release_date: "0013-06-17" }, rowNumber: 3 }],
+      "artist",
+    );
+    expect(results[0]?.valid).toBe(false);
+  });
 });
 
 describe("rowToBookFormData", () => {

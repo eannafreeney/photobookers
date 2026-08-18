@@ -124,6 +124,9 @@ const PrepareInstagramModal = ({
                 if (!book) return null;
 
                 const imageOptions = collectBookImageOptions(book);
+                if (entry.artistProvidedStoryImageUrl) {
+                  imageOptions.unshift(entry.artistProvidedStoryImageUrl);
+                }
                 const selectedImages = getPlannerInstagramImageSelection(
                   entry,
                   imageOptions,
@@ -147,59 +150,88 @@ const PrepareInstagramModal = ({
                     tagsLine={
                       tagLine ? `Tags: ${tagLine}` : "No tags on this book"
                     }
+                    artistProvidedStoryImageUrl={
+                      entry.artistProvidedStoryImageUrl
+                    }
+                    previewKind="botd"
+                    previewId={entry.id}
                   />
                 );
               })}
 
-              {artistCreator && artistOfTheWeek ? (
-                <ImageCaptionSection
-                  key="aotw"
-                  title="Artist of the week"
-                  subtitle={artistCreator.displayName}
-                  fieldKey={INSTAGRAM_SPOTLIGHT_AOTW_KEY}
-                  imageOptions={collectCreatorImageOptions(
-                    artistCreator,
-                    artistBookCoverUrls,
-                  )}
-                  caption={buildArtistInstagramCaption(
-                    artistCreator,
-                    artistOfTheWeek.instagramCaption,
-                    artistOfTheWeek.spotlightBlurb,
-                  )}
-                  selectedImages={getPlannerInstagramImageSelection(
-                    artistOfTheWeek,
-                    collectCreatorImageOptions(
+              {artistCreator && artistOfTheWeek
+                ? (() => {
+                    const aotwImageOptions = collectCreatorImageOptions(
                       artistCreator,
                       artistBookCoverUrls,
-                    ),
-                  )}
-                />
-              ) : null}
+                    );
+                    if (artistOfTheWeek.artistProvidedStoryImageUrl) {
+                      aotwImageOptions.unshift(
+                        artistOfTheWeek.artistProvidedStoryImageUrl,
+                      );
+                    }
+                    return (
+                      <ImageCaptionSection
+                        key="aotw"
+                        title="Artist of the week"
+                        subtitle={artistCreator.displayName}
+                        fieldKey={INSTAGRAM_SPOTLIGHT_AOTW_KEY}
+                        imageOptions={aotwImageOptions}
+                        caption={buildArtistInstagramCaption(
+                          artistCreator,
+                          artistOfTheWeek.instagramCaption,
+                          artistOfTheWeek.spotlightBlurb,
+                        )}
+                        selectedImages={getPlannerInstagramImageSelection(
+                          artistOfTheWeek,
+                          aotwImageOptions,
+                        )}
+                        artistProvidedStoryImageUrl={
+                          artistOfTheWeek.artistProvidedStoryImageUrl
+                        }
+                        previewKind="aotw"
+                        previewId={artistOfTheWeek.id}
+                      />
+                    );
+                  })()
+                : null}
 
-              {publisherCreator && publisherOfTheWeek ? (
-                <ImageCaptionSection
-                  key="potw"
-                  title="Publisher of the week"
-                  subtitle={publisherCreator.displayName}
-                  fieldKey={INSTAGRAM_SPOTLIGHT_POTW_KEY}
-                  imageOptions={collectCreatorImageOptions(
-                    publisherCreator,
-                    publisherBookCoverUrls,
-                  )}
-                  caption={buildPublisherInstagramCaption(
-                    publisherCreator,
-                    publisherOfTheWeek.instagramCaption,
-                    publisherOfTheWeek.spotlightBlurb,
-                  )}
-                  selectedImages={getPlannerInstagramImageSelection(
-                    publisherOfTheWeek,
-                    collectCreatorImageOptions(
+              {publisherCreator && publisherOfTheWeek
+                ? (() => {
+                    const potwImageOptions = collectCreatorImageOptions(
                       publisherCreator,
                       publisherBookCoverUrls,
-                    ),
-                  )}
-                />
-              ) : null}
+                    );
+                    if (publisherOfTheWeek.artistProvidedStoryImageUrl) {
+                      potwImageOptions.unshift(
+                        publisherOfTheWeek.artistProvidedStoryImageUrl,
+                      );
+                    }
+                    return (
+                      <ImageCaptionSection
+                        key="potw"
+                        title="Publisher of the week"
+                        subtitle={publisherCreator.displayName}
+                        fieldKey={INSTAGRAM_SPOTLIGHT_POTW_KEY}
+                        imageOptions={potwImageOptions}
+                        caption={buildPublisherInstagramCaption(
+                          publisherCreator,
+                          publisherOfTheWeek.instagramCaption,
+                          publisherOfTheWeek.spotlightBlurb,
+                        )}
+                        selectedImages={getPlannerInstagramImageSelection(
+                          publisherOfTheWeek,
+                          potwImageOptions,
+                        )}
+                        artistProvidedStoryImageUrl={
+                          publisherOfTheWeek.artistProvidedStoryImageUrl
+                        }
+                        previewKind="potw"
+                        previewId={publisherOfTheWeek.id}
+                      />
+                    );
+                  })()
+                : null}
             </div>
             <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-outline pt-4">
               <button
@@ -240,6 +272,9 @@ type ImageCaptionSectionProps = {
   caption: string;
   selectedImages: string[];
   tagsLine?: string | null;
+  artistProvidedStoryImageUrl?: string | null;
+  previewKind: "botd" | "aotw" | "potw";
+  previewId: string;
 };
 
 const ImageCaptionSection = ({
@@ -250,12 +285,33 @@ const ImageCaptionSection = ({
   caption,
   selectedImages,
   tagsLine,
+  artistProvidedStoryImageUrl,
+  previewKind,
+  previewId,
 }: ImageCaptionSectionProps) => {
   const checkboxName = `imageUrl[${fieldKey}][]`;
-  const limitCarouselSelection = `const checked = $el.closest('fieldset').querySelectorAll('input[type=checkbox]:checked'); if (checked.length > ${MAX_INSTAGRAM_CAROUSEL_IMAGES}) $el.checked = false`;
+
+  // Lazy story-preview: opening the modal used to fire one sharp render per
+  // section at once (~9× 1080×1920) and OOM the 512MB web dyno.
+  const previewAlpine = `{
+    selectedImage: ${JSON.stringify(selectedImages[0] ?? "")},
+    previewSrc: '',
+    previewUrl() {
+      return '/dashboard/admin/planner/story-preview?kind=${previewKind}&id=${previewId}'
+        + (this.selectedImage ? '&image=' + encodeURIComponent(this.selectedImage) : '');
+    },
+    loadPreview() { this.previewSrc = this.previewUrl(); },
+    selectImage(url) {
+      this.selectedImage = url;
+      if (this.previewSrc) this.previewSrc = this.previewUrl();
+    },
+  }`;
 
   return (
-    <section class="rounded border border-outline bg-surface-alt/40 p-4">
+    <section
+      class="rounded border border-outline bg-surface-alt/40 p-4"
+      x-data={previewAlpine}
+    >
       <h3 class="mb-3 text-sm font-semibold text-on-surface-strong">{title}</h3>
       <p class="mb-1 text-xs text-on-surface line-clamp-2">{subtitle}</p>
       {tagsLine ? (
@@ -266,7 +322,7 @@ const ImageCaptionSection = ({
 
       <fieldset class="mb-4">
         <legend class="mb-2 block text-xs font-medium text-on-surface">
-          Images (select 1–{MAX_INSTAGRAM_CAROUSEL_IMAGES} for carousel)
+          Story image (select one)
         </legend>
         {imageOptions.length === 0 ? (
           <p class="text-xs text-danger">No image available.</p>
@@ -276,21 +332,26 @@ const ImageCaptionSection = ({
               {imageOptions.map((url) => (
                 <label
                   key={url}
-                  class="cursor-pointer rounded border border-outline p-1 [&:has(input:checked)]:border-primary [&:has(input:checked)]:ring-2 [&:has(input:checked)]:ring-primary"
+                  class="cursor-pointer rounded border border-outline p-1 [&:has(input:checked)]:border-primary [&:has(input:checked)]:ring-2 [&:has(input:checked)]:ring-primary relative"
                 >
                   <input
-                    type="checkbox"
+                    type="radio"
                     name={checkboxName}
                     value={url}
                     checked={selectedImages.includes(url)}
                     class="sr-only"
-                    x-on:change={limitCarouselSelection}
+                    x-on:change={`selectImage(${JSON.stringify(url)})`}
                   />
                   <img
                     src={url}
                     alt=""
                     class="aspect-[3/4] w-full rounded object-cover"
                   />
+                  {url === artistProvidedStoryImageUrl ? (
+                    <span class="absolute left-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      Artist
+                    </span>
+                  ) : null}
                 </label>
               ))}
             </div>
@@ -309,6 +370,21 @@ const ImageCaptionSection = ({
           {caption}
         </textarea>
       </label>
+
+      <div class="mt-4 rounded border border-outline bg-surface p-3">
+        <p class="mb-2 text-xs font-medium text-on-surface">Story preview</p>
+        <div
+          class="relative mx-auto w-full max-w-[240px] overflow-hidden rounded bg-gray-100"
+          style="aspect-ratio: 9/16;"
+          {...{ "x-intersect.once": "loadPreview()" }}
+        >
+          <img
+            x-bind:src="previewSrc"
+            alt="Story preview"
+            class="absolute inset-0 h-full w-full object-contain"
+          />
+        </div>
+      </div>
     </section>
   );
 };

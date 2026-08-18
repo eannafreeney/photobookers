@@ -181,7 +181,10 @@ async function buildWeekSpotlightContent(weekData) {
         kind: "botd",
         date: entry.date,
         title: book.title,
+        artistName: book.artist?.displayName ?? null,
+        publisherName: book.publisher?.displayName ?? null,
         featuredImageUrl,
+        artistProvidedStoryImageUrl: entry.artistProvidedStoryImageUrl?.trim() || null,
         instagramImageUrls: getPlannerInstagramImageSelection(
           entry,
           imageOptions
@@ -212,6 +215,7 @@ async function buildWeekSpotlightContent(weekData) {
         kind: "artist",
         title: creator.displayName,
         featuredImageUrl,
+        artistProvidedStoryImageUrl: weekData.artistOfTheWeek.artistProvidedStoryImageUrl?.trim() || null,
         instagramImageUrls: getPlannerInstagramImageSelection(
           weekData.artistOfTheWeek,
           artistImageOptions
@@ -238,6 +242,7 @@ async function buildWeekSpotlightContent(weekData) {
         kind: "publisher",
         title: creator.displayName,
         featuredImageUrl,
+        artistProvidedStoryImageUrl: weekData.publisherOfTheWeek.artistProvidedStoryImageUrl?.trim() || null,
         instagramImageUrls: getPlannerInstagramImageSelection(
           weekData.publisherOfTheWeek,
           publisherImageOptions

@@ -2,15 +2,23 @@
 
 import { MjmlColumn, MjmlImage, MjmlText, MjmlButton } from "mjml-react";
 import {
-  appBaseUrl,
   brand,
   featureCardContentWidthPx,
   newsletterThreeColContentWidthPx,
+  resolveAppBaseUrl,
 } from "../constants";
 import { formatNewsletterDate } from "../utils";
 import { kickerTextProps } from "./kickerTextProps";
 import type { BookCardBook } from "./types";
 import { ViewButton } from "./ViewButton";
+
+/** BookCard-like square crop — pair with `<MjmlStyle>{bookColumnCoverStyle}</MjmlStyle>` in head. */
+export const bookColumnCoverCssClass = "book-col-cover";
+export const bookColumnCoverStyle = `
+  .${bookColumnCoverCssClass} img {
+    object-fit: cover !important;
+  }
+`;
 
 /** Column-only — must sit inside FeatureRow / MjmlSection. */
 export const BookColumn = ({
@@ -30,14 +38,23 @@ export const BookColumn = ({
     : featureCardContentWidthPx;
 
   return (
-    <MjmlColumn verticalAlign="bottom">
+    // compact: top-align so long titles don't shove covers up relative to siblings
+    <MjmlColumn verticalAlign={compact ? "top" : "bottom"}>
       {book.coverUrl ? (
         <MjmlImage
           src={book.coverUrl}
           alt={book.title}
           width={`${imageWidthPx}px`}
           fluidOnMobile="true"
-          padding={compact ? "12px 8px 12px" : "0 0 12px"}
+          padding="0 0 12px"
+          {...(compact
+            ? {
+                // Square frame + object-fit:cover (see bookColumnCoverStyle) — fills like Card.Image
+                height: `${imageWidthPx}px`,
+                cssClass: bookColumnCoverCssClass,
+                containerBackgroundColor: brand.surfaceAlt,
+              }
+            : {})}
         />
       ) : null}
       {kicker ? (
@@ -84,7 +101,7 @@ export const BookColumn = ({
       ) : null}
       {compact ? (
         <MjmlButton
-          href={`${appBaseUrl}/books/${book.bookSlug}`}
+          href={`${resolveAppBaseUrl()}/books/${book.bookSlug}`}
           backgroundColor="#ffffff"
           color={brand.onSurfaceStrong}
           border={`1px solid ${brand.outlineStrong}`}
@@ -100,7 +117,7 @@ export const BookColumn = ({
           View
         </MjmlButton>
       ) : (
-        <ViewButton href={`${appBaseUrl}/books/${book.bookSlug}`} />
+        <ViewButton href={`${resolveAppBaseUrl()}/books/${book.bookSlug}`} />
       )}
     </MjmlColumn>
   );

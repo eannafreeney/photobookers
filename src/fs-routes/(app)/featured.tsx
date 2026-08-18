@@ -1,5 +1,5 @@
 import { createRoute } from "hono-fsr";
-import { getUser } from "../../utils";
+import { getUser, getFlash } from "../../utils";
 import { Context } from "hono";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
@@ -17,9 +17,10 @@ import { getHomepageActivityStats } from "@/features/app/homepageActivity";
 import HomepageActivityPulse from "@/features/app/components/HomepageActivityPulse";
 
 export const GET = createRoute(async (c: Context) => {
-  const [user, heroItems] = await Promise.all([
+  const [user, heroItems, flash] = await Promise.all([
     getUser(c),
     loadHeroCarouselFeatureItems(),
+    getFlash(c),
   ]);
   const currentPath = c.req.path;
   const lcpImage = heroItems[0]?.image
@@ -37,6 +38,7 @@ export const GET = createRoute(async (c: Context) => {
       user={user}
       currentPath={currentPath}
       preloadLcpImage={lcpImage}
+      flash={flash}
     >
       <Page>
         <Pulse />

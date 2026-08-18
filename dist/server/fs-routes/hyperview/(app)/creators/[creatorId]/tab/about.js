@@ -28,7 +28,8 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
           website: creator.website,
           instagram: creator.instagram,
           twitter: creator.twitter,
-          facebook: creator.facebook
+          facebook: creator.facebook,
+          substack: creator.substack
         }
       )
     ] })

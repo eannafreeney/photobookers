@@ -22,14 +22,12 @@ const publishedBookConditions = and(
 );
 async function suggestShelfSlug(userId) {
   const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-    with: { creators: { columns: { displayName: true } } }
+    where: eq(users.id, userId)
   });
   if (!user) return null;
   const base = baseShelfSlugFromUser({
     firstName: user.firstName,
-    lastName: user.lastName,
-    creator: user.creators[0] ?? null
+    lastName: user.lastName
   }) ?? `member-${user.id.slice(0, 8)}`;
   for (let i = 1; i <= 50; i++) {
     const candidate = withShelfSlugSuffix(base, i);
@@ -45,9 +43,12 @@ async function suggestShelfSlug(userId) {
 async function getPublicShelfBySlug(slug) {
   const user = await db.query.users.findFirst({
     where: and(eq(users.shelfSlug, slug), eq(users.shelfPublic, true)),
-    with: { creators: { columns: { displayName: true } } }
+    with: {
+      creators: { columns: { id: true, slug: true, displayName: true } }
+    }
   });
   if (!user) return err({ reason: "Shelf not found" });
+  const creator = user.creators[0] ?? null;
   return ok({
     user: {
       id: user.id,
@@ -55,12 +56,15 @@ async function getPublicShelfBySlug(slug) {
       lastName: user.lastName,
       profileImageUrl: user.profileImageUrl,
       shelfSlug: user.shelfSlug,
-      creator: user.creators[0] ?? null,
       displayName: formatShelfOwnerName({
         firstName: user.firstName,
-        lastName: user.lastName,
-        creator: user.creators[0] ?? null
-      })
+        lastName: user.lastName
+      }),
+      creator: creator ? {
+        id: creator.id,
+        slug: creator.slug,
+        displayName: creator.displayName
+      } : null
     }
   });
 }
@@ -100,6 +104,11 @@ async function getPublicBooksInWishlist(userId, currentPage, sortBy = "newest", 
   }
 }
 async function updateShelfSharing(userId, input) {
+  const owner = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+    columns: { id: true }
+  });
+  if (!owner) return err({ reason: "User not found" });
   if (!input.shelfPublic) {
     try {
       const [updated] = await db.update(users).set({ shelfPublic: false }).where(eq(users.id, userId)).returning();

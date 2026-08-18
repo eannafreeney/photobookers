@@ -12,7 +12,7 @@ const CreatorBioMeta = async ({
   const followerCount = followerCountProp ?? await findFollowersCount(creator.id);
   const hasLocation = !!(creator.city || creator.country);
   const hasFollowers = followerCount > 10;
-  const hasSocials = !!(creator.website || creator.facebook || creator.instagram || creator.twitter);
+  const hasSocials = !!(creator.website || creator.facebook || creator.instagram || creator.twitter || creator.substack);
   if (!hasLocation && !hasFollowers && !hasSocials) return /* @__PURE__ */ jsx(Fragment, {});
   if (variant === "stacked") {
     return /* @__PURE__ */ jsxs(

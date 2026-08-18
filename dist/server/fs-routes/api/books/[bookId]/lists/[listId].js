@@ -6,6 +6,7 @@ import { getBookPermissionData } from "../../../../../features/api/services.js";
 import { showErrorAlert } from "../../../../../lib/alertHelpers.js";
 import Alert from "../../../../../components/app/Alert.js";
 import { toggleListMembership } from "../../../../../domain/lists/services.js";
+import { userCanManageBookLists } from "../../../../../domain/lists/utils.js";
 import { ListMembershipRow } from "../../../../../features/api/components/SaveToListButton.js";
 import { routeParam } from "../../../../../lib/routeParam.js";
 const POST = createRoute(async (c) => {
@@ -14,6 +15,9 @@ const POST = createRoute(async (c) => {
   const user = await getUser(c);
   if (!user?.id) {
     return c.html(/* @__PURE__ */ jsx(AuthModal, { action: "to save this book to a list." }), 401);
+  }
+  if (!userCanManageBookLists(user)) {
+    return showErrorAlert(c, "Only collectors can add books to lists.");
   }
   const [err, book] = await getBookPermissionData(bookId);
   if (err || !book) return showErrorAlert(c, err?.reason ?? "Book not found");

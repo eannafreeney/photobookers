@@ -12,8 +12,10 @@ import { botdUrl } from "../../../features/app/spotlightUrls.js";
 import { provisionCreatorUserAccount } from "../../../features/dashboard/admin/users/provisionCreatorAccount.js";
 import {
   buildBotdFeatureDayEmail,
+  buildBotdStoryImageRequestEmail,
   generateBOTDNotificationEmail
 } from "../../../features/dashboard/admin/planner/emails.js";
+import { createStoryUploadToken } from "../storyUploadToken.js";
 import { updateBookOfTheDayByDate } from "../../../features/dashboard/admin/planner/services.js";
 import { formatBotdDateLong } from "../../../features/dashboard/admin/planner/utils.js";
 const CREATOR_BOTD_EMAIL_COLUMNS = {
@@ -199,6 +201,71 @@ async function runBotdAdvanceNotificationEmails(asOf = /* @__PURE__ */ new Date(
   }
   return ok(result);
 }
+async function runBotdStoryImageEmails(asOf = /* @__PURE__ */ new Date()) {
+  const featureDate = addUtcDays(toUtcStartOfDay(asOf), 14);
+  const [loadError, row] = await loadBotdForDate(featureDate);
+  if (loadError) return err(loadError);
+  const result = {
+    storyImageEmailsSent: 0,
+    featureDate: row?.date ?? null,
+    items: []
+  };
+  if (!row?.book?.artist) {
+    return ok(result);
+  }
+  const creator = row.book.artist;
+  const email = creator.email?.trim();
+  if (!email) {
+    result.items.push({
+      creatorId: creator.id,
+      bookId: row.book.id,
+      date: row.date,
+      outcome: { status: "skipped", reason: "no_email" }
+    });
+    return ok(result);
+  }
+  if (row.artistStoryImageEmailSentAt) {
+    result.items.push({
+      creatorId: creator.id,
+      bookId: row.book.id,
+      date: row.date,
+      outcome: { status: "skipped", reason: "already_sent" }
+    });
+    return ok(result);
+  }
+  const siteUrl = process.env.SITE_URL ?? "https://photobookers.com";
+  const uploadToken = createStoryUploadToken("botd", row.id);
+  const html = buildBotdStoryImageRequestEmail({
+    displayName: creator.displayName,
+    bookTitle: row.book.title,
+    botdDate: row.date,
+    exampleImageUrl: `${siteUrl}/examples/botd-story-example.png`,
+    uploadUrl: `${siteUrl}/story-upload/${uploadToken}`
+  });
+  const subject = `Vertical image for your Book of the Day Instagram Story`;
+  const [emailError] = await sendEmail(email, subject, html);
+  if (emailError) {
+    result.items.push({
+      creatorId: creator.id,
+      bookId: row.book.id,
+      date: row.date,
+      outcome: { status: "failed", reason: emailError.reason }
+    });
+    return ok(result);
+  }
+  const [markError] = await updateBookOfTheDayByDate(row.date, {
+    artistStoryImageEmailSentAt: /* @__PURE__ */ new Date()
+  });
+  if (markError) return err(markError);
+  result.storyImageEmailsSent = 1;
+  result.items.push({
+    creatorId: creator.id,
+    bookId: row.book.id,
+    date: row.date,
+    outcome: { status: "sent" }
+  });
+  return ok(result);
+}
 async function runBotdFeatureDayEmails(asOf = /* @__PURE__ */ new Date()) {
   const day = toUtcStartOfDay(asOf);
   const [loadError, row] = await loadBotdForDate(day);
@@ -266,5 +333,6 @@ export {
   prepareBotdAdvanceNotificationContent,
   runBotdAdvanceNotificationEmails,
   runBotdFeatureDayEmails,
+  runBotdStoryImageEmails,
   sendManualBotdEmail
 };

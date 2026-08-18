@@ -93,6 +93,44 @@ function buildInterviewReminderEmail(params) {
   <p>Thanks,<br/>Eanna</p>
 `;
 }
+function buildBotdStoryImageRequestEmail(params) {
+  const formattedDate = formatBotdDateLong(params.botdDate);
+  return `
+  <p>Hi ${params.displayName},</p>
+  <p>Your book, <strong>${params.bookTitle}</strong>, is scheduled as <strong>Book of the Day</strong> on Photobookers on <strong>${formattedDate}</strong>.</p>
+  <p>We\u2019re preparing the Instagram Stories for that week and would love to use a vertical image from the book if you have one.</p>
+  <p><strong>What works best</strong></p>
+  <ul>
+    <li>One strong image (not a collage)</li>
+    <li>Portrait/vertical \u2014 9:16 ratio (e.g. 1080 \xD7 1920 px)</li>
+    <li>High-res JPG, PNG, or WebP</li>
+  </ul>
+  <p>Here\u2019s an example of the layout we use:</p>
+  <p><img src="${escapeHtml(params.exampleImageUrl)}" alt="Example Instagram Story layout" width="270" style="max-width:270px;border:1px solid #eee;display:block;"/></p>
+  <p><a href="${escapeHtml(params.uploadUrl)}">Upload your image here</a></p>
+  <p>If you don\u2019t have a vertical image, no problem \u2014 we\u2019ll use a spread from the book.</p>
+  <p>Best regards,<br/>Eanna</p>
+`;
+}
+function buildSpotlightStoryImageRequestEmail(params) {
+  const weekLabel = formatWeekRange(params.weekStart);
+  return `
+  <p>Hi ${params.displayName},</p>
+  <p>You are scheduled as <strong>${params.kind === "artist" ? "Artist" : "Publisher"} of the Week</strong> on Photobookers for the week of <strong>${weekLabel}</strong>.</p>
+  <p>We\u2019re preparing the Instagram Stories for that week and would love to use a vertical image from you if you have one.</p>
+  <p><strong>What works best</strong></p>
+  <ul>
+    <li>One strong image (not a collage)</li>
+    <li>Portrait/vertical \u2014 9:16 ratio (e.g. 1080 \xD7 1920 px)</li>
+    <li>High-res JPG, PNG, or WebP</li>
+  </ul>
+  <p>Here\u2019s an example of the layout we use:</p>
+  <p><img src="${escapeHtml(params.exampleImageUrl)}" alt="Example Instagram Story layout" width="270" style="max-width:270px;border:1px solid #eee;display:block;"/></p>
+  <p><a href="${escapeHtml(params.uploadUrl)}">Upload your image here</a></p>
+  <p>If you don\u2019t have a vertical image, no problem \u2014 we\u2019ll use an existing image from your profile.</p>
+  <p>Best regards,<br/>Eanna</p>
+`;
+}
 function buildBotdFeatureDayEmail(params) {
   const formattedDate = formatBotdDateLong(params.botdDate);
   const digestUrl = `${process.env.SITE_URL ?? "https://photobookers.com"}${thisWeekPath(toWeekStart(params.botdDate))}`;
@@ -163,10 +201,10 @@ function formatPreviewItemHeading(item) {
 }
 function renderPreviewImages(imageUrls, alt) {
   if (imageUrls.length === 0) {
-    return `<p><em>No Instagram images selected</em></p>`;
+    return `<p><em>No Instagram story image selected</em></p>`;
   }
   return imageUrls.map(
-    (imageUrl, index) => `<p><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)} (${index + 1} of ${imageUrls.length})" width="320" style="max-width:100%;height:auto;border:1px solid #ddd;" /></p>`
+    (imageUrl, index) => `<p><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)} (${index + 1} of ${imageUrls.length})" width="240" style="max-width:100%;height:auto;border:1px solid #ddd;" /></p>`
   ).join("");
 }
 function renderCaptionBlock(caption) {
@@ -178,14 +216,14 @@ function buildPlannerWeekContentPreviewEmail(params) {
   const sections = params.items.map((item) => {
     const heading = formatPreviewItemHeading(item);
     const previewKey = item.kind === "botd" ? `botd-${item.date.toISOString().slice(0, 10)}` : item.kind;
-    const imageUrls = params.feedPreviewUrls?.get(previewKey) ?? item.instagramImageUrls;
+    const imageUrls = params.storyPreviewUrls?.get(previewKey) ?? (item.artistProvidedStoryImageUrl ? [item.artistProvidedStoryImageUrl] : item.instagramImageUrls.slice(0, 1));
     const blurb = item.spotlightBlurb?.trim() || item.sourceText?.trim();
     const blurbHtml = blurb ? `<p style="margin:0 0 16px;">${escapeHtml(blurb)}</p>` : `<p style="margin:0 0 16px;"><em>No page blurb available</em></p>`;
     return `
       <section style="margin:24px 0;padding-top:16px;border-top:1px solid #ddd;">
         <h2 style="margin:0 0 12px;font-size:18px;">${escapeHtml(heading)}</h2>
         <p style="margin:0 0 4px;font-weight:600;">${escapeHtml(item.title)}</p>
-        <p style="margin:0 0 8px;font-size:13px;color:#666;">Instagram feed preview (lead slide branded)</p>
+        <p style="margin:0 0 8px;font-size:13px;color:#666;">Instagram story preview</p>
         ${renderPreviewImages(imageUrls, item.title)}
         <p style="margin:16px 0 4px;font-weight:600;">Page blurb</p>
         ${blurbHtml}
@@ -272,12 +310,14 @@ function buildAotwPublisherNotifyEmail(params) {
 export {
   buildAotwPublisherNotifyEmail,
   buildBotdFeatureDayEmail,
+  buildBotdStoryImageRequestEmail,
   buildCreatorOfTheWeekNotificationEmail,
   buildFeatureDayEmail,
   buildInstagramPostsPreviewEmail,
   buildInstagramPrepReminderEmail,
   buildInterviewReminderEmail,
   buildPlannerWeekContentPreviewEmail,
+  buildSpotlightStoryImageRequestEmail,
   buildTrendingInstagramPreviewEmail,
   buildVerifiedCreatorInstagramCreatorEmail,
   buildVerifiedCreatorInstagramPreviewEmail,

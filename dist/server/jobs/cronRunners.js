@@ -1,10 +1,15 @@
 import { runCeoMetricsEmailCron } from "../domain/ceo-metrics/cron.js";
 import { runDailyProductDigestCron } from "../domain/daily-product-digest/cron.js";
+import { runInstagramWeeklyDigestCron } from "../domain/instagram-analytics/cron.js";
+import { runPublisherReleaseWatchCron } from "../domain/publisher-release-watch/cron.js";
 import { runInterviewReminderCron } from "../domain/interviews/reminderCron.js";
 import {
   runBotdAdvanceNotificationEmails,
-  runBotdFeatureDayEmails
+  runBotdFeatureDayEmails,
+  runBotdStoryImageEmails
 } from "../domain/planner/cron/botdEmailServices.js";
+import { runSpotlightStoryImageEmails } from "../domain/planner/cron/spotlightStoryImageServices.js";
+import { runStoryUploadCleanup } from "../domain/planner/cron/storyUploadCleanupServices.js";
 import { runContentPreviewEmail } from "../domain/planner/cron/contentPreviewEmailServices.js";
 import { runInstagramPrepReminderEmail } from "../domain/planner/cron/instagramReminderEmailServices.js";
 import { runTrendingInstagramCron, formatTrendingInstagramCronSummary } from "../domain/planner/cron/trendingInstagramServices.js";
@@ -46,8 +51,12 @@ const CRON_JOB_NAMES = [
   "daily-botd-instagram",
   "botd-advance-notification-emails",
   "botd-feature-day-emails",
+  "botd-story-image-emails",
+  "spotlight-story-image-emails",
+  "story-upload-cleanup",
   "ceo-metrics-email",
   "daily-product-digest",
+  "publisher-release-watch",
   "spotlight-creator-emails",
   "notify-followers-new-books",
   "notify-followers-new-posts",
@@ -56,6 +65,7 @@ const CRON_JOB_NAMES = [
   "weekly-botd-newsletter-prepare",
   "weekly-trending-instagram",
   "instagram-prep-reminder-email",
+  "instagram-weekly-digest",
   "planner-content-preview-email",
   "creator-analytics-digest",
   "creator-milestone-emails",
@@ -113,6 +123,38 @@ async function runBotdFeatureDayEmailsCron(options = {}) {
     }))
   });
 }
+async function runBotdStoryImageEmailsCron(options = {}) {
+  const asOf = options.date ?? /* @__PURE__ */ new Date();
+  const [error, result] = await runBotdStoryImageEmails(asOf);
+  if (error) return err(error);
+  return ok({
+    storyImageEmailsSent: result.storyImageEmailsSent,
+    featureDate: result.featureDate ? toDateString(result.featureDate) : null,
+    items: result.items.map((item) => ({
+      ...item,
+      date: toDateString(item.date)
+    }))
+  });
+}
+async function runSpotlightStoryImageEmailsCron(options = {}) {
+  const asOf = options.date ?? /* @__PURE__ */ new Date();
+  const [error, result] = await runSpotlightStoryImageEmails(asOf);
+  if (error) return err(error);
+  return ok({
+    storyImageEmailsSent: result.storyImageEmailsSent,
+    weekStart: result.weekStart ? toWeekString(result.weekStart) : null,
+    items: result.items
+  });
+}
+async function runStoryUploadCleanupCron(options = {}) {
+  const asOf = options.date ?? /* @__PURE__ */ new Date();
+  const [error, result] = await runStoryUploadCleanup(asOf);
+  if (error) return err(error);
+  return ok({
+    deleted: result.deleted,
+    errors: result.errors
+  });
+}
 async function runCeoMetricsEmailCronJob(options = {}) {
   const [error, result] = await runCeoMetricsEmailCron({
     dryRun: options.dryRun,
@@ -123,11 +165,26 @@ async function runCeoMetricsEmailCronJob(options = {}) {
   if (error) return err(error);
   return ok({ ...result });
 }
+async function runInstagramWeeklyDigestCronJob(options = {}) {
+  const [error, result] = await runInstagramWeeklyDigestCron({
+    dryRun: options.dryRun,
+    date: options.date
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
 async function runDailyProductDigestCronJob(options = {}) {
   const [error, result] = await runDailyProductDigestCron({
     dryRun: options.dryRun,
     date: options.date,
     to: options.to
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+async function runPublisherReleaseWatchCronJob(options = {}) {
+  const [error, result] = await runPublisherReleaseWatchCron({
+    dryRun: options.dryRun
   });
   if (error) return err(error);
   return ok({ ...result });
@@ -356,8 +413,12 @@ const RUNNERS = {
   "daily-botd-instagram": runDailyBotdInstagramCron,
   "botd-advance-notification-emails": runBotdAdvanceNotificationEmailsCron,
   "botd-feature-day-emails": runBotdFeatureDayEmailsCron,
+  "botd-story-image-emails": runBotdStoryImageEmailsCron,
+  "spotlight-story-image-emails": runSpotlightStoryImageEmailsCron,
+  "story-upload-cleanup": runStoryUploadCleanupCron,
   "ceo-metrics-email": runCeoMetricsEmailCronJob,
   "daily-product-digest": runDailyProductDigestCronJob,
+  "publisher-release-watch": runPublisherReleaseWatchCronJob,
   "spotlight-creator-emails": runSpotlightCreatorEmailsCron,
   "notify-followers-new-books": () => runNotifyFollowersNewBooksCron(),
   "notify-followers-new-posts": () => runNotifyFollowersNewPostsCron(),
@@ -366,6 +427,7 @@ const RUNNERS = {
   "weekly-botd-newsletter-prepare": runWeeklyBotdNewsletterPrepareCron,
   "weekly-trending-instagram": runWeeklyTrendingInstagramCron,
   "instagram-prep-reminder-email": runInstagramPrepReminderEmailCron,
+  "instagram-weekly-digest": runInstagramWeeklyDigestCronJob,
   "planner-content-preview-email": runPlannerContentPreviewEmailCron,
   "creator-analytics-digest": runCreatorAnalyticsDigestCronJob,
   "creator-milestone-emails": runCreatorMilestoneEmailsCronJob,
@@ -419,6 +481,7 @@ export {
   parseCronRunnerOptionsFromEnv,
   runBotdAdvanceNotificationEmailsCron,
   runBotdFeatureDayEmailsCron,
+  runBotdStoryImageEmailsCron,
   runCeoMetricsEmailCronJob,
   runCreatorAnalyticsDigestCronJob,
   runCreatorMilestoneEmailsCronJob,
@@ -428,12 +491,16 @@ export {
   runDailyProductDigestCronJob,
   runFairInstagramCronJob,
   runInstagramPrepReminderEmailCron,
+  runInstagramWeeklyDigestCronJob,
   runInterviewReminderEmailsCron,
   runNotifyFollowersNewBooksCron,
   runNotifyFollowersNewPostsCron,
   runPlannerContentPreviewEmailCron,
+  runPublisherReleaseWatchCronJob,
   runRandomizeNextWeekBotdCronJob,
   runSpotlightCreatorEmailsCron,
+  runSpotlightStoryImageEmailsCron,
+  runStoryUploadCleanupCron,
   runStubOutreachEmailsCron,
   runVerificationFeedbackEmailsCron,
   runVerifiedCreatorInstagramCronJob,

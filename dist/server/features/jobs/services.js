@@ -1,10 +1,16 @@
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "../../db/client.js";
-import { books, creatorMessages, creators, follows, users } from "../../db/schema.js";
+import { books, creators, follows, users } from "../../db/schema.js";
 import {
   buildCreatorPostNotificationHtml,
   buildNewBookNotificationHtml
 } from "./emails.js";
+import {
+  getPostsDueForFollowerNotification,
+  markPostNotificationsSent
+} from "../../domain/posts/services.js";
+import { formatShelfOwnerName } from "../../domain/shelf/utils.js";
+import { sql } from "drizzle-orm";
 async function buildFollowerNotificationEmails() {
   const dueBooks = await getBooksDueForFollowerNotification();
   const emails = [];
@@ -30,32 +36,41 @@ async function markFollowerNotificationsSent(bookIds) {
   if (bookIds.length === 0) return;
   await db.update(books).set({ notifyFollowersSentAt: /* @__PURE__ */ new Date() }).where(inArray(books.id, bookIds));
 }
-async function getPostsDueForFollowerNotification() {
-  return db.select({
-    id: creatorMessages.id,
-    body: creatorMessages.body,
-    imageUrl: creatorMessages.imageUrl,
-    creatorId: creatorMessages.creatorId,
-    creatorDisplayName: creators.displayName,
-    creatorSlug: creators.slug
-  }).from(creatorMessages).innerJoin(creators, eq(creatorMessages.creatorId, creators.id)).where(isNull(creatorMessages.notifyFollowersSentAt)).orderBy(creatorMessages.createdAt);
-}
 async function buildCreatorPostNotificationEmails() {
   const duePosts = await getPostsDueForFollowerNotification();
   const emails = [];
   const postIds = [];
   for (const post of duePosts) {
-    const toList = await getFollowerEmailsByCreatorId(post.creatorId);
+    const creator = post.user.creators[0] ?? null;
+    let toList = [];
+    let displayName;
+    let profileSlug;
+    let linkPath;
+    if (creator) {
+      toList = await getFollowerEmailsByCreatorId(creator.id);
+      displayName = creator.displayName;
+      profileSlug = creator.slug;
+      linkPath = `/creators/${creator.slug}`;
+    } else if (post.user.shelfPublic && post.user.shelfSlug) {
+      toList = await getFollowerEmailsByUserId(post.user.id);
+      displayName = formatShelfOwnerName(post.user);
+      profileSlug = post.user.shelfSlug;
+      linkPath = `/shelf/${post.user.shelfSlug}`;
+    } else {
+      postIds.push(post.id);
+      continue;
+    }
     if (toList.length === 0) {
       postIds.push(post.id);
       continue;
     }
-    const subject = `New post from ${post.creatorDisplayName}`;
+    const subject = `New post from ${displayName}`;
     const html = buildCreatorPostNotificationHtml(
-      post.creatorDisplayName,
-      post.creatorSlug,
+      displayName,
+      profileSlug,
       post.body,
-      post.imageUrl
+      post.imageUrl,
+      linkPath
     );
     for (const to of toList) {
       emails.push({ to, subject, html });
@@ -65,8 +80,7 @@ async function buildCreatorPostNotificationEmails() {
   return { emails, postIds };
 }
 async function markCreatorPostNotificationsSent(postIds) {
-  if (postIds.length === 0) return;
-  await db.update(creatorMessages).set({ notifyFollowersSentAt: /* @__PURE__ */ new Date() }).where(inArray(creatorMessages.id, postIds));
+  await markPostNotificationsSent(postIds);
 }
 async function getBooksDueForFollowerNotification() {
   const today = sql`CURRENT_DATE`;
@@ -96,12 +110,18 @@ async function getFollowerEmailsByCreatorId(creatorId) {
   );
   return rows.map((r) => r.email).filter(Boolean);
 }
+async function getFollowerEmailsByUserId(userId) {
+  const rows = await db.select({ email: users.email }).from(follows).innerJoin(users, eq(follows.followerUserId, users.id)).where(
+    and(eq(follows.targetUserId, userId), eq(follows.targetType, "user"))
+  );
+  return rows.map((r) => r.email).filter(Boolean);
+}
 export {
   buildCreatorPostNotificationEmails,
   buildFollowerNotificationEmails,
   getBooksDueForFollowerNotification,
   getFollowerEmailsByCreatorId,
-  getPostsDueForFollowerNotification,
+  getFollowerEmailsByUserId,
   markCreatorPostNotificationsSent,
   markFollowerNotificationsSent
 };

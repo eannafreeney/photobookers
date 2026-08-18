@@ -194,6 +194,7 @@ const creators = pgTable(
     facebook: text("facebook"),
     twitter: text("twitter"),
     instagram: text("instagram"),
+    substack: text("substack"),
     website: text("website"),
     sortName: varchar("sort_name", { length: 255 }),
     email: text("email"),
@@ -240,7 +241,6 @@ const creatorsRelations = relations(creators, ({ one, many }) => ({
   claims: many(creatorClaims),
   artistOfTheWeekEntries: many(artistOfTheWeek),
   publisherOfTheWeekEntries: many(publisherOfTheWeek),
-  messages: many(creatorMessages),
   fairAttendees: many(fairAttendees),
   milestoneEmails: many(creatorMilestoneEmails),
   stubOutreachEmails: many(creatorStubOutreachEmails),
@@ -395,29 +395,12 @@ const followsRelations = relations(follows, ({ one }) => ({
     references: [creators.id]
   })
 }));
-const creatorMessages = pgTable("creator_messages", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  creatorId: uuid("creator_id").notNull().references(() => creators.id, { onDelete: "cascade" }),
-  body: text("body").notNull(),
-  imageUrl: text("image_url"),
-  notifyFollowersSentAt: timestamp("notify_followers_sent_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
-});
-const creatorMessagesRelations = relations(
-  creatorMessages,
-  ({ one }) => ({
-    creator: one(creators, {
-      fields: [creatorMessages.creatorId],
-      references: [creators.id]
-    })
-  })
-);
 const collectorPosts = pgTable("collector_posts", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   body: text("body").notNull(),
   imageUrl: text("image_url"),
+  notifyFollowersSentAt: timestamp("notify_followers_sent_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
 });
@@ -609,6 +592,8 @@ const bookOfTheDay = pgTable(
     ),
     featuredImageUrl: text("featured_image_url"),
     instagramImageUrls: text("instagram_image_urls").array(),
+    artistProvidedStoryImageUrl: text("artist_provided_story_image_url"),
+    artistStoryImageEmailSentAt: timestamp("artist_story_image_email_sent_at"),
     spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
@@ -641,6 +626,8 @@ const artistOfTheWeek = pgTable(
     emailSentAt: timestamp("email_sent_at"),
     featuredImageUrl: text("featured_image_url"),
     instagramImageUrls: text("instagram_image_urls").array(),
+    artistProvidedStoryImageUrl: text("artist_provided_story_image_url"),
+    artistStoryImageEmailSentAt: timestamp("artist_story_image_email_sent_at"),
     spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
@@ -679,6 +666,8 @@ const publisherOfTheWeek = pgTable(
     emailSentAt: timestamp("email_sent_at"),
     featuredImageUrl: text("featured_image_url"),
     instagramImageUrls: text("instagram_image_urls").array(),
+    artistProvidedStoryImageUrl: text("artist_provided_story_image_url"),
+    artistStoryImageEmailSentAt: timestamp("artist_story_image_email_sent_at"),
     spotlightBlurb: text("spotlight_blurb"),
     instagramCaption: text("instagram_caption"),
     instagramPreparedAt: timestamp("instagram_prepared_at"),
@@ -1017,6 +1006,25 @@ const magazineIssueBooksRelations = relations(
     })
   })
 );
+const publisherReleaseWatchSeen = pgTable(
+  "publisher_release_watch_seen",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    publisherId: varchar("publisher_id", { length: 64 }).notNull(),
+    productKey: text("product_key").notNull(),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    firstSeenAt: timestamp("first_seen_at").defaultNow().notNull()
+  },
+  (table) => ({
+    uniquePublisherProduct: unique(
+      "publisher_release_watch_seen_publisher_product_unique"
+    ).on(table.publisherId, table.productKey),
+    publisherIdx: index("publisher_release_watch_seen_publisher_idx").on(
+      table.publisherId
+    )
+  })
+);
 export {
   adminNotifications,
   artistOfTheWeek,
@@ -1057,8 +1065,6 @@ export {
   creatorInterviewStatusEnum,
   creatorInterviews,
   creatorInterviewsRelations,
-  creatorMessages,
-  creatorMessagesRelations,
   creatorMilestoneEmails,
   creatorMilestoneEmailsRelations,
   creatorStatusEnum,
@@ -1091,6 +1097,7 @@ export {
   newsletterCampaigns,
   publisherOfTheWeek,
   publisherOfTheWeekRelations,
+  publisherReleaseWatchSeen,
   purchaseClickSourceEnum,
   purchaseClicks,
   purchaseClicksRelations,

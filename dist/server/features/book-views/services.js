@@ -137,6 +137,7 @@ const getTopBooksByViews = async (range, currentPage = 1, defaultLimit = 10, sco
         coverUrl: book.coverUrl,
         viewCount: viewCountByBookId.get(book.id) ?? 0,
         artistName: book.artist?.displayName ?? null,
+        artistSlug: book.artist?.slug ?? null,
         publisherName: book.publisher?.displayName ?? null
       };
     }).filter((row) => row !== null);

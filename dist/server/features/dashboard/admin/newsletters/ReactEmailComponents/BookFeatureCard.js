@@ -1,6 +1,6 @@
 import { jsx, jsxs } from "react/jsx-runtime";
 import { Section, Row, Column, Img } from "@react-email/components";
-import { appBaseUrl } from "../constants.js";
+import { resolveAppBaseUrl } from "../constants.js";
 import { formatNewsletterDate } from "../utils.js";
 import { BodyCopy } from "./BodyCopy.js";
 import { Kicker } from "./Kicker.js";
@@ -26,7 +26,7 @@ const BookFeatureCard = ({ book }) => {
       " ",
       book.publisherName ? `\u2013 ${book.publisherName}` : null
     ] }),
-    /* @__PURE__ */ jsx(ViewButton, { href: `${appBaseUrl}/books/${book.bookSlug}` })
+    /* @__PURE__ */ jsx(ViewButton, { href: `${resolveAppBaseUrl()}/books/${book.bookSlug}` })
   ] }) }) });
 };
 export {

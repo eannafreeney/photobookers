@@ -1,7 +1,7 @@
 /** @jsxImportSource react */
 
 import { Section, Row, Column, Img } from "@react-email/components";
-import { appBaseUrl } from "../constants";
+import { resolveAppBaseUrl } from "../constants";
 import { formatNewsletterDate } from "../utils";
 import { BodyCopy } from "./BodyCopy";
 import { Kicker } from "./Kicker";
@@ -40,7 +40,7 @@ export const BookFeatureCard = ({ book }: { book: BookFeatureCardBook }) => {
             {book.artistName}{" "}
             {book.publisherName ? `– ${book.publisherName}` : null}
           </SubTitle>
-          <ViewButton href={`${appBaseUrl}/books/${book.bookSlug}`} />
+          <ViewButton href={`${resolveAppBaseUrl()}/books/${book.bookSlug}`} />
         </Column>
       </Row>
     </Section>

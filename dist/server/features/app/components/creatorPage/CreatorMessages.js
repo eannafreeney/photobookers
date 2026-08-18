@@ -17,7 +17,7 @@ const CreatorMessages = async ({ creatorSlug, user }) => {
       /* @__PURE__ */ jsx(
         "a",
         {
-          href: "/dashboard/messages",
+          href: "/dashboard/posts",
           class: "mt-4 inline-block text-sm font-medium text-accent hover:underline",
           children: "Write your first post \u2192"
         }

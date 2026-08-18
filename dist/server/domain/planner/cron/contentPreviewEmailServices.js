@@ -4,7 +4,7 @@ import { artistOfTheWeek } from "../../../db/schema.js";
 import { sendAdminEmail } from "../../../lib/sendEmail.js";
 import { err, ok } from "../../../lib/result.js";
 import { toWeekStart, toWeekString } from "../../../lib/utils.js";
-import { buildPlannerWeekFeedPreviewUrls } from "../instagramSlides/buildPlannerWeekFeedPreview.js";
+import { buildPlannerWeekStoryPreviewUrls } from "../instagramSlides/buildPlannerWeekStoryPreview.js";
 import { buildPlannerWeekContentPreviewEmail } from "../../../features/dashboard/admin/planner/emails.js";
 import { getWeekInstagramForPrepare } from "../../../features/dashboard/admin/planner/social-media/instagramServices.js";
 import {
@@ -59,15 +59,15 @@ async function runContentPreviewEmail(asOf = /* @__PURE__ */ new Date(), options
   if (contentError) return err({ reason: contentError.reason });
   const siteUrl = process.env.SITE_URL ?? "https://photobookers.com";
   const weekKey = toWeekString(normalizedWeekStart);
-  let feedPreviewUrls;
+  let storyPreviewUrls;
   if (!options.dryRun) {
-    feedPreviewUrls = await buildPlannerWeekFeedPreviewUrls(items, weekKey);
+    storyPreviewUrls = await buildPlannerWeekStoryPreviewUrls(items, weekKey);
   }
   const subject = `Planner week ready \u2014 ${weekKey}`;
   const html = buildPlannerWeekContentPreviewEmail({
     weekStart: normalizedWeekStart,
     items,
-    feedPreviewUrls,
+    storyPreviewUrls,
     prepWarnings,
     plannerUrl: `${siteUrl}/dashboard/admin/planner?year=${normalizedWeekStart.getUTCFullYear()}`,
     featuredHeroUrl: `${siteUrl}/dashboard/admin/planner/featured-hero/${weekKey}/prepare`,

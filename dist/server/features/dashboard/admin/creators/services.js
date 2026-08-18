@@ -13,8 +13,12 @@ import {
 } from "drizzle-orm";
 import { db } from "../../../../db/client.js";
 import {
+  books,
+  creatorClaims,
   creatorInterviews,
+  creatorViews,
   creators,
+  follows,
   users
 } from "../../../../db/schema.js";
 import { getRandomCoverUrl, slugify } from "../../../../utils.js";
@@ -215,7 +219,23 @@ const createCreatorProfileAdmin = async (input) => {
 };
 const deleteCreatorByIdAdmin = async (creatorId) => {
   try {
-    const [deletedCreator] = await db.delete(creators).where(eq(creators.id, creatorId)).returning();
+    const [deletedCreator] = await db.transaction(async (tx) => {
+      await tx.update(books).set({
+        artistId: null,
+        publisherId: null,
+        notifyFollowersCreatorId: null
+      }).where(
+        or(
+          eq(books.artistId, creatorId),
+          eq(books.publisherId, creatorId),
+          eq(books.notifyFollowersCreatorId, creatorId)
+        )
+      );
+      await tx.delete(follows).where(eq(follows.targetCreatorId, creatorId));
+      await tx.delete(creatorClaims).where(eq(creatorClaims.creatorId, creatorId));
+      await tx.delete(creatorViews).where(eq(creatorViews.creatorId, creatorId));
+      return tx.delete(creators).where(eq(creators.id, creatorId)).returning();
+    });
     if (!deletedCreator)
       return err({ reason: "Creator not found", cause: void 0 });
     if (deletedCreator?.slug) {
@@ -239,6 +259,7 @@ const updateCreatorProfileAdmin = async (input, creatorId) => {
       facebook: updateableFields.facebook || null,
       twitter: updateableFields.twitter || null,
       instagram: updateableFields.instagram || null,
+      substack: updateableFields.substack || null,
       email: updateableFields.email || null,
       updatedAt: /* @__PURE__ */ new Date()
     };

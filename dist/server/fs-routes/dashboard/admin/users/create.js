@@ -23,7 +23,8 @@ const POST = createRoute(
       temporaryPassword,
       formData
     );
-    if (createAuthError) return showErrorAlert(c, "Failed to create auth user");
+    if (createAuthError)
+      return showErrorAlert(c, createAuthError.reason);
     const authUserId = authData.data.user.id;
     let creator = null;
     if (creatorId) {

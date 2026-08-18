@@ -2,14 +2,14 @@ import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { feedIcon, libraryIcon, mailIcon, usersIcon } from "../../../lib/icons.js";
 const CollectorGuide = () => {
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-8", children: [
-    /* @__PURE__ */ jsx("p", { class: "max-w-2xl text-sm md:text-base text-on-surface text-pretty", children: "Your collector profile is how other people discover your taste. Make your shelf public, favourite the books you love, curate lists, and post updates so others can follow along. Here's how to get set up." }),
+    /* @__PURE__ */ jsx("p", { class: "max-w-2xl text-sm md:text-base text-on-surface text-pretty", children: "Your shelf is how other people discover your taste. Make it public, favourite the books you love, curate lists, and post updates so others can follow along. Here's how to get set up." }),
     /* @__PURE__ */ jsxs(
       GuideSection,
       {
         step: 1,
         icon: usersIcon(5),
         title: "Make your shelf public",
-        cta: { label: "Manage sharing settings", href: "/shelf" },
+        cta: { label: "Manage sharing settings", href: "/dashboard/shelf" },
         children: [
           /* @__PURE__ */ jsx("p", { children: "Your shelf is your public profile. Turn on sharing and pick a URL so people can find you in search and follow you. It stays private until you opt in." }),
           /* @__PURE__ */ jsx(
@@ -61,7 +61,7 @@ const CollectorGuide = () => {
         step: 4,
         icon: mailIcon(5),
         title: "Post updates",
-        cta: { label: "Write a post", href: "/dashboard" },
+        cta: { label: "Write a post", href: "/dashboard/posts" },
         children: [
           /* @__PURE__ */ jsx("p", { children: "Share a recent find, a favourite spread, or what you're hunting for. Posts appear on your shelf and in the feed of everyone who follows you." }),
           /* @__PURE__ */ jsx(

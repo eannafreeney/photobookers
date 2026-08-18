@@ -1,5 +1,5 @@
 import z from "zod";
-import { optionalText } from "../../../../schemas/index.js";
+import { optionalDateString, optionalText } from "../../../../schemas/index.js";
 import { pressLinksFormField } from "../../books/pressLinks.js";
 const bookFormAdminSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -8,7 +8,7 @@ const bookFormAdminSchema = z.object({
   publisher_id: optionalText,
   new_publisher_name: optionalText,
   description: z.string().max(5e3, "Description must be less than 5000 characters").optional(),
-  release_date: optionalText,
+  release_date: optionalDateString,
   send_email_to_followers_on_release: z.preprocess((val) => val !== void 0 && val !== null, z.boolean()).optional().default(false),
   tags: optionalText,
   purchase_link: optionalText,

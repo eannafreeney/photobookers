@@ -1,6 +1,6 @@
-import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, notExists, or, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
-import { follows, users } from "../../db/schema.js";
+import { creators, follows, users } from "../../db/schema.js";
 import { err, ok } from "../../lib/result.js";
 const PUBLIC_COLLECTOR_COLUMNS = {
   id: true,
@@ -11,7 +11,10 @@ const PUBLIC_COLLECTOR_COLUMNS = {
 };
 const publicCollectorFilter = and(
   eq(users.shelfPublic, true),
-  sql`${users.shelfSlug} IS NOT NULL`
+  sql`${users.shelfSlug} IS NOT NULL`,
+  notExists(
+    db.select({ id: creators.id }).from(creators).where(eq(creators.ownerUserId, users.id))
+  )
 );
 async function searchCollectors(searchQuery, limit = 5) {
   const term = searchQuery.trim();

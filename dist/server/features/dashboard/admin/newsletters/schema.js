@@ -18,15 +18,22 @@ const newsletterBrevoTestSchema = z.object({
     z.string().email("Enter a valid email address").optional()
   )
 });
-const newsletterMarkSentSchema = z.preprocess(
-  (data) => {
-    if (data instanceof FormData) {
-      return { sent: data.getAll("sent").includes("true") };
-    }
-    return data;
-  },
-  z.object({ sent: z.boolean() })
-);
+function coerceSentFlag(value) {
+  if (typeof value === "boolean") return value;
+  if (Array.isArray(value)) {
+    return value.some((v) => v === true || v === "true");
+  }
+  return value === true || value === "true";
+}
+const newsletterMarkSentSchema = z.preprocess((data) => {
+  if (data instanceof FormData) {
+    return { sent: data.getAll("sent").includes("true") };
+  }
+  if (data && typeof data === "object" && "sent" in data) {
+    return { sent: coerceSentFlag(data.sent) };
+  }
+  return { sent: false };
+}, z.object({ sent: z.boolean() }));
 export {
   newsletterBrevoTestSchema,
   newsletterCampaignFormSchema,

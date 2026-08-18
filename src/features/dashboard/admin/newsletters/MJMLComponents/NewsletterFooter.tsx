@@ -17,7 +17,7 @@ export const NewsletterFooter = () => (
         publishers, and keep up with the photobook world.
       </MjmlText>
       <MjmlText align="center" padding="0 25px 16px">
-        {newsletterNavLinks.map((link, index) => (
+        {newsletterNavLinks().map((link, index) => (
           <span key={link.href}>
             {index > 0 ? (
               <span style={{ color: brand.onSurfaceWeak }}> · </span>

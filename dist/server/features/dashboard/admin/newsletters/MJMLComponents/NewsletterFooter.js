@@ -13,7 +13,7 @@ const NewsletterFooter = () => /* @__PURE__ */ jsx(MjmlSection, { backgroundColo
       children: "The home for photobook lovers. Discover books, follow artists and publishers, and keep up with the photobook world."
     }
   ),
-  /* @__PURE__ */ jsx(MjmlText, { align: "center", padding: "0 25px 16px", children: newsletterNavLinks.map((link, index) => /* @__PURE__ */ jsxs("span", { children: [
+  /* @__PURE__ */ jsx(MjmlText, { align: "center", padding: "0 25px 16px", children: newsletterNavLinks().map((link, index) => /* @__PURE__ */ jsxs("span", { children: [
     index > 0 ? /* @__PURE__ */ jsx("span", { style: { color: brand.onSurfaceWeak }, children: " \xB7 " }) : null,
     /* @__PURE__ */ jsx(
       "a",

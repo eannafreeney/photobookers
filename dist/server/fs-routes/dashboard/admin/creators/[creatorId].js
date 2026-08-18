@@ -5,6 +5,7 @@ import { formValidator, paramValidator } from "../../../../lib/validator.js";
 import { creatorIdSchema } from "../../../../schemas/index.js";
 import { getUser } from "../../../../utils.js";
 import CreatorImageForm from "../../../../features/dashboard/images/forms/CreatorCoverForm.js";
+import CreatorBannerForm from "../../../../features/dashboard/images/forms/CreatorBannerForm.js";
 import {
   deleteCreatorByIdAdmin,
   getCreatorByIdAdmin,
@@ -56,13 +57,22 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
             }
           ),
           /* @__PURE__ */ jsxs("div", { class: "flex flex-col md:flex-row md:items-start justify-between gap-4", children: [
-            /* @__PURE__ */ jsx("div", { class: "md:w-1/3", children: /* @__PURE__ */ jsx(
-              CreatorImageForm,
-              {
-                initialUrl: creator?.coverUrl ?? null,
-                creator
-              }
-            ) }),
+            /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-8 md:w-1/3", children: [
+              /* @__PURE__ */ jsx(
+                CreatorImageForm,
+                {
+                  initialUrl: creator?.coverUrl ?? null,
+                  creator
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                CreatorBannerForm,
+                {
+                  initialUrl: creator?.bannerUrl ?? null,
+                  creator
+                }
+              )
+            ] }),
             /* @__PURE__ */ jsx(
               "div",
               {

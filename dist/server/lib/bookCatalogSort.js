@@ -1,6 +1,12 @@
 import { desc, sql } from "drizzle-orm";
 import { books } from "../db/schema.js";
 const BOOK_CATALOG_DEFAULT_SORT = "trending";
+const BOOK_CATALOG_TRENDING_DAYS = 7;
+const catalogTrendingSince = (now = /* @__PURE__ */ new Date()) => {
+  const since = new Date(now.getTime());
+  since.setUTCDate(since.getUTCDate() - BOOK_CATALOG_TRENDING_DAYS);
+  return since;
+};
 const BOOK_CATALOG_SORT_VALUES = [
   "newest",
   "trending",
@@ -34,6 +40,8 @@ export {
   BOOK_CATALOG_DEFAULT_SORT,
   BOOK_CATALOG_SORT_LABELS,
   BOOK_CATALOG_SORT_VALUES,
+  BOOK_CATALOG_TRENDING_DAYS,
+  catalogTrendingSince,
   getBookCatalogOrderBy,
   parseBookCatalogSort
 };

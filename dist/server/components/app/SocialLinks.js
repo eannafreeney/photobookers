@@ -4,7 +4,7 @@ const SocialLinks = ({
   creator,
   className = "flex gap-4 items-center justify-center text-xs"
 }) => {
-  if (!creator.website && !creator.facebook && !creator.instagram && !creator.twitter)
+  if (!creator.website && !creator.facebook && !creator.instagram && !creator.twitter && !creator.substack)
     return /* @__PURE__ */ jsx(Fragment, {});
   return /* @__PURE__ */ jsxs("div", { class: className, children: [
     creator.website && /* @__PURE__ */ jsx(
@@ -41,6 +41,16 @@ const SocialLinks = ({
         target: "_blank",
         className: "text-on-surface-strong transition-colors hover:text-[#0099cc]",
         children: twitterIcon
+      }
+    ),
+    creator.substack && /* @__PURE__ */ jsx(
+      Link,
+      {
+        href: creator.substack,
+        target: "_blank",
+        className: "text-on-surface-strong transition-colors hover:text-[#0099cc]",
+        "aria-label": "Substack",
+        children: substackIcon
       }
     )
   ] });
@@ -248,6 +258,39 @@ const instagramIcon = /* @__PURE__ */ jsxs(
         "path",
         {
           d: "M17.5 6.51L17.51 6.49889",
+          stroke: "currentColor",
+          "stroke-width": "1.5",
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round"
+        }
+      )
+    ]
+  }
+);
+const substackIcon = /* @__PURE__ */ jsxs(
+  "svg",
+  {
+    width: "24px",
+    height: "24px",
+    "stroke-width": "1.5",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    stroke: "currentColor",
+    children: [
+      /* @__PURE__ */ jsx(
+        "path",
+        {
+          d: "M3 5H21",
+          stroke: "currentColor",
+          "stroke-width": "1.5",
+          "stroke-linecap": "round"
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        "path",
+        {
+          d: "M3 9H21V19L12 14.5L3 19V9Z",
           stroke: "currentColor",
           "stroke-width": "1.5",
           "stroke-linecap": "round",

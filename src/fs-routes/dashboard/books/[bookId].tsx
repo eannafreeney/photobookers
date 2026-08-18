@@ -39,6 +39,7 @@ import Tabs from "../../../components/app/Tabs";
 import SectionTitle from "../../../components/app/SectionTitle";
 import { isFeatureEnabledForUser } from "../../../lib/features";
 import { serializePressLinks } from "../../../features/dashboard/books/pressLinks";
+import { toDateInputValue } from "../../../lib/utils";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
@@ -57,9 +58,7 @@ export const GET = createRoute(
       purchase_link: book.purchaseLink,
       tags: book.tags?.join(", "),
       availability_status: book.availabilityStatus,
-      release_date: book?.releaseDate
-        ? new Date(book.releaseDate).toISOString().split("T")[0]
-        : "",
+      release_date: toDateInputValue(book.releaseDate),
     };
 
     const publisherIsVerified = book?.publisher?.status === "verified";

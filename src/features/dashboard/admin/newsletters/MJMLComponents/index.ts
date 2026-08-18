@@ -1,4 +1,7 @@
-export { BookColumn } from "./BookColumn";
+export {
+  BookColumn,
+  bookColumnCoverStyle,
+} from "./BookColumn";
 export { BookFeatureCard } from "./BookFeatureCard";
 export { CreatorColumn } from "./CreatorColumn";
 export { FeatureRow } from "./FeatureRow";

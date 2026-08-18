@@ -1,13 +1,13 @@
 import { jsx } from "react/jsx-runtime";
 import { MjmlSection, MjmlColumn, MjmlButton } from "mjml-react";
-import { appBaseUrl, brand } from "../constants.js";
+import { brand, resolveAppBaseUrl } from "../constants.js";
 const NewsletterCtaButton = ({
   ctaText,
   href
 }) => /* @__PURE__ */ jsx(MjmlSection, { backgroundColor: brand.surface, padding: "24px 25px 8px", children: /* @__PURE__ */ jsx(MjmlColumn, { children: /* @__PURE__ */ jsx(
   MjmlButton,
   {
-    href: href ?? appBaseUrl,
+    href: href || resolveAppBaseUrl(),
     backgroundColor: brand.primary,
     color: brand.onPrimary,
     fontSize: "11px",

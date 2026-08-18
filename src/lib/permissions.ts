@@ -82,12 +82,13 @@ export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
 }
 
 export function canPreviewBook(
-  user: AuthUser,
+  user: AuthUser | null,
   book: Pick<
     Book,
     "coverUrl" | "publicationStatus" | "artistId" | "publisherId"
   >,
 ): boolean {
+  if (!user) return false;
   if (user.isAdmin) return true;
   if (!book.coverUrl) return false;
 

@@ -1,12 +1,15 @@
-const appBaseUrl = process.env.PUBLIC_APP_URL ?? "https://www.photobookers.com";
+function resolveAppBaseUrl() {
+  const raw = process.env.PUBLIC_APP_URL || process.env.SITE_URL || "https://www.photobookers.com";
+  return raw.replace(/\/$/, "");
+}
 function buildBookPageUrl(slug) {
-  return `${appBaseUrl}/books/${slug}`;
+  return `${resolveAppBaseUrl()}/books/${slug}`;
 }
 function buildCreatorPageUrl(slug) {
-  return `${appBaseUrl}/creators/${slug}`;
+  return `${resolveAppBaseUrl()}/creators/${slug}`;
 }
 function buildFairPageUrl(slug) {
-  return `${appBaseUrl}/fairs/${slug}`;
+  return `${resolveAppBaseUrl()}/fairs/${slug}`;
 }
 function formatFairDateRange(startDate, endDate) {
   const start = startDate.toLocaleDateString("en-GB", {
@@ -180,12 +183,13 @@ function buildBotdPostStickerFields(book) {
 function buildBotdStoryStickerFields(book) {
   const artistDm = buildBotdArtistDmSticker(book);
   const publisherDm = buildBotdPublisherDmSticker(book);
-  if (artistDm && publisherDm) {
-    return { text: artistDm, topics: publisherDm };
-  }
-  if (artistDm) return { text: artistDm };
-  if (publisherDm) return { text: publisherDm };
-  return { text: "Book of the Day" };
+  const handles = buildBotdStoryHandles(book);
+  const result = {
+    text: artistDm ?? publisherDm ?? "Book of the Day"
+  };
+  if (artistDm && publisherDm) result.topics = publisherDm;
+  if (handles) result.products = handles;
+  return result;
 }
 function buildSpotlightStoryStickerText(caption, mentions) {
   const trimmed = caption.trim();

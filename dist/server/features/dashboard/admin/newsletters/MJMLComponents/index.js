@@ -1,4 +1,7 @@
-import { BookColumn } from "./BookColumn.js";
+import {
+  BookColumn,
+  bookColumnCoverStyle
+} from "./BookColumn.js";
 import { BookFeatureCard } from "./BookFeatureCard.js";
 import { CreatorColumn } from "./CreatorColumn.js";
 import { FeatureRow } from "./FeatureRow.js";
@@ -22,5 +25,6 @@ export {
   NewsletterIntro,
   NewsletterSubject,
   SectionHeading,
-  ViewButton
+  ViewButton,
+  bookColumnCoverStyle
 };

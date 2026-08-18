@@ -30,7 +30,10 @@ export type SpotlightContentItem =
       kind: "botd";
       date: Date;
       title: string;
+      artistName: string | null;
+      publisherName: string | null;
       featuredImageUrl: string | null;
+      artistProvidedStoryImageUrl: string | null;
       instagramImageUrls: string[];
       sourceText: string | null;
       spotlightBlurb: string | null;
@@ -41,6 +44,7 @@ export type SpotlightContentItem =
       kind: "artist" | "publisher";
       title: string;
       featuredImageUrl: string | null;
+      artistProvidedStoryImageUrl: string | null;
       instagramImageUrls: string[];
       sourceText: string | null;
       spotlightBlurb: string | null;
@@ -283,7 +287,11 @@ export async function buildWeekSpotlightContent(
         kind: "botd",
         date: entry.date,
         title: book.title,
+        artistName: book.artist?.displayName ?? null,
+        publisherName: book.publisher?.displayName ?? null,
         featuredImageUrl,
+        artistProvidedStoryImageUrl:
+          entry.artistProvidedStoryImageUrl?.trim() || null,
         instagramImageUrls: getPlannerInstagramImageSelection(
           entry,
           imageOptions,
@@ -323,6 +331,8 @@ export async function buildWeekSpotlightContent(
         kind: "artist",
         title: creator.displayName,
         featuredImageUrl,
+        artistProvidedStoryImageUrl:
+          weekData.artistOfTheWeek.artistProvidedStoryImageUrl?.trim() || null,
         instagramImageUrls: getPlannerInstagramImageSelection(
           weekData.artistOfTheWeek,
           artistImageOptions,
@@ -362,6 +372,9 @@ export async function buildWeekSpotlightContent(
         kind: "publisher",
         title: creator.displayName,
         featuredImageUrl,
+        artistProvidedStoryImageUrl:
+          weekData.publisherOfTheWeek.artistProvidedStoryImageUrl?.trim() ||
+          null,
         instagramImageUrls: getPlannerInstagramImageSelection(
           weekData.publisherOfTheWeek,
           publisherImageOptions,

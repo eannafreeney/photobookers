@@ -299,6 +299,31 @@ export function resolveInstagramImageUrls(row: {
   return row.featuredImageUrl ? [row.featuredImageUrl] : [];
 }
 
+/**
+ * Story image: artist-provided vertical asset wins; otherwise first spread.
+ * Feed resolution is unchanged (carousel/featured).
+ */
+export function resolveBotdStoryImageUrl(row: {
+  artistProvidedStoryImageUrl?: string | null;
+  instagramImageUrls?: string[] | null;
+  featuredImageUrl?: string | null;
+}): string | null {
+  const artistUrl = row.artistProvidedStoryImageUrl?.trim();
+  if (artistUrl) return artistUrl;
+  return resolveInstagramImageUrls(row)[0] ?? null;
+}
+
+/** Same resolution for AOTW/POTW story images. */
+export function resolveSpotlightStoryImageUrl(row: {
+  artistProvidedStoryImageUrl?: string | null;
+  instagramImageUrls?: string[] | null;
+  featuredImageUrl?: string | null;
+}): string | null {
+  const artistUrl = row.artistProvidedStoryImageUrl?.trim();
+  if (artistUrl) return artistUrl;
+  return resolveInstagramImageUrls(row)[0] ?? null;
+}
+
 export function getPlannerInstagramImageSelection(
   row: {
     instagramImageUrls?: string[] | null;

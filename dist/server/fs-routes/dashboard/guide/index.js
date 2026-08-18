@@ -58,7 +58,17 @@ const GET = createRoute(async (c) => {
                   intro: "A practical checklist for building a profile that gets discovered, followed, and bought from."
                 }
               ),
-              /* @__PURE__ */ jsx(ProfileGuide, { creator })
+              /* @__PURE__ */ jsx(ProfileGuide, { creator }),
+              isFeatureEnabledForUser("collectors", user) ? /* @__PURE__ */ jsxs("div", { class: "mt-12 flex flex-col gap-4 border-t border-outline pt-8", children: [
+                /* @__PURE__ */ jsx(
+                  PageHeader,
+                  {
+                    title: "Your personal shelf",
+                    intro: "Creators can also run a public shelf for favourites, lists, and posts."
+                  }
+                ),
+                /* @__PURE__ */ jsx(CollectorGuide, {})
+              ] }) : null
             ]
           }
         )

@@ -13,10 +13,9 @@ import {
   toWeekString,
 } from "../../../../../lib/utils";
 import {
-  buildBookCreditsSubtitle,
-  prepareSpotlightFeedImageUrls,
-  type SpotlightLeadLabel,
-} from "../../../../../domain/planner/instagramSlides/renderSpotlightLeadSlide";
+  renderBotdStoryBlurred,
+  renderBotdStoryFullBleed,
+} from "../../../../../domain/planner/instagramSlides/renderBotdStorySlide";
 import { uploadImageFromBuffer } from "../../../../../services/storage";
 import {
   getBooksOfTheDayInRange,
@@ -30,7 +29,6 @@ import type {
 } from "../services";
 import { getWeekDays, getWeekStarts } from "../utils";
 import {
-  bufferCreateScheduledImagePost,
   bufferCreateScheduledStory,
   bufferPostExists,
 } from "./buffer";
@@ -38,8 +36,6 @@ import {
   buildArtistInstagramCaption,
   buildBotdInstagramCaption,
   buildBotdStoryStickerFields,
-  buildDefaultCreatorInstagramFirstComment,
-  buildDefaultInstagramFirstComment,
   buildPublisherInstagramCaption,
   buildSpotlightStoryStickerText,
   collectBookImageOptions,
@@ -58,7 +54,9 @@ import {
   buildPotwInstagramDueAt,
   buildPotwInstagramStoryDueAt,
   isWeekInstagramFullyPrepared,
+  resolveBotdStoryImageUrl,
   resolveInstagramImageUrls,
+  resolveSpotlightStoryImageUrl,
   type FeaturedHeroImagesPayload,
   type PrepareInstagramFormPayload,
 } from "./instagramUtils";
@@ -111,6 +109,25 @@ const clearInstagramFields = {
   instagramStoryQueuedAt: null,
   instagramStoryError: null,
 } as const;
+
+async function uploadBotdStoryImage(
+  buffer: Buffer,
+  day: Date,
+): Promise<Result<string, { reason: string }>> {
+  const folder = `social/botd/${toDateString(day)}/story`;
+  const uploaded = await uploadImageFromBuffer(buffer, folder);
+  return ok(uploaded.url);
+}
+
+async function uploadSpotlightStoryImage(
+  buffer: Buffer,
+  kind: "artist" | "publisher",
+  dueAt: Date,
+): Promise<Result<string, { reason: string }>> {
+  const folder = `social/${kind === "artist" ? "aotw" : "potw"}/${toDateString(dueAt)}/story`;
+  const uploaded = await uploadImageFromBuffer(buffer, folder);
+  return ok(uploaded.url);
+}
 
 export type WeekInstagramPrepareData = {
   botdEntries: BookOfTheDayWithBook[];
@@ -536,12 +553,6 @@ function scheduleDueAt(dueAt: Date): Date {
   return dueAt;
 }
 
-const clearFeedQueueFields = {
-  instagramBufferPostId: null,
-  instagramQueuedAt: null,
-  instagramError: null,
-} as const;
-
 const clearStoryQueueFields = {
   instagramStoryBufferPostId: null,
   instagramStoryQueuedAt: null,
@@ -559,165 +570,6 @@ async function resolveQueuedInstagramPost(
 
 function isBufferScheduleLimitError(reason: string): boolean {
   return reason.toLowerCase().includes("scheduled posts limit reached");
-}
-
-async function prepareBotdFeedImageUrls(
-  imageUrls: string[],
-  date: Date,
-  book?: {
-    title: string;
-    artist?: { displayName: string } | null;
-    publisher?: { displayName: string } | null;
-  } | null,
-): Promise<Result<string[], { reason: string }>> {
-  if (imageUrls.length === 0) return ok([]);
-
-  try {
-    const dateKey = toDateString(toUtcStartOfDay(date));
-    const feedImageUrls = await prepareSpotlightFeedImageUrls(
-      imageUrls,
-      "Book of the Day",
-      {
-        upload: async (buffer, folder) => {
-          const uploaded = await uploadImageFromBuffer(buffer, folder);
-          return uploaded.url;
-        },
-        uploadFolder: `social/botd/${dateKey}/feed`,
-        meta: book
-          ? {
-              title: book.title,
-              subtitle: buildBookCreditsSubtitle(book),
-            }
-          : undefined,
-      },
-    );
-    return ok(feedImageUrls);
-  } catch (error) {
-    console.error("prepareBotdFeedImageUrls", error);
-    return err({ reason: "Failed to prepare Book of the Day feed image" });
-  }
-}
-
-async function prepareSpotlightRowFeedImageUrls(
-  imageUrls: string[],
-  label: SpotlightLeadLabel,
-  uploadFolder: string,
-  displayName: string,
-): Promise<Result<string[], { reason: string }>> {
-  if (imageUrls.length === 0) return ok([]);
-
-  try {
-    const feedImageUrls = await prepareSpotlightFeedImageUrls(
-      imageUrls,
-      label,
-      {
-        upload: async (buffer, folder) => {
-          const uploaded = await uploadImageFromBuffer(buffer, folder);
-          return uploaded.url;
-        },
-        uploadFolder,
-        meta: { title: displayName },
-      },
-    );
-    return ok(feedImageUrls);
-  } catch (error) {
-    console.error("prepareSpotlightRowFeedImageUrls", error);
-    return err({ reason: "Failed to prepare Instagram feed image" });
-  }
-}
-
-export async function queuePreparedBotdInstagramForDate(
-  date: Date,
-): Promise<Result<{ postId: string; botdId: string }, { reason: string }>> {
-  const day = toUtcStartOfDay(date);
-
-  const row = await db.query.bookOfTheDay.findFirst({
-    where: eq(bookOfTheDay.date, day),
-    with: {
-      book: BOOK_WITH_CREATORS_FOR_INSTAGRAM,
-    },
-  });
-
-  if (!row) return err({ reason: "No book of the day for this date" });
-  if (!row.instagramPreparedAt) {
-    return err({ reason: "Instagram post is not prepared" });
-  }
-  if (row.instagramQueuedAt && row.instagramBufferPostId) {
-    const action = await resolveQueuedInstagramPost(row.instagramBufferPostId);
-    if (action === "skip" || action === "unknown") {
-      return err({ reason: "Instagram post already queued in Buffer" });
-    }
-    await db
-      .update(bookOfTheDay)
-      .set({ ...clearFeedQueueFields, updatedAt: new Date() })
-      .where(eq(bookOfTheDay.id, row.id));
-  }
-  if (!row.instagramCaption) {
-    return err({ reason: "Instagram image or caption is missing" });
-  }
-  const imageUrls = resolveInstagramImageUrls(row);
-  if (imageUrls.length === 0) {
-    return err({ reason: "Instagram image or caption is missing" });
-  }
-
-  const [feedImagesError, feedImageUrls] = await prepareBotdFeedImageUrls(
-    imageUrls,
-    day,
-    row.book,
-  );
-  if (feedImagesError) return err(feedImagesError);
-
-  const dueAt = scheduleDueAt(buildInstagramDueAt(day));
-
-  const useFirstComment = process.env.BUFFER_INSTAGRAM_FIRST_COMMENT === "true";
-  const firstComment =
-    useFirstComment && row.book
-      ? buildDefaultInstagramFirstComment(row.book)
-      : undefined;
-
-  const text = row.book
-    ? ensureBookTagsInCaption(
-        buildBotdInstagramCaption(
-          row.book,
-          row.instagramCaption,
-          row.spotlightBlurb,
-        ),
-        row.book.tags,
-      )
-    : row.instagramCaption;
-
-  const [bufferError, bufferData] = await bufferCreateScheduledImagePost({
-    text,
-    imageUrls: feedImageUrls,
-    dueAt,
-    firstComment,
-  });
-
-  if (bufferError) {
-    await db
-      .update(bookOfTheDay)
-      .set({
-        instagramError: bufferError.reason,
-        updatedAt: new Date(),
-      })
-      .where(eq(bookOfTheDay.id, row.id));
-    return err({ reason: bufferError.reason });
-  }
-
-  if (text !== row.instagramCaption) {
-    await db
-      .update(bookOfTheDay)
-      .set({ instagramCaption: text, updatedAt: new Date() })
-      .where(eq(bookOfTheDay.id, row.id));
-  }
-
-  const [updateError] = await markBotdInstagramQueued(
-    row.id,
-    bufferData.postId,
-  );
-  if (updateError) return err(updateError);
-
-  return ok({ postId: bufferData.postId, botdId: row.id });
 }
 
 export async function queuePreparedBotdInstagramStoryForDate(
@@ -751,10 +603,28 @@ export async function queuePreparedBotdInstagramStoryForDate(
   if (!row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
   }
-  const storyImageUrl = resolveInstagramImageUrls(row)[0];
-  if (!storyImageUrl) {
+  const storySourceUrl = resolveBotdStoryImageUrl(row);
+  if (!storySourceUrl) {
     return err({ reason: "Instagram image or caption is missing" });
   }
+
+  const renderedStory = row.artistProvidedStoryImageUrl
+    ? await renderBotdStoryFullBleed(storySourceUrl, {
+        title: row.book?.title ?? "Book of the Day",
+        artistName: row.book?.artist?.displayName ?? null,
+        publisherName: row.book?.publisher?.displayName ?? null,
+      })
+    : await renderBotdStoryBlurred(storySourceUrl, {
+        title: row.book?.title ?? "Book of the Day",
+        artistName: row.book?.artist?.displayName ?? null,
+        publisherName: row.book?.publisher?.displayName ?? null,
+      });
+
+  const [uploadError, storyImageUrl] = await uploadBotdStoryImage(
+    renderedStory,
+    day,
+  );
+  if (uploadError) return err(uploadError);
 
   const dueAt = scheduleDueAt(buildInstagramStoryDueAt(day));
 
@@ -799,131 +669,6 @@ export async function queuePreparedBotdInstagramStoryForDate(
   return ok({ postId: bufferData.postId, botdId: row.id });
 }
 
-async function queueSpotlightRow(params: {
-  kind: "artist" | "publisher";
-  uploadFolder: string;
-  row: {
-    id: string;
-    instagramPreparedAt: Date | null;
-    instagramQueuedAt: Date | null;
-    instagramBufferPostId: string | null;
-    featuredImageUrl: string | null;
-    instagramImageUrls?: string[] | null;
-    instagramCaption: string | null;
-    spotlightBlurb?: string | null;
-    creator: {
-      displayName: string;
-      slug: string;
-      instagram?: string | null;
-      bio?: string | null;
-    } | null;
-  };
-  table: typeof artistOfTheWeek | typeof publisherOfTheWeek;
-  dueAt: Date;
-}): Promise<Result<{ postId: string; rowId: string }, { reason: string }>> {
-  if (!params.row.instagramPreparedAt) {
-    return err({ reason: "Instagram post is not prepared" });
-  }
-  if (params.row.instagramQueuedAt && params.row.instagramBufferPostId) {
-    const action = await resolveQueuedInstagramPost(
-      params.row.instagramBufferPostId,
-    );
-    if (action === "skip" || action === "unknown") {
-      return err({ reason: "Instagram post already queued in Buffer" });
-    }
-    await db
-      .update(params.table)
-      .set({ ...clearFeedQueueFields, updatedAt: new Date() })
-      .where(eq(params.table.id, params.row.id));
-  }
-  if (!params.row.instagramCaption) {
-    return err({ reason: "Instagram image or caption is missing" });
-  }
-  const imageUrls = resolveInstagramImageUrls(params.row);
-  if (imageUrls.length === 0) {
-    return err({ reason: "Instagram image or caption is missing" });
-  }
-
-  const spotlightLabel: SpotlightLeadLabel =
-    params.kind === "artist" ? "Artist of the Week" : "Publisher of the Week";
-  const [feedImagesError, feedImageUrls] =
-    await prepareSpotlightRowFeedImageUrls(
-      imageUrls,
-      spotlightLabel,
-      params.uploadFolder,
-      params.row.creator?.displayName ?? params.row.instagramCaption,
-    );
-  if (feedImagesError) return err(feedImagesError);
-
-  const text =
-    params.row.creator == null
-      ? params.row.instagramCaption
-      : params.kind === "artist"
-        ? buildArtistInstagramCaption(
-            params.row.creator,
-            params.row.instagramCaption,
-            params.row.spotlightBlurb,
-          )
-        : buildPublisherInstagramCaption(
-            params.row.creator,
-            params.row.instagramCaption,
-            params.row.spotlightBlurb,
-          );
-
-  const dueAt = scheduleDueAt(params.dueAt);
-  const useFirstComment = process.env.BUFFER_INSTAGRAM_FIRST_COMMENT === "true";
-  const firstComment =
-    useFirstComment && params.row.creator
-      ? buildDefaultCreatorInstagramFirstComment(params.row.creator)
-      : undefined;
-
-  const [bufferError, bufferData] = await bufferCreateScheduledImagePost({
-    text,
-    imageUrls: feedImageUrls,
-    dueAt,
-    firstComment,
-  });
-
-  if (bufferError) {
-    await db
-      .update(params.table)
-      .set({
-        instagramError: bufferError.reason,
-        updatedAt: new Date(),
-      })
-      .where(eq(params.table.id, params.row.id));
-    return err({ reason: bufferError.reason });
-  }
-
-  if (text !== params.row.instagramCaption) {
-    await db
-      .update(params.table)
-      .set({ instagramCaption: text, updatedAt: new Date() })
-      .where(eq(params.table.id, params.row.id));
-  }
-
-  try {
-    const [updated] = await db
-      .update(params.table)
-      .set({
-        instagramBufferPostId: bufferData.postId,
-        instagramQueuedAt: new Date(),
-        instagramError: null,
-        updatedAt: new Date(),
-      })
-      .where(eq(params.table.id, params.row.id))
-      .returning({ id: params.table.id });
-
-    if (!updated) {
-      return err({ reason: "Failed to update Instagram queue status" });
-    }
-    return ok({ postId: bufferData.postId, rowId: updated.id });
-  } catch (e) {
-    console.error("queueSpotlightRow", e);
-    return err({ reason: "Failed to update Instagram queue status" });
-  }
-}
-
 async function queueSpotlightStoryRow(params: {
   kind: "artist" | "publisher";
   row: {
@@ -933,6 +678,7 @@ async function queueSpotlightStoryRow(params: {
     instagramStoryBufferPostId: string | null;
     featuredImageUrl: string | null;
     instagramImageUrls?: string[] | null;
+    artistProvidedStoryImageUrl?: string | null;
     instagramCaption: string | null;
     spotlightBlurb?: string | null;
     creator: {
@@ -967,10 +713,31 @@ async function queueSpotlightStoryRow(params: {
   if (!params.row.instagramCaption) {
     return err({ reason: "Instagram image or caption is missing" });
   }
-  const storyImageUrl = resolveInstagramImageUrls(params.row)[0];
-  if (!storyImageUrl) {
+  const storySourceUrl = resolveSpotlightStoryImageUrl(params.row);
+  if (!storySourceUrl) {
     return err({ reason: "Instagram image or caption is missing" });
   }
+
+  const label =
+    params.kind === "artist" ? "ARTIST OF THE WEEK" : "PUBLISHER OF THE WEEK";
+  const renderedStory = params.row.artistProvidedStoryImageUrl
+    ? await renderBotdStoryFullBleed(storySourceUrl, {
+        title: params.row.creator?.displayName ?? label,
+        artistName: null,
+        label,
+      })
+    : await renderBotdStoryBlurred(storySourceUrl, {
+        title: params.row.creator?.displayName ?? label,
+        artistName: null,
+        label,
+      });
+
+  const [uploadError, storyImageUrl] = await uploadSpotlightStoryImage(
+    renderedStory,
+    params.kind,
+    params.dueAt,
+  );
+  if (uploadError) return err(uploadError);
 
   const caption =
     params.row.creator == null
@@ -1047,24 +814,6 @@ async function queueSpotlightStoryRow(params: {
   }
 }
 
-export async function queuePreparedAotwInstagramForWeek(
-  weekStart: Date,
-): Promise<Result<{ postId: string; rowId: string }, { reason: string }>> {
-  const week = toWeekStart(weekStart);
-  const row = await db.query.artistOfTheWeek.findFirst({
-    where: eq(artistOfTheWeek.weekStart, week),
-    with: { creator: { columns: CREATOR_INSTAGRAM_COLUMNS } },
-  });
-  if (!row) return err({ reason: "No artist of the week for this week" });
-  return queueSpotlightRow({
-    kind: "artist",
-    uploadFolder: `social/aotw/${toDateString(week)}/feed`,
-    row,
-    table: artistOfTheWeek,
-    dueAt: buildAotwInstagramDueAt(weekStart),
-  });
-}
-
 export async function queuePreparedAotwInstagramStoryForWeek(
   weekStart: Date,
 ): Promise<Result<{ postId: string; rowId: string }, { reason: string }>> {
@@ -1079,24 +828,6 @@ export async function queuePreparedAotwInstagramStoryForWeek(
     row,
     table: artistOfTheWeek,
     dueAt: buildAotwInstagramStoryDueAt(weekStart),
-  });
-}
-
-export async function queuePreparedPotwInstagramForWeek(
-  weekStart: Date,
-): Promise<Result<{ postId: string; rowId: string }, { reason: string }>> {
-  const week = toWeekStart(weekStart);
-  const row = await db.query.publisherOfTheWeek.findFirst({
-    where: eq(publisherOfTheWeek.weekStart, week),
-    with: { creator: { columns: CREATOR_INSTAGRAM_COLUMNS } },
-  });
-  if (!row) return err({ reason: "No publisher of the week for this week" });
-  return queueSpotlightRow({
-    kind: "publisher",
-    uploadFolder: `social/potw/${toDateString(week)}/feed`,
-    row,
-    table: publisherOfTheWeek,
-    dueAt: buildPotwInstagramDueAt(weekStart),
   });
 }
 
@@ -1115,30 +846,6 @@ export async function queuePreparedPotwInstagramStoryForWeek(
     table: publisherOfTheWeek,
     dueAt: buildPotwInstagramStoryDueAt(weekStart),
   });
-}
-
-async function markBotdInstagramQueued(
-  botdId: string,
-  postId: string,
-): Promise<Result<{ id: string }, { reason: string }>> {
-  try {
-    const [row] = await db
-      .update(bookOfTheDay)
-      .set({
-        instagramBufferPostId: postId,
-        instagramQueuedAt: new Date(),
-        instagramError: null,
-        updatedAt: new Date(),
-      })
-      .where(eq(bookOfTheDay.id, botdId))
-      .returning({ id: bookOfTheDay.id });
-
-    if (!row) return err({ reason: "Failed to update Instagram queue status" });
-    return ok(row);
-  } catch (e) {
-    console.error("markBotdInstagramQueued", e);
-    return err({ reason: "Failed to update Instagram queue status" });
-  }
 }
 
 async function markBotdInstagramStoryQueued(
@@ -1172,7 +879,7 @@ type QueueInstagramBatchResult = {
   skipped: string[];
 };
 
-/** Queue prepared BOTD Instagram feed posts and stories for a UTC calendar day. */
+/** Queue prepared BOTD Instagram stories for a UTC calendar day. */
 export async function queuePreparedBotdInstagramPostsForDate(
   targetDate: Date,
 ): Promise<Result<QueueInstagramBatchResult, { reason: string }>> {
@@ -1181,13 +888,6 @@ export async function queuePreparedBotdInstagramPostsForDate(
 
   const queued: QueueInstagramBatchResult["queued"] = [];
   const skipped: string[] = [];
-
-  const [postError, postResult] = await queuePreparedBotdInstagramForDate(day);
-  if (postError) {
-    skipped.push(`${dateKey} post: ${postError.reason}`);
-  } else {
-    queued.push({ key: dateKey, postId: postResult.postId, kind: "post" });
-  }
 
   const [storyError, storyResult] =
     await queuePreparedBotdInstagramStoryForDate(day);
@@ -1206,14 +906,6 @@ export async function queuePreparedBotdInstagramPostsForDate(
   const sunday = toDateString(getWeekDays(weekStart)[6]);
 
   if (dateKey === saturday) {
-    const [aotwError, aotw] =
-      await queuePreparedAotwInstagramForWeek(weekStart);
-    if (aotwError) {
-      skipped.push(`aotw post: ${aotwError.reason}`);
-    } else {
-      queued.push({ key: "aotw", postId: aotw.postId, kind: "post" });
-    }
-
     const [aotwStoryError, aotwStory] =
       await queuePreparedAotwInstagramStoryForWeek(weekStart);
     if (aotwStoryError) {
@@ -1228,14 +920,6 @@ export async function queuePreparedBotdInstagramPostsForDate(
   }
 
   if (dateKey === sunday) {
-    const [potwError, potw] =
-      await queuePreparedPotwInstagramForWeek(weekStart);
-    if (potwError) {
-      skipped.push(`potw post: ${potwError.reason}`);
-    } else {
-      queued.push({ key: "potw", postId: potw.postId, kind: "post" });
-    }
-
     const [potwStoryError, potwStory] =
       await queuePreparedPotwInstagramStoryForWeek(weekStart);
     if (potwStoryError) {
@@ -1277,19 +961,6 @@ export async function queueDuePreparedInstagramPosts(): Promise<
   for (const row of botdRows) {
     if (stopDueToBufferLimit) break;
     const dateKey = toDateString(row.date);
-    if (!row.instagramQueuedAt) {
-      const [error, result] = await queuePreparedBotdInstagramForDate(row.date);
-      if (error) {
-        skipped.push(`${dateKey} post: ${error.reason}`);
-        if (isBufferScheduleLimitError(error.reason)) {
-          stopDueToBufferLimit = true;
-          break;
-        }
-      } else {
-        queued.push({ key: dateKey, postId: result.postId, kind: "post" });
-      }
-    }
-
     if (!row.instagramStoryQueuedAt) {
       const [error, result] = await queuePreparedBotdInstagramStoryForDate(
         row.date,
@@ -1320,25 +991,6 @@ export async function queueDuePreparedInstagramPosts(): Promise<
     if (spotlightDay < todayKey) continue;
     const weekKey = toWeekString(row.weekStart);
 
-    if (!row.instagramQueuedAt) {
-      const [error, result] = await queuePreparedAotwInstagramForWeek(
-        row.weekStart,
-      );
-      if (error) {
-        skipped.push(`aotw-${weekKey} post: ${error.reason}`);
-        if (isBufferScheduleLimitError(error.reason)) {
-          stopDueToBufferLimit = true;
-          break;
-        }
-      } else {
-        queued.push({
-          key: `aotw-${weekKey}`,
-          postId: result.postId,
-          kind: "post",
-        });
-      }
-    }
-
     if (!row.instagramStoryQueuedAt) {
       const [error, result] = await queuePreparedAotwInstagramStoryForWeek(
         row.weekStart,
@@ -1368,25 +1020,6 @@ export async function queueDuePreparedInstagramPosts(): Promise<
     const spotlightDay = toDateString(getWeekDays(row.weekStart)[6]);
     if (spotlightDay < todayKey) continue;
     const weekKey = toWeekString(row.weekStart);
-
-    if (!row.instagramQueuedAt) {
-      const [error, result] = await queuePreparedPotwInstagramForWeek(
-        row.weekStart,
-      );
-      if (error) {
-        skipped.push(`potw-${weekKey} post: ${error.reason}`);
-        if (isBufferScheduleLimitError(error.reason)) {
-          stopDueToBufferLimit = true;
-          break;
-        }
-      } else {
-        queued.push({
-          key: `potw-${weekKey}`,
-          postId: result.postId,
-          kind: "post",
-        });
-      }
-    }
 
     if (!row.instagramStoryQueuedAt) {
       const [error, result] = await queuePreparedPotwInstagramStoryForWeek(

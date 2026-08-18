@@ -82,6 +82,12 @@ const EditCreatorForm = ({
             type="url"
             placeholder="https://..."
           />
+          <Input
+            label="Substack"
+            name="form.substack"
+            type="url"
+            placeholder="https://..."
+          />
           <input
             type="hidden"
             name="type"

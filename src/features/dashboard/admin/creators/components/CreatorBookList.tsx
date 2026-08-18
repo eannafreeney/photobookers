@@ -20,7 +20,7 @@ import {
 import ListNavigation from "../../../../app/components/ListNavigation";
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import { getBooksByCreatorId } from "../services";
-import { deleteRowAttrs } from "@/lib/utils";
+import { deleteRowAttrs, toDateInputValue } from "@/lib/utils";
 
 type CreatorBookListProps = {
   creatorId: string;
@@ -229,14 +229,7 @@ const BookTableRow = ({ book, user, funnel, reorderEnabled }: RowProps) => {
         <Card.Text>{funnel.outboundClicks}</Card.Text>
       </Table.BodyRow>
       <Table.BodyRow>
-        {book.releaseDate
-          ? book.releaseDate
-              .toISOString()
-              .slice(0, 10)
-              .split("-")
-              .reverse()
-              .join("/")
-          : ""}
+        {toDateInputValue(book.releaseDate).split("-").reverse().join("/")}
       </Table.BodyRow>
       <Table.BodyRow>
         <PublishToggleForm book={book} user={user} />

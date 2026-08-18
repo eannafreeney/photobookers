@@ -74,7 +74,7 @@ const GET = createRoute(
     } else {
       c.header("Cache-Control", "private, no-store");
     }
-    const posts = await listCollectorPosts(owner.id);
+    const posts = owner.creator ? [] : await listCollectorPosts(owner.id);
     const publicLists = await getPublicListsForUser(owner.id);
     const title = pageTitle(`${owner.displayName}'s shelf`);
     const description = shelfDescription(
@@ -107,7 +107,7 @@ const GET = createRoute(
               /* @__PURE__ */ jsx(
                 "a",
                 {
-                  href: "/shelf",
+                  href: "/dashboard/shelf",
                   class: "text-accent underline underline-offset-2",
                   children: "Manage sharing settings"
                 }
@@ -124,7 +124,20 @@ const GET = createRoute(
                     loading: "lazy"
                   }
                 ),
-                /* @__PURE__ */ jsx("h1", { class: "text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl", children: `${owner.displayName}'s shelf` })
+                /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-1", children: [
+                  /* @__PURE__ */ jsx("h1", { class: "text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl", children: `${owner.displayName}'s shelf` }),
+                  owner.creator?.slug ? /* @__PURE__ */ jsxs(
+                    "a",
+                    {
+                      href: `/creators/${owner.creator.slug}`,
+                      class: "text-sm text-accent underline underline-offset-2",
+                      children: [
+                        "Also a creator \u2192 ",
+                        owner.creator.displayName
+                      ]
+                    }
+                  ) : null
+                ] })
               ] }),
               /* @__PURE__ */ jsx("div", { class: "flex flex-col items-end justify-end gap-3", children: /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-4", children: [
                 !isOwner ? /* @__PURE__ */ jsx(
@@ -165,7 +178,14 @@ const GET = createRoute(
                   children: `Lists (${publicLists.length + 1})`
                 }
               ),
-              /* @__PURE__ */ jsx(
+              owner.creator ? /* @__PURE__ */ jsx(
+                "a",
+                {
+                  href: `/creators/${owner.creator.slug}`,
+                  class: "px-3 py-2 text-sm font-medium text-accent underline underline-offset-2",
+                  children: "Posts on creator profile \u2192"
+                }
+              ) : /* @__PURE__ */ jsx(
                 "button",
                 {
                   type: "button",
@@ -193,7 +213,7 @@ const GET = createRoute(
                 lists: publicLists
               }
             ) }),
-            /* @__PURE__ */ jsx("div", { "x-show": "tab === 'posts'", "x-cloak": true, class: "flex flex-col gap-4", children: posts.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: "No posts yet." }) : posts.map((post) => /* @__PURE__ */ jsx(
+            !owner.creator ? /* @__PURE__ */ jsx("div", { "x-show": "tab === 'posts'", "x-cloak": true, class: "flex flex-col gap-4", children: posts.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface", children: "No posts yet." }) : posts.map((post) => /* @__PURE__ */ jsx(
               PostCard,
               {
                 post,
@@ -204,7 +224,7 @@ const GET = createRoute(
                   profileImageUrl: owner.profileImageUrl
                 }
               }
-            )) })
+            )) }) : null
           ] }) })
         }
       )

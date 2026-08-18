@@ -36,6 +36,7 @@ import Tabs from "../../../components/app/Tabs.js";
 import SectionTitle from "../../../components/app/SectionTitle.js";
 import { isFeatureEnabledForUser } from "../../../lib/features.js";
 import { serializePressLinks } from "../../../features/dashboard/books/pressLinks.js";
+import { toDateInputValue } from "../../../lib/utils.js";
 const GET = createRoute(
   paramValidator(bookIdSchema),
   requireBookEditAccess,
@@ -52,7 +53,7 @@ const GET = createRoute(
       purchase_link: book.purchaseLink,
       tags: book.tags?.join(", "),
       availability_status: book.availabilityStatus,
-      release_date: book?.releaseDate ? new Date(book.releaseDate).toISOString().split("T")[0] : ""
+      release_date: toDateInputValue(book.releaseDate)
     };
     const publisherIsVerified = book?.publisher?.status === "verified";
     const isPublisher = user.creator?.type === "publisher";

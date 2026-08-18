@@ -21,6 +21,9 @@ function withListSlugSuffix(base, suffix) {
 function isListPromotionEligible(list, owner) {
   return list.isPublic && owner.shelfPublic && Boolean(owner.shelfSlug);
 }
+function userCanManageBookLists(user) {
+  return Boolean(user?.id);
+}
 export {
   isListPromotionEligible,
   isReservedListSlug,
@@ -28,5 +31,6 @@ export {
   listSlugSchema,
   listTitleSchema,
   slugFromTitle,
+  userCanManageBookLists,
   withListSlugSuffix
 };

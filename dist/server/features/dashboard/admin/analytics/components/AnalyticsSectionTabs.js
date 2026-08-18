@@ -10,6 +10,7 @@ function parseAnalyticsSectionTab(raw) {
   if (raw === "site") return "site";
   if (raw === "app") return "app";
   if (raw === "newsletter") return "newsletter";
+  if (raw === "instagram") return "instagram";
   return "overview";
 }
 const TABS = [
@@ -17,7 +18,8 @@ const TABS = [
   { id: "books", label: "Book analytics" },
   { id: "site", label: "Site analytics" },
   { id: "app", label: "App analytics" },
-  { id: "newsletter", label: "Newsletter" }
+  { id: "newsletter", label: "Newsletter" },
+  { id: "instagram", label: "Instagram" }
 ];
 const pillButtonClass = "cursor-pointer border-0 bg-transparent p-0 font-inherit";
 const AnalyticsSectionTabs = ({ activeTab, dateRange }) => {

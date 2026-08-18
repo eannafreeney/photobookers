@@ -51,10 +51,16 @@ async function parseBrevoError(
 ): Promise<{ reason: string; status: number }> {
   let message = res.statusText || "Brevo API request failed";
   try {
-    const body = (await res.json()) as BrevoApiErrorBody;
-    if (body.message) message = body.message;
+    const text = await res.text();
+    try {
+      const body = JSON.parse(text) as BrevoApiErrorBody;
+      if (body.message) message = body.message;
+    } catch {
+      // Brevo sometimes returns plain text (e.g. infra 523 wrapped as 403)
+      if (text.trim()) message = text.trim().slice(0, 300);
+    }
   } catch {
-    // ignore JSON parse errors
+    // ignore body read errors
   }
   return { reason: message, status: res.status };
 }

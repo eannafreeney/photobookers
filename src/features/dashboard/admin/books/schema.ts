@@ -1,5 +1,5 @@
 import z from "zod";
-import { optionalText } from "../../../../schemas";
+import { optionalDateString, optionalText } from "../../../../schemas";
 import { pressLinksFormField } from "../../books/pressLinks";
 
 // ============ BOOK FORM SCHEMA ============
@@ -13,7 +13,7 @@ export const bookFormAdminSchema = z.object({
     .string()
     .max(5000, "Description must be less than 5000 characters")
     .optional(),
-  release_date: optionalText,
+  release_date: optionalDateString,
   send_email_to_followers_on_release: z
     .preprocess((val) => val !== undefined && val !== null, z.boolean())
     .optional()

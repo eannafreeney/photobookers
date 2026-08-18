@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildVerifiedCreatorInstagramDueAt } from "./instagramUtils";
+import {
+  buildVerifiedCreatorInstagramDueAt,
+  resolveBotdStoryImageUrl,
+} from "./instagramUtils";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -27,5 +30,44 @@ describe("buildVerifiedCreatorInstagramDueAt", () => {
       expect([2, 4]).toContain(due.getUTCDay());
       expect(due.getTime() - from.getTime()).toBeGreaterThanOrEqual(DAY_MS);
     }
+  });
+});
+
+describe("resolveBotdStoryImageUrl", () => {
+  it("prioritises artist-provided story image", () => {
+    expect(
+      resolveBotdStoryImageUrl({
+        artistProvidedStoryImageUrl: "https://example.com/artist.webp",
+        instagramImageUrls: ["https://example.com/spread.webp"],
+        featuredImageUrl: "https://example.com/cover.webp",
+      }),
+    ).toBe("https://example.com/artist.webp");
+  });
+
+  it("falls back to first instagram image", () => {
+    expect(
+      resolveBotdStoryImageUrl({
+        instagramImageUrls: ["https://example.com/spread.webp"],
+        featuredImageUrl: "https://example.com/cover.webp",
+      }),
+    ).toBe("https://example.com/spread.webp");
+  });
+
+  it("falls back to featured image when no carousel images", () => {
+    expect(
+      resolveBotdStoryImageUrl({
+        instagramImageUrls: [],
+        featuredImageUrl: "https://example.com/cover.webp",
+      }),
+    ).toBe("https://example.com/cover.webp");
+  });
+
+  it("returns null when nothing is available", () => {
+    expect(
+      resolveBotdStoryImageUrl({
+        instagramImageUrls: [],
+        featuredImageUrl: null,
+      }),
+    ).toBeNull();
   });
 });

@@ -1,6 +1,6 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
-import { getUser } from "../../utils.js";
+import { getUser, getFlash } from "../../utils.js";
 import AppLayout from "../../components/layouts/AppLayout.js";
 import Page from "../../components/layouts/Page.js";
 import HeroCarouselFeatureCard from "../../components/app/HeroCarouselFeatureCard.js";
@@ -16,9 +16,10 @@ import PageBleed from "../../components/layouts/PageBleedRight.js";
 import { getHomepageActivityStats } from "../../features/app/homepageActivity.js";
 import HomepageActivityPulse from "../../features/app/components/HomepageActivityPulse.js";
 const GET = createRoute(async (c) => {
-  const [user, heroItems] = await Promise.all([
+  const [user, heroItems, flash] = await Promise.all([
     getUser(c),
-    loadHeroCarouselFeatureItems()
+    loadHeroCarouselFeatureItems(),
+    getFlash(c)
   ]);
   const currentPath = c.req.path;
   const lcpImage = heroItems[0]?.image ? heroLcpImageSources(heroItems[0].image) : void 0;
@@ -34,6 +35,7 @@ const GET = createRoute(async (c) => {
         user,
         currentPath,
         preloadLcpImage: lcpImage,
+        flash,
         children: /* @__PURE__ */ jsxs(Page, { children: [
           /* @__PURE__ */ jsx(Pulse, {}),
           /* @__PURE__ */ jsx(HeroCarouselFeatureCard, { heroItems }),

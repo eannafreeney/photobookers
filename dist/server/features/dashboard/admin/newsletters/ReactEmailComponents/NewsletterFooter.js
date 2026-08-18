@@ -10,7 +10,7 @@ const NewsletterFooter = () => /* @__PURE__ */ jsx(Section, { children: /* @__PU
       children: "The home for photobook lovers. Discover books, follow artists and publishers, and keep up with the photobook world."
     }
   ),
-  /* @__PURE__ */ jsx(Section, { className: "text-center my-6", children: newsletterNavLinks.map((link, index) => /* @__PURE__ */ jsxs("span", { children: [
+  /* @__PURE__ */ jsx(Section, { className: "text-center my-6", children: newsletterNavLinks().map((link, index) => /* @__PURE__ */ jsxs("span", { children: [
     index > 0 ? /* @__PURE__ */ jsx("span", { style: { color: brand.onSurfaceWeak }, children: " \xB7 " }) : null,
     /* @__PURE__ */ jsx(Button, { href: link.href, style: { color: brand.onSurfaceWeak }, children: link.label })
   ] }, link.href)) }),

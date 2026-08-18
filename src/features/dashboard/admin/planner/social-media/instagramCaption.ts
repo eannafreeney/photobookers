@@ -1,4 +1,11 @@
-const appBaseUrl = process.env.PUBLIC_APP_URL ?? "https://www.photobookers.com";
+function resolveAppBaseUrl(): string {
+  // Use || so an empty PUBLIC_APP_URL (common misconfig) falls through to SITE_URL.
+  const raw =
+    process.env.PUBLIC_APP_URL ||
+    process.env.SITE_URL ||
+    "https://www.photobookers.com";
+  return raw.replace(/\/$/, "");
+}
 
 type CreatorForCaption = {
   displayName: string;
@@ -14,15 +21,15 @@ type BookForCaption = {
 };
 
 export function buildBookPageUrl(slug: string): string {
-  return `${appBaseUrl}/books/${slug}`;
+  return `${resolveAppBaseUrl()}/books/${slug}`;
 }
 
 export function buildCreatorPageUrl(slug: string): string {
-  return `${appBaseUrl}/creators/${slug}`;
+  return `${resolveAppBaseUrl()}/creators/${slug}`;
 }
 
 export function buildFairPageUrl(slug: string): string {
-  return `${appBaseUrl}/fairs/${slug}`;
+  return `${resolveAppBaseUrl()}/fairs/${slug}`;
 }
 
 export type FairForCaption = {
@@ -290,20 +297,22 @@ export function buildBotdPostStickerFields(book: BookForCaption): {
   };
 }
 
-/** Story sticker fields for BOTD — artist and publisher DMs only. */
+/** Story sticker fields for BOTD — artist and publisher DMs plus handles. */
 export function buildBotdStoryStickerFields(book: BookForCaption): {
   text: string;
   topics?: string;
+  products?: string;
 } {
   const artistDm = buildBotdArtistDmSticker(book);
   const publisherDm = buildBotdPublisherDmSticker(book);
+  const handles = buildBotdStoryHandles(book);
 
-  if (artistDm && publisherDm) {
-    return { text: artistDm, topics: publisherDm };
-  }
-  if (artistDm) return { text: artistDm };
-  if (publisherDm) return { text: publisherDm };
-  return { text: "Book of the Day" };
+  const result: { text: string; topics?: string; products?: string } = {
+    text: artistDm ?? publisherDm ?? "Book of the Day",
+  };
+  if (artistDm && publisherDm) result.topics = publisherDm;
+  if (handles) result.products = handles;
+  return result;
 }
 
 type SpotlightMention = {

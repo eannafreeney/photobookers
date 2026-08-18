@@ -7,7 +7,9 @@ const Card = ({ children, className }) => /* @__PURE__ */ jsx(
   "div",
   {
     class: clsx(
-      "group flex flex-col rounded-radius overflow-hidden border border-outline bg-surface text-on-surface hover:border-outline-strong transition-colors duration-300",
+      // overflow visible so card-body popovers (save-to-list) aren't clipped;
+      // image figure still uses overflow-hidden for cover cropping.
+      "group flex flex-col rounded-radius border border-outline bg-surface text-on-surface hover:border-outline-strong transition-colors duration-300",
       className
     ),
     children

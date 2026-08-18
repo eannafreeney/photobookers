@@ -20,21 +20,24 @@ async function getTrendingForRange(rangeStart, rangeEnd) {
   if (publishersResult[0]) {
     console.error("getTrendingForRange publishers", publishersResult[0].reason);
   }
-  const books = booksResult[1]?.books.map((book) => ({
+  const bookRows = booksResult[1]?.books ?? [];
+  const creatorRows = [
+    ...artistsResult[1]?.creators ?? [],
+    ...publishersResult[1]?.creators ?? []
+  ];
+  const instagramBySlug = await loadCreatorInstagramBySlug([
+    ...bookRows.map((book) => book.artistSlug).filter((slug) => Boolean(slug)),
+    ...creatorRows.map((row) => row.slug)
+  ]);
+  const books = bookRows.map((book) => ({
     bookId: book.bookId,
     bookSlug: book.slug,
     title: book.title,
     coverUrl: book.coverUrl,
     artistName: book.artistName,
-    publisherName: book.publisherName
-  })) ?? [];
-  const creatorRows = [
-    ...artistsResult[1]?.creators ?? [],
-    ...publishersResult[1]?.creators ?? []
-  ];
-  const instagramBySlug = await loadCreatorInstagramBySlug(
-    creatorRows.map((row) => row.slug)
-  );
+    publisherName: book.publisherName,
+    artistInstagram: book.artistSlug ? instagramBySlug.get(book.artistSlug) ?? null : null
+  }));
   const toTrendingCreator = (row) => ({
     displayName: row.displayName,
     slug: row.slug,
