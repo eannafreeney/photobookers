@@ -34,13 +34,13 @@ const NavTabs = ({
         {analyticsIcon}
         Analytics
       </NavLink>
-      <NavLink href="/dashboard/posts" currentPath={currentPath}>
-        {mailIcon(5)}
-        Posts
-      </NavLink>
       <NavLink href="/dashboard/shelf" currentPath={currentPath}>
         {bookIcon}
         Shelf
+      </NavLink>
+      <NavLink href="/dashboard/posts" currentPath={currentPath}>
+        {mailIcon(5)}
+        Posts
       </NavLink>
       <NavLink href="/dashboard/favorites" currentPath={currentPath}>
         {emptyHeartIcon(5)}

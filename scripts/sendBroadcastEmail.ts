@@ -1,21 +1,19 @@
 import "./env";
 import fs from "node:fs/promises";
 import { parse, stringify } from "csv/sync";
-import { isNotNull } from "drizzle-orm";
+import { and, eq, isNotNull, notExists } from "drizzle-orm";
 import { db } from "../src/db/client";
 import { creators, users } from "../src/db/schema";
 import { sendEmail } from "../src/lib/sendEmail";
 
 // Edit the template below, then run:
-//   npx tsx scripts/sendBroadcastEmail.ts --dry-run
-//   npx tsx scripts/sendBroadcastEmail.ts --to=you@example.com
-//   ENV=production npx tsx scripts/sendBroadcastEmail.ts
+//   npx tsx scripts/sendBroadcastEmail.ts --audience=fans --dry-run
+//   npx tsx scripts/sendBroadcastEmail.ts --audience=artists --to=you@example.com
+//   ENV=production npx tsx scripts/sendBroadcastEmail.ts --audience=fans,artists
 //
-// Sends up to 70 emails per day. Progress is saved to tmp/broadcast-sent.csv.
-// Re-run the same command each day until everyone is done.
-// To record emails already sent (e.g. your first 50), add rows to that file:
-//   email,sentAt
-//   someone@example.com,2026-06-05T12:00:00.000Z
+// --audience is required: fans, artists, or both (comma-separated).
+// Progress is saved per audience, e.g. tmp/broadcast-sent-fans.csv, so a new
+// campaign is not skipped by an old one. Re-run to resume after a failure.
 
 const SUBJECT = "Photobookers app";
 
@@ -46,8 +44,7 @@ const EMAIL_HTML = `
   </p>
 `;
 
-const DAILY_LIMIT = 70;
-const SENT_LOG_PATH = "tmp/broadcast-sent.csv";
+type Audience = "fans" | "artists";
 
 const OVERRIDE_TO = process.argv
   .find((a) => a.startsWith("--to="))
@@ -55,12 +52,27 @@ const OVERRIDE_TO = process.argv
   ?.trim()
   .toLowerCase();
 const DRY_RUN = process.argv.includes("--dry-run");
+const AUDIENCES = parseAudiences();
+const SENT_LOG_PATH = `tmp/broadcast-sent-${AUDIENCES.join("-")}.csv`;
+
+function parseAudiences(): Audience[] {
+  const raw = process.argv
+    .find((a) => a.startsWith("--audience="))
+    ?.split("=")[1];
+  const parts = raw?.split(",").map((s) => s.trim()) ?? [];
+  const valid = [...new Set(parts)].filter(
+    (p): p is Audience => p === "fans" || p === "artists",
+  );
+  if (valid.length === 0) {
+    console.error(
+      "Required: --audience=fans, --audience=artists, or --audience=fans,artists",
+    );
+    process.exit(1);
+  }
+  return valid.sort();
+}
 
 type SentRow = { email: string; sentAt: string };
-
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
-}
 
 async function loadSentLog(): Promise<SentRow[]> {
   try {
@@ -86,47 +98,80 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function getAllEmails(): Promise<string[]> {
-  const [userRows, creatorRows] = await Promise.all([
-    db.select({ email: users.email }).from(users),
-    db
-      .select({ email: creators.email })
-      .from(creators)
-      .where(isNotNull(creators.email)),
-  ]);
-
-  const emails = new Set<string>();
-  for (const row of [...userRows, ...creatorRows]) {
+function collectEmails(
+  rows: { email: string | null }[],
+  into: Set<string>,
+) {
+  for (const row of rows) {
     const email = row.email?.trim().toLowerCase();
-    if (email) emails.add(email);
+    if (email) into.add(email);
   }
+}
 
+async function getFanEmails(): Promise<{ email: string | null }[]> {
+  return db
+    .select({ email: users.email })
+    .from(users)
+    .where(
+      and(
+        eq(users.isAdmin, false),
+        eq(users.mustResetPassword, false),
+        isNotNull(users.acceptsTerms),
+        notExists(
+          db
+            .select({ id: creators.id })
+            .from(creators)
+            .where(
+              and(
+                eq(creators.ownerUserId, users.id),
+                eq(creators.status, "verified"),
+              ),
+            ),
+        ),
+      ),
+    );
+}
+
+async function getArtistEmails(): Promise<{ email: string | null }[]> {
+  const rows = await db
+    .select({ ownerEmail: users.email, creatorEmail: creators.email })
+    .from(creators)
+    .leftJoin(users, eq(creators.ownerUserId, users.id))
+    .where(eq(creators.type, "artist"));
+
+  return rows.flatMap((row) => [
+    { email: row.ownerEmail },
+    { email: row.creatorEmail },
+  ]);
+}
+
+async function getEmails(audiences: Audience[]): Promise<string[]> {
+  const emails = new Set<string>();
+  if (audiences.includes("fans")) collectEmails(await getFanEmails(), emails);
+  if (audiences.includes("artists")) {
+    collectEmails(await getArtistEmails(), emails);
+  }
   return [...emails].sort();
 }
 
 async function run() {
-  const emails = await getAllEmails();
+  const emails = await getEmails(AUDIENCES);
   const sentLog = await loadSentLog();
   const alreadySent = new Set(sentLog.map((r) => r.email.trim().toLowerCase()));
-  const sentToday = sentLog.filter((r) => r.sentAt.startsWith(todayKey())).length;
-  const remainingToday = Math.max(0, DAILY_LIMIT - sentToday);
-
   const pending = emails.filter((e) => !alreadySent.has(e));
-  const targets = OVERRIDE_TO ? [OVERRIDE_TO] : pending.slice(0, remainingToday);
+  const targets = OVERRIDE_TO ? [OVERRIDE_TO] : pending;
 
-  console.log(`Found ${emails.length} unique email addresses.`);
+  console.log(
+    `Audience: ${AUDIENCES.join(", ")}. Found ${emails.length} unique email addresses. Log: ${SENT_LOG_PATH}`,
+  );
   if (!OVERRIDE_TO) {
     console.log(
-      `Already sent: ${alreadySent.size}. Sent today: ${sentToday}/${DAILY_LIMIT}. Remaining today: ${remainingToday}. Pending total: ${pending.length}.`,
+      `Already sent: ${alreadySent.size}. Pending: ${pending.length}.`,
     );
   }
 
   if (DRY_RUN) console.log("Dry run — no emails will be sent.");
   if (OVERRIDE_TO) console.log(`All sends redirected to ${OVERRIDE_TO}`);
-  if (!OVERRIDE_TO && remainingToday === 0) {
-    console.log("Daily limit reached. Run again tomorrow.");
-    return;
-  }
 
   let sent = 0;
   let failed = 0;

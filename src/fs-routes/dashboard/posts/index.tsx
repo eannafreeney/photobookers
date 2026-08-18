@@ -55,7 +55,7 @@ export const GET = createRoute(async (c: Context) => {
               : "Share what's new with people who follow your shelf."
           }
         />
-        {!user.creator && !canPostToShelf ? (
+        {!canPostToShelf ? (
           <Banner
             type="info"
             message="Posts are disabled while your shelf is private. Make your shelf public to share updates with people who follow you."
@@ -68,7 +68,7 @@ export const GET = createRoute(async (c: Context) => {
         <div class="grid grid-cols-1 gap-8 xl:grid-cols-3 xl:items-start">
           <div class="bg-surface-alt p-4 rounded-md xl:sticky xl:top-24">
             <PostForm
-              disabled={!user.creator && !canPostToShelf}
+              disabled={!canPostToShelf}
               placeholder={
                 user.creator
                   ? "Share fair dates, new work, or news with your followers…"
@@ -92,7 +92,7 @@ export const POST = createRoute(async (c: Context) => {
     return showErrorAlert(c, "You can't post right now.");
   }
 
-  if (!user.creator && (!user.shelfPublic || !user.shelfSlug)) {
+  if (!user.shelfPublic || !user.shelfSlug) {
     return showErrorAlert(
       c,
       "Make your shelf public before posting. Open Dashboard → Shelf.",
