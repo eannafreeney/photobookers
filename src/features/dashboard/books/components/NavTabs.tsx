@@ -9,6 +9,7 @@ import {
   libraryIcon,
   mailIcon,
   usersIcon,
+  emptyHeartIcon,
 } from "../../../../lib/icons";
 
 const NavTabs = ({
@@ -42,7 +43,7 @@ const NavTabs = ({
         Shelf
       </NavLink>
       <NavLink href="/dashboard/favorites" currentPath={currentPath}>
-        {fullHeartIcon(5)}
+        {emptyHeartIcon(5)}
         Favorites
       </NavLink>
       <NavLink href="/dashboard/lists" currentPath={currentPath}>
@@ -72,7 +73,12 @@ type NavLinkProps = PropsWithChildren<{
   exact?: boolean;
 }>;
 
-const NavLink = ({ href, children, currentPath, exact = false }: NavLinkProps) => {
+const NavLink = ({
+  href,
+  children,
+  currentPath,
+  exact = false,
+}: NavLinkProps) => {
   const isActive = exact
     ? currentPath === href
     : Boolean(currentPath?.startsWith(href));
