@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { heroLcpImageSources, supabaseRenderImageUrl } from "./imageUrl";
+import {
+  heroLcpImageSources,
+  resolveStoragePublicImageUrl,
+  supabaseRenderImageUrl,
+} from "./imageUrl";
 
 describe("supabaseRenderImageUrl", () => {
   it("rewrites Supabase public object URLs to render/image", () => {
@@ -30,5 +34,31 @@ describe("heroLcpImageSources", () => {
     expect(sources.srcSet).toContain("480w");
     expect(sources.srcSet).toContain("800w");
     expect(sources.srcSet).toContain("1200w");
+  });
+});
+
+describe("resolveStoragePublicImageUrl", () => {
+  it("rewrites current-project Supabase public URLs to Bunny URLs", () => {
+    process.env.STORAGE_PROVIDER = "bunny";
+    process.env.SUPABASE_URL = "https://staging-project.supabase.co";
+    process.env.BUNNY_CDN_BASE = "https://cdn-staging.photobookers.com";
+
+    const url =
+      "https://staging-project.supabase.co/storage/v1/object/public/images/books/covers/foo.webp";
+
+    expect(resolveStoragePublicImageUrl(url)).toBe(
+      "https://cdn-staging.photobookers.com/books/covers/foo.webp",
+    );
+  });
+
+  it("leaves other Supabase project URLs unchanged", () => {
+    process.env.STORAGE_PROVIDER = "bunny";
+    process.env.SUPABASE_URL = "https://staging-project.supabase.co";
+    process.env.BUNNY_CDN_BASE = "https://cdn-staging.photobookers.com";
+
+    const url =
+      "https://production-project.supabase.co/storage/v1/object/public/images/books/covers/foo.webp";
+
+    expect(resolveStoragePublicImageUrl(url)).toBe(url);
   });
 });

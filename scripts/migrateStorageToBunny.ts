@@ -52,6 +52,8 @@ const ARRAY_COLUMNS: Array<{ table: string; column: string }> = [
   { table: "publisher_of_the_week", column: "instagram_image_urls" },
 ];
 
+type ColumnRef = { table: string; column: string };
+
 function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) throw new Error(`Missing ${name}`);
@@ -91,12 +93,14 @@ async function mapPool<T>(
 // `likePattern`. Used forward (apply: Supabase→Bunny) and backward (revert).
 async function rewriteUrls(
   sql: postgres.Sql,
+  scalarColumns: ColumnRef[],
+  arrayColumns: ColumnRef[],
   from: string,
   to: string,
   likePattern: string,
 ): Promise<number> {
   let rowsChanged = 0;
-  for (const { table, column } of SCALAR_COLUMNS) {
+  for (const { table, column } of scalarColumns) {
     const result = await sql.unsafe(
       `UPDATE ${table} SET ${column} = replace(${column}, $1, $2) WHERE ${column} LIKE $3`,
       [from, to, likePattern],
@@ -104,7 +108,7 @@ async function rewriteUrls(
     rowsChanged += result.count;
     console.log(`  ${table}.${column}: ${result.count}`);
   }
-  for (const { table, column } of ARRAY_COLUMNS) {
+  for (const { table, column } of arrayColumns) {
     const result = await sql.unsafe(
       `UPDATE ${table} SET ${column} = (
          SELECT array_agg(replace(elem, $1, $2) ORDER BY ord)
@@ -116,6 +120,48 @@ async function rewriteUrls(
     console.log(`  ${table}.${column} (array): ${result.count}`);
   }
   return rowsChanged;
+}
+
+async function filterExistingColumns(
+  sql: postgres.Sql,
+  refs: ColumnRef[],
+): Promise<ColumnRef[]> {
+  if (refs.length === 0) return [];
+
+  const pairsSql = refs
+    .map(
+      ({ table, column }) =>
+        `SELECT '${table}'::text AS table_name, '${column}'::text AS column_name`,
+    )
+    .join("\nUNION ALL\n");
+
+  const existing = await sql.unsafe<{ table_name: string; column_name: string }[]>(
+    `
+      SELECT p.table_name, p.column_name
+      FROM (${pairsSql}) p
+      INNER JOIN information_schema.columns c
+        ON c.table_schema = 'public'
+       AND c.table_name = p.table_name
+       AND c.column_name = p.column_name
+    `,
+  );
+
+  const existingKeys = new Set(
+    existing.map((row) => `${row.table_name}.${row.column_name}`),
+  );
+
+  const missing = refs.filter(
+    ({ table, column }) => !existingKeys.has(`${table}.${column}`),
+  );
+  if (missing.length > 0) {
+    console.log(
+      `Skipping missing columns: ${missing.map((r) => `${r.table}.${r.column}`).join(", ")}`,
+    );
+  }
+
+  return refs.filter(({ table, column }) =>
+    existingKeys.has(`${table}.${column}`),
+  );
 }
 
 async function main() {
@@ -139,7 +185,8 @@ async function main() {
   const projectRef = new URL(supabaseUrl).hostname.split(".")[0];
   const oldPrefix = `${supabaseUrl}/storage/v1/object/public/images/`;
   const newPrefix = `${requireEnv("BUNNY_CDN_BASE").replace(/\/+$/, "")}/`;
-  const likePattern = `${oldPrefix}%`;
+  const oldLikePattern = `${oldPrefix}%`;
+  const newLikePattern = `${newPrefix}%`;
 
   // Fail fast if Bunny env is incomplete (bunnyPublicUrl/bunnyUpload need these).
   requireEnv("BUNNY_STORAGE_HOST");
@@ -167,20 +214,36 @@ async function main() {
   const sql = postgres(databaseUrl, { max: 1, prepare: false });
 
   try {
-    // Gather every distinct Supabase bucket URL referenced across all columns.
+    const scalarColumns = await filterExistingColumns(sql, SCALAR_COLUMNS);
+    const arrayColumns = await filterExistingColumns(sql, ARRAY_COLUMNS);
+
+    // Gather every distinct image URL referenced across all columns. Support both
+    // pre-apply (Supabase URLs) and post-apply (Bunny URLs) states so `copy` can
+    // backfill objects even after the DB has already been switched to Bunny.
     const selects = [
-      ...SCALAR_COLUMNS.map(
+      ...scalarColumns.map(
         ({ table, column }) =>
-          `SELECT ${column} AS url FROM ${table} WHERE ${column} LIKE $1`,
+          `SELECT ${column} AS url FROM ${table} WHERE ${column} LIKE $1 OR ${column} LIKE $2`,
       ),
-      ...ARRAY_COLUMNS.map(
+      ...arrayColumns.map(
         ({ table, column }) =>
-          `SELECT unnest(${column}) AS url FROM ${table} WHERE array_to_string(${column}, ',') LIKE $1`,
+          `SELECT unnest(${column}) AS url FROM ${table} WHERE array_to_string(${column}, ',') LIKE $1 OR array_to_string(${column}, ',') LIKE $2`,
       ),
     ];
-    const gatherSql = `SELECT DISTINCT url FROM (\n${selects.join("\nUNION ALL\n")}\n) t WHERE url LIKE $1`;
-    const urlRows = await sql.unsafe<{ url: string }[]>(gatherSql, [likePattern]);
-    const paths = urlRows.map((r) => r.url.slice(oldPrefix.length));
+    if (selects.length === 0) {
+      console.log("No matching image URL columns exist in this database.");
+      return;
+    }
+    const gatherSql = `SELECT DISTINCT url FROM (\n${selects.join("\nUNION ALL\n")}\n) t WHERE url LIKE $1 OR url LIKE $2`;
+    const urlRows = await sql.unsafe<{ url: string }[]>(gatherSql, [
+      oldLikePattern,
+      newLikePattern,
+    ]);
+    const paths = urlRows.flatMap((r) => {
+      if (r.url.startsWith(oldPrefix)) return [r.url.slice(oldPrefix.length)];
+      if (r.url.startsWith(newPrefix)) return [r.url.slice(newPrefix.length)];
+      return [];
+    });
     console.log(`Found ${paths.length} distinct objects referenced in the DB.\n`);
 
     if (MODE === "copy") {
@@ -242,7 +305,14 @@ async function main() {
 
     if (MODE === "apply") {
       console.log("Rewriting DB URLs (Supabase → Bunny)...");
-      const rows = await rewriteUrls(sql, oldPrefix, newPrefix, likePattern);
+      const rows = await rewriteUrls(
+        sql,
+        scalarColumns,
+        arrayColumns,
+        oldPrefix,
+        newPrefix,
+        oldLikePattern,
+      );
       console.log(`\nApply done. Rows rewritten: ${rows}.`);
     }
 
@@ -250,7 +320,14 @@ async function main() {
       // Roll back apply: swap Bunny URLs back to Supabase. Safe as long as the
       // Supabase bucket still holds the objects (i.e. before you empty it).
       console.log("Reverting DB URLs (Bunny → Supabase)...");
-      const rows = await rewriteUrls(sql, newPrefix, oldPrefix, `${newPrefix}%`);
+      const rows = await rewriteUrls(
+        sql,
+        scalarColumns,
+        arrayColumns,
+        newPrefix,
+        oldPrefix,
+        newLikePattern,
+      );
       console.log(`\nRevert done. Rows reverted: ${rows}.`);
     }
 

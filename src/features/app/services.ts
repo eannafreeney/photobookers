@@ -51,6 +51,12 @@ import { isFeatureEnabled } from "../../lib/features";
 import { mergeFeedItems } from "./followerFeed";
 import { listPostsByCreatorSlug } from "../../domain/posts/services";
 import { LRUCache } from "lru-cache";
+import { resolveStoragePublicImageUrl } from "../../lib/imageUrl";
+
+function resolveMaybeImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  return resolveStoragePublicImageUrl(url);
+}
 
 type CachedBook = Omit<InferSelectModel<typeof books>, "images"> & {
   publisher: Creator | null;
@@ -478,11 +484,22 @@ export const getBookBySlug = async (
       book.images && Array.isArray(book.images) && book.images.length > 0
         ? typeof book.images[0] === "string"
           ? [] // If it's the string array field, we'll use bookImages relation instead
-          : book.images.map((img: any) => ({ imageUrl: img.imageUrl }))
+          : book.images
+              .map((img: any) => ({
+                imageUrl: resolveMaybeImageUrl(img.imageUrl),
+              }))
+              .filter(
+                (img): img is { imageUrl: string } =>
+                  typeof img.imageUrl === "string",
+              )
         : [];
 
     const result = ok({
-      book: { ...book, images: galleryImages },
+      book: {
+        ...book,
+        coverUrl: resolveMaybeImageUrl(book.coverUrl),
+        images: galleryImages,
+      },
     });
 
     if (status === "published") {

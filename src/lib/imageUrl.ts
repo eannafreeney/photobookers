@@ -1,3 +1,5 @@
+import { bunnyEnabled, bunnyPublicUrl } from "./bunny";
+
 const SUPABASE_OBJECT_PREFIX = "/storage/v1/object/public/";
 
 export type HeroImageSources = {
@@ -6,6 +8,43 @@ export type HeroImageSources = {
   sizes: string;
   preloadHref: string;
 };
+
+function currentSupabaseOrigin(): string | null {
+  const raw = process.env.SUPABASE_URL?.trim();
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Rewrite legacy Supabase Storage public URLs to Bunny only when they belong to
+ * the current configured Supabase project. This avoids incorrectly rewriting
+ * cross-environment URLs (for example production assets referenced from staging).
+ */
+export function resolveStoragePublicImageUrl(url: string): string {
+  if (!bunnyEnabled()) return url;
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.origin !== currentSupabaseOrigin()) return url;
+
+    const prefixIndex = parsed.pathname.indexOf(SUPABASE_OBJECT_PREFIX);
+    if (prefixIndex === -1) return url;
+
+    const bucketAndPath = parsed.pathname.slice(
+      prefixIndex + SUPABASE_OBJECT_PREFIX.length,
+    );
+    const bunnyPath = bucketAndPath.startsWith("images/")
+      ? bucketAndPath.slice("images/".length)
+      : bucketAndPath;
+    return bunnyPublicUrl(bunnyPath);
+  } catch {
+    return url;
+  }
+}
 
 /** Supabase Storage image transform (requires Pro plan). Returns original URL if not applicable. */
 export function supabaseRenderImageUrl(
@@ -30,21 +69,22 @@ export function supabaseRenderImageUrl(
 
 /** Responsive hero cover URLs — mobile LCP uses the 480w candidate. */
 export function heroLcpImageSources(url: string): HeroImageSources {
-  const w480 = supabaseRenderImageUrl(url, { width: 480 });
-  const w800 = supabaseRenderImageUrl(url, { width: 800 });
+  const resolved = resolveStoragePublicImageUrl(url);
+  const w480 = supabaseRenderImageUrl(resolved, { width: 480 });
+  const w800 = supabaseRenderImageUrl(resolved, { width: 800 });
 
-  if (w480 === url) {
+  if (w480 === resolved) {
     return {
-      src: url,
-      srcSet: url,
+      src: resolved,
+      srcSet: resolved,
       sizes: "100vw",
-      preloadHref: url,
+      preloadHref: resolved,
     };
   }
 
   return {
     src: w480,
-    srcSet: `${w480} 480w, ${w800} 800w, ${url} 1200w`,
+    srcSet: `${w480} 480w, ${w800} 800w, ${resolved} 1200w`,
     sizes: "(max-width: 767px) 100vw, 50vw",
     preloadHref: w480,
   };
