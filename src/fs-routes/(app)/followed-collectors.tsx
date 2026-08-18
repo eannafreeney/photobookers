@@ -4,7 +4,6 @@ import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
 import PageHeader from "../../components/app/PageHeader";
 import InfoPage from "../../pages/InfoPage";
-import { isFeatureEnabledForUser } from "../../lib/features";
 import {
   CollectorCard,
   getFollowedCollectors,
@@ -17,7 +16,7 @@ const collectorName = (c: CollectorCard) =>
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
 
-  if (!isFeatureEnabledForUser("collectors", user)) {
+  if (!user?.id) {
     return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 
@@ -35,7 +34,7 @@ export const GET = createRoute(async (c) => {
           <p class="text-sm text-on-surface">
             You're not following any public collectors yet.{" "}
             <a
-              href="/collectors"
+              href="/creators?type=collector"
               class="text-accent underline underline-offset-2"
             >
               Discover collectors

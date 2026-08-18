@@ -16,10 +16,9 @@ import { removeInvalidImages, uploadImage } from "../../../../services/storage";
 import Alert from "../../../../components/app/Alert";
 import Modal from "../../../../components/app/Modal";
 import MessageForm from "../../../../features/dashboard/messages/forms/MessageForm";
-import MessagesTable, {
-  MessagesTableBody,
-} from "../../../../features/dashboard/messages/components/MessagesTable";
+import MessagesTable from "../../../../features/dashboard/messages/components/MessagesTable";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
+import { getIsMobile } from "../../../../lib/device";
 
 export const GET = createRoute(
   paramValidator(messageParamSchema),
@@ -111,11 +110,13 @@ export const PATCH = createRoute(
     );
     if (updateErr) return showErrorAlert(c, updateErr.reason);
 
+    const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+
     return c.html(
       <>
         <Alert type="success" message="Post updated." />
         <MessageForm creatorId={creatorId} messageId={messageId} />
-        <MessagesTable creatorId={creatorId} />
+        <MessagesTable creatorId={creatorId} isMobile={isMobile} />
         <div id="modal-root"></div>
       </>,
     );
@@ -140,10 +141,12 @@ export const DELETE = createRoute(
     const [error] = await deleteMessageById(messageId, existing.userId);
     if (error) return showErrorAlert(c, error.reason);
 
+    const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+
     return c.html(
       <>
         <Alert type="success" message="Post deleted." />
-        <MessagesTable creatorId={creatorId} />
+        <MessagesTable creatorId={creatorId} isMobile={isMobile} />
       </>,
     );
   },

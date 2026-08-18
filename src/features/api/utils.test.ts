@@ -4,7 +4,6 @@ import {
   publishCollectActivity,
   publishCommentActivity,
   publishFollowActivity,
-  publishLikeActivity,
   publishFavouritedActivity,
 } from "./utils";
 
@@ -38,19 +37,6 @@ describe("publish* activity helpers", () => {
     artist: { displayName: "Artist Name" },
     coverUrl: "https://example.com/cover.jpg",
   };
-
-  it("publishLikeActivity sends book_liked with book URLs and names", () => {
-    publishLikeActivity(user, book);
-    expect(publishActivityEvent).toHaveBeenCalledTimes(1);
-    expect(publishActivityEvent).toHaveBeenCalledWith({
-      type: "book_liked",
-      actorId: user.id,
-      targetName: book.title,
-      targetImageUrl: book.coverUrl,
-      targetCreatorName: "Artist Name",
-      targetUrl: "/books/my-book",
-    });
-  });
 
   it("publishWishlistActivity sends book_favourited", () => {
     publishFavouritedActivity(user, book);

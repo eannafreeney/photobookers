@@ -1,22 +1,18 @@
 import { createRoute } from "hono-fsr";
 import { Context } from "hono";
 import { getUser } from "../../../../../utils";
-import { isFeatureEnabledForUser } from "../../../../../lib/features";
 import {
   getBooksInList,
   removeBookFromList,
 } from "../../../../../domain/lists/services";
 import { userCanManageBookLists } from "../../../../../domain/lists/utils";
-import ListBooksEditor from "../../../../../features/dashboard/lists/ListBooksEditor";
+import ListBooksEditor from "../../../../../features/dashboard/lists/ListBooks";
 import { showErrorAlert } from "../../../../../lib/alertHelpers";
 import Alert from "../../../../../components/app/Alert";
 import { routeParam } from "../../../../../lib/routeParam";
 
 function canAccessLists(user: Awaited<ReturnType<typeof getUser>>) {
-  return (
-    userCanManageBookLists(user) &&
-    isFeatureEnabledForUser("collectors", user)
-  );
+  return userCanManageBookLists(user);
 }
 
 export const DELETE = createRoute(async (c: Context) => {
@@ -31,7 +27,12 @@ export const DELETE = createRoute(async (c: Context) => {
   const [err] = await removeBookFromList(listId, bookId, user.id);
   if (err) return showErrorAlert(c, err.reason);
 
-  const [booksErr, booksResult] = await getBooksInList(listId, 1, "newest", 100);
+  const [booksErr, booksResult] = await getBooksInList(
+    listId,
+    1,
+    "newest",
+    100,
+  );
   if (booksErr || !booksResult) {
     return showErrorAlert(c, booksErr?.reason ?? "Failed to reload books");
   }

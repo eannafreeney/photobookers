@@ -3,16 +3,20 @@ import FormDelete from "@/components/forms/FormDelete";
 
 type Props = {
   action: string;
-};
+  confirm: string;
+} & Record<string, unknown>;
 
-const DeleteRowButton = ({ action }: Props) => {
-  const alpineAttrs = {
-    "x-target": "toast",
-    "x-target.error": "toast",
-    "@ajax:before": "confirm('Delete this list?') || $event.preventDefault()",
-  };
+const DeleteRowButton = ({ action, confirm, ...alpineAttrs }: Props) => {
   return (
-    <FormDelete action={action} {...alpineAttrs}>
+    <FormDelete
+      action={action}
+      {...{
+        "x-target": "toast",
+        "x-target.error": "toast",
+        ...alpineAttrs,
+        "@ajax:before": `confirm(${JSON.stringify(confirm)}) || $event.preventDefault()`,
+      }}
+    >
       <Button variant="outline" color="danger" width="fit">
         Delete
       </Button>

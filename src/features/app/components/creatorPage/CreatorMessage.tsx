@@ -1,15 +1,24 @@
-import { Creator, CreatorMessage } from "../../../../db/schema";
+import Badge from "../../../../components/app/Badge";
+import {
+  Creator,
+  CreatorMessage as CreatorMessageType,
+} from "../../../../db/schema";
+import PostLikeButton from "../../../collectors/components/PostLikeButton";
 
 type CreatorMessageProps = {
   creator: Pick<Creator, "id" | "slug" | "displayName" | "coverUrl">;
-  message: CreatorMessage;
+  message: CreatorMessageType;
   canReadMessages?: boolean;
+  likeCount?: number;
+  likedByMe?: boolean;
 };
 
 const CreatorMessage = ({
   creator,
   message,
   canReadMessages = true,
+  likeCount = 0,
+  likedByMe = false,
 }: CreatorMessageProps) => {
   const redactClass = !canReadMessages
     ? "select-none blur-[3px] pointer-events-none"
@@ -18,18 +27,21 @@ const CreatorMessage = ({
   return (
     <article class="rounded-radius border border-outline bg-surface p-4 shadow-sm">
       <header class="mb-3 flex items-center justify-between gap-3">
-        <a href={`/creators/${creator.slug}`}>
-          <div class="flex items-center gap-2 min-w-0">
-            <img
-              src={creator.coverUrl ?? ""}
-              alt={creator.displayName}
-              class="size-8 rounded-full object-cover"
-            />
-            <span class="truncate text-sm font-medium text-on-surface-strong">
-              {creator.displayName}
-            </span>
-          </div>
-        </a>
+        <div class="flex min-w-0 items-center gap-2">
+          <a href={`/creators/${creator.slug}`} class="min-w-0">
+            <div class="flex items-center gap-2 min-w-0">
+              <img
+                src={creator.coverUrl ?? ""}
+                alt={creator.displayName}
+                class="size-8 rounded-full object-cover"
+              />
+              <span class="truncate text-sm font-medium text-on-surface-strong">
+                {creator.displayName}
+              </span>
+            </div>
+          </a>
+          <Badge variant="accent">Creator</Badge>
+        </div>
         <time class="shrink-0 text-xs text-on-surface">
           {message.createdAt
             ? new Date(message.createdAt).toLocaleDateString()
@@ -61,6 +73,13 @@ const CreatorMessage = ({
           </div>
         )}
       </div>
+      {canReadMessages ? (
+        <PostLikeButton
+          postId={message.id}
+          likedByMe={likedByMe}
+          likeCount={likeCount}
+        />
+      ) : null}
     </article>
   );
 };

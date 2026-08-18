@@ -28,7 +28,6 @@ import Alert from "../../../../components/app/Alert";
 import { dispatchEvents } from "../../../../lib/disatchEvents";
 import BookApprovalForm from "../../../../features/dashboard/admin/books/forms/BookApprovalForm";
 import { routeParam } from "../../../../lib/routeParam";
-import { isFeatureEnabledForUser } from "../../../../lib/features";
 import { serializePressLinks } from "../../../../features/dashboard/books/pressLinks";
 import { toDateInputValue } from "../../../../lib/utils";
 
@@ -44,8 +43,6 @@ export const GET = createRoute(
     if (error)
       return c.html(<InfoPage errorMessage={error.reason} user={user} />);
 
-    const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
-
     const formValues = {
       title: book.title,
       artist_id: book.artistId,
@@ -55,9 +52,7 @@ export const GET = createRoute(
       tags: book.tags?.join(", "),
       availability_status: book.availabilityStatus,
       release_date: toDateInputValue(book.releaseDate),
-      ...(showPressLinks
-        ? { press_links: serializePressLinks(book.pressLinks) }
-        : {}),
+      press_links: serializePressLinks(book.pressLinks),
     };
 
     return c.html(
@@ -86,7 +81,6 @@ export const GET = createRoute(
           <BookFormAdmin
             bookId={book.id}
             formValues={formValues}
-            showPressLinks={showPressLinks}
           />
           <hr class="my-4" />
           <div

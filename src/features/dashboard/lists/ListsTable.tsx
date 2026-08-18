@@ -1,7 +1,4 @@
 import { BookList } from "../../../db/schema";
-import Link from "../../../components/app/Link";
-import Button from "../../../components/app/Button";
-import FormDelete from "../../../components/forms/FormDelete";
 import ListVisibilityToggle from "./ListVisibilityToggle";
 import EditRowButton from "@/features/app/components/EditRowButton";
 import DeleteRowButton from "@/features/app/components/DeleteRowButton";
@@ -12,9 +9,24 @@ type Props = {
   lists: ListWithCount[];
   shelfSlug?: string | null;
   shelfPublic?: boolean;
+  isMobile?: boolean;
 };
 
-const ListsTable = ({ lists, shelfSlug, shelfPublic }: Props) => {
+const listPublicUrl = (
+  list: ListWithCount,
+  shelfSlug?: string | null,
+  shelfPublic?: boolean,
+) =>
+  shelfPublic && shelfSlug && list.isPublic
+    ? `/shelf/${shelfSlug}/lists/${list.slug}`
+    : null;
+
+const ListsTable = ({
+  lists,
+  shelfSlug,
+  shelfPublic,
+  isMobile = false,
+}: Props) => {
   const alpineAttrs = {
     "x-init": "true",
     "@lists:updated.window":
@@ -32,6 +44,24 @@ const ListsTable = ({ lists, shelfSlug, shelfPublic }: Props) => {
           </p>
         </div>
       </div>
+    );
+  }
+
+  if (isMobile) {
+    return (
+      <ul
+        x-data
+        id="lists-table-container"
+        class="flex flex-col gap-4"
+        {...alpineAttrs}
+      >
+        {lists.map((list) => (
+          <ListCardMobile
+            list={list}
+            publicUrl={listPublicUrl(list, shelfSlug, shelfPublic)}
+          />
+        ))}
+      </ul>
     );
   }
 
@@ -54,10 +84,7 @@ const ListsTable = ({ lists, shelfSlug, shelfPublic }: Props) => {
         </thead>
         <tbody>
           {lists.map((list) => {
-            const publicUrl =
-              shelfPublic && shelfSlug && list.isPublic
-                ? `/shelf/${shelfSlug}/lists/${list.slug}`
-                : null;
+            const publicUrl = listPublicUrl(list, shelfSlug, shelfPublic);
             return (
               <tr class="border-b border-outline last:border-0">
                 <td class="px-4 py-3">
@@ -91,7 +118,10 @@ const ListsTable = ({ lists, shelfSlug, shelfPublic }: Props) => {
                 <td class="px-4 py-3 text-right">
                   <div class="flex items-center justify-end gap-2">
                     <EditRowButton href={`/dashboard/lists/${list.id}`} />
-                    <DeleteRowButton action={`/dashboard/lists/${list.id}`} />
+                    <DeleteRowButton
+                      action={`/dashboard/lists/${list.id}`}
+                      confirm="Delete this list?"
+                    />
                   </div>
                 </td>
               </tr>
@@ -102,5 +132,56 @@ const ListsTable = ({ lists, shelfSlug, shelfPublic }: Props) => {
     </div>
   );
 };
+
+const ListCardMobile = ({
+  list,
+  publicUrl,
+}: {
+  list: ListWithCount;
+  publicUrl: string | null;
+}) => (
+  <li class="rounded-radius border border-outline bg-surface overflow-hidden">
+    <div class="flex flex-col gap-4 p-4">
+      <div>
+        <p class="font-medium text-on-surface-strong">{list.title}</p>
+        {list.description ? (
+          <p class="mt-1 text-sm text-on-surface-weak line-clamp-2">
+            {list.description}
+          </p>
+        ) : null}
+      </div>
+      <dl class="grid grid-cols-[5.5rem_1fr] items-center gap-x-3 gap-y-3 text-sm">
+        <dt class="text-on-surface-weak">Books</dt>
+        <dd class="tabular-nums">{list.bookCount}</dd>
+        <dt class="text-on-surface-weak">Visibility</dt>
+        <dd>
+          <ListVisibilityToggle list={list} />
+        </dd>
+        <dt class="text-on-surface-weak">Public</dt>
+        <dd>
+          {publicUrl ? (
+            <a
+              href={publicUrl}
+              class="text-accent underline underline-offset-2"
+              target="_blank"
+              rel="noreferrer"
+            >
+              View
+            </a>
+          ) : (
+            <span class="text-on-surface-weak">—</span>
+          )}
+        </dd>
+      </dl>
+      <div class="flex flex-wrap justify-evenly items-center gap-2 border-t border-outline pt-3">
+        <EditRowButton href={`/dashboard/lists/${list.id}`} />
+        <DeleteRowButton
+          action={`/dashboard/lists/${list.id}`}
+          confirm="Delete this list?"
+        />
+      </div>
+    </div>
+  </li>
+);
 
 export default ListsTable;

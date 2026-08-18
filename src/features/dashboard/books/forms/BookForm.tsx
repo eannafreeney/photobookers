@@ -17,7 +17,6 @@ type BookFormProps = {
   action: string;
   /** Primary submit label for review workflow vs normal save */
   primaryAction?: "save" | "submit_for_review";
-  showPressLinks?: boolean;
 };
 
 export const BookForm = async ({
@@ -26,7 +25,6 @@ export const BookForm = async ({
   bookId,
   action,
   primaryAction = "save",
-  showPressLinks = false,
 }: BookFormProps) => {
   const artistOptions = isPublisher ? await getAllCreatorOptions("artist") : [];
   const publisherOptions = !isPublisher
@@ -145,7 +143,7 @@ export const BookForm = async ({
               disabledBinding="!form.release_date || new Date(form.release_date + 'T23:59:59') < new Date()"
             />
           )}
-          {showPressLinks ? <BookPressLinksSection /> : null}
+          <BookPressLinksSection />
           <input type="hidden" name="intent" x-model="form.intent" />
           <FormButtons
             buttonText={

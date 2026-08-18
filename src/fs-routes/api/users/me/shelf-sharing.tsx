@@ -1,7 +1,6 @@
 import { createRoute } from "hono-fsr";
 import { Context } from "hono";
 import { getUser } from "../../../../utils";
-import { isFeatureEnabledForUser } from "../../../../lib/features";
 import InfoPage from "../../../../pages/InfoPage";
 import ShelfSharingPanel from "../../../../features/app/components/ShelfSharingPanel";
 import {
@@ -17,7 +16,7 @@ export const POST = createRoute(async (c: Context) => {
     return c.html(<Alert type="danger" message="Sign in to update your shelf." />, 401);
   }
 
-  if (!isFeatureEnabledForUser("collectors", user) || !userCanHaveShelf(user)) {
+  if (!userCanHaveShelf(user)) {
     return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 

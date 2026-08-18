@@ -19,7 +19,6 @@ import AppLayout from "../../../../components/layouts/AppLayout";
 import Page from "../../../../components/layouts/Page";
 import Breadcrumbs from "../../../../features/dashboard/admin/components/Breadcrumbs";
 import EditCreatorFormAdmin from "../../../../features/dashboard/admin/creators/forms/EditCreatorFormAdmin";
-import FeatureGuard from "../../../../components/layouts/FeatureGuard";
 import { getFormValues } from "../../../../features/dashboard/creators/utils";
 import CreatorBookList from "../../../../features/dashboard/admin/creators/components/CreatorBookList";
 import StubOutreachStatus from "../../../../features/dashboard/admin/creators/components/StubOutreachStatus";
@@ -89,9 +88,6 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
           currentPage={currentPage}
           searchQuery={searchQuery}
         />
-        <FeatureGuard flagName="messages">
-          {/* <CreatorMessageList creatorId={creator.id} /> */}
-        </FeatureGuard>
       </Page>
     </AppLayout>,
   );

@@ -3,7 +3,6 @@ import { AuthUser } from "../../../types";
 import { useUser } from "../../contexts/UserContext";
 import Button from "../app/Button";
 import NavAvatar from "../app/NavAvatar";
-import FeatureGuard from "./FeatureGuard";
 
 type Props = {
   currentPath?: string | null;
@@ -139,14 +138,12 @@ const DropDownMenu = ({
           <NavLink href={`/users/${user?.id}/edit`} currentPath={currentPath}>
             Edit Profile
           </NavLink>
-          <FeatureGuard flagName="collectors">
-            <NavLink href="/dashboard" currentPath={currentPath}>
-              Dashboard
-            </NavLink>
-            <NavLink href="/followed-collectors" currentPath={currentPath}>
-              Collectors I Follow
-            </NavLink>
-          </FeatureGuard>
+          <NavLink href="/dashboard" currentPath={currentPath}>
+            Dashboard
+          </NavLink>
+          <NavLink href="/followed-collectors" currentPath={currentPath}>
+            Collectors I Follow
+          </NavLink>
         </>
       )}
       {user.creator?.id && (
@@ -160,11 +157,9 @@ const DropDownMenu = ({
           >
             {`View ${user?.creator?.displayName}`}
           </NavLink>
-          <FeatureGuard flagName="collectors">
-            <NavLink href="/followed-collectors" currentPath={currentPath}>
-              Collectors I Follow
-            </NavLink>
-          </FeatureGuard>
+          <NavLink href="/followed-collectors" currentPath={currentPath}>
+            Collectors I Follow
+          </NavLink>
         </>
       )}
       {user?.isAdmin && (

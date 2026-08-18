@@ -10,8 +10,8 @@ describe("canFollowCollector", () => {
     expect(canFollowCollector("user-1", "user-2")).toBe(true);
   });
 
-  it("rejects when logged out", () => {
-    expect(canFollowCollector(null, "user-2")).toBe(false);
-    expect(canFollowCollector(undefined, "user-2")).toBe(false);
+  it("allows logged-out users so the auth modal can fire", () => {
+    expect(canFollowCollector(null, "user-2")).toBe(true);
+    expect(canFollowCollector(undefined, "user-2")).toBe(true);
   });
 });

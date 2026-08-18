@@ -19,6 +19,7 @@ const CreatorsBrowseFilters = ({ activeFilter, user }: Props) => {
     { id: "all", label: "All" },
     { id: "artist", label: "Artists" },
     { id: "publisher", label: "Publishers" },
+    { id: "collector", label: "Collectors" },
   ];
 
   if (user) {

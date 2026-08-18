@@ -4,14 +4,12 @@ import { hyperview } from "../../../lib/hxml";
 import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps";
 import { getBaseUrl } from "../../../lib/hyperview";
 import { getUser } from "../../../utils";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import FairsTabs, {
   FAIRS_TAB_TARGET_ID,
   fairsTabStyles,
 } from "../../../features/hyperview/components/FairsTabs";
 import { fairsListStyles } from "../../../features/hyperview/components/FairsList";
 import { signInEmptyHintStyles } from "../../../features/hyperview/hyperviewCommonScreenStyles";
-import ErrorScreen from "../../../features/hyperview/components/ErrorScreen";
 
 const DEFAULT_FAIRS_TAB = "current";
 
@@ -22,13 +20,6 @@ export const GET = createRoute(async (c) => {
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
   const hv = hyperview(c);
-
-  if (!isFeatureEnabledForUser("fairs", user)) {
-    return hv(
-      <ErrorScreen user={user} baseUrl={baseUrl} message="Not found" />,
-      404,
-    );
-  }
 
   return hv(
     <AppLayout

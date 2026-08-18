@@ -8,8 +8,6 @@ import BookPurchaseButton, {
   bookPurchaseButtonStyles,
 } from "./BookPurchaseButton";
 import DiscoveryTags, { discoveryTagStyles } from "./DiscoveryTags";
-import { isFeatureEnabledForUser } from "../../../lib/features";
-import type { AuthUser } from "../../../../types";
 
 function purchaseDeepLinkHref(
   baseUrl: string,
@@ -36,7 +34,6 @@ type Props = {
   book: BookWithGalleryImages;
   baseUrl: string;
   isFavorited: boolean;
-  user?: AuthUser | null;
 };
 
 /** Split description into paragraphs so blank lines render as paragraph breaks. */
@@ -56,14 +53,10 @@ const BookPage = ({
   book,
   baseUrl,
   isFavorited,
-  user,
 }: Props) => {
   const paragraphs = descriptionParagraphs(book.description);
   const purchaseHref = purchaseDeepLinkHref(baseUrl, book);
-  const pressLinks =
-    isFeatureEnabledForUser("bookPressLinks", user) && book.pressLinks?.length
-      ? book.pressLinks
-      : [];
+  const pressLinks = book.pressLinks?.length ? book.pressLinks : [];
 
   return (
     <View xmlns="https://hyperview.org/hyperview" style="book-page">

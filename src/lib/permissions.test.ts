@@ -10,7 +10,6 @@ import {
   canEditBook,
   canEditCreator,
   canFollowCreator,
-  canLikeBook,
   canPreviewBook,
   canPublishBook,
   canUnpublishBook,
@@ -91,16 +90,14 @@ const baseEditBook = {
   images: [],
 } as unknown as BookWithGalleryImages;
 
-describe("canLikeBook / canWishlistBook / canCollectBook", () => {
+describe("canWishlistBook / canCollectBook", () => {
   it("allows fans to interact with books", () => {
-    expect(canLikeBook(fanUser, baseBook)).toBe(true);
     expect(canWishlistBook(fanUser, baseBook)).toBe(true);
     expect(canCollectBook(fanUser, baseBook)).toBe(true);
   });
 
   it("blocks creators from interacting with their own books", () => {
     const user = creatorUser(baseCreator);
-    expect(canLikeBook(user, baseBook)).toBe(false);
     expect(canWishlistBook(user, { artistId: creatorId, publisherId: null })).toBe(
       false,
     );

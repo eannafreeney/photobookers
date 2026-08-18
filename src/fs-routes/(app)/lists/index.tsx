@@ -7,15 +7,10 @@ import { getPromotedLists } from "../../../domain/lists/services";
 import PromotedListCard from "../../../features/app/components/PromotedListCard";
 import PageHeader from "../../../components/app/PageHeader";
 import { canonicalUrl, pageTitle } from "../../../lib/seo";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
-
-  if (!isFeatureEnabledForUser("collectors", user)) {
-    return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
-  }
 
   const [error, lists] = await getPromotedLists(24);
   if (error) {

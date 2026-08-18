@@ -140,7 +140,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   books: many(books),
   follows: many(follows),
   collections: many(collectionItems),
-  likes: many(likes),
+  postLikes: many(postLikes),
   wishlists: many(wishlists),
   bookLists: many(bookLists),
   claims: many(creatorClaims),
@@ -381,7 +381,6 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   }),
   comments: many(bookComments),
   images: many(bookImages),
-  likes: many(likes),
   wishlists: many(wishlists),
   bookListItems: many(bookListItems),
   collections: many(collectionItems),
@@ -477,10 +476,42 @@ export const collectorPosts = pgTable("collector_posts", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
-export const collectorPostsRelations = relations(collectorPosts, ({ one }) => ({
+export const collectorPostsRelations = relations(
+  collectorPosts,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [collectorPosts.userId],
+      references: [users.id],
+    }),
+    likes: many(postLikes),
+  }),
+);
+
+export const postLikes = pgTable(
+  "post_likes",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    postId: uuid("post_id")
+      .notNull()
+      .references(() => collectorPosts.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey(table.userId, table.postId),
+    postIdIdx: index("post_likes_post_id_idx").on(table.postId),
+  }),
+);
+
+export const postLikesRelations = relations(postLikes, ({ one }) => ({
   user: one(users, {
-    fields: [collectorPosts.userId],
+    fields: [postLikes.userId],
     references: [users.id],
+  }),
+  post: one(collectorPosts, {
+    fields: [postLikes.postId],
+    references: [collectorPosts.id],
   }),
 }));
 
@@ -575,35 +606,6 @@ export const collectionItemsRelations = relations(
   }),
 );
 
-export const likes = pgTable(
-  "likes",
-  {
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    bookId: uuid("book_id")
-      .notNull()
-      .references(() => books.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow(),
-  },
-  (table) => {
-    return {
-      pk: primaryKey(table.userId, table.bookId),
-    };
-  },
-);
-
-export const likesRelations = relations(likes, ({ one }) => ({
-  user: one(users, {
-    fields: [likes.userId],
-    references: [users.id],
-  }),
-  book: one(books, {
-    fields: [likes.bookId],
-    references: [books.id],
-  }),
-}));
-
 export const wishlists = pgTable(
   "wishlists",
   {
@@ -677,6 +679,7 @@ export const bookListItems = pgTable(
       .notNull()
       .references(() => books.id, { onDelete: "cascade" }),
     position: integer("position").default(0).notNull(),
+    note: text("note"),
     createdAt: timestamp("created_at").defaultNow(),
   },
   (table) => ({
@@ -1206,8 +1209,8 @@ export type NewFollow = InferInsertModel<typeof follows>;
 export type CollectionItem = InferSelectModel<typeof collectionItems>;
 export type NewCollectionItem = InferInsertModel<typeof collectionItems>;
 
-export type Like = InferSelectModel<typeof likes>;
-export type NewLike = InferInsertModel<typeof likes>;
+export type PostLike = InferSelectModel<typeof postLikes>;
+export type NewPostLike = InferInsertModel<typeof postLikes>;
 
 export type BookImage = InferSelectModel<typeof bookImages>;
 export type NewBookImage = InferInsertModel<typeof bookImages>;

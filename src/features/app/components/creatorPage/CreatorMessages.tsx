@@ -1,6 +1,7 @@
 import { AuthUser } from "../../../../../types";
 import { findFollow } from "../../../../db/queries";
 import { getMessagesByCreatorSlug } from "../../services";
+import { getPostLikeStats } from "../../../../domain/posts/likes";
 import CreatorMessage from "./CreatorMessage";
 import ListNavigation from "../ListNavigation";
 
@@ -23,6 +24,10 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
     (user?.id ? Boolean(await findFollow(creator.id, user.id)) : false);
 
   const targetId = `creator-messages-${creator.id}`;
+  const likeStats = await getPostLikeStats(
+    messages.map((message) => message.id),
+    user?.id,
+  );
 
   return (
     <div id={targetId} class="w-full flex flex-col gap-4">
@@ -59,6 +64,8 @@ const CreatorMessages = async ({ creatorSlug, user }: CreatorMessagesProps) => {
             creator={creator}
             message={message}
             canReadMessages={canReadMessages}
+            likeCount={likeStats.get(message.id)?.likeCount ?? 0}
+            likedByMe={likeStats.get(message.id)?.likedByMe ?? false}
           />
         ))
       )}

@@ -17,7 +17,6 @@ import { bookShareText, bookShareTitle } from "../../../../lib/share";
 import { bookUrl } from "../../spotlightUrls";
 import MobileHeader from "../MobileHeader";
 import { BookDetailProps, shouldTrackOutboundPurchase } from "./BookDetail";
-import { isFeatureEnabledForUser } from "@/lib/features";
 
 const BookDetailMobile = ({
   galleryImages,
@@ -26,9 +25,7 @@ const BookDetailMobile = ({
   user,
   currentPage,
 }: BookDetailProps) => {
-  const showPress =
-    isFeatureEnabledForUser("bookPressLinks", user) &&
-    (book.pressLinks?.length ?? 0) > 0;
+  const showPress = (book.pressLinks?.length ?? 0) > 0;
 
   return (
     <div class="flex flex-col gap-4">
@@ -109,8 +106,6 @@ const BookDetailMobile = ({
         bookSlug={book.slug}
         purchaseLink={book.purchaseLink}
         availabilityStatus={book.availabilityStatus}
-        artistName={book.artist?.displayName}
-        publisherName={book.publisher?.displayName}
         trackOutbound={shouldTrackOutboundPurchase(book)}
       />
     </div>

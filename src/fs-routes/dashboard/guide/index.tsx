@@ -7,7 +7,6 @@ import ProfileGuide from "../../../features/dashboard/guide/components/ProfileGu
 import CollectorGuide from "../../../features/collectors/components/CollectorGuide";
 import { getPendingClaim } from "../../../features/claims/services";
 import { getFlash, getUser } from "../../../utils";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import InfoPage from "../../../pages/InfoPage";
 import PageHeader from "@/components/app/PageHeader";
 
@@ -17,9 +16,6 @@ export const GET = createRoute(async (c: Context) => {
   const currentPath = c.req.path;
 
   if (!user.creator) {
-    if (!isFeatureEnabledForUser("collectors", user)) {
-      return c.html(<InfoPage errorMessage="Creator not found" user={user} />);
-    }
     return c.html(
       <AppLayout title="Collector guide" user={user} flash={flash} currentPath={currentPath}>
         <CollectorDashboardShell currentPath={currentPath}>
@@ -57,15 +53,13 @@ export const GET = createRoute(async (c: Context) => {
           intro="A practical checklist for building a profile that gets discovered, followed, and bought from."
         />
         <ProfileGuide creator={creator} />
-        {isFeatureEnabledForUser("collectors", user) ? (
-          <div class="mt-12 flex flex-col gap-4 border-t border-outline pt-8">
-            <PageHeader
-              title="Your personal shelf"
-              intro="Creators can also run a public shelf for favourites, lists, and posts."
-            />
-            <CollectorGuide />
-          </div>
-        ) : null}
+        <div class="mt-12 flex flex-col gap-4 border-t border-outline pt-8">
+          <PageHeader
+            title="Your personal shelf"
+            intro="Creators can also run a public shelf for favourites, lists, and posts."
+          />
+          <CollectorGuide />
+        </div>
       </CreatorDashboardShell>
     </AppLayout>,
   );

@@ -9,15 +9,16 @@ import {
 import InfoPage from "../../../../../pages/InfoPage";
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import Page from "../../../../../components/layouts/Page";
-import BooksGrid from "../../../../../features/app/components/BooksGrid";
+import ListBookCard from "../../../../../features/app/components/ListBookCard";
+import ListNavigation from "../../../../../features/app/components/ListNavigation";
 import ShareButton from "../../../../../features/api/components/ShareButton";
 import { canonicalUrl, pageTitle } from "../../../../../lib/seo";
-import { isFeatureEnabledForUser } from "../../../../../lib/features";
 import { routeParam } from "../../../../../lib/routeParam";
 import { z } from "zod";
 import { formatShelfOwnerName } from "../../../../../domain/shelf/utils";
 import { listSlugSchema } from "../../../../../domain/lists/utils";
 import { slugSchema } from "../../../../../features/app/schema";
+import { getInitialsAvatar } from "../../../../../lib/avatar";
 
 const listParamsSchema = z.object({
   slug: slugSchema.shape.slug,
@@ -32,10 +33,6 @@ export const GET = createRoute(
     const user = await getUser(c);
     const currentPath = c.req.path;
     const currentPage = Number(c.req.query("page") ?? 1);
-
-    if (!isFeatureEnabledForUser("collectors", user)) {
-      return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
-    }
 
     const [ownerError, result] = await getPublicListByShelfAndSlug(
       shelfSlug,
@@ -61,6 +58,7 @@ export const GET = createRoute(
       list.id,
       currentPage,
     );
+
     if (booksError || !booksResult) {
       return c.html(
         <InfoPage
@@ -86,7 +84,11 @@ export const GET = createRoute(
       `${list.title} — a book list by ${displayName} on Photobookers.`;
     const listPath = `/shelf/${shelfSlug}/lists/${list.slug}`;
     const listCanonicalUrl = canonicalUrl(c.req.url, listPath);
-    const shareImage = booksResult.books[0]?.coverUrl ?? undefined;
+    const shareImage =
+      owner.profileImageUrl ?? booksResult.books[0]?.coverUrl ?? undefined;
+    const avatarUrl =
+      owner.profileImageUrl ??
+      getInitialsAvatar(owner.firstName ?? "", owner.lastName ?? "");
 
     return c.html(
       <AppLayout
@@ -103,25 +105,29 @@ export const GET = createRoute(
         }}
       >
         <Page>
-          <div class="flex flex-col gap-6">
-            <div class="flex flex-col gap-2 border-b-2 border-on-surface-strong pb-4">
+          <div class="mx-auto flex w-full max-w-xl flex-col items-center gap-12">
+            <div class="flex w-full flex-col items-center gap-3 border-b-2 border-on-surface-strong pb-6 text-center">
+              <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-5xl">
+                {list.title}
+              </h1>
               <a
                 href={`/shelf/${shelfSlug}`}
-                class="text-sm text-accent underline underline-offset-2"
+                class="flex items-center gap-2 text-on-surface-strong hover:opacity-75"
               >
-                ← {displayName}'s shelf
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  class="size-8 rounded-full object-cover"
+                  loading="lazy"
+                />
+                <span class="text-sm font-medium">{displayName}</span>
               </a>
-              <div class="flex items-start justify-between gap-4">
-                <div>
-                  <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-5xl">
-                    {list.title}
-                  </h1>
-                  {list.description ? (
-                    <p class="mt-2 max-w-2xl text-on-surface text-pretty">
-                      {list.description}
-                    </p>
-                  ) : null}
-                </div>
+              {list.description ? (
+                <p class="max-w-prose text-on-surface text-pretty">
+                  {list.description}
+                </p>
+              ) : null}
+              <div class="w-full max-w-xs pt-2">
                 <ShareButton
                   title={`${list.title} · ${displayName}`}
                   text={`Check out ${list.title} by ${displayName} on Photobookers`}
@@ -130,12 +136,37 @@ export const GET = createRoute(
               </div>
             </div>
 
-            <BooksGrid
-              user={user}
-              currentPath={currentPath}
-              result={booksResult}
-              noResultsMessage="No books in this list yet."
-            />
+            <div id="list-books" class="flex w-full flex-col gap-16">
+              <div id="list-book-cards" x-merge="replace" class="flex flex-col gap-12">
+                {booksResult.books.length > 0 ? (
+                  booksResult.books.map((book, index) => (
+                    <>
+                      {index > 0 ? (
+                        <div
+                          class="flex items-center justify-center gap-2 text-on-surface-weak"
+                          aria-hidden="true"
+                        >
+                          <span>•</span>
+                          <span>•</span>
+                          <span>•</span>
+                        </div>
+                      ) : null}
+                      <ListBookCard book={book} user={user} />
+                    </>
+                  ))
+                ) : (
+                  <p class="py-8 text-center text-sm text-on-surface">
+                    No books in this list yet.
+                  </p>
+                )}
+              </div>
+              <ListNavigation
+                currentPath={currentPath}
+                page={booksResult.page}
+                totalPages={booksResult.totalPages}
+                targetId="list-book-cards"
+              />
+            </div>
           </div>
         </Page>
       </AppLayout>,

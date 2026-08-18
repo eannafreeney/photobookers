@@ -4,7 +4,6 @@ import { paramValidator } from "../../../lib/validator";
 import { z } from "zod";
 import AppLayout from "../../../components/layouts/AppLayout";
 import { getUser } from "../../../utils";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import InfoPage from "../../../pages/InfoPage";
 import { getStoreBySlug } from "../../../features/app/stores/services";
 import StoreDetail from "../../../features/app/stores/components/StoreDetail";
@@ -24,10 +23,6 @@ export const GET = createRoute(
     const user = await getUser(c);
     const currentPath = c.req.path;
     const slug = routeParam(c, "slug");
-
-    if (!isFeatureEnabledForUser("stores", user)) {
-      return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
-    }
 
     const [error, store] = await getStoreBySlug(slug);
     if (error) {

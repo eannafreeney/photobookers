@@ -10,6 +10,7 @@ import {
 } from "../../features/app/services";
 import PageHeader from "../../components/app/PageHeader";
 import CreatorsCircle from "../../features/app/components/CreatorsCircle";
+import CollectorCircle from "../../features/app/components/CollectorCircle";
 import CreatorsBrowseFilters from "../../features/app/components/CreatorsBrowseFilters";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import ListNavigation from "../../features/app/components/ListNavigation";
@@ -22,6 +23,11 @@ import {
 import { paginationRequestBaseUrl } from "../../lib/pagination";
 import { ok } from "../../lib/result";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
+import {
+  getFollowedCollectors,
+  getPublicCollectors,
+  type CollectorCard,
+} from "../../domain/collectors/services";
 import { AuthUser } from "../../../types";
 import { CreatorCardResult } from "../../constants/queries";
 
@@ -35,28 +41,22 @@ export const GET = createRoute(async (c) => {
   const paginationBaseUrl = paginationRequestBaseUrl(c.req.url);
   const canonicalPath = creatorsBrowseUrl(filter);
 
-  const [error, result] = await loadCreatorsForFilter(
-    filter,
-    currentPage,
-    user,
-  );
+  const catalog =
+    filter === "collector"
+      ? await loadCollectorCatalog({
+          filter,
+          user,
+        })
+      : await loadCreatorCatalog({
+          filter,
+          user,
+          currentPage,
+          paginationBaseUrl,
+        });
 
-  if (error) {
+  if (!catalog) {
     return c.html(<InfoPage errorMessage="Creators not found" user={user} />);
   }
-
-  const { creators, totalPages, page } = result;
-
-  const catalog = (
-    <CreatorsBrowseCatalog
-      filter={filter}
-      creators={creators}
-      page={page}
-      totalPages={totalPages}
-      paginationBaseUrl={paginationBaseUrl}
-      user={user}
-    />
-  );
 
   if (c.req.query("fragment") === "catalog") {
     return c.html(catalog);
@@ -64,7 +64,7 @@ export const GET = createRoute(async (c) => {
 
   const title = pageTitle("Creators");
   const description =
-    "Discover photobook artists and publishers on photobookers. Browse profiles and explore their published work.";
+    "Discover photobook artists, publishers, and collectors on photobookers. Browse profiles and explore their work.";
 
   return c.html(
     <AppLayout
@@ -78,7 +78,7 @@ export const GET = createRoute(async (c) => {
         <PageHeader
           kicker="The People"
           title="Creators"
-          intro="Artists and publishers behind the books — browse profiles and explore their published work."
+          intro="Artists, publishers, and collectors — browse profiles, shelves, and published work."
         />
         <div x-data x-ref="paginationContent">
           {catalog}
@@ -87,6 +87,62 @@ export const GET = createRoute(async (c) => {
     </AppLayout>,
   );
 });
+
+async function loadCreatorCatalog({
+  filter,
+  user,
+  currentPage,
+  paginationBaseUrl,
+}: {
+  filter: CreatorBrowseFilter;
+  user: AuthUser | null;
+  currentPage: number;
+  paginationBaseUrl: string;
+}) {
+  const [error, result] = await loadCreatorsForFilter(
+    filter,
+    currentPage,
+    user,
+  );
+  if (error) return null;
+
+  const { creators, totalPages, page } = result;
+  const collectors =
+    filter === "following" && user && currentPage === 1
+      ? ((await getFollowedCollectors(user.id))[1] ?? [])
+      : [];
+
+  return (
+    <CreatorsBrowseCatalog
+      filter={filter}
+      creators={creators}
+      collectors={collectors}
+      page={page}
+      totalPages={totalPages}
+      paginationBaseUrl={paginationBaseUrl}
+      user={user}
+    />
+  );
+}
+
+async function loadCollectorCatalog({
+  filter,
+  user,
+}: {
+  filter: CreatorBrowseFilter;
+  user: AuthUser | null;
+}) {
+  const [error, collectors] = await getPublicCollectors();
+  if (error) return null;
+
+  return (
+    <CollectorsBrowseCatalog
+      filter={filter}
+      collectors={collectors ?? []}
+      user={user}
+    />
+  );
+}
 
 async function loadCreatorsForFilter(
   filter: CreatorBrowseFilter,
@@ -108,23 +164,28 @@ async function loadCreatorsForFilter(
   }
 }
 
-type CatalogProps = {
+type CatalogFilterProps = {
   filter: CreatorBrowseFilter;
+  user: AuthUser | null;
+};
+
+type CreatorsCatalogProps = CatalogFilterProps & {
   creators: CreatorCardResult[];
+  collectors?: CollectorCard[];
   page: number;
   totalPages: number;
   paginationBaseUrl: string;
-  user: AuthUser | null;
 };
 
 const CreatorsBrowseCatalog = ({
   filter,
   creators,
+  collectors = [],
   page,
   totalPages,
   paginationBaseUrl,
   user,
-}: CatalogProps) => (
+}: CreatorsCatalogProps) => (
   <div id={CREATOR_CATALOG_TARGET_ID} x-merge="replace">
     <CreatorsBrowseFilters activeFilter={filter} user={user} />
     <div
@@ -132,6 +193,11 @@ const CreatorsBrowseCatalog = ({
       x-merge="append"
       class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6"
     >
+      {collectors.map((collector) => (
+        <ScrollReveal>
+          <CollectorCircle collector={collector} showType />
+        </ScrollReveal>
+      ))}
       {creators.map((creator) => (
         <ScrollReveal>
           <CreatorsCircle
@@ -148,5 +214,32 @@ const CreatorsBrowseCatalog = ({
       totalPages={totalPages}
       targetId={targetId}
     />
+  </div>
+);
+
+type CollectorsCatalogProps = CatalogFilterProps & {
+  collectors: CollectorCard[];
+};
+
+const CollectorsBrowseCatalog = ({
+  filter,
+  collectors,
+  user,
+}: CollectorsCatalogProps) => (
+  <div id={CREATOR_CATALOG_TARGET_ID} x-merge="replace">
+    <CreatorsBrowseFilters activeFilter={filter} user={user} />
+    {collectors.length === 0 ? (
+      <p class="text-center text-sm text-on-surface">
+        No public collectors yet.
+      </p>
+    ) : (
+      <div class="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-6">
+        {collectors.map((collector) => (
+          <ScrollReveal>
+            <CollectorCircle collector={collector} />
+          </ScrollReveal>
+        ))}
+      </div>
+    )}
   </div>
 );

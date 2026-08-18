@@ -2,4 +2,4 @@
 export const canFollowCollector = (
   followerUserId: string | null | undefined,
   targetUserId: string,
-) => Boolean(followerUserId) && followerUserId !== targetUserId;
+) => followerUserId !== targetUserId;

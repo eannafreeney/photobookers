@@ -14,7 +14,6 @@ import Page from "../../../components/layouts/Page";
 import BooksGrid from "../../../features/app/components/BooksGrid";
 import ShareButton from "../../../features/api/components/ShareButton";
 import { canonicalUrl, pageTitle, shelfDescription } from "../../../lib/seo";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import { routeParam } from "../../../lib/routeParam";
 import {
   shelfProfileUrl,
@@ -23,6 +22,7 @@ import {
 } from "../../../lib/share";
 import { getInitialsAvatar } from "../../../lib/avatar";
 import { listCollectorPosts } from "../../../db/queries";
+import { getPostLikeStats } from "../../../domain/posts/likes";
 import PostCard from "../../../features/collectors/components/PostCard";
 import CollectorFollowButton from "../../../features/api/components/CollectorFollowButton";
 import ShelfListsSection from "../../../features/app/components/ShelfListsSection";
@@ -34,10 +34,6 @@ export const GET = createRoute(
     const user = await getUser(c);
     const currentPath = c.req.path;
     const currentPage = Number(c.req.query("page") ?? 1);
-
-    if (!isFeatureEnabledForUser("collectors", user)) {
-      return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
-    }
 
     const [ownerError, ownerResult] = await getPublicShelfBySlug(slug);
     if (ownerError || !ownerResult) {
@@ -76,6 +72,10 @@ export const GET = createRoute(
     }
 
     const posts = owner.creator ? [] : await listCollectorPosts(owner.id);
+    const postLikeStats = await getPostLikeStats(
+      posts.map((post) => post.id),
+      user?.id,
+    );
     const publicLists = await getPublicListsForUser(owner.id);
 
     const title = pageTitle(`${owner.displayName}'s shelf`);
@@ -120,7 +120,7 @@ export const GET = createRoute(
                 </a>
               </p>
             ) : null}
-            <div class="flex justify-between border-b-2 border-on-surface-strong pb-4">
+            <div class="flex flex-col gap-4 border-b-2 border-on-surface-strong pb-4 md:flex-row md:items-end md:justify-between">
               <div class="flex items-center gap-4">
                 <img
                   src={avatarUrl}
@@ -142,20 +142,20 @@ export const GET = createRoute(
                   ) : null}
                 </div>
               </div>
-              <div class="flex flex-col items-end justify-end gap-3">
-                <div class="flex items-center gap-4">
-                  {!isOwner ? (
-                    <CollectorFollowButton
-                      targetUserId={owner.id}
-                      user={user}
-                    />
-                  ) : null}
-                  <ShareButton
-                    title={shelfShareTitle(owner.displayName)}
-                    text={shelfShareText(owner.displayName)}
-                    url={shelfProfileUrl(slug)}
+              <div
+                class={`grid w-full gap-2 md:w-auto md:min-w-72 md:gap-4 ${isOwner ? "grid-cols-1" : "grid-cols-2"}`}
+              >
+                {!isOwner ? (
+                  <CollectorFollowButton
+                    targetUserId={owner.id}
+                    user={user}
                   />
-                </div>
+                ) : null}
+                <ShareButton
+                  title={shelfShareTitle(owner.displayName)}
+                  text={shelfShareText(owner.displayName)}
+                  url={shelfProfileUrl(slug)}
+                />
               </div>
             </div>
 
@@ -215,7 +215,11 @@ export const GET = createRoute(
             </div>
 
             {!owner.creator ? (
-              <div x-show="tab === 'posts'" x-cloak class="flex flex-col gap-4">
+              <div
+                x-show="tab === 'posts'"
+                x-cloak
+                class="mx-auto flex w-full max-w-[600px] flex-col gap-4"
+              >
                 {posts.length === 0 ? (
                   <p class="text-sm text-on-surface">No posts yet.</p>
                 ) : (
@@ -228,6 +232,8 @@ export const GET = createRoute(
                         lastName: owner.lastName,
                         profileImageUrl: owner.profileImageUrl,
                       }}
+                      likeCount={postLikeStats.get(post.id)?.likeCount ?? 0}
+                      likedByMe={postLikeStats.get(post.id)?.likedByMe ?? false}
                     />
                   ))
                 )}

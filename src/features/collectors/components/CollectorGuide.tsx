@@ -85,7 +85,7 @@ const CollectorGuide = () => {
         step={5}
         icon={usersIcon(5)}
         title="Follow other collectors"
-        cta={{ label: "Find collectors", href: "/collectors" }}
+        cta={{ label: "Find collectors", href: "/creators?type=collector" }}
       >
         <p>
           Follow collectors whose taste you admire. Their posts show up in your

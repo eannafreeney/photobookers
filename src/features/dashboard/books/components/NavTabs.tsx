@@ -10,7 +10,6 @@ import {
   mailIcon,
   usersIcon,
 } from "../../../../lib/icons";
-import { isFeatureEnabled } from "../../../../lib/features";
 
 const NavTabs = ({
   currentPath,
@@ -21,8 +20,6 @@ const NavTabs = ({
   creatorId: string;
   showProfile?: boolean;
 }) => {
-  const showCollectorTabs = isFeatureEnabled("collectors");
-
   return (
     <nav
       id="nav-tabs"
@@ -40,22 +37,18 @@ const NavTabs = ({
         {mailIcon(5)}
         Posts
       </NavLink>
-      {showCollectorTabs ? (
-        <>
-          <NavLink href="/dashboard/shelf" currentPath={currentPath}>
-            {bookIcon}
-            Shelf
-          </NavLink>
-          <NavLink href="/dashboard/favorites" currentPath={currentPath}>
-            {fullHeartIcon(5)}
-            Favorites
-          </NavLink>
-          <NavLink href="/dashboard/lists" currentPath={currentPath}>
-            {libraryIcon(5)}
-            Lists
-          </NavLink>
-        </>
-      ) : null}
+      <NavLink href="/dashboard/shelf" currentPath={currentPath}>
+        {bookIcon}
+        Shelf
+      </NavLink>
+      <NavLink href="/dashboard/favorites" currentPath={currentPath}>
+        {fullHeartIcon(5)}
+        Favorites
+      </NavLink>
+      <NavLink href="/dashboard/lists" currentPath={currentPath}>
+        {libraryIcon(5)}
+        Lists
+      </NavLink>
       {showProfile ? (
         <NavLink
           href={`/dashboard/creators/${creatorId}`}

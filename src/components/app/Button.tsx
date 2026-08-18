@@ -2,7 +2,7 @@ import { tv } from "tailwind-variants";
 import { colorMap } from "../../lib/colorMap";
 import { PropsWithChildren } from "hono/jsx";
 
-const button = tv({
+export const button = tv({
   base: `
     whitespace-nowrap rounded-radius px-5 py-2.5
     text-xs font-semibold uppercase tracking-[0.16em] text-center

@@ -10,8 +10,6 @@ export type BookPurchaseAction =
 type GetBookPurchaseActionParams = {
   availabilityStatus: BookAvailabilityStatus;
   purchaseLink: string | null;
-  artistName?: string | null;
-  publisherName?: string | null;
   bookSlug: string;
   trackOutbound?: boolean;
 };
@@ -19,8 +17,6 @@ type GetBookPurchaseActionParams = {
 export function getBookPurchaseAction({
   availabilityStatus,
   purchaseLink,
-  artistName,
-  publisherName,
   bookSlug,
   trackOutbound = true,
 }: GetBookPurchaseActionParams): BookPurchaseAction {
@@ -30,10 +26,9 @@ export function getBookPurchaseAction({
   const href = purchaseLink?.trim();
   if (!href) return { kind: "none" };
 
-  const name = publisherName?.trim() || artistName?.trim();
   return {
     kind: "buy",
     href: trackOutbound ? outboundPurchasePath(bookSlug) : href,
-    label: name ? `Buy from ${name} →` : "Buy →",
+    label: "Buy →",
   };
 }

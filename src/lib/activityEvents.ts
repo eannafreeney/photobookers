@@ -1,5 +1,4 @@
 type ActivityType =
-  | "book_liked"
   | "book_favourited"
   | "book_collected"
   | "creator_followed"

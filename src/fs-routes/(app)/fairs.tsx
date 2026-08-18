@@ -4,7 +4,6 @@ import AppLayout from "../../components/layouts/AppLayout";
 import { getUser } from "../../utils";
 import Page from "../../components/layouts/Page";
 import PageHeader from "../../components/app/PageHeader";
-import { isFeatureEnabledForUser } from "../../lib/features";
 import InfoPage from "../../pages/InfoPage";
 import {
   getUpcomingFairs,
@@ -55,10 +54,6 @@ const ViewSwitcher = ({ currentView, baseUrl }: ViewSwitcherProps) => (
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
-
-  if (!isFeatureEnabledForUser("fairs", user)) {
-    return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
-  }
 
   const view = (c.req.query("view") ?? "grid") as "grid" | "calendar";
   const tab = (c.req.query("tab") ?? "upcoming") as

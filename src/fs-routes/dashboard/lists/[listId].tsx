@@ -4,7 +4,6 @@ import AppLayout from "../../../components/layouts/AppLayout";
 import PageHeader from "@/components/app/PageHeader";
 import InfoPage from "../../../pages/InfoPage";
 import { getFlash, getUser } from "../../../utils";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import {
   deleteBookList,
   getBookListForOwner,
@@ -15,7 +14,8 @@ import { userCanManageBookLists } from "../../../domain/lists/utils";
 import { parseCheckboxField } from "../../../schemas";
 import ListsDashboardShell from "../../../features/dashboard/lists/ListsDashboardShell";
 import ListForm from "../../../features/dashboard/lists/ListForm";
-import ListBooksEditor from "../../../features/dashboard/lists/ListBooksEditor";
+import ListBooks from "@/features/dashboard/lists/ListBooks";
+import ListBookSearch from "../../../features/dashboard/lists/ListBookSearch";
 import { showErrorAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
 import { routeParam } from "../../../lib/routeParam";
@@ -25,10 +25,7 @@ import ListVisibilityToggle from "../../../features/dashboard/lists/ListVisibili
 import { dispatchEvents } from "../../../lib/disatchEvents";
 
 function canAccessLists(user: Awaited<ReturnType<typeof getUser>>) {
-  return (
-    userCanManageBookLists(user) &&
-    isFeatureEnabledForUser("collectors", user)
-  );
+  return userCanManageBookLists(user);
 }
 
 export const GET = createRoute(async (c: Context) => {
@@ -49,7 +46,12 @@ export const GET = createRoute(async (c: Context) => {
     );
   }
 
-  const [booksErr, booksResult] = await getBooksInList(listId, 1, "newest", 100);
+  const [booksErr, booksResult] = await getBooksInList(
+    listId,
+    1,
+    "newest",
+    100,
+  );
   if (booksErr || !booksResult) {
     return c.html(
       <InfoPage
@@ -65,7 +67,7 @@ export const GET = createRoute(async (c: Context) => {
       : null;
 
   const claimStatus = user.creator
-    ? (await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null
+    ? ((await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null)
     : null;
 
   return c.html(
@@ -103,10 +105,10 @@ export const GET = createRoute(async (c: Context) => {
             </a>
           </p>
         ) : null}
-        <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <div>
+        <div class="grid grid-cols-1 gap-8 xl:grid-cols-3 xl:items-start">
+          <div class="bg-surface-alt p-6 rounded-lg xl:sticky xl:top-24">
             <h2 class="mb-3 text-lg font-semibold text-on-surface-strong">
-              Details
+              Edit List Details
             </h2>
             <ListForm
               listId={list.id}
@@ -117,31 +119,20 @@ export const GET = createRoute(async (c: Context) => {
                 isPublic: list.isPublic,
               }}
             />
-            <form
-              method="post"
-              action={`/dashboard/lists/${list.id}`}
-              class="mt-6"
-              x-data="{ isSubmitting: false }"
-              {...{
-                "@submit":
-                  "if (!confirm('Delete this list?')) { $event.preventDefault(); return }; isSubmitting = true",
-              }}
-            >
-              <input type="hidden" name="_method" value="DELETE" />
-              <button
-                type="submit"
-                class="text-sm text-error hover:underline"
-                x-bind:disabled="isSubmitting"
-              >
-                Delete list
-              </button>
-            </form>
           </div>
-          <div>
-            <h2 class="mb-3 text-lg font-semibold text-on-surface-strong">
-              Books
-            </h2>
-            <ListBooksEditor listId={list.id} books={booksResult.books} />
+          <div class="flex flex-col gap-8 xl:col-span-2">
+            <div>
+              <h2 class="text-lg font-semibold text-on-surface-strong mb-2">
+                Add books
+              </h2>
+              <ListBookSearch listId={list.id} />
+            </div>
+            <div>
+              <h2 class="text-lg font-semibold text-on-surface-strong mb-2">
+                In this list
+              </h2>
+              <ListBooks listId={list.id} books={booksResult.books} />
+            </div>
           </div>
         </div>
       </ListsDashboardShell>

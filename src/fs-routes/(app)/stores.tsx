@@ -3,7 +3,6 @@ import { Context } from "hono";
 import AppLayout from "../../components/layouts/AppLayout";
 import { getUser } from "../../utils";
 import Page from "../../components/layouts/Page";
-import { isFeatureEnabledForUser } from "../../lib/features";
 import InfoPage from "../../pages/InfoPage";
 import {
   getPublishedStoreCountries,
@@ -22,10 +21,6 @@ import PageHeader from "../../components/app/PageHeader";
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
-
-  if (!isFeatureEnabledForUser("stores", user)) {
-    return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
-  }
 
   const view = (c.req.query("view") ?? "grid") as "grid" | "map";
   const page = Number(c.req.query("page") ?? 1);

@@ -4,9 +4,7 @@ import { eq } from "drizzle-orm";
 import { getUser } from "../../../../utils";
 import AuthModal from "../../../../components/app/AuthModal";
 import Alert from "../../../../components/app/Alert";
-import InfoPage from "../../../../pages/InfoPage";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
-import { isFeatureEnabledForUser } from "../../../../lib/features";
 import { deleteUserFollow, insertUserFollow } from "../../../../db/queries";
 import { db } from "../../../../db/client";
 import { users } from "../../../../db/schema";
@@ -22,10 +20,6 @@ const displayName = (u: {
 export const POST = createRoute(async (c: Context) => {
   const targetUserId = routeParam(c, "userId");
   const user = await getUser(c);
-
-  if (!isFeatureEnabledForUser("collectors", user)) {
-    return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
-  }
 
   if (!user?.id) {
     return c.html(<AuthModal action="to follow this collector." />, 401);

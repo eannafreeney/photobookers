@@ -47,8 +47,7 @@ import {
 } from "../../constants/queries";
 import { collectorPosts, Creator } from "../../db/schema";
 import { err, ok } from "../../lib/result";
-import { isFeatureEnabled } from "../../lib/features";
-import { mergeFeedItems } from "./followerFeed";
+import { type FeedItem, type FeedTab } from "./followerFeed";
 import { listPostsByCreatorSlug } from "../../domain/posts/services";
 import { LRUCache } from "lru-cache";
 import { resolveStoragePublicImageUrl } from "../../lib/imageUrl";
@@ -978,11 +977,10 @@ export const getFollowerFeed = async (
   followerUserId: string,
   currentPage = 1,
   limit = 20,
-  options?: { includeMessages?: boolean },
+  options?: { tab?: FeedTab; includeMessages?: boolean },
 ) => {
-  const includeMessages =
-    options?.includeMessages ?? isFeatureEnabled("messages");
-  const includeCollectorPosts = isFeatureEnabled("collectors");
+  const tab = options?.tab ?? "posts";
+  const includeMessages = options?.includeMessages ?? true;
 
   try {
     const allFollows = await db.query.follows.findMany({
@@ -993,6 +991,50 @@ export const getFollowerFeed = async (
       .filter((f) => f.targetType === "creator")
       .map((follow) => follow.targetCreatorId)
       .filter((id): id is string => id !== null);
+
+    if (tab === "books") {
+      if (followedCreatorIds.length === 0) {
+        return ok({ items: [] as FeedItem[], totalPages: 1, page: 1 });
+      }
+
+      const bookWhere = and(
+        or(
+          inArray(books.artistId, followedCreatorIds),
+          inArray(books.publisherId, followedCreatorIds),
+        ),
+        eq(books.publicationStatus, "published"),
+        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+      );
+
+      const [{ value: bookCount = 0 }] = await db
+        .select({ value: count() })
+        .from(books)
+        .where(bookWhere);
+
+      const { page, offset, totalPages } = getPagination(
+        currentPage,
+        bookCount,
+        limit,
+      );
+
+      const feedBooks = await db.query.books.findMany({
+        where: bookWhere,
+        columns: { ...BOOK_CARD_COLUMNS, createdAt: true },
+        with: {
+          artist: { columns: CREATOR_CARD_COLUMNS },
+          publisher: { columns: CREATOR_CARD_COLUMNS },
+        },
+        orderBy: getBooksOrderBy("newest"),
+        limit,
+        offset,
+      });
+
+      return ok({
+        items: feedBooks.map((book): FeedItem => ({ kind: "book", book })),
+        totalPages,
+        page,
+      });
+    }
 
     const followedUserIds = allFollows
       .filter((f) => f.targetType === "user")
@@ -1024,7 +1066,7 @@ export const getFollowerFeed = async (
 
     // Collector posts: followed users with a public shelf and no creator profile.
     const publicFollowedUsers =
-      includeCollectorPosts && followedUserIds.length > 0
+      followedUserIds.length > 0
         ? await db.query.users.findMany({
             columns: {
               id: true,
@@ -1053,96 +1095,65 @@ export const getFollowerFeed = async (
     const postAuthorIds = [
       ...new Set([...creatorOwnerIds, ...collectorAuthorIds]),
     ];
-    const hasPostSources = postAuthorIds.length > 0;
-    const hasCreators = followedCreatorIds.length > 0;
-
-    if (!hasCreators && !hasPostSources) {
-      return ok({ items: [], totalPages: 0, page: 1 });
+    if (postAuthorIds.length === 0) {
+      return ok({ items: [] as FeedItem[], totalPages: 1, page: 1 });
     }
 
-    const postWhere = hasPostSources
-      ? inArray(collectorPosts.userId, postAuthorIds)
-      : undefined;
+    const postWhere = inArray(collectorPosts.userId, postAuthorIds);
+    const [{ value: postCount = 0 }] = await db
+      .select({ value: count() })
+      .from(collectorPosts)
+      .where(postWhere);
 
-    const [{ value: postCount = 0 }] = hasPostSources
-      ? await db
-          .select({ value: count() })
-          .from(collectorPosts)
-          .where(postWhere)
-      : [{ value: 0 }];
+    const { page, offset, totalPages } = getPagination(
+      currentPage,
+      postCount,
+      limit,
+    );
 
-    const bookWhere = hasCreators
-      ? and(
-          or(
-            inArray(books.artistId, followedCreatorIds),
-            inArray(books.publisherId, followedCreatorIds),
-          ),
-          eq(books.publicationStatus, "published"),
-          or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
-        )
-      : undefined;
+    const rawPosts = await db.query.collectorPosts.findMany({
+      where: postWhere,
+      orderBy: [desc(collectorPosts.createdAt)],
+      limit,
+      offset,
+      with: {
+        user: {
+          columns: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            shelfSlug: true,
+            profileImageUrl: true,
+          },
+        },
+      },
+    });
 
-    const [{ value: bookCount = 0 }] = bookWhere
-      ? await db.select({ value: count() }).from(books).where(bookWhere)
-      : [{ value: 0 }];
-
-    const totalCount = bookCount + postCount;
-    const { page, totalPages } = getPagination(currentPage, totalCount, limit);
-    const fetchLimit = page * limit;
-
-    const [feedBooks, rawPosts] = await Promise.all([
-      bookWhere
-        ? db.query.books.findMany({
-            where: bookWhere,
-            columns: { ...BOOK_CARD_COLUMNS, createdAt: true },
-            with: {
-              artist: { columns: CREATOR_CARD_COLUMNS },
-              publisher: { columns: CREATOR_CARD_COLUMNS },
-            },
-            orderBy: getBooksOrderBy("newest"),
-            limit: fetchLimit,
-          })
-        : Promise.resolve([]),
-      hasPostSources
-        ? db.query.collectorPosts.findMany({
-            where: postWhere,
-            orderBy: [desc(collectorPosts.createdAt)],
-            limit: fetchLimit,
-            with: {
-              user: {
-                columns: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  shelfSlug: true,
-                  profileImageUrl: true,
-                },
-              },
-            },
-          })
-        : Promise.resolve([]),
-    ]);
-
-    const feedMessages = [];
-    const feedPosts = [];
+    const items: FeedItem[] = [];
     for (const p of rawPosts) {
       const creator = creatorByOwner.get(p.userId);
       if (creator) {
-        feedMessages.push({
-          ...p,
-          creator: {
-            id: creator.id,
-            displayName: creator.displayName,
-            slug: creator.slug,
-            coverUrl: creator.coverUrl,
+        items.push({
+          kind: "post",
+          post: {
+            ...p,
+            author: p.user,
+            creator: {
+              id: creator.id,
+              displayName: creator.displayName,
+              slug: creator.slug,
+              coverUrl: creator.coverUrl,
+            },
           },
         });
       } else if (collectorAuthorById.has(p.userId)) {
-        feedPosts.push({ ...p, author: p.user });
+        items.push({
+          kind: "post",
+          post: { ...p, author: p.user },
+        });
       }
     }
 
-    const items = mergeFeedItems(feedBooks, feedMessages, feedPosts, page, limit);
     return ok({ items, totalPages, page });
   } catch (error) {
     console.error("Failed to get follower feed", error);

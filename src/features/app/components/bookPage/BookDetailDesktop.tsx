@@ -12,7 +12,6 @@ import { bookUrl } from "../../spotlightUrls";
 import SpotlightCreator from "../SpotlightCreator";
 import Card from "@/components/app/Card";
 import { BookDetailProps, shouldTrackOutboundPurchase } from "./BookDetail";
-import { isFeatureEnabledForUser } from "@/lib/features";
 
 const scrollPanelClass =
   "h-full overflow-y-auto pr-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
@@ -21,9 +20,7 @@ const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
   const hasArtist = !!book.artist;
   const hasPublisher = !!book.publisher;
   const creditCols = hasArtist && hasPublisher ? "grid-cols-2" : "grid-cols-1";
-  const showPress =
-    isFeatureEnabledForUser("bookPressLinks", user) &&
-    (book.pressLinks?.length ?? 0) > 0;
+  const showPress = (book.pressLinks?.length ?? 0) > 0;
 
   return (
     <div class="flex flex-col gap-8">
@@ -89,8 +86,6 @@ const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
                 bookSlug={book.slug}
                 purchaseLink={book.purchaseLink}
                 availabilityStatus={book.availabilityStatus}
-                artistName={book.artist?.displayName}
-                publisherName={book.publisher?.displayName}
                 trackOutbound={shouldTrackOutboundPurchase(book)}
               />
               <BookCredits releaseDate={book.releaseDate} />

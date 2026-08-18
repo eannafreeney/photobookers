@@ -78,7 +78,6 @@ export const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
           book={book}
           baseUrl={baseUrl}
           isFavorited={favoritesByBookId[book.id] ?? false}
-          user={user}
         />
       </View>
     </AppLayout>,

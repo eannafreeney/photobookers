@@ -8,7 +8,6 @@ import BooksGrid from "../../features/app/components/BooksGrid";
 import { getBooksInWishlist } from "../../features/app/services";
 import { getPendingClaim } from "../../features/claims/services";
 import { getFlash, getUser } from "../../utils";
-import { isFeatureEnabledForUser } from "../../lib/features";
 import { userCanHaveShelf } from "../../domain/shelf/utils";
 
 export const GET = createRoute(async (c: Context) => {
@@ -17,10 +16,7 @@ export const GET = createRoute(async (c: Context) => {
   const currentPath = c.req.path;
   const currentPage = Number(c.req.query("page") ?? 1);
 
-  if (
-    !userCanHaveShelf(user) ||
-    !isFeatureEnabledForUser("collectors", user)
-  ) {
+  if (!userCanHaveShelf(user)) {
     return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 

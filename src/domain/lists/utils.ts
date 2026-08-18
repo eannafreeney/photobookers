@@ -34,6 +34,14 @@ export const listDescriptionSchema = z
   .optional()
   .transform((v) => (v && v.length > 0 ? v : null));
 
+export const LIST_ITEM_NOTE_MAX_LENGTH = 1000;
+
+export const listItemNoteSchema = z
+  .string()
+  .trim()
+  .max(LIST_ITEM_NOTE_MAX_LENGTH, "Note is too long")
+  .transform((v) => (v.length > 0 ? v : null));
+
 const RESERVED_LIST_SLUGS = new Set(["favorites", "favourites", "new"]);
 
 export function isReservedListSlug(slug: string): boolean {

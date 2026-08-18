@@ -12,7 +12,6 @@ import Page from "../../../components/layouts/Page";
 import CreatorDetail from "../../../features/app/components/creatorPage/CreatorDetail";
 import { canonicalUrl, creatorDescription, pageTitle } from "../../../lib/seo";
 import { getUpcomingFairsForCreator } from "../../../features/app/fairs/services";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import { routeParam } from "../../../lib/routeParam";
 import { countCreatorPosts } from "../../../db/queries";
 
@@ -39,17 +38,14 @@ export const GET = createRoute(
       countCreatorPosts(creator.id),
     ]);
 
-    // Fetch upcoming fairs if feature is enabled
     let upcomingFairs: Awaited<
       ReturnType<typeof getUpcomingFairsForCreator>
     >[1] = [];
-    if (isFeatureEnabledForUser("fairs", user)) {
-      const [fairsError, fairsResult] = await getUpcomingFairsForCreator(
-        creator.id,
-      );
-      if (!fairsError && fairsResult) {
-        upcomingFairs = fairsResult;
-      }
+    const [fairsError, fairsResult] = await getUpcomingFairsForCreator(
+      creator.id,
+    );
+    if (!fairsError && fairsResult) {
+      upcomingFairs = fairsResult;
     }
 
     if (!user) {

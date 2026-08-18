@@ -5,7 +5,6 @@ import NavSearchMobile from "./NavSearchMobile";
 import { getInitialsAvatar } from "../../lib/avatar";
 import Button from "../app/Button";
 import { closeMobileMenuIcon, openMobileMenuIcon } from "../../lib/icons";
-import FeatureGuard from "./FeatureGuard";
 
 const NavMobileMenu = ({ currentPath }: { currentPath?: string | null }) => {
   return (
@@ -72,7 +71,7 @@ const MobileDropDownMenu = ({
       x-cloak
       x-show="mobileMenuIsOpen"
       {...fadeTransition}
-      class="fixed h-svh overflow-y-auto inset-0 z-20 flex flex-col bg-surface px-8 pb-24 pt-10 sm:hidden"
+      class="fixed h-svh overflow-y-auto inset-0 z-20 flex flex-col bg-surface px-8 pb-10 pt-10 sm:hidden"
     >
       <li class="mb-4 border-none">
         <div class="flex items-center gap-2 py-2">
@@ -104,6 +103,43 @@ const MobileDropDownMenu = ({
           </button>
         </div>
       </li>
+      {user?.creator?.id && (
+        <NavLink href="/dashboard" currentPath={currentPath}>
+          Dashboard
+        </NavLink>
+      )}
+      {user && !user.creator ? (
+        <NavLink href="/dashboard" currentPath={currentPath}>
+          Dashboard
+        </NavLink>
+      ) : null}
+      {user?.isAdmin && (
+        <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
+          Admin Dashboard
+        </NavLink>
+      )}
+      <NavLink href="/featured" currentPath={currentPath}>
+        Home
+      </NavLink>
+      <NavLink href="/books" currentPath={currentPath}>
+        Books
+      </NavLink>
+      <NavLink href="/creators" currentPath={currentPath}>
+        Creators
+      </NavLink>
+
+      <NavLink href="/feed" currentPath={currentPath}>
+        Feed
+      </NavLink>
+      <NavLink href="/shelf" currentPath={currentPath}>
+        Shelf
+      </NavLink>
+      <NavLink href="/about" currentPath={currentPath}>
+        About
+      </NavLink>
+      <NavLink href="/contact" currentPath={currentPath}>
+        Contact
+      </NavLink>
       {!user && (
         <>
           <NavLink href="/auth/login" currentPath={currentPath}>
@@ -114,40 +150,6 @@ const MobileDropDownMenu = ({
           </NavLink>
         </>
       )}
-      {user?.creator?.id && (
-        <NavLink href="/dashboard" currentPath={currentPath}>
-          Dashboard
-        </NavLink>
-      )}
-      <FeatureGuard flagName="collectors">
-        {user && !user.creator ? (
-          <NavLink href="/dashboard" currentPath={currentPath}>
-            Dashboard
-          </NavLink>
-        ) : null}
-      </FeatureGuard>
-      {user?.isAdmin && (
-        <NavLink href="/dashboard/admin/planner" currentPath={currentPath}>
-          Admin Dashboard
-        </NavLink>
-      )}
-      <NavLink href="/books" currentPath={currentPath}>
-        Books
-      </NavLink>
-      <NavLink href="/creators" currentPath={currentPath}>
-        Creators
-      </NavLink>
-      <FeatureGuard flagName="collectors">
-        <NavLink href="/collectors" currentPath={currentPath}>
-          Collectors
-        </NavLink>
-      </FeatureGuard>
-      <NavLink href="/about" currentPath={currentPath}>
-        About
-      </NavLink>
-      <NavLink href="/contact" currentPath={currentPath}>
-        Contact
-      </NavLink>
       {user && (
         <>
           <form

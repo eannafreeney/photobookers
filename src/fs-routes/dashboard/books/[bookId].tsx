@@ -37,7 +37,6 @@ import Button from "../../../components/app/Button";
 import FormPost from "../../../components/forms/FormPost";
 import Tabs from "../../../components/app/Tabs";
 import SectionTitle from "../../../components/app/SectionTitle";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import { serializePressLinks } from "../../../features/dashboard/books/pressLinks";
 import { toDateInputValue } from "../../../lib/utils";
 
@@ -64,13 +63,9 @@ export const GET = createRoute(
     const publisherIsVerified = book?.publisher?.status === "verified";
 
     const isPublisher = user.creator?.type === "publisher";
-    const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
-
-    if (showPressLinks) {
-      Object.assign(formValues, {
-        press_links: serializePressLinks(book.pressLinks),
-      });
-    }
+    Object.assign(formValues, {
+      press_links: serializePressLinks(book.pressLinks),
+    });
 
     const bannerVariant =
       book.approvalStatus === "pending"
@@ -145,7 +140,6 @@ export const GET = createRoute(
                 formValues={formValues}
                 isPublisher={isPublisher}
                 primaryAction={primaryAction}
-                showPressLinks={showPressLinks}
               />
             </Tabs.Panel>
             <Tabs.Panel tabId="images">

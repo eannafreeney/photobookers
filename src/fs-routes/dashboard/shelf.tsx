@@ -9,14 +9,13 @@ import { suggestShelfSlug } from "../../domain/shelf/services";
 import { userCanHaveShelf } from "../../domain/shelf/utils";
 import { getPendingClaim } from "../../features/claims/services";
 import { getFlash, getUser } from "../../utils";
-import { isFeatureEnabledForUser } from "../../lib/features";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
 
-  if (!userCanHaveShelf(user) || !isFeatureEnabledForUser("collectors", user)) {
+  if (!userCanHaveShelf(user)) {
     return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 

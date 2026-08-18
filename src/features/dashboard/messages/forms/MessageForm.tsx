@@ -2,6 +2,7 @@ import FileUploadInput from "../../../../components/forms/FileUpload";
 import FormButtons from "../../../../components/forms/FormButtons";
 import TextArea from "../../../../components/forms/TextArea";
 import DragAndDropArea from "../../images/components/DragAndDropArea";
+import { POST_BODY_MAX_LENGTH } from "../../../../domain/posts/utils";
 
 type MessageFormProps = {
   creatorId: string;
@@ -20,6 +21,7 @@ const MessageForm = ({
   const formConfig = JSON.stringify({
     body: initialBody ?? "",
     previewUrl: initialImageUrl ?? null,
+    isEdit,
   });
 
   // const alpineAttrs = isEdit
@@ -52,7 +54,7 @@ const MessageForm = ({
   return (
     <div>
       {!isEdit && (
-        <h2 class="text-lg font-semibold text-on-surface-strong">
+        <h2 class="mb-3 text-lg font-semibold text-on-surface-strong">
           Share what's new
         </h2>
       )}
@@ -72,7 +74,7 @@ const MessageForm = ({
         <TextArea
           name="form.body"
           required
-          maxLength={5000}
+          maxLength={POST_BODY_MAX_LENGTH}
           placeholder="Share fair dates, new work, or news with your followers…"
           validateInput="validateField('body')"
         />

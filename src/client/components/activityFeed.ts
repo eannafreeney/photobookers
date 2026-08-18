@@ -3,7 +3,6 @@ import Alpine from "alpinejs";
 type ActivityEvent = {
   id: string;
   type:
-    | "book_liked"
     | "book_favourited"
     | "book_collected"
     | "creator_followed"
@@ -25,11 +24,6 @@ const toMessageParts = (
   e: ActivityEvent,
 ): Pick<ActivityItem, "leadingText" | "trailingText"> => {
   switch (e.type) {
-    case "book_liked":
-      return {
-        leadingText: "",
-        trailingText: " was favourited",
-      };
     case "book_favourited":
       return {
         leadingText: "",

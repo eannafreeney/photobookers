@@ -1,17 +1,18 @@
-import Button from "@/components/app/Button";
-import Link from "@/components/app/Link";
+import { button } from "@/components/app/Button";
 
 type Props = {
   href: string;
+  xTarget?: string;
 };
-const EditRowButton = ({ href }: Props) => {
-  return (
-    <Link href={href}>
-      <Button variant="outline" color="primary" width="fit">
-        Edit
-      </Button>
-    </Link>
-  );
-};
+
+const EditRowButton = ({ href, xTarget }: Props) => (
+  <a
+    href={href}
+    class={button({ variant: "outline", color: "primary", width: "fit" })}
+    {...(xTarget ? { "x-target": xTarget } : {})}
+  >
+    Edit
+  </a>
+);
 
 export default EditRowButton;

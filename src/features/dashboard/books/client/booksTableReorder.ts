@@ -7,21 +7,26 @@ import {
 export function registerBooksTableReorder() {
   Alpine.data(
     "booksTableReorder",
-    (initialBookIds: string[] = [], creatorId: string | null = null) => ({
+    (
+      initialBookIds: string[] = [],
+      creatorId: string | null = null,
+      saveUrl: string = "/dashboard/books/reorder",
+    ) => ({
       bookIds: [...initialBookIds],
       creatorId,
-      dragRow: null as HTMLTableRowElement | null,
+      saveUrl,
+      dragRow: null as HTMLElement | null,
       savedOrder: "",
 
       init() {
         this.savedOrder = this.bookIds.join(",");
       },
 
-      rowId(row: HTMLTableRowElement | null) {
+      rowId(row: HTMLElement | null) {
         return row?.getAttribute("data-book-id") ?? "";
       },
 
-      onReorderDragStart(event: DragEvent, row: HTMLTableRowElement | null) {
+      onReorderDragStart(event: DragEvent, row: HTMLElement | null) {
         if (!row) return;
         this.dragRow = row;
         const bookId = this.rowId(row);
@@ -29,7 +34,7 @@ export function registerBooksTableReorder() {
         if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
       },
 
-      onReorderDragEnter(targetRow: HTMLTableRowElement) {
+      onReorderDragEnter(targetRow: HTMLElement) {
         if (!this.dragRow || this.dragRow === targetRow) return;
 
         const dragId = this.rowId(this.dragRow);
@@ -59,7 +64,7 @@ export function registerBooksTableReorder() {
         prependToast("info", "Saving order...", { saving: true });
 
         try {
-          const response = await fetch("/dashboard/books/reorder", {
+          const response = await fetch(this.saveUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "same-origin",

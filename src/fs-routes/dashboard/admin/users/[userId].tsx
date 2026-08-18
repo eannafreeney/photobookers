@@ -23,11 +23,13 @@ import { showErrorAlert } from "../../../../lib/alertHelpers";
 import ResetUserPasswordButton from "../../../../features/dashboard/admin/users/components/ResetUserPasswordButton";
 import CollectorPostsTable from "../../../../features/collectors/components/CollectorPostsTable";
 import { formatDate } from "../../../../utils";
+import { getIsMobile } from "../../../../lib/device";
 
 export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
   const userId = c.req.valid("param").userId;
   const sessionUser = await getUser(c);
   const currentPath = c.req.path;
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
 
   const [error, viewedUser] = await getUserByIdAdmin(userId, {
     withActivity: true,
@@ -41,7 +43,6 @@ export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
       />,
     );
 
-  const likedBooks = viewedUser?.likedBooks ?? [];
   const wishlistedBooks = viewedUser?.wishlistedBooks ?? [];
   const collectedBooks = viewedUser?.collectedBooks ?? [];
   const followedCreators = viewedUser?.followedCreators ?? [];
@@ -117,32 +118,6 @@ export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
             ))}
           </ul>
         )}
-        <SectionTitle className="mb-4">Books liked</SectionTitle>
-        {likedBooks?.length === 0 ? (
-          <p class="text-sm text-on-surface/65">No liked books.</p>
-        ) : (
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {viewedUser?.likedBooks.map((b) => (
-              <Card>
-                <Card.Image
-                  src={b.coverUrl ?? ""}
-                  alt={b.title}
-                  href={`/books/${b.slug}`}
-                  objectCover
-                />
-                <Card.Body>
-                  <Link href={`/books/${b.slug}`}>
-                    <Card.Title>{b.title}</Card.Title>
-                  </Link>
-                  {b.artist?.displayName && (
-                    <Card.Text>{b.artist.displayName}</Card.Text>
-                  )}
-                </Card.Body>
-              </Card>
-            ))}
-          </div>
-        )}
-
         <SectionTitle className="mb-4">Books favourited</SectionTitle>
         {wishlistedBooks.length === 0 ? (
           <p class="text-sm text-on-surface/65">No favourited books.</p>
@@ -221,7 +196,7 @@ export const GET = createRoute(paramValidator(userIdSchema), async (c) => {
         )}
 
         <SectionTitle className="mb-4 mt-8">Collector posts</SectionTitle>
-        <CollectorPostsTable userId={userId} />
+        <CollectorPostsTable userId={userId} isMobile={isMobile} />
       </Page>
     </AppLayout>,
   );

@@ -6,12 +6,12 @@ import { Book, Creator } from "../../../../db/schema";
 import { AuthUser } from "../../../../../types";
 import PreviewButton from "../../../api/components/PreviewButton";
 import PublishToggleForm from "./PublishToggleForm";
-import DeleteBookForm from "./BookDeleteForm";
 import { getBookFunnelCounts } from "../../../book-analytics/funnel";
 import type { BookFunnelCounts } from "../../../book-analytics/funnel";
 import Card from "../../../../components/app/Card";
 import Table from "../../../../components/app/Table";
-import { canEditBook } from "../../../../lib/permissions";
+import EditRowButton from "@/features/app/components/EditRowButton";
+import DeleteRowButton from "@/features/app/components/DeleteRowButton";
 import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
 import BookApprovalStatusPill from "../../admin/books/components/BookApprovalStatusPill";
 import { dragHandleIcon } from "../../../../lib/icons";
@@ -242,18 +242,14 @@ const BookTableRow = ({
         <PublishToggleForm book={book} user={user} />
       </Table.BodyRow>
       <Table.BodyRow>
-        <a href={`/dashboard/books/${book.id}`}>
-          <Button
-            variant="outline"
-            color="inverse"
-            disabled={!canEditBook(user, book)}
-          >
-            <span>Edit</span>
-          </Button>
-        </a>
+        <EditRowButton href={`/dashboard/books/${book.id}`} />
       </Table.BodyRow>
       <Table.BodyRow>
-        <DeleteBookForm book={book} user={user} />
+        <DeleteRowButton
+          action={`/dashboard/books/${book.id}`}
+          confirm="Are you sure?"
+          {...{ "@ajax.success": "$dispatch('books:updated')" }}
+        />
       </Table.BodyRow>
     </tr>
   );

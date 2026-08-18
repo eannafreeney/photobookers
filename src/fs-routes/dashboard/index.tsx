@@ -13,7 +13,6 @@ import { BooksOverviewTable } from "../../features/dashboard/books/tables/BooksO
 import CreatorDashboardShell from "../../features/dashboard/components/CreatorDashboardShell";
 import { getPendingClaim } from "../../features/claims/services";
 import CreatorBookFunnelSummary from "../../features/dashboard/books/components/CreatorBookFunnelSummary";
-import { isFeatureEnabledForUser } from "../../lib/features";
 import PageHeader from "@/components/app/PageHeader";
 
 export const GET = createRoute(async (c: Context) => {
@@ -26,9 +25,6 @@ export const GET = createRoute(async (c: Context) => {
 
   // Non-creators: shelf is their dashboard home.
   if (!user.creator) {
-    if (!isFeatureEnabledForUser("collectors", user)) {
-      return c.html(<InfoPage errorMessage="Creator not found" user={user} />);
-    }
     return c.redirect("/dashboard/shelf");
   }
 

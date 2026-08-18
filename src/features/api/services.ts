@@ -9,48 +9,14 @@ import {
   creators,
   follows,
   FollowTarget,
-  likes,
   wishlists,
 } from "../../db/schema";
 import {
   buildCreatedAtFilter,
   type AnalyticsDateRange,
 } from "../book-analytics/dateRange";
-import { err, isOk, ok } from "../../lib/result";
+import { err, ok } from "../../lib/result";
 import { Result } from "drizzle-orm/sqlite-core";
-
-export const findLike = async (userId: string, bookId: string) => {
-  try {
-    const like = await db.query.likes.findFirst({
-      where: and(eq(likes.userId, userId), eq(likes.bookId, bookId)),
-    });
-    if (!like) return err({ reason: "Like not found" });
-    return ok(like);
-  } catch (error) {
-    console.error("Failed to find like", error);
-    return err({ reason: "Failed to find like" });
-  }
-};
-export const insertLike = async (userId: string, bookId: string) => {
-  try {
-    await db.insert(likes).values({ userId, bookId }).onConflictDoNothing();
-    return ok(undefined);
-  } catch (error) {
-    console.error("Failed to insert like", error);
-    return err({ reason: "Failed to insert like" });
-  }
-};
-export const deleteLike = async (userId: string, bookId: string) => {
-  try {
-    await db
-      .delete(likes)
-      .where(and(eq(likes.userId, userId), eq(likes.bookId, bookId)));
-    return ok(undefined);
-  } catch (error) {
-    console.error("Failed to delete like", error);
-    return err({ reason: "Failed to delete like" });
-  }
-};
 
 export const deleteFollow = async (creatorId: string, userId: string) => {
   await db
@@ -168,34 +134,6 @@ export const getCreatorPermissionData = async (creatorId: string) => {
   } catch (error) {
     console.error("Failed to get creator permission data", error);
     return err({ reason: "Failed to get creator permission data" });
-  }
-};
-
-/** Minimal book row for like/wishlist APIs (no creatorUser join). */
-export const getBookLikeContext = async (bookId: string) => {
-  try {
-    const book = await db.query.books.findFirst({
-      where: eq(books.id, bookId),
-      columns: {
-        id: true,
-        artistId: true,
-        publisherId: true,
-        title: true,
-        slug: true,
-        coverUrl: true,
-      },
-      with: {
-        artist: {
-          columns: {
-            displayName: true,
-          },
-        },
-      },
-    });
-    return book ? ok(book) : err({ reason: "Book not found" });
-  } catch (error) {
-    console.error("Failed to get book like context", error);
-    return err({ reason: "Failed to get book like context", error });
   }
 };
 

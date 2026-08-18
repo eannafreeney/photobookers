@@ -137,18 +137,6 @@ export const createMessageCreatedNotification = async (
     actorUserId: user.id,
   });
 
-export const createBookLikedNotification = async (
-  user: NotificationUserTarget,
-  book: NotificationBookTarget,
-) =>
-  await createAdminNotification({
-    type: "book_liked",
-    title: "Book liked",
-    body: `${formatNotificationActorName(user)} liked the book: "${book.title}"`,
-    targetUrl: `/books/${book.slug}`,
-    actorUserId: user.id,
-  });
-
 export const createCreatorFollowedNotification = async (
   user: NotificationUserTarget,
   creator: NotificationCreatorTarget,

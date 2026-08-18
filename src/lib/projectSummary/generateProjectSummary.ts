@@ -79,7 +79,7 @@ const ROUTE_GROUP_RULES: Array<{
   },
   {
     name: "API",
-    description: "JSON/partials for likes, comments, follows, newsletter, activity",
+    description: "JSON/partials for comments, follows, newsletter, activity",
     test: (p) => p.startsWith("/api/"),
   },
   {
@@ -318,7 +318,7 @@ Edit docs/project-context/*.md for roadmap and limitations; re-run generation to
 Core product areas:
 - Discovery: featured books, search, tags, editorial spotlights (book of the day, artist/publisher of the week)
 - Creators: profiles, social links, book catalogs, verification and claim flows
-- Fans: library/collections, wishlists, likes, follows, feed, newsletter signup
+- Fans: library/collections, wishlists, follows, feed, newsletter signup
 - Creator dashboard: book CRUD, image uploads, import CSV, analytics, messages
 - Admin dashboard: moderation (books, creators, fairs, stores), user management, planner (newsletter + Instagram + spotlight emails)
 - Book fairs & bookstores: listings, attendee registration, map views

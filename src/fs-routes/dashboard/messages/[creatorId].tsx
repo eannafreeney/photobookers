@@ -11,6 +11,7 @@ import Alert from "../../../components/app/Alert";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm";
 import MessagesTable from "../../../features/dashboard/messages/components/MessagesTable";
 import { getUser } from "../../../utils";
+import { getIsMobile } from "../../../lib/device";
 import { createMessageCreatedNotification } from "../../../domain/notifications/utils";
 
 export const POST = createRoute(
@@ -67,6 +68,8 @@ export const POST = createRoute(
 
     if (!message) return showErrorAlert(c, "Failed to create message");
 
+    const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
+
     return c.html(
       <>
         <Alert
@@ -74,7 +77,7 @@ export const POST = createRoute(
           message="Post published! Your followers will be emailed about it."
         />
         <MessageForm creatorId={creatorId} />
-        <MessagesTable creatorId={creatorId} />
+        <MessagesTable creatorId={creatorId} isMobile={isMobile} />
       </>,
     );
   },

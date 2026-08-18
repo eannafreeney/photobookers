@@ -7,29 +7,23 @@ type Props = {
   bookSlug: string;
   purchaseLink: string | null;
   availabilityStatus: BookAvailabilityStatus;
-  artistName?: string | null;
-  publisherName?: string | null;
   trackOutbound?: boolean;
   sticky?: boolean;
 };
 
 const stickyBarClass =
-  "fixed inset-x-0 z-[90] border-t border-on-surface-strong bg-surface px-4 py-3 bottom-[calc(4rem+env(safe-area-inset-bottom))] md:bottom-0";
+  "fixed inset-x-0 bottom-0 z-[90] border-t border-on-surface-strong bg-surface px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]";
 
 const BookPurchaseBlock = ({
   bookSlug,
   purchaseLink,
   availabilityStatus,
-  artistName,
-  publisherName,
   trackOutbound = true,
   sticky = false,
 }: Props) => {
   const action = getBookPurchaseAction({
     availabilityStatus,
     purchaseLink,
-    artistName,
-    publisherName,
     bookSlug,
     trackOutbound,
   });

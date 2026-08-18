@@ -14,16 +14,6 @@ type ActivityCreatorTarget = {
   coverUrl?: string | null;
 };
 
-export const publishLikeActivity = (user: AuthUser, book: ActivityBookTarget) =>
-  publishActivityEvent({
-    type: "book_liked",
-    actorId: user.id,
-    targetName: book.title,
-    targetImageUrl: book.coverUrl,
-    targetCreatorName: book.artist?.displayName ?? "",
-    targetUrl: `/books/${book.slug}`,
-  });
-
 export const publishFavouritedActivity = (
   user: AuthUser,
   book: ActivityBookTarget,

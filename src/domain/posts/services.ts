@@ -3,17 +3,24 @@ import { db } from "../../db/client";
 import { collectorPosts, creators } from "../../db/schema";
 import { err, ok } from "../../lib/result";
 import { getPagination } from "../../lib/pagination";
+import { POST_BODY_MAX_LENGTH } from "./utils";
+
+const tooLong = () =>
+  err({ reason: `Post is too long (max ${POST_BODY_MAX_LENGTH} characters)` });
 
 export async function createPost(
   userId: string,
   input: { body: string; imageUrl?: string | null },
 ) {
+  const body = input.body.trim();
+  if (body.length > POST_BODY_MAX_LENGTH) return tooLong();
+
   try {
     const [post] = await db
       .insert(collectorPosts)
       .values({
         userId,
-        body: input.body.trim(),
+        body,
         imageUrl: input.imageUrl ?? null,
       })
       .returning();
@@ -30,11 +37,14 @@ export async function updatePost(
   userId: string,
   input: { body: string; imageUrl?: string | null },
 ) {
+  const body = input.body.trim();
+  if (body.length > POST_BODY_MAX_LENGTH) return tooLong();
+
   try {
     const [post] = await db
       .update(collectorPosts)
       .set({
-        body: input.body.trim(),
+        body,
         ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl } : {}),
       })
       .where(

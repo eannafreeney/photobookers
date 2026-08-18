@@ -1,5 +1,4 @@
 import { AuthUser } from "../../../../types";
-import FeatureGuard from "../../../components/layouts/FeatureGuard";
 import Button from "../../../components/app/Button";
 import { shelfProfileUrl } from "../../../lib/share";
 import { getInitialsAvatar } from "../../../lib/avatar";
@@ -28,8 +27,7 @@ const ShelfSharingPanel = ({
       : null;
 
   return (
-    <FeatureGuard flagName="collectors">
-      <details
+    <details
         class="group rounded border border-outline bg-surface-alt"
         open={defaultOpen ? true : undefined}
       >
@@ -167,7 +165,6 @@ const ShelfSharingPanel = ({
           </form>
         </div>
       </details>
-    </FeatureGuard>
   );
 };
 

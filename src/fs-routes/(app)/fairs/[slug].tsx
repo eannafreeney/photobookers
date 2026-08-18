@@ -4,7 +4,6 @@ import { paramValidator } from "../../../lib/validator";
 import { z } from "zod";
 import AppLayout from "../../../components/layouts/AppLayout";
 import { getUser } from "../../../utils";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import InfoPage from "../../../pages/InfoPage";
 import { getFairBySlug } from "../../../features/app/fairs/services";
 import FairDetail from "../../../features/app/fairs/components/FairDetail";
@@ -30,10 +29,6 @@ export const GET = createRoute(
     const currentPath = c.req.path;
     const slug = routeParam(c, "slug");
     const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
-
-    if (!isFeatureEnabledForUser("fairs", user)) {
-      return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
-    }
 
     const [error, fair] = await getFairBySlug(slug);
     if (error) {

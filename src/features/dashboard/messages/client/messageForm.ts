@@ -13,6 +13,7 @@ type MessageFormData = z.infer<typeof createMessageFormSchema>;
 
 type MessageFormConfig = Partial<MessageFormData> & {
   previewUrl?: string | null;
+  isEdit?: boolean;
 };
 
 const MESSAGE_FORM_FIELDS = Object.keys(createMessageFormSchema.shape);
@@ -27,17 +28,22 @@ type MessageFormCtx = {
 
 export function registerMessageForm() {
   Alpine.data("messageForm", (config: MessageFormConfig = {}) => {
-    const { previewUrl: initialPreviewUrl, ...formValues } = config;
+    const {
+      previewUrl: initialPreviewUrl,
+      isEdit = false,
+      ...formValues
+    } = config;
 
     return {
       isSubmitting: false,
       isDragOver: false,
+      isEdit,
       previewUrl: initialPreviewUrl ?? null,
 
       ...createFormState(MESSAGE_FORM_FIELDS, formValues),
 
       init() {
-        initFormValues(this, MESSAGE_FORM_FIELDS, false);
+        initFormValues(this, MESSAGE_FORM_FIELDS, isEdit);
       },
 
       get isDirty() {
@@ -62,6 +68,15 @@ export function registerMessageForm() {
       },
 
       onSuccess() {
+        const ctx = this as unknown as MessageFormCtx & {
+          $refs?: { fileInput?: HTMLInputElement };
+        };
+        if (!isEdit) {
+          ctx.form.body = "";
+          if (ctx.previewUrl) URL.revokeObjectURL(ctx.previewUrl);
+          ctx.previewUrl = null;
+          if (ctx.$refs?.fileInput) ctx.$refs.fileInput.value = "";
+        }
         resetFormBaseline(this, MESSAGE_FORM_FIELDS);
       },
 

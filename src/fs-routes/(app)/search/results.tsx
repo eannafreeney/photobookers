@@ -7,16 +7,13 @@ import { searchBooks } from "../../../features/api/services";
 import { searchFairsForNav } from "../../../features/app/fairs/services";
 import { searchCreators } from "../../../features/app/services";
 import { searchCollectors } from "../../../domain/collectors/services";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import { canonicalUrl, pageTitle } from "../../../lib/seo";
 import { getUser } from "../../../utils";
-import { ok } from "../../../lib/result";
 
 const FULL_RESULTS_LIMIT = 50;
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
-  const collectorsEnabled = isFeatureEnabledForUser("collectors", user);
   const searchQuery = c.req.query("search")?.trim() ?? "";
   const currentPath = searchQuery
     ? `/search/results?search=${encodeURIComponent(searchQuery)}`
@@ -60,9 +57,7 @@ export const GET = createRoute(async (c) => {
     searchBooks(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
     searchCreators(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
     searchFairsForNav(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
-    collectorsEnabled
-      ? searchCollectors(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT)
-      : Promise.resolve(ok([])),
+    searchCollectors(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
   ]);
 
   if (bookError || creatorError || fairError || collectorError) {
@@ -93,7 +88,7 @@ export const GET = createRoute(async (c) => {
             creators={creators ?? []}
             books={books ?? []}
             fairs={fairs ?? []}
-            collectors={collectorsEnabled ? (collectors ?? []) : []}
+            collectors={collectors ?? []}
             searchQuery={searchQuery}
             variant="page"
           />

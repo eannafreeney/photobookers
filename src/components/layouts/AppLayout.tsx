@@ -8,7 +8,6 @@ import Footer from "../app/Footer";
 import Alert from "../app/Alert";
 import PreviewBanner from "../app/PreviewBanner";
 import WelcomeDashboardBanner from "../../features/app/components/WelcomeDashboardBanner";
-import Dock from "./Dock";
 import ToastContainer from "../app/ToastContainer";
 import ActivityStream from "../app/ActivityStream";
 import { fadeTransition } from "../../lib/transitions";
@@ -97,7 +96,6 @@ const AppLayout = ({
           </main>
           <Footer />
           <ScrollToTopButton />
-          <Dock currentPath={currentPath} />
         </div>
       </UserProvider>
       <div id="modal-root"></div>
@@ -118,7 +116,7 @@ const ScrollToTopButton = () => {
       x-show="show"
       {...fadeTransition}
       x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
-      class="fixed bottom-20 right-5 bg-on-surface-strong text-surface px-4 py-3 shadow-lg opacity-60 cursor-pointer hover:opacity-100 transition-opacity duration-300"
+      class="fixed bottom-5 right-5 bg-on-surface-strong text-surface px-4 py-3 shadow-lg opacity-60 cursor-pointer hover:opacity-100 transition-opacity duration-300"
     >
       ↑
     </button>

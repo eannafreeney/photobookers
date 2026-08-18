@@ -5,7 +5,6 @@ import PageHeader from "@/components/app/PageHeader";
 import InfoPage from "../../../pages/InfoPage";
 import { getPendingClaim } from "../../../features/claims/services";
 import { getFlash, getUser } from "../../../utils";
-import { isFeatureEnabledForUser } from "../../../lib/features";
 import {
   createBookList,
   listBookListsWithCounts,
@@ -17,11 +16,10 @@ import ListForm from "../../../features/dashboard/lists/ListForm";
 import { showErrorAlert } from "../../../lib/alertHelpers";
 import { dispatchEvents } from "../../../lib/disatchEvents";
 import Alert from "../../../components/app/Alert";
+import { getIsMobile } from "../../../lib/device";
 
 function canAccessLists(user: Awaited<ReturnType<typeof getUser>>) {
-  return (
-    userCanManageBookLists(user) && isFeatureEnabledForUser("collectors", user)
-  );
+  return userCanManageBookLists(user);
 }
 
 export const GET = createRoute(async (c: Context) => {
@@ -34,6 +32,7 @@ export const GET = createRoute(async (c: Context) => {
   }
 
   const lists = await listBookListsWithCounts(user.id);
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
   const claimStatus = user.creator
     ? ((await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null)
     : null;
@@ -55,10 +54,10 @@ export const GET = createRoute(async (c: Context) => {
           title="Your lists"
           intro="Create playlist-style lists of books. Publish them on your public shelf."
         />
-        <div class="grid grid-cols-1 gap-8 xl:grid-cols-3">
-          <div>
+        <div class="grid grid-cols-1 gap-8 xl:grid-cols-3 xl:items-start">
+          <div class="bg-surface-alt p-4 rounded-md xl:sticky xl:top-24">
             <h2 class="mb-3 text-lg font-semibold text-on-surface-strong">
-              New list
+              Create New list
             </h2>
             <ListForm />
           </div>
@@ -67,6 +66,7 @@ export const GET = createRoute(async (c: Context) => {
               lists={lists}
               shelfSlug={user.shelfSlug}
               shelfPublic={user.shelfPublic}
+              isMobile={isMobile}
             />
           </div>
         </div>

@@ -13,7 +13,6 @@ import {
   creators,
   fairViews,
   follows,
-  likes,
   magazineIssues,
   purchaseClicks,
   users,
@@ -484,16 +483,14 @@ export const getUserByIdAdmin = async (
     if (!withActivity) {
       return ok({
         ...user,
-        likedBooks: [],
         wishlistedBooks: [],
         collectedBooks: [],
         followedCreators: [],
       });
     }
 
-    const [likedBooks, wishlistedBooks, collectedBooks, followedCreators] =
+    const [wishlistedBooks, collectedBooks, followedCreators] =
       await Promise.all([
-        getBooksLikedForUserAdmin(id, activityLimit),
         getBooksWishlistedForUserAdmin(id, activityLimit),
         getBooksCollectedForUserAdmin(id, activityLimit),
         getCreatorsFollowedForUserAdmin(id, activityLimit),
@@ -501,7 +498,6 @@ export const getUserByIdAdmin = async (
 
     return ok({
       ...user,
-      likedBooks,
       wishlistedBooks,
       collectedBooks,
       followedCreators,
@@ -509,30 +505,6 @@ export const getUserByIdAdmin = async (
   } catch (error) {
     return err({ reason: "Failed to get user by id", cause: error });
   }
-};
-
-export const getBooksLikedForUserAdmin = async (
-  userId: string,
-  limit: number,
-): Promise<BookCardResult[]> => {
-  const likeRows = await db.query.likes.findMany({
-    where: eq(likes.userId, userId),
-    columns: { bookId: true },
-    orderBy: [desc(likes.createdAt)],
-    limit,
-  });
-  const bookIds = likeRows.map((r) => r.bookId);
-  if (bookIds.length === 0) return [];
-
-  const foundBooks = await db.query.books.findMany({
-    columns: BOOK_CARD_COLUMNS,
-    where: inArray(books.id, bookIds),
-    with: {
-      artist: { columns: CREATOR_CARD_COLUMNS },
-      publisher: { columns: CREATOR_CARD_COLUMNS },
-    },
-  });
-  return orderByIds(bookIds, foundBooks);
 };
 
 export const getBooksWishlistedForUserAdmin = async (

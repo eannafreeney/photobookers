@@ -6,6 +6,7 @@ import {
   slugFromTitle,
   withListSlugSuffix,
   isListPromotionEligible,
+  listItemNoteSchema,
   userCanManageBookLists,
 } from "./utils";
 
@@ -78,6 +79,18 @@ describe("isListPromotionEligible", () => {
         { shelfPublic: true, shelfSlug: null },
       ),
     ).toBe(false);
+  });
+});
+
+describe("listItemNoteSchema", () => {
+  it("trims and allows empty notes", () => {
+    expect(listItemNoteSchema.parse("  ")).toBe(null);
+    expect(listItemNoteSchema.parse("A favourite.")).toBe("A favourite.");
+  });
+
+  it("rejects notes over 1000 characters", () => {
+    expect(listItemNoteSchema.safeParse("a".repeat(1000)).success).toBe(true);
+    expect(listItemNoteSchema.safeParse("a".repeat(1001)).success).toBe(false);
   });
 });
 

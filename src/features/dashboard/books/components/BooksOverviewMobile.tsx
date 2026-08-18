@@ -3,11 +3,11 @@ import { Book, Creator } from "../../../../db/schema";
 import PreviewButton from "../../../api/components/PreviewButton";
 import Button from "../../../../components/app/Button";
 import PublishToggleForm from "./PublishToggleForm";
-import DeleteBookForm from "./BookDeleteForm";
 import TableSearch from "../../../../components/app/TableSearch";
 import Link from "../../../../components/app/Link";
 import BookApprovalStatusPill from "../../admin/books/components/BookApprovalStatusPill";
-import { canEditBook } from "../../../../lib/permissions";
+import EditRowButton from "@/features/app/components/EditRowButton";
+import DeleteRowButton from "@/features/app/components/DeleteRowButton";
 import { InfiniteScroll } from "../../../../components/app/InfiniteScroll";
 
 type MobileBook = Book & {
@@ -152,16 +152,12 @@ const BookCardMobile = ({ book, user, editBasePath }: RowProps) => {
 
         <div class="flex flex-wrap justify-evenly items-center gap-2 border-t border-outline pt-3">
           <PreviewButton book={book} user={user} />
-          <a href={`${editBasePath}/${book.id}`}>
-            <Button
-              variant="outline"
-              color="inverse"
-              disabled={!canEditBook(user, book)}
-            >
-              <span>Edit</span>
-            </Button>
-          </a>
-          <DeleteBookForm book={book} user={user} basePath={editBasePath} />
+          <EditRowButton href={`${editBasePath}/${book.id}`} />
+          <DeleteRowButton
+            action={`${editBasePath}/${book.id}`}
+            confirm="Are you sure?"
+            {...{ "@ajax.success": "$dispatch('books:updated')" }}
+          />
         </div>
       </div>
     </li>

@@ -11,6 +11,13 @@ export type CollectorCard = {
   profileImageUrl: string | null;
 };
 
+export function collectorDisplayName(c: {
+  firstName: string | null;
+  lastName: string | null;
+}) {
+  return [c.firstName, c.lastName].filter(Boolean).join(" ").trim() || "Collector";
+}
+
 const PUBLIC_COLLECTOR_COLUMNS = {
   id: true,
   firstName: true,

@@ -1,6 +1,10 @@
 import z from "zod";
 import { checkboxField } from "../../../schemas";
-import { listSlugSchema, listTitleSchema } from "../../../domain/lists/utils";
+import {
+  LIST_ITEM_NOTE_MAX_LENGTH,
+  listSlugSchema,
+  listTitleSchema,
+} from "../../../domain/lists/utils";
 
 export const listFormSchema = z.object({
   title: listTitleSchema,
@@ -16,4 +20,13 @@ export const listFormSchema = z.object({
 
 export const listFormEditSchema = listFormSchema.extend({
   slug: listSlugSchema,
+});
+
+export const listBookNoteFormSchema = z.object({
+  note: z
+    .string()
+    .trim()
+    .max(LIST_ITEM_NOTE_MAX_LENGTH, "Note is too long")
+    .optional()
+    .default(""),
 });

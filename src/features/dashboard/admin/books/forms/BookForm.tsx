@@ -11,13 +11,11 @@ import BookPressLinksSection from "../../../books/components/BookPressLinksSecti
 type BookFormProps = {
   formValues?: Record<string, any>;
   bookId?: string;
-  showPressLinks?: boolean;
 };
 
 export const BookFormAdmin = async ({
   formValues,
   bookId,
-  showPressLinks = false,
 }: BookFormProps) => {
   const artistOptions = await getAllCreatorOptions("artist");
   const publisherOptions = await getAllCreatorOptions("publisher");
@@ -107,7 +105,7 @@ export const BookFormAdmin = async ({
               { value: "unavailable", label: "Unavailable" },
             ]}
           />
-          {showPressLinks ? <BookPressLinksSection /> : null}
+          <BookPressLinksSection />
           <FormButtons />
         </div>
       </form>
