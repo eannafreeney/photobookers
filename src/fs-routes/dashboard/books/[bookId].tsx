@@ -127,7 +127,6 @@ export const GET = createRoute(
               </div>
             </div>
           )}
-          <SectionTitle className="mt-2 mb-0">{book.title}</SectionTitle>
           <Tabs defaultTab={defaultTab} hashMap={{ "#book-images": "images" }}>
             <Tabs.LinkContainer align="left">
               <Tabs.Link tabId="info">Details</Tabs.Link>

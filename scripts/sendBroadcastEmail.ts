@@ -15,33 +15,28 @@ import { sendEmail } from "../src/lib/sendEmail";
 // Progress is saved per audience, e.g. tmp/broadcast-sent-fans.csv, so a new
 // campaign is not skipped by an old one. Re-run to resume after a failure.
 
-const SUBJECT = "Photobookers app";
+const SUBJECT = "You’re a Collector now";
 
 const EMAIL_HTML = `
-  <p>Hi,</p>
-  <p>Just a quick note to let you know that the Photobookers app is now live on iOS.</p>
-  <p>You can download it from the App Store here: <a href="https://apps.apple.com/us/app/photobookers/id6771879476">Photobookers</a>.</p>
-  <table role="presentation" cellspacing="0" cellpadding="0" style="margin: 16px 0;">
-    <tr>
-      <td style="padding-right: 8px;">
-        <img src="https://dbmbrwmygpnhjyyccbjp.supabase.co/storage/v1/object/public/app-launch/460x996bb.webp" alt="Photobookers app screenshot 1" width="120" style="display: block; width: 120px; height: auto;" />
-      </td>
-      <td style="padding-right: 8px;">
-        <img src="https://dbmbrwmygpnhjyyccbjp.supabase.co/storage/v1/object/public/app-launch/460x996bb%20(1).webp" alt="Photobookers app screenshot 2" width="120" style="display: block; width: 120px; height: auto;" />
-      </td>
-      <td style="padding-right: 8px;">
-        <img src="https://dbmbrwmygpnhjyyccbjp.supabase.co/storage/v1/object/public/app-launch/460x996bb%20(2).webp" alt="Photobookers app screenshot 3" width="120" style="display: block; width: 120px; height: auto;" />
-      </td>
-      <td>
-        <img src="https://dbmbrwmygpnhjyyccbjp.supabase.co/storage/v1/object/public/app-launch/460x996bb%20(3).webp" alt="Photobookers app screenshot 4" width="120" style="display: block; width: 120px; height: auto;" />
-      </td>
-    </tr>
-  </table>
-
-  <p>
-    All the best,<br />
-    Eanna
-  </p>
+  <p>Hi there,</p>
+<p>Many of you wrote to say that being just a“fan” didn’t quite fit. You’re right. Collectors are a pivotal part of the photobook world, and Photobookers should treat you that way!</p>
+<p>Your account is now a collector account. And now the fun part! You can:</p>
+<ul>
+  <li>Build your own shelf of photobooks from the books you favourited.</li>
+  <li>Share that shelf publicly with friends and others on photobookers</li>
+  <li>Make your own lists (e.g. “My Favourite Photobooks”), and publish them for all to see.</li>
+</ul>
+<p>Each Collector now has their own personal dashboard. You can access it here:</p>
+<p>
+  <a href="https://www.photobookers.com/dashboard">Your dashboard</a>
+</p>
+<p>There, you can see your shelf, your lists, and your profile.</p>
+<p>Thank you for the feedback, and for sharing the journey.</p>
+<p>Feedback welcome - what do you think? What would you like to see?</p>
+<p>Have fun!
+  All the best,<br />
+  Eanna, Founder
+</p>
 `;
 
 type Audience = "fans" | "artists";
@@ -98,10 +93,7 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function collectEmails(
-  rows: { email: string | null }[],
-  into: Set<string>,
-) {
+function collectEmails(rows: { email: string | null }[], into: Set<string>) {
   for (const row of rows) {
     const email = row.email?.trim().toLowerCase();
     if (email) into.add(email);
