@@ -3,7 +3,6 @@ import { getBookPurchaseAction } from "./bookPurchase";
 
 const base = {
   purchaseLink: "https://shop.example.com/skirts",
-  publisherName: "Gost",
   bookSlug: "skirts",
 };
 
@@ -14,7 +13,7 @@ describe("getBookPurchaseAction", () => {
     ).toEqual({
       kind: "buy",
       href: "/out/skirts",
-      label: "Buy from Gost →",
+      label: "Buy →",
     });
   });
 
