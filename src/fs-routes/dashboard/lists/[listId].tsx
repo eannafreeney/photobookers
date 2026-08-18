@@ -12,6 +12,7 @@ import {
   updateBookList,
 } from "../../../domain/lists/services";
 import { userCanManageBookLists } from "../../../domain/lists/utils";
+import { parseCheckboxField } from "../../../schemas";
 import ListsDashboardShell from "../../../features/dashboard/lists/ListsDashboardShell";
 import ListForm from "../../../features/dashboard/lists/ListForm";
 import ListBooksEditor from "../../../features/dashboard/lists/ListBooksEditor";
@@ -20,6 +21,8 @@ import Alert from "../../../components/app/Alert";
 import { routeParam } from "../../../lib/routeParam";
 import Link from "../../../components/app/Link";
 import { getPendingClaim } from "../../../features/claims/services";
+import ListVisibilityToggle from "../../../features/dashboard/lists/ListVisibilityToggle";
+import { dispatchEvents } from "../../../lib/disatchEvents";
 
 function canAccessLists(user: Awaited<ReturnType<typeof getUser>>) {
   return (
@@ -105,7 +108,15 @@ export const GET = createRoute(async (c: Context) => {
             <h2 class="mb-3 text-lg font-semibold text-on-surface-strong">
               Details
             </h2>
-            <ListForm list={list} />
+            <ListForm
+              listId={list.id}
+              formValues={{
+                title: list.title,
+                description: list.description ?? "",
+                slug: list.slug,
+                isPublic: list.isPublic,
+              }}
+            />
             <form
               method="post"
               action={`/dashboard/lists/${list.id}`}
@@ -147,11 +158,34 @@ export const PATCH = createRoute(async (c: Context) => {
   }
 
   const body = await c.req.parseBody();
+  const intent = String(body.intent ?? "");
+
+  if (intent === "make-public" || intent === "make-private") {
+    const [err, list] = await updateBookList(listId, user.id, {
+      isPublic: intent === "make-public",
+    });
+
+    if (err || !list) {
+      return showErrorAlert(c, err?.reason ?? "Failed to update list");
+    }
+
+    return c.html(
+      <>
+        <Alert
+          type="success"
+          message={`"${list.title}" is now ${list.isPublic ? "public" : "private"}.`}
+        />
+        <ListVisibilityToggle list={list} />
+        {dispatchEvents(["lists:updated"])}
+      </>,
+    );
+  }
+
   const [err, list] = await updateBookList(listId, user.id, {
     title: String(body.title ?? ""),
     description: String(body.description ?? ""),
     slug: String(body.slug ?? ""),
-    isPublic: body.isPublic === "true",
+    isPublic: parseCheckboxField(body.isPublic),
   });
 
   if (err || !list) {
@@ -161,7 +195,15 @@ export const PATCH = createRoute(async (c: Context) => {
   return c.html(
     <>
       <Alert type="success" message="List saved." />
-      <ListForm list={list} />
+      <ListForm
+        listId={list.id}
+        formValues={{
+          title: list.title,
+          description: list.description ?? "",
+          slug: list.slug,
+          isPublic: list.isPublic,
+        }}
+      />
     </>,
   );
 });
@@ -176,6 +218,15 @@ export const DELETE = createRoute(async (c: Context) => {
 
   const [err] = await deleteBookList(listId, user.id);
   if (err) return showErrorAlert(c, err.reason);
+
+  if (c.req.header("X-Alpine-Request") === "true") {
+    return c.html(
+      <>
+        <Alert type="success" message="List deleted." />
+        {dispatchEvents(["lists:updated"])}
+      </>,
+    );
+  }
 
   return c.redirect("/dashboard/lists");
 });

@@ -9,6 +9,7 @@ import { registerUserProfileImageForm } from "../features/app/client/userProfile
 import { registerMessageForm } from "../features/dashboard/messages/client/messageForm";
 import { registerCreatorBannerForm } from "../features/dashboard/images/client/creatorBannerForm";
 import { registerStoresMap } from "../features/app/stores/client/storesMap";
+import { registerListForm } from "../features/dashboard/lists/client/listForm";
 
 registerEditCreatorForm();
 registerBookForm();
@@ -21,5 +22,6 @@ registerUserProfileImageForm();
 registerMessageForm();
 registerCreatorBannerForm();
 registerStoresMap();
+registerListForm();
 
 (window as unknown as { Alpine: { start: () => void } }).Alpine.start();

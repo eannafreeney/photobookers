@@ -26,6 +26,10 @@ export const checkboxField = z.preprocess(
   z.boolean(),
 );
 
+export function parseCheckboxField(value: unknown): boolean {
+  return value === true || value === "on" || value === "true" || value === "1";
+}
+
 export const uuidField = z
   .string()
   .uuid("Invalid UUID format")

@@ -1,106 +1,79 @@
 import FormButtons from "../../../components/forms/FormButtons";
-import { BookList } from "../../../db/schema";
+import FormPost from "../../../components/forms/FormPost";
+import Input from "../../../components/forms/Input";
+import TextArea from "../../../components/forms/TextArea";
+import ToggleInput from "../../../components/forms/ToggleInput";
 
 type Props = {
-  list?: BookList | null;
+  formValues?: Record<string, unknown>;
+  listId?: string;
 };
 
-const ListForm = ({ list }: Props) => {
-  const isEdit = Boolean(list);
-  const action = isEdit ? `/dashboard/lists/${list!.id}` : "/dashboard/lists";
+const ListForm = ({ formValues, listId }: Props) => {
+  const isEditPage = !!listId;
+  const action = isEditPage ? `/dashboard/lists/${listId}` : "/dashboard/lists";
 
-  // Create uses a normal full-page POST (redirect to the new list).
-  // Edit uses alpine-ajax to swap the form panel.
-  const alpineAttrs = isEdit
-    ? {
-        "x-data": "{ isSubmitting: false }",
-        "@ajax:before": "isSubmitting = true",
-        "@ajax:after": "isSubmitting = false",
-        "@ajax:error": "isSubmitting = false",
-        "x-target": "toast list-form-panel",
-        "x-target.error": "toast",
-      }
-    : {
-        "x-data": "{ isSubmitting: false }",
-        "@submit": "isSubmitting = true",
-      };
+  const alpineAttrs = {
+    "x-data": `listForm(${JSON.stringify(formValues ?? {})}, ${isEditPage})`,
+    "x-on:submit": "submitForm($event)",
+    "x-target": isEditPage ? "toast list-form-panel" : "toast",
+    "x-target.error": "toast",
+    "x-on:ajax:error": "isSubmitting = false",
+    "x-on:ajax:success": "onSuccess()",
+  };
 
   return (
-    <form
-      id={isEdit ? "list-form-panel" : "list-create-form"}
-      method="post"
+    <FormPost
+      id={isEditPage ? "list-form-panel" : "list-create-form"}
       action={action}
       class="flex flex-col gap-4 max-w-xl"
       {...alpineAttrs}
     >
-      {isEdit ? <input type="hidden" name="_method" value="PATCH" /> : null}
+      {isEditPage ? <input type="hidden" name="_method" value="PATCH" /> : null}
 
-      <div class="flex flex-col gap-1">
-        <label class="kicker text-on-surface-weak" for="list-title">
-          Title
-        </label>
-        <input
-          id="list-title"
-          name="title"
-          required
-          maxlength={255}
-          value={list?.title ?? ""}
-          placeholder="Favourite books of the year"
-          class="rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface-strong"
-        />
-      </div>
+      <Input
+        label="Title"
+        name="form.title"
+        maxLength={255}
+        validateInput="validateField('title')"
+        placeholder="Favourite books of the year"
+        required
+      />
 
-      <div class="flex flex-col gap-1">
-        <label class="kicker text-on-surface-weak" for="list-description">
-          Description
-        </label>
-        <textarea
-          id="list-description"
-          name="description"
-          maxlength={2000}
-          rows={4}
-          placeholder="Optional notes about this list"
-          class="rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface-strong"
-        >
-          {list?.description ?? ""}
-        </textarea>
-      </div>
+      <TextArea
+        label="Description"
+        name="form.description"
+        maxLength={2000}
+        minRows={4}
+        validateInput="validateField('description')"
+        placeholder="Optional notes about this list"
+      />
 
-      {isEdit ? (
-        <div class="flex flex-col gap-1">
-          <label class="kicker text-on-surface-weak" for="list-slug">
-            URL slug
-          </label>
-          <input
-            id="list-slug"
-            name="slug"
+      {isEditPage ? (
+        <>
+          <Input
+            label="URL slug"
+            name="form.slug"
+            maxLength={255}
+            validateInput="validateField('slug')"
             required
-            maxlength={255}
-            value={list?.slug ?? ""}
-            class="rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface-strong"
           />
-          <p class="text-xs text-on-surface-weak">
+          <p class="-mt-2 text-xs text-on-surface-weak">
             Used in your public list URL when the list is public.
           </p>
-        </div>
+          <ToggleInput
+            label="Make this list public on my shelf"
+            name="form.isPublic"
+            isChecked={Boolean(formValues?.isPublic)}
+          />
+        </>
       ) : null}
 
-      <label class="flex items-center gap-2 text-sm text-on-surface">
-        <input
-          type="checkbox"
-          name="isPublic"
-          value="true"
-          checked={list?.isPublic ?? false}
-          class="size-4"
-        />
-        Make this list public on my shelf
-      </label>
-
       <FormButtons
-        buttonText={isEdit ? "Save changes" : "Create list"}
-        loadingText={isEdit ? "Saving…" : "Creating…"}
+        buttonText={isEditPage ? "Save changes" : "Create list"}
+        loadingText={isEditPage ? "Saving…" : "Creating…"}
       />
-    </form>
+    </FormPost>
   );
 };
 

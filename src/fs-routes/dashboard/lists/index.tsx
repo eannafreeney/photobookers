@@ -15,11 +15,12 @@ import ListsDashboardShell from "../../../features/dashboard/lists/ListsDashboar
 import ListsTable from "../../../features/dashboard/lists/ListsTable";
 import ListForm from "../../../features/dashboard/lists/ListForm";
 import { showErrorAlert } from "../../../lib/alertHelpers";
+import { dispatchEvents } from "../../../lib/disatchEvents";
+import Alert from "../../../components/app/Alert";
 
 function canAccessLists(user: Awaited<ReturnType<typeof getUser>>) {
   return (
-    userCanManageBookLists(user) &&
-    isFeatureEnabledForUser("collectors", user)
+    userCanManageBookLists(user) && isFeatureEnabledForUser("collectors", user)
   );
 }
 
@@ -34,7 +35,7 @@ export const GET = createRoute(async (c: Context) => {
 
   const lists = await listBookListsWithCounts(user.id);
   const claimStatus = user.creator
-    ? (await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null
+    ? ((await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null)
     : null;
 
   return c.html(
@@ -84,12 +85,16 @@ export const POST = createRoute(async (c: Context) => {
   const [err, list] = await createBookList(user.id, {
     title: String(body.title ?? ""),
     description: String(body.description ?? ""),
-    isPublic: body.isPublic === "true",
   });
 
   if (err || !list) {
     return showErrorAlert(c, err?.reason ?? "Failed to create list");
   }
 
-  return c.redirect(`/dashboard/lists/${list.id}`);
+  return c.html(
+    <>
+      <Alert type="success" message={`"${list.title}" created.`} />
+      {dispatchEvents(["lists:updated"])}
+    </>,
+  );
 });
