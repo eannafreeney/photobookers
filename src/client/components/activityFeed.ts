@@ -47,24 +47,80 @@ const toMessageParts = (
   }
 };
 
+function isVisibleActivity(
+  event: ActivityEvent,
+  currentUserId: string,
+): boolean {
+  if (currentUserId && event.actorId === currentUserId) return false;
+  return Boolean(event.targetImageUrl?.trim());
+}
+
 export function registerActivityFeed() {
   Alpine.data("activityFeed", () => ({
-    // Desktop stack
     items: [] as ActivityItem[],
-
-    // Mobile queue state
     queue: [] as ActivityItem[],
     activeItem: null as ActivityItem | null,
     pendingCount: 0,
     activeTimer: null as ReturnType<typeof setTimeout> | null,
+    desktopTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
 
     source: null as EventSource | null,
+    shouldReconnect: false,
+    reconnectTimer: null as ReturnType<typeof setTimeout> | null,
+
     maxDesktopItems: 8,
     desktopDurationMs: 6000,
     mobileDurationMs: 4000,
 
     connect() {
-      return;
+      if (this.source) return;
+
+      this.shouldReconnect = true;
+      const currentUserId = this.$el?.dataset?.currentUserId ?? "";
+
+      this.source = new EventSource("/api/activity/stream");
+
+      this.source.addEventListener("activity", (message) => {
+        try {
+          const event = JSON.parse(message.data) as ActivityEvent;
+          this.pushActivity(event, currentUserId);
+        } catch {
+          // ignore malformed payloads
+        }
+      });
+
+      this.source.addEventListener("error", () => {
+        this.closeSource();
+        if (!this.shouldReconnect) return;
+        if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = setTimeout(() => this.connect(), 5000);
+      });
+    },
+
+    pushActivity(event: ActivityEvent, currentUserId: string) {
+      if (!isVisibleActivity(event, currentUserId)) return;
+
+      const item: ActivityItem = {
+        ...event,
+        ...toMessageParts(event),
+      };
+
+      this.items.unshift(item);
+      if (this.items.length > this.maxDesktopItems) {
+        this.items = this.items.slice(0, this.maxDesktopItems);
+      }
+
+      if (this.desktopTimers[item.id]) {
+        clearTimeout(this.desktopTimers[item.id]);
+      }
+      this.desktopTimers[item.id] = setTimeout(() => {
+        this.items = this.items.filter((entry) => entry.id !== item.id);
+        delete this.desktopTimers[item.id];
+      }, this.desktopDurationMs);
+
+      this.queue.push(item);
+      this.pendingCount = this.queue.length;
+      this.showNextMobile();
     },
 
     showNextMobile() {
@@ -86,9 +142,18 @@ export function registerActivityFeed() {
       this.showNextMobile();
     },
 
-    disconnect() {
+    closeSource() {
       this.source?.close();
       this.source = null;
+    },
+
+    disconnect() {
+      this.shouldReconnect = false;
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
+      this.closeSource();
     },
   }));
 }

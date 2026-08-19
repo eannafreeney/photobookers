@@ -14,7 +14,9 @@ import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
 import { heroLcpImageSources } from "../../lib/imageUrl";
 import PageBleed from "../../components/layouts/PageBleedRight";
 import { getHomepageActivityStats } from "@/features/app/homepageActivity";
+import { getRecentPublicActivity } from "@/features/app/homepageRecentActivity";
 import HomepageActivityPulse from "@/features/app/components/HomepageActivityPulse";
+import HomepageRecentActivity from "@/features/app/components/HomepageRecentActivity";
 
 export const GET = createRoute(async (c: Context) => {
   const [user, heroItems, flash] = await Promise.all([
@@ -44,6 +46,7 @@ export const GET = createRoute(async (c: Context) => {
         <Pulse />
         <HeroCarouselFeatureCard heroItems={heroItems} />
         <Slogan />
+        <RecentActivity />
         {!user && (
           <>
             <ScrollReveal>
@@ -125,4 +128,12 @@ const Pulse = async () => {
       profileViews={activity.profileViews}
     />
   );
+};
+
+const RecentActivity = async () => {
+  const [error, items] = await getRecentPublicActivity();
+
+  if (error || !items?.length) return <></>;
+
+  return <HomepageRecentActivity items={items} />;
 };

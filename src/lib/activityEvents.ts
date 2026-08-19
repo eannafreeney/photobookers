@@ -17,6 +17,7 @@ export type ActivityEvent = {
 
 type Subscriber = (event: ActivityEvent) => void;
 
+// ponytail: in-memory pub/sub — events only reach SSE clients on the same Node process.
 const subscribers = new Set<Subscriber>();
 
 export const subscribeToActivityEvents = (subscriber: Subscriber) => {
