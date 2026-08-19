@@ -1,5 +1,6 @@
 import type { AuthUser, Flash } from "../../../../types";
 import type { Creator } from "../../../db/schema";
+import type { StubOutreachStats } from "../../../domain/creators/stubOutreachStats";
 import AppLayout from "../../../components/layouts/AppLayout";
 import Page from "../../../components/layouts/Page";
 import Link from "../../../components/app/Link";
@@ -8,17 +9,21 @@ import Checkbox from "../../../components/forms/Checkbox";
 import FormButton from "../../../components/forms/FormButtons";
 import Input from "../../../components/forms/Input";
 import ValidateEmail from "../../auth/components/ValidateEmail";
+import ClaimBenefitsPanel from "../components/ClaimBenefitsPanel";
+import ClaimStatsPreview from "../components/ClaimStatsPreview";
+import { getHostname } from "../../../services/verification";
 
 type Props = {
   creatorId: string;
   creator: Creator;
   user: AuthUser | null;
   flash?: Flash | null;
+  stats: StubOutreachStats;
 };
 
 const claimStartPath = (creatorId: string) => `/claims/${creatorId}/start`;
 
-const ClaimStartPage = ({ creatorId, creator, user, flash }: Props) => {
+const ClaimStartPage = ({ creatorId, creator, user, flash, stats }: Props) => {
   const loginHref = `/auth/login?redirectUrl=${encodeURIComponent(claimStartPath(creatorId))}`;
 
   return (
@@ -29,19 +34,23 @@ const ClaimStartPage = ({ creatorId, creator, user, flash }: Props) => {
       flash={flash ?? undefined}
     >
       <Page>
-        {user ? (
-          <LoggedInClaimForm
-            creatorId={creatorId}
-            user={user}
-            creatorWebsite={creator.website ?? ""}
-          />
-        ) : (
-          <LoggedOutSignupForm
-            creatorId={creatorId}
-            creatorWebsite={creator.website ?? null}
-            loginHref={loginHref}
-          />
-        )}
+        <div class="mx-auto flex max-w-2xl flex-col gap-6">
+          <ClaimBenefitsPanel displayName={creator.displayName} />
+          <ClaimStatsPreview stats={stats} />
+          {user ? (
+            <LoggedInClaimForm
+              creatorId={creatorId}
+              user={user}
+              creatorWebsite={creator.website ?? ""}
+            />
+          ) : (
+            <LoggedOutSignupForm
+              creatorId={creatorId}
+              creatorWebsite={creator.website ?? null}
+              loginHref={loginHref}
+            />
+          )}
+        </div>
       </Page>
     </AppLayout>
   );
@@ -57,7 +66,10 @@ const LoggedInClaimForm = ({
   creatorId: string;
   user: AuthUser;
   creatorWebsite: string;
-}) => (
+}) => {
+  const websiteHost = creatorWebsite ? getHostname(creatorWebsite) : null;
+
+  return (
   <div class="flex flex-col gap-4">
     <h1 class="font-display text-3xl font-medium text-on-surface-strong">Claim creator profile</h1>
     <form
@@ -71,9 +83,10 @@ const LoggedInClaimForm = ({
           <>
             <p class="text-sm text-gray-600">
               This creator has <strong>{creatorWebsite}</strong> on file. If
-              your account email (<strong>{user.email}</strong>) is at the same
-              domain, you'll be approved instantly. Otherwise, your claim will
-              be reviewed by our team.
+              your account email (<strong>{user.email}</strong>) is at{" "}
+              <strong>{websiteHost ?? "the same domain"}</strong>, you'll be
+              approved instantly. Otherwise, your claim will be reviewed by our
+              team.
             </p>
             <input
               type="hidden"
@@ -103,7 +116,8 @@ const LoggedInClaimForm = ({
       </Button>
     </form>
   </div>
-);
+  );
+};
 
 const LoggedOutSignupForm = ({
   creatorId,

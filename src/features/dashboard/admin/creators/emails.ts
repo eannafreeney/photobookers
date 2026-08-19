@@ -2,6 +2,25 @@ import { Creator } from "../../../../db/schema";
 
 const siteUrl = () => process.env.SITE_URL ?? "https://photobookers.com";
 
+const claimBenefitsBlock = (profileUrl: string, claimLink: string) => `
+      <p>Your profile is already live on Photobookers with a selection of your books — collectors can find you through search, tags, fairs, and our editorial features (Book of the Day, Artist and Publisher of the Week, interviews, newsletter, and magazine).</p>
+      <p>When you claim your profile, you unlock:</p>
+      <ul>
+        <li><strong>Control</strong> — correct your catalog, buy links, bio, and images</li>
+        <li><strong>Audience</strong> — post updates to followers and mark book fair attendance</li>
+        <li><strong>Insights</strong> — full analytics on views, outbound purchase clicks, and favorites</li>
+        <li><strong>Trust</strong> — a verified badge so collectors know this is really you</li>
+      </ul>
+      <p>
+        You keep control of your shop, links, and terms. We help the right people find you.
+      </p>
+      <p>If that is easier, just reply to this email and I can set it up for you.</p>
+      <p>
+        <a href="${profileUrl}">View your profile</a> — or
+        <a href="${claimLink}">Claim your profile</a> to take control.
+      </p>
+`;
+
 export const generateWelcomeEmail = (creator: Creator, claimLink: string) => {
   const creatorName = creator.displayName;
   const profileUrl = `${siteUrl()}/creators/${creator.slug}`;
@@ -14,36 +33,13 @@ export const generateWelcomeEmail = (creator: Creator, claimLink: string) => {
       </p>
       <p>
         Photobookers is a curated home for photobook culture — closer in spirit to
-        Bandcamp than a generic marketplace. Collectors browse books, artists,
-        publishers, and fairs in one place; follow the people behind the work; save
-        titles to favourites and collections; and get updates when creators they follow
-        publish something new.
-      </p>
-      <p>
-        We run editorial features throughout the week — Book of the Day, Artist and
-        Publisher of the Week, short interviews, a weekly newsletter, and a monthly
-        digital magazine. There is also an iOS app for browsing on the go.
-      </p>
-      <p>For artists and publishers, a profile means:</p>
-      <ul>
-        <li>A home for your catalog, with covers, details, and links to where people can buy</li>
-        <li>Discovery through search, tags, fairs, and editorial features</li>
-        <li>Analytics on views, outbound purchase clicks, favourites, and collections</li>
-        <li>A way for collectors to follow your work and hear from you directly</li>
-      </ul>
-      <p>
-        You keep control of your shop, links, and terms. We help the right people find you.
+        Bandcamp than a generic marketplace.
       </p>
       <p>
         I have long admired what you are doing, and I have already put together a profile
         for you with a small selection of your books.
       </p>
-      <p>
-        <a href="${profileUrl}">View your profile</a> — or
-        <a href="${claimLink}">Claim your profile</a> to manage your books, update your page,
-        and see your stats.
-      </p>
-      <p>If that is easier, just reply and I can set it up for you.</p>
+      ${claimBenefitsBlock(profileUrl, claimLink)}
       <p>
         All the best,<br />
         Eanna
@@ -69,29 +65,9 @@ export const generateWelcomeEmailForCreator = (
         photobook culture, closer in spirit to Bandcamp than a generic marketplace.
       </p>
       <p>
-        Collectors use Photobookers to browse books, artists, publishers, and fairs;
-        follow the people behind the work; save titles to favourites and collections;
-        and discover through Book of the Day, Artist and Publisher of the Week,
-        interviews, our weekly newsletter, and a monthly digital magazine.
-      </p>
-      <p>For artists and publishers, a profile means:</p>
-      <ul>
-        <li>A home for your catalog, with covers, details, and links to where people can buy</li>
-        <li>Discovery through search, tags, fairs, and editorial features</li>
-        <li>Analytics on views, outbound purchase clicks, favourites, and collections</li>
-        <li>A way for collectors to follow your work and hear from you directly</li>
-      </ul>
-      <p>
-        You keep control of your shop, links, and terms. We help the right people find you.
-      </p>
-      <p>
         I have already put together a profile for you with a small selection of your books.
       </p>
-      <p>
-        <a href="${profileUrl}">View your profile</a> — or
-        <a href="${claimLink}">Claim your profile</a> to manage your books, update your page,
-        and see your stats.
-      </p>
+      ${claimBenefitsBlock(profileUrl, claimLink)}
       <p>
         All the best,<br />
         Eanna

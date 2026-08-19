@@ -4,6 +4,10 @@ vi.mock("../../lib/sendEmail", () => ({
   sendEmail: vi.fn(),
 }));
 
+vi.mock("../../domain/creators/stubOutreachStats", () => ({
+  getStubOutreachStats: vi.fn(),
+}));
+
 import { emailMatchesWebsite } from "./utils";
 
 describe("emailMatchesWebsite", () => {

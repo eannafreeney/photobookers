@@ -1,5 +1,6 @@
 import { Creator } from "../../db/schema";
 import { sendEmail } from "../../lib/sendEmail";
+import { getStubOutreachStats } from "../../domain/creators/stubOutreachStats";
 import { getHostname } from "../../services/verification";
 import {
   type ClaimApprovalEmailUser,
@@ -21,7 +22,12 @@ export async function sendCreatorVerifiedEmail(
   user: ClaimApprovalEmailUser,
   creator: Creator,
 ) {
-  const html = generateClaimApprovalEmail(user, creator);
+  const stats = await getStubOutreachStats({
+    id: creator.id,
+    slug: creator.slug,
+    type: creator.type,
+  });
+  const html = generateClaimApprovalEmail(user, creator, stats);
   return sendEmail(
     user.email,
     `Your ${creator.displayName} profile is verified on Photobookers`,

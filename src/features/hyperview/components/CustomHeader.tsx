@@ -64,7 +64,7 @@ const CustomHeader = ({
       <View style="header-actions">
         {showClaimButton && claimHref ? (
           <View style="header-claim-btn">
-            <Text style="header-claim-label">Is this you?</Text>
+            <Text style="header-claim-label">Claim profile</Text>
             <Behavior action="deep-link" href={claimHref} />
           </View>
         ) : null}

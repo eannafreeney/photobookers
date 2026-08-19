@@ -37,6 +37,9 @@ export function registerHomepageRecentActivity() {
       );
       this.items = config.items;
       this.currentUserId = config.currentUserId ?? null;
+      this.$el
+        .querySelectorAll("[data-recent-activity-ssr]")
+        .forEach((node) => node.remove());
       this.connect();
     },
 

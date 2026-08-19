@@ -5,6 +5,7 @@ import NavTabs from "../books/components/NavTabs";
 import VerifiedCreatorShareBanner from "../books/components/VerifiedCreatorShareBanner";
 import SkoolCommunityBanner from "./SkoolCommunityBanner";
 import VerificationStatusBanner from "./VerificationStatusBanner";
+import ClaimSuccessChecklist from "./ClaimSuccessChecklist";
 import { AuthUser } from "../../../../types";
 import { CreatorClaimStatus } from "../../../db/schema";
 
@@ -31,6 +32,7 @@ const CreatorDashboardShell = ({
       {creator.status === "verified" && (
         <VerifiedCreatorShareBanner creator={creator} />
       )}
+      <ClaimSuccessChecklist creator={creator} />
       {creator.type === "artist" && <SkoolCommunityBanner />}
       <Page>
         <NavTabs

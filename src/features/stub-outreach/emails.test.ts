@@ -5,9 +5,9 @@ import {
 } from "./emails";
 
 describe("stubViewMilestoneEmailSubject", () => {
-  it("includes the milestone threshold", () => {
+  it("includes the milestone threshold and claim CTA", () => {
     expect(stubViewMilestoneEmailSubject("views_100")).toBe(
-      "Your books reached 100 views on Photobookers",
+      "Your books hit 100 views — claim to see the full stats",
     );
   });
 });
@@ -37,6 +37,7 @@ describe("generateStubViewMilestoneEmail", () => {
     expect(html).toContain("62");
     expect(html).toContain("Coastal Light");
     expect(html).toContain("/claims/abc/start");
+    expect(html).toContain("which books drove these clicks");
     expect(html).toContain("Reply to this message");
   });
 });

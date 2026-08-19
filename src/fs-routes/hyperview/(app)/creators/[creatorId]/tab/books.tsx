@@ -24,6 +24,9 @@ import { maybeRecordCreatorView } from "../../../../../../features/creator-views
 import CreatorBanner, {
   creatorBannerStyles,
 } from "../../../../../../features/hyperview/components/CreatorBanner";
+import StubProfileBanner, {
+  stubProfileBannerStyles,
+} from "../../../../../../features/hyperview/components/StubProfileBanner";
 import ErrorScreen from "../../../../../../features/hyperview/components/ErrorScreen";
 import { spotlightCreatorRowStyles } from "../../../../../../features/hyperview/components/spotlight/SpotlightCreatorRow";
 import { publishersListStyles } from "./publishers";
@@ -82,6 +85,11 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
         creator={creator}
         baseUrl={baseUrl}
         isFollowing={followingByCreatorId[creator.id] ?? false}
+      />
+      <StubProfileBanner
+        displayName={creator.displayName}
+        claimHref={claimHref}
+        show={showClaimButton}
       />
       <CreatorTabs
         baseUrl={baseUrl}
@@ -206,6 +214,7 @@ const pageStyles = () => (
     {publishersListStyles()}
     {artistsListStyles()}
     {creatorBannerStyles()}
+    {stubProfileBannerStyles()}
     {messageListStyles()}
     {creatorPostsListStyles()}
   </>

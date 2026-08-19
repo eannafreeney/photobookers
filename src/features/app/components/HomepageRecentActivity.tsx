@@ -1,6 +1,9 @@
 import {
+  formatRecentActivityAge,
+  recentActivityTrailingText,
   serializeRecentActivityItems,
   type RecentActivityItem,
+  type SerializedRecentActivityItem,
 } from "../homepageRecentActivityUtils";
 
 type Props = {
@@ -8,25 +11,61 @@ type Props = {
   currentUserId?: string | null;
 };
 
+const RecentActivityCard = ({
+  item,
+  timeLabel,
+}: {
+  item: SerializedRecentActivityItem;
+  timeLabel: string;
+}) => (
+  <li class="list-none shrink-0" data-recent-activity-ssr>
+    <a
+      href={item.targetUrl}
+      class="flex flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
+    >
+      <div class="flex h-28 w-28 items-center justify-center">
+        <img
+          src={item.imageUrl}
+          alt=""
+          class="max-h-full max-w-full object-contain"
+          loading="lazy"
+        />
+      </div>
+      <p class="w-28 min-w-0 text-xs leading-snug text-on-surface sm:text-sm">
+        <strong class="font-medium text-on-surface-strong">{item.targetName}</strong>
+        {item.targetCreatorName ? (
+          <span class="text-on-surface-weak">
+            {" "}
+            by {item.targetCreatorName}
+          </span>
+        ) : null}
+        {recentActivityTrailingText(item.type)}
+      </p>
+      <time datetime={item.createdAt} class="text-[11px] text-on-surface-weak">
+        {timeLabel}
+      </time>
+    </a>
+  </li>
+);
+
 const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
+  if (items.length === 0) return null;
+
+  const serialized = serializeRecentActivityItems(items);
   const bootstrap = JSON.stringify({
-    items: serializeRecentActivityItems(items),
+    items: serialized,
     currentUserId: currentUserId ?? null,
   });
-
-  const alpineAttrs = {
-    "x-data": "homepageRecentActivity()",
-    "x-init": "init()",
-    "x-on:beforeunload.window": "disconnect()",
-    "x-show": "items.length > 0",
-    "x-cloak": true,
-  };
+  const now = Date.now();
 
   return (
     <section
       aria-label="Recent community activity"
       data-recent-activity={bootstrap}
-      {...alpineAttrs}
+      {...{
+        "x-data": "homepageRecentActivity()",
+        "x-on:beforeunload.window": "disconnect()",
+      }}
     >
       <p class="kicker text-accent mb-3 text-center">Live on Photobookers</p>
       <div
@@ -34,6 +73,13 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
         class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <ul class="mx-auto flex w-max items-start gap-3 px-1">
+          {serialized.map((item) => (
+            <RecentActivityCard
+              key={item.id}
+              item={item}
+              timeLabel={formatRecentActivityAge(item.createdAt, now)}
+            />
+          ))}
           <template x-for="item in items" x-bind:key="item.id">
             <li class="list-none shrink-0">
               <a

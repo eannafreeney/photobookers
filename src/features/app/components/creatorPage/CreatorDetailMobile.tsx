@@ -6,12 +6,15 @@ import CreatorPageBanner from "./CreatorPageBanner";
 import { creatorUrl } from "../../spotlightUrls";
 import { creatorShareText } from "../../../../lib/share";
 import MobileHeader from "../MobileHeader";
+import ClaimCreatorBtn from "../../../claims/components/ClaimCreatorBtn";
+import StubProfileBanner from "./StubProfileBanner";
 
 const CreatorDetailMobile = (props: CreatorDetailViewProps) => {
   const { creator, user, isOwner, postCount } = props;
 
   return (
     <>
+      <StubProfileBanner creator={creator} isOwner={isOwner} />
       <CreatorPageBanner
         bannerUrl={creator.bannerUrl}
         displayName={creator.displayName}
@@ -22,14 +25,21 @@ const CreatorDetailMobile = (props: CreatorDetailViewProps) => {
           title={creator.displayName ?? undefined}
           isVerified={creator.status === "verified"}
         >
-          <div class="flex justify-between items-center gap-2">
-            {!isOwner && (
-              <FollowButton creator={creator} variant="mobile" user={user} />
-            )}
-            <ShareButton
-              title={creator.displayName}
-              text={creatorShareText(creator)}
-              url={creatorUrl(creator.slug)}
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center gap-2">
+              {!isOwner && (
+                <FollowButton creator={creator} variant="mobile" user={user} />
+              )}
+              <ShareButton
+                title={creator.displayName}
+                text={creatorShareText(creator)}
+                url={creatorUrl(creator.slug)}
+              />
+            </div>
+            <ClaimCreatorBtn
+              creator={creator}
+              user={user}
+              currentPath={props.currentPath}
             />
           </div>
         </MobileHeader>

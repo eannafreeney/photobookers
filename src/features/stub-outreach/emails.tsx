@@ -12,7 +12,7 @@ export function stubViewMilestoneEmailSubject(
   milestone: StubViewMilestoneKind,
 ): string {
   const threshold = stubViewMilestoneThreshold(milestone);
-  return `Your books reached ${threshold} views on Photobookers`;
+  return `Your books hit ${threshold} views — claim to see the full stats`;
 }
 
 export function generateStubViewMilestoneEmail(
@@ -44,7 +44,8 @@ export function generateStubViewMilestoneEmail(
   <p>Your catalogue has reached <strong>${threshold} views</strong> on Photobookers (${params.allTimeViews.toLocaleString()} all time).</p>
   ${recentStatsBlock}
   ${topBookBlock}
-  <p><a href="${escapeHtml(params.claimUrl)}">Claim your profile</a> to manage your books and see analytics · <a href="${escapeHtml(params.profileUrl)}">View your public profile</a></p>
+  <p>Claim to see which books drove these clicks and update anything that's wrong.</p>
+  <p><a href="${escapeHtml(params.claimUrl)}">Claim your profile</a> to manage your books and unlock full analytics · <a href="${escapeHtml(params.profileUrl)}">View your public profile</a></p>
   ${STUB_OUTREACH_OPT_OUT_FOOTER}
   <p>Best regards,<br/>Eanna</p>
 `;

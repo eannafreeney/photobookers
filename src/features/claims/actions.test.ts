@@ -16,6 +16,10 @@ vi.mock("../../lib/sendEmail", () => ({
   sendEmail: vi.fn(),
 }));
 
+vi.mock("../../domain/creators/stubOutreachStats", () => ({
+  getStubOutreachStats: vi.fn(),
+}));
+
 vi.mock("../auth/services", () => ({
   verifyOtpForClaimSignup: vi.fn(),
 }));

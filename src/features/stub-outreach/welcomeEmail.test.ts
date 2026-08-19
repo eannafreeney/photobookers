@@ -22,6 +22,8 @@ describe("generateWelcomeEmail", () => {
 
     expect(html).toContain(claimLink);
     expect(html).toContain("Claim your profile");
+    expect(html).toContain("When you claim your profile");
+    expect(html).toContain("just reply to this email");
     expect(html).not.toContain("Log in to your account");
     expect(html).not.toContain("/auth/login");
   });

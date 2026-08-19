@@ -135,9 +135,9 @@ const Pulse = async () => {
 const RecentActivity = async ({ user }: { user: AuthUser | null }) => {
   const [error, items] = await getRecentPublicActivity();
 
-  if (error) return <></>;
+  if (error || !items?.length) return <></>;
 
   return (
-    <HomepageRecentActivity items={items ?? []} currentUserId={user?.id} />
+    <HomepageRecentActivity items={items} currentUserId={user?.id} />
   );
 };

@@ -8,12 +8,14 @@ import ClaimCreatorBtn from "../../../claims/components/ClaimCreatorBtn";
 import CreatorDetailTabs, { CreatorDetailViewProps } from "./CreatorDetailTab";
 import CreatorAvatar from "./CreatorAvatar";
 import CreatorBioSection from "./CreatorBioSection";
+import StubProfileBanner from "./StubProfileBanner";
 
 const CreatorDetailDesktop = (props: CreatorDetailViewProps) => {
   const { creator, user, isOwner, postCount, currentPath } = props;
 
   return (
     <div class="flex flex-col gap-4">
+      <StubProfileBanner creator={creator} isOwner={isOwner} />
       <CreatorPageBanner
         bannerUrl={creator.bannerUrl}
         displayName={creator.displayName}

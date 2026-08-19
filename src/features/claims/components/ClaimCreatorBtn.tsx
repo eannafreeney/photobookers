@@ -1,5 +1,6 @@
+import clsx from "clsx";
+import Link from "../../../components/app/Link";
 import { Creator } from "../../../db/schema";
-import APIButton from "../../api/components/APIButton";
 import { canClaimCreator } from "../../../lib/permissions";
 import { AuthUser } from "../../../../types";
 import { getPendingClaim } from "../services";
@@ -10,6 +11,13 @@ type Props = {
   currentPath?: string;
 };
 
+const claimButtonClass = (isDisabled: boolean) =>
+  clsx(
+    "whitespace-nowrap w-full rounded-radius border px-4 py-2 text-sm font-medium tracking-wide transition hover:opacity-75 text-center block",
+    "bg-transparent text-secondary border-secondary",
+    isDisabled && "border-secondary/50 opacity-50 pointer-events-none",
+  );
+
 const ClaimCreatorBtn = async ({ creator, user, currentPath }: Props) => {
   const isStubAcc = creator.status === "stub";
   const hasCreatorAccount = user?.creator?.id;
@@ -19,21 +27,24 @@ const ClaimCreatorBtn = async ({ creator, user, currentPath }: Props) => {
   const [_, pendingClaim] = await getPendingClaim(user?.id ?? "", creator.id);
   const hasPendingClaim = user != null && pendingClaim !== null;
 
-  const id = `claim-${creator.id}`;
   const isDisabled = !canClaimCreator(user, creator) || hasPendingClaim;
-  const props = {
-    id,
-    action: currentPath
-      ? `/claims/${creator.id}?currentPath=${encodeURIComponent(currentPath)}`
-      : `/claims/${creator.id}`,
-    disabled: isDisabled,
-    method: "get" as const as "get" | "post",
-    tooltipText: "Claim Creator Profile",
-    buttonText: "Is this you?",
-    currentPath,
-  };
+  const claimHref = currentPath
+    ? `/claims/${creator.id}/start?currentPath=${encodeURIComponent(currentPath)}`
+    : `/claims/${creator.id}/start`;
 
-  return <APIButton {...props} isDisabled={isDisabled} />;
+  if (isDisabled) {
+    return (
+      <span class={claimButtonClass(true)} aria-disabled="true">
+        Claim profile
+      </span>
+    );
+  }
+
+  return (
+    <Link href={claimHref} className={claimButtonClass(false)}>
+      Claim profile
+    </Link>
+  );
 };
 
 export default ClaimCreatorBtn;

@@ -8,6 +8,7 @@ import { submitClaimForUser } from "../../../features/claims/actions";
 import ClaimStartPage from "../../../features/claims/pages/ClaimStartPage";
 import InfoPage from "../../../pages/InfoPage";
 import { ProcessClaimContext } from "../../../features/claims/types";
+import { getStubOutreachStats } from "../../../domain/creators/stubOutreachStats";
 
 const claimStartPath = (creatorId: string) => `/claims/${creatorId}/start`;
 
@@ -34,12 +35,19 @@ export const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
     );
   }
 
+  const stats = await getStubOutreachStats({
+    id: creator.id,
+    slug: creator.slug,
+    type: creator.type,
+  });
+
   return c.html(
     <ClaimStartPage
       creatorId={creatorId}
       creator={creator}
       user={user}
       flash={flash}
+      stats={stats}
     />,
   );
 });
