@@ -36,7 +36,7 @@ export function registerHomepageRecentActivity() {
         this.$el.getAttribute("data-recent-activity"),
       );
       this.items = config.items;
-      this.currentUserId = config.currentUserId;
+      this.currentUserId = config.currentUserId ?? null;
       this.connect();
     },
 
