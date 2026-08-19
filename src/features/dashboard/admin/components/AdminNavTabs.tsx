@@ -75,6 +75,10 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
         {storesIcon}
         Stores
       </NavLink>
+      <NavLink href="/dashboard/admin/leaderboard" currentPath={currentPath}>
+        {analyticsIcon}
+        Leaderboard
+      </NavLink>
     </nav>
   );
 };

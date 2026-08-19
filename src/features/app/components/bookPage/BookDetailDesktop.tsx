@@ -88,7 +88,7 @@ const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
                 availabilityStatus={book.availabilityStatus}
                 trackOutbound={shouldTrackOutboundPurchase(book)}
               />
-              <BookCredits releaseDate={book.releaseDate} />
+              <BookCredits releaseDate={book.releaseDate} submittedByUser={book.submittedByUser} />
               <TagList tags={book.tags ?? []} />
               {showPress ? <BookPressSection links={book.pressLinks} /> : null}
               <CommentsSection

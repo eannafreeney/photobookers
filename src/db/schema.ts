@@ -126,8 +126,8 @@ export const users = pgTable("users", {
   shelfSlug: varchar("shelf_slug", { length: 255 }).unique(),
   shelfPublic: boolean("shelf_public").default(false).notNull(),
   acceptsTerms: timestamp("accepts_terms"),
-  isAdmin: boolean("is_admin").default(false).notNull(),
-  mustResetPassword: boolean("must_reset_password").default(false).notNull(),
+    isAdmin: boolean("is_admin").default(false).notNull(),
+    mustResetPassword: boolean("must_reset_password").default(false).notNull(),
   verificationFeedbackEmailSentAt: timestamp(
     "verification_feedback_email_sent_at",
   ),
@@ -137,7 +137,8 @@ export const users = pgTable("users", {
 
 export const usersRelations = relations(users, ({ many }) => ({
   creators: many(creators),
-  books: many(books),
+  createdBooks: many(books, { relationName: "bookCreator" }),
+  submittedBooks: many(books, { relationName: "bookSubmitter" }),
   follows: many(follows),
   collections: many(collectionItems),
   postLikes: many(postLikes),
@@ -344,6 +345,7 @@ export const books = pgTable(
     createdByUserId: uuid("created_by_user_id")
       .references(() => users.id)
       .notNull(),
+    submittedByUserId: uuid("submitted_by_user_id").references(() => users.id),
     notifyFollowersOnRelease: boolean("notify_followers_on_release")
       .default(false)
       .notNull(),
@@ -378,6 +380,12 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   creatorUser: one(users, {
     fields: [books.createdByUserId],
     references: [users.id],
+    relationName: "bookCreator",
+  }),
+  submittedByUser: one(users, {
+    fields: [books.submittedByUserId],
+    references: [users.id],
+    relationName: "bookSubmitter",
   }),
   comments: many(bookComments),
   images: many(bookImages),

@@ -469,6 +469,9 @@ export const getBookBySlug = async (
       with: {
         publisher: true,
         artist: true,
+        submittedByUser: {
+          columns: { id: true, firstName: true, lastName: true, shelfSlug: true },
+        },
         images: {
           orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
         },

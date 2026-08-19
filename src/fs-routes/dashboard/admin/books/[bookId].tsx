@@ -30,6 +30,7 @@ import BookApprovalForm from "../../../../features/dashboard/admin/books/forms/B
 import { routeParam } from "../../../../lib/routeParam";
 import { serializePressLinks } from "../../../../features/dashboard/books/pressLinks";
 import { toDateInputValue } from "../../../../lib/utils";
+import Banner from "../../../../components/app/Banner";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
@@ -55,6 +56,22 @@ export const GET = createRoute(
       press_links: serializePressLinks(book.pressLinks),
     };
 
+    const submitter = (book as any).submittedByUser;
+    const submitterName = submitter
+      ? [submitter.firstName, submitter.lastName].filter(Boolean).join(" ")
+      : null;
+
+    // Flag when contributor name looks like the artist or publisher they picked
+    const artistName = book.artist?.displayName?.toLowerCase() ?? "";
+    const publisherName = book.publisher?.displayName?.toLowerCase() ?? "";
+    const nameLower = submitterName?.toLowerCase() ?? "";
+    const nameMatchesCreator =
+      submitterName &&
+      (artistName.includes(nameLower) ||
+        nameLower.includes(artistName) ||
+        publisherName.includes(nameLower) ||
+        nameLower.includes(publisherName));
+
     return c.html(
       <AppLayout
         title="Edit Book"
@@ -71,6 +88,16 @@ export const GET = createRoute(
               },
             ]}
           />
+          {submitterName && (
+            <Banner
+              type={nameMatchesCreator ? "warning" : "info"}
+              message={
+                nameMatchesCreator
+                  ? `⚠ Submitted by contributor "${submitterName}" (${submitter.email}) — name matches the artist/publisher. Possible self-promotion.`
+                  : `Submitted by contributor "${submitterName}" (${submitter.email})`
+              }
+            />
+          )}
           <div class="flex flex-col items-center md:items-end gap-4">
             <BookApprovalForm book={book} />
             <div class="flex items-center gap-4">

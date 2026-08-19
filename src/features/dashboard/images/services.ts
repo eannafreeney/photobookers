@@ -1,7 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { bookFairs, bookImages, bookStores, books, creators, users } from "../../../db/schema";
-import { notifyAdminBookPendingReviewWhenReady } from "../../../domain/notifications/services";
 import { err, ok } from "../../../lib/result";
 import {
   invalidateBookCache,
@@ -110,12 +109,7 @@ export const updateBookCoverImage = async (
       invalidateBookCache(updatedBook.slug);
     }
 
-    if (options?.actorUserId && !existing?.coverUrl) {
-      await notifyAdminBookPendingReviewWhenReady({
-        bookId,
-        actorUserId: options.actorUserId,
-      });
-    }
+    // ponytail: admin notification now fires on explicit "Submit for review" click, not on cover upload
 
     return ok(updatedBook);
   } catch (error) {

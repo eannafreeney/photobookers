@@ -45,6 +45,13 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
               <NavLink href="/shelf" currentPath={currentPath} variant="nav">
                 Shelf
               </NavLink>
+              <NavLink
+                href="/dashboard"
+                currentPath={currentPath}
+                variant="nav"
+              >
+                Dashboard
+              </NavLink>
             </>
           )}
           {!user && (

@@ -98,7 +98,40 @@ export const GET = createRoute(
           <div class="mb-4">
             <BookReviewProcessBanner variant={bannerVariant} />
           </div>
-          {!publisherIsVerified && (
+          {book.approvalStatus === "pending" && (
+            <div
+              id="book-submit-review"
+              x-data={`{ hasCover: ${!!book.coverUrl} }`}
+              {...{ "@cover:updated.window": "hasCover = true" }}
+              class="relative flex border-outline bg-surface-alt p-4 text-on-surface border-b border-t"
+            >
+              <div class="mx-auto flex flex-wrap items-center gap-2 px-6">
+                <p x-show="!hasCover" class="sm:text-sm text-pretty text-xs">
+                  Add a cover image below, then submit for review.
+                </p>
+                <p
+                  x-show="hasCover"
+                  class="sm:text-sm text-pretty text-xs"
+                  x-cloak
+                >
+                  Cover uploaded! Submit this book for review when you're ready.
+                </p>
+                <FormPost
+                  action={`/dashboard/books/${book.id}/resubmit`}
+                  x-target="toast book-submit-review"
+                >
+                  <Button
+                    variant="outline"
+                    color="success"
+                    x-bind:disabled="!hasCover"
+                  >
+                    Submit for review
+                  </Button>
+                </FormPost>
+              </div>
+            </div>
+          )}
+          {!publisherIsVerified && book.approvalStatus === "approved" && (
             <div class="flex justify-end">
               <div class="flex items-center gap-4">
                 <PublishToggleForm book={book} user={user} />

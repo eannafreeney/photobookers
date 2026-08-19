@@ -2,18 +2,23 @@ import clsx from "clsx";
 import { PropsWithChildren } from "hono/jsx";
 import Page from "../../../components/layouts/Page";
 import {
+  analyticsIcon,
   bookIcon,
-  fullHeartIcon,
   lightbulbIcon,
   libraryIcon,
   mailIcon,
+  plusIcon,
+  emptyHeartIcon,
 } from "../../../lib/icons";
 
 type Props = PropsWithChildren<{
   currentPath: string;
 }>;
 
-const CollectorDashboardShell = ({ children, currentPath }: Props) => {
+const CollectorDashboardShell = ({
+  children,
+  currentPath,
+}: Props) => {
   return (
     <Page>
       <nav
@@ -25,7 +30,7 @@ const CollectorDashboardShell = ({ children, currentPath }: Props) => {
           Shelf
         </NavLink>
         <NavLink href="/dashboard/favorites" currentPath={currentPath}>
-          {fullHeartIcon(5)}
+          {emptyHeartIcon(5)}
           Favorites
         </NavLink>
         <NavLink href="/dashboard/posts" currentPath={currentPath}>
@@ -35,6 +40,14 @@ const CollectorDashboardShell = ({ children, currentPath }: Props) => {
         <NavLink href="/dashboard/lists" currentPath={currentPath}>
           {libraryIcon(5)}
           Lists
+        </NavLink>
+        <NavLink href="/dashboard/contribute" currentPath={currentPath}>
+          {plusIcon(5)}
+          Contribute
+        </NavLink>
+        <NavLink href="/dashboard/leaderboard" currentPath={currentPath}>
+          {analyticsIcon}
+          Leaderboard
         </NavLink>
         <NavLink href="/dashboard/guide" currentPath={currentPath}>
           {lightbulbIcon(5)}

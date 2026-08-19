@@ -59,6 +59,10 @@ const NavTabs = ({
           Profile
         </NavLink>
       ) : null}
+      <NavLink href="/dashboard/leaderboard" currentPath={currentPath}>
+        {analyticsIcon}
+        Leaderboard
+      </NavLink>
       <NavLink href="/dashboard/guide" currentPath={currentPath}>
         {lightbulbIcon(5)}
         Guide

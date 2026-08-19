@@ -56,7 +56,7 @@ const BookDetailMobile = ({
             <Card.Description>{book.description}</Card.Description>
           )}
           {showPress ? <BookPressSection links={book.pressLinks} /> : null}
-          <BookCredits releaseDate={book.releaseDate} />
+          <BookCredits releaseDate={book.releaseDate} submittedByUser={book.submittedByUser} />
           <TagList tags={book.tags ?? []} />
         </Tabs.Panel>
         <Tabs.Panel tabId="comments">

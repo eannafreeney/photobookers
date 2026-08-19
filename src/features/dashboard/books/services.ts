@@ -376,6 +376,9 @@ export const getBookById = async (bookId: string) => {
         publisher: true,
         artist: true,
         bookOfTheDay: true,
+        submittedByUser: {
+          columns: { id: true, firstName: true, lastName: true, shelfSlug: true, email: true },
+        },
         images: {
           orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
         },

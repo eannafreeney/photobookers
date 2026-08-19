@@ -13,6 +13,8 @@ import BookPressLinksSection from "../components/BookPressLinksSection";
 type BookFormProps = {
   formValues?: Record<string, any>;
   isPublisher: boolean;
+  /** Contributor mode: user picks both artist + publisher, no self-publish */
+  isContributor?: boolean;
   bookId?: string;
   action: string;
   /** Primary submit label for review workflow vs normal save */
@@ -22,21 +24,24 @@ type BookFormProps = {
 export const BookForm = async ({
   formValues,
   isPublisher,
+  isContributor = false,
   bookId,
   action,
   primaryAction = "save",
 }: BookFormProps) => {
-  const artistOptions = isPublisher ? await getAllCreatorOptions("artist") : [];
-  const publisherOptions = !isPublisher
-    ? await getAllCreatorOptions("publisher")
-    : [];
+  const artistOptions =
+    isPublisher || isContributor ? await getAllCreatorOptions("artist") : [];
+  const publisherOptions =
+    !isPublisher || isContributor
+      ? await getAllCreatorOptions("publisher")
+      : [];
 
   const isEditPage = !!bookId;
-  const isArtist = !isPublisher;
+  const isArtist = !isPublisher && !isContributor;
 
   const mergedFormValues = {
     ...(formValues ?? {}),
-    intent: isPublisher ? "publisher" : "artist",
+    intent: isContributor ? "contributor" : isPublisher ? "publisher" : "artist",
   };
 
   const alpineAttrs = {
@@ -65,7 +70,26 @@ export const BookForm = async ({
             validateInput="validateField('title')"
             required
           />
-          {isPublisher && !isEditPage && (
+          {isContributor && !isEditPage && (
+            <>
+              <ComboBox
+                label="Artist"
+                name="form.artist_id"
+                newOptionName="form.new_artist_name"
+                type="artist"
+                options={artistOptions}
+                required
+              />
+              <ComboBox
+                label="Publisher"
+                name="form.publisher_id"
+                newOptionName="form.new_publisher_name"
+                type="publisher"
+                options={publisherOptions}
+              />
+            </>
+          )}
+          {!isContributor && isPublisher && !isEditPage && (
             <ComboBox
               label="Artist"
               name="form.artist_id"
@@ -75,7 +99,7 @@ export const BookForm = async ({
               required
             />
           )}
-          {isArtist && !isEditPage ? (
+          {!isContributor && isArtist && !isEditPage ? (
             <>
               <div x-show="is_self_published">
                 <ToggleInput
@@ -135,7 +159,7 @@ export const BookForm = async ({
               { value: "unavailable", label: "Unavailable" },
             ]}
           />
-          {!isEditPage && (
+          {!isEditPage && !isContributor && (
             <ToggleInput
               label="Send email to followers on release date"
               name="form.send_email_to_followers_on_release"

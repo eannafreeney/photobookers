@@ -7,6 +7,11 @@ import { Book, BookFair, Creator } from "../db/schema";
 import { BookWithGalleryImages } from "../features/app/types";
 import { BookWithAdminRelations } from "../features/dashboard/admin/books/types";
 
+export function canCreateBook(user: AuthUser | null): boolean {
+  if (!user) return false;
+  return true;
+}
+
 export function canUploadImage(
   user: AuthUser | null,
   book?: BookCardResult,
@@ -24,6 +29,16 @@ export function canEditBook(
 ): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
+
+  // Contributor can edit their own submissions while neither artist nor publisher is verified
+  if (
+    !user.creator &&
+    user.id === book.createdByUserId &&
+    (book as any).artist?.status !== "verified" &&
+    (book as any).publisher?.status !== "verified"
+  )
+    return true;
+
   if (!user.creator) return false;
 
   const isCreatorProfileCreatedByUser =
@@ -49,6 +64,16 @@ export function canEditBook(
 export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
+
+  // Contributor can delete their own submissions while neither artist nor publisher is verified
+  if (
+    !user.creator &&
+    user.id === book.createdByUserId &&
+    (book as any).artist?.status !== "verified" &&
+    (book as any).publisher?.status !== "verified"
+  )
+    return true;
+
   if (!user.creator) return false;
 
   const isCreatorProfileCreatedByUser =

@@ -12,11 +12,19 @@ import { z } from "zod";
 import { bookIdSchema } from "../../schemas";
 import { commentIdSchema } from "../api/schema";
 
+export type BookSubmitter = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  shelfSlug: string | null;
+} | null;
+
 export type BookWithGalleryImages = Omit<
   Book & { artist: Creator | null; publisher: Creator | null },
   "images"
 > & {
   images: { imageUrl: string }[];
+  submittedByUser?: BookSubmitter;
 };
 
 export const BookCard = {};
