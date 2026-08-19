@@ -1,5 +1,6 @@
 import Alpine from "alpinejs";
 import {
+  formatRecentActivityAge,
   liveActivityEventToStripItem,
   recentActivityTrailingText,
   shouldShowLiveActivityEvent,
@@ -18,8 +19,6 @@ type LiveActivityEvent = {
   createdAt: string;
 };
 
-type StripItem = SerializedRecentActivityItem & { isNew?: boolean };
-
 type HomepageRecentActivityConfig = {
   items: SerializedRecentActivityItem[];
   currentUserId?: string | null;
@@ -29,9 +28,11 @@ export function registerHomepageRecentActivity() {
   Alpine.data(
     "homepageRecentActivity",
     (config: HomepageRecentActivityConfig) => ({
-      items: config.items as StripItem[],
+      items: config.items,
       maxItems: 10,
       currentUserId: config.currentUserId ?? null,
+      now: Date.now(),
+      tickTimer: null as number | null,
       source: null as EventSource | null,
       shouldReconnect: false,
       reconnectTimer: null as number | null,
@@ -40,10 +41,19 @@ export function registerHomepageRecentActivity() {
         return recentActivityTrailingText(type);
       },
 
+      timeAgo(createdAt: string) {
+        return formatRecentActivityAge(createdAt, this.now);
+      },
+
       connect() {
         if (this.source) return;
 
         this.shouldReconnect = true;
+        this.now = Date.now();
+        this.tickTimer = window.setInterval(() => {
+          this.now = Date.now();
+        }, 15_000);
+
         this.source = new EventSource("/api/activity/stream");
 
         this.source.addEventListener("activity", (message: MessageEvent) => {
@@ -71,18 +81,13 @@ export function registerHomepageRecentActivity() {
         if (!item) return;
         if (this.items.some((entry) => entry.id === item.id)) return;
 
-        this.items.unshift({ ...item, isNew: true });
+        this.items.unshift(item);
         if (this.items.length > this.maxItems) {
           this.items = this.items.slice(0, this.maxItems);
         }
 
         const strip = this.$refs.strip as HTMLElement | undefined;
         if (strip) strip.scrollLeft = 0;
-
-        window.setTimeout(() => {
-          const entry = this.items.find((row) => row.id === item.id);
-          if (entry) entry.isNew = false;
-        }, 2500);
       },
 
       disconnect() {
@@ -90,6 +95,10 @@ export function registerHomepageRecentActivity() {
         if (this.reconnectTimer) {
           clearTimeout(this.reconnectTimer);
           this.reconnectTimer = null;
+        }
+        if (this.tickTimer) {
+          clearInterval(this.tickTimer);
+          this.tickTimer = null;
         }
         this.source?.close();
         this.source = null;

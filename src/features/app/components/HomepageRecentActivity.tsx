@@ -29,22 +29,22 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
         x-ref="strip"
         class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <ul class="mx-auto flex w-max max-w-full items-stretch gap-3 px-1">
+        <ul class="mx-auto flex w-max items-start gap-3 px-1">
           <template x-for="item in items" x-bind:key="item.id">
-            <li class="list-none">
+            <li class="list-none shrink-0">
               <a
                 x-bind:href="item.targetUrl"
-                x-bind:class="item.isNew ? 'flex max-w-xs items-center gap-3 rounded-radius border border-accent bg-surface px-3 py-2 shadow-sm ring-2 ring-accent/40 transition hover:bg-surface-alt/60' : 'flex max-w-xs items-center gap-3 rounded-radius border border-outline bg-surface px-3 py-2 shadow-sm transition hover:bg-surface-alt/60'"
+                class="flex flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
               >
-                <img
-                  x-bind:src="item.imageUrl"
-                  alt=""
-                  class="size-12 shrink-0 rounded object-cover"
-                  loading="lazy"
-                  width="48"
-                  height="48"
-                />
-                <p class="min-w-0 text-sm text-on-surface">
+                <div class="flex h-28 w-28 items-center justify-center">
+                  <img
+                    x-bind:src="item.imageUrl"
+                    alt=""
+                    class="max-h-full max-w-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
+                <p class="w-28 min-w-0 text-xs leading-snug text-on-surface sm:text-sm">
                   <strong
                     class="font-medium text-on-surface-strong"
                     x-text="item.targetName"
@@ -57,6 +57,11 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
                   </template>
                   <span x-text="trailingText(item.type)"></span>
                 </p>
+                <time
+                  x-bind:datetime="item.createdAt"
+                  class="text-[11px] text-on-surface-weak"
+                  x-text="timeAgo(item.createdAt)"
+                ></time>
               </a>
             </li>
           </template>

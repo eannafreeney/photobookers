@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatRecentActivityAge,
   liveActivityEventToStripItem,
   mergeRecentActivityItems,
   recentActivityTrailingText,
@@ -95,6 +96,22 @@ describe("shouldShowLiveActivityEvent", () => {
         targetUrl: "/books/example",
       }),
     ).toBe(false);
+  });
+});
+
+describe("formatRecentActivityAge", () => {
+  const now = new Date("2026-08-20T12:00:30.000Z").getTime();
+
+  it("formats seconds and minutes", () => {
+    expect(formatRecentActivityAge("2026-08-20T12:00:00.000Z", now)).toBe(
+      "30 seconds ago",
+    );
+    expect(formatRecentActivityAge("2026-08-20T11:59:00.000Z", now)).toBe(
+      "1 minute ago",
+    );
+    expect(formatRecentActivityAge("2026-08-20T11:57:30.000Z", now)).toBe(
+      "3 minutes ago",
+    );
   });
 });
 
