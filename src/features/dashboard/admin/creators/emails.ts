@@ -2,7 +2,10 @@ import { Creator } from "../../../../db/schema";
 
 const siteUrl = () => process.env.SITE_URL ?? "https://photobookers.com";
 
-const claimBenefitsBlock = (profileUrl: string, claimLink: string) => `
+export const buildUnverifiedCreatorBenefitsHtml = (
+  profileUrl: string,
+  claimLink: string,
+) => `
       <p>Your profile is already live on Photobookers with a selection of your books — collectors can find you through search, tags, fairs, and our editorial features (Book of the Day, Artist and Publisher of the Week, interviews, newsletter, and magazine).</p>
       <p>When you claim your profile, you unlock:</p>
       <ul>
@@ -39,7 +42,7 @@ export const generateWelcomeEmail = (creator: Creator, claimLink: string) => {
         I have long admired what you are doing, and I have already put together a profile
         for you with a small selection of your books.
       </p>
-      ${claimBenefitsBlock(profileUrl, claimLink)}
+      ${buildUnverifiedCreatorBenefitsHtml(profileUrl, claimLink)}
       <p>
         All the best,<br />
         Eanna
@@ -67,7 +70,7 @@ export const generateWelcomeEmailForCreator = (
       <p>
         I have already put together a profile for you with a small selection of your books.
       </p>
-      ${claimBenefitsBlock(profileUrl, claimLink)}
+      ${buildUnverifiedCreatorBenefitsHtml(profileUrl, claimLink)}
       <p>
         All the best,<br />
         Eanna

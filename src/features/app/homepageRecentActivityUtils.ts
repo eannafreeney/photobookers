@@ -115,20 +115,40 @@ export function liveActivityEventToStripItem(event: {
 export type HomepageRecentActivityBootstrap = {
   items: SerializedRecentActivityItem[];
   currentUserId?: string | null;
+  hasMore?: boolean;
+  nextOffset?: number;
+  pageSize?: number;
 };
 
 export function parseHomepageRecentActivityConfig(
   raw: string | null | undefined,
 ): HomepageRecentActivityBootstrap {
-  if (!raw) return { items: [], currentUserId: null };
+  if (!raw) {
+    return {
+      items: [],
+      currentUserId: null,
+      hasMore: false,
+      nextOffset: 0,
+      pageSize: 10,
+    };
+  }
   try {
     const parsed = JSON.parse(raw) as HomepageRecentActivityBootstrap;
     return {
       items: Array.isArray(parsed.items) ? parsed.items : [],
       currentUserId: parsed.currentUserId ?? null,
+      hasMore: parsed.hasMore ?? false,
+      nextOffset: parsed.nextOffset ?? parsed.items?.length ?? 0,
+      pageSize: parsed.pageSize ?? 10,
     };
   } catch {
-    return { items: [], currentUserId: null };
+    return {
+      items: [],
+      currentUserId: null,
+      hasMore: false,
+      nextOffset: 0,
+      pageSize: 10,
+    };
   }
 }
 

@@ -29,6 +29,9 @@ describe("parseHomepageRecentActivityConfig", () => {
         },
       ],
       currentUserId: "user-1",
+      hasMore: false,
+      nextOffset: 1,
+      pageSize: 10,
     });
   });
 
@@ -36,6 +39,9 @@ describe("parseHomepageRecentActivityConfig", () => {
     expect(parseHomepageRecentActivityConfig("{bad")).toEqual({
       items: [],
       currentUserId: null,
+      hasMore: false,
+      nextOffset: 0,
+      pageSize: 10,
     });
   });
 });

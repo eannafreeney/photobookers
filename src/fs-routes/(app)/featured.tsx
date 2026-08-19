@@ -14,7 +14,7 @@ import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
 import { heroLcpImageSources } from "../../lib/imageUrl";
 import PageBleed from "../../components/layouts/PageBleedRight";
 import { getHomepageActivityStats } from "@/features/app/homepageActivity";
-import { getRecentPublicActivity } from "../../features/app/homepageRecentActivity";
+import { getRecentPublicActivityPage } from "../../features/app/homepageRecentActivity";
 import HomepageActivityPulse from "@/features/app/components/HomepageActivityPulse";
 import HomepageRecentActivity from "@/features/app/components/HomepageRecentActivity";
 import { AuthUser } from "../../../types";
@@ -135,9 +135,17 @@ const Pulse = async () => {
 };
 
 const RecentActivity = async ({ user }: { user: AuthUser | null }) => {
-  const [error, items] = await getRecentPublicActivity();
+  const [error, page] = await getRecentPublicActivityPage();
 
-  if (error || !items?.length) return <></>;
+  if (error || !page?.items.length) return <></>;
 
-  return <HomepageRecentActivity items={items} currentUserId={user?.id} />;
+  return (
+    <HomepageRecentActivity
+      items={page.items}
+      currentUserId={user?.id}
+      hasMore={page.hasMore}
+      nextOffset={page.nextOffset}
+      pageSize={page.pageSize}
+    />
+  );
 };

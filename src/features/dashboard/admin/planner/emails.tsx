@@ -1,4 +1,4 @@
-import { CreatorInterviewStatus } from "../../../../db/schema";
+import { CreatorInterviewStatus, type CreatorStatus } from "../../../../db/schema";
 import { toWeekStart, toWeekString } from "../../../../lib/utils";
 import {
   aotwUrl,
@@ -6,6 +6,8 @@ import {
   potwUrl,
   thisWeekPath,
 } from "../../../app/spotlightUrls";
+import { buildUnverifiedCreatorBenefitsHtml } from "../creators/emails";
+import { stubClaimStartUrl } from "../../../stub-outreach/urls";
 import {
   buildBotdShareKitEmailHtml,
   buildCreatorShareKitEmailHtml,
@@ -15,8 +17,29 @@ import { formatBotdDateLong, formatWeekRange } from "./utils";
 import type { InstagramPrepGap } from "./social-media/instagramUtils";
 import type { SpotlightContentItem } from "./spotlightBlurb";
 
+const siteUrl = () => process.env.SITE_URL ?? "https://photobookers.com";
+
+type CreatorForSpotlightEmail = {
+  id: string;
+  slug: string;
+  status: CreatorStatus;
+};
+
+function unverifiedCreatorBenefitsSection(
+  creator: CreatorForSpotlightEmail,
+): string {
+  if (creator.status === "verified") return "";
+
+  const profileUrl = `${siteUrl()}/creators/${creator.slug}`;
+  const claimLink = stubClaimStartUrl(creator.id);
+  return buildUnverifiedCreatorBenefitsHtml(profileUrl, claimLink);
+}
+
 type SpotlightEmailParams = {
-  creator: { displayName: string; slug: string; ownerUserId: string | null };
+  creator: CreatorForSpotlightEmail & {
+    displayName: string;
+    ownerUserId: string | null;
+  };
   weekStart: Date;
   interviewLink: string | null;
   interviewStatus: CreatorInterviewStatus | null;
@@ -33,25 +56,6 @@ function interviewSection(params: SpotlightEmailParams): string {
     `;
   }
   return "";
-}
-
-function memberSection(creator: {
-  slug: string;
-  ownerUserId: string | null;
-}): string {
-  if (creator.ownerUserId) {
-    return "";
-  }
-
-  return `
-      <p>We would love to have you on board: <a href="${process.env.SITE_URL ?? "https://photobookers.com"}/dashboard/creators/${creator.slug}">Claim your profile</a>.</p>
-      <p>Photobookers is the community for photobook collectors, artists, and publishers:</p>
-      <ul>
-        <li>Reach a global audience of photobook collectors, curators, and enthusiasts</li>
-        <li>Increase visibility for your book and your wider body of work</li>
-        <li>Build long-term discoverability through a permanent creator profile</li>
-      </ul>
-      `;
 }
 
 export type BotdNotificationAccountCredentials =
@@ -86,10 +90,12 @@ function buildBotdAccountCredentialsHtml(
 
 export const generateBOTDNotificationEmail = (
   creator: {
+    id: string;
     displayName: string;
     email: string | null;
     slug: string;
     ownerUserId: string | null;
+    status: CreatorStatus;
   },
   book: { id: string; title: string; slug: string },
   date: Date,
@@ -100,12 +106,13 @@ export const generateBOTDNotificationEmail = (
   const accountBlock = accountCredentials
     ? buildBotdAccountCredentialsHtml(accountCredentials)
     : "";
-  const claimBlock =
-    creator.ownerUserId || accountCredentials ? "" : memberSection(creator);
+  const verificationBlock = unverifiedCreatorBenefitsSection(creator);
   const profilePrompt =
     creator.ownerUserId || accountCredentials
       ? `<p>Now is a good time to make sure your bio, cover image, and links are up to date before the feature goes live.</p>`
-      : `<p>We would love you to <strong>claim your profile</strong> before the feature goes live so you can update your bio, cover image, and links.</p>`;
+      : verificationBlock
+        ? ""
+        : `<p>We would love you to <strong>claim your profile</strong> before the feature goes live so you can update your bio, cover image, and links.</p>`;
 
   return `
   <p>Hi ${creator.displayName},</p>
@@ -114,18 +121,20 @@ export const generateBOTDNotificationEmail = (
   <p>We will share your feature on our Instagram on the day to help more people discover your work.</p>
   ${accountBlock}
   ${profilePrompt}
-  ${claimBlock}
+  ${verificationBlock}
   <p>Thanks for being part of Photobookers — we're excited to spotlight your work.</p>
   <p>Best regards,<br/>Eanna</p>
 `;
 };
 
 export const buildCreatorOfTheWeekNotificationEmail = (params: {
+  id: string;
   displayName: string;
   email: string | null;
   slug: string;
   type: "artist" | "publisher";
   ownerUserId: string | null;
+  status: CreatorStatus;
   weekStart: Date;
   interviewLink: string | null;
   interviewStatus: CreatorInterviewStatus | null;
@@ -134,7 +143,7 @@ export const buildCreatorOfTheWeekNotificationEmail = (params: {
   <p>Hi ${params.displayName},</p>
   <p>Great news - you have been selected as ${params.type === "artist" ? "Artist of the Week" : "Publisher of the Week"} on Photobookers for the week starting ${toWeekString(params.weekStart)}.</p>
   ${interviewSection({ creator: params, weekStart: params.weekStart, interviewLink: params.interviewLink, interviewStatus: params.interviewStatus })}
-  ${memberSection(params)}
+  ${unverifiedCreatorBenefitsSection(params)}
   <p>We will share your feature on our Instagram to help more people discover your work.</p>
   <p>Thanks for being part of Photobookers - we're excited to spotlight your work.</p>
   <p>Best regards,<br/>Eanna</p>

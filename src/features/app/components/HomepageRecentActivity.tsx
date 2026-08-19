@@ -9,6 +9,9 @@ import {
 type Props = {
   items: RecentActivityItem[];
   currentUserId?: string | null;
+  hasMore?: boolean;
+  nextOffset?: number;
+  pageSize?: number;
 };
 
 const RecentActivityCard = ({
@@ -47,13 +50,22 @@ const RecentActivityCard = ({
   </li>
 );
 
-const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
+const HomepageRecentActivity = ({
+  items,
+  currentUserId,
+  hasMore = false,
+  nextOffset,
+  pageSize = 10,
+}: Props) => {
   if (items.length === 0) return null;
 
   const serialized = serializeRecentActivityItems(items);
   const bootstrap = JSON.stringify({
     items: serialized,
     currentUserId: currentUserId ?? null,
+    hasMore,
+    nextOffset: nextOffset ?? serialized.length,
+    pageSize,
   });
   const now = Date.now();
 
@@ -70,6 +82,7 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
       <p class="kicker text-accent mb-3 text-center">Live on Photobookers</p>
       <div
         x-ref="strip"
+        x-on:scroll="onStripScroll($event)"
         class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <ul class="mx-auto flex w-max items-start gap-3 px-1">
@@ -84,7 +97,7 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
             <li class="list-none shrink-0">
               <a
                 x-bind:href="item.targetUrl"
-                class="flex flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
+                class="flex flex-col gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
               >
                 <div class="flex h-36 w-36 items-center justify-center">
                   <img
@@ -115,6 +128,13 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
               </a>
             </li>
           </template>
+          <li
+            x-show="loadingMore"
+            x-cloak
+            class="list-none flex h-36 w-16 shrink-0 items-center justify-center text-xs text-on-surface-weak"
+          >
+            Loading…
+          </li>
         </ul>
       </div>
     </section>

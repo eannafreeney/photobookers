@@ -21,6 +21,7 @@ import { getUser } from "../../../../utils";
 import { renderPlannerEmailSuccess } from "./renderPlannerEmailSuccess";
 import type { EmailStatusBadgeProps } from "./components/EmailStatusBadge";
 import { aotwPath } from "../../../app/spotlightUrls";
+import type { CreatorStatus } from "../../../../db/schema";
 
 type RequireCreatorEmailParams = {
   creatorId: string;
@@ -48,7 +49,12 @@ export type CreatorForEmail = {
   type: "artist" | "publisher";
   slug: string;
   ownerUserId: string | null;
+  status: CreatorStatus;
 };
+
+const normalizeCreatorStatus = (
+  status: CreatorStatus | null | undefined,
+): CreatorStatus => status ?? "stub";
 
 const toCreatorForEmail = (creator: {
   id: string;
@@ -57,6 +63,7 @@ const toCreatorForEmail = (creator: {
   type: "artist" | "publisher";
   slug: string;
   ownerUserId: string | null;
+  status: CreatorStatus | null;
 }): CreatorForEmail | null => {
   if (!creator.email) return null;
   return {
@@ -66,6 +73,7 @@ const toCreatorForEmail = (creator: {
     type: creator.type,
     slug: creator.slug,
     ownerUserId: creator.ownerUserId,
+    status: normalizeCreatorStatus(creator.status),
   };
 };
 

@@ -7,6 +7,7 @@ import {
 } from "../../../constants/queries";
 import { db } from "../../../db/client";
 import { bookOfTheDay } from "../../../db/schema";
+import type { CreatorStatus } from "../../../db/schema";
 import { sendEmail } from "../../../lib/sendEmail";
 import { err, ok, type Result } from "../../../lib/result";
 import { toUtcStartOfDay } from "../../../lib/utils";
@@ -35,6 +36,7 @@ export type BotdAdvanceNotificationCreator = {
   slug: string;
   email: string | null;
   ownerUserId: string | null;
+  status: CreatorStatus | null;
 };
 
 export async function prepareBotdAdvanceNotificationContent(params: {
@@ -82,10 +84,12 @@ export async function prepareBotdAdvanceNotificationContent(params: {
 
   const html = generateBOTDNotificationEmail(
     {
+      id: params.creator.id,
       displayName: params.creator.displayName,
       email: params.creator.email,
       slug: params.creator.slug,
       ownerUserId,
+      status: params.creator.status ?? "stub",
     },
     params.book,
     params.date,

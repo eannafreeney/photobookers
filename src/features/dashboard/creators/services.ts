@@ -96,6 +96,7 @@ export const getCreatorEmailById = async (creatorId: string) => {
         type: true,
         ownerUserId: true,
         slug: true,
+        status: true,
       },
     });
     if (!creator) return err({ reason: "Creator not found" });

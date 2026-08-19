@@ -28,7 +28,9 @@ export {
 const CACHE_TTL_MS = 1000 * 60 * 3;
 const RECENT_ACTIVITY_DAYS = 14;
 const FETCH_PER_SOURCE = 12;
-const DEFAULT_LIMIT = 10;
+export const RECENT_ACTIVITY_PAGE_SIZE = 10;
+/** Max items merged from all sources; bounds scroll pagination depth. */
+const MAX_MERGED_ITEMS = FETCH_PER_SOURCE * 4;
 
 const cache = new LRUCache<string, RecentActivityItem[]>({
   max: 1,
@@ -205,10 +207,17 @@ async function fetchRecentFollowActivity(
     }));
 }
 
-export async function getRecentPublicActivity(
-  limit = DEFAULT_LIMIT,
-): Promise<Result<RecentActivityItem[], { reason: string }>> {
-  const cacheKey = `default-${limit}`;
+export type RecentPublicActivityPage = {
+  items: RecentActivityItem[];
+  hasMore: boolean;
+  nextOffset: number;
+  pageSize: number;
+};
+
+async function getMergedRecentActivity(): Promise<
+  Result<RecentActivityItem[], { reason: string }>
+> {
+  const cacheKey = "merged-all";
   const cached = cache.get(cacheKey);
   if (cached) return ok(cached);
 
@@ -229,7 +238,7 @@ export async function getRecentPublicActivity(
         ...commentsRows,
         ...followsRows,
       ],
-      limit,
+      MAX_MERGED_ITEMS,
       resolveStoragePublicImageUrl,
     );
 
@@ -239,4 +248,30 @@ export async function getRecentPublicActivity(
     console.error("Failed to get recent public activity", error);
     return err({ reason: "Failed to get recent public activity", error });
   }
+}
+
+export async function getRecentPublicActivityPage(
+  offset = 0,
+  limit = RECENT_ACTIVITY_PAGE_SIZE,
+): Promise<Result<RecentPublicActivityPage, { reason: string }>> {
+  const [error, all] = await getMergedRecentActivity();
+  if (error || !all) return error ? err(error) : err({ reason: "No activity" });
+
+  const items = all.slice(offset, offset + limit);
+  const nextOffset = offset + items.length;
+
+  return ok({
+    items,
+    hasMore: nextOffset < all.length,
+    nextOffset,
+    pageSize: limit,
+  });
+}
+
+export async function getRecentPublicActivity(
+  limit = RECENT_ACTIVITY_PAGE_SIZE,
+): Promise<Result<RecentActivityItem[], { reason: string }>> {
+  const [error, page] = await getRecentPublicActivityPage(0, limit);
+  if (error || !page) return error ? err(error) : err({ reason: "No activity" });
+  return ok(page.items);
 }

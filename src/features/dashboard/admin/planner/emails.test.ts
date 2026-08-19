@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildBotdFeatureDayEmail,
+  buildCreatorOfTheWeekNotificationEmail,
   buildFeatureDayEmail,
   buildPlannerWeekContentPreviewEmail,
   generateBOTDNotificationEmail,
@@ -10,10 +11,12 @@ describe("generateBOTDNotificationEmail", () => {
   it("includes the BOTD date, spotlight url, and one-week notice", () => {
     const html = generateBOTDNotificationEmail(
       {
+        id: "creator-1",
         displayName: "Jane Doe",
         email: "jane@example.com",
         slug: "jane-doe",
         ownerUserId: "user-1",
+        status: "verified",
       },
       { id: "book-1", title: "Winter Light", slug: "winter-light" },
       new Date(Date.UTC(2026, 5, 1)),
@@ -27,29 +30,34 @@ describe("generateBOTDNotificationEmail", () => {
     expect(html).not.toContain("Claim your profile");
   });
 
-  it("prompts unclaimed creators to claim their profile", () => {
+  it("prompts unverified creators to claim their profile with benefits", () => {
     const html = generateBOTDNotificationEmail(
       {
+        id: "creator-1",
         displayName: "Jane Doe",
         email: "jane@example.com",
         slug: "jane-doe",
         ownerUserId: null,
+        status: "stub",
       },
       { id: "book-1", title: "Winter Light", slug: "winter-light" },
       new Date(Date.UTC(2026, 5, 1)),
     );
 
-    expect(html).toContain("claim your profile");
-    expect(html).toContain("/dashboard/creators/jane-doe");
+    expect(html).toContain("When you claim your profile, you unlock:");
+    expect(html).toContain("Claim your profile");
+    expect(html).toContain("/claims/creator-1/start");
   });
 
-  it("includes login credentials when a new account was provisioned", () => {
+  it("includes login credentials and claim benefits when a new account was provisioned", () => {
     const html = generateBOTDNotificationEmail(
       {
+        id: "creator-1",
         displayName: "Jane Doe",
         email: "jane@example.com",
         slug: "jane-doe",
         ownerUserId: "user-1",
+        status: "stub",
       },
       { id: "book-1", title: "Winter Light", slug: "winter-light" },
       new Date(Date.UTC(2026, 5, 1)),
@@ -65,16 +73,18 @@ describe("generateBOTDNotificationEmail", () => {
     expect(html).toContain("We created a Photobookers account for you");
     expect(html).toContain("temp-pass-123");
     expect(html).toContain("Log in to your profile");
-    expect(html).not.toContain("claim your profile");
+    expect(html).toContain("When you claim your profile, you unlock:");
   });
 
-  it("includes a login link when an existing account was linked", () => {
+  it("includes a login link and claim benefits when an existing account was linked", () => {
     const html = generateBOTDNotificationEmail(
       {
+        id: "creator-1",
         displayName: "Jane Doe",
         email: "jane@example.com",
         slug: "jane-doe",
         ownerUserId: "user-1",
+        status: "stub",
       },
       { id: "book-1", title: "Winter Light", slug: "winter-light" },
       new Date(Date.UTC(2026, 5, 1)),
@@ -87,7 +97,46 @@ describe("generateBOTDNotificationEmail", () => {
 
     expect(html).toContain("linked your existing Photobookers account");
     expect(html).toContain("Log in");
-    expect(html).not.toContain("claim your profile");
+    expect(html).toContain("When you claim your profile, you unlock:");
+  });
+});
+
+describe("buildCreatorOfTheWeekNotificationEmail", () => {
+  it("includes claim benefits for unverified creators", () => {
+    const html = buildCreatorOfTheWeekNotificationEmail({
+      id: "creator-1",
+      displayName: "Jane Doe",
+      email: "jane@example.com",
+      slug: "jane-doe",
+      type: "artist",
+      ownerUserId: null,
+      status: "stub",
+      weekStart: new Date(Date.UTC(2026, 5, 2)),
+      interviewLink: null,
+      interviewStatus: null,
+    });
+
+    expect(html).toContain("Artist of the Week");
+    expect(html).toContain("When you claim your profile, you unlock:");
+    expect(html).toContain("/claims/creator-1/start");
+  });
+
+  it("omits claim benefits for verified creators", () => {
+    const html = buildCreatorOfTheWeekNotificationEmail({
+      id: "creator-1",
+      displayName: "Jane Doe",
+      email: "jane@example.com",
+      slug: "jane-doe",
+      type: "publisher",
+      ownerUserId: "user-1",
+      status: "verified",
+      weekStart: new Date(Date.UTC(2026, 5, 2)),
+      interviewLink: null,
+      interviewStatus: null,
+    });
+
+    expect(html).toContain("Publisher of the Week");
+    expect(html).not.toContain("Claim your profile");
   });
 });
 
