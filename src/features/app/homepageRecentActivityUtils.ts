@@ -58,3 +58,56 @@ export function recentActivityTrailingText(type: RecentActivityType): string {
       return " was commented on";
   }
 }
+
+export type SerializedRecentActivityItem = Omit<
+  RecentActivityItem,
+  "createdAt"
+> & {
+  createdAt: string;
+};
+
+export function serializeRecentActivityItems(
+  items: RecentActivityItem[],
+): SerializedRecentActivityItem[] {
+  return items.map((item) => ({
+    ...item,
+    createdAt: item.createdAt.toISOString(),
+  }));
+}
+
+export function shouldShowLiveActivityEvent(
+  event: {
+    actorId?: string;
+    targetImageUrl?: string | null;
+    targetUrl?: string;
+  },
+  currentUserId?: string | null,
+): boolean {
+  if (currentUserId && event.actorId === currentUserId) return false;
+  if (!event.targetImageUrl?.trim()) return false;
+  if (!event.targetUrl?.trim()) return false;
+  return true;
+}
+
+export function liveActivityEventToStripItem(event: {
+  id: string;
+  type: RecentActivityType;
+  targetName: string;
+  targetUrl?: string;
+  targetImageUrl?: string | null;
+  targetCreatorName?: string;
+  createdAt: string;
+}): SerializedRecentActivityItem | null {
+  const imageUrl = resolveActivityImageUrl(event.targetImageUrl);
+  if (!imageUrl || !event.targetUrl?.trim()) return null;
+
+  return {
+    id: event.id,
+    type: event.type,
+    targetName: event.targetName,
+    targetUrl: event.targetUrl,
+    imageUrl,
+    targetCreatorName: event.targetCreatorName,
+    createdAt: event.createdAt,
+  };
+}

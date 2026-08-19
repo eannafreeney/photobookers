@@ -17,6 +17,7 @@ import { getHomepageActivityStats } from "@/features/app/homepageActivity";
 import { getRecentPublicActivity } from "@/features/app/homepageRecentActivity";
 import HomepageActivityPulse from "@/features/app/components/HomepageActivityPulse";
 import HomepageRecentActivity from "@/features/app/components/HomepageRecentActivity";
+import { AuthUser } from "../../../types";
 
 export const GET = createRoute(async (c: Context) => {
   const [user, heroItems, flash] = await Promise.all([
@@ -46,7 +47,7 @@ export const GET = createRoute(async (c: Context) => {
         <Pulse />
         <HeroCarouselFeatureCard heroItems={heroItems} />
         <Slogan />
-        <RecentActivity />
+        <RecentActivity user={user} />
         {!user && (
           <>
             <ScrollReveal>
@@ -130,10 +131,12 @@ const Pulse = async () => {
   );
 };
 
-const RecentActivity = async () => {
+const RecentActivity = async ({ user }: { user: AuthUser | null }) => {
   const [error, items] = await getRecentPublicActivity();
 
-  if (error || !items?.length) return <></>;
+  if (error) return <></>;
 
-  return <HomepageRecentActivity items={items} />;
+  return (
+    <HomepageRecentActivity items={items ?? []} currentUserId={user?.id} />
+  );
 };

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  liveActivityEventToStripItem,
   mergeRecentActivityItems,
   recentActivityTrailingText,
+  shouldShowLiveActivityEvent,
   type RecentActivityItem,
 } from "./homepageRecentActivityUtils";
 
@@ -62,5 +64,58 @@ describe("recentActivityTrailingText", () => {
     expect(recentActivityTrailingText("creator_followed")).toBe(
       " was followed",
     );
+  });
+});
+
+describe("shouldShowLiveActivityEvent", () => {
+  it("hides the current user's own actions and rows without images", () => {
+    expect(
+      shouldShowLiveActivityEvent(
+        {
+          actorId: "user-1",
+          targetImageUrl: "https://cdn.example.com/cover.jpg",
+          targetUrl: "/books/example",
+        },
+        "user-1",
+      ),
+    ).toBe(false);
+    expect(
+      shouldShowLiveActivityEvent(
+        {
+          actorId: "user-2",
+          targetImageUrl: "https://cdn.example.com/cover.jpg",
+          targetUrl: "/books/example",
+        },
+        "user-1",
+      ),
+    ).toBe(true);
+    expect(
+      shouldShowLiveActivityEvent({
+        targetImageUrl: " ",
+        targetUrl: "/books/example",
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("liveActivityEventToStripItem", () => {
+  it("maps SSE payloads onto strip items", () => {
+    expect(
+      liveActivityEventToStripItem({
+        id: "evt-1",
+        type: "book_favourited",
+        targetName: "Example Book",
+        targetUrl: "/books/example",
+        targetImageUrl: "https://cdn.example.com/cover.jpg",
+        createdAt: "2026-08-20T12:00:00.000Z",
+      }),
+    ).toEqual({
+      id: "evt-1",
+      type: "book_favourited",
+      targetName: "Example Book",
+      targetUrl: "/books/example",
+      imageUrl: "https://cdn.example.com/cover.jpg",
+      createdAt: "2026-08-20T12:00:00.000Z",
+    });
   });
 });

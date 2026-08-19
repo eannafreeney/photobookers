@@ -57,20 +57,16 @@ function isVisibleActivity(
 
 export function registerActivityFeed() {
   Alpine.data("activityFeed", () => ({
-    items: [] as ActivityItem[],
     queue: [] as ActivityItem[],
     activeItem: null as ActivityItem | null,
     pendingCount: 0,
     activeTimer: null as ReturnType<typeof setTimeout> | null,
-    desktopTimers: {} as Record<string, ReturnType<typeof setTimeout>>,
 
     source: null as EventSource | null,
     shouldReconnect: false,
-    reconnectTimer: null as ReturnType<typeof setTimeout> | null,
+    reconnectTimer: null as number | null,
 
-    maxDesktopItems: 8,
-    desktopDurationMs: 6000,
-    mobileDurationMs: 4000,
+    toastDurationMs: 6000,
 
     connect() {
       if (this.source) return;
@@ -93,7 +89,7 @@ export function registerActivityFeed() {
         this.closeSource();
         if (!this.shouldReconnect) return;
         if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
-        this.reconnectTimer = setTimeout(() => this.connect(), 5000);
+        this.reconnectTimer = window.setTimeout(() => this.connect(), 5000);
       });
     },
 
@@ -105,25 +101,12 @@ export function registerActivityFeed() {
         ...toMessageParts(event),
       };
 
-      this.items.unshift(item);
-      if (this.items.length > this.maxDesktopItems) {
-        this.items = this.items.slice(0, this.maxDesktopItems);
-      }
-
-      if (this.desktopTimers[item.id]) {
-        clearTimeout(this.desktopTimers[item.id]);
-      }
-      this.desktopTimers[item.id] = setTimeout(() => {
-        this.items = this.items.filter((entry) => entry.id !== item.id);
-        delete this.desktopTimers[item.id];
-      }, this.desktopDurationMs);
-
       this.queue.push(item);
       this.pendingCount = this.queue.length;
-      this.showNextMobile();
+      this.showNext();
     },
 
-    showNextMobile() {
+    showNext() {
       if (this.activeItem || this.queue.length === 0) return;
       this.activeItem = this.queue.shift() ?? null;
       this.pendingCount = this.queue.length;
@@ -131,15 +114,15 @@ export function registerActivityFeed() {
       this.activeTimer = setTimeout(() => {
         this.activeItem = null;
         this.pendingCount = this.queue.length;
-        this.showNextMobile();
-      }, this.mobileDurationMs);
+        this.showNext();
+      }, this.toastDurationMs);
     },
 
-    dismissMobile() {
+    dismissActive() {
       if (this.activeTimer) clearTimeout(this.activeTimer);
       this.activeItem = null;
       this.pendingCount = this.queue.length;
-      this.showNextMobile();
+      this.showNext();
     },
 
     closeSource() {

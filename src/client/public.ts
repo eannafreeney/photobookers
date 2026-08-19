@@ -19,6 +19,7 @@ import { registerCarouselForm } from "../features/dashboard/images/client/carous
 import { registerCountUp } from "../features/app/client/countUp";
 import { registerAlert } from "./components/alert";
 import { registerActivityFeed } from "./components/activityFeed";
+import { registerHomepageRecentActivity } from "./components/homepageRecentActivityFeed";
 import { registerOptionsComboBox } from "./components/optionsComboBox";
 import { registerStoryUploadForm } from "../features/story-upload/client/storyUploadForm";
 import { registerInterviewForm } from "../features/interviews/client/interviewForm";
@@ -44,6 +45,7 @@ registerCarouselForm();
 registerCountUp();
 registerAlert();
 registerActivityFeed();
+registerHomepageRecentActivity();
 registerOptionsComboBox();
 registerStoryUploadForm();
 registerInterviewForm();
