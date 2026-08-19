@@ -57,7 +57,9 @@ export const GET = createRoute(async (c: Context) => {
             </ScrollReveal>
           </>
         )}
-        <RecentActivity user={user} />
+        <ScrollReveal>
+          <RecentActivity user={user} />
+        </ScrollReveal>
         <ScrollReveal>
           <NewsletterCard />
         </ScrollReveal>
@@ -137,7 +139,5 @@ const RecentActivity = async ({ user }: { user: AuthUser | null }) => {
 
   if (error || !items?.length) return <></>;
 
-  return (
-    <HomepageRecentActivity items={items} currentUserId={user?.id} />
-  );
+  return <HomepageRecentActivity items={items} currentUserId={user?.id} />;
 };

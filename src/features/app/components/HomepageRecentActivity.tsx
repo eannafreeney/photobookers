@@ -33,7 +33,9 @@ const RecentActivityCard = ({
       </div>
       <div class="min-w-0 flex flex-1 flex-col justify-between">
         <p class="text-xs leading-snug text-on-surface sm:text-sm">
-          <strong class="font-medium text-on-surface-strong">{item.targetName}</strong>
+          <strong class="font-medium text-on-surface-strong">
+            {item.targetName}
+          </strong>
           {item.targetCreatorName ? (
             <span class="text-on-surface-weak">
               {" "}
@@ -42,7 +44,10 @@ const RecentActivityCard = ({
           ) : null}
           {recentActivityTrailingText(item.type)}
         </p>
-        <time datetime={item.createdAt} class="text-[11px] text-on-surface-weak">
+        <time
+          datetime={item.createdAt}
+          class="text-[11px] text-on-surface-weak"
+        >
           {timeLabel}
         </time>
       </div>
@@ -62,6 +67,7 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
 
   return (
     <section
+      class="py-4"
       aria-label="Recent community activity"
       data-recent-activity={bootstrap}
       {...{
