@@ -21,9 +21,9 @@ const RecentActivityCard = ({
   <li class="list-none shrink-0" data-recent-activity-ssr>
     <a
       href={item.targetUrl}
-      class="flex flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
+      class="flex flex-col gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
     >
-      <div class="flex h-28 w-28 items-center justify-center">
+      <div class="flex h-36 w-36 items-center justify-center">
         <img
           src={item.imageUrl}
           alt=""
@@ -31,7 +31,7 @@ const RecentActivityCard = ({
           loading="lazy"
         />
       </div>
-      <p class="w-28 min-w-0 text-xs leading-snug text-on-surface sm:text-sm">
+      <p class="w-36 min-w-0 text-xs leading-snug text-on-surface sm:text-sm">
         <strong class="font-medium text-on-surface-strong">
           {item.targetName}
         </strong>
@@ -86,7 +86,7 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
                 x-bind:href="item.targetUrl"
                 class="flex flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
               >
-                <div class="flex h-28 w-28 items-center justify-center">
+                <div class="flex h-36 w-36 items-center justify-center">
                   <img
                     x-bind:src="item.imageUrl"
                     alt=""
@@ -94,7 +94,7 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
                     loading="lazy"
                   />
                 </div>
-                <p class="w-28 min-w-0 text-xs leading-snug text-on-surface sm:text-sm">
+                <p class="w-36 min-w-0 text-xs leading-snug text-on-surface sm:text-sm">
                   <strong
                     class="font-medium text-on-surface-strong"
                     x-text="item.targetName"
