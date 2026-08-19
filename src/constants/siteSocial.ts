@@ -5,6 +5,11 @@ export const SITE_SOCIAL = {
   },
 } as const;
 
+export const SITE_SKOOL = {
+  href: "https://www.skool.com/publish-your-photobook-6781/about",
+  label: "Publish Your Photobook on Skool",
+} as const;
+
 export const SITE_APP = {
   ios: {
     href: "https://apps.apple.com/us/app/photobookers/id6771879476",

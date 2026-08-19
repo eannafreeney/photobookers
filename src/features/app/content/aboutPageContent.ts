@@ -1,6 +1,9 @@
+import { SITE_SKOOL } from "../../../constants/siteSocial";
+
 export type AboutCta = {
   label: string;
   href: string;
+  external?: boolean;
 };
 
 export type AboutAudienceSection = {
@@ -69,7 +72,14 @@ export const aboutAudienceSections: AboutAudienceSection[] = [
     closing:
       "You keep control: your shop, your links, your terms. We help the right people find you.",
     primaryCta: { label: "Create a creator account", href: "/auth/register-creator" },
-    secondaryCtas: [{ label: "Get in touch", href: "/contact" }],
+    secondaryCtas: [
+      {
+        label: "Working on a photobook?",
+        href: SITE_SKOOL.href,
+        external: true,
+      },
+      { label: "Get in touch", href: "/contact" },
+    ],
   },
   {
     id: "publishers",

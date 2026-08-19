@@ -1,7 +1,7 @@
 import SpotlightCard from "../../../components/app/SpotlightCard";
 import SectionTitle from "../../../components/app/SectionTitle";
 import Button from "../../../components/app/Button";
-import { SITE_APP } from "../../../constants/siteSocial";
+import { SITE_APP, SITE_SKOOL } from "../../../constants/siteSocial";
 import { formatCountry } from "../../../lib/utils";
 import { BookOfTheDayWithBook } from "../BOTDServices";
 import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
@@ -33,6 +33,7 @@ const cardClassName = "w-full max-w-none";
 const pageLinks = [
   { href: SITE_APP.ios.href, label: "Download the app", external: true },
   { href: "/newsletter", label: "Join the newsletter" },
+  { href: SITE_SKOOL.href, label: "Publish Your Photobook", external: true },
 ] as const;
 
 const LinksPage = ({

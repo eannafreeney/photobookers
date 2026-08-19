@@ -53,6 +53,8 @@ const AboutPageContent = () => (
           {section.secondaryCtas.map((cta) => (
             <a
               href={cta.href}
+              target={cta.external ? "_blank" : undefined}
+              rel={cta.external ? "noopener noreferrer" : undefined}
               class={`text-sm font-medium text-on-surface-strong ${textLinkClass}`}
             >
               {cta.label}

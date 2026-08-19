@@ -1,4 +1,4 @@
-import { SITE_APP, SITE_SOCIAL } from "../../constants/siteSocial";
+import { SITE_APP, SITE_SKOOL, SITE_SOCIAL } from "../../constants/siteSocial";
 
 const discoverLinks = () => [
   { href: "/books", label: "All Books" },
@@ -109,6 +109,11 @@ const Footer = () => (
         links={[
           { href: "/about", label: "About Us" },
           { href: "/newsletter", label: "Newsletter" },
+          {
+            href: SITE_SKOOL.href,
+            label: "Publish Your Photobook",
+            external: true,
+          },
           {
             href: SITE_APP.ios.href,
             label: "iOS App",

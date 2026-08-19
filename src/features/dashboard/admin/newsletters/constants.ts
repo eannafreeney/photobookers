@@ -1,4 +1,4 @@
-import { SITE_APP } from "../../../../constants/siteSocial";
+import { SITE_APP, SITE_SKOOL } from "../../../../constants/siteSocial";
 import { emailFontLogo, emailFontSans } from "./espHtml";
 
 export const appStoreUrl = SITE_APP.ios.href;
@@ -42,6 +42,7 @@ export function newsletterNavLinks() {
     { label: "Books", href: `${base}/books` },
     { label: "Book of the Day", href: `${base}/book-of-the-day` },
     { label: "This Week", href: `${base}/this-week` },
+    { label: "Publish Your Photobook", href: SITE_SKOOL.href },
   ] as const;
 }
 
