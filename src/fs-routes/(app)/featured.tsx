@@ -14,7 +14,7 @@ import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
 import { heroLcpImageSources } from "../../lib/imageUrl";
 import PageBleed from "../../components/layouts/PageBleedRight";
 import { getHomepageActivityStats } from "@/features/app/homepageActivity";
-import { getRecentPublicActivity } from "@/features/app/homepageRecentActivity";
+import { getRecentPublicActivity } from "../../features/app/homepageRecentActivity";
 import HomepageActivityPulse from "@/features/app/components/HomepageActivityPulse";
 import HomepageRecentActivity from "@/features/app/components/HomepageRecentActivity";
 import { AuthUser } from "../../../types";
@@ -47,26 +47,27 @@ export const GET = createRoute(async (c: Context) => {
         <Pulse />
         <HeroCarouselFeatureCard heroItems={heroItems} />
         <Slogan />
-        <RecentActivity user={user} />
+        <ScrollReveal>
+          <Intersector id="stats-fragment" endpoint="/fragments/stats" />
+        </ScrollReveal>
         {!user && (
           <>
-            <ScrollReveal>
-              <Intersector id="stats-fragment" endpoint="/fragments/stats" />
-            </ScrollReveal>
             <ScrollReveal>
               <SiteFeatures />
             </ScrollReveal>
           </>
         )}
+        <RecentActivity user={user} />
+        <ScrollReveal>
+          <NewsletterCard />
+        </ScrollReveal>
 
         <ScrollReveal>
           <PageBleed>
             <FeaturedBookGroups />
           </PageBleed>
         </ScrollReveal>
-        <ScrollReveal>
-          <NewsletterCard />
-        </ScrollReveal>
+
         <ScrollReveal>
           <PageBleed>
             <Intersector
