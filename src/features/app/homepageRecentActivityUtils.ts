@@ -112,6 +112,26 @@ export function liveActivityEventToStripItem(event: {
   };
 }
 
+export type HomepageRecentActivityBootstrap = {
+  items: SerializedRecentActivityItem[];
+  currentUserId?: string | null;
+};
+
+export function parseHomepageRecentActivityConfig(
+  raw: string | null | undefined,
+): HomepageRecentActivityBootstrap {
+  if (!raw) return { items: [], currentUserId: null };
+  try {
+    const parsed = JSON.parse(raw) as HomepageRecentActivityBootstrap;
+    return {
+      items: Array.isArray(parsed.items) ? parsed.items : [],
+      currentUserId: parsed.currentUserId ?? null,
+    };
+  } catch {
+    return { items: [], currentUserId: null };
+  }
+}
+
 export function formatRecentActivityAge(
   createdAt: string,
   nowMs: number = Date.now(),

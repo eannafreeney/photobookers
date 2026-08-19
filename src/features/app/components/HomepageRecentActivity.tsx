@@ -15,15 +15,19 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
   });
 
   const alpineAttrs = {
-    "x-data": `homepageRecentActivity(${bootstrap})`,
-    "x-init": "connect()",
+    "x-data": "homepageRecentActivity()",
+    "x-init": "init()",
     "x-on:beforeunload.window": "disconnect()",
     "x-show": "items.length > 0",
     "x-cloak": true,
   };
 
   return (
-    <section aria-label="Recent community activity" {...alpineAttrs}>
+    <section
+      aria-label="Recent community activity"
+      data-recent-activity={bootstrap}
+      {...alpineAttrs}
+    >
       <p class="kicker text-accent mb-3 text-center">Live on Photobookers</p>
       <div
         x-ref="strip"
