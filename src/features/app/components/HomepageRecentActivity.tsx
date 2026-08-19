@@ -21,9 +21,9 @@ const RecentActivityCard = ({
   <li class="list-none shrink-0" data-recent-activity-ssr>
     <a
       href={item.targetUrl}
-      class="flex flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
+      class="flex w-80 items-stretch gap-3 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
     >
-      <div class="flex h-28 w-28 items-center justify-center">
+      <div class="flex h-24 w-24 shrink-0 items-center justify-center">
         <img
           src={item.imageUrl}
           alt=""
@@ -31,19 +31,21 @@ const RecentActivityCard = ({
           loading="lazy"
         />
       </div>
-      <p class="w-28 min-w-0 text-xs leading-snug text-on-surface sm:text-sm">
-        <strong class="font-medium text-on-surface-strong">{item.targetName}</strong>
-        {item.targetCreatorName ? (
-          <span class="text-on-surface-weak">
-            {" "}
-            by {item.targetCreatorName}
-          </span>
-        ) : null}
-        {recentActivityTrailingText(item.type)}
-      </p>
-      <time datetime={item.createdAt} class="text-[11px] text-on-surface-weak">
-        {timeLabel}
-      </time>
+      <div class="min-w-0 flex flex-1 flex-col justify-between">
+        <p class="text-xs leading-snug text-on-surface sm:text-sm">
+          <strong class="font-medium text-on-surface-strong">{item.targetName}</strong>
+          {item.targetCreatorName ? (
+            <span class="text-on-surface-weak">
+              {" "}
+              by {item.targetCreatorName}
+            </span>
+          ) : null}
+          {recentActivityTrailingText(item.type)}
+        </p>
+        <time datetime={item.createdAt} class="text-[11px] text-on-surface-weak">
+          {timeLabel}
+        </time>
+      </div>
     </a>
   </li>
 );
@@ -84,9 +86,9 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
             <li class="list-none shrink-0">
               <a
                 x-bind:href="item.targetUrl"
-                class="flex flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
+                class="flex w-80 items-stretch gap-3 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60"
               >
-                <div class="flex h-28 w-28 items-center justify-center">
+                <div class="flex h-24 w-24 shrink-0 items-center justify-center">
                   <img
                     x-bind:src="item.imageUrl"
                     alt=""
@@ -94,24 +96,26 @@ const HomepageRecentActivity = ({ items, currentUserId }: Props) => {
                     loading="lazy"
                   />
                 </div>
-                <p class="w-28 min-w-0 text-xs leading-snug text-on-surface sm:text-sm">
-                  <strong
-                    class="font-medium text-on-surface-strong"
-                    x-text="item.targetName"
-                  ></strong>
-                  <template x-if="item.targetCreatorName">
-                    <span class="text-on-surface-weak">
-                      {" "}
-                      by <span x-text="item.targetCreatorName"></span>
-                    </span>
-                  </template>
-                  <span x-text="trailingText(item.type)"></span>
-                </p>
-                <time
-                  x-bind:datetime="item.createdAt"
-                  class="text-[11px] text-on-surface-weak"
-                  x-text="timeAgo(item.createdAt)"
-                ></time>
+                <div class="min-w-0 flex flex-1 flex-col justify-between">
+                  <p class="text-xs leading-snug text-on-surface sm:text-sm">
+                    <strong
+                      class="font-medium text-on-surface-strong"
+                      x-text="item.targetName"
+                    ></strong>
+                    <template x-if="item.targetCreatorName">
+                      <span class="text-on-surface-weak">
+                        {" "}
+                        by <span x-text="item.targetCreatorName"></span>
+                      </span>
+                    </template>
+                    <span x-text="trailingText(item.type)"></span>
+                  </p>
+                  <time
+                    x-bind:datetime="item.createdAt"
+                    class="text-[11px] text-on-surface-weak"
+                    x-text="timeAgo(item.createdAt)"
+                  ></time>
+                </div>
               </a>
             </li>
           </template>
