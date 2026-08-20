@@ -232,6 +232,7 @@ describe("canClaimCreator", () => {
 });
 
 describe("canPublishBook / canUnpublishBook", () => {
+  // Partial fixture + relations; same `unknown` bridge as baseEditBook
   const publishableBook = {
     ...baseBookFields,
     approvalStatus: "approved",
@@ -239,7 +240,7 @@ describe("canPublishBook / canUnpublishBook", () => {
     publicationStatus: "draft",
     artist: { status: "stub" },
     publisher: { status: "stub" },
-  } as Book;
+  } as unknown as Book;
 
   const contributorUser: AuthUser = {
     ...fanUser,
@@ -280,7 +281,7 @@ describe("canPublishBook / canUnpublishBook", () => {
       canPublishBook(contributorUser, {
         ...publishableBook,
         artist: { status: "verified" },
-      } as Book),
+      } as unknown as Book),
     ).toBe(false);
     expect(
       canPublishBook(
@@ -314,7 +315,7 @@ describe("canPublishBook / canUnpublishBook", () => {
         ...publishableBook,
         publicationStatus: "published",
         publisher: { status: "verified" },
-      } as Book),
+      } as unknown as Book),
     ).toBe(false);
   });
 });
