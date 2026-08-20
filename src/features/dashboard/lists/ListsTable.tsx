@@ -1,5 +1,6 @@
 import { BookList } from "../../../db/schema";
 import ListVisibilityToggle from "./ListVisibilityToggle";
+import ListShareLink from "./ListShareLink";
 import EditRowButton from "@/features/app/components/EditRowButton";
 import DeleteRowButton from "@/features/app/components/DeleteRowButton";
 
@@ -7,6 +8,7 @@ type ListWithCount = BookList & { bookCount: number };
 
 type Props = {
   lists: ListWithCount[];
+  ownerName: string;
   shelfSlug?: string | null;
   shelfPublic?: boolean;
   isMobile?: boolean;
@@ -23,6 +25,7 @@ const listPublicUrl = (
 
 const ListsTable = ({
   lists,
+  ownerName,
   shelfSlug,
   shelfPublic,
   isMobile = false,
@@ -58,6 +61,7 @@ const ListsTable = ({
         {lists.map((list) => (
           <ListCardMobile
             list={list}
+            ownerName={ownerName}
             publicUrl={listPublicUrl(list, shelfSlug, shelfPublic)}
           />
         ))}
@@ -78,7 +82,7 @@ const ListsTable = ({
             <th class="px-4 py-3 font-medium">Title</th>
             <th class="px-4 py-3 font-medium">Books</th>
             <th class="px-4 py-3 font-medium">Visibility</th>
-            <th class="px-4 py-3 font-medium">Public URL</th>
+            <th class="px-4 py-3 font-medium">Share</th>
             <th class="px-4 py-3 font-medium" />
           </tr>
         </thead>
@@ -103,14 +107,11 @@ const ListsTable = ({
                 </td>
                 <td class="px-4 py-3">
                   {publicUrl ? (
-                    <a
-                      href={publicUrl}
-                      class="text-accent underline underline-offset-2"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      View
-                    </a>
+                    <ListShareLink
+                      listTitle={list.title}
+                      ownerName={ownerName}
+                      publicUrl={publicUrl}
+                    />
                   ) : (
                     <span class="text-on-surface-weak">—</span>
                   )}
@@ -135,9 +136,11 @@ const ListsTable = ({
 
 const ListCardMobile = ({
   list,
+  ownerName,
   publicUrl,
 }: {
   list: ListWithCount;
+  ownerName: string;
   publicUrl: string | null;
 }) => (
   <li class="rounded-radius border border-outline bg-surface overflow-hidden">
@@ -157,17 +160,14 @@ const ListCardMobile = ({
         <dd>
           <ListVisibilityToggle list={list} />
         </dd>
-        <dt class="text-on-surface-weak">Public</dt>
+        <dt class="text-on-surface-weak">Share</dt>
         <dd>
           {publicUrl ? (
-            <a
-              href={publicUrl}
-              class="text-accent underline underline-offset-2"
-              target="_blank"
-              rel="noreferrer"
-            >
-              View
-            </a>
+            <ListShareLink
+              listTitle={list.title}
+              ownerName={ownerName}
+              publicUrl={publicUrl}
+            />
           ) : (
             <span class="text-on-surface-weak">—</span>
           )}

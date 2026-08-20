@@ -16,6 +16,7 @@ import ListsDashboardShell from "../../../features/dashboard/lists/ListsDashboar
 import ListForm from "../../../features/dashboard/lists/ListForm";
 import ListBooks from "@/features/dashboard/lists/ListBooks";
 import ListBookSearch from "../../../features/dashboard/lists/ListBookSearch";
+import ListShareLink from "../../../features/dashboard/lists/ListShareLink";
 import { showErrorAlert } from "../../../lib/alertHelpers";
 import Alert from "../../../components/app/Alert";
 import { routeParam } from "../../../lib/routeParam";
@@ -23,6 +24,7 @@ import Link from "../../../components/app/Link";
 import { getPendingClaim } from "../../../features/claims/services";
 import ListVisibilityToggle from "../../../features/dashboard/lists/ListVisibilityToggle";
 import { dispatchEvents } from "../../../lib/disatchEvents";
+import { formatShelfOwnerName } from "../../../domain/shelf/utils";
 
 function canAccessLists(user: Awaited<ReturnType<typeof getUser>>) {
   return userCanManageBookLists(user);
@@ -65,6 +67,10 @@ export const GET = createRoute(async (c: Context) => {
     user.shelfPublic && user.shelfSlug && list.isPublic
       ? `/shelf/${user.shelfSlug}/lists/${list.slug}`
       : null;
+  const ownerName = formatShelfOwnerName({
+    firstName: user.firstName,
+    lastName: user.lastName,
+  });
 
   const claimStatus = user.creator
     ? ((await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null)
@@ -92,19 +98,16 @@ export const GET = createRoute(async (c: Context) => {
           title={list.title}
           intro="Edit details, publish, or remove books from this list."
         />
-        {publicUrl ? (
-          <p class="text-sm text-on-surface">
-            Public page:{" "}
-            <a
-              href={publicUrl}
-              class="text-accent underline underline-offset-2"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {publicUrl}
-            </a>
-          </p>
-        ) : null}
+        <div id="list-share-panel" class="mb-6">
+          {publicUrl ? (
+            <ListShareLink
+              listTitle={list.title}
+              ownerName={ownerName}
+              publicUrl={publicUrl}
+              layout="detail"
+            />
+          ) : null}
+        </div>
         <div class="grid grid-cols-1 gap-8 xl:grid-cols-3 xl:items-start">
           <div class="bg-surface-alt p-6 rounded-lg xl:sticky xl:top-24">
             <h2 class="mb-3 text-lg font-semibold text-on-surface-strong">
@@ -183,6 +186,15 @@ export const PATCH = createRoute(async (c: Context) => {
     return showErrorAlert(c, err?.reason ?? "Failed to update list");
   }
 
+  const publicUrl =
+    user.shelfPublic && user.shelfSlug && list.isPublic
+      ? `/shelf/${user.shelfSlug}/lists/${list.slug}`
+      : null;
+  const ownerName = formatShelfOwnerName({
+    firstName: user.firstName,
+    lastName: user.lastName,
+  });
+
   return c.html(
     <>
       <Alert type="success" message="List saved." />
@@ -195,6 +207,16 @@ export const PATCH = createRoute(async (c: Context) => {
           isPublic: list.isPublic,
         }}
       />
+      <div id="list-share-panel" class="mb-6">
+        {publicUrl ? (
+          <ListShareLink
+            listTitle={list.title}
+            ownerName={ownerName}
+            publicUrl={publicUrl}
+            layout="detail"
+          />
+        ) : null}
+      </div>
     </>,
   );
 });

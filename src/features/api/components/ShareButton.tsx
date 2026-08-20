@@ -1,5 +1,7 @@
 type ShareButtonProps = {
   isCircleButton?: boolean;
+  /** Compact text control for post footers (next to Like). */
+  variant?: "default" | "inline";
   title?: string;
   text?: string;
   url?: string;
@@ -10,6 +12,7 @@ const shareButtonClass =
 
 const ShareButton = ({
   isCircleButton = false,
+  variant = "default",
   title,
   text,
   url,
@@ -26,6 +29,23 @@ const ShareButton = ({
           x-on:click="share()"
         >
           {shareIcon()}
+        </button>
+      </div>
+    );
+  }
+
+  if (variant === "inline") {
+    return (
+      <div x-data={`shareButton(${shareConfig})`}>
+        <button
+          type="button"
+          title={tooltipText}
+          aria-label="Share this post"
+          class="inline-flex items-center gap-1.5 rounded-radius px-2 py-1 text-sm font-medium text-on-surface transition hover:bg-surface-alt cursor-pointer"
+          x-on:click="share()"
+        >
+          {shareIcon(5)}
+          <span>Share</span>
         </button>
       </div>
     );

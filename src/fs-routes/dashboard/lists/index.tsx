@@ -19,6 +19,7 @@ import Alert from "../../../components/app/Alert";
 import Banner from "../../../components/app/Banner";
 import Link from "../../../components/app/Link";
 import { getIsMobile } from "../../../lib/device";
+import { formatShelfOwnerName } from "../../../domain/shelf/utils";
 
 function canAccessLists(user: Awaited<ReturnType<typeof getUser>>) {
   return userCanManageBookLists(user);
@@ -77,6 +78,10 @@ export const GET = createRoute(async (c: Context) => {
           <div class="xl:col-span-2">
             <ListsTable
               lists={lists}
+              ownerName={formatShelfOwnerName({
+                firstName: user.firstName,
+                lastName: user.lastName,
+              })}
               shelfSlug={user.shelfSlug}
               shelfPublic={user.shelfPublic}
               isMobile={isMobile}

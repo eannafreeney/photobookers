@@ -1,6 +1,7 @@
 import { Post } from "../../../db/schema";
-import Badge from "../../../components/app/Badge";
 import { getInitialsAvatar } from "../../../lib/avatar";
+import { postPath, postShareText, postUrl } from "../../../lib/share";
+import ShareButton from "../../api/components/ShareButton";
 import PostLikeButton from "./PostLikeButton";
 
 export type PostAuthor = {
@@ -23,6 +24,9 @@ type PostCardProps = {
   likeCount?: number;
   likedByMe?: boolean;
   showLike?: boolean;
+  showShare?: boolean;
+  /** Link to the post permalink page. Hide when already there. */
+  showOpenLink?: boolean;
 };
 
 const authorName = (author: PostAuthor) =>
@@ -36,6 +40,8 @@ const PostCard = ({
   likeCount = 0,
   likedByMe = false,
   showLike = true,
+  showShare = true,
+  showOpenLink = true,
 }: PostCardProps) => {
   const name = creator?.displayName ?? authorName(author);
   const avatarUrl = creator
@@ -47,6 +53,7 @@ const PostCard = ({
     : author.shelfSlug
       ? `/shelf/${author.shelfSlug}`
       : null;
+  const shareUrl = postUrl(post.id);
 
   const header = (
     <div class="flex min-w-0 items-center gap-2">
@@ -83,12 +90,32 @@ const PostCard = ({
           />
         </div>
       )}
-      {showLike ? (
-        <PostLikeButton
-          postId={post.id}
-          likedByMe={likedByMe}
-          likeCount={likeCount}
-        />
+      {showLike || showShare ? (
+        <div class="mt-3 flex items-center gap-1">
+          {showLike ? (
+            <PostLikeButton
+              postId={post.id}
+              likedByMe={likedByMe}
+              likeCount={likeCount}
+            />
+          ) : null}
+          {showShare ? (
+            <ShareButton
+              variant="inline"
+              title={`Post by ${name}`}
+              text={postShareText(name)}
+              url={shareUrl}
+            />
+          ) : null}
+          {showOpenLink ? (
+            <a
+              href={postPath(post.id)}
+              class="ml-auto text-xs text-on-surface-weak hover:text-on-surface-strong hover:underline"
+            >
+              Open post
+            </a>
+          ) : null}
+        </div>
       ) : null}
     </article>
   );

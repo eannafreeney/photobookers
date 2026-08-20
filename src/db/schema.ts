@@ -355,6 +355,7 @@ export const books = pgTable(
       () => creators.id,
     ),
     sortOrder: integer("sort_order"),
+    liveEmailSentAt: timestamp("live_email_sent_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },

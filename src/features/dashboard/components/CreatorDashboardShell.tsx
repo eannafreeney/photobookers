@@ -32,7 +32,6 @@ const CreatorDashboardShell = ({
       {creator.status === "verified" && (
         <VerifiedCreatorShareBanner creator={creator} />
       )}
-      <ClaimSuccessChecklist creator={creator} />
       {creator.type === "artist" && <SkoolCommunityBanner />}
       <Page>
         <NavTabs

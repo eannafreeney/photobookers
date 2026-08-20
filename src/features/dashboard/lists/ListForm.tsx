@@ -22,7 +22,9 @@ const ListForm = ({ formValues, listId, disabled = false }: Props) => {
     : {
         "x-data": `listForm(${JSON.stringify(formValues ?? {})}, ${isEditPage})`,
         "x-on:submit": "submitForm($event)",
-        "x-target": isEditPage ? "toast list-form-panel" : "toast",
+        "x-target": isEditPage
+          ? "toast list-form-panel list-share-panel"
+          : "toast",
         "x-target.error": "toast",
         "x-on:ajax:error": "isSubmitting = false",
         "x-on:ajax:success": "onSuccess()",

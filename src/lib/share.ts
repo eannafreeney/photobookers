@@ -46,6 +46,55 @@ export function bookShareText(book: BookShareFields): string {
   return `${bookShareTitle(book)} — on Photobookers`;
 }
 
+export function bookLiveInstagramCaption(params: {
+  bookTitle: string;
+  artistName?: string | null;
+  bookUrl: string;
+  instagram?: string | null;
+}): string {
+  const byArtist = params.artistName ? ` by ${params.artistName}` : "";
+  const lines = [
+    `My book "${params.bookTitle}"${byArtist} is live on @photobookers.`,
+    "",
+    params.bookUrl,
+  ];
+  const handle = params.instagram?.trim();
+  if (handle) {
+    const normalized = handle.startsWith("@") ? handle : `@${handle}`;
+    lines.push("", normalized);
+  }
+  lines.push("", "#photobook #photobookjousting");
+  return lines.join("\n");
+}
+
+export function listPath(shelfSlug: string, listSlug: string): string {
+  return `/shelf/${shelfSlug}/lists/${listSlug}`;
+}
+
+export function listShareTitle(listTitle: string): string {
+  return listTitle;
+}
+
+export function listShareText(listTitle: string, ownerName: string): string {
+  return `${listTitle} — a photobook list by ${ownerName} on Photobookers`;
+}
+
+export function postPath(postId: string): string {
+  return `/posts/${postId}`;
+}
+
+export function postUrl(postId: string, siteUrl?: string): string {
+  const base = (siteUrl ?? process.env.SITE_URL ?? "https://photobookers.com").replace(
+    /\/$/,
+    "",
+  );
+  return `${base}${postPath(postId)}`;
+}
+
+export function postShareText(authorName: string): string {
+  return `Post by ${authorName} on Photobookers`;
+}
+
 export function bookOfTheDayShareTitle(book: BookShareFields): string {
   return `Book of the Day — ${book.title}`;
 }

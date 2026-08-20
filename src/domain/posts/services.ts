@@ -88,6 +88,45 @@ export async function getPostById(postId: string) {
   }
 }
 
+export async function getPublicPostById(postId: string) {
+  try {
+    const post = await db.query.posts.findFirst({
+      where: eq(posts.id, postId),
+      with: {
+        user: {
+          columns: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            shelfSlug: true,
+            profileImageUrl: true,
+          },
+        },
+      },
+    });
+    if (!post) return err({ reason: "Post not found" });
+
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.ownerUserId, post.userId),
+      columns: {
+        id: true,
+        slug: true,
+        displayName: true,
+        coverUrl: true,
+      },
+    });
+
+    return ok({
+      post,
+      author: post.user,
+      creator,
+    });
+  } catch (error) {
+    console.error("Failed to get public post", error);
+    return err({ reason: "Failed to get post", error });
+  }
+}
+
 export async function listPostsByUserId(userId: string) {
   try {
     const rows = await db.query.posts.findMany({

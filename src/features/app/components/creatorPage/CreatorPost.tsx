@@ -1,5 +1,7 @@
 import Badge from "../../../../components/app/Badge";
 import { Creator, Post } from "../../../../db/schema";
+import { postPath, postShareText, postUrl } from "../../../../lib/share";
+import ShareButton from "../../../api/components/ShareButton";
 import PostLikeButton from "../../../collectors/components/PostLikeButton";
 
 type CreatorPostProps = {
@@ -20,6 +22,7 @@ const CreatorPost = ({
   const redactClass = !canReadPosts
     ? "select-none blur-[3px] pointer-events-none"
     : "";
+  const shareUrl = postUrl(post.id);
 
   return (
     <article class="rounded-radius border border-outline bg-surface p-4 shadow-sm">
@@ -67,11 +70,25 @@ const CreatorPost = ({
         )}
       </div>
       {canReadPosts ? (
-        <PostLikeButton
-          postId={post.id}
-          likedByMe={likedByMe}
-          likeCount={likeCount}
-        />
+        <div class="mt-3 flex items-center gap-1">
+          <PostLikeButton
+            postId={post.id}
+            likedByMe={likedByMe}
+            likeCount={likeCount}
+          />
+          <ShareButton
+            variant="inline"
+            title={`Post by ${creator.displayName}`}
+            text={postShareText(creator.displayName)}
+            url={shareUrl}
+          />
+          <a
+            href={postPath(post.id)}
+            class="ml-auto text-xs text-on-surface-weak hover:text-on-surface-strong hover:underline"
+          >
+            Open post
+          </a>
+        </div>
       ) : null}
     </article>
   );

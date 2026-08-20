@@ -12,7 +12,7 @@ const PostLikeButton = ({ postId, likedByMe, likeCount }: Props) => {
       id={id}
       method="post"
       action={`/api/posts/${postId}/like`}
-      class="mt-3"
+      class="contents"
       x-data="{ isSubmitting: false }"
       {...{
         "x-target": `${id} toast modal-root`,

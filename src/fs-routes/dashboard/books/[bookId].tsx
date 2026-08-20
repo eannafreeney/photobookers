@@ -33,6 +33,7 @@ import Alert from "../../../components/app/Alert";
 import Banner from "../../../components/app/Banner";
 import { dispatchEvents } from "../../../lib/disatchEvents";
 import { createBookPublishedNotification } from "../../../domain/notifications/utils";
+import { sendBookLiveEmailIfNeeded } from "../../../domain/books/liveEmail";
 import Button from "../../../components/app/Button";
 import FormPost from "../../../components/forms/FormPost";
 import Tabs from "../../../components/app/Tabs";
@@ -249,6 +250,7 @@ export const PATCH = createRoute(
       if (publishError) return showErrorAlert(c, publishError.reason, 400);
 
       await createBookPublishedNotification(user, book);
+      await sendBookLiveEmailIfNeeded(book.id);
 
       return c.html(
         <>
