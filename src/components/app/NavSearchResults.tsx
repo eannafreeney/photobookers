@@ -1,5 +1,5 @@
 import { Book, BookFair, Creator } from "../../db/schema";
-import VerifiedCreator from "./VerifiedCreator";
+import VerificationBadge from "./VerificationBadge";
 import Avatar from "./Avatar";
 import { formatDate } from "../../utils";
 import { tagBooksUrl } from "../../lib/tags";
@@ -230,7 +230,7 @@ const CreatorResultItem = ({ creator }: CreatorResultItemProps) => {
             size="md"
           />
           <div class="absolute -top-1 -right-1">
-            <VerifiedCreator
+            <VerificationBadge
               creatorStatus={creator.status ?? "stub"}
               size="xs"
             />
@@ -348,7 +348,16 @@ const CollectorResultItem = ({ collector }: CollectorResultItemProps) => {
         href={`/shelf/${collector.shelfSlug}`}
         class="flex items-center gap-3 rounded-radius transition-colors"
       >
-        <Avatar src={avatarUrl} alt={name} size="md" />
+        <div class="relative shrink-0">
+          <Avatar src={avatarUrl} alt={name} size="md" />
+          <div class="absolute -top-1 -right-1">
+            <VerificationBadge
+              creatorStatus="verified"
+              size="xs"
+              title="Verified Collector"
+            />
+          </div>
+        </div>
         <div class="flex-1 min-w-0">
           <div class="font-semibold text-on-surface truncate">{name}</div>
           <div class="text-xs uppercase font-semibold text-on-surface">

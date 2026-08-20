@@ -1,12 +1,15 @@
-type VerifiedCreatorProps = {
+type VerificationBadgeProps = {
   creatorStatus: "stub" | "verified" | "suspended" | "deleted" | null;
   size?: "xs" | "sm" | "md" | "lg";
+  /** Tooltip; collectors pass "Verified Collector". */
+  title?: string;
 };
 
-const VerifiedCreator = ({
+const VerificationBadge = ({
   creatorStatus = "stub",
   size = "md",
-}: VerifiedCreatorProps) => {
+  title = "Verified Creator",
+}: VerificationBadgeProps) => {
   if (creatorStatus !== "verified") return <></>;
   const sizes = {
     xs: "size-4",
@@ -16,7 +19,7 @@ const VerifiedCreator = ({
   };
 
   return (
-    <div title="Verified Creator">
+    <div title={title}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -36,4 +39,4 @@ const VerifiedCreator = ({
   );
 };
 
-export default VerifiedCreator;
+export default VerificationBadge;

@@ -14,6 +14,7 @@ import {
   assignNextBookSortOrder,
   deleteBookDependents,
 } from "../../books/services";
+import { resolveBookSubmitterContact } from "./resolveBookSubmitterContact";
 
 export const deleteBookByIdAdmin = async (bookId: string) => {
   try {
@@ -129,19 +130,13 @@ const getBookSubmitterContact = async (bookId: string) => {
     },
   });
   if (!book) return null;
-  // Prefer the creator profile's email if set, fall back to the user account email
-  const submittingCreator =
-    book.notifyFollowersCreatorId === book.artistId
-      ? book.artist
-      : book.publisher;
-  const recipientEmail =
-    submittingCreator?.email ?? book.creatorUser?.email ?? null;
-  const displayName =
-    submittingCreator?.displayName ??
-    [book.creatorUser?.firstName, book.creatorUser?.lastName]
-      .filter(Boolean)
-      .join(" ") ??
-    "there";
+  const { recipientEmail, displayName } = resolveBookSubmitterContact({
+    artist: book.artist,
+    publisher: book.publisher,
+    notifyFollowersCreatorId: book.notifyFollowersCreatorId,
+    artistId: book.artistId,
+    creatorUser: book.creatorUser,
+  });
   return { recipientEmail, displayName, book };
 };
 

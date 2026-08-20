@@ -1,4 +1,5 @@
 import Link from "@/components/app/Link";
+import VerificationBadge from "@/components/app/VerificationBadge";
 import {
   collectorDisplayName,
   type CollectorCard,
@@ -28,12 +29,21 @@ const CollectorCircle = ({
   return (
     <div class="flex flex-col items-center gap-4">
       <a href={`/shelf/${collector.shelfSlug}`}>
-        <img
-          src={avatarUrl}
-          alt={name}
-          title={name}
-          class={`rounded-full object-cover ${getImageSizeClass(size)}`}
-        />
+        <div class="relative inline-block">
+          <img
+            src={avatarUrl}
+            alt={name}
+            title={name}
+            class={`rounded-full object-cover ${getImageSizeClass(size)}`}
+          />
+          <div class="absolute top-0 right-3">
+            <VerificationBadge
+              creatorStatus="verified"
+              size="sm"
+              title="Verified Collector"
+            />
+          </div>
+        </div>
         <div class="flex flex-col items-center gap-1">
           <Link href={`/shelf/${collector.shelfSlug}`}>
             <span class="text-sm font-medium">{truncate(name, 20)}</span>

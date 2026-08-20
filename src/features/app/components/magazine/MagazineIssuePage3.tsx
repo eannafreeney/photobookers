@@ -2,7 +2,7 @@ import clsx from "clsx";
 import PageHeader from "@/components/app/PageHeader";
 import SectionTitle from "@/components/app/SectionTitle";
 import Link from "@/components/app/Link";
-import VerifiedCreator from "@/components/app/VerifiedCreator";
+import VerificationBadge from "@/components/app/VerificationBadge";
 import type {
   MagazineIssuePlacement,
   MagazineIssueView,
@@ -238,7 +238,7 @@ const Contributors = ({
                       {artist.displayName ?? "—"}
                     </span>
                     {verified ? (
-                      <VerifiedCreator creatorStatus="verified" size="xs" />
+                      <VerificationBadge creatorStatus="verified" size="xs" />
                     ) : null}
                   </span>
 

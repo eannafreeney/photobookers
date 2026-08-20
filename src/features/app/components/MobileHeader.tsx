@@ -1,4 +1,4 @@
-import VerifiedCreator from "@/components/app/VerifiedCreator";
+import VerificationBadge from "@/components/app/VerificationBadge";
 import { PropsWithChildren } from "hono/jsx";
 
 type Props = PropsWithChildren<{
@@ -17,7 +17,7 @@ function MobileHeader({ kicker, title, isVerified = false, children }: Props) {
             {title}
           </h1>
         )}
-        {isVerified && <VerifiedCreator creatorStatus="verified" size="xs" />}
+        {isVerified && <VerificationBadge creatorStatus="verified" size="xs" />}
       </div>
       {children}
     </div>

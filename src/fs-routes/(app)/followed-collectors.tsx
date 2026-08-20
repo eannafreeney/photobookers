@@ -4,14 +4,8 @@ import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
 import PageHeader from "../../components/app/PageHeader";
 import InfoPage from "../../pages/InfoPage";
-import {
-  CollectorCard,
-  getFollowedCollectors,
-} from "../../domain/collectors/services";
-import { getInitialsAvatar } from "../../lib/avatar";
-
-const collectorName = (c: CollectorCard) =>
-  [c.firstName, c.lastName].filter(Boolean).join(" ").trim() || "Collector";
+import { getFollowedCollectors } from "../../domain/collectors/services";
+import CollectorCircle from "../../features/app/components/CollectorCircle";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -42,33 +36,11 @@ export const GET = createRoute(async (c) => {
           </p>
         ) : (
           <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {results.map((collector) => {
-              const name = collectorName(collector);
-              const avatarUrl =
-                collector.profileImageUrl ??
-                getInitialsAvatar(
-                  collector.firstName ?? "",
-                  collector.lastName ?? "",
-                );
-              return (
-                <li>
-                  <a
-                    href={`/shelf/${collector.shelfSlug}`}
-                    class="flex flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-4 text-center transition-colors hover:border-outline-strong"
-                  >
-                    <img
-                      src={avatarUrl}
-                      alt={name}
-                      class="size-16 rounded-full object-cover"
-                      loading="lazy"
-                    />
-                    <span class="truncate text-sm font-medium text-on-surface-strong">
-                      {name}
-                    </span>
-                  </a>
-                </li>
-              );
-            })}
+            {results.map((collector) => (
+              <li>
+                <CollectorCircle collector={collector} />
+              </li>
+            ))}
           </ul>
         )}
       </Page>

@@ -1,4 +1,4 @@
-import VerifiedCreator from "@/components/app/VerifiedCreator";
+import VerificationBadge from "@/components/app/VerificationBadge";
 import { CreatorCardResult } from "../../../constants/queries";
 
 type Props = {
@@ -26,7 +26,7 @@ const SpotlightCreator = ({
           />
           {isVerified && (
             <div class="absolute top-0 right-0">
-              <VerifiedCreator creatorStatus="verified" size="xs" />
+              <VerificationBadge creatorStatus="verified" size="xs" />
             </div>
           )}
         </div>

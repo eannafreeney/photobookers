@@ -1,7 +1,7 @@
 import { Creator } from "../../db/schema";
 import Avatar from "./Avatar";
 import Button from "./Button";
-import VerifiedCreator from "./VerifiedCreator";
+import VerificationBadge from "./VerificationBadge";
 import { AuthUser } from "../../../types";
 import { canEditCreator } from "../../lib/permissions";
 
@@ -23,7 +23,7 @@ const PageTitle = ({ title, creator, user }: PageTitleProps) => {
             size="md"
           />
           <div class="absolute -top-2 -right-2">
-            <VerifiedCreator
+            <VerificationBadge
               creatorStatus={creator.status ?? "stub"}
               size="sm"
             />

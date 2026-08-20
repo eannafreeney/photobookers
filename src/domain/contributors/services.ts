@@ -6,7 +6,22 @@ import {
   CREATOR_CARD_COLUMNS,
 } from "../../constants/queries";
 import { err, ok } from "../../lib/result";
-import { Creator } from "../../db/schema";
+
+export async function getPublishedContributionsByUserId(userId: string) {
+  return db.query.books.findMany({
+    columns: BOOK_CARD_COLUMNS,
+    with: {
+      artist: { columns: CREATOR_CARD_COLUMNS },
+      publisher: { columns: CREATOR_CARD_COLUMNS },
+    },
+    where: and(
+      eq(books.submittedByUserId, userId),
+      eq(books.publicationStatus, "published"),
+      eq(books.approvalStatus, "approved"),
+    ),
+    orderBy: [desc(books.createdAt)],
+  });
+}
 
 export async function getContributorByShelfSlug(slug: string) {
   const user = await db.query.users.findFirst({
@@ -22,19 +37,7 @@ export async function getContributorByShelfSlug(slug: string) {
 
   if (!user) return err({ reason: "Contributor not found" });
 
-  const submittedBooks = await db.query.books.findMany({
-    columns: BOOK_CARD_COLUMNS,
-    with: {
-      artist: { columns: CREATOR_CARD_COLUMNS },
-      publisher: { columns: CREATOR_CARD_COLUMNS },
-    },
-    where: and(
-      eq(books.submittedByUserId, user.id),
-      eq(books.publicationStatus, "published"),
-      eq(books.approvalStatus, "approved"),
-    ),
-    orderBy: [desc(books.createdAt)],
-  });
+  const submittedBooks = await getPublishedContributionsByUserId(user.id);
 
   return ok({ contributor: user, books: submittedBooks });
 }

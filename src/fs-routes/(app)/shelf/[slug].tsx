@@ -23,9 +23,11 @@ import {
 import { getInitialsAvatar } from "../../../lib/avatar";
 import { listPosts } from "../../../db/queries";
 import { getPostLikeStats } from "../../../domain/posts/likes";
+import { getPublishedContributionsByUserId } from "../../../domain/contributors/services";
 import PostCard from "../../../features/collectors/components/PostCard";
 import CollectorFollowButton from "../../../features/api/components/CollectorFollowButton";
 import ShelfListsSection from "../../../features/app/components/ShelfListsSection";
+import VerificationBadge from "../../../components/app/VerificationBadge";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -77,6 +79,7 @@ export const GET = createRoute(
       user?.id,
     );
     const publicLists = await getPublicListsForUser(owner.id);
+    const contributions = await getPublishedContributionsByUserId(owner.id);
 
     const title = pageTitle(`${owner.displayName}'s shelf`);
     const description = shelfDescription(
@@ -108,7 +111,10 @@ export const GET = createRoute(
         }}
       >
         <Page>
-          <div class="flex flex-col gap-4" x-data="{ tab: 'favourites' }">
+          <div
+            class="flex flex-col gap-4"
+            x-data="{ tab: new URLSearchParams(window.location.search).get('tab') || 'favourites' }"
+          >
             {isOwner ? (
               <p class="rounded border border-outline bg-surface-alt px-4 py-3 text-sm text-on-surface">
                 This is your public shelf.{" "}
@@ -122,12 +128,23 @@ export const GET = createRoute(
             ) : null}
             <div class="flex flex-col gap-4 border-b-2 border-on-surface-strong pb-4 md:flex-row md:items-end md:justify-between">
               <div class="flex items-center gap-4">
-                <img
-                  src={avatarUrl}
-                  alt={owner.displayName}
-                  class="size-14 rounded-full object-cover shrink-0"
-                  loading="lazy"
-                />
+                <div class="relative shrink-0">
+                  <img
+                    src={avatarUrl}
+                    alt={owner.displayName}
+                    class="size-14 rounded-full object-cover"
+                    loading="lazy"
+                  />
+                  {!owner.creator ? (
+                    <div class="absolute -top-1 -right-1">
+                      <VerificationBadge
+                        creatorStatus="verified"
+                        size="sm"
+                        title="Verified Collector"
+                      />
+                    </div>
+                  ) : null}
+                </div>
                 <div class="flex flex-col gap-1">
                   <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
                     {`${owner.displayName}'s shelf`}
@@ -193,6 +210,14 @@ export const GET = createRoute(
                   {`Posts (${posts.length})`}
                 </button>
               )}
+              <button
+                type="button"
+                x-on:click="tab = 'contributions'"
+                x-bind:class="tab === 'contributions' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
+                class="px-3 py-2 text-sm font-medium cursor-pointer"
+              >
+                {`Contributions (${contributions.length})`}
+              </button>
             </div>
 
             <div x-show="tab === 'favourites'" id="favourites">
@@ -239,6 +264,20 @@ export const GET = createRoute(
                 )}
               </div>
             ) : null}
+
+            <div x-show="tab === 'contributions'" x-cloak>
+              <BooksGrid
+                user={user}
+                currentPath={currentPath}
+                result={{
+                  books: contributions,
+                  totalPages: 1,
+                  page: 1,
+                }}
+                isPaginated={false}
+                noResultsMessage="No contributions yet."
+              />
+            </div>
           </div>
         </Page>
       </AppLayout>,

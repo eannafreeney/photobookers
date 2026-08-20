@@ -1,6 +1,6 @@
 import { Post } from "../../../db/schema";
 import { getInitialsAvatar } from "../../../lib/avatar";
-import { postPath, postShareText, postUrl } from "../../../lib/share";
+import { postPath, postShareText } from "../../../lib/share";
 import ShareButton from "../../api/components/ShareButton";
 import PostLikeButton from "./PostLikeButton";
 
@@ -53,7 +53,7 @@ const PostCard = ({
     : author.shelfSlug
       ? `/shelf/${author.shelfSlug}`
       : null;
-  const shareUrl = postUrl(post.id);
+  const shareUrl = postPath(post.id);
 
   const header = (
     <div class="flex min-w-0 items-center gap-2">
@@ -105,6 +105,12 @@ const PostCard = ({
               title={`Post by ${name}`}
               text={postShareText(name)}
               url={shareUrl}
+              imageUrl={
+                post.imageUrl ??
+                creator?.coverUrl ??
+                author.profileImageUrl ??
+                undefined
+              }
             />
           ) : null}
           {showOpenLink ? (

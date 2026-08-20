@@ -10,11 +10,14 @@ import { getPostLikeStats } from "../../../domain/posts/likes";
 import { getUser } from "../../../utils";
 import { paramValidator } from "../../../lib/validator";
 import { canonicalUrl, pageTitle } from "../../../lib/seo";
-import { postUrl } from "../../../lib/share";
+import { absoluteShareImageUrl, postPath } from "../../../lib/share";
 import { routeParam } from "../../../lib/routeParam";
 
 const postIdSchema = z.object({
-  id: z.string().uuid(),
+  id: z
+    .string()
+    .trim()
+    .uuid("Invalid post link"),
 });
 
 export const GET = createRoute(
@@ -27,7 +30,10 @@ export const GET = createRoute(
     const [error, result] = await getPublicPostById(postId);
     if (error || !result) {
       return c.html(
-        <InfoPage errorMessage={error?.reason ?? "Post not found"} user={user} />,
+        <InfoPage
+          errorMessage={error?.reason ?? "Post not found"}
+          user={user}
+        />,
         404,
       );
     }
@@ -40,7 +46,12 @@ export const GET = createRoute(
 
     const likeStats = await getPostLikeStats([post.id], user?.id);
     const stats = likeStats.get(post.id);
-    const shareUrl = postUrl(post.id);
+    const origin = new URL(c.req.url).origin;
+    const shareUrl = `${origin}${postPath(post.id)}`;
+    const shareImage = absoluteShareImageUrl(
+      post.imageUrl ?? creator?.coverUrl ?? author.profileImageUrl,
+      origin,
+    );
     const description =
       post.body.length > 160 ? `${post.body.slice(0, 157)}…` : post.body;
 
@@ -55,7 +66,7 @@ export const GET = createRoute(
           title: `Post by ${authorName}`,
           description,
           url: shareUrl,
-          image: post.imageUrl ?? creator?.coverUrl ?? author.profileImageUrl ?? undefined,
+          image: shareImage,
         }}
       >
         <Page>

@@ -4,7 +4,7 @@ import Card from "./Card";
 import ClaimCreatorBtn from "../../features/claims/components/ClaimCreatorBtn";
 import FollowButton from "../../features/api/components/FollowButton";
 import SocialLinks from "./SocialLinks";
-import VerifiedCreator from "./VerifiedCreator";
+import VerificationBadge from "./VerificationBadge";
 import { AuthUser } from "../../../types";
 import { findFollowersCount } from "../../db/queries";
 import Show from "./Show";
@@ -68,7 +68,7 @@ const CreatorCard = async ({
                 class="flex items-center gap-1"
               >
                 {creator.displayName}{" "}
-                <VerifiedCreator
+                <VerificationBadge
                   creatorStatus={creator.status ?? "stub"}
                   size="xs"
                 />

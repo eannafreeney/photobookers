@@ -1,5 +1,5 @@
 import Link from "../../../components/app/Link";
-import VerifiedCreator from "../../../components/app/VerifiedCreator";
+import VerificationBadge from "../../../components/app/VerificationBadge";
 import { CreatorCardResult } from "../../../constants/queries";
 import { truncate } from "../../../lib/utils";
 import { getImageSizeClass } from "../utils";
@@ -24,7 +24,7 @@ const CreatorsCircle = ({ creator, size = 32, showType = false }: Props) => {
             class={`rounded-full object-cover ${getImageSizeClass(size)}`}
           />
           <div class="absolute top-0 right-3">
-            <VerifiedCreator creatorStatus={creator.status} size="sm" />
+            <VerificationBadge creatorStatus={creator.status} size="sm" />
           </div>
         </div>
         <div class="flex flex-col items-center gap-1">

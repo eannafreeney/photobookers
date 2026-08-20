@@ -5,6 +5,7 @@ type ShareButtonProps = {
   title?: string;
   text?: string;
   url?: string;
+  imageUrl?: string;
 };
 
 const shareButtonClass =
@@ -16,9 +17,10 @@ const ShareButton = ({
   title,
   text,
   url,
+  imageUrl,
 }: ShareButtonProps) => {
   const tooltipText = "Share";
-  const shareConfig = JSON.stringify({ title, text, url });
+  const shareConfig = JSON.stringify({ title, text, url, imageUrl });
 
   if (isCircleButton) {
     return (

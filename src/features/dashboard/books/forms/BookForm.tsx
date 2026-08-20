@@ -13,7 +13,7 @@ import BookPressLinksSection from "../components/BookPressLinksSection";
 type BookFormProps = {
   formValues?: Record<string, any>;
   isPublisher: boolean;
-  /** Contributor mode: user picks both artist + publisher, no self-publish */
+  /** Contributor mode: user picks artist + optional publisher (or self-publish) */
   isContributor?: boolean;
   bookId?: string;
   action: string;
@@ -50,7 +50,8 @@ export const BookForm = async ({
       ${JSON.stringify(artistOptions)}, 
       ${JSON.stringify(publisherOptions)},
       ${isArtist},
-      ${isEditPage})`,
+      ${isEditPage},
+      ${isContributor})`,
     "x-on:submit": "submitForm($event)",
     "x-target": "toast",
     "x-target.away": "_top",
@@ -80,13 +81,21 @@ export const BookForm = async ({
                 options={artistOptions}
                 required
               />
-              <ComboBox
-                label="Publisher"
-                name="form.publisher_id"
-                newOptionName="form.new_publisher_name"
-                type="publisher"
-                options={publisherOptions}
+              <ToggleInput
+                label="Self Published"
+                name="is_self_published"
+                isChecked={false}
               />
+              <div x-show="!is_self_published">
+                <ComboBox
+                  label="Publisher"
+                  name="form.publisher_id"
+                  newOptionName="form.new_publisher_name"
+                  type="publisher"
+                  options={publisherOptions}
+                  required
+                />
+              </div>
             </>
           )}
           {!isContributor && isPublisher && !isEditPage && (

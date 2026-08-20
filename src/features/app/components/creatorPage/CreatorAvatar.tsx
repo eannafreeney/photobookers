@@ -1,4 +1,4 @@
-import VerifiedCreator from "@/components/app/VerifiedCreator";
+import VerificationBadge from "@/components/app/VerificationBadge";
 import { Creator } from "@/db/schema";
 
 type Props = {
@@ -23,7 +23,7 @@ const CreatorAvatar = ({ creator, class: className = "size-16" }: Props) => (
       </span>
     )}
     <div class="absolute top-0.5 right-0.5">
-      <VerifiedCreator creatorStatus={creator.status ?? "stub"} size="xs" />
+      <VerificationBadge creatorStatus={creator.status ?? "stub"} size="xs" />
     </div>
   </div>
 );

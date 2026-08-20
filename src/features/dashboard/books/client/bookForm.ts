@@ -18,6 +18,7 @@ type BookFormThis = {
   is_new_publisher: boolean;
   is_self_published: boolean;
   isArtist: boolean;
+  isContributor: boolean;
   form: Partial<BookFormData> & Record<string, unknown>;
   errors: { form: Record<string, string> };
   isDirty: boolean;
@@ -34,6 +35,7 @@ export function registerBookForm() {
       publisherOptions = [],
       isArtist: boolean = false,
       isEditMode: boolean = false,
+      isContributor: boolean = false,
     ) => {
       return {
         artistOptions,
@@ -41,8 +43,10 @@ export function registerBookForm() {
         isSubmitting: false,
         is_new_artist: false,
         is_new_publisher: false,
+        // Artists default self-published; contributors opt in via toggle
         is_self_published: isArtist,
         isArtist,
+        isContributor,
         pressLinks: parsePressLinks(
           typeof formValues.press_links === "string"
             ? formValues.press_links
@@ -81,13 +85,23 @@ export function registerBookForm() {
             ctx.form.availability_status &&
             ctx.form.release_date &&
             ctx.form.tags;
-          const conditionalFieldsValid = ctx.isArtist
-            ? hasPublisher
-            : hasArtist;
-          return baseFieldsValid && conditionalFieldsValid;
+          const needsArtist = !ctx.isArtist;
+          const needsPublisher = ctx.isArtist || ctx.isContributor;
+          return (
+            baseFieldsValid &&
+            (!needsArtist || hasArtist) &&
+            (!needsPublisher || hasPublisher)
+          );
         },
 
         submitForm(event: Event) {
+          // Hidden ComboBox inputs stay in the DOM under x-show; clear so
+          // self-published submits as null publisher rather than a prior pick.
+          if (this.is_self_published) {
+            this.form.publisher_id = undefined;
+            this.form.new_publisher_name = undefined;
+            this.is_new_publisher = false;
+          }
           return handleSubmit(this, event, bookFormSchema);
         },
 

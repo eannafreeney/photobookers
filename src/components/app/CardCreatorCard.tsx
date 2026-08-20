@@ -1,7 +1,7 @@
 import Link from "./Link";
 import Avatar from "./Avatar";
 import Card from "./Card";
-import VerifiedCreator from "./VerifiedCreator";
+import VerificationBadge from "./VerificationBadge";
 import { CreatorCardResult } from "../../constants/queries";
 import { truncate } from "../../lib/utils";
 
@@ -45,7 +45,7 @@ const CardCreatorCard = async ({
           </Card.SubTitle>
         </Link>
         <div class="shrink-0">
-          <VerifiedCreator creatorStatus={creator.status} size="xs" />
+          <VerificationBadge creatorStatus={creator.status} size="xs" />
         </div>
       </div>
     </div>

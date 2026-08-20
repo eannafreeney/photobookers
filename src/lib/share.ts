@@ -146,3 +146,27 @@ export function resolveShareUrl(
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return new URL(trimmed, origin).href;
 }
+
+/**
+ * Payload for navigator.share.
+ *
+ * Do not pass a separate `url` alongside `text`: many share sheets concatenate
+ * `url + " " + text`, and linkifiers then treat the copy as part of the path
+ * (e.g. /lists/my-slug Check out … → 400 on slug validation).
+ */
+export function nativeSharePayload(title: string, text: string, url: string): {
+  title: string;
+  text: string;
+} {
+  return { title, text: `${text}\n${url}` };
+}
+
+/** Absolute image URL for Open Graph / share previews. */
+export function absoluteShareImageUrl(
+  imageUrl: string | null | undefined,
+  origin: string,
+): string | undefined {
+  const trimmed = imageUrl?.trim();
+  if (!trimmed) return undefined;
+  return resolveShareUrl(trimmed, origin);
+}

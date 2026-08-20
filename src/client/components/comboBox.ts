@@ -108,11 +108,6 @@ export function registerComboBox() {
           this.selectedOption = null;
           inputRef(this.$refs.hiddenTextField).value = "";
         },
-        highlightAddNew() {
-          this.$nextTick(() => {
-            this.$refs.addNewOption?.focus();
-          });
-        },
         setSelectedOption(option: ComboBoxOption) {
           this.selectedOption = option;
           this.isOpen = false;
@@ -146,10 +141,6 @@ export function registerComboBox() {
           this.options = this.allOptions.filter((option) =>
             option.label.toLowerCase().includes(query.toLowerCase()),
           );
-
-          if (this.options.length === 0 && this.searchQuery) {
-            this.highlightAddNew();
-          }
         },
         handleKeydownOnOptions(event: KeyboardEvent) {
           if (

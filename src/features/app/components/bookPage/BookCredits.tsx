@@ -32,7 +32,7 @@ const Credits = ({ releaseDate, submittedByUser }: CreditsProps) => {
           <span class="text-sm text-on-surface-strong">
             {submittedByUser?.shelfSlug ? (
               <a
-                href={`/contributors/${submittedByUser.shelfSlug}`}
+                href={`/shelf/${submittedByUser.shelfSlug}?tab=contributions`}
                 class="underline hover:text-accent"
               >
                 {submitterName}

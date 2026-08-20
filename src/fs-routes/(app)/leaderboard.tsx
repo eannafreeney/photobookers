@@ -12,7 +12,7 @@ function displayName(entry: LeaderboardEntry) {
 
 const LeaderboardRow = ({ entry, rank }: { entry: LeaderboardEntry; rank: number }) => (
   <a
-    href={entry.shelfSlug ? `/contributors/${entry.shelfSlug}` : undefined}
+    href={entry.shelfSlug ? `/shelf/${entry.shelfSlug}?tab=contributions` : undefined}
     class="flex items-center justify-between gap-4 border-t border-outline py-3 hover:bg-surface-alt/50 px-2 -mx-2 rounded transition-colors"
   >
     <div class="flex items-center gap-4">

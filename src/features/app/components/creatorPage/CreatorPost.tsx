@@ -1,6 +1,6 @@
 import Badge from "../../../../components/app/Badge";
 import { Creator, Post } from "../../../../db/schema";
-import { postPath, postShareText, postUrl } from "../../../../lib/share";
+import { postPath, postShareText } from "../../../../lib/share";
 import ShareButton from "../../../api/components/ShareButton";
 import PostLikeButton from "../../../collectors/components/PostLikeButton";
 
@@ -22,7 +22,7 @@ const CreatorPost = ({
   const redactClass = !canReadPosts
     ? "select-none blur-[3px] pointer-events-none"
     : "";
-  const shareUrl = postUrl(post.id);
+  const shareUrl = postPath(post.id);
 
   return (
     <article class="rounded-radius border border-outline bg-surface p-4 shadow-sm">
@@ -81,6 +81,7 @@ const CreatorPost = ({
             title={`Post by ${creator.displayName}`}
             text={postShareText(creator.displayName)}
             url={shareUrl}
+            imageUrl={post.imageUrl ?? creator.coverUrl ?? undefined}
           />
           <a
             href={postPath(post.id)}

@@ -1,6 +1,6 @@
 import Card from "../../../components/app/Card";
 import Link from "../../../components/app/Link";
-import VerifiedCreator from "../../../components/app/VerifiedCreator";
+import VerificationBadge from "../../../components/app/VerificationBadge";
 import { CreatorCardResult } from "../../../constants/queries";
 import FollowButton from "../../api/components/FollowButton";
 import { useUser } from "../../../contexts/UserContext";
@@ -27,7 +27,7 @@ const CreatorCardSquare = async ({ creator }: CreatorCardSquareProps) => {
             <Link href={`/creators/${creator.slug}`}>
               <Card.Title>{creator.displayName}</Card.Title>
             </Link>
-            <VerifiedCreator
+            <VerificationBadge
               creatorStatus={creator.status ?? "stub"}
               size="xs"
             />
