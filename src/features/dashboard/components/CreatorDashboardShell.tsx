@@ -1,11 +1,9 @@
 import { PropsWithChildren } from "hono/jsx";
 import Page from "../../../components/layouts/Page";
-import Breadcrumbs from "../admin/components/Breadcrumbs";
 import NavTabs from "../books/components/NavTabs";
 import VerifiedCreatorShareBanner from "../books/components/VerifiedCreatorShareBanner";
 import SkoolCommunityBanner from "./SkoolCommunityBanner";
 import VerificationStatusBanner from "./VerificationStatusBanner";
-import ClaimSuccessChecklist from "./ClaimSuccessChecklist";
 import { AuthUser } from "../../../../types";
 import { CreatorClaimStatus } from "../../../db/schema";
 
