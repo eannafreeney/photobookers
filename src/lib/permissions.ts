@@ -1,11 +1,28 @@
 // src/lib/permissions.ts
 
-import { log } from "console";
 import { AuthUser } from "../../types";
 import { BookCardResult } from "../constants/queries";
 import { Book, BookFair, Creator } from "../db/schema";
 import { BookWithGalleryImages } from "../features/app/types";
 import { BookWithAdminRelations } from "../features/dashboard/admin/books/types";
+
+type BookWithOptionalCreators = Book & {
+  artist?: { status?: string | null } | null;
+  publisher?: { status?: string | null } | null;
+};
+
+/** Member submitter keeps control while artist & publisher stay unverified. */
+function isContributorControlledSubmission(
+  user: AuthUser,
+  book: BookWithOptionalCreators,
+): boolean {
+  return (
+    !user.creator &&
+    user.id === book.createdByUserId &&
+    book.artist?.status !== "verified" &&
+    book.publisher?.status !== "verified"
+  );
+}
 
 export function canCreateBook(user: AuthUser | null): boolean {
   if (!user) return false;
@@ -30,13 +47,7 @@ export function canEditBook(
   if (!user) return false;
   if (user.isAdmin) return true;
 
-  // Contributor can edit their own submissions while neither artist nor publisher is verified
-  if (
-    !user.creator &&
-    user.id === book.createdByUserId &&
-    (book as any).artist?.status !== "verified" &&
-    (book as any).publisher?.status !== "verified"
-  )
+  if (isContributorControlledSubmission(user, book as BookWithOptionalCreators))
     return true;
 
   if (!user.creator) return false;
@@ -61,18 +72,14 @@ export function canEditBook(
   return false;
 }
 
-export function canDeleteBook(user: AuthUser | null, book: Book): boolean {
+export function canDeleteBook(
+  user: AuthUser | null,
+  book: BookWithOptionalCreators,
+): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
 
-  // Contributor can delete their own submissions while neither artist nor publisher is verified
-  if (
-    !user.creator &&
-    user.id === book.createdByUserId &&
-    (book as any).artist?.status !== "verified" &&
-    (book as any).publisher?.status !== "verified"
-  )
-    return true;
+  if (isContributorControlledSubmission(user, book)) return true;
 
   if (!user.creator) return false;
 
@@ -139,30 +146,37 @@ export function canClaimCreator(
   return true;
 }
 
-export function canPublishBook(user: AuthUser | null, book: Book): boolean {
+export function canPublishBook(
+  user: AuthUser | null,
+  book: BookWithOptionalCreators,
+): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
-
-  if (user.creator?.status !== "verified") return false;
 
   if (book.approvalStatus !== "approved") return false;
+  if (book.coverUrl === null) return false;
 
-  const coverUrlIsSet = book.coverUrl !== null;
-
-  if (coverUrlIsSet) {
-    return true;
-  }
-
-  return false;
-}
-
-export function canUnpublishBook(user: AuthUser | null, book: Book): boolean {
-  if (!user) return false;
-  if (user.isAdmin) return true;
+  if (isContributorControlledSubmission(user, book)) return true;
 
   if (user.creator?.status !== "verified") return false;
 
-  return book.publicationStatus === "published";
+  return true;
+}
+
+export function canUnpublishBook(
+  user: AuthUser | null,
+  book: BookWithOptionalCreators,
+): boolean {
+  if (!user) return false;
+  if (user.isAdmin) return true;
+
+  if (book.publicationStatus !== "published") return false;
+
+  if (isContributorControlledSubmission(user, book)) return true;
+
+  if (user.creator?.status !== "verified") return false;
+
+  return true;
 }
 
 export function canFollowCreator(

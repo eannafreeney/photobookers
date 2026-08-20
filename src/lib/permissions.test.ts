@@ -237,7 +237,14 @@ describe("canPublishBook / canUnpublishBook", () => {
     approvalStatus: "approved",
     coverUrl: "https://example.com/cover.jpg",
     publicationStatus: "draft",
+    artist: { status: "stub" },
+    publisher: { status: "stub" },
   } as Book;
+
+  const contributorUser: AuthUser = {
+    ...fanUser,
+    id: userId,
+  };
 
   it("requires verified creator with approved book and cover", () => {
     expect(canPublishBook(creatorUser(baseCreator), publishableBook)).toBe(true);
@@ -255,6 +262,34 @@ describe("canPublishBook / canUnpublishBook", () => {
     ).toBe(false);
   });
 
+  it("allows contributors to publish controlled submissions", () => {
+    expect(canPublishBook(contributorUser, publishableBook)).toBe(true);
+    expect(
+      canPublishBook(contributorUser, {
+        ...publishableBook,
+        coverUrl: null,
+      }),
+    ).toBe(false);
+    expect(
+      canPublishBook(contributorUser, {
+        ...publishableBook,
+        approvalStatus: "pending",
+      }),
+    ).toBe(false);
+    expect(
+      canPublishBook(contributorUser, {
+        ...publishableBook,
+        artist: { status: "verified" },
+      } as Book),
+    ).toBe(false);
+    expect(
+      canPublishBook(
+        { ...contributorUser, id: "other-user" },
+        publishableBook,
+      ),
+    ).toBe(false);
+  });
+
   it("allows unpublish only for published books", () => {
     expect(
       canUnpublishBook(creatorUser(baseCreator), {
@@ -265,6 +300,22 @@ describe("canPublishBook / canUnpublishBook", () => {
     expect(canUnpublishBook(creatorUser(baseCreator), publishableBook)).toBe(
       false,
     );
+  });
+
+  it("allows contributors to unpublish controlled published submissions", () => {
+    expect(
+      canUnpublishBook(contributorUser, {
+        ...publishableBook,
+        publicationStatus: "published",
+      }),
+    ).toBe(true);
+    expect(
+      canUnpublishBook(contributorUser, {
+        ...publishableBook,
+        publicationStatus: "published",
+        publisher: { status: "verified" },
+      } as Book),
+    ).toBe(false);
   });
 });
 

@@ -135,18 +135,18 @@ const requireBookPublishAccess = createMiddleware<BookEnv>(async (c, next) => {
   }
 
   if (!canPublishBook(user, book)) {
-    if (user?.creator?.status !== "verified") {
-      return c.html(
-        <InfoPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
-        403,
-      );
-    }
     if (book.approvalStatus !== "approved") {
       return c.html(
         <InfoPage
           errorMessage="This book is pending approval and cannot be published yet."
           user={user}
         />,
+        403,
+      );
+    }
+    if (user?.creator && user.creator.status !== "verified") {
+      return c.html(
+        <InfoPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
         403,
       );
     }
@@ -188,7 +188,7 @@ const requireBookUnpublishAccess = createMiddleware<BookEnv>(
     }
 
     if (!canUnpublishBook(user, book)) {
-      if (user?.creator?.status !== "verified") {
+      if (user?.creator && user.creator.status !== "verified") {
         return c.html(
           <InfoPage errorMessage={notYetVerifiedErrorMessage} user={user} />,
           403,
