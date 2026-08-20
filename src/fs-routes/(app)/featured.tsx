@@ -93,26 +93,21 @@ export const GET = createRoute(async (c: Context) => {
         <ScrollReveal>
           <CreatorsOfTheWeek user={user} />
         </ScrollReveal>
-
         <ScrollReveal>
-          <PageBleed>
-            <Intersector
-              id="creators-slider-fragment"
-              endpoint="/fragments/creators-slider"
-            >
-              <SectionSkeleton variant="circles" />
-            </Intersector>
-          </PageBleed>
+          <Intersector
+            id="creators-slider-fragment"
+            endpoint="/fragments/creators-slider"
+          >
+            <SectionSkeleton variant="circles" />
+          </Intersector>
         </ScrollReveal>
         <ScrollReveal>
-          <PageBleed>
-            <Intersector
-              id="interviews-fragment"
-              endpoint="/fragments/interviews"
-            >
-              <SectionSkeleton variant="spread" />
-            </Intersector>
-          </PageBleed>
+          <Intersector
+            id="interviews-fragment"
+            endpoint="/fragments/interviews"
+          >
+            <SectionSkeleton variant="spread" />
+          </Intersector>
         </ScrollReveal>
         <ScrollReveal>
           <PageBleed>
