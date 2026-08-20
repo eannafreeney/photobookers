@@ -106,7 +106,7 @@ const HomepageRecentActivity = ({
         "x-on:beforeunload.window": "disconnect()",
       }}
     >
-      <div class="mb-6 flex flex-col items-center gap-3 border-t-2 border-on-surface-strong pt-3">
+      <div class="mb-6 flex flex-col items-center gap-4 border-t-2 border-on-surface-strong pt-3">
         <span class="kicker text-accent live-label inline-flex items-center gap-2">
           <LiveDot />
           Live on Photobookers
