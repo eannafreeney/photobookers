@@ -10,7 +10,7 @@ import { findFollowersCount } from "../../db/queries";
 import Show from "./Show";
 import { formatCountry } from "../../lib/utils";
 import { formatDate } from "../../utils";
-import CardCreatorCard from "./CardCreatorCard";
+import CardAuthorCard from "./CardAuthorCard";
 import FollowersCount from "./FollowersCount";
 
 type Props = {
@@ -46,7 +46,7 @@ const CreatorCard = async ({
       <Card>
         {showHeader && (
           <div class="px-3 py-2 flex items-center justify-between h-10">
-            <CardCreatorCard
+            <CardAuthorCard
               creator={creator ?? null}
               maxDisplayNameLength={30}
             />

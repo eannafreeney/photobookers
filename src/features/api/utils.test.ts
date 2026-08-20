@@ -62,6 +62,7 @@ describe("publish* activity helpers", () => {
     expect(publishActivityEvent).toHaveBeenCalledWith({
       type: "creator_followed",
       actorId: user.id,
+      actorName: "Pat",
       targetName: creator.displayName,
       targetImageUrl: creator.coverUrl,
       targetUrl: "/creators/creator-slug",

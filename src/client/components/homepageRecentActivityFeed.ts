@@ -3,7 +3,7 @@ import {
   formatRecentActivityAge,
   liveActivityEventToStripItem,
   parseHomepageRecentActivityConfig,
-  recentActivityTrailingText,
+  recentActivityVerb,
   shouldShowLiveActivityEvent,
   type RecentActivityType,
   type SerializedRecentActivityItem,
@@ -13,6 +13,7 @@ type LiveActivityEvent = {
   id: string;
   type: RecentActivityType;
   actorId?: string;
+  actorName?: string;
   targetName: string;
   targetImageUrl?: string | null;
   targetUrl?: string;
@@ -57,8 +58,8 @@ export function registerHomepageRecentActivity() {
       this.connect();
     },
 
-    trailingText(type: RecentActivityType) {
-      return recentActivityTrailingText(type);
+    verb(type: RecentActivityType) {
+      return recentActivityVerb(type);
     },
 
     timeAgo(createdAt: string) {

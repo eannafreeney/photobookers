@@ -1,11 +1,7 @@
 import { AuthUser } from "../../../../types";
-import CardCreatorCard from "../../../components/app/CardCreatorCard";
 import Link from "../../../components/app/Link";
-import { formatDate } from "../../../utils";
-import { getDisplayName } from "../services";
 import { getBookComments } from "../services";
 import Button from "../../../components/app/Button";
-import FormDelete from "../../../components/forms/FormDelete";
 import CommentsList from "./CommentsList";
 
 type CommentsSectionProps = {

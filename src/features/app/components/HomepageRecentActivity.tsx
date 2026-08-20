@@ -1,6 +1,6 @@
 import {
   formatRecentActivityAge,
-  recentActivityTrailingText,
+  recentActivityVerb,
   serializeRecentActivityItems,
   type RecentActivityItem,
   type SerializedRecentActivityItem,
@@ -37,11 +37,11 @@ const RecentActivityCard = ({
       <p class="w-28 min-w-0 text-xs leading-snug text-on-surface sm:text-sm">
         <strong class="font-medium text-on-surface-strong">
           {item.targetName}
+        </strong>{" "}
+        was {recentActivityVerb(item.type)} by{" "}
+        <strong class="font-medium text-on-surface-strong">
+          {item.actorName}
         </strong>
-        {item.targetCreatorName ? (
-          <span class="text-on-surface-weak"> by {item.targetCreatorName}</span>
-        ) : null}
-        {recentActivityTrailingText(item.type)}
       </p>
       <time datetime={item.createdAt} class="text-[11px] text-on-surface-weak">
         {timeLabel}
@@ -111,14 +111,12 @@ const HomepageRecentActivity = ({
                   <strong
                     class="font-medium text-on-surface-strong"
                     x-text="item.targetName"
+                  ></strong>{" "}
+                  was <span x-text="verb(item.type)"></span> by{" "}
+                  <strong
+                    class="font-medium text-on-surface-strong"
+                    x-text="item.actorName"
                   ></strong>
-                  <template x-if="item.targetCreatorName">
-                    <span class="text-on-surface-weak">
-                      {" "}
-                      by <span x-text="item.targetCreatorName"></span>
-                    </span>
-                  </template>
-                  <span x-text="trailingText(item.type)"></span>
                 </p>
                 <time
                   x-bind:datetime="item.createdAt"

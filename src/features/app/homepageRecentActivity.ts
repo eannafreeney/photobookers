@@ -7,11 +7,13 @@ import {
   collectionItems,
   creators,
   follows,
+  users,
   wishlists,
 } from "../../db/schema";
 import { resolveStoragePublicImageUrl } from "../../lib/imageUrl";
 import { err, ok, type Result } from "../../lib/result";
 import {
+  formatActivityActorName,
   mergeRecentActivityItems,
   type RecentActivityItem,
 } from "./homepageRecentActivityUtils";
@@ -22,7 +24,7 @@ export type {
 } from "./homepageRecentActivityUtils";
 export {
   mergeRecentActivityItems,
-  recentActivityTrailingText,
+  recentActivityVerb,
 } from "./homepageRecentActivityUtils";
 
 const CACHE_TTL_MS = 1000 * 60 * 3;
@@ -69,9 +71,12 @@ async function fetchRecentWishlistActivity(
       coverUrl: books.coverUrl,
       artistName: creators.displayName,
       userId: wishlists.userId,
+      actorFirstName: users.firstName,
+      actorLastName: users.lastName,
     })
     .from(wishlists)
     .innerJoin(books, eq(wishlists.bookId, books.id))
+    .innerJoin(users, eq(wishlists.userId, users.id))
     .leftJoin(creators, eq(books.artistId, creators.id))
     .where(
       and(
@@ -88,6 +93,10 @@ async function fetchRecentWishlistActivity(
     .map((row) => ({
       id: `wishlist-${row.userId}-${row.id}-${row.createdAt!.getTime()}`,
       type: "book_favourited" as const,
+      actorName: formatActivityActorName({
+        firstName: row.actorFirstName,
+        lastName: row.actorLastName,
+      }),
       targetName: row.bookTitle,
       targetUrl: `/books/${row.bookSlug}`,
       imageUrl: row.coverUrl,
@@ -107,9 +116,12 @@ async function fetchRecentCollectionActivity(
       bookSlug: books.slug,
       coverUrl: books.coverUrl,
       artistName: creators.displayName,
+      actorFirstName: users.firstName,
+      actorLastName: users.lastName,
     })
     .from(collectionItems)
     .innerJoin(books, eq(collectionItems.bookId, books.id))
+    .innerJoin(users, eq(collectionItems.userId, users.id))
     .leftJoin(creators, eq(books.artistId, creators.id))
     .where(
       and(
@@ -126,6 +138,10 @@ async function fetchRecentCollectionActivity(
     .map((row) => ({
       id: `collection-${row.id}`,
       type: "book_collected" as const,
+      actorName: formatActivityActorName({
+        firstName: row.actorFirstName,
+        lastName: row.actorLastName,
+      }),
       targetName: row.bookTitle,
       targetUrl: `/books/${row.bookSlug}`,
       imageUrl: row.coverUrl,
@@ -145,9 +161,12 @@ async function fetchRecentCommentActivity(
       bookSlug: books.slug,
       coverUrl: books.coverUrl,
       artistName: creators.displayName,
+      actorFirstName: users.firstName,
+      actorLastName: users.lastName,
     })
     .from(bookComments)
     .innerJoin(books, eq(bookComments.bookId, books.id))
+    .innerJoin(users, eq(bookComments.userId, users.id))
     .leftJoin(creators, eq(books.artistId, creators.id))
     .where(
       and(
@@ -164,6 +183,10 @@ async function fetchRecentCommentActivity(
     .map((row) => ({
       id: `comment-${row.id}`,
       type: "book_commented" as const,
+      actorName: formatActivityActorName({
+        firstName: row.actorFirstName,
+        lastName: row.actorLastName,
+      }),
       targetName: row.bookTitle,
       targetUrl: `/books/${row.bookSlug}`,
       imageUrl: row.coverUrl,
@@ -182,9 +205,12 @@ async function fetchRecentFollowActivity(
       creatorName: creators.displayName,
       creatorSlug: creators.slug,
       coverUrl: creators.coverUrl,
+      actorFirstName: users.firstName,
+      actorLastName: users.lastName,
     })
     .from(follows)
     .innerJoin(creators, eq(follows.targetCreatorId, creators.id))
+    .innerJoin(users, eq(follows.followerUserId, users.id))
     .where(
       and(
         eq(follows.targetType, "creator"),
@@ -200,6 +226,10 @@ async function fetchRecentFollowActivity(
     .map((row) => ({
       id: `follow-${row.id}`,
       type: "creator_followed" as const,
+      actorName: formatActivityActorName({
+        firstName: row.actorFirstName,
+        lastName: row.actorLastName,
+      }),
       targetName: row.creatorName,
       targetUrl: `/creators/${row.creatorSlug}`,
       imageUrl: row.coverUrl,

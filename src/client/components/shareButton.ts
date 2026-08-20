@@ -1,5 +1,9 @@
 import Alpine from "alpinejs";
-import { nativeSharePayload, resolveShareUrl } from "../../lib/share";
+import {
+  nativeSharePayload,
+  resolveShareUrl,
+  shouldUseRichNativeShare,
+} from "../../lib/share";
 
 type ShareConfig = {
   title?: string;
@@ -24,6 +28,16 @@ async function shareImageFile(imageUrl: string): Promise<File | null> {
   }
 }
 
+function richNativeShareEnabled(): boolean {
+  const nav = navigator as Navigator & {
+    userAgentData?: { mobile?: boolean };
+  };
+  return shouldUseRichNativeShare({
+    mobile: nav.userAgentData?.mobile,
+    userAgent: navigator.userAgent,
+  });
+}
+
 export function registerShareButton() {
   Alpine.data("shareButton", (config: ShareConfig = {}) => ({
     async share() {
@@ -31,23 +45,29 @@ export function registerShareButton() {
       const title = config.title?.trim() || document.title;
       const text = config.text?.trim() || `Check out ${title}`;
       const imageUrl = config.imageUrl?.trim();
-      const payload = nativeSharePayload(title, text, url);
 
       if (navigator.share) {
         try {
-          // Prefer attaching the image so the system share sheet shows a preview.
-          // Many browsers reject { files, url } together — link stays in text.
-          if (imageUrl) {
-            const file = await shareImageFile(
-              resolveShareUrl(imageUrl, window.location.origin),
-            );
-            if (file && navigator.canShare?.({ files: [file] })) {
-              await navigator.share({ ...payload, files: [file] });
-              return;
+          if (richNativeShareEnabled()) {
+            const payload = nativeSharePayload(title, text, url);
+            // Prefer attaching the image so the system share sheet shows a preview.
+            // Many browsers reject { files, url } together — link stays in text.
+            if (imageUrl) {
+              const file = await shareImageFile(
+                resolveShareUrl(imageUrl, window.location.origin),
+              );
+              if (file && navigator.canShare?.({ files: [file] })) {
+                await navigator.share({ ...payload, files: [file] });
+                return;
+              }
             }
+
+            await navigator.share(payload);
+            return;
           }
 
-          await navigator.share(payload);
+          // Desktop: URL only so share-sheet Copy stays a clean link.
+          await navigator.share({ url });
           return;
         } catch {
           // Cancelled or unavailable — fall through to copy the URL.

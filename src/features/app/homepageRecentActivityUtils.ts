@@ -7,12 +7,41 @@ export type RecentActivityType =
 export type RecentActivityItem = {
   id: string;
   type: RecentActivityType;
+  actorName: string;
   targetName: string;
   targetUrl: string;
   imageUrl: string;
   targetCreatorName?: string;
   createdAt: Date;
 };
+
+export function formatActivityActorName(user: {
+  firstName?: string | null;
+  lastName?: string | null;
+  creatorDisplayName?: string | null;
+}): string {
+  const creatorName = user.creatorDisplayName?.trim();
+  if (creatorName) return creatorName;
+
+  const fullName = [user.firstName, user.lastName]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(" ");
+  return fullName || "Someone";
+}
+
+export function recentActivityVerb(type: RecentActivityType): string {
+  switch (type) {
+    case "book_favourited":
+      return "favourited";
+    case "book_collected":
+      return "collected";
+    case "creator_followed":
+      return "followed";
+    case "book_commented":
+      return "commented on";
+  }
+}
 
 type RawActivityRow = Omit<RecentActivityItem, "imageUrl"> & {
   imageUrl: string | null;
@@ -44,19 +73,6 @@ export function mergeRecentActivityItems(
   }
 
   return withImages;
-}
-
-export function recentActivityTrailingText(type: RecentActivityType): string {
-  switch (type) {
-    case "book_favourited":
-      return " was added to favourites";
-    case "book_collected":
-      return " was added to a collection";
-    case "creator_followed":
-      return " was followed";
-    case "book_commented":
-      return " was commented on";
-  }
 }
 
 export type SerializedRecentActivityItem = Omit<
@@ -92,6 +108,7 @@ export function shouldShowLiveActivityEvent(
 export function liveActivityEventToStripItem(event: {
   id: string;
   type: RecentActivityType;
+  actorName?: string;
   targetName: string;
   targetUrl?: string;
   targetImageUrl?: string | null;
@@ -104,6 +121,7 @@ export function liveActivityEventToStripItem(event: {
   return {
     id: event.id,
     type: event.type,
+    actorName: event.actorName?.trim() || "Someone",
     targetName: event.targetName,
     targetUrl: event.targetUrl,
     imageUrl,

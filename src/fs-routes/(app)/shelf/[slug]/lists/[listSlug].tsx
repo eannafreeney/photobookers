@@ -19,6 +19,7 @@ import { formatShelfOwnerName } from "../../../../../domain/shelf/utils";
 import { listSlugSchema } from "../../../../../domain/lists/utils";
 import { slugSchema } from "../../../../../features/app/schema";
 import { getInitialsAvatar } from "../../../../../lib/avatar";
+import CardAuthorCard from "@/components/app/CardAuthorCard";
 
 const listParamsSchema = z.object({
   slug: slugSchema.shape.slug,
@@ -110,18 +111,7 @@ export const GET = createRoute(
               <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-5xl">
                 {list.title}
               </h1>
-              <a
-                href={`/shelf/${shelfSlug}`}
-                class="flex items-center gap-2 text-on-surface-strong hover:opacity-75"
-              >
-                <img
-                  src={avatarUrl}
-                  alt={displayName}
-                  class="size-8 rounded-full object-cover"
-                  loading="lazy"
-                />
-                <span class="text-sm font-medium">{displayName}</span>
-              </a>
+              <CardAuthorCard user={owner} avatarSize="sm" />
               {list.description ? (
                 <p class="max-w-prose text-on-surface text-pretty">
                   {list.description}
@@ -137,7 +127,11 @@ export const GET = createRoute(
             </div>
 
             <div id="list-books" class="flex w-full flex-col gap-16">
-              <div id="list-book-cards" x-merge="replace" class="flex flex-col gap-12">
+              <div
+                id="list-book-cards"
+                x-merge="replace"
+                class="flex flex-col gap-12"
+              >
                 {booksResult.books.length > 0 ? (
                   booksResult.books.map((book, index) => (
                     <>

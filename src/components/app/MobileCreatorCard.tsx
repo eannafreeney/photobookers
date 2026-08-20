@@ -1,7 +1,7 @@
 import { AuthUser } from "../../../types";
 import { Creator } from "../../db/schema";
 import FollowButton from "../../features/api/components/FollowButton";
-import CardCreatorCard from "./CardCreatorCard";
+import CardAuthorCard from "./CardAuthorCard";
 
 type Props = {
   creator: Creator | null;
@@ -14,7 +14,7 @@ const MobileCreatorCard = ({ creator, user }: Props) => {
   return (
     <div class="flex items-center gap-2">
       <div class="grow">
-        <CardCreatorCard creator={creator} avatarSize="sm" />
+        <CardAuthorCard creator={creator} avatarSize="sm" />
       </div>
       <div>
         <FollowButton creator={creator} variant="mobile" user={user} />

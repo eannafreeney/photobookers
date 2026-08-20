@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   formatRecentActivityAge,
+  formatActivityActorName,
   liveActivityEventToStripItem,
   mergeRecentActivityItems,
-  recentActivityTrailingText,
+  recentActivityVerb,
   shouldShowLiveActivityEvent,
   type RecentActivityItem,
 } from "./homepageRecentActivityUtils";
@@ -12,6 +13,7 @@ const base = (
   overrides: Partial<RecentActivityItem> & Pick<RecentActivityItem, "id">,
 ): Omit<RecentActivityItem, "imageUrl"> & { imageUrl: string | null } => ({
   type: "book_favourited",
+  actorName: "Pat",
   targetName: "Example Book",
   targetUrl: "/books/example",
   createdAt: new Date("2026-08-20T12:00:00Z"),
@@ -57,14 +59,28 @@ describe("mergeRecentActivityItems", () => {
   });
 });
 
-describe("recentActivityTrailingText", () => {
+describe("formatActivityActorName", () => {
+  it("prefers creator display name, then first and last name", () => {
+    expect(
+      formatActivityActorName({
+        firstName: "Oliver",
+        lastName: "Burgold",
+        creatorDisplayName: "OliverBurgold",
+      }),
+    ).toBe("OliverBurgold");
+    expect(
+      formatActivityActorName({ firstName: "Oliver", lastName: "Burgold" }),
+    ).toBe("Oliver Burgold");
+    expect(formatActivityActorName({})).toBe("Someone");
+  });
+});
+
+describe("recentActivityVerb", () => {
   it("returns copy for each activity type", () => {
-    expect(recentActivityTrailingText("book_favourited")).toBe(
-      " was added to favourites",
-    );
-    expect(recentActivityTrailingText("creator_followed")).toBe(
-      " was followed",
-    );
+    expect(recentActivityVerb("book_commented")).toBe("commented on");
+    expect(recentActivityVerb("book_favourited")).toBe("favourited");
+    expect(recentActivityVerb("book_collected")).toBe("collected");
+    expect(recentActivityVerb("creator_followed")).toBe("followed");
   });
 });
 
@@ -121,6 +137,7 @@ describe("liveActivityEventToStripItem", () => {
       liveActivityEventToStripItem({
         id: "evt-1",
         type: "book_favourited",
+        actorName: "Pat",
         targetName: "Example Book",
         targetUrl: "/books/example",
         targetImageUrl: "https://cdn.example.com/cover.jpg",
@@ -129,6 +146,7 @@ describe("liveActivityEventToStripItem", () => {
     ).toEqual({
       id: "evt-1",
       type: "book_favourited",
+      actorName: "Pat",
       targetName: "Example Book",
       targetUrl: "/books/example",
       imageUrl: "https://cdn.example.com/cover.jpg",

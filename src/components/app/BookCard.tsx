@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import Card from "./Card";
 import { formatDate } from "../../utils";
-import CardCreatorCard from "./CardCreatorCard";
+import CardAuthorCard from "./CardAuthorCard";
 import Link from "./Link";
 import { AuthUser } from "../../../types";
 import { BookCardResult } from "../../constants/queries";
@@ -33,7 +33,7 @@ const BookCard = ({
       <Show when={currentCreatorId !== book.artist?.id}>
         <div class="px-3 py-2 flex items-center justify-between gap-2 h-10">
           <div class="min-w-0 flex-1">
-            <CardCreatorCard
+            <CardAuthorCard
               banner={banner}
               creator={book.artist ?? null}
               maxDisplayNameLength={

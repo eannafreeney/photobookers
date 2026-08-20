@@ -4,7 +4,7 @@ import SectionTitle from "../../../../components/app/SectionTitle";
 import ImagePreview from "../../../../components/forms/ImagePreview";
 import Card from "../../../../components/app/Card";
 import { BookCardResult } from "../../../../constants/queries";
-import CardCreatorCard from "../../../../components/app/CardCreatorCard";
+import CardAuthorCard from "../../../../components/app/CardAuthorCard";
 import { AuthUser } from "../../../../../types";
 import { canUploadImage } from "../../../../lib/permissions";
 import { Book } from "../../../../db/schema";
@@ -86,7 +86,7 @@ const CardPreview = ({ book }: { book: BookCardResult }) => (
     <p class="text-sm text-on-surface-variant mb-2">Book Card Preview</p>
     <Card className="max-w-[300px]">
       <div class="px-2 py-2 flex items-center justify-between">
-        <CardCreatorCard creator={book.artist ?? null} />
+        <CardAuthorCard creator={book.artist ?? null} />
       </div>
       <figure
         class="relative w-full overflow-hidden bg-white shadow-sm aspect-4/3"

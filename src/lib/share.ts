@@ -154,7 +154,7 @@ export function resolveShareUrl(
 }
 
 /**
- * Payload for navigator.share.
+ * Payload for navigator.share on mobile.
  *
  * Do not pass a separate `url` alongside `text`: many share sheets concatenate
  * `url + " " + text`, and linkifiers then treat the copy as part of the path
@@ -165,6 +165,19 @@ export function nativeSharePayload(title: string, text: string, url: string): {
   text: string;
 } {
   return { title, text: `${text}\n${url}` };
+}
+
+/**
+ * Desktop Chromium's share-sheet "Copy" joins title + text (+ file:// for
+ * images) into one clipboard blob — paste becomes a Google search or a local
+ * WebShare path. Rich share (caption / image) is mobile-only.
+ */
+export function shouldUseRichNativeShare(opts: {
+  mobile?: boolean;
+  userAgent?: string;
+}): boolean {
+  if (typeof opts.mobile === "boolean") return opts.mobile;
+  return /Android|iPhone|iPad|iPod/i.test(opts.userAgent ?? "");
 }
 
 /** Absolute image URL for Open Graph / share previews. */

@@ -193,6 +193,8 @@ export const getBookComments = async (bookId: string, defaultLimit = 3) => {
             lastName: true,
             email: true,
             profileImageUrl: true,
+            shelfSlug: true,
+            shelfPublic: true,
           },
           with: {
             creators: {

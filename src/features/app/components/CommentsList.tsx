@@ -1,9 +1,9 @@
 import { AuthUser } from "../../../../types";
-import CardCreatorCard from "../../../components/app/CardCreatorCard";
+import CardAuthorCard from "../../../components/app/CardAuthorCard";
 import Link from "../../../components/app/Link";
 import FormDelete from "../../../components/forms/FormDelete";
 import { formatDate } from "../../../utils";
-import { getBookComments, getDisplayName } from "../services";
+import { getBookComments } from "../services";
 
 type CommentsResult = Awaited<ReturnType<typeof getBookComments>>;
 type CommentWithUser = NonNullable<CommentsResult[1]>[number];
@@ -30,20 +30,7 @@ const CommentsList = async ({ bookId, user, comments }: CommentListProps) => {
         return (
           <div key={comment.id} class="border-b border-outline pb-2">
             <div class="mb-2 flex items-center justify-between gap-2">
-              {creator ? (
-                <CardCreatorCard creator={creator} />
-              ) : (
-                <div class="flex items-center gap-2">
-                  <img
-                    src={comment.user?.profileImageUrl ?? ""}
-                    alt={getDisplayName(comment.user)}
-                    class="h-6 w-6 rounded-full object-cover"
-                  />
-                  <p class="text-sm font-medium text-on-surface-strong">
-                    {getDisplayName(comment.user)}
-                  </p>
-                </div>
-              )}
+              <CardAuthorCard creator={creator} user={comment.user} />
               {comment.createdAt && (
                 <p class="text-xs text-on-surface">
                   {formatDate(comment.createdAt)}
