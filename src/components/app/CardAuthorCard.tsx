@@ -29,6 +29,8 @@ type Identity = {
   avatarSrc: string;
   href: string | null;
   status: CreatorCardResult["status"] | null;
+  /** Tooltip for VerificationBadge; collectors use "Verified Collector". */
+  badgeTitle?: string;
 };
 
 const displayNameFor = (user: AuthorUser) =>
@@ -58,15 +60,17 @@ function resolveIdentity(
   if (!user) return null;
 
   const displayName = displayNameFor(user);
+  const isPublicCollector = Boolean(user.shelfSlug && user.shelfPublic);
   return {
     displayName,
     title: displayName,
     avatarSrc:
       user.profileImageUrl ??
       getInitialsAvatar(user.firstName ?? "", user.lastName ?? ""),
-    href:
-      user.shelfSlug && user.shelfPublic ? `/shelf/${user.shelfSlug}` : null,
-    status: null,
+    href: isPublicCollector ? `/shelf/${user.shelfSlug}` : null,
+    // Same rule as shelf / collectors directory: public shelf ⇒ verified collector.
+    status: isPublicCollector ? "verified" : null,
+    badgeTitle: isPublicCollector ? "Verified Collector" : undefined,
   };
 }
 
@@ -80,7 +84,7 @@ const CardAuthorCard = async ({
   const identity = resolveIdentity(creator, user, maxDisplayNameLength);
   if (!identity) return <></>;
 
-  const { displayName, title, avatarSrc, href, status } = identity;
+  const { displayName, title, avatarSrc, href, status, badgeTitle } = identity;
   const label = banner ?? displayName;
   const avatar = (
     <Avatar src={avatarSrc} alt={displayName} size={avatarSize} />
@@ -108,7 +112,11 @@ const CardAuthorCard = async ({
         )}
         {status != null ? (
           <div class="shrink-0">
-            <VerificationBadge creatorStatus={status} size="xs" />
+            <VerificationBadge
+              creatorStatus={status}
+              size="xs"
+              title={badgeTitle}
+            />
           </div>
         ) : null}
       </div>
