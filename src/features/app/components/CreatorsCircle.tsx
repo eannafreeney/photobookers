@@ -3,18 +3,34 @@ import VerificationBadge from "../../../components/app/VerificationBadge";
 import { CreatorCardResult } from "../../../constants/queries";
 import { truncate } from "../../../lib/utils";
 import { getImageSizeClass } from "../utils";
+import FollowButton from "../../api/components/FollowButton";
+import { AuthUser } from "../../../../types";
 
 type Props = {
   creator: CreatorCardResult;
   size?: number;
   showType?: boolean;
+  /** Renders an inline follow control under the name (strip variant). */
+  showFollow?: boolean;
+  user?: AuthUser | null;
+  /** Resolved by the caller in one batch query when `showFollow` is set. */
+  isFollowing?: boolean;
 };
 
-const CreatorsCircle = ({ creator, size = 32, showType = false }: Props) => {
+const CreatorsCircle = ({
+  creator,
+  size = 32,
+  showType = false,
+  showFollow = false,
+  user = null,
+  isFollowing,
+}: Props) => {
   if (!creator) return <></>;
 
   return (
-    <div class="flex flex-col items-center gap-4">
+    <div
+      class={`flex flex-col items-center ${showFollow ? "gap-2" : "gap-4"}`}
+    >
       <a href={`/creators/${creator.slug}`} key={creator.id ?? creator.slug}>
         <div class="relative inline-block">
           <img
@@ -40,6 +56,14 @@ const CreatorsCircle = ({ creator, size = 32, showType = false }: Props) => {
           ) : null}
         </div>
       </a>
+      {showFollow ? (
+        <FollowButton
+          creator={creator}
+          user={user}
+          variant="strip"
+          isFollowing={isFollowing}
+        />
+      ) : null}
     </div>
   );
 };

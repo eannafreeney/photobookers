@@ -3,10 +3,16 @@ import {
   type HomepageActivityStats,
 } from "../homepageActivityVisibility";
 
+type Props = HomepageActivityStats & {
+  /** Override when the line sits inside another block (e.g. the live strip header). */
+  className?: string;
+};
+
 const HomepageActivityPulse = ({
   bookViews,
   profileViews,
-}: HomepageActivityStats) => {
+  className = "text-center text-sm text-on-surface text-pretty",
+}: Props) => {
   const { showBooks, showProfiles } = visibleHomepageActivityParts({
     bookViews,
     profileViews,
@@ -14,7 +20,7 @@ const HomepageActivityPulse = ({
   if (!showBooks && !showProfiles) return null;
 
   return (
-    <p class="text-center text-sm text-on-surface text-pretty">
+    <p class={className}>
       {showBooks ? (
         <>
           <span class="font-semibold text-on-surface-strong">
@@ -29,7 +35,7 @@ const HomepageActivityPulse = ({
           <span class="font-semibold text-on-surface-strong">
             {profileViews.toLocaleString()}
           </span>{" "}
-          creator profiles views
+          creator profile views
         </>
       ) : null}{" "}
       this week alone.

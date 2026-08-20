@@ -4,30 +4,48 @@ vi.mock("../../db/client", () => ({
   db: {},
 }));
 
-import { buildHeroCarouselItems } from "./utils";
+import {
+  buildCreatorOfTheWeekSpotlight,
+  type ArtistOfTheWeekData,
+  type PublisherOfTheWeekData,
+} from "./utils";
 
-describe("buildHeroCarouselItems", () => {
-  it("prefers curated featuredImageUrl for spotlight slides", () => {
-    const bookOfTheDay = {
-      id: "botd-1",
-      date: new Date("2026-06-30T00:00:00.000Z"),
-      bookId: "book-1",
-      featuredImageUrl: "https://example.com/curated-botd.jpg",
-      book: {
-        id: "book-1",
-        title: "Test Book",
-        slug: "test-book",
-        coverUrl: "https://example.com/cover.jpg",
-        artist: { displayName: "Jane Doe" },
-        images: [{ imageUrl: "https://example.com/interior.jpg" }],
-      },
-    } as Parameters<typeof buildHeroCarouselItems>[0];
+const artistOfTheWeek = {
+  id: "aotw-1",
+  weekStart: new Date("2026-06-29T00:00:00.000Z"),
+  creatorId: "artist-1",
+  featuredImageUrl: "https://example.com/curated-artist.jpg",
+  creator: {
+    id: "artist-1",
+    displayName: "Jane Doe",
+    slug: "jane-doe",
+    coverUrl: "https://example.com/artist-cover.jpg",
+    country: "US",
+  },
+} as ArtistOfTheWeekData;
 
-    const artistOfTheWeek = {
-      id: "aotw-1",
-      weekStart: new Date("2026-06-30T00:00:00.000Z"),
-      creatorId: "artist-1",
-      featuredImageUrl: "https://example.com/curated-artist.jpg",
+const publisherOfTheWeek = {
+  id: "potw-1",
+  weekStart: new Date("2026-06-29T00:00:00.000Z"),
+  creatorId: "publisher-1",
+  featuredImageUrl: null,
+  creator: {
+    id: "publisher-1",
+    displayName: "Acme Press",
+    slug: "acme-press",
+    coverUrl: "https://example.com/publisher-cover.jpg",
+    country: null,
+  },
+} as PublisherOfTheWeekData;
+
+describe("buildCreatorOfTheWeekSpotlight", () => {
+  it("links an artist pick at its week", () => {
+    const spotlight = buildCreatorOfTheWeekSpotlight("artist", artistOfTheWeek, [
+      "https://example.com/cover-1.jpg",
+    ]);
+
+    expect(spotlight).toEqual({
+      role: "artist",
       creator: {
         id: "artist-1",
         displayName: "Jane Doe",
@@ -35,35 +53,25 @@ describe("buildHeroCarouselItems", () => {
         coverUrl: "https://example.com/artist-cover.jpg",
         country: "US",
       },
-    } as Parameters<typeof buildHeroCarouselItems>[1];
+      featuredImageUrl: "https://example.com/curated-artist.jpg",
+      coverStack: ["https://example.com/cover-1.jpg"],
+      link: "/artist-of-the-week/2026-W27",
+    });
+  });
 
-    const publisherOfTheWeek = {
-      id: "potw-1",
-      weekStart: new Date("2026-06-30T00:00:00.000Z"),
-      creatorId: "publisher-1",
-      featuredImageUrl: "https://example.com/curated-publisher.jpg",
-      creator: {
-        id: "publisher-1",
-        displayName: "Acme Press",
-        slug: "acme-press",
-        coverUrl: "https://example.com/publisher-cover.jpg",
-        country: "UK",
-      },
-    } as Parameters<typeof buildHeroCarouselItems>[2];
-
-    const items = buildHeroCarouselItems(
-      bookOfTheDay,
-      artistOfTheWeek,
+  it("links a publisher pick at its own route and tolerates missing fields", () => {
+    const spotlight = buildCreatorOfTheWeekSpotlight(
+      "publisher",
       publisherOfTheWeek,
-      ["https://example.com/stack-1.jpg", "https://example.com/stack-2.jpg"],
-      ["https://example.com/pub-stack-1.jpg", "https://example.com/pub-stack-2.jpg"],
+      [],
     );
 
-    expect(items).toHaveLength(3);
-    expect(items[0]?.image).toBe("https://example.com/curated-botd.jpg");
-    expect(items[1]?.image).toBe("https://example.com/curated-artist.jpg");
-    expect(items[1]?.coverStack).toEqual([]);
-    expect(items[2]?.image).toBe("https://example.com/curated-publisher.jpg");
-    expect(items[2]?.coverStack).toEqual([]);
+    expect(spotlight?.link).toBe("/publisher-of-the-week/2026-W27");
+    expect(spotlight?.featuredImageUrl).toBeNull();
+    expect(spotlight?.creator.country).toBeNull();
+  });
+
+  it("returns null when there is no pick this week", () => {
+    expect(buildCreatorOfTheWeekSpotlight("artist", null, [])).toBeNull();
   });
 });

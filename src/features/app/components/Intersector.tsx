@@ -20,6 +20,11 @@ const Intersector = ({ id, endpoint, children }: Props) => {
 
 export default Intersector;
 
+/**
+ * Fallback for callers without a skeleton. Deliberately not `min-h-screen`:
+ * an over-tall placeholder makes the page shrink under the reader when the
+ * fragment lands.
+ */
 const LoadingIcon = () => (
-  <div class="flex justify-center items-center min-h-screen">{loadingIcon}</div>
+  <div class="flex min-h-[280px] items-center justify-center">{loadingIcon}</div>
 );

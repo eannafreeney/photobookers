@@ -1,12 +1,11 @@
 import { createRoute } from "hono-fsr";
-import SectionTitle from "../../../components/app/SectionTitle";
+import SectionHeader from "../../../components/app/SectionHeader";
 import ViewAllLink from "../../../features/app/components/ViewAllLink";
 import { getPublishedStores } from "../../../features/app/stores/services";
-import StoresGrid from "../../../features/app/stores/components/StoresGrid";
 import Button from "../../../components/app/Button";
-import StoresSlider from "../../../features/app/stores/components/StoresSlider";
+import StoresColumns from "../../../features/app/stores/components/StoresColumns";
 
-const FEATURED_STORES_LIMIT = 5;
+const FEATURED_STORES_LIMIT = 9;
 
 export const GET = createRoute(async (c) => {
   const [error, result] = await getPublishedStores({
@@ -21,24 +20,10 @@ export const GET = createRoute(async (c) => {
 
   return c.html(
     <div id="stores-fragment">
-      <div class="flex items-end justify-between mb-3 mt-10 border-t-2 border-on-surface-strong pt-3">
-        <SectionTitle className="mb-0" kicker="Shop Local">
-          Bookstores
-        </SectionTitle>
-        <ViewAllLink href="/stores" />
-      </div>
-      <div class="sm:hidden">
-        <StoresSlider stores={stores} />
-      </div>
-      <div class="hidden sm:block">
-        <StoresGrid
-          stores={stores}
-          page={1}
-          totalPages={1}
-          baseUrl="/stores"
-          targetId="stores-fragment-grid"
-        />
-      </div>
+      <SectionHeader kicker="Shop Local" action={<ViewAllLink href="/stores" />}>
+        Bookstores
+      </SectionHeader>
+      <StoresColumns stores={stores} />
       <div class=" mt-8 flex md:hidden justify-center">
         <a href="/stores">
           <Button variant="solid" color="primary" width="xl">

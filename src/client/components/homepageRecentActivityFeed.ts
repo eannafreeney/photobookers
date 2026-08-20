@@ -1,5 +1,6 @@
 import Alpine from "alpinejs";
 import {
+  activityActorAvatarUrl,
   formatRecentActivityAge,
   liveActivityEventToStripItem,
   parseHomepageRecentActivityConfig,
@@ -14,6 +15,7 @@ type LiveActivityEvent = {
   type: RecentActivityType;
   actorId?: string;
   actorName?: string;
+  actorImageUrl?: string | null;
   targetName: string;
   targetImageUrl?: string | null;
   targetUrl?: string;
@@ -28,10 +30,15 @@ type RecentActivityPageResponse = {
 };
 
 const MAX_STRIP_ITEMS = 48;
+/** How long a freshly arrived card keeps its highlight. */
+const NEW_ITEM_MS = 2600;
+
+/** Alpine needs the flag present up front to track it reactively. */
+type StripItem = SerializedRecentActivityItem & { isNew?: boolean };
 
 export function registerHomepageRecentActivity() {
   Alpine.data("homepageRecentActivity", () => ({
-    items: [] as SerializedRecentActivityItem[],
+    items: [] as StripItem[],
     pageSize: 10,
     nextOffset: 0,
     hasMore: false,
@@ -40,6 +47,7 @@ export function registerHomepageRecentActivity() {
     now: Date.now(),
     tickTimer: null as number | null,
     source: null as EventSource | null,
+    connected: false,
     shouldReconnect: false,
     reconnectTimer: null as number | null,
 
@@ -47,7 +55,7 @@ export function registerHomepageRecentActivity() {
       const config = parseHomepageRecentActivityConfig(
         this.$el.getAttribute("data-recent-activity"),
       );
-      this.items = config.items;
+      this.items = config.items.map((item) => ({ ...item, isNew: false }));
       this.currentUserId = config.currentUserId ?? null;
       this.hasMore = config.hasMore ?? false;
       this.nextOffset = config.nextOffset ?? config.items.length;
@@ -60,6 +68,10 @@ export function registerHomepageRecentActivity() {
 
     verb(type: RecentActivityType) {
       return recentActivityVerb(type);
+    },
+
+    avatar(item: StripItem) {
+      return activityActorAvatarUrl(item);
     },
 
     timeAgo(createdAt: string) {
@@ -92,7 +104,7 @@ export function registerHomepageRecentActivity() {
 
         for (const item of data.items) {
           if (existingIds.has(item.id)) continue;
-          this.items.push(item);
+          this.items.push({ ...item, isNew: false });
           existingIds.add(item.id);
         }
 
@@ -116,6 +128,10 @@ export function registerHomepageRecentActivity() {
 
       this.source = new EventSource("/api/activity/stream");
 
+      this.source.addEventListener("open", () => {
+        this.connected = true;
+      });
+
       this.source.addEventListener("activity", (message: MessageEvent) => {
         try {
           const event = JSON.parse(message.data) as LiveActivityEvent;
@@ -126,6 +142,7 @@ export function registerHomepageRecentActivity() {
       });
 
       this.source.addEventListener("error", () => {
+        this.connected = false;
         this.source?.close();
         this.source = null;
         if (!this.shouldReconnect) return;
@@ -141,17 +158,25 @@ export function registerHomepageRecentActivity() {
       if (!item) return;
       if (this.items.some((entry) => entry.id === item.id)) return;
 
-      this.items.unshift(item);
+      const arriving: StripItem = { ...item, isNew: true };
+      this.items.unshift(arriving);
       if (this.items.length > MAX_STRIP_ITEMS) {
         this.items = this.items.slice(0, MAX_STRIP_ITEMS);
       }
 
+      // Drop the highlight so a card only animates on arrival, not on re-render.
+      window.setTimeout(() => {
+        const entry = this.items.find((candidate) => candidate.id === item.id);
+        if (entry) entry.isNew = false;
+      }, NEW_ITEM_MS);
+
       const strip = this.$refs.strip as HTMLElement | undefined;
-      if (strip) strip.scrollLeft = 0;
+      if (strip) strip.scrollTo({ left: 0, behavior: "smooth" });
     },
 
     disconnect() {
       this.shouldReconnect = false;
+      this.connected = false;
       if (this.reconnectTimer) {
         clearTimeout(this.reconnectTimer);
         this.reconnectTimer = null;

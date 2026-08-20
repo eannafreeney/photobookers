@@ -1,3 +1,5 @@
+import { getInitialsAvatar } from "../../lib/avatar";
+
 export type RecentActivityType =
   | "book_favourited"
   | "book_collected"
@@ -8,12 +10,26 @@ export type RecentActivityItem = {
   id: string;
   type: RecentActivityType;
   actorName: string;
+  /** Actor's profile photo; falls back to initials when absent. */
+  actorImageUrl?: string | null;
   targetName: string;
   targetUrl: string;
   imageUrl: string;
   targetCreatorName?: string;
   createdAt: Date;
 };
+
+/** Avatar for an activity actor — their photo, or generated initials. */
+export function activityActorAvatarUrl(item: {
+  actorName: string;
+  actorImageUrl?: string | null;
+}): string {
+  const url = item.actorImageUrl?.trim();
+  if (url) return url;
+
+  const [firstName = "", lastName = ""] = item.actorName.trim().split(/\s+/);
+  return getInitialsAvatar(firstName, lastName);
+}
 
 export function formatActivityActorName(user: {
   firstName?: string | null;
@@ -68,7 +84,11 @@ export function mergeRecentActivityItems(
   )) {
     const imageUrl = resolveActivityImageUrl(row.imageUrl, resolvePublicUrl);
     if (!imageUrl) continue;
-    withImages.push({ ...row, imageUrl });
+    withImages.push({
+      ...row,
+      imageUrl,
+      actorImageUrl: resolveActivityImageUrl(row.actorImageUrl, resolvePublicUrl),
+    });
     if (withImages.length >= limit) break;
   }
 
@@ -109,6 +129,7 @@ export function liveActivityEventToStripItem(event: {
   id: string;
   type: RecentActivityType;
   actorName?: string;
+  actorImageUrl?: string | null;
   targetName: string;
   targetUrl?: string;
   targetImageUrl?: string | null;
@@ -122,6 +143,7 @@ export function liveActivityEventToStripItem(event: {
     id: event.id,
     type: event.type,
     actorName: event.actorName?.trim() || "Someone",
+    actorImageUrl: event.actorImageUrl ?? null,
     targetName: event.targetName,
     targetUrl: event.targetUrl,
     imageUrl,
@@ -178,9 +200,9 @@ export function formatRecentActivityAge(
   if (Number.isNaN(then)) return "";
 
   const seconds = Math.max(0, Math.floor((nowMs - then) / 1000));
-  if (seconds < 60) {
-    return seconds === 1 ? "1 second ago" : `${seconds} seconds ago`;
-  }
+  // Events arriving over SSE are seconds old; "5 seconds ago" reads worse than "Just now".
+  if (seconds < 10) return "Just now";
+  if (seconds < 60) return `${seconds} seconds ago`;
 
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) {

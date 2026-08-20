@@ -9,6 +9,7 @@ export type ActivityEvent = {
   type: ActivityType;
   actorId?: string;
   actorName?: string;
+  actorImageUrl?: string | null;
   targetName: string;
   targetImageUrl?: string | null;
   targetCreatorName?: string;

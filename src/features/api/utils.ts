@@ -2,6 +2,9 @@ import { publishActivityEvent } from "../../lib/activityEvents";
 import { AuthUser } from "../../../types";
 import { formatActivityActorName } from "../app/homepageRecentActivityUtils";
 
+const actorImageFor = (user: AuthUser) =>
+  user.creator?.coverUrl ?? user.profileImageUrl ?? null;
+
 const actorNameFor = (user: AuthUser) =>
   formatActivityActorName({
     firstName: user.firstName,
@@ -30,6 +33,7 @@ export const publishFavouritedActivity = (
     type: "book_favourited",
     actorId: user.id,
     actorName: actorNameFor(user),
+    actorImageUrl: actorImageFor(user),
     targetName: book.title,
     targetImageUrl: book.coverUrl,
     targetCreatorName: book.artist?.displayName ?? "",
@@ -44,6 +48,7 @@ export const publishCollectActivity = (
     type: "book_collected",
     actorId: user.id,
     actorName: actorNameFor(user),
+    actorImageUrl: actorImageFor(user),
     targetName: book.title,
     targetImageUrl: book.coverUrl,
     targetCreatorName: book.artist?.displayName ?? "",
@@ -58,6 +63,7 @@ export const publishFollowActivity = (
     type: "creator_followed",
     actorId: user.id,
     actorName: actorNameFor(user),
+    actorImageUrl: actorImageFor(user),
     targetName: creator.displayName,
     targetImageUrl: creator.coverUrl,
     targetUrl: `/creators/${creator.slug}`,
@@ -71,6 +77,7 @@ export const publishCommentActivity = (
     type: "book_commented",
     actorId: user.id,
     actorName: actorNameFor(user),
+    actorImageUrl: actorImageFor(user),
     targetName: book.title,
     targetImageUrl: book.coverUrl,
     targetCreatorName: book.artist?.displayName ?? "",

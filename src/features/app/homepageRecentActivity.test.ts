@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  activityActorAvatarUrl,
   formatRecentActivityAge,
   formatActivityActorName,
   liveActivityEventToStripItem,
@@ -118,6 +119,18 @@ describe("shouldShowLiveActivityEvent", () => {
 describe("formatRecentActivityAge", () => {
   const now = new Date("2026-08-20T12:00:30.000Z").getTime();
 
+  it("collapses the first few seconds to Just now", () => {
+    expect(formatRecentActivityAge("2026-08-20T12:00:30.000Z", now)).toBe(
+      "Just now",
+    );
+    expect(formatRecentActivityAge("2026-08-20T12:00:21.000Z", now)).toBe(
+      "Just now",
+    );
+    expect(formatRecentActivityAge("2026-08-20T12:00:19.000Z", now)).toBe(
+      "11 seconds ago",
+    );
+  });
+
   it("formats seconds and minutes", () => {
     expect(formatRecentActivityAge("2026-08-20T12:00:00.000Z", now)).toBe(
       "30 seconds ago",
@@ -147,10 +160,47 @@ describe("liveActivityEventToStripItem", () => {
       id: "evt-1",
       type: "book_favourited",
       actorName: "Pat",
+      actorImageUrl: null,
       targetName: "Example Book",
       targetUrl: "/books/example",
       imageUrl: "https://cdn.example.com/cover.jpg",
       createdAt: "2026-08-20T12:00:00.000Z",
     });
+  });
+
+  it("carries the actor avatar through", () => {
+    expect(
+      liveActivityEventToStripItem({
+        id: "evt-2",
+        type: "creator_followed",
+        actorName: "Pat",
+        actorImageUrl: "https://cdn.example.com/pat.jpg",
+        targetName: "Acme Press",
+        targetUrl: "/creators/acme-press",
+        targetImageUrl: "https://cdn.example.com/acme.jpg",
+        createdAt: "2026-08-20T12:00:00.000Z",
+      })?.actorImageUrl,
+    ).toBe("https://cdn.example.com/pat.jpg");
+  });
+});
+
+describe("activityActorAvatarUrl", () => {
+  it("prefers the actor's own image", () => {
+    expect(
+      activityActorAvatarUrl({
+        actorName: "Pat Doe",
+        actorImageUrl: "https://cdn.example.com/pat.jpg",
+      }),
+    ).toBe("https://cdn.example.com/pat.jpg");
+  });
+
+  it("falls back to an initials avatar built from the actor name", () => {
+    const url = activityActorAvatarUrl({
+      actorName: "Pat Doe",
+      actorImageUrl: null,
+    });
+
+    expect(url.startsWith("data:image/svg+xml,")).toBe(true);
+    expect(decodeURIComponent(url)).toMatch(/<text[^>]*>\s*PD\s*<\/text>/);
   });
 });

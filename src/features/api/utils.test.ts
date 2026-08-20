@@ -63,10 +63,43 @@ describe("publish* activity helpers", () => {
       type: "creator_followed",
       actorId: user.id,
       actorName: "Pat",
+      actorImageUrl: null,
       targetName: creator.displayName,
       targetImageUrl: creator.coverUrl,
       targetUrl: "/creators/creator-slug",
     });
+  });
+
+  it("sends the actor avatar so the live strip can show a face", () => {
+    publishFavouritedActivity(
+      { ...user, profileImageUrl: "https://example.com/pat.jpg" },
+      book,
+    );
+    expect(publishActivityEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorImageUrl: "https://example.com/pat.jpg",
+      }),
+    );
+  });
+
+  it("prefers the actor's creator cover when they have a creator profile", () => {
+    publishFavouritedActivity(
+      {
+        ...user,
+        profileImageUrl: "https://example.com/pat.jpg",
+        creator: {
+          displayName: "Pat Press",
+          coverUrl: "https://example.com/press.jpg",
+        } as AuthUser["creator"],
+      },
+      book,
+    );
+    expect(publishActivityEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorName: "Pat Press",
+        actorImageUrl: "https://example.com/press.jpg",
+      }),
+    );
   });
 
   it("publishCommentActivity sends book_commented", () => {

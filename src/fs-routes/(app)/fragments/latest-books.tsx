@@ -7,6 +7,8 @@ import { getFilteredBooks } from "../../../features/app/services";
 import { BOOK_CATALOG_DEFAULT_SORT } from "../../../lib/bookCatalogSort";
 import { booksFilterUrl, resolveBookCatalogSort } from "../../../lib/tags";
 import { getUser } from "../../../utils";
+import BooksGrid from "@/features/app/components/BooksGrid";
+import Button from "@/components/app/Button";
 
 const FEATURED_BOOKS_LIMIT = 10;
 const FRAGMENT_PATH = "/fragments/latest-books";
@@ -70,9 +72,24 @@ export const GET = createRoute(async (c) => {
         </SectionTitle>
         <ViewAllLink href="/books" />
       </div>
-      <div id={BOOKS_CATALOG_TARGET_ID}>
-        <BooksGridWithFilters {...gridProps} />
-      </div>
+      <BooksGrid
+        isPaginated={false}
+        user={user}
+        currentPath={viewAllHref}
+        result={result}
+        noResultsMessage={
+          isFiltered ? "No books match your filters." : undefined
+        }
+      />
+      {hasMore || viewAllHref ? (
+        <div class="mt-8 flex justify-center">
+          <a href={viewAllHref}>
+            <Button variant="solid" color="primary" width="xl">
+              View All Books →
+            </Button>
+          </a>
+        </div>
+      ) : null}
     </div>,
   );
 });

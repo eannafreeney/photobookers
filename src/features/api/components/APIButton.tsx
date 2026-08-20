@@ -6,6 +6,8 @@ type APIButtonProps = {
   action: string;
   method?: "get" | "post";
   disabled?: boolean;
+  /** Posted so the API can render this exact control back into the page. */
+  variant?: string;
   buttonText: ChildType;
   hiddenInput?: { name: string; value: boolean };
   isDisabled?: boolean;
@@ -19,6 +21,7 @@ const APIButton = ({
   id,
   action,
   method = "post",
+  variant,
   buttonText,
   hiddenInput,
   isDisabled = false,
@@ -31,8 +34,11 @@ const APIButton = ({
     "@ajax:before": "isSubmitting = true",
     "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
     "@ajax:error": "isSubmitting = false",
-    "x-target": `${id} toast modal-root`,
-    "x-target.error": "toast modal-root",
+    // `modal-root` belongs only on the 401 target: alpine-ajax removes a
+    // targeted element that a 2xx response omits, so listing it here deleted
+    // the page's modal container on every successful action.
+    "x-target": `${id} toast`,
+    "x-target.error": "toast",
     "x-target.401": "modal-root",
   };
 
@@ -62,6 +68,7 @@ const APIButton = ({
           value={hiddenInput.value ? "true" : "false"}
         />
       )}
+      {variant && <input type="hidden" name="variant" value={variant} />}
       {shouldRefreshFollowedCreators && (
         <input
           type="hidden"

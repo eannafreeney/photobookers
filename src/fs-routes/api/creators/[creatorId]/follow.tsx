@@ -17,7 +17,10 @@ import { getIsHyperview } from "../../../../features/hyperview/lib";
 import { getBaseUrl } from "../../../../lib/hyperview";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps";
 import { HyperviewFollowInner } from "../../../../features/hyperview/components/FollowButton";
-import FollowButton from "../../../../features/api/components/FollowButton";
+import FollowButton, {
+  FOLLOW_BUTTON_VARIANTS,
+  parseFollowButtonVariant,
+} from "../../../../features/api/components/FollowButton";
 import { routeParam } from "../../../../lib/routeParam";
 
 export const POST = createRoute(async (c: Context) => {
@@ -121,22 +124,33 @@ const postFollowWeb = async (c: Context) => {
     ? `No longer following ${creator.displayName}.`
     : `Now following ${creator.displayName}.`;
 
+  const isFollowing = !isCurrentlyFollowing;
+  const requestVariant = parseFollowButtonVariant(body.variant);
+
+  // Render every variant back: `x-sync` picks up whichever ones are on the
+  // page, so a creator with two controls (hero + strip) never goes stale.
+  // desktop/mobile keep taking their shape from the request for callers that
+  // render a circle button; the other variants own their shape.
   return c.html(
     <>
       <Alert type="success" message={message} />
-      <FollowButton
-        creator={creator}
-        user={user}
-        isCircleButton={isCircleButton}
-        shouldRefreshCreatorPosts={shouldRefreshCreatorPosts}
-      />
-      <FollowButton
-        creator={creator}
-        user={user}
-        isCircleButton={isCircleButton}
-        variant="mobile"
-        shouldRefreshCreatorPosts={shouldRefreshCreatorPosts}
-      />
+      {FOLLOW_BUTTON_VARIANTS.map((variant) => (
+        <FollowButton
+          key={variant}
+          creator={creator}
+          user={user}
+          variant={variant}
+          isFollowing={isFollowing}
+          isCircleButton={
+            variant === "desktop" || variant === "mobile"
+              ? isCircleButton
+              : undefined
+          }
+          shouldRefreshCreatorPosts={
+            shouldRefreshCreatorPosts && variant === requestVariant
+          }
+        />
+      ))}
       {shouldRefreshCreatorPosts &&
         dispatchEvents(["creator-posts:updated"])}
     </>,

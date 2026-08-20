@@ -3,32 +3,40 @@ import { getUser, getFlash } from "../../utils";
 import { Context } from "hono";
 import AppLayout from "../../components/layouts/AppLayout";
 import Page from "../../components/layouts/Page";
-import HeroCarouselFeatureCard from "../../components/app/HeroCarouselFeatureCard";
 import SiteFeatures from "../../features/app/components/SiteFeatures";
 import Intersector from "../../features/app/components/Intersector";
 import NewsletterCard from "../../features/app/components/NewsletterCard";
 import ScrollReveal from "../../components/app/ScrollReveal";
 import FeaturedBookGroups from "../../features/app/components/FeaturedBookGroups";
 import { canonicalUrl, DEFAULT_DESCRIPTION, pageTitle } from "../../lib/seo";
-import { loadHeroCarouselFeatureItems } from "../../features/app/utils";
+import {
+  loadBookOfTheDayFeature,
+  loadCreatorsOfTheWeek,
+} from "../../features/app/utils";
 import { heroLcpImageSources } from "../../lib/imageUrl";
 import PageBleed from "../../components/layouts/PageBleedRight";
 import { getHomepageActivityStats } from "@/features/app/homepageActivity";
+import BookOfTheDayAnchor from "../../features/app/components/BookOfTheDayAnchor";
+import CreatorOfTheWeekSpotlight from "../../features/app/components/CreatorOfTheWeekSpotlight";
+import DiscoveryTagChips from "../../features/app/components/DiscoveryTagChips";
+import SectionSkeleton from "../../features/app/components/SectionSkeleton";
 import { getRecentPublicActivityPage } from "../../features/app/homepageRecentActivity";
-import HomepageActivityPulse from "@/features/app/components/HomepageActivityPulse";
 import HomepageRecentActivity from "@/features/app/components/HomepageRecentActivity";
 import { AuthUser } from "../../../types";
 
 export const GET = createRoute(async (c: Context) => {
-  const [user, heroItems, flash] = await Promise.all([
+  const [user, bookOfTheDay, flash] = await Promise.all([
     getUser(c),
-    loadHeroCarouselFeatureItems(),
+    loadBookOfTheDayFeature(),
     getFlash(c),
   ]);
   const currentPath = c.req.path;
-  const lcpImage = heroItems[0]?.image
-    ? heroLcpImageSources(heroItems[0].image)
-    : undefined;
+  // The Book of the Day block now opens the page, so it owns the LCP image.
+  const lcpSource =
+    bookOfTheDay.today?.featuredImageUrl ??
+    bookOfTheDay.today?.book.coverUrl ??
+    null;
+  const lcpImage = lcpSource ? heroLcpImageSources(lcpSource) : undefined;
 
   const title = pageTitle("Discover Photobooks from Artists & Publishers");
   const description = DEFAULT_DESCRIPTION;
@@ -44,8 +52,16 @@ export const GET = createRoute(async (c: Context) => {
       flash={flash}
     >
       <Page>
-        <Pulse />
-        <HeroCarouselFeatureCard heroItems={heroItems} />
+        {bookOfTheDay.today ? (
+          <BookOfTheDayAnchor
+            today={bookOfTheDay.today}
+            yesterday={bookOfTheDay.yesterday}
+            twoDaysAgo={bookOfTheDay.twoDaysAgo}
+            threeDaysAgo={bookOfTheDay.threeDaysAgo}
+            user={user}
+          />
+        ) : null}
+        <DiscoveryTagChips />
         <ScrollReveal>
           <RecentActivity user={user} />
         </ScrollReveal>
@@ -54,7 +70,9 @@ export const GET = createRoute(async (c: Context) => {
         {!user && (
           <>
             <ScrollReveal>
-              <Intersector id="stats-fragment" endpoint="/fragments/stats" />
+              <Intersector id="stats-fragment" endpoint="/fragments/stats">
+                <SectionSkeleton variant="stats" withHeader={false} />
+              </Intersector>
             </ScrollReveal>
             <ScrollReveal>
               <SiteFeatures />
@@ -73,11 +91,17 @@ export const GET = createRoute(async (c: Context) => {
         </ScrollReveal>
 
         <ScrollReveal>
+          <CreatorsOfTheWeek user={user} />
+        </ScrollReveal>
+
+        <ScrollReveal>
           <PageBleed>
             <Intersector
               id="creators-slider-fragment"
               endpoint="/fragments/creators-slider"
-            />
+            >
+              <SectionSkeleton variant="circles" />
+            </Intersector>
           </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
@@ -85,25 +109,35 @@ export const GET = createRoute(async (c: Context) => {
             <Intersector
               id="interviews-fragment"
               endpoint="/fragments/interviews"
-            />
+            >
+              <SectionSkeleton variant="spread" />
+            </Intersector>
           </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
           <PageBleed>
-            <Intersector id="lists-fragment" endpoint="/fragments/lists" />
+            <Intersector id="lists-fragment" endpoint="/fragments/lists">
+              <SectionSkeleton variant="cards" />
+            </Intersector>
           </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
           <Intersector
             id="latest-books-fragment"
             endpoint="/fragments/latest-books"
-          />
+          >
+            <SectionSkeleton variant="grid" />
+          </Intersector>
         </ScrollReveal>
         <ScrollReveal>
-          <Intersector id="fairs-fragment" endpoint="/fragments/fairs" />
+          <Intersector id="fairs-fragment" endpoint="/fragments/fairs">
+            <SectionSkeleton variant="rows" />
+          </Intersector>
         </ScrollReveal>
         <ScrollReveal>
-          <Intersector id="stores-fragment" endpoint="/fragments/stores" />
+          <Intersector id="stores-fragment" endpoint="/fragments/stores">
+            <SectionSkeleton variant="columns" />
+          </Intersector>
         </ScrollReveal>
       </Page>
     </AppLayout>,
@@ -111,7 +145,7 @@ export const GET = createRoute(async (c: Context) => {
 });
 
 const Slogan = () => (
-  <div class="flex flex-col items-center gap-4 py-8 text-center border-y border-outline">
+  <div class="flex flex-col items-center gap-4 border-t-2 border-on-surface-strong py-8 pt-6 text-center">
     <span class="kicker text-accent">Photobookers</span>
     <h1 class="font-display text-3xl md:text-5xl font-medium text-on-surface-strong text-balance leading-tight max-w-3xl">
       Every photobook, artist, and publisher — in one place.
@@ -123,21 +157,29 @@ const Slogan = () => (
   </div>
 );
 
-const Pulse = async () => {
-  const [error, activity] = await getHomepageActivityStats();
-
-  if (error || !activity) return <></>;
+/** Both weekly picks, side by side — no rotation, nothing hidden. */
+const CreatorsOfTheWeek = async ({ user }: { user: AuthUser | null }) => {
+  const { artist, publisher } = await loadCreatorsOfTheWeek();
+  if (!artist && !publisher) return <></>;
 
   return (
-    <HomepageActivityPulse
-      bookViews={activity.bookViews}
-      profileViews={activity.profileViews}
-    />
+    <div class="grid items-start gap-8 py-4 md:grid-cols-2 md:gap-10">
+      {artist ? (
+        <CreatorOfTheWeekSpotlight spotlight={artist} user={user} />
+      ) : null}
+      {publisher ? (
+        <CreatorOfTheWeekSpotlight spotlight={publisher} user={user} />
+      ) : null}
+    </div>
   );
 };
 
+/** Live event strip; the weekly view counts ride along in its header. */
 const RecentActivity = async ({ user }: { user: AuthUser | null }) => {
-  const [error, page] = await getRecentPublicActivityPage();
+  const [[error, page], [statsError, stats]] = await Promise.all([
+    getRecentPublicActivityPage(),
+    getHomepageActivityStats(),
+  ]);
 
   if (error || !page?.items.length) return <></>;
 
@@ -148,6 +190,7 @@ const RecentActivity = async ({ user }: { user: AuthUser | null }) => {
       hasMore={page.hasMore}
       nextOffset={page.nextOffset}
       pageSize={page.pageSize}
+      stats={statsError ? null : stats}
     />
   );
 };

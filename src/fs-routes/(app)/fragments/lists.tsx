@@ -1,5 +1,5 @@
 import { createRoute } from "hono-fsr";
-import SectionTitle from "../../../components/app/SectionTitle";
+import SectionHeader from "../../../components/app/SectionHeader";
 import ViewAllLink from "../../../features/app/components/ViewAllLink";
 import Button from "../../../components/app/Button";
 import PromotedListCard from "@/features/app/components/PromotedListCard";
@@ -12,14 +12,9 @@ export const GET = createRoute(async (c) => {
 
   return c.html(
     <div id="lists-fragment">
-      <div class="mb-6 border-t-2 border-on-surface-strong pt-3">
-        <div class="mr-6 flex items-end justify-between">
-          <SectionTitle className="mb-0" kicker="From collectors">
-            Lists
-          </SectionTitle>
-          <ViewAllLink href="/lists" />
-        </div>
-      </div>
+      <SectionHeader kicker="From collectors" action={<ViewAllLink href="/lists" />}>
+        Lists
+      </SectionHeader>
       <div class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div class="flex min-w-max items-stretch gap-4 pr-4">
           {lists.map((list) => (

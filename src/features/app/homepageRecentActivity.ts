@@ -73,6 +73,7 @@ async function fetchRecentWishlistActivity(
       userId: wishlists.userId,
       actorFirstName: users.firstName,
       actorLastName: users.lastName,
+      actorImageUrl: users.profileImageUrl,
     })
     .from(wishlists)
     .innerJoin(books, eq(wishlists.bookId, books.id))
@@ -97,6 +98,7 @@ async function fetchRecentWishlistActivity(
         firstName: row.actorFirstName,
         lastName: row.actorLastName,
       }),
+      actorImageUrl: row.actorImageUrl,
       targetName: row.bookTitle,
       targetUrl: `/books/${row.bookSlug}`,
       imageUrl: row.coverUrl,
@@ -118,6 +120,7 @@ async function fetchRecentCollectionActivity(
       artistName: creators.displayName,
       actorFirstName: users.firstName,
       actorLastName: users.lastName,
+      actorImageUrl: users.profileImageUrl,
     })
     .from(collectionItems)
     .innerJoin(books, eq(collectionItems.bookId, books.id))
@@ -142,6 +145,7 @@ async function fetchRecentCollectionActivity(
         firstName: row.actorFirstName,
         lastName: row.actorLastName,
       }),
+      actorImageUrl: row.actorImageUrl,
       targetName: row.bookTitle,
       targetUrl: `/books/${row.bookSlug}`,
       imageUrl: row.coverUrl,
@@ -163,6 +167,7 @@ async function fetchRecentCommentActivity(
       artistName: creators.displayName,
       actorFirstName: users.firstName,
       actorLastName: users.lastName,
+      actorImageUrl: users.profileImageUrl,
     })
     .from(bookComments)
     .innerJoin(books, eq(bookComments.bookId, books.id))
@@ -187,6 +192,7 @@ async function fetchRecentCommentActivity(
         firstName: row.actorFirstName,
         lastName: row.actorLastName,
       }),
+      actorImageUrl: row.actorImageUrl,
       targetName: row.bookTitle,
       targetUrl: `/books/${row.bookSlug}`,
       imageUrl: row.coverUrl,
@@ -207,6 +213,7 @@ async function fetchRecentFollowActivity(
       coverUrl: creators.coverUrl,
       actorFirstName: users.firstName,
       actorLastName: users.lastName,
+      actorImageUrl: users.profileImageUrl,
     })
     .from(follows)
     .innerJoin(creators, eq(follows.targetCreatorId, creators.id))
@@ -230,6 +237,7 @@ async function fetchRecentFollowActivity(
         firstName: row.actorFirstName,
         lastName: row.actorLastName,
       }),
+      actorImageUrl: row.actorImageUrl,
       targetName: row.creatorName,
       targetUrl: `/creators/${row.creatorSlug}`,
       imageUrl: row.coverUrl,

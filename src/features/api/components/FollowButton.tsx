@@ -5,11 +5,39 @@ import { findFollow } from "../services";
 import APIButton from "./APIButton";
 import APIButtonCircle from "./APIButtonCircle";
 
+/**
+ * Every place a follow control can appear. The variant is posted with the form
+ * so `/api/creators/:id/follow` can render every variant back — any of them
+ * present in the DOM stays in sync, even when one creator has two controls on
+ * the page (e.g. the homepage hero and the trending strip below it).
+ */
+export const FOLLOW_BUTTON_VARIANTS = [
+  "desktop",
+  "mobile",
+  "strip",
+  "hero",
+] as const;
+
+export type FollowButtonVariant = (typeof FOLLOW_BUTTON_VARIANTS)[number];
+
+export const parseFollowButtonVariant = (
+  value: unknown,
+): FollowButtonVariant =>
+  FOLLOW_BUTTON_VARIANTS.includes(value as FollowButtonVariant)
+    ? (value as FollowButtonVariant)
+    : "desktop";
+
+/** Shape is fixed by the variant so a response can rebuild it without the caller. */
+export const isCircleFollowVariant = (variant: FollowButtonVariant) =>
+  variant === "strip";
+
 type FollowButtonProps = {
   creator: Pick<Creator, "id" | "displayName">;
   user: AuthUser | null;
   isCircleButton?: boolean;
-  variant?: "desktop" | "mobile";
+  variant?: FollowButtonVariant;
+  /** Pass when the caller already knows the follow state (avoids a query per card). */
+  isFollowing?: boolean;
   shouldRefreshFollowedCreators?: boolean;
   shouldRefreshCreatorPosts?: boolean;
 };
@@ -19,15 +47,17 @@ const FollowButton = async ({
   user,
   isCircleButton = false,
   variant = "desktop",
+  isFollowing: knownIsFollowing,
   shouldRefreshFollowedCreators = false,
   shouldRefreshCreatorPosts = false,
 }: FollowButtonProps) => {
-  // Only query if user is logged in, otherwise default to false
-  let isFollowing = false;
-  if (user?.id) {
+  // Only query if user is logged in and the caller hasn't resolved it already.
+  let isFollowing = knownIsFollowing ?? false;
+  if (knownIsFollowing === undefined && user?.id) {
     isFollowing = !!(await findFollow(creator.id, user.id));
   }
 
+  const isCircle = isCircleButton || isCircleFollowVariant(variant);
   const id = `follow-${creator.id}-${variant}`;
   const isDisabled = !canFollowCreator(user, creator);
   const buttonIcon = (
@@ -45,11 +75,12 @@ const FollowButton = async ({
 
   const props = {
     id,
+    variant,
     action: `/api/creators/${creator.id}/follow`,
     disabled: isDisabled,
     tooltipText: isFollowing ? "Unfollow" : "Follow",
     hiddenInput: { name: "isFollowing", value: isFollowing },
-    buttonText: isCircleButton ? (
+    buttonText: isCircle ? (
       buttonIcon
     ) : (
       <>
@@ -64,12 +95,13 @@ const FollowButton = async ({
     ),
   };
 
-  if (isCircleButton) {
+  if (isCircle) {
     return (
       <APIButtonCircle
         {...props}
         buttonType="circle"
         isDisabled={isDisabled}
+        isActive={isFollowing}
         shouldRefreshFollowedCreators={shouldRefreshFollowedCreators}
         shouldRefreshCreatorPosts={shouldRefreshCreatorPosts}
       />

@@ -1,29 +1,30 @@
-import { HeroCarouselItem } from "../../client/components/heroCarousel";
-import { formatCountry, toDateString } from "../../lib/utils";
+import type { CreatorOfTheWeekSpotlightData } from "./components/CreatorOfTheWeekSpotlight";
+import { formatCountry } from "../../lib/utils";
 import {
   getArtistOfTheWeekForDateQuery,
   getPublisherOfTheWeekForDateQuery,
 } from "../dashboard/admin/planner/services";
-import { getWeekNumber } from "../dashboard/admin/planner/utils";
-import { BookOfTheDayWithBook, getTodaysBookOfTheDay } from "./BOTDServices";
+import {
+  BookOfTheDayWithBook,
+  getBookOfTheDayForDate,
+  getTodaysBookOfTheDay,
+} from "./BOTDServices";
 import {
   getThisWeeksArtistOfTheWeek,
   getThisWeeksPublisherOfTheWeek,
 } from "./CreatorSpotlightServices";
 import { getCoverUrlsForHeroCarousel } from "./services";
-import { aotwPath, botdPath, potwPath } from "./spotlightUrls";
+import { aotwPath, potwPath } from "./spotlightUrls";
 
-type ArtistOfTheWeekData = Extract<
+export type ArtistOfTheWeekData = Extract<
   Awaited<ReturnType<typeof getArtistOfTheWeekForDateQuery>>,
   [null, unknown]
 >[1];
 
-type PublisherOfTheWeekData = Extract<
+export type PublisherOfTheWeekData = Extract<
   Awaited<ReturnType<typeof getPublisherOfTheWeekForDateQuery>>,
   [null, unknown]
 >[1];
-
-export type { HeroCarouselItem };
 
 async function heroCarouselCoverStack(
   role: "publisher" | "artist",
@@ -45,114 +46,104 @@ export async function loadHeroCarouselCoverStacks(params: {
   return { publisherCoverStack, artistCoverStack };
 }
 
-export function buildHeroCarouselItems(
-  bookOfTheDay: BookOfTheDayWithBook | null,
-  artistOfTheWeek: ArtistOfTheWeekData | null,
-  publisherOfTheWeek: PublisherOfTheWeekData | null,
-  publisherCoverStack: string[],
-  artistCoverStack: string[],
-): HeroCarouselItem[] {
-  const weekNumber = bookOfTheDay ? getWeekNumber(bookOfTheDay.date) : null;
-  const items: HeroCarouselItem[] = [];
+/**
+ * A weekly spotlight, shaped for its own block on /featured. Returns null when
+ * there is no pick this week so the caller can drop the column.
+ */
+export function buildCreatorOfTheWeekSpotlight(
+  role: "artist",
+  data: ArtistOfTheWeekData | null,
+  coverStack: string[],
+): CreatorOfTheWeekSpotlightData | null;
+export function buildCreatorOfTheWeekSpotlight(
+  role: "publisher",
+  data: PublisherOfTheWeekData | null,
+  coverStack: string[],
+): CreatorOfTheWeekSpotlightData | null;
+export function buildCreatorOfTheWeekSpotlight(
+  role: "artist" | "publisher",
+  data: ArtistOfTheWeekData | PublisherOfTheWeekData | null,
+  coverStack: string[],
+): CreatorOfTheWeekSpotlightData | null {
+  const creator = data?.creator;
+  if (!data || !creator) return null;
 
-  const book = bookOfTheDay?.book;
-  if (book) {
-    const imageUrls = [
-      book.coverUrl,
-      ...(book.images?.map((img) => img.imageUrl) ?? []),
-    ].filter((url): url is string => Boolean(url));
-
-    items.push({
-      label: "Book of the Day",
-      title: book.title,
-      text: book.artist ? `by ${book.artist.displayName}` : "",
-      image: bookOfTheDay.featuredImageUrl ?? imageUrls[0],
-      link: botdPath(bookOfTheDay.date),
-      slideClass: "bg-[#f2efe8]",
-      weekNumber,
-      dateLabel: toDateString(bookOfTheDay.date),
-    });
-  }
-
-  const artist = artistOfTheWeek?.creator;
-
-  if (artist) {
-    const heroImage =
-      artistOfTheWeek.featuredImageUrl ?? artist.coverUrl ?? undefined;
-    const stack =
-      heroImage || artistCoverStack.length < 2 ? [] : artistCoverStack;
-    items.push({
-      label: "Artist of the Week",
-      title: artist.displayName,
-      image: heroImage,
-      coverStack: stack,
-      text: artist.country?.trim()
-        ? `Based in ${formatCountry(artist.country.trim())}`
-        : "Discover this week's featured artist.",
-      link: aotwPath(artistOfTheWeek.weekStart),
-      slideClass: "bg-[#e8e9e2]",
-      weekNumber,
-    });
-  }
-
-  const publisher = publisherOfTheWeek?.creator;
-
-  if (publisher) {
-    const heroImage =
-      publisherOfTheWeek.featuredImageUrl ?? publisher.coverUrl ?? undefined;
-    const stack =
-      heroImage || publisherCoverStack.length < 2 ? [] : publisherCoverStack;
-
-    items.push({
-      label: "Publisher of the Week",
-      title: publisher.displayName,
-      image: heroImage,
-      coverStack: stack,
-      link: potwPath(publisherOfTheWeek.weekStart),
-      text: publisher.country?.trim()
-        ? `Based in ${formatCountry(publisher.country.trim())}`
-        : "Discover this week's featured publisher.",
-      slideClass: "bg-[#efe5e0]",
-      weekNumber,
-    });
-  }
-
-  return items;
+  return {
+    role,
+    creator: {
+      id: creator.id,
+      displayName: creator.displayName,
+      slug: creator.slug,
+      coverUrl: creator.coverUrl ?? null,
+      country: creator.country ?? null,
+    },
+    featuredImageUrl: data.featuredImageUrl ?? null,
+    coverStack,
+    link:
+      role === "artist" ? aotwPath(data.weekStart) : potwPath(data.weekStart),
+  };
 }
 
-/** Hero carousel data for /featured (and LCP preload). Returns [] when spotlight data is unavailable. */
-export async function loadHeroCarouselFeatureItems(): Promise<HeroCarouselItem[]> {
-  const [bookRes, artistRes, publisherRes] = await Promise.all([
-    getTodaysBookOfTheDay(),
-    getThisWeeksArtistOfTheWeek(),
-    getThisWeeksPublisherOfTheWeek(),
-  ]);
+/** This week's artist and publisher picks, with a few covers each. */
+export async function loadCreatorsOfTheWeek(): Promise<{
+  artist: CreatorOfTheWeekSpotlightData | null;
+  publisher: CreatorOfTheWeekSpotlightData | null;
+}> {
+  const [[artistErr, artistOfTheWeek], [publisherErr, publisherOfTheWeek]] =
+    await Promise.all([
+      getThisWeeksArtistOfTheWeek(),
+      getThisWeeksPublisherOfTheWeek(),
+    ]);
 
-  const [bookErr, bookOfTheDay] = bookRes;
-  const [artistErr, artistOfTheWeek] = artistRes;
-  const [publisherErr, publisherOfTheWeek] = publisherRes;
-
-  if (artistErr || publisherErr) {
-    return [];
-  }
+  const artist = artistErr ? null : artistOfTheWeek;
+  const publisher = publisherErr ? null : publisherOfTheWeek;
 
   const { publisherCoverStack, artistCoverStack } =
     await loadHeroCarouselCoverStacks({
-      publisherCreatorId: publisherOfTheWeek ? publisherOfTheWeek.creatorId : null,
-      artistCreatorId: artistOfTheWeek ? artistOfTheWeek.creatorId : null,
+      publisherCreatorId: publisher ? publisher.creatorId : null,
+      artistCreatorId: artist ? artist.creatorId : null,
     });
 
-  return buildHeroCarouselItems(
-    bookErr ? null : bookOfTheDay,
-    artistErr ? null : artistOfTheWeek,
-    publisherErr ? null : publisherOfTheWeek,
-    publisherCoverStack,
-    artistCoverStack,
-  );
+  return {
+    artist: buildCreatorOfTheWeekSpotlight("artist", artist, artistCoverStack),
+    publisher: buildCreatorOfTheWeekSpotlight(
+      "publisher",
+      publisher,
+      publisherCoverStack,
+    ),
+  };
 }
 
-export function toAlpineDataJson(items: HeroCarouselItem[]) {
-  return JSON.stringify(items).replace(/</g, "\\u003c");
+/** Today's pick plus yesterday's, for the Book of the Day block. */
+export async function loadBookOfTheDayFeature(): Promise<{
+  today: BookOfTheDayWithBook | null;
+  yesterday: BookOfTheDayWithBook | null;
+  twoDaysAgo: BookOfTheDayWithBook | null;
+  threeDaysAgo: BookOfTheDayWithBook | null;
+}> {
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+
+  const twoDaysAgoDate = new Date();
+  twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 2);
+
+  const threeDaysAgoDate = new Date();
+  threeDaysAgoDate.setDate(threeDaysAgoDate.getDate() - 3);
+
+  const [[todayErr, today], [, yesterday], [, twoDaysAgo], [, threeDaysAgo]] =
+    await Promise.all([
+      getTodaysBookOfTheDay(),
+      getBookOfTheDayForDate(yesterdayDate),
+      getBookOfTheDayForDate(twoDaysAgoDate),
+      getBookOfTheDayForDate(threeDaysAgoDate),
+    ]);
+
+  return {
+    today: todayErr || !today?.book ? null : today,
+    yesterday: yesterday?.book ? yesterday : null,
+    twoDaysAgo: twoDaysAgo?.book ? twoDaysAgo : null,
+    threeDaysAgo: threeDaysAgo?.book ? threeDaysAgo : null,
+  };
 }
 
 export function getImageSizeClass(size: number) {

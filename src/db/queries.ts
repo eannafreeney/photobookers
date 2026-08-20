@@ -9,7 +9,7 @@ import {
   users,
   wishlists,
 } from "./schema";
-import { and, count, desc, eq, SQL } from "drizzle-orm";
+import { and, count, desc, eq, inArray, SQL } from "drizzle-orm";
 
 export const deleteFollow = async (creatorId: string, userId: string) => {
   await db
@@ -41,6 +41,30 @@ export const findFollow = async (creatorId: string, userId: string) => {
       eq(follows.followerUserId, userId),
     ),
   });
+};
+
+/** Follow state for many creators in one query (avoids a lookup per card). */
+export const findFollowedCreatorIds = async (
+  userId: string,
+  creatorIds: string[],
+): Promise<Set<string>> => {
+  if (creatorIds.length === 0) return new Set();
+
+  const rows = await db
+    .select({ creatorId: follows.targetCreatorId })
+    .from(follows)
+    .where(
+      and(
+        eq(follows.followerUserId, userId),
+        inArray(follows.targetCreatorId, creatorIds),
+      ),
+    );
+
+  return new Set(
+    rows
+      .map((row) => row.creatorId)
+      .filter((id): id is string => Boolean(id)),
+  );
 };
 
 export const findFollowersCount = async (creatorId: string) => {
