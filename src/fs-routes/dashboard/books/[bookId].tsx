@@ -12,6 +12,7 @@ import {
 } from "../../../features/dashboard/books/services";
 import PublishToggleForm from "../../../features/dashboard/books/components/PublishToggleForm";
 import PreviewButton from "../../../features/api/components/PreviewButton";
+import BookPublishActions from "../../../features/dashboard/books/components/BookPublishActions";
 import BookCoverForm from "../../../features/dashboard/images/forms/BookCoverForm";
 import BookGalleryForm from "../../../features/dashboard/images/forms/BookGalleryForm";
 import { BookForm } from "../../../features/dashboard/books/forms/BookForm";
@@ -40,6 +41,7 @@ import Tabs from "../../../components/app/Tabs";
 import SectionTitle from "../../../components/app/SectionTitle";
 import { serializePressLinks } from "../../../features/dashboard/books/pressLinks";
 import { toDateInputValue } from "../../../lib/utils";
+import type { Book } from "../../../db/schema";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
@@ -96,9 +98,7 @@ export const GET = createRoute(
               },
             ]}
           />
-          <div class="mb-4">
-            <BookReviewProcessBanner variant={bannerVariant} />
-          </div>
+          <BookReviewProcessBanner variant={bannerVariant} />
           {book.approvalStatus === "pending" && (
             <div
               id="book-submit-review"
@@ -134,9 +134,8 @@ export const GET = createRoute(
           )}
           {!publisherIsVerified && book.approvalStatus === "approved" && (
             <div class="flex justify-end">
-              <div class="flex items-center gap-4">
-                <PublishToggleForm book={book} user={user} />
-                <PreviewButton book={book} user={user} />
+              <div class="flex flex-wrap items-center justify-end gap-3">
+                <BookPublishActions book={book} user={user} />
               </div>
             </div>
           )}
@@ -180,7 +179,7 @@ export const GET = createRoute(
                 <div class="mb-4">
                   <Banner
                     type="warning"
-                    message="A photo of the cover is required. Books with a jpg of the cover will be rejected."
+                    message="A photo of the book is required. Cover files will be rejected."
                   />
                 </div>
               )}
@@ -237,10 +236,21 @@ export const PATCH = createRoute(
   async (c: BookFormWithBookContext) => {
     const form = await c.req.parseBody();
     const intent = form.intent;
+    const usePageControls = form.controls === "page";
     const book = c.get("book");
     const user = await getUser(c);
     if (!book) return showErrorAlert(c, "Book not found");
     if (!book.artist) return showErrorAlert(c, "Artist not found");
+
+    const publishControls = (nextBook: Book) =>
+      usePageControls ? (
+        <BookPublishActions book={nextBook} user={user} />
+      ) : (
+        <>
+          <PublishToggleForm book={nextBook} user={user} />
+          <PreviewButton book={nextBook} user={user} />
+        </>
+      );
 
     if (intent === "publish") {
       const [publishError, updatedBook] = await updateBookPublicationStatus(
@@ -258,8 +268,7 @@ export const PATCH = createRoute(
             type="success"
             message={`${updatedBook?.title ?? "Book"} Published!`}
           />
-          <PublishToggleForm book={updatedBook} user={user} />
-          <PreviewButton book={updatedBook} user={user} />
+          {publishControls(updatedBook)}
         </>,
       );
     }
@@ -273,7 +282,7 @@ export const PATCH = createRoute(
         return c.html(
           <>
             <Alert type="danger" message={unpublishError.reason} />
-            <PublishToggleForm book={book} user={user} />
+            {publishControls(book)}
           </>,
           400,
         );
@@ -285,8 +294,7 @@ export const PATCH = createRoute(
             type="warning"
             message={`${updatedBook?.title ?? "Book"} Unpublished!`}
           />
-          <PublishToggleForm book={updatedBook} user={user} />
-          <PreviewButton book={updatedBook} user={user} />
+          {publishControls(updatedBook)}
         </>,
       );
     }

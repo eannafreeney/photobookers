@@ -18,9 +18,25 @@ describe("buildBookLiveEmailHtml", () => {
     expect(html).toContain("is now live on Photobookers");
     expect(html).toContain("https://cdn.example.com/cover.jpg");
     expect(html).toContain("Share kit");
-    expect(html).toContain("Winter Light");
+    expect(html).toContain("My book &quot;Winter Light&quot;");
     expect(html).toContain("@janedoe");
     expect(html).toContain("/books/winter-light-jane-doe");
+  });
+
+  it("uses contributor share copy when the submitter added someone else's book", () => {
+    const html = buildBookLiveEmailHtml({
+      recipientName: "Sam Contributor",
+      bookTitle: "Winter Light",
+      artistName: "Jane Doe",
+      bookSlug: "winter-light-jane-doe",
+      coverUrl: "https://cdn.example.com/cover.jpg",
+      addedBy: "contributor",
+    });
+
+    expect(html).toContain(
+      "I added book &quot;Winter Light&quot; by Jane Doe — live on @photobookers.",
+    );
+    expect(html).not.toContain("My book &quot;Winter Light&quot;");
   });
 });
 

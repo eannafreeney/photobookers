@@ -10,36 +10,27 @@ type BannerVariant =
 type Props = { variant: BannerVariant };
 
 const BookReviewProcessBanner = ({ variant }: Props) => {
-  if (variant === "hidden") return null;
+  if (variant === "hidden" || variant === "create_trusted") return null;
 
-  if (variant === "create_moderated") {
-    return (
+  const banner =
+    variant === "create_moderated" ? (
       <Banner
         type="info"
         message="Save the book details first, then add a cover image on the next step. Once you have a cover, you can submit for review."
       />
-    );
-  }
-
-  if (variant === "edit_pending") {
-    return (
+    ) : variant === "edit_pending" ? (
       <Banner
         type="info"
         message="This book is awaiting review. You can still edit details below; we will email you when it has been approved or if we need changes."
       />
-    );
-  }
-
-  if (variant === "edit_rejected") {
-    return (
+    ) : (
       <Banner
         type="warning"
         message={`This book was not approved yet. Update the details below, then use "Resubmit for review" when you are ready to send it back to the team.`}
       />
     );
-  }
 
-  return null;
+  return <div class="mb-4">{banner}</div>;
 };
 
 export default BookReviewProcessBanner;

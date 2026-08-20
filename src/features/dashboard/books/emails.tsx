@@ -21,6 +21,7 @@ export function buildBookLiveEmailHtml(params: {
   bookSlug: string;
   coverUrl: string;
   instagram?: string | null;
+  addedBy?: "owner" | "contributor";
 }): string {
   const pageUrl = bookUrl(params.bookSlug);
   const caption = bookLiveInstagramCaption({
@@ -28,6 +29,7 @@ export function buildBookLiveEmailHtml(params: {
     artistName: params.artistName,
     bookUrl: pageUrl,
     instagram: params.instagram,
+    addedBy: params.addedBy,
   });
   const shareTitle = bookShareTitle({
     title: params.bookTitle,

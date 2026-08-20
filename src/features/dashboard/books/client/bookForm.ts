@@ -97,10 +97,11 @@ export function registerBookForm() {
         submitForm(event: Event) {
           // Hidden ComboBox inputs stay in the DOM under x-show; clear so
           // self-published submits as null publisher rather than a prior pick.
-          if (this.is_self_published) {
-            this.form.publisher_id = undefined;
-            this.form.new_publisher_name = undefined;
-            this.is_new_publisher = false;
+          const ctx = this as unknown as BookFormThis;
+          if (ctx.is_self_published) {
+            ctx.form.publisher_id = undefined;
+            ctx.form.new_publisher_name = undefined;
+            ctx.is_new_publisher = false;
           }
           return handleSubmit(this, event, bookFormSchema);
         },

@@ -42,9 +42,7 @@ export const GET = createRoute(async (c) => {
             },
           ]}
         />
-        <div class="mb-4">
-          <BookReviewProcessBanner variant="create_moderated" />
-        </div>
+        <BookReviewProcessBanner variant="create_moderated" />
         <Tabs defaultTab="info">
           <Tabs.LinkContainer align="left">
             <Tabs.Link tabId="info">Details</Tabs.Link>

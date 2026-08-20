@@ -30,25 +30,26 @@ export const colorMap = {
     ghost: "bg-transparent text-on-surface",
   },
   info: {
-    solid: "bg-info border border-info text-onInfo focus-visible:outline-info",
+    solid:
+      "bg-info border border-info text-on-info focus-visible:outline-info",
     outline: "border border-info text-info",
     ghost: "bg-transparent text-info",
   },
   warning: {
     solid:
-      "bg-warning border border-warning text-onWarning focus-visible:outline-warning",
+      "bg-warning border border-warning text-on-warning focus-visible:outline-warning",
     outline: "border border-warning text-warning",
     ghost: "bg-transparent text-warning",
   },
   danger: {
     solid:
-      "bg-danger border border-danger text-onDanger focus-visible:outline-danger",
+      "bg-danger border border-danger text-on-danger focus-visible:outline-danger",
     outline: "border border-danger text-danger",
     ghost: "bg-transparent text-danger",
   },
   success: {
     solid:
-      "bg-success border border-success text-onSuccess focus-visible:outline-success",
+      "bg-success border border-success text-on-success focus-visible:outline-success",
     outline: "border border-success text-success",
     ghost: "bg-transparent text-success",
   },

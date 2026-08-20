@@ -51,10 +51,16 @@ export function bookLiveInstagramCaption(params: {
   artistName?: string | null;
   bookUrl: string;
   instagram?: string | null;
+  /** Contributor who submitted someone else's book — not the artist/publisher. */
+  addedBy?: "owner" | "contributor";
 }): string {
   const byArtist = params.artistName ? ` by ${params.artistName}` : "";
+  const intro =
+    params.addedBy === "contributor"
+      ? `I added book "${params.bookTitle}"${byArtist} — live on @photobookers.`
+      : `My book "${params.bookTitle}"${byArtist} is live on @photobookers.`;
   const lines = [
-    `My book "${params.bookTitle}"${byArtist} is live on @photobookers.`,
+    intro,
     "",
     params.bookUrl,
   ];

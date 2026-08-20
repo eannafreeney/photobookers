@@ -14,6 +14,7 @@ type BookLiveRecipient = {
   email: string;
   displayName: string;
   instagram?: string | null;
+  addedBy: "owner" | "contributor";
 };
 
 async function getBookLiveRecipients(
@@ -22,6 +23,7 @@ async function getBookLiveRecipients(
   try {
     const book = await db.query.books.findFirst({
       where: eq(books.id, bookId),
+      columns: { submittedByUserId: true },
       with: {
         artist: {
           columns: { displayName: true, email: true, instagram: true },
@@ -46,6 +48,7 @@ async function getBookLiveRecipients(
         email,
         displayName: creator.displayName,
         instagram: creator.instagram,
+        addedBy: "owner",
       });
     }
 
@@ -57,7 +60,12 @@ async function getBookLiveRecipients(
             .filter(Boolean)
             .join(" ")
             .trim() || "there";
-        recipients.set(fallbackEmail, { email: fallbackEmail, displayName: name });
+        recipients.set(fallbackEmail, {
+          email: fallbackEmail,
+          displayName: name,
+          // Contributor submissions set submittedByUserId; owner voice otherwise.
+          addedBy: book.submittedByUserId ? "contributor" : "owner",
+        });
       }
     }
 
@@ -112,6 +120,7 @@ export async function sendBookLiveEmailIfNeeded(
         recipientName: recipient.displayName,
         ...htmlParams,
         instagram: recipient.instagram,
+        addedBy: recipient.addedBy,
       });
       const [emailError] = await sendEmail(recipient.email, subject, html);
       if (emailError) {
