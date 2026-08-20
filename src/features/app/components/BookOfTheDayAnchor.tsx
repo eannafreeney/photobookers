@@ -43,9 +43,7 @@ const BookOfTheDayAnchor = ({
 
   return (
     <section>
-      <div class="grid gap-6 pb-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:items-center md:gap-12 md:py-14">
-        {/* Fixed-height box: a `w-auto` image with only a max-height reserves
-            no space until it decodes, and this is the page's LCP element. */}
+      <div class="flex flex-col md:flex-row gap-6 pb-8 items-center justify-center md:gap-12 md:py-14">
         <a
           href={link}
           class="flex h-[340px] justify-center md:h-[440px] md:justify-end"
