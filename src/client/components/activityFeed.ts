@@ -1,13 +1,14 @@
 import Alpine from "alpinejs";
+import {
+  recentActivityVerb,
+  type RecentActivityType,
+} from "../../features/app/homepageRecentActivityUtils";
 
 type ActivityEvent = {
   id: string;
-  type:
-    | "book_favourited"
-    | "book_collected"
-    | "creator_followed"
-    | "book_commented";
+  type: RecentActivityType;
   actorId?: string;
+  actorName?: string;
   targetName: string;
   targetImageUrl?: string | null;
   targetUrl?: string;
@@ -16,35 +17,7 @@ type ActivityEvent = {
 };
 
 type ActivityItem = ActivityEvent & {
-  leadingText: string;
-  trailingText: string;
-};
-
-const toMessageParts = (
-  e: ActivityEvent,
-): Pick<ActivityItem, "leadingText" | "trailingText"> => {
-  switch (e.type) {
-    case "book_favourited":
-      return {
-        leadingText: "",
-        trailingText: " was added to favourites",
-      };
-    case "book_collected":
-      return {
-        leadingText: "",
-        trailingText: " was added to a collection",
-      };
-    case "creator_followed":
-      return {
-        leadingText: "",
-        trailingText: " was followed",
-      };
-    case "book_commented":
-      return {
-        leadingText: "",
-        trailingText: " was commented on",
-      };
-  }
+  actorName: string;
 };
 
 function isVisibleActivity(
@@ -67,6 +40,10 @@ export function registerActivityFeed() {
     reconnectTimer: null as number | null,
 
     toastDurationMs: 6000,
+
+    verb(type: RecentActivityType) {
+      return recentActivityVerb(type);
+    },
 
     connect() {
       if (this.source) return;
@@ -98,7 +75,7 @@ export function registerActivityFeed() {
 
       const item: ActivityItem = {
         ...event,
-        ...toMessageParts(event),
+        actorName: event.actorName?.trim() || "Someone",
       };
 
       this.queue.push(item);

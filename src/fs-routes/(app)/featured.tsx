@@ -46,6 +46,9 @@ export const GET = createRoute(async (c: Context) => {
       <Page>
         <Pulse />
         <HeroCarouselFeatureCard heroItems={heroItems} />
+        <ScrollReveal>
+          <RecentActivity user={user} />
+        </ScrollReveal>
         <Slogan />
         <ScrollReveal>
           <Intersector id="stats-fragment" endpoint="/fragments/stats" />
@@ -57,9 +60,7 @@ export const GET = createRoute(async (c: Context) => {
             </ScrollReveal>
           </>
         )}
-        <ScrollReveal>
-          <RecentActivity user={user} />
-        </ScrollReveal>
+
         <ScrollReveal>
           <NewsletterCard />
         </ScrollReveal>

@@ -57,15 +57,10 @@ const ActivityToast = ({
             />
           </template>
           <p class="min-w-0 text-sm font-medium tracking-wider">
-            <span x-text="activeItem.leadingText"></span>
             <strong x-text="activeItem.targetName"></strong>
-            <template x-if="activeItem.targetCreatorName">
-              <span>
-                {" "}
-                by <span x-text="activeItem.targetCreatorName"></span>
-              </span>
-            </template>
-            <span x-text="activeItem.trailingText"></span>
+            {" "}
+            was <span x-text="verb(activeItem.type)"></span> by{" "}
+            <strong x-text="activeItem.actorName"></strong>
           </p>
         </a>
       </div>
