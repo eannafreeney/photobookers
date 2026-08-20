@@ -1,6 +1,6 @@
 import { BookCardResult } from "../../../constants/queries";
 import Link from "../../../components/app/Link";
-import { deleteIcon, dragHandleIcon, editIcon } from "../../../lib/icons";
+import { deleteIcon, dragHandleIcon } from "../../../lib/icons";
 
 export type ListBook = BookCardResult & { note?: string | null };
 
@@ -85,7 +85,7 @@ const ListBooks = ({ listId, books }: Props) => {
             <a
               href={`/dashboard/lists/${listId}/books/${book.id}/note`}
               x-target="modal-root"
-              class="cursor-pointer text-on-surface hover:opacity-75"
+              class="shrink-0 rounded border border-outline bg-surface-alt px-2 py-1 text-xs font-medium text-on-surface hover:bg-surface cursor-pointer"
               title={book.note ? "Edit note" : "Add note"}
               aria-label={
                 book.note
@@ -93,7 +93,7 @@ const ListBooks = ({ listId, books }: Props) => {
                   : `Add note for ${book.title}`
               }
             >
-              {editIcon(5)}
+              {book.note ? "Edit Note" : "Add Note"}
             </a>
             <form
               method="post"
