@@ -4,6 +4,7 @@ import { getUser } from "../../../../../../utils";
 import {
   getBooksInList,
   getListItemForOwner,
+  getUserCommentsForBook,
   updateListItemNote,
 } from "../../../../../../domain/lists/services";
 import { userCanManageBookLists } from "../../../../../../domain/lists/utils";
@@ -31,11 +32,14 @@ export const GET = createRoute(async (c: Context) => {
     return showErrorAlert(c, err?.reason ?? "Book not found in this list");
   }
 
+  const comments = await getUserCommentsForBook(user.id, bookId);
+
   return c.html(
     <ListBookNoteModal
       list={result.list}
       book={result.book}
       note={result.item.note}
+      comments={comments}
     />,
   );
 });

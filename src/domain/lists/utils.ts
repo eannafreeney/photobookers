@@ -42,10 +42,28 @@ export const listItemNoteSchema = z
   .max(LIST_ITEM_NOTE_MAX_LENGTH, "Note is too long")
   .transform((v) => (v.length > 0 ? v : null));
 
+/** Copy a comment into a list note field (notes are capped shorter than comments). */
+export function commentBodyAsListNote(body: string): string {
+  return body.trim().slice(0, LIST_ITEM_NOTE_MAX_LENGTH);
+}
+
 const RESERVED_LIST_SLUGS = new Set(["favorites", "favourites", "new"]);
+
+/** Sentinel id for the virtual Favorites list (backed by `wishlists`, not `book_lists`). */
+export const FAVORITES_LIST_ID = "favorites";
+export const FAVORITES_LIST_SLUG = "favorites";
+export const FAVORITES_LIST_TITLE = "Favorites";
 
 export function isReservedListSlug(slug: string): boolean {
   return RESERVED_LIST_SLUGS.has(slug);
+}
+
+export function isFavoritesListSlug(slug: string): boolean {
+  return slug === "favorites" || slug === "favourites";
+}
+
+export function isFavoritesListId(id: string): boolean {
+  return id === FAVORITES_LIST_ID;
 }
 
 export function slugFromTitle(title: string): string {

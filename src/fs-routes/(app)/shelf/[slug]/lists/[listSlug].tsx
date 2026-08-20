@@ -6,6 +6,7 @@ import {
   getBooksInList,
   getPublicListByShelfAndSlug,
 } from "../../../../../domain/lists/services";
+import { getPublicBooksInWishlist } from "../../../../../domain/shelf/services";
 import InfoPage from "../../../../../pages/InfoPage";
 import AppLayout from "../../../../../components/layouts/AppLayout";
 import Page from "../../../../../components/layouts/Page";
@@ -16,9 +17,11 @@ import { canonicalUrl, pageTitle } from "../../../../../lib/seo";
 import { routeParam } from "../../../../../lib/routeParam";
 import { z } from "zod";
 import { formatShelfOwnerName } from "../../../../../domain/shelf/utils";
-import { listSlugSchema } from "../../../../../domain/lists/utils";
+import {
+  FAVORITES_LIST_SLUG,
+  listSlugSchema,
+} from "../../../../../domain/lists/utils";
 import { slugSchema } from "../../../../../features/app/schema";
-import { getInitialsAvatar } from "../../../../../lib/avatar";
 import CardAuthorCard from "@/components/app/CardAuthorCard";
 
 const listParamsSchema = z.object({
@@ -49,16 +52,15 @@ export const GET = createRoute(
       );
     }
 
-    const { owner, list } = result;
+    const { owner, list, isFavorites } = result;
     const displayName = formatShelfOwnerName({
       firstName: owner.firstName,
       lastName: owner.lastName,
     });
 
-    const [booksError, booksResult] = await getBooksInList(
-      list.id,
-      currentPage,
-    );
+    const [booksError, booksResult] = isFavorites
+      ? await getPublicBooksInWishlist(owner.id, currentPage)
+      : await getBooksInList(list.id, currentPage);
 
     if (booksError || !booksResult) {
       return c.html(
@@ -82,14 +84,14 @@ export const GET = createRoute(
     const title = pageTitle(`${list.title} · ${displayName}`);
     const description =
       list.description?.trim() ||
-      `${list.title} — a book list by ${displayName} on Photobookers.`;
-    const listPath = `/shelf/${shelfSlug}/lists/${list.slug}`;
+      (isFavorites
+        ? `${displayName}'s favorite photobooks on Photobookers.`
+        : `${list.title} — a book list by ${displayName} on Photobookers.`);
+    // Canonicalize favourites → favorites
+    const listPath = `/shelf/${shelfSlug}/lists/${isFavorites ? FAVORITES_LIST_SLUG : list.slug}`;
     const listCanonicalUrl = canonicalUrl(c.req.url, listPath);
     const shareImage =
       owner.profileImageUrl ?? booksResult.books[0]?.coverUrl ?? undefined;
-    const avatarUrl =
-      owner.profileImageUrl ??
-      getInitialsAvatar(owner.firstName ?? "", owner.lastName ?? "");
 
     return c.html(
       <AppLayout
@@ -150,7 +152,9 @@ export const GET = createRoute(
                   ))
                 ) : (
                   <p class="py-8 text-center text-sm text-on-surface">
-                    No books in this list yet.
+                    {isFavorites
+                      ? "No public favorites yet."
+                      : "No books in this list yet."}
                   </p>
                 )}
               </div>

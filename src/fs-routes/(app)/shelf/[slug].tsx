@@ -191,7 +191,7 @@ export const GET = createRoute(
                 x-bind:class="tab === 'lists' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
                 class="px-3 py-2 text-sm font-medium cursor-pointer"
               >
-                {`Lists (${publicLists.length + 1})`}
+                {`Lists (${publicLists.length})`}
               </button>
               {owner.creator ? (
                 <a
@@ -230,13 +230,7 @@ export const GET = createRoute(
             </div>
 
             <div x-show="tab === 'lists'" x-cloak>
-              <ShelfListsSection
-                shelfSlug={slug}
-                favoritesCount={
-                  booksResult.totalCount ?? booksResult.books.length
-                }
-                lists={publicLists}
-              />
+              <ShelfListsSection shelfSlug={slug} lists={publicLists} />
             </div>
 
             {!owner.creator ? (

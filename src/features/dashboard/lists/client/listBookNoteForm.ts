@@ -9,6 +9,7 @@ import {
   resetFormBaseline,
   validateField,
 } from "../../../../client/forms/formUtils";
+import { commentBodyAsListNote } from "../../../../domain/lists/utils";
 
 type ListBookNoteFormData = z.infer<typeof listBookNoteFormSchema>;
 
@@ -16,6 +17,7 @@ type ListBookNoteFormThis = {
   form: Partial<ListBookNoteFormData> & Record<string, unknown>;
   initialValues: { form: Record<string, unknown> };
   errors: { form: Record<string, string> };
+  comments: string[];
 };
 
 const NOTE_FORM_FIELDS = ["note"] as const;
@@ -23,11 +25,15 @@ const NOTE_FORM_FIELDS = ["note"] as const;
 export function registerListBookNoteForm() {
   Alpine.data(
     "listBookNoteForm",
-    (formValues: Partial<ListBookNoteFormData> = {}) => {
+    (
+      formValues: Partial<ListBookNoteFormData> = {},
+      comments: string[] = [],
+    ) => {
       const state = createFormState([...NOTE_FORM_FIELDS], formValues);
 
       return {
         isSubmitting: false,
+        comments,
         ...state,
 
         init() {
@@ -40,6 +46,14 @@ export function registerListBookNoteForm() {
 
         validateField(field: string) {
           return validateField(this, field, listBookNoteFormSchema);
+        },
+
+        useCommentAt(index: number) {
+          const ctx = this as unknown as ListBookNoteFormThis;
+          const body = ctx.comments[index];
+          if (body == null) return;
+          ctx.form.note = commentBodyAsListNote(body);
+          validateField(ctx, "note", listBookNoteFormSchema);
         },
 
         get isFormValid() {

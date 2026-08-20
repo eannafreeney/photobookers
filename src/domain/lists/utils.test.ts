@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   isReservedListSlug,
+  isFavoritesListSlug,
+  isFavoritesListId,
+  FAVORITES_LIST_ID,
+  FAVORITES_LIST_SLUG,
+  commentBodyAsListNote,
+  LIST_ITEM_NOTE_MAX_LENGTH,
   listSlugSchema,
   listTitleSchema,
   slugFromTitle,
@@ -53,6 +59,22 @@ describe("isReservedListSlug", () => {
   });
 });
 
+describe("isFavoritesListSlug", () => {
+  it("matches both spellings", () => {
+    expect(isFavoritesListSlug("favorites")).toBe(true);
+    expect(isFavoritesListSlug("favourites")).toBe(true);
+    expect(isFavoritesListSlug("favourite-books")).toBe(false);
+  });
+});
+
+describe("isFavoritesListId", () => {
+  it("matches the sentinel id", () => {
+    expect(isFavoritesListId(FAVORITES_LIST_ID)).toBe(true);
+    expect(isFavoritesListId(FAVORITES_LIST_SLUG)).toBe(true);
+    expect(isFavoritesListId("some-uuid")).toBe(false);
+  });
+});
+
 describe("isListPromotionEligible", () => {
   it("requires public list and public shelf with slug", () => {
     expect(
@@ -91,6 +113,15 @@ describe("listItemNoteSchema", () => {
   it("rejects notes over 1000 characters", () => {
     expect(listItemNoteSchema.safeParse("a".repeat(1000)).success).toBe(true);
     expect(listItemNoteSchema.safeParse("a".repeat(1001)).success).toBe(false);
+  });
+});
+
+describe("commentBodyAsListNote", () => {
+  it("trims and caps at the note max length", () => {
+    expect(commentBodyAsListNote("  Hello  ")).toBe("Hello");
+    expect(commentBodyAsListNote("a".repeat(LIST_ITEM_NOTE_MAX_LENGTH + 50))).toBe(
+      "a".repeat(LIST_ITEM_NOTE_MAX_LENGTH),
+    );
   });
 });
 

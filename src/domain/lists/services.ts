@@ -1,4 +1,19 @@
-import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, ne, notInArray, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNotNull,
+  isNull,
+  lte,
+  ne,
+  notInArray,
+  or,
+  sql,
+} from "drizzle-orm";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -6,11 +21,13 @@ import {
 } from "../../constants/queries";
 import { db } from "../../db/client";
 import {
+  bookComments,
   bookListItems,
   bookLists,
   books,
   creators,
   users,
+  wishlists,
   type BookList,
 } from "../../db/schema";
 import { getBooksOrderBy } from "../../lib/booksOrderBy";
@@ -18,6 +35,10 @@ import { getPagination } from "../../lib/pagination";
 import { err, ok } from "../../lib/result";
 import { formatShelfOwnerName } from "../shelf/utils";
 import {
+  FAVORITES_LIST_ID,
+  FAVORITES_LIST_SLUG,
+  FAVORITES_LIST_TITLE,
+  isFavoritesListSlug,
   isListPromotionEligible,
   isReservedListSlug,
   listDescriptionSchema,
@@ -65,9 +86,66 @@ export async function listBookListsForUser(userId: string) {
   });
 }
 
+async function favoritesBookCount(userId: string) {
+  const [{ value = 0 } = { value: 0 }] = await db
+    .select({ value: count() })
+    .from(wishlists)
+    .innerJoin(books, eq(wishlists.bookId, books.id))
+    .where(and(eq(wishlists.userId, userId), publishedBookConditions));
+  return value;
+}
+
+async function favoritesCoverUrls(userId: string, limit = 3) {
+  const rows = await db
+    .select({ coverUrl: books.coverUrl })
+    .from(wishlists)
+    .innerJoin(books, eq(wishlists.bookId, books.id))
+    .where(
+      and(
+        eq(wishlists.userId, userId),
+        publishedBookConditions,
+        isNotNull(books.coverUrl),
+      ),
+    )
+    .orderBy(desc(wishlists.createdAt))
+    .limit(limit * 2);
+
+  const urls: string[] = [];
+  for (const row of rows) {
+    if (!row.coverUrl) continue;
+    urls.push(row.coverUrl);
+    if (urls.length >= limit) break;
+  }
+  return urls;
+}
+
+/** Virtual Favorites list row — wishlist-backed, always first in list-of-lists. */
+export function favoritesListRow(
+  userId: string,
+  bookCount: number,
+  extras?: { coverUrls?: string[] },
+): BookList & { bookCount: number; coverUrls?: string[] } {
+  return {
+    id: FAVORITES_LIST_ID,
+    userId,
+    title: FAVORITES_LIST_TITLE,
+    slug: FAVORITES_LIST_SLUG,
+    description: null,
+    isPublic: true,
+    isPromoted: false,
+    promotedAt: null,
+    createdAt: new Date(0),
+    updatedAt: null,
+    bookCount,
+    ...(extras?.coverUrls ? { coverUrls: extras.coverUrls } : {}),
+  };
+}
+
 export async function listBookListsWithCounts(userId: string) {
+  const favoritesCount = await favoritesBookCount(userId);
+  const favorites = favoritesListRow(userId, favoritesCount);
   const lists = await listBookListsForUser(userId);
-  if (lists.length === 0) return [];
+  if (lists.length === 0) return [favorites];
 
   const counts = await db
     .select({
@@ -84,10 +162,13 @@ export async function listBookListsWithCounts(userId: string) {
     .groupBy(bookListItems.listId);
 
   const countMap = new Map(counts.map((c) => [c.listId, c.value]));
-  return lists.map((list) => ({
-    ...list,
-    bookCount: countMap.get(list.id) ?? 0,
-  }));
+  return [
+    favorites,
+    ...lists.map((list) => ({
+      ...list,
+      bookCount: countMap.get(list.id) ?? 0,
+    })),
+  ];
 }
 
 export async function getBookListForOwner(listId: string, userId: string) {
@@ -99,11 +180,19 @@ export async function getBookListForOwner(listId: string, userId: string) {
 }
 
 export async function getPublicListsForUser(userId: string) {
+  const [favoritesCount, favoritesCovers] = await Promise.all([
+    favoritesBookCount(userId),
+    favoritesCoverUrls(userId),
+  ]);
+  const favorites = favoritesListRow(userId, favoritesCount, {
+    coverUrls: favoritesCovers,
+  });
+
   const lists = await db.query.bookLists.findMany({
     where: and(eq(bookLists.userId, userId), eq(bookLists.isPublic, true)),
     orderBy: [desc(bookLists.updatedAt), desc(bookLists.createdAt)],
   });
-  if (lists.length === 0) return [];
+  if (lists.length === 0) return [favorites];
 
   const counts = await db
     .select({
@@ -152,11 +241,14 @@ export async function getPublicListsForUser(userId: string) {
   }
 
   const countMap = new Map(counts.map((c) => [c.listId, c.value]));
-  return lists.map((list) => ({
-    ...list,
-    bookCount: countMap.get(list.id) ?? 0,
-    coverUrls: coversByList.get(list.id) ?? [],
-  }));
+  return [
+    favorites,
+    ...lists.map((list) => ({
+      ...list,
+      bookCount: countMap.get(list.id) ?? 0,
+      coverUrls: coversByList.get(list.id) ?? [],
+    })),
+  ];
 }
 
 export async function getPublicListByShelfAndSlug(
@@ -168,6 +260,15 @@ export async function getPublicListByShelfAndSlug(
   });
   if (!owner) return err({ reason: "Shelf not found" });
 
+  if (isFavoritesListSlug(listSlug)) {
+    const bookCount = await favoritesBookCount(owner.id);
+    return ok({
+      owner,
+      list: favoritesListRow(owner.id, bookCount),
+      isFavorites: true as const,
+    });
+  }
+
   const list = await db.query.bookLists.findFirst({
     where: and(
       eq(bookLists.userId, owner.id),
@@ -177,7 +278,7 @@ export async function getPublicListByShelfAndSlug(
   });
   if (!list) return err({ reason: "List not found" });
 
-  return ok({ owner, list });
+  return ok({ owner, list, isFavorites: false as const });
 }
 
 type CreateListInput = {
@@ -568,6 +669,20 @@ export async function getListItemForOwner(
   if (!book) return err({ reason: "Book not found" });
 
   return ok({ list, item, book });
+}
+
+/** Comments the list owner left on this book — for “use as note” in the note modal. */
+export async function getUserCommentsForBook(
+  userId: string,
+  bookId: string,
+  limit = 5,
+) {
+  return db.query.bookComments.findMany({
+    where: and(eq(bookComments.bookId, bookId), eq(bookComments.userId, userId)),
+    orderBy: [desc(bookComments.createdAt)],
+    columns: { id: true, body: true, createdAt: true },
+    limit,
+  });
 }
 
 export async function updateListItemNote(

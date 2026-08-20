@@ -1,5 +1,6 @@
 import { BookList } from "../../../db/schema";
 import Link from "../../../components/app/Link";
+import { isFavoritesListId } from "../../../domain/lists/utils";
 
 type ListWithCount = BookList & { bookCount: number };
 
@@ -32,6 +33,10 @@ const PrivateShelfListsStrip = ({
       ) : (
         <ul class="flex flex-col gap-2">
           {lists.map((list) => {
+            const isFavorites = isFavoritesListId(list.id);
+            const manageHref = isFavorites
+              ? "/dashboard/favorites"
+              : `/dashboard/lists/${list.id}`;
             const publicUrl =
               shelfPublic && shelfSlug && list.isPublic
                 ? `/shelf/${shelfSlug}/lists/${list.slug}`
@@ -39,14 +44,18 @@ const PrivateShelfListsStrip = ({
             return (
               <li class="flex items-center justify-between gap-3 text-sm">
                 <div class="min-w-0">
-                  <Link href={`/dashboard/lists/${list.id}`}>
+                  <Link href={manageHref}>
                     <span class="font-medium text-on-surface-strong">
                       {list.title}
                     </span>
                   </Link>
                   <span class="ml-2 text-on-surface-weak tabular-nums">
                     {list.bookCount} books
-                    {list.isPublic ? " · Public" : " · Private"}
+                    {isFavorites
+                      ? " · Built-in"
+                      : list.isPublic
+                        ? " · Public"
+                        : " · Private"}
                   </span>
                 </div>
                 {publicUrl ? (
