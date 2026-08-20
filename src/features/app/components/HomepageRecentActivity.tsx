@@ -21,7 +21,8 @@ type Props = {
 
 const CARD_CLASS =
   "flex h-full w-28 flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-2 shadow-sm transition hover:bg-surface-alt/60";
-const COVER_WRAP_CLASS = "relative flex h-24 w-full items-center justify-center";
+const COVER_WRAP_CLASS =
+  "relative flex h-24 w-full items-center justify-center";
 const COVER_CLASS = "max-h-full max-w-full object-contain";
 const AVATAR_CLASS =
   "absolute -bottom-1 -left-1 size-7 rounded-full object-cover ring-2 ring-surface bg-surface-alt";
@@ -105,7 +106,7 @@ const HomepageRecentActivity = ({
         "x-on:beforeunload.window": "disconnect()",
       }}
     >
-      <div class="mb-6 flex flex-col items-center gap-1 border-t-2 border-on-surface-strong pt-3">
+      <div class="mb-6 flex flex-col items-center gap-3 border-t-2 border-on-surface-strong pt-3">
         <span class="kicker text-accent live-label inline-flex items-center gap-2">
           <LiveDot />
           Live on Photobookers

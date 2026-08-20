@@ -1,16 +1,18 @@
+import { Creator } from "@/db/schema";
 import { formatDate } from "../../../utils";
 import { interviewPullQuote } from "../interviewQuote";
 import type { InterviewPreview } from "./InterviewPreviewSection";
 
 type Props = {
   interview: InterviewPreview;
+  coverUrl: string | null;
 };
 
 /**
  * One interview, given the room a quote needs — the alternative was a fourth
  * horizontal strip of cards in a row of horizontal strips.
  */
-const InterviewSpread = ({ interview }: Props) => {
+const InterviewSpread = ({ interview, coverUrl }: Props) => {
   const link = `/interviews/view/${interview.creator.slug}`;
   const quote = interviewPullQuote(interview.answers?.q1);
 
@@ -18,7 +20,7 @@ const InterviewSpread = ({ interview }: Props) => {
     <div class="grid items-stretch gap-0 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
       <a href={link} class="relative block min-h-[240px] md:min-h-[380px]">
         <img
-          src={interview.promoImageUrl ?? ""}
+          src={interview.promoImageUrl ?? coverUrl ?? ""}
           alt={`Interview with ${interview.creator.displayName}`}
           class="absolute inset-0 h-full w-full object-cover"
           loading="lazy"

@@ -15,6 +15,8 @@ export const GET = createRoute(async (c) => {
     interviews.find((interview) => interview.answers?.q1?.trim()) ??
     interviews[0];
 
+  const coverUrl = featured.creator.coverUrl ?? null;
+
   return c.html(
     <div id="interviews-fragment">
       <SectionHeader
@@ -23,7 +25,7 @@ export const GET = createRoute(async (c) => {
       >
         Interviews
       </SectionHeader>
-      <InterviewSpread interview={featured} />
+      <InterviewSpread interview={featured} coverUrl={coverUrl} />
       <div class="mt-8 flex md:hidden justify-center">
         <a href="/interviews">
           <Button variant="solid" color="primary" width="xl">
