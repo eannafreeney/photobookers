@@ -78,7 +78,15 @@ export const GET = createRoute(
       posts.map((post) => post.id),
       user?.id,
     );
-    const publicLists = await getPublicListsForUser(owner.id);
+    const [listsErr, publicLists] = await getPublicListsForUser(owner.id);
+    if (listsErr || !publicLists) {
+      return c.html(
+        <InfoPage
+          errorMessage={listsErr?.reason ?? "Failed to load lists"}
+          user={user}
+        />,
+      );
+    }
     const contributions = await getPublishedContributionsByUserId(owner.id);
 
     const title = pageTitle(`${owner.displayName}'s shelf`);

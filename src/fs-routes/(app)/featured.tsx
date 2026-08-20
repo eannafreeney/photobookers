@@ -50,11 +50,12 @@ export const GET = createRoute(async (c: Context) => {
           <RecentActivity user={user} />
         </ScrollReveal>
         <Slogan />
-        <ScrollReveal>
-          <Intersector id="stats-fragment" endpoint="/fragments/stats" />
-        </ScrollReveal>
+
         {!user && (
           <>
+            <ScrollReveal>
+              <Intersector id="stats-fragment" endpoint="/fragments/stats" />
+            </ScrollReveal>
             <ScrollReveal>
               <SiteFeatures />
             </ScrollReveal>

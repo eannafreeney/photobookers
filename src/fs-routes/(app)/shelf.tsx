@@ -68,7 +68,15 @@ export const GET = createRoute(async (c) => {
     );
   }
 
-  const lists = await listBookListsWithCounts(user.id);
+  const [listsErr, lists] = await listBookListsWithCounts(user.id);
+  if (listsErr || !lists) {
+    return c.html(
+      <InfoPage
+        errorMessage={listsErr?.reason ?? "Failed to load lists"}
+        user={user}
+      />,
+    );
+  }
 
   const alpineAttrs = {
     "x-init": true,

@@ -7,14 +7,18 @@ import Button from "./Button";
 const HERO_IMAGE_CLASS =
   "h-auto w-full max-h-[220px] object-contain sm:max-h-[260px] md:h-full md:max-h-none md:w-full";
 const HERO_SLIDE_GRID_CLASS =
-  "grid grid-cols-1 pt-6 pb-12 md:h-full md:grid-cols-2 md:pt-0 md:pb-0";
+  "flex h-full w-full min-w-0 flex-col items-center justify-evenly overflow-hidden pt-6 pb-12 md:grid md:grid-cols-2 md:justify-items-stretch md:overflow-visible md:pt-0 md:pb-0";
 const HERO_TEXT_COLUMN_CLASS =
-  "flex flex-col items-center justify-center order-2 px-4 py-4 text-center sm:p-8 lg:p-12";
+  "flex w-full min-w-0 max-w-full flex-col items-center justify-center order-2 overflow-hidden px-4 py-4 text-center sm:p-8 lg:p-12";
+const HERO_TEXT_INNER_CLASS =
+  "flex w-full min-w-0 max-w-full flex-col items-center justify-center gap-2 overflow-hidden";
 const HERO_BUTTON_ROW_CLASS =
   "mt-1 mb-4 flex items-center justify-center gap-3 group md:justify-start";
 /** One line + ellipsis on mobile; wrap normally from md up. */
 const HERO_TITLE_CLASS =
-  "w-full max-w-full font-display text-3xl font-medium leading-tight text-on-surface-strong truncate sm:text-5xl md:whitespace-normal md:overflow-visible md:text-clip md:text-balance";
+  "block w-full min-w-0 font-display text-3xl font-medium leading-tight text-on-surface-strong text-center truncate sm:text-5xl md:whitespace-normal md:overflow-visible md:text-clip md:text-balance";
+const HERO_SLIDE_ROOT_CLASS =
+  "col-start-1 row-start-1 min-w-0 w-full overflow-hidden transition-opacity duration-500 md:absolute md:inset-0 md:overflow-visible";
 /** Intrinsic ratio for book-cover CLS reservation (actual display size is CSS-controlled). */
 const HERO_IMAGE_WIDTH = 600;
 const HERO_IMAGE_HEIGHT = 800;
@@ -45,24 +49,24 @@ const HeroCarouselFeatureCard = ({ heroItems }: Props) => {
         x-bind:class="items[active] ? items[active].slideClass : ''"
       >
         {/* Mobile: opacity-stack in one grid cell so height = tallest slide (x-show would jump). */}
-        <div class="relative overflow-hidden rounded-radius md:h-full">
-          <div class="grid md:h-full">
+        <div class="relative min-w-0 overflow-hidden rounded-radius md:h-full">
+          <div class="grid min-w-0 md:h-full">
             <HeroCarouselLcpSlide
               item={firstItem}
               x-bind:class="active === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'"
               x-bind:aria-hidden="active !== 0"
-              class="col-start-1 row-start-1 transition-opacity duration-500 md:absolute md:inset-0"
+              class={HERO_SLIDE_ROOT_CLASS}
             />
 
             <template x-for="(item, index) in items.slice(1)">
               <div
                 x-bind:class="active === index + 1 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'"
                 x-bind:aria-hidden="active !== index + 1"
-                class="col-start-1 row-start-1 transition-opacity duration-500 md:absolute md:inset-0"
+                class={HERO_SLIDE_ROOT_CLASS}
               >
                 <div class={HERO_SLIDE_GRID_CLASS}>
                   <div class={HERO_TEXT_COLUMN_CLASS}>
-                    <div class="w-full max-w-xl flex flex-col items-center justify-center gap-2 min-w-0">
+                    <div class={HERO_TEXT_INNER_CLASS}>
                       <p class="kicker text-accent" x-text="item.label"></p>
                       <p
                         class={HERO_TITLE_CLASS}
@@ -96,7 +100,7 @@ const HeroCarouselFeatureCard = ({ heroItems }: Props) => {
                     </div>
                   </div>
 
-                  <div class="order-1 relative border-b border-outline/70 sm:px-4 sm:py-6 md:order-2 md:h-full md:min-h-[240px] md:border-b-0 md:px-0 md:py-0">
+                  <div class="order-1 relative w-full min-w-0 border-b border-outline/70 sm:px-4 sm:py-6 md:order-2 md:h-full md:min-h-[240px] md:border-b-0 md:px-0 md:py-0">
                     <a
                       x-bind:href="item.link"
                       class="flex h-full w-full items-center justify-center md:justify-end cursor-pointer"
@@ -186,7 +190,7 @@ const HeroCarouselLcpSlide = ({
     >
       <div class={HERO_SLIDE_GRID_CLASS}>
         <div class={HERO_TEXT_COLUMN_CLASS}>
-          <div class="w-full max-w-xl flex flex-col items-center justify-center gap-2 min-w-0">
+          <div class={HERO_TEXT_INNER_CLASS}>
             <p class="kicker text-accent">{item.label}</p>
             <p class={HERO_TITLE_CLASS} title={item.title}>
               {item.title}
@@ -217,7 +221,7 @@ const HeroCarouselLcpSlide = ({
           </div>
         </div>
 
-        <div class="order-1 relative border-b border-outline/70 sm:px-4 sm:py-6 md:order-2 md:h-full md:min-h-[240px] md:border-b-0 md:px-0 md:py-0">
+        <div class="order-1 relative w-full min-w-0 border-b border-outline/70 sm:px-4 sm:py-6 md:order-2 md:h-full md:min-h-[240px] md:border-b-0 md:px-0 md:py-0">
           <a
             href={item.link}
             class="flex h-full w-full items-center justify-center md:justify-end cursor-pointer"

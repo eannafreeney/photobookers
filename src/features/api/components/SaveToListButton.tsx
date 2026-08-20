@@ -34,7 +34,13 @@ const SaveToListButton = async ({ book, user, variant = "circle" }: Props) => {
 
   if (user?.id && userCanManageBookLists(user)) {
     isFavorited = isOk(await findWishlist(user.id, book.id));
-    lists = await getListMembershipsForBook(user.id, book.id);
+    const [membershipsErr, memberships] = await getListMembershipsForBook(
+      user.id,
+      book.id,
+    );
+    if (!membershipsErr && memberships) {
+      lists = memberships;
+    }
   } else if (user?.id) {
     isFavorited = isOk(await findWishlist(user.id, book.id));
   }

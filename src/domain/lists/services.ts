@@ -80,10 +80,16 @@ export async function suggestListSlug(userId: string, title: string) {
 }
 
 export async function listBookListsForUser(userId: string) {
-  return db.query.bookLists.findMany({
-    where: eq(bookLists.userId, userId),
-    orderBy: [desc(bookLists.updatedAt), desc(bookLists.createdAt)],
-  });
+  try {
+    const lists = await db.query.bookLists.findMany({
+      where: eq(bookLists.userId, userId),
+      orderBy: [desc(bookLists.updatedAt), desc(bookLists.createdAt)],
+    });
+    return ok(lists);
+  } catch (error) {
+    console.error("Failed to list book lists for user", error);
+    return err({ reason: "Failed to load lists", error });
+  }
 }
 
 async function favoritesBookCount(userId: string) {
@@ -142,33 +148,41 @@ export function favoritesListRow(
 }
 
 export async function listBookListsWithCounts(userId: string) {
-  const favoritesCount = await favoritesBookCount(userId);
-  const favorites = favoritesListRow(userId, favoritesCount);
-  const lists = await listBookListsForUser(userId);
-  if (lists.length === 0) return [favorites];
+  try {
+    const favoritesCount = await favoritesBookCount(userId);
+    const favorites = favoritesListRow(userId, favoritesCount);
+    const [listsErr, lists] = await listBookListsForUser(userId);
+    if (listsErr || !lists) {
+      return err(listsErr ?? { reason: "Failed to load lists" });
+    }
+    if (lists.length === 0) return ok([favorites]);
 
-  const counts = await db
-    .select({
-      listId: bookListItems.listId,
-      value: count(),
-    })
-    .from(bookListItems)
-    .where(
-      inArray(
-        bookListItems.listId,
-        lists.map((l) => l.id),
-      ),
-    )
-    .groupBy(bookListItems.listId);
+    const counts = await db
+      .select({
+        listId: bookListItems.listId,
+        value: count(),
+      })
+      .from(bookListItems)
+      .where(
+        inArray(
+          bookListItems.listId,
+          lists.map((l) => l.id),
+        ),
+      )
+      .groupBy(bookListItems.listId);
 
-  const countMap = new Map(counts.map((c) => [c.listId, c.value]));
-  return [
-    favorites,
-    ...lists.map((list) => ({
-      ...list,
-      bookCount: countMap.get(list.id) ?? 0,
-    })),
-  ];
+    const countMap = new Map(counts.map((c) => [c.listId, c.value]));
+    return ok([
+      favorites,
+      ...lists.map((list) => ({
+        ...list,
+        bookCount: countMap.get(list.id) ?? 0,
+      })),
+    ]);
+  } catch (error) {
+    console.error("Failed to list book lists with counts", error);
+    return err({ reason: "Failed to load lists", error });
+  }
 }
 
 export async function getBookListForOwner(listId: string, userId: string) {
@@ -180,75 +194,80 @@ export async function getBookListForOwner(listId: string, userId: string) {
 }
 
 export async function getPublicListsForUser(userId: string) {
-  const [favoritesCount, favoritesCovers] = await Promise.all([
-    favoritesBookCount(userId),
-    favoritesCoverUrls(userId),
-  ]);
-  const favorites = favoritesListRow(userId, favoritesCount, {
-    coverUrls: favoritesCovers,
-  });
+  try {
+    const [favoritesCount, favoritesCovers] = await Promise.all([
+      favoritesBookCount(userId),
+      favoritesCoverUrls(userId),
+    ]);
+    const favorites = favoritesListRow(userId, favoritesCount, {
+      coverUrls: favoritesCovers,
+    });
 
-  const lists = await db.query.bookLists.findMany({
-    where: and(eq(bookLists.userId, userId), eq(bookLists.isPublic, true)),
-    orderBy: [desc(bookLists.updatedAt), desc(bookLists.createdAt)],
-  });
-  if (lists.length === 0) return [favorites];
+    const lists = await db.query.bookLists.findMany({
+      where: and(eq(bookLists.userId, userId), eq(bookLists.isPublic, true)),
+      orderBy: [desc(bookLists.updatedAt), desc(bookLists.createdAt)],
+    });
+    if (lists.length === 0) return ok([favorites]);
 
-  const counts = await db
-    .select({
-      listId: bookListItems.listId,
-      value: count(),
-    })
-    .from(bookListItems)
-    .innerJoin(books, eq(bookListItems.bookId, books.id))
-    .where(
-      and(
-        inArray(
-          bookListItems.listId,
-          lists.map((l) => l.id),
+    const counts = await db
+      .select({
+        listId: bookListItems.listId,
+        value: count(),
+      })
+      .from(bookListItems)
+      .innerJoin(books, eq(bookListItems.bookId, books.id))
+      .where(
+        and(
+          inArray(
+            bookListItems.listId,
+            lists.map((l) => l.id),
+          ),
+          publishedBookConditions,
         ),
-        publishedBookConditions,
-      ),
-    )
-    .groupBy(bookListItems.listId);
+      )
+      .groupBy(bookListItems.listId);
 
-  const coverRows = await db
-    .select({
-      listId: bookListItems.listId,
-      coverUrl: books.coverUrl,
-      createdAt: bookListItems.createdAt,
-    })
-    .from(bookListItems)
-    .innerJoin(books, eq(bookListItems.bookId, books.id))
-    .where(
-      and(
-        inArray(
-          bookListItems.listId,
-          lists.map((l) => l.id),
+    const coverRows = await db
+      .select({
+        listId: bookListItems.listId,
+        coverUrl: books.coverUrl,
+        createdAt: bookListItems.createdAt,
+      })
+      .from(bookListItems)
+      .innerJoin(books, eq(bookListItems.bookId, books.id))
+      .where(
+        and(
+          inArray(
+            bookListItems.listId,
+            lists.map((l) => l.id),
+          ),
+          publishedBookConditions,
         ),
-        publishedBookConditions,
-      ),
-    )
-    .orderBy(desc(bookListItems.createdAt));
+      )
+      .orderBy(desc(bookListItems.createdAt));
 
-  const coversByList = new Map<string, string[]>();
-  for (const row of coverRows) {
-    if (!row.coverUrl) continue;
-    const existing = coversByList.get(row.listId) ?? [];
-    if (existing.length >= 3) continue;
-    existing.push(row.coverUrl);
-    coversByList.set(row.listId, existing);
+    const coversByList = new Map<string, string[]>();
+    for (const row of coverRows) {
+      if (!row.coverUrl) continue;
+      const existing = coversByList.get(row.listId) ?? [];
+      if (existing.length >= 3) continue;
+      existing.push(row.coverUrl);
+      coversByList.set(row.listId, existing);
+    }
+
+    const countMap = new Map(counts.map((c) => [c.listId, c.value]));
+    return ok([
+      favorites,
+      ...lists.map((list) => ({
+        ...list,
+        bookCount: countMap.get(list.id) ?? 0,
+        coverUrls: coversByList.get(list.id) ?? [],
+      })),
+    ]);
+  } catch (error) {
+    console.error("Failed to get public lists for user", error);
+    return err({ reason: "Failed to load lists", error });
   }
-
-  const countMap = new Map(counts.map((c) => [c.listId, c.value]));
-  return [
-    favorites,
-    ...lists.map((list) => ({
-      ...list,
-      bookCount: countMap.get(list.id) ?? 0,
-      coverUrls: coversByList.get(list.id) ?? [],
-    })),
-  ];
 }
 
 export async function getPublicListByShelfAndSlug(
@@ -360,7 +379,8 @@ export async function updateBookList(
   input: UpdateListInput,
 ) {
   const [ownerErr, existing] = await getBookListForOwner(listId, userId);
-  if (ownerErr || !existing) return err(ownerErr ?? { reason: "List not found" });
+  if (ownerErr || !existing)
+    return err(ownerErr ?? { reason: "List not found" });
 
   const updates: Partial<BookList> = {};
 
@@ -470,27 +490,37 @@ export async function getListMembershipsForBook(
   userId: string,
   bookId: string,
 ) {
-  const lists = await listBookListsForUser(userId);
-  if (lists.length === 0) return [];
+  try {
+    const [listsErr, lists] = await listBookListsForUser(userId);
+    if (listsErr || !lists) {
+      return err(listsErr ?? { reason: "Failed to load lists" });
+    }
+    if (lists.length === 0) return ok([]);
 
-  const memberships = await db
-    .select({ listId: bookListItems.listId })
-    .from(bookListItems)
-    .where(
-      and(
-        eq(bookListItems.bookId, bookId),
-        inArray(
-          bookListItems.listId,
-          lists.map((l) => l.id),
+    const memberships = await db
+      .select({ listId: bookListItems.listId })
+      .from(bookListItems)
+      .where(
+        and(
+          eq(bookListItems.bookId, bookId),
+          inArray(
+            bookListItems.listId,
+            lists.map((l) => l.id),
+          ),
         ),
-      ),
-    );
+      );
 
-  const inList = new Set(memberships.map((m) => m.listId));
-  return lists.map((list) => ({
-    ...list,
-    containsBook: inList.has(list.id),
-  }));
+    const inList = new Set(memberships.map((m) => m.listId));
+    return ok(
+      lists.map((list) => ({
+        ...list,
+        containsBook: inList.has(list.id),
+      })),
+    );
+  } catch (error) {
+    console.error("Failed to get list memberships for book", error);
+    return err({ reason: "Failed to load lists", error });
+  }
 }
 
 export async function toggleListMembership(
@@ -677,12 +707,20 @@ export async function getUserCommentsForBook(
   bookId: string,
   limit = 5,
 ) {
-  return db.query.bookComments.findMany({
-    where: and(eq(bookComments.bookId, bookId), eq(bookComments.userId, userId)),
-    orderBy: [desc(bookComments.createdAt)],
-    columns: { id: true, body: true, createdAt: true },
-    limit,
-  });
+  try {
+    return await db.query.bookComments.findMany({
+      where: and(
+        eq(bookComments.bookId, bookId),
+        eq(bookComments.userId, userId),
+      ),
+      orderBy: [desc(bookComments.createdAt)],
+      columns: { id: true, body: true, createdAt: true },
+      limit,
+    });
+  } catch (error) {
+    console.error("Failed to get user comments for book", error);
+    return [];
+  }
 }
 
 export async function updateListItemNote(
@@ -947,8 +985,7 @@ export async function setListPromoted(listId: string, promoted: boolean) {
   if (promoted) {
     if (!isListPromotionEligible(list, list.user)) {
       return err({
-        reason:
-          "Only public lists on a public shelf can be promoted",
+        reason: "Only public lists on a public shelf can be promoted",
       });
     }
   }

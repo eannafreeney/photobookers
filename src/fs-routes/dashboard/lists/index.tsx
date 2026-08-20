@@ -34,7 +34,16 @@ export const GET = createRoute(async (c: Context) => {
     return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
   }
 
-  const lists = await listBookListsWithCounts(user.id);
+  const [listsErr, listRows] = await listBookListsWithCounts(user.id);
+  if (listsErr || !listRows) {
+    return c.html(
+      <InfoPage
+        errorMessage={listsErr?.reason ?? "Failed to load lists"}
+        user={user}
+      />,
+    );
+  }
+
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
   const canPublishOnShelf = Boolean(user.shelfPublic && user.shelfSlug);
   const claimStatus = user.creator
@@ -77,7 +86,7 @@ export const GET = createRoute(async (c: Context) => {
           </div>
           <div class="xl:col-span-2">
             <ListsTable
-              lists={lists}
+              lists={listRows}
               ownerName={formatShelfOwnerName({
                 firstName: user.firstName,
                 lastName: user.lastName,
