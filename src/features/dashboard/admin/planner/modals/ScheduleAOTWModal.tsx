@@ -11,9 +11,9 @@ type Props = {
 };
 
 const ScheduleAOTWModal = async ({ week, formValues }: Props) => {
-  const creators = await getCreatorsByTypeForPlanner("artist");
+  const [, creators] = await getCreatorsByTypeForPlanner("artist");
 
-  const options = creators.map((c) => ({
+  const options = (creators ?? []).map((c) => ({
     id: c.id,
     label: c.displayName,
     img: c.coverUrl ?? null,

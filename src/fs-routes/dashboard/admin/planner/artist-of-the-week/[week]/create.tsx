@@ -11,7 +11,6 @@ import { dispatchEvents } from "../../../../../../lib/disatchEvents";
 
 export const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
   const week = c.req.valid("param").week;
-  console.log("week", week);
   return c.html(<ScheduleAOTWModal week={week} />);
 });
 

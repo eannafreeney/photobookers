@@ -17,7 +17,18 @@ import {
   publisherOfTheWeek,
 } from "../../../../db/schema";
 import { db } from "../../../../db/client";
-import { and, asc, desc, eq, gte, inArray, lte, notInArray, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNotNull,
+  lte,
+  notInArray,
+  sql,
+} from "drizzle-orm";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS,
@@ -591,8 +602,8 @@ function shuffle<T>(items: T[]): T[] {
 export async function pickCreatorForSpotlightWeek(
   type: "artist" | "publisher",
 ) {
-  const creators = await getCreatorsByTypeForPlanner(type);
-  if (creators.length === 0) return null;
+  const [error, creators] = await getCreatorsByTypeForPlanner(type);
+  if (error || creators.length === 0) return null;
 
   const verified = creators.filter((creator) => creator.status === "verified");
   const pool = verified.length > 0 ? verified : creators;
@@ -628,7 +639,9 @@ export async function autoSetPublisherOfTheWeek(weekStart: Date) {
 
   const creator = await pickCreatorForSpotlightWeek("publisher");
   if (!creator) {
-    return err({ reason: "No eligible publisher found for Publisher of the Week" });
+    return err({
+      reason: "No eligible publisher found for Publisher of the Week",
+    });
   }
 
   const [pubError, row] = await setPublisherOfTheWeek({
@@ -747,27 +760,47 @@ export async function randomizeBooksOfTheDayForWeek(weekStart: Date) {
 export async function getCreatorsByTypeForPlanner(
   type: "artist" | "publisher",
 ) {
-  const usedCreatorIds =
-    type === "artist"
-      ? db
-          .select({ creatorId: artistOfTheWeek.creatorId })
-          .from(artistOfTheWeek)
-      : db
-          .select({ creatorId: publisherOfTheWeek.creatorId })
-          .from(publisherOfTheWeek);
+  try {
+    const usedCreatorIds =
+      type === "artist"
+        ? db
+            .select({ creatorId: artistOfTheWeek.creatorId })
+            .from(artistOfTheWeek)
+        : db
+            .select({ creatorId: publisherOfTheWeek.creatorId })
+            .from(publisherOfTheWeek);
 
-  return db.query.creators.findMany({
-    columns: {
-      id: true,
-      displayName: true,
-      coverUrl: true,
-      slug: true,
-      status: true,
-    },
-    where: and(
-      eq(creators.type, type),
-      notInArray(creators.id, usedCreatorIds),
-    ),
-    orderBy: (c) => [desc(sql`(${c.status} = 'verified')`), asc(c.displayName)],
-  });
+    // Only creators credited on at least one published book are eligible.
+    const bookCreatorId =
+      type === "artist" ? books.artistId : books.publisherId;
+    const creatorIdsWithPublishedBooks = db
+      .selectDistinct({ creatorId: bookCreatorId })
+      .from(books)
+      .where(
+        and(isNotNull(bookCreatorId), eq(books.publicationStatus, "published")),
+      );
+
+    const rows = await db.query.creators.findMany({
+      columns: {
+        id: true,
+        displayName: true,
+        coverUrl: true,
+        slug: true,
+        status: true,
+      },
+      where: and(
+        eq(creators.type, type),
+        notInArray(creators.id, usedCreatorIds),
+        inArray(creators.id, creatorIdsWithPublishedBooks),
+      ),
+      orderBy: (c) => [
+        desc(sql`(${c.status} = 'verified')`),
+        asc(c.displayName),
+      ],
+    });
+    return ok(rows);
+  } catch (e) {
+    console.error("getCreatorsByTypeForPlanner", e);
+    return [];
+  }
 }

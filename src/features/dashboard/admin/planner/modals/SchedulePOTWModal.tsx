@@ -11,9 +11,9 @@ type Props = {
 };
 
 const SchedulePublisherOfTheWeekModal = async ({ week, formValues }: Props) => {
-  const creators = await getCreatorsByTypeForPlanner("publisher");
+  const [, creators] = await getCreatorsByTypeForPlanner("publisher");
 
-  const options = creators.map((c) => ({
+  const options = (creators ?? []).map((c) => ({
     id: c.id,
     label: c.displayName,
     img: c.coverUrl ?? null,
