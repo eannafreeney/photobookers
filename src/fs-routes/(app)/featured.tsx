@@ -61,11 +61,11 @@ export const GET = createRoute(async (c: Context) => {
             user={user}
           />
         ) : null}
+        <Slogan />
         <DiscoveryTagChips />
         <ScrollReveal>
           <RecentActivity user={user} />
         </ScrollReveal>
-        <Slogan />
 
         {!user && (
           <>
