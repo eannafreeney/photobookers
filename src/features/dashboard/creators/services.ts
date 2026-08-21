@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/client";
 import { creators, NewCreator } from "../../../db/schema";
-import { getRandomCoverUrl, slugify } from "../../../utils";
+import { generateUniqueCreatorSlug, getRandomCoverUrl } from "../../../utils";
 import { err, ok } from "../../../lib/result";
 import { AuthSession } from "@supabase/supabase-js";
 
@@ -23,7 +23,7 @@ export const createStubCreatorProfile = async (session: AuthSession) => {
 
   const [newCreatorError, newCreator] = await createCreatorProfile({
     displayName: displayName.trim(),
-    slug: slugify(displayName),
+    slug: await generateUniqueCreatorSlug(displayName, type),
     coverUrl: getRandomCoverUrl(),
     ownerUserId: id,
     type,

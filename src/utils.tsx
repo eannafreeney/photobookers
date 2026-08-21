@@ -1,7 +1,7 @@
 import { randomInt } from "node:crypto";
 import { Context } from "hono";
 import { AuthUser } from "../types";
-import { books } from "./db/schema";
+import { books, creators } from "./db/schema";
 import { db } from "./db/client";
 import { eq } from "drizzle-orm";
 
@@ -26,6 +26,13 @@ export const formatDateWithoutYear = (date: Date): string => {
   return `${month} ${day}`;
 };
 
+/**
+ * A URL slug. Diacritics fold to ASCII (é → e) and everything else outside
+ * `[a-z0-9_-]` is dropped, because `slugSchema` — which guards `/creators/:slug`
+ * and `/out/:slug` — only accepts that set. A name with no ASCII-able
+ * characters therefore slugifies to "", which callers must handle rather than
+ * store: see `generateUniqueCreatorSlug`.
+ */
 export const slugify = (title: string, artist?: string) =>
   `${title}${artist ? `-${artist}` : ""}`
     .normalize("NFD")
@@ -58,6 +65,35 @@ export async function generateUniqueBookSlug(
     }
 
     // Slug exists, try with counter
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+}
+
+/**
+ * A free creator slug. `creators.slug` is NOT NULL UNIQUE, and creation used to
+ * write `slugify(displayName)` straight in with no checks: two creators sharing
+ * a name collided, and a name that slugified to "" was accepted as a valid
+ * empty slug. `type` is the last-resort base for a name with no letters or
+ * digits at all (punctuation or emoji only).
+ */
+export async function generateUniqueCreatorSlug(
+  displayName: string,
+  type: "artist" | "publisher",
+): Promise<string> {
+  const baseSlug = slugify(displayName) || type;
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (true) {
+    const existing = await db
+      .select({ id: creators.id })
+      .from(creators)
+      .where(eq(creators.slug, slug))
+      .limit(1);
+
+    if (existing.length === 0) return slug;
+
     slug = `${baseSlug}-${counter}`;
     counter++;
   }

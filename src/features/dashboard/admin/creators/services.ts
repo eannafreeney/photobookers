@@ -26,7 +26,7 @@ import {
   User,
   users,
 } from "../../../../db/schema";
-import { getRandomCoverUrl, slugify } from "../../../../utils";
+import { generateUniqueCreatorSlug, getRandomCoverUrl } from "../../../../utils";
 import { getCreatorById } from "../../creators/services";
 import { getPagination } from "../../../../lib/pagination";
 import { err, ok } from "../../../../lib/result";
@@ -162,7 +162,7 @@ export const createStubCreatorProfileAdmin = async (
 ) => {
   const [creatorError, newCreator] = await createCreatorProfileAdmin({
     displayName: displayName.trim(),
-    slug: slugify(displayName),
+    slug: await generateUniqueCreatorSlug(displayName, type),
     coverUrl: getRandomCoverUrl(),
     ownerUserId: null,
     type,
@@ -253,7 +253,7 @@ export const createStubCreatorProfile = async (
   // Create the stub creator with same logic as admin version but validated input
   const [creatorError, newCreator] = await createCreatorProfileAdmin({
     displayName: trimmed,
-    slug: slugify(trimmed),
+    slug: await generateUniqueCreatorSlug(trimmed, type),
     coverUrl: getRandomCoverUrl(),
     ownerUserId: null,
     type,
