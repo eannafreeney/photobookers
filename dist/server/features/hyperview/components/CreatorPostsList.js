@@ -5,7 +5,7 @@ const CREATOR_POSTS_LOAD_MORE_ID = "creator-posts-load-more";
 const CreatorPostsList = ({
   posts,
   creator,
-  canReadMessages,
+  canReadPosts,
   page = 1,
   hasMore = false,
   loadMoreHref
@@ -25,7 +25,7 @@ const CreatorPostsList = ({
         post.createdAt ? /* @__PURE__ */ jsx(Text, { style: "creator-post-date", children: formatDate(post.createdAt) }) : null
       ] })
     ] }),
-    canReadMessages ? /* @__PURE__ */ jsxs(Fragment, { children: [
+    canReadPosts ? /* @__PURE__ */ jsxs(Fragment, { children: [
       post.body ? /* @__PURE__ */ jsx(Text, { style: "creator-post-body", children: post.body }) : null,
       post.imageUrl ? /* @__PURE__ */ jsx(
         Image,

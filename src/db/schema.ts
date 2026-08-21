@@ -1032,11 +1032,17 @@ export const creatorViews = pgTable(
     userId: uuid("user_id").references(() => users.id),
     source: creatorViewSourceEnum("source").notNull().default("web"),
     referer: text("referer"),
+    /** `?ref=` campaign tag, e.g. "badge" for embedded profile badges. */
+    ref: varchar("ref", { length: 32 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
     creatorIdIdx: index("creator_views_creator_id_idx").on(table.creatorId),
     createdAtIdx: index("creator_views_created_at_idx").on(table.createdAt),
+    creatorRefIdx: index("creator_views_creator_ref_idx").on(
+      table.creatorId,
+      table.ref,
+    ),
   }),
 );
 

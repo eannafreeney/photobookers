@@ -1,7 +1,6 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client.js";
 import { bookFairs, bookImages, bookStores, books, creators, users } from "../../../db/schema.js";
-import { notifyAdminBookPendingReviewWhenReady } from "../../../domain/notifications/services.js";
 import { err, ok } from "../../../lib/result.js";
 import {
   invalidateBookCache,
@@ -66,12 +65,6 @@ const updateBookCoverImage = async (bookId, coverUrl, options) => {
       });
     if (updatedBook.slug) {
       invalidateBookCache(updatedBook.slug);
-    }
-    if (options?.actorUserId && !existing?.coverUrl) {
-      await notifyAdminBookPendingReviewWhenReady({
-        bookId,
-        actorUserId: options.actorUserId
-      });
     }
     return ok(updatedBook);
   } catch (error) {

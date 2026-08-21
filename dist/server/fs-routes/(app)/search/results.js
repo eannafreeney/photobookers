@@ -8,14 +8,11 @@ import { searchBooks } from "../../../features/api/services.js";
 import { searchFairsForNav } from "../../../features/app/fairs/services.js";
 import { searchCreators } from "../../../features/app/services.js";
 import { searchCollectors } from "../../../domain/collectors/services.js";
-import { isFeatureEnabledForUser } from "../../../lib/features.js";
 import { canonicalUrl, pageTitle } from "../../../lib/seo.js";
 import { getUser } from "../../../utils.js";
-import { ok } from "../../../lib/result.js";
 const FULL_RESULTS_LIMIT = 50;
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
-  const collectorsEnabled = isFeatureEnabledForUser("collectors", user);
   const searchQuery = c.req.query("search")?.trim() ?? "";
   const currentPath = searchQuery ? `/search/results?search=${encodeURIComponent(searchQuery)}` : "/search/results";
   const title = pageTitle(
@@ -56,7 +53,7 @@ const GET = createRoute(async (c) => {
     searchBooks(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
     searchCreators(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
     searchFairsForNav(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT),
-    collectorsEnabled ? searchCollectors(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT) : Promise.resolve(ok([]))
+    searchCollectors(searchQuery.toLowerCase(), FULL_RESULTS_LIMIT)
   ]);
   if (bookError || creatorError || fairError || collectorError) {
     return c.html(/* @__PURE__ */ jsx(Fragment, {}));
@@ -93,7 +90,7 @@ const GET = createRoute(async (c) => {
               creators: creators ?? [],
               books: books ?? [],
               fairs: fairs ?? [],
-              collectors: collectorsEnabled ? collectors ?? [] : [],
+              collectors: collectors ?? [],
               searchQuery,
               variant: "page"
             }

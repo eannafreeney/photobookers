@@ -34,6 +34,10 @@ const BookFilters = ({
   };
   const pillButtonClass = "cursor-pointer border-0 bg-transparent p-0 font-inherit";
   const controls = /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs("div", { class: "flex flex-col md:flex-row items-center justify-between gap-16 md:gap-4", children: [
+      /* @__PURE__ */ jsx(TrendingSortSelect, {}),
+      /* @__PURE__ */ jsx(FilterForm, {})
+    ] }),
     /* @__PURE__ */ jsxs("div", { class: "flex flex-wrap items-center gap-2", children: [
       /* @__PURE__ */ jsx(AllPill, { activeSlug, pillButtonClass }),
       DISCOVER_TAGS.map((tag) => /* @__PURE__ */ jsx(
@@ -44,10 +48,6 @@ const BookFilters = ({
           pillButtonClass
         }
       ))
-    ] }),
-    /* @__PURE__ */ jsxs("div", { class: "flex flex-col md:flex-row items-center gap-2 md:gap-4", children: [
-      /* @__PURE__ */ jsx(FilterForm, {}),
-      /* @__PURE__ */ jsx(TrendingSortSelect, {})
     ] })
   ] });
   return /* @__PURE__ */ jsx("div", { ...alpineAttrs, class: "mb-6", children: collapsible ? /* @__PURE__ */ jsx(
@@ -84,7 +84,7 @@ const FilterForm = () => {
   const searchInputAttrs = {
     "x-on:input.debounce.400ms": "runSearch()"
   };
-  return /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2 w-full", children: [
+  return /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2 w-3/4", children: [
     /* @__PURE__ */ jsx(
       "input",
       {
@@ -107,14 +107,14 @@ const FilterForm = () => {
     )
   ] });
 };
-const TrendingSortSelect = () => /* @__PURE__ */ jsxs("label", { class: "flex w-full md:w-auto min-w-0 items-center gap-2 text-sm text-on-surface", children: [
+const TrendingSortSelect = () => /* @__PURE__ */ jsxs("label", { class: "flex w-1/4 md:w-auto min-w-0 items-center gap-2 text-sm text-on-surface", children: [
   /* @__PURE__ */ jsx("span", { class: "sr-only", children: "Sort by" }),
   /* @__PURE__ */ jsx(
     "select",
     {
       "x-model": "sort",
       "x-on:change": "applySort()",
-      class: "w-full md:w-auto min-w-0 cursor-pointer rounded-full border border-outline bg-surface-alt px-4 py-2 text-sm text-on-surface-strong focus:outline-none focus:ring-1 focus:ring-primary",
+      class: "w-full md:w-auto min-w-0 cursor-pointer rounded-full border border-outline bg-surface-alt px-6 py-2 text-sm text-on-surface-strong focus:outline-none focus:ring-1 focus:ring-primary",
       children: BOOK_CATALOG_SORT_VALUES.map((value) => /* @__PURE__ */ jsx("option", { value, children: BOOK_CATALOG_SORT_LABELS[value] }, value))
     }
   )

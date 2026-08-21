@@ -13,7 +13,6 @@ import { BooksOverviewTable } from "../../features/dashboard/books/tables/BooksO
 import CreatorDashboardShell from "../../features/dashboard/components/CreatorDashboardShell.js";
 import { getPendingClaim } from "../../features/claims/services.js";
 import CreatorBookFunnelSummary from "../../features/dashboard/books/components/CreatorBookFunnelSummary.js";
-import { isFeatureEnabledForUser } from "../../lib/features.js";
 import PageHeader from "../../components/app/PageHeader.js";
 const GET = createRoute(async (c) => {
   const searchQuery = c.req.query("search");
@@ -23,9 +22,6 @@ const GET = createRoute(async (c) => {
   const currentPage = parseInt(c.req.query("page") ?? "1");
   const currentPath = c.req.path;
   if (!user.creator) {
-    if (!isFeatureEnabledForUser("collectors", user)) {
-      return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Creator not found", user }));
-    }
     return c.redirect("/dashboard/shelf");
   }
   const creatorId = user.creator.id;

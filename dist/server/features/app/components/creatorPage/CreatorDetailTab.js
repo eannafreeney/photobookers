@@ -3,7 +3,7 @@ import BooksGrid from "../BooksGrid.js";
 import CreatorCard from "../../../../components/app/CreatorCard.js";
 import CreatorsGrid from "../CreatorsGrid.js";
 import Tabs from "../../../../components/app/Tabs.js";
-import CreatorMessages from "./CreatorMessages.js";
+import CreatorPosts from "./CreatorPosts.js";
 import UpcomingFairsSection from "../../fairs/components/UpcomingFairsSection.js";
 const CreatorDetailTabs = ({
   isMobile = false,
@@ -37,7 +37,7 @@ const CreatorDetailTabs = ({
       noResultsMessage: "No books found"
     }
   ) }),
-  /* @__PURE__ */ jsx(Tabs.Panel, { tabId: "posts", children: isMobile ? /* @__PURE__ */ jsx(CreatorMessages, { creatorSlug: creator.slug, user }) : /* @__PURE__ */ jsx("div", { class: "mx-auto w-full max-w-[600px]", children: /* @__PURE__ */ jsx(CreatorMessages, { creatorSlug: creator.slug, user }) }) }),
+  /* @__PURE__ */ jsx(Tabs.Panel, { tabId: "posts", children: isMobile ? /* @__PURE__ */ jsx(CreatorPosts, { creatorSlug: creator.slug, user }) : /* @__PURE__ */ jsx("div", { class: "mx-auto w-full max-w-[600px]", children: /* @__PURE__ */ jsx(CreatorPosts, { creatorSlug: creator.slug, user }) }) }),
   /* @__PURE__ */ jsx(Tabs.Panel, { tabId: "creators", children: /* @__PURE__ */ jsx(
     CreatorsGrid,
     {
@@ -59,7 +59,7 @@ const CreatorDetailTabs = ({
         creator,
         currentPath,
         user,
-        shouldRefreshCreatorMessages: true,
+        shouldRefreshCreatorPosts: true,
         showHeader: false
       }
     ),

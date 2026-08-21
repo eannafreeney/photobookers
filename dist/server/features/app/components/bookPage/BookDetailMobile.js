@@ -18,7 +18,6 @@ import { bookShareText, bookShareTitle } from "../../../../lib/share.js";
 import { bookUrl } from "../../spotlightUrls.js";
 import MobileHeader from "../MobileHeader.js";
 import { shouldTrackOutboundPurchase } from "./BookDetail.js";
-import { isFeatureEnabledForUser } from "../../../../lib/features.js";
 const BookDetailMobile = ({
   galleryImages,
   book,
@@ -26,7 +25,7 @@ const BookDetailMobile = ({
   user,
   currentPage
 }) => {
-  const showPress = isFeatureEnabledForUser("bookPressLinks", user) && (book.pressLinks?.length ?? 0) > 0;
+  const showPress = (book.pressLinks?.length ?? 0) > 0;
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
     /* @__PURE__ */ jsx(MobileHeader, { kicker: book.artist?.displayName ?? "", title: book.title, children: /* @__PURE__ */ jsxs("div", { class: "flex justify-between items-center gap-2", children: [
       /* @__PURE__ */ jsx(SaveToListButton, { book, user, variant: "button" }),
@@ -50,7 +49,7 @@ const BookDetailMobile = ({
         /* @__PURE__ */ jsx(PageBleed, { children: /* @__PURE__ */ jsx(CarouselMobile, { images: galleryImages }) }),
         book.description && /* @__PURE__ */ jsx(Card.Description, { children: book.description }),
         showPress ? /* @__PURE__ */ jsx(BookPressSection, { links: book.pressLinks }) : null,
-        /* @__PURE__ */ jsx(BookCredits, { releaseDate: book.releaseDate }),
+        /* @__PURE__ */ jsx(BookCredits, { releaseDate: book.releaseDate, submittedByUser: book.submittedByUser }),
         /* @__PURE__ */ jsx(TagList, { tags: book.tags ?? [] })
       ] }),
       /* @__PURE__ */ jsx(Tabs.Panel, { tabId: "comments", children: /* @__PURE__ */ jsx(
@@ -115,8 +114,6 @@ const BookDetailMobile = ({
         bookSlug: book.slug,
         purchaseLink: book.purchaseLink,
         availabilityStatus: book.availabilityStatus,
-        artistName: book.artist?.displayName,
-        publisherName: book.publisher?.displayName,
         trackOutbound: shouldTrackOutboundPurchase(book)
       }
     )

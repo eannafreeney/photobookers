@@ -42,6 +42,8 @@ const AboutPageContent = () => /* @__PURE__ */ jsxs("div", { class: "mx-auto fle
             "a",
             {
               href: cta.href,
+              target: cta.external ? "_blank" : void 0,
+              rel: cta.external ? "noopener noreferrer" : void 0,
               class: `text-sm font-medium text-on-surface-strong ${textLinkClass}`,
               children: cta.label
             }

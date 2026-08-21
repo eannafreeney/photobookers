@@ -65,5 +65,6 @@ function Button({
   );
 }
 export {
+  button,
   Button as default
 };

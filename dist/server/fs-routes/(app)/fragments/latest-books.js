@@ -8,6 +8,8 @@ import { getFilteredBooks } from "../../../features/app/services.js";
 import { BOOK_CATALOG_DEFAULT_SORT } from "../../../lib/bookCatalogSort.js";
 import { booksFilterUrl, resolveBookCatalogSort } from "../../../lib/tags.js";
 import { getUser } from "../../../utils.js";
+import BooksGrid from "../../../features/app/components/BooksGrid.js";
+import Button from "../../../components/app/Button.js";
 const FEATURED_BOOKS_LIMIT = 10;
 const FRAGMENT_PATH = "/fragments/latest-books";
 const GET = createRoute(async (c) => {
@@ -57,10 +59,20 @@ const GET = createRoute(async (c) => {
   return c.html(
     /* @__PURE__ */ jsxs("div", { id: "latest-books-fragment", children: [
       /* @__PURE__ */ jsxs("div", { class: "flex items-end justify-between mb-3 border-t-2 border-on-surface-strong pt-3", children: [
-        /* @__PURE__ */ jsx(SectionTitle, { className: "mb-0", kicker: "New Arrivals", children: "TrendingBooks" }),
+        /* @__PURE__ */ jsx(SectionTitle, { className: "mb-0", kicker: "What's New?", children: "Trending Books" }),
         /* @__PURE__ */ jsx(ViewAllLink, { href: "/books" })
       ] }),
-      /* @__PURE__ */ jsx("div", { id: BOOKS_CATALOG_TARGET_ID, children: /* @__PURE__ */ jsx(BooksGridWithFilters, { ...gridProps }) })
+      /* @__PURE__ */ jsx(
+        BooksGrid,
+        {
+          isPaginated: false,
+          user,
+          currentPath: viewAllHref,
+          result,
+          noResultsMessage: isFiltered ? "No books match your filters." : void 0
+        }
+      ),
+      hasMore || viewAllHref ? /* @__PURE__ */ jsx("div", { class: "mt-8 flex justify-center", children: /* @__PURE__ */ jsx("a", { href: viewAllHref, children: /* @__PURE__ */ jsx(Button, { variant: "solid", color: "primary", width: "xl", children: "View All Books \u2192" }) }) }) : null
     ] })
   );
 });

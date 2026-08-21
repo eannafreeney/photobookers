@@ -5,7 +5,7 @@ import {
 const STUB_OUTREACH_OPT_OUT_FOOTER = `<p style="font-size: 12px; color: #666;">Don't want outreach emails from Photobookers? Reply to this message and we'll remove you.</p>`;
 function stubViewMilestoneEmailSubject(milestone) {
   const threshold = stubViewMilestoneThreshold(milestone);
-  return `Your books reached ${threshold} views on Photobookers`;
+  return `Your books hit ${threshold} views \u2014 claim to see the full stats`;
 }
 function generateStubViewMilestoneEmail(params) {
   const threshold = stubViewMilestoneThreshold(params.milestone);
@@ -22,7 +22,8 @@ function generateStubViewMilestoneEmail(params) {
   <p>Your catalogue has reached <strong>${threshold} views</strong> on Photobookers (${params.allTimeViews.toLocaleString()} all time).</p>
   ${recentStatsBlock}
   ${topBookBlock}
-  <p><a href="${escapeHtml(params.claimUrl)}">Claim your profile</a> to manage your books and see analytics \xB7 <a href="${escapeHtml(params.profileUrl)}">View your public profile</a></p>
+  <p>Claim to see which books drove these clicks and update anything that's wrong.</p>
+  <p><a href="${escapeHtml(params.claimUrl)}">Claim your profile</a> to manage your books and unlock full analytics \xB7 <a href="${escapeHtml(params.profileUrl)}">View your public profile</a></p>
   ${STUB_OUTREACH_OPT_OUT_FOOTER}
   <p>Best regards,<br/>Eanna</p>
 `;

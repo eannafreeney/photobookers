@@ -17,19 +17,16 @@ import {
 } from "../../../../features/dashboard/books/services.js";
 import Alert from "../../../../components/app/Alert.js";
 import Sidebar from "../../../../components/app/Sidebar.js";
-import { isFeatureEnabledForUser } from "../../../../lib/features.js";
 import { serializePressLinks } from "../../../../features/dashboard/books/pressLinks.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
-  const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
-  const formValues = showPressLinks ? { press_links: serializePressLinks([]) } : void 0;
+  const formValues = { press_links: serializePressLinks([]) };
   return c.html(
     /* @__PURE__ */ jsx(AppLayout, { title: "Books", user, currentPath, children: /* @__PURE__ */ jsx(Page, { children: /* @__PURE__ */ jsx(Sidebar, { currentPath, children: /* @__PURE__ */ jsx(
       BookFormAdmin,
       {
-        formValues,
-        showPressLinks
+        formValues
       }
     ) }) }) })
   );

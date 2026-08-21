@@ -1,7 +1,7 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import Avatar from "./Avatar.js";
 import Button from "./Button.js";
-import VerifiedCreator from "./VerifiedCreator.js";
+import VerificationBadge from "./VerificationBadge.js";
 import { canEditCreator } from "../../lib/permissions.js";
 const PageTitle = ({ title, creator, user }) => {
   const canEdit = user && creator ? canEditCreator(user, creator) : false;
@@ -16,7 +16,7 @@ const PageTitle = ({ title, creator, user }) => {
         }
       ),
       /* @__PURE__ */ jsx("div", { class: "absolute -top-2 -right-2", children: /* @__PURE__ */ jsx(
-        VerifiedCreator,
+        VerificationBadge,
         {
           creatorStatus: creator.status ?? "stub",
           size: "sm"

@@ -22,6 +22,8 @@ import {
   collectCreatorImageOptions
 } from "./social-media/instagramCaption.js";
 import { getPlannerInstagramImageSelection } from "./social-media/instagramUtils.js";
+import { creatorBlurbSourceText } from "./utils.js";
+import { creatorBlurbSourceText as creatorBlurbSourceText2, spotlightBlurbStatus } from "./utils.js";
 function getSpotlightBlurbFieldKey(item) {
   return item.kind === "botd" ? toDateString(item.date) : item.kind === "artist" ? "aotw" : "potw";
 }
@@ -36,10 +38,6 @@ async function loadBookDescriptions(entries) {
     columns: { id: true, description: true }
   });
   return new Map(rows.map((row) => [row.id, row.description]));
-}
-function getCreatorSourceText(creator) {
-  const extended = creator;
-  return extended.bio?.trim() || extended.tagline?.trim() || null;
 }
 function weekNeedsSpotlightBlurbs(weekData) {
   for (const entry of weekData.botdEntries) {
@@ -72,7 +70,7 @@ async function getWeekSpotlightBlurbEditorData(weekData) {
       });
     }
     if (weekData.artistOfTheWeek) {
-      const sourceText = getCreatorSourceText(weekData.artistOfTheWeek.creator);
+      const sourceText = creatorBlurbSourceText(weekData.artistOfTheWeek.creator);
       items.push({
         kind: "artist",
         title: weekData.artistOfTheWeek.creator.displayName,
@@ -81,7 +79,7 @@ async function getWeekSpotlightBlurbEditorData(weekData) {
       });
     }
     if (weekData.publisherOfTheWeek) {
-      const sourceText = getCreatorSourceText(
+      const sourceText = creatorBlurbSourceText(
         weekData.publisherOfTheWeek.creator
       );
       items.push({
@@ -105,7 +103,7 @@ async function generateSpotlightBlurbForKey(weekData, key) {
     if (key === "aotw") {
       const creator = weekData.artistOfTheWeek?.creator;
       if (!creator) return err({ reason: "No artist of the week scheduled" });
-      const sourceText2 = getCreatorSourceText(creator);
+      const sourceText2 = creatorBlurbSourceText(creator);
       if (!sourceText2) {
         return err({
           reason: "No source text available for Artist of the Week"
@@ -122,7 +120,7 @@ async function generateSpotlightBlurbForKey(weekData, key) {
       const creator = weekData.publisherOfTheWeek?.creator;
       if (!creator)
         return err({ reason: "No publisher of the week scheduled" });
-      const sourceText2 = getCreatorSourceText(creator);
+      const sourceText2 = creatorBlurbSourceText(creator);
       if (!sourceText2) {
         return err({
           reason: "No source text available for Publisher of the Week"
@@ -200,7 +198,7 @@ async function buildWeekSpotlightContent(weekData) {
     }
     if (weekData.artistOfTheWeek) {
       const creator = weekData.artistOfTheWeek.creator;
-      const sourceText = getCreatorSourceText(creator);
+      const sourceText = creatorBlurbSourceText(creator);
       const spotlightBlurb = weekData.artistOfTheWeek.spotlightBlurb?.trim() || (sourceText ? await rewriteSpotlightBlurb({
         kind: "artist",
         sourceText,
@@ -227,7 +225,7 @@ async function buildWeekSpotlightContent(weekData) {
     }
     if (weekData.publisherOfTheWeek) {
       const creator = weekData.publisherOfTheWeek.creator;
-      const sourceText = getCreatorSourceText(creator);
+      const sourceText = creatorBlurbSourceText(creator);
       const spotlightBlurb = weekData.publisherOfTheWeek.spotlightBlurb?.trim() || (sourceText ? await rewriteSpotlightBlurb({
         kind: "publisher",
         sourceText,
@@ -358,11 +356,13 @@ async function saveWeekSpotlightBlurbs(weekStart, blurbs) {
 }
 export {
   buildWeekSpotlightContent,
+  creatorBlurbSourceText2 as creatorBlurbSourceText,
   findSpotlightBlurbEditorItem,
   generateSpotlightBlurbForKey,
   getSpotlightBlurbFieldKey,
   getWeekSpotlightBlurbEditorData,
   persistWeekSpotlightContent,
   saveWeekSpotlightBlurbs,
+  spotlightBlurbStatus,
   weekNeedsSpotlightBlurbs
 };

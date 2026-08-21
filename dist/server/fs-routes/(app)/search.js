@@ -5,18 +5,14 @@ import { searchBooks } from "../../features/api/services.js";
 import { searchFairsForNav } from "../../features/app/fairs/services.js";
 import { searchCollectors } from "../../domain/collectors/services.js";
 import Link from "../../components/app/Link.js";
-import { capitalize, getUser } from "../../utils.js";
+import { capitalize } from "../../utils.js";
 import { DISCOVER_TAGS } from "../../constants/discover.js";
 import { tagBooksUrl } from "../../lib/tags.js";
 import Pill from "../../components/app/Pill.js";
 import NavSearchResults from "../../components/app/NavSearchResults.js";
-import { isFeatureEnabledForUser } from "../../lib/features.js";
-import { ok } from "../../lib/result.js";
 const GET = createRoute(async (c) => {
-  const user = await getUser(c);
   const searchQuery = c.req.query("search");
   const isMobile = c.req.query("isMobile") === "true";
-  const collectorsEnabled = isFeatureEnabledForUser("collectors", user);
   if (!searchQuery || searchQuery.length < 3) {
     return c.html(
       /* @__PURE__ */ jsx(
@@ -41,7 +37,7 @@ const GET = createRoute(async (c) => {
     searchBooks(searchTerm ?? ""),
     searchCreators(searchTerm ?? ""),
     searchFairsForNav(searchTerm ?? ""),
-    collectorsEnabled ? searchCollectors(searchTerm ?? "") : Promise.resolve(ok([]))
+    searchCollectors(searchTerm ?? "")
   ]);
   if (bookError || creatorError || fairError || collectorError) {
     return c.html(/* @__PURE__ */ jsx(Fragment, {}));
@@ -54,7 +50,7 @@ const GET = createRoute(async (c) => {
         creators: creators ?? [],
         books: books ?? [],
         fairs: fairs ?? [],
-        collectors: collectorsEnabled ? collectors ?? [] : [],
+        collectors: collectors ?? [],
         searchQuery
       }
     )

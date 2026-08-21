@@ -261,6 +261,9 @@ const getBookById = async (bookId) => {
         publisher: true,
         artist: true,
         bookOfTheDay: true,
+        submittedByUser: {
+          columns: { id: true, firstName: true, lastName: true, shelfSlug: true, email: true }
+        },
         images: {
           orderBy: (bookImages2, { asc: asc2 }) => [asc2(bookImages2.sortOrder)]
         }

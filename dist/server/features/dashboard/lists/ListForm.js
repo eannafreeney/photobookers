@@ -1,92 +1,90 @@
-import { jsx, jsxs } from "hono/jsx/jsx-runtime";
+import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import FormButtons from "../../../components/forms/FormButtons.js";
-const ListForm = ({ list }) => {
-  const isEdit = Boolean(list);
-  const action = isEdit ? `/dashboard/lists/${list.id}` : "/dashboard/lists";
-  const alpineAttrs = isEdit ? {
-    "x-data": "{ isSubmitting: false }",
-    "@ajax:before": "isSubmitting = true",
-    "@ajax:after": "isSubmitting = false",
-    "@ajax:error": "isSubmitting = false",
-    "x-target": "toast list-form-panel",
-    "x-target.error": "toast"
+import FormPost from "../../../components/forms/FormPost.js";
+import Input from "../../../components/forms/Input.js";
+import TextArea from "../../../components/forms/TextArea.js";
+import ToggleInput from "../../../components/forms/ToggleInput.js";
+const ListForm = ({ formValues, listId, disabled = false }) => {
+  const isEditPage = !!listId;
+  const action = isEditPage ? `/dashboard/lists/${listId}` : "/dashboard/lists";
+  const alpineAttrs = disabled ? {
+    "x-data": `listForm(${JSON.stringify(formValues ?? {})}, ${isEditPage})`,
+    "x-on:submit.prevent": ""
   } : {
-    "x-data": "{ isSubmitting: false }",
-    "@submit": "isSubmitting = true"
+    "x-data": `listForm(${JSON.stringify(formValues ?? {})}, ${isEditPage})`,
+    "x-on:submit": "submitForm($event)",
+    "x-target": isEditPage ? "toast list-form-panel list-share-panel" : "toast",
+    "x-target.error": "toast",
+    "x-on:ajax:error": "isSubmitting = false",
+    "x-on:ajax:success": "onSuccess()"
   };
   return /* @__PURE__ */ jsxs(
-    "form",
+    FormPost,
     {
-      id: isEdit ? "list-form-panel" : "list-create-form",
-      method: "post",
+      id: isEditPage ? "list-form-panel" : "list-create-form",
       action,
       class: "flex flex-col gap-4 max-w-xl",
       ...alpineAttrs,
       children: [
-        isEdit ? /* @__PURE__ */ jsx("input", { type: "hidden", name: "_method", value: "PATCH" }) : null,
-        /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-1", children: [
-          /* @__PURE__ */ jsx("label", { class: "kicker text-on-surface-weak", for: "list-title", children: "Title" }),
-          /* @__PURE__ */ jsx(
-            "input",
-            {
-              id: "list-title",
-              name: "title",
-              required: true,
-              maxlength: 255,
-              value: list?.title ?? "",
-              placeholder: "Favourite books of the year",
-              class: "rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface-strong"
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-1", children: [
-          /* @__PURE__ */ jsx("label", { class: "kicker text-on-surface-weak", for: "list-description", children: "Description" }),
-          /* @__PURE__ */ jsx(
-            "textarea",
-            {
-              id: "list-description",
-              name: "description",
-              maxlength: 2e3,
-              rows: 4,
-              placeholder: "Optional notes about this list",
-              class: "rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface-strong",
-              children: list?.description ?? ""
-            }
-          )
-        ] }),
-        isEdit ? /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-1", children: [
-          /* @__PURE__ */ jsx("label", { class: "kicker text-on-surface-weak", for: "list-slug", children: "URL slug" }),
-          /* @__PURE__ */ jsx(
-            "input",
-            {
-              id: "list-slug",
-              name: "slug",
-              required: true,
-              maxlength: 255,
-              value: list?.slug ?? "",
-              class: "rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface-strong"
-            }
-          ),
-          /* @__PURE__ */ jsx("p", { class: "text-xs text-on-surface-weak", children: "Used in your public list URL when the list is public." })
-        ] }) : null,
-        /* @__PURE__ */ jsxs("label", { class: "flex items-center gap-2 text-sm text-on-surface", children: [
-          /* @__PURE__ */ jsx(
-            "input",
-            {
-              type: "checkbox",
-              name: "isPublic",
-              value: "true",
-              checked: list?.isPublic ?? false,
-              class: "size-4"
-            }
-          ),
-          "Make this list public on my shelf"
-        ] }),
-        /* @__PURE__ */ jsx(
-          FormButtons,
+        isEditPage ? /* @__PURE__ */ jsx("input", { type: "hidden", name: "_method", value: "PATCH" }) : null,
+        /* @__PURE__ */ jsxs(
+          "fieldset",
           {
-            buttonText: isEdit ? "Save changes" : "Create list",
-            loadingText: isEdit ? "Saving\u2026" : "Creating\u2026"
+            disabled,
+            class: `flex flex-col gap-4 ${disabled ? "opacity-50" : ""}`,
+            children: [
+              /* @__PURE__ */ jsx(
+                Input,
+                {
+                  label: "Title",
+                  name: "form.title",
+                  maxLength: 255,
+                  validateInput: "validateField('title')",
+                  placeholder: "Favourite books of the year",
+                  required: true
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                TextArea,
+                {
+                  label: "Description",
+                  name: "form.description",
+                  maxLength: 2e3,
+                  minRows: 4,
+                  validateInput: "validateField('description')",
+                  placeholder: "Optional notes about this list"
+                }
+              ),
+              isEditPage ? /* @__PURE__ */ jsxs(Fragment, { children: [
+                /* @__PURE__ */ jsx(
+                  Input,
+                  {
+                    label: "URL slug",
+                    name: "form.slug",
+                    maxLength: 255,
+                    validateInput: "validateField('slug')",
+                    required: true
+                  }
+                ),
+                /* @__PURE__ */ jsx("p", { class: "-mt-2 text-xs text-on-surface-weak", children: "Used in your public list URL when the list is public." }),
+                /* @__PURE__ */ jsx(
+                  ToggleInput,
+                  {
+                    label: "Make this list public on my shelf",
+                    name: "form.isPublic",
+                    isChecked: Boolean(formValues?.isPublic)
+                  }
+                )
+              ] }) : null,
+              /* @__PURE__ */ jsx(
+                FormButtons,
+                {
+                  buttonText: isEditPage ? "Save changes" : "Create list",
+                  loadingText: isEditPage ? "Saving\u2026" : "Creating\u2026",
+                  isDisabled: disabled
+                }
+              )
+            ]
           }
         )
       ]

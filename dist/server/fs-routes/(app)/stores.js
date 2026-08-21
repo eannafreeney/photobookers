@@ -3,7 +3,6 @@ import { createRoute } from "hono-fsr";
 import AppLayout from "../../components/layouts/AppLayout.js";
 import { getUser } from "../../utils.js";
 import Page from "../../components/layouts/Page.js";
-import { isFeatureEnabledForUser } from "../../lib/features.js";
 import InfoPage from "../../pages/InfoPage.js";
 import {
   getPublishedStoreCountries,
@@ -20,9 +19,6 @@ import PageHeader from "../../components/app/PageHeader.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
-  if (!isFeatureEnabledForUser("stores", user)) {
-    return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
-  }
   const view = c.req.query("view") ?? "grid";
   const page = Number(c.req.query("page") ?? 1);
   const query = c.req.query("query") || "";

@@ -11,7 +11,6 @@ import Alert from "../../../../../../components/app/Alert.js";
 import { dispatchEvents } from "../../../../../../lib/disatchEvents.js";
 const GET = createRoute(paramValidator(weekQuerySchema), async (c) => {
   const week = c.req.valid("param").week;
-  console.log("week", week);
   return c.html(/* @__PURE__ */ jsx(ScheduleAOTWModal, { week }));
 });
 const POST = createRoute(

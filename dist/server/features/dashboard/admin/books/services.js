@@ -14,6 +14,7 @@ import {
   assignNextBookSortOrder,
   deleteBookDependents
 } from "../../books/services.js";
+import { resolveBookSubmitterContact } from "./resolveBookSubmitterContact.js";
 const deleteBookByIdAdmin = async (bookId) => {
   try {
     await deleteBookDependents(bookId);
@@ -94,9 +95,13 @@ const getBookSubmitterContact = async (bookId) => {
     }
   });
   if (!book) return null;
-  const submittingCreator = book.notifyFollowersCreatorId === book.artistId ? book.artist : book.publisher;
-  const recipientEmail = submittingCreator?.email ?? book.creatorUser?.email ?? null;
-  const displayName = submittingCreator?.displayName ?? [book.creatorUser?.firstName, book.creatorUser?.lastName].filter(Boolean).join(" ") ?? "there";
+  const { recipientEmail, displayName } = resolveBookSubmitterContact({
+    artist: book.artist,
+    publisher: book.publisher,
+    notifyFollowersCreatorId: book.notifyFollowersCreatorId,
+    artistId: book.artistId,
+    creatorUser: book.creatorUser
+  });
   return { recipientEmail, displayName, book };
 };
 const approveBook = async (bookId) => {

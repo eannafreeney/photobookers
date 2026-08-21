@@ -1,3 +1,10 @@
+function isContributorControlledSubmission(user, book) {
+  return !user.creator && user.id === book.createdByUserId && book.artist?.status !== "verified" && book.publisher?.status !== "verified";
+}
+function canCreateBook(user) {
+  if (!user) return false;
+  return true;
+}
 function canUploadImage(user, book) {
   if (!user) return false;
   if (user.isAdmin) return true;
@@ -5,12 +12,11 @@ function canUploadImage(user, book) {
     return true;
   return true;
 }
-function canLikeBook(user, book) {
-  return user?.creator?.id !== book.artistId && user?.creator?.id !== book.publisherId;
-}
 function canEditBook(user, book) {
   if (!user) return false;
   if (user.isAdmin) return true;
+  if (isContributorControlledSubmission(user, book))
+    return true;
   if (!user.creator) return false;
   const isCreatorProfileCreatedByUser = user.creator.createdByUserId === user.id;
   const isBookOwnedByCreator = user.creator.id === book.artistId || user.creator.id === book.publisherId;
@@ -25,6 +31,7 @@ function canEditBook(user, book) {
 function canDeleteBook(user, book) {
   if (!user) return false;
   if (user.isAdmin) return true;
+  if (isContributorControlledSubmission(user, book)) return true;
   if (!user.creator) return false;
   const isCreatorProfileCreatedByUser = user.creator.createdByUserId === user.id;
   const isBookOwnedByCreator = user.creator.id === book.artistId || user.creator.id === book.publisherId;
@@ -59,19 +66,19 @@ function canClaimCreator(user, creator) {
 function canPublishBook(user, book) {
   if (!user) return false;
   if (user.isAdmin) return true;
-  if (user.creator?.status !== "verified") return false;
   if (book.approvalStatus !== "approved") return false;
-  const coverUrlIsSet = book.coverUrl !== null;
-  if (coverUrlIsSet) {
-    return true;
-  }
-  return false;
+  if (book.coverUrl === null) return false;
+  if (isContributorControlledSubmission(user, book)) return true;
+  if (user.creator?.status !== "verified") return false;
+  return true;
 }
 function canUnpublishBook(user, book) {
   if (!user) return false;
   if (user.isAdmin) return true;
+  if (book.publicationStatus !== "published") return false;
+  if (isContributorControlledSubmission(user, book)) return true;
   if (user.creator?.status !== "verified") return false;
-  return book.publicationStatus === "published";
+  return true;
 }
 function canFollowCreator(user, creator) {
   return user?.creator?.id !== creator.id && user?.creator?.id !== null;
@@ -99,11 +106,11 @@ export {
   canClaimCreator,
   canClaimFairAttendance,
   canCollectBook,
+  canCreateBook,
   canDeleteBook,
   canEditBook,
   canEditCreator,
   canFollowCreator,
-  canLikeBook,
   canPreviewBook,
   canPublishBook,
   canUnpublishBook,

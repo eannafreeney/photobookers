@@ -12,7 +12,6 @@ import Page from "../../../components/layouts/Page.js";
 import CreatorDetail from "../../../features/app/components/creatorPage/CreatorDetail.js";
 import { canonicalUrl, creatorDescription, pageTitle } from "../../../lib/seo.js";
 import { getUpcomingFairsForCreator } from "../../../features/app/fairs/services.js";
-import { isFeatureEnabledForUser } from "../../../lib/features.js";
 import { routeParam } from "../../../lib/routeParam.js";
 import { countCreatorPosts } from "../../../db/queries.js";
 const GET = createRoute(
@@ -34,13 +33,11 @@ const GET = createRoute(
       countCreatorPosts(creator.id)
     ]);
     let upcomingFairs = [];
-    if (isFeatureEnabledForUser("fairs", user)) {
-      const [fairsError, fairsResult] = await getUpcomingFairsForCreator(
-        creator.id
-      );
-      if (!fairsError && fairsResult) {
-        upcomingFairs = fairsResult;
-      }
+    const [fairsError, fairsResult] = await getUpcomingFairsForCreator(
+      creator.id
+    );
+    if (!fairsError && fairsResult) {
+      upcomingFairs = fairsResult;
     }
     if (!user) {
       c.header("Vary", "Cookie");

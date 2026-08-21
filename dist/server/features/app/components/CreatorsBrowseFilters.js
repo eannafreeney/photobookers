@@ -9,7 +9,8 @@ const CreatorsBrowseFilters = ({ activeFilter, user }) => {
   const filters = [
     { id: "all", label: "All" },
     { id: "artist", label: "Artists" },
-    { id: "publisher", label: "Publishers" }
+    { id: "publisher", label: "Publishers" },
+    { id: "collector", label: "Collectors" }
   ];
   if (user) {
     filters.push({ id: "following", label: "Following" });

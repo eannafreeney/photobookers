@@ -64,13 +64,6 @@ const createMessageCreatedNotification = async (user, creator, message) => await
   targetUrl: `/creators/${creator?.slug}`,
   actorUserId: user.id
 });
-const createBookLikedNotification = async (user, book) => await createAdminNotification({
-  type: "book_liked",
-  title: "Book liked",
-  body: `${formatNotificationActorName(user)} liked the book: "${book.title}"`,
-  targetUrl: `/books/${book.slug}`,
-  actorUserId: user.id
-});
 const createCreatorFollowedNotification = async (user, creator) => await createAdminNotification({
   type: "creator_followed",
   title: "Creator followed",
@@ -94,7 +87,6 @@ const createUserVerifiedNotification = async (welcomeName, user) => await create
 });
 export {
   createBookCollectedNotification,
-  createBookLikedNotification,
   createBookPublishedNotification,
   createBookWishlistedNotification,
   createCollectorFollowedNotification,

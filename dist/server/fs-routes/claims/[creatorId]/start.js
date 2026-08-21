@@ -8,6 +8,7 @@ import { getCreatorById } from "../../../features/dashboard/creators/services.js
 import { submitClaimForUser } from "../../../features/claims/actions.js";
 import ClaimStartPage from "../../../features/claims/pages/ClaimStartPage.js";
 import InfoPage from "../../../pages/InfoPage.js";
+import { getStubOutreachStats } from "../../../domain/creators/stubOutreachStats.js";
 const claimStartPath = (creatorId) => `/claims/${creatorId}/start`;
 const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
   const creatorId = c.req.valid("param").creatorId;
@@ -32,6 +33,11 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
       403
     );
   }
+  const stats = await getStubOutreachStats({
+    id: creator.id,
+    slug: creator.slug,
+    type: creator.type
+  });
   return c.html(
     /* @__PURE__ */ jsx(
       ClaimStartPage,
@@ -39,7 +45,8 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
         creatorId,
         creator,
         user,
-        flash
+        flash,
+        stats
       }
     )
   );

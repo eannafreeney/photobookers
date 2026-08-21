@@ -7,7 +7,7 @@ const Intersector = ({ id, endpoint, children }) => {
   return /* @__PURE__ */ jsx("div", { id, "x-data": true, ...alpineAttrs, children: children || /* @__PURE__ */ jsx(LoadingIcon, {}) });
 };
 var Intersector_default = Intersector;
-const LoadingIcon = () => /* @__PURE__ */ jsx("div", { class: "flex justify-center items-center min-h-screen", children: loadingIcon });
+const LoadingIcon = () => /* @__PURE__ */ jsx("div", { class: "flex min-h-[280px] items-center justify-center", children: loadingIcon });
 export {
   Intersector_default as default
 };

@@ -2,13 +2,18 @@ import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import clsx from "clsx";
 import Page from "../../../components/layouts/Page.js";
 import {
+  analyticsIcon,
   bookIcon,
-  fullHeartIcon,
   lightbulbIcon,
   libraryIcon,
-  mailIcon
+  mailIcon,
+  plusIcon,
+  emptyHeartIcon
 } from "../../../lib/icons.js";
-const CollectorDashboardShell = ({ children, currentPath }) => {
+const CollectorDashboardShell = ({
+  children,
+  currentPath
+}) => {
   return /* @__PURE__ */ jsxs(Page, { children: [
     /* @__PURE__ */ jsxs(
       "nav",
@@ -21,7 +26,7 @@ const CollectorDashboardShell = ({ children, currentPath }) => {
             "Shelf"
           ] }),
           /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/favorites", currentPath, children: [
-            fullHeartIcon(5),
+            emptyHeartIcon(5),
             "Favorites"
           ] }),
           /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/posts", currentPath, children: [
@@ -31,6 +36,14 @@ const CollectorDashboardShell = ({ children, currentPath }) => {
           /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/lists", currentPath, children: [
             libraryIcon(5),
             "Lists"
+          ] }),
+          /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/contribute", currentPath, children: [
+            plusIcon(5),
+            "Contribute"
+          ] }),
+          /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/leaderboard", currentPath, children: [
+            analyticsIcon,
+            "Leaderboard"
           ] }),
           /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/guide", currentPath, children: [
             lightbulbIcon(5),
@@ -56,7 +69,7 @@ const NavLink = ({ href, children, currentPath }) => {
     "a",
     {
       href,
-      ...isActive ? { "aria-current": "page", "x-on:click.prevent": "" } : { "x-target": "collector-dashboard-panel nav-tabs" },
+      ...isActive ? { "aria-current": "page", "x-on:click.prevent": "" } : { "x-target.push": "collector-dashboard-panel nav-tabs" },
       prefetch: "intent",
       class: clsx(
         "flex items-center gap-2 border-b-2 border-transparent md:-mb-px px-4 py-2 kicker transition-colors",

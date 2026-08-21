@@ -2,7 +2,7 @@ import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import PageHeader from "../../../../components/app/PageHeader.js";
 import SectionTitle from "../../../../components/app/SectionTitle.js";
 import Link from "../../../../components/app/Link.js";
-import VerifiedCreator from "../../../../components/app/VerifiedCreator.js";
+import VerificationBadge from "../../../../components/app/VerificationBadge.js";
 import Button from "../../../../components/app/Button.js";
 const proseClass = "text-lg leading-relaxed text-balance text-on-surface text-pretty font-display";
 const getInteriorBookImages = (book) => {
@@ -154,7 +154,7 @@ const Contributors = ({
                 /* @__PURE__ */ jsxs("div", { class: "flex min-w-0 flex-col gap-0.5", children: [
                   /* @__PURE__ */ jsxs("span", { class: "flex items-center gap-1.5", children: [
                     /* @__PURE__ */ jsx("span", { class: "truncate font-display text-base font-medium text-on-surface-strong group-hover:text-accent", children: artist.displayName ?? "\u2014" }),
-                    verified ? /* @__PURE__ */ jsx(VerifiedCreator, { creatorStatus: "verified", size: "xs" }) : null
+                    verified ? /* @__PURE__ */ jsx(VerificationBadge, { creatorStatus: "verified", size: "xs" }) : null
                   ] }),
                   /* @__PURE__ */ jsx("span", { class: "truncate text-sm text-on-surface-weak", children: location || (bookCount > 1 ? `${bookCount} books` : "Featured artist") })
                 ] }),

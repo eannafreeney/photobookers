@@ -5,6 +5,8 @@ import DeleteButton from "./DeleteButton.js";
 import CreatorEmailBadge from "./CreatorEmailBadge.js";
 import SpotlightEmailStatusBadges from "./SpotlightEmailStatusBadges.js";
 import EditSpotlightBlurbButton from "./EditSpotlightBlurbButton.js";
+import SpotlightBlurbBadge from "./SpotlightBlurbBadge.js";
+import { creatorBlurbSourceText, spotlightBlurbStatus } from "../utils.js";
 const AOTWCard = ({
   weekStart,
   artistOfTheWeek,
@@ -77,12 +79,24 @@ const AOTWCardContent = ({
           email: artist.email
         }
       ),
-      /* @__PURE__ */ jsx("div", { class: "flex justify-end", children: /* @__PURE__ */ jsx(
-        EditSpotlightBlurbButton,
-        {
-          href: `/dashboard/admin/planner/spotlight-blurb/prepare?week=${encodeURIComponent(weekKey)}&key=aotw`
-        }
-      ) }),
+      /* @__PURE__ */ jsxs("div", { class: "flex flex-wrap items-center justify-between gap-2", children: [
+        /* @__PURE__ */ jsx(
+          SpotlightBlurbBadge,
+          {
+            subject: "artist",
+            status: spotlightBlurbStatus({
+              blurb: artistOfTheWeek.spotlightBlurb,
+              sourceText: creatorBlurbSourceText(artistOfTheWeek.creator)
+            })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          EditSpotlightBlurbButton,
+          {
+            href: `/dashboard/admin/planner/spotlight-blurb/prepare?week=${encodeURIComponent(weekKey)}&key=aotw`
+          }
+        )
+      ] }),
       interview && /* @__PURE__ */ jsxs("p", { class: "text-xs text-on-surface", children: [
         "Interview status: ",
         interview.status

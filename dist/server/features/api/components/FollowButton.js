@@ -3,18 +3,28 @@ import { canFollowCreator } from "../../../lib/permissions.js";
 import { findFollow } from "../services.js";
 import APIButton from "./APIButton.js";
 import APIButtonCircle from "./APIButtonCircle.js";
+const FOLLOW_BUTTON_VARIANTS = [
+  "desktop",
+  "mobile",
+  "strip",
+  "hero"
+];
+const parseFollowButtonVariant = (value) => FOLLOW_BUTTON_VARIANTS.includes(value) ? value : "desktop";
+const isCircleFollowVariant = (variant) => variant === "strip";
 const FollowButton = async ({
   creator,
   user,
   isCircleButton = false,
   variant = "desktop",
+  isFollowing: knownIsFollowing,
   shouldRefreshFollowedCreators = false,
-  shouldRefreshCreatorMessages = false
+  shouldRefreshCreatorPosts = false
 }) => {
-  let isFollowing = false;
-  if (user?.id) {
+  let isFollowing = knownIsFollowing ?? false;
+  if (knownIsFollowing === void 0 && user?.id) {
     isFollowing = !!await findFollow(creator.id, user.id);
   }
+  const isCircle = isCircleButton || isCircleFollowVariant(variant);
   const id = `follow-${creator.id}-${variant}`;
   const isDisabled = !canFollowCreator(user, creator);
   const buttonIcon = /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -23,25 +33,27 @@ const FollowButton = async ({
   ] });
   const props = {
     id,
+    variant,
     action: `/api/creators/${creator.id}/follow`,
     disabled: isDisabled,
     tooltipText: isFollowing ? "Unfollow" : "Follow",
     hiddenInput: { name: "isFollowing", value: isFollowing },
-    buttonText: isCircleButton ? buttonIcon : /* @__PURE__ */ jsxs(Fragment, { children: [
+    buttonText: isCircle ? buttonIcon : /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx("span", { "x-show": "!isSubmitting", children: isFollowing ? "Following" : "Follow" }),
       /* @__PURE__ */ jsx("span", { "x-show": "isSubmitting", "x-cloak": true, children: isFollowing ? "Follow" : "Following" }),
       buttonIcon
     ] })
   };
-  if (isCircleButton) {
+  if (isCircle) {
     return /* @__PURE__ */ jsx(
       APIButtonCircle,
       {
         ...props,
         buttonType: "circle",
         isDisabled,
+        isActive: isFollowing,
         shouldRefreshFollowedCreators,
-        shouldRefreshCreatorMessages
+        shouldRefreshCreatorPosts
       }
     );
   }
@@ -52,7 +64,7 @@ const FollowButton = async ({
       isDisabled,
       isActive: isFollowing,
       shouldRefreshFollowedCreators,
-      shouldRefreshCreatorMessages
+      shouldRefreshCreatorPosts
     }
   );
 };
@@ -96,5 +108,8 @@ const followingIcon = /* @__PURE__ */ jsx(
   }
 );
 export {
-  FollowButton_default as default
+  FOLLOW_BUTTON_VARIANTS,
+  FollowButton_default as default,
+  isCircleFollowVariant,
+  parseFollowButtonVariant
 };

@@ -7,9 +7,12 @@ import CreatorPageBanner from "./CreatorPageBanner.js";
 import { creatorUrl } from "../../spotlightUrls.js";
 import { creatorShareText } from "../../../../lib/share.js";
 import MobileHeader from "../MobileHeader.js";
+import ClaimCreatorBtn from "../../../claims/components/ClaimCreatorBtn.js";
+import StubProfileBanner from "./StubProfileBanner.js";
 const CreatorDetailMobile = (props) => {
   const { creator, user, isOwner, postCount } = props;
   return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(StubProfileBanner, { creator, isOwner }),
     /* @__PURE__ */ jsx(
       CreatorPageBanner,
       {
@@ -24,14 +27,24 @@ const CreatorDetailMobile = (props) => {
           kicker: creator.type === "publisher" ? "Publisher" : "Artist",
           title: creator.displayName ?? void 0,
           isVerified: creator.status === "verified",
-          children: /* @__PURE__ */ jsxs("div", { class: "flex justify-between items-center gap-2", children: [
-            !isOwner && /* @__PURE__ */ jsx(FollowButton, { creator, variant: "mobile", user }),
+          children: /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-2", children: [
+            /* @__PURE__ */ jsxs("div", { class: "flex justify-between items-center gap-2", children: [
+              !isOwner && /* @__PURE__ */ jsx(FollowButton, { creator, variant: "mobile", user }),
+              /* @__PURE__ */ jsx(
+                ShareButton,
+                {
+                  title: creator.displayName,
+                  text: creatorShareText(creator),
+                  url: creatorUrl(creator.slug)
+                }
+              )
+            ] }),
             /* @__PURE__ */ jsx(
-              ShareButton,
+              ClaimCreatorBtn,
               {
-                title: creator.displayName,
-                text: creatorShareText(creator),
-                url: creatorUrl(creator.slug)
+                creator,
+                user,
+                currentPath: props.currentPath
               }
             )
           ] })

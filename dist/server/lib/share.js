@@ -22,6 +22,44 @@ function bookShareTitle(book) {
 function bookShareText(book) {
   return `${bookShareTitle(book)} \u2014 on Photobookers`;
 }
+function bookLiveInstagramCaption(params) {
+  const byArtist = params.artistName ? ` by ${params.artistName}` : "";
+  const intro = params.addedBy === "contributor" ? `I added book "${params.bookTitle}"${byArtist} \u2014 live on @photobookers.` : `My book "${params.bookTitle}"${byArtist} is live on @photobookers.`;
+  const lines = [
+    intro,
+    "",
+    params.bookUrl
+  ];
+  const handle = params.instagram?.trim();
+  if (handle) {
+    const normalized = handle.startsWith("@") ? handle : `@${handle}`;
+    lines.push("", normalized);
+  }
+  lines.push("", "#photobook #photobookjousting");
+  return lines.join("\n");
+}
+function listPath(shelfSlug, listSlug) {
+  return `/shelf/${shelfSlug}/lists/${listSlug}`;
+}
+function listShareTitle(listTitle) {
+  return listTitle;
+}
+function listShareText(listTitle, ownerName) {
+  return `${listTitle} \u2014 a photobook list by ${ownerName} on Photobookers`;
+}
+function postPath(postId) {
+  return `/posts/${postId}`;
+}
+function postUrl(postId, siteUrl) {
+  const base = (siteUrl ?? process.env.SITE_URL ?? "https://photobookers.com").replace(
+    /\/$/,
+    ""
+  );
+  return `${base}${postPath(postId)}`;
+}
+function postShareText(authorName) {
+  return `Post by ${authorName} on Photobookers`;
+}
 function bookOfTheDayShareTitle(book) {
   return `Book of the Day \u2014 ${book.title}`;
 }
@@ -54,7 +92,22 @@ function resolveShareUrl(url, origin) {
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return new URL(trimmed, origin).href;
 }
+function nativeSharePayload(title, text, url) {
+  return { title, text: `${text}
+${url}` };
+}
+function shouldUseRichNativeShare(opts) {
+  if (typeof opts.mobile === "boolean") return opts.mobile;
+  return /Android|iPhone|iPad|iPod/i.test(opts.userAgent ?? "");
+}
+function absoluteShareImageUrl(imageUrl, origin) {
+  const trimmed = imageUrl?.trim();
+  if (!trimmed) return void 0;
+  return resolveShareUrl(trimmed, origin);
+}
 export {
+  absoluteShareImageUrl,
+  bookLiveInstagramCaption,
   bookOfTheDayShareText,
   bookOfTheDayShareTitle,
   bookShareText,
@@ -65,8 +118,16 @@ export {
   creatorShareText,
   creatorVerifiedSharePost,
   creatorVerifiedSharePostHtml,
+  listPath,
+  listShareText,
+  listShareTitle,
+  nativeSharePayload,
+  postPath,
+  postShareText,
+  postUrl,
   resolveShareUrl,
   shelfProfileUrl,
   shelfShareText,
-  shelfShareTitle
+  shelfShareTitle,
+  shouldUseRichNativeShare
 };

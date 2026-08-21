@@ -9,16 +9,20 @@ import { suggestShelfSlug } from "../../domain/shelf/services.js";
 import { userCanHaveShelf } from "../../domain/shelf/utils.js";
 import { getPendingClaim } from "../../features/claims/services.js";
 import { getFlash, getUser } from "../../utils.js";
-import { isFeatureEnabledForUser } from "../../lib/features.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
-  if (!userCanHaveShelf(user) || !isFeatureEnabledForUser("collectors", user)) {
+  if (!userCanHaveShelf(user)) {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
   }
   const suggestedSlug = await suggestShelfSlug(user.id);
   const claimStatus = user.creator ? (await getPendingClaim(user.id, user.creator.id))[1]?.status ?? null : null;
+  const alpineAttrs = {
+    "x-init": true,
+    "x-merge": "replace",
+    "@avatar:updated.window": "$ajax('/dashboard/shelf', { target: 'shelf-settings-container' })"
+  };
   return c.html(
     /* @__PURE__ */ jsx(
       AppLayout,
@@ -41,14 +45,14 @@ const GET = createRoute(async (c) => {
                   intro: "Control whether your shelf is public and choose your public URL."
                 }
               ),
-              /* @__PURE__ */ jsx(
+              /* @__PURE__ */ jsx("div", { id: "shelf-settings-container", ...alpineAttrs, children: /* @__PURE__ */ jsx(
                 ShelfSharingPanel,
                 {
                   user,
                   suggestedSlug,
                   defaultOpen: true
                 }
-              )
+              ) })
             ]
           }
         )

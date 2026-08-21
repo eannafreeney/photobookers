@@ -48,7 +48,7 @@ const CommentsList = async ({ bookId, user, comments }: CommentListProps) => {
                   >
                     edit
                   </Link>
-                  {/* <DeleteCommentButton commentId={comment.id} bookId={bookId} /> */}
+                  <DeleteCommentButton commentId={comment.id} bookId={bookId} />
                 </div>
               )}
             </div>
@@ -76,7 +76,7 @@ const CommentBody = ({ body }: { body: string }) => (
   </div>
 );
 
-const DeleteCommentButton = async ({
+const DeleteCommentButton = ({
   commentId,
   bookId,
 }: {
@@ -84,10 +84,10 @@ const DeleteCommentButton = async ({
   bookId: string;
 }) => {
   const alpineAttrs = {
-    "x-init": "true",
     "x-target": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('div').remove()",
+    // server also dispatches comments:updated; this covers toast-only responses
+    "@ajax:success": "$dispatch('comments:updated')",
   };
   return (
     <FormDelete

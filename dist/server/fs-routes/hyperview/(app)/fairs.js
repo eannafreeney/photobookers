@@ -5,26 +5,18 @@ import { hyperview } from "../../../lib/hxml.js";
 import { Behavior, Spinner, Style, View } from "../../../lib/hxml-comps.js";
 import { getBaseUrl } from "../../../lib/hyperview.js";
 import { getUser } from "../../../utils.js";
-import { isFeatureEnabledForUser } from "../../../lib/features.js";
 import FairsTabs, {
   FAIRS_TAB_TARGET_ID,
   fairsTabStyles
 } from "../../../features/hyperview/components/FairsTabs.js";
 import { fairsListStyles } from "../../../features/hyperview/components/FairsList.js";
 import { signInEmptyHintStyles } from "../../../features/hyperview/hyperviewCommonScreenStyles.js";
-import ErrorScreen from "../../../features/hyperview/components/ErrorScreen.js";
 const DEFAULT_FAIRS_TAB = "current";
 const defaultTabHref = (baseUrl) => `${baseUrl}/hyperview/fairs/tab/${DEFAULT_FAIRS_TAB}`;
 const GET = createRoute(async (c) => {
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
   const hv = hyperview(c);
-  if (!isFeatureEnabledForUser("fairs", user)) {
-    return hv(
-      /* @__PURE__ */ jsx(ErrorScreen, { user, baseUrl, message: "Not found" }),
-      404
-    );
-  }
   return hv(
     /* @__PURE__ */ jsx(
       AppLayout,

@@ -17,7 +17,10 @@ import { getIsHyperview } from "../../../../features/hyperview/lib.js";
 import { getBaseUrl } from "../../../../lib/hyperview.js";
 import { Behavior, Text, View } from "../../../../lib/hxml-comps.js";
 import { HyperviewFollowInner } from "../../../../features/hyperview/components/FollowButton.js";
-import FollowButton from "../../../../features/api/components/FollowButton.js";
+import FollowButton, {
+  FOLLOW_BUTTON_VARIANTS,
+  parseFollowButtonVariant
+} from "../../../../features/api/components/FollowButton.js";
 import { routeParam } from "../../../../lib/routeParam.js";
 const POST = createRoute(async (c) => {
   const isHyperview = getIsHyperview(c);
@@ -82,7 +85,7 @@ const postFollowWeb = async (c) => {
   const body = await c.req.parseBody();
   const isCurrentlyFollowing = body.isFollowing === "true";
   const isCircleButton = body.buttonType === "circle";
-  const shouldRefreshCreatorMessages = body.shouldRefreshCreatorMessages === "true";
+  const shouldRefreshCreatorPosts = body.shouldRefreshCreatorPosts === "true";
   const [err, creator] = await getCreatorPermissionData(creatorId);
   if (err || !creator) {
     return showErrorAlert(c, err?.reason ?? "Creator not found");
@@ -100,29 +103,24 @@ const postFollowWeb = async (c) => {
     return showErrorAlert(c);
   }
   const message = isCurrentlyFollowing ? `No longer following ${creator.displayName}.` : `Now following ${creator.displayName}.`;
+  const isFollowing = !isCurrentlyFollowing;
+  const requestVariant = parseFollowButtonVariant(body.variant);
   return c.html(
     /* @__PURE__ */ jsxs(Fragment, { children: [
       /* @__PURE__ */ jsx(Alert, { type: "success", message }),
-      /* @__PURE__ */ jsx(
+      FOLLOW_BUTTON_VARIANTS.map((variant) => /* @__PURE__ */ jsx(
         FollowButton,
         {
           creator,
           user,
-          isCircleButton,
-          shouldRefreshCreatorMessages
-        }
-      ),
-      /* @__PURE__ */ jsx(
-        FollowButton,
-        {
-          creator,
-          user,
-          isCircleButton,
-          variant: "mobile",
-          shouldRefreshCreatorMessages
-        }
-      ),
-      shouldRefreshCreatorMessages && dispatchEvents(["creator-messages:updated"])
+          variant,
+          isFollowing,
+          isCircleButton: variant === "desktop" || variant === "mobile" ? isCircleButton : void 0,
+          shouldRefreshCreatorPosts: shouldRefreshCreatorPosts && variant === requestVariant
+        },
+        variant
+      )),
+      shouldRefreshCreatorPosts && dispatchEvents(["creator-posts:updated"])
     ] })
   );
 };

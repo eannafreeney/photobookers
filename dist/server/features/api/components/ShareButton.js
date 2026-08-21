@@ -2,12 +2,14 @@ import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 const shareButtonClass = "whitespace-nowrap w-full rounded-radius border border-secondary bg-transparent px-4 py-2 text-sm font-medium tracking-wide text-secondary transition hover:opacity-75 text-center cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2";
 const ShareButton = ({
   isCircleButton = false,
+  variant = "default",
   title,
   text,
-  url
+  url,
+  imageUrl
 }) => {
   const tooltipText = "Share";
-  const shareConfig = JSON.stringify({ title, text, url });
+  const shareConfig = JSON.stringify({ title, text, url, imageUrl });
   if (isCircleButton) {
     return /* @__PURE__ */ jsx("div", { "x-data": `shareButton(${shareConfig})`, children: /* @__PURE__ */ jsx(
       "button",
@@ -16,6 +18,22 @@ const ShareButton = ({
         title: tooltipText,
         "x-on:click": "share()",
         children: shareIcon()
+      }
+    ) });
+  }
+  if (variant === "inline") {
+    return /* @__PURE__ */ jsx("div", { "x-data": `shareButton(${shareConfig})`, children: /* @__PURE__ */ jsxs(
+      "button",
+      {
+        type: "button",
+        title: tooltipText,
+        "aria-label": "Share this post",
+        class: "inline-flex items-center gap-1.5 rounded-radius px-2 py-1 text-sm font-medium text-on-surface transition hover:bg-surface-alt cursor-pointer",
+        "x-on:click": "share()",
+        children: [
+          shareIcon(5),
+          /* @__PURE__ */ jsx("span", { children: "Share" })
+        ]
       }
     ) });
   }

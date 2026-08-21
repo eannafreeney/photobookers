@@ -16,6 +16,7 @@ import Alert from "../../../../components/app/Alert.js";
 import Modal from "../../../../components/app/Modal.js";
 import MessageForm from "../../../../features/dashboard/messages/forms/MessageForm.js";
 import MessagesTable from "../../../../features/dashboard/messages/components/MessagesTable.js";
+import { getIsMobile } from "../../../../lib/device.js";
 const GET = createRoute(
   paramValidator(messageParamSchema),
   requireCreatorEditAccess,
@@ -86,11 +87,12 @@ const PATCH = createRoute(
       existing.userId
     );
     if (updateErr) return showErrorAlert(c, updateErr.reason);
+    const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
     return c.html(
       /* @__PURE__ */ jsxs(Fragment, { children: [
         /* @__PURE__ */ jsx(Alert, { type: "success", message: "Post updated." }),
         /* @__PURE__ */ jsx(MessageForm, { creatorId, messageId }),
-        /* @__PURE__ */ jsx(MessagesTable, { creatorId }),
+        /* @__PURE__ */ jsx(MessagesTable, { creatorId, isMobile }),
         /* @__PURE__ */ jsx("div", { id: "modal-root" })
       ] })
     );
@@ -107,10 +109,11 @@ const DELETE = createRoute(
     }
     const [error] = await deleteMessageById(messageId, existing.userId);
     if (error) return showErrorAlert(c, error.reason);
+    const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
     return c.html(
       /* @__PURE__ */ jsxs(Fragment, { children: [
         /* @__PURE__ */ jsx(Alert, { type: "success", message: "Post deleted." }),
-        /* @__PURE__ */ jsx(MessagesTable, { creatorId })
+        /* @__PURE__ */ jsx(MessagesTable, { creatorId, isMobile })
       ] })
     );
   }

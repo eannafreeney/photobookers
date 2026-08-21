@@ -2,7 +2,7 @@ import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import clsx from "clsx";
 import Card from "./Card.js";
 import { formatDate } from "../../utils.js";
-import CardCreatorCard from "./CardCreatorCard.js";
+import CardAuthorCard from "./CardAuthorCard.js";
 import Link from "./Link.js";
 import Show from "./Show.js";
 import SaveToListButton from "../../features/api/components/SaveToListButton.js";
@@ -19,7 +19,7 @@ const BookCard = ({
   return /* @__PURE__ */ jsxs(Card, { className: clsx(className ?? "min-w-[200px] max-w-[24rem]"), children: [
     /* @__PURE__ */ jsx(Show, { when: currentCreatorId !== book.artist?.id, children: /* @__PURE__ */ jsxs("div", { class: "px-3 py-2 flex items-center justify-between gap-2 h-10", children: [
       /* @__PURE__ */ jsx("div", { class: "min-w-0 flex-1", children: /* @__PURE__ */ jsx(
-        CardCreatorCard,
+        CardAuthorCard,
         {
           banner,
           creator: book.artist ?? null,

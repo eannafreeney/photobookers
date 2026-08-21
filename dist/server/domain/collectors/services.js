@@ -2,6 +2,9 @@ import { and, desc, eq, ilike, inArray, notExists, or, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { creators, follows, users } from "../../db/schema.js";
 import { err, ok } from "../../lib/result.js";
+function collectorDisplayName(c) {
+  return [c.firstName, c.lastName].filter(Boolean).join(" ").trim() || "Collector";
+}
 const PUBLIC_COLLECTOR_COLUMNS = {
   id: true,
   firstName: true,
@@ -86,6 +89,7 @@ async function getFollowedCollectors(followerUserId) {
   }
 }
 export {
+  collectorDisplayName,
   getFollowedCollectors,
   getPublicCollectors,
   searchCollectors

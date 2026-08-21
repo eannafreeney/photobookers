@@ -32,7 +32,7 @@ const Modal = ({
     "div",
     {
       id: "modal-root",
-      class: "fixed inset-0 z-50 flex items-end justify-center bg-black/20 p-4 pb-8 backdrop-blur-md sm:items-center lg:p-8",
+      class: "fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-md lg:p-8",
       role: "dialog",
       "aria-modal": "true",
       ...title ? { "aria-labelledby": MODAL_TITLE_ID } : { "aria-label": "Dialog" },

@@ -1,3 +1,4 @@
+import { SITE_SKOOL } from "../../../constants/siteSocial.js";
 const aboutPageMeta = {
   title: "The place to discover photobooks",
   intro: "Photobookers brings books, artists, publishers, and book fairs together \u2014 so collectors can find what matters, and creators can be found by people who care.",
@@ -44,7 +45,14 @@ const aboutAudienceSections = [
     ],
     closing: "You keep control: your shop, your links, your terms. We help the right people find you.",
     primaryCta: { label: "Create a creator account", href: "/auth/register-creator" },
-    secondaryCtas: [{ label: "Get in touch", href: "/contact" }]
+    secondaryCtas: [
+      {
+        label: "Working on a photobook?",
+        href: SITE_SKOOL.href,
+        external: true
+      },
+      { label: "Get in touch", href: "/contact" }
+    ]
   },
   {
     id: "publishers",

@@ -1,5 +1,5 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
-import VerifiedCreator from "./VerifiedCreator.js";
+import VerificationBadge from "./VerificationBadge.js";
 import Avatar from "./Avatar.js";
 import { formatDate } from "../../utils.js";
 import { tagBooksUrl } from "../../lib/tags.js";
@@ -141,7 +141,7 @@ const CreatorResultItem = ({ creator }) => {
             }
           ),
           /* @__PURE__ */ jsx("div", { class: "absolute -top-1 -right-1", children: /* @__PURE__ */ jsx(
-            VerifiedCreator,
+            VerificationBadge,
             {
               creatorStatus: creator.status ?? "stub",
               size: "xs"
@@ -225,7 +225,17 @@ const CollectorResultItem = ({ collector }) => {
       href: `/shelf/${collector.shelfSlug}`,
       class: "flex items-center gap-3 rounded-radius transition-colors",
       children: [
-        /* @__PURE__ */ jsx(Avatar, { src: avatarUrl, alt: name, size: "md" }),
+        /* @__PURE__ */ jsxs("div", { class: "relative shrink-0", children: [
+          /* @__PURE__ */ jsx(Avatar, { src: avatarUrl, alt: name, size: "md" }),
+          /* @__PURE__ */ jsx("div", { class: "absolute -top-1 -right-1", children: /* @__PURE__ */ jsx(
+            VerificationBadge,
+            {
+              creatorStatus: "verified",
+              size: "xs",
+              title: "Verified Collector"
+            }
+          ) })
+        ] }),
         /* @__PURE__ */ jsxs("div", { class: "flex-1 min-w-0", children: [
           /* @__PURE__ */ jsx("div", { class: "font-semibold text-on-surface truncate", children: name }),
           /* @__PURE__ */ jsx("div", { class: "text-xs uppercase font-semibold text-on-surface", children: "Collector" })

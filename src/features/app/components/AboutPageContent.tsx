@@ -21,8 +21,8 @@ const AboutPageContent = () => (
     >
       {aboutAudienceNav.map((item) => (
         <a
-          href={`#${item.id}`}
-          class="rounded-full border border-outline px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-on-surface-strong transition-colors hover:border-accent hover:text-accent"
+          href={`/for-${item.id}`}
+          class="border border-outline px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-on-surface-strong transition-colors hover:border-accent hover:text-accent"
         >
           {item.label}
         </a>
@@ -49,6 +49,12 @@ const AboutPageContent = () => (
             <Button variant="solid" color="primary" width="auto" type="button">
               {section.primaryCta.label}
             </Button>
+          </a>
+          <a
+            href={`/for-${section.id}`}
+            class={`text-sm font-medium text-on-surface-strong ${textLinkClass}`}
+          >
+            Features & benefits
           </a>
           {section.secondaryCtas.map((cta) => (
             <a

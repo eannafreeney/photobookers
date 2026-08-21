@@ -1,5 +1,5 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
-import VerifiedCreator from "../../../components/app/VerifiedCreator.js";
+import VerificationBadge from "../../../components/app/VerificationBadge.js";
 const SpotlightCreator = ({
   creator,
   role,
@@ -17,7 +17,7 @@ const SpotlightCreator = ({
           class: "size-12 shrink-0 rounded-full border border-outline object-cover"
         }
       ),
-      isVerified && /* @__PURE__ */ jsx("div", { class: "absolute top-0 right-0", children: /* @__PURE__ */ jsx(VerifiedCreator, { creatorStatus: "verified", size: "xs" }) })
+      isVerified && /* @__PURE__ */ jsx("div", { class: "absolute top-0 right-0", children: /* @__PURE__ */ jsx(VerificationBadge, { creatorStatus: "verified", size: "xs" }) })
     ] }) : /* @__PURE__ */ jsx(
       "span",
       {

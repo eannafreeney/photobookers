@@ -14,6 +14,9 @@ import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers.js";
 import CreatorBannerForm from "../../../features/dashboard/images/forms/CreatorBannerForm.js";
 import CreatorDashboardShell from "../../../features/dashboard/components/CreatorDashboardShell.js";
 import { getPendingClaim } from "../../../features/claims/services.js";
+import ProfileBadgeCard from "../../../features/dashboard/creators/components/ProfileBadgeCard.js";
+import { getCreatorReferralCounts } from "../../../features/creator-views/services.js";
+import { BADGE_REFERRAL } from "../../../lib/embedBadge.js";
 import InfoPage from "../../../pages/InfoPage.js";
 const GET = createRoute(
   paramValidator(creatorIdSchema),
@@ -26,6 +29,9 @@ const GET = createRoute(
     if (claimError)
       return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: claimError.reason, user }));
     const formValues = getFormValues(creator);
+    const badgeViewCount = await getCreatorReferralCounts(creator.id).then(
+      (rows) => rows.find((row) => row.ref === BADGE_REFERRAL)?.viewCount ?? 0
+    ).catch(() => null);
     return c.html(
       /* @__PURE__ */ jsx(
         AppLayout,
@@ -33,41 +39,50 @@ const GET = createRoute(
           title: "Edit Creator Profile",
           user,
           currentPath,
-          children: /* @__PURE__ */ jsx(
+          children: /* @__PURE__ */ jsxs(
             CreatorDashboardShell,
             {
               currentPath,
               user,
               claimStatus: claim?.status ?? null,
-              children: /* @__PURE__ */ jsxs("div", { class: "flex items-start justify-between gap-4", children: [
-                /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-8 w-1/3", children: [
-                  /* @__PURE__ */ jsx(
-                    CreatorImageForm,
+              children: [
+                /* @__PURE__ */ jsxs("div", { class: "flex items-start justify-between gap-4", children: [
+                  /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-8 w-1/3", children: [
+                    /* @__PURE__ */ jsx(
+                      CreatorImageForm,
+                      {
+                        initialUrl: creator?.coverUrl ?? null,
+                        creator
+                      }
+                    ),
+                    /* @__PURE__ */ jsx(
+                      CreatorBannerForm,
+                      {
+                        initialUrl: creator?.bannerUrl ?? null,
+                        creator
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsx("div", { class: "hidden md:block w-px shrink-0 bg-outline self-stretch" }),
+                  /* @__PURE__ */ jsx("hr", { class: "my-4 md:hidden" }),
+                  /* @__PURE__ */ jsx("div", { class: "md:w-2/3", children: /* @__PURE__ */ jsx(
+                    CreatorForm,
                     {
-                      initialUrl: creator?.coverUrl ?? null,
-                      creator
+                      formValues,
+                      creator,
+                      type: creator?.type,
+                      user
                     }
-                  ),
-                  /* @__PURE__ */ jsx(
-                    CreatorBannerForm,
-                    {
-                      initialUrl: creator?.bannerUrl ?? null,
-                      creator
-                    }
-                  )
+                  ) })
                 ] }),
-                /* @__PURE__ */ jsx("div", { class: "hidden md:block w-px shrink-0 bg-outline self-stretch" }),
-                /* @__PURE__ */ jsx("hr", { class: "my-4 md:hidden" }),
-                /* @__PURE__ */ jsx("div", { class: "md:w-2/3", children: /* @__PURE__ */ jsx(
-                  CreatorForm,
+                /* @__PURE__ */ jsx(
+                  ProfileBadgeCard,
                   {
-                    formValues,
                     creator,
-                    type: creator?.type,
-                    user
+                    badgeViewCount
                   }
-                ) })
-              ] })
+                )
+              ]
             }
           )
         }

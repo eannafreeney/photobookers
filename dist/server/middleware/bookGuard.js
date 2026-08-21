@@ -105,12 +105,6 @@ const requireBookPublishAccess = createMiddleware(async (c, next) => {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Book not found", user }), 404);
   }
   if (!canPublishBook(user, book)) {
-    if (user?.creator?.status !== "verified") {
-      return c.html(
-        /* @__PURE__ */ jsx(InfoPage, { errorMessage: notYetVerifiedErrorMessage, user }),
-        403
-      );
-    }
     if (book.approvalStatus !== "approved") {
       return c.html(
         /* @__PURE__ */ jsx(
@@ -120,6 +114,12 @@ const requireBookPublishAccess = createMiddleware(async (c, next) => {
             user
           }
         ),
+        403
+      );
+    }
+    if (user?.creator && user.creator.status !== "verified") {
+      return c.html(
+        /* @__PURE__ */ jsx(InfoPage, { errorMessage: notYetVerifiedErrorMessage, user }),
         403
       );
     }
@@ -158,7 +158,7 @@ const requireBookUnpublishAccess = createMiddleware(
       );
     }
     if (!canUnpublishBook(user, book)) {
-      if (user?.creator?.status !== "verified") {
+      if (user?.creator && user.creator.status !== "verified") {
         return c.html(
           /* @__PURE__ */ jsx(InfoPage, { errorMessage: notYetVerifiedErrorMessage, user }),
           403

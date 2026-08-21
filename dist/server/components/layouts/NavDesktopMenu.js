@@ -3,7 +3,6 @@ import clsx from "clsx";
 import { useUser } from "../../contexts/UserContext.js";
 import Button from "../app/Button.js";
 import NavAvatar from "../app/NavAvatar.js";
-import FeatureGuard from "./FeatureGuard.js";
 const NavDesktopMenu = ({ currentPath }) => {
   const user = useUser();
   return /* @__PURE__ */ jsxs("ul", { class: "hidden items-center gap-4 shrink-0 sm:flex", children: [
@@ -93,10 +92,8 @@ const DropDownMenu = ({
         ] }) }),
         user?.id && !user.creator && /* @__PURE__ */ jsxs(Fragment, { children: [
           /* @__PURE__ */ jsx(NavLink, { href: `/users/${user?.id}/edit`, currentPath, children: "Edit Profile" }),
-          /* @__PURE__ */ jsxs(FeatureGuard, { flagName: "collectors", children: [
-            /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }),
-            /* @__PURE__ */ jsx(NavLink, { href: "/followed-collectors", currentPath, children: "Collectors I Follow" })
-          ] })
+          /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }),
+          /* @__PURE__ */ jsx(NavLink, { href: "/followed-collectors", currentPath, children: "Collectors I Follow" })
         ] }),
         user.creator?.id && /* @__PURE__ */ jsxs(Fragment, { children: [
           /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }),
@@ -108,7 +105,7 @@ const DropDownMenu = ({
               children: `View ${user?.creator?.displayName}`
             }
           ),
-          /* @__PURE__ */ jsx(FeatureGuard, { flagName: "collectors", children: /* @__PURE__ */ jsx(NavLink, { href: "/followed-collectors", currentPath, children: "Collectors I Follow" }) })
+          /* @__PURE__ */ jsx(NavLink, { href: "/followed-collectors", currentPath, children: "Collectors I Follow" })
         ] }),
         user?.isAdmin && /* @__PURE__ */ jsx(
           NavLink,

@@ -13,18 +13,18 @@ import BookPressLinksSection from "../components/BookPressLinksSection.js";
 const BookForm = async ({
   formValues,
   isPublisher,
+  isContributor = false,
   bookId,
   action,
-  primaryAction = "save",
-  showPressLinks = false
+  primaryAction = "save"
 }) => {
-  const artistOptions = isPublisher ? await getAllCreatorOptions("artist") : [];
-  const publisherOptions = !isPublisher ? await getAllCreatorOptions("publisher") : [];
+  const artistOptions = isPublisher || isContributor ? await getAllCreatorOptions("artist") : [];
+  const publisherOptions = !isPublisher || isContributor ? await getAllCreatorOptions("publisher") : [];
   const isEditPage = !!bookId;
-  const isArtist = !isPublisher;
+  const isArtist = !isPublisher && !isContributor;
   const mergedFormValues = {
     ...formValues ?? {},
-    intent: isPublisher ? "publisher" : "artist"
+    intent: isContributor ? "contributor" : isPublisher ? "publisher" : "artist"
   };
   const alpineAttrs = {
     "x-data": `bookForm(
@@ -32,7 +32,8 @@ const BookForm = async ({
       ${JSON.stringify(artistOptions)}, 
       ${JSON.stringify(publisherOptions)},
       ${isArtist},
-      ${isEditPage})`,
+      ${isEditPage},
+      ${isContributor})`,
     "x-on:submit": "submitForm($event)",
     "x-target": "toast",
     "x-target.away": "_top",
@@ -52,7 +53,39 @@ const BookForm = async ({
           required: true
         }
       ),
-      isPublisher && !isEditPage && /* @__PURE__ */ jsx(
+      isContributor && !isEditPage && /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(
+          ComboBox,
+          {
+            label: "Artist",
+            name: "form.artist_id",
+            newOptionName: "form.new_artist_name",
+            type: "artist",
+            options: artistOptions,
+            required: true
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          ToggleInput,
+          {
+            label: "Self Published",
+            name: "is_self_published",
+            isChecked: false
+          }
+        ),
+        /* @__PURE__ */ jsx("div", { "x-show": "!is_self_published", children: /* @__PURE__ */ jsx(
+          ComboBox,
+          {
+            label: "Publisher",
+            name: "form.publisher_id",
+            newOptionName: "form.new_publisher_name",
+            type: "publisher",
+            options: publisherOptions,
+            required: true
+          }
+        ) })
+      ] }),
+      !isContributor && isPublisher && !isEditPage && /* @__PURE__ */ jsx(
         ComboBox,
         {
           label: "Artist",
@@ -63,7 +96,7 @@ const BookForm = async ({
           required: true
         }
       ),
-      isArtist && !isEditPage ? /* @__PURE__ */ jsxs(Fragment, { children: [
+      !isContributor && isArtist && !isEditPage ? /* @__PURE__ */ jsxs(Fragment, { children: [
         /* @__PURE__ */ jsx("div", { "x-show": "is_self_published", children: /* @__PURE__ */ jsx(
           ToggleInput,
           {
@@ -136,7 +169,7 @@ const BookForm = async ({
           ]
         }
       ),
-      !isEditPage && /* @__PURE__ */ jsx(
+      !isEditPage && !isContributor && /* @__PURE__ */ jsx(
         ToggleInput,
         {
           label: "Send email to followers on release date",
@@ -145,7 +178,7 @@ const BookForm = async ({
           disabledBinding: "!form.release_date || new Date(form.release_date + 'T23:59:59') < new Date()"
         }
       ),
-      showPressLinks ? /* @__PURE__ */ jsx(BookPressLinksSection, {}) : null,
+      /* @__PURE__ */ jsx(BookPressLinksSection, {}),
       /* @__PURE__ */ jsx("input", { type: "hidden", name: "intent", "x-model": "form.intent" }),
       /* @__PURE__ */ jsx(
         FormButtons,

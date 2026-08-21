@@ -1,33 +1,129 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
-import Table from "../../../../components/app/Table.js";
 import Link from "../../../../components/app/Link.js";
-import Button from "../../../../components/app/Button.js";
-import SectionTitle from "../../../../components/app/SectionTitle.js";
 import { formatDate } from "../../../../utils.js";
 import { getMessagesByCreator } from "../services.js";
-import DeleteMessageForm from "./DeleteMessageForm.js";
-const MessagesTable = async ({ creatorId }) => {
+import { getPostLikeStats } from "../../../../domain/posts/likes.js";
+import EditRowButton from "../../../app/components/EditRowButton.js";
+import DeleteRowButton from "../../../app/components/DeleteRowButton.js";
+const alpineAttrs = {
+  "x-init": "true",
+  "@messages:updated.window": "$ajax('/dashboard/posts', { target: 'posts-table-container' })"
+};
+const MessagesTable = async ({ creatorId, isMobile = false }) => {
   const [error, result] = await getMessagesByCreator(creatorId);
   const messages = error || !result ? [] : result.messages;
-  return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
-    /* @__PURE__ */ jsx(SectionTitle, { children: "Your posts" }),
-    /* @__PURE__ */ jsxs(Table, { id: "messages-table", children: [
-      /* @__PURE__ */ jsx(Table.Head, { children: /* @__PURE__ */ jsxs("tr", { children: [
-        /* @__PURE__ */ jsx(Table.HeadRow, { children: "Date" }),
-        /* @__PURE__ */ jsx(Table.HeadRow, { children: "Image" }),
-        /* @__PURE__ */ jsx(Table.HeadRow, { children: "Body" })
-      ] }) }),
-      /* @__PURE__ */ jsx(MessagesTableBody, { creatorId, messages })
-    ] })
-  ] });
+  const likeStats = await getPostLikeStats(
+    messages.map((message) => message.id)
+  );
+  if (messages.length === 0) {
+    return /* @__PURE__ */ jsx("div", { "x-data": true, id: "posts-table-container", ...alpineAttrs, children: /* @__PURE__ */ jsx("div", { class: "rounded border border-outline bg-surface-alt p-6 text-sm text-on-surface", children: /* @__PURE__ */ jsx("p", { children: "No posts yet. Publish your first post." }) }) });
+  }
+  if (isMobile) {
+    return /* @__PURE__ */ jsx(
+      "ul",
+      {
+        "x-data": true,
+        id: "posts-table-container",
+        class: "flex flex-col gap-4",
+        ...alpineAttrs,
+        children: messages.map((message) => /* @__PURE__ */ jsx(
+          MessageCard,
+          {
+            creatorId,
+            message,
+            likeCount: likeStats.get(message.id)?.likeCount ?? 0
+          }
+        ))
+      }
+    );
+  }
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      "x-data": true,
+      id: "posts-table-container",
+      class: "overflow-x-auto border border-outline",
+      ...alpineAttrs,
+      children: /* @__PURE__ */ jsxs("table", { class: "w-full text-left text-sm", children: [
+        /* @__PURE__ */ jsx("thead", { class: "border-b border-outline bg-surface-alt kicker text-on-surface-weak", children: /* @__PURE__ */ jsxs("tr", { children: [
+          /* @__PURE__ */ jsx("th", { class: "px-4 py-3 font-medium", children: "Date" }),
+          /* @__PURE__ */ jsx("th", { class: "px-4 py-3 font-medium", children: "Image" }),
+          /* @__PURE__ */ jsx("th", { class: "px-4 py-3 font-medium", children: "Body" }),
+          /* @__PURE__ */ jsx("th", { class: "px-4 py-3 font-medium", children: "Likes" }),
+          /* @__PURE__ */ jsx("th", { class: "px-4 py-3 font-medium" })
+        ] }) }),
+        /* @__PURE__ */ jsx(
+          MessagesTableBody,
+          {
+            creatorId,
+            messages,
+            likeStats
+          }
+        )
+      ] })
+    }
+  );
 };
-const MessagesTableBody = ({ creatorId, messages }) => /* @__PURE__ */ jsx(Table.Body, { id: "messages-table-body", children: messages.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colspan: 3, class: "px-4 py-6 text-sm text-on-surface text-center", children: "No posts yet. Publish your first post above." }) }) : messages.map((message) => /* @__PURE__ */ jsx(MessageTableRow, { creatorId, message })) });
-const MessageTableRow = ({ creatorId, message }) => {
+const MessagesTableBody = ({
+  creatorId,
+  messages,
+  likeStats
+}) => /* @__PURE__ */ jsx("tbody", { id: "messages-table-body", children: messages.map((message) => /* @__PURE__ */ jsx(
+  MessageTableRow,
+  {
+    creatorId,
+    message,
+    likeCount: likeStats.get(message.id)?.likeCount ?? 0
+  }
+)) });
+const messageDateLabel = (message) => message.createdAt ? formatDate(new Date(message.createdAt)) : "\u2014";
+const messageExcerpt = (body) => body.length > 100 ? body.slice(0, 100) + "..." : body;
+const MessageCard = ({
+  creatorId,
+  message,
+  likeCount
+}) => {
   const editHref = `/dashboard/messages/${creatorId}/${message.id}`;
-  const dateLabel = message.createdAt ? formatDate(new Date(message.createdAt)) : "\u2014";
-  return /* @__PURE__ */ jsxs("tr", { children: [
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(Link, { href: editHref, xTarget: "modal-root", hoverUnderline: true, children: dateLabel }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: message.imageUrl ? /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsx("li", { class: "rounded-radius border border-outline bg-surface overflow-hidden", children: /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4 p-4", children: [
+    /* @__PURE__ */ jsxs("div", { class: "flex gap-3", children: [
+      message.imageUrl ? /* @__PURE__ */ jsx(
+        "img",
+        {
+          src: message.imageUrl,
+          alt: "Post image",
+          class: "h-20 w-14 shrink-0 object-cover rounded-sm"
+        }
+      ) : null,
+      /* @__PURE__ */ jsxs("div", { class: "min-w-0 flex-1", children: [
+        /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface-weak", children: messageDateLabel(message) }),
+        /* @__PURE__ */ jsx("p", { class: "mt-1 text-sm text-on-surface line-clamp-3", children: messageExcerpt(message.body) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxs("dl", { class: "grid grid-cols-[5.5rem_1fr] items-center gap-x-3 gap-y-3 text-sm", children: [
+      /* @__PURE__ */ jsx("dt", { class: "text-on-surface-weak", children: "Likes" }),
+      /* @__PURE__ */ jsx("dd", { class: "tabular-nums", children: likeCount })
+    ] }),
+    /* @__PURE__ */ jsxs("div", { class: "flex flex-wrap justify-evenly items-center gap-2 border-t border-outline pt-3", children: [
+      /* @__PURE__ */ jsx(EditRowButton, { href: editHref, xTarget: "modal-root" }),
+      /* @__PURE__ */ jsx(
+        DeleteRowButton,
+        {
+          action: `/dashboard/messages/${creatorId}/${message.id}`,
+          confirm: "Delete this post?",
+          ...{
+            "x-target": "toast messages-table-body",
+            "@ajax:success": "$dispatch('messages:updated')"
+          }
+        }
+      )
+    ] })
+  ] }) });
+};
+const MessageTableRow = ({ creatorId, message, likeCount }) => {
+  const editHref = `/dashboard/messages/${creatorId}/${message.id}`;
+  return /* @__PURE__ */ jsxs("tr", { class: "border-b border-outline last:border-0", children: [
+    /* @__PURE__ */ jsx("td", { class: "px-4 py-3", children: /* @__PURE__ */ jsx(Link, { href: editHref, xTarget: "modal-root", hoverUnderline: true, children: messageDateLabel(message) }) }),
+    /* @__PURE__ */ jsx("td", { class: "px-4 py-3", children: message.imageUrl ? /* @__PURE__ */ jsx(
       "img",
       {
         src: message.imageUrl,
@@ -35,10 +131,21 @@ const MessageTableRow = ({ creatorId, message }) => {
         class: "h-12 w-12 rounded-radius border border-outline object-cover"
       }
     ) : /* @__PURE__ */ jsx("span", { class: "text-on-surface-weak", children: "\u2014" }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx("span", { class: "text-on-surface-weak", children: message.body.length > 100 ? message.body.slice(0, 100) + "..." : message.body }) }),
-    /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsxs("div", { class: "flex items-center justify-end gap-2", children: [
-      /* @__PURE__ */ jsx("a", { href: editHref, "x-target": "modal-root", children: /* @__PURE__ */ jsx(Button, { variant: "outline", color: "inverse", children: /* @__PURE__ */ jsx("span", { children: "Edit" }) }) }),
-      /* @__PURE__ */ jsx(DeleteMessageForm, { creatorId, messageId: message.id })
+    /* @__PURE__ */ jsx("td", { class: "px-4 py-3", children: /* @__PURE__ */ jsx("span", { class: "text-on-surface-weak", children: messageExcerpt(message.body) }) }),
+    /* @__PURE__ */ jsx("td", { class: "px-4 py-3 tabular-nums", children: likeCount }),
+    /* @__PURE__ */ jsx("td", { class: "px-4 py-3 text-right", children: /* @__PURE__ */ jsxs("div", { class: "flex items-center justify-end gap-2", children: [
+      /* @__PURE__ */ jsx(EditRowButton, { href: editHref, xTarget: "modal-root" }),
+      /* @__PURE__ */ jsx(
+        DeleteRowButton,
+        {
+          action: `/dashboard/messages/${creatorId}/${message.id}`,
+          confirm: "Delete this post?",
+          ...{
+            "x-target": "toast messages-table-body",
+            "@ajax:success": "$dispatch('messages:updated')"
+          }
+        }
+      )
     ] }) })
   ] });
 };

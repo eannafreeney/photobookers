@@ -1,5 +1,6 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import Link from "../../../components/app/Link.js";
+import { isFavoritesListId } from "../../../domain/lists/utils.js";
 const PrivateShelfListsStrip = ({
   lists,
   shelfSlug,
@@ -11,14 +12,16 @@ const PrivateShelfListsStrip = ({
       /* @__PURE__ */ jsx(Link, { href: "/dashboard/lists", className: "text-sm text-accent", children: "Manage lists" })
     ] }),
     lists.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface-weak", children: "Create playlist-style lists in your dashboard, then add books with the + button on any book card." }) : /* @__PURE__ */ jsx("ul", { class: "flex flex-col gap-2", children: lists.map((list) => {
+      const isFavorites = isFavoritesListId(list.id);
+      const manageHref = isFavorites ? "/dashboard/favorites" : `/dashboard/lists/${list.id}`;
       const publicUrl = shelfPublic && shelfSlug && list.isPublic ? `/shelf/${shelfSlug}/lists/${list.slug}` : null;
       return /* @__PURE__ */ jsxs("li", { class: "flex items-center justify-between gap-3 text-sm", children: [
         /* @__PURE__ */ jsxs("div", { class: "min-w-0", children: [
-          /* @__PURE__ */ jsx(Link, { href: `/dashboard/lists/${list.id}`, children: /* @__PURE__ */ jsx("span", { class: "font-medium text-on-surface-strong", children: list.title }) }),
+          /* @__PURE__ */ jsx(Link, { href: manageHref, children: /* @__PURE__ */ jsx("span", { class: "font-medium text-on-surface-strong", children: list.title }) }),
           /* @__PURE__ */ jsxs("span", { class: "ml-2 text-on-surface-weak tabular-nums", children: [
             list.bookCount,
             " books",
-            list.isPublic ? " \xB7 Public" : " \xB7 Private"
+            isFavorites ? " \xB7 Built-in" : list.isPublic ? " \xB7 Public" : " \xB7 Private"
           ] })
         ] }),
         publicUrl ? /* @__PURE__ */ jsx(

@@ -1,4 +1,4 @@
-import { SITE_APP } from "../../../../constants/siteSocial.js";
+import { SITE_APP, SITE_SKOOL } from "../../../../constants/siteSocial.js";
 import { emailFontLogo, emailFontSans } from "./espHtml.js";
 const appStoreUrl = SITE_APP.ios.href;
 function resolveAppBaseUrl() {
@@ -24,7 +24,8 @@ function newsletterNavLinks() {
     { label: "Featured", href: `${base}/featured` },
     { label: "Books", href: `${base}/books` },
     { label: "Book of the Day", href: `${base}/book-of-the-day` },
-    { label: "This Week", href: `${base}/this-week` }
+    { label: "This Week", href: `${base}/this-week` },
+    { label: "Publish Your Photobook", href: SITE_SKOOL.href }
   ];
 }
 const newsletterWidthPx = 600;

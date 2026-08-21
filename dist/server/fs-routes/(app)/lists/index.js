@@ -8,13 +8,9 @@ import { getPromotedLists } from "../../../domain/lists/services.js";
 import PromotedListCard from "../../../features/app/components/PromotedListCard.js";
 import PageHeader from "../../../components/app/PageHeader.js";
 import { canonicalUrl, pageTitle } from "../../../lib/seo.js";
-import { isFeatureEnabledForUser } from "../../../lib/features.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const currentPath = c.req.path;
-  if (!isFeatureEnabledForUser("collectors", user)) {
-    return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
-  }
   const [error, lists] = await getPromotedLists(24);
   if (error) {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: error.reason, user }));

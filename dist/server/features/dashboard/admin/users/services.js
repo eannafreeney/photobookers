@@ -13,7 +13,6 @@ import {
   creators,
   fairViews,
   follows,
-  likes,
   magazineIssues,
   purchaseClicks,
   users,
@@ -355,21 +354,18 @@ const getUserByIdAdmin = async (id, options) => {
     if (!withActivity) {
       return ok({
         ...user,
-        likedBooks: [],
         wishlistedBooks: [],
         collectedBooks: [],
         followedCreators: []
       });
     }
-    const [likedBooks, wishlistedBooks, collectedBooks, followedCreators] = await Promise.all([
-      getBooksLikedForUserAdmin(id, activityLimit),
+    const [wishlistedBooks, collectedBooks, followedCreators] = await Promise.all([
       getBooksWishlistedForUserAdmin(id, activityLimit),
       getBooksCollectedForUserAdmin(id, activityLimit),
       getCreatorsFollowedForUserAdmin(id, activityLimit)
     ]);
     return ok({
       ...user,
-      likedBooks,
       wishlistedBooks,
       collectedBooks,
       followedCreators
@@ -377,25 +373,6 @@ const getUserByIdAdmin = async (id, options) => {
   } catch (error) {
     return err({ reason: "Failed to get user by id", cause: error });
   }
-};
-const getBooksLikedForUserAdmin = async (userId, limit) => {
-  const likeRows = await db.query.likes.findMany({
-    where: eq(likes.userId, userId),
-    columns: { bookId: true },
-    orderBy: [desc(likes.createdAt)],
-    limit
-  });
-  const bookIds = likeRows.map((r) => r.bookId);
-  if (bookIds.length === 0) return [];
-  const foundBooks = await db.query.books.findMany({
-    columns: BOOK_CARD_COLUMNS,
-    where: inArray(books.id, bookIds),
-    with: {
-      artist: { columns: CREATOR_CARD_COLUMNS },
-      publisher: { columns: CREATOR_CARD_COLUMNS }
-    }
-  });
-  return orderByIds(bookIds, foundBooks);
 };
 const getBooksWishlistedForUserAdmin = async (userId, limit) => {
   const wishlistRows = await db.query.wishlists.findMany({
@@ -459,7 +436,6 @@ export {
   deleteUserByIdAdmin,
   getAllUsersAdmin,
   getBooksCollectedForUserAdmin,
-  getBooksLikedForUserAdmin,
   getBooksWishlistedForUserAdmin,
   getCreatorsFollowedForUserAdmin,
   getUserById,

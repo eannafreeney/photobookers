@@ -11,6 +11,7 @@ import Alert from "../../../components/app/Alert.js";
 import MessageForm from "../../../features/dashboard/messages/forms/MessageForm.js";
 import MessagesTable from "../../../features/dashboard/messages/components/MessagesTable.js";
 import { getUser } from "../../../utils.js";
+import { getIsMobile } from "../../../lib/device.js";
 import { createMessageCreatedNotification } from "../../../domain/notifications/utils.js";
 const POST = createRoute(
   paramValidator(creatorIdSchema),
@@ -55,6 +56,7 @@ const POST = createRoute(
     if (err) return showErrorAlert(c, err.reason);
     createMessageCreatedNotification(user, creator, message);
     if (!message) return showErrorAlert(c, "Failed to create message");
+    const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
     return c.html(
       /* @__PURE__ */ jsxs(Fragment, { children: [
         /* @__PURE__ */ jsx(
@@ -65,7 +67,7 @@ const POST = createRoute(
           }
         ),
         /* @__PURE__ */ jsx(MessageForm, { creatorId }),
-        /* @__PURE__ */ jsx(MessagesTable, { creatorId })
+        /* @__PURE__ */ jsx(MessagesTable, { creatorId, isMobile })
       ] })
     );
   }

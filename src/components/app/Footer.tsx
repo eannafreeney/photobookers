@@ -108,6 +108,9 @@ const Footer = () => (
         title="About"
         links={[
           { href: "/about", label: "About Us" },
+          { href: "/for-collectors", label: "For collectors" },
+          { href: "/for-artists", label: "For artists" },
+          { href: "/for-publishers", label: "For publishers" },
           { href: "/newsletter", label: "Newsletter" },
           {
             href: SITE_SKOOL.href,

@@ -3,7 +3,7 @@ import { checkboxField, optionalDateString, optionalText } from "../../../schema
 import { pressLinksFormField } from "./pressLinks.js";
 const bookFormSchema = z.object({
   title: z.string().min(3, "Title is required"),
-  intent: z.enum(["publisher", "artist"]),
+  intent: z.enum(["publisher", "artist", "contributor"]),
   artist_id: optionalText,
   new_artist_name: optionalText,
   publisher_id: optionalText,

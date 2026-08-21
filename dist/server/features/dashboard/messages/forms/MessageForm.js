@@ -3,6 +3,7 @@ import FileUploadInput from "../../../../components/forms/FileUpload.js";
 import FormButtons from "../../../../components/forms/FormButtons.js";
 import TextArea from "../../../../components/forms/TextArea.js";
 import DragAndDropArea from "../../images/components/DragAndDropArea.js";
+import { POST_BODY_MAX_LENGTH } from "../../../../domain/posts/utils.js";
 const MessageForm = ({
   creatorId,
   messageId,
@@ -12,7 +13,8 @@ const MessageForm = ({
   const isEdit = Boolean(messageId);
   const formConfig = JSON.stringify({
     body: initialBody ?? "",
-    previewUrl: initialImageUrl ?? null
+    previewUrl: initialImageUrl ?? null,
+    isEdit
   });
   const alpineAttrs = {
     "x-data": `messageForm(${formConfig})`,
@@ -23,7 +25,7 @@ const MessageForm = ({
     "@ajax:after": "$dispatch('messages:updated'), $dispatch('dialog:close')"
   };
   return /* @__PURE__ */ jsxs("div", { children: [
-    !isEdit && /* @__PURE__ */ jsx("h2", { class: "text-lg font-semibold text-on-surface-strong", children: "Share what's new" }),
+    !isEdit && /* @__PURE__ */ jsx("h2", { class: "mb-3 text-lg font-semibold text-on-surface-strong", children: "Share what's new" }),
     /* @__PURE__ */ jsxs(
       "form",
       {
@@ -40,7 +42,7 @@ const MessageForm = ({
             {
               name: "form.body",
               required: true,
-              maxLength: 5e3,
+              maxLength: POST_BODY_MAX_LENGTH,
               placeholder: "Share fair dates, new work, or news with your followers\u2026",
               validateInput: "validateField('body')"
             }

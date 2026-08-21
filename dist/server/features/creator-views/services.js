@@ -6,6 +6,7 @@ import {
   eq,
   exists,
   inArray,
+  isNotNull,
   isNull,
   lte,
   or,
@@ -30,7 +31,8 @@ const recordCreatorView = async ({
   creatorId,
   userId,
   source = "web",
-  referer
+  referer,
+  ref
 }) => {
   try {
     const trimmedReferer = referer?.trim().slice(0, MAX_REFERER_LENGTH) ?? null;
@@ -38,7 +40,8 @@ const recordCreatorView = async ({
       creatorId,
       userId: userId ?? null,
       source,
-      referer: trimmedReferer
+      referer: trimmedReferer,
+      ref: ref ?? null
     });
     return ok(void 0);
   } catch (error) {
@@ -54,6 +57,19 @@ function countViewsForCreatorType(type, dateFilter) {
 const getCreatorProfileViewTotal = async (creatorId) => {
   const result = await db.select({ value: count() }).from(creatorViews).where(eq(creatorViews.creatorId, creatorId));
   return result[0]?.value ?? 0;
+};
+const getCreatorReferralCounts = async (creatorId, range) => {
+  const dateFilter = buildCreatedAtFilter(creatorViews.createdAt, range);
+  const rows = await db.select({ ref: creatorViews.ref, viewCount: count() }).from(creatorViews).where(
+    and(
+      eq(creatorViews.creatorId, creatorId),
+      isNotNull(creatorViews.ref),
+      dateFilter
+    )
+  ).groupBy(creatorViews.ref).orderBy(desc(count()));
+  return rows.flatMap(
+    (row) => row.ref ? [{ ref: row.ref, viewCount: row.viewCount }] : []
+  );
 };
 const getCreatorViewTotals = async (range) => {
   const dateFilter = buildCreatedAtFilter(creatorViews.createdAt, range);
@@ -188,6 +204,7 @@ async function getTopCreatorsByViews(rangeOrLimit, currentPage, limitOrScope = 1
 }
 export {
   getCreatorProfileViewTotal,
+  getCreatorReferralCounts,
   getCreatorViewTotals,
   getTopCreatorsByViews,
   recordCreatorView

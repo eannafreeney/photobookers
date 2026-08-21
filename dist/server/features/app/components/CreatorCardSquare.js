@@ -1,7 +1,7 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import Card from "../../../components/app/Card.js";
 import Link from "../../../components/app/Link.js";
-import VerifiedCreator from "../../../components/app/VerifiedCreator.js";
+import VerificationBadge from "../../../components/app/VerificationBadge.js";
 import FollowButton from "../../api/components/FollowButton.js";
 import { useUser } from "../../../contexts/UserContext.js";
 const CreatorCardSquare = async ({ creator }) => {
@@ -21,7 +21,7 @@ const CreatorCardSquare = async ({ creator }) => {
       /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2", children: [
         /* @__PURE__ */ jsx(Link, { href: `/creators/${creator.slug}`, children: /* @__PURE__ */ jsx(Card.Title, { children: creator.displayName }) }),
         /* @__PURE__ */ jsx(
-          VerifiedCreator,
+          VerificationBadge,
           {
             creatorStatus: creator.status ?? "stub",
             size: "xs"

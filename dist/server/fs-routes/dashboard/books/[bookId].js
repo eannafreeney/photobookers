@@ -13,6 +13,7 @@ import {
 } from "../../../features/dashboard/books/services.js";
 import PublishToggleForm from "../../../features/dashboard/books/components/PublishToggleForm.js";
 import PreviewButton from "../../../features/api/components/PreviewButton.js";
+import BookPublishActions from "../../../features/dashboard/books/components/BookPublishActions.js";
 import BookCoverForm from "../../../features/dashboard/images/forms/BookCoverForm.js";
 import BookGalleryForm from "../../../features/dashboard/images/forms/BookGalleryForm.js";
 import { BookForm } from "../../../features/dashboard/books/forms/BookForm.js";
@@ -30,11 +31,10 @@ import Alert from "../../../components/app/Alert.js";
 import Banner from "../../../components/app/Banner.js";
 import { dispatchEvents } from "../../../lib/disatchEvents.js";
 import { createBookPublishedNotification } from "../../../domain/notifications/utils.js";
+import { sendBookLiveEmailIfNeeded } from "../../../domain/books/liveEmail.js";
 import Button from "../../../components/app/Button.js";
 import FormPost from "../../../components/forms/FormPost.js";
 import Tabs from "../../../components/app/Tabs.js";
-import SectionTitle from "../../../components/app/SectionTitle.js";
-import { isFeatureEnabledForUser } from "../../../lib/features.js";
 import { serializePressLinks } from "../../../features/dashboard/books/pressLinks.js";
 import { toDateInputValue } from "../../../lib/utils.js";
 const GET = createRoute(
@@ -57,12 +57,9 @@ const GET = createRoute(
     };
     const publisherIsVerified = book?.publisher?.status === "verified";
     const isPublisher = user.creator?.type === "publisher";
-    const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
-    if (showPressLinks) {
-      Object.assign(formValues, {
-        press_links: serializePressLinks(book.pressLinks)
-      });
-    }
+    Object.assign(formValues, {
+      press_links: serializePressLinks(book.pressLinks)
+    });
     const bannerVariant = book.approvalStatus === "pending" ? "edit_pending" : book.approvalStatus === "rejected" ? "edit_rejected" : "hidden";
     const primaryAction = book.approvalStatus === "rejected" ? "submit_for_review" : "save";
     const defaultTab = c.req.query("tab") === "images" ? "images" : "info";
@@ -86,11 +83,45 @@ const GET = createRoute(
                 ]
               }
             ),
-            /* @__PURE__ */ jsx("div", { class: "mb-4", children: /* @__PURE__ */ jsx(BookReviewProcessBanner, { variant: bannerVariant }) }),
-            !publisherIsVerified && /* @__PURE__ */ jsx("div", { class: "flex justify-end", children: /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-4", children: [
-              /* @__PURE__ */ jsx(PublishToggleForm, { book, user }),
-              /* @__PURE__ */ jsx(PreviewButton, { book, user })
-            ] }) }),
+            /* @__PURE__ */ jsx(BookReviewProcessBanner, { variant: bannerVariant }),
+            book.approvalStatus === "pending" && /* @__PURE__ */ jsx(
+              "div",
+              {
+                id: "book-submit-review",
+                "x-data": `{ hasCover: ${!!book.coverUrl} }`,
+                ...{ "@cover:updated.window": "hasCover = true" },
+                class: "relative flex border-outline bg-surface-alt p-4 text-on-surface border-b border-t",
+                children: /* @__PURE__ */ jsxs("div", { class: "mx-auto flex flex-wrap items-center gap-2 px-6", children: [
+                  /* @__PURE__ */ jsx("p", { "x-show": "!hasCover", class: "sm:text-sm text-pretty text-xs", children: "Add a cover image below, then submit for review." }),
+                  /* @__PURE__ */ jsx(
+                    "p",
+                    {
+                      "x-show": "hasCover",
+                      class: "sm:text-sm text-pretty text-xs",
+                      "x-cloak": true,
+                      children: "Cover uploaded! Submit this book for review when you're ready."
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    FormPost,
+                    {
+                      action: `/dashboard/books/${book.id}/resubmit`,
+                      "x-target": "toast book-submit-review",
+                      children: /* @__PURE__ */ jsx(
+                        Button,
+                        {
+                          variant: "outline",
+                          color: "success",
+                          "x-bind:disabled": "!hasCover",
+                          children: "Submit for review"
+                        }
+                      )
+                    }
+                  )
+                ] })
+              }
+            ),
+            !publisherIsVerified && book.approvalStatus === "approved" && /* @__PURE__ */ jsx("div", { class: "flex justify-end", children: /* @__PURE__ */ jsx("div", { class: "flex flex-wrap items-center justify-end gap-3", children: /* @__PURE__ */ jsx(BookPublishActions, { book, user }) }) }),
             book.approvalStatus === "rejected" && /* @__PURE__ */ jsx(
               "div",
               {
@@ -109,7 +140,6 @@ const GET = createRoute(
                 ] })
               }
             ),
-            /* @__PURE__ */ jsx(SectionTitle, { className: "mt-2 mb-0", children: book.title }),
             /* @__PURE__ */ jsxs(Tabs, { defaultTab, hashMap: { "#book-images": "images" }, children: [
               /* @__PURE__ */ jsxs(Tabs.LinkContainer, { align: "left", children: [
                 /* @__PURE__ */ jsx(Tabs.Link, { tabId: "info", children: "Details" }),
@@ -122,8 +152,7 @@ const GET = createRoute(
                   bookId: book.id,
                   formValues,
                   isPublisher,
-                  primaryAction,
-                  showPressLinks
+                  primaryAction
                 }
               ) }),
               /* @__PURE__ */ jsxs(Tabs.Panel, { tabId: "images", children: [
@@ -131,7 +160,7 @@ const GET = createRoute(
                   Banner,
                   {
                     type: "warning",
-                    message: "A photo of the cover is required. Books with a jpg of the cover will be rejected."
+                    message: "A photo of the book is required. Cover files will be rejected."
                   }
                 ) }),
                 /* @__PURE__ */ jsxs(
@@ -192,10 +221,15 @@ const PATCH = createRoute(
   async (c) => {
     const form = await c.req.parseBody();
     const intent = form.intent;
+    const usePageControls = form.controls === "page";
     const book = c.get("book");
     const user = await getUser(c);
     if (!book) return showErrorAlert(c, "Book not found");
     if (!book.artist) return showErrorAlert(c, "Artist not found");
+    const publishControls = (nextBook) => usePageControls ? /* @__PURE__ */ jsx(BookPublishActions, { book: nextBook, user }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(PublishToggleForm, { book: nextBook, user }),
+      /* @__PURE__ */ jsx(PreviewButton, { book: nextBook, user })
+    ] });
     if (intent === "publish") {
       const [publishError, updatedBook] = await updateBookPublicationStatus(
         book.id,
@@ -203,6 +237,7 @@ const PATCH = createRoute(
       );
       if (publishError) return showErrorAlert(c, publishError.reason, 400);
       await createBookPublishedNotification(user, book);
+      await sendBookLiveEmailIfNeeded(book.id);
       return c.html(
         /* @__PURE__ */ jsxs(Fragment, { children: [
           /* @__PURE__ */ jsx(
@@ -212,8 +247,7 @@ const PATCH = createRoute(
               message: `${updatedBook?.title ?? "Book"} Published!`
             }
           ),
-          /* @__PURE__ */ jsx(PublishToggleForm, { book: updatedBook, user }),
-          /* @__PURE__ */ jsx(PreviewButton, { book: updatedBook, user })
+          publishControls(updatedBook)
         ] })
       );
     }
@@ -226,7 +260,7 @@ const PATCH = createRoute(
         return c.html(
           /* @__PURE__ */ jsxs(Fragment, { children: [
             /* @__PURE__ */ jsx(Alert, { type: "danger", message: unpublishError.reason }),
-            /* @__PURE__ */ jsx(PublishToggleForm, { book, user })
+            publishControls(book)
           ] }),
           400
         );
@@ -240,8 +274,7 @@ const PATCH = createRoute(
               message: `${updatedBook?.title ?? "Book"} Unpublished!`
             }
           ),
-          /* @__PURE__ */ jsx(PublishToggleForm, { book: updatedBook, user }),
-          /* @__PURE__ */ jsx(PreviewButton, { book: updatedBook, user })
+          publishControls(updatedBook)
         ] })
       );
     }

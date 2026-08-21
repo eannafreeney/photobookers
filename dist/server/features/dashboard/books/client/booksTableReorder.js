@@ -6,9 +6,10 @@ import {
 function registerBooksTableReorder() {
   Alpine.data(
     "booksTableReorder",
-    (initialBookIds = [], creatorId = null) => ({
+    (initialBookIds = [], creatorId = null, saveUrl = "/dashboard/books/reorder") => ({
       bookIds: [...initialBookIds],
       creatorId,
+      saveUrl,
       dragRow: null,
       savedOrder: "",
       init() {
@@ -46,7 +47,7 @@ function registerBooksTableReorder() {
         if (currentOrder === this.savedOrder || this.bookIds.length === 0) return;
         prependToast("info", "Saving order...", { saving: true });
         try {
-          const response = await fetch("/dashboard/books/reorder", {
+          const response = await fetch(this.saveUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "same-origin",

@@ -17,6 +17,7 @@ import { normalizeStoredDate, toUtcStartOfDay } from "../../../../lib/utils.js";
 import { ensureInterviewInviteForSpotlight } from "./interviewFlow.js";
 import { getUser } from "../../../../utils.js";
 import { renderPlannerEmailSuccess } from "./renderPlannerEmailSuccess.js";
+const normalizeCreatorStatus = (status) => status ?? "stub";
 const toCreatorForEmail = (creator) => {
   if (!creator.email) return null;
   return {
@@ -25,7 +26,8 @@ const toCreatorForEmail = (creator) => {
     email: creator.email,
     type: creator.type,
     slug: creator.slug,
-    ownerUserId: creator.ownerUserId
+    ownerUserId: creator.ownerUserId,
+    status: normalizeCreatorStatus(creator.status)
   };
 };
 async function requireCreatorEmailOrRenderModal(c, params) {

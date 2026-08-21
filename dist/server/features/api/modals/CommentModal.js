@@ -28,7 +28,7 @@ const CommentModal = ({
       class: "flex flex-col gap-4",
       ...alpineAttrs,
       children: [
-        /* @__PURE__ */ jsx(TextArea, { name: "body", minRows: 5, required: true }),
+        /* @__PURE__ */ jsx(TextArea, { name: "body", minRows: 5, maxLength: 1e3, required: true }),
         /* @__PURE__ */ jsx(
           "input",
           {

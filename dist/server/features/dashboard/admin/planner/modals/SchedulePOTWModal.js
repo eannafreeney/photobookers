@@ -3,8 +3,8 @@ import Modal from "../../../../../components/app/Modal.js";
 import POTWForm from "../forms/POTWForm.js";
 import { getCreatorsByTypeForPlanner } from "../services.js";
 const SchedulePublisherOfTheWeekModal = async ({ week, formValues }) => {
-  const creators = await getCreatorsByTypeForPlanner("publisher");
-  const options = creators.map((c) => ({
+  const [, creators] = await getCreatorsByTypeForPlanner("publisher");
+  const options = (creators ?? []).map((c) => ({
     id: c.id,
     label: c.displayName,
     img: c.coverUrl ?? null,

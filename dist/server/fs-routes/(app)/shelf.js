@@ -14,6 +14,7 @@ import { listBookListsWithCounts } from "../../domain/lists/services.js";
 import InfoPage from "../../pages/InfoPage.js";
 import PageHeader from "../../components/app/PageHeader.js";
 import Link from "../../components/app/Link.js";
+import Banner from "../../components/app/Banner.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
@@ -51,10 +52,7 @@ const GET = createRoute(async (c) => {
     );
   }
   if (!userCanHaveShelf(user)) {
-    return c.html(
-      /* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }),
-      404
-    );
+    return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
   }
   const [wishlistError, wishlistResult] = await getBooksInWishlist(
     user.id,
@@ -70,11 +68,23 @@ const GET = createRoute(async (c) => {
       /* @__PURE__ */ jsx(InfoPage, { errorMessage: "No favourited books found", user })
     );
   }
-  const lists = await listBookListsWithCounts(user.id);
+  const [listsErr, lists] = await listBookListsWithCounts(user.id);
+  if (listsErr || !lists) {
+    return c.html(
+      /* @__PURE__ */ jsx(
+        InfoPage,
+        {
+          errorMessage: listsErr?.reason ?? "Failed to load lists",
+          user
+        }
+      )
+    );
+  }
   const alpineAttrs = {
     "x-init": true,
     "x-merge": "replace",
-    "@shelf:updated.window": "$ajax('/shelf', { target: 'shelf-container' })"
+    "@shelf:updated.window": "$ajax('/shelf', { target: 'shelf-container' })",
+    "@avatar:updated.window": "$ajax('/shelf', { target: 'shelf-container' })"
   };
   return c.html(
     /* @__PURE__ */ jsx(
@@ -85,47 +95,41 @@ const GET = createRoute(async (c) => {
         flash,
         currentPath,
         noIndex: true,
-        children: /* @__PURE__ */ jsx(Page, { children: /* @__PURE__ */ jsxs(
-          "div",
-          {
-            id: "shelf-container",
-            class: "flex flex-col gap-4",
-            ...alpineAttrs,
-            children: [
-              /* @__PURE__ */ jsx(
-                PageHeader,
-                {
-                  kicker: "Your Shelf",
-                  title: "Shelf",
-                  intro: "The books you\u2019ve favorited, all in one place."
-                }
-              ),
-              /* @__PURE__ */ jsxs("p", { class: "text-sm text-on-surface", children: [
-                "Manage sharing settings in your",
-                " ",
-                /* @__PURE__ */ jsx(Link, { href: "/dashboard/shelf", children: "dashboard" }),
-                "."
-              ] }),
-              /* @__PURE__ */ jsx(
-                PrivateShelfListsStrip,
-                {
-                  lists,
-                  shelfSlug: user.shelfSlug,
-                  shelfPublic: user.shelfPublic
-                }
-              ),
-              /* @__PURE__ */ jsx(
-                BooksGrid,
-                {
-                  user,
-                  currentPath,
-                  result: wishlistResult,
-                  noResultsMessage: "Add books to your favorites to see them here."
-                }
-              )
-            ]
-          }
-        ) })
+        children: /* @__PURE__ */ jsx(Page, { children: /* @__PURE__ */ jsxs("div", { id: "shelf-container", class: "flex flex-col gap-4", ...alpineAttrs, children: [
+          /* @__PURE__ */ jsx(
+            Banner,
+            {
+              type: user.shelfPublic ? "success" : "danger",
+              message: `Your shelf is currently ${user.shelfPublic ? "public" : "private"}.`,
+              children: /* @__PURE__ */ jsx(Link, { href: "/dashboard/shelf", className: "text-sm text-accent", children: "Manage sharing settings" })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            PageHeader,
+            {
+              kicker: "Your Shelf",
+              title: "Shelf",
+              intro: "The books you\u2019ve favorited, all in one place."
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            PrivateShelfListsStrip,
+            {
+              lists,
+              shelfSlug: user.shelfSlug,
+              shelfPublic: user.shelfPublic
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            BooksGrid,
+            {
+              user,
+              currentPath,
+              result: wishlistResult,
+              noResultsMessage: "Add books to your favorites to see them here."
+            }
+          )
+        ] }) })
       }
     )
   );

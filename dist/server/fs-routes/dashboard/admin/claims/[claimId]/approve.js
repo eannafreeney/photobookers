@@ -10,6 +10,7 @@ import {
 import { getCreatorById } from "../../../../../features/dashboard/creators/services.js";
 import { generateClaimApprovalEmail } from "../../../../../features/dashboard/admin/claims/emails.js";
 import { sendEmail } from "../../../../../lib/sendEmail.js";
+import { getStubOutreachStats } from "../../../../../domain/creators/stubOutreachStats.js";
 import Alert from "../../../../../components/app/Alert.js";
 import ClaimsTableAdmin from "../../../../../features/dashboard/admin/claims/components/ClaimsTable.js";
 import { dispatchEvents } from "../../../../../lib/disatchEvents.js";
@@ -31,7 +32,12 @@ const POST = createRoute(paramValidator(claimIdSchema), async (c) => {
   const approveClaimResult = await approveClaim(claimId);
   if (isErr(approveClaimResult))
     return showErrorAlert(c, approveClaimResult[0].reason);
-  const emailHTML = await generateClaimApprovalEmail(claimUser, creator);
+  const stats = await getStubOutreachStats({
+    id: creator.id,
+    slug: creator.slug,
+    type: creator.type
+  });
+  const emailHTML = generateClaimApprovalEmail(claimUser, creator, stats);
   const sentEmailResult = await sendEmail(
     claimUser.email,
     `Your Claim for ${creator.displayName} has been approved`,

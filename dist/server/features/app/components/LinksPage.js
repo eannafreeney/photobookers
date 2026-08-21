@@ -2,14 +2,15 @@ import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import SpotlightCard from "../../../components/app/SpotlightCard.js";
 import SectionTitle from "../../../components/app/SectionTitle.js";
 import Button from "../../../components/app/Button.js";
-import { SITE_APP } from "../../../constants/siteSocial.js";
+import { SITE_APP, SITE_SKOOL } from "../../../constants/siteSocial.js";
 import { formatCountry } from "../../../lib/utils.js";
 import { aotwPath, botdPath, potwPath } from "../spotlightUrls.js";
 import ExpandableDescription from "./ExpandableDescription.js";
 const cardClassName = "w-full max-w-none";
 const pageLinks = [
   { href: SITE_APP.ios.href, label: "Download the app", external: true },
-  { href: "/newsletter", label: "Join the newsletter" }
+  { href: "/newsletter", label: "Join the newsletter" },
+  { href: SITE_SKOOL.href, label: "Publish Your Photobook", external: true }
 ];
 const LinksPage = ({
   bookOfTheDay,

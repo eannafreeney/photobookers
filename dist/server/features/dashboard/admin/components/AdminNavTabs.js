@@ -71,6 +71,10 @@ const AdminNavTabs = ({ currentPath }) => {
     /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/stores", currentPath, children: [
       storesIcon,
       "Stores"
+    ] }),
+    /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/admin/leaderboard", currentPath, children: [
+      analyticsIcon,
+      "Leaderboard"
     ] })
   ] });
 };

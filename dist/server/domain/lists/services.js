@@ -1,23 +1,46 @@
-import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNotNull,
+  isNull,
+  lte,
+  ne,
+  notInArray,
+  or,
+  sql
+} from "drizzle-orm";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS
 } from "../../constants/queries.js";
 import { db } from "../../db/client.js";
 import {
+  bookComments,
   bookListItems,
   bookLists,
   books,
-  users
+  creators,
+  users,
+  wishlists
 } from "../../db/schema.js";
 import { getBooksOrderBy } from "../../lib/booksOrderBy.js";
 import { getPagination } from "../../lib/pagination.js";
 import { err, ok } from "../../lib/result.js";
 import { formatShelfOwnerName } from "../shelf/utils.js";
 import {
+  FAVORITES_LIST_ID,
+  FAVORITES_LIST_SLUG,
+  FAVORITES_LIST_TITLE,
+  isFavoritesListSlug,
   isListPromotionEligible,
   isReservedListSlug,
   listDescriptionSchema,
+  listItemNoteSchema,
   listSlugSchema,
   listTitleSchema,
   slugFromTitle,
@@ -28,6 +51,12 @@ const publishedBookConditions = and(
   eq(books.approvalStatus, "approved"),
   or(isNull(books.releaseDate), lte(books.releaseDate, /* @__PURE__ */ new Date()))
 );
+async function nextListItemPosition(listId) {
+  const [row] = await db.select({
+    value: sql`coalesce(max(${bookListItems.position}), -1)`
+  }).from(bookListItems).where(eq(bookListItems.listId, listId));
+  return Number(row?.value ?? -1) + 1;
+}
 async function suggestListSlug(userId, title) {
   const base = slugFromTitle(title) || `list-${userId.slice(0, 8)}`;
   for (let i = 1; i <= 50; i++) {
@@ -42,28 +71,83 @@ async function suggestListSlug(userId, title) {
   return `${base}-${userId.slice(0, 6)}`;
 }
 async function listBookListsForUser(userId) {
-  return db.query.bookLists.findMany({
-    where: eq(bookLists.userId, userId),
-    orderBy: [desc(bookLists.updatedAt), desc(bookLists.createdAt)]
-  });
+  try {
+    const lists = await db.query.bookLists.findMany({
+      where: eq(bookLists.userId, userId),
+      orderBy: [desc(bookLists.updatedAt), desc(bookLists.createdAt)]
+    });
+    return ok(lists);
+  } catch (error) {
+    console.error("Failed to list book lists for user", error);
+    return err({ reason: "Failed to load lists", error });
+  }
+}
+async function favoritesBookCount(userId) {
+  const [{ value = 0 } = { value: 0 }] = await db.select({ value: count() }).from(wishlists).innerJoin(books, eq(wishlists.bookId, books.id)).where(and(eq(wishlists.userId, userId), publishedBookConditions));
+  return value;
+}
+async function favoritesCoverUrls(userId, limit = 3) {
+  const rows = await db.select({ coverUrl: books.coverUrl }).from(wishlists).innerJoin(books, eq(wishlists.bookId, books.id)).where(
+    and(
+      eq(wishlists.userId, userId),
+      publishedBookConditions,
+      isNotNull(books.coverUrl)
+    )
+  ).orderBy(desc(wishlists.createdAt)).limit(limit * 2);
+  const urls = [];
+  for (const row of rows) {
+    if (!row.coverUrl) continue;
+    urls.push(row.coverUrl);
+    if (urls.length >= limit) break;
+  }
+  return urls;
+}
+function favoritesListRow(userId, bookCount, extras) {
+  return {
+    id: FAVORITES_LIST_ID,
+    userId,
+    title: FAVORITES_LIST_TITLE,
+    slug: FAVORITES_LIST_SLUG,
+    description: null,
+    isPublic: true,
+    isPromoted: false,
+    promotedAt: null,
+    createdAt: /* @__PURE__ */ new Date(0),
+    updatedAt: null,
+    bookCount,
+    ...extras?.coverUrls ? { coverUrls: extras.coverUrls } : {}
+  };
 }
 async function listBookListsWithCounts(userId) {
-  const lists = await listBookListsForUser(userId);
-  if (lists.length === 0) return [];
-  const counts = await db.select({
-    listId: bookListItems.listId,
-    value: count()
-  }).from(bookListItems).where(
-    inArray(
-      bookListItems.listId,
-      lists.map((l) => l.id)
-    )
-  ).groupBy(bookListItems.listId);
-  const countMap = new Map(counts.map((c) => [c.listId, c.value]));
-  return lists.map((list) => ({
-    ...list,
-    bookCount: countMap.get(list.id) ?? 0
-  }));
+  try {
+    const favoritesCount = await favoritesBookCount(userId);
+    const favorites = favoritesListRow(userId, favoritesCount);
+    const [listsErr, lists] = await listBookListsForUser(userId);
+    if (listsErr || !lists) {
+      return err(listsErr ?? { reason: "Failed to load lists" });
+    }
+    if (lists.length === 0) return ok([favorites]);
+    const counts = await db.select({
+      listId: bookListItems.listId,
+      value: count()
+    }).from(bookListItems).where(
+      inArray(
+        bookListItems.listId,
+        lists.map((l) => l.id)
+      )
+    ).groupBy(bookListItems.listId);
+    const countMap = new Map(counts.map((c) => [c.listId, c.value]));
+    return ok([
+      favorites,
+      ...lists.map((list) => ({
+        ...list,
+        bookCount: countMap.get(list.id) ?? 0
+      }))
+    ]);
+  } catch (error) {
+    console.error("Failed to list book lists with counts", error);
+    return err({ reason: "Failed to load lists", error });
+  }
 }
 async function getBookListForOwner(listId, userId) {
   const list = await db.query.bookLists.findFirst({
@@ -73,56 +157,79 @@ async function getBookListForOwner(listId, userId) {
   return ok(list);
 }
 async function getPublicListsForUser(userId) {
-  const lists = await db.query.bookLists.findMany({
-    where: and(eq(bookLists.userId, userId), eq(bookLists.isPublic, true)),
-    orderBy: [desc(bookLists.updatedAt), desc(bookLists.createdAt)]
-  });
-  if (lists.length === 0) return [];
-  const counts = await db.select({
-    listId: bookListItems.listId,
-    value: count()
-  }).from(bookListItems).innerJoin(books, eq(bookListItems.bookId, books.id)).where(
-    and(
-      inArray(
-        bookListItems.listId,
-        lists.map((l) => l.id)
-      ),
-      publishedBookConditions
-    )
-  ).groupBy(bookListItems.listId);
-  const coverRows = await db.select({
-    listId: bookListItems.listId,
-    coverUrl: books.coverUrl,
-    createdAt: bookListItems.createdAt
-  }).from(bookListItems).innerJoin(books, eq(bookListItems.bookId, books.id)).where(
-    and(
-      inArray(
-        bookListItems.listId,
-        lists.map((l) => l.id)
-      ),
-      publishedBookConditions
-    )
-  ).orderBy(desc(bookListItems.createdAt));
-  const coversByList = /* @__PURE__ */ new Map();
-  for (const row of coverRows) {
-    if (!row.coverUrl) continue;
-    const existing = coversByList.get(row.listId) ?? [];
-    if (existing.length >= 3) continue;
-    existing.push(row.coverUrl);
-    coversByList.set(row.listId, existing);
+  try {
+    const [favoritesCount, favoritesCovers] = await Promise.all([
+      favoritesBookCount(userId),
+      favoritesCoverUrls(userId)
+    ]);
+    const favorites = favoritesListRow(userId, favoritesCount, {
+      coverUrls: favoritesCovers
+    });
+    const lists = await db.query.bookLists.findMany({
+      where: and(eq(bookLists.userId, userId), eq(bookLists.isPublic, true)),
+      orderBy: [desc(bookLists.updatedAt), desc(bookLists.createdAt)]
+    });
+    if (lists.length === 0) return ok([favorites]);
+    const counts = await db.select({
+      listId: bookListItems.listId,
+      value: count()
+    }).from(bookListItems).innerJoin(books, eq(bookListItems.bookId, books.id)).where(
+      and(
+        inArray(
+          bookListItems.listId,
+          lists.map((l) => l.id)
+        ),
+        publishedBookConditions
+      )
+    ).groupBy(bookListItems.listId);
+    const coverRows = await db.select({
+      listId: bookListItems.listId,
+      coverUrl: books.coverUrl,
+      createdAt: bookListItems.createdAt
+    }).from(bookListItems).innerJoin(books, eq(bookListItems.bookId, books.id)).where(
+      and(
+        inArray(
+          bookListItems.listId,
+          lists.map((l) => l.id)
+        ),
+        publishedBookConditions
+      )
+    ).orderBy(desc(bookListItems.createdAt));
+    const coversByList = /* @__PURE__ */ new Map();
+    for (const row of coverRows) {
+      if (!row.coverUrl) continue;
+      const existing = coversByList.get(row.listId) ?? [];
+      if (existing.length >= 3) continue;
+      existing.push(row.coverUrl);
+      coversByList.set(row.listId, existing);
+    }
+    const countMap = new Map(counts.map((c) => [c.listId, c.value]));
+    return ok([
+      favorites,
+      ...lists.map((list) => ({
+        ...list,
+        bookCount: countMap.get(list.id) ?? 0,
+        coverUrls: coversByList.get(list.id) ?? []
+      }))
+    ]);
+  } catch (error) {
+    console.error("Failed to get public lists for user", error);
+    return err({ reason: "Failed to load lists", error });
   }
-  const countMap = new Map(counts.map((c) => [c.listId, c.value]));
-  return lists.map((list) => ({
-    ...list,
-    bookCount: countMap.get(list.id) ?? 0,
-    coverUrls: coversByList.get(list.id) ?? []
-  }));
 }
 async function getPublicListByShelfAndSlug(shelfSlug, listSlug) {
   const owner = await db.query.users.findFirst({
     where: and(eq(users.shelfSlug, shelfSlug), eq(users.shelfPublic, true))
   });
   if (!owner) return err({ reason: "Shelf not found" });
+  if (isFavoritesListSlug(listSlug)) {
+    const bookCount = await favoritesBookCount(owner.id);
+    return ok({
+      owner,
+      list: favoritesListRow(owner.id, bookCount),
+      isFavorites: true
+    });
+  }
   const list = await db.query.bookLists.findFirst({
     where: and(
       eq(bookLists.userId, owner.id),
@@ -131,7 +238,7 @@ async function getPublicListByShelfAndSlug(shelfSlug, listSlug) {
     )
   });
   if (!list) return err({ reason: "List not found" });
-  return ok({ owner, list });
+  return ok({ owner, list, isFavorites: false });
 }
 async function createBookList(userId, input) {
   const titleParsed = listTitleSchema.safeParse(input.title);
@@ -184,7 +291,8 @@ async function createBookList(userId, input) {
 }
 async function updateBookList(listId, userId, input) {
   const [ownerErr, existing] = await getBookListForOwner(listId, userId);
-  if (ownerErr || !existing) return err(ownerErr ?? { reason: "List not found" });
+  if (ownerErr || !existing)
+    return err(ownerErr ?? { reason: "List not found" });
   const updates = {};
   if (input.title !== void 0) {
     const titleParsed = listTitleSchema.safeParse(input.title);
@@ -269,22 +377,32 @@ async function findListMembership(listId, bookId, userId) {
   return ok(item);
 }
 async function getListMembershipsForBook(userId, bookId) {
-  const lists = await listBookListsForUser(userId);
-  if (lists.length === 0) return [];
-  const memberships = await db.select({ listId: bookListItems.listId }).from(bookListItems).where(
-    and(
-      eq(bookListItems.bookId, bookId),
-      inArray(
-        bookListItems.listId,
-        lists.map((l) => l.id)
+  try {
+    const [listsErr, lists] = await listBookListsForUser(userId);
+    if (listsErr || !lists) {
+      return err(listsErr ?? { reason: "Failed to load lists" });
+    }
+    if (lists.length === 0) return ok([]);
+    const memberships = await db.select({ listId: bookListItems.listId }).from(bookListItems).where(
+      and(
+        eq(bookListItems.bookId, bookId),
+        inArray(
+          bookListItems.listId,
+          lists.map((l) => l.id)
+        )
       )
-    )
-  );
-  const inList = new Set(memberships.map((m) => m.listId));
-  return lists.map((list) => ({
-    ...list,
-    containsBook: inList.has(list.id)
-  }));
+    );
+    const inList = new Set(memberships.map((m) => m.listId));
+    return ok(
+      lists.map((list) => ({
+        ...list,
+        containsBook: inList.has(list.id)
+      }))
+    );
+  } catch (error) {
+    console.error("Failed to get list memberships for book", error);
+    return err({ reason: "Failed to load lists", error });
+  }
 }
 async function toggleListMembership(listId, bookId, userId) {
   const list = await db.query.bookLists.findFirst({
@@ -307,11 +425,74 @@ async function toggleListMembership(listId, bookId, userId) {
       );
       return ok({ added: false, list });
     }
-    await db.insert(bookListItems).values({ listId, bookId });
+    await db.insert(bookListItems).values({
+      listId,
+      bookId,
+      position: await nextListItemPosition(listId)
+    });
     return ok({ added: true, list });
   } catch (error) {
     console.error("Failed to toggle list membership", error);
     return err({ reason: "Failed to update list", error });
+  }
+}
+async function addBookToList(listId, bookId, userId) {
+  const list = await db.query.bookLists.findFirst({
+    where: and(eq(bookLists.id, listId), eq(bookLists.userId, userId)),
+    columns: { id: true }
+  });
+  if (!list) return err({ reason: "List not found" });
+  const existing = await db.query.bookListItems.findFirst({
+    where: and(
+      eq(bookListItems.listId, listId),
+      eq(bookListItems.bookId, bookId)
+    ),
+    columns: { bookId: true }
+  });
+  if (existing) return ok(void 0);
+  try {
+    await db.insert(bookListItems).values({
+      listId,
+      bookId,
+      position: await nextListItemPosition(listId)
+    });
+    return ok(void 0);
+  } catch (error) {
+    console.error("Failed to add book to list", error);
+    return err({ reason: "Failed to add book", error });
+  }
+}
+async function searchBooksForList(listId, query, limit = 12) {
+  const q = query.trim();
+  if (q.length < 2) return ok([]);
+  try {
+    const existing = await db.query.bookListItems.findMany({
+      where: eq(bookListItems.listId, listId),
+      columns: { bookId: true }
+    });
+    const existingIds = existing.map((row) => row.bookId);
+    const creatorRows = await db.select({ id: creators.id }).from(creators).where(ilike(creators.displayName, `%${q}%`));
+    const creatorIds = creatorRows.map((row) => row.id);
+    const match = creatorIds.length > 0 ? or(
+      ilike(books.title, `%${q}%`),
+      inArray(books.artistId, creatorIds),
+      inArray(books.publisherId, creatorIds)
+    ) : ilike(books.title, `%${q}%`);
+    const rows = await db.query.books.findMany({
+      where: and(
+        publishedBookConditions,
+        match,
+        existingIds.length > 0 ? notInArray(books.id, existingIds) : void 0
+      ),
+      orderBy: (table, { asc: asc2 }) => [asc2(table.title)],
+      limit,
+      columns: BOOK_CARD_COLUMNS,
+      with: { artist: { columns: CREATOR_CARD_COLUMNS } }
+    });
+    return ok(rows);
+  } catch (error) {
+    console.error("Failed to search books for list", error);
+    return err({ reason: "Failed to search books", error });
   }
 }
 async function removeBookFromList(listId, bookId, userId) {
@@ -330,6 +511,105 @@ async function removeBookFromList(listId, bookId, userId) {
     return err({ reason: "Failed to remove book", error });
   }
 }
+async function getListItemForOwner(listId, bookId, userId) {
+  const [ownerErr, list] = await getBookListForOwner(listId, userId);
+  if (ownerErr || !list) return err(ownerErr ?? { reason: "List not found" });
+  const item = await db.query.bookListItems.findFirst({
+    where: and(
+      eq(bookListItems.listId, listId),
+      eq(bookListItems.bookId, bookId)
+    )
+  });
+  if (!item) return err({ reason: "Book is not in this list" });
+  const book = await db.query.books.findFirst({
+    where: eq(books.id, bookId),
+    columns: BOOK_CARD_COLUMNS,
+    with: {
+      artist: { columns: CREATOR_CARD_COLUMNS },
+      publisher: { columns: CREATOR_CARD_COLUMNS }
+    }
+  });
+  if (!book) return err({ reason: "Book not found" });
+  return ok({ list, item, book });
+}
+async function getUserCommentsForBook(userId, bookId, limit = 5) {
+  try {
+    return await db.query.bookComments.findMany({
+      where: and(
+        eq(bookComments.bookId, bookId),
+        eq(bookComments.userId, userId)
+      ),
+      orderBy: [desc(bookComments.createdAt)],
+      columns: { id: true, body: true, createdAt: true },
+      limit
+    });
+  } catch (error) {
+    console.error("Failed to get user comments for book", error);
+    return [];
+  }
+}
+async function updateListItemNote(listId, bookId, userId, note) {
+  const [ownerErr] = await getBookListForOwner(listId, userId);
+  if (ownerErr) return err(ownerErr);
+  const parsed = listItemNoteSchema.safeParse(note);
+  if (!parsed.success) {
+    return err({
+      reason: parsed.error.issues[0]?.message ?? "Invalid note"
+    });
+  }
+  const trimmed = parsed.data;
+  const existing = await db.query.bookListItems.findFirst({
+    where: and(
+      eq(bookListItems.listId, listId),
+      eq(bookListItems.bookId, bookId)
+    ),
+    columns: { bookId: true }
+  });
+  if (!existing) return err({ reason: "Book is not in this list" });
+  try {
+    await db.update(bookListItems).set({ note: trimmed }).where(
+      and(eq(bookListItems.listId, listId), eq(bookListItems.bookId, bookId))
+    );
+    return ok(void 0);
+  } catch (error) {
+    console.error("Failed to update list item note", error);
+    return err({ reason: "Failed to save note", error });
+  }
+}
+async function reorderBooksInList(listId, userId, orderedIds) {
+  if (!orderedIds.length) return err({ reason: "No books to reorder" });
+  if (new Set(orderedIds).size !== orderedIds.length) {
+    return err({ reason: "Duplicate book IDs" });
+  }
+  const [ownerErr] = await getBookListForOwner(listId, userId);
+  if (ownerErr) return err(ownerErr);
+  const owned = await db.query.bookListItems.findMany({
+    where: and(
+      eq(bookListItems.listId, listId),
+      inArray(bookListItems.bookId, orderedIds)
+    ),
+    columns: { bookId: true }
+  });
+  if (owned.length !== orderedIds.length) {
+    return err({ reason: "One or more books are not in this list" });
+  }
+  try {
+    await db.transaction(async (tx) => {
+      for (const [index, bookId] of orderedIds.entries()) {
+        await tx.update(bookListItems).set({ position: index }).where(
+          and(
+            eq(bookListItems.listId, listId),
+            eq(bookListItems.bookId, bookId)
+          )
+        );
+      }
+    });
+    return ok(void 0);
+  } catch (error) {
+    console.error("Failed to reorder books in list", error);
+    return err({ reason: "Failed to reorder books", error });
+  }
+}
 async function getBooksInList(listId, currentPage, sortBy = "newest", defaultLimit = 12) {
   try {
     const [{ value: totalCount = 0 }] = await db.select({ value: count() }).from(bookListItems).innerJoin(books, eq(bookListItems.bookId, books.id)).where(and(eq(bookListItems.listId, listId), publishedBookConditions));
@@ -338,17 +618,22 @@ async function getBooksInList(listId, currentPage, sortBy = "newest", defaultLim
       totalCount,
       defaultLimit
     );
-    const itemRows = await db.select({ bookId: bookListItems.bookId }).from(bookListItems).innerJoin(books, eq(bookListItems.bookId, books.id)).where(and(eq(bookListItems.listId, listId), publishedBookConditions)).orderBy(asc(bookListItems.position), desc(bookListItems.createdAt)).limit(limit).offset(offset);
+    const itemRows = await db.select({ bookId: bookListItems.bookId, note: bookListItems.note }).from(bookListItems).innerJoin(books, eq(bookListItems.bookId, books.id)).where(and(eq(bookListItems.listId, listId), publishedBookConditions)).orderBy(asc(bookListItems.position), desc(bookListItems.createdAt)).limit(limit).offset(offset);
     const bookIds = itemRows.map((row) => row.bookId);
     if (bookIds.length === 0) {
       return ok({ books: [], totalPages, page, totalCount });
     }
+    const noteById = new Map(itemRows.map((row) => [row.bookId, row.note]));
     const listBooks = await db.query.books.findMany({
       columns: BOOK_CARD_COLUMNS,
       where: and(inArray(books.id, bookIds), publishedBookConditions),
       with: {
         artist: { columns: CREATOR_CARD_COLUMNS },
-        publisher: { columns: CREATOR_CARD_COLUMNS }
+        publisher: { columns: CREATOR_CARD_COLUMNS },
+        images: {
+          columns: { imageUrl: true },
+          orderBy: (table, { asc: asc2 }) => [asc2(table.sortOrder)]
+        }
       },
       orderBy: getBooksOrderBy(sortBy),
       limit,
@@ -356,8 +641,12 @@ async function getBooksInList(listId, currentPage, sortBy = "newest", defaultLim
     });
     const byId = new Map(listBooks.map((b) => [b.id, b]));
     const ordered = sortBy === "newest" ? bookIds.map((id) => byId.get(id)).filter(Boolean) : listBooks;
+    const booksWithNotes = ordered.map((book) => ({
+      ...book,
+      note: noteById.get(book.id) ?? null
+    }));
     return ok({
-      books: ordered,
+      books: booksWithNotes,
       totalPages,
       page,
       totalCount
@@ -523,21 +812,28 @@ async function getPromotedLists(limit = 8) {
   }
 }
 export {
+  addBookToList,
   createBookList,
   deleteBookList,
+  favoritesListRow,
   findListMembership,
   getBookListForOwner,
   getBooksInList,
+  getListItemForOwner,
   getListMembershipsForBook,
   getPromotedLists,
   getPublicListByShelfAndSlug,
   getPublicListsForUser,
+  getUserCommentsForBook,
   listBookListsForUser,
   listBookListsWithCounts,
   listPublicListsForAdmin,
   removeBookFromList,
+  reorderBooksInList,
+  searchBooksForList,
   setListPromoted,
   suggestListSlug,
   toggleListMembership,
-  updateBookList
+  updateBookList,
+  updateListItemNote
 };

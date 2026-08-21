@@ -568,6 +568,13 @@
 			"when": 1786000000000,
 			"tag": "0081_book_live_email_sent_at",
 			"breakpoints": true
+		},
+		{
+			"idx": 82,
+			"version": "7",
+			"when": 1786100000000,
+			"tag": "0082_creator_view_ref",
+			"breakpoints": true
 		}
 	]
 }

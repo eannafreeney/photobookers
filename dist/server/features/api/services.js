@@ -6,43 +6,12 @@ import {
   collectionItems,
   creators,
   follows,
-  likes,
   wishlists
 } from "../../db/schema.js";
 import {
   buildCreatedAtFilter
 } from "../book-analytics/dateRange.js";
 import { err, ok } from "../../lib/result.js";
-const findLike = async (userId, bookId) => {
-  try {
-    const like = await db.query.likes.findFirst({
-      where: and(eq(likes.userId, userId), eq(likes.bookId, bookId))
-    });
-    if (!like) return err({ reason: "Like not found" });
-    return ok(like);
-  } catch (error) {
-    console.error("Failed to find like", error);
-    return err({ reason: "Failed to find like" });
-  }
-};
-const insertLike = async (userId, bookId) => {
-  try {
-    await db.insert(likes).values({ userId, bookId }).onConflictDoNothing();
-    return ok(void 0);
-  } catch (error) {
-    console.error("Failed to insert like", error);
-    return err({ reason: "Failed to insert like" });
-  }
-};
-const deleteLike = async (userId, bookId) => {
-  try {
-    await db.delete(likes).where(and(eq(likes.userId, userId), eq(likes.bookId, bookId)));
-    return ok(void 0);
-  } catch (error) {
-    console.error("Failed to delete like", error);
-    return err({ reason: "Failed to delete like" });
-  }
-};
 const deleteFollow = async (creatorId, userId) => {
   await db.delete(follows).where(
     and(
@@ -118,32 +87,6 @@ const getCreatorPermissionData = async (creatorId) => {
   } catch (error) {
     console.error("Failed to get creator permission data", error);
     return err({ reason: "Failed to get creator permission data" });
-  }
-};
-const getBookLikeContext = async (bookId) => {
-  try {
-    const book = await db.query.books.findFirst({
-      where: eq(books.id, bookId),
-      columns: {
-        id: true,
-        artistId: true,
-        publisherId: true,
-        title: true,
-        slug: true,
-        coverUrl: true
-      },
-      with: {
-        artist: {
-          columns: {
-            displayName: true
-          }
-        }
-      }
-    });
-    return book ? ok(book) : err({ reason: "Book not found" });
-  } catch (error) {
-    console.error("Failed to get book like context", error);
-    return err({ reason: "Failed to get book like context", error });
   }
 };
 const getBookPermissionData = async (bookId) => {
@@ -291,22 +234,18 @@ const deleteBookCommentById = async (commentId) => {
 export {
   deleteBookCommentById,
   deleteFollow,
-  deleteLike,
   deleteWishlist,
   findCollectionCount,
   findCollectionCounts,
   findFollow,
-  findLike,
   findWishlist,
   findWishlistCount,
   findWishlistCounts,
   getBookCommentById,
-  getBookLikeContext,
   getBookPermissionData,
   getCreatorPermissionData,
   insertBookComment,
   insertFollow,
-  insertLike,
   insertWishlist,
   searchBooks
 };

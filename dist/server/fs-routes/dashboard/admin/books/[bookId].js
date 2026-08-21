@@ -26,9 +26,9 @@ import Alert from "../../../../components/app/Alert.js";
 import { dispatchEvents } from "../../../../lib/disatchEvents.js";
 import BookApprovalForm from "../../../../features/dashboard/admin/books/forms/BookApprovalForm.js";
 import { routeParam } from "../../../../lib/routeParam.js";
-import { isFeatureEnabledForUser } from "../../../../lib/features.js";
 import { serializePressLinks } from "../../../../features/dashboard/books/pressLinks.js";
 import { toDateInputValue } from "../../../../lib/utils.js";
+import Banner from "../../../../components/app/Banner.js";
 const GET = createRoute(
   paramValidator(bookIdSchema),
   async (c) => {
@@ -39,7 +39,6 @@ const GET = createRoute(
     const [error, book] = await getBookById(bookId);
     if (error)
       return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: error.reason, user }));
-    const showPressLinks = isFeatureEnabledForUser("bookPressLinks", user);
     const formValues = {
       title: book.title,
       artist_id: book.artistId,
@@ -49,8 +48,14 @@ const GET = createRoute(
       tags: book.tags?.join(", "),
       availability_status: book.availabilityStatus,
       release_date: toDateInputValue(book.releaseDate),
-      ...showPressLinks ? { press_links: serializePressLinks(book.pressLinks) } : {}
+      press_links: serializePressLinks(book.pressLinks)
     };
+    const submitter = book.submittedByUser;
+    const submitterName = submitter ? [submitter.firstName, submitter.lastName].filter(Boolean).join(" ") : null;
+    const artistName = book.artist?.displayName?.toLowerCase() ?? "";
+    const publisherName = book.publisher?.displayName?.toLowerCase() ?? "";
+    const nameLower = submitterName?.toLowerCase() ?? "";
+    const nameMatchesCreator = submitterName && (artistName.includes(nameLower) || nameLower.includes(artistName) || publisherName.includes(nameLower) || nameLower.includes(publisherName));
     return c.html(
       /* @__PURE__ */ jsx(
         AppLayout,
@@ -71,6 +76,13 @@ const GET = createRoute(
                 ]
               }
             ),
+            submitterName && /* @__PURE__ */ jsx(
+              Banner,
+              {
+                type: nameMatchesCreator ? "warning" : "info",
+                message: nameMatchesCreator ? `\u26A0 Submitted by contributor "${submitterName}" (${submitter.email}) \u2014 name matches the artist/publisher. Possible self-promotion.` : `Submitted by contributor "${submitterName}" (${submitter.email})`
+              }
+            ),
             /* @__PURE__ */ jsxs("div", { class: "flex flex-col items-center md:items-end gap-4", children: [
               /* @__PURE__ */ jsx(BookApprovalForm, { book }),
               /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-4", children: [
@@ -82,8 +94,7 @@ const GET = createRoute(
               BookFormAdmin,
               {
                 bookId: book.id,
-                formValues,
-                showPressLinks
+                formValues
               }
             ),
             /* @__PURE__ */ jsx("hr", { class: "my-4" }),

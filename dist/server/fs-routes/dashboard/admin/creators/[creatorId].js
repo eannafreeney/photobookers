@@ -20,7 +20,6 @@ import AppLayout from "../../../../components/layouts/AppLayout.js";
 import Page from "../../../../components/layouts/Page.js";
 import Breadcrumbs from "../../../../features/dashboard/admin/components/Breadcrumbs.js";
 import EditCreatorFormAdmin from "../../../../features/dashboard/admin/creators/forms/EditCreatorFormAdmin.js";
-import FeatureGuard from "../../../../components/layouts/FeatureGuard.js";
 import { getFormValues } from "../../../../features/dashboard/creators/utils.js";
 import CreatorBookList from "../../../../features/dashboard/admin/creators/components/CreatorBookList.js";
 import StubOutreachStatus from "../../../../features/dashboard/admin/creators/components/StubOutreachStatus.js";
@@ -104,8 +103,7 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
               currentPage,
               searchQuery
             }
-          ),
-          /* @__PURE__ */ jsx(FeatureGuard, { flagName: "messages" })
+          )
         ] })
       }
     )

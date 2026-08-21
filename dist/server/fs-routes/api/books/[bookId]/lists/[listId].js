@@ -7,7 +7,7 @@ import { showErrorAlert } from "../../../../../lib/alertHelpers.js";
 import Alert from "../../../../../components/app/Alert.js";
 import { toggleListMembership } from "../../../../../domain/lists/services.js";
 import { userCanManageBookLists } from "../../../../../domain/lists/utils.js";
-import { ListMembershipRow } from "../../../../../features/api/components/SaveToListButton.js";
+import { ListMembershipRow } from "../../../../../features/api/components/ListMembershipRow.js";
 import { routeParam } from "../../../../../lib/routeParam.js";
 const POST = createRoute(async (c) => {
   const bookId = routeParam(c, "bookId");

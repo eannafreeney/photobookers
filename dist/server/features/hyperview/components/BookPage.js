@@ -8,7 +8,6 @@ import BookPurchaseButton, {
   bookPurchaseButtonStyles
 } from "./BookPurchaseButton.js";
 import DiscoveryTags, { discoveryTagStyles } from "./DiscoveryTags.js";
-import { isFeatureEnabledForUser } from "../../../lib/features.js";
 function purchaseDeepLinkHref(baseUrl, book) {
   const raw = book.purchaseLink?.trim();
   if (!raw) return null;
@@ -28,12 +27,11 @@ const BookPage = ({
   galleryImages,
   book,
   baseUrl,
-  isFavorited,
-  user
+  isFavorited
 }) => {
   const paragraphs = descriptionParagraphs(book.description);
   const purchaseHref = purchaseDeepLinkHref(baseUrl, book);
-  const pressLinks = isFeatureEnabledForUser("bookPressLinks", user) && book.pressLinks?.length ? book.pressLinks : [];
+  const pressLinks = book.pressLinks?.length ? book.pressLinks : [];
   return /* @__PURE__ */ jsxs(View, { xmlns: "https://hyperview.org/hyperview", style: "book-page", children: [
     /* @__PURE__ */ jsx(BookGallery, { galleryImages }),
     /* @__PURE__ */ jsx(BookActions, { book, baseUrl, isFavorited }),

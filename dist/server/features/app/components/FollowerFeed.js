@@ -1,26 +1,37 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
-import CreatorMessage from "./creatorPage/CreatorMessage.js";
 import ListNavigation from "./ListNavigation.js";
 import FeedBookCard from "../../../components/app/FeedBookCard.js";
 import PostCard from "../../collectors/components/PostCard.js";
-const FollowerFeed = ({
+import { getPostLikeStats } from "../../../domain/posts/likes.js";
+const emptyCopy = {
+  posts: "Start following artists, publishers, and collectors to see their posts here.",
+  books: "Start following artists and publishers to see their latest releases here."
+};
+const FollowerFeed = async ({
   user,
+  tab,
   currentPath,
   items,
   totalPages,
   page
 }) => {
   const targetId = "feed-items";
+  const postIds = items.flatMap(
+    (item) => item.kind === "post" ? [item.post.id] : []
+  );
+  const likeStats = await getPostLikeStats(postIds, user.id);
   return /* @__PURE__ */ jsxs(Fragment, { children: [
-    items.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-on-surface", children: "Start following artists and publishers to see their latest releases and updates here." }) : /* @__PURE__ */ jsx("div", { id: targetId, "x-merge": "append", class: "flex flex-col gap-4", children: items.map(
-      (item) => item.kind === "message" ? /* @__PURE__ */ jsx(
-        CreatorMessage,
+    items.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-on-surface", children: emptyCopy[tab] }) : /* @__PURE__ */ jsx("div", { id: targetId, "x-merge": "append", class: "flex flex-col gap-4", children: items.map(
+      (item) => item.kind === "post" ? /* @__PURE__ */ jsx(
+        PostCard,
         {
-          canReadMessages: true,
-          creator: item.message.creator,
-          message: item.message
+          post: item.post,
+          author: item.post.author,
+          creator: item.post.creator,
+          likeCount: likeStats.get(item.post.id)?.likeCount ?? 0,
+          likedByMe: likeStats.get(item.post.id)?.likedByMe ?? false
         }
-      ) : item.kind === "post" ? /* @__PURE__ */ jsx(PostCard, { post: item.post, author: item.post.author }) : /* @__PURE__ */ jsx(
+      ) : /* @__PURE__ */ jsx(
         FeedBookCard,
         {
           book: item.book,

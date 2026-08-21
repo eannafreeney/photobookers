@@ -3,7 +3,7 @@ import Button from "../../../components/app/Button.js";
 const memberSignInPrompts = {
   feed: {
     headline: "Sign in to see your feed",
-    hint: "Follow artists and publishers to get a personalised feed of their latest releases and updates \u2014 free to join."
+    hint: "Follow artists, publishers, and collectors to get a personalised feed of posts and new books \u2014 free to join."
   },
   shelf: {
     headline: "Sign in to view your shelf",

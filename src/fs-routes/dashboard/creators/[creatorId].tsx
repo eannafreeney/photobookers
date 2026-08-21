@@ -15,6 +15,9 @@ import { showErrorAlert, showSuccessAlert } from "../../../lib/alertHelpers";
 import CreatorBannerForm from "../../../features/dashboard/images/forms/CreatorBannerForm";
 import CreatorDashboardShell from "../../../features/dashboard/components/CreatorDashboardShell";
 import { getPendingClaim } from "../../../features/claims/services";
+import ProfileBadgeCard from "../../../features/dashboard/creators/components/ProfileBadgeCard";
+import { getCreatorReferralCounts } from "../../../features/creator-views/services";
+import { BADGE_REFERRAL } from "../../../lib/embedBadge";
 import InfoPage from "../../../pages/InfoPage";
 
 export const GET = createRoute(
@@ -30,6 +33,15 @@ export const GET = createRoute(
       return c.html(<InfoPage errorMessage={claimError.reason} user={user} />);
 
     const formValues = getFormValues(creator);
+
+    // Badge stats are a nice-to-have on this page — never fail the profile
+    // editor because the analytics query fell over.
+    const badgeViewCount = await getCreatorReferralCounts(creator.id)
+      .then(
+        (rows) =>
+          rows.find((row) => row.ref === BADGE_REFERRAL)?.viewCount ?? 0,
+      )
+      .catch(() => null);
 
     return c.html(
       <AppLayout
@@ -64,6 +76,10 @@ export const GET = createRoute(
               />
             </div>
           </div>
+          <ProfileBadgeCard
+            creator={creator}
+            badgeViewCount={badgeViewCount}
+          />
         </CreatorDashboardShell>
       </AppLayout>,
     );

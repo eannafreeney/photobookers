@@ -8,14 +8,13 @@ import BooksGrid from "../../features/app/components/BooksGrid.js";
 import { getBooksInWishlist } from "../../features/app/services.js";
 import { getPendingClaim } from "../../features/claims/services.js";
 import { getFlash, getUser } from "../../utils.js";
-import { isFeatureEnabledForUser } from "../../lib/features.js";
 import { userCanHaveShelf } from "../../domain/shelf/utils.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
   const flash = await getFlash(c);
   const currentPath = c.req.path;
   const currentPage = Number(c.req.query("page") ?? 1);
-  if (!userCanHaveShelf(user) || !isFeatureEnabledForUser("collectors", user)) {
+  if (!userCanHaveShelf(user)) {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
   }
   const [wishlistError, wishlistResult] = await getBooksInWishlist(

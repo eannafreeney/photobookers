@@ -8,6 +8,8 @@ import RandomPickButton from "./RandomPickButton.js";
 import CreatorEmailBadge from "./CreatorEmailBadge.js";
 import BotdEmailStatusBadges from "./BotdEmailStatusBadges.js";
 import EditSpotlightBlurbButton from "./EditSpotlightBlurbButton.js";
+import SpotlightBlurbBadge from "./SpotlightBlurbBadge.js";
+import { spotlightBlurbStatus } from "../utils.js";
 const BOTDCard = ({ date, bookOfTheDay }) => {
   const dateKey = toDateString(date);
   const weekKey = toWeekString(date);
@@ -111,12 +113,24 @@ const BOTDCardContent = ({
     ] }),
     /* @__PURE__ */ jsxs("div", { class: "mt-2 border-t border-outline pt-2 flex flex-col gap-2", children: [
       /* @__PURE__ */ jsx(BotdEmailStatusBadges, { bookOfTheDay }),
-      /* @__PURE__ */ jsx("div", { class: "flex justify-end", children: /* @__PURE__ */ jsx(
-        EditSpotlightBlurbButton,
-        {
-          href: `/dashboard/admin/planner/spotlight-blurb/prepare?week=${encodeURIComponent(weekKey)}&key=${encodeURIComponent(dateKey)}`
-        }
-      ) })
+      /* @__PURE__ */ jsxs("div", { class: "flex flex-wrap items-center justify-between gap-2", children: [
+        /* @__PURE__ */ jsx(
+          SpotlightBlurbBadge,
+          {
+            subject: "book",
+            status: spotlightBlurbStatus({
+              blurb: bookOfTheDay.spotlightBlurb,
+              sourceText: book.description
+            })
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          EditSpotlightBlurbButton,
+          {
+            href: `/dashboard/admin/planner/spotlight-blurb/prepare?week=${encodeURIComponent(weekKey)}&key=${encodeURIComponent(dateKey)}`
+          }
+        )
+      ] })
     ] })
   ] });
 };

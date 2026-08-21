@@ -1,5 +1,4 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
-import FeatureGuard from "../../../components/layouts/FeatureGuard.js";
 import Button from "../../../components/app/Button.js";
 import { shelfProfileUrl } from "../../../lib/share.js";
 import { getInitialsAvatar } from "../../../lib/avatar.js";
@@ -12,7 +11,7 @@ const ShelfSharingPanel = ({
   const avatarUrl = user.profileImageUrl ?? getInitialsAvatar(user.firstName ?? "", user.lastName ?? "");
   const slugValue = user.shelfSlug ?? suggestedSlug ?? "";
   const publicShelfUrl = user.shelfSlug ? shelfProfileUrl(user.shelfSlug) : slugValue ? shelfProfileUrl(slugValue) : null;
-  return /* @__PURE__ */ jsx(FeatureGuard, { flagName: "collectors", children: /* @__PURE__ */ jsxs(
+  return /* @__PURE__ */ jsxs(
     "details",
     {
       class: "group rounded border border-outline bg-surface-alt",
@@ -162,7 +161,7 @@ const ShelfSharingPanel = ({
         )
       ]
     }
-  ) });
+  );
 };
 var ShelfSharingPanel_default = ShelfSharingPanel;
 export {

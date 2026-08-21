@@ -4,7 +4,7 @@ import FileUploadInput from "../../../../components/forms/FileUpload.js";
 import SectionTitle from "../../../../components/app/SectionTitle.js";
 import ImagePreview from "../../../../components/forms/ImagePreview.js";
 import Card from "../../../../components/app/Card.js";
-import CardCreatorCard from "../../../../components/app/CardCreatorCard.js";
+import CardAuthorCard from "../../../../components/app/CardAuthorCard.js";
 import { canUploadImage } from "../../../../lib/permissions.js";
 import DragAndDropArea from "../components/DragAndDropArea.js";
 const BookCoverForm = ({ initialUrl, book, user }) => {
@@ -84,7 +84,7 @@ var BookCoverForm_default = BookCoverForm;
 const CardPreview = ({ book }) => /* @__PURE__ */ jsxs("div", { class: "mb-4", children: [
   /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface-variant mb-2", children: "Book Card Preview" }),
   /* @__PURE__ */ jsxs(Card, { className: "max-w-[300px]", children: [
-    /* @__PURE__ */ jsx("div", { class: "px-2 py-2 flex items-center justify-between", children: /* @__PURE__ */ jsx(CardCreatorCard, { creator: book.artist ?? null }) }),
+    /* @__PURE__ */ jsx("div", { class: "px-2 py-2 flex items-center justify-between", children: /* @__PURE__ */ jsx(CardAuthorCard, { creator: book.artist ?? null }) }),
     /* @__PURE__ */ jsx(
       "figure",
       {

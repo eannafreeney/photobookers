@@ -17,7 +17,7 @@ const paramValidator = (schema) => {
     const result = schema.safeParse(params);
     if (!result.success) {
       const user = await getUser(c);
-      const message = "Oops! Something went wrong.";
+      const message = result.error.issues[0]?.message && result.error.issues[0].message !== "Required" ? result.error.issues[0].message : "Oops! Something went wrong.";
       console.log("error", result.error);
       if (c.req.method === "GET") {
         return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: message, user }), 400);

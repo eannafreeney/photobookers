@@ -1,6 +1,6 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { randomInt } from "node:crypto";
-import { books } from "./db/schema.js";
+import { books, creators } from "./db/schema.js";
 import { db } from "./db/client.js";
 import { eq } from "drizzle-orm";
 const formatDate = (date) => {
@@ -28,6 +28,17 @@ async function generateUniqueBookSlug(title, artistName) {
     if (existing.length === 0) {
       return slug;
     }
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+}
+async function generateUniqueCreatorSlug(displayName, type) {
+  const baseSlug = slugify(displayName) || type;
+  let slug = baseSlug;
+  let counter = 1;
+  while (true) {
+    const existing = await db.select({ id: creators.id }).from(creators).where(eq(creators.slug, slug)).limit(1);
+    if (existing.length === 0) return slug;
     slug = `${baseSlug}-${counter}`;
     counter++;
   }
@@ -127,6 +138,7 @@ export {
   formatDate,
   formatDateWithoutYear,
   generateUniqueBookSlug,
+  generateUniqueCreatorSlug,
   getFlash,
   getInputIcon,
   getRandomCoverUrl,

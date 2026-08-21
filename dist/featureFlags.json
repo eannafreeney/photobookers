@@ -1,9 +1,3 @@
 {
-  "messages": true,
-  "comments": true,
-  "fairs": true,
-  "stores": true,
-  "collectors": true,
-  "magazine": false,
-  "bookPressLinks": true
+  "magazine": false
 }

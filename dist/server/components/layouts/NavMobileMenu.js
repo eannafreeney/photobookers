@@ -6,7 +6,6 @@ import NavSearchMobile from "./NavSearchMobile.js";
 import { getInitialsAvatar } from "../../lib/avatar.js";
 import Button from "../app/Button.js";
 import { closeMobileMenuIcon, openMobileMenuIcon } from "../../lib/icons.js";
-import FeatureGuard from "./FeatureGuard.js";
 const NavMobileMenu = ({ currentPath }) => {
   return /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-5 md:hidden", children: [
     /* @__PURE__ */ jsx(NavSearchMobile, {}),
@@ -56,7 +55,7 @@ const MobileDropDownMenu = ({
       "x-cloak": true,
       "x-show": "mobileMenuIsOpen",
       ...fadeTransition,
-      class: "fixed h-svh overflow-y-auto inset-0 z-20 flex flex-col bg-surface px-8 pb-24 pt-10 sm:hidden",
+      class: "fixed h-svh overflow-y-auto inset-0 z-20 flex flex-col bg-surface px-8 pb-10 pt-10 sm:hidden",
       children: [
         /* @__PURE__ */ jsx("li", { class: "mb-4 border-none", children: /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2 py-2", children: [
           user && /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2 py-2", children: [
@@ -89,18 +88,20 @@ const MobileDropDownMenu = ({
             }
           )
         ] }) }),
+        user?.creator?.id && /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }),
+        user && !user.creator ? /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }) : null,
+        user?.isAdmin && /* @__PURE__ */ jsx(NavLink, { href: "/dashboard/admin/planner", currentPath, children: "Admin Dashboard" }),
+        /* @__PURE__ */ jsx(NavLink, { href: "/featured", currentPath, children: "Home" }),
+        /* @__PURE__ */ jsx(NavLink, { href: "/books", currentPath, children: "Books" }),
+        /* @__PURE__ */ jsx(NavLink, { href: "/creators", currentPath, children: "Creators" }),
+        /* @__PURE__ */ jsx(NavLink, { href: "/feed", currentPath, children: "Feed" }),
+        /* @__PURE__ */ jsx(NavLink, { href: "/shelf", currentPath, children: "Shelf" }),
+        /* @__PURE__ */ jsx(NavLink, { href: "/about", currentPath, children: "About" }),
+        /* @__PURE__ */ jsx(NavLink, { href: "/contact", currentPath, children: "Contact" }),
         !user && /* @__PURE__ */ jsxs(Fragment, { children: [
           /* @__PURE__ */ jsx(NavLink, { href: "/auth/login", currentPath, children: "Login" }),
           /* @__PURE__ */ jsx(NavLink, { href: "/auth/accounts", currentPath, children: "Register" })
         ] }),
-        user?.creator?.id && /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }),
-        /* @__PURE__ */ jsx(FeatureGuard, { flagName: "collectors", children: user && !user.creator ? /* @__PURE__ */ jsx(NavLink, { href: "/dashboard", currentPath, children: "Dashboard" }) : null }),
-        user?.isAdmin && /* @__PURE__ */ jsx(NavLink, { href: "/dashboard/admin/planner", currentPath, children: "Admin Dashboard" }),
-        /* @__PURE__ */ jsx(NavLink, { href: "/books", currentPath, children: "Books" }),
-        /* @__PURE__ */ jsx(NavLink, { href: "/creators", currentPath, children: "Creators" }),
-        /* @__PURE__ */ jsx(FeatureGuard, { flagName: "collectors", children: /* @__PURE__ */ jsx(NavLink, { href: "/collectors", currentPath, children: "Collectors" }) }),
-        /* @__PURE__ */ jsx(NavLink, { href: "/about", currentPath, children: "About" }),
-        /* @__PURE__ */ jsx(NavLink, { href: "/contact", currentPath, children: "Contact" }),
         user && /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx(
           "form",
           {

@@ -47,6 +47,10 @@ if (process.env.NODE_ENV === "production") {
     "/icons/*",
     cachedStatic({ root: "./dist/client", cacheControl: IMMUTABLE_CACHE })
   );
+  app.use(
+    "/badge/*",
+    cachedStatic({ root: "./dist/client", cacheControl: IMMUTABLE_CACHE })
+  );
 }
 app.route("/", routes);
 app.onError((err, c) => {

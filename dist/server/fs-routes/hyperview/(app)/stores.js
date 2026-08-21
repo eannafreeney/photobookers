@@ -5,7 +5,6 @@ import { hyperview } from "../../../lib/hxml.js";
 import { Style, Text, View } from "../../../lib/hxml-comps.js";
 import { getBaseUrl } from "../../../lib/hyperview.js";
 import { getUser } from "../../../utils.js";
-import { isFeatureEnabledForUser } from "../../../lib/features.js";
 import { getPublishedStores } from "../../../features/app/stores/services.js";
 import StoresList, {
   storesListStyles
@@ -16,12 +15,6 @@ const GET = createRoute(async (c) => {
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
   const hv = hyperview(c);
-  if (!isFeatureEnabledForUser("stores", user)) {
-    return hv(
-      /* @__PURE__ */ jsx(ErrorScreen, { user, baseUrl, message: "Not found" }),
-      404
-    );
-  }
   const [error, result] = await getPublishedStores({ page: 1, limit: 30 });
   if (error || !result) {
     return hv(

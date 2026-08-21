@@ -3,7 +3,6 @@ import { createRoute } from "hono-fsr";
 import { paramValidator } from "../../../lib/validator.js";
 import AppLayout from "../../../components/layouts/AppLayout.js";
 import { getUser } from "../../../utils.js";
-import { isFeatureEnabledForUser } from "../../../lib/features.js";
 import InfoPage from "../../../pages/InfoPage.js";
 import { getStoreBySlug } from "../../../features/app/stores/services.js";
 import StoreDetail from "../../../features/app/stores/components/StoreDetail.js";
@@ -22,9 +21,6 @@ const GET = createRoute(
     const user = await getUser(c);
     const currentPath = c.req.path;
     const slug = routeParam(c, "slug");
-    if (!isFeatureEnabledForUser("stores", user)) {
-      return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
-    }
     const [error, store] = await getStoreBySlug(slug);
     if (error) {
       return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: error.reason, user }), 404);

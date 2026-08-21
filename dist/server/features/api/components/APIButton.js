@@ -4,20 +4,24 @@ const APIButton = ({
   id,
   action,
   method = "post",
+  variant,
   buttonText,
   hiddenInput,
   isDisabled = false,
   isActive = false,
   shouldRefreshFollowedCreators = false,
-  shouldRefreshCreatorMessages = false
+  shouldRefreshCreatorPosts = false
 }) => {
   const alpineAttrs = {
     "x-data": "{ isSubmitting: false }",
     "@ajax:before": "isSubmitting = true",
     "@ajax:after": "$dispatch('dialog:open'); isSubmitting = false",
     "@ajax:error": "isSubmitting = false",
-    "x-target": `${id} toast modal-root`,
-    "x-target.error": "toast modal-root",
+    // `modal-root` belongs only on the 401 target: alpine-ajax removes a
+    // targeted element that a 2xx response omits, so listing it here deleted
+    // the page's modal container on every successful action.
+    "x-target": `${id} toast`,
+    "x-target.error": "toast",
     "x-target.401": "modal-root"
   };
   return /* @__PURE__ */ jsxs(
@@ -42,6 +46,7 @@ const APIButton = ({
             value: hiddenInput.value ? "true" : "false"
           }
         ),
+        variant && /* @__PURE__ */ jsx("input", { type: "hidden", name: "variant", value: variant }),
         shouldRefreshFollowedCreators && /* @__PURE__ */ jsx(
           "input",
           {
@@ -50,7 +55,7 @@ const APIButton = ({
             value: "true"
           }
         ),
-        shouldRefreshCreatorMessages && /* @__PURE__ */ jsx("input", { type: "hidden", name: "shouldRefreshCreatorMessages", value: "true" }),
+        shouldRefreshCreatorPosts && /* @__PURE__ */ jsx("input", { type: "hidden", name: "shouldRefreshCreatorPosts", value: "true" }),
         /* @__PURE__ */ jsx(
           "button",
           {

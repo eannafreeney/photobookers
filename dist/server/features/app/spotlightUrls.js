@@ -63,6 +63,7 @@ function linksUrl() {
 export {
   aotwPath,
   aotwUrl,
+  appBaseUrl,
   bookPath,
   bookUrl,
   botdIndexPath,

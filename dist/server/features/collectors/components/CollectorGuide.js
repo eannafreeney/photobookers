@@ -82,7 +82,7 @@ const CollectorGuide = () => {
         step: 5,
         icon: usersIcon(5),
         title: "Follow other collectors",
-        cta: { label: "Find collectors", href: "/collectors" },
+        cta: { label: "Find collectors", href: "/creators?type=collector" },
         children: /* @__PURE__ */ jsx("p", { children: "Follow collectors whose taste you admire. Their posts show up in your feed, and following is a great way to discover new books." })
       }
     )

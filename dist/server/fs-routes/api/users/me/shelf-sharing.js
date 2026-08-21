@@ -1,7 +1,6 @@
 import { jsx } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
 import { getUser } from "../../../../utils.js";
-import { isFeatureEnabledForUser } from "../../../../lib/features.js";
 import InfoPage from "../../../../pages/InfoPage.js";
 import ShelfSharingPanel from "../../../../features/app/components/ShelfSharingPanel.js";
 import {
@@ -15,7 +14,7 @@ const POST = createRoute(async (c) => {
   if (!user) {
     return c.html(/* @__PURE__ */ jsx(Alert, { type: "danger", message: "Sign in to update your shelf." }), 401);
   }
-  if (!isFeatureEnabledForUser("collectors", user) || !userCanHaveShelf(user)) {
+  if (!userCanHaveShelf(user)) {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
   }
   const body = await c.req.parseBody();

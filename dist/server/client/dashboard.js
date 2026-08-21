@@ -9,6 +9,8 @@ import { registerUserProfileImageForm } from "../features/app/client/userProfile
 import { registerMessageForm } from "../features/dashboard/messages/client/messageForm.js";
 import { registerCreatorBannerForm } from "../features/dashboard/images/client/creatorBannerForm.js";
 import { registerStoresMap } from "../features/app/stores/client/storesMap.js";
+import { registerListForm } from "../features/dashboard/lists/client/listForm.js";
+import { registerListBookNoteForm } from "../features/dashboard/lists/client/listBookNoteForm.js";
 registerEditCreatorForm();
 registerBookForm();
 registerBookCoverForm();
@@ -20,4 +22,6 @@ registerUserProfileImageForm();
 registerMessageForm();
 registerCreatorBannerForm();
 registerStoresMap();
+registerListForm();
+registerListBookNoteForm();
 window.Alpine.start();

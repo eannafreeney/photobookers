@@ -6,7 +6,7 @@ import { Text } from "../../../../../../lib/hxml-comps.js";
 import { getBaseUrl } from "../../../../../../lib/hyperview.js";
 import { getCreatorById } from "../../../../../../features/dashboard/creators/services.js";
 import { creatorIdSchema } from "../../../../../../schemas/index.js";
-import { getMessagesByCreatorSlug } from "../../../../../../features/app/services.js";
+import { listPostsByCreatorSlug } from "../../../../../../domain/posts/services.js";
 import { getUser } from "../../../../../../utils.js";
 import { findFollow } from "../../../../../../features/api/services.js";
 import CreatorPostsList from "../../../../../../features/hyperview/components/CreatorPostsList.js";
@@ -24,7 +24,7 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
       404
     );
   }
-  const [error, result] = await getMessagesByCreatorSlug(
+  const [error, result] = await listPostsByCreatorSlug(
     creator.slug,
     currentPage,
     5
@@ -35,24 +35,24 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
       404
     );
   }
-  const { messages, totalPages, page } = result;
+  const { posts, totalPages, page } = result;
   const isOwner = user?.creator?.id === creator.id;
   const isFollowing = user?.id ? Boolean(await findFollow(creator.id, user.id)) : false;
-  const canReadMessages = isOwner || Boolean(user?.isAdmin) || isFollowing;
+  const canReadPosts = isOwner || Boolean(user?.isAdmin) || isFollowing;
   const hasMore = page < totalPages;
-  if (currentPage === 1 && messages.length === 0) {
-    const emptyMessage = isOwner ? "No posts yet. Share updates with people who follow you from the dashboard." : canReadMessages ? `No posts yet. Check back soon for updates from ${creator.displayName}.` : `No posts yet. Follow ${creator.displayName} to see updates here.`;
+  if (currentPage === 1 && posts.length === 0) {
+    const emptyMessage = isOwner ? "No posts yet. Share updates with people who follow you from the dashboard." : canReadPosts ? `No posts yet. Check back soon for updates from ${creator.displayName}.` : `No posts yet. Follow ${creator.displayName} to see updates here.`;
     return hv(
       /* @__PURE__ */ jsx("view", { xmlns: "https://hyperview.org/hyperview", style: "tab-fragment", children: /* @__PURE__ */ jsx(Text, { style: "comments-placeholder", children: emptyMessage }) })
     );
   }
   const listProps = {
-    posts: messages,
+    posts,
     creator: {
       displayName: creator.displayName,
       coverUrl: creator.coverUrl
     },
-    canReadMessages,
+    canReadPosts,
     page,
     hasMore,
     loadMoreHref

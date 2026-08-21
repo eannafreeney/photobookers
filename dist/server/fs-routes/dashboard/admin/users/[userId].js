@@ -21,12 +21,14 @@ import InfoPage from "../../../../pages/InfoPage.js";
 import { dispatchEvents } from "../../../../lib/disatchEvents.js";
 import { showErrorAlert } from "../../../../lib/alertHelpers.js";
 import ResetUserPasswordButton from "../../../../features/dashboard/admin/users/components/ResetUserPasswordButton.js";
-import CollectorPostsTable from "../../../../features/collectors/components/CollectorPostsTable.js";
+import PostsTable from "../../../../features/collectors/components/PostsTable.js";
 import { formatDate } from "../../../../utils.js";
+import { getIsMobile } from "../../../../lib/device.js";
 const GET = createRoute(paramValidator(userIdSchema), async (c) => {
   const userId = c.req.valid("param").userId;
   const sessionUser = await getUser(c);
   const currentPath = c.req.path;
+  const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
   const [error, viewedUser] = await getUserByIdAdmin(userId, {
     withActivity: true
   });
@@ -40,7 +42,6 @@ const GET = createRoute(paramValidator(userIdSchema), async (c) => {
         }
       )
     );
-  const likedBooks = viewedUser?.likedBooks ?? [];
   const wishlistedBooks = viewedUser?.wishlistedBooks ?? [];
   const collectedBooks = viewedUser?.collectedBooks ?? [];
   const followedCreators = viewedUser?.followedCreators ?? [];
@@ -98,22 +99,6 @@ const GET = createRoute(paramValidator(userIdSchema), async (c) => {
               }
             )
           ] }) }) }) })) }),
-          /* @__PURE__ */ jsx(SectionTitle, { className: "mb-4", children: "Books liked" }),
-          likedBooks?.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface/65", children: "No liked books." }) : /* @__PURE__ */ jsx("div", { class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8", children: viewedUser?.likedBooks.map((b) => /* @__PURE__ */ jsxs(Card, { children: [
-            /* @__PURE__ */ jsx(
-              Card.Image,
-              {
-                src: b.coverUrl ?? "",
-                alt: b.title,
-                href: `/books/${b.slug}`,
-                objectCover: true
-              }
-            ),
-            /* @__PURE__ */ jsxs(Card.Body, { children: [
-              /* @__PURE__ */ jsx(Link, { href: `/books/${b.slug}`, children: /* @__PURE__ */ jsx(Card.Title, { children: b.title }) }),
-              b.artist?.displayName && /* @__PURE__ */ jsx(Card.Text, { children: b.artist.displayName })
-            ] })
-          ] })) }),
           /* @__PURE__ */ jsx(SectionTitle, { className: "mb-4", children: "Books favourited" }),
           wishlistedBooks.length === 0 ? /* @__PURE__ */ jsx("p", { class: "text-sm text-on-surface/65", children: "No favourited books." }) : /* @__PURE__ */ jsx("div", { class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8", children: wishlistedBooks.map((b) => /* @__PURE__ */ jsxs(Card, { children: [
             /* @__PURE__ */ jsx(
@@ -163,8 +148,8 @@ const GET = createRoute(paramValidator(userIdSchema), async (c) => {
               /* @__PURE__ */ jsx(Card.Text, { children: c2.slug })
             ] })
           ] })) }),
-          /* @__PURE__ */ jsx(SectionTitle, { className: "mb-4 mt-8", children: "Collector posts" }),
-          /* @__PURE__ */ jsx(CollectorPostsTable, { userId })
+          /* @__PURE__ */ jsx(SectionTitle, { className: "mb-4 mt-8", children: "Posts" }),
+          /* @__PURE__ */ jsx(PostsTable, { userId, isMobile })
         ] })
       }
     )

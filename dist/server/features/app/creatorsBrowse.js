@@ -3,10 +3,13 @@ const CREATOR_BROWSE_FILTERS = [
   "all",
   "artist",
   "publisher",
+  "collector",
   "following"
 ];
 function parseCreatorBrowseFilter(raw, isLoggedIn) {
-  if (raw === "artist" || raw === "publisher") return raw;
+  if (raw === "artist" || raw === "publisher" || raw === "collector") {
+    return raw;
+  }
   if (raw === "following" && isLoggedIn) return "following";
   return "all";
 }
@@ -23,6 +26,7 @@ function creatorsBrowseUrl(filter, options) {
 const creatorBrowseFilterLabels = {
   artist: "Artists",
   publisher: "Publishers",
+  collector: "Collectors",
   following: "Following"
 };
 export {

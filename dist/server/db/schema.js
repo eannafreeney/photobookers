@@ -118,17 +118,18 @@ const users = pgTable("users", {
 });
 const usersRelations = relations(users, ({ many }) => ({
   creators: many(creators),
-  books: many(books),
+  createdBooks: many(books, { relationName: "bookCreator" }),
+  submittedBooks: many(books, { relationName: "bookSubmitter" }),
   follows: many(follows),
   collections: many(collectionItems),
-  likes: many(likes),
+  postLikes: many(postLikes),
   wishlists: many(wishlists),
   bookLists: many(bookLists),
   claims: many(creatorClaims),
   comments: many(bookComments),
   createdFairs: many(bookFairs),
   createdStores: many(bookStores),
-  posts: many(collectorPosts)
+  posts: many(posts)
 }));
 const creatorInterviews = pgTable("creator_interviews", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -290,6 +291,7 @@ const books = pgTable(
     images: text("images").array(),
     tags: text("tags").array(),
     createdByUserId: uuid("created_by_user_id").references(() => users.id).notNull(),
+    submittedByUserId: uuid("submitted_by_user_id").references(() => users.id),
     notifyFollowersOnRelease: boolean("notify_followers_on_release").default(false).notNull(),
     notifyFollowersScheduledDate: timestamp("notify_followers_scheduled_date"),
     notifyFollowersSentAt: timestamp("notify_followers_sent_at"),
@@ -297,6 +299,7 @@ const books = pgTable(
       () => creators.id
     ),
     sortOrder: integer("sort_order"),
+    liveEmailSentAt: timestamp("live_email_sent_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
   },
@@ -320,11 +323,16 @@ const booksRelations = relations(books, ({ one, many }) => ({
   }),
   creatorUser: one(users, {
     fields: [books.createdByUserId],
-    references: [users.id]
+    references: [users.id],
+    relationName: "bookCreator"
+  }),
+  submittedByUser: one(users, {
+    fields: [books.submittedByUserId],
+    references: [users.id],
+    relationName: "bookSubmitter"
   }),
   comments: many(bookComments),
   images: many(bookImages),
-  likes: many(likes),
   wishlists: many(wishlists),
   bookListItems: many(bookListItems),
   collections: many(collectionItems),
@@ -395,7 +403,7 @@ const followsRelations = relations(follows, ({ one }) => ({
     references: [creators.id]
   })
 }));
-const collectorPosts = pgTable("collector_posts", {
+const posts = pgTable("posts", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   body: text("body").notNull(),
@@ -404,10 +412,33 @@ const collectorPosts = pgTable("collector_posts", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date())
 });
-const collectorPostsRelations = relations(collectorPosts, ({ one }) => ({
+const postsRelations = relations(posts, ({ one, many }) => ({
   user: one(users, {
-    fields: [collectorPosts.userId],
+    fields: [posts.userId],
     references: [users.id]
+  }),
+  likes: many(postLikes)
+}));
+const postLikes = pgTable(
+  "post_likes",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    postId: uuid("post_id").notNull().references(() => posts.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow()
+  },
+  (table) => ({
+    pk: primaryKey(table.userId, table.postId),
+    postIdIdx: index("post_likes_post_id_idx").on(table.postId)
+  })
+);
+const postLikesRelations = relations(postLikes, ({ one }) => ({
+  user: one(users, {
+    fields: [postLikes.userId],
+    references: [users.id]
+  }),
+  post: one(posts, {
+    fields: [postLikes.postId],
+    references: [posts.id]
   })
 }));
 const bookImages = pgTable("book_images", {
@@ -481,29 +512,6 @@ const collectionItemsRelations = relations(
     })
   })
 );
-const likes = pgTable(
-  "likes",
-  {
-    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-    bookId: uuid("book_id").notNull().references(() => books.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow()
-  },
-  (table) => {
-    return {
-      pk: primaryKey(table.userId, table.bookId)
-    };
-  }
-);
-const likesRelations = relations(likes, ({ one }) => ({
-  user: one(users, {
-    fields: [likes.userId],
-    references: [users.id]
-  }),
-  book: one(books, {
-    fields: [likes.bookId],
-    references: [books.id]
-  })
-}));
 const wishlists = pgTable(
   "wishlists",
   {
@@ -562,6 +570,7 @@ const bookListItems = pgTable(
     listId: uuid("list_id").notNull().references(() => bookLists.id, { onDelete: "cascade" }),
     bookId: uuid("book_id").notNull().references(() => books.id, { onDelete: "cascade" }),
     position: integer("position").default(0).notNull(),
+    note: text("note"),
     createdAt: timestamp("created_at").defaultNow()
   },
   (table) => ({
@@ -780,11 +789,17 @@ const creatorViews = pgTable(
     userId: uuid("user_id").references(() => users.id),
     source: creatorViewSourceEnum("source").notNull().default("web"),
     referer: text("referer"),
+    /** `?ref=` campaign tag, e.g. "badge" for embedded profile badges. */
+    ref: varchar("ref", { length: 32 }),
     createdAt: timestamp("created_at").defaultNow().notNull()
   },
   (table) => ({
     creatorIdIdx: index("creator_views_creator_id_idx").on(table.creatorId),
-    createdAtIdx: index("creator_views_created_at_idx").on(table.createdAt)
+    createdAtIdx: index("creator_views_created_at_idx").on(table.createdAt),
+    creatorRefIdx: index("creator_views_creator_ref_idx").on(
+      table.creatorId,
+      table.ref
+    )
   })
 );
 const creatorViewsRelations = relations(creatorViews, ({ one }) => ({
@@ -1057,8 +1072,6 @@ export {
   booksRelations,
   collectionItems,
   collectionItemsRelations,
-  collectorPosts,
-  collectorPostsRelations,
   creatorClaimStatusEnum,
   creatorClaims,
   creatorClaimsRelations,
@@ -1086,8 +1099,6 @@ export {
   follows,
   followsRelations,
   interviewTypeEnum,
-  likes,
-  likesRelations,
   magazineIssueBooks,
   magazineIssueBooksRelations,
   magazineIssueStatusEnum,
@@ -1095,6 +1106,10 @@ export {
   magazineIssuesRelations,
   newsletterCampaignStatusEnum,
   newsletterCampaigns,
+  postLikes,
+  postLikesRelations,
+  posts,
+  postsRelations,
   publisherOfTheWeek,
   publisherOfTheWeekRelations,
   publisherReleaseWatchSeen,

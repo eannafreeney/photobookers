@@ -1,0 +1,4 @@
+const POST_BODY_MAX_LENGTH = 1e3;
+export {
+  POST_BODY_MAX_LENGTH
+};

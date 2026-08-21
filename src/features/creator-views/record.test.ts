@@ -69,6 +69,7 @@ describe("maybeRecordCreatorView", () => {
       userId: null,
       source: "web",
       referer: undefined,
+      ref: null,
     });
     expect(setCookieMock).toHaveBeenCalledWith(
       expect.anything(),
@@ -79,6 +80,38 @@ describe("maybeRecordCreatorView", () => {
         httpOnly: true,
         sameSite: "Lax",
       }),
+    );
+  });
+
+  it("records the ?ref= tag so badge traffic is attributable", async () => {
+    getCookieMock.mockReturnValue(undefined);
+
+    const app = new Hono();
+    app.get("/", async (c) => {
+      await maybeRecordCreatorView(c, creator, "web");
+      return c.text("ok");
+    });
+    await app.request("/?ref=badge");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(recordCreatorViewMock).toHaveBeenCalledWith(
+      expect.objectContaining({ ref: "badge" }),
+    );
+  });
+
+  it("drops a malformed ?ref= rather than storing it", async () => {
+    getCookieMock.mockReturnValue(undefined);
+
+    const app = new Hono();
+    app.get("/", async (c) => {
+      await maybeRecordCreatorView(c, creator, "web");
+      return c.text("ok");
+    });
+    await app.request("/?ref=not%20a%20tag");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(recordCreatorViewMock).toHaveBeenCalledWith(
+      expect.objectContaining({ ref: null }),
     );
   });
 

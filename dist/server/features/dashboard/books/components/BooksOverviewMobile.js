@@ -2,11 +2,11 @@ import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import PreviewButton from "../../../api/components/PreviewButton.js";
 import Button from "../../../../components/app/Button.js";
 import PublishToggleForm from "./PublishToggleForm.js";
-import DeleteBookForm from "./BookDeleteForm.js";
 import TableSearch from "../../../../components/app/TableSearch.js";
 import Link from "../../../../components/app/Link.js";
 import BookApprovalStatusPill from "../../admin/books/components/BookApprovalStatusPill.js";
-import { canEditBook } from "../../../../lib/permissions.js";
+import EditRowButton from "../../../app/components/EditRowButton.js";
+import DeleteRowButton from "../../../app/components/DeleteRowButton.js";
 import { InfiniteScroll } from "../../../../components/app/InfiniteScroll.js";
 const BooksOverviewMobile = ({
   books,
@@ -100,16 +100,15 @@ const BookCardMobile = ({ book, user, editBasePath }) => {
     ] }),
     /* @__PURE__ */ jsxs("div", { class: "flex flex-wrap justify-evenly items-center gap-2 border-t border-outline pt-3", children: [
       /* @__PURE__ */ jsx(PreviewButton, { book, user }),
-      /* @__PURE__ */ jsx("a", { href: `${editBasePath}/${book.id}`, children: /* @__PURE__ */ jsx(
-        Button,
+      /* @__PURE__ */ jsx(EditRowButton, { href: `${editBasePath}/${book.id}` }),
+      /* @__PURE__ */ jsx(
+        DeleteRowButton,
         {
-          variant: "outline",
-          color: "inverse",
-          disabled: !canEditBook(user, book),
-          children: /* @__PURE__ */ jsx("span", { children: "Edit" })
+          action: `${editBasePath}/${book.id}`,
+          confirm: "Are you sure?",
+          ...{ "@ajax.success": "$dispatch('books:updated')" }
         }
-      ) }),
-      /* @__PURE__ */ jsx(DeleteBookForm, { book, user, basePath: editBasePath })
+      )
     ] })
   ] }) });
 };

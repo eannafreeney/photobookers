@@ -3,11 +3,11 @@ import TableSearch from "../../../../components/app/TableSearch.js";
 import Button from "../../../../components/app/Button.js";
 import Link from "../../../../components/app/Link.js";
 import PublishToggleForm from "./PublishToggleForm.js";
-import DeleteBookForm from "./BookDeleteForm.js";
 import { getBookFunnelCounts } from "../../../book-analytics/funnel.js";
 import Card from "../../../../components/app/Card.js";
 import Table from "../../../../components/app/Table.js";
-import { canEditBook } from "../../../../lib/permissions.js";
+import EditRowButton from "../../../app/components/EditRowButton.js";
+import DeleteRowButton from "../../../app/components/DeleteRowButton.js";
 import { InfiniteScroll } from "../../../../components/app/InfiniteScroll.js";
 import BookApprovalStatusPill from "../../admin/books/components/BookApprovalStatusPill.js";
 import { dragHandleIcon } from "../../../../lib/icons.js";
@@ -148,16 +148,15 @@ const BookTableRow = ({
           }
         ) }),
         /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(PublishToggleForm, { book, user }) }),
-        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx("a", { href: `/dashboard/books/${book.id}`, children: /* @__PURE__ */ jsx(
-          Button,
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(EditRowButton, { href: `/dashboard/books/${book.id}` }) }),
+        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(
+          DeleteRowButton,
           {
-            variant: "outline",
-            color: "inverse",
-            disabled: !canEditBook(user, book),
-            children: /* @__PURE__ */ jsx("span", { children: "Edit" })
+            action: `/dashboard/books/${book.id}`,
+            confirm: "Are you sure?",
+            ...{ "@ajax.success": "$dispatch('books:updated')" }
           }
-        ) }) }),
-        /* @__PURE__ */ jsx(Table.BodyRow, { children: /* @__PURE__ */ jsx(DeleteBookForm, { book, user }) })
+        ) })
       ]
     }
   );

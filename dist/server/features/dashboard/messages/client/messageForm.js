@@ -11,14 +11,19 @@ import {
 const MESSAGE_FORM_FIELDS = Object.keys(createMessageFormSchema.shape);
 function registerMessageForm() {
   Alpine.data("messageForm", (config = {}) => {
-    const { previewUrl: initialPreviewUrl, ...formValues } = config;
+    const {
+      previewUrl: initialPreviewUrl,
+      isEdit = false,
+      ...formValues
+    } = config;
     return {
       isSubmitting: false,
       isDragOver: false,
+      isEdit,
       previewUrl: initialPreviewUrl ?? null,
       ...createFormState(MESSAGE_FORM_FIELDS, formValues),
       init() {
-        initFormValues(this, MESSAGE_FORM_FIELDS, false);
+        initFormValues(this, MESSAGE_FORM_FIELDS, isEdit);
       },
       get isDirty() {
         return getIsDirty(this, MESSAGE_FORM_FIELDS);
@@ -34,6 +39,13 @@ function registerMessageForm() {
         return handleSubmit(this, event, createMessageFormSchema);
       },
       onSuccess() {
+        const ctx = this;
+        if (!isEdit) {
+          ctx.form.body = "";
+          if (ctx.previewUrl) URL.revokeObjectURL(ctx.previewUrl);
+          ctx.previewUrl = null;
+          if (ctx.$refs?.fileInput) ctx.$refs.fileInput.value = "";
+        }
         resetFormBaseline(this, MESSAGE_FORM_FIELDS);
       },
       onDragEnter(e) {

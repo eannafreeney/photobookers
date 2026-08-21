@@ -4,6 +4,10 @@ const SITE_SOCIAL = {
     label: "Follow Photobookers on Instagram"
   }
 };
+const SITE_SKOOL = {
+  href: "https://www.skool.com/publish-your-photobook-6781/about",
+  label: "Publish Your Photobook on Skool"
+};
 const SITE_APP = {
   ios: {
     href: "https://apps.apple.com/us/app/photobookers/id6771879476",
@@ -18,5 +22,6 @@ const SITE_APP = {
 };
 export {
   SITE_APP,
+  SITE_SKOOL,
   SITE_SOCIAL
 };

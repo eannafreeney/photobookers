@@ -7,7 +7,6 @@ import ProfileGuide from "../../../features/dashboard/guide/components/ProfileGu
 import CollectorGuide from "../../../features/collectors/components/CollectorGuide.js";
 import { getPendingClaim } from "../../../features/claims/services.js";
 import { getFlash, getUser } from "../../../utils.js";
-import { isFeatureEnabledForUser } from "../../../lib/features.js";
 import InfoPage from "../../../pages/InfoPage.js";
 import PageHeader from "../../../components/app/PageHeader.js";
 const GET = createRoute(async (c) => {
@@ -15,9 +14,6 @@ const GET = createRoute(async (c) => {
   const flash = await getFlash(c);
   const currentPath = c.req.path;
   if (!user.creator) {
-    if (!isFeatureEnabledForUser("collectors", user)) {
-      return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Creator not found", user }));
-    }
     return c.html(
       /* @__PURE__ */ jsx(AppLayout, { title: "Collector guide", user, flash, currentPath, children: /* @__PURE__ */ jsxs(CollectorDashboardShell, { currentPath, children: [
         /* @__PURE__ */ jsx(
@@ -59,7 +55,7 @@ const GET = createRoute(async (c) => {
                 }
               ),
               /* @__PURE__ */ jsx(ProfileGuide, { creator }),
-              isFeatureEnabledForUser("collectors", user) ? /* @__PURE__ */ jsxs("div", { class: "mt-12 flex flex-col gap-4 border-t border-outline pt-8", children: [
+              /* @__PURE__ */ jsxs("div", { class: "mt-12 flex flex-col gap-4 border-t border-outline pt-8", children: [
                 /* @__PURE__ */ jsx(
                   PageHeader,
                   {
@@ -68,7 +64,7 @@ const GET = createRoute(async (c) => {
                   }
                 ),
                 /* @__PURE__ */ jsx(CollectorGuide, {})
-              ] }) : null
+              ] })
             ]
           }
         )

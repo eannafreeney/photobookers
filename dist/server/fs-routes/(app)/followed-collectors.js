@@ -5,15 +5,11 @@ import AppLayout from "../../components/layouts/AppLayout.js";
 import Page from "../../components/layouts/Page.js";
 import PageHeader from "../../components/app/PageHeader.js";
 import InfoPage from "../../pages/InfoPage.js";
-import { isFeatureEnabledForUser } from "../../lib/features.js";
-import {
-  getFollowedCollectors
-} from "../../domain/collectors/services.js";
-import { getInitialsAvatar } from "../../lib/avatar.js";
-const collectorName = (c) => [c.firstName, c.lastName].filter(Boolean).join(" ").trim() || "Collector";
+import { getFollowedCollectors } from "../../domain/collectors/services.js";
+import CollectorCircle from "../../features/app/components/CollectorCircle.js";
 const GET = createRoute(async (c) => {
   const user = await getUser(c);
-  if (!isFeatureEnabledForUser("collectors", user)) {
+  if (!user?.id) {
     return c.html(/* @__PURE__ */ jsx(InfoPage, { errorMessage: "Not found", user }), 404);
   }
   const [err, collectors] = await getFollowedCollectors(user.id);
@@ -29,37 +25,12 @@ const GET = createRoute(async (c) => {
         /* @__PURE__ */ jsx(
           "a",
           {
-            href: "/collectors",
+            href: "/creators?type=collector",
             class: "text-accent underline underline-offset-2",
             children: "Discover collectors"
           }
         )
-      ] }) : /* @__PURE__ */ jsx("ul", { class: "grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5", children: results.map((collector) => {
-        const name = collectorName(collector);
-        const avatarUrl = collector.profileImageUrl ?? getInitialsAvatar(
-          collector.firstName ?? "",
-          collector.lastName ?? ""
-        );
-        return /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs(
-          "a",
-          {
-            href: `/shelf/${collector.shelfSlug}`,
-            class: "flex flex-col items-center gap-2 rounded-radius border border-outline bg-surface p-4 text-center transition-colors hover:border-outline-strong",
-            children: [
-              /* @__PURE__ */ jsx(
-                "img",
-                {
-                  src: avatarUrl,
-                  alt: name,
-                  class: "size-16 rounded-full object-cover",
-                  loading: "lazy"
-                }
-              ),
-              /* @__PURE__ */ jsx("span", { class: "truncate text-sm font-medium text-on-surface-strong", children: name })
-            ]
-          }
-        ) });
-      }) })
+      ] }) : /* @__PURE__ */ jsx("ul", { class: "grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5", children: results.map((collector) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(CollectorCircle, { collector }) })) })
     ] }) })
   );
 });

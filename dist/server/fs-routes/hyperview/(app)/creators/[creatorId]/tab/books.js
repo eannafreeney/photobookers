@@ -25,6 +25,9 @@ import { maybeRecordCreatorView } from "../../../../../../features/creator-views
 import CreatorBanner, {
   creatorBannerStyles
 } from "../../../../../../features/hyperview/components/CreatorBanner.js";
+import StubProfileBanner, {
+  stubProfileBannerStyles
+} from "../../../../../../features/hyperview/components/StubProfileBanner.js";
 import ErrorScreen from "../../../../../../features/hyperview/components/ErrorScreen.js";
 import { publishersListStyles } from "./publishers.js";
 import { artistsListStyles } from "./artists.js";
@@ -78,6 +81,14 @@ const GET = createRoute(paramValidator(creatorIdSchema), async (c) => {
               creator,
               baseUrl,
               isFollowing: followingByCreatorId[creator.id] ?? false
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            StubProfileBanner,
+            {
+              displayName: creator.displayName,
+              claimHref,
+              show: showClaimButton
             }
           ),
           /* @__PURE__ */ jsx(
@@ -243,6 +254,7 @@ const pageStyles = () => /* @__PURE__ */ jsxs(Fragment, { children: [
   publishersListStyles(),
   artistsListStyles(),
   creatorBannerStyles(),
+  stubProfileBannerStyles(),
   messageListStyles(),
   creatorPostsListStyles()
 ] });

@@ -13,13 +13,12 @@ import { bookUrl } from "../../spotlightUrls.js";
 import SpotlightCreator from "../SpotlightCreator.js";
 import Card from "../../../../components/app/Card.js";
 import { shouldTrackOutboundPurchase } from "./BookDetail.js";
-import { isFeatureEnabledForUser } from "../../../../lib/features.js";
 const scrollPanelClass = "h-full overflow-y-auto pr-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 const BookDetailDesktop = ({ galleryImages, book, user }) => {
   const hasArtist = !!book.artist;
   const hasPublisher = !!book.publisher;
   const creditCols = hasArtist && hasPublisher ? "grid-cols-2" : "grid-cols-1";
-  const showPress = isFeatureEnabledForUser("bookPressLinks", user) && (book.pressLinks?.length ?? 0) > 0;
+  const showPress = (book.pressLinks?.length ?? 0) > 0;
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-8", children: [
     /* @__PURE__ */ jsxs("div", { class: "flex gap-8 h-[calc(100vh-8rem)]", children: [
       /* @__PURE__ */ jsx("div", { class: `w-1/2 ${scrollPanelClass}`, children: /* @__PURE__ */ jsx("div", { class: "flex flex-col", children: galleryImages.map((image, index) => /* @__PURE__ */ jsx(
@@ -74,12 +73,10 @@ const BookDetailDesktop = ({ galleryImages, book, user }) => {
               bookSlug: book.slug,
               purchaseLink: book.purchaseLink,
               availabilityStatus: book.availabilityStatus,
-              artistName: book.artist?.displayName,
-              publisherName: book.publisher?.displayName,
               trackOutbound: shouldTrackOutboundPurchase(book)
             }
           ),
-          /* @__PURE__ */ jsx(BookCredits, { releaseDate: book.releaseDate }),
+          /* @__PURE__ */ jsx(BookCredits, { releaseDate: book.releaseDate, submittedByUser: book.submittedByUser }),
           /* @__PURE__ */ jsx(TagList, { tags: book.tags ?? [] }),
           showPress ? /* @__PURE__ */ jsx(BookPressSection, { links: book.pressLinks }) : null,
           /* @__PURE__ */ jsx(

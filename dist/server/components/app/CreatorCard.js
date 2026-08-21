@@ -3,12 +3,12 @@ import Card from "./Card.js";
 import ClaimCreatorBtn from "../../features/claims/components/ClaimCreatorBtn.js";
 import FollowButton from "../../features/api/components/FollowButton.js";
 import SocialLinks from "./SocialLinks.js";
-import VerifiedCreator from "./VerifiedCreator.js";
+import VerificationBadge from "./VerificationBadge.js";
 import { findFollowersCount } from "../../db/queries.js";
 import Show from "./Show.js";
 import { formatCountry } from "../../lib/utils.js";
 import { formatDate } from "../../utils.js";
-import CardCreatorCard from "./CardCreatorCard.js";
+import CardAuthorCard from "./CardAuthorCard.js";
 import FollowersCount from "./FollowersCount.js";
 const CreatorCard = async ({
   creator,
@@ -17,7 +17,7 @@ const CreatorCard = async ({
   user,
   featureDate,
   showFollowAndClaimButtons = true,
-  shouldRefreshCreatorMessages = false,
+  shouldRefreshCreatorPosts = false,
   showHeader = true
 }) => {
   if (!creator) return /* @__PURE__ */ jsx(Fragment, {});
@@ -27,7 +27,7 @@ const CreatorCard = async ({
     /* @__PURE__ */ jsxs(Card, { children: [
       showHeader && /* @__PURE__ */ jsxs("div", { class: "px-3 py-2 flex items-center justify-between h-10", children: [
         /* @__PURE__ */ jsx(
-          CardCreatorCard,
+          CardAuthorCard,
           {
             creator: creator ?? null,
             maxDisplayNameLength: 30
@@ -56,7 +56,7 @@ const CreatorCard = async ({
                 creator.displayName,
                 " ",
                 /* @__PURE__ */ jsx(
-                  VerifiedCreator,
+                  VerificationBadge,
                   {
                     creatorStatus: creator.status ?? "stub",
                     size: "xs"
@@ -78,7 +78,7 @@ const CreatorCard = async ({
             {
               creator,
               user,
-              shouldRefreshCreatorMessages
+              shouldRefreshCreatorPosts
             }
           ),
           creator.status === "stub" && /* @__PURE__ */ jsx(

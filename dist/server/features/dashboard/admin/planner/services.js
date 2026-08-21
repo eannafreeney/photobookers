@@ -16,13 +16,28 @@ import {
   publisherOfTheWeek
 } from "../../../../db/schema.js";
 import { db } from "../../../../db/client.js";
-import { and, asc, desc, eq, gte, inArray, lte, notInArray, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNotNull,
+  lte,
+  notInArray,
+  sql
+} from "drizzle-orm";
 import {
   BOOK_CARD_COLUMNS,
   CREATOR_CARD_COLUMNS
 } from "../../../../constants/queries.js";
 import { err, ok } from "../../../../lib/result.js";
 import { rewriteSpotlightBlurb } from "../../../../lib/openai.js";
+const SPOTLIGHT_CREATOR_COLUMNS = {
+  ...CREATOR_CARD_COLUMNS,
+  bio: true
+};
 async function generateAndSaveBotdBlurb(date, bookId) {
   try {
     const book = await db.query.books.findFirst({
@@ -234,7 +249,7 @@ async function getArtistOfTheWeekForDateQuery(date) {
       where: eq(artistOfTheWeek.weekStart, weekStart),
       with: {
         creator: {
-          columns: CREATOR_CARD_COLUMNS
+          columns: SPOTLIGHT_CREATOR_COLUMNS
         }
       }
     });
@@ -256,7 +271,7 @@ async function getArtistsOfTheWeekByWeekStart(year) {
         gte(artistOfTheWeek.weekStart, toWeekStart(first)),
         lte(artistOfTheWeek.weekStart, toWeekStart(last))
       ),
-      with: { creator: { columns: CREATOR_CARD_COLUMNS } }
+      with: { creator: { columns: SPOTLIGHT_CREATOR_COLUMNS } }
     });
     const byWeek = /* @__PURE__ */ new Map();
     for (const w of weekStarts) {
@@ -326,7 +341,7 @@ async function getPublisherOfTheWeekForDateQuery(date) {
     const publisher = await db.query.publisherOfTheWeek.findFirst({
       where: eq(publisherOfTheWeek.weekStart, weekStart),
       with: {
-        creator: { columns: CREATOR_CARD_COLUMNS }
+        creator: { columns: SPOTLIGHT_CREATOR_COLUMNS }
       }
     });
     if (!publisher) return err({ reason: "Publisher of the week not found" });
@@ -347,7 +362,7 @@ async function getPublishersOfTheWeekByWeekStart(year) {
         gte(publisherOfTheWeek.weekStart, toWeekStart(first)),
         lte(publisherOfTheWeek.weekStart, toWeekStart(last))
       ),
-      with: { creator: { columns: CREATOR_CARD_COLUMNS } }
+      with: { creator: { columns: SPOTLIGHT_CREATOR_COLUMNS } }
     });
     const byWeek = /* @__PURE__ */ new Map();
     for (const w of weekStarts) {
@@ -421,8 +436,8 @@ function shuffle(items) {
   return copy;
 }
 async function pickCreatorForSpotlightWeek(type) {
-  const creators2 = await getCreatorsByTypeForPlanner(type);
-  if (creators2.length === 0) return null;
+  const [error, creators2] = await getCreatorsByTypeForPlanner(type);
+  if (error || creators2.length === 0) return null;
   const verified = creators2.filter((creator) => creator.status === "verified");
   const pool = verified.length > 0 ? verified : creators2;
   return shuffle(pool)[0] ?? null;
@@ -452,7 +467,9 @@ async function autoSetPublisherOfTheWeek(weekStart) {
   if (existing) return ok({ created: false, row: existing });
   const creator = await pickCreatorForSpotlightWeek("publisher");
   if (!creator) {
-    return err({ reason: "No eligible publisher found for Publisher of the Week" });
+    return err({
+      reason: "No eligible publisher found for Publisher of the Week"
+    });
   }
   const [pubError, row] = await setPublisherOfTheWeek({
     weekStart: normalized,
@@ -552,21 +569,35 @@ async function randomizeBooksOfTheDayForWeek(weekStart) {
   }
 }
 async function getCreatorsByTypeForPlanner(type) {
-  const usedCreatorIds = type === "artist" ? db.select({ creatorId: artistOfTheWeek.creatorId }).from(artistOfTheWeek) : db.select({ creatorId: publisherOfTheWeek.creatorId }).from(publisherOfTheWeek);
-  return db.query.creators.findMany({
-    columns: {
-      id: true,
-      displayName: true,
-      coverUrl: true,
-      slug: true,
-      status: true
-    },
-    where: and(
-      eq(creators.type, type),
-      notInArray(creators.id, usedCreatorIds)
-    ),
-    orderBy: (c) => [desc(sql`(${c.status} = 'verified')`), asc(c.displayName)]
-  });
+  try {
+    const usedCreatorIds = type === "artist" ? db.select({ creatorId: artistOfTheWeek.creatorId }).from(artistOfTheWeek) : db.select({ creatorId: publisherOfTheWeek.creatorId }).from(publisherOfTheWeek);
+    const bookCreatorId = type === "artist" ? books.artistId : books.publisherId;
+    const creatorIdsWithPublishedBooks = db.selectDistinct({ creatorId: bookCreatorId }).from(books).where(
+      and(isNotNull(bookCreatorId), eq(books.publicationStatus, "published"))
+    );
+    const rows = await db.query.creators.findMany({
+      columns: {
+        id: true,
+        displayName: true,
+        coverUrl: true,
+        slug: true,
+        status: true
+      },
+      where: and(
+        eq(creators.type, type),
+        notInArray(creators.id, usedCreatorIds),
+        inArray(creators.id, creatorIdsWithPublishedBooks)
+      ),
+      orderBy: (c) => [
+        desc(sql`(${c.status} = 'verified')`),
+        asc(c.displayName)
+      ]
+    });
+    return ok(rows);
+  } catch (e) {
+    console.error("getCreatorsByTypeForPlanner", e);
+    return [];
+  }
 }
 export {
   autoSetArtistOfTheWeek,

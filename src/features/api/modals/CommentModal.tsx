@@ -43,7 +43,7 @@ const CommentModal = ({
         class="flex flex-col gap-4"
         {...alpineAttrs}
       >
-        <TextArea name="body" minRows={5} required />
+        <TextArea name="body" minRows={5} maxLength={1000} required />
         <input
           type="hidden"
           name="_method"

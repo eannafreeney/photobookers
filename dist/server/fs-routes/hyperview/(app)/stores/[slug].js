@@ -7,7 +7,6 @@ import { hyperview } from "../../../../lib/hxml.js";
 import { Style, View } from "../../../../lib/hxml-comps.js";
 import { getBaseUrl } from "../../../../lib/hyperview.js";
 import { getUser } from "../../../../utils.js";
-import { isFeatureEnabledForUser } from "../../../../lib/features.js";
 import { getStoreBySlug } from "../../../../features/app/stores/services.js";
 import StoreDetailBody, {
   storeDetailBodyStyles
@@ -21,12 +20,6 @@ const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
   const hv = hyperview(c);
-  if (!isFeatureEnabledForUser("stores", user)) {
-    return hv(
-      /* @__PURE__ */ jsx(ErrorScreen, { user, baseUrl, message: "Not found" }),
-      404
-    );
-  }
   const [error, store] = await getStoreBySlug(slug);
   if (error) {
     return hv(

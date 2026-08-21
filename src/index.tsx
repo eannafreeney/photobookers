@@ -60,6 +60,12 @@ if (process.env.NODE_ENV === "production") {
     "/icons/*",
     cachedStatic({ root: "./dist/client", cacheControl: IMMUTABLE_CACHE }),
   );
+  // Profile badges are hot-linked from creators' own sites, so they must stay
+  // reachable at a stable path and be cached hard by the browsers loading them.
+  app.use(
+    "/badge/*",
+    cachedStatic({ root: "./dist/client", cacheControl: IMMUTABLE_CACHE }),
+  );
 }
 
 // Mount your routes

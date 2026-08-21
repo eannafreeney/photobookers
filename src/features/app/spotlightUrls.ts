@@ -2,7 +2,7 @@ import { toDateString, toWeekString } from "../../lib/utils";
 
 // app
 
-function appBaseUrl(): string {
+export function appBaseUrl(): string {
   if (typeof process !== "undefined" && process.env.PUBLIC_APP_URL) {
     return process.env.PUBLIC_APP_URL;
   }

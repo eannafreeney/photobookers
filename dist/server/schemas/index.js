@@ -20,6 +20,9 @@ const checkboxField = z.preprocess(
   (v) => v === true || v === "on" || v === "true" || v === "1",
   z.boolean()
 );
+function parseCheckboxField(value) {
+  return value === true || value === "on" || value === "true" || value === "1";
+}
 const uuidField = z.string().uuid("Invalid UUID format").transform((val) => val.toLowerCase());
 const methodField = z.preprocess(
   (v) => v === "" ? void 0 : v,
@@ -69,6 +72,7 @@ export {
   numberField,
   optionalDateString,
   optionalText,
+  parseCheckboxField,
   redirectUrlSchema,
   requiredText,
   userIdSchema,

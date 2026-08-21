@@ -128,8 +128,16 @@ function getEmailSendStatus(params) {
   if (scheduled.getTime() === today.getTime()) return "today";
   return "pending";
 }
+function creatorBlurbSourceText(creator) {
+  return creator.bio?.trim() || creator.tagline?.trim() || null;
+}
+function spotlightBlurbStatus(params) {
+  if (params.blurb?.trim()) return "ready";
+  return params.sourceText?.trim() ? "missing" : "no-source";
+}
 export {
   addUtcDays,
+  creatorBlurbSourceText,
   formatBotdDateLong,
   formatDayLabel,
   formatDayWeekday,
@@ -147,5 +155,6 @@ export {
   getWeekNumber,
   getWeekStarts,
   isDayInPast,
-  isWeekInPast
+  isWeekInPast,
+  spotlightBlurbStatus
 };

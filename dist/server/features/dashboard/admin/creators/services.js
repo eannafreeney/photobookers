@@ -21,7 +21,7 @@ import {
   follows,
   users
 } from "../../../../db/schema.js";
-import { getRandomCoverUrl, slugify } from "../../../../utils.js";
+import { generateUniqueCreatorSlug, getRandomCoverUrl } from "../../../../utils.js";
 import { getCreatorById } from "../../creators/services.js";
 import { getPagination } from "../../../../lib/pagination.js";
 import { err, ok } from "../../../../lib/result.js";
@@ -114,7 +114,7 @@ const getCreatorByIdAdmin = async (creatorId) => {
 const createStubCreatorProfileAdmin = async (displayName, userId, type, website, email) => {
   const [creatorError, newCreator] = await createCreatorProfileAdmin({
     displayName: displayName.trim(),
-    slug: slugify(displayName),
+    slug: await generateUniqueCreatorSlug(displayName, type),
     coverUrl: getRandomCoverUrl(),
     ownerUserId: null,
     type,
@@ -172,7 +172,7 @@ const createStubCreatorProfile = async (displayName, userId, type) => {
   }
   const [creatorError, newCreator] = await createCreatorProfileAdmin({
     displayName: trimmed,
-    slug: slugify(trimmed),
+    slug: await generateUniqueCreatorSlug(trimmed, type),
     coverUrl: getRandomCoverUrl(),
     ownerUserId: null,
     type,

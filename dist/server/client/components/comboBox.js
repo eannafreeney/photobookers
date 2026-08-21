@@ -71,11 +71,6 @@ function registerComboBox() {
           this.selectedOption = null;
           inputRef(this.$refs.hiddenTextField).value = "";
         },
-        highlightAddNew() {
-          this.$nextTick(() => {
-            this.$refs.addNewOption?.focus();
-          });
-        },
         setSelectedOption(option) {
           this.selectedOption = option;
           this.isOpen = false;
@@ -104,9 +99,6 @@ function registerComboBox() {
           this.options = this.allOptions.filter(
             (option) => option.label.toLowerCase().includes(query.toLowerCase())
           );
-          if (this.options.length === 0 && this.searchQuery) {
-            this.highlightAddNew();
-          }
         },
         handleKeydownOnOptions(event) {
           if (event.keyCode >= 65 && event.keyCode <= 90 || event.keyCode >= 48 && event.keyCode <= 57 || event.keyCode === 8 || event.keyCode === 32) {

@@ -1,22 +1,20 @@
-import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
+import { jsx, jsxs } from "hono/jsx/jsx-runtime";
 import clsx from "clsx";
 import {
   analyticsIcon,
   bookIcon,
   booksIcon,
-  fullHeartIcon,
   lightbulbIcon,
   libraryIcon,
   mailIcon,
-  usersIcon
+  usersIcon,
+  emptyHeartIcon
 } from "../../../../lib/icons.js";
-import { isFeatureEnabled } from "../../../../lib/features.js";
 const NavTabs = ({
   currentPath,
   creatorId,
   showProfile = false
 }) => {
-  const showCollectorTabs = isFeatureEnabled("collectors");
   return /* @__PURE__ */ jsxs(
     "nav",
     {
@@ -31,24 +29,22 @@ const NavTabs = ({
           analyticsIcon,
           "Analytics"
         ] }),
+        /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/shelf", currentPath, children: [
+          bookIcon,
+          "Shelf"
+        ] }),
         /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/posts", currentPath, children: [
           mailIcon(5),
           "Posts"
         ] }),
-        showCollectorTabs ? /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/shelf", currentPath, children: [
-            bookIcon,
-            "Shelf"
-          ] }),
-          /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/favorites", currentPath, children: [
-            fullHeartIcon(5),
-            "Favorites"
-          ] }),
-          /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/lists", currentPath, children: [
-            libraryIcon(5),
-            "Lists"
-          ] })
-        ] }) : null,
+        /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/favorites", currentPath, children: [
+          emptyHeartIcon(5),
+          "Favorites"
+        ] }),
+        /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/lists", currentPath, children: [
+          libraryIcon(5),
+          "Lists"
+        ] }),
         showProfile ? /* @__PURE__ */ jsxs(
           NavLink,
           {
@@ -60,6 +56,10 @@ const NavTabs = ({
             ]
           }
         ) : null,
+        /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/leaderboard", currentPath, children: [
+          analyticsIcon,
+          "Leaderboard"
+        ] }),
         /* @__PURE__ */ jsxs(NavLink, { href: "/dashboard/guide", currentPath, children: [
           lightbulbIcon(5),
           "Guide"
@@ -68,14 +68,19 @@ const NavTabs = ({
     }
   );
 };
-const NavLink = ({ href, children, currentPath, exact = false }) => {
+const NavLink = ({
+  href,
+  children,
+  currentPath,
+  exact = false
+}) => {
   const isActive = exact ? currentPath === href : Boolean(currentPath?.startsWith(href));
   return /* @__PURE__ */ jsx("li", { class: "list-none", children: /* @__PURE__ */ jsx(
     "a",
     {
       href,
       ...isActive ? { "aria-current": "page", "x-on:click.prevent": "" } : {
-        "x-target": "creator-dashboard-panel nav-tabs"
+        "x-target.push": "creator-dashboard-panel nav-tabs"
       },
       prefetch: "intent",
       class: clsx(

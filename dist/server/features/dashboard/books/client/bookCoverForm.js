@@ -73,6 +73,7 @@ function registerBookCoverForm() {
         onSuccess() {
           this.isSubmitting = false;
           this.initialUrl = this.previewUrl;
+          this.$dispatch("cover:updated");
         },
         onError() {
           this.isSubmitting = false;

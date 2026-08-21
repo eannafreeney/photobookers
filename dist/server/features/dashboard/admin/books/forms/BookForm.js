@@ -10,8 +10,7 @@ import { getAllCreatorOptions } from "../../creators/services.js";
 import BookPressLinksSection from "../../../books/components/BookPressLinksSection.js";
 const BookFormAdmin = async ({
   formValues,
-  bookId,
-  showPressLinks = false
+  bookId
 }) => {
   const artistOptions = await getAllCreatorOptions("artist");
   const publisherOptions = await getAllCreatorOptions("publisher");
@@ -119,7 +118,7 @@ const BookFormAdmin = async ({
               ]
             }
           ),
-          showPressLinks ? /* @__PURE__ */ jsx(BookPressLinksSection, {}) : null,
+          /* @__PURE__ */ jsx(BookPressLinksSection, {}),
           /* @__PURE__ */ jsx(FormButtons, {})
         ] })
       }

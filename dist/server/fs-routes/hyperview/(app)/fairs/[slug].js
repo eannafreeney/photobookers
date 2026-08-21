@@ -7,7 +7,6 @@ import { hyperview } from "../../../../lib/hxml.js";
 import { View } from "../../../../lib/hxml-comps.js";
 import { getBaseUrl } from "../../../../lib/hyperview.js";
 import { getUser } from "../../../../utils.js";
-import { isFeatureEnabledForUser } from "../../../../lib/features.js";
 import { getFairBySlug } from "../../../../features/app/fairs/services.js";
 import { isCreatorAttendingFair } from "../../../../features/fair-attendees/services.js";
 import { recordFairView } from "../../../../features/fair-views/services.js";
@@ -24,12 +23,6 @@ const GET = createRoute(paramValidator(slugSchema), async (c) => {
   const baseUrl = getBaseUrl(c);
   const user = await getUser(c);
   const hv = hyperview(c);
-  if (!isFeatureEnabledForUser("fairs", user)) {
-    return hv(
-      /* @__PURE__ */ jsx(ErrorScreen, { user, baseUrl, message: "Not found" }),
-      404
-    );
-  }
   const [error, fair] = await getFairBySlug(slug);
   if (error) {
     return hv(

@@ -9,9 +9,11 @@ import ClaimCreatorBtn from "../../../claims/components/ClaimCreatorBtn.js";
 import CreatorDetailTabs from "./CreatorDetailTab.js";
 import CreatorAvatar from "./CreatorAvatar.js";
 import CreatorBioSection from "./CreatorBioSection.js";
+import StubProfileBanner from "./StubProfileBanner.js";
 const CreatorDetailDesktop = (props) => {
   const { creator, user, isOwner, postCount, currentPath } = props;
   return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
+    /* @__PURE__ */ jsx(StubProfileBanner, { creator, isOwner }),
     /* @__PURE__ */ jsx(
       CreatorPageBanner,
       {
@@ -31,7 +33,7 @@ const CreatorDetailDesktop = (props) => {
             {
               creator,
               user,
-              shouldRefreshCreatorMessages: true
+              shouldRefreshCreatorPosts: true
             }
           ),
           /* @__PURE__ */ jsx(

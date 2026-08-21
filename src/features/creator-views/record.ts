@@ -3,6 +3,10 @@ import { getCookie, setCookie } from "hono/cookie";
 import { getSharedCookieOptions } from "../../lib/authCookies";
 import { getUser } from "../../utils";
 import type { CreatorViewSource } from "../../db/schema";
+import {
+  CREATOR_REFERRAL_PARAM,
+  parseCreatorReferral,
+} from "../../lib/embedBadge";
 import { recordCreatorView } from "./services";
 
 export function creatorViewCookieName(creatorSlug: string) {
@@ -19,12 +23,14 @@ export async function maybeRecordCreatorView(
 
   const user = await getUser(c);
   const referer = c.req.header("referer");
+  const ref = parseCreatorReferral(c.req.query(CREATOR_REFERRAL_PARAM));
 
   void recordCreatorView({
     creatorId: creator.id,
     userId: user?.id ?? null,
     source,
     referer,
+    ref,
   }).catch((error) => {
     console.error("Failed to record creator view", error);
   });

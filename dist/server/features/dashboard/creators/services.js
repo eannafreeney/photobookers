@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../../db/client.js";
 import { creators } from "../../../db/schema.js";
-import { getRandomCoverUrl, slugify } from "../../../utils.js";
+import { generateUniqueCreatorSlug, getRandomCoverUrl } from "../../../utils.js";
 import { err, ok } from "../../../lib/result.js";
 const createStubCreatorProfile = async (session) => {
   const { user } = session;
@@ -19,7 +19,7 @@ const createStubCreatorProfile = async (session) => {
   if (existingCreator) return ok(existingCreator);
   const [newCreatorError, newCreator] = await createCreatorProfile({
     displayName: displayName.trim(),
-    slug: slugify(displayName),
+    slug: await generateUniqueCreatorSlug(displayName, type),
     coverUrl: getRandomCoverUrl(),
     ownerUserId: id,
     type,
@@ -80,7 +80,8 @@ const getCreatorEmailById = async (creatorId) => {
         displayName: true,
         type: true,
         ownerUserId: true,
-        slug: true
+        slug: true,
+        status: true
       }
     });
     if (!creator) return err({ reason: "Creator not found" });

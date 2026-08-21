@@ -6,6 +6,7 @@ import {
   eq,
   exists,
   inArray,
+  isNotNull,
   isNull,
   lte,
   or,
@@ -37,6 +38,8 @@ export type RecordCreatorViewInput = {
   userId?: string | null;
   source?: CreatorViewSource;
   referer?: string | null;
+  /** `?ref=` campaign tag, already normalised by parseCreatorReferral. */
+  ref?: string | null;
 };
 
 export const recordCreatorView = async ({
@@ -44,6 +47,7 @@ export const recordCreatorView = async ({
   userId,
   source = "web",
   referer,
+  ref,
 }: RecordCreatorViewInput) => {
   try {
     const trimmedReferer = referer?.trim().slice(0, MAX_REFERER_LENGTH) ?? null;
@@ -52,6 +56,7 @@ export const recordCreatorView = async ({
       userId: userId ?? null,
       source,
       referer: trimmedReferer,
+      ref: ref ?? null,
     });
     return ok(undefined);
   } catch (error) {
@@ -81,6 +86,33 @@ export const getCreatorProfileViewTotal = async (creatorId: string) => {
     .where(eq(creatorViews.creatorId, creatorId));
 
   return result[0]?.value ?? 0;
+};
+
+/**
+ * Profile views broken down by `?ref=` tag, so a creator can see what their
+ * embedded badge is actually returning. Untagged (organic) views are excluded.
+ */
+export const getCreatorReferralCounts = async (
+  creatorId: string,
+  range?: AnalyticsDateRange | null,
+): Promise<{ ref: string; viewCount: number }[]> => {
+  const dateFilter = buildCreatedAtFilter(creatorViews.createdAt, range);
+  const rows = await db
+    .select({ ref: creatorViews.ref, viewCount: count() })
+    .from(creatorViews)
+    .where(
+      and(
+        eq(creatorViews.creatorId, creatorId),
+        isNotNull(creatorViews.ref),
+        dateFilter,
+      ),
+    )
+    .groupBy(creatorViews.ref)
+    .orderBy(desc(count()));
+
+  return rows.flatMap((row) =>
+    row.ref ? [{ ref: row.ref, viewCount: row.viewCount }] : [],
+  );
 };
 
 export const getCreatorViewTotals = async (

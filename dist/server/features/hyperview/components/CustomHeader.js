@@ -37,7 +37,7 @@ const CustomHeader = ({
   ] }),
   /* @__PURE__ */ jsxs(View, { style: "header-actions", children: [
     showClaimButton && claimHref ? /* @__PURE__ */ jsxs(View, { style: "header-claim-btn", children: [
-      /* @__PURE__ */ jsx(Text, { style: "header-claim-label", children: "Is this you?" }),
+      /* @__PURE__ */ jsx(Text, { style: "header-claim-label", children: "Claim profile" }),
       /* @__PURE__ */ jsx(Behavior, { action: "deep-link", href: claimHref })
     ] }) : null,
     isSearch && baseUrl ? searchToggleTarget ? /* @__PURE__ */ jsx(

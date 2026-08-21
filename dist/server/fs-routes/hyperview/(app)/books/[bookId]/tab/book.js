@@ -72,8 +72,7 @@ const GET = createRoute(paramValidator(bookIdSchema), async (c) => {
               galleryImages,
               book,
               baseUrl,
-              isFavorited: favoritesByBookId[book.id] ?? false,
-              user
+              isFavorited: favoritesByBookId[book.id] ?? false
             }
           ) })
         ]

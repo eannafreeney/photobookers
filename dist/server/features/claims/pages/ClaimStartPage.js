@@ -7,8 +7,11 @@ import Checkbox from "../../../components/forms/Checkbox.js";
 import FormButton from "../../../components/forms/FormButtons.js";
 import Input from "../../../components/forms/Input.js";
 import ValidateEmail from "../../auth/components/ValidateEmail.js";
+import ClaimBenefitsPanel from "../components/ClaimBenefitsPanel.js";
+import ClaimStatsPreview from "../components/ClaimStatsPreview.js";
+import { getHostname } from "../../../services/verification.js";
 const claimStartPath = (creatorId) => `/claims/${creatorId}/start`;
-const ClaimStartPage = ({ creatorId, creator, user, flash }) => {
+const ClaimStartPage = ({ creatorId, creator, user, flash, stats }) => {
   const loginHref = `/auth/login?redirectUrl=${encodeURIComponent(claimStartPath(creatorId))}`;
   return /* @__PURE__ */ jsx(
     AppLayout,
@@ -17,21 +20,25 @@ const ClaimStartPage = ({ creatorId, creator, user, flash }) => {
       user,
       currentPath: claimStartPath(creatorId),
       flash: flash ?? void 0,
-      children: /* @__PURE__ */ jsx(Page, { children: user ? /* @__PURE__ */ jsx(
-        LoggedInClaimForm,
-        {
-          creatorId,
-          user,
-          creatorWebsite: creator.website ?? ""
-        }
-      ) : /* @__PURE__ */ jsx(
-        LoggedOutSignupForm,
-        {
-          creatorId,
-          creatorWebsite: creator.website ?? null,
-          loginHref
-        }
-      ) })
+      children: /* @__PURE__ */ jsx(Page, { children: /* @__PURE__ */ jsxs("div", { class: "mx-auto flex max-w-2xl flex-col gap-6", children: [
+        /* @__PURE__ */ jsx(ClaimBenefitsPanel, { displayName: creator.displayName }),
+        /* @__PURE__ */ jsx(ClaimStatsPreview, { stats }),
+        user ? /* @__PURE__ */ jsx(
+          LoggedInClaimForm,
+          {
+            creatorId,
+            user,
+            creatorWebsite: creator.website ?? ""
+          }
+        ) : /* @__PURE__ */ jsx(
+          LoggedOutSignupForm,
+          {
+            creatorId,
+            creatorWebsite: creator.website ?? null,
+            loginHref
+          }
+        )
+      ] }) })
     }
   );
 };
@@ -40,51 +47,57 @@ const LoggedInClaimForm = ({
   creatorId,
   user,
   creatorWebsite
-}) => /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
-  /* @__PURE__ */ jsx("h1", { class: "font-display text-3xl font-medium text-on-surface-strong", children: "Claim creator profile" }),
-  /* @__PURE__ */ jsxs(
-    "form",
-    {
-      method: "post",
-      action: claimStartPath(creatorId),
-      "x-data": `claimForm(${JSON.stringify({ creatorWebsite: creatorWebsite || null })})`,
-      "x-on:submit": "submitForm($event)",
-      children: [
-        /* @__PURE__ */ jsx("div", { class: "flex flex-col gap-3 mb-4", children: creatorWebsite ? /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsxs("p", { class: "text-sm text-gray-600", children: [
-            "This creator has ",
-            /* @__PURE__ */ jsx("strong", { children: creatorWebsite }),
-            " on file. If your account email (",
-            /* @__PURE__ */ jsx("strong", { children: user.email }),
-            ") is at the same domain, you'll be approved instantly. Otherwise, your claim will be reviewed by our team."
-          ] }),
-          /* @__PURE__ */ jsx(
-            "input",
-            {
-              type: "hidden",
-              name: "form.verificationUrl",
-              value: creatorWebsite
-            }
-          )
-        ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsx("p", { class: "text-sm text-gray-600", children: "This creator doesn't have a website on file. Please provide their website URL. Your claim will then be reviewed by our team." }),
-          /* @__PURE__ */ jsx(
-            Input,
-            {
-              label: "Creator's Website URL",
-              name: "form.verificationUrl",
-              type: "url",
-              placeholder: "https://yourwebsite.com",
-              required: true
-            }
-          )
-        ] }) }),
-        /* @__PURE__ */ jsx("input", { type: "hidden", name: "email", value: user.email }),
-        /* @__PURE__ */ jsx(Button, { variant: "solid", color: "primary", children: "Submit claim" })
-      ]
-    }
-  )
-] });
+}) => {
+  const websiteHost = creatorWebsite ? getHostname(creatorWebsite) : null;
+  return /* @__PURE__ */ jsxs("div", { class: "flex flex-col gap-4", children: [
+    /* @__PURE__ */ jsx("h1", { class: "font-display text-3xl font-medium text-on-surface-strong", children: "Claim creator profile" }),
+    /* @__PURE__ */ jsxs(
+      "form",
+      {
+        method: "post",
+        action: claimStartPath(creatorId),
+        "x-data": `claimForm(${JSON.stringify({ creatorWebsite: creatorWebsite || null })})`,
+        "x-on:submit": "submitForm($event)",
+        children: [
+          /* @__PURE__ */ jsx("div", { class: "flex flex-col gap-3 mb-4", children: creatorWebsite ? /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsxs("p", { class: "text-sm text-gray-600", children: [
+              "This creator has ",
+              /* @__PURE__ */ jsx("strong", { children: creatorWebsite }),
+              " on file. If your account email (",
+              /* @__PURE__ */ jsx("strong", { children: user.email }),
+              ") is at",
+              " ",
+              /* @__PURE__ */ jsx("strong", { children: websiteHost ?? "the same domain" }),
+              ", you'll be approved instantly. Otherwise, your claim will be reviewed by our team."
+            ] }),
+            /* @__PURE__ */ jsx(
+              "input",
+              {
+                type: "hidden",
+                name: "form.verificationUrl",
+                value: creatorWebsite
+              }
+            )
+          ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx("p", { class: "text-sm text-gray-600", children: "This creator doesn't have a website on file. Please provide their website URL. Your claim will then be reviewed by our team." }),
+            /* @__PURE__ */ jsx(
+              Input,
+              {
+                label: "Creator's Website URL",
+                name: "form.verificationUrl",
+                type: "url",
+                placeholder: "https://yourwebsite.com",
+                required: true
+              }
+            )
+          ] }) }),
+          /* @__PURE__ */ jsx("input", { type: "hidden", name: "email", value: user.email }),
+          /* @__PURE__ */ jsx(Button, { variant: "solid", color: "primary", children: "Submit claim" })
+        ]
+      }
+    )
+  ] });
+};
 const LoggedOutSignupForm = ({
   creatorId,
   creatorWebsite,

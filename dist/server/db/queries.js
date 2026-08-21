@@ -2,12 +2,12 @@ import { err, ok } from "../lib/result.js";
 import { db } from "./client.js";
 import {
   collectionItems,
-  collectorPosts,
   creators,
   follows,
+  posts,
   wishlists
 } from "./schema.js";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, inArray } from "drizzle-orm";
 const deleteFollow = async (creatorId, userId) => {
   await db.delete(follows).where(
     and(
@@ -30,6 +30,18 @@ const findFollow = async (creatorId, userId) => {
       eq(follows.followerUserId, userId)
     )
   });
+};
+const findFollowedCreatorIds = async (userId, creatorIds) => {
+  if (creatorIds.length === 0) return /* @__PURE__ */ new Set();
+  const rows = await db.select({ creatorId: follows.targetCreatorId }).from(follows).where(
+    and(
+      eq(follows.followerUserId, userId),
+      inArray(follows.targetCreatorId, creatorIds)
+    )
+  );
+  return new Set(
+    rows.map((row) => row.creatorId).filter((id) => Boolean(id))
+  );
 };
 const findFollowersCount = async (creatorId) => {
   const result = await db.select({ value: count() }).from(follows).where(eq(follows.targetCreatorId, creatorId));
@@ -78,7 +90,7 @@ const countCreatorPosts = async (creatorId) => {
     columns: { ownerUserId: true }
   });
   if (!creator?.ownerUserId) return 0;
-  const result = await db.select({ value: count() }).from(collectorPosts).where(eq(collectorPosts.userId, creator.ownerUserId));
+  const result = await db.select({ value: count() }).from(posts).where(eq(posts.userId, creator.ownerUserId));
   return result[0]?.value ?? 0;
 };
 const findWishlist = async (userId, bookId) => {
@@ -135,47 +147,38 @@ const deleteCollectionItem = async (userId, bookId) => {
     )
   );
 };
-const insertCollectorPost = async (userId, input) => {
-  const [post] = await db.insert(collectorPosts).values({ userId, body: input.body, imageUrl: input.imageUrl }).returning();
-  return post;
-};
-const findCollectorPost = async (postId) => {
-  return await db.query.collectorPosts.findFirst({
-    where: eq(collectorPosts.id, postId)
+const findPost = async (postId) => {
+  return await db.query.posts.findFirst({
+    where: eq(posts.id, postId)
   });
 };
-const deleteCollectorPost = async (postId) => {
-  await db.delete(collectorPosts).where(eq(collectorPosts.id, postId));
+const deletePostById = async (postId) => {
+  await db.delete(posts).where(eq(posts.id, postId));
 };
-const listCollectorPosts = async (userId) => {
-  return await db.query.collectorPosts.findMany({
-    where: eq(collectorPosts.userId, userId),
-    orderBy: [desc(collectorPosts.createdAt)]
+const listPosts = async (userId) => {
+  return await db.query.posts.findMany({
+    where: eq(posts.userId, userId),
+    orderBy: [desc(posts.createdAt)]
   });
-};
-const countCollectorPosts = async (userId) => {
-  const result = await db.select({ value: count() }).from(collectorPosts).where(eq(collectorPosts.userId, userId));
-  return result[0]?.value ?? 0;
 };
 export {
-  countCollectorPosts,
   countCreatorPosts,
   deleteCollectionItem,
-  deleteCollectorPost,
   deleteFollow,
+  deletePostById,
   deleteUserFollow,
   deleteWishlist,
   findCollectionItem,
-  findCollectorPost,
   findFollow,
+  findFollowedCreatorIds,
   findFollowersCount,
+  findPost,
   findUserFollow,
   findUserFollowersCount,
   findWishlist,
   insertCollectionItem,
-  insertCollectorPost,
   insertFollow,
   insertUserFollow,
   insertWishlist,
-  listCollectorPosts
+  listPosts
 };

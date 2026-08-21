@@ -6,7 +6,6 @@ import Footer from "../app/Footer.js";
 import Alert from "../app/Alert.js";
 import PreviewBanner from "../app/PreviewBanner.js";
 import WelcomeDashboardBanner from "../../features/app/components/WelcomeDashboardBanner.js";
-import Dock from "./Dock.js";
 import ToastContainer from "../app/ToastContainer.js";
 import ActivityStream from "../app/ActivityStream.js";
 import { fadeTransition } from "../../lib/transitions.js";
@@ -73,8 +72,7 @@ const AppLayout = ({
             children: [
               /* @__PURE__ */ jsx("main", { class: "min-h-60vh mx-auto w-full max-w-[1680px] px-4 md:px-8", children }),
               /* @__PURE__ */ jsx(Footer, {}),
-              /* @__PURE__ */ jsx(ScrollToTopButton, {}),
-              /* @__PURE__ */ jsx(Dock, { currentPath })
+              /* @__PURE__ */ jsx(ScrollToTopButton, {})
             ]
           }
         )
@@ -82,7 +80,7 @@ const AppLayout = ({
       /* @__PURE__ */ jsx("div", { id: "modal-root" }),
       flash && /* @__PURE__ */ jsx(Alert, { type: flash.type, message: flash.message }),
       /* @__PURE__ */ jsx(ToastContainer, {}),
-      user ? /* @__PURE__ */ jsx(ActivityStream, { currentUserId: user.id }) : null,
+      /* @__PURE__ */ jsx(ActivityStream, { currentUserId: user?.id }),
       /* @__PURE__ */ jsx("div", { "x-sync": true, id: "server_events" })
     ] })
   ] });
@@ -95,7 +93,7 @@ const ScrollToTopButton = () => {
       "x-show": "show",
       ...fadeTransition,
       "x-on:click": "window.scrollTo({ top: 0, behavior: 'smooth' })",
-      class: "fixed bottom-20 right-5 bg-on-surface-strong text-surface px-4 py-3 shadow-lg opacity-60 cursor-pointer hover:opacity-100 transition-opacity duration-300",
+      class: "fixed bottom-5 right-5 bg-on-surface-strong text-surface px-4 py-3 shadow-lg opacity-60 cursor-pointer hover:opacity-100 transition-opacity duration-300",
       children: "\u2191"
     }
   );

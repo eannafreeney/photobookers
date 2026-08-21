@@ -1,9 +1,8 @@
 import { jsx, jsxs } from "hono/jsx/jsx-runtime";
-import CardCreatorCard from "../../../components/app/CardCreatorCard.js";
+import CardAuthorCard from "../../../components/app/CardAuthorCard.js";
 import Link from "../../../components/app/Link.js";
 import FormDelete from "../../../components/forms/FormDelete.js";
 import { formatDate } from "../../../utils.js";
-import { getDisplayName } from "../services.js";
 const CommentsList = async ({ bookId, user, comments }) => {
   if (comments.length === 0)
     return /* @__PURE__ */ jsx("p", { class: "text-sm text-center text-on-surface border border-outline rounded-radius p-4 bg-surface-alt my-2", children: "No comments yet. Be the first to comment!" });
@@ -11,30 +10,23 @@ const CommentsList = async ({ bookId, user, comments }) => {
     const creator = comment.user?.creators?.[0] ?? null;
     return /* @__PURE__ */ jsxs("div", { class: "border-b border-outline pb-2", children: [
       /* @__PURE__ */ jsxs("div", { class: "mb-2 flex items-center justify-between gap-2", children: [
-        creator ? /* @__PURE__ */ jsx(CardCreatorCard, { creator }) : /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsx(
-            "img",
-            {
-              src: comment.user?.profileImageUrl ?? "",
-              alt: getDisplayName(comment.user),
-              class: "h-6 w-6 rounded-full object-cover"
-            }
-          ),
-          /* @__PURE__ */ jsx("p", { class: "text-sm font-medium text-on-surface-strong", children: getDisplayName(comment.user) })
-        ] }),
+        /* @__PURE__ */ jsx(CardAuthorCard, { creator, user: comment.user }),
         comment.createdAt && /* @__PURE__ */ jsx("p", { class: "text-xs text-on-surface", children: formatDate(comment.createdAt) })
       ] }),
       /* @__PURE__ */ jsxs("div", { class: "flex items-start justify-between", children: [
         /* @__PURE__ */ jsx(CommentBody, { body: comment.body }),
-        user?.id === comment.userId && /* @__PURE__ */ jsx("div", { class: "flex items-center gap-2 text-xs text-on-surface cursor-pointer", children: /* @__PURE__ */ jsx(
-          Link,
-          {
-            href: `/api/books/${bookId}/comments/${comment.id}`,
-            xTarget: "modal-root",
-            hoverUnderline: true,
-            children: "edit"
-          }
-        ) })
+        user?.id === comment.userId && /* @__PURE__ */ jsxs("div", { class: "flex items-center gap-2 text-xs text-on-surface cursor-pointer", children: [
+          /* @__PURE__ */ jsx(
+            Link,
+            {
+              href: `/api/books/${bookId}/comments/${comment.id}`,
+              xTarget: "modal-root",
+              hoverUnderline: true,
+              children: "edit"
+            }
+          ),
+          /* @__PURE__ */ jsx(DeleteCommentButton, { commentId: comment.id, bookId })
+        ] })
       ] })
     ] }, comment.id);
   }) });
@@ -56,15 +48,15 @@ const CommentBody = ({ body }) => /* @__PURE__ */ jsxs("div", { "x-data": "{ exp
     }
   )
 ] });
-const DeleteCommentButton = async ({
+const DeleteCommentButton = ({
   commentId,
   bookId
 }) => {
   const alpineAttrs = {
-    "x-init": "true",
     "x-target": "toast",
     "@ajax:before": "confirm('Are you sure?') || $event.preventDefault()",
-    "@ajax:success": "$el.closest('div').remove()"
+    // server also dispatches comments:updated; this covers toast-only responses
+    "@ajax:success": "$dispatch('comments:updated')"
   };
   return /* @__PURE__ */ jsx(
     FormDelete,

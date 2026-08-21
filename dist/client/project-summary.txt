@@ -3,7 +3,7 @@ ABOUT THIS DOCUMENT
 =======================
 
 Machine-readable project summary for LLMs and external tooling.
-Generated: 2026-08-17T23:11:22.989Z
+Generated: 2026-08-21T18:53:34.945Z
 Source repo path: .
 Endpoint: GET /api/project-summary.txt
 
@@ -19,7 +19,7 @@ Photobookers is a full-stack TypeScript platform for discovering photobooks and 
 Core product areas:
 - Discovery: featured books, search, tags, editorial spotlights (book of the day, artist/publisher of the week)
 - Creators: profiles, social links, book catalogs, verification and claim flows
-- Fans: library/collections, wishlists, likes, follows, feed, newsletter signup
+- Fans: library/collections, wishlists, follows, feed, newsletter signup
 - Creator dashboard: book CRUD, image uploads, import CSV, analytics, messages
 - Admin dashboard: moderation (books, creators, fairs, stores), user management, planner (newsletter + Instagram + spotlight emails)
 - Book fairs & bookstores: listings, attendee registration, map views
@@ -78,7 +78,7 @@ src/
   middleware/              — auth guards
   lib/                     — shared utilities
 
-Domain modules (19): ceo-metrics, claims, collectors, creator-profile-share, creators, daily-product-digest, db, instagram-analytics, interviews, lists, magazine, newsletters, notifications, planner, posts, publisher-release-watch, server-errors, shelf, verification-feedback
+Domain modules (21): books, ceo-metrics, claims, collectors, contributors, creator-profile-share, creators, daily-product-digest, db, instagram-analytics, interviews, lists, magazine, newsletters, notifications, planner, posts, publisher-release-watch, server-errors, shelf, verification-feedback
 
 Feature modules (22): api, app, app-store-analytics, auth, book-analytics, book-views, claims, collectors, creator-analytics-digest, creator-views, dashboard, fair-attendees, fair-views, hyperview, interviews, jobs, legal, newsletter-analytics, purchase-clicks, site-analytics, story-upload, stub-outreach
 
@@ -210,19 +210,19 @@ The build step regenerates `public/project-summary.txt` at deploy time (the
 ROUTE / ENDPOINT STRUCTURE
 ==============================
 
-Total registered routes: 322
+Total registered routes: 332
 Routing: hono-fsr file-system routes in src/fs-routes/
 
-Public web (62 routes) — Server-rendered pages for fans and discovery
+Public web (65 routes) — Server-rendered pages for fans and discovery
   Examples: /, /about, /artist-of-the-week, /artist-of-the-week/:week, /artists, /book-of-the-day, /book-of-the-day/:date, /books, /books/:slug, /books/preview/:slug
 
-API (14 routes) — JSON/partials for likes, comments, follows, newsletter, activity
-  Examples: /api/activity/stream, /api/books/:bookId/collect, /api/books/:bookId/comments, /api/books/:bookId/comments/:commentId, /api/books/:bookId/like, /api/books/:bookId/lists/:listId, /api/books/:bookId/wishlist, /api/creators/:creatorId/follow, /api/fairs/:fairId/attend, /api/newsletter
+API (15 routes) — JSON/partials for comments, follows, newsletter, activity
+  Examples: /api/activity/recent, /api/activity/stream, /api/books/:bookId/collect, /api/books/:bookId/comments, /api/books/:bookId/comments/:commentId, /api/books/:bookId/lists/:listId, /api/books/:bookId/wishlist, /api/creators/:creatorId/follow, /api/fairs/:fairId/attend, /api/newsletter
 
 Auth (16 routes) — Login, registration, password reset, Supabase callback
   Examples: /auth/accounts, /auth/callback, /auth/force-reset-password, /auth/forgot-password, /auth/login, /auth/logout, /auth/register, /auth/register-creator, /auth/register-fan, /auth/resend-verification
 
-Dashboard (137 routes) — Creator and admin dashboards
+Dashboard (143 routes) — Creator and admin dashboards
   Examples: /dashboard/admin, /dashboard/admin/analytics, /dashboard/admin/analytics/fans, /dashboard/admin/analytics/verified-creators, /dashboard/admin/books, /dashboard/admin/books/:bookId, /dashboard/admin/books/:bookId/approve, /dashboard/admin/books/:bookId/feedback, /dashboard/admin/books/:bookId/reject, /dashboard/admin/books/:bookId/unapprove
 
 Hyperview (mobile) (62 routes) — XML routes consumed by the Expo mobile app
@@ -235,16 +235,17 @@ Claims (5 routes) — Creator account claim flow
   Examples: /claims/:creatorId, /claims/:creatorId/register-and-claim, /claims/:creatorId/start, /claims/:creatorId/start/signup, /claims/complete
 
 Public JSON/HTML API endpoints (sample):
+- /api/activity/recent
 - /api/activity/stream
 - /api/books/:bookId/collect
 - /api/books/:bookId/comments
 - /api/books/:bookId/comments/:commentId
-- /api/books/:bookId/like
 - /api/books/:bookId/lists/:listId
 - /api/books/:bookId/wishlist
 - /api/creators/:creatorId/follow
 - /api/fairs/:fairId/attend
 - /api/newsletter
+- /api/posts/:postId/like
 - /api/project-summary.txt
 - /api/users/:userId/follow
 - /api/users/:userId/profile-image
@@ -266,12 +267,12 @@ Tables (31):
 - books
 - creator_milestone_emails
 - follows
-- collector_posts
+- posts
+- post_likes
 - book_images
 - book_comments
 - creator_claims
 - collections
-- likes
 - wishlists
 - book_lists
 - book_list_items
@@ -350,13 +351,7 @@ FEATURE FLAGS
 =================
 
 {
-  "messages": true,
-  "comments": true,
-  "fairs": true,
-  "stores": true,
-  "collectors": true,
-  "magazine": false,
-  "bookPressLinks": true
+  "magazine": false
 }
 
 ===========================

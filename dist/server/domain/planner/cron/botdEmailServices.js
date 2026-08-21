@@ -61,10 +61,12 @@ async function prepareBotdAdvanceNotificationContent(params) {
   }
   const html = generateBOTDNotificationEmail(
     {
+      id: params.creator.id,
       displayName: params.creator.displayName,
       email: params.creator.email,
       slug: params.creator.slug,
-      ownerUserId
+      ownerUserId,
+      status: params.creator.status ?? "stub"
     },
     params.book,
     params.date,

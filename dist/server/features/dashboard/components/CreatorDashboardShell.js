@@ -2,6 +2,7 @@ import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import Page from "../../../components/layouts/Page.js";
 import NavTabs from "../books/components/NavTabs.js";
 import VerifiedCreatorShareBanner from "../books/components/VerifiedCreatorShareBanner.js";
+import SkoolCommunityBanner from "./SkoolCommunityBanner.js";
 import VerificationStatusBanner from "./VerificationStatusBanner.js";
 const CreatorDashboardShell = ({
   children,
@@ -19,6 +20,7 @@ const CreatorDashboardShell = ({
       }
     ),
     creator.status === "verified" && /* @__PURE__ */ jsx(VerifiedCreatorShareBanner, { creator }),
+    creator.type === "artist" && /* @__PURE__ */ jsx(SkoolCommunityBanner, {}),
     /* @__PURE__ */ jsxs(Page, { children: [
       /* @__PURE__ */ jsx(
         NavTabs,

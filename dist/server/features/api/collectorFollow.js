@@ -1,4 +1,4 @@
-const canFollowCollector = (followerUserId, targetUserId) => Boolean(followerUserId) && followerUserId !== targetUserId;
+const canFollowCollector = (followerUserId, targetUserId) => followerUserId !== targetUserId;
 export {
   canFollowCollector
 };

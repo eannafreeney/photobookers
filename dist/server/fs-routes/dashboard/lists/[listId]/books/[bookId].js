@@ -1,18 +1,17 @@
 import { Fragment, jsx, jsxs } from "hono/jsx/jsx-runtime";
 import { createRoute } from "hono-fsr";
 import { getUser } from "../../../../../utils.js";
-import { isFeatureEnabledForUser } from "../../../../../lib/features.js";
 import {
   getBooksInList,
   removeBookFromList
 } from "../../../../../domain/lists/services.js";
 import { userCanManageBookLists } from "../../../../../domain/lists/utils.js";
-import ListBooksEditor from "../../../../../features/dashboard/lists/ListBooksEditor.js";
+import ListBooksEditor from "../../../../../features/dashboard/lists/ListBooks.js";
 import { showErrorAlert } from "../../../../../lib/alertHelpers.js";
 import Alert from "../../../../../components/app/Alert.js";
 import { routeParam } from "../../../../../lib/routeParam.js";
 function canAccessLists(user) {
-  return userCanManageBookLists(user) && isFeatureEnabledForUser("collectors", user);
+  return userCanManageBookLists(user);
 }
 const DELETE = createRoute(async (c) => {
   const user = await getUser(c);
@@ -23,7 +22,12 @@ const DELETE = createRoute(async (c) => {
   }
   const [err] = await removeBookFromList(listId, bookId, user.id);
   if (err) return showErrorAlert(c, err.reason);
-  const [booksErr, booksResult] = await getBooksInList(listId, 1, "newest", 100);
+  const [booksErr, booksResult] = await getBooksInList(
+    listId,
+    1,
+    "newest",
+    100
+  );
   if (booksErr || !booksResult) {
     return showErrorAlert(c, booksErr?.reason ?? "Failed to reload books");
   }
