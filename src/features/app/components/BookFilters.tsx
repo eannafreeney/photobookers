@@ -52,6 +52,10 @@ const BookFilters = ({
 
   const controls = (
     <>
+      <div class="flex flex-col md:flex-row items-center justify-between gap-16 md:gap-4">
+        <TrendingSortSelect />
+        <FilterForm />
+      </div>
       <div class="flex flex-wrap items-center gap-2">
         <AllPill activeSlug={activeSlug} pillButtonClass={pillButtonClass} />
         {DISCOVER_TAGS.map((tag) => (
@@ -61,10 +65,6 @@ const BookFilters = ({
             pillButtonClass={pillButtonClass}
           />
         ))}
-      </div>
-      <div class="flex flex-col md:flex-row items-center gap-2 md:gap-4">
-        <FilterForm />
-        <TrendingSortSelect />
       </div>
     </>
   );
@@ -132,7 +132,7 @@ const FilterForm = () => {
   };
 
   return (
-    <div class="flex items-center gap-2 w-full">
+    <div class="flex items-center gap-2 w-3/4">
       <input
         type="search"
         name="query"
@@ -153,12 +153,12 @@ const FilterForm = () => {
 };
 
 const TrendingSortSelect = () => (
-  <label class="flex w-full md:w-auto min-w-0 items-center gap-2 text-sm text-on-surface">
+  <label class="flex w-1/4 md:w-auto min-w-0 items-center gap-2 text-sm text-on-surface">
     <span class="sr-only">Sort by</span>
     <select
       x-model="sort"
       x-on:change="applySort()"
-      class="w-full md:w-auto min-w-0 cursor-pointer rounded-full border border-outline bg-surface-alt px-4 py-2 text-sm text-on-surface-strong focus:outline-none focus:ring-1 focus:ring-primary"
+      class="w-full md:w-auto min-w-0 cursor-pointer rounded-full border border-outline bg-surface-alt px-6 py-2 text-sm text-on-surface-strong focus:outline-none focus:ring-1 focus:ring-primary"
     >
       {BOOK_CATALOG_SORT_VALUES.map((value) => (
         <option key={value} value={value}>

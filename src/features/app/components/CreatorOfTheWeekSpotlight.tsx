@@ -2,6 +2,14 @@ import type { AuthUser } from "../../../../types";
 import { formatCountry } from "../../../lib/utils";
 import FollowButton from "../../api/components/FollowButton";
 import SectionHeader from "../../../components/app/SectionHeader";
+import { bookPath } from "../spotlightUrls";
+
+/** One catalogue cover, carrying enough to link and label itself. */
+export type SpotlightCatalogueBook = {
+  title: string;
+  slug: string;
+  coverUrl: string;
+};
 
 export type CreatorOfTheWeekSpotlightData = {
   role: "artist" | "publisher";
@@ -11,10 +19,13 @@ export type CreatorOfTheWeekSpotlightData = {
     slug: string;
     coverUrl: string | null;
     country: string | null;
+    tagline: string | null;
   };
   featuredImageUrl: string | null;
-  /** Covers from their catalogue — the highest-resolution art we hold. */
-  coverStack: string[];
+  /** Books from their catalogue — the highest-resolution art we hold. */
+  coverStack: SpotlightCatalogueBook[];
+  /** AI-written weekly blurb from the planner; falls back to the tagline. */
+  spotlightBlurb: string | null;
   link: string;
 };
 
@@ -41,6 +52,7 @@ const CreatorOfTheWeekSpotlight = ({ spotlight, user }: Props) => {
   const { creator, role, link } = spotlight;
   const portrait = spotlight.featuredImageUrl ?? creator.coverUrl ?? "";
   const covers = spotlight.coverStack.slice(0, 4);
+  const blurb = spotlight.spotlightBlurb?.trim() || creator.tagline?.trim();
   const portraitClass = covers.length
     ? "size-32 sm:size-44 md:size-56"
     : "size-40 sm:size-56 md:size-72";
@@ -75,6 +87,12 @@ const CreatorOfTheWeekSpotlight = ({ spotlight, user }: Props) => {
               </p>
             ) : null}
 
+            {blurb ? (
+              <p class="text-pretty text-sm leading-relaxed text-on-surface line-clamp-5">
+                {blurb}
+              </p>
+            ) : null}
+
             <div class="mt-1 flex flex-wrap items-center gap-3">
               <div class="w-32">
                 <FollowButton creator={creator} user={user} variant="hero" />
@@ -93,22 +111,32 @@ const CreatorOfTheWeekSpotlight = ({ spotlight, user }: Props) => {
         </div>
 
         {covers.length > 0 ? (
-          <a
-            href={link}
+          <ul
             class="flex items-end gap-3"
             aria-label={`Books from ${creator.displayName}`}
           >
-            {covers.map((cover) => (
-              <img
-                key={cover}
-                src={cover}
-                alt=""
-                class="h-20 w-auto object-contain sm:h-24"
-                loading="lazy"
-                decoding="async"
-              />
+            {covers.map((book) => (
+              <li key={book.slug} class="list-none">
+                <a
+                  href={bookPath(book.slug)}
+                  title={book.title}
+                  class="group/cover flex flex-col gap-1"
+                >
+                  <img
+                    src={book.coverUrl}
+                    alt={book.title}
+                    class="h-20 w-auto object-contain object-bottom sm:h-24"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {/* Reserved slot, so revealing the title shifts nothing. */}
+                  <span class="line-clamp-2 h-8 max-w-28 text-[11px] leading-4 text-on-surface-weak opacity-0 transition-opacity duration-200 group-hover/cover:opacity-100 group-focus-visible/cover:opacity-100">
+                    {book.title}
+                  </span>
+                </a>
+              </li>
             ))}
-          </a>
+          </ul>
         ) : null}
       </div>
     </section>

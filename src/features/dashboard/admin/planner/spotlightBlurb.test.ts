@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { generateSpotlightBlurbForKey } from "./spotlightBlurb";
+import {
+  creatorBlurbSourceText,
+  generateSpotlightBlurbForKey,
+  spotlightBlurbStatus,
+} from "./spotlightBlurb";
 
 const rewriteSpotlightBlurbMock = vi.fn();
 const findManyMock = vi.fn();
@@ -79,5 +83,52 @@ describe("generateSpotlightBlurbForKey", () => {
       sourceText: "Quiet documentary photography.",
       title: "Jane Doe",
     });
+  });
+});
+
+describe("spotlightBlurbStatus", () => {
+  it("is ready once a blurb is stored", () => {
+    expect(
+      spotlightBlurbStatus({ blurb: "A blurb", sourceText: "Some bio" }),
+    ).toBe("ready");
+  });
+
+  it("is missing when a blurb could still be generated", () => {
+    expect(spotlightBlurbStatus({ blurb: null, sourceText: "Some bio" })).toBe(
+      "missing",
+    );
+  });
+
+  it("flags no-source when there is nothing to rewrite", () => {
+    expect(spotlightBlurbStatus({ blurb: null, sourceText: null })).toBe(
+      "no-source",
+    );
+  });
+
+  it("treats whitespace-only values as absent", () => {
+    expect(spotlightBlurbStatus({ blurb: "   ", sourceText: "  " })).toBe(
+      "no-source",
+    );
+    expect(spotlightBlurbStatus({ blurb: "  ", sourceText: "bio" })).toBe(
+      "missing",
+    );
+  });
+});
+
+describe("creatorBlurbSourceText", () => {
+  it("prefers the bio over the tagline", () => {
+    expect(creatorBlurbSourceText({ bio: "Bio", tagline: "Tagline" })).toBe(
+      "Bio",
+    );
+  });
+
+  it("falls back to the tagline", () => {
+    expect(creatorBlurbSourceText({ bio: "  ", tagline: "Tagline" })).toBe(
+      "Tagline",
+    );
+  });
+
+  it("returns null when the creator has neither", () => {
+    expect(creatorBlurbSourceText({ bio: null, tagline: null })).toBeNull();
   });
 });

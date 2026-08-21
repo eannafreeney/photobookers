@@ -24,6 +24,10 @@ import {
 } from "./social-media/instagramCaption";
 import type { WeekInstagramPrepareData } from "./social-media/instagramServices";
 import { getPlannerInstagramImageSelection } from "./social-media/instagramUtils";
+import { creatorBlurbSourceText } from "./utils";
+
+export { creatorBlurbSourceText, spotlightBlurbStatus } from "./utils";
+export type { SpotlightBlurbStatus } from "./utils";
 
 export type SpotlightContentItem =
   | {
@@ -99,13 +103,6 @@ async function loadBookDescriptions(
   return new Map(rows.map((row) => [row.id, row.description]));
 }
 
-function getCreatorSourceText(creator: {
-  tagline?: string | null;
-}): string | null {
-  const extended = creator as { bio?: string | null; tagline?: string | null };
-  return extended.bio?.trim() || extended.tagline?.trim() || null;
-}
-
 /** True when any scheduled spotlight row is still missing an AI blurb. */
 export function weekNeedsSpotlightBlurbs(
   weekData: WeekInstagramPrepareData,
@@ -151,7 +148,7 @@ export async function getWeekSpotlightBlurbEditorData(
     }
 
     if (weekData.artistOfTheWeek) {
-      const sourceText = getCreatorSourceText(weekData.artistOfTheWeek.creator);
+      const sourceText = creatorBlurbSourceText(weekData.artistOfTheWeek.creator);
       items.push({
         kind: "artist",
         title: weekData.artistOfTheWeek.creator.displayName,
@@ -162,7 +159,7 @@ export async function getWeekSpotlightBlurbEditorData(
     }
 
     if (weekData.publisherOfTheWeek) {
-      const sourceText = getCreatorSourceText(
+      const sourceText = creatorBlurbSourceText(
         weekData.publisherOfTheWeek.creator,
       );
       items.push({
@@ -195,7 +192,7 @@ export async function generateSpotlightBlurbForKey(
     if (key === "aotw") {
       const creator = weekData.artistOfTheWeek?.creator;
       if (!creator) return err({ reason: "No artist of the week scheduled" });
-      const sourceText = getCreatorSourceText(creator);
+      const sourceText = creatorBlurbSourceText(creator);
       if (!sourceText) {
         return err({
           reason: "No source text available for Artist of the Week",
@@ -213,7 +210,7 @@ export async function generateSpotlightBlurbForKey(
       const creator = weekData.publisherOfTheWeek?.creator;
       if (!creator)
         return err({ reason: "No publisher of the week scheduled" });
-      const sourceText = getCreatorSourceText(creator);
+      const sourceText = creatorBlurbSourceText(creator);
       if (!sourceText) {
         return err({
           reason: "No source text available for Publisher of the Week",
@@ -308,7 +305,7 @@ export async function buildWeekSpotlightContent(
 
     if (weekData.artistOfTheWeek) {
       const creator = weekData.artistOfTheWeek.creator;
-      const sourceText = getCreatorSourceText(creator);
+      const sourceText = creatorBlurbSourceText(creator);
       const spotlightBlurb =
         weekData.artistOfTheWeek.spotlightBlurb?.trim() ||
         (sourceText
@@ -349,7 +346,7 @@ export async function buildWeekSpotlightContent(
 
     if (weekData.publisherOfTheWeek) {
       const creator = weekData.publisherOfTheWeek.creator;
-      const sourceText = getCreatorSourceText(creator);
+      const sourceText = creatorBlurbSourceText(creator);
       const spotlightBlurb =
         weekData.publisherOfTheWeek.spotlightBlurb?.trim() ||
         (sourceText

@@ -1640,8 +1640,11 @@ export const getFollowedCreators = async (followerUserId: string) => {
   }
 };
 
-/** Recent published book covers for a publisher (creator id), newest first. */
-export async function getCoverUrlsForHeroCarousel(
+/**
+ * Recent published books for a creator, newest first. Titles and slugs ride
+ * along with the cover so each one can link to the book it actually shows.
+ */
+export async function getSpotlightCatalogueBooks(
   creatorType: "publisher" | "artist",
   creatorId: string,
   limit = 4,
@@ -1650,7 +1653,7 @@ export async function getCoverUrlsForHeroCarousel(
     creatorType === "publisher" ? books.publisherId : books.artistId;
   try {
     const rows = await db.query.books.findMany({
-      columns: { coverUrl: true },
+      columns: { title: true, slug: true, coverUrl: true },
       where: and(
         eq(column, creatorId),
         eq(books.publicationStatus, "published"),
@@ -1661,14 +1664,17 @@ export async function getCoverUrlsForHeroCarousel(
       orderBy: (b, { desc: d }) => [d(b.releaseDate), d(b.createdAt)],
       limit,
     });
-    const coverUrls = rows
-      .map((r) => r.coverUrl)
-      .filter((url): url is string => Boolean(url));
-    return ok(coverUrls);
+    return ok(
+      rows.flatMap((r) =>
+        r.coverUrl
+          ? [{ title: r.title, slug: r.slug, coverUrl: r.coverUrl }]
+          : [],
+      ),
+    );
   } catch (e) {
-    console.error("getCoverUrlsForPublisherCatalogue", e);
+    console.error("getSpotlightCatalogueBooks", e);
     return err({
-      reason: "Failed to get cover urls for publisher catalogue",
+      reason: "Failed to get catalogue books for creator spotlight",
       error: e,
     });
   }

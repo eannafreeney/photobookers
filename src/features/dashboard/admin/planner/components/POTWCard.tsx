@@ -6,6 +6,8 @@ import CreatorEmailBadge from "./CreatorEmailBadge";
 import SpotlightEmailStatusBadges from "./SpotlightEmailStatusBadges";
 import { CreatorInterview, PublisherOfTheWeek } from "../../../../../db/schema";
 import EditSpotlightBlurbButton from "./EditSpotlightBlurbButton";
+import SpotlightBlurbBadge from "./SpotlightBlurbBadge";
+import { creatorBlurbSourceText, spotlightBlurbStatus } from "../utils";
 
 type PublisherOfTheWeekProps = {
   weekStart: Date;
@@ -54,6 +56,8 @@ type POTWCardContentProps = {
     email: string | null;
     status: "stub" | "verified" | "suspended" | "deleted" | null;
     coverUrl: string | null;
+    bio: string | null;
+    tagline: string | null;
   };
   publisherOfTheWeek: PublisherOfTheWeek | null;
   interview: CreatorInterview | null;
@@ -99,7 +103,14 @@ const POTWCardContent = ({
           creatorId={publisher.id}
           email={publisher.email}
         />
-        <div class="flex justify-end">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <SpotlightBlurbBadge
+            subject="publisher"
+            status={spotlightBlurbStatus({
+              blurb: publisherOfTheWeek.spotlightBlurb,
+              sourceText: creatorBlurbSourceText(publisher),
+            })}
+          />
           <EditSpotlightBlurbButton
             href={`/dashboard/admin/planner/spotlight-blurb/prepare?week=${encodeURIComponent(weekKey)}&key=potw`}
           />

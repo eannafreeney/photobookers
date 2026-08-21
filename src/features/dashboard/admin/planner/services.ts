@@ -37,6 +37,15 @@ import { err, ok } from "../../../../lib/result";
 import { rewriteSpotlightBlurb } from "../../../../lib/openai";
 
 /**
+ * Creator card columns plus `bio` — the spotlight blurb generator rewrites the
+ * bio, so the planner needs it to show whether a blurb can be generated at all.
+ */
+const SPOTLIGHT_CREATOR_COLUMNS = {
+  ...CREATOR_CARD_COLUMNS,
+  bio: true,
+} as const;
+
+/**
  * Generate an AI spotlight blurb from the book's description and persist it on
  * the Book of the Day row for `date`. Best-effort: any failure is logged and
  * swallowed so it never blocks scheduling the pick.
@@ -345,7 +354,7 @@ export async function getArtistOfTheWeekForDateQuery(date: Date) {
       where: eq(artistOfTheWeek.weekStart, weekStart),
       with: {
         creator: {
-          columns: CREATOR_CARD_COLUMNS,
+          columns: SPOTLIGHT_CREATOR_COLUMNS,
         },
       },
     });
@@ -379,7 +388,7 @@ export async function getArtistsOfTheWeekByWeekStart(year: number) {
         gte(artistOfTheWeek.weekStart, toWeekStart(first)),
         lte(artistOfTheWeek.weekStart, toWeekStart(last)),
       ),
-      with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+      with: { creator: { columns: SPOTLIGHT_CREATOR_COLUMNS } },
     });
 
     const byWeek = new Map<string, ArtistOfTheWeekWithCreator | null>();
@@ -474,7 +483,7 @@ export async function getPublisherOfTheWeekForDateQuery(date: Date) {
     const publisher = await db.query.publisherOfTheWeek.findFirst({
       where: eq(publisherOfTheWeek.weekStart, weekStart),
       with: {
-        creator: { columns: CREATOR_CARD_COLUMNS },
+        creator: { columns: SPOTLIGHT_CREATOR_COLUMNS },
       },
     });
     if (!publisher) return err({ reason: "Publisher of the week not found" });
@@ -505,7 +514,7 @@ export async function getPublishersOfTheWeekByWeekStart(year: number) {
         gte(publisherOfTheWeek.weekStart, toWeekStart(first)),
         lte(publisherOfTheWeek.weekStart, toWeekStart(last)),
       ),
-      with: { creator: { columns: CREATOR_CARD_COLUMNS } },
+      with: { creator: { columns: SPOTLIGHT_CREATOR_COLUMNS } },
     });
     const byWeek = new Map<string, PublisherOfTheWeekWithCreator | null>();
     for (const w of weekStarts) {

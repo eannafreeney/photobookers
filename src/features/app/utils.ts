@@ -1,4 +1,7 @@
-import type { CreatorOfTheWeekSpotlightData } from "./components/CreatorOfTheWeekSpotlight";
+import type {
+  CreatorOfTheWeekSpotlightData,
+  SpotlightCatalogueBook,
+} from "./components/CreatorOfTheWeekSpotlight";
 import { formatCountry } from "../../lib/utils";
 import {
   getArtistOfTheWeekForDateQuery,
@@ -13,7 +16,7 @@ import {
   getThisWeeksArtistOfTheWeek,
   getThisWeeksPublisherOfTheWeek,
 } from "./CreatorSpotlightServices";
-import { getCoverUrlsForHeroCarousel } from "./services";
+import { getSpotlightCatalogueBooks } from "./services";
 import { aotwPath, potwPath } from "./spotlightUrls";
 
 export type ArtistOfTheWeekData = Extract<
@@ -29,12 +32,15 @@ export type PublisherOfTheWeekData = Extract<
 async function heroCarouselCoverStack(
   role: "publisher" | "artist",
   creatorId: string | null,
-): Promise<string[]> {
+): Promise<SpotlightCatalogueBook[]> {
   if (!creatorId) return [];
-  const [coverErr, urls] = await getCoverUrlsForHeroCarousel(role, creatorId);
-  return !coverErr && urls ? urls : [];
+  const [coverErr, catalogue] = await getSpotlightCatalogueBooks(
+    role,
+    creatorId,
+  );
+  return !coverErr && catalogue ? catalogue : [];
 }
-/** Fetches catalogue cover URLs for hero slides (parallel). */
+/** Fetches catalogue books for the weekly spotlight blocks (parallel). */
 export async function loadHeroCarouselCoverStacks(params: {
   publisherCreatorId: string | null;
   artistCreatorId: string | null;
@@ -53,17 +59,17 @@ export async function loadHeroCarouselCoverStacks(params: {
 export function buildCreatorOfTheWeekSpotlight(
   role: "artist",
   data: ArtistOfTheWeekData | null,
-  coverStack: string[],
+  coverStack: SpotlightCatalogueBook[],
 ): CreatorOfTheWeekSpotlightData | null;
 export function buildCreatorOfTheWeekSpotlight(
   role: "publisher",
   data: PublisherOfTheWeekData | null,
-  coverStack: string[],
+  coverStack: SpotlightCatalogueBook[],
 ): CreatorOfTheWeekSpotlightData | null;
 export function buildCreatorOfTheWeekSpotlight(
   role: "artist" | "publisher",
   data: ArtistOfTheWeekData | PublisherOfTheWeekData | null,
-  coverStack: string[],
+  coverStack: SpotlightCatalogueBook[],
 ): CreatorOfTheWeekSpotlightData | null {
   const creator = data?.creator;
   if (!data || !creator) return null;
@@ -76,9 +82,11 @@ export function buildCreatorOfTheWeekSpotlight(
       slug: creator.slug,
       coverUrl: creator.coverUrl ?? null,
       country: creator.country ?? null,
+      tagline: creator.tagline ?? null,
     },
     featuredImageUrl: data.featuredImageUrl ?? null,
     coverStack,
+    spotlightBlurb: data.spotlightBlurb ?? null,
     link:
       role === "artist" ? aotwPath(data.weekStart) : potwPath(data.weekStart),
   };

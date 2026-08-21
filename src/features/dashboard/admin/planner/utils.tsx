@@ -181,3 +181,30 @@ export function getEmailSendStatus(params: {
   if (scheduled.getTime() === today.getTime()) return "today";
   return "pending";
 }
+
+/**
+ * The text a creator blurb is rewritten from. Bio first, tagline as a
+ * fallback — matches `generateAndSaveCreatorSpotlightBlurb` in `services.ts`.
+ */
+export function creatorBlurbSourceText(creator: {
+  bio?: string | null;
+  tagline?: string | null;
+}): string | null {
+  return creator.bio?.trim() || creator.tagline?.trim() || null;
+}
+
+export type SpotlightBlurbStatus = "ready" | "missing" | "no-source";
+
+/**
+ * Why a spotlight row has no blurb. Both auto-generators return early and
+ * silently when there is nothing to rewrite, so "not generated yet" (worth a
+ * retry) and "cannot be generated" (needs a bio, or a hand-written blurb)
+ * have to be told apart in the planner rather than at render time on /featured.
+ */
+export function spotlightBlurbStatus(params: {
+  blurb: string | null | undefined;
+  sourceText: string | null | undefined;
+}): SpotlightBlurbStatus {
+  if (params.blurb?.trim()) return "ready";
+  return params.sourceText?.trim() ? "missing" : "no-source";
+}

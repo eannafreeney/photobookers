@@ -8,6 +8,8 @@ import RandomPickButton from "./RandomPickButton";
 import CreatorEmailBadge from "./CreatorEmailBadge";
 import BotdEmailStatusBadges from "./BotdEmailStatusBadges";
 import EditSpotlightBlurbButton from "./EditSpotlightBlurbButton";
+import SpotlightBlurbBadge from "./SpotlightBlurbBadge";
+import { spotlightBlurbStatus } from "../utils";
 
 type BOTDCardProps = {
   date: Date;
@@ -122,7 +124,14 @@ const BOTDCardContent = ({
       </div>
       <div class="mt-2 border-t border-outline pt-2 flex flex-col gap-2">
         <BotdEmailStatusBadges bookOfTheDay={bookOfTheDay} />
-        <div class="flex justify-end">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <SpotlightBlurbBadge
+            subject="book"
+            status={spotlightBlurbStatus({
+              blurb: bookOfTheDay.spotlightBlurb,
+              sourceText: book.description,
+            })}
+          />
           <EditSpotlightBlurbButton
             href={`/dashboard/admin/planner/spotlight-blurb/prepare?week=${encodeURIComponent(weekKey)}&key=${encodeURIComponent(dateKey)}`}
           />
