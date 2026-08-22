@@ -39,6 +39,16 @@ const FairsTimeline = ({ fairs }: Props) => {
                 </span>
               </span>
 
+              {fair.coverUrl ? (
+                <span class="flex flex-col gap-0.5">
+                  <img
+                    src={fair.coverUrl}
+                    alt={fair.name}
+                    class="w-10 h-10 object-cover rounded-radius"
+                  />
+                </span>
+              ) : null}
+
               <span class="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span class="flex flex-wrap items-center gap-2">
                   <span class="font-medium text-on-surface-strong group-hover:underline decoration-accent underline-offset-4">

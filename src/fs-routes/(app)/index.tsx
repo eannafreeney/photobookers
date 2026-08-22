@@ -13,7 +13,10 @@ import {
   HOMEPAGE_DESCRIPTION,
   pageTitle,
 } from "../../lib/seo";
-import { loadBookOfTheDayFeature, loadCreatorsOfTheWeek } from "../../features/app/utils";
+import {
+  loadBookOfTheDayFeature,
+  loadCreatorsOfTheWeek,
+} from "../../features/app/utils";
 import { heroLcpImageSources } from "../../lib/imageUrl";
 import PageBleed from "../../components/layouts/PageBleedRight";
 import BookOfTheDayAnchor from "../../features/app/components/BookOfTheDayAnchor";
@@ -97,11 +100,9 @@ export const GET = createRoute(async (c: Context) => {
             <FeaturedBookGroups />
           </PageBleed>
         </ScrollReveal>
-
         <ScrollReveal>
           <CreatorsOfTheWeek user={user} />
         </ScrollReveal>
-
         <ScrollReveal>
           <Intersector
             id="creators-slider-fragment"
