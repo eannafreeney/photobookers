@@ -43,10 +43,10 @@ const BookOfTheDayAnchor = ({
 
   return (
     <section>
-      <div class="flex flex-col md:flex-row gap-6 pb-8 items-center justify-center md:gap-12 md:py-14">
+      <div class="flex flex-col md:flex-row gap-6 pb-8 items-center justify-center md:gap-12">
         <a
           href={link}
-          class="flex h-[340px] justify-center md:h-[440px] md:justify-end"
+          class="flex h-auto justify-center md:h-[440px] md:justify-end"
         >
           <img
             src={sources?.src ?? image}
@@ -79,7 +79,7 @@ const BookOfTheDayAnchor = ({
             </p>
           ) : null}
 
-          <div class="mt-1 flex items-center gap-3">
+          <div class="mt-3 flex items-center gap-3">
             <a href={link} class="group">
               <Button variant="solid" color="primary" width="lg">
                 <span class="inline-flex items-center">

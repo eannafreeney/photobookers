@@ -157,6 +157,27 @@ input[type="search"]::-webkit-search-cancel-button {
   cursor: pointer;
 }
 
+.book-search-field[aria-busy] {
+  --loading-size: 1rem;
+  --loading-stroke: 2px;
+  --loading-duration: 0.8s;
+}
+
+.book-search-field[aria-busy]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0.875rem;
+  width: var(--loading-size);
+  height: var(--loading-size);
+  margin-top: calc(var(--loading-size) / -2);
+  border: var(--loading-stroke) solid var(--color-outline);
+  border-radius: 50%;
+  border-top-color: var(--color-info);
+  animation: rotate var(--loading-duration) linear infinite;
+  pointer-events: none;
+}
+
 #books-grid[data-nav="pagination"][aria-busy] {
   --loading-size: 48px;
   --loading-stroke: 4px;

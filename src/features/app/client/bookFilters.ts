@@ -47,6 +47,7 @@ export function registerBookFilters() {
       sort: initial.sort ?? defaultSort,
       defaultSort,
       minLen: MIN_SEARCH_LENGTH,
+      searchLoading: false,
 
       refreshGrid() {
         const ctx = this as unknown as BookFiltersCtx;

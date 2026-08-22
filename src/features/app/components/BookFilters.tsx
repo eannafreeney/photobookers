@@ -45,6 +45,9 @@ const BookFilters = ({
       ajaxPath,
       historyPath,
     })})`,
+    "x-on:ajax:send": "searchLoading = true",
+    "x-on:ajax:after": "searchLoading = false",
+    "x-on:ajax:sent": "if (!$event.detail.html) searchLoading = false",
   };
 
   const pillButtonClass =
@@ -133,14 +136,19 @@ const FilterForm = () => {
 
   return (
     <div class="flex items-center gap-2 w-3/4">
-      <input
-        type="search"
-        name="query"
-        x-model="query"
-        {...searchInputAttrs}
-        placeholder="Search by title, artist, publisher, or tag…"
-        class="min-w-0 flex-1 rounded-full border border-outline bg-surface-alt px-4 py-2 text-base md:text-sm text-on-surface-strong placeholder:text-on-surface-weak focus:outline-none focus:ring-1 focus:ring-primary"
-      />
+      <div
+        class="book-search-field relative min-w-0 flex-1"
+        x-bind:aria-busy="searchLoading"
+      >
+        <input
+          type="search"
+          name="query"
+          x-model="query"
+          {...searchInputAttrs}
+          placeholder="Search by title, artist, publisher, or tag…"
+          class="w-full rounded-full border border-outline bg-surface-alt px-4 py-2 pr-10 text-base md:text-sm text-on-surface-strong placeholder:text-on-surface-weak focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
       <button
         type="button"
         x-on:click="clearFilters()"
@@ -158,7 +166,7 @@ const TrendingSortSelect = () => (
     <select
       x-model="sort"
       x-on:change="applySort()"
-      class="w-full md:w-auto min-w-0 cursor-pointer rounded-full border border-outline bg-surface-alt px-6 py-2 text-sm text-on-surface-strong focus:outline-none focus:ring-1 focus:ring-primary"
+      class="border border-outline px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-on-surface-strong transition-colors hover:border-accent hover:text-accent"
     >
       {BOOK_CATALOG_SORT_VALUES.map((value) => (
         <option key={value} value={value}>
