@@ -7,6 +7,7 @@ import {
   claimsIcon,
   creatorsIcon,
   fairsIcon,
+  feedIcon,
   interviewsIcon,
   libraryIcon,
   magazineIcon,
@@ -62,6 +63,10 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       <NavLink href="/dashboard/admin/interviews" currentPath={currentPath}>
         {interviewsIcon}
         Interviews
+      </NavLink>
+      <NavLink href="/dashboard/admin/comments" currentPath={currentPath}>
+        {feedIcon}
+        Comments
       </NavLink>
       <NavLink href="/dashboard/admin/lists" currentPath={currentPath}>
         {libraryIcon(4)}

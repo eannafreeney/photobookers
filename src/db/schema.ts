@@ -14,108 +14,29 @@ import {
   index,
   doublePrecision,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import {
-  InferSelectModel,
-  InferInsertModel,
-  relations,
-  sql,
-} from "drizzle-orm";
-
-export const bookAvailabilityStatusEnum = pgEnum("book_availability_status", [
-  "sold_out",
-  "unavailable",
-  "available",
-]);
-
-export const bookApprovalStatusEnum = pgEnum("book_approval_status", [
-  "pending",
-  "approved",
-  "rejected",
-]);
-
-export const bookPublicationStatusEnum = pgEnum("book_publication_status", [
-  "published",
-  "draft",
-]);
-
-export const followTargetEnum = pgEnum("follow_target", ["user", "creator"]);
-export const creatorTypeEnum = pgEnum("creator_type", ["publisher", "artist"]);
-export const creatorStatusEnum = pgEnum("creator_status", [
-  "stub",
-  "verified",
-  "suspended",
-  "deleted",
-]);
-export const creatorClaimStatusEnum = pgEnum("creator_claim_status", [
-  "pending",
-  "pending_admin_review",
-  "approved",
-  "rejected",
-]);
-
-export const creatorInterviewStatusEnum = pgEnum("creator_interview_status", [
-  "sent",
-  "completed",
-  "expired",
-  "published",
-]);
-
-export const interviewTypeEnum = pgEnum("interview_type", [
-  "introduction",
-  "book",
-]);
-export const newsletterCampaignStatusEnum = pgEnum(
-  "newsletter_campaign_status",
-  ["draft", "approved", "scheduled", "sent", "failed"],
-);
-
-export const purchaseClickSourceEnum = pgEnum("purchase_click_source", [
-  "web",
-  "hyperview",
-]);
-
-export const bookViewSourceEnum = pgEnum("book_view_source", [
-  "web",
-  "hyperview",
-]);
-
-export const fairViewSourceEnum = pgEnum("fair_view_source", [
-  "web",
-  "hyperview",
-]);
-
-export const creatorViewSourceEnum = pgEnum("creator_view_source", [
-  "web",
-  "hyperview",
-]);
-
-export const bookFairStatusEnum = pgEnum("book_fair_status", [
-  "draft",
-  "published",
-  "cancelled",
-]);
-
-export const bookFairListingTierEnum = pgEnum("book_fair_listing_tier", [
-  "free",
-  "promoted",
-]);
-
-export const bookStoreStatusEnum = pgEnum("book_store_status", [
-  "draft",
-  "published",
-]);
-
-export const bookStoreApprovalStatusEnum = pgEnum("book_store_approval_status", [
-  "pending",
-  "approved",
-  "rejected",
-]);
-
-export const fairAttendeeStatusEnum = pgEnum("fair_attendee_status", [
-  "pending",
-  "approved",
-  "rejected",
-]);
+  bookApprovalStatusEnum,
+  bookAvailabilityStatusEnum,
+  bookFairListingTierEnum,
+  bookFairStatusEnum,
+  bookPublicationStatusEnum,
+  bookStoreApprovalStatusEnum,
+  bookStoreStatusEnum,
+  bookViewSourceEnum,
+  creatorClaimStatusEnum,
+  creatorInterviewStatusEnum,
+  creatorStatusEnum,
+  creatorTypeEnum,
+  creatorViewSourceEnum,
+  fairAttendeeStatusEnum,
+  fairViewSourceEnum,
+  followTargetEnum,
+  interviewTypeEnum,
+  magazineIssueStatusEnum,
+  newsletterCampaignStatusEnum,
+  purchaseClickSourceEnum,
+} from "./enums";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -126,30 +47,14 @@ export const users = pgTable("users", {
   shelfSlug: varchar("shelf_slug", { length: 255 }).unique(),
   shelfPublic: boolean("shelf_public").default(false).notNull(),
   acceptsTerms: timestamp("accepts_terms"),
-    isAdmin: boolean("is_admin").default(false).notNull(),
-    mustResetPassword: boolean("must_reset_password").default(false).notNull(),
+  isAdmin: boolean("is_admin").default(false).notNull(),
+  mustResetPassword: boolean("must_reset_password").default(false).notNull(),
   verificationFeedbackEmailSentAt: timestamp(
     "verification_feedback_email_sent_at",
   ),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
-
-export const usersRelations = relations(users, ({ many }) => ({
-  creators: many(creators),
-  createdBooks: many(books, { relationName: "bookCreator" }),
-  submittedBooks: many(books, { relationName: "bookSubmitter" }),
-  follows: many(follows),
-  collections: many(collectionItems),
-  postLikes: many(postLikes),
-  wishlists: many(wishlists),
-  bookLists: many(bookLists),
-  claims: many(creatorClaims),
-  comments: many(bookComments),
-  createdFairs: many(bookFairs),
-  createdStores: many(bookStores),
-  posts: many(posts),
-}));
 
 export const creatorInterviews = pgTable("creator_interviews", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -178,24 +83,6 @@ export const creatorInterviews = pgTable("creator_interviews", {
   }>(),
   promoImageUrl: text("promo_image_url"),
 });
-
-export const creatorInterviewsRelations = relations(
-  creatorInterviews,
-  ({ one }) => ({
-    creator: one(creators, {
-      fields: [creatorInterviews.creatorId],
-      references: [creators.id],
-    }),
-    invitedBy: one(users, {
-      fields: [creatorInterviews.invitedByUserId],
-      references: [users.id],
-    }),
-    book: one(books, {
-      fields: [creatorInterviews.bookId],
-      references: [books.id],
-    }),
-  }),
-);
 
 export const adminNotifications = pgTable("admin_notifications", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -260,28 +147,6 @@ export const creators = pgTable(
   }),
 );
 
-export const creatorsRelations = relations(creators, ({ one, many }) => ({
-  owner: one(users, {
-    fields: [creators.ownerUserId],
-    references: [users.id],
-  }),
-  booksAsArtist: many(books, {
-    relationName: "artistCreator",
-  }),
-  booksAsPublisher: many(books, {
-    relationName: "publisherCreator",
-  }),
-  interviews: many(creatorInterviews),
-  followers: many(follows),
-  claims: many(creatorClaims),
-  artistOfTheWeekEntries: many(artistOfTheWeek),
-  publisherOfTheWeekEntries: many(publisherOfTheWeek),
-  fairAttendees: many(fairAttendees),
-  milestoneEmails: many(creatorMilestoneEmails),
-  stubOutreachEmails: many(creatorStubOutreachEmails),
-  views: many(creatorViews),
-}));
-
 export const creatorStubOutreachEmails = pgTable(
   "creator_stub_outreach_emails",
   {
@@ -299,22 +164,6 @@ export const creatorStubOutreachEmails = pgTable(
     ),
   }),
 );
-
-export const creatorStubOutreachEmailsRelations = relations(
-  creatorStubOutreachEmails,
-  ({ one }) => ({
-    creator: one(creators, {
-      fields: [creatorStubOutreachEmails.creatorId],
-      references: [creators.id],
-    }),
-  }),
-);
-
-export type BookPressLink = {
-  title: string;
-  url: string;
-  quote?: string | null;
-};
 
 export const books = pgTable(
   "books",
@@ -337,7 +186,7 @@ export const books = pgTable(
     purchaseLink: text("purchase_link"),
     /** External press / review links curated by the creator or admin. */
     pressLinks: jsonb("press_links")
-      .$type<BookPressLink[]>()
+      .$type<{ title: string; url: string; quote?: string | null }[]>()
       .default([])
       .notNull(),
     images: text("images").array(),
@@ -367,37 +216,6 @@ export const books = pgTable(
   }),
 );
 
-export const booksRelations = relations(books, ({ one, many }) => ({
-  artist: one(creators, {
-    fields: [books.artistId],
-    references: [creators.id],
-    relationName: "artistCreator",
-  }),
-  publisher: one(creators, {
-    fields: [books.publisherId],
-    references: [creators.id],
-    relationName: "publisherCreator",
-  }),
-  creatorUser: one(users, {
-    fields: [books.createdByUserId],
-    references: [users.id],
-    relationName: "bookCreator",
-  }),
-  submittedByUser: one(users, {
-    fields: [books.submittedByUserId],
-    references: [users.id],
-    relationName: "bookSubmitter",
-  }),
-  comments: many(bookComments),
-  images: many(bookImages),
-  wishlists: many(wishlists),
-  bookListItems: many(bookListItems),
-  collections: many(collectionItems),
-  bookOfTheDay: one(bookOfTheDay),
-  purchaseClicks: many(purchaseClicks),
-  bookViews: many(bookViews),
-}));
-
 export const creatorMilestoneEmails = pgTable(
   "creator_milestone_emails",
   {
@@ -406,28 +224,15 @@ export const creatorMilestoneEmails = pgTable(
       .notNull()
       .references(() => creators.id, { onDelete: "cascade" }),
     milestone: varchar("milestone", { length: 64 }).notNull(),
-    bookId: uuid("book_id").references(() => books.id, { onDelete: "set null" }),
+    bookId: uuid("book_id").references(() => books.id, {
+      onDelete: "set null",
+    }),
     sentAt: timestamp("sent_at").defaultNow().notNull(),
   },
   (table) => ({
-    uniqueCreatorMilestone: unique("creator_milestone_emails_creator_milestone").on(
-      table.creatorId,
-      table.milestone,
-    ),
-  }),
-);
-
-export const creatorMilestoneEmailsRelations = relations(
-  creatorMilestoneEmails,
-  ({ one }) => ({
-    creator: one(creators, {
-      fields: [creatorMilestoneEmails.creatorId],
-      references: [creators.id],
-    }),
-    book: one(books, {
-      fields: [creatorMilestoneEmails.bookId],
-      references: [books.id],
-    }),
+    uniqueCreatorMilestone: unique(
+      "creator_milestone_emails_creator_milestone",
+    ).on(table.creatorId, table.milestone),
   }),
 );
 
@@ -455,23 +260,6 @@ export const follows = pgTable(
   },
 );
 
-export const followsRelations = relations(follows, ({ one }) => ({
-  follower: one(users, {
-    fields: [follows.followerUserId],
-    references: [users.id],
-  }),
-
-  targetUser: one(users, {
-    fields: [follows.targetUserId],
-    references: [users.id],
-  }),
-
-  targetCreator: one(creators, {
-    fields: [follows.targetCreatorId],
-    references: [creators.id],
-  }),
-}));
-
 // Short updates keyed by user. Creators surface these on their page;
 // collectors on their public shelf.
 export const posts = pgTable("posts", {
@@ -485,13 +273,6 @@ export const posts = pgTable("posts", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
-export const postsRelations = relations(posts, ({ one, many }) => ({
-  user: one(users, {
-    fields: [posts.userId],
-    references: [users.id],
-  }),
-  likes: many(postLikes),
-}));
 
 export const postLikes = pgTable(
   "post_likes",
@@ -510,17 +291,6 @@ export const postLikes = pgTable(
   }),
 );
 
-export const postLikesRelations = relations(postLikes, ({ one }) => ({
-  user: one(users, {
-    fields: [postLikes.userId],
-    references: [users.id],
-  }),
-  post: one(posts, {
-    fields: [postLikes.postId],
-    references: [posts.id],
-  }),
-}));
-
 export const bookImages = pgTable("book_images", {
   id: uuid("id").primaryKey().defaultRandom(),
   bookId: uuid("book_id")
@@ -530,13 +300,6 @@ export const bookImages = pgTable("book_images", {
   sortOrder: integer("sort_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
-
-export const bookImagesRelations = relations(bookImages, ({ one }) => ({
-  book: one(books, {
-    fields: [bookImages.bookId],
-    references: [books.id],
-  }),
-}));
 
 export const bookComments = pgTable("book_comments", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -550,17 +313,6 @@ export const bookComments = pgTable("book_comments", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
-
-export const bookCommentsRelations = relations(bookComments, ({ one }) => ({
-  book: one(books, {
-    fields: [bookComments.bookId],
-    references: [books.id],
-  }),
-  user: one(users, {
-    fields: [bookComments.userId],
-    references: [users.id],
-  }),
-}));
 
 export const creatorClaims = pgTable("creator_claims", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -576,17 +328,6 @@ export const creatorClaims = pgTable("creator_claims", {
   verificationUrl: text("verification_url"), // The website URL to verify
 });
 
-export const creatorClaimsRelations = relations(creatorClaims, ({ one }) => ({
-  creator: one(creators, {
-    fields: [creatorClaims.creatorId],
-    references: [creators.id],
-  }),
-  user: one(users, {
-    fields: [creatorClaims.userId],
-    references: [users.id],
-  }),
-}));
-
 export const collectionItems = pgTable("collections", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
@@ -597,20 +338,6 @@ export const collectionItems = pgTable("collections", {
     .references(() => books.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
 });
-
-export const collectionItemsRelations = relations(
-  collectionItems,
-  ({ one }) => ({
-    user: one(users, {
-      fields: [collectionItems.userId],
-      references: [users.id],
-    }),
-    book: one(books, {
-      fields: [collectionItems.bookId],
-      references: [books.id],
-    }),
-  }),
-);
 
 export const wishlists = pgTable(
   "wishlists",
@@ -631,17 +358,6 @@ export const wishlists = pgTable(
     };
   },
 );
-
-export const wishlistsRelations = relations(wishlists, ({ one }) => ({
-  user: one(users, {
-    fields: [wishlists.userId],
-    references: [users.id],
-  }),
-  book: one(books, {
-    fields: [wishlists.bookId],
-    references: [books.id],
-  }),
-}));
 
 export const bookLists = pgTable(
   "book_lists",
@@ -667,14 +383,6 @@ export const bookLists = pgTable(
   }),
 );
 
-export const bookListsRelations = relations(bookLists, ({ one, many }) => ({
-  user: one(users, {
-    fields: [bookLists.userId],
-    references: [users.id],
-  }),
-  items: many(bookListItems),
-}));
-
 export const bookListItems = pgTable(
   "book_list_items",
   {
@@ -692,17 +400,6 @@ export const bookListItems = pgTable(
     pk: primaryKey(table.listId, table.bookId),
   }),
 );
-
-export const bookListItemsRelations = relations(bookListItems, ({ one }) => ({
-  list: one(bookLists, {
-    fields: [bookListItems.listId],
-    references: [bookLists.id],
-  }),
-  book: one(books, {
-    fields: [bookListItems.bookId],
-    references: [books.id],
-  }),
-}));
 
 export const bookOfTheDay = pgTable(
   "book_of_the_day",
@@ -740,13 +437,6 @@ export const bookOfTheDay = pgTable(
   }),
 );
 
-export const bookOfTheDayRelations = relations(bookOfTheDay, ({ one }) => ({
-  book: one(books, {
-    fields: [bookOfTheDay.bookId],
-    references: [books.id],
-  }),
-}));
-
 // Artist of the week: one per week, optional text
 export const artistOfTheWeek = pgTable(
   "artist_of_the_week",
@@ -782,16 +472,6 @@ export const artistOfTheWeek = pgTable(
   }),
 );
 
-export const artistOfTheWeekRelations = relations(
-  artistOfTheWeek,
-  ({ one }) => ({
-    creator: one(creators, {
-      fields: [artistOfTheWeek.creatorId],
-      references: [creators.id],
-    }),
-  }),
-);
-
 // Publisher of the week: one per week, optional text
 export const publisherOfTheWeek = pgTable(
   "publisher_of_the_week",
@@ -823,16 +503,6 @@ export const publisherOfTheWeek = pgTable(
   },
   (table) => ({
     uniqueWeek: unique("publisher_of_the_week_week_unique").on(table.weekStart),
-  }),
-);
-
-export const publisherOfTheWeekRelations = relations(
-  publisherOfTheWeek,
-  ({ one }) => ({
-    creator: one(creators, {
-      fields: [publisherOfTheWeek.creatorId],
-      references: [creators.id],
-    }),
   }),
 );
 
@@ -982,17 +652,6 @@ export const purchaseClicks = pgTable(
   }),
 );
 
-export const purchaseClicksRelations = relations(purchaseClicks, ({ one }) => ({
-  book: one(books, {
-    fields: [purchaseClicks.bookId],
-    references: [books.id],
-  }),
-  user: one(users, {
-    fields: [purchaseClicks.userId],
-    references: [users.id],
-  }),
-}));
-
 export const bookViews = pgTable(
   "book_views",
   {
@@ -1010,17 +669,6 @@ export const bookViews = pgTable(
     createdAtIdx: index("book_views_created_at_idx").on(table.createdAt),
   }),
 );
-
-export const bookViewsRelations = relations(bookViews, ({ one }) => ({
-  book: one(books, {
-    fields: [bookViews.bookId],
-    references: [books.id],
-  }),
-  user: one(users, {
-    fields: [bookViews.userId],
-    references: [users.id],
-  }),
-}));
 
 export const creatorViews = pgTable(
   "creator_views",
@@ -1045,17 +693,6 @@ export const creatorViews = pgTable(
     ),
   }),
 );
-
-export const creatorViewsRelations = relations(creatorViews, ({ one }) => ({
-  creator: one(creators, {
-    fields: [creatorViews.creatorId],
-    references: [creators.id],
-  }),
-  user: one(users, {
-    fields: [creatorViews.userId],
-    references: [users.id],
-  }),
-}));
 
 export const bookFairs = pgTable(
   "book_fairs",
@@ -1092,15 +729,6 @@ export const bookFairs = pgTable(
   }),
 );
 
-export const bookFairsRelations = relations(bookFairs, ({ one, many }) => ({
-  createdBy: one(users, {
-    fields: [bookFairs.createdByUserId],
-    references: [users.id],
-  }),
-  attendees: many(fairAttendees),
-  views: many(fairViews),
-}));
-
 export const fairAttendees = pgTable(
   "fair_attendees",
   {
@@ -1125,17 +753,6 @@ export const fairAttendees = pgTable(
   }),
 );
 
-export const fairAttendeesRelations = relations(fairAttendees, ({ one }) => ({
-  fair: one(bookFairs, {
-    fields: [fairAttendees.fairId],
-    references: [bookFairs.id],
-  }),
-  creator: one(creators, {
-    fields: [fairAttendees.creatorId],
-    references: [creators.id],
-  }),
-}));
-
 export const fairViews = pgTable(
   "fair_views",
   {
@@ -1153,17 +770,6 @@ export const fairViews = pgTable(
     createdAtIdx: index("fair_views_created_at_idx").on(table.createdAt),
   }),
 );
-
-export const fairViewsRelations = relations(fairViews, ({ one }) => ({
-  fair: one(bookFairs, {
-    fields: [fairViews.fairId],
-    references: [bookFairs.id],
-  }),
-  user: one(users, {
-    fields: [fairViews.userId],
-    references: [users.id],
-  }),
-}));
 
 export const bookStores = pgTable(
   "book_stores",
@@ -1195,156 +801,6 @@ export const bookStores = pgTable(
     countryIdx: index("book_stores_country_idx").on(table.country),
   }),
 );
-
-export const bookStoresRelations = relations(bookStores, ({ one }) => ({
-  createdBy: one(users, {
-    fields: [bookStores.createdByUserId],
-    references: [users.id],
-  }),
-}));
-
-// Infer types from tables
-export type User = InferSelectModel<typeof users>;
-export type NewUser = InferInsertModel<typeof users>;
-
-export type Creator = InferSelectModel<typeof creators>;
-export type NewCreator = InferInsertModel<typeof creators>;
-export type UpdateCreator = Partial<InferInsertModel<typeof creators>>;
-
-export type Book = InferSelectModel<typeof books>;
-export type NewBook = InferInsertModel<typeof books>;
-export type UpdateBook = Partial<InferInsertModel<typeof books>>;
-
-export type Follow = InferSelectModel<typeof follows>;
-export type NewFollow = InferInsertModel<typeof follows>;
-
-export type CollectionItem = InferSelectModel<typeof collectionItems>;
-export type NewCollectionItem = InferInsertModel<typeof collectionItems>;
-
-export type PostLike = InferSelectModel<typeof postLikes>;
-export type NewPostLike = InferInsertModel<typeof postLikes>;
-
-export type BookImage = InferSelectModel<typeof bookImages>;
-export type NewBookImage = InferInsertModel<typeof bookImages>;
-
-export type CreatorClaim = InferSelectModel<typeof creatorClaims>;
-export type NewCreatorClaim = InferInsertModel<typeof creatorClaims>;
-
-export type Wishlist = InferSelectModel<typeof wishlists>;
-export type NewWishlist = InferInsertModel<typeof wishlists>;
-
-export type BookList = InferSelectModel<typeof bookLists>;
-export type NewBookList = InferInsertModel<typeof bookLists>;
-
-export type BookListItem = InferSelectModel<typeof bookListItems>;
-export type NewBookListItem = InferInsertModel<typeof bookListItems>;
-
-export type CreatorMilestoneEmail = InferSelectModel<
-  typeof creatorMilestoneEmails
->;
-export type NewCreatorMilestoneEmail = InferInsertModel<
-  typeof creatorMilestoneEmails
->;
-export type CreatorStubOutreachEmail = InferSelectModel<
-  typeof creatorStubOutreachEmails
->;
-export type NewCreatorStubOutreachEmail = InferInsertModel<
-  typeof creatorStubOutreachEmails
->;
-export type StubOutreachEmailKind =
-  | "welcome"
-  | "views_50"
-  | "views_100"
-  | "views_150";
-
-// Infer enum types
-export type CreatorType = (typeof creatorTypeEnum.enumValues)[number];
-export type FollowTarget = (typeof followTargetEnum.enumValues)[number];
-export type CreatorClaimStatus =
-  (typeof creatorClaimStatusEnum.enumValues)[number];
-
-export type BookApprovalStatus =
-  (typeof bookApprovalStatusEnum.enumValues)[number];
-export type BookPublicationStatus =
-  (typeof bookPublicationStatusEnum.enumValues)[number];
-export type BookAvailabilityStatus =
-  (typeof bookAvailabilityStatusEnum.enumValues)[number];
-export type CreatorStatus = (typeof creatorStatusEnum.enumValues)[number];
-
-export type BookOfTheDay = InferSelectModel<typeof bookOfTheDay>;
-export type NewBookOfTheDay = InferInsertModel<typeof bookOfTheDay>;
-
-export type ArtistOfTheWeek = InferSelectModel<typeof artistOfTheWeek>;
-export type NewArtistOfTheWeek = InferInsertModel<typeof artistOfTheWeek>;
-export type PublisherOfTheWeek = InferSelectModel<typeof publisherOfTheWeek>;
-export type NewPublisherOfTheWeek = InferInsertModel<typeof publisherOfTheWeek>;
-export type NewsletterCampaign = InferSelectModel<typeof newsletterCampaigns>;
-export type NewNewsletterCampaign = InferInsertModel<
-  typeof newsletterCampaigns
->;
-export type NewsletterCampaignStatus =
-  (typeof newsletterCampaignStatusEnum.enumValues)[number];
-
-export type Post = InferSelectModel<typeof posts>;
-export type NewPost = InferInsertModel<typeof posts>;
-
-export type BookComment = InferSelectModel<typeof bookComments>;
-export type NewBookComment = InferInsertModel<typeof bookComments>;
-
-export type AdminNotification = InferSelectModel<typeof adminNotifications>;
-export type NewAdminNotification = InferInsertModel<typeof adminNotifications>;
-
-export type CreatorInterview = InferSelectModel<typeof creatorInterviews>;
-export type NewCreatorInterview = InferInsertModel<typeof creatorInterviews>;
-export type CreatorInterviewStatus =
-  (typeof creatorInterviewStatusEnum.enumValues)[number];
-
-export type InterviewType = (typeof interviewTypeEnum.enumValues)[number];
-
-export type PurchaseClick = InferSelectModel<typeof purchaseClicks>;
-export type NewPurchaseClick = InferInsertModel<typeof purchaseClicks>;
-export type PurchaseClickSource =
-  (typeof purchaseClickSourceEnum.enumValues)[number];
-
-export type BookView = InferSelectModel<typeof bookViews>;
-export type NewBookView = InferInsertModel<typeof bookViews>;
-export type BookViewSource = (typeof bookViewSourceEnum.enumValues)[number];
-
-export type CreatorView = InferSelectModel<typeof creatorViews>;
-export type NewCreatorView = InferInsertModel<typeof creatorViews>;
-export type CreatorViewSource =
-  (typeof creatorViewSourceEnum.enumValues)[number];
-
-export type BookFair = InferSelectModel<typeof bookFairs>;
-export type NewBookFair = InferInsertModel<typeof bookFairs>;
-export type UpdateBookFair = Partial<InferInsertModel<typeof bookFairs>>;
-export type BookFairStatus = (typeof bookFairStatusEnum.enumValues)[number];
-export type BookFairListingTier =
-  (typeof bookFairListingTierEnum.enumValues)[number];
-
-export type FairAttendee = InferSelectModel<typeof fairAttendees>;
-export type NewFairAttendee = InferInsertModel<typeof fairAttendees>;
-export type FairAttendeeStatus =
-  (typeof fairAttendeeStatusEnum.enumValues)[number];
-
-export type FairView = InferSelectModel<typeof fairViews>;
-export type NewFairView = InferInsertModel<typeof fairViews>;
-export type FairViewSource = (typeof fairViewSourceEnum.enumValues)[number];
-
-export type BookStore = InferSelectModel<typeof bookStores>;
-export type NewBookStore = InferInsertModel<typeof bookStores>;
-export type UpdateBookStore = Partial<InferInsertModel<typeof bookStores>>;
-export type BookStoreStatus = (typeof bookStoreStatusEnum.enumValues)[number];
-export type BookStoreApprovalStatus =
-  (typeof bookStoreApprovalStatusEnum.enumValues)[number];
-
-// ============ MAGAZINE ============
-
-export const magazineIssueStatusEnum = pgEnum("magazine_issue_status", [
-  "draft",
-  "approved",
-  "published",
-]);
 
 export const magazineIssues = pgTable(
   "magazine_issues",
@@ -1409,38 +865,6 @@ export const magazineIssueBooks = pgTable(
   }),
 );
 
-export const magazineIssuesRelations = relations(
-  magazineIssues,
-  ({ one, many }) => ({
-    createdByUser: one(users, {
-      fields: [magazineIssues.createdByUserId],
-      references: [users.id],
-    }),
-    books: many(magazineIssueBooks),
-  }),
-);
-
-export const magazineIssueBooksRelations = relations(
-  magazineIssueBooks,
-  ({ one }) => ({
-    issue: one(magazineIssues, {
-      fields: [magazineIssueBooks.issueId],
-      references: [magazineIssues.id],
-    }),
-    book: one(books, {
-      fields: [magazineIssueBooks.bookId],
-      references: [books.id],
-    }),
-  }),
-);
-
-export type MagazineIssue = InferSelectModel<typeof magazineIssues>;
-export type NewMagazineIssue = InferInsertModel<typeof magazineIssues>;
-export type MagazineIssueStatus =
-  (typeof magazineIssueStatusEnum.enumValues)[number];
-export type MagazineIssueBook = InferSelectModel<typeof magazineIssueBooks>;
-export type NewMagazineIssueBook = InferInsertModel<typeof magazineIssueBooks>;
-
 /** Snapshot of publisher catalogue products for weekly new-release watch. */
 export const publisherReleaseWatchSeen = pgTable(
   "publisher_release_watch_seen",
@@ -1462,9 +886,93 @@ export const publisherReleaseWatchSeen = pgTable(
   }),
 );
 
-export type PublisherReleaseWatchSeen = InferSelectModel<
-  typeof publisherReleaseWatchSeen
->;
-export type NewPublisherReleaseWatchSeen = InferInsertModel<
-  typeof publisherReleaseWatchSeen
->;
+export type {
+  BookPressLink,
+  User,
+  NewUser,
+  Creator,
+  NewCreator,
+  UpdateCreator,
+  Book,
+  NewBook,
+  UpdateBook,
+  Follow,
+  NewFollow,
+  CollectionItem,
+  NewCollectionItem,
+  PostLike,
+  NewPostLike,
+  BookImage,
+  NewBookImage,
+  CreatorClaim,
+  NewCreatorClaim,
+  Wishlist,
+  NewWishlist,
+  BookList,
+  NewBookList,
+  BookListItem,
+  NewBookListItem,
+  CreatorMilestoneEmail,
+  NewCreatorMilestoneEmail,
+  CreatorStubOutreachEmail,
+  NewCreatorStubOutreachEmail,
+  StubOutreachEmailKind,
+  CreatorType,
+  FollowTarget,
+  CreatorClaimStatus,
+  BookApprovalStatus,
+  BookPublicationStatus,
+  BookAvailabilityStatus,
+  CreatorStatus,
+  BookOfTheDay,
+  NewBookOfTheDay,
+  ArtistOfTheWeek,
+  NewArtistOfTheWeek,
+  PublisherOfTheWeek,
+  NewPublisherOfTheWeek,
+  NewsletterCampaign,
+  NewNewsletterCampaign,
+  NewsletterCampaignStatus,
+  Post,
+  NewPost,
+  BookComment,
+  NewBookComment,
+  AdminNotification,
+  NewAdminNotification,
+  CreatorInterview,
+  NewCreatorInterview,
+  CreatorInterviewStatus,
+  InterviewType,
+  PurchaseClick,
+  NewPurchaseClick,
+  PurchaseClickSource,
+  BookView,
+  NewBookView,
+  BookViewSource,
+  CreatorView,
+  NewCreatorView,
+  CreatorViewSource,
+  BookFair,
+  NewBookFair,
+  UpdateBookFair,
+  BookFairStatus,
+  BookFairListingTier,
+  FairAttendee,
+  NewFairAttendee,
+  FairAttendeeStatus,
+  FairView,
+  NewFairView,
+  FairViewSource,
+  BookStore,
+  NewBookStore,
+  UpdateBookStore,
+  BookStoreStatus,
+  BookStoreApprovalStatus,
+  MagazineIssue,
+  NewMagazineIssue,
+  MagazineIssueStatus,
+  MagazineIssueBook,
+  NewMagazineIssueBook,
+  PublisherReleaseWatchSeen,
+  NewPublisherReleaseWatchSeen,
+} from "./types";

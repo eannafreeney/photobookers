@@ -20,6 +20,7 @@ import { registerFairCoverForm } from "../features/dashboard/admin/fairs/client/
 import { registerFairBannerForm } from "../features/dashboard/admin/fairs/client/fairBannerForm";
 import { registerStoreFormAdmin } from "../features/dashboard/admin/stores/client/storeFormAdmin";
 import { registerStoreCoverForm } from "../features/dashboard/admin/stores/client/storeCoverForm";
+import { registerCommentForm } from "../features/api/client/commentForm";
 import { registerBookCoverForm } from "../features/dashboard/books/client/bookCoverForm";
 import { registerBookGalleryForm } from "../features/dashboard/books/client/bookGalleryForm";
 import { registerBooksTableReorder } from "../features/dashboard/books/client/booksTableReorder";
@@ -48,6 +49,7 @@ registerFairCoverForm();
 registerFairBannerForm();
 registerStoreFormAdmin();
 registerStoreCoverForm();
+registerCommentForm();
 registerBookCoverForm();
 registerBookGalleryForm();
 registerBooksTableReorder();
