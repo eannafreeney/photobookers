@@ -28,7 +28,7 @@ const FairsTimeline = ({ fairs }: Props) => {
           <li key={fair.id} class="border-t border-outline first:border-t-0">
             <a
               href={`/fairs/${fair.slug}`}
-              class="group flex items-baseline gap-4 py-4 transition-colors hover:bg-surface-alt/50 sm:gap-6"
+              class="group flex items-center gap-4 py-4 transition-colors hover:bg-surface-alt/50 sm:gap-6"
             >
               <span class="flex w-24 shrink-0 flex-col items-start sm:w-28">
                 {range.month ? (
