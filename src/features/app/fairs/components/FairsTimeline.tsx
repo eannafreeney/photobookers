@@ -44,7 +44,7 @@ const FairsTimeline = ({ fairs }: Props) => {
                   <img
                     src={fair.coverUrl}
                     alt={fair.name}
-                    class="w-10 h-10 object-cover rounded-radius"
+                    class="w-12 h-12 object-cover rounded-radius"
                   />
                 </span>
               ) : null}
