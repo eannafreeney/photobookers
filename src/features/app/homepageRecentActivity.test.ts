@@ -27,14 +27,20 @@ describe("mergeRecentActivityItems", () => {
     const merged = mergeRecentActivityItems([
       base({
         id: "old",
+        actorName: "Pat",
+        targetUrl: "/books/old",
         createdAt: new Date("2026-08-18T12:00:00Z"),
       }),
       base({
         id: "new",
+        actorName: "Sam",
+        targetUrl: "/books/new",
         createdAt: new Date("2026-08-20T12:00:00Z"),
       }),
       base({
         id: "no-image",
+        actorName: "Lee",
+        targetUrl: "/books/no-image",
         imageUrl: "   ",
         createdAt: new Date("2026-08-21T12:00:00Z"),
       }),
@@ -47,9 +53,24 @@ describe("mergeRecentActivityItems", () => {
   it("respects the limit", () => {
     const merged = mergeRecentActivityItems(
       [
-        base({ id: "a", createdAt: new Date("2026-08-20T12:00:00Z") }),
-        base({ id: "b", createdAt: new Date("2026-08-19T12:00:00Z") }),
-        base({ id: "c", createdAt: new Date("2026-08-18T12:00:00Z") }),
+        base({
+          id: "a",
+          actorName: "A",
+          targetUrl: "/books/a",
+          createdAt: new Date("2026-08-20T12:00:00Z"),
+        }),
+        base({
+          id: "b",
+          actorName: "B",
+          targetUrl: "/books/b",
+          createdAt: new Date("2026-08-19T12:00:00Z"),
+        }),
+        base({
+          id: "c",
+          actorName: "C",
+          targetUrl: "/books/c",
+          createdAt: new Date("2026-08-18T12:00:00Z"),
+        }),
       ],
       2,
     );
@@ -72,7 +93,64 @@ describe("formatActivityActorName", () => {
     expect(
       formatActivityActorName({ firstName: "Oliver", lastName: "Burgold" }),
     ).toBe("Oliver Burgold");
-    expect(formatActivityActorName({})).toBe("Someone");
+    expect(formatActivityActorName({})).toBe("a collector");
+  });
+});
+
+describe("mergeRecentActivityItems actor and target caps", () => {
+  it("keeps at most two items per actor", () => {
+    const merged = mergeRecentActivityItems(
+      [
+        base({
+          id: "a1",
+          actorName: "Oliver",
+          targetUrl: "/books/one",
+          createdAt: new Date("2026-08-20T12:00:00Z"),
+        }),
+        base({
+          id: "a2",
+          actorName: "Oliver",
+          targetUrl: "/books/two",
+          createdAt: new Date("2026-08-20T11:00:00Z"),
+        }),
+        base({
+          id: "a3",
+          actorName: "Oliver",
+          targetUrl: "/books/three",
+          createdAt: new Date("2026-08-20T10:00:00Z"),
+        }),
+        base({
+          id: "b1",
+          actorName: "Pat",
+          targetUrl: "/books/four",
+          createdAt: new Date("2026-08-20T09:00:00Z"),
+        }),
+      ],
+      10,
+    );
+
+    expect(merged.map((item) => item.id)).toEqual(["a1", "a2", "b1"]);
+  });
+
+  it("dedupes the same target url", () => {
+    const merged = mergeRecentActivityItems([
+      base({
+        id: "fav",
+        type: "book_favourited",
+        targetUrl: "/books/love-knot",
+        createdAt: new Date("2026-08-20T12:00:00Z"),
+      }),
+      base({
+        id: "comment",
+        type: "book_commented",
+        actorName: "Sam",
+        targetUrl: "/books/love-knot",
+        createdAt: new Date("2026-08-20T11:00:00Z"),
+      }),
+    ]);
+
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.id).toBe("fav");
   });
 });
 

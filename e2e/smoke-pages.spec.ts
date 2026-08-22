@@ -32,14 +32,17 @@ test.describe("public page smoke", () => {
     await deleteE2eAuthUsers(trackedUserIds);
   });
 
-  test("/featured renders the homepage hero", async ({ page }) => {
-    await page.goto("/featured");
+  test("/ renders the homepage hero", async ({ page }) => {
+    await page.goto("/");
 
     await expect(
-      page.getByRole("heading", {
-        name: /every photobook, artist, and publisher/i,
-      }),
+      page.getByText(/curated gathering place for photobooks/i).first(),
     ).toBeVisible();
+  });
+
+  test("/featured permanently redirects to /", async ({ page }) => {
+    await page.goto("/featured");
+    await expect(page).toHaveURL(/\/(\?.*)?$/);
   });
 
   test("/creators/[slug] renders a seeded verified creator", async ({ page }) => {

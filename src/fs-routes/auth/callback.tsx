@@ -135,7 +135,7 @@ export const GET = createRoute(
     await setFlash(c, "success", "Account Verified. Welcome to Photobookers!");
     // Creators: welcome banner on homepage (localStorage-dismissable). Fans: home.
     if (isCreator) {
-      return c.redirect("/featured?welcome=dashboard");
+      return c.redirect("/?welcome=dashboard");
     }
     return c.redirect("/");
   },

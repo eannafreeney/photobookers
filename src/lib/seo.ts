@@ -5,6 +5,33 @@ export const SITE_NAME = "photobookers";
 export const DEFAULT_DESCRIPTION =
   "Discover and explore photobooks. Browse books, artists, and publishers in one place.";
 
+export const HOMEPAGE_DESCRIPTION =
+  "Discover photobooks through Book of the Day, weekly artist and publisher spotlights, book fairs, and a curated archive of artists and presses.";
+
+export function buildHomeJsonLd(canonicalUrl: string, imageUrl?: string | null) {
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: canonicalUrl,
+    description: HOMEPAGE_DESCRIPTION,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${new URL("/search/results", canonicalUrl).href}?search={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  if (imageUrl?.trim()) {
+    jsonLd.image = imageUrl.trim();
+  }
+
+  return jsonLd;
+}
+
 export function pageTitle(title: string): string {
   if (title.toLowerCase().includes(SITE_NAME)) return title;
   return `${title} | ${SITE_NAME}`;

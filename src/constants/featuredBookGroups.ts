@@ -1,4 +1,4 @@
-/** Curated discover tags shown as horizontal book groups on /featured. */
+/** Curated discover tags shown as horizontal book groups on the homepage. */
 export const FEATURED_BOOK_GROUPS = [
   "japan",
   "urban",

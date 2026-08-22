@@ -43,7 +43,7 @@ export function formatActivityActorName(user: {
     .map((part) => part?.trim())
     .filter(Boolean)
     .join(" ");
-  return fullName || "Someone";
+  return fullName || "a collector";
 }
 
 export function recentActivityVerb(type: RecentActivityType): string {
@@ -72,18 +72,37 @@ export function resolveActivityImageUrl(
   return resolvePublicUrl(trimmed);
 }
 
+/** Default: at most two events per actor so one person can't own the strip. */
+export const DEFAULT_MAX_ACTIVITY_PER_ACTOR = 2;
+
 export function mergeRecentActivityItems(
   rows: RawActivityRow[],
   limit = 10,
   resolvePublicUrl: (url: string) => string = (value) => value,
+  options: { maxPerActor?: number; dedupeTargets?: boolean } = {},
 ): RecentActivityItem[] {
+  const maxPerActor = options.maxPerActor ?? DEFAULT_MAX_ACTIVITY_PER_ACTOR;
+  const dedupeTargets = options.dedupeTargets ?? true;
   const withImages: RecentActivityItem[] = [];
+  const actorCounts = new Map<string, number>();
+  const seenTargets = new Set<string>();
 
   for (const row of [...rows].sort(
     (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
   )) {
     const imageUrl = resolveActivityImageUrl(row.imageUrl, resolvePublicUrl);
     if (!imageUrl) continue;
+
+    const actorKey = row.actorName.trim().toLowerCase() || "unknown";
+    const actorCount = actorCounts.get(actorKey) ?? 0;
+    if (actorCount >= maxPerActor) continue;
+
+    const targetKey = row.targetUrl.trim();
+    if (dedupeTargets && targetKey && seenTargets.has(targetKey)) continue;
+
+    actorCounts.set(actorKey, actorCount + 1);
+    if (targetKey) seenTargets.add(targetKey);
+
     withImages.push({
       ...row,
       imageUrl,
@@ -142,7 +161,7 @@ export function liveActivityEventToStripItem(event: {
   return {
     id: event.id,
     type: event.type,
-    actorName: event.actorName?.trim() || "Someone",
+    actorName: event.actorName?.trim() || "a collector",
     actorImageUrl: event.actorImageUrl ?? null,
     targetName: event.targetName,
     targetUrl: event.targetUrl,

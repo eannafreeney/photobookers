@@ -27,7 +27,7 @@ test.describe("auth callback", () => {
 
     await page.goto(signup.callbackPath);
 
-    await expect(page).toHaveURL(/\/featured$/);
+    await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole("link", { name: "Library" })).toBeVisible();
   });
 });

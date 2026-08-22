@@ -8,9 +8,9 @@ const NavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       id="nav-tabs"
       class="hidden md:flex items-center justify-center border-b border-outline gap-4 mb-2 mt-2"
     >
-      <NavLink href="/featured" currentPath={currentPath}>
+      <NavLink href="/" currentPath={currentPath}>
         {bookIcon}
-        Featured
+        Home
       </NavLink>
       <NavLink href="/feed" currentPath={currentPath}>
         {feedIcon}

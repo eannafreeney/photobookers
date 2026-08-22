@@ -24,7 +24,7 @@ export type SitemapEntry = {
 const STATIC_PAGES: Array<
   Pick<SitemapEntry, "loc" | "changefreq" | "priority">
 > = [
-  { loc: "/featured", changefreq: "daily", priority: 1.0 },
+  { loc: "/", changefreq: "daily", priority: 1.0 },
   { loc: "/books", changefreq: "daily", priority: 0.9 },
   { loc: "/artists", changefreq: "weekly", priority: 0.8 },
   { loc: "/publishers", changefreq: "weekly", priority: 0.8 },

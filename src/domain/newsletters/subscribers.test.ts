@@ -14,7 +14,7 @@ describe("newsletterSubscriberLabel", () => {
   });
 
   it("rounds down to a stable figure", () => {
-    expect(newsletterSubscriberLabel(87)).toBe("Join 80+ readers");
+    expect(newsletterSubscriberLabel(520)).toBe("Join 520+ readers");
     expect(newsletterSubscriberLabel(1204)).toBe("Join 1,200+ readers");
     expect(newsletterSubscriberLabel(1999)).toBe("Join 1,900+ readers");
   });
@@ -22,6 +22,11 @@ describe("newsletterSubscriberLabel", () => {
   it("shows the threshold itself", () => {
     expect(
       newsletterSubscriberLabel(NEWSLETTER_SUBSCRIBER_MIN_DISPLAY),
-    ).toBe("Join 50+ readers");
+    ).toBe("Join 500+ readers");
+  });
+
+  it("hides small subscriber counts that undercut trust", () => {
+    expect(newsletterSubscriberLabel(87)).toBeNull();
+    expect(newsletterSubscriberLabel(240)).toBeNull();
   });
 });

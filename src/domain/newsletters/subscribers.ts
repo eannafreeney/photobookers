@@ -5,7 +5,7 @@ import {
 } from "../../lib/brevo/client";
 
 /** Below this the count is not proof of anything — better to say nothing. */
-export const NEWSLETTER_SUBSCRIBER_MIN_DISPLAY = 50;
+export const NEWSLETTER_SUBSCRIBER_MIN_DISPLAY = 500;
 
 const CACHE_TTL_MS = 1000 * 60 * 60;
 const cache = new LRUCache<string, number>({ max: 1, ttl: CACHE_TTL_MS });

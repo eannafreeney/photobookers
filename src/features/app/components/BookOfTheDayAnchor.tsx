@@ -64,9 +64,9 @@ const BookOfTheDayAnchor = ({
           <span class="kicker text-accent">
             Book of the Day · {formatDateWithoutYear(today.date)}
           </span>
-          <h2 class="font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance md:text-5xl">
+          <h1 class="font-display text-3xl font-medium leading-tight text-on-surface-strong text-balance md:text-5xl">
             <a href={link}>{book.title}</a>
-          </h2>
+          </h1>
           {book.artist ? (
             <p class="text-sm text-on-surface md:text-base">
               by{" "}
@@ -83,7 +83,7 @@ const BookOfTheDayAnchor = ({
             <a href={link} class="group">
               <Button variant="solid" color="primary" width="lg">
                 <span class="inline-flex items-center">
-                  today's pick
+                  Read today's pick
                   <span class="w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-6 group-hover:opacity-100">
                     &nbsp;→
                   </span>

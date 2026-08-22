@@ -53,7 +53,7 @@ const LinksPage = ({
     <div class="mx-auto flex w-full max-w-md flex-col gap-8">
       <header class="flex flex-col items-center gap-2 border-b-2 border-t-2 border-on-surface-strong py-6 text-center">
         <a
-          href="/featured"
+          href="/"
           class="kicker text-accent transition-opacity hover:opacity-80"
         >
           Photobookers
@@ -70,7 +70,7 @@ const LinksPage = ({
         <p class="text-center text-sm text-on-surface">
           Nothing featured right now.{" "}
           <a
-            href="/featured"
+            href="/"
             class="underline decoration-accent underline-offset-4 hover:text-accent"
           >
             Explore Photobookers
@@ -205,7 +205,7 @@ const LinksPage = ({
         </section>
       ) : null}
 
-      <a href="/featured" class="mx-auto ">
+      <a href="/" class="mx-auto ">
         <Button variant="outline" color="primary" width="auto">
           Visit Photobookers
         </Button>

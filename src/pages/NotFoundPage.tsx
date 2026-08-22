@@ -23,7 +23,7 @@ const NotFoundPage = ({
           <p class="text-on-surface max-w-md text-pretty">
             The page you’re looking for doesn’t exist or has been moved.
           </p>
-          <a href="/featured">
+          <a href="/">
             <Button variant="solid" color="primary" width="lg">
               Back home
             </Button>

@@ -9,7 +9,7 @@ const FeaturedBookGroups = async () => {
 
   return (
     <div id="featured-book-groups">
-      <SectionHeader kicker="Browse by Theme">Groups</SectionHeader>
+      <SectionHeader kicker="Browse by theme">Themes</SectionHeader>
       <div class="overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div class="flex min-w-max items-center gap-4 pr-4">
           {FEATURED_BOOK_GROUPS.map((tag) => (

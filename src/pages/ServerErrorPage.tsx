@@ -23,7 +23,7 @@ const ServerErrorPage = ({ currentPath, user }: ServerErrorPageProps) => {
             Something went wrong on our side. We&apos;re working on it — please
             try again in a few minutes.
           </p>
-          <a href="/featured">
+          <a href="/">
             <Button variant="solid" color="primary" width="lg">
               Back home
             </Button>

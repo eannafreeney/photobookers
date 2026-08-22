@@ -18,7 +18,7 @@ describe("resolveAppBaseUrl", () => {
 
     expect(resolveAppBaseUrl()).toBe("https://www.photobookers.com");
     expect(newsletterNavLinks()[0]?.href).toBe(
-      "https://www.photobookers.com/featured",
+      "https://www.photobookers.com/",
     );
   });
 });

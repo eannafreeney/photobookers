@@ -84,11 +84,10 @@ const FollowButton = async ({
       buttonIcon
     ) : (
       <>
-        <span x-show="!isSubmitting">
+        <span
+          x-text={`isSubmitting ? ${JSON.stringify(isFollowing ? "Follow" : "Following")} : ${JSON.stringify(isFollowing ? "Following" : "Follow")}`}
+        >
           {isFollowing ? "Following" : "Follow"}
-        </span>
-        <span x-show="isSubmitting" x-cloak>
-          {isFollowing ? "Follow" : "Following"}
         </span>
         {buttonIcon}
       </>

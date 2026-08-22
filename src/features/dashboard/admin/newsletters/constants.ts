@@ -38,7 +38,7 @@ export const newsletterSocial = {
 export function newsletterNavLinks() {
   const base = resolveAppBaseUrl();
   return [
-    { label: "Featured", href: `${base}/featured` },
+    { label: "Home", href: `${base}/` },
     { label: "Books", href: `${base}/books` },
     { label: "Book of the Day", href: `${base}/book-of-the-day` },
     { label: "This Week", href: `${base}/this-week` },
