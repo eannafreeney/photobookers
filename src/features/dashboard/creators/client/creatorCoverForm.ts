@@ -1,8 +1,8 @@
-import Alpine from "alpinejs";
+import { alpine } from "../../../../client/alpine";
 import { compressImage } from "../../../../client/utils/imageCompression";
 
 export function registerCreatorCoverForm() {
-  Alpine.data(
+  alpine().data(
     "creatorCoverForm",
     ({ initialUrl }: { initialUrl: string | null }) => {
       return {

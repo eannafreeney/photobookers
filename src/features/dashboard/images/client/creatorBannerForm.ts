@@ -1,8 +1,8 @@
-import Alpine from "alpinejs";
+import { alpine } from "../../../../client/alpine";
 import { compressImage } from "../../../../client/utils/imageCompression";
 
 export function registerCreatorBannerForm() {
-  Alpine.data(
+  alpine().data(
     "creatorBannerForm",
     ({ initialUrl }: { initialUrl: string | null }) => {
       return {
