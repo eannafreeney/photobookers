@@ -316,6 +316,22 @@ export async function updateIssueDetails(
   }
 }
 
+/** Set the issue cover image URL after an admin upload. */
+export async function updateIssueCoverUrl(id: string, coverUrl: string) {
+  try {
+    const [row] = await db
+      .update(magazineIssues)
+      .set({ coverUrl })
+      .where(eq(magazineIssues.id, id))
+      .returning({ id: magazineIssues.id, coverUrl: magazineIssues.coverUrl });
+    if (!row) return err({ reason: "Issue not found" });
+    return ok(row);
+  } catch (error) {
+    console.error("Failed to update magazine cover", error);
+    return err({ reason: "Failed to update magazine cover", error });
+  }
+}
+
 /** Update the generated blurb for one book within an issue. */
 export async function updateIssueBookBlurb(
   issueId: string,

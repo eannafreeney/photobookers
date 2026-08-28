@@ -19,6 +19,7 @@ import {
   truncateDescription,
 } from "../../../lib/seo";
 import Button from "../../../components/app/Button";
+import { setAnonPageCache } from "../../../lib/staticCache";
 
 const SPOTLIGHT_BOOKS_LIMIT = 500;
 
@@ -75,15 +76,7 @@ export const GET = createRoute(paramValidator(weekParamSchema), async (c) => {
     booksResult.books[0]?.coverUrl ??
     undefined;
 
-  if (!user) {
-    c.header("Vary", "Cookie");
-    c.header(
-      "Cache-Control",
-      "private, max-age=120, stale-while-revalidate=600",
-    );
-  } else {
-    c.header("Cache-Control", "private, no-store");
-  }
+  setAnonPageCache(c, user);
 
   return c.html(
     <AppLayout

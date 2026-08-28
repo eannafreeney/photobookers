@@ -15,6 +15,7 @@ import {
   toWeekStart,
 } from "../../lib/utils";
 import { thisWeekPath } from "../../features/app/spotlightUrls";
+import { setAnonPageCache } from "../../lib/staticCache";
 import type { InterviewPreview } from "../../features/app/components/InterviewPreviewSection";
 
 export const GET = createRoute(async (c) => {
@@ -55,15 +56,7 @@ export const GET = createRoute(async (c) => {
     publisherOfTheWeek?.creator.coverUrl ??
     undefined;
 
-  if (!user) {
-    c.header("Vary", "Cookie");
-    c.header(
-      "Cache-Control",
-      "private, max-age=120, stale-while-revalidate=600",
-    );
-  } else {
-    c.header("Cache-Control", "private, no-store");
-  }
+  setAnonPageCache(c, user);
 
   return c.html(
     <AppLayout

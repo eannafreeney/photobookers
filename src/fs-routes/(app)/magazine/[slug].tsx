@@ -1,14 +1,16 @@
 import { createRoute } from "hono-fsr";
 import AppLayout from "@/components/layouts/AppLayout";
 import Page from "@/components/layouts/Page";
-import MagazineIssuePage from "@/features/app/components/magazine/MagazineIssuePage";
 import { getPublishedIssueBySlug } from "@/domain/magazine/queries";
 import { isFeatureEnabledForUser } from "@/lib/features";
 import InfoPage from "@/pages/InfoPage";
 import { canonicalUrl, pageTitle, truncateDescription } from "@/lib/seo";
 import { heroLcpImageSources } from "@/lib/imageUrl";
 import { getUser } from "@/utils";
+import { setAnonPageCache } from "@/lib/staticCache";
 import MagazineIssuePage3 from "@/features/app/components/magazine/MagazineIssuePage3";
+import MagazineIssuePage2 from "@/features/app/components/magazine/MagazineIssuePage2";
+import MagazineIssuePage1 from "@/features/app/components/magazine/MagazineIssuePage";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -37,15 +39,7 @@ export const GET = createRoute(async (c) => {
   const issueCanonicalUrl = canonicalUrl(c.req.url, path);
   const shareImage = issue.bannerUrl ?? issue.coverUrl ?? "";
 
-  if (!user) {
-    c.header("Vary", "Cookie");
-    c.header(
-      "Cache-Control",
-      "public, max-age=300, stale-while-revalidate=3600",
-    );
-  } else {
-    c.header("Cache-Control", "private, no-store");
-  }
+  setAnonPageCache(c, user);
 
   return c.html(
     <AppLayout

@@ -15,6 +15,7 @@ import ListNavigation from "../../../../../features/app/components/ListNavigatio
 import ShareButton from "../../../../../features/api/components/ShareButton";
 import { canonicalUrl, pageTitle } from "../../../../../lib/seo";
 import { routeParam } from "../../../../../lib/routeParam";
+import { setAnonPageCache } from "../../../../../lib/staticCache";
 import { z } from "zod";
 import { formatShelfOwnerName } from "../../../../../domain/shelf/utils";
 import {
@@ -71,15 +72,7 @@ export const GET = createRoute(
       );
     }
 
-    if (!user) {
-      c.header("Vary", "Cookie");
-      c.header(
-        "Cache-Control",
-        "private, max-age=120, stale-while-revalidate=600",
-      );
-    } else {
-      c.header("Cache-Control", "private, no-store");
-    }
+    setAnonPageCache(c, user);
 
     const title = pageTitle(`${list.title} · ${displayName}`);
     const description =

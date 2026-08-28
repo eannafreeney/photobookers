@@ -61,9 +61,9 @@ export const GET = createRoute(async (c) => {
                         <img
                           src={issue.coverUrl}
                           alt={`${kicker}: ${issue.title}`}
-                          width={400}
-                          height={600}
-                          class="w-32 border border-outline object-cover sm:w-36"
+                          width={480}
+                          height={300}
+                          class="w-full max-w-xs border border-outline object-cover aspect-16/10 sm:w-56"
                         />
                       </Link>
                     ) : null}

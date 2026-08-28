@@ -32,27 +32,23 @@ const MagazineIssuePage3 = ({ issue }: Props) => {
   return (
     <div class="mx-auto flex w-full max-w-2xl flex-col gap-10">
       <PageHeader
-        kicker={issue.kicker ?? undefined}
+        kicker={
+          issue.issueNumber
+            ? `Issue ${String(issue.issueNumber).padStart(2, "0")}`
+            : undefined
+        }
         title={issue.title}
         intro={issue.subtitle ?? undefined}
       />
 
-      <p class="text-sm text-on-surface">
-        {[
-          issue.publishedLabel,
-          issue.readingMinutes ? `${issue.readingMinutes} min read` : null,
-          `${bookCount} books`,
-        ]
-          .filter(Boolean)
-          .join(" · ")}
-      </p>
-
       {issue.editorsLetter.length > 0 ? (
         <section
           id="editors-letter"
-          class="scroll-mt-24 flex max-w-xl flex-col gap-4 border-t border-outline pt-8"
+          class="scroll-mt-24 flex max-w-xl flex-col gap-4"
         >
-          <SectionTitle className="mb-0 mt-0">Editor's letter</SectionTitle>
+          <SectionTitle className="mb-0 mt-0 text-on-surface-weak">
+            Editor's letter
+          </SectionTitle>
           {issue.editorsLetter.map((paragraph) => (
             <p class={proseClass}>{paragraph}</p>
           ))}

@@ -24,6 +24,7 @@ import CreatorOfTheWeekSpotlight from "../../features/app/components/CreatorOfTh
 import SectionSkeleton from "../../features/app/components/SectionSkeleton";
 import HomepageAudiencePitch from "../../features/app/components/HomepageAudiencePitch";
 import DiscoveryTagChips from "../../features/app/components/DiscoveryTagChips";
+import MagazineHomepagePromo from "../../features/app/components/MagazineHomepagePromo";
 import { AuthUser } from "../../../types";
 
 export const GET = createRoute(async (c: Context) => {
@@ -71,6 +72,8 @@ export const GET = createRoute(async (c: Context) => {
             user={user}
           />
         ) : null}
+
+        <MagazineHomepagePromo />
 
         {!user ? <HomepageAudiencePitch /> : null}
 

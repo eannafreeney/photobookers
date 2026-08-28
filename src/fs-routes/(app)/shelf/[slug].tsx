@@ -21,6 +21,7 @@ import {
   shelfShareTitle,
 } from "../../../lib/share";
 import { getInitialsAvatar } from "../../../lib/avatar";
+import { setAnonPageCache } from "../../../lib/staticCache";
 import { listPosts } from "../../../db/queries";
 import { getPostLikeStats } from "../../../domain/posts/likes";
 import { getPublishedContributionsByUserId } from "../../../domain/contributors/services";
@@ -63,15 +64,7 @@ export const GET = createRoute(
       );
     }
 
-    if (!user) {
-      c.header("Vary", "Cookie");
-      c.header(
-        "Cache-Control",
-        "private, max-age=120, stale-while-revalidate=600",
-      );
-    } else {
-      c.header("Cache-Control", "private, no-store");
-    }
+    setAnonPageCache(c, user);
 
     const posts = owner.creator ? [] : await listPosts(owner.id);
     const postLikeStats = await getPostLikeStats(

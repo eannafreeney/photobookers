@@ -13,6 +13,7 @@ import CreatorDetail from "../../../features/app/components/creatorPage/CreatorD
 import { canonicalUrl, creatorDescription, pageTitle } from "../../../lib/seo";
 import { getUpcomingFairsForCreator } from "../../../features/app/fairs/services";
 import { routeParam } from "../../../lib/routeParam";
+import { setAnonPageCache } from "../../../lib/staticCache";
 import { countCreatorPosts } from "../../../db/queries";
 
 export const GET = createRoute(
@@ -48,15 +49,7 @@ export const GET = createRoute(
       upcomingFairs = fairsResult;
     }
 
-    if (!user) {
-      c.header("Vary", "Cookie");
-      c.header(
-        "Cache-Control",
-        "private, max-age=120, stale-while-revalidate=600",
-      );
-    } else {
-      c.header("Cache-Control", "private, no-store");
-    }
+    setAnonPageCache(c, user);
 
     const title = pageTitle(creator.displayName);
     const description = creatorDescription(creator);

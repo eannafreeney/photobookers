@@ -18,6 +18,7 @@ import {
   truncateDescription,
 } from "../../../lib/seo";
 import { parseDateString } from "../../../lib/utils";
+import { setAnonPageCache } from "../../../lib/staticCache";
 import Button from "../../../components/app/Button";
 
 const dateParamSchema = z.object({
@@ -65,15 +66,7 @@ export const GET = createRoute(paramValidator(dateParamSchema), async (c) => {
     ...(book.images?.map((image) => image.imageUrl) ?? []),
   ].filter((url): url is string => url !== null);
 
-  if (!user) {
-    c.header("Vary", "Cookie");
-    c.header(
-      "Cache-Control",
-      "private, max-age=120, stale-while-revalidate=600",
-    );
-  } else {
-    c.header("Cache-Control", "private, no-store");
-  }
+  setAnonPageCache(c, user);
 
   return c.html(
     <AppLayout

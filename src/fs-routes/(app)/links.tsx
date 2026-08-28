@@ -9,6 +9,7 @@ import { getThisWeeksArtistOfTheWeek } from "../../features/app/AOTWServices";
 import { getThisWeeksPublisherOfTheWeek } from "../../features/app/POTWServices";
 import { getFairsInNextDays } from "../../features/app/fairs/services";
 import { pageTitle, truncateDescription } from "../../lib/seo";
+import { setAnonPageCache } from "../../lib/staticCache";
 import HeadlessLayout from "../../components/layouts/HeadlessLayout";
 
 export const GET = createRoute(async (c) => {
@@ -39,15 +40,7 @@ export const GET = createRoute(async (c) => {
   const newCreators = !newCreatorsErr ? newlyVerifiedCreators : [];
   const fairs = !fairsErr ? upcomingFairs : [];
 
-  if (!user) {
-    c.header("Vary", "Cookie");
-    c.header(
-      "Cache-Control",
-      "private, max-age=120, stale-while-revalidate=600",
-    );
-  } else {
-    c.header("Cache-Control", "private, no-store");
-  }
+  setAnonPageCache(c, user);
 
   return c.html(
     <HeadlessLayout

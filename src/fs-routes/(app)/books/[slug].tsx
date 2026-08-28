@@ -16,6 +16,7 @@ import {
   canonicalUrl,
 } from "../../../lib/seo";
 import { maybeRecordBookView } from "../../../features/book-views/record";
+import { setAnonPageCache } from "../../../lib/staticCache";
 
 function isTrackablePublicBook(book: {
   publicationStatus: string | null;
@@ -51,15 +52,7 @@ export const GET = createRoute(
         []),
     ].filter((url): url is string => url !== null);
 
-    if (!user) {
-      c.header("Vary", "Cookie");
-      c.header(
-        "Cache-Control",
-        "private, max-age=120, stale-while-revalidate=600",
-      );
-    } else {
-      c.header("Cache-Control", "private, no-store");
-    }
+    setAnonPageCache(c, user);
 
     if (isTrackablePublicBook(book)) {
       await maybeRecordBookView(c, book, "web");

@@ -117,8 +117,7 @@ function toIssueView(issue: IssueWithBooks): MagazineIssueView {
       artistQuote: entry.artistQuote,
       artistEmailSentAt: entry.artistEmailSentAt ?? null,
       selectedImageUrl: entry.selectedImageUrl ?? null,
-      book: (entry.book ??
-        null) as MagazineIssuePlacement["book"],
+      book: (entry.book ?? null) as MagazineIssuePlacement["book"],
     }),
   );
 
