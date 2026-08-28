@@ -88,7 +88,6 @@ export function registerBookCoverForm() {
 
         onError() {
           this.isSubmitting = false;
-          this.previewUrl = null;
         },
 
         cancelSelection() {

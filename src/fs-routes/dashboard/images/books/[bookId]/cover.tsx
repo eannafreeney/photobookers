@@ -11,6 +11,7 @@ import { uploadImage } from "../../../../../services/storage";
 import { updateBookCoverImage } from "../../../../../features/dashboard/images/services";
 import { showSuccessAlert } from "../../../../../lib/alertHelpers";
 import { getUser } from "../../../../../utils";
+import { assessBookCover } from "../../../../../domain/books/coverQuality";
 
 export const POST = createRoute(
   paramValidator(bookIdSchema),
@@ -22,6 +23,10 @@ export const POST = createRoute(
 
     const validatedFile = validateImageFile(body.cover);
     if (!validatedFile.success) return showErrorAlert(c, validatedFile.error);
+
+    const buffer = Buffer.from(await validatedFile.file.arrayBuffer());
+    const quality = await assessBookCover(buffer);
+    if (!quality.ok) return showErrorAlert(c, quality.reason);
 
     let coverUrl: string | null = null;
     try {
