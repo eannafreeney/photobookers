@@ -18,6 +18,7 @@ type CreatorDetailProps = {
       "id" | "slug" | "name" | "startDate" | "endDate" | "city" | "country"
     >
   >;
+  spotlightKicker?: string | null;
 };
 
 const CreatorDetail = ({
@@ -29,6 +30,7 @@ const CreatorDetail = ({
   isMobile,
   postCount,
   upcomingFairs,
+  spotlightKicker,
 }: CreatorDetailProps) => {
   const showCreatorsTab = result.relatedCreators.creators.length > 0;
   const showFairsTab = upcomingFairs.length > 0;
@@ -48,6 +50,7 @@ const CreatorDetail = ({
       upcomingFairs={upcomingFairs}
       isOwner={isOwner}
       postCount={postCount}
+      spotlightKicker={spotlightKicker}
     />
   ) : (
     <CreatorDetailDesktop
@@ -62,6 +65,7 @@ const CreatorDetail = ({
       upcomingFairs={upcomingFairs}
       isOwner={isOwner}
       postCount={postCount}
+      spotlightKicker={spotlightKicker}
     />
   );
 };

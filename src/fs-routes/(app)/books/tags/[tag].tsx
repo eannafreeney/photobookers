@@ -13,7 +13,11 @@ import { BookTagContext } from "../../../../features/app/types";
 import PageHeader from "../../../../components/app/PageHeader";
 import { BOOK_CATALOG_DEFAULT_SORT } from "../../../../lib/bookCatalogSort";
 import { canonicalUrl, pageTitle, tagDescription } from "../../../../lib/seo";
-import { booksFilterUrl, resolveBookCatalogSort, slugToTag } from "../../../../lib/tags";
+import {
+  booksFilterUrl,
+  resolveBookCatalogSort,
+  slugToTag,
+} from "../../../../lib/tags";
 
 export const GET = createRoute(
   paramValidator(tagSchema),
@@ -57,18 +61,7 @@ export const GET = createRoute(
         currentPath={currentPath}
       >
         <Page>
-          <PageHeader
-            kicker="Browse by Theme"
-            title={capitalize(tag)}
-            intro={`Photobooks tagged “${capitalize(tag)}” in the archive.`}
-          />
-          <BookFilters
-            activeTag={tagSlug}
-            query={query}
-            sort={sort}
-            defaultSort={BOOK_CATALOG_DEFAULT_SORT}
-            collapsible
-          />
+          <PageHeader kicker="Browse by Theme" title={capitalize(tag)} />
           <BooksGrid
             isInfiniteScroll
             user={user}
@@ -80,12 +73,6 @@ export const GET = createRoute(
                 : "No books found for this tag."
             }
           />
-          {result.books.length > 0 && (
-            <Intersector
-              id="related-books-fragment"
-              endpoint={`/fragments/related-books/${result.books[0].slug}`}
-            />
-          )}
         </Page>
       </AppLayout>,
     );

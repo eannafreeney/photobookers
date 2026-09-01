@@ -1,28 +1,23 @@
 import SectionTitle from "../../../components/app/SectionTitle";
 import Button from "../../../components/app/Button";
 import ShareButton from "../../api/components/ShareButton";
-import SpotlightCreatorLink from "./SpotlightCreatorLink";
-import InterviewPreviewSection, {
-  type InterviewPreview,
-} from "./InterviewPreviewSection";
 import NewsletterCard from "./NewsletterCard";
-import { AuthUser } from "../../../../types";
-import { bookOfTheDay, Creator } from "../../../db/schema";
+import ExpandableDescription from "./ExpandableDescription";
+import { resolveSpotlightCopy } from "../spotlightCopy";
 import { BookOfTheDayWithBook } from "../BOTDServices";
 import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
 import { PublisherOfTheWeekWithCreator } from "../POTWServices";
 import {
-  aotwPath,
-  botdPath,
-  potwPath,
+  bookPath,
+  creatorPath,
   thisWeekPath,
   thisWeekUrl,
 } from "../spotlightUrls";
-import ExpandableDescription from "./ExpandableDescription";
-import { resolveSpotlightCopy } from "../spotlightCopy";
 import { toDateString, toWeekStart } from "../../../lib/utils";
-import { capitalize } from "../../../utils";
 import SpotlightCard from "@/components/app/SpotlightCard";
+import type { TrendingForRange } from "../../../domain/planner/trending";
+import type { NewlyVerifiedCreator } from "../../../domain/newsletters/newMembers";
+import type { ChildType } from "../../../../types";
 
 type Props = {
   weekStart: Date;
@@ -30,6 +25,8 @@ type Props = {
   botdEntries: BookOfTheDayWithBook[];
   artistOfTheWeek: ArtistOfTheWeekWithCreator | null;
   publisherOfTheWeek: PublisherOfTheWeekWithCreator | null;
+  trending: TrendingForRange;
+  newMembers: NewlyVerifiedCreator[];
 };
 
 const ThisWeekDetail = async ({
@@ -38,6 +35,8 @@ const ThisWeekDetail = async ({
   botdEntries,
   artistOfTheWeek,
   publisherOfTheWeek,
+  trending,
+  newMembers,
 }: Props) => {
   const prevWeekStart = new Date(weekStart);
   prevWeekStart.setUTCDate(prevWeekStart.getUTCDate() - 7);
@@ -49,7 +48,7 @@ const ThisWeekDetail = async ({
     nextWeekStart.getTime() <= toWeekStart(new Date()).getTime();
 
   return (
-    <div class="mx-auto flex w-full flex-col gap-4 md:max-w-lg">
+    <div class="mx-auto flex w-full flex-col gap-4 md:max-w-xl">
       <header class="flex flex-col items-center gap-3 border-b-2 border-on-surface-strong pb-6">
         <div class="flex flex-col items-center gap-2 text-center">
           <p class="kicker text-accent">This Week</p>
@@ -64,81 +63,128 @@ const ThisWeekDetail = async ({
         />
       </header>
 
-      {/* {botdEntries.length > 0 ? (
-        <section class="flex flex-col gap-8">
-          <SectionTitle>Books of the Day</SectionTitle>
-          <div class="flex flex-col gap-8">
-            {botdEntries.map((entry) => (
-              <ThisWeekBookEntry key={entry.id} entry={entry} />
-            ))}
-          </div>
+      {botdEntries.map((bookOfTheDay) => (
+        <section class="flex flex-col gap-3 mt-4 border-t border-outline pt-4">
+          <SpotlightCard
+            href={bookPath(bookOfTheDay.book.slug)}
+            imageUrl={bookOfTheDay.book.coverUrl ?? ""}
+            imageAlt={bookOfTheDay.book.title}
+            dateLabel={toDateString(bookOfTheDay.date)}
+            kicker="Book of the Day"
+            title={bookOfTheDay.book.title}
+            subtitle={bookOfTheDay.book.artist?.displayName}
+            className="w-full max-w-none"
+          />
+          <SpotlightBlurb text={bookOfTheDay.spotlightBlurb} />
         </section>
-      ) : null} */}
+      ))}
 
-      {botdEntries.map((bookOfTheDay) => {
-        return (
-          <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
-            <SectionTitle>{toDateString(bookOfTheDay.date)}</SectionTitle>
+      {artistOfTheWeek || publisherOfTheWeek ? (
+        <section
+          class={`mt-4 grid gap-4 border-t border-outline pt-4 ${
+            artistOfTheWeek && publisherOfTheWeek
+              ? "grid-cols-2"
+              : "grid-cols-1"
+          }`}
+        >
+          {artistOfTheWeek ? (
+            <div class="flex min-w-0 flex-col gap-3">
+              <SpotlightCard
+                href={creatorPath(artistOfTheWeek.creator.slug)}
+                imageUrl={
+                  artistOfTheWeek.featuredImageUrl ??
+                  artistOfTheWeek.creator.coverUrl ??
+                  ""
+                }
+                imageAlt={artistOfTheWeek.creator.displayName}
+                kicker="Artist of the Week"
+                title={artistOfTheWeek.creator.displayName}
+                subtitle={artistOfTheWeek.creator.city ?? undefined}
+                className="w-full max-w-none"
+              />
+              <SpotlightBlurb text={artistOfTheWeek.spotlightBlurb} />
+            </div>
+          ) : null}
+          {publisherOfTheWeek ? (
+            <div class="flex min-w-0 flex-col gap-3">
+              <SpotlightCard
+                href={creatorPath(publisherOfTheWeek.creator.slug)}
+                imageUrl={
+                  publisherOfTheWeek.featuredImageUrl ??
+                  publisherOfTheWeek.creator.coverUrl ??
+                  ""
+                }
+                imageAlt={publisherOfTheWeek.creator.displayName}
+                kicker="Publisher of the Week"
+                title={publisherOfTheWeek.creator.displayName}
+                subtitle={publisherOfTheWeek.creator.city ?? undefined}
+                className="w-full max-w-none"
+              />
+              <SpotlightBlurb text={publisherOfTheWeek.spotlightBlurb} />
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
+      {trending.books.length > 0 ? (
+        <WeekGrid kicker="Trending" title="Top books this week">
+          {trending.books.map((book) => (
             <SpotlightCard
-              href={botdPath(bookOfTheDay.date)}
-              imageUrl={bookOfTheDay.book.coverUrl ?? ""}
-              imageAlt={bookOfTheDay.book.title}
-              title={bookOfTheDay.book.title}
-              subtitle={bookOfTheDay.book.artist?.displayName}
-              className="w-full max-w-none"
+              href={bookPath(book.bookSlug)}
+              imageUrl={book.coverUrl ?? ""}
+              imageAlt={book.title}
+              title={book.title}
+              subtitle={book.artistName ?? undefined}
+              className="min-w-0 w-full max-w-none"
             />
-            {bookOfTheDay.spotlightBlurb ? (
-              <ExpandableDescription text={bookOfTheDay.spotlightBlurb} />
-            ) : null}
-          </section>
-        );
-      })}
+          ))}
+        </WeekGrid>
+      ) : null}
 
-      {artistOfTheWeek ? (
-        <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
-          <SectionTitle>
-            Artist of the Week {toDateString(artistOfTheWeek.weekStart)}
-          </SectionTitle>
-          <SpotlightCard
-            href={aotwPath(artistOfTheWeek.weekStart)}
-            imageUrl={
-              artistOfTheWeek.featuredImageUrl ??
-              artistOfTheWeek.creator.coverUrl ??
-              ""
-            }
-            imageAlt={artistOfTheWeek.creator.displayName}
-            title={artistOfTheWeek.creator.displayName}
-            subtitle={artistOfTheWeek.creator.city ?? undefined}
-            className="w-full max-w-none"
-          />
-          {artistOfTheWeek.spotlightBlurb ? (
-            <ExpandableDescription text={artistOfTheWeek.spotlightBlurb} />
-          ) : null}
-        </section>
-      ) : // <ThisWeekCreatorSpotlight spotlight={artistOfTheWeek} />
-      null}
+      {trending.artists.length > 0 ? (
+        <WeekGrid kicker="Trending" title="Top artists this week">
+          {trending.artists.map((artist) => (
+            <SpotlightCard
+              href={creatorPath(artist.slug)}
+              imageUrl={artist.coverUrl ?? ""}
+              imageAlt={artist.displayName}
+              title={artist.displayName}
+              aspectSquare
+              className="min-w-0 w-full max-w-none"
+            />
+          ))}
+        </WeekGrid>
+      ) : null}
 
-      {publisherOfTheWeek ? (
-        <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
-          <SectionTitle>
-            Publisher of the Week {toDateString(publisherOfTheWeek.weekStart)}
-          </SectionTitle>
-          <SpotlightCard
-            href={potwPath(publisherOfTheWeek.weekStart)}
-            imageUrl={
-              publisherOfTheWeek.featuredImageUrl ??
-              publisherOfTheWeek.creator.coverUrl ??
-              ""
-            }
-            imageAlt={publisherOfTheWeek.creator.displayName}
-            title={publisherOfTheWeek.creator.displayName}
-            subtitle={publisherOfTheWeek.creator.city ?? undefined}
-            className="w-full max-w-none"
-          />
-          {publisherOfTheWeek.spotlightBlurb ? (
-            <ExpandableDescription text={publisherOfTheWeek.spotlightBlurb} />
-          ) : null}
-        </section>
+      {trending.publishers.length > 0 ? (
+        <WeekGrid kicker="Trending" title="Top publishers this week">
+          {trending.publishers.map((publisher) => (
+            <SpotlightCard
+              href={creatorPath(publisher.slug)}
+              imageUrl={publisher.coverUrl ?? ""}
+              imageAlt={publisher.displayName}
+              title={publisher.displayName}
+              aspectSquare
+              className="min-w-0 w-full max-w-none"
+            />
+          ))}
+        </WeekGrid>
+      ) : null}
+
+      {newMembers.length > 0 ? (
+        <WeekGrid kicker="Discover" title="New on Photobookers">
+          {newMembers.map((member) => (
+            <SpotlightCard
+              href={creatorPath(member.slug)}
+              imageUrl={member.coverUrl ?? ""}
+              imageAlt={member.displayName}
+              title={member.displayName}
+              subtitle={member.location ?? member.tagline ?? undefined}
+              aspectSquare
+              className="min-w-0 w-full max-w-none"
+            />
+          ))}
+        </WeekGrid>
       ) : null}
 
       <NewsletterCard />
@@ -164,5 +210,26 @@ const ThisWeekDetail = async ({
     </div>
   );
 };
+
+const SpotlightBlurb = ({ text }: { text?: string | null }) => {
+  const copy = resolveSpotlightCopy(text);
+  if (!copy) return null;
+  return <ExpandableDescription text={copy} />;
+};
+
+const WeekGrid = ({
+  kicker,
+  title,
+  children,
+}: {
+  kicker: string;
+  title: string;
+  children: ChildType;
+}) => (
+  <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
+    <SectionTitle kicker={kicker}>{title}</SectionTitle>
+    <div class="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">{children}</div>
+  </section>
+);
 
 export default ThisWeekDetail;

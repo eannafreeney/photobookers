@@ -11,7 +11,7 @@ import { getIsMobile } from "../../lib/device";
 import GridPanel from "../../components/app/GridPanel";
 import ListNavigation from "../../features/app/components/ListNavigation";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
-import { botdPath } from "../../features/app/spotlightUrls";
+import { bookPath } from "../../features/app/spotlightUrls";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -50,10 +50,11 @@ export const GET = createRoute(async (c) => {
           {botdEntries.map((entry) => (
             <ScrollReveal>
               <SpotlightCard
-                href={botdPath(entry.date)}
+                href={bookPath(entry.book.slug)}
                 imageUrl={entry.book.coverUrl ?? ""}
                 imageAlt={entry.book.title}
                 dateLabel={formatDate(entry.date)}
+                kicker="Book of the Day"
                 title={entry.book.title}
                 subtitle={entry.book.artist?.displayName}
               />

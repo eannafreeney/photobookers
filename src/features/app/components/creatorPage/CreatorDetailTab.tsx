@@ -33,6 +33,7 @@ export type CreatorDetailViewProps = {
       "id" | "slug" | "name" | "startDate" | "endDate" | "city" | "country"
     >
   >;
+  spotlightKicker?: string | null;
 };
 
 const CreatorDetailTabs = ({

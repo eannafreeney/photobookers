@@ -17,7 +17,7 @@ import {
   getThisWeeksPublisherOfTheWeek,
 } from "./CreatorSpotlightServices";
 import { getSpotlightCatalogueBooks } from "./services";
-import { aotwPath, potwPath } from "./spotlightUrls";
+import { creatorPath } from "./spotlightUrls";
 
 export type ArtistOfTheWeekData = Extract<
   Awaited<ReturnType<typeof getArtistOfTheWeekForDateQuery>>,
@@ -87,8 +87,7 @@ export function buildCreatorOfTheWeekSpotlight(
     featuredImageUrl: data.featuredImageUrl ?? null,
     coverStack,
     spotlightBlurb: data.spotlightBlurb ?? null,
-    link:
-      role === "artist" ? aotwPath(data.weekStart) : potwPath(data.weekStart),
+    link: creatorPath(creator.slug),
   };
 }
 

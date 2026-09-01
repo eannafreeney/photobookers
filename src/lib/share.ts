@@ -101,17 +101,6 @@ export function postShareText(authorName: string): string {
   return `Post by ${authorName} on Photobookers`;
 }
 
-export function bookOfTheDayShareTitle(book: BookShareFields): string {
-  return `Book of the Day — ${book.title}`;
-}
-
-export function bookOfTheDayShareText(book: BookShareFields): string {
-  const byArtist = book.artist?.displayName
-    ? ` by ${book.artist.displayName}`
-    : "";
-  return `${book.title}${byArtist} — featured on Photobookers`;
-}
-
 export function creatorShareText(creator: CreatorShareFields): string {
   const label = creator.type === "publisher" ? "publisher" : "artist";
   return `${creator.displayName} — ${label} on Photobookers`;
@@ -127,20 +116,6 @@ export function shelfShareTitle(ownerName: string): string {
 
 export function shelfShareText(ownerName: string): string {
   return `${ownerName}'s favorite photobooks on Photobookers`;
-}
-
-export function creatorOfTheWeekShareTitle(
-  creator: CreatorShareFields,
-  role: string,
-): string {
-  return `${role} of the Week — ${creator.displayName}`;
-}
-
-export function creatorOfTheWeekShareText(
-  creator: CreatorShareFields,
-  role: string,
-): string {
-  return `${creator.displayName} is ${role} of the Week on Photobookers`;
 }
 
 export function resolveShareUrl(

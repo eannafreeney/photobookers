@@ -24,12 +24,13 @@ const BookDetailMobile = ({
   currentPath,
   user,
   currentPage,
+  spotlightKicker,
 }: BookDetailProps) => {
   const showPress = (book.pressLinks?.length ?? 0) > 0;
 
   return (
     <div class="flex flex-col gap-4">
-      <MobileHeader kicker={book.artist?.displayName ?? ""} title={book.title}>
+      <MobileHeader kicker={spotlightKicker ?? book.artist?.displayName ?? ""} title={book.title}>
         <div class="flex justify-between items-center gap-2">
           <SaveToListButton book={book} user={user} variant="button" />
           <ShareButton

@@ -1,6 +1,5 @@
 import { FC } from "hono/jsx";
 import { Behavior, Image, Style, Text, View } from "../../../../lib/hxml-comps";
-import { botdPath } from "../../../app/spotlightUrls";
 import { formatOrdinalDate } from "../../../../lib/utils";
 
 export type ThisWeekBookEntryData = {
@@ -8,6 +7,7 @@ export type ThisWeekBookEntryData = {
   date: Date;
   instagramCaption?: string | null;
   book: {
+    id: string;
     coverUrl: string | null;
     title: string;
     artist?: { displayName: string } | null;
@@ -21,7 +21,7 @@ type Props = {
 
 const ThisWeekBookEntry = ({ entry, baseUrl }: Props) => {
   const { book } = entry;
-  const href = `${baseUrl}/hyperview${botdPath(entry.date)}`;
+  const href = `${baseUrl}/hyperview/books/${book.id}/tab/book`;
 
   return (
     <View style="spotlight-botd-entry">

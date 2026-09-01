@@ -101,7 +101,7 @@ const CreatorOfTheWeekSpotlight = ({ spotlight, user }: Props) => {
                 href={link}
                 class="kicker group inline-flex items-center text-on-surface-weak transition-colors hover:text-on-surface-strong"
               >
-                View feature
+                View
                 <span class="w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-4 group-hover:opacity-100">
                   &nbsp;→
                 </span>

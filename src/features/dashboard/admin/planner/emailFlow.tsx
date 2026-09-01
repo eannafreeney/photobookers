@@ -20,7 +20,6 @@ import { ensureInterviewInviteForSpotlight } from "./interviewFlow";
 import { getUser } from "../../../../utils";
 import { renderPlannerEmailSuccess } from "./renderPlannerEmailSuccess";
 import type { EmailStatusBadgeProps } from "./components/EmailStatusBadge";
-import { aotwPath } from "../../../app/spotlightUrls";
 import type { CreatorStatus } from "../../../../db/schema";
 
 type RequireCreatorEmailParams = {

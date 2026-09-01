@@ -6,7 +6,6 @@ import ThisWeekDetail from "../../features/app/components/ThisWeekDetail";
 import { getBooksOfTheDayInRange } from "../../features/app/BOTDServices";
 import { getArtistOfTheWeekForDateQuery } from "../../features/app/AOTWServices";
 import { getPublisherOfTheWeekForDateQuery } from "../../features/app/POTWServices";
-import { getInterviewByCreatorSlug } from "../../features/app/services";
 import { formatWeekRangeLabel } from "../../domain/newsletters/newsletterUtils";
 import { canonicalUrl, pageTitle, truncateDescription } from "../../lib/seo";
 import {
@@ -16,7 +15,8 @@ import {
 } from "../../lib/utils";
 import { thisWeekPath } from "../../features/app/spotlightUrls";
 import { setAnonPageCache } from "../../lib/staticCache";
-import type { InterviewPreview } from "../../features/app/components/InterviewPreviewSection";
+import { getTrendingForRange } from "../../domain/planner/trending";
+import { getNewlyVerifiedCreatorsInRange } from "../../domain/newsletters/newMembers";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -33,17 +33,24 @@ export const GET = createRoute(async (c) => {
     [botdErr, botdResult],
     [artistErr, artistOfTheWeek],
     [publisherErr, publisherOfTheWeek],
+    trending,
+    newMembers,
   ] = await Promise.all([
     getBooksOfTheDayInRange(weekStart, capEndOfDayToToday(weekEnd)),
     getArtistOfTheWeekForDateQuery(weekStart),
     getPublisherOfTheWeekForDateQuery(weekStart),
+    getTrendingForRange(weekStart, capEndOfDayToToday(weekEnd)),
+    getNewlyVerifiedCreatorsInRange(
+      weekStart,
+      capEndOfDayToToday(weekEnd),
+    ),
   ]);
 
   const weekRangeLabel = formatWeekRangeLabel(weekStart, weekEnd);
   const path = thisWeekPath(weekStart);
   const title = pageTitle("This week on Photobookers");
   const description = truncateDescription(
-    `Books of the Day, Artist and Publisher of the Week for ${weekRangeLabel}.`,
+    `Books of the Day, trending books and creators, and new members for ${weekRangeLabel}.`,
   );
 
   const botdEntries = !botdErr ? botdResult.botdEntries : [];
@@ -83,6 +90,8 @@ export const GET = createRoute(async (c) => {
           publisherOfTheWeek={
             !publisherErr && publisherOfTheWeek ? publisherOfTheWeek : null
           }
+          trending={trending}
+          newMembers={newMembers}
         />
       </Page>
     </AppLayout>,

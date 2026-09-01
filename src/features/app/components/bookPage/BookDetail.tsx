@@ -12,6 +12,7 @@ export type BookDetailProps = {
   currentPath: string;
   user: AuthUser | null;
   currentPage: number;
+  spotlightKicker?: string | null;
 };
 
 export const shouldTrackOutboundPurchase = (book: BookWithGalleryImages) =>
@@ -24,6 +25,7 @@ const BookDetail = ({
   currentPath,
   user,
   currentPage,
+  spotlightKicker,
 }: BookDetailProps) => {
   return isMobile ? (
     <BookDetailMobile
@@ -32,6 +34,7 @@ const BookDetail = ({
       currentPath={currentPath}
       user={user}
       currentPage={currentPage}
+      spotlightKicker={spotlightKicker}
     />
   ) : (
     <BookDetailDesktop
@@ -40,6 +43,7 @@ const BookDetail = ({
       user={user}
       currentPath={currentPath}
       currentPage={currentPage}
+      spotlightKicker={spotlightKicker}
     />
   );
 };

@@ -1,18 +1,14 @@
 import { and, eq, isNotNull, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import {
-  artistOfTheWeek,
   bookFairs,
-  bookOfTheDay,
   bookStores,
   books,
   creatorInterviews,
   creators,
-  publisherOfTheWeek,
 } from "../../db/schema";
 import { DISCOVER_TAGS } from "../../constants/discover";
 import { tagBooksUrl } from "../../lib/tags";
-import { toDateString, toWeekStart, toWeekString } from "../../lib/utils";
 
 export type SitemapEntry = {
   loc: string;
@@ -63,16 +59,8 @@ function formatLastmod(date: Date | null | undefined): string | undefined {
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {
-  const [
-    bookRows,
-    creatorRows,
-    interviewRows,
-    fairRows,
-    storeRows,
-    botdRows,
-    aotwRows,
-    potwRows,
-  ] = await Promise.all([
+  const [bookRows, creatorRows, interviewRows, fairRows, storeRows] =
+    await Promise.all([
     db
       .select({
         slug: books.slug,
@@ -124,18 +112,6 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
           eq(bookStores.approvalStatus, "approved"),
         ),
       ),
-    db.query.bookOfTheDay.findMany({
-      columns: { date: true, updatedAt: true },
-      where: lte(bookOfTheDay.date, new Date()),
-    }),
-    db.query.artistOfTheWeek.findMany({
-      columns: { weekStart: true, updatedAt: true },
-      where: lte(artistOfTheWeek.weekStart, toWeekStart(new Date())),
-    }),
-    db.query.publisherOfTheWeek.findMany({
-      columns: { weekStart: true, updatedAt: true },
-      where: lte(publisherOfTheWeek.weekStart, toWeekStart(new Date())),
-    }),
   ]);
 
   const staticEntries: SitemapEntry[] = STATIC_PAGES.map((page) => ({
@@ -184,27 +160,6 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     priority: 0.5,
   }));
 
-  const botdEntries: SitemapEntry[] = botdRows.map((row) => ({
-    loc: `/book-of-the-day/${toDateString(row.date)}`,
-    lastmod: formatLastmod(row.updatedAt),
-    changefreq: "monthly",
-    priority: 0.65,
-  }));
-
-  const aotwEntries: SitemapEntry[] = aotwRows.map((row) => ({
-    loc: `/artist-of-the-week/${toWeekString(row.weekStart)}`,
-    lastmod: formatLastmod(row.updatedAt),
-    changefreq: "monthly",
-    priority: 0.6,
-  }));
-
-  const potwEntries: SitemapEntry[] = potwRows.map((row) => ({
-    loc: `/publisher-of-the-week/${toWeekString(row.weekStart)}`,
-    lastmod: formatLastmod(row.updatedAt),
-    changefreq: "monthly",
-    priority: 0.6,
-  }));
-
   return [
     ...staticEntries,
     ...bookEntries,
@@ -213,8 +168,5 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     ...fairEntries,
     ...storeEntries,
     ...tagEntries,
-    ...botdEntries,
-    ...aotwEntries,
-    ...potwEntries,
   ];
 }

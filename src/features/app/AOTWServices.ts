@@ -1,7 +1,7 @@
 import { CREATOR_CARD_COLUMNS } from "../../constants/queries";
 import { db } from "../../db/client";
 import { artistOfTheWeek } from "../../db/schema";
-import { count, desc, eq, lte } from "drizzle-orm";
+import { count, desc, eq, lte, and } from "drizzle-orm";
 import { err, ok } from "../../lib/result";
 import { getPagination } from "../../lib/pagination";
 
@@ -45,6 +45,18 @@ export async function getArtistOfTheWeekForDateQuery(date: Date) {
 
 export async function getThisWeeksArtistOfTheWeek() {
   return getArtistOfTheWeekForDateQuery(new Date());
+}
+
+export async function getArtistOfTheWeekForCreatorId(creatorId: string) {
+  const weekStart = toWeekStart(new Date());
+  const row = await db.query.artistOfTheWeek.findFirst({
+    where: and(
+      eq(artistOfTheWeek.creatorId, creatorId),
+      eq(artistOfTheWeek.weekStart, weekStart),
+    ),
+    columns: { weekStart: true },
+  });
+  return row ?? null;
 }
 
 export async function getRecentArtistsOfTheWeek(

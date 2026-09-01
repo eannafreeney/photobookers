@@ -1,4 +1,28 @@
+import { toUtcStartOfDay } from "../../lib/utils";
+
 const DEFAULT_MAX_CHARS = 220;
+
+type InterviewWithQuote = {
+  id: string;
+  answers?: { q1?: string | null } | null;
+};
+
+/**
+ * One homepage interview per UTC day. Prefers answers with a pull-quote, then
+ * walks a stable id order so the slot rotates instead of always showing newest.
+ */
+export function pickDailyInterview<T extends InterviewWithQuote>(
+  interviews: T[],
+  day: Date = new Date(),
+): T | undefined {
+  if (interviews.length === 0) return undefined;
+  const quoted = interviews.filter((row) => row.answers?.q1?.trim());
+  const pool = (quoted.length > 0 ? quoted : interviews).toSorted((a, b) =>
+    a.id.localeCompare(b.id),
+  );
+  const utcDay = Math.floor(toUtcStartOfDay(day).getTime() / 86_400_000);
+  return pool[utcDay % pool.length];
+}
 
 /**
  * First readable chunk of an interview answer, cut on a sentence when one ends

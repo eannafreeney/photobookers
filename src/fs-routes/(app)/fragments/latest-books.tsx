@@ -10,7 +10,7 @@ import { getUser } from "../../../utils";
 import BooksGrid from "@/features/app/components/BooksGrid";
 import Button from "@/components/app/Button";
 
-const FEATURED_BOOKS_LIMIT = 10;
+const FEATURED_BOOKS_LIMIT = 12;
 const FRAGMENT_PATH = "/fragments/latest-books";
 
 export const GET = createRoute(async (c) => {

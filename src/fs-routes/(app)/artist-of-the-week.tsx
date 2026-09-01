@@ -13,7 +13,7 @@ import GridPanel from "../../components/app/GridPanel";
 import { getIsMobile } from "../../lib/device";
 import ListNavigation from "../../features/app/components/ListNavigation";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
-import { aotwPath } from "../../features/app/spotlightUrls";
+import { creatorPath } from "../../features/app/spotlightUrls";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -53,10 +53,11 @@ export const GET = createRoute(async (c) => {
           {aotwEntries.map((entry) => (
             <ScrollReveal>
               <SpotlightCard
-                href={aotwPath(entry.weekStart)}
+                href={creatorPath(entry.creator.slug)}
                 imageUrl={entry.creator.coverUrl ?? ""}
                 imageAlt={entry.creator.displayName}
                 dateLabel={`Week of ${formatDate(entry.weekStart)}`}
+                kicker="Artist of the Week"
                 title={entry.creator.displayName}
                 subtitle={
                   [

@@ -17,6 +17,7 @@ import {
 } from "../../../lib/seo";
 import { maybeRecordBookView } from "../../../features/book-views/record";
 import { setAnonPageCache } from "../../../lib/staticCache";
+import { getBookOfTheDayForBookId } from "../../../features/app/BOTDServices";
 
 function isTrackablePublicBook(book: {
   publicationStatus: string | null;
@@ -42,6 +43,8 @@ export const GET = createRoute(
       return c.html(<InfoPage errorMessage={error.reason} user={user} />);
 
     const { book } = result;
+    const botd = await getBookOfTheDayForBookId(book.id);
+    const spotlightKicker = botd ? "Book of the Day" : null;
     const bookCanonicalUrl = canonicalUrl(c.req.url, `/books/${book.slug}`);
     const description = bookDescription(book);
     const title = bookPageTitle(book.title, book.artist?.displayName);
@@ -82,6 +85,7 @@ export const GET = createRoute(
             user={user}
             isMobile={isMobile}
             currentPage={currentPage}
+            spotlightKicker={spotlightKicker}
           />
         </Page>
       </AppLayout>,

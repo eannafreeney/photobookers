@@ -2,9 +2,10 @@ import type { AuthUser } from "../../../../types";
 import SaveToListButton from "../../api/components/SaveToListButton";
 import Button from "../../../components/app/Button";
 import { formatDateWithoutYear } from "../../../utils";
-import { botdIndexPath, botdPath } from "../spotlightUrls";
+import { botdIndexPath, bookPath } from "../spotlightUrls";
 import { heroLcpImageSources } from "../../../lib/imageUrl";
 import type { BookOfTheDayWithBook } from "../BOTDServices";
+import { resolveSpotlightCopy } from "../spotlightCopy";
 
 type Props = {
   user: AuthUser | null;
@@ -32,8 +33,9 @@ const BookOfTheDayAnchor = ({
   user,
 }: Props) => {
   const book = today.book;
-  const link = botdPath(today.date);
+  const link = bookPath(book.slug);
   const image = heroImage(today);
+  const blurb = resolveSpotlightCopy(today.spotlightBlurb);
   // Opens the page, so this is the LCP element: eager, sized, high priority.
   const sources = image ? heroLcpImageSources(image) : null;
 
@@ -79,11 +81,17 @@ const BookOfTheDayAnchor = ({
             </p>
           ) : null}
 
+          {blurb ? (
+            <p class="mt-1 max-w-md text-pretty text-sm leading-relaxed text-on-surface line-clamp-4 md:text-base">
+              {blurb}
+            </p>
+          ) : null}
+
           <div class="mt-3 flex items-center gap-3">
             <a href={link} class="group">
               <Button variant="solid" color="primary" width="lg">
                 <span class="inline-flex items-center">
-                  Read today's pick
+                  View
                   <span class="w-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:w-6 group-hover:opacity-100">
                     &nbsp;→
                   </span>
@@ -102,7 +110,7 @@ const BookOfTheDayAnchor = ({
           {previousDays.length > 0 &&
             previousDays.map((day) => (
               <a
-                href={botdPath(day.date)}
+                href={bookPath(day.book.slug)}
                 class="group flex min-w-0 items-center gap-3"
               >
                 <span class="kicker text-on-surface-weak shrink-0">

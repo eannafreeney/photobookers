@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { interviewPullQuote } from "./interviewQuote";
+import { interviewPullQuote, pickDailyInterview } from "./interviewQuote";
 
 describe("interviewPullQuote", () => {
   it("returns short answers untouched", () => {
@@ -41,5 +41,30 @@ describe("interviewPullQuote", () => {
   it("returns null for empty answers", () => {
     expect(interviewPullQuote(undefined)).toBeNull();
     expect(interviewPullQuote("   ")).toBeNull();
+  });
+});
+
+describe("pickDailyInterview", () => {
+  const a = { id: "a", answers: { q1: "Quote A" } };
+  const b = { id: "b", answers: { q1: "Quote B" } };
+  const c = { id: "c", answers: { q1: "" } };
+
+  it("picks the same interview all day and a different one the next day", () => {
+    const monday = new Date("2026-09-01T08:00:00.000Z");
+    const mondayLater = new Date("2026-09-01T23:00:00.000Z");
+    const tuesday = new Date("2026-09-02T08:00:00.000Z");
+
+    expect(pickDailyInterview([a, b], mondayLater)?.id).toBe(
+      pickDailyInterview([a, b], monday)?.id,
+    );
+    expect(pickDailyInterview([a, b], tuesday)?.id).not.toBe(
+      pickDailyInterview([a, b], monday)?.id,
+    );
+  });
+
+  it("skips interviews with no pull-quote", () => {
+    expect(pickDailyInterview([c, a], new Date("2026-09-01T12:00:00.000Z"))).toBe(
+      a,
+    );
   });
 });

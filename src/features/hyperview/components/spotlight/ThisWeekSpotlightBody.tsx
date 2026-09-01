@@ -18,7 +18,6 @@ import { PublisherOfTheWeekWithCreator } from "../../../app/POTWServices";
 import NewsletterCard from "../NewsletterCard";
 import SectionHeader from "../SectionHeader";
 import SpotlightHeader from "./SpotlightHeader";
-import { aotwPath, potwPath } from "../../../app/spotlightUrls";
 
 type Props = {
   baseUrl: string;
@@ -53,13 +52,13 @@ const ThisWeekSpotlightBody: FC<Props> = ({
     {artistOfTheWeek && (
       <ThisWeekCreatorSection
         spotlight={artistOfTheWeek}
-        spotlightHref={`${baseUrl}/hyperview${aotwPath(weekStart)}`}
+        spotlightHref={`${baseUrl}/hyperview/creators/${artistOfTheWeek.creator.id}/tab/books`}
       />
     )}
     {publisherOfTheWeek && (
       <ThisWeekCreatorSection
         spotlight={publisherOfTheWeek}
-        spotlightHref={`${baseUrl}/hyperview${potwPath(weekStart)}`}
+        spotlightHref={`${baseUrl}/hyperview/creators/${publisherOfTheWeek.creator.id}/tab/books`}
       />
     )}
     <NewsletterCard baseUrl={baseUrl} />

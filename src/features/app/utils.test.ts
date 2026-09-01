@@ -43,7 +43,7 @@ const publisherOfTheWeek = {
 } as PublisherOfTheWeekData;
 
 describe("buildCreatorOfTheWeekSpotlight", () => {
-  it("links an artist pick at its week", () => {
+  it("links an artist pick to their creator page", () => {
     const spotlight = buildCreatorOfTheWeekSpotlight("artist", artistOfTheWeek, [
       {
         title: "Cover One",
@@ -71,18 +71,18 @@ describe("buildCreatorOfTheWeekSpotlight", () => {
         },
       ],
       spotlightBlurb: "A weekly blurb about Jane.",
-      link: "/artist-of-the-week/2026-W27",
+      link: "/creators/jane-doe",
     });
   });
 
-  it("links a publisher pick at its own route and tolerates missing fields", () => {
+  it("links a publisher pick to their creator page and tolerates missing fields", () => {
     const spotlight = buildCreatorOfTheWeekSpotlight(
       "publisher",
       publisherOfTheWeek,
       [],
     );
 
-    expect(spotlight?.link).toBe("/publisher-of-the-week/2026-W27");
+    expect(spotlight?.link).toBe("/creators/acme-press");
     expect(spotlight?.featuredImageUrl).toBeNull();
     expect(spotlight?.creator.country).toBeNull();
     expect(spotlight?.spotlightBlurb).toBeNull();

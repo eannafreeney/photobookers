@@ -11,7 +11,8 @@ import CreatorBioSection from "./CreatorBioSection";
 import StubProfileBanner from "./StubProfileBanner";
 
 const CreatorDetailDesktop = (props: CreatorDetailViewProps) => {
-  const { creator, user, isOwner, postCount, currentPath } = props;
+  const { creator, user, isOwner, postCount, currentPath, spotlightKicker } =
+    props;
 
   return (
     <div class="flex flex-col gap-4">
@@ -23,9 +24,14 @@ const CreatorDetailDesktop = (props: CreatorDetailViewProps) => {
       <div class="flex justify-between border-b-2 border-on-surface-strong pb-4">
         <div class="flex items-center gap-4">
           <CreatorAvatar creator={creator} />
-          <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
-            {creator.displayName}
-          </h1>
+          <div class="flex min-w-0 flex-col gap-1">
+            {spotlightKicker ? (
+              <span class="kicker text-accent">{spotlightKicker}</span>
+            ) : null}
+            <h1 class="text-balance font-display text-4xl font-medium leading-tight text-on-surface-strong md:text-6xl">
+              {creator.displayName}
+            </h1>
+          </div>
         </div>
         <div class="flex flex-col items-end justify-end gap-3">
           <div class={`grid gap-4 ${isOwner ? "grid-cols-1" : "grid-cols-2"}`}>

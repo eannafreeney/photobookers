@@ -15,6 +15,8 @@ import { getUpcomingFairsForCreator } from "../../../features/app/fairs/services
 import { routeParam } from "../../../lib/routeParam";
 import { setAnonPageCache } from "../../../lib/staticCache";
 import { countCreatorPosts } from "../../../db/queries";
+import { getArtistOfTheWeekForCreatorId } from "../../../features/app/AOTWServices";
+import { getPublisherOfTheWeekForCreatorId } from "../../../features/app/POTWServices";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -34,10 +36,19 @@ export const GET = createRoute(
 
     const { creator } = result;
 
-    const [, postCount] = await Promise.all([
+    const [, postCount, spotlightRow] = await Promise.all([
       maybeRecordCreatorView(c, creator, "web"),
       countCreatorPosts(creator.id),
+      creator.type === "artist"
+        ? getArtistOfTheWeekForCreatorId(creator.id)
+        : getPublisherOfTheWeekForCreatorId(creator.id),
     ]);
+
+    const spotlightKicker = spotlightRow
+      ? creator.type === "artist"
+        ? "Artist of the Week"
+        : "Publisher of the Week"
+      : null;
 
     let upcomingFairs: Awaited<
       ReturnType<typeof getUpcomingFairsForCreator>
@@ -83,6 +94,7 @@ export const GET = createRoute(
             isMobile={isMobile}
             postCount={postCount}
             upcomingFairs={upcomingFairs}
+            spotlightKicker={spotlightKicker}
           />
         </Page>
       </AppLayout>,

@@ -6,7 +6,7 @@ import { formatCountry } from "../../../lib/utils";
 import { BookOfTheDayWithBook } from "../BOTDServices";
 import { ArtistOfTheWeekWithCreator } from "../AOTWServices";
 import { PublisherOfTheWeekWithCreator } from "../POTWServices";
-import { aotwPath, botdPath, potwPath } from "../spotlightUrls";
+import { bookPath, creatorPath } from "../spotlightUrls";
 import ExpandableDescription from "./ExpandableDescription";
 
 type UpcomingFairLink = {
@@ -97,7 +97,7 @@ const LinksPage = ({
         <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
           <SectionTitle>Book of the Day</SectionTitle>
           <SpotlightCard
-            href={botdPath(bookOfTheDay.date)}
+            href={bookPath(bookOfTheDay.book.slug)}
             imageUrl={bookOfTheDay.book.coverUrl ?? ""}
             imageAlt={bookOfTheDay.book.title}
             title={bookOfTheDay.book.title}
@@ -114,7 +114,7 @@ const LinksPage = ({
         <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
           <SectionTitle>Artist of the Week</SectionTitle>
           <SpotlightCard
-            href={aotwPath(artistOfTheWeek.weekStart)}
+            href={creatorPath(artistOfTheWeek.creator.slug)}
             imageUrl={
               artistOfTheWeek.featuredImageUrl ??
               artistOfTheWeek.creator.coverUrl ??
@@ -143,7 +143,7 @@ const LinksPage = ({
         <section class="flex flex-col items-center gap-4 mt-4 border-t border-outline pt-4">
           <SectionTitle>Publisher of the Week</SectionTitle>
           <SpotlightCard
-            href={potwPath(publisherOfTheWeek.weekStart)}
+            href={creatorPath(publisherOfTheWeek.creator.slug)}
             imageUrl={
               publisherOfTheWeek.featuredImageUrl ??
               publisherOfTheWeek.creator.coverUrl ??

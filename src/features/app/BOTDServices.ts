@@ -4,7 +4,7 @@ import {
 } from "../../constants/queries";
 import { db } from "../../db/client";
 import { bookOfTheDay } from "../../db/schema";
-import { eq, desc, count, lte } from "drizzle-orm";
+import { eq, desc, count, lte, and } from "drizzle-orm";
 import { err, ok } from "../../lib/result";
 import { getPagination } from "../../lib/pagination";
 import { toUtcStartOfDay } from "../../lib/utils";
@@ -39,6 +39,15 @@ export async function getBookOfTheDayForDate(date: Date) {
 
 export async function getTodaysBookOfTheDay() {
   return getBookOfTheDayForDate(new Date());
+}
+
+export async function getBookOfTheDayForBookId(bookId: string) {
+  const today = toUtcStartOfDay(new Date());
+  const row = await db.query.bookOfTheDay.findFirst({
+    where: and(eq(bookOfTheDay.bookId, bookId), eq(bookOfTheDay.date, today)),
+    columns: { date: true },
+  });
+  return row ?? null;
 }
 
 export async function getRecentBooksOfTheDay(

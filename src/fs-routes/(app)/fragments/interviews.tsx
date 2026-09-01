@@ -3,6 +3,7 @@ import SectionHeader from "../../../components/app/SectionHeader";
 import ViewAllLink from "../../../features/app/components/ViewAllLink";
 import Button from "../../../components/app/Button";
 import InterviewSpread from "@/features/app/components/InterviewSpread";
+import { pickDailyInterview } from "@/features/app/interviewQuote";
 import { getPublishedInterviews } from "@/features/app/services";
 
 export const GET = createRoute(async (c) => {
@@ -10,10 +11,8 @@ export const GET = createRoute(async (c) => {
 
   if (error || !interviews?.length) return c.html(<></>);
 
-  // Lead with an interview that actually has words to quote.
-  const featured =
-    interviews.find((interview) => interview.answers?.q1?.trim()) ??
-    interviews[0];
+  const featured = pickDailyInterview(interviews);
+  if (!featured) return c.html(<></>);
 
   const coverUrl = featured.creator.coverUrl ?? null;
 

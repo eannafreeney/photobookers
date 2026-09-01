@@ -6,15 +6,14 @@ type Props = {
   imageAlt: string;
   title: string;
   dateLabel?: string;
+  kicker?: string;
   subtitle?: string;
   aspectSquare?: boolean;
   className?: string;
 };
 
 /**
- * Editorial "dated issue" card used on the spotlight archive pages
- * (Book of the Day, Artist / Publisher of the Week).
- * The whole card links to that day's / week's feature page.
+ * Editorial card for archive and this-week grids. The whole card links through.
  */
 const SpotlightCard = ({
   href,
@@ -22,6 +21,7 @@ const SpotlightCard = ({
   imageAlt,
   title,
   dateLabel,
+  kicker,
   subtitle,
   aspectSquare = false,
   className,
@@ -53,6 +53,9 @@ const SpotlightCard = ({
         />
       </figure>
       <div class="flex flex-col gap-1 px-3 py-3">
+        {kicker ? (
+          <span class="kicker text-center text-accent">{kicker}</span>
+        ) : null}
         <h3 class="font-display text-lg font-medium text-center leading-snug text-on-surface-strong decoration-accent decoration-2 underline-offset-4 group-hover:underline">
           {title}
         </h3>

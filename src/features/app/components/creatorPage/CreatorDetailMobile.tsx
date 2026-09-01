@@ -10,7 +10,7 @@ import ClaimCreatorBtn from "../../../claims/components/ClaimCreatorBtn";
 import StubProfileBanner from "./StubProfileBanner";
 
 const CreatorDetailMobile = (props: CreatorDetailViewProps) => {
-  const { creator, user, isOwner, postCount } = props;
+  const { creator, user, isOwner, postCount, spotlightKicker } = props;
 
   return (
     <>
@@ -21,7 +21,10 @@ const CreatorDetailMobile = (props: CreatorDetailViewProps) => {
       />
       <div class="flex flex-col gap-4">
         <MobileHeader
-          kicker={creator.type === "publisher" ? "Publisher" : "Artist"}
+          kicker={
+            spotlightKicker ??
+            (creator.type === "publisher" ? "Publisher" : "Artist")
+          }
           title={creator.displayName ?? undefined}
           isVerified={creator.status === "verified"}
         >

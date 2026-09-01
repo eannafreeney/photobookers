@@ -49,16 +49,17 @@ const BookPurchaseBlock = ({
     );
   }
 
+  const stretch = sticky;
   const button = (
     <Link
       href={action.href}
       target="_blank"
-      className={sticky ? "block w-full" : undefined}
+      className={stretch ? "block w-full" : undefined}
     >
       <Button
         variant="solid"
         color="accent"
-        width={sticky ? "full" : "fit"}
+        width={stretch ? "full" : "fit"}
         type="button"
       >
         <span>{action.label}</span>

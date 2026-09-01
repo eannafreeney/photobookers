@@ -16,7 +16,7 @@ import { BookDetailProps, shouldTrackOutboundPurchase } from "./BookDetail";
 const scrollPanelClass =
   "h-full overflow-y-auto pr-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 
-const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
+const BookDetailDesktop = ({ galleryImages, book, user, spotlightKicker }: BookDetailProps) => {
   const hasArtist = !!book.artist;
   const hasPublisher = !!book.publisher;
   const creditCols = hasArtist && hasPublisher ? "grid-cols-2" : "grid-cols-1";
@@ -40,7 +40,7 @@ const BookDetailDesktop = ({ galleryImages, book, user }: BookDetailProps) => {
         <div class={`w-1/2 ${scrollPanelClass}`}>
           <div class="mb-4 flex flex-col">
             <div class="flex flex-col gap-2 border-b-2 border-on-surface-strong pb-4">
-              <span class="kicker text-accent">Photobook</span>
+              <span class="kicker text-accent">{spotlightKicker ?? "Photobook"}</span>
               <h1 class="text-balance font-display text-3xl xl:text-5xl font-medium leading-tight text-on-surface-strong">
                 {book.title}
               </h1>

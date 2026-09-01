@@ -22,6 +22,7 @@ import {
 } from "../../db/schema";
 import {
   buildCreatedAtFilter,
+  presetAnalyticsDateRange,
   type AnalyticsDateRange,
 } from "../book-analytics/dateRange";
 import { err, ok, type Result } from "../../lib/result";
@@ -30,6 +31,9 @@ import {
   type CreatorCardResult,
 } from "../../constants/queries";
 import { getPagination } from "../../lib/pagination";
+
+/** Rolling window for homepage/mobile "Trending Creators". */
+export const TRENDING_CREATORS_DAYS = 7;
 
 const MAX_REFERER_LENGTH = 512;
 
@@ -150,6 +154,7 @@ function topCreatorsByViewsWhere(
   return typeFilter ?? dateFilter;
 }
 
+/** Ranked by profile views in the last `TRENDING_CREATORS_DAYS` days. */
 export function getTopCreatorsByViews(
   limit: number,
 ): Promise<Result<CreatorCardResult[], { reason: string }>>;
@@ -199,8 +204,8 @@ export async function getTopCreatorsByViews(
       creatorScope =
         typeof limitOrScope === "string" ? limitOrScope : (scope ?? null);
     } else if (typeof rangeOrLimit === "number") {
-      // Single-arg overload: getTopCreatorsByViews(limit)
-      range = null;
+      // Single-arg overload: getTopCreatorsByViews(limit) — last 7 days
+      range = presetAnalyticsDateRange(TRENDING_CREATORS_DAYS);
       limit = rangeOrLimit;
       creatorScope = null;
     } else {

@@ -23,14 +23,14 @@ const NewsletterCard = async () => {
   return (
     <div
       id="newsletter-card"
-      class="overflow-hidden border-t-2 border-on-surface-strong bg-surface-alt p-5 sm:p-6"
+      class="@container overflow-hidden border-t-2 border-on-surface-strong bg-surface-alt p-5 sm:p-6"
     >
-      <div class="flex flex-col 2xl:flex-row gap-4 md:items-center md:gap-6">
-        <div class="flex flex-col md:flex-row min-w-0 items-start gap-4 md:flex-1">
+      <div class="flex flex-col gap-4 @2xl:flex-row @2xl:items-center md:gap-6">
+        <div class="flex w-full min-w-0 flex-col items-start gap-4 md:flex-row @2xl:flex-1">
           <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface text-accent border border-outline sm:size-11">
             {mailIcon(5)}
           </div>
-          <div class="min-w-0 flex-1 pt-0.5">
+          <div class="min-w-0 w-full flex-1 pt-0.5">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span class="kicker text-accent">{NEWSLETTER_COPY.kicker}</span>
               {subscriberLabel ? (

@@ -83,6 +83,8 @@ export async function getTrendingForRange(
   return { books, artists, publishers };
 }
 
+export type TrendingForRange = Awaited<ReturnType<typeof getTrendingForRange>>;
+
 async function loadCreatorInstagramBySlug(
   slugs: string[],
 ): Promise<Map<string, string | null>> {

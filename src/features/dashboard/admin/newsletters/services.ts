@@ -3,7 +3,6 @@ import {
   artistOfTheWeek,
   bookFairs,
   books,
-  creators,
   type NewsletterCampaignStatus,
   newsletterCampaigns,
   publisherOfTheWeek,
@@ -13,6 +12,7 @@ import {
   type BookOfTheDayWithBook,
 } from "../../../app/BOTDServices";
 import { getTrendingForRange } from "../../../../domain/planner/trending";
+import { getNewlyVerifiedCreatorsInRange } from "../../../../domain/newsletters/newMembers";
 import { CREATOR_CARD_COLUMNS } from "../../../../constants/queries";
 import { getPagination } from "../../../../lib/pagination";
 import { err, ok } from "../../../../lib/result";
@@ -29,7 +29,6 @@ import {
   type WeeklyNewsletterBookItem,
   type WeeklyNewsletterCreatorSpotlight,
   type WeeklyNewsletterFairItem,
-  type WeeklyNewsletterNewMember,
 } from "./types";
 import {
   getCurrentNewsletterRange,
@@ -40,15 +39,11 @@ import {
   desc,
   eq,
   gte,
-  isNotNull,
-  lt,
   and,
   asc,
   lte,
   inArray,
 } from "drizzle-orm";
-
-const NEW_MEMBERS_LIMIT = 6;
 
 /** Normalize any week-start value to UTC midnight (matches planner `YYYY-MM-DD` links). */
 export function normalizeWeekStartDate(weekStart: Date): Date {
@@ -132,59 +127,6 @@ async function getBookDescriptionMap(entries: BookOfTheDayWithBook[]) {
   });
 
   return new Map(rows.map((row) => [row.id, row.description]));
-}
-
-/** Verified creators whose `verifiedAt` falls in the newsletter edition (Thu–Wed). */
-async function getNewlyVerifiedCreatorsInRange(
-  rangeStart: Date,
-  rangeEnd: Date,
-): Promise<WeeklyNewsletterNewMember[]> {
-  const rangeEndExclusive = new Date(rangeEnd);
-  rangeEndExclusive.setUTCDate(rangeEndExclusive.getUTCDate() + 1);
-
-  const rows = await db.query.creators.findMany({
-    where: and(
-      eq(creators.status, "verified"),
-      isNotNull(creators.verifiedAt),
-      gte(creators.verifiedAt, rangeStart),
-      lt(creators.verifiedAt, rangeEndExclusive),
-    ),
-    columns: {
-      displayName: true,
-      slug: true,
-      type: true,
-      coverUrl: true,
-      tagline: true,
-      city: true,
-      country: true,
-    },
-    with: {
-      booksAsArtist: {
-        columns: { id: true },
-        where: eq(books.publicationStatus, "published"),
-      },
-      booksAsPublisher: {
-        columns: { id: true },
-        where: eq(books.publicationStatus, "published"),
-      },
-    },
-    orderBy: [asc(creators.verifiedAt)],
-  });
-
-  return rows
-    .filter(
-      (creator) =>
-        creator.booksAsArtist.length > 0 || creator.booksAsPublisher.length > 0,
-    )
-    .slice(0, NEW_MEMBERS_LIMIT)
-    .map(({ booksAsArtist, booksAsPublisher, ...creator }) => ({
-      displayName: creator.displayName,
-      slug: creator.slug,
-      type: creator.type,
-      coverUrl: creator.coverUrl ?? null,
-      tagline: creator.tagline?.trim() || null,
-      location: formatCreatorLocation(creator.city, creator.country),
-    }));
 }
 
 /** AOTW/POTW for the ISO week containing the newsletter send Wednesday. */

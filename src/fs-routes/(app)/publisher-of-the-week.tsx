@@ -13,7 +13,7 @@ import { getIsMobile } from "../../lib/device";
 import GridPanel from "../../components/app/GridPanel";
 import ListNavigation from "../../features/app/components/ListNavigation";
 import { canonicalUrl, pageTitle } from "../../lib/seo";
-import { potwPath } from "../../features/app/spotlightUrls";
+import { creatorPath } from "../../features/app/spotlightUrls";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -56,10 +56,11 @@ export const GET = createRoute(async (c) => {
           {potwEntries.map((entry) => (
             <ScrollReveal>
               <SpotlightCard
-                href={potwPath(entry.weekStart)}
+                href={creatorPath(entry.creator.slug)}
                 imageUrl={entry.creator.coverUrl ?? ""}
                 imageAlt={entry.creator.displayName}
                 dateLabel={`Week of ${formatDate(entry.weekStart)}`}
+                kicker="Publisher of the Week"
                 title={entry.creator.displayName}
                 subtitle={
                   [
