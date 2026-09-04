@@ -1,6 +1,7 @@
 /** @jsxImportSource react */
 
 import { MjmlSection, MjmlColumn, MjmlText } from "mjml-react";
+import { NEWSLETTER_COPY } from "../../../../../constants/newsletter";
 import { brand, newsletterNavLinks, newsletterSocial } from "../constants";
 
 export const NewsletterFooter = () => (
@@ -13,8 +14,7 @@ export const NewsletterFooter = () => (
         color={brand.onSurface}
         padding="0 25px 16px"
       >
-        The home for photobook lovers. Discover books, follow artists and
-        publishers, and keep up with the photobook world.
+        {NEWSLETTER_COPY.forwardLine}
       </MjmlText>
       <MjmlText align="center" padding="0 25px 16px">
         {newsletterNavLinks().map((link, index) => (

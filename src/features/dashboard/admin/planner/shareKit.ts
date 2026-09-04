@@ -15,6 +15,7 @@ export function buildCreatorShareKitInstagramCaption(params: {
   displayName: string;
   type: "artist" | "publisher";
   spotlightUrl: string;
+  newsletterUrl: string;
   instagram?: string | null;
 }): string {
   const role =
@@ -24,6 +25,9 @@ export function buildCreatorShareKitInstagramCaption(params: {
     "",
     "See the full feature:",
     params.spotlightUrl,
+    "",
+    "Get next week's Book of the Day picks by email:",
+    params.newsletterUrl,
   ];
   const handle = formatInstagramHandle(params.instagram);
   if (handle) lines.push("", handle);
@@ -36,6 +40,7 @@ export function buildCreatorShareKitEmailHtml(params: {
   type: "artist" | "publisher";
   spotlightUrl: string;
   digestUrl: string;
+  newsletterUrl: string;
   instagram?: string | null;
 }): string {
   const role =
@@ -44,16 +49,18 @@ export function buildCreatorShareKitEmailHtml(params: {
     displayName: "",
     type: params.type,
     spotlightUrl: params.spotlightUrl,
+    newsletterUrl: params.newsletterUrl,
     instagram: params.instagram,
   });
 
   return `
   <hr style="margin:24px 0;border:none;border-top:1px solid #e5e5e5;" />
   <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111;">Share kit</p>
-  <p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:#444;">Your <strong>${role}</strong> feature is live. If you would like to share it, here is ready-made copy you can paste into Instagram:</p>
+  <p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:#444;">Your <strong>${role}</strong> feature is live. If you post this, people who like your work can subscribe for next week's Book of the Day picks:</p>
   <pre style="margin:0 0 16px;padding:12px;background:#f5f5f5;border-radius:8px;font-size:13px;line-height:1.5;white-space:pre-wrap;color:#111;">${escapeHtml(caption)}</pre>
   <p style="margin:0 0 8px;font-size:14px;line-height:1.5;color:#444;">Your spotlight page:<br/><a href="${escapeHtml(params.spotlightUrl)}">${escapeHtml(params.spotlightUrl)}</a></p>
-  <p style="margin:0;font-size:14px;line-height:1.5;color:#444;">This week's roundup:<br/><a href="${escapeHtml(params.digestUrl)}">${escapeHtml(params.digestUrl)}</a></p>
+  <p style="margin:0 0 8px;font-size:14px;line-height:1.5;color:#444;">This week's roundup:<br/><a href="${escapeHtml(params.digestUrl)}">${escapeHtml(params.digestUrl)}</a></p>
+  <p style="margin:0;font-size:14px;line-height:1.5;color:#444;">Weekly Book of the Day email:<br/><a href="${escapeHtml(params.newsletterUrl)}">${escapeHtml(params.newsletterUrl)}</a></p>
   `;
 }
 
@@ -63,13 +70,22 @@ export function buildBotdShareKitInstagramCaption(params: {
   bookTitle: string;
   artistName: string;
   spotlightUrl: string;
+  newsletterUrl: string;
   instagram?: string | null;
 }): string {
   const intro =
     params.recipientType === "artist"
       ? `My book "${params.bookTitle}" is Book of the Day on ${PHOTOBOOKERS_IG} today.`
       : `"${params.bookTitle}" by ${params.artistName} is Book of the Day on ${PHOTOBOOKERS_IG} today.`;
-  const lines = [intro, "", "See the feature:", params.spotlightUrl];
+  const lines = [
+    intro,
+    "",
+    "See the feature:",
+    params.spotlightUrl,
+    "",
+    "Get next week's picks by email:",
+    params.newsletterUrl,
+  ];
   const handle = formatInstagramHandle(params.instagram);
   if (handle) lines.push("", handle);
   lines.push("", "#photobook #photobookjousting");
@@ -83,6 +99,7 @@ export function buildBotdShareKitEmailHtml(params: {
   artistName: string;
   spotlightUrl: string;
   digestUrl: string;
+  newsletterUrl: string;
   instagram?: string | null;
 }): string {
   const caption = buildBotdShareKitInstagramCaption({
@@ -90,15 +107,17 @@ export function buildBotdShareKitEmailHtml(params: {
     bookTitle: params.bookTitle,
     artistName: params.artistName,
     spotlightUrl: params.spotlightUrl,
+    newsletterUrl: params.newsletterUrl,
     instagram: params.instagram,
   });
 
   return `
   <hr style="margin:24px 0;border:none;border-top:1px solid #e5e5e5;" />
   <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111;">Share kit</p>
-  <p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:#444;">Your <strong>Book of the Day</strong> feature is live. If you would like to share it, here is ready-made copy you can paste into Instagram:</p>
+  <p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:#444;">Your <strong>Book of the Day</strong> feature is live. If you post this, collectors can subscribe for next week's picks:</p>
   <pre style="margin:0 0 16px;padding:12px;background:#f5f5f5;border-radius:8px;font-size:13px;line-height:1.5;white-space:pre-wrap;color:#111;">${escapeHtml(caption)}</pre>
   <p style="margin:0 0 8px;font-size:14px;line-height:1.5;color:#444;">Book of the Day page:<br/><a href="${escapeHtml(params.spotlightUrl)}">${escapeHtml(params.spotlightUrl)}</a></p>
-  <p style="margin:0;font-size:14px;line-height:1.5;color:#444;">This week's roundup:<br/><a href="${escapeHtml(params.digestUrl)}">${escapeHtml(params.digestUrl)}</a></p>
+  <p style="margin:0 0 8px;font-size:14px;line-height:1.5;color:#444;">This week's roundup:<br/><a href="${escapeHtml(params.digestUrl)}">${escapeHtml(params.digestUrl)}</a></p>
+  <p style="margin:0;font-size:14px;line-height:1.5;color:#444;">Weekly Book of the Day email:<br/><a href="${escapeHtml(params.newsletterUrl)}">${escapeHtml(params.newsletterUrl)}</a></p>
   `;
 }

@@ -27,6 +27,7 @@ describe("generateBOTDNotificationEmail", () => {
     expect(html).toContain("Winter Light");
     expect(html).toContain("/book-of-the-day/2026-06-01");
     expect(html).toContain("make sure your bio");
+    expect(html).toContain("caption you can paste");
     expect(html).not.toContain("Claim your profile");
   });
 
@@ -159,6 +160,8 @@ describe("buildBotdFeatureDayEmail", () => {
     expect(html).toContain("Share kit");
     expect(html).toContain("Book of the Day on @photobookers today");
     expect(html).toContain(spotlightUrl);
+    expect(html).toContain("/newsletter");
+    expect(html).toContain("Get next week's picks by email");
     expect(html).toContain("@janedoe");
     expect(html).toContain("/this-week?week=2026-W24");
   });
@@ -235,6 +238,7 @@ describe("buildFeatureDayEmail", () => {
     expect(html).toContain("Share kit");
     expect(html).toContain("Artist of the Week on @photobookers this week");
     expect(html).toContain(spotlightUrl);
+    expect(html).toContain("/newsletter");
     expect(html).toContain("@janedoe");
     expect(html).toContain("#photobook");
     expect(html).toContain("/this-week?week=2026-W23");

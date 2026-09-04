@@ -73,6 +73,10 @@ export const GET = createRoute(async (c: Context) => {
           />
         ) : null}
 
+        <ScrollReveal>
+          <NewsletterCard />
+        </ScrollReveal>
+
         <MagazineHomepagePromo />
 
         {!user ? <HomepageAudiencePitch /> : null}
@@ -93,10 +97,6 @@ export const GET = createRoute(async (c: Context) => {
             </Intersector>
           </ScrollReveal>
         ) : null}
-
-        <ScrollReveal>
-          <NewsletterCard />
-        </ScrollReveal>
 
         <ScrollReveal>
           <PageBleed>

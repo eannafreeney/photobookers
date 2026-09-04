@@ -119,6 +119,7 @@ export const generateBOTDNotificationEmail = (
   <p>Great news — your book, <strong>${book.title}</strong>, is scheduled as <strong>Book of the Day</strong> on Photobookers on <strong>${formattedDate}</strong> (one week from today).</p>
   <p>Your feature page will be here: <a href="${spotlightUrl}">${spotlightUrl}</a></p>
   <p>We will share your feature on our Instagram on the day to help more people discover your work.</p>
+  <p>On the day we will also email you a short caption you can paste. If you share it, people who like the book can subscribe for next week's Book of the Day picks.</p>
   ${accountBlock}
   ${profilePrompt}
   ${verificationBlock}
@@ -244,12 +245,14 @@ export function buildBotdFeatureDayEmail(params: {
 }) {
   const formattedDate = formatBotdDateLong(params.botdDate);
   const digestUrl = `${process.env.SITE_URL ?? "https://photobookers.com"}${thisWeekPath(toWeekStart(params.botdDate))}`;
+  const newsletterUrl = `${siteUrl()}/newsletter`;
   const shareKit = buildBotdShareKitEmailHtml({
     recipientType: params.recipientType,
     bookTitle: params.bookTitle,
     artistName: params.artistName,
     spotlightUrl: params.spotlightUrl,
     digestUrl,
+    newsletterUrl,
     instagram: params.instagram,
   });
 
@@ -274,6 +277,7 @@ export function buildFeatureDayEmail(params: {
   const role =
     params.type === "artist" ? "Artist of the Week" : "Publisher of the Week";
   const digestUrl = `${process.env.SITE_URL ?? "https://photobookers.com"}${thisWeekPath(params.weekStart)}`;
+  const newsletterUrl = `${siteUrl()}/newsletter`;
   const interviewBlock =
     params.interviewStatus !== "completed" &&
     params.interviewStatus !== "published" &&
@@ -284,6 +288,7 @@ export function buildFeatureDayEmail(params: {
     type: params.type,
     spotlightUrl: params.spotlightUrl,
     digestUrl,
+    newsletterUrl,
     instagram: params.instagram,
   });
   return `

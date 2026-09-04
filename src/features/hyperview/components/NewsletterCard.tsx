@@ -1,4 +1,5 @@
 import { FC } from "hono/jsx";
+import { NEWSLETTER_COPY } from "../../../constants/newsletter";
 import {
   Behavior,
   Form,
@@ -21,7 +22,7 @@ type NewsletterFormFieldsProps = {
 export const HyperviewNewsletterFormFields: FC<NewsletterFormFieldsProps> = ({
   baseUrl,
   email = "",
-  submitLabel = "Sign up",
+  submitLabel = NEWSLETTER_COPY.cta,
   showSubmitBehavior = true,
 }) => (
   <View
@@ -61,10 +62,8 @@ const NewsletterCard: FC<NewsletterCardProps> = ({ baseUrl = "" }) => (
         <Text style="newsletter-icon">✉</Text>
       </View>
       <View style="newsletter-copy">
-        <Text style="newsletter-heading">Join the mailing list</Text>
-        <Text style="newsletter-subheading">
-          Discover new books and creators.
-        </Text>
+        <Text style="newsletter-heading">{NEWSLETTER_COPY.title}</Text>
+        <Text style="newsletter-subheading">{NEWSLETTER_COPY.banner}</Text>
       </View>
     </View>
     <Form id="newsletter-form">

@@ -11,8 +11,7 @@ export { POST } from "../api/newsletter";
 
 export const GET = createRoute(async (c) => {
   const title = pageTitle("Newsletter");
-  const description =
-    "Get a daily Book of the Day pick and weekly photobook highlights from Photobookers.";
+  const description = NEWSLETTER_COPY.banner;
 
   return c.html(
     <HeadlessLayout title={title} description={description}>

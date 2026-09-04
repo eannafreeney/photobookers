@@ -1,5 +1,6 @@
 import Button from "../../../components/app/Button";
 import { getInputIcon } from "../../../utils";
+import { NEWSLETTER_COPY } from "../../../constants/newsletter";
 
 const NewsletterModalForm = () => {
   const alpineAttrs = {
@@ -28,7 +29,7 @@ const NewsletterModalForm = () => {
         />
       </label>
       <Button variant="solid" color="warning" width="full">
-        Sign up
+        {NEWSLETTER_COPY.cta}
       </Button>
     </form>
   );

@@ -1,4 +1,5 @@
 import Button from "../../../components/app/Button";
+import { NEWSLETTER_COPY } from "../../../constants/newsletter";
 import { audiencePagesNav } from "../content/audiencePagesContent";
 
 /**
@@ -16,8 +17,7 @@ const HomepageAudiencePitch = () => (
         A curated gathering place for photobook culture
       </p>
       <p class="text-sm text-on-surface text-pretty md:text-base">
-        Browse books, follow artists and publishers, and keep up with fairs —
-        whether you collect, make, or publish.
+        Start with Book of the Day — seven picks in your inbox every Wednesday.
       </p>
     </div>
 
@@ -35,9 +35,9 @@ const HomepageAudiencePitch = () => (
       ))}
     </nav>
 
-    <a href="/auth/accounts">
+    <a href="/newsletter">
       <Button variant="solid" color="primary" width="auto">
-        Create a free account
+        {NEWSLETTER_COPY.cta}
       </Button>
     </a>
   </section>

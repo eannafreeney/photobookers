@@ -1,6 +1,7 @@
 /** @jsxImportSource react */
 
 import { Section, Row, Column, Text, Button, Img } from "@react-email/components";
+import { NEWSLETTER_COPY } from "../../../../../constants/newsletter";
 import { brand, newsletterNavLinks, newsletterSocial } from "../constants";
 
 export const NewsletterFooter = () => (
@@ -11,8 +12,7 @@ export const NewsletterFooter = () => (
           style={{ color: brand.onSurface }}
           className="m-0 text-sm leading-[1.6] px-[25px] text-center"
         >
-          The home for photobook lovers. Discover books, follow artists and
-          publishers, and keep up with the photobook world.
+          {NEWSLETTER_COPY.forwardLine}
         </Text>
 
         <Section className="text-center my-6">

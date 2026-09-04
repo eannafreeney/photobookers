@@ -1,6 +1,7 @@
 import Button from "../../../components/app/Button";
 import { getInputIcon } from "../../../utils";
 import clsx from "clsx";
+import { NEWSLETTER_COPY } from "../../../constants/newsletter";
 
 const NewsletterForm = ({ className }: { className?: string }) => (
   <form
@@ -24,7 +25,7 @@ const NewsletterForm = ({ className }: { className?: string }) => (
     </label>
     <div class="h-10 shrink-0 [&>button]:h-full [&>button]:px-4">
       <Button variant="solid" color="primary" width="auto">
-        Sign up
+        {NEWSLETTER_COPY.cta}
       </Button>
     </div>
   </form>

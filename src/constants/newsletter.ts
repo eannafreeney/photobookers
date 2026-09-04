@@ -1,13 +1,14 @@
 export const NEWSLETTER_COPY = {
   kicker: "Newsletter",
-  title: "Your weekly photobook digest",
+  title: "One photobook a day",
   banner:
-    "Books of the Day, weekly spotlights, trending artists & publishers, and new creators — once a week, free.",
+    "Seven Book of the Day picks in your inbox every Wednesday. Free.",
   bullets: [
-    "Books of the Day — all seven picks from the past week",
-    "Creators of the Week — featured artist and publisher",
-    "Trending — top books, artists, and publishers",
-    "New on Photobookers — creators who joined that week",
+    "All seven Books of the Day from the past week",
+    "A link to each feature — and a way to buy",
+    "The same picks we post on Instagram, in one email",
   ],
-  cta: "Sign up free",
+  cta: "Get the picks",
+  forwardLine:
+    "Know someone who collects photobooks? Forward this email.",
 } as const;
