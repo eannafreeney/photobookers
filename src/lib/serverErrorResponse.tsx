@@ -7,6 +7,7 @@ import ServerErrorPage from "../pages/ServerErrorPage";
 import { recordAndNotifyAdminServerError } from "../domain/server-errors/notifyAdminServerError";
 import { getUser } from "../utils";
 import { isClientAbortError } from "./isClientAbortError";
+import { isMalformedBodyError } from "./isMalformedBodyError";
 
 const MAINTENANCE_MESSAGE =
   "We're currently under maintenance. Please try again shortly.";
@@ -33,6 +34,12 @@ export async function handleServerError(c: Context, err: unknown) {
   if (isClientAbortError(err)) {
     console.warn("Client aborted request:", c.req.method, c.req.path);
     return c.body(null, 204);
+  }
+
+  // Junk/truncated multipart bodies (often bots POSTing `/`) — 400, don't page.
+  if (isMalformedBodyError(err)) {
+    console.warn("Malformed request body:", c.req.method, c.req.path);
+    return c.text("Bad Request", 400);
   }
 
   console.error("Unhandled server error:", err);

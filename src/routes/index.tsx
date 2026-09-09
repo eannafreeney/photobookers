@@ -6,10 +6,9 @@ import { useSession } from "@hono/session";
 import { requireAdmin } from "../middleware/requireAdmin";
 import { createRouter } from "hono-fsr";
 import { manifest } from "../fs-routes.manifest";
-import { methodOverride } from "hono/method-override";
 import { csrf } from "hono/csrf";
-import { HTTPException } from "hono/http-exception";
 import type { Context, Next } from "hono";
+import { safeMethodOverride } from "../middleware/safeMethodOverride";
 
 export const routes = new Hono();
 
@@ -61,7 +60,7 @@ routes.use("*", (c: Context, next: Next) => {
   return csrfProtection(c, next);
 });
 
-routes.use("*", methodOverride({ app: routes, form: "_method" }));
+routes.use("*", safeMethodOverride(routes));
 
 await createRouter(routes, {
   manifest,
