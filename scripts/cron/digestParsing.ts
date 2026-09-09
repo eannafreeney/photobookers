@@ -32,6 +32,8 @@ export const CRON_JOB_DESCRIPTIONS: Record<string, string> = {
     "Reminds admins to prepare Instagram content for schedule gaps.",
   "instagram-weekly-digest":
     "Emails a weekly Instagram metrics summary and post ideas.",
+  "newsletter-growth-digest":
+    "Emails weekly Book of the Day list scores (signups, campaign opens/clicks, buy clicks).",
   "planner-content-preview-email": "Emails a preview of the week's planned content.",
   "creator-analytics-digest": "Emails creators their monthly analytics digest.",
   "creator-milestone-emails":

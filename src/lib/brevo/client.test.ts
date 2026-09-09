@@ -3,6 +3,7 @@ import {
   createBrevoEmailCampaign,
   ensureBrevoContact,
   getBrevoConfig,
+  listRecentSentBrevoCampaigns,
   prepareNewsletterHtmlForBrevo,
   sendBrevoCampaignTest,
 } from "./client";
@@ -147,5 +148,28 @@ describe("sendBrevoCampaignTest", () => {
       "https://api.brevo.com/v3/emailCampaigns/456/sendTest",
       expect.objectContaining({ method: "POST" }),
     );
+  });
+});
+
+describe("listRecentSentBrevoCampaigns", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("requests sent campaigns newest first", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ campaigns: [{ id: 9, status: "sent" }] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const [error, campaigns] = await listRecentSentBrevoCampaigns("test-key");
+    expect(error).toBeNull();
+    expect(campaigns?.[0]?.id).toBe(9);
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
+      "status=sent",
+    );
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain("sort=desc");
   });
 });

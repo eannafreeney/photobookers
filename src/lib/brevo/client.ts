@@ -216,6 +216,23 @@ export type BrevoListStats = {
   uniqueSubscribers: number;
 };
 
+export type BrevoSentCampaignSummary = {
+  id?: number;
+  name?: string;
+  subject?: string;
+  sentDate?: string;
+  status?: string;
+  statistics?: {
+    globalStats?: {
+      uniqueClicks?: number;
+      uniqueViews?: number;
+      delivered?: number;
+      sent?: number;
+      unsubscriptions?: number;
+    };
+  };
+};
+
 export type BrevoContactSummary = {
   email: string;
   createdAt: string;
@@ -223,6 +240,28 @@ export type BrevoContactSummary = {
 
 export function getBrevoListDashboardUrl(listId: number): string {
   return `https://app.brevo.com/contact/list/listing/id/${listId}`;
+}
+
+export function getBrevoCampaignDashboardUrl(campaignId: number): string {
+  return `https://app.brevo.com/marketing-campaign/listing/id/${campaignId}`;
+}
+
+export async function listRecentSentBrevoCampaigns(
+  apiKey: string,
+  limit = 10,
+): Promise<Result<BrevoSentCampaignSummary[], { reason: string; status?: number }>> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: "0",
+    sort: "desc",
+    status: "sent",
+  });
+
+  const [error, data] = await brevoFetch<{
+    campaigns?: BrevoSentCampaignSummary[];
+  }>(apiKey, `/emailCampaigns?${params.toString()}`);
+  if (error) return err(error);
+  return ok(data?.campaigns ?? []);
 }
 
 export async function getBrevoListStats(

@@ -1,3 +1,4 @@
+import { runNewsletterGrowthDigestCron } from "../domain/newsletter-growth/cron";
 import { runCeoMetricsEmailCron } from "../domain/ceo-metrics/cron";
 import { runDailyProductDigestCron } from "../domain/daily-product-digest/cron";
 import { runInstagramWeeklyDigestCron } from "../domain/instagram-analytics/cron";
@@ -80,6 +81,7 @@ export type CronJobName =
   | "weekly-trending-instagram"
   | "instagram-prep-reminder-email"
   | "instagram-weekly-digest"
+  | "newsletter-growth-digest"
   | "planner-content-preview-email"
   | "creator-analytics-digest"
   | "creator-milestone-emails"
@@ -110,6 +112,7 @@ export const CRON_JOB_NAMES = [
   "weekly-trending-instagram",
   "instagram-prep-reminder-email",
   "instagram-weekly-digest",
+  "newsletter-growth-digest",
   "planner-content-preview-email",
   "creator-analytics-digest",
   "creator-milestone-emails",
@@ -237,6 +240,17 @@ export async function runInstagramWeeklyDigestCronJob(
   options: CronRunnerOptions = {},
 ): Promise<Result<Record<string, unknown>, { reason: string }>> {
   const [error, result] = await runInstagramWeeklyDigestCron({
+    dryRun: options.dryRun,
+    date: options.date,
+  });
+  if (error) return err(error);
+  return ok({ ...result });
+}
+
+export async function runNewsletterGrowthDigestCronJob(
+  options: CronRunnerOptions = {},
+): Promise<Result<Record<string, unknown>, { reason: string }>> {
+  const [error, result] = await runNewsletterGrowthDigestCron({
     dryRun: options.dryRun,
     date: options.date,
   });
@@ -570,6 +584,7 @@ const RUNNERS: Record<
   "weekly-trending-instagram": runWeeklyTrendingInstagramCron,
   "instagram-prep-reminder-email": runInstagramPrepReminderEmailCron,
   "instagram-weekly-digest": runInstagramWeeklyDigestCronJob,
+  "newsletter-growth-digest": runNewsletterGrowthDigestCronJob,
   "planner-content-preview-email": runPlannerContentPreviewEmailCron,
   "creator-analytics-digest": runCreatorAnalyticsDigestCronJob,
   "creator-milestone-emails": runCreatorMilestoneEmailsCronJob,
