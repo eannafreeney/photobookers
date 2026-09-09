@@ -13,8 +13,12 @@ import CreatorsCircle from "../../features/app/components/CreatorsCircle";
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
 
+  if (!user?.id) {
+    return c.html(<InfoPage errorMessage="Not found" user={user} />, 404);
+  }
+
   const [err, result] = await getFollowedCreators(user.id);
-  if (err) return c.html(<InfoPage errorMessage={err.reason} />);
+  if (err) return c.html(<InfoPage errorMessage={err.reason} user={user} />);
 
   const { artists, publishers } = result;
   const title = "Creators I Follow";
