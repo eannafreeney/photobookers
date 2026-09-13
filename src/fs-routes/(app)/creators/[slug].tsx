@@ -17,6 +17,7 @@ import { setAnonPageCache } from "../../../lib/staticCache";
 import { countCreatorPosts } from "../../../db/queries";
 import { getArtistOfTheWeekForCreatorId } from "../../../features/app/AOTWServices";
 import { getPublisherOfTheWeekForCreatorId } from "../../../features/app/POTWServices";
+import { listPressClipsForCreator } from "../../../features/app/press";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -36,13 +37,15 @@ export const GET = createRoute(
 
     const { creator } = result;
 
-    const [, postCount, spotlightRow] = await Promise.all([
+    const [, postCount, spotlightRow, pressResult] = await Promise.all([
       maybeRecordCreatorView(c, creator, "web"),
       countCreatorPosts(creator.id),
       creator.type === "artist"
         ? getArtistOfTheWeekForCreatorId(creator.id)
         : getPublisherOfTheWeekForCreatorId(creator.id),
+      listPressClipsForCreator(creator),
     ]);
+    const pressClips = pressResult[1] ?? [];
 
     const spotlightKicker = spotlightRow
       ? creator.type === "artist"
@@ -95,6 +98,7 @@ export const GET = createRoute(
             postCount={postCount}
             upcomingFairs={upcomingFairs}
             spotlightKicker={spotlightKicker}
+            pressClips={pressClips}
           />
         </Page>
       </AppLayout>,

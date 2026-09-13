@@ -53,6 +53,10 @@ const BookPressLinksSection = () => {
                 {...{ "x-text": "pressLinkHost(link.url)" }}
               ></p>
               <p
+                class="text-xs text-on-surface/60"
+                {...{ "x-show": "link.publishedAt", "x-text": "link.publishedAt" }}
+              ></p>
+              <p
                 class="text-sm italic text-on-surface/80 line-clamp-2"
                 {...{ "x-show": "link.quote", "x-text": "link.quote" }}
               ></p>
@@ -148,6 +152,20 @@ const BookPressLinksSection = () => {
                 class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm"
                 placeholder="https://…"
                 {...{ "x-model": "pressDraft.url" }}
+              />
+            </div>
+            <div>
+              <label
+                for="press-draft-published-at"
+                class="mb-1 block text-sm font-medium"
+              >
+                Published (optional)
+              </label>
+              <input
+                id="press-draft-published-at"
+                type="date"
+                class="w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm"
+                {...{ "x-model": "pressDraft.publishedAt" }}
               />
             </div>
             <div>

@@ -102,6 +102,7 @@ const Footer = () => (
           { href: "/publisher-of-the-week", label: "Publisher of the Week" },
           { href: "/this-week", label: "This Week" },
           { href: "/interviews", label: "Interviews" },
+          { href: "/press", label: "Press" },
         ]}
       />
       <FooterColumn

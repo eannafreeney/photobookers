@@ -27,6 +27,7 @@ const STATIC_PAGES: Array<
   { loc: "/creators", changefreq: "weekly", priority: 0.8 },
   { loc: "/fairs", changefreq: "weekly", priority: 0.7 },
   { loc: "/interviews", changefreq: "weekly", priority: 0.7 },
+  { loc: "/press", changefreq: "weekly", priority: 0.6 },
   { loc: "/book-of-the-day", changefreq: "daily", priority: 0.7 },
   { loc: "/artist-of-the-week", changefreq: "weekly", priority: 0.6 },
   { loc: "/publisher-of-the-week", changefreq: "weekly", priority: 0.6 },

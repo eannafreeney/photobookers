@@ -7,6 +7,8 @@ import UpcomingFairsSection from "../../fairs/components/UpcomingFairsSection";
 import { BookCardResult } from "../../../../constants/queries";
 import { BookFair, Creator } from "../../../../db/schema";
 import { AuthUser } from "../../../../../types";
+import PressClip from "../PressClip";
+import type { PressClip as PressClipData } from "../../pressClips";
 
 export type CreatorBooksResult = {
   creator: Creator;
@@ -34,6 +36,7 @@ export type CreatorDetailViewProps = {
     >
   >;
   spotlightKicker?: string | null;
+  pressClips: PressClipData[];
 };
 
 const CreatorDetailTabs = ({
@@ -48,10 +51,14 @@ const CreatorDetailTabs = ({
   creatorsCurrentPage,
   postCount,
   upcomingFairs,
+  pressClips,
 }: CreatorDetailViewProps & { isMobile?: boolean }) => (
   <Tabs defaultTab="books">
     <Tabs.LinkContainer align={isMobile ? undefined : "left"}>
       <Tabs.Link tabId="books">Books</Tabs.Link>
+      {pressClips.length > 0 && (
+        <Tabs.Link tabId="press">{`Press (${pressClips.length})`}</Tabs.Link>
+      )}
       {showPostsTab && (
         <Tabs.Link tabId="posts">{`Posts (${postCount})`}</Tabs.Link>
       )}
@@ -74,6 +81,14 @@ const CreatorDetailTabs = ({
         currentCreatorId={creator.id}
         noResultsMessage="No books found"
       />
+    </Tabs.Panel>
+
+    <Tabs.Panel tabId="press">
+      <ul class="mx-auto flex w-full max-w-2xl flex-col gap-4">
+        {pressClips.map((clip) => (
+          <PressClip clip={clip} showCredit={false} />
+        ))}
+      </ul>
     </Tabs.Panel>
 
     <Tabs.Panel tabId="posts">

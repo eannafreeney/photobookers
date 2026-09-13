@@ -186,7 +186,14 @@ export const books = pgTable(
     purchaseLink: text("purchase_link"),
     /** External press / review links curated by the creator or admin. */
     pressLinks: jsonb("press_links")
-      .$type<{ title: string; url: string; quote?: string | null }[]>()
+      .$type<
+        {
+          title: string;
+          url: string;
+          quote?: string | null;
+          publishedAt?: string | null;
+        }[]
+      >()
       .default([])
       .notNull(),
     images: text("images").array(),

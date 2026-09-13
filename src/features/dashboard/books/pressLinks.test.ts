@@ -16,6 +16,7 @@ describe("bookPressLinkSchema", () => {
       title: "BJP",
       url: "https://example.com/review",
       quote: "A fine book",
+      publishedAt: null,
     });
   });
 
@@ -26,6 +27,24 @@ describe("bookPressLinkSchema", () => {
       quote: "  ",
     });
     expect(parsed.quote).toBeNull();
+  });
+
+  it("accepts a publishedAt date", () => {
+    const parsed = bookPressLinkSchema.parse({
+      title: "BJP",
+      url: "https://example.com/review",
+      publishedAt: "2024-06-01",
+    });
+    expect(parsed.publishedAt).toBe("2024-06-01");
+  });
+
+  it("treats empty publishedAt as null", () => {
+    const parsed = bookPressLinkSchema.parse({
+      title: "BJP",
+      url: "https://example.com/review",
+      publishedAt: "",
+    });
+    expect(parsed.publishedAt).toBeNull();
   });
 
   it("rejects invalid urls", () => {

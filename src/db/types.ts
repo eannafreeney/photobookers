@@ -59,6 +59,8 @@ export type BookPressLink = {
   title: string;
   url: string;
   quote?: string | null;
+  /** Piece date as YYYY-MM-DD. Optional; older links omit it. */
+  publishedAt?: string | null;
 };
 
 // Infer types from tables

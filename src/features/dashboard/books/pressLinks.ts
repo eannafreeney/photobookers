@@ -19,6 +19,14 @@ export const bookPressLinkSchema = z.object({
     .optional()
     .nullable()
     .transform((v) => (v ? v : null)),
+  publishedAt: z.preprocess(
+    (value) => (value === "" || value === undefined ? null : value),
+    z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid date")
+      .nullable()
+      .optional(),
+  ),
 });
 
 /** Accepts a JSON string from the form, an array, or absent/empty → undefined. */

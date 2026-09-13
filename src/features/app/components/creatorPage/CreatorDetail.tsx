@@ -3,6 +3,7 @@ import { AuthUser } from "../../../../../types";
 import CreatorDetailMobile from "./CreatorDetailMobile";
 import CreatorDetailDesktop from "./CreatorDetailDesktop";
 import { CreatorBooksResult } from "./CreatorDetailTab";
+import type { PressClip } from "../../pressClips";
 
 type CreatorDetailProps = {
   creator: Creator;
@@ -19,6 +20,7 @@ type CreatorDetailProps = {
     >
   >;
   spotlightKicker?: string | null;
+  pressClips: PressClip[];
 };
 
 const CreatorDetail = ({
@@ -31,6 +33,7 @@ const CreatorDetail = ({
   postCount,
   upcomingFairs,
   spotlightKicker,
+  pressClips,
 }: CreatorDetailProps) => {
   const showCreatorsTab = result.relatedCreators.creators.length > 0;
   const showFairsTab = upcomingFairs.length > 0;
@@ -51,6 +54,7 @@ const CreatorDetail = ({
       isOwner={isOwner}
       postCount={postCount}
       spotlightKicker={spotlightKicker}
+      pressClips={pressClips}
     />
   ) : (
     <CreatorDetailDesktop
@@ -66,6 +70,7 @@ const CreatorDetail = ({
       isOwner={isOwner}
       postCount={postCount}
       spotlightKicker={spotlightKicker}
+      pressClips={pressClips}
     />
   );
 };

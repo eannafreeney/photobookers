@@ -5,10 +5,11 @@ type PressDraft = {
   title: string;
   url: string;
   quote: string;
+  publishedAt: string;
 };
 
 function emptyDraft(): PressDraft {
-  return { title: "", url: "", quote: "" };
+  return { title: "", url: "", quote: "", publishedAt: "" };
 }
 
 export function parsePressLinks(raw: string | undefined): BookPressLink[] {
@@ -48,6 +49,7 @@ export function bookPressLinksAlpineMethods() {
           title: existing?.title ?? "",
           url: existing?.url ?? "",
           quote: existing?.quote ?? "",
+          publishedAt: existing?.publishedAt ?? "",
         };
       } else {
         ctx.pressDraft = emptyDraft();
@@ -68,6 +70,7 @@ export function bookPressLinksAlpineMethods() {
       const title = ctx.pressDraft.title.trim();
       const url = ctx.pressDraft.url.trim();
       const quote = ctx.pressDraft.quote.trim();
+      const publishedAt = ctx.pressDraft.publishedAt.trim();
 
       if (!title) {
         ctx.pressModalError = "Title is required";
@@ -89,6 +92,7 @@ export function bookPressLinksAlpineMethods() {
         title,
         url,
         quote: quote || null,
+        publishedAt: publishedAt || null,
       };
 
       if (ctx.pressEditIndex === null) {
