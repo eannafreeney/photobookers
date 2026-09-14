@@ -1,30 +1,21 @@
-import {
-  visibleHomepageActivityParts,
-  type HomepageActivityStats,
-} from "../homepageActivityVisibility";
+import { getHomepageActivityStats } from "../homepageActivity";
+import { visibleHomepageActivityParts } from "../homepageActivityVisibility";
 
-type Props = HomepageActivityStats & {
-  /** Override when the line sits inside another block (e.g. the live strip header). */
-  className?: string;
-};
+const HomepageActivityPulse = async () => {
+  const [error, stats] = await getHomepageActivityStats();
+  if (error || !stats) return <></>;
 
-const HomepageActivityPulse = ({
-  bookViews,
-  profileViews,
-  className = "text-center text-sm text-on-surface text-pretty",
-}: Props) => {
-  const { showBooks, showProfiles } = visibleHomepageActivityParts({
-    bookViews,
-    profileViews,
-  });
-  if (!showBooks && !showProfiles) return null;
+  const { showBooks, showProfiles, showClicks } =
+    visibleHomepageActivityParts(stats);
+  if (!showBooks && !showProfiles && !showClicks) return <></>;
 
-  return (
-    <p class={className}>
+  const showViews = showBooks || showProfiles;
+  const views = (
+    <>
       {showBooks ? (
         <>
           <span class="font-semibold text-on-surface-strong">
-            {bookViews.toLocaleString()}
+            {stats.bookViews.toLocaleString()}
           </span>{" "}
           book views
         </>
@@ -33,12 +24,31 @@ const HomepageActivityPulse = ({
       {showProfiles ? (
         <>
           <span class="font-semibold text-on-surface-strong">
-            {profileViews.toLocaleString()}
+            {stats.profileViews.toLocaleString()}
           </span>{" "}
           creator profile views
         </>
-      ) : null}{" "}
-      this week alone.
+      ) : null}
+    </>
+  );
+  const clicks = (
+    <>
+      <span class="font-semibold text-on-surface-strong">
+        {stats.buyClicks.toLocaleString()}
+      </span>{" "}
+      clicks through to buy
+    </>
+  );
+
+  return (
+    <p class="text-md text-on-surface-weak text-pretty text-center">
+      {showViews && showClicks ? (
+        <>
+          {views} this week — and {clicks}.
+        </>
+      ) : null}
+      {showViews && !showClicks ? <>{views} this week alone.</> : null}
+      {!showViews && showClicks ? <>{clicks} this week alone.</> : null}
     </p>
   );
 };

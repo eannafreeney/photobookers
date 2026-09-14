@@ -86,7 +86,7 @@ const CreatorDetailTabs = ({
     <Tabs.Panel tabId="press">
       <ul class="mx-auto flex w-full max-w-2xl flex-col gap-4">
         {pressClips.map((clip) => (
-          <PressClip clip={clip} showCredit={false} />
+          <PressClip clip={clip} />
         ))}
       </ul>
     </Tabs.Panel>

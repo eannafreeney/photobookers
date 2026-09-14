@@ -6,7 +6,6 @@ import {
   type RecentActivityItem,
   type SerializedRecentActivityItem,
 } from "../homepageRecentActivityUtils";
-import type { HomepageActivityStats } from "../homepageActivityVisibility";
 import HomepageActivityPulse from "./HomepageActivityPulse";
 
 type Props = {
@@ -15,8 +14,6 @@ type Props = {
   hasMore?: boolean;
   nextOffset?: number;
   pageSize?: number;
-  /** Weekly view counts, shown alongside the live feed. */
-  stats?: HomepageActivityStats | null;
 };
 
 const CARD_CLASS =
@@ -82,9 +79,8 @@ const HomepageRecentActivity = ({
   hasMore = false,
   nextOffset,
   pageSize = 10,
-  stats,
 }: Props) => {
-  if (items.length === 0 && !stats) return null;
+  if (items.length === 0) return null;
 
   const serialized = serializeRecentActivityItems(items);
   const bootstrap = JSON.stringify({
@@ -111,13 +107,7 @@ const HomepageRecentActivity = ({
           <LiveDot />
           Live on Photobookers
         </span>
-        {stats ? (
-          <HomepageActivityPulse
-            bookViews={stats.bookViews}
-            profileViews={stats.profileViews}
-            className="text-xs text-on-surface-weak text-pretty text-center"
-          />
-        ) : null}
+        <HomepageActivityPulse />
       </div>
 
       {serialized.length === 0 ? null : (

@@ -122,35 +122,10 @@ export async function loadCreatorsOfTheWeek(): Promise<{
 }
 
 /** Today's pick plus yesterday's, for the Book of the Day block. */
-export async function loadBookOfTheDayFeature(): Promise<{
-  today: BookOfTheDayWithBook | null;
-  yesterday: BookOfTheDayWithBook | null;
-  twoDaysAgo: BookOfTheDayWithBook | null;
-  threeDaysAgo: BookOfTheDayWithBook | null;
-}> {
-  const yesterdayDate = new Date();
-  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+export async function loadBookOfTheDayFeature(): Promise<BookOfTheDayWithBook | null> {
+  const [todayErr, botd] = await getTodaysBookOfTheDay();
 
-  const twoDaysAgoDate = new Date();
-  twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 2);
-
-  const threeDaysAgoDate = new Date();
-  threeDaysAgoDate.setDate(threeDaysAgoDate.getDate() - 3);
-
-  const [[todayErr, today], [, yesterday], [, twoDaysAgo], [, threeDaysAgo]] =
-    await Promise.all([
-      getTodaysBookOfTheDay(),
-      getBookOfTheDayForDate(yesterdayDate),
-      getBookOfTheDayForDate(twoDaysAgoDate),
-      getBookOfTheDayForDate(threeDaysAgoDate),
-    ]);
-
-  return {
-    today: todayErr || !today?.book ? null : today,
-    yesterday: yesterday?.book ? yesterday : null,
-    twoDaysAgo: twoDaysAgo?.book ? twoDaysAgo : null,
-    threeDaysAgo: threeDaysAgo?.book ? threeDaysAgo : null,
-  };
+  return todayErr || !botd?.book ? null : botd;
 }
 
 export function getImageSizeClass(size: number) {

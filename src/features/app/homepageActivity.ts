@@ -2,6 +2,7 @@ import { LRUCache } from "lru-cache";
 import { presetAnalyticsDateRange } from "../book-analytics/dateRange";
 import { getBookViewTotals } from "../book-views/services";
 import { getCreatorViewTotals } from "../creator-views/services";
+import { getPurchaseClickTotals } from "../purchase-clicks/services";
 import { err, ok, type Result } from "../../lib/result";
 import type { HomepageActivityStats } from "./homepageActivityVisibility";
 
@@ -28,15 +29,17 @@ export async function getHomepageActivityStats(): Promise<
 
   try {
     const range = presetAnalyticsDateRange(7);
-    const [bookTotals, creatorTotals] = await Promise.all([
+    const [bookTotals, creatorTotals, clickTotals] = await Promise.all([
       getBookViewTotals(range),
       getCreatorViewTotals(range),
+      getPurchaseClickTotals(range),
     ]);
 
     const stats: HomepageActivityStats = {
       bookViews: bookTotals.totalViews,
       profileViews:
         creatorTotals.publisherPageViews + creatorTotals.artistPageViews,
+      buyClicks: clickTotals.totalClicks,
     };
     cache.set("default", stats);
     return ok(stats);

@@ -36,7 +36,7 @@ describe("flattenPressClips", () => {
       book({
         slug: "newer",
         title: "Newer",
-        artist: { displayName: "Ada" },
+        artist: { displayName: "Ada", slug: "ada" },
         pressLinks: [
           { title: "BJP", url: "https://bjp.example/a", quote: "Sharp" },
           { title: "ASX", url: "https://asx.example/a", quote: null },
@@ -45,7 +45,7 @@ describe("flattenPressClips", () => {
       book({
         slug: "older",
         title: "Older",
-        publisher: { displayName: "MACK" },
+        publisher: { displayName: "MACK", slug: "mack" },
         pressLinks: [{ title: "C4", url: "https://c4.example/a" }],
       }),
     ]);
@@ -55,10 +55,11 @@ describe("flattenPressClips", () => {
       slug: "newer",
       title: "Newer",
       coverUrl: null,
-      credit: "Ada",
+      artist: { displayName: "Ada", slug: "ada" },
+      publisher: null,
       releaseDate: null,
     });
-    expect(clips[2].book.credit).toBe("MACK");
+    expect(clips[2].book.publisher?.displayName).toBe("MACK");
   });
 
   it("skips books with no links", () => {

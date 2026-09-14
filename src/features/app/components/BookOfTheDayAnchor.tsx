@@ -6,13 +6,11 @@ import { botdIndexPath, bookPath } from "../spotlightUrls";
 import { heroLcpImageSources } from "../../../lib/imageUrl";
 import type { BookOfTheDayWithBook } from "../BOTDServices";
 import { resolveSpotlightCopy } from "../spotlightCopy";
+import HomepageActivityPulse from "./HomepageActivityPulse";
 
 type Props = {
   user: AuthUser | null;
   today: BookOfTheDayWithBook;
-  yesterday?: BookOfTheDayWithBook | null;
-  twoDaysAgo?: BookOfTheDayWithBook | null;
-  threeDaysAgo?: BookOfTheDayWithBook | null;
 };
 
 const heroImage = (entry: BookOfTheDayWithBook) =>
@@ -25,13 +23,7 @@ const heroImage = (entry: BookOfTheDayWithBook) =>
  * The daily hook, out of the rotating hero and into a dated block of its own:
  * today's pick, yesterday's for a reason to have come back, and the archive.
  */
-const BookOfTheDayAnchor = ({
-  today,
-  yesterday,
-  twoDaysAgo,
-  threeDaysAgo,
-  user,
-}: Props) => {
+const BookOfTheDayAnchor = ({ today, user }: Props) => {
   const book = today.book;
   const link = bookPath(book.slug);
   const image = heroImage(today);
@@ -39,9 +31,9 @@ const BookOfTheDayAnchor = ({
   // Opens the page, so this is the LCP element: eager, sized, high priority.
   const sources = image ? heroLcpImageSources(image) : null;
 
-  const previousDays = [yesterday, twoDaysAgo, threeDaysAgo].filter(
-    (entry): entry is BookOfTheDayWithBook => Boolean(entry),
-  );
+  // const previousDays = [yesterday, twoDaysAgo, threeDaysAgo].filter(
+  //   (entry): entry is BookOfTheDayWithBook => Boolean(entry),
+  // );
 
   return (
     <section>
@@ -102,11 +94,21 @@ const BookOfTheDayAnchor = ({
               <SaveToListButton book={book} user={user} variant="button" />
             </div>
           </div>
+          <div class="mt-3">
+            <a
+              href={botdIndexPath()}
+              class="kicker text-on-surface-weak transition-colors hover:text-on-surface-strong"
+            >
+              Browse every pick →
+            </a>
+          </div>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-between gap-6 border-t border-outline py-3">
-        <div class="flex flex-wrap items-center gap-6">
+      <div class="flex flex-wrap items-center justify-center gap-6 border-t border-outline pt-6">
+        <HomepageActivityPulse />
+
+        {/* <div class="flex flex-wrap items-center gap-6">
           {previousDays.length > 0 &&
             previousDays.map((day) => (
               <a
@@ -135,7 +137,7 @@ const BookOfTheDayAnchor = ({
           >
             Browse every pick →
           </a>
-        </div>
+        </div> */}
       </div>
     </section>
   );

@@ -1,13 +1,18 @@
 import type { BookPressLink } from "../../db/schema";
 import { formatOrdinalDate, parseDateString } from "../../lib/utils";
 
+export type PressClipCreator = {
+  displayName: string;
+  slug: string;
+};
+
 export type PressClipBook = {
   slug: string;
   title: string;
   coverUrl: string | null;
   releaseDate?: Date | null;
-  artist: { displayName: string } | null;
-  publisher: { displayName: string } | null;
+  artist: PressClipCreator | null;
+  publisher: PressClipCreator | null;
   pressLinks: BookPressLink[] | null;
 };
 
@@ -16,7 +21,8 @@ export type PressClip = {
     slug: string;
     title: string;
     coverUrl: string | null;
-    credit: string | null;
+    artist: PressClipCreator | null;
+    publisher: PressClipCreator | null;
     releaseDate: Date | null;
   };
   link: BookPressLink;
@@ -73,7 +79,8 @@ export function flattenPressClips(rows: PressClipBook[]): PressClip[] {
         slug: book.slug,
         title: book.title,
         coverUrl: book.coverUrl,
-        credit: book.artist?.displayName ?? book.publisher?.displayName ?? null,
+        artist: book.artist,
+        publisher: book.publisher,
         releaseDate: book.releaseDate ?? null,
       },
       link,

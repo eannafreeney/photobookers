@@ -13,8 +13,8 @@ const pressBookColumns = {
 } as const;
 
 const pressBookWith = {
-  artist: { columns: { displayName: true } },
-  publisher: { columns: { displayName: true } },
+  artist: { columns: { displayName: true, slug: true } },
+  publisher: { columns: { displayName: true, slug: true } },
 };
 
 function publishedPressBooksWhere(...extra: SQL[]) {

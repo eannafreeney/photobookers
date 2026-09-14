@@ -49,6 +49,7 @@ const FeaturedHomeBody = async ({ baseUrl }: Props) => {
         <HomepageActivityPulse
           bookViews={activity.bookViews}
           profileViews={activity.profileViews}
+          buyClicks={activity.buyClicks}
         />
       ) : null}
       <FeaturedSpotlightCarousel items={spotlightItems} />

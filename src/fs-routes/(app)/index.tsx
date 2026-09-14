@@ -35,14 +35,14 @@ export const GET = createRoute(async (c: Context) => {
   ]);
   const currentPath = c.req.path;
   const lcpSource =
-    bookOfTheDay.today?.featuredImageUrl ??
-    bookOfTheDay.today?.book.coverUrl ??
-    null;
+    bookOfTheDay?.featuredImageUrl ?? bookOfTheDay?.book.coverUrl ?? null;
   const lcpImage = lcpSource ? heroLcpImageSources(lcpSource) : undefined;
   const homeCanonical = canonicalUrl(c.req.url, "/");
 
   const title = pageTitle("Discover Photobooks from Artists & Publishers");
   const description = HOMEPAGE_DESCRIPTION;
+
+  console.log(bookOfTheDay, "bookOfTheDay");
 
   return c.html(
     <AppLayout
@@ -61,16 +61,10 @@ export const GET = createRoute(async (c: Context) => {
       }}
       jsonLd={buildHomeJsonLd(homeCanonical, lcpSource)}
     >
-      <DiscoveryTagChips />
       <Page>
-        {bookOfTheDay.today ? (
-          <BookOfTheDayAnchor
-            today={bookOfTheDay.today}
-            yesterday={bookOfTheDay.yesterday}
-            twoDaysAgo={bookOfTheDay.twoDaysAgo}
-            threeDaysAgo={bookOfTheDay.threeDaysAgo}
-            user={user}
-          />
+        <DiscoveryTagChips />
+        {bookOfTheDay ? (
+          <BookOfTheDayAnchor today={bookOfTheDay} user={user} />
         ) : null}
 
         <ScrollReveal>
@@ -81,14 +75,14 @@ export const GET = createRoute(async (c: Context) => {
 
         {!user ? <HomepageAudiencePitch /> : null}
 
-        <ScrollReveal>
+        {/* <ScrollReveal>
           <Intersector
             id="recent-activity-fragment"
             endpoint="/fragments/recent-activity"
           >
             <SectionSkeleton variant="cards" withHeader={false} />
           </Intersector>
-        </ScrollReveal>
+        </ScrollReveal> */}
 
         {!user ? (
           <ScrollReveal>
