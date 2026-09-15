@@ -104,7 +104,7 @@ const CreatorDetailTabs = ({
     <Tabs.Panel tabId="creators">
       <CreatorsGrid
         isMobile={isMobile}
-        isInfiniteScroll={isMobile}
+        isInfiniteScroll={!isMobile}
         user={user}
         currentPage={creatorsCurrentPage}
         creatorId={creator.id}

@@ -71,12 +71,13 @@ const CreatorsGrid = async ({
         ))}
       </GridPanel>
       <ListNavigation
-        isInfiniteScroll={isInfiniteScroll}
+        isInfiniteScroll={isMobile || isInfiniteScroll}
         targetId={targetId}
         totalPages={totalPages}
         page={page}
         currentPath={currentPath}
         pageParam={pageParam}
+        navId={`pagination-${targetId}`}
       />
     </section>
   );

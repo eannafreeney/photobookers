@@ -25,13 +25,13 @@ export const Pagination = ({
     `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${pageParam}=${p}`;
 
   const prevAttrs = {
-    "x-target": `pagination ${targetId}`,
+    "x-target": `${navId} ${targetId}`,
     "x-on:click": `$refs.${scrollRef}?.scrollIntoView({ behavior: 'smooth', block: 'start' })`,
     ...(page <= 1 && { "aria-disabled": "true" }),
   };
 
   const nextAttrs = {
-    "x-target": `pagination ${targetId}`,
+    "x-target": `${navId} ${targetId}`,
     "x-on:click": `$refs.${scrollRef}?.scrollIntoView({ behavior: 'smooth', block: 'start' })`,
     ...(page >= totalPages && { "aria-disabled": "true" }),
   };
