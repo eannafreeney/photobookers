@@ -6,6 +6,7 @@ import {
   type PressClip as PressClipData,
   type PressClipCreator,
 } from "../pressClips";
+import Card from "@/components/app/Card";
 
 type Props = {
   clip: PressClipData;
@@ -27,22 +28,20 @@ const PressClip = ({ clip }: Props) => {
   const { artist, publisher } = clip.book;
 
   return (
-    <li class="flex flex-col gap-4 border-b border-outline pb-6 sm:flex-row sm:items-start sm:gap-6">
+    <Card>
       {clip.book.coverUrl ? (
         <Link
           href={`/books/${clip.book.slug}`}
           className="shrink-0 no-underline"
         >
-          <img
+          <Card.Image
             src={clip.book.coverUrl}
             alt={clip.book.title}
-            width={160}
-            height={213}
-            class="w-24 border border-outline object-cover sm:w-28"
+            href={`/books/${clip.book.slug}`}
           />
         </Link>
       ) : null}
-      <div class="flex min-w-0 flex-col gap-2">
+      <Card.Body>
         <h2 class="font-display text-2xl font-medium leading-tight text-on-surface-strong md:text-3xl">
           <Link
             href={`/books/${clip.book.slug}`}
@@ -76,8 +75,8 @@ const PressClip = ({ clip }: Props) => {
         >
           Read review
         </a>
-      </div>
-    </li>
+      </Card.Body>
+    </Card>
   );
 };
 

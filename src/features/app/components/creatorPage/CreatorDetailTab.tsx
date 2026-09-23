@@ -9,6 +9,7 @@ import { BookFair, Creator } from "../../../../db/schema";
 import { AuthUser } from "../../../../../types";
 import PressClip from "../PressClip";
 import type { PressClip as PressClipData } from "../../pressClips";
+import GridPanel from "@/components/app/GridPanel";
 
 export type CreatorBooksResult = {
   creator: Creator;
@@ -49,19 +50,14 @@ const CreatorDetailTabs = ({
   showFairsTab,
   showPostsTab,
   creatorsCurrentPage,
-  postCount,
   upcomingFairs,
   pressClips,
 }: CreatorDetailViewProps & { isMobile?: boolean }) => (
   <Tabs defaultTab="books">
     <Tabs.LinkContainer align={isMobile ? undefined : "left"}>
       <Tabs.Link tabId="books">Books</Tabs.Link>
-      {pressClips.length > 0 && (
-        <Tabs.Link tabId="press">{`Press (${pressClips.length})`}</Tabs.Link>
-      )}
-      {showPostsTab && (
-        <Tabs.Link tabId="posts">{`Posts (${postCount})`}</Tabs.Link>
-      )}
+      {showPostsTab && <Tabs.Link tabId="posts">{`Posts`}</Tabs.Link>}
+      {pressClips.length > 0 && <Tabs.Link tabId="press">{`Press`}</Tabs.Link>}
       {showCreatorsTab && (
         <Tabs.Link tabId="creators">
           {creator.type === "publisher" ? "Artists" : "Publishers"}
@@ -83,14 +79,6 @@ const CreatorDetailTabs = ({
       />
     </Tabs.Panel>
 
-    <Tabs.Panel tabId="press">
-      <ul class="mx-auto flex w-full max-w-2xl flex-col gap-4">
-        {pressClips.map((clip) => (
-          <PressClip clip={clip} />
-        ))}
-      </ul>
-    </Tabs.Panel>
-
     <Tabs.Panel tabId="posts">
       {isMobile ? (
         <CreatorPosts creatorSlug={creator.slug} user={user} />
@@ -99,6 +87,14 @@ const CreatorDetailTabs = ({
           <CreatorPosts creatorSlug={creator.slug} user={user} />
         </div>
       )}
+    </Tabs.Panel>
+
+    <Tabs.Panel tabId="press">
+      <GridPanel>
+        {pressClips.map((clip) => (
+          <PressClip clip={clip} />
+        ))}
+      </GridPanel>
     </Tabs.Panel>
 
     <Tabs.Panel tabId="creators">

@@ -61,8 +61,8 @@ export const GET = createRoute(async (c: Context) => {
       }}
       jsonLd={buildHomeJsonLd(homeCanonical, lcpSource)}
     >
+      <DiscoveryTagChips />
       <Page>
-        <DiscoveryTagChips />
         {bookOfTheDay ? (
           <BookOfTheDayAnchor today={bookOfTheDay} user={user} />
         ) : null}

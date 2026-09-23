@@ -48,7 +48,9 @@ const CreatorPost = ({
       </header>
       <div class="relative">
         <div class={redactClass}>
-          <p class="whitespace-pre-wrap text-sm text-on-surface">{post.body}</p>
+          <p class="whitespace-pre-wrap wrap-anywhere text-sm text-on-surface">
+            {post.body}
+          </p>{" "}
           {post.imageUrl && (
             <div class="mt-3">
               <img
