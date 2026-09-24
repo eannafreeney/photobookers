@@ -44,13 +44,6 @@ export const PrinterFormAdmin = ({ formValues, printerId }: Props) => {
             required
           />
           <Input
-            label="Slug"
-            name="form.slug"
-            maxLength={255}
-            validateInput="validateField('slug')"
-            required
-          />
-          <Input
             label="Email"
             name="form.email"
             type="email"
@@ -77,6 +70,15 @@ export const PrinterFormAdmin = ({ formValues, printerId }: Props) => {
               name="form.specialties"
               validateInput="validateField('specialties')"
               maxLength={2000}
+            />
+          </div>
+          <div class="md:col-span-2">
+            <Input
+              label="Languages"
+              name="form.languages"
+              maxLength={255}
+              placeholder="English, Dutch"
+              validateInput="validateField('languages')"
             />
           </div>
           <div class="md:col-span-2">

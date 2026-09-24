@@ -14,13 +14,15 @@ import {
 } from "../../../../features/dashboard/admin/printers/schema";
 import PrinterFormAdmin from "../../../../features/dashboard/admin/printers/forms/PrinterFormAdmin";
 import {
+  generateUniquePrinterSlug,
   getPrinterByIdAdmin,
   updatePrinterAdmin,
 } from "../../../../features/dashboard/admin/printers/services";
 import { parseOptionalCoordinate } from "../../../../features/dashboard/admin/stores/coordinates";
 import FormDelete from "../../../../components/forms/FormDelete";
 import Button from "../../../../components/app/Button";
-import FileUploadInput from "../../../../components/forms/FileUpload";
+import PrinterGalleryForm from "../../../../features/dashboard/admin/printers/forms/PrinterGalleryForm";
+import PrinterLogoForm from "../../../../features/dashboard/admin/printers/forms/PrinterLogoForm";
 
 export const GET = createRoute(
   paramValidator(printerIdSchema),
@@ -44,10 +46,10 @@ export const GET = createRoute(
               printerId={printer.id}
               formValues={{
                 name: printer.name,
-                slug: printer.slug,
                 email: printer.email,
                 description: printer.description,
                 specialties: printer.specialties,
+                languages: printer.languages,
                 city: printer.city,
                 country: printer.country,
                 website: printer.website,
@@ -57,6 +59,10 @@ export const GET = createRoute(
                 sort_order: printer.sortOrder,
               }}
             />
+            <section class="mt-10 flex flex-col gap-4">
+              <h2 class="font-display text-2xl">Logo</h2>
+              <PrinterLogoForm printerId={printer.id} logoUrl={printer.logoUrl} />
+            </section>
             <section class="mt-10 flex flex-col gap-4">
               <h2 class="font-display text-2xl">Books they have printed</h2>
               <ul class="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -77,22 +83,7 @@ export const GET = createRoute(
                   </li>
                 ))}
               </ul>
-              <form
-                method="post"
-                action={`/dashboard/images/printers/${printer.id}/gallery`}
-                enctype="multipart/form-data"
-                class="flex flex-col gap-3 max-w-md"
-              >
-                <FileUploadInput
-                  label="Add images"
-                  name="images"
-                  multiple
-                  isVisible
-                />
-                <Button variant="solid" color="primary" width="fit">
-                  Upload
-                </Button>
-              </form>
+              <PrinterGalleryForm printerId={printer.id} />
             </section>
           </Sidebar>
         </Page>
@@ -109,10 +100,11 @@ export const POST = createRoute(
     const form = c.req.valid("form");
     const [error] = await updatePrinterAdmin(printerId, {
       name: form.name,
-      slug: form.slug,
+      slug: await generateUniquePrinterSlug(form.name, printerId),
       email: form.email,
       description: form.description || null,
       specialties: form.specialties || null,
+      languages: form.languages || null,
       city: form.city,
       country: form.country,
       website: form.website || null,

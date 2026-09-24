@@ -24,10 +24,19 @@ export type DailyProductDigestGrowth = {
   outboundClicks: number;
 };
 
+export type DailyProductDigestTopClickedBook = {
+  title: string;
+  slug: string;
+  clickCount: number;
+  artistName: string | null;
+  publisherName: string | null;
+};
+
 export type DailyProductDigestSnapshot = {
   range: AnalyticsDateRange;
   growth: DailyProductDigestGrowth;
   topBooksByViews: DailyProductDigestTopBook[];
+  topBooksByClicks: DailyProductDigestTopClickedBook[];
   topArtistsByViews: DailyProductDigestTopCreator[];
   topPublishersByViews: DailyProductDigestTopCreator[];
 };

@@ -9,6 +9,7 @@ import { registerUserProfileImageForm } from "../features/app/client/userProfile
 import { registerMessageForm } from "../features/dashboard/messages/client/messageForm";
 import { registerCreatorBannerForm } from "../features/dashboard/images/client/creatorBannerForm";
 import { registerStoresMap } from "../features/app/stores/client/storesMap";
+import { registerQuoteRequestForm } from "../features/app/printers/client/quoteRequestForm";
 import { registerListForm } from "../features/dashboard/lists/client/listForm";
 import { registerListBookNoteForm } from "../features/dashboard/lists/client/listBookNoteForm";
 
@@ -23,6 +24,7 @@ registerUserProfileImageForm();
 registerMessageForm();
 registerCreatorBannerForm();
 registerStoresMap();
+registerQuoteRequestForm();
 registerListForm();
 registerListBookNoteForm();
 

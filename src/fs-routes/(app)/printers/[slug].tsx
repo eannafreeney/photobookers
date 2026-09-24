@@ -8,11 +8,9 @@ import { getFlash, getUser } from "../../../utils";
 import InfoPage from "../../../pages/InfoPage";
 import { canonicalUrl, pageTitle, truncateDescription } from "../../../lib/seo";
 import { isFeatureEnabledForUser } from "../../../lib/features";
-import {
-  getPrinterBySlug,
-  userCanNotePrinter,
-} from "../../../features/app/printers/services";
+import { getPrinterBySlug } from "../../../features/app/printers/services";
 import PrinterDetail from "../../../features/app/printers/components/PrinterDetail";
+import Page from "@/components/layouts/Page";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -35,12 +33,6 @@ export const GET = createRoute(
       );
     }
 
-    let canNote = false;
-    if (user && printer.status === "published") {
-      const [noteError, access] = await userCanNotePrinter(user.id, printer.id);
-      if (!noteError) canNote = access.canNote;
-    }
-
     const flash = await getFlash(c);
     const description = truncateDescription(
       printer.description ??
@@ -56,7 +48,9 @@ export const GET = createRoute(
         currentPath={c.req.path}
         flash={flash}
       >
-        <PrinterDetail printer={printer} canNote={canNote} />
+        <Page>
+          <PrinterDetail printer={printer} />
+        </Page>
       </AppLayout>,
     );
   },

@@ -19,7 +19,7 @@ vi.mock("../../../lib/sendEmail", () => ({
   sendEmail: sendEmailMock,
 }));
 
-import { canLeavePrinterNote, planQuotePrinters, unpublishedPrinterIds } from "./rules";
+import { planQuotePrinters, unpublishedPrinterIds } from "./rules";
 import { submitQuoteRequest } from "./services";
 
 const user = {
@@ -65,13 +65,6 @@ describe("planQuotePrinters", () => {
 describe("unpublishedPrinterIds", () => {
   it("lists ids that are not published", () => {
     expect(unpublishedPrinterIds(["a", "b"], ["a"])).toEqual(["b"]);
-  });
-});
-
-describe("canLeavePrinterNote", () => {
-  it("rejects a note when the person never requested that printer", () => {
-    const [error] = canLeavePrinterNote(false);
-    expect(error?.reason).toMatch(/before leaving a note/);
   });
 });
 

@@ -24,6 +24,15 @@ const snapshot: DailyProductDigestSnapshot = {
       publisherName: "Sea Press",
     },
   ],
+  topBooksByClicks: [
+    {
+      title: "Harbor Notes",
+      slug: "harbor-notes",
+      clickCount: 18,
+      artistName: "Ada Chen",
+      publisherName: "North Press",
+    },
+  ],
   topArtistsByViews: [
     {
       displayName: "Jane Doe",
@@ -55,6 +64,11 @@ describe("buildDailyProductDigestEmail", () => {
     expect(html).toContain("Sea Press");
     expect(html).toContain("Outbound clicks");
     expect(html).toContain("91");
+    expect(html).toContain("Top books by outbound clicks");
+    expect(html).toContain("Harbor Notes");
+    expect(html).toContain("/books/harbor-notes");
+    expect(html).toContain("Ada Chen · North Press");
+    expect(html).toContain("18 clicks");
   });
 
   it("shows em dash when newsletter signups are unavailable", () => {

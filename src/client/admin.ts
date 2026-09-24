@@ -20,6 +20,7 @@ import { registerMagazineCoverForm } from "../features/dashboard/admin/magazine/
 import { registerFairCoverForm } from "../features/dashboard/admin/fairs/client/fairCoverForm";
 import { registerFairBannerForm } from "../features/dashboard/admin/fairs/client/fairBannerForm";
 import { registerPrinterFormAdmin } from "../features/dashboard/admin/printers/client/printerFormAdmin";
+import { registerPrinterGalleryForm } from "../features/dashboard/admin/printers/client/printerGalleryForm";
 import { registerStoreFormAdmin } from "../features/dashboard/admin/stores/client/storeFormAdmin";
 import { registerStoreCoverForm } from "../features/dashboard/admin/stores/client/storeCoverForm";
 import { registerBookCoverForm } from "../features/dashboard/books/client/bookCoverForm";
@@ -50,6 +51,7 @@ registerMagazineCoverForm();
 registerFairCoverForm();
 registerFairBannerForm();
 registerPrinterFormAdmin();
+registerPrinterGalleryForm();
 registerStoreFormAdmin();
 registerStoreCoverForm();
 registerBookCoverForm();

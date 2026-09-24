@@ -887,6 +887,8 @@ export const printers = pgTable(
     website: text("website"),
     description: text("description"),
     specialties: text("specialties"),
+    languages: text("languages"),
+    logoUrl: text("logo_url"),
     status: printerStatusEnum("status").notNull().default("draft"),
     sortOrder: integer("sort_order"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -941,33 +943,6 @@ export const printQuoteRecipients = pgTable(
       "print_quote_recipients_request_printer_unique",
     ).on(table.requestId, table.printerId),
     printerIdx: index("print_quote_recipients_printer_idx").on(table.printerId),
-  }),
-);
-
-export const printQuoteNotes = pgTable(
-  "print_quote_notes",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .references(() => users.id, { onDelete: "cascade" })
-      .notNull(),
-    printerId: uuid("printer_id")
-      .references(() => printers.id, { onDelete: "cascade" })
-      .notNull(),
-    requestId: uuid("request_id")
-      .references(() => printQuoteRequests.id, { onDelete: "cascade" })
-      .notNull(),
-    replied: boolean("replied").notNull().default(false),
-    printed: boolean("printed").notNull().default(false),
-    body: text("body").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-  },
-  (table) => ({
-    uniqueUserPrinter: unique("print_quote_notes_user_printer_unique").on(
-      table.userId,
-      table.printerId,
-    ),
-    printerIdx: index("print_quote_notes_printer_idx").on(table.printerId),
   }),
 );
 
@@ -1084,8 +1059,6 @@ export type {
   NewPrintQuoteRequest,
   PrintQuoteRecipient,
   NewPrintQuoteRecipient,
-  PrintQuoteNote,
-  NewPrintQuoteNote,
   MagazineIssue,
   NewMagazineIssue,
   MagazineIssueStatus,

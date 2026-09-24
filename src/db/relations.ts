@@ -24,7 +24,6 @@ import {
   magazineIssues,
   postLikes,
   posts,
-  printQuoteNotes,
   printQuoteRecipients,
   printQuoteRequests,
   printerImages,
@@ -349,7 +348,6 @@ export const fairViewsRelations = relations(fairViews, ({ one }) => ({
 export const printersRelations = relations(printers, ({ many }) => ({
   images: many(printerImages),
   recipients: many(printQuoteRecipients),
-  notes: many(printQuoteNotes),
 }));
 
 export const printerImagesRelations = relations(printerImages, ({ one }) => ({
@@ -383,21 +381,6 @@ export const printQuoteRecipientsRelations = relations(
     }),
   }),
 );
-
-export const printQuoteNotesRelations = relations(printQuoteNotes, ({ one }) => ({
-  user: one(users, {
-    fields: [printQuoteNotes.userId],
-    references: [users.id],
-  }),
-  printer: one(printers, {
-    fields: [printQuoteNotes.printerId],
-    references: [printers.id],
-  }),
-  request: one(printQuoteRequests, {
-    fields: [printQuoteNotes.requestId],
-    references: [printQuoteRequests.id],
-  }),
-}));
 
 export const bookStoresRelations = relations(bookStores, ({ one }) => ({
   createdBy: one(users, {

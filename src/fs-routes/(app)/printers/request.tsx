@@ -14,6 +14,11 @@ import MemberSignInPrompt, {
   memberSignInPrompts,
 } from "../../../features/app/components/MemberSignInPrompt";
 import { showErrorAlert } from "../../../lib/alertHelpers";
+import Modal from "../../../components/app/Modal";
+
+const isModalRequest = (c: Context) =>
+  c.req.header("X-Alpine-Request") === "true" ||
+  c.req.header("x-alpine-request") === "true";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -30,6 +35,27 @@ export const GET = createRoute(async (c: Context) => {
 
   const requestUrl = new URL(c.req.url);
   const currentPath = requestUrl.pathname + requestUrl.search;
+
+  if (isModalRequest(c)) {
+    return c.html(
+      <Modal title="Ask for a quote" maxWidth="max-w-6xl">
+        <div class="max-h-[75vh]">
+          {user ? (
+            <QuoteRequestForm
+              printers={printers}
+              preselectedSlug={preselectedSlug}
+              modal
+            />
+          ) : (
+            <MemberSignInPrompt
+              prompt={memberSignInPrompts.printers}
+              currentPath={currentPath}
+            />
+          )}
+        </div>
+      </Modal>,
+    );
+  }
 
   return c.html(
     <AppLayout
@@ -70,6 +96,7 @@ export const POST = createRoute(async (c: Context) => {
   if (!user) return showErrorAlert(c, "Sign in to send a brief", 401);
 
   const body = await c.req.parseBody({ all: true });
+  const modal = isModalRequest(c) || body.modal === "1";
   const parsed = quoteRequestSchema.safeParse(body);
   if (!parsed.success) {
     return showErrorAlert(c, parsed.error.issues[0]?.message ?? "Check the form");
@@ -83,6 +110,14 @@ export const POST = createRoute(async (c: Context) => {
     result.failed > 0
       ? `Saved your brief for ${names}, but ${result.failed} email${result.failed === 1 ? "" : "s"} did not send.`
       : `Sent your brief to ${names}. They will reply to you directly.`;
+
+  if (modal) {
+    return c.html(
+      <Modal title="Ask for a quote" maxWidth="max-w-2xl">
+        <p class="text-on-surface text-pretty">{message}</p>
+      </Modal>,
+    );
+  }
 
   await setFlash(c, result.failed > 0 ? "danger" : "success", message);
   return c.redirect("/printers/request", 303);

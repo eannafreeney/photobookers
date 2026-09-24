@@ -11,10 +11,10 @@ import { printerFormAdminSchema } from "../schema";
 
 const PRINTER_FORM_FIELDS = [
   "name",
-  "slug",
   "email",
   "description",
   "specialties",
+  "languages",
   "city",
   "country",
   "website",
@@ -45,7 +45,6 @@ export function registerPrinterFormAdmin() {
           ctx.isDirty &&
           Object.values(ctx.errors.form).every((err: unknown) => !err) &&
           ctx.form.name &&
-          ctx.form.slug &&
           ctx.form.email &&
           ctx.form.city &&
           ctx.form.country

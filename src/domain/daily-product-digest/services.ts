@@ -9,7 +9,10 @@ import {
 import { getTopBooksByViews } from "../../features/book-views/services";
 import { getTopCreatorsByViews } from "../../features/creator-views/services";
 import { getNewsletterSignupsDashboard } from "../../features/newsletter-analytics/signups";
-import { getPurchaseClickTotals } from "../../features/purchase-clicks/services";
+import {
+  getPurchaseClickTotals,
+  getTopBooksByClicks,
+} from "../../features/purchase-clicks/services";
 import { err, ok, type Result } from "../../lib/result";
 import type { DailyProductDigestSnapshot } from "./types";
 
@@ -89,6 +92,7 @@ export async function getDailyProductDigestSnapshot(
       newsletterSignups,
       clickTotals,
       topBooksResult,
+      topClickedBooksResult,
       topArtistsResult,
       topPublishersResult,
     ] = await Promise.all([
@@ -99,11 +103,13 @@ export async function getDailyProductDigestSnapshot(
       countNewsletterSignups(range),
       getPurchaseClickTotals(range),
       getTopBooksByViews(range, 1, limit),
+      getTopBooksByClicks(range, 1, limit),
       getTopCreatorsByViews(range, 1, limit, "artist"),
       getTopCreatorsByViews(range, 1, limit, "publisher"),
     ]);
 
     if (topBooksResult[0]) return err(topBooksResult[0]);
+    if (topClickedBooksResult[0]) return err(topClickedBooksResult[0]);
     if (topArtistsResult[0]) return err(topArtistsResult[0]);
     if (topPublishersResult[0]) return err(topPublishersResult[0]);
 
@@ -121,6 +127,13 @@ export async function getDailyProductDigestSnapshot(
         title: book.title,
         slug: book.slug,
         viewCount: book.viewCount,
+        artistName: book.artistName,
+        publisherName: book.publisherName,
+      })),
+      topBooksByClicks: topClickedBooksResult[1].books.map((book) => ({
+        title: book.title,
+        slug: book.slug,
+        clickCount: book.clickCount,
         artistName: book.artistName,
         publisherName: book.publisherName,
       })),

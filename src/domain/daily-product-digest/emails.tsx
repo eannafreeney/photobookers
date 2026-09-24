@@ -5,6 +5,7 @@ import {
 import type {
   DailyProductDigestSnapshot,
   DailyProductDigestTopBook,
+  DailyProductDigestTopClickedBook,
   DailyProductDigestTopCreator,
 } from "./types";
 
@@ -31,6 +32,7 @@ function statCell(label: string, value: number | null, unavailable = false): str
 function rankedList(
   items: Array<{ label: string; href: string; count: number; detail?: string | null }>,
   emptyLabel: string,
+  unit: "views" | "clicks",
 ): string {
   if (items.length === 0) {
     return `<p style="margin:0;font-size:13px;color:#5c574f;">${escapeHtml(emptyLabel)}</p>`;
@@ -41,7 +43,7 @@ function rankedList(
       .map(
         (item) => `<li style="margin-bottom:8px;">
       <a href="${escapeHtml(item.href)}" style="color:#8a5a44;text-decoration:none;">${escapeHtml(item.label)}</a>
-      <span style="color:#5c574f;"> — ${item.count.toLocaleString()} views</span>
+      <span style="color:#5c574f;"> — ${item.count.toLocaleString()} ${unit}</span>
       ${item.detail ? `<span style="color:#8a857c;font-size:12px;"> (${escapeHtml(item.detail)})</span>` : ""}
     </li>`,
       )
@@ -49,16 +51,20 @@ function rankedList(
   </ol>`;
 }
 
-function bookDetail(book: DailyProductDigestTopBook): string | null {
+function bookDetail(
+  book: Pick<DailyProductDigestTopBook, "artistName" | "publisherName">,
+): string | null {
   const parts = [book.artistName, book.publisherName].filter(Boolean);
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 
-function buildBookItems(books: DailyProductDigestTopBook[]) {
+function buildBookItems(
+  books: Array<DailyProductDigestTopBook | DailyProductDigestTopClickedBook>,
+) {
   return books.map((book) => ({
     label: book.title,
     href: `${SITE_URL}/books/${book.slug}`,
-    count: book.viewCount,
+    count: "clickCount" in book ? book.clickCount : book.viewCount,
     detail: bookDetail(book),
   }));
 }
@@ -108,13 +114,16 @@ export function buildDailyProductDigestEmail(
     </table>
 
     <h2 style="margin:0 0 12px;font-size:16px;font-weight:600;">Top books by views</h2>
-    ${rankedList(buildBookItems(snapshot.topBooksByViews), "No book views yesterday.")}
+    ${rankedList(buildBookItems(snapshot.topBooksByViews), "No book views yesterday.", "views")}
+
+    <h2 style="margin:24px 0 12px;font-size:16px;font-weight:600;">Top books by outbound clicks</h2>
+    ${rankedList(buildBookItems(snapshot.topBooksByClicks), "No outbound clicks yesterday.", "clicks")}
 
     <h2 style="margin:24px 0 12px;font-size:16px;font-weight:600;">Top artists by views</h2>
-    ${rankedList(buildCreatorItems(snapshot.topArtistsByViews), "No artist profile views yesterday.")}
+    ${rankedList(buildCreatorItems(snapshot.topArtistsByViews), "No artist profile views yesterday.", "views")}
 
     <h2 style="margin:24px 0 12px;font-size:16px;font-weight:600;">Top publishers by views</h2>
-    ${rankedList(buildCreatorItems(snapshot.topPublishersByViews), "No publisher profile views yesterday.")}
+    ${rankedList(buildCreatorItems(snapshot.topPublishersByViews), "No publisher profile views yesterday.", "views")}
 
     <p style="margin:24px 0 0;font-size:14px;">
       <a href="${analyticsUrl}" style="color:#8a5a44;">Open analytics dashboard</a>

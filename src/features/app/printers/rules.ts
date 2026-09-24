@@ -17,10 +17,3 @@ export function unpublishedPrinterIds(
   const published = new Set(publishedIds);
   return requestedIds.filter((id) => !published.has(id));
 }
-
-export function canLeavePrinterNote(hasRecipient: boolean) {
-  if (!hasRecipient) {
-    return err({ reason: "Request a quote from this printer before leaving a note" });
-  }
-  return ok(true);
-}

@@ -24,9 +24,3 @@ export const quoteRequestSchema = z.object({
   referenceBooks: optionalText,
   message: optionalText,
 });
-
-export const printerNoteSchema = z.object({
-  replied: z.preprocess((value) => value === "on" || value === "true" || value === true, z.boolean()),
-  printed: z.preprocess((value) => value === "on" || value === "true" || value === true, z.boolean()),
-  body: z.string().trim().min(10, "Write a few sentences").max(2000),
-});

@@ -48,7 +48,6 @@ export const GET = createRoute(async (c: Context) => {
                   <Table.HeadRow>Requests</Table.HeadRow>
                   <Table.HeadRow>People</Table.HeadRow>
                   <Table.HeadRow>Failed emails</Table.HeadRow>
-                  <Table.HeadRow>Notes</Table.HeadRow>
                 </tr>
               </Table.Head>
               <Table.Body>
@@ -66,7 +65,6 @@ export const GET = createRoute(async (c: Context) => {
                     <Table.BodyRow>{printer.requests}</Table.BodyRow>
                     <Table.BodyRow>{printer.people}</Table.BodyRow>
                     <Table.BodyRow>{printer.failed}</Table.BodyRow>
-                    <Table.BodyRow>{printer.notes}</Table.BodyRow>
                   </tr>
                 ))}
               </Table.Body>

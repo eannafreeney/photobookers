@@ -1,35 +1,45 @@
 import type { Printer } from "../../../../db/schema";
+import Card from "../../../../components/app/Card";
+import GridPanel from "../../../../components/app/GridPanel";
+import Link from "../../../../components/app/Link";
+import ScrollReveal from "../../../../components/app/ScrollReveal";
 
 const PrintersList = ({ printers }: { printers: Printer[] }) => {
-  if (printers.length === 0) {
-    return (
-      <p class="text-center py-12 text-on-surface-weak">No printers yet.</p>
-    );
-  }
-
   return (
-    <ul class="flex flex-col divide-y divide-outline border-y border-outline">
-      {printers.map((printer) => (
-        <li>
-          <a
-            href={`/printers/${printer.slug}`}
-            class="flex flex-col gap-1 py-4 hover:text-accent"
-          >
-            <span class="font-display text-2xl text-on-surface-strong">
-              {printer.name}
-            </span>
-            <span class="text-sm text-on-surface">
-              {printer.city}, {printer.country}
-            </span>
-            {printer.specialties ? (
-              <span class="text-sm text-on-surface-weak">
-                {printer.specialties}
-              </span>
-            ) : null}
-          </a>
-        </li>
-      ))}
-    </ul>
+    <GridPanel id="printers-grid">
+      {printers.length > 0 ? (
+        printers.map((printer) => (
+          <ScrollReveal>
+            <Card>
+              {/* {printer.logoUrl ? (
+                <Card.Image
+                  src={printer.logoUrl}
+                  alt={printer.name}
+                  href={`/printers/${printer.slug}`}
+                />
+              ) : null} */}
+              <Card.Body>
+                <Link href={`/printers/${printer.slug}`}>
+                  <Card.Title>{printer.name}</Card.Title>
+                </Link>
+                <div class="text-sm text-on-surface-weak">
+                  {printer.city}, {printer.country}
+                </div>
+                {/* {printer.specialties ? (
+                  <div class="text-sm text-on-surface-weak line-clamp-2">
+                    {printer.specialties}
+                  </div>
+                ) : null} */}
+              </Card.Body>
+            </Card>
+          </ScrollReveal>
+        ))
+      ) : (
+        <div class="col-span-full text-center text-sm text-on-surface py-4">
+          No printers yet.
+        </div>
+      )}
+    </GridPanel>
   );
 };
 

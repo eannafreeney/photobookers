@@ -32,7 +32,6 @@ import {
   printerImages,
   printQuoteRequests,
   printQuoteRecipients,
-  printQuoteNotes,
   magazineIssues,
   magazineIssueBooks,
   publisherReleaseWatchSeen,
@@ -185,8 +184,6 @@ export type PrintQuoteRecipient = InferSelectModel<typeof printQuoteRecipients>;
 export type NewPrintQuoteRecipient = InferInsertModel<
   typeof printQuoteRecipients
 >;
-export type PrintQuoteNote = InferSelectModel<typeof printQuoteNotes>;
-export type NewPrintQuoteNote = InferInsertModel<typeof printQuoteNotes>;
 export type MagazineIssue = InferSelectModel<typeof magazineIssues>;
 export type NewMagazineIssue = InferInsertModel<typeof magazineIssues>;
 export type MagazineIssueStatus =

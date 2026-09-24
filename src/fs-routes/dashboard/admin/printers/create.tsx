@@ -8,7 +8,10 @@ import { getUser } from "../../../../utils";
 import { showErrorAlert } from "../../../../lib/alertHelpers";
 import { printerFormAdminSchema } from "../../../../features/dashboard/admin/printers/schema";
 import PrinterFormAdmin from "../../../../features/dashboard/admin/printers/forms/PrinterFormAdmin";
-import { createPrinterAdmin } from "../../../../features/dashboard/admin/printers/services";
+import {
+  createPrinterAdmin,
+  generateUniquePrinterSlug,
+} from "../../../../features/dashboard/admin/printers/services";
 import { parseOptionalCoordinate } from "../../../../features/dashboard/admin/stores/coordinates";
 
 export const GET = createRoute(async (c: Context) => {
@@ -30,10 +33,11 @@ export const POST = createRoute(
     const form = c.req.valid("form");
     const [error, printer] = await createPrinterAdmin({
       name: form.name,
-      slug: form.slug,
+      slug: await generateUniquePrinterSlug(form.name),
       email: form.email,
       description: form.description || null,
       specialties: form.specialties || null,
+      languages: form.languages || null,
       city: form.city,
       country: form.country,
       website: form.website || null,

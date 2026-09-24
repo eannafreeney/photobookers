@@ -14,10 +14,10 @@ const optionalText = z
 
 export const printerFormAdminSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
-  slug: z.string().trim().min(1, "Slug is required"),
   email: z.string().trim().email("A valid email is required"),
   description: optionalText,
   specialties: optionalText,
+  languages: optionalText,
   city: z.string().trim().min(1, "City is required"),
   country: z.string().trim().min(1, "Country is required"),
   website: z.string().url("Must be a valid URL").optional().or(z.literal("")),

@@ -1,19 +1,21 @@
-import Button from "../../../../components/app/Button";
-import type { Printer, PrinterImage, PrintQuoteNote } from "../../../../db/schema";
-
-type Note = PrintQuoteNote & {
-  user: { firstName: string | null; lastName: string | null };
-};
+import Button, { button } from "../../../../components/app/Button";
+import type { Printer, PrinterImage } from "../../../../db/schema";
 
 type Props = {
-  printer: Printer & { images: PrinterImage[]; notes: Note[] };
-  canNote: boolean;
+  printer: Printer & { images: PrinterImage[] };
 };
 
-const PrinterDetail = ({ printer, canNote }: Props) => {
+const PrinterDetail = ({ printer }: Props) => {
   return (
-    <div class="mx-auto flex w-full max-w-3xl flex-col gap-10">
-      <header class="flex flex-col gap-3">
+    <div class="mx-auto flex w-full max-w-3xl flex-col gap-4">
+      <header class="flex flex-col gap-4">
+        {/* {printer.logoUrl ? (
+          <img
+            src={printer.logoUrl}
+            alt=""
+            class="h-16 w-auto object-contain"
+          />
+        ) : null} */}
         <h1 class="font-display text-4xl md:text-6xl text-on-surface-strong">
           {printer.name}
         </h1>
@@ -23,14 +25,25 @@ const PrinterDetail = ({ printer, canNote }: Props) => {
         {printer.specialties ? (
           <p class="text-on-surface">{printer.specialties}</p>
         ) : null}
-        {printer.description ? (
-          <p class="max-w-2xl text-on-surface text-pretty">{printer.description}</p>
+        {printer.languages ? (
+          <p class="text-sm text-on-surface-weak">{printer.languages}</p>
         ) : null}
-        <div class="flex flex-wrap gap-3">
-          <a href={`/printers/request?printer=${printer.slug}`}>
-            <Button variant="solid" color="primary" width="auto">
-              Ask this printer
-            </Button>
+        {printer.description ? (
+          <p class="max-w-2xl text-on-surface text-pretty">
+            {printer.description}
+          </p>
+        ) : null}
+        <div class="flex flex-wrap justify-center gap-3">
+          <a
+            href={`/printers/request?printer=${printer.slug}`}
+            class={button({
+              variant: "solid",
+              color: "primary",
+              width: "auto",
+            })}
+            {...{ "x-target": "modal-root" }}
+          >
+            Ask this printer
           </a>
           {printer.website ? (
             <a href={printer.website} target="_blank" rel="noopener noreferrer">
@@ -43,69 +56,18 @@ const PrinterDetail = ({ printer, canNote }: Props) => {
       </header>
 
       {printer.images.length > 0 ? (
-        <ul class="grid grid-cols-2 gap-3 md:grid-cols-3">
+        <ul class="flex flex-col gap-4">
           {printer.images.map((image) => (
             <li>
               <img
                 src={image.imageUrl}
                 alt=""
-                class="aspect-[3/4] w-full object-cover border border-outline"
+                class="w-full object-cover border border-outline"
               />
             </li>
           ))}
         </ul>
       ) : null}
-
-      <section class="flex flex-col gap-4">
-        <h2 class="font-display text-2xl text-on-surface-strong">Notes</h2>
-        {printer.notes.length === 0 ? (
-          <p class="text-sm text-on-surface-weak">No notes yet.</p>
-        ) : (
-          <ul class="flex flex-col gap-4">
-            {printer.notes.map((note) => (
-              <li class="border border-outline p-4">
-                <p class="text-sm text-on-surface-weak">
-                  {[note.user.firstName, note.user.lastName].filter(Boolean).join(" ") ||
-                    "A member"}
-                  {note.replied ? " · replied" : ""}
-                  {note.printed ? " · printed the book" : ""}
-                </p>
-                <p class="mt-2 text-on-surface text-pretty">{note.body}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-        {canNote ? (
-          <form
-            method="post"
-            action={`/printers/${printer.slug}/note`}
-            class="flex flex-col gap-3 border border-outline p-4"
-          >
-            <p class="text-sm text-on-surface">
-              You asked this printer for a quote. Leave a short note.
-            </p>
-            <label class="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="replied" />
-              They replied
-            </label>
-            <label class="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="printed" />
-              They printed the book
-            </label>
-            <textarea
-              name="body"
-              required
-              minLength={10}
-              rows={4}
-              class="w-full border border-outline bg-surface px-3 py-2 text-sm"
-              placeholder="A few sentences about working with them"
-            />
-            <Button variant="solid" color="primary" width="fit">
-              Save note
-            </Button>
-          </form>
-        ) : null}
-      </section>
     </div>
   );
 };

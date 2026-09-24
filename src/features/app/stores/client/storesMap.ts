@@ -57,6 +57,10 @@ type LeafletMap = {
 const LEAFLET_CSS =
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
 const LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+const MAPLIBRE_CSS = "https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css";
+const MAPLIBRE_JS = "https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js";
+const MAPLIBRE_LEAFLET_JS =
+  "https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js";
 
 let leafletPromise: Promise<void> | null = null;
 
@@ -88,7 +92,10 @@ function ensureLeaflet() {
   if (!leafletPromise) {
     leafletPromise = (async () => {
       loadStylesheet(LEAFLET_CSS);
+      loadStylesheet(MAPLIBRE_CSS);
       await loadScript(LEAFLET_JS);
+      await loadScript(MAPLIBRE_JS);
+      await loadScript(MAPLIBRE_LEAFLET_JS);
     })();
   }
   return leafletPromise;
@@ -149,10 +156,8 @@ export function registerStoresMap() {
       }
 
       const map = L.map(this.$el, { scrollWheelZoom: false });
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18,
+      (L as { maplibreGL?: (options: { style: string }) => { addTo: (map: LeafletMap) => void } }).maplibreGL?.({
+        style: "https://tiles.openfreemap.org/styles/positron",
       }).addTo(map);
 
       const latLngs: [number, number][] = [];

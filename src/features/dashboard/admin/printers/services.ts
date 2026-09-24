@@ -1,7 +1,7 @@
 import { and, asc, count, desc, eq, sql } from "drizzle-orm";
 import { db } from "../../../../db/client";
+import { slugify } from "../../../../utils";
 import {
-  printQuoteNotes,
   printQuoteRecipients,
   printQuoteRequests,
   printerImages,
@@ -32,19 +32,8 @@ export async function getPrintersAdmin() {
       )
       .groupBy(printQuoteRecipients.printerId);
 
-    const noteStats = await db
-      .select({
-        printerId: printQuoteNotes.printerId,
-        notes: count(),
-      })
-      .from(printQuoteNotes)
-      .groupBy(printQuoteNotes.printerId);
-
     const requestsByPrinter = new Map(
       recipientStats.map((row) => [row.printerId, row]),
-    );
-    const notesByPrinter = new Map(
-      noteStats.map((row) => [row.printerId, row.notes]),
     );
 
     return ok(
@@ -53,7 +42,6 @@ export async function getPrintersAdmin() {
         requests: requestsByPrinter.get(printer.id)?.requests ?? 0,
         failed: requestsByPrinter.get(printer.id)?.failed ?? 0,
         people: requestsByPrinter.get(printer.id)?.people ?? 0,
-        notes: notesByPrinter.get(printer.id) ?? 0,
       })),
     );
   } catch (error) {
@@ -99,6 +87,24 @@ export async function getPrinterByIdAdmin(printerId: string) {
   }
 }
 
+export async function generateUniquePrinterSlug(name: string, exceptId?: string) {
+  const baseSlug = slugify(name) || "printer";
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (true) {
+    const existing = await db
+      .select({ id: printers.id })
+      .from(printers)
+      .where(eq(printers.slug, slug))
+      .limit(1);
+
+    if (existing.length === 0 || existing[0]?.id === exceptId) return slug;
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+}
+
 export async function createPrinterAdmin(
   data: Omit<NewPrinter, "id" | "createdAt" | "updatedAt">,
 ) {
@@ -127,6 +133,21 @@ export async function updatePrinterAdmin(
   } catch (error) {
     console.error("Failed to update printer", error);
     return err({ reason: "Failed to update printer", cause: error });
+  }
+}
+
+export async function updatePrinterLogo(printerId: string, logoUrl: string) {
+  try {
+    const [printer] = await db
+      .update(printers)
+      .set({ logoUrl })
+      .where(eq(printers.id, printerId))
+      .returning();
+    if (!printer) return err({ reason: "Printer not found" });
+    return ok(printer);
+  } catch (error) {
+    console.error("Failed to update printer logo", error);
+    return err({ reason: "Failed to update printer logo", cause: error });
   }
 }
 
