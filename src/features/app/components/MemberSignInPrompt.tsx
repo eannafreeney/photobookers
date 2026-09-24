@@ -22,6 +22,10 @@ export const memberSignInPrompts = {
     headline: "Sign in to edit your profile",
     hint: "Manage your name and profile photo from your account. Create a free account or sign in to get started.",
   },
+  printers: {
+    headline: "Sign in to ask a printer",
+    hint: "A free account lets you send a brief to up to three printers. They reply to you directly.",
+  },
 } as const satisfies Record<string, MemberSignInPromptContent>;
 
 type Props = {

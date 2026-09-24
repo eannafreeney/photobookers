@@ -32,6 +32,7 @@ function needsDashboardScripts(path?: string | null): boolean {
   if (path.startsWith("/dashboard/admin")) return false;
   if (path.startsWith("/dashboard")) return true;
   if (path.startsWith("/stores")) return true;
+  if (path.startsWith("/printers")) return true;
   if (path.startsWith("/interviews/") && !path.startsWith("/interviews/view")) {
     return true;
   }

@@ -84,6 +84,11 @@ export const bookStoreStatusEnum = pgEnum("book_store_status", [
   "published",
 ]);
 
+export const printerStatusEnum = pgEnum("printer_status", [
+  "draft",
+  "published",
+]);
+
 export const bookStoreApprovalStatusEnum = pgEnum(
   "book_store_approval_status",
   ["pending", "approved", "rejected"],

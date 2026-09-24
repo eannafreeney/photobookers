@@ -3,13 +3,20 @@ import { buildGoogleMapsUrl } from "../googleMaps";
 
 type StoresMapProps = {
   stores: StoreMapMarker[];
+  hrefBase?: string;
+  linkLabel?: string;
 };
 
-const StoresMap = ({ stores }: StoresMapProps) => {
+const StoresMap = ({
+  stores,
+  hrefBase = "/stores",
+  linkLabel = "View store",
+}: StoresMapProps) => {
   const markersJson = JSON.stringify(
     stores.map((store) => ({
       ...store,
-      href: `/stores/${store.slug}`,
+      href: `${hrefBase}/${store.slug}`,
+      linkLabel,
       mapsUrl: buildGoogleMapsUrl(
         store.name,
         `${store.city}, ${store.country}`,

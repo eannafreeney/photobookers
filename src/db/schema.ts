@@ -23,6 +23,7 @@ import {
   bookPublicationStatusEnum,
   bookStoreApprovalStatusEnum,
   bookStoreStatusEnum,
+  printerStatusEnum,
   bookViewSourceEnum,
   creatorClaimStatusEnum,
   creatorInterviewStatusEnum,
@@ -872,6 +873,104 @@ export const magazineIssueBooks = pgTable(
   }),
 );
 
+export const printers = pgTable(
+  "printers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: varchar("slug", { length: 255 }).notNull().unique(),
+    name: text("name").notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
+    city: varchar("city", { length: 255 }).notNull(),
+    country: varchar("country", { length: 255 }).notNull(),
+    latitude: doublePrecision("latitude"),
+    longitude: doublePrecision("longitude"),
+    website: text("website"),
+    description: text("description"),
+    specialties: text("specialties"),
+    status: printerStatusEnum("status").notNull().default("draft"),
+    sortOrder: integer("sort_order"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    countryIdx: index("printers_country_idx").on(table.country),
+  }),
+);
+
+export const printerImages = pgTable("printer_images", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  printerId: uuid("printer_id")
+    .references(() => printers.id, { onDelete: "cascade" })
+    .notNull(),
+  imageUrl: text("image_url").notNull(),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const printQuoteRequests = pgTable("print_quote_requests", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  copies: integer("copies").notNull(),
+  pageCount: integer("page_count").notNull(),
+  trimSize: text("trim_size").notNull(),
+  binding: text("binding").notNull(),
+  deadline: text("deadline").notNull(),
+  shipToCountry: text("ship_to_country").notNull(),
+  referenceBooks: text("reference_books"),
+  message: text("message"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const printQuoteRecipients = pgTable(
+  "print_quote_recipients",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    requestId: uuid("request_id")
+      .references(() => printQuoteRequests.id, { onDelete: "cascade" })
+      .notNull(),
+    printerId: uuid("printer_id")
+      .references(() => printers.id, { onDelete: "cascade" })
+      .notNull(),
+    emailSentAt: timestamp("email_sent_at"),
+    emailError: text("email_error"),
+  },
+  (table) => ({
+    uniqueRequestPrinter: unique(
+      "print_quote_recipients_request_printer_unique",
+    ).on(table.requestId, table.printerId),
+    printerIdx: index("print_quote_recipients_printer_idx").on(table.printerId),
+  }),
+);
+
+export const printQuoteNotes = pgTable(
+  "print_quote_notes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    printerId: uuid("printer_id")
+      .references(() => printers.id, { onDelete: "cascade" })
+      .notNull(),
+    requestId: uuid("request_id")
+      .references(() => printQuoteRequests.id, { onDelete: "cascade" })
+      .notNull(),
+    replied: boolean("replied").notNull().default(false),
+    printed: boolean("printed").notNull().default(false),
+    body: text("body").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueUserPrinter: unique("print_quote_notes_user_printer_unique").on(
+      table.userId,
+      table.printerId,
+    ),
+    printerIdx: index("print_quote_notes_printer_idx").on(table.printerId),
+  }),
+);
+
 /** Snapshot of publisher catalogue products for weekly new-release watch. */
 export const publisherReleaseWatchSeen = pgTable(
   "publisher_release_watch_seen",
@@ -975,6 +1074,18 @@ export type {
   UpdateBookStore,
   BookStoreStatus,
   BookStoreApprovalStatus,
+  Printer,
+  NewPrinter,
+  UpdatePrinter,
+  PrinterStatus,
+  PrinterImage,
+  NewPrinterImage,
+  PrintQuoteRequest,
+  NewPrintQuoteRequest,
+  PrintQuoteRecipient,
+  NewPrintQuoteRecipient,
+  PrintQuoteNote,
+  NewPrintQuoteNote,
   MagazineIssue,
   NewMagazineIssue,
   MagazineIssueStatus,

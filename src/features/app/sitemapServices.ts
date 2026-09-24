@@ -4,10 +4,12 @@ import {
   bookFairs,
   bookStores,
   books,
+  printers,
   creatorInterviews,
   creators,
 } from "../../db/schema";
 import { DISCOVER_TAGS } from "../../constants/discover";
+import { isFeatureEnabled } from "../../lib/features";
 import { tagBooksUrl } from "../../lib/tags";
 
 export type SitemapEntry = {
@@ -60,7 +62,8 @@ function formatLastmod(date: Date | null | undefined): string | undefined {
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {
-  const [bookRows, creatorRows, interviewRows, fairRows, storeRows] =
+  const printersEnabled = isFeatureEnabled("printers");
+  const [bookRows, creatorRows, interviewRows, fairRows, storeRows, printerRows] =
     await Promise.all([
     db
       .select({
@@ -113,11 +116,20 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
           eq(bookStores.approvalStatus, "approved"),
         ),
       ),
+    printersEnabled
+      ? db
+          .select({ slug: printers.slug, updatedAt: printers.updatedAt })
+          .from(printers)
+          .where(eq(printers.status, "published"))
+      : Promise.resolve([]),
   ]);
 
-  const staticEntries: SitemapEntry[] = STATIC_PAGES.map((page) => ({
-    ...page,
-  }));
+  const staticEntries: SitemapEntry[] = [
+    ...STATIC_PAGES,
+    ...(printersEnabled
+      ? [{ loc: "/printers", changefreq: "weekly" as const, priority: 0.7 }]
+      : []),
+  ];
 
   const bookEntries: SitemapEntry[] = bookRows.map((book) => ({
     loc: `/books/${book.slug}`,
@@ -155,6 +167,13 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     priority: 0.65,
   }));
 
+  const printerEntries: SitemapEntry[] = printerRows.map((printer) => ({
+    loc: `/printers/${printer.slug}`,
+    lastmod: formatLastmod(printer.updatedAt),
+    changefreq: "monthly",
+    priority: 0.65,
+  }));
+
   const tagEntries: SitemapEntry[] = DISCOVER_TAGS.map((tag) => ({
     loc: tagBooksUrl(tag),
     changefreq: "weekly",
@@ -168,6 +187,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     ...interviewEntries,
     ...fairEntries,
     ...storeEntries,
+    ...printerEntries,
     ...tagEntries,
   ];
 }

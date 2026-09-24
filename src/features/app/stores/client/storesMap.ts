@@ -9,6 +9,7 @@ type StoreMapMarkerClient = {
   longitude: number;
   href: string;
   mapsUrl: string;
+  linkLabel?: string;
 };
 
 declare global {
@@ -113,7 +114,7 @@ function popupHtml(store: StoreMapMarkerClient) {
       <strong>${escapeHtml(store.name)}</strong>
       <p style="margin: 0.35rem 0 0; font-size: 0.85rem">${escapeHtml(store.city)}, ${escapeHtml(store.country)}</p>
       <p style="margin: 0.75rem 0 0; display: flex; gap: 0.5rem; flex-wrap: wrap">
-        <a href="${escapeHtml(store.href)}">View store</a>
+        <a href="${escapeHtml(store.href)}">${escapeHtml(store.linkLabel ?? "View store")}</a>
         <a href="${escapeHtml(store.mapsUrl)}" target="_blank" rel="noopener noreferrer">Maps</a>
       </p>
     </div>

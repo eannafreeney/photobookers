@@ -13,6 +13,7 @@ import {
   magazineIcon,
   mailIcon,
   plannerIcon,
+  printersIcon,
   storesIcon,
   usersIcon,
 } from "../../../../lib/icons";
@@ -79,6 +80,10 @@ const AdminNavTabs = ({ currentPath }: { currentPath?: string | null }) => {
       <NavLink href="/dashboard/admin/stores" currentPath={currentPath}>
         {storesIcon}
         Stores
+      </NavLink>
+      <NavLink href="/dashboard/admin/printers" currentPath={currentPath}>
+        {printersIcon}
+        Printers
       </NavLink>
       <NavLink href="/dashboard/admin/leaderboard" currentPath={currentPath}>
         {analyticsIcon}

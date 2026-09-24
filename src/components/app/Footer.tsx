@@ -1,10 +1,14 @@
 import { SITE_APP, SITE_SKOOL, SITE_SOCIAL } from "../../constants/siteSocial";
+import { isFeatureEnabled } from "../../lib/features";
 
 const discoverLinks = () => [
   { href: "/books", label: "All Books" },
   { href: "/creators", label: "Creators" },
   { href: "/fairs", label: "Book Fairs" },
   { href: "/stores", label: "Bookstores" },
+  ...(isFeatureEnabled("printers")
+    ? [{ href: "/printers", label: "Printers" }]
+    : []),
 ];
 
 type FooterColumnProps = {

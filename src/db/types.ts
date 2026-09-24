@@ -28,6 +28,11 @@ import {
   fairAttendees,
   fairViews,
   bookStores,
+  printers,
+  printerImages,
+  printQuoteRequests,
+  printQuoteRecipients,
+  printQuoteNotes,
   magazineIssues,
   magazineIssueBooks,
   publisherReleaseWatchSeen,
@@ -41,6 +46,7 @@ import {
   bookPublicationStatusEnum,
   bookStoreApprovalStatusEnum,
   bookStoreStatusEnum,
+  printerStatusEnum,
   bookViewSourceEnum,
   creatorClaimStatusEnum,
   creatorInterviewStatusEnum,
@@ -167,6 +173,20 @@ export type UpdateBookStore = Partial<InferInsertModel<typeof bookStores>>;
 export type BookStoreStatus = (typeof bookStoreStatusEnum.enumValues)[number];
 export type BookStoreApprovalStatus =
   (typeof bookStoreApprovalStatusEnum.enumValues)[number];
+export type Printer = InferSelectModel<typeof printers>;
+export type NewPrinter = InferInsertModel<typeof printers>;
+export type UpdatePrinter = Partial<InferInsertModel<typeof printers>>;
+export type PrinterStatus = (typeof printerStatusEnum.enumValues)[number];
+export type PrinterImage = InferSelectModel<typeof printerImages>;
+export type NewPrinterImage = InferInsertModel<typeof printerImages>;
+export type PrintQuoteRequest = InferSelectModel<typeof printQuoteRequests>;
+export type NewPrintQuoteRequest = InferInsertModel<typeof printQuoteRequests>;
+export type PrintQuoteRecipient = InferSelectModel<typeof printQuoteRecipients>;
+export type NewPrintQuoteRecipient = InferInsertModel<
+  typeof printQuoteRecipients
+>;
+export type PrintQuoteNote = InferSelectModel<typeof printQuoteNotes>;
+export type NewPrintQuoteNote = InferInsertModel<typeof printQuoteNotes>;
 export type MagazineIssue = InferSelectModel<typeof magazineIssues>;
 export type NewMagazineIssue = InferInsertModel<typeof magazineIssues>;
 export type MagazineIssueStatus =

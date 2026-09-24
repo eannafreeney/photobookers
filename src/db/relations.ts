@@ -24,6 +24,11 @@ import {
   magazineIssues,
   postLikes,
   posts,
+  printQuoteNotes,
+  printQuoteRecipients,
+  printQuoteRequests,
+  printerImages,
+  printers,
   publisherOfTheWeek,
   purchaseClicks,
   users,
@@ -338,6 +343,59 @@ export const fairViewsRelations = relations(fairViews, ({ one }) => ({
   user: one(users, {
     fields: [fairViews.userId],
     references: [users.id],
+  }),
+}));
+
+export const printersRelations = relations(printers, ({ many }) => ({
+  images: many(printerImages),
+  recipients: many(printQuoteRecipients),
+  notes: many(printQuoteNotes),
+}));
+
+export const printerImagesRelations = relations(printerImages, ({ one }) => ({
+  printer: one(printers, {
+    fields: [printerImages.printerId],
+    references: [printers.id],
+  }),
+}));
+
+export const printQuoteRequestsRelations = relations(
+  printQuoteRequests,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [printQuoteRequests.userId],
+      references: [users.id],
+    }),
+    recipients: many(printQuoteRecipients),
+  }),
+);
+
+export const printQuoteRecipientsRelations = relations(
+  printQuoteRecipients,
+  ({ one }) => ({
+    request: one(printQuoteRequests, {
+      fields: [printQuoteRecipients.requestId],
+      references: [printQuoteRequests.id],
+    }),
+    printer: one(printers, {
+      fields: [printQuoteRecipients.printerId],
+      references: [printers.id],
+    }),
+  }),
+);
+
+export const printQuoteNotesRelations = relations(printQuoteNotes, ({ one }) => ({
+  user: one(users, {
+    fields: [printQuoteNotes.userId],
+    references: [users.id],
+  }),
+  printer: one(printers, {
+    fields: [printQuoteNotes.printerId],
+    references: [printers.id],
+  }),
+  request: one(printQuoteRequests, {
+    fields: [printQuoteNotes.requestId],
+    references: [printQuoteRequests.id],
   }),
 }));
 
