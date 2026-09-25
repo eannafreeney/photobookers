@@ -108,6 +108,12 @@ export const GET = createRoute(
           <BookFormAdmin
             bookId={book.id}
             formValues={formValues}
+            viewHref={
+              book.publicationStatus === "published" &&
+              book.approvalStatus === "approved"
+                ? `/books/${book.slug}`
+                : `/books/preview/${book.slug}`
+            }
           />
           <hr class="my-4" />
           <div

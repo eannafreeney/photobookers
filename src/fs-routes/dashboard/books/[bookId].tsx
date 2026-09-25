@@ -42,6 +42,10 @@ import SectionTitle from "../../../components/app/SectionTitle";
 import { serializePressLinks } from "../../../features/dashboard/books/pressLinks";
 import { toDateInputValue } from "../../../lib/utils";
 import type { Book } from "../../../db/schema";
+import {
+  resolveBookPrinter,
+  setBookPrinter,
+} from "../../../features/dashboard/books/printedAt";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
@@ -61,6 +65,7 @@ export const GET = createRoute(
       tags: book.tags?.join(", "),
       availability_status: book.availabilityStatus,
       release_date: toDateInputValue(book.releaseDate),
+      printer_id: book.printerBooks.find((row) => row.printer)?.printerId,
     };
 
     const publisherIsVerified = book?.publisher?.status === "verified";
@@ -172,6 +177,12 @@ export const GET = createRoute(
                 formValues={formValues}
                 isPublisher={isPublisher}
                 primaryAction={primaryAction}
+                viewHref={
+                  book.publicationStatus === "published" &&
+                  book.approvalStatus === "approved"
+                    ? `/books/${book.slug}`
+                    : `/books/preview/${book.slug}`
+                }
               />
             </Tabs.Panel>
             <Tabs.Panel tabId="images">
@@ -222,9 +233,15 @@ export const POST = createRoute(
     const formData = c.req.valid("form");
     const book = c.get("book");
 
+    const [printerError, printer] = await resolveBookPrinter(formData);
+    if (printerError) return showErrorAlert(c, printerError.reason);
+
     const bookData = buildUpdateBookData(formData);
     const [error, updatedBook] = await updateBook(bookData, book.id);
     if (error) return showErrorAlert(c, error.reason);
+
+    const [linkError] = await setBookPrinter(book.id, printer?.id ?? null);
+    if (linkError) return showErrorAlert(c, linkError.reason);
 
     return showSuccessAlert(c, `${updatedBook?.title ?? "Book"} updated!`);
   },

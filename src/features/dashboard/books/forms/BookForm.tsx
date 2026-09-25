@@ -7,6 +7,7 @@ import RadioFields from "../../../../components/forms/RadioFields";
 import TextArea from "../../../../components/forms/TextArea";
 import ToggleInput from "../../../../components/forms/ToggleInput";
 import { getAllCreatorOptions } from "../../admin/creators/services";
+import { listPrinterOptions } from "../printedAt";
 import FormPost from "../../../../components/forms/FormPost";
 import BookPressLinksSection from "../components/BookPressLinksSection";
 
@@ -19,6 +20,7 @@ type BookFormProps = {
   action: string;
   /** Primary submit label for review workflow vs normal save */
   primaryAction?: "save" | "submit_for_review";
+  viewHref?: string;
 };
 
 export const BookForm = async ({
@@ -28,6 +30,7 @@ export const BookForm = async ({
   bookId,
   action,
   primaryAction = "save",
+  viewHref,
 }: BookFormProps) => {
   const artistOptions =
     isPublisher || isContributor ? await getAllCreatorOptions("artist") : [];
@@ -35,6 +38,7 @@ export const BookForm = async ({
     !isPublisher || isContributor
       ? await getAllCreatorOptions("publisher")
       : [];
+  const printerOptions = await listPrinterOptions();
 
   const isEditPage = !!bookId;
   const isArtist = !isPublisher && !isContributor;
@@ -151,6 +155,14 @@ export const BookForm = async ({
             validateInput="validateField('release_date')"
             required
           />
+          <ComboBox
+            label="Printed at"
+            name="form.printer_id"
+            newOptionName="form.new_printer_name"
+            type="printer"
+            options={printerOptions}
+            disableOnInit={false}
+          />
           <Input
             label="Tags"
             name="form.tags"
@@ -189,6 +201,7 @@ export const BookForm = async ({
                 ? "Submitting…"
                 : "Saving…"
             }
+            viewHref={viewHref}
           />
         </div>
       </FormPost>

@@ -35,12 +35,16 @@ const Credits = ({
             {printedBy.map((printer, index) => (
               <span>
                 {index > 0 ? ", " : null}
-                <a
-                  href={`/printers/${printer.slug}`}
-                  class="underline hover:text-accent"
-                >
-                  {printer.name}
-                </a>
+                {printer.slug ? (
+                  <a
+                    href={`/printers/${printer.slug}`}
+                    class="underline hover:text-accent"
+                  >
+                    {printer.name}
+                  </a>
+                ) : (
+                  printer.name
+                )}
               </span>
             ))}
           </span>

@@ -63,6 +63,7 @@ export const GET = createRoute(
             <PrinterFormAdmin
               printerId={printer.id}
               status={printer.status}
+              viewHref={`/printers/${printer.slug}`}
               formValues={{
                 name: printer.name,
                 email: printer.email,
@@ -156,6 +157,17 @@ export const PATCH = createRoute(paramValidator(printerIdSchema), async (c) => {
 
   if (intent !== "publish" && intent !== "unpublish") {
     return showErrorAlert(c, "Invalid intent");
+  }
+
+  if (intent === "publish") {
+    const [loadError, current] = await getPrinterByIdAdmin(printerId);
+    if (loadError) return showErrorAlert(c, loadError.reason);
+    if (!current.email.trim() || !current.city.trim() || !current.country.trim()) {
+      return showErrorAlert(
+        c,
+        "Add an email, city, and country before publishing",
+      );
+    }
   }
 
   const status = intent === "publish" ? "published" : "draft";

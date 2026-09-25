@@ -47,6 +47,7 @@ import {
 } from "../../constants/queries";
 import { posts, Creator } from "../../db/schema";
 import { err, ok } from "../../lib/result";
+import { colophonCredit } from "./printers/rules";
 import { type FeedItem, type FeedTab } from "./followerFeed";
 import { LRUCache } from "lru-cache";
 import { resolveStoragePublicImageUrl } from "../../lib/imageUrl";
@@ -60,7 +61,7 @@ type CachedBook = Omit<InferSelectModel<typeof books>, "images"> & {
   publisher: Creator | null;
   artist: Creator | null;
   images: { imageUrl: string }[];
-  printedBy: { name: string; slug: string }[];
+  printedBy: { name: string; slug: string | null }[];
 };
 
 const bookCache = new LRUCache<
@@ -505,10 +506,7 @@ export const getBookBySlug = async (
 
     const { printerBooks, ...bookFields } = book;
     const printedBy = printerBooks
-      .flatMap((row) =>
-        row.printer?.status === "published" ? [row.printer] : [],
-      )
-      .map((printer) => ({ name: printer.name, slug: printer.slug }))
+      .flatMap((row) => (row.printer ? [colophonCredit(row.printer)] : []))
       .sort((a, b) => a.name.localeCompare(b.name));
 
     const result = ok({

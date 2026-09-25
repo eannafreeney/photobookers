@@ -27,9 +27,11 @@ const PrinterDetail = ({ printer }: Props) => {
             <h1 class="font-display text-4xl md:text-6xl text-on-surface-strong">
               {printer.name}
             </h1>
-            <p class="text-on-surface">
-              {printer.city}, {printer.country}
-            </p>
+            {printer.city || printer.country ? (
+              <p class="text-on-surface">
+                {[printer.city, printer.country].filter(Boolean).join(", ")}
+              </p>
+            ) : null}
           </div>
           <div class="flex flex-wrap justify-center gap-3">
             <Link

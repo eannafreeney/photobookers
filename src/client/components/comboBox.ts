@@ -15,7 +15,16 @@ type BookFormParentScope = {
   form?: Record<string, unknown>;
   is_new_artist?: boolean;
   is_new_publisher?: boolean;
+  is_new_printer?: boolean;
 };
+
+const TYPE_FIELDS = {
+  artist: { id: "artist_id", flag: "is_new_artist" },
+  publisher: { id: "publisher_id", flag: "is_new_publisher" },
+  printer: { id: "printer_id", flag: "is_new_printer" },
+} as const;
+
+type ComboType = keyof typeof TYPE_FIELDS;
 
 /** Alpine 3 has no `$parent` magic — read parent `bookForm` from the wrapping `<form>`. */
 function getBookFormScope(el: HTMLElement): BookFormParentScope | null {
@@ -31,6 +40,7 @@ type ComboBoxScope = {
   form?: Record<string, unknown>;
   is_new_artist?: boolean;
   is_new_publisher?: boolean;
+  is_new_printer?: boolean;
 };
 
 export function registerComboBox() {
@@ -38,7 +48,7 @@ export function registerComboBox() {
     "comboBox",
     (
       options: ComboBoxOption[] = [],
-      type: "artist" | "publisher",
+      type: ComboType,
       disableOnInit: boolean = true,
     ) => {
       return {
@@ -51,6 +61,7 @@ export function registerComboBox() {
         isDisabled: false,
         is_new_artist: false,
         is_new_publisher: false,
+        is_new_printer: false,
         form: undefined as Record<string, unknown> | undefined,
 
         init() {
@@ -61,7 +72,7 @@ export function registerComboBox() {
 
           this.options = this.allOptions;
 
-          const fieldName = type === "publisher" ? "publisher_id" : "artist_id";
+          const fieldName = TYPE_FIELDS[type].id;
           const initialValue = (this as unknown as ComboBoxScope).form?.[
             fieldName
           ];
@@ -106,7 +117,21 @@ export function registerComboBox() {
         },
         clearSelection() {
           this.selectedOption = null;
-          inputRef(this.$refs.hiddenTextField).value = "";
+          const hidden = inputRef(this.$refs.hiddenTextField);
+          const newNameField = inputRef(this.$refs.newOptionNameField);
+          hidden.value = "";
+          newNameField.value = "";
+          this.setNewFlag(false);
+          this.$nextTick(() => {
+            hidden.dispatchEvent(new Event("input", { bubbles: true }));
+            newNameField.dispatchEvent(new Event("input", { bubbles: true }));
+          });
+        },
+        setNewFlag(isNew: boolean) {
+          const flag = TYPE_FIELDS[type].flag;
+          (this as unknown as ComboBoxScope)[flag] = isNew;
+          const bookForm = getBookFormScope(this.$el);
+          if (bookForm) bookForm[flag] = isNew;
         },
         setSelectedOption(option: ComboBoxOption) {
           this.selectedOption = option;
@@ -120,15 +145,7 @@ export function registerComboBox() {
           const newNameField = inputRef(this.$refs.newOptionNameField);
           hidden.value = selectedId;
           newNameField.value = newName;
-
-          const bookForm = getBookFormScope(this.$el);
-          if (type === "artist" && option.isNew) {
-            this.is_new_artist = true;
-            if (bookForm) bookForm.is_new_artist = true;
-          } else if (type === "publisher" && option.isNew) {
-            this.is_new_publisher = true;
-            if (bookForm) bookForm.is_new_publisher = true;
-          }
+          this.setNewFlag(!!option.isNew);
 
           this.$nextTick(() => {
             hidden.dispatchEvent(new Event("input", { bubbles: true }));

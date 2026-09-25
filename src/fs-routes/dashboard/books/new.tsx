@@ -22,6 +22,10 @@ import {
 import BookReviewProcessBanner from "../../../features/dashboard/books/components/BookReviewProcessBanner";
 import { serializePressLinks } from "../../../features/dashboard/books/pressLinks";
 import { canCreateBook } from "../../../lib/permissions";
+import {
+  resolveBookPrinter,
+  setBookPrinter,
+} from "../../../features/dashboard/books/printedAt";
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
@@ -115,6 +119,9 @@ export const POST = createRoute(
       publisher = resolvedPublisher;
     }
 
+    const [printerError, printer] = await resolveBookPrinter(formData);
+    if (printerError) return showErrorAlert(c, printerError.reason);
+
     const moderation = await getNewBookModerationForUser(user);
     const bookData = await buildCreateBookData(
       formData,
@@ -131,6 +138,9 @@ export const POST = createRoute(
     const newBook = await createBook(bookData);
 
     if (!newBook) return showErrorAlert(c, "Failed to create book");
+
+    const [linkError] = await setBookPrinter(newBook.id, printer?.id ?? null);
+    if (linkError) return showErrorAlert(c, linkError.reason);
 
     await setFlash(c, "success", `"${newBook.title}" saved! Now add a cover image, then submit for review.`);
     return c.redirect(`/dashboard/books/${newBook.id}?tab=images`);

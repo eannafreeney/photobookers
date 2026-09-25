@@ -10,9 +10,15 @@ type Props = {
   formValues?: Record<string, any>;
   printerId?: string;
   status?: PrinterStatus;
+  viewHref?: string;
 };
 
-export const PrinterFormAdmin = ({ formValues, printerId, status }: Props) => {
+export const PrinterFormAdmin = ({
+  formValues,
+  printerId,
+  status,
+  viewHref,
+}: Props) => {
   const isEditPage = !!printerId;
 
   const alpineAttrs = {
@@ -101,7 +107,7 @@ export const PrinterFormAdmin = ({ formValues, printerId, status }: Props) => {
             private and only used to send quote requests.
           </p>
         </div>
-        <FormButtons />
+        <FormButtons viewHref={viewHref} />
       </form>
     </div>
   );

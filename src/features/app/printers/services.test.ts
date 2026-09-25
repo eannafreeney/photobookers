@@ -19,7 +19,12 @@ vi.mock("../../../lib/sendEmail", () => ({
   sendEmail: sendEmailMock,
 }));
 
-import { isPublicPrintedBook, planQuotePrinters, unpublishedPrinterIds } from "./rules";
+import {
+  colophonCredit,
+  isPublicPrintedBook,
+  planQuotePrinters,
+  unpublishedPrinterIds,
+} from "./rules";
 import { sendMockQuoteRequest, submitQuoteRequest } from "./services";
 
 const user = {
@@ -143,6 +148,17 @@ describe("submitQuoteRequest", () => {
       { requestId: "req-1", printerId: "p1" },
       { requestId: "req-1", printerId: "p2" },
     ]);
+  });
+});
+
+describe("colophonCredit", () => {
+  it("links published printers and still credits drafts by name", () => {
+    expect(
+      colophonCredit({ name: "Steidl", slug: "steidl", status: "published" }),
+    ).toEqual({ name: "Steidl", slug: "steidl" });
+    expect(
+      colophonCredit({ name: "Local Press", slug: "local-press", status: "draft" }),
+    ).toEqual({ name: "Local Press", slug: null });
   });
 });
 

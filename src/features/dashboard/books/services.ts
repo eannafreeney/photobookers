@@ -382,6 +382,11 @@ export const getBookById = async (bookId: string) => {
         images: {
           orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
         },
+        printerBooks: {
+          columns: { printerId: true },
+          orderBy: (printerBooks, { asc }) => [asc(printerBooks.createdAt)],
+          with: { printer: { columns: { id: true } } },
+        },
       },
     });
     if (!book) return err({ reason: "Book not found" });

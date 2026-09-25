@@ -27,6 +27,10 @@ import {
   getSubmittedBooksByUserId,
   type SubmittedBook,
 } from "../../domain/contributors/services";
+import {
+  resolveBookPrinter,
+  setBookPrinter,
+} from "../../features/dashboard/books/printedAt";
 
 function canContributorEdit(book: SubmittedBook): boolean {
   return (
@@ -151,6 +155,9 @@ export const POST = createRoute(
     const [publisherError, publisher] = await resolvePublisher(formData, user);
     if (publisherError) return showErrorAlert(c, publisherError.reason);
 
+    const [printerError, printer] = await resolveBookPrinter(formData);
+    if (printerError) return showErrorAlert(c, printerError.reason);
+
     const moderation = await getNewBookModerationForUser(user);
     const bookData = await buildCreateBookData(
       formData,
@@ -163,6 +170,9 @@ export const POST = createRoute(
 
     const newBook = await createBook(bookData);
     if (!newBook) return showErrorAlert(c, "Failed to create book");
+
+    const [linkError] = await setBookPrinter(newBook.id, printer?.id ?? null);
+    if (linkError) return showErrorAlert(c, linkError.reason);
 
     await setFlash(
       c,

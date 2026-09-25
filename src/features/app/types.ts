@@ -21,7 +21,7 @@ export type BookSubmitter = {
 
 export type BookPrinterCredit = {
   name: string;
-  slug: string;
+  slug: string | null;
 };
 
 export type BookWithGalleryImages = Omit<

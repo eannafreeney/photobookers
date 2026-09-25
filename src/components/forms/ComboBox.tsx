@@ -6,7 +6,7 @@ type Props = {
   name: string;
   newOptionName: string;
   options: any[];
-  type?: "artist" | "publisher";
+  type?: "artist" | "publisher" | "printer";
   required?: boolean;
   disableOnInit?: boolean;
 };
@@ -62,7 +62,7 @@ const DropdownList = ({
   type,
 }: {
   name: string;
-  type: "artist" | "publisher";
+  type: "artist" | "publisher" | "printer";
 }) => {
   const alpineAttrs = {
     "x-show": "isOpen || openedWithKeyboard",

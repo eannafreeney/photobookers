@@ -10,6 +10,18 @@ export function planQuotePrinters(printerIds: string[]) {
   return ok(unique);
 }
 
+/** Published printers link to their page. Drafts still get a colophon credit. */
+export function colophonCredit(printer: {
+  name: string;
+  slug: string;
+  status: string;
+}): { name: string; slug: string | null } {
+  return {
+    name: printer.name,
+    slug: printer.status === "published" ? printer.slug : null,
+  };
+}
+
 export function unpublishedPrinterIds(
   requestedIds: string[],
   publishedIds: string[],
