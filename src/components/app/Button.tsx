@@ -52,7 +52,7 @@ export const button = tv({
 });
 
 type ButtonProps = PropsWithChildren<{
-  variant: "solid" | "outline" | "ghost";
+  variant?: "solid" | "outline" | "ghost";
   color: keyof typeof colorMap;
   isDisabled?: boolean;
   width?: "full" | "auto" | "fit" | "sm" | "md" | "lg" | "xl";
@@ -61,7 +61,7 @@ type ButtonProps = PropsWithChildren<{
 }>;
 
 export default function Button({
-  variant,
+  variant = "solid",
   color,
   width = "full",
   children,

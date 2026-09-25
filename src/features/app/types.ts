@@ -19,12 +19,18 @@ export type BookSubmitter = {
   shelfSlug: string | null;
 } | null;
 
+export type BookPrinterCredit = {
+  name: string;
+  slug: string;
+};
+
 export type BookWithGalleryImages = Omit<
   Book & { artist: Creator | null; publisher: Creator | null },
   "images"
 > & {
   images: { imageUrl: string }[];
   submittedByUser?: BookSubmitter;
+  printedBy?: BookPrinterCredit[];
 };
 
 export const BookCard = {};

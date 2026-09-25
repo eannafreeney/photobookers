@@ -26,6 +26,7 @@ import {
   posts,
   printQuoteRecipients,
   printQuoteRequests,
+  printerBooks,
   printerImages,
   printers,
   publisherOfTheWeek,
@@ -129,6 +130,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   bookOfTheDay: one(bookOfTheDay),
   purchaseClicks: many(purchaseClicks),
   bookViews: many(bookViews),
+  printerBooks: many(printerBooks),
 }));
 
 export const creatorMilestoneEmailsRelations = relations(
@@ -347,7 +349,19 @@ export const fairViewsRelations = relations(fairViews, ({ one }) => ({
 
 export const printersRelations = relations(printers, ({ many }) => ({
   images: many(printerImages),
+  printedBooks: many(printerBooks),
   recipients: many(printQuoteRecipients),
+}));
+
+export const printerBooksRelations = relations(printerBooks, ({ one }) => ({
+  printer: one(printers, {
+    fields: [printerBooks.printerId],
+    references: [printers.id],
+  }),
+  book: one(books, {
+    fields: [printerBooks.bookId],
+    references: [books.id],
+  }),
 }));
 
 export const printerImagesRelations = relations(printerImages, ({ one }) => ({

@@ -5,12 +5,14 @@ type StoresMapProps = {
   stores: StoreMapMarker[];
   hrefBase?: string;
   linkLabel?: string;
+  itemLabel?: string;
 };
 
 const StoresMap = ({
   stores,
   hrefBase = "/stores",
   linkLabel = "View store",
+  itemLabel = "bookstore",
 }: StoresMapProps) => {
   const markersJson = JSON.stringify(
     stores.map((store) => ({
@@ -35,13 +37,12 @@ const StoresMap = ({
       <div class="flex flex-col gap-4">
         {stores.length === 0 ? (
           <div class="text-center py-12 text-on-surface-weak border-2 border-on-surface-strong rounded">
-            No mapped bookstores match your filters yet.
+            No mapped {itemLabel}s match your filters yet.
           </div>
         ) : (
           <>
             <p class="text-sm text-on-surface-weak">
-              {stores.length} bookstore{stores.length === 1 ? "" : "s"} on the
-              map
+              {stores.length} {itemLabel}{stores.length === 1 ? "" : "s"} on the map
             </p>
             <div
               id="stores-map"

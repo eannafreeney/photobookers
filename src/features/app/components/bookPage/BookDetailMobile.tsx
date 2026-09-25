@@ -61,6 +61,8 @@ const BookDetailMobile = ({
           <BookCredits
             releaseDate={book.releaseDate}
             submittedByUser={book.submittedByUser}
+            printers={book.printedBy}
+            user={user}
           />
         </Tabs.Panel>
         <Tabs.Panel tabId="comments">

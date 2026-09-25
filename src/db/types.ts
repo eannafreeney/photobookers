@@ -30,6 +30,7 @@ import {
   bookStores,
   printers,
   printerImages,
+  printerBooks,
   printQuoteRequests,
   printQuoteRecipients,
   magazineIssues,
@@ -178,6 +179,8 @@ export type UpdatePrinter = Partial<InferInsertModel<typeof printers>>;
 export type PrinterStatus = (typeof printerStatusEnum.enumValues)[number];
 export type PrinterImage = InferSelectModel<typeof printerImages>;
 export type NewPrinterImage = InferInsertModel<typeof printerImages>;
+export type PrinterBook = InferSelectModel<typeof printerBooks>;
+export type NewPrinterBook = InferInsertModel<typeof printerBooks>;
 export type PrintQuoteRequest = InferSelectModel<typeof printQuoteRequests>;
 export type NewPrintQuoteRequest = InferInsertModel<typeof printQuoteRequests>;
 export type PrintQuoteRecipient = InferSelectModel<typeof printQuoteRecipients>;

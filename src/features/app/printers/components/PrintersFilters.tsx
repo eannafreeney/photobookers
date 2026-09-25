@@ -1,59 +1,90 @@
-type Props = {
+import CollapsibleFilters from "../../components/CollapsibleFilters";
+
+type PrintersFiltersProps = {
+  query?: string;
+  city?: string;
+  country?: string;
   countries: string[];
-  languages: string[];
-  country: string;
-  language: string;
+  baseUrl: string;
+  view?: "grid" | "map";
 };
 
-const PrintersFilters = ({ countries, languages, country, language }: Props) => {
+const PrintersFilters = ({
+  query = "",
+  city = "",
+  country = "",
+  countries,
+  baseUrl,
+  view = "grid",
+}: PrintersFiltersProps) => {
+  const activeFilterCount = [query, city, country].filter(
+    (value) => value.trim().length > 0,
+  ).length;
+
   return (
-    <form method="get" action="/printers" class="flex flex-wrap items-end gap-3">
-      <label class="flex flex-col gap-1 text-sm">
-        Country
-        <select
-          name="country"
-          class="px-3 py-2 text-sm border border-outline rounded bg-surface"
-        >
-          <option value="">All countries</option>
-          {countries.map((name) => (
-            <option value={name} selected={country === name}>
-              {name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label class="flex flex-col gap-1 text-sm">
-        Language
-        <select
-          name="language"
-          class="px-3 py-2 text-sm border border-outline rounded bg-surface"
-        >
-          <option value="">All languages</option>
-          {languages.map((name) => (
-            <option value={name} selected={language === name}>
-              {name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button
-        type="submit"
-        class="px-4 py-2 text-sm font-medium rounded bg-accent text-on-accent"
+    <form method="get" action={baseUrl} class="mb-6">
+      {view === "map" ? <input type="hidden" name="view" value="map" /> : null}
+      <CollapsibleFilters
+        activeFilterCount={activeFilterCount}
+        controlsId="stores-search-filters"
+        desktopGridClass="md:grid-cols-2 lg:grid-cols-4"
       >
-        Filter
-      </button>
-      <a href="/printers" class="px-4 py-2 text-sm border border-outline rounded">
-        Clear
-      </a>
+        <div class="flex flex-col gap-2">
+          <label for="query" class="text-sm font-medium text-on-surface-strong">
+            Search
+          </label>
+          <input
+            type="text"
+            id="query"
+            name="query"
+            value={query}
+            placeholder="Name, address..."
+            class="px-3 py-2 text-sm border border-outline rounded bg-surface text-on-surface focus:border-accent focus:outline-none"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label
+            for="country"
+            class="text-sm font-medium text-on-surface-strong"
+          >
+            Country
+          </label>
+          <select
+            id="country"
+            name="country"
+            class="px-3 py-2 text-sm border border-outline rounded bg-surface text-on-surface focus:border-accent focus:outline-none"
+          >
+            <option value="">All countries</option>
+            {countries.map((countryName) => (
+              <option
+                key={countryName}
+                value={countryName}
+                selected={country === countryName}
+              >
+                {countryName}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div class="flex items-end gap-2">
+          <button
+            type="submit"
+            class="px-6 py-2 text-sm font-medium rounded bg-accent text-on-accent hover:bg-accent/90 transition-colors"
+          >
+            Search
+          </button>
+          <a
+            href={baseUrl}
+            class="px-6 py-2 text-sm font-medium rounded border border-outline hover:border-accent transition-colors"
+          >
+            Clear
+          </a>
+        </div>
+      </CollapsibleFilters>
     </form>
   );
 };
 
 export default PrintersFilters;
-
-export function printerLanguages(value: string | null) {
-  return (value ?? "")
-    .split(",")
-    .map((language) => language.trim())
-    .filter(Boolean);
-}

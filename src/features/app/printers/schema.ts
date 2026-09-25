@@ -10,6 +10,17 @@ const optionalText = z.preprocess(
   z.string().trim().max(2000).optional(),
 );
 
+export const printerRecommendationSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(200),
+  city: z.string().trim().min(1, "City is required").max(120),
+  country: z.string().trim().min(1, "Country is required").max(120),
+  link: z
+    .string()
+    .trim()
+    .url("Link must be a valid URL")
+    .max(500),
+});
+
 export const quoteRequestSchema = z.object({
   printerIds: z.preprocess(
     asList,

@@ -886,11 +886,10 @@ export const printers = pgTable(
     longitude: doublePrecision("longitude"),
     website: text("website"),
     description: text("description"),
-    specialties: text("specialties"),
-    languages: text("languages"),
-    logoUrl: text("logo_url"),
+    coverUrl: text("cover_url"),
+    bannerUrl: text("banner_url"),
     status: printerStatusEnum("status").notNull().default("draft"),
-    sortOrder: integer("sort_order"),
+    introEmailSentAt: timestamp("intro_email_sent_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
@@ -908,6 +907,28 @@ export const printerImages = pgTable("printer_images", {
   sortOrder: integer("sort_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const printerBooks = pgTable(
+  "printer_books",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    printerId: uuid("printer_id")
+      .notNull()
+      .references(() => printers.id, { onDelete: "cascade" }),
+    bookId: uuid("book_id")
+      .notNull()
+      .references(() => books.id, { onDelete: "cascade" }),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    uniquePrinterBook: unique("printer_books_printer_book_unique").on(
+      table.printerId,
+      table.bookId,
+    ),
+    printerIdx: index("printer_books_printer_idx").on(table.printerId),
+  }),
+);
 
 export const printQuoteRequests = pgTable("print_quote_requests", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -1055,6 +1076,8 @@ export type {
   PrinterStatus,
   PrinterImage,
   NewPrinterImage,
+  PrinterBook,
+  NewPrinterBook,
   PrintQuoteRequest,
   NewPrintQuoteRequest,
   PrintQuoteRecipient,

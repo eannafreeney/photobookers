@@ -14,6 +14,7 @@ import {
 } from "../../../../features/dashboard/admin/printers/schema";
 import PrinterFormAdmin from "../../../../features/dashboard/admin/printers/forms/PrinterFormAdmin";
 import {
+  deletePrinterAdmin,
   generateUniquePrinterSlug,
   getPrinterByIdAdmin,
   updatePrinterAdmin,
@@ -22,7 +23,13 @@ import { parseOptionalCoordinate } from "../../../../features/dashboard/admin/st
 import FormDelete from "../../../../components/forms/FormDelete";
 import Button from "../../../../components/app/Button";
 import PrinterGalleryForm from "../../../../features/dashboard/admin/printers/forms/PrinterGalleryForm";
-import PrinterLogoForm from "../../../../features/dashboard/admin/printers/forms/PrinterLogoForm";
+import PrinterImageForm from "../../../../features/dashboard/admin/printers/forms/PrinterImageForm";
+import PrinterPublishToggle from "../../../../features/dashboard/admin/printers/components/PrinterPublishToggle";
+import PrinterBookSearch, {
+  PrinterBooksList,
+} from "../../../../features/dashboard/admin/printers/components/PrinterBooks";
+import Alert from "../../../../components/app/Alert";
+import Breadcrumbs from "../../../../features/dashboard/admin/components/Breadcrumbs";
 
 export const GET = createRoute(
   paramValidator(printerIdSchema),
@@ -42,29 +49,49 @@ export const GET = createRoute(
       >
         <Page>
           <Sidebar currentPath="/dashboard/admin/printers">
+            <div class="mb-6">
+              <Breadcrumbs
+                items={[
+                  {
+                    label: "Admin Printers Overview",
+                    href: "/dashboard/admin/printers",
+                  },
+                  { label: `Edit "${printer.name}"` },
+                ]}
+              />
+            </div>
             <PrinterFormAdmin
               printerId={printer.id}
+              status={printer.status}
               formValues={{
                 name: printer.name,
                 email: printer.email,
                 description: printer.description,
-                specialties: printer.specialties,
-                languages: printer.languages,
                 city: printer.city,
                 country: printer.country,
                 website: printer.website,
                 latitude: printer.latitude,
                 longitude: printer.longitude,
-                status: printer.status,
-                sort_order: printer.sortOrder,
               }}
             />
             <section class="mt-10 flex flex-col gap-4">
-              <h2 class="font-display text-2xl">Logo</h2>
-              <PrinterLogoForm printerId={printer.id} logoUrl={printer.logoUrl} />
+              <h2 class="font-display text-2xl">Cover</h2>
+              <PrinterImageForm
+                printerId={printer.id}
+                imageUrl={printer.coverUrl}
+                kind="cover"
+              />
             </section>
             <section class="mt-10 flex flex-col gap-4">
-              <h2 class="font-display text-2xl">Books they have printed</h2>
+              <h2 class="font-display text-2xl">Banner</h2>
+              <PrinterImageForm
+                printerId={printer.id}
+                imageUrl={printer.bannerUrl}
+                kind="banner"
+              />
+            </section>
+            <section class="mt-10 flex flex-col gap-4">
+              <h2 class="font-display text-2xl">Gallery</h2>
               <ul class="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {printer.images.map((image) => (
                   <li class="flex flex-col gap-2">
@@ -85,6 +112,14 @@ export const GET = createRoute(
               </ul>
               <PrinterGalleryForm printerId={printer.id} />
             </section>
+            <section class="mt-10 flex flex-col gap-4">
+              <h2 class="font-display text-2xl">Books printed here</h2>
+              <PrinterBookSearch printerId={printer.id} />
+              <PrinterBooksList
+                printerId={printer.id}
+                books={printer.printedBooks}
+              />
+            </section>
           </Sidebar>
         </Page>
       </AppLayout>,
@@ -103,17 +138,50 @@ export const POST = createRoute(
       slug: await generateUniquePrinterSlug(form.name, printerId),
       email: form.email,
       description: form.description || null,
-      specialties: form.specialties || null,
-      languages: form.languages || null,
       city: form.city,
       country: form.country,
       website: form.website || null,
       latitude: parseOptionalCoordinate(form.latitude),
       longitude: parseOptionalCoordinate(form.longitude),
-      status: form.status,
-      sortOrder: form.sort_order ?? null,
     });
     if (error) return showErrorAlert(c, error.reason);
     return showSuccessAlert(c, "Printer saved");
+  },
+);
+
+export const PATCH = createRoute(
+  paramValidator(printerIdSchema),
+  async (c) => {
+    const printerId = c.req.valid("param").printerId;
+    const form = await c.req.parseBody();
+    const intent = form.intent;
+
+    if (intent !== "publish" && intent !== "unpublish") {
+      return showErrorAlert(c, "Invalid intent");
+    }
+
+    const status = intent === "publish" ? "published" : "draft";
+    const [error, printer] = await updatePrinterAdmin(printerId, { status });
+    if (error) return showErrorAlert(c, error.reason);
+
+    return c.html(
+      <>
+        <Alert
+          type={status === "published" ? "success" : "warning"}
+          message={`${printer.name} ${status === "published" ? "published" : "unpublished"}`}
+        />
+        <PrinterPublishToggle printerId={printer.id} status={printer.status} />
+      </>,
+    );
+  },
+);
+
+export const DELETE = createRoute(
+  paramValidator(printerIdSchema),
+  async (c) => {
+    const printerId = c.req.valid("param").printerId;
+    const [error, printer] = await deletePrinterAdmin(printerId);
+    if (error) return showErrorAlert(c, error.reason);
+    return showSuccessAlert(c, `${printer.name} deleted`);
   },
 );

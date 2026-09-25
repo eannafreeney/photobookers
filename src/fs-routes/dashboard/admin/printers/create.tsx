@@ -36,17 +36,16 @@ export const POST = createRoute(
       slug: await generateUniquePrinterSlug(form.name),
       email: form.email,
       description: form.description || null,
-      specialties: form.specialties || null,
-      languages: form.languages || null,
       city: form.city,
       country: form.country,
       website: form.website || null,
       latitude: parseOptionalCoordinate(form.latitude),
       longitude: parseOptionalCoordinate(form.longitude),
-      status: form.status,
-      sortOrder: form.sort_order ?? null,
+      status: "draft",
     });
+
     if (error || !printer) return showErrorAlert(c, error?.reason);
+
     return c.redirect(`/dashboard/admin/printers/${printer.id}`, 303);
   },
 );

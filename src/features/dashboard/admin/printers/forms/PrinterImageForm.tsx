@@ -3,20 +3,24 @@ import FileUploadInput from "../../../../../components/forms/FileUpload";
 import ImagePreview from "../../../../../components/forms/ImagePreview";
 import DragAndDropArea from "../../../../dashboard/images/components/DragAndDropArea";
 
-const PrinterLogoForm = ({
+const PrinterImageForm = ({
   printerId,
-  logoUrl,
+  imageUrl,
+  kind,
 }: {
   printerId: string;
-  logoUrl: string | null;
+  imageUrl: string | null;
+  kind: "cover" | "banner";
 }) => {
+  const label = kind === "cover" ? "cover" : "banner";
+
   return (
     <form
-      action={`/dashboard/images/printers/${printerId}/logo`}
+      action={`/dashboard/images/printers/${printerId}/${kind}`}
       method="post"
       enctype="multipart/form-data"
       class="flex flex-col gap-3 max-w-md"
-      x-data={`storeCoverForm({initialUrl: ${JSON.stringify(logoUrl)}})`}
+      x-data={`storeCoverForm({initialUrl: ${JSON.stringify(imageUrl)}})`}
       {...{
         "x-target": "toast",
         "x-target.error": "toast",
@@ -28,10 +32,10 @@ const PrinterLogoForm = ({
       <div x-show="previewUrl" x-cloak class="w-32">
         <ImagePreview />
       </div>
-      <DragAndDropArea prompt="Drop a logo, or click to choose one." />
+      <DragAndDropArea prompt={`Drop a ${label}, or click to choose one.`} />
       <FileUploadInput
-        label="Logo"
-        name="cover"
+        label={kind === "cover" ? "Cover" : "Banner"}
+        name={kind}
         x-on:change="onFileChange"
         x-ref="fileInput"
       />
@@ -42,11 +46,11 @@ const PrinterLogoForm = ({
         width="fit"
         x-bind:disabled="isSubmitting || previewUrl === initialUrl || isCompressing"
       >
-        <span x-show="!isSubmitting">Save logo</span>
+        <span x-show="!isSubmitting">Save {label}</span>
         <span x-show="isSubmitting">Saving…</span>
       </Button>
     </form>
   );
 };
 
-export default PrinterLogoForm;
+export default PrinterImageForm;

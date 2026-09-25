@@ -1,18 +1,23 @@
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db/client";
 import {
   printQuoteRecipients,
   printQuoteRequests,
+  printerBooks,
   printerImages,
   printers,
 } from "../../../db/schema";
 import { err, ok } from "../../../lib/result";
-import { sendEmail } from "../../../lib/sendEmail";
+import { sendAdminEmail, sendEmail } from "../../../lib/sendEmail";
 import {
   personDisplayName,
   quoteRequestEmailHtml,
 } from "./emails";
-import { planQuotePrinters, unpublishedPrinterIds } from "./rules";
+import {
+  planQuotePrinters,
+  printedBookLinks,
+  unpublishedPrinterIds,
+} from "./rules";
 
 const published = eq(printers.status, "published");
 
@@ -22,7 +27,7 @@ export async function getPublishedPrinters() {
       .select()
       .from(printers)
       .where(published)
-      .orderBy(sql`${printers.sortOrder} ASC NULLS LAST`, asc(printers.name));
+      .orderBy(asc(printers.name));
     return ok(rows);
   } catch (error) {
     console.error("Failed to list printers", error);
@@ -36,10 +41,31 @@ export async function getPrinterBySlug(slug: string) {
       where: eq(printers.slug, slug),
       with: {
         images: { orderBy: [asc(printerImages.sortOrder)] },
+        printedBooks: {
+          orderBy: [asc(printerBooks.sortOrder), asc(printerBooks.createdAt)],
+          with: {
+            book: {
+              columns: {
+                id: true,
+                title: true,
+                slug: true,
+                coverUrl: true,
+                publicationStatus: true,
+                approvalStatus: true,
+                releaseDate: true,
+              },
+              with: { artist: { columns: { displayName: true } } },
+            },
+          },
+        },
       },
     });
     if (!printer) return err({ reason: "Printer not found" });
-    return ok(printer);
+    const { printedBooks, ...rest } = printer;
+    return ok({
+      ...rest,
+      printedBooks: printedBookLinks(printedBooks, { publicOnly: true }),
+    });
   } catch (error) {
     console.error("Failed to get printer", error);
     return err({ reason: "Failed to get printer", cause: error });
@@ -57,6 +83,36 @@ export type QuoteRequestInput = {
   referenceBooks?: string | null;
   message?: string | null;
 };
+
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (char) =>
+    char === "&"
+      ? "&amp;"
+      : char === "<"
+        ? "&lt;"
+        : char === ">"
+          ? "&gt;"
+          : char === '"'
+            ? "&quot;"
+            : "&#39;",
+  );
+
+export async function submitPrinterRecommendation(
+  input: { name: string; city: string; country: string; link: string },
+  user: { email: string; firstName: string | null; lastName: string | null },
+) {
+  const who =
+    [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
+  const html = `
+    <h2>Printer recommendation</h2>
+    <p>${escapeHtml(who)} (${escapeHtml(user.email)}) recommended a printer.</p>
+    <p>Name: ${escapeHtml(input.name)}</p>
+    <p>City: ${escapeHtml(input.city)}</p>
+    <p>Country: ${escapeHtml(input.country)}</p>
+    <p>Link: <a href="${escapeHtml(input.link)}">${escapeHtml(input.link)}</a></p>
+  `;
+  return sendAdminEmail(`Printer recommendation: ${input.name}`, html);
+}
 
 export async function submitQuoteRequest(
   input: QuoteRequestInput,

@@ -19,7 +19,7 @@ vi.mock("../../../lib/sendEmail", () => ({
   sendEmail: sendEmailMock,
 }));
 
-import { planQuotePrinters, unpublishedPrinterIds } from "./rules";
+import { isPublicPrintedBook, planQuotePrinters, unpublishedPrinterIds } from "./rules";
 import { submitQuoteRequest } from "./services";
 
 const user = {
@@ -65,6 +65,34 @@ describe("planQuotePrinters", () => {
 describe("unpublishedPrinterIds", () => {
   it("lists ids that are not published", () => {
     expect(unpublishedPrinterIds(["a", "b"], ["a"])).toEqual(["b"]);
+  });
+});
+
+describe("isPublicPrintedBook", () => {
+  const now = new Date("2026-01-01");
+  const book = {
+    publicationStatus: "published",
+    approvalStatus: "approved",
+    releaseDate: null as Date | null,
+  };
+
+  it("shows a published approved book", () => {
+    expect(isPublicPrintedBook(book, now)).toBe(true);
+  });
+
+  it("hides drafts, unapproved books, and future releases", () => {
+    expect(
+      isPublicPrintedBook({ ...book, publicationStatus: "draft" }, now),
+    ).toBe(false);
+    expect(
+      isPublicPrintedBook({ ...book, approvalStatus: "pending" }, now),
+    ).toBe(false);
+    expect(
+      isPublicPrintedBook(
+        { ...book, releaseDate: new Date("2026-06-01") },
+        now,
+      ),
+    ).toBe(false);
   });
 });
 

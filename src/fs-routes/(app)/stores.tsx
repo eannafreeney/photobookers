@@ -12,7 +12,7 @@ import {
 import StoresGrid from "../../features/app/stores/components/StoresGrid";
 import StoresMap from "../../features/app/stores/components/StoresMap";
 import StoresSearchForm from "../../features/app/stores/components/StoresSearchForm";
-import StoresViewSwitcher from "../../features/app/stores/components/StoresViewSwitcher";
+import GridMapViewSwitcher from "../../components/app/GridMapViewSwitcher";
 import { buildStoresViewUrl } from "../../features/app/stores/storeUrls";
 import { pageTitle, canonicalUrl } from "../../lib/seo";
 import SectionTitle from "../../components/app/SectionTitle";
@@ -59,12 +59,13 @@ export const GET = createRoute(async (c: Context) => {
 
     content = (
       <>
-        <ViewSwitcher
+        <GridMapViewSwitcher
           currentView="map"
           basePath={currentPath}
           query={query}
           city={city}
           country={country}
+          targetId="stores-content"
         />
         <StoresSearchForm
           query={query}
@@ -107,12 +108,13 @@ export const GET = createRoute(async (c: Context) => {
 
     content = (
       <>
-        <ViewSwitcher
+        <GridMapViewSwitcher
           currentView="grid"
           basePath={currentPath}
           query={query}
           city={city}
           country={country}
+          targetId="stores-content"
         />
         <StoresSearchForm
           query={query}
@@ -155,26 +157,3 @@ export const GET = createRoute(async (c: Context) => {
   );
 });
 
-type ViewSwitcherProps = {
-  currentView: "grid" | "map";
-  basePath: string;
-  query: string;
-  city: string;
-  country: string;
-};
-
-const ViewSwitcher = ({
-  currentView,
-  basePath,
-  query,
-  city,
-  country,
-}: ViewSwitcherProps) => (
-  <StoresViewSwitcher
-    currentView={currentView}
-    basePath={basePath}
-    query={query}
-    city={city}
-    country={country}
-  />
-);

@@ -23,6 +23,7 @@ import BookOfTheDayAnchor from "../../features/app/components/BookOfTheDayAnchor
 import CreatorOfTheWeekSpotlight from "../../features/app/components/CreatorOfTheWeekSpotlight";
 import SectionSkeleton from "../../features/app/components/SectionSkeleton";
 import HomepageAudiencePitch from "../../features/app/components/HomepageAudiencePitch";
+import HomepagePlaces from "../../features/app/components/HomepagePlaces";
 import DiscoveryTagChips from "../../features/app/components/DiscoveryTagChips";
 import MagazineHomepagePromo from "../../features/app/components/MagazineHomepagePromo";
 import { AuthUser } from "../../../types";
@@ -101,6 +102,9 @@ export const GET = createRoute(async (c: Context) => {
           <CreatorsOfTheWeek user={user} />
         </ScrollReveal>
         <ScrollReveal>
+          <HomepagePlaces user={user} />
+        </ScrollReveal>
+        <ScrollReveal>
           <Intersector
             id="creators-slider-fragment"
             endpoint="/fragments/creators-slider"
@@ -131,7 +135,7 @@ export const GET = createRoute(async (c: Context) => {
             <SectionSkeleton variant="grid" />
           </Intersector>
         </ScrollReveal>
-        <ScrollReveal>
+        {/* <ScrollReveal>
           <Intersector id="fairs-fragment" endpoint="/fragments/fairs">
             <SectionSkeleton variant="rows" />
           </Intersector>
@@ -140,7 +144,7 @@ export const GET = createRoute(async (c: Context) => {
           <Intersector id="stores-fragment" endpoint="/fragments/stores">
             <SectionSkeleton variant="columns" />
           </Intersector>
-        </ScrollReveal>
+        </ScrollReveal> */}
       </Page>
     </AppLayout>,
   );

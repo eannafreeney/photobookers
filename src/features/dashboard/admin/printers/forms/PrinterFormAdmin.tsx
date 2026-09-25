@@ -1,16 +1,18 @@
 import SectionTitle from "../../../../../components/app/SectionTitle";
 import FormButtons from "../../../../../components/forms/FormButtons";
 import Input from "../../../../../components/forms/Input";
-import Select from "../../../../../components/forms/Select";
 import TextArea from "../../../../../components/forms/TextArea";
 import CountrySelect from "../../../../../components/forms/CountrySelect";
+import type { PrinterStatus } from "../../../../../db/types";
+import PrinterPublishToggle from "../components/PrinterPublishToggle";
 
 type Props = {
   formValues?: Record<string, any>;
   printerId?: string;
+  status?: PrinterStatus;
 };
 
-export const PrinterFormAdmin = ({ formValues, printerId }: Props) => {
+export const PrinterFormAdmin = ({ formValues, printerId, status }: Props) => {
   const isEditPage = !!printerId;
 
   const alpineAttrs = {
@@ -25,7 +27,15 @@ export const PrinterFormAdmin = ({ formValues, printerId }: Props) => {
 
   return (
     <div class="space-y-4">
-      <SectionTitle>Printer</SectionTitle>
+      <div class="flex items-center justify-between gap-4">
+        <SectionTitle>Printer</SectionTitle>
+        {printerId ? (
+          <PrinterPublishToggle
+            printerId={printerId}
+            status={status ?? "draft"}
+          />
+        ) : null}
+      </div>
       <form
         action={
           isEditPage
@@ -66,23 +76,6 @@ export const PrinterFormAdmin = ({ formValues, printerId }: Props) => {
           />
           <div class="md:col-span-2">
             <TextArea
-              label="What they print"
-              name="form.specialties"
-              validateInput="validateField('specialties')"
-              maxLength={2000}
-            />
-          </div>
-          <div class="md:col-span-2">
-            <Input
-              label="Languages"
-              name="form.languages"
-              maxLength={255}
-              placeholder="English, Dutch"
-              validateInput="validateField('languages')"
-            />
-          </div>
-          <div class="md:col-span-2">
-            <TextArea
               label="Note"
               name="form.description"
               validateInput="validateField('description')"
@@ -107,21 +100,6 @@ export const PrinterFormAdmin = ({ formValues, printerId }: Props) => {
             Latitude and longitude place the printer on the map. The email is
             private and only used to send quote requests.
           </p>
-          <Select
-            label="Status"
-            name="form.status"
-            options={[
-              { value: "draft", label: "Draft" },
-              { value: "published", label: "Published" },
-            ]}
-            required
-          />
-          <Input
-            label="Sort Order"
-            name="form.sort_order"
-            type="number"
-            validateInput="validateField('sort_order')"
-          />
         </div>
         <FormButtons />
       </form>

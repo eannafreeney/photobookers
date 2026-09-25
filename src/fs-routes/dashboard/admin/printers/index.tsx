@@ -7,12 +7,17 @@ import SectionTitle from "../../../../components/app/SectionTitle";
 import Link from "../../../../components/app/Link";
 import Button from "../../../../components/app/Button";
 import Table from "../../../../components/app/Table";
+import FormDelete from "../../../../components/forms/FormDelete";
+import { deleteIcon } from "../../../../lib/icons";
+import { deleteRowAttrs } from "../../../../lib/utils";
 import { getFlash, getUser } from "../../../../utils";
 import {
   getPrintersAdmin,
   getRecentQuoteRequests,
 } from "../../../../features/dashboard/admin/printers/services";
 import InfoPage from "../../../../pages/InfoPage";
+import PrinterPublishToggle from "../../../../features/dashboard/admin/printers/components/PrinterPublishToggle";
+import PrinterIntroEmailToggle from "../../../../features/dashboard/admin/printers/components/PrinterIntroEmailToggle";
 
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
@@ -44,10 +49,17 @@ export const GET = createRoute(async (c: Context) => {
               <Table.Head>
                 <tr>
                   <Table.HeadRow>Name</Table.HeadRow>
-                  <Table.HeadRow>Status</Table.HeadRow>
+                  <Table.HeadRow>Publish</Table.HeadRow>
+                  <Table.HeadRow>Intro</Table.HeadRow>
                   <Table.HeadRow>Requests</Table.HeadRow>
                   <Table.HeadRow>People</Table.HeadRow>
                   <Table.HeadRow>Failed emails</Table.HeadRow>
+                  <Table.HeadRow>
+                    <span class="sr-only">Edit</span>
+                  </Table.HeadRow>
+                  <Table.HeadRow>
+                    <span class="sr-only">Delete</span>
+                  </Table.HeadRow>
                 </tr>
               </Table.Head>
               <Table.Body>
@@ -61,10 +73,42 @@ export const GET = createRoute(async (c: Context) => {
                         {printer.city}, {printer.country}
                       </div>
                     </Table.BodyRow>
-                    <Table.BodyRow>{printer.status}</Table.BodyRow>
+                    <Table.BodyRow>
+                      <PrinterPublishToggle
+                        printerId={printer.id}
+                        status={printer.status}
+                      />
+                    </Table.BodyRow>
+                    <Table.BodyRow>
+                      <PrinterIntroEmailToggle
+                        printerId={printer.id}
+                        sentAt={printer.introEmailSentAt}
+                      />
+                    </Table.BodyRow>
                     <Table.BodyRow>{printer.requests}</Table.BodyRow>
                     <Table.BodyRow>{printer.people}</Table.BodyRow>
                     <Table.BodyRow>{printer.failed}</Table.BodyRow>
+                    <Table.BodyRow>
+                      <a href={`/dashboard/admin/printers/${printer.id}`}>
+                        <Button variant="outline" color="inverse" width="fit">
+                          Edit
+                        </Button>
+                      </a>
+                    </Table.BodyRow>
+                    <Table.BodyRow>
+                      <FormDelete
+                        action={`/dashboard/admin/printers/${printer.id}`}
+                        {...deleteRowAttrs}
+                      >
+                        <button
+                          type="submit"
+                          class="cursor-pointer hover:text-red-500"
+                          aria-label={`Delete ${printer.name}`}
+                        >
+                          {deleteIcon}
+                        </button>
+                      </FormDelete>
+                    </Table.BodyRow>
                   </tr>
                 ))}
               </Table.Body>

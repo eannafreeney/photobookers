@@ -1,9 +1,13 @@
 import { formatDate } from "../../../../utils";
-import { BookSubmitter } from "../../types";
+import { isFeatureEnabledForUser } from "../../../../lib/features";
+import { AuthUser } from "../../../../../types";
+import { BookPrinterCredit, BookSubmitter } from "../../types";
 
 type CreditsProps = {
   releaseDate: Date | null;
   submittedByUser?: BookSubmitter;
+  printers?: BookPrinterCredit[];
+  user?: AuthUser | null;
 };
 
 function submitterDisplayName(user: BookSubmitter): string | null {
@@ -12,12 +16,36 @@ function submitterDisplayName(user: BookSubmitter): string | null {
   return parts.length > 0 ? parts.join(" ") : null;
 }
 
-const Credits = ({ releaseDate, submittedByUser }: CreditsProps) => {
+const Credits = ({
+  releaseDate,
+  submittedByUser,
+  printers = [],
+  user = null,
+}: CreditsProps) => {
   const submitterName = submitterDisplayName(submittedByUser ?? null);
+  const printedBy = isFeatureEnabledForUser("printers", user) ? printers : [];
 
   return (
     <div class="flex flex-col border-t-2 border-on-surface-strong">
       <span class="kicker text-accent pt-3 pb-2">Colophon</span>
+      {printedBy.length > 0 ? (
+        <div class="flex items-baseline justify-between gap-4 border-t border-outline py-2">
+          <span class="kicker text-on-surface-weak">Printed by</span>
+          <span class="text-sm text-right text-on-surface-strong">
+            {printedBy.map((printer, index) => (
+              <span>
+                {index > 0 ? ", " : null}
+                <a
+                  href={`/printers/${printer.slug}`}
+                  class="underline hover:text-accent"
+                >
+                  {printer.name}
+                </a>
+              </span>
+            ))}
+          </span>
+        </div>
+      ) : null}
       {releaseDate && (
         <div class="flex items-baseline justify-between gap-4 border-t border-outline py-2">
           <span class="kicker text-on-surface-weak">Released</span>

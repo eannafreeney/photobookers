@@ -41,7 +41,7 @@ export const GET = createRoute(async (c) => {
         Book Fairs
       </SectionHeader>
       <FairsTimeline fairs={allFairs} />
-      <div class="mt-8 flex md:hidden justify-center">
+      <div class="mt-8 flex justify-center">
         <a href="/fairs">
           <Button variant="solid" color="primary" width="xl">
             View All Fairs →

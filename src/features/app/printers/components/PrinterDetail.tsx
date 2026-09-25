@@ -1,59 +1,62 @@
+import Link from "@/components/app/Link";
 import Button, { button } from "../../../../components/app/Button";
 import type { Printer, PrinterImage } from "../../../../db/schema";
+import type { PrintedBookLink } from "../rules";
+import ExpandableDescription from "../../components/ExpandableDescription";
 
 type Props = {
-  printer: Printer & { images: PrinterImage[] };
+  printer: Printer & {
+    images: PrinterImage[];
+    printedBooks: PrintedBookLink[];
+  };
 };
 
 const PrinterDetail = ({ printer }: Props) => {
   return (
-    <div class="mx-auto flex w-full max-w-3xl flex-col gap-4">
+    <div class="mx-auto flex w-full max-w-3xl flex-col gap-10">
       <header class="flex flex-col gap-4">
-        {/* {printer.logoUrl ? (
+        {printer.bannerUrl ? (
           <img
-            src={printer.logoUrl}
-            alt=""
-            class="h-16 w-auto object-contain"
+            src={printer.bannerUrl}
+            alt={printer.name}
+            class="w-full object-cover border border-outline"
           />
-        ) : null} */}
-        <h1 class="font-display text-4xl md:text-6xl text-on-surface-strong">
-          {printer.name}
-        </h1>
-        <p class="text-on-surface">
-          {printer.city}, {printer.country}
-        </p>
-        {printer.specialties ? (
-          <p class="text-on-surface">{printer.specialties}</p>
         ) : null}
-        {printer.languages ? (
-          <p class="text-sm text-on-surface-weak">{printer.languages}</p>
-        ) : null}
-        {printer.description ? (
-          <p class="max-w-2xl text-on-surface text-pretty">
-            {printer.description}
-          </p>
-        ) : null}
-        <div class="flex flex-wrap justify-center gap-3">
-          <a
-            href={`/printers/request?printer=${printer.slug}`}
-            class={button({
-              variant: "solid",
-              color: "primary",
-              width: "auto",
-            })}
-            {...{ "x-target": "modal-root" }}
-          >
-            Ask this printer
-          </a>
-          {printer.website ? (
-            <a href={printer.website} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" color="primary" width="auto">
-                Website
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-2">
+            <h1 class="font-display text-4xl md:text-6xl text-on-surface-strong">
+              {printer.name}
+            </h1>
+            <p class="text-on-surface">
+              {printer.city}, {printer.country}
+            </p>
+          </div>
+          <div class="flex flex-wrap justify-center gap-3">
+            <Link
+              href={`/printers/request?printer=${printer.slug}`}
+              xTarget="modal-root"
+            >
+              <Button color="primary" width="fit">
+                Request a Quote
               </Button>
-            </a>
-          ) : null}
+            </Link>
+            {printer.website ? (
+              <a
+                href={printer.website}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="outline" color="primary" width="auto">
+                  Website
+                </Button>
+              </a>
+            ) : null}
+          </div>
         </div>
       </header>
+      {printer.description ? (
+        <ExpandableDescription text={printer.description} />
+      ) : null}
 
       {printer.images.length > 0 ? (
         <ul class="flex flex-col gap-4">
@@ -67,6 +70,35 @@ const PrinterDetail = ({ printer }: Props) => {
             </li>
           ))}
         </ul>
+      ) : null}
+
+      {printer.printedBooks.length > 0 ? (
+        <section class="flex flex-col gap-4">
+          <h2 class="font-display text-2xl text-on-surface-strong">
+            Printed by {printer.name}
+          </h2>
+          <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            {printer.printedBooks.map((book) => (
+              <li>
+                <Link href={`/books/${book.slug}`} className="block">
+                  {book.coverUrl ? (
+                    <img
+                      src={book.coverUrl}
+                      alt={book.title}
+                      class="aspect-3/4 w-full border border-outline object-cover"
+                    />
+                  ) : (
+                    <div class="aspect-3/4 w-full border border-outline bg-surface-alt" />
+                  )}
+                  <p class="mt-2 text-sm text-on-surface-strong">{book.title}</p>
+                  {book.artistName ? (
+                    <p class="text-xs text-on-surface">{book.artistName}</p>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       ) : null}
     </div>
   );

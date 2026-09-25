@@ -13,15 +13,11 @@ const PRINTER_FORM_FIELDS = [
   "name",
   "email",
   "description",
-  "specialties",
-  "languages",
   "city",
   "country",
   "website",
   "latitude",
   "longitude",
-  "status",
-  "sort_order",
 ];
 
 export function registerPrinterFormAdmin() {

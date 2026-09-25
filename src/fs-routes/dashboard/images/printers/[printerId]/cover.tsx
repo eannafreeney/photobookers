@@ -4,7 +4,7 @@ import { printerIdSchema } from "../../../../../features/dashboard/admin/printer
 import { routeParam } from "../../../../../lib/routeParam";
 import { showErrorAlert, showSuccessAlert } from "../../../../../lib/alertHelpers";
 import { uploadImage } from "../../../../../services/storage";
-import { updatePrinterLogo } from "../../../../../features/dashboard/admin/printers/services";
+import { updatePrinterCover } from "../../../../../features/dashboard/admin/printers/services";
 
 export const POST = createRoute(
   paramValidator(printerIdSchema),
@@ -17,15 +17,15 @@ export const POST = createRoute(
     try {
       const result = await uploadImage(
         validatedFile.file,
-        `printers/${printerId}/logo`,
+        `printers/${printerId}/cover`,
         "cover",
       );
-      const [error] = await updatePrinterLogo(printerId, result.url);
+      const [error] = await updatePrinterCover(printerId, result.url);
       if (error) return showErrorAlert(c, error.reason);
-      return showSuccessAlert(c, "Logo updated");
+      return showSuccessAlert(c, "Cover updated");
     } catch (error) {
-      console.error("Failed to upload printer logo", error);
-      return showErrorAlert(c, "Failed to upload logo");
+      console.error("Failed to upload printer cover", error);
+      return showErrorAlert(c, "Failed to upload cover");
     }
   },
 );

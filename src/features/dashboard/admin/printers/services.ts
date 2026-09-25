@@ -1,22 +1,53 @@
-import { and, asc, count, desc, eq, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  lte,
+  notInArray,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../../../db/client";
 import { slugify } from "../../../../utils";
 import {
+  books,
+  creators,
   printQuoteRecipients,
   printQuoteRequests,
+  printerBooks,
   printerImages,
   printers,
   type NewPrinter,
   type UpdatePrinter,
 } from "../../../../db/schema";
 import { err, ok } from "../../../../lib/result";
+import { sendEmail } from "../../../../lib/sendEmail";
+import { isFeatureEnabled } from "../../../../lib/features";
+import { appBaseUrl } from "../../../app/spotlightUrls";
+import { printedBookLinks } from "../../../app/printers/rules";
+import { printerIntroEmailHtml, printerIntroEmailSubject } from "./emails";
+
+const printedBookColumns = {
+  id: true,
+  title: true,
+  slug: true,
+  coverUrl: true,
+  publicationStatus: true,
+  approvalStatus: true,
+  releaseDate: true,
+} as const;
 
 export async function getPrintersAdmin() {
   try {
     const rows = await db
       .select()
       .from(printers)
-      .orderBy(sql`${printers.sortOrder} ASC NULLS LAST`, asc(printers.name));
+      .orderBy(asc(printers.name));
 
     const recipientStats = await db
       .select({
@@ -77,10 +108,25 @@ export async function getPrinterByIdAdmin(printerId: string) {
   try {
     const printer = await db.query.printers.findFirst({
       where: eq(printers.id, printerId),
-      with: { images: { orderBy: [asc(printerImages.sortOrder)] } },
+      with: {
+        images: { orderBy: [asc(printerImages.sortOrder)] },
+        printedBooks: {
+          orderBy: [asc(printerBooks.sortOrder), asc(printerBooks.createdAt)],
+          with: {
+            book: {
+              columns: printedBookColumns,
+              with: { artist: { columns: { displayName: true } } },
+            },
+          },
+        },
+      },
     });
     if (!printer) return err({ reason: "Printer not found" });
-    return ok(printer);
+    const { printedBooks, ...rest } = printer;
+    return ok({
+      ...rest,
+      printedBooks: printedBookLinks(printedBooks),
+    });
   } catch (error) {
     console.error("Failed to get printer", error);
     return err({ reason: "Failed to get printer", cause: error });
@@ -118,6 +164,20 @@ export async function createPrinterAdmin(
   }
 }
 
+export async function deletePrinterAdmin(printerId: string) {
+  try {
+    const [printer] = await db
+      .delete(printers)
+      .where(eq(printers.id, printerId))
+      .returning();
+    if (!printer) return err({ reason: "Printer not found" });
+    return ok(printer);
+  } catch (error) {
+    console.error("Failed to delete printer", error);
+    return err({ reason: "Failed to delete printer", cause: error });
+  }
+}
+
 export async function updatePrinterAdmin(
   printerId: string,
   updates: UpdatePrinter,
@@ -136,19 +196,12 @@ export async function updatePrinterAdmin(
   }
 }
 
-export async function updatePrinterLogo(printerId: string, logoUrl: string) {
-  try {
-    const [printer] = await db
-      .update(printers)
-      .set({ logoUrl })
-      .where(eq(printers.id, printerId))
-      .returning();
-    if (!printer) return err({ reason: "Printer not found" });
-    return ok(printer);
-  } catch (error) {
-    console.error("Failed to update printer logo", error);
-    return err({ reason: "Failed to update printer logo", cause: error });
-  }
+export function updatePrinterCover(printerId: string, coverUrl: string) {
+  return updatePrinterAdmin(printerId, { coverUrl });
+}
+
+export function updatePrinterBanner(printerId: string, bannerUrl: string) {
+  return updatePrinterAdmin(printerId, { bannerUrl });
 }
 
 export async function addPrinterImages(
@@ -176,6 +229,166 @@ export async function addPrinterImages(
   } catch (error) {
     console.error("Failed to save printer images", error);
     return err({ reason: "Failed to save printer images", cause: error });
+  }
+}
+
+export async function sendPrinterIntroEmail(printerId: string) {
+  try {
+    const printer = await db.query.printers.findFirst({
+      where: eq(printers.id, printerId),
+    });
+    if (!printer) return err({ reason: "Printer not found" });
+    if (printer.introEmailSentAt) {
+      return err({ reason: "Intro email already sent" });
+    }
+
+    const profileUrl = `${appBaseUrl()}/printers/${printer.slug}`;
+    const [emailError] = await sendEmail(
+      printer.email,
+      printerIntroEmailSubject(),
+      printerIntroEmailHtml({
+        name: printer.name,
+        profileUrl,
+        profileIsPublic: isFeatureEnabled("printers"),
+      }),
+    );
+    if (emailError) return err(emailError);
+
+    const [updated] = await db
+      .update(printers)
+      .set({ introEmailSentAt: new Date() })
+      .where(and(eq(printers.id, printerId), isNull(printers.introEmailSentAt)))
+      .returning();
+    if (!updated) return err({ reason: "Intro email already sent" });
+    return ok(updated);
+  } catch (error) {
+    console.error("Failed to send printer intro email", error);
+    return err({ reason: "Failed to send printer intro email", cause: error });
+  }
+}
+
+async function listPrinterBooks(printerId: string) {
+  const rows = await db.query.printerBooks.findMany({
+    where: eq(printerBooks.printerId, printerId),
+    orderBy: [asc(printerBooks.sortOrder), asc(printerBooks.createdAt)],
+    with: {
+      book: {
+        columns: printedBookColumns,
+        with: { artist: { columns: { displayName: true } } },
+      },
+    },
+  });
+  return printedBookLinks(rows);
+}
+
+export async function searchBooksForPrinter(printerId: string, query: string) {
+  const q = query.trim();
+  if (q.length < 2) return ok([]);
+
+  try {
+    const existing = await db.query.printerBooks.findMany({
+      where: eq(printerBooks.printerId, printerId),
+      columns: { bookId: true },
+    });
+    const existingIds = existing.map((row) => row.bookId);
+
+    const creatorRows = await db
+      .select({ id: creators.id })
+      .from(creators)
+      .where(ilike(creators.displayName, `%${q}%`));
+    const creatorIds = creatorRows.map((row) => row.id);
+    const match =
+      creatorIds.length > 0
+        ? or(
+            ilike(books.title, `%${q}%`),
+            inArray(books.artistId, creatorIds),
+            inArray(books.publisherId, creatorIds),
+          )
+        : ilike(books.title, `%${q}%`);
+
+    const rows = await db.query.books.findMany({
+      where: and(
+        eq(books.publicationStatus, "published"),
+        eq(books.approvalStatus, "approved"),
+        or(isNull(books.releaseDate), lte(books.releaseDate, new Date())),
+        match,
+        existingIds.length > 0 ? notInArray(books.id, existingIds) : undefined,
+      ),
+      orderBy: (table, { asc: orderAsc }) => [orderAsc(table.title)],
+      limit: 12,
+      columns: { id: true, title: true, slug: true, coverUrl: true },
+      with: { artist: { columns: { displayName: true } } },
+    });
+
+    return ok(
+      rows.map((book) => ({
+        id: book.id,
+        title: book.title,
+        slug: book.slug,
+        coverUrl: book.coverUrl,
+        artistName: book.artist?.displayName ?? null,
+      })),
+    );
+  } catch (error) {
+    console.error("Failed to search books for printer", error);
+    return err({ reason: "Failed to search books", cause: error });
+  }
+}
+
+export async function addPrinterBook(printerId: string, bookId: string) {
+  try {
+    const existing = await db.query.printerBooks.findFirst({
+      where: and(
+        eq(printerBooks.printerId, printerId),
+        eq(printerBooks.bookId, bookId),
+      ),
+      columns: { id: true },
+    });
+    if (existing) return ok(await listPrinterBooks(printerId));
+
+    const book = await db.query.books.findFirst({
+      where: and(
+        eq(books.id, bookId),
+        eq(books.publicationStatus, "published"),
+        eq(books.approvalStatus, "approved"),
+      ),
+      columns: { id: true },
+    });
+    if (!book) return err({ reason: "Book not found" });
+
+    const [position] = await db
+      .select({
+        value: sql<number>`coalesce(max(${printerBooks.sortOrder}), -1)`,
+      })
+      .from(printerBooks)
+      .where(eq(printerBooks.printerId, printerId));
+
+    await db.insert(printerBooks).values({
+      printerId,
+      bookId,
+      sortOrder: Number(position?.value ?? -1) + 1,
+    });
+    return ok(await listPrinterBooks(printerId));
+  } catch (error) {
+    console.error("Failed to add printer book", error);
+    return err({ reason: "Failed to add book", cause: error });
+  }
+}
+
+export async function removePrinterBook(printerId: string, bookId: string) {
+  try {
+    await db
+      .delete(printerBooks)
+      .where(
+        and(
+          eq(printerBooks.printerId, printerId),
+          eq(printerBooks.bookId, bookId),
+        ),
+      );
+    return ok(await listPrinterBooks(printerId));
+  } catch (error) {
+    console.error("Failed to remove printer book", error);
+    return err({ reason: "Failed to remove book", cause: error });
   }
 }
 

@@ -60,6 +60,7 @@ type CachedBook = Omit<InferSelectModel<typeof books>, "images"> & {
   publisher: Creator | null;
   artist: Creator | null;
   images: { imageUrl: string }[];
+  printedBy: { name: string; slug: string }[];
 };
 
 const bookCache = new LRUCache<
@@ -477,6 +478,11 @@ export const getBookBySlug = async (
         images: {
           orderBy: (bookImages, { asc }) => [asc(bookImages.sortOrder)],
         },
+        printerBooks: {
+          with: {
+            printer: { columns: { name: true, slug: true, status: true } },
+          },
+        },
       },
     });
 
@@ -497,11 +503,20 @@ export const getBookBySlug = async (
               )
         : [];
 
+    const { printerBooks, ...bookFields } = book;
+    const printedBy = printerBooks
+      .flatMap((row) =>
+        row.printer?.status === "published" ? [row.printer] : [],
+      )
+      .map((printer) => ({ name: printer.name, slug: printer.slug }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
     const result = ok({
       book: {
-        ...book,
+        ...bookFields,
         coverUrl: resolveMaybeImageUrl(book.coverUrl),
         images: galleryImages,
+        printedBy,
       },
     });
 
