@@ -71,7 +71,7 @@ const PrintersFilters = ({
         <div class="flex items-end gap-2">
           <button
             type="submit"
-            class="px-6 py-2 text-sm font-medium rounded bg-accent text-on-accent hover:bg-accent/90 transition-colors"
+            class="cursor-pointer px-6 py-2 text-sm font-medium rounded bg-accent text-on-accent hover:bg-accent/90 transition-colors"
           >
             Search
           </button>
