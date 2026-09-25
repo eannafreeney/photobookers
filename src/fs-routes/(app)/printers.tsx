@@ -80,7 +80,7 @@ export const GET = createRoute(async (c: Context) => {
           title="Printers"
           intro="A short list of printers recommended by the community. Ask up to three for a quote. They reply to you directly."
         />
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col md:flex-row items-center justify-between">
           <GridMapViewSwitcher
             currentView={view}
             basePath={currentPath}

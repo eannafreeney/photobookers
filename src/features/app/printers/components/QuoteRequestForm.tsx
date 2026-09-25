@@ -15,7 +15,6 @@ const QuoteRequestForm = ({
   printers,
   preselectedSlug,
   modal = false,
-  allowTest = false,
 }: Props) => {
   const options = printers.map((printer) => ({
     id: printer.id,
@@ -94,17 +93,6 @@ const QuoteRequestForm = ({
             <Button variant="solid" color="primary" width="fit">
               Send Request
             </Button>
-            {allowTest ? (
-              <Button
-                variant="outline"
-                color="primary"
-                width="fit"
-                name="intent"
-                value="test"
-              >
-                Send test to me
-              </Button>
-            ) : null}
           </div>
         </div>
         <div class="flex flex-col gap-3 md:min-h-0">
