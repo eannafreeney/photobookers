@@ -149,32 +149,29 @@ export const POST = createRoute(
   },
 );
 
-export const PATCH = createRoute(
-  paramValidator(printerIdSchema),
-  async (c) => {
-    const printerId = c.req.valid("param").printerId;
-    const form = await c.req.parseBody();
-    const intent = form.intent;
+export const PATCH = createRoute(paramValidator(printerIdSchema), async (c) => {
+  const printerId = c.req.valid("param").printerId;
+  const form = await c.req.parseBody();
+  const intent = form.intent;
 
-    if (intent !== "publish" && intent !== "unpublish") {
-      return showErrorAlert(c, "Invalid intent");
-    }
+  if (intent !== "publish" && intent !== "unpublish") {
+    return showErrorAlert(c, "Invalid intent");
+  }
 
-    const status = intent === "publish" ? "published" : "draft";
-    const [error, printer] = await updatePrinterAdmin(printerId, { status });
-    if (error) return showErrorAlert(c, error.reason);
+  const status = intent === "publish" ? "published" : "draft";
+  const [error, printer] = await updatePrinterAdmin(printerId, { status });
+  if (error) return showErrorAlert(c, error.reason);
 
-    return c.html(
-      <>
-        <Alert
-          type={status === "published" ? "success" : "warning"}
-          message={`${printer.name} ${status === "published" ? "published" : "unpublished"}`}
-        />
-        <PrinterPublishToggle printerId={printer.id} status={printer.status} />
-      </>,
-    );
-  },
-);
+  return c.html(
+    <>
+      <Alert
+        type={status === "published" ? "success" : "warning"}
+        message={`${printer.name} ${status === "published" ? "published" : "unpublished"}`}
+      />
+      <PrinterPublishToggle printerId={printer.id} status={printer.status} />
+    </>,
+  );
+});
 
 export const DELETE = createRoute(
   paramValidator(printerIdSchema),

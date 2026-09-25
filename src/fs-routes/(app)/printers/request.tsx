@@ -7,7 +7,11 @@ import InfoPage from "../../../pages/InfoPage";
 import { getFlash, getUser, setFlash } from "../../../utils";
 import { canonicalUrl, pageTitle } from "../../../lib/seo";
 import { isFeatureEnabledForUser } from "../../../lib/features";
-import { getPublishedPrinters, submitQuoteRequest } from "../../../features/app/printers/services";
+import {
+  getPublishedPrinters,
+  sendMockQuoteRequest,
+  submitQuoteRequest,
+} from "../../../features/app/printers/services";
 import { quoteRequestSchema } from "../../../features/app/printers/schema";
 import QuoteRequestForm from "../../../features/app/printers/components/QuoteRequestForm";
 import MemberSignInPrompt, {
@@ -39,11 +43,12 @@ export const GET = createRoute(async (c: Context) => {
   if (isModalRequest(c)) {
     return c.html(
       <Modal title="Ask for a quote" maxWidth="max-w-6xl">
-        <div class="max-h-[75vh]">
+        <div class="max-h-[calc(100dvh-10rem)] overflow-y-auto overscroll-contain">
           {user ? (
             <QuoteRequestForm
               printers={printers}
               preselectedSlug={preselectedSlug}
+              allowTest={Boolean(user?.isAdmin)}
               modal
             />
           ) : (
@@ -76,6 +81,7 @@ export const GET = createRoute(async (c: Context) => {
           <QuoteRequestForm
             printers={printers}
             preselectedSlug={preselectedSlug}
+            allowTest={Boolean(user?.isAdmin)}
           />
         ) : (
           <MemberSignInPrompt
@@ -102,12 +108,22 @@ export const POST = createRoute(async (c: Context) => {
     return showErrorAlert(c, parsed.error.issues[0]?.message ?? "Check the form");
   }
 
-  const [error, result] = await submitQuoteRequest(parsed.data, user);
+  const test = body.intent === "test";
+  if (test && !user.isAdmin) {
+    return showErrorAlert(c, "Not allowed", 403);
+  }
+
+  const [error, result] = test
+    ? await sendMockQuoteRequest(parsed.data, user)
+    : await submitQuoteRequest(parsed.data, user);
   if (error) return showErrorAlert(c, error.reason);
 
   const names = result.printerNames.join(", ");
-  const message =
-    result.failed > 0
+  const message = test
+    ? result.failed > 0
+      ? `The test email for ${names} did not send.`
+      : `Sent a test of the ${names} email to ${user.email}. The printer was not emailed.`
+    : result.failed > 0
       ? `Saved your brief for ${names}, but ${result.failed} email${result.failed === 1 ? "" : "s"} did not send.`
       : `Sent your brief to ${names}. They will reply to you directly.`;
 

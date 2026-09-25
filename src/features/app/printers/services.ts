@@ -74,14 +74,10 @@ export async function getPrinterBySlug(slug: string) {
 
 export type QuoteRequestInput = {
   printerIds: string[];
-  copies: number;
-  pageCount: number;
-  trimSize: string;
-  binding: string;
-  deadline: string;
+  projectName: string;
+  details: string;
   shipToCountry: string;
-  referenceBooks?: string | null;
-  message?: string | null;
+  note?: string | null;
 };
 
 const escapeHtml = (value: string) =>
@@ -148,14 +144,10 @@ export async function submitQuoteRequest(
       .insert(printQuoteRequests)
       .values({
         userId: user.id,
-        copies: input.copies,
-        pageCount: input.pageCount,
-        trimSize: input.trimSize,
-        binding: input.binding,
-        deadline: input.deadline,
+        projectName: input.projectName,
+        details: input.details,
         shipToCountry: input.shipToCountry,
-        referenceBooks: input.referenceBooks || null,
-        message: input.message || null,
+        note: input.note || null,
       })
       .returning();
 
@@ -178,14 +170,10 @@ export async function submitQuoteRequest(
           printerName: printer.name,
           personName,
           personEmail: user.email,
-          copies: input.copies,
-          pageCount: input.pageCount,
-          trimSize: input.trimSize,
-          binding: input.binding,
-          deadline: input.deadline,
+          projectName: input.projectName,
+          details: input.details,
           shipToCountry: input.shipToCountry,
-          referenceBooks: input.referenceBooks,
-          message: input.message,
+          note: input.note,
         }),
       );
       await db
@@ -211,5 +199,64 @@ export async function submitQuoteRequest(
   } catch (error) {
     console.error("Failed to submit quote request", error);
     return err({ reason: "Failed to submit quote request", cause: error });
+  }
+}
+
+/** Same email as a real quote, delivered to the signed-in admin. Nothing is saved. */
+export async function sendMockQuoteRequest(
+  input: QuoteRequestInput,
+  user: {
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+  },
+) {
+  const [planError, printerIds] = planQuotePrinters(input.printerIds);
+  if (planError) return err(planError);
+
+  try {
+    const matches = await db
+      .select({
+        id: printers.id,
+        name: printers.name,
+        email: printers.email,
+      })
+      .from(printers)
+      .where(and(published, inArray(printers.id, printerIds)));
+
+    const missing = unpublishedPrinterIds(
+      printerIds,
+      matches.map((printer) => printer.id),
+    );
+    if (missing.length > 0) {
+      return err({ reason: "Choose published printers" });
+    }
+
+    const personName = personDisplayName(user);
+    let failed = 0;
+    for (const printer of matches) {
+      const [emailError] = await sendEmail(
+        user.email,
+        `[Test] Print quote request from ${personName}`,
+        `<p><strong>Test.</strong> ${escapeHtml(printer.name)} would have received this at ${escapeHtml(printer.email)}. Nothing was saved.</p>${quoteRequestEmailHtml({
+          printerName: printer.name,
+          personName,
+          personEmail: user.email,
+          projectName: input.projectName,
+          details: input.details,
+          shipToCountry: input.shipToCountry,
+          note: input.note,
+        })}`,
+      );
+      if (emailError) failed += 1;
+    }
+
+    return ok({
+      printerNames: matches.map((printer) => printer.name),
+      failed,
+    });
+  } catch (error) {
+    console.error("Failed to send mock quote request", error);
+    return err({ reason: "Failed to send mock quote request", cause: error });
   }
 }

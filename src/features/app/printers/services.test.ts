@@ -20,7 +20,7 @@ vi.mock("../../../lib/sendEmail", () => ({
 }));
 
 import { isPublicPrintedBook, planQuotePrinters, unpublishedPrinterIds } from "./rules";
-import { submitQuoteRequest } from "./services";
+import { sendMockQuoteRequest, submitQuoteRequest } from "./services";
 
 const user = {
   id: "user-1",
@@ -30,14 +30,10 @@ const user = {
 };
 
 const brief = {
-  copies: 500,
-  pageCount: 80,
-  trimSize: "20 × 25 cm",
-  binding: "hardcover",
-  deadline: "March",
+  projectName: "Spring monograph",
+  details: "500 copies, 80 pages, hardcover, March",
   shipToCountry: "France",
-  referenceBooks: "A book I love",
-  message: null,
+  note: null,
 };
 
 function mockSelect(rows: unknown[]) {
@@ -147,5 +143,31 @@ describe("submitQuoteRequest", () => {
       { requestId: "req-1", printerId: "p1" },
       { requestId: "req-1", printerId: "p2" },
     ]);
+  });
+});
+
+describe("sendMockQuoteRequest", () => {
+  beforeEach(() => {
+    selectMock.mockReset();
+    insertMock.mockReset();
+    sendEmailMock.mockReset();
+    sendEmailMock.mockResolvedValue([null, undefined]);
+  });
+
+  it("emails the admin the quote the printer would get, and saves nothing", async () => {
+    mockSelect([{ id: "p1", name: "Alpha", email: "a@print.test" }]);
+
+    const [error] = await sendMockQuoteRequest(
+      { ...brief, printerIds: ["p1"] },
+      user,
+    );
+
+    expect(error).toBeNull();
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(sendEmailMock).toHaveBeenCalledWith(
+      "ada@example.com",
+      "[Test] Print quote request from Ada Lovelace",
+      expect.stringContaining("a@print.test"),
+    );
   });
 });

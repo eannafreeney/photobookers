@@ -4,15 +4,19 @@ import type { Printer } from "../../../../db/schema";
 const fieldClass =
   "w-full border border-outline bg-surface px-3 py-2 text-sm text-on-surface";
 
+type Props = {
+  printers: Printer[];
+  preselectedSlug?: string;
+  modal?: boolean;
+  allowTest?: boolean;
+};
+
 const QuoteRequestForm = ({
   printers,
   preselectedSlug,
   modal = false,
-}: {
-  printers: Printer[];
-  preselectedSlug?: string;
-  modal?: boolean;
-}) => {
+  allowTest = false,
+}: Props) => {
   const options = printers.map((printer) => ({
     id: printer.id,
     name: printer.name,
@@ -33,103 +37,101 @@ const QuoteRequestForm = ({
         : {})}
     >
       {modal ? <input type="hidden" name="modal" value="1" /> : null}
-      <template x-for="id in selectedIds" x-bind:key="id">
-        <input type="hidden" name="printerIds" x-bind:value="id" />
-      </template>
-      <div class="grid items-start gap-6 md:grid-cols-2 md:h-[70vh]">
-        <div class="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-2">
+      <div class="grid items-start gap-6 md:h-[70vh] md:grid-cols-2 md:items-stretch">
+        <div class="flex flex-col gap-4 md:overflow-y-auto md:pr-2">
           <label class="flex flex-col gap-1 text-sm">
-            Copies
-            <input class={fieldClass} name="copies" type="number" min="1" required />
+            Project name
+            <input
+              class={fieldClass}
+              name="projectName"
+              required
+              maxlength={200}
+            />
           </label>
           <label class="flex flex-col gap-1 text-sm">
-            Pages
-            <input class={fieldClass} name="pageCount" type="number" min="1" required />
+            Details
+            <textarea
+              class={fieldClass}
+              name="details"
+              rows={4}
+              required
+              maxlength={4000}
+              placeholder="Copies, pages, size, binding, deadline…"
+            />
           </label>
           <label class="flex flex-col gap-1 text-sm">
-            Trim size
-            <input class={fieldClass} name="trimSize" required placeholder="20 × 25 cm" />
+            Ships to
+            <input
+              class={fieldClass}
+              name="shipToCountry"
+              required
+              maxlength={120}
+            />
           </label>
           <label class="flex flex-col gap-1 text-sm">
-            Binding
-            <input class={fieldClass} name="binding" required placeholder="Hardcover, Swiss bind…" />
+            Note
+            <textarea
+              class={fieldClass}
+              name="note"
+              rows={2}
+              maxlength={2000}
+            />
           </label>
-          <label class="flex flex-col gap-1 text-sm">
-            Deadline
-            <input class={fieldClass} name="deadline" required placeholder="March 2027" />
-          </label>
-          <label class="flex flex-col gap-1 text-sm">
-            Ship to
-            <input class={fieldClass} name="shipToCountry" required />
-          </label>
-          <label class="flex flex-col gap-1 text-sm">
-            Books it should feel like
-            <textarea class={fieldClass} name="referenceBooks" rows={3} />
-          </label>
-          <label class="flex flex-col gap-1 text-sm">
-            Anything else
-            <textarea class={fieldClass} name="message" rows={3} />
-          </label>
-          <Button variant="solid" color="primary" width="fit">
-            Send brief
-          </Button>
-        </div>
-        <div class="flex flex-col gap-3">
-          <div class="relative" {...{ "x-on:click.outside": "countryOpen = false" }}>
-            <p class="text-sm font-medium text-on-surface-strong">Country</p>
-            <button
-              type="button"
-              class="mt-1 flex w-full items-center justify-between border border-outline bg-surface px-3 py-2 text-left text-sm"
-              x-on:click="countryOpen = !countryOpen"
-            >
-              <span x-text="countryLabel()"></span>
-              <span aria-hidden="true">▾</span>
-            </button>
-            <div
-              x-show="countryOpen"
-              x-cloak
-              class="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto border border-outline bg-surface p-2 shadow"
-            >
-              <template x-for="country in countries" x-bind:key="country">
-                <label class="flex items-center gap-2 px-1 py-1 text-sm">
-                  <input
-                    type="checkbox"
-                    {...{
-                      "x-bind:checked": "selectedCountries.includes(country)",
-                      "x-on:click.prevent": "toggleCountry(country)",
-                    }}
-                  />
-                  <span x-text="country"></span>
-                </label>
+          <div class="flex flex-col gap-1 text-sm">
+            <p class="text-on-surface-weak">
+              Send to <span x-text="selectedIds.length"></span> of 3
+            </p>
+            <ul class="flex flex-col gap-1">
+              <template
+                x-for="printer in selectedPrinters()"
+                x-bind:key="printer.id"
+              >
+                <li class="text-on-surface-strong" x-text="printer.name"></li>
               </template>
-            </div>
+            </ul>
           </div>
+          <div class="flex flex-wrap gap-2">
+            <Button variant="solid" color="primary" width="fit">
+              Send Request
+            </Button>
+            {allowTest ? (
+              <Button
+                variant="outline"
+                color="primary"
+                width="fit"
+                name="intent"
+                value="test"
+              >
+                Send test to me
+              </Button>
+            ) : null}
+          </div>
+        </div>
+        <div class="flex flex-col gap-3 md:min-h-0">
           <p class="text-sm text-on-surface-weak">
             <span x-text="selectedIds.length"></span> of 3 selected
           </p>
-          <div class="flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
-            <template x-for="printer in printers" x-bind:key="printer.id">
-              <label
-                class="flex items-start gap-2 text-sm"
-                x-show="visible(printer)"
-              >
+          <div class="flex flex-col gap-2 md:min-h-0 md:flex-1 md:overflow-y-auto">
+            {options.map((printer) => (
+              <label class="flex cursor-pointer items-start gap-2 text-sm">
                 <input
                   type="checkbox"
-                  class="mt-1"
+                  class="mt-1 cursor-pointer"
+                  name="printerIds"
+                  value={printer.id}
+                  x-model="selectedIds"
                   {...{
-                    "x-bind:checked": "isSelected(printer.id)",
-                    "x-on:click.prevent": "togglePrinter(printer.id)",
+                    "x-bind:disabled": `selectedIds.length >= 3 && !selectedIds.includes(${JSON.stringify(printer.id)})`,
                   }}
                 />
                 <span>
-                  <span class="text-on-surface-strong" x-text="printer.name"></span>
-                  <span
-                    class="block text-on-surface-weak"
-                    {...{ "x-text": "printer.city + ', ' + printer.country" }}
-                  ></span>
+                  <span class="text-on-surface-strong">{printer.name}</span>
+                  <span class="block text-on-surface-weak">
+                    {printer.city}, {printer.country}
+                  </span>
                 </span>
               </label>
-            </template>
+            ))}
           </div>
         </div>
       </div>

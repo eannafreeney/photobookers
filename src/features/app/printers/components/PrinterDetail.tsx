@@ -13,7 +13,7 @@ type Props = {
 
 const PrinterDetail = ({ printer }: Props) => {
   return (
-    <div class="mx-auto flex w-full max-w-3xl flex-col gap-10">
+    <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <header class="flex flex-col gap-4">
         {printer.bannerUrl ? (
           <img
@@ -22,7 +22,7 @@ const PrinterDetail = ({ printer }: Props) => {
             class="w-full object-cover border border-outline"
           />
         ) : null}
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
           <div class="flex flex-col gap-2">
             <h1 class="font-display text-4xl md:text-6xl text-on-surface-strong">
               {printer.name}
@@ -58,20 +58,6 @@ const PrinterDetail = ({ printer }: Props) => {
         <ExpandableDescription text={printer.description} />
       ) : null}
 
-      {printer.images.length > 0 ? (
-        <ul class="flex flex-col gap-4">
-          {printer.images.map((image) => (
-            <li>
-              <img
-                src={image.imageUrl}
-                alt=""
-                class="w-full object-cover border border-outline"
-              />
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
       {printer.printedBooks.length > 0 ? (
         <section class="flex flex-col gap-4">
           <h2 class="font-display text-2xl text-on-surface-strong">
@@ -90,11 +76,30 @@ const PrinterDetail = ({ printer }: Props) => {
                   ) : (
                     <div class="aspect-3/4 w-full border border-outline bg-surface-alt" />
                   )}
-                  <p class="mt-2 text-sm text-on-surface-strong">{book.title}</p>
+                  <p class="mt-2 text-sm text-on-surface-strong">
+                    {book.title}
+                  </p>
                   {book.artistName ? (
                     <p class="text-xs text-on-surface">{book.artistName}</p>
                   ) : null}
                 </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {printer.images.length > 0 ? (
+        <section class="flex flex-col gap-4">
+          <h2 class="font-display text-2xl text-on-surface-strong">Gallery</h2>
+          <ul class="flex flex-col gap-4">
+            {printer.images.map((image) => (
+              <li>
+                <img
+                  src={image.imageUrl}
+                  alt=""
+                  class="w-full object-cover border border-outline"
+                />
               </li>
             ))}
           </ul>

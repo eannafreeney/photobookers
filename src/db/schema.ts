@@ -935,14 +935,10 @@ export const printQuoteRequests = pgTable("print_quote_requests", {
   userId: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  copies: integer("copies").notNull(),
-  pageCount: integer("page_count").notNull(),
-  trimSize: text("trim_size").notNull(),
-  binding: text("binding").notNull(),
-  deadline: text("deadline").notNull(),
+  projectName: text("project_name").notNull(),
+  details: text("details").notNull(),
   shipToCountry: text("ship_to_country").notNull(),
-  referenceBooks: text("reference_books"),
-  message: text("message"),
+  note: text("note"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

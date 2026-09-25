@@ -10,14 +10,10 @@ export type QuoteEmailInput = {
   printerName: string;
   personName: string;
   personEmail: string;
-  copies: number;
-  pageCount: number;
-  trimSize: string;
-  binding: string;
-  deadline: string;
+  projectName: string;
+  details: string;
   shipToCountry: string;
-  referenceBooks?: string | null;
-  message?: string | null;
+  note?: string | null;
 };
 
 export function quoteRequestEmailHtml(input: QuoteEmailInput) {
@@ -27,16 +23,10 @@ export function quoteRequestEmailHtml(input: QuoteEmailInput) {
   return [
     `<p>${escapeHtml(input.personName)} asked for a print quote on Photobookers.</p>`,
     row("Reply to", `${input.personName} <${input.personEmail}>`),
-    row("Copies", String(input.copies)),
-    row("Pages", String(input.pageCount)),
-    row("Trim size", input.trimSize),
-    row("Binding", input.binding),
-    row("Deadline", input.deadline),
-    row("Ship to", input.shipToCountry),
-    input.referenceBooks
-      ? row("Books it should feel like", input.referenceBooks)
-      : "",
-    input.message ? row("Note", input.message) : "",
+    row("Project name", input.projectName),
+    row("Details", input.details),
+    row("Ships to", input.shipToCountry),
+    input.note ? row("Note", input.note) : "",
     `<p>Reply directly to ${escapeHtml(input.personEmail)}. Photobookers is not part of the invoice.</p>`,
   ].join("");
 }

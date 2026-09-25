@@ -76,7 +76,7 @@ type AdminEditButtonProps = {
 };
 
 const AdminEditButton = ({ href, user }: AdminEditButtonProps) => {
-  if (!user?.isAdmin || !href) return <> </>;
+  if (!user?.isAdmin || !href) return <></>;
   return (
     <a href={href}>
       <Button variant="outline" color="secondary" width="sm">

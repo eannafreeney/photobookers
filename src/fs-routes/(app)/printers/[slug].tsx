@@ -47,6 +47,7 @@ export const GET = createRoute(
         user={user}
         currentPath={c.req.path}
         flash={flash}
+        adminEditHref={`/dashboard/admin/printers/${printer.id}`}
       >
         <Page>
           <PrinterDetail printer={printer} />
