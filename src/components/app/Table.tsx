@@ -27,10 +27,13 @@ const TableHead = ({ children }: TableHeadProps) => (
 
 type TableHeadRowProps = {
   children: ChildType;
+  "aria-sort"?: "ascending" | "descending" | "none";
 };
 
-export const TableHeadRow = ({ children }: TableHeadRowProps) => (
-  <th class="p-4 kicker">{children}</th>
+export const TableHeadRow = ({ children, ...props }: TableHeadRowProps) => (
+  <th class="p-4 kicker" {...props}>
+    {children}
+  </th>
 );
 
 type TableBodyProps = {

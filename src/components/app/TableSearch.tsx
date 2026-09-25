@@ -6,6 +6,7 @@ type Props = {
   action: string;
   placeholder: string;
   isMobile?: boolean;
+  hidden?: Record<string, string | undefined>;
 };
 
 const TableSearch = ({
@@ -13,6 +14,7 @@ const TableSearch = ({
   action,
   placeholder,
   isMobile = false,
+  hidden,
 }: Props) => {
   const alpineAttrs = {
     "x-on:input.debounce": "$el.form.requestSubmit()",
@@ -21,6 +23,9 @@ const TableSearch = ({
 
   return (
     <form method="get" x-target={target} action={action} autocomplete="off">
+      {Object.entries(hidden ?? {}).map(([name, value]) =>
+        value ? <input type="hidden" name={name} value={value} /> : null,
+      )}
       <label
         class={clsx(
           "bg-surface rounded-radius border-2 border-outline-strong text-on-surface-strong -mb-1 flex items-center justify-between gap-2 px-3 font-semibold focus-within:outline focus-within:outline-offset-2 focus-within:outline-accent",

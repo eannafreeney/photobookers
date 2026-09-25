@@ -11,6 +11,13 @@ import { getIsMobile } from "../../../../lib/device";
 export const GET = createRoute(async (c: Context) => {
   const user = await getUser(c);
   const searchQuery = c.req.query("search");
+  const rawStatus = c.req.query("status");
+  const status =
+    rawStatus === "approved" ||
+    rawStatus === "pending" ||
+    rawStatus === "rejected"
+      ? rawStatus
+      : undefined;
   const flash = await getFlash(c);
   const currentPage = Number(c.req.query("page") ?? 1);
   const currentPath = c.req.path;
@@ -31,6 +38,9 @@ export const GET = createRoute(async (c: Context) => {
             currentPath={booksPaginationBaseUrl}
             currentPage={currentPage}
             searchQuery={searchQuery}
+            status={status}
+            sort={c.req.query("sort")}
+            dir={c.req.query("dir")}
             isMobile={isMobile}
           />
         </Sidebar>

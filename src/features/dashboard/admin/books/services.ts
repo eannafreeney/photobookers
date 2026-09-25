@@ -1,6 +1,19 @@
-import { and, count, eq, ilike, inArray, or } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "../../../../db/client";
-import { books, creators } from "../../../../db/schema";
+import { bookViews, books, creators, purchaseClicks, wishlists } from "../../../../db/schema";
+import type { AdminBookSort } from "./sort";
 import { getPagination } from "../../../../lib/pagination";
 import { err, ok } from "../../../../lib/result";
 import { invalidateBookCache } from "../../../app/services";
@@ -37,10 +50,112 @@ export const deleteBookByIdAdmin = async (bookId: string) => {
   }
 };
 
+const adminBookWith = {
+  bookOfTheDay: true,
+  artist: {
+    columns: {
+      id: true,
+      displayName: true,
+      slug: true,
+    },
+  },
+  publisher: {
+    columns: {
+      id: true,
+      displayName: true,
+      slug: true,
+    },
+  },
+} as const;
+
+const orderIds = async (
+  where: SQL | undefined,
+  sort: AdminBookSort | null,
+  limit: number,
+  offset: number,
+) => {
+  const tie = asc(books.id);
+  if (!sort) {
+    return db
+      .select({ id: books.id })
+      .from(books)
+      .where(where)
+      .orderBy(desc(books.createdAt), tie)
+      .limit(limit)
+      .offset(offset);
+  }
+
+  if (sort.column === "title") {
+    const titleOrder =
+      sort.dir === "desc"
+        ? sql`lower(${books.title}) DESC`
+        : sql`lower(${books.title}) ASC`;
+    return db
+      .select({ id: books.id })
+      .from(books)
+      .where(where)
+      .orderBy(titleOrder, tie)
+      .limit(limit)
+      .offset(offset);
+  }
+
+  if (sort.column === "releaseDate") {
+    const dateOrder =
+      sort.dir === "desc"
+        ? sql`${books.releaseDate} DESC NULLS LAST`
+        : sql`${books.releaseDate} ASC NULLS LAST`;
+    return db
+      .select({ id: books.id })
+      .from(books)
+      .where(where)
+      .orderBy(dateOrder, tie)
+      .limit(limit)
+      .offset(offset);
+  }
+
+  if (sort.column === "artist" || sort.column === "publisher") {
+    const creator = alias(
+      creators,
+      sort.column === "artist" ? "admin_book_artist" : "admin_book_publisher",
+    );
+    const fk = sort.column === "artist" ? books.artistId : books.publisherId;
+    const nameOrder =
+      sort.dir === "desc"
+        ? sql`lower(${creator.displayName}) DESC NULLS LAST`
+        : sql`lower(${creator.displayName}) ASC NULLS LAST`;
+    return db
+      .select({ id: books.id })
+      .from(books)
+      .leftJoin(creator, eq(fk, creator.id))
+      .where(where)
+      .orderBy(nameOrder, tie)
+      .limit(limit)
+      .offset(offset);
+  }
+
+  const metric =
+    sort.column === "views"
+      ? bookViews
+      : sort.column === "favorites"
+        ? wishlists
+        : purchaseClicks;
+  const metricCount = sql<number>`count(${metric.bookId})`;
+  return db
+    .select({ id: books.id })
+    .from(books)
+    .leftJoin(metric, eq(metric.bookId, books.id))
+    .where(where)
+    .groupBy(books.id)
+    .orderBy(sort.dir === "desc" ? desc(metricCount) : asc(metricCount), tie)
+    .limit(limit)
+    .offset(offset);
+};
+
 export const getAllBooksAdmin = async (
   currentPage: number = 1,
   searchQuery?: string,
   status?: "approved" | "pending" | "rejected" | undefined,
+  sort: AdminBookSort | null = null,
 ) => {
   try {
     let creatorIds: string[] = [];
@@ -83,30 +198,19 @@ export const getAllBooksAdmin = async (
       30,
     );
 
+    const idRows = await orderIds(whereCondition, sort, limit, offset);
+    const bookIds = idRows.map((row) => row.id);
+    if (bookIds.length === 0) return ok({ books: [], totalPages, page });
+
     const foundBooks = await db.query.books.findMany({
-      where: whereCondition,
-      orderBy: (books, { desc }) => [desc(books.createdAt)],
-      limit: limit,
-      offset: offset,
-      with: {
-        bookOfTheDay: true,
-        artist: {
-          columns: {
-            id: true,
-            displayName: true,
-            slug: true,
-          },
-        },
-        publisher: {
-          columns: {
-            id: true,
-            displayName: true,
-            slug: true,
-          },
-        },
-      },
+      where: inArray(books.id, bookIds),
+      with: adminBookWith,
     });
-    return ok({ books: foundBooks, totalPages, page });
+    const byId = new Map(foundBooks.map((book) => [book.id, book]));
+    const ordered = bookIds
+      .map((id) => byId.get(id))
+      .filter((book) => book !== undefined);
+    return ok({ books: ordered, totalPages, page });
   } catch (error) {
     console.error("Failed to get all books", error);
     return err({ reason: "Failed to get all books", cause: error });

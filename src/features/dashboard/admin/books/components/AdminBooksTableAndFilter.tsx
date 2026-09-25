@@ -16,6 +16,12 @@ import {
 import PublishToggleForm from "../../../books/components/PublishToggleForm";
 import BookStatusForm from "../forms/BookStatusForm";
 import { getAllBooksAdmin } from "../services";
+import {
+  adminBookSortHref,
+  parseAdminBookSort,
+  type AdminBookSort,
+  type AdminBookSortColumn,
+} from "../sort";
 import { BookWithAdminRelations } from "../types";
 import BookApprovalStatusPill from "./BookApprovalStatusPill";
 import { deleteRowAttrs } from "@/lib/utils";
@@ -24,6 +30,8 @@ type Props = {
   status?: "approved" | "pending" | "rejected" | undefined;
   currentPage: number;
   searchQuery?: string;
+  sort?: string;
+  dir?: string;
   currentPath: string;
   user: AuthUser | null;
   isMobile: boolean;
@@ -33,14 +41,18 @@ const AdminBooksTableAndFilter = async ({
   status = undefined,
   currentPage,
   searchQuery,
+  sort,
+  dir,
   currentPath,
   user,
   isMobile,
 }: Props) => {
+  const bookSort = parseAdminBookSort(sort, dir);
   const [error, result] = await getAllBooksAdmin(
     currentPage,
     searchQuery,
     status,
+    bookSort,
   );
 
   if (error) return <div>{error.reason}</div>;
@@ -83,18 +95,65 @@ const AdminBooksTableAndFilter = async ({
         class="flex flex-col gap-4"
         x-ref="paginationContent"
       >
-        <BookStatusForm status={status} />
+        <BookStatusForm
+          status={status}
+          searchQuery={searchQuery}
+          sort={bookSort?.column}
+          dir={bookSort?.dir}
+        />
         <Table id="books-table">
           <Table.Head>
             <tr>
               <Table.HeadRow>Cover</Table.HeadRow>
-              <Table.HeadRow>Title</Table.HeadRow>
-              <Table.HeadRow>Artist</Table.HeadRow>
-              <Table.HeadRow>Publisher</Table.HeadRow>
-              <Table.HeadRow>Release Date</Table.HeadRow>
-              <Table.HeadRow>Views</Table.HeadRow>
-              <Table.HeadRow>Favorited</Table.HeadRow>
-              <Table.HeadRow>Outbound clicks</Table.HeadRow>
+              <SortableHead
+                column="title"
+                label="Title"
+                sort={bookSort}
+                searchQuery={searchQuery}
+                status={status}
+              />
+              <SortableHead
+                column="artist"
+                label="Artist"
+                sort={bookSort}
+                searchQuery={searchQuery}
+                status={status}
+              />
+              <SortableHead
+                column="publisher"
+                label="Publisher"
+                sort={bookSort}
+                searchQuery={searchQuery}
+                status={status}
+              />
+              <SortableHead
+                column="releaseDate"
+                label="Release Date"
+                sort={bookSort}
+                searchQuery={searchQuery}
+                status={status}
+              />
+              <SortableHead
+                column="views"
+                label="Views"
+                sort={bookSort}
+                searchQuery={searchQuery}
+                status={status}
+              />
+              <SortableHead
+                column="favorites"
+                label="Favorited"
+                sort={bookSort}
+                searchQuery={searchQuery}
+                status={status}
+              />
+              <SortableHead
+                column="outboundClicks"
+                label="Outbound clicks"
+                sort={bookSort}
+                searchQuery={searchQuery}
+                status={status}
+              />
               <Table.HeadRow>Status</Table.HeadRow>
               <Table.HeadRow>Publish</Table.HeadRow>
               <Table.HeadRow>Actions</Table.HeadRow>
@@ -123,6 +182,37 @@ const AdminBooksTableAndFilter = async ({
 };
 
 export default AdminBooksTableAndFilter;
+
+const SortableHead = ({
+  column,
+  label,
+  sort,
+  searchQuery,
+  status,
+}: {
+  column: AdminBookSortColumn;
+  label: string;
+  sort: AdminBookSort | null;
+  searchQuery?: string;
+  status?: string;
+}) => {
+  const active = sort?.column === column;
+  return (
+    <Table.HeadRow
+      aria-sort={
+        active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"
+      }
+    >
+      <a
+        href={adminBookSortHref(column, sort, { search: searchQuery, status })}
+        class="inline-flex items-center gap-1 hover:underline"
+      >
+        {label}
+        {active ? (sort.dir === "asc" ? "↑" : "↓") : ""}
+      </a>
+    </Table.HeadRow>
+  );
+};
 
 type BooksTableRowProps = {
   book: BookWithAdminRelations;

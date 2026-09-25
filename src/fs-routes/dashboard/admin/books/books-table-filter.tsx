@@ -3,6 +3,7 @@ import { getUser } from "../../../../utils";
 import { Context } from "hono";
 import AdminBooksTableAndFilter from "../../../../features/dashboard/admin/books/components/AdminBooksTableAndFilter";
 import { getIsMobile } from "../../../../lib/device";
+import { paginationRequestBaseUrl } from "../../../../lib/pagination";
 
 export const GET = createRoute(async (c: Context) => {
   const rawStatus = c.req.query("status");
@@ -13,7 +14,7 @@ export const GET = createRoute(async (c: Context) => {
       ? rawStatus
       : undefined;
   const currentPage = Number(c.req.query("page") ?? 1);
-  const currentPath = c.req.path;
+  const currentPath = paginationRequestBaseUrl(c.req.url);
   const searchQuery = c.req.query("search");
   const user = await getUser(c);
   const isMobile = getIsMobile(c.req.header("user-agent") ?? "");
@@ -24,6 +25,8 @@ export const GET = createRoute(async (c: Context) => {
       status={status}
       currentPage={currentPage}
       searchQuery={searchQuery}
+      sort={c.req.query("sort")}
+      dir={c.req.query("dir")}
       currentPath={currentPath}
       isMobile={isMobile}
     />,

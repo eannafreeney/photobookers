@@ -2,15 +2,23 @@ import { capitalize } from "../../../../../utils";
 
 type Props = {
   status?: "approved" | "pending" | "rejected" | undefined;
+  searchQuery?: string;
+  sort?: string;
+  dir?: string;
 };
 
-const BookStatusForm = ({ status }: Props) => {
+const BookStatusForm = ({ status, searchQuery, sort, dir }: Props) => {
   return (
     <form
       action="/dashboard/admin/books/books-table-filter"
       x-target="books-table-container"
       class="w-full flex items-center justify-center gap-2"
     >
+      {searchQuery ? (
+        <input type="hidden" name="search" value={searchQuery} />
+      ) : null}
+      {sort ? <input type="hidden" name="sort" value={sort} /> : null}
+      {dir ? <input type="hidden" name="dir" value={dir} /> : null}
       <FilterButton status={status} value="approved" />
       <FilterButton status={status} value="pending" />
       <FilterButton status={status} value="rejected" />

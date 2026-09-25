@@ -9,6 +9,9 @@ type Props = {
   currentPath: string;
   currentPage: number;
   searchQuery?: string;
+  status?: "approved" | "pending" | "rejected";
+  sort?: string;
+  dir?: string;
   user: AuthUser | null;
   isMobile: boolean;
 };
@@ -17,6 +20,9 @@ const AdminBooksTableContainer = async ({
   currentPath,
   currentPage,
   searchQuery,
+  status,
+  sort,
+  dir,
   user,
   isMobile,
 }: Props) => {
@@ -29,6 +35,7 @@ const AdminBooksTableContainer = async ({
             target="books-table-container"
             action="/dashboard/admin/books"
             placeholder="Filter books..."
+            hidden={{ status, sort, dir }}
           />
           <Link href="/dashboard/admin/books/create">
             <Button variant="solid" color="primary">
@@ -42,6 +49,9 @@ const AdminBooksTableContainer = async ({
         currentPath={currentPath}
         currentPage={currentPage}
         searchQuery={searchQuery}
+        status={status}
+        sort={sort}
+        dir={dir}
         isMobile={isMobile}
       />
     </div>
