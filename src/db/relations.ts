@@ -31,11 +31,15 @@ import {
   printers,
   publisherOfTheWeek,
   purchaseClicks,
+  bookReviews,
+  bookReviewAvailability,
+  reviewRequests,
+  reviewerProfiles,
   users,
   wishlists,
 } from "./schema";
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   creators: many(creators),
   createdBooks: many(books, { relationName: "bookCreator" }),
   submittedBooks: many(books, { relationName: "bookSubmitter" }),
@@ -46,6 +50,12 @@ export const usersRelations = relations(users, ({ many }) => ({
   bookLists: many(bookLists),
   claims: many(creatorClaims),
   comments: many(bookComments),
+  reviewerProfile: one(reviewerProfiles, {
+    fields: [users.id],
+    references: [reviewerProfiles.userId],
+  }),
+  reviews: many(bookReviews),
+  reviewRequests: many(reviewRequests),
   createdFairs: many(bookFairs),
   createdStores: many(bookStores),
   posts: many(posts),
@@ -123,6 +133,12 @@ export const booksRelations = relations(books, ({ one, many }) => ({
     relationName: "bookSubmitter",
   }),
   comments: many(bookComments),
+  reviews: many(bookReviews),
+  reviewRequests: many(reviewRequests),
+  reviewAvailability: one(bookReviewAvailability, {
+    fields: [books.id],
+    references: [bookReviewAvailability.bookId],
+  }),
   images: many(bookImages),
   wishlists: many(wishlists),
   bookListItems: many(bookListItems),
@@ -179,6 +195,52 @@ export const bookImagesRelations = relations(bookImages, ({ one }) => ({
   book: one(books, {
     fields: [bookImages.bookId],
     references: [books.id],
+  }),
+}));
+
+export const reviewerProfilesRelations = relations(
+  reviewerProfiles,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [reviewerProfiles.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const bookReviewAvailabilityRelations = relations(
+  bookReviewAvailability,
+  ({ one }) => ({
+    book: one(books, {
+      fields: [bookReviewAvailability.bookId],
+      references: [books.id],
+    }),
+  }),
+);
+
+export const bookReviewsRelations = relations(bookReviews, ({ one }) => ({
+  book: one(books, {
+    fields: [bookReviews.bookId],
+    references: [books.id],
+  }),
+  user: one(users, {
+    fields: [bookReviews.userId],
+    references: [users.id],
+  }),
+}));
+
+export const reviewRequestsRelations = relations(reviewRequests, ({ one }) => ({
+  book: one(books, {
+    fields: [reviewRequests.bookId],
+    references: [books.id],
+  }),
+  user: one(users, {
+    fields: [reviewRequests.userId],
+    references: [users.id],
+  }),
+  review: one(bookReviews, {
+    fields: [reviewRequests.reviewId],
+    references: [bookReviews.id],
   }),
 }));
 

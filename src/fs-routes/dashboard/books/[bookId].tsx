@@ -46,6 +46,7 @@ import {
   resolveBookPrinter,
   setBookPrinter,
 } from "../../../features/dashboard/books/printedAt";
+import { isAvailableForReview } from "../../../domain/reviews/services";
 
 export const GET = createRoute(
   paramValidator(bookIdSchema),
@@ -86,6 +87,7 @@ export const GET = createRoute(
       book.approvalStatus === "rejected" ? "submit_for_review" : "save";
 
     const defaultTab = c.req.query("tab") === "images" ? "images" : "info";
+    const availableForReview = await isAvailableForReview(book.id);
 
     return c.html(
       <AppLayout
@@ -171,6 +173,23 @@ export const GET = createRoute(
               <Tabs.Link tabId="images">Images</Tabs.Link>
             </Tabs.LinkContainer>
             <Tabs.Panel tabId="info">
+              <FormPost
+                action={`/dashboard/books/${book.id}/available-for-review`}
+                className="mb-6 flex items-center gap-3"
+              >
+                <label class="flex items-center gap-2 text-sm text-on-surface">
+                  <input
+                    type="checkbox"
+                    name="available"
+                    value="on"
+                    {...(availableForReview ? { checked: true } : {})}
+                  />
+                  Offer a review copy
+                </label>
+                <Button variant="outline" color="primary" width="fit">
+                  Save
+                </Button>
+              </FormPost>
               <BookForm
                 action={`/dashboard/books/${book.id}`}
                 bookId={book.id}

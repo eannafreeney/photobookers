@@ -8,6 +8,7 @@ import {
   lightbulbIcon,
   libraryIcon,
   mailIcon,
+  editIcon,
   usersIcon,
   emptyHeartIcon,
 } from "../../../../lib/icons";
@@ -66,6 +67,14 @@ const NavTabs = ({
       <NavLink href="/dashboard/guide" currentPath={currentPath}>
         {lightbulbIcon(5)}
         Guide
+      </NavLink>
+      <NavLink href="/dashboard/reviewer" currentPath={currentPath}>
+        {editIcon(5)}
+        Reviews
+      </NavLink>
+      <NavLink href="/dashboard/review-requests" currentPath={currentPath}>
+        {mailIcon(5)}
+        Requests
       </NavLink>
     </nav>
   );

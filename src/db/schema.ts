@@ -36,6 +36,7 @@ import {
   interviewTypeEnum,
   magazineIssueStatusEnum,
   newsletterCampaignStatusEnum,
+  reviewRequestStatusEnum,
   purchaseClickSourceEnum,
 } from "./enums";
 
@@ -308,6 +309,79 @@ export const bookImages = pgTable("book_images", {
   sortOrder: integer("sort_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const reviewerProfiles = pgTable("reviewer_profiles", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  displayName: text("display_name").notNull(),
+  bio: text("bio"),
+  website: text("website"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+/** Row present means the creator is offering a review copy. */
+export const bookReviewAvailability = pgTable("book_review_availability", {
+  bookId: uuid("book_id")
+    .primaryKey()
+    .references(() => books.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const bookReviews = pgTable(
+  "book_reviews",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bookId: uuid("book_id")
+      .references(() => books.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    externalUrl: text("external_url"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueUserBook: unique("book_reviews_user_book").on(
+      table.bookId,
+      table.userId,
+    ),
+    bookIdx: index("book_reviews_book_id_idx").on(table.bookId),
+    userIdx: index("book_reviews_user_id_idx").on(table.userId),
+  }),
+);
+
+export const reviewRequests = pgTable(
+  "review_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bookId: uuid("book_id")
+      .references(() => books.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    status: reviewRequestStatusEnum("status").notNull().default("requested"),
+    note: text("note"),
+    reviewId: uuid("review_id").references(() => bookReviews.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    uniqueUserBook: unique("review_requests_user_book").on(
+      table.bookId,
+      table.userId,
+    ),
+    bookIdx: index("review_requests_book_id_idx").on(table.bookId),
+  }),
+);
 
 export const bookComments = pgTable("book_comments", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -1085,4 +1159,11 @@ export type {
   NewMagazineIssueBook,
   PublisherReleaseWatchSeen,
   NewPublisherReleaseWatchSeen,
+  ReviewerProfile,
+  NewReviewerProfile,
+  BookReview,
+  NewBookReview,
+  ReviewRequest,
+  NewReviewRequest,
+  ReviewRequestStatus,
 } from "./types";

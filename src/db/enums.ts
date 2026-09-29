@@ -105,3 +105,11 @@ export const magazineIssueStatusEnum = pgEnum("magazine_issue_status", [
   "approved",
   "published",
 ]);
+
+export const reviewRequestStatusEnum = pgEnum("review_request_status", [
+  "requested",
+  "approved",
+  "declined",
+  "sent",
+  "reviewed",
+]);

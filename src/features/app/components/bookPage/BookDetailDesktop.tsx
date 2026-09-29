@@ -6,6 +6,7 @@ import CommentsSection from "../CommentsSection";
 import Divider from "../../../../components/Divider";
 import BookCredits from "./BookCredits";
 import BookPressSection from "./BookPressSection";
+import BookReviewsSection from "./BookReviewsSection";
 import BookPurchaseBlock from "./BookPurchaseBlock";
 import { bookShareText, bookShareTitle } from "../../../../lib/share";
 import { bookUrl } from "../../spotlightUrls";
@@ -96,6 +97,13 @@ const BookDetailDesktop = ({ galleryImages, book, user, spotlightKicker }: BookD
               />
               <TagList tags={book.tags ?? []} />
               {showPress ? <BookPressSection links={book.pressLinks} /> : null}
+              <BookReviewsSection
+                bookId={book.id}
+                bookSlug={book.slug}
+                artistOwnerUserId={book.artist?.ownerUserId}
+                publisherOwnerUserId={book.publisher?.ownerUserId}
+                user={user}
+              />
               <CommentsSection
                 bookId={book.id}
                 user={user}

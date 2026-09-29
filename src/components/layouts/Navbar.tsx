@@ -37,6 +37,9 @@ const Navbar = ({ currentPath, user, adminEditHref }: NavbarProps) => {
           <NavLink href="/creators" currentPath={currentPath} variant="nav">
             Creators
           </NavLink>
+          <NavLink href="/reviews" currentPath={currentPath} variant="nav">
+            Reviews
+          </NavLink>
           {user && (
             <>
               <NavLink href="/feed" currentPath={currentPath} variant="nav">

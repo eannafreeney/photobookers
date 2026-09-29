@@ -5,6 +5,7 @@ import {
   analyticsIcon,
   bookIcon,
   lightbulbIcon,
+  editIcon,
   libraryIcon,
   mailIcon,
   plusIcon,
@@ -52,6 +53,10 @@ const CollectorDashboardShell = ({
         <NavLink href="/dashboard/guide" currentPath={currentPath}>
           {lightbulbIcon(5)}
           Guide
+        </NavLink>
+        <NavLink href="/dashboard/reviewer" currentPath={currentPath}>
+          {editIcon(5)}
+          Reviews
         </NavLink>
       </nav>
 

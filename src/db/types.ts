@@ -36,6 +36,9 @@ import {
   magazineIssues,
   magazineIssueBooks,
   publisherReleaseWatchSeen,
+  reviewerProfiles,
+  bookReviews,
+  reviewRequests,
 } from "./schema";
 import {
   magazineIssueStatusEnum,
@@ -59,6 +62,7 @@ import {
   interviewTypeEnum,
   newsletterCampaignStatusEnum,
   purchaseClickSourceEnum,
+  reviewRequestStatusEnum,
 } from "./enums";
 
 export type BookPressLink = {
@@ -199,3 +203,11 @@ export type PublisherReleaseWatchSeen = InferSelectModel<
 export type NewPublisherReleaseWatchSeen = InferInsertModel<
   typeof publisherReleaseWatchSeen
 >;
+export type ReviewerProfile = InferSelectModel<typeof reviewerProfiles>;
+export type NewReviewerProfile = InferInsertModel<typeof reviewerProfiles>;
+export type BookReview = InferSelectModel<typeof bookReviews>;
+export type NewBookReview = InferInsertModel<typeof bookReviews>;
+export type ReviewRequest = InferSelectModel<typeof reviewRequests>;
+export type NewReviewRequest = InferInsertModel<typeof reviewRequests>;
+export type ReviewRequestStatus =
+  (typeof reviewRequestStatusEnum.enumValues)[number];

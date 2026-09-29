@@ -29,6 +29,11 @@ import PostCard from "../../../features/collectors/components/PostCard";
 import CollectorFollowButton from "../../../features/api/components/CollectorFollowButton";
 import ShelfListsSection from "../../../features/app/components/ShelfListsSection";
 import VerificationBadge from "../../../components/app/VerificationBadge";
+import ReviewCard from "../../../features/app/components/ReviewCard";
+import {
+  getReviewerProfile,
+  listReviewsByUser,
+} from "../../../domain/reviews/services";
 
 export const GET = createRoute(
   paramValidator(slugSchema),
@@ -81,6 +86,10 @@ export const GET = createRoute(
       );
     }
     const contributions = await getPublishedContributionsByUserId(owner.id);
+    const reviewerProfile = (await getReviewerProfile(owner.id))[1];
+    const shelfReviews = reviewerProfile
+      ? []
+      : ((await listReviewsByUser(owner.id))[1] ?? []);
 
     const title = pageTitle(`${owner.displayName}'s shelf`);
     const description = shelfDescription(
@@ -158,6 +167,14 @@ export const GET = createRoute(
                       Also a creator → {owner.creator.displayName}
                     </a>
                   ) : null}
+                  {reviewerProfile ? (
+                    <a
+                      href={`/reviewers/${reviewerProfile.slug}`}
+                      class="text-sm text-accent underline underline-offset-2"
+                    >
+                      Reviews → {reviewerProfile.displayName}
+                    </a>
+                  ) : null}
                 </div>
               </div>
               <div
@@ -211,6 +228,16 @@ export const GET = createRoute(
                   {`Posts (${posts.length})`}
                 </button>
               )}
+              {shelfReviews.length > 0 ? (
+                <button
+                  type="button"
+                  x-on:click="tab = 'reviews'"
+                  x-bind:class="tab === 'reviews' ? 'border-b-2 border-accent text-on-surface-strong' : 'text-on-surface-weak'"
+                  class="px-3 py-2 text-sm font-medium cursor-pointer"
+                >
+                  {`Reviews (${shelfReviews.length})`}
+                </button>
+              ) : null}
               <button
                 type="button"
                 x-on:click="tab = 'contributions'"
@@ -257,6 +284,18 @@ export const GET = createRoute(
                     />
                   ))
                 )}
+              </div>
+            ) : null}
+
+            {shelfReviews.length > 0 ? (
+              <div
+                x-show="tab === 'reviews'"
+                x-cloak
+                class="mx-auto flex w-full max-w-2xl flex-col gap-4"
+              >
+                {shelfReviews.map((review) => (
+                  <ReviewCard review={review} />
+                ))}
               </div>
             ) : null}
 

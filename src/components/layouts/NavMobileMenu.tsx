@@ -127,6 +127,9 @@ const MobileDropDownMenu = ({
       <NavLink href="/creators" currentPath={currentPath}>
         Creators
       </NavLink>
+      <NavLink href="/reviews" currentPath={currentPath}>
+        Reviews
+      </NavLink>
 
       <NavLink href="/feed" currentPath={currentPath}>
         Feed

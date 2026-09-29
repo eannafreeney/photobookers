@@ -8,6 +8,7 @@ import CommentsSection from "../CommentsSection";
 import Divider from "../../../../components/Divider";
 import BookCredits from "./BookCredits";
 import BookPressSection from "./BookPressSection";
+import BookReviewsSection from "./BookReviewsSection";
 import BookPurchaseBlock from "./BookPurchaseBlock";
 import PageBleed from "../../../../components/layouts/PageBleed";
 import Tabs from "../../../../components/app/Tabs";
@@ -58,6 +59,13 @@ const BookDetailMobile = ({
           )}
           <TagList tags={book.tags ?? []} />
           {showPress ? <BookPressSection links={book.pressLinks} /> : null}
+          <BookReviewsSection
+            bookId={book.id}
+            bookSlug={book.slug}
+            artistOwnerUserId={book.artist?.ownerUserId}
+            publisherOwnerUserId={book.publisher?.ownerUserId}
+            user={user}
+          />
           <BookCredits
             releaseDate={book.releaseDate}
             submittedByUser={book.submittedByUser}
