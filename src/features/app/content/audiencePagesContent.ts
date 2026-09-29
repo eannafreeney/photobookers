@@ -105,7 +105,7 @@ export const audiencePages: Record<AudiencePageId, AudiencePageContent> = {
     ],
     closing:
       "You don't need to know what you want before you arrive. Come to browse, follow what catches your eye, and let your shelf grow over time.",
-    primaryCta: { label: "Create a free account", href: "/auth/accounts" },
+    primaryCta: { label: "Create a free account", href: "/auth/register?type=fan" },
     secondaryCtas: [
       { label: "Browse books", href: "/books" },
       { label: "Join the newsletter", href: "/newsletter" },
@@ -174,7 +174,7 @@ export const audiencePages: Record<AudiencePageId, AudiencePageContent> = {
       "You keep control: your shop, your links, your terms. We help the right people find you.",
     primaryCta: {
       label: "Create a creator account",
-      href: "/auth/register-creator",
+      href: "/auth/register?type=artist",
     },
     secondaryCtas: [
       {
@@ -248,7 +248,7 @@ export const audiencePages: Record<AudiencePageId, AudiencePageContent> = {
       "We are building the place publishers need to be seen — not just listed. Start with your catalog; grow with the community.",
     primaryCta: {
       label: "Create a publisher account",
-      href: "/auth/register-creator",
+      href: "/auth/register?type=publisher",
     },
     secondaryCtas: [
       { label: "Get help importing your catalog", href: "/contact" },
