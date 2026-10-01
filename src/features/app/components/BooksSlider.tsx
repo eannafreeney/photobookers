@@ -15,7 +15,7 @@ const BooksSlider = ({ books, user }: Props) => (
           key={book.id}
           book={book}
           user={user}
-          className="w-[280px] shrink-0"
+          className="w-70 shrink-0"
         />
       ))}
     </div>
