@@ -41,9 +41,10 @@ const normalizeSlug = (value: string) =>
   value
     .toLowerCase()
     .trim()
-    .replace(/-+/g, "-") // collapse repeated hyphens
-    .replace(/_+/g, "_") // collapse repeated underscores
-    .replace(/^[-_]|[-_]$/g, ""); // remove leading/trailing separators
+    // Collapse any separator run (`_-`, `--`, `__`) so legacy slugs like
+    // `signs_-marta-bevacqua` still resolve after slugify was fixed.
+    .replace(/[-_]{2,}/g, "-")
+    .replace(/^[-_]+|[-_]+$/g, "");
 
 export const slugSchema = z.object({
   slug: z

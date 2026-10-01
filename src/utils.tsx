@@ -41,8 +41,10 @@ export const slugify = (title: string, artist?: string) =>
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^\w-]/g, "")
-    .replace(/-+/g, "-") // collapse repeated hyphens
-    .replace(/^-|-$/g, ""); // trim leading/trailing hyphens
+    // Title trailing `_` + artist join (`Signs_` → `signs_-marta`) must not
+    // leave consecutive separators — slugSchema rejects those.
+    .replace(/[-_]{2,}/g, "-")
+    .replace(/^[-_]+|[-_]+$/g, "");
 
 export async function generateUniqueBookSlug(
   title: string,

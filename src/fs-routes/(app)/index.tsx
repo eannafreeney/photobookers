@@ -128,12 +128,34 @@ export const GET = createRoute(async (c: Context) => {
           </PageBleed>
         </ScrollReveal>
         <ScrollReveal>
-          <Intersector
-            id="latest-books-fragment"
-            endpoint="/fragments/latest-books"
-          >
-            <SectionSkeleton variant="grid" />
-          </Intersector>
+          <PageBleed>
+            <Intersector
+              id="books-slider-trending"
+              endpoint="/fragments/latest-books?sort=trending"
+            >
+              <SectionSkeleton variant="cards" />
+            </Intersector>
+          </PageBleed>
+        </ScrollReveal>
+        <ScrollReveal>
+          <PageBleed>
+            <Intersector
+              id="books-slider-newest"
+              endpoint="/fragments/latest-books?sort=newest"
+            >
+              <SectionSkeleton variant="cards" />
+            </Intersector>
+          </PageBleed>
+        </ScrollReveal>
+        <ScrollReveal>
+          <PageBleed>
+            <Intersector
+              id="books-slider-latest"
+              endpoint="/fragments/latest-books?sort=latest"
+            >
+              <SectionSkeleton variant="cards" />
+            </Intersector>
+          </PageBleed>
         </ScrollReveal>
         {/* <ScrollReveal>
           <Intersector id="fairs-fragment" endpoint="/fragments/fairs">

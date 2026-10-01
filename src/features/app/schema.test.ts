@@ -30,6 +30,12 @@ describe("slugSchema", () => {
     ).toEqual({ slug: "status_01-schloss-tylsen-hans-schlimbach" });
   });
 
+  it("normalizes consecutive separators from legacy slugs", () => {
+    expect(slugSchema.parse({ slug: "signs_-marta-bevacqua" })).toEqual({
+      slug: "signs-marta-bevacqua",
+    });
+  });
+
   it("rejects slugs with invalid characters", () => {
     expect(() => slugSchema.parse({ slug: "bad slug!" })).toThrow();
   });

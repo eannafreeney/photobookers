@@ -34,4 +34,18 @@ describe("slugify", () => {
       expect(() => slugSchema.parse({ slug })).not.toThrow();
     }
   });
+
+  it("collapses title-trailing underscore before the artist join", () => {
+    // Real title is "Signs_" (Setanta); must not produce signs_-marta-bevacqua.
+    expect(slugify("Signs_", "marta-bevacqua")).toBe("signs-marta-bevacqua");
+    expect(() =>
+      slugSchema.parse({ slug: slugify("Signs_", "marta-bevacqua") }),
+    ).not.toThrow();
+  });
+
+  it("keeps a single underscore inside a title segment", () => {
+    expect(slugify("status_01", "hans-schlimbach")).toBe(
+      "status_01-hans-schlimbach",
+    );
+  });
 });

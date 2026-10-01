@@ -1,95 +1,62 @@
 import { createRoute } from "hono-fsr";
-import SectionTitle from "../../../components/app/SectionTitle";
-import { BOOKS_CATALOG_TARGET_ID } from "../../../features/app/components/BookFilters";
-import BooksGridWithFilters from "../../../features/app/components/BookGridWithFilters";
+import SectionHeader from "../../../components/app/SectionHeader";
+import Button from "../../../components/app/Button";
+import BooksSlider from "../../../features/app/components/BooksSlider";
 import ViewAllLink from "../../../features/app/components/ViewAllLink";
 import { getFilteredBooks } from "../../../features/app/services";
-import { BOOK_CATALOG_DEFAULT_SORT } from "../../../lib/bookCatalogSort";
+import {
+  BOOK_CATALOG_DEFAULT_SORT,
+  type BookCatalogSort,
+} from "../../../lib/bookCatalogSort";
 import { booksFilterUrl, resolveBookCatalogSort } from "../../../lib/tags";
 import { getUser } from "../../../utils";
-import BooksGrid from "@/features/app/components/BooksGrid";
-import Button from "@/components/app/Button";
 
 const FEATURED_BOOKS_LIMIT = 12;
-const FRAGMENT_PATH = "/fragments/latest-books";
+
+const SECTION_COPY: Record<BookCatalogSort, { kicker: string; title: string }> =
+  {
+    trending: { kicker: "What's Hot", title: "Trending Books" },
+    newest: { kicker: "By Release", title: "New Books" },
+    latest: { kicker: "Just Added", title: "Latest Books" },
+  };
 
 export const GET = createRoute(async (c) => {
   const user = await getUser(c);
-  const tag = c.req.query("tag") ?? null;
-  const query = c.req.query("q") ?? null;
   const sort = resolveBookCatalogSort(
     c.req.query("sort"),
     BOOK_CATALOG_DEFAULT_SORT,
   );
-  const isFiltered = Boolean(tag?.trim() || (query?.trim()?.length ?? 0) >= 3);
   const viewAllHref = booksFilterUrl("/books", {
-    tag,
-    query,
     sort,
     defaultSort: BOOK_CATALOG_DEFAULT_SORT,
   });
+  const { kicker, title } = SECTION_COPY[sort];
+  const fragmentId = `books-slider-${sort}`;
 
   const [error, result] = await getFilteredBooks({
-    tag,
-    query,
     page: 1,
     limit: FEATURED_BOOKS_LIMIT,
     sort,
   });
 
-  if (error || !result) return c.html(<></>);
-
-  const hasMore = result.totalPages > 1;
-  const gridProps = {
-    user,
-    tag,
-    query,
-    sort,
-    defaultSort: BOOK_CATALOG_DEFAULT_SORT,
-    currentPath: viewAllHref,
-    result,
-    isFiltered,
-    isInfiniteScroll: false,
-    ajaxPath: FRAGMENT_PATH,
-    historyPath: null,
-    hasMore,
-    viewAllHref,
-  };
-
-  if (c.req.query("fragment") === "grid") {
-    return c.html(
-      <div id={BOOKS_CATALOG_TARGET_ID} x-merge="replace">
-        <BooksGridWithFilters {...gridProps} />
-      </div>,
-    );
-  }
+  if (error || !result?.books.length) return c.html(<></>);
 
   return c.html(
-    <div id="latest-books-fragment">
-      <div class="flex items-end justify-between mb-3 border-t-2 border-on-surface-strong pt-3">
-        <SectionTitle className="mb-0" kicker="What's New?">
-          Trending Books
-        </SectionTitle>
-        <ViewAllLink href="/books" />
-      </div>
-      <BooksGrid
-        isPaginated={false}
-        user={user}
-        currentPath={viewAllHref}
-        result={result}
-        noResultsMessage={
-          isFiltered ? "No books match your filters." : undefined
-        }
-      />
-      {hasMore || viewAllHref ? (
-        <div class="mt-8 flex justify-center">
-          <a href={viewAllHref}>
-            <Button variant="solid" color="primary" width="xl">
-              View All Books →
-            </Button>
-          </a>
-        </div>
-      ) : null}
+    <div id={fragmentId}>
+      <SectionHeader
+        kicker={kicker}
+        action={<ViewAllLink href={viewAllHref} />}
+      >
+        {title}
+      </SectionHeader>
+      <BooksSlider books={result.books} user={user} />
+      {/* <div class="mt-8 flex justify-center md:hidden">
+        <a href={viewAllHref}>
+          <Button variant="solid" color="primary" width="xl">
+            View All Books →
+          </Button>
+        </a>
+      </div> */}
     </div>,
   );
 });

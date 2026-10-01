@@ -689,7 +689,8 @@ const findCatalogBooks = async ({
   offset: number;
   sort: BookCatalogSort;
 }) => {
-  if (sort === "newest") {
+  // newest / latest are date sorts; only trending needs the views join.
+  if (sort !== "trending") {
     return db.query.books.findMany({
       columns: BOOK_CARD_COLUMNS,
       where,
@@ -701,20 +702,14 @@ const findCatalogBooks = async ({
   }
 
   const viewCount = sql<number>`coalesce(count(${bookViews.id}), 0)`;
-  const orderBy =
-    sort === "trending"
-      ? [desc(viewCount), desc(books.id)]
-      : [asc(viewCount), asc(books.id)];
+  const orderBy = [desc(viewCount), desc(books.id)];
 
   // Trending ranks by views in the last BOOK_CATALOG_TRENDING_DAYS; keep the
   // date filter on the JOIN so zero-view books still appear via LEFT JOIN.
-  const viewJoin =
-    sort === "trending"
-      ? and(
-          eq(bookViews.bookId, books.id),
-          gte(bookViews.createdAt, catalogTrendingSince()),
-        )
-      : eq(bookViews.bookId, books.id);
+  const viewJoin = and(
+    eq(bookViews.bookId, books.id),
+    gte(bookViews.createdAt, catalogTrendingSince()),
+  );
 
   const idRows = await db
     .select({ id: books.id })
