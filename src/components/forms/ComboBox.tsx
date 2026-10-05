@@ -116,7 +116,7 @@ const DropdownList = ({
           Add "<span x-text="searchQuery"></span>" as new {type}
         </li>
 
-        <template x-for="(item, index) in options" x-bind:key="item.label">
+        <template x-for="(item, index) in options" x-bind:key="item.id">
           <li
             class="combobox-option inline-flex justify-between gap-6 bg-surface-alt px-4 py-2 text-sm focus-visible:bg-surface-alt focus-visible:outline-none cursor-pointer hover:bg-surface"
             tabindex={0}
