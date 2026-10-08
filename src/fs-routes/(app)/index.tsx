@@ -76,14 +76,14 @@ export const GET = createRoute(async (c: Context) => {
 
         {!user ? <HomepageAudiencePitch /> : null}
 
-        {/* <ScrollReveal>
+        <ScrollReveal>
           <Intersector
             id="recent-activity-fragment"
             endpoint="/fragments/recent-activity"
           >
             <SectionSkeleton variant="cards" withHeader={false} />
           </Intersector>
-        </ScrollReveal> */}
+        </ScrollReveal>
 
         {!user ? (
           <ScrollReveal>
