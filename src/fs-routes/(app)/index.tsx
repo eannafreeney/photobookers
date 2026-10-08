@@ -72,10 +72,6 @@ export const GET = createRoute(async (c: Context) => {
           <NewsletterCard />
         </ScrollReveal>
 
-        <MagazineHomepagePromo />
-
-        {!user ? <HomepageAudiencePitch /> : null}
-
         <ScrollReveal>
           <Intersector
             id="recent-activity-fragment"
@@ -84,6 +80,10 @@ export const GET = createRoute(async (c: Context) => {
             <SectionSkeleton variant="cards" withHeader={false} />
           </Intersector>
         </ScrollReveal>
+
+        <MagazineHomepagePromo />
+
+        {!user ? <HomepageAudiencePitch /> : null}
 
         {!user ? (
           <ScrollReveal>
